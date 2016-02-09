@@ -1,0 +1,57 @@
+#ifndef LIBRA_INPUT_HH
+#define LIBRA_INPUT_HH
+
+// prepare infos to initialize the FFD morpher code
+
+     #include <new>
+     #include <cmath> 
+     #include <iostream>
+     #include <fstream>
+     #include <sstream>
+     #include <string>
+     #include <vector>
+     #include <cstdlib>
+     #include <iomanip>
+
+     #include "Operators.hpp"
+
+/*! Read from external file (see template controlDict.dat) and store the most important information necessary to launch the morphing tool */
+class infoCode 
+    {
+      public:
+      std::string tag;              /*!< std::string. Stores the tag of the original geometry file <namefile>.***. Allowed Formats are *.stl (ASCII), *.STL (binary), *.nas (NASTRAN file), *.dgf (DUNE Grid Format), *.vtu (Vtk format for Ascii/Binary Unstructured Grid) */
+      std::string tagC;              /*!< std::string. Stores the tag of the constraint geometry file <namefile>.***. Allowed Formats are *.stl (ASCII), *.STL (binary), *.nas (NASTRAN file) *.dgf (DUNE Grid Format), *.vtu (Vtk format for Ascii/Binary Unstructured Grid) */
+      
+
+      int  chooseCompType;		/*!< Integer pointer. Identifies compenetration control types (rescale by a const scalar with 0, modulate displacements to fit the constraint surface otherwise) */
+      double  compTolerance;    	/*!< Double pointer. Specify absolute distance to constraint geometry that has to be guaranteed */
+
+      std::string geometryNameFile;  /*!< std::string. Name of the geometry file */
+      std::string constraintNameFile;	/*!< std::string. Name of the constraint file */
+      std::string loadfile;        /*!< std::string. Contains the name of the Lattices control dictionary. See template latticesDict.dat */
+      std::string folderGeometry;  /*!< std::string. Identifies the Folder containing geometry files */
+      std::string folderInput;     /*!< std::string. Identifies the Folder containing all control dictionaries */
+      std::string folderResult;    /*!< std::string. Identifies the Folder collecting all morphing main results */
+      std::string folderInsect;    /*!< std::string. Identifies the Folder collecting all morphing accessory results (geodesic SDF, deformability fields, 
+      					vertices of the lattices' Hulls in xyz format) */
+      std::string plotD_filename; /*!< nome of file, output of the plot Distance deformation/constraint option */
+
+      bool   plotDistance; /*!< choose to activate the option of writing on file distance of deformed points/simplicies from a constraint geometry */
+      int    plotD_points;  /*!< indicative number of cells of Cartesian background grid for conStraint geometry level set computation */
+      double plotD_scale;   /*!< scaling factor of constraint geometry bounding box for domain definition of level set background grid */
+
+      bool plotPatches;             /*!< Boolean. If true, activates the option of writing vertices of the Lattice hull box in xyz format */ 
+      bool plotLattice;		    /*!< Boolean. If true, activates the option of writing the Lattices' grids in Paraview *.vtu hexaedrical grids */	
+      bool plotSelection; 	    /*!< Boolean. If true, activates the option of writing Deformable Supports selections in its own native format.
+					 See FFD_Ext::selectingTriangulation function and file template restart_Selection for further details. */      
+      int  chooseRefinement;        /*!< Signed Integer. Define the level of Refinement on tasselations of each Deformable Support only. See SupportMesh class.
+					 If <=0, Refinement is deactivated */
+
+     
+     //Constructor
+     /*!Read initial data form User-supplied external file (see template controlDictionary) and update class members. The External file must be provided in the folder "./Input". */	
+     infoCode(std::string startFile);//read info from startFile and update class members
+     ~infoCode();
+};// end class InfoCode
+
+#endif

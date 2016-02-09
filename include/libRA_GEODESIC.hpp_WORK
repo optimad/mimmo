@@ -1,0 +1,362 @@
+//CLASS SupportMesh
+//
+// define on a patch triangulation the geodesic/biharmonic level set with respect
+// to a user-chosen patch boundary. Once a boundary condition is given,
+// it calculates a shape function for FFD, based on geodesic/biharmonic Distance function.
+
+#ifndef __SUPPORTMESH__HH__
+#define __SUPPORTMESH__HH__
+
+    // Standard C++ library
+    # include <vector>
+    # include <sstream>
+    # include <iostream>
+    # include <algorithm>
+    # include <map>
+
+	# include <ctime>
+	# include <ratio>
+	# include <chrono>
+
+	// SuperLU library
+    #include "slu_ddefs.h"
+
+    // Custom library
+	# include "Class_SurfTri.hpp"
+	# include "CG.hpp"
+	# include "lib_STL_IO.hpp"
+    # include "LevelSet_Geometry.hpp"
+
+class VTK_SM_CLOUD: public VTK_UnstructuredGrid<VTK_SM_CLOUD>
+  {
+  protected:
+ 	 	dvector2D * points;
+  public:
+ 	    VTK_SM_CLOUD();
+ 	    VTK_SM_CLOUD(std::string dir_, std::string name_, std::string cod_, int nP_);
+ 	    ~VTK_SM_CLOUD();
+
+ 	    void linkData(dvector2D &);
+ 	    void unlinkData();
+ 	    void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+ //	    void Absorb(  fstream &str, string codex_, string name  ) ; //CRTP
+  };
+
+class VTK_SM_CURVE: public VTK_UnstructuredGrid<VTK_SM_CURVE>
+  {
+  protected:
+ 	 	Class_SurfTri *curve;
+  public:
+ 	    VTK_SM_CURVE();
+ 	    VTK_SM_CURVE(Class_SurfTri & triP, std::string dir_, std::string name_, std::string cod_);
+ 	    VTK_SM_CURVE(Class_SurfTri & triP, std::string filename_);
+ 	    ~VTK_SM_CURVE();
+
+ 	    void linkData(Class_SurfTri &);
+ 	    void unlinkData();
+ 	    void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+ //	    void Absorb(  fstream &str, string codex_, string name  ) ; //CRTP
+  };
+
+
+
+
+    /*! The class extract a group of selected simplicies belonging the original tasselation 
+     *  and store them in an indipendent mesh data structure of class Class_SurfTri Daughter.
+     *  It implements some methods to identify the boundary edge connecting the Daughter tassellation to the Mother tassellation contained 
+     *  in a class SHAPE. Once such boundary(called Dead front) is defined,the User can choose between:
+
+		- calculating  the Geodesic Signed Distance Function (SDF-level set) of each vertex
+     *            of the Daughter tasselation from the dead front, solving the Eikonal equation by means of a Fast Marching Algorithm.
+		
+		- calculating the Heat Kernel Distance Function (BDF-level set) of each vertex of the Daughter tasselation from the Dead front,
+		  employing the heat equation's solution to evaluate distances.
+     *   The class works only in a three dimensional case   */
+    class SupportMesh 
+    {
+     public:
+
+	//members
+
+      std::string     name;				/*!< proper name of the support selected */
+      Class_SurfTri   Daughter;     	/*!< Mesh data structure of extracted marked simplicies  	*/
+      dvector1D		SDFheat;	/*!< Heat u on Daughter vertices */
+      dvector1D		SDFTri;     	/*!< Geodesic Distance Function/ BiHarmonic Distance function array evaluated on Daughter vertices */
+      dvector2D		SDFGrad;	/*!< Gradients of Geodesic DF evaluated on Daughter vertices. Matrix[nVertex][3] */
+      ivector2D		AdjacencyVV;  	/*!< Vertex/Vertex Adjacency matrix. Matrix[nVertex][-] */
+      ivector2D		AdjacencyVT;  	/*!< Vertex/Simplex Adjacency matrix. Matrix[nVertex][-]*/
+      ivector2D     inverseConn;    /*!< inverse connectivity map */
+      ivector1D		initialVertexFront;	/*!< List of Vertices composing the initial Dead Front */
+      ivector1D		boundaryFront;	/*!< List of Vertices composing the boundary of the Daughter tasselation */
+      ivector1D		currentSelection;  /*!< Collection of simplicies selected -> input for the class */
+      ivector1D		mapMotherV;		/*!< Map of the original positions of Daughter Vertices
+								in the Mother Tasselation contained in class SHAPE	*/
+      dvector1D 		 simArea ;             /*!< Area of each simplex of the Daughter tasselation. Array [nSimplex-by-1] */
+	  dvector1D		 VoronoiDiag ;          /*!< Voronoi Area for each vertex of the Daughter Tasselation. Array [nVertex-by-1] */
+	  dvector2D		 cotangentList;        /*!< Cotangents of each simplex angles, ordered following the local 
+							     numeration of vertices in each simplex. Matrix[nSimplex][3] */ 
+
+      std::string levelset;
+      double heatTime;
+
+      bool levelSetCalc;
+
+	//Constructor
+	/*! Doing nothing */
+	  SupportMesh();
+
+	  //copy constructor
+	  SupportMesh(const SupportMesh &);
+
+	  ~SupportMesh();
+
+	  SupportMesh & operator=(const SupportMesh  &);
+
+	/*! Given a list of Simplicies markedTria, selected from the original Mother tasselation contained in SHAPE::triaFather, a new indipendent 
+ 	 *  mesh data structure is created --> Daughter tasselation. Meanwhile, the mapMotherV member is compiled.    */		
+	  void buildSupport(SHAPE & shape, ivector1D & markedTria, bool &iCheck );
+        
+        /*!Set up the Dead front of the Daughter tassellation, referencing to the class methods:
+ 	 *
+ 	 *	- SupportMesh::vertCalculateAdjacency
+ 	 *
+ 	 *	- SupportMesh::vertDefineLocalNormals 
+ 	 *
+ 	 *	- SupportMesh::initializeFront
+ 	 *
+ 	 * Thus, according to a boolean flag, calculating the Distance function with the following methods:
+	   True --> the Eikonal equation is solved to calculate the geodesic level set SupportMesh::SDFTri. 
+ 	 * 		The method SupportMesh::Eikonal2DTriSolve is used. 
+	   False --> The Laplace Beltrami generalized eigenvalue proble is solved, and the biharmonic 
+			distance function is set in SupportMesh::SDFTri. The method BiharmonicSolve() is used.	
+		In the end, the SDF is normalized by its maximum value.
+ 	 * In input, the method requires a reference to the class SHAPE, containing the Mother tassellation, a boolean flag
+		for choosing the Geodesic/Biharmonic method, and a double parameter 
+ 	 * which set the minimum angle tolerance for the front regularization(see method SupportMesh::regularizeFront)
+ 	 * Returns also a boolean to check if the calculated level set on the support is correct or not. */
+
+	  void buildSupportEurogen(SHAPE & shape, ivector1D & markedTria, bool & iCheck );
+
+	  void prepareSupport(std::string & ,  double &, bool & iCheck);
+
+	  void prepareSupportEurogen( bool & iCheck);
+	  
+	  /*!
+	   * clean and reset SDFtri of level set function field
+	   */
+	   void cleanSDF();
+
+
+	  /*!
+	   * clean and reset all
+	   */
+	  void cleanSupport();
+
+	  /*! Utility function for geometry output in VTU - Paraview format. In input, it requires the name of the output directory and filename
+	   *  boolean flag allow ascii/binary writing. Optional external vertex list can be specified */
+	      void plotVTU(std::string dir, std::string name, bool flag, dvector2D * vertices=NULL);
+
+	  /*! Plot scalar field on a triangulation. In input, it requires the name of the output directory and filename
+	   *  boolean flag allow ascii/binary writing, and the scalar field.Optional external vertex list can be specified */
+	      void plotScalarVTU(std::string dir, std::string name, bool flag, int counter, dvector1D &, dvector2D * vertices=NULL);
+
+	  /*! Plot vector field on a triangulation. In input, it requires the name of the output directory and filename
+	   *  boolean flag allow ascii/binary writing, and the scalar field. Optional external vertex list can be specified */
+	      void plotVectorVTU(std::string dir, std::string name, bool flag, int counter, dvector2D &, dvector2D * vertices=NULL);
+
+	    /*! Utility function for writing output in STL format.In input, it requires the name of the output file,
+	     * the structure of vertices to be plotted, and a boolean flag to plot in STL ascii (false) or STL binary(true) format.
+	     * Connectivity of the original tasselation is used */
+	     void plotSTL(string filename,  std::vector<std::vector< double> > & vertices, bool flag);
+
+
+	     /*! Utility function for writing output in dgf format.In input, it requires the name of the output file,
+	      * the structure of vertices to be plotted.Connectivity of the original tasselation is used */
+	     void plotDGF(string filename,  std::vector<std::vector< double> > & vertices);
+
+
+	/*! Calculate the Vertex/Vertex Adjacency and the Vertex/Simplex Adjaency of the Daughter tasselation. Returns a list
+ 	 * of Vertex id's of that defines the free boundary of the Daughter tassellation */
+	  ivector1D vertCalculateAdjacency(bool &);
+
+ 	/*! Sets the Dead Front of the tasselation. Selects boundary vertices returned by SupportMesh::vertCalculatedAdjacency,
+ 	 * and excludes from such list all the vertices belonging also to free edges in the Mother triangulation SHAPE::triaFather.
+ 	 * Thus, the method initializes the the value of SupportMesh::SDFTri on the remaining boundary vertices to 0. 
+ 	 * The list of the remaining boundary vertices are stored in the member SupportMesh::initialVertexFront, and returned also for 
+ 	 * debug issues in a temporary list vector<int> tempMV.   
+ 	 * In input, the function references to a class Shape containing the Mother tasselation, and the double parameter limit for 
+ 	 * front regularization. See SupportMesh::prepareSupport	*/
+	  void initializeFront(SHAPE & shape , vector<int> & tempMV, double & limit); 
+
+
+	/*! Plot the free boundary front of Daughter tesselation in vtu format, just providing root directory,
+	 *  filename without tag and flag true false for binary/ascii writing
+	 */
+	  void plotBoundaryFront(std::string, std::string, bool);
+
+	/*! Extract the vertex list of the Dead Front and returns it in a ivector1D. */	
+	  ivector1D extractDeadVList();
+
+	/*! Finds and returns the position of the int value in a ivector1D list. If value is not found returns -1 */
+	 int findPosition(int& , ivector1D &);
+
+	 void cleanCornerNodes();
+
+	// PACKAGE HEAT
+	void voronoiEF(dvector1D &);
+	dvector2D normGradOnTriangulation( dvector1D &);
+	ivector2D extractFreeEdges(int &);	
+	dvector1D localGradTriangle(int &, dvector1D &);
+
+	dvector2D remapTriangleOnPlane(int &, dvector2D &);
+	dvector1D pVplane(dvector1D &, dvector2D &);
+	dvector2D evaluateTestFDeriv(int & , dvector2D & );
+	double assemblyIntegral(int &, dvector1D &, dvector1D & );
+	dvector1D quadratureDivergence(dvector2D &);
+	dvector1D jacobianGradient(int &, int &);
+
+	double * bulkMassMatrixSparse(int &, int *&, int *&);
+	void     heatMatrixSparse(double *, double *, int *, int *, double & , double &);
+	void 	 HeatSolveEFSparse(double &, double &);
+	int      findCSRPosition(int &, int &, int *, int *); 
+	ivector1D findRefValueOnBoundary(dvector1D &, ivector1D &, dvector1D &, bool);	
+
+	bool isLevelSet();
+
+   }; //end of class SupportMesh	
+
+
+    //CLASS ParaSurfMesh
+    //
+    /* define on a triangulated a bi-variant map w/ Heat-Kernel Level Set.
+     * By boundary segmentation techs, it reduces the border of the chosen patch in
+     * four distinct curve lines (whenever is possible,not employing arbitrary assumptions).
+     * Applies the HK level set two times, vinculating a pair of facing borders
+     * each time, and this will do the trick.
+     * The class extract a group of selected simplicies belonging the original tasselation
+     * and store them in an indipendent mesh data structure of class Class_SurfTri Daughter.
+     * It implements some methods to identify the boundary edge connecting the Daughter tassellation to the Mother tassellation contained
+     * in a class SHAPE. Once such boundary(called Dead front) is defined, the User can segment it and launch
+     * alternatively the HK-level set method to create a bi-variant map.
+     */
+	class ParaSurfMesh: public SupportMesh
+    {
+     public:
+
+	//members
+
+      dvector2D		xyMap;				/*!< Heat LS Map coordinates */
+      ivector1D     boundSegmentedMap;   /*!< map of segmented boundaries of the patch */
+      Class_SurfTri boundCurve	;		/*!<boundary curve grid manager */
+      int typeSegmentation; 			/*!< interface on type of segmentation tech you want ot implement
+       	   	   	   	   	   	   	   	   	  0 is autosplitting, 1 adjacent geometries. No other type supplied */
+	  dvector1D seed;					/*!< seed point for autosplitting of boundaries */
+      svector1D list_geo;				/*!< list of adjacent geometry file names, for identification of boundary branches */
+
+     public:
+	  //Constructor
+	  /*! Doing nothing */
+	  ParaSurfMesh();
+
+	  ParaSurfMesh(const ParaSurfMesh &);
+
+	  ~ParaSurfMesh();
+
+	  ParaSurfMesh & operator=(const ParaSurfMesh  &);
+     /*!
+	  * clean and reset map field of superficial parameterization
+	  */
+	  void cleanMap();
+	  /*!
+	   * evaluate the bivariant map of the patch. want a seed to reorder the boundary segmentation
+	   */
+	  void evaluateBiMap();
+
+
+      /*!
+	   * Segment the boundary of your patch in at least four branches. If not enough or too much breaking points
+	   * are present, the choice is based on balanced length approximation of contiguous branches.
+	   * Return branch indices in class member boundSegmentedMap ---> works with seed option tech
+	   * A Bool flag warns for successfull exit.
+	   */
+	  bool segmentBoundary();
+
+      /*!
+	   * Segment the boundary of your patch in four branches, given the list of adjacent triangulated geoemetries.
+	   * It works for now with vertex matching policy. So patch & adjacent external geoemetries must be all children of
+	   * a unique conformal triangulation. Return branch indices in class member boundSegmentedMap.
+	   * A Bool flag warns for successfull exit.
+	   */
+	  bool segmentBoundaryExtGeo(svector1D &);
+
+	  /*!
+	   * Found the max sharpness between your contour edges so that 4 branches can be isolated.
+	   * If not return the maximum possible sharpness tolerance.
+	   */
+	  double editMaxSharpness(Class_SurfTri &);
+
+	  /*!
+	   * Decimate the boundary points of boundCurve member, so that a strictly convex closed curve can be defined.
+	   * Returns also the angles between segments of the decimated curve in alive points.
+	   */
+	  ivector1D regularizeBoundary(dvector1D & angles, ivector1D * orderedCurve=NULL, ivector1D * orderedSegment=NULL);
+
+	  /*! reorder Boundary segmentation according to a given seed Point. Stating first sub-curve as the nearest to the seed */
+	  void orientSegmentation();
+
+	  /*!
+	   * Create a Class_Surftri object for manipulation of line paths, given a certain selection
+	   * of Daughter Vertices.-->stored in boundCurve.
+	   */
+	  void createCurves(ivector1D & map);
+
+	  /*!
+	   * Prepare your Heat Solver A-matrix, setting the right boundary conditions on frontier.
+	   * This method is specifically designed to manage the LS bi-variant map generation. Overloaded
+	   * on the father class original method.
+	   */
+	  void   heatMatrixSparse(double *, double *, int * , int *, double & , double &, int &);
+
+	  /*!
+  	   * Solving the Heat Kernel approximate SDF, setting the right boundary conditions on frontier.
+  	   * This method is specifically designed to manage the LS bi-variant map generation. Overloaded on
+  	   * the father class original method.
+  	   */
+	  void 	 HeatSolveEFSparse(dvector1D &, double &, double &, int &);
+
+	  /*! Extract boundary vertices belonging to the i-th segmented frame */
+	  ivector1D extractDeadBoundary(int);
+
+	  /*! adjusting counter-clock/clock wise orientation of a given simplex seed in your boundary curve, based
+	   * on information of your complete support triangulation */
+	  void curveSeedOrientation(int seed);
+
+
+	  ivector1D find4points(ivector1D & map, dvector1D & angles, ivector1D originalMap);
+
+	  double lenCurve(ivector1D &, Class_SurfTri &);
+
+	  /*! Set type segmentation by seed and autosplitting tech */
+	  void setTypeSegmentation(dvector1D & seed);
+
+	  /*! Set type segmentation by external adjacent geometries  */
+	  void setTypeSegmentation(svector1D & list_geo);
+
+	  /*! Given a certain geometry in admissible format by filename, return a Class_SurfTri
+	   * object identifying its boundary.
+	   */
+	  	Class_SurfTri extractBoundaryCurve(std::string & filename);
+
+
+	  /*! Order a boundary Curve, according to its counterclockwise orientation */
+	  	ivector1D sortCurve(Class_SurfTri & , ivector1D * orderedSegment=NULL);
+
+	  /*!compare 2 boundary curves vertex by vertex and extract collapsed vertices as a map of global indices
+	   * belonging to the mother curve.
+	   */
+	  	ivector1D compareCurves(Class_SurfTri & mother,Class_SurfTri & daughter);
+
+
+   }; //end of class ParaSurfMesh
+
+#endif

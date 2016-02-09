@@ -1,0 +1,336 @@
+#include "libRA_Input.hpp"
+
+//Constructor
+infoCode::infoCode(std::string startFile) { //read info from startFile and update class members
+
+	std::ifstream indata(startFile.c_str());
+	std::string workLine, marker, otype;
+	std::size_t found_marker;
+
+	marker = "YES"; //assign marker string
+
+	if (indata.is_open()) { //opening control file
+
+		//@@@@@@@@@@ GEOMETRY FOLDER ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$GEOMETRY");
+
+		std::stringstream ss1;
+		ss1.str(trim(workLine));
+		ss1 >> otype >> folderGeometry;
+
+		// check if folder is named or not
+		if (folderGeometry == "") {
+			std::cout
+					<< "No Geometry Folder is selected. Please check it out  controlDictionary.dat file";
+			exit(1);
+		}
+		//######### destination folder of Geometry files just read         
+
+		//@@@@@@@@@@ INPUT FOLDER ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$INPUT");
+
+		std::stringstream ss2;
+		ss2.str(trim(workLine));
+		ss2 >> otype >> folderInput;
+
+		// check if folder is named or not
+		if (folderInput == "") {
+			std::cout
+					<< "No Input Folder is selected. Please check it out  controlDictionary.dat file";
+			exit(1);
+		}
+		//######### destination folder of Input files just read         
+
+		//@@@@@@@@@@ RESULT FOLDER ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$RESULT");
+
+		std::stringstream ss3;
+		ss3.str(trim(workLine));
+		ss3 >> otype >> folderResult;
+
+		// check if folder is named or not
+		if (folderResult == "") {
+			std::cout
+					<< "No Result Folder is selected. Please check it out controlDictionary.dat file";
+			exit(1);
+		}
+		//######## destination folder of Result files just read         
+		//@@@@@@@@@@ MARKED TRIANGULATION FOLDER ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$MARKTRIA");
+
+		std::stringstream ss4;
+		ss4.str(trim(workLine));
+		ss4 >> otype >> folderInsect;
+
+		// check if folder is named or not
+		if (folderInsect == "") {
+			std::cout
+					<< "No Triangulation check Folder is selected. Please check it out controlDictionary.dat file";
+			exit(1);
+		}
+		//######## destination folder of Triangulation check files just read                
+
+		//@@@@@@@@@@ LOAD FILE ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$LOADFILE");
+
+		std::stringstream ss5;
+		ss5.str(trim(workLine));
+		ss5 >> otype >> loadfile;
+
+		// check if file is specified
+		if (loadfile == "") {
+			std::cout
+					<< "No Dictionary for Lattices is specified. Please check it out controlDictionary.dat file";
+			exit(1);
+		}
+		//######## load file just read         
+
+		//@@@@@@@@@@ GEOMETRY FILE ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$GEOFILE");
+
+		std::stringstream ss6;
+		std::string geofile_temp;
+		ss6.str(trim(workLine));
+		ss6 >> otype >> geofile_temp;
+
+		geofile_temp = trim(geofile_temp);
+
+		geometryNameFile = geofile_temp.substr(0, geofile_temp.size() - 4);
+		tag = geofile_temp.substr(geofile_temp.size() - 4, 4);
+
+		// check if file is specified
+		if (tag != ".nas" && tag != ".stl" && tag != ".STL" && tag != ".vtu" && tag!=".dgf") {
+			std::cout
+					<< "No file of geometry is specified OR format file not supported."
+					<< "*.nas, *.stl, *.vtu and *.dgf files are supported. Please check it out controlDictionary.dat file";
+			exit(1);
+		}
+		//######## geometry file just read         
+		//@@@@@@@@@@ CONSTRAINT FILE ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$CONSTRFILE");
+
+		std::stringstream ss7;
+		std::string constrfile_temp;
+		ss7.str(trim(workLine));
+		ss7 >> otype >> constrfile_temp;
+
+		constrfile_temp = trim(constrfile_temp);
+		if (!constrfile_temp.empty()) {
+
+			constraintNameFile = constrfile_temp.substr(0,
+					constrfile_temp.size() - 4);
+			tagC = constrfile_temp.substr(constrfile_temp.size() - 4, 4);
+
+			// check if file is specified
+			if (tagC != ".nas" && tagC != ".stl" && tagC != ".STL"&& tagC != ".vtu" && tagC !=".dgf") {
+				std::cout
+						<< "No file of geometry is specified OR format file not supported. "
+						<< " *.nas, *.stl, *.vtu and *.dgf files are supported. Please check it out controlDictionary.dat file";
+
+				exit(1);
+			}
+
+		}
+		//######## constraint file just read
+
+		//@@@@@@@@@@ COMPENETRATION TYPE ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$COMP_TYPE");
+
+		std::stringstream ss8;
+		ss8.str(trim(workLine));
+		ss8 >> otype >> chooseCompType;
+		// if not 0 set 1
+		if (chooseCompType != 0 && chooseCompType != 1) {
+			chooseCompType = -1;
+		}
+
+		//@@@@@@@@@@ COMPENETRATION TOLLERANCE ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$COMP_TOL");
+
+		compTolerance = 0.0;
+		std::stringstream ss9;
+		ss9.str(trim(workLine));
+		ss9 >> otype >> compTolerance;
+
+		if (std::isnan(compTolerance) || compTolerance < 0.0) {
+			compTolerance = 0.0;
+		}
+		//######## compenetration data just acquired
+
+	       //@@@@@@@@@@ PLOTDISTANCE ACQUISITION
+	        do{ getline(indata,workLine);
+	        	   std::stringstream ss;
+	       	   ss.str(trim(workLine));
+	        	   ss>>otype;
+	            } while(otype != "$PLOT_DISTANCE");
+
+	           	std::stringstream ss11;
+	             ss11.str(trim(workLine));
+	             ss11>>otype>>plotDistance;
+
+	             if(plotDistance != 0) {plotDistance=1;}
+	             if(constraintNameFile.empty()) {plotDistance=0;}
+	             if(chooseCompType!=-1){plotDistance=0;}
+
+	if(plotDistance !=0 || chooseCompType != -1){
+	       //@@@@@@@@@@ PLOTD_POINTS ACQUISITION
+	        do{ getline(indata,workLine);
+	        	   std::stringstream ss;
+	       	   ss.str(trim(workLine));
+	        	   ss>>otype;
+	            } while(otype != "$N_TOT_POINTS");
+
+	           	std::stringstream ss12;
+	             ss12.str(trim(workLine));
+	             ss12>>otype>>plotD_points;
+	        if(plotD_points < 8) {std::cout<<"Not suitable number of points (8 minimum) for the background grid. Check your controlDictionary.dat. Now exiting"<<endl; exit(1);}
+	}
+
+
+	if(plotDistance !=0 ){
+		       //@@@@@@@@@@ PLOTD_SCALE ACQUISITION
+	        do{ getline(indata,workLine);
+	        	   std::stringstream ss;
+	       	   ss.str(trim(workLine));
+	        	   ss>>otype;
+	            } while(otype != "$SCALE_FACTOR");
+
+	           	std::stringstream ss13;
+	             ss13.str(trim(workLine));
+	             ss13>>otype>>plotD_scale;
+	       if(plotD_scale < 1.0) {plotD_scale =1.0;}
+
+	       //@@@@@@@@@@ PLOTD_filename ACQUISITION
+	        do{ getline(indata,workLine);
+	        	   std::stringstream ss;
+	       	   ss.str(trim(workLine));
+	        	   ss>>otype;
+	            } while(otype != "$FILENAME_PLOTDISTANCE");
+
+	           	std::stringstream ss15;
+	             ss15.str(trim(workLine));
+	             ss15>>otype>>plotD_filename;
+	        if(plotD_filename.empty() && plotDistance == 1){std::cout<<"Name of plot_distance output not defined.Check your controlDictionary.dat. Now exiting"<<endl; exit(1);}
+		}
+
+
+		//@@@@@@@@@@ REFINEMENT DATA ACQUISITION
+		do {
+			getline(indata, workLine);
+			std::stringstream ss;
+			ss.str(trim(workLine));
+			ss >> otype;
+		} while (otype != "$LOCAL_REFINEMENT");
+
+		chooseRefinement = 0;
+		std::stringstream ss10;
+		ss10.str(trim(workLine));
+		ss10 >> otype >> chooseRefinement;
+
+		if (std::isnan((double) chooseRefinement)) {
+			std::cout
+					<< "Please check the value of level Refinement in controlDictionary.dat file";
+			exit(1);
+		}
+		if (chooseRefinement <= 0) {
+			std::cout << "No Refinement is active.";
+			chooseRefinement = 0;
+		}
+		//######## refinement data just acquired
+		//@@@@@@@@@@ WRITING OPTION ACQUISITION
+		do {
+			getline(indata, workLine);
+		} while (trim(workLine) != "$Q");
+
+		std::size_t found = workLine.find("?");
+		int counter=0;
+		while(found==std::string::npos){
+			getline(indata, workLine);
+			workLine= trim(workLine);
+			found = workLine.find("?");
+		}	
+		// answer to first question - writing lattice
+		plotLattice = false;
+		found_marker = workLine.find(marker);
+		if (found_marker != std::string::npos)
+			{plotLattice = true;}
+
+		getline(indata, workLine);
+		//answer to second question - writing patches
+		workLine = trim(workLine);
+
+		plotPatches = false;
+		found_marker = workLine.find(marker);
+		if (found_marker != std::string::npos)
+			{plotPatches = true;}
+
+		getline(indata, workLine);
+		//answer to third question - writing marked triangulation
+		workLine = trim(workLine);
+
+		plotSelection = false;
+		found_marker = workLine.find(marker);
+		if (found_marker != std::string::npos)
+			plotSelection = true;
+
+		//######## question time finished         
+
+	}       //end if is.open stream
+	else {
+		std::cout << "WARNING! cannot find the master Control Dictionary  "
+				<< startFile << " in folder Input.Please check" << std::endl;
+		exit(1);
+	}
+
+	indata.close();
+	// manipulating infos
+}
+;
+
+infoCode::~infoCode(){}
+// end constructor InfoCode

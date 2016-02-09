@@ -1,0 +1,46 @@
+//TODO need to be reviewed in its core functionality
+
+#ifndef _LATTICEADAPTIVE_HPP_
+#define _LATTICEADAPTIVE_HPP_
+
+#include "libRA_Lattice.hpp"
+
+template<int Dim, int Map_Dim>
+	class ADAPTIVE_LATTICE: public LATTICE<Dim,Map_Dim>
+   {
+   public:
+
+	//members
+	std::string activePolicy;
+	ivector1D fatherNodes; /*! Define externally the list of nodes of the lattice grid whose neighborhood needs to be refined */
+	LATTICE<3, 4> * puntFather; /*! pointer to the Father Class Lattice. Refinement starts from here */
+
+	//constructor
+	ADAPTIVE_LATTICE();
+	//destructor
+	 virtual ~ADAPTIVE_LATTICE();
+
+	//inherited virtual methods
+	virtual void build_lattice(int &, SHAPE * a=NULL);
+
+	//its own method of the class
+	 virtual void compileAdaptive(ivector1D &, LATTICE<3,4> *);
+	 virtual void computeActiveNodes();
+
+	 //assignment and copy operators
+    virtual ADAPTIVE_LATTICE<Dim,Map_Dim> & operator=(const ADAPTIVE_LATTICE<Dim,Map_Dim> &);
+    ADAPTIVE_LATTICE(const ADAPTIVE_LATTICE<Dim,Map_Dim> &);
+    //virtual operator()(const ADAPTIVE_LATTICE<Dim,Map_Dim> &);
+
+	int  meshToListCoord(int &, int &, int &);
+	ivector1D listToMeshCoord(int &);
+   private:
+	ivector1D mapFatherToChildNodes();
+	ivector1D findStencilNeighbours(int &, dvector2D & , double & , double & , double &  );
+	ivector1D calculateNeighbors(ivector1D &);
+
+  };
+
+#include"libRA_AdaptiveLattice.tpp"
+
+#endif //end of _LATTICEADAPTIVE_HPP_

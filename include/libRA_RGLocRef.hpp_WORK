@@ -1,0 +1,93 @@
+#ifndef RGLocREF_HH  
+#define RGLocREF_HH
+
+//*
+//contains a collection of function to refine local triangulation  
+//*/
+
+#include <vector>
+#include <array>
+#include "lib_STL_IO.hpp"
+#include "libRA_FFD.hpp"
+
+typedef std::array<double, 3> darray3E; 
+typedef std::vector<double> dvector1D;
+typedef std::vector<int>    ivector1D;
+typedef std::vector<bool>   bvector1D;
+typedef std::vector<darray3E> dvecarr3E;
+typedef std::vector<dvector1D> dvector2D;
+typedef std::vector<ivector1D> ivector2D;
+
+/*! Performs local refinement on a given portion of the original tasselation. Class works uniquely with triangulated meshes.
+ *  A RED/GREEN refinement strategy is adopted. For a single run of refinement, in a selected zone of the mesh, a simplex, internal to this zone, is divided
+ *  in four smaller simplicies, by introducing three new vertices into the tasselation (middle points of the triangle's sides)--> Red refinement.
+ *  To ensure conformity between refined and not refined parts of the mesh, a different type of refinement is adopted for the 1-ring of simplex of 
+ *  the Red refined zone--> Green refinement. The class REFINEMENT needs the support of the SHAPE::markRefinement member, which marks all simplicies in the original tassellation 
+ *  with a numerical integer flag according to the type of Refinement chosen: 2 - Red Refinement, 1-Green Refinement, 0 - No Refinement.      */
+class REFINEMENT{
+
+       public:
+	//Members 
+        SHAPE &  geo;            /*!< SHAPE class type. Reference to the class SHAPE containing the original geometry data. */
+        bvector1D RefinementMap; /*!< Boolean std::vector. Initially The vector has the same size of the number of simplex contained in the original tasselation,and marks
+				       with "true" all those simplicies that need to be refined. The dimension of the vector increases at each level of Refinement */ 	   
+	double maxSimplexSize;   /*!< Characteristic dimension of the biggest simplex among those candidate to be refined */
+
+
+
+        //Constructor
+
+	/*! From data avalaible at SHAPE::markRefinement member, checks the selection of simplex candidate to refinment and propagates such selection on the tasselation
+ 	 *  in order to ensure conformity between refined and not refined zones of the mesh, and resize the RefinementMap member of the class. 
+ 	 *  Constructor references to the class method REFINEMENT::propagateRefinementStatus 	*/
+   REFINEMENT(SHAPE & ); 
+           
+             
+       // Methods
+       
+ /*! Needs the map of Refinement, avalaible @ SHAPE::markRefinement. Initially, markRefinement will contain only those
+  * simplicies marked with a RED refinement flag (2).Then, the function propagates the refinement information coherently
+  *  through adjacent neighbours, and set up the green Refinement label (flag 1) to boundary Simplicies of the RED marked tasselation.
+  *  As warning, such marking rules apply to a pure triangulated mesh for now. For mixed tasselation or Simplices different from triangles,
+  *   PLEASE RECHECK such marking rules.*/ 
+   void propagateRefinementStatus();
+
+ /*! Extracts from the map SHAPE::markRefinement all those simplicies candidate for refinement (flag != 0), 
+  * and store them in a sub mesh data structure of class Class_SurfTri, containing only geometrical data relative 
+  * to the portions of tasselation refined. */
+   void extract_selection_refinement(Class_SurfTri & Target);
+
+ /*! Core of the Refinement method. According to the information stored in the map SHAPE::markRefinement, the RED/GREEN refinement is performed on
+  *  simplicies by means of the class private methods REFINEMENT::RED and REFINEMENT::GREEN. While adding new simplicies and vertices, 
+  *  the original geometrical data contained in a class SHAPE are coherently resized and updated in order to acquire the new elements.  */
+   void manageRefinement();
+
+  /*! Sequentially calls the function REFINEMENT::manageRefinement, to perform multi level of Refinement. In input, it requires an integer 
+   * variable as the desired level of Refinement, that represents the number of consecutive calls to the core method manageRefinement. */    
+    void multilevelRefinement(int & level);
+
+
+// working methods of Refinement
+
+      /*! Extract the group of those Simplicies from the map SHAPE::markRefinement, marked with the integer flag status. Status can assume only the value 0, 1, 2 
+       * (no refinement, green refinement and red refinement). The list of extracted simplex is returned in the std::vector<int> structure. Such structure 
+       * can be initially empty or not: the new data will be "appended" in queue in the structure.   */	
+      void extract_status_refinement(int status, std::vector<int> & markedSimplex);
+          
+          
+
+  private:
+
+     /*! Method to perform the RED refinement on a triangular simplex */	
+     void  RED(int iv_old, int j_old,  int  nSimp, dvecarr3E & pV, ivector2D & pS, bvector1D & pPID, ivector1D & pMark, ivector1D &pIncl);
+
+    /*! Method to perform the GREEN Refinement on a triangular simplex */	
+     void  GREEN(int iv_old,  int j_old,  int & nSimp, dvecarr3E & pV, ivector2D & pS, bvector1D & pPID, ivector1D & pMark, ivector1D &pIncl);
+
+   /*! Calculates and returns, as a double variable, the characteristic dimension of a triangular Simplex of index nSimp */
+      double checkSimplexSize(int &nSimp);
+
+};//end class Refinement
+
+
+#endif

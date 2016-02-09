@@ -1,0 +1,290 @@
+// Declaring Constructor
+template<int Dim, int Map_Dim>
+ADAPTIVE_LATTICE<Dim,Map_Dim> ::ADAPTIVE_LATTICE()
+    {
+     //for your knowledge: here calls the base constructor of base class
+    				//	   then its own constructor
+      puntFather=NULL;
+
+    }//end constructor
+
+  // Declaring Destructor
+template<int Dim, int Map_Dim>
+ADAPTIVE_LATTICE<Dim,Map_Dim> ::~ADAPTIVE_LATTICE()
+     {
+     // here calls its own destructor then the base destructor.
+     // please note destructors are noted as VIRTUAL to avoid memory leakage. (inverse constructor calling)
+    	activePolicy = "";
+    	freeContainer(fatherNodes);
+	puntFather = NULL;
+     }//END OF DESTRUCTOR
+
+template<int Dim, int Map_Dim>
+  void ADAPTIVE_LATTICE<Dim,Map_Dim>::compileAdaptive(ivector1D & list, LATTICE<3,4> * pointerLatt)
+    	{
+
+    	activePolicy="mute";
+    	if(list.size() != 0)
+    	{
+    	activePolicy="active";
+    	fatherNodes = list;
+    	}
+
+    	puntFather = pointerLatt;
+	*(static_cast< LATTICE<3,4>* >(this)) = *pointerLatt;
+    	//initialize members of the class, those derived too. I know it's not so elegant but I hope it works, at least.
+
+    	freeContainer(this->envelopeNodeGradients);
+	freeContainer(this->envelopeNodeList);
+	freeContainer(this->envelopeCells);
+	freeContainer(this->envelopeDependancy);
+	free(this->points); this->points = NULL;
+	freeContainer(this->knots);
+	freeContainer(this->multK);
+	freeContainer(this->weights);
+	
+    	// double the size of points along the lattice
+	ivector1D fN = pointerLatt->getLatticeDimension();
+    	this->setLatticeDimension(2*fN[0]-1,2*fN[1]-1,2*fN[2]-1, fN[3], fN[4], fN[5]);
+	this->define_lattice_mesh_equi();
+
+    	} //end of compileAdaptive.
+
+template<int Dim, int Map_Dim>
+void ADAPTIVE_LATTICE<Dim,Map_Dim>::computeActiveNodes()
+{
+	ivector1D mapFatherNodes = mapFatherToChildNodes();
+	ivector1D neighs = calculateNeighbors(mapFatherNodes);
+
+	this->extractNearestNodes3D();
+
+	//copy envelope structure to dummy structure
+	ivector1D copyEnvelopeNode(this->envelopeNodeList.size(),0);
+	dvector2D copyEnvelopeGradients(this->envelopeNodeList.size(),dvector1D(3,0.0));
+	ivector1D copyEnvelopeCells(this->envelopeCells.size(),0);
+
+	copyEnvelopeNode = this->envelopeNodeList;
+	copyEnvelopeCells = this->envelopeCells;
+	for(int k=0; k<this->envelopeNodeList.size(); k++) copyEnvelopeGradients[k] = this->envelopeNodeGradients[k];
+
+	freeContainer(this->envelopeNodeList);
+	freeContainer(this->envelopeNodeGradients);
+
+	this->envelopeNodeList.resize(copyEnvelopeNode.size()+mapFatherNodes.size());
+	this->envelopeNodeGradients.resize(copyEnvelopeNode.size()+mapFatherNodes.size(),dvector1D(3,0.0));
+
+	//check neighs belonging to envelopeNodeList and store them
+
+	int counter =0;
+	for(int k=0; k<neighs.size(); k++)
+	{
+		int iN = neighs[k];
+
+		ivector1D::iterator itFind = std::find(copyEnvelopeNode.begin(),copyEnvelopeNode.end(), iN);
+
+		if(itFind != copyEnvelopeNode.end())
+		{
+			this->envelopeNodeList[counter] = iN;
+			int localIndex = std::distance(copyEnvelopeNode.begin(), itFind);
+			this->envelopeNodeGradients[counter] = copyEnvelopeGradients[localIndex];
+			counter++;
+		}//endif
+	}//next k
+
+	for(int k=0; k<mapFatherNodes.size(); k++)
+	{
+		this->envelopeNodeList[counter] = mapFatherNodes[k];
+		int iN = fatherNodes[k];
+		ivector1D::iterator itFind = std::find(puntFather->envelopeNodeList.begin(),puntFather->envelopeNodeList.end(), iN);
+
+		if(itFind != puntFather->envelopeNodeList.end())
+		{
+			int localIndex = std::distance(puntFather->envelopeNodeList.begin(), itFind);
+			this->envelopeNodeGradients[counter] = puntFather->envelopeNodeGradients[localIndex];
+
+		}//endif
+		counter++;
+	}//next k
+
+	this->envelopeNodeList.resize(counter);
+	this->envelopeNodeGradients.resize(counter);
+
+
+	//decimate cell envelopment
+	int sizeCell = this->envelopeCells.size();
+	int countCell = 0;
+	for(int i=0; i<sizeCell; ++i){
+
+		int iCell = this->envelopeCells[i];
+		ivector1D cartCell = this->CartesianCellLattice(iCell);
+		ivector1D nHexa = this->buildHexaNeighs(cartCell[0], cartCell[1], cartCell[2]);
+
+		int countReal=0; int countFound=0;
+		while(countReal<4 && countFound <nHexa.size()){
+
+			int posFound = posVectorFind(this->envelopeNodeList, nHexa[countFound]);
+			if(posFound != -1){++countReal;}
+			++countFound;
+		}
+
+		if(countReal>3){
+			copyEnvelopeCells[countCell] = iCell;
+			++countCell;
+		}
+
+	}
+	copyEnvelopeCells.resize(countCell);
+	this->envelopeCells.resize(countCell);
+	this->envelopeCells = copyEnvelopeCells;
+
+	this->compileOuterShellDependancy();
+
+}// end of computeActiveNodes
+template<int Dim, int Map_Dim>
+void ADAPTIVE_LATTICE<Dim,Map_Dim> ::build_lattice(int & flag, SHAPE * sh)
+     	{
+    	 //doing absolutely nothing for now.
+    	 // i need to write better the base class lattice
+    	std::cout<<"This is a dummy calling. Developers needs to fix this."<<'\n';
+    	} //end of build lattice.
+
+template<int Dim, int Map_Dim>
+int ADAPTIVE_LATTICE<Dim,Map_Dim> :: meshToListCoord(int & i, int & j, int & k)
+           {
+    		int result =  (this->n[1]+1)*(this->n[0]+1)*k + (this->n[0]+1)*j + i;
+    		return (result);
+    	   }//end of meshToListCoord
+template<int Dim, int Map_Dim>
+ivector1D ADAPTIVE_LATTICE<Dim,Map_Dim> :: listToMeshCoord(int & iV)
+               {
+        		ivector1D result(3,0);
+
+        		result[2] = iV/(this->n[0]+1)/(this->n[1]+1);
+        		result[1] = (iV - result[2]* (this->n[0]+1) * (this->n[1]+1)) / (this->n[0]+1);
+        		result[0] = iV - result[2]* (this->n[0]+1) * (this->n[1]+1) - result[1]*(this->n[0]+1);
+
+        		return (result);
+        	   }//end of meshToListCoord
+
+template<int Dim, int Map_Dim>
+ivector1D ADAPTIVE_LATTICE<Dim,Map_Dim>::mapFatherToChildNodes()
+        	{
+    		//map father Nodes to the child lattice grid.
+    		ivector1D result(fatherNodes.size(),0);
+    		ivector1D coord(3,0);
+
+    		for(int k=0; k<fatherNodes.size(); k++)
+    		{
+    			coord[2] = fatherNodes[k]/(puntFather->n[0]+1)/(puntFather->n[1]+1);
+    			coord[1] = (fatherNodes[k] - coord[2]* (puntFather->n[0]+1) * (puntFather->n[1]+1)) / (puntFather->n[0]+1);
+    			coord[0] = fatherNodes[k] - coord[2]* (puntFather->n[0]+1) * (puntFather->n[1]+1) - coord[1]*(puntFather->n[0]+1);
+
+    			coord = 2*coord;
+
+    			result[k] = meshToListCoord(coord[0],coord[1],coord[2]);
+    		}
+
+    		return (result);
+        	} //end of mapFatherToChild
+
+template<int Dim, int Map_Dim>
+ivector1D ADAPTIVE_LATTICE<Dim,Map_Dim>::calculateNeighbors(ivector1D & listSeed)
+          	{
+    		  std::map<int,int> mapVertex;
+    		  ivector1D result;
+    		  //copy the grid of elemental lattice in a more comfortable dvector2D structure
+    		  dvector2D grid(this->n_points+1, dvector1D(3,0.0));
+
+    		  for(int iV = 0; iV<=this->n_points; iV++)
+    		  {
+    			  for(int loc=0; loc<3; loc++)
+    			  {
+    				  grid[iV][loc] = this->points[iV].coord[loc];
+    			  }//next loc
+    		  }//next iV
+
+    		  dvector1D spacing(3,0.0);
+    		  //calculate spacing on elemental lattice
+    	  for(int loc=0; loc<3; loc++) spacing[loc] = 1.0/this->n[loc];
+
+
+    	//	loop on seeding points
+     	   for(int iV=0; iV<listSeed.size(); iV++)
+    		{
+    		 ivector1D list = findStencilNeighbours(listSeed[iV], grid, spacing[0], spacing[1], spacing[2]);
+    		 //brutally copying it in a map to avoid duplicate cases
+    		for(int k=0; k<list.size(); k++) mapVertex[list[k]] = list[k];
+    		}//next iV
+
+    	    //retranslate the mapVertex in an ivector1D list result;
+
+     	   	  result.resize(mapVertex.size());
+     	   	  int counter =0;
+     	   	  for(std::map<int,int>::iterator iTF=mapVertex.begin(); iTF!=mapVertex.end(); iTF++)
+     	   	  {
+     	   		 result[counter] = (*iTF).second;
+     	   		 counter++;
+     	   	  }//next iterator
+
+     	   	  return (result);
+           	} //end of calculateNeighbors
+
+
+template<int Dim, int Map_Dim>
+ivector1D ADAPTIVE_LATTICE<Dim,Map_Dim>::findStencilNeighbours(int & target, dvector2D & grid, double & dx, double & dy, double & dz )
+    {
+     ivector1D result(3*grid.size());
+
+     dvector2D dist(grid.size(), dvector1D(3,0.0));
+
+
+ 	int counter=0;
+     	for(int iV=0; iV<grid.size(); iV++)
+    	{
+     	   dist[iV] = grid[iV]-grid[target];
+    	   bvector1D check(3,false);
+
+    	   check[0] = (abs(dist[iV][0]) <= dx);
+    	   check[1] = (abs(dist[iV][1]) <= dy);
+    	   check[2] = (abs(dist[iV][2]) <= dz);
+
+    	   bool check2 = (check[0] && check[1] && check[2]);
+    	   if(check2 && iV!=target)
+    	   {
+    		   result[counter] = iV;
+    		   counter++;
+    	   }//endif
+    	}//next iV;
+
+     	result.resize(counter);
+    	return (result);
+    }
+
+template < int Dim, int Map_Dim >
+ ADAPTIVE_LATTICE<Dim,Map_Dim>& ADAPTIVE_LATTICE <Dim, Map_Dim>::operator=(const ADAPTIVE_LATTICE<Dim,Map_Dim> & other)
+      {
+        this->activePolicy = other.activePolicy;
+        this->fatherNodes.resize(other.fatherNodes.size());
+
+        this->fatherNodes=  other.fatherNodes;
+        this->puntFather = other.puntFather;
+
+        return(*this);
+      }
+ template < int Dim, int Map_Dim >
+     ADAPTIVE_LATTICE <Dim, Map_Dim>::ADAPTIVE_LATTICE(const ADAPTIVE_LATTICE<Dim,Map_Dim> & other) : LATTICE<Dim,Map_Dim>(other)
+       {
+	this->activePolicy = other.activePolicy;
+	this->fatherNodes.resize(other.fatherNodes.size());
+
+	this->fatherNodes=  other.fatherNodes;
+	this->puntFather = other.puntFather;
+
+
+     }
+
+
+
+
+
+

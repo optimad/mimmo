@@ -1,0 +1,61 @@
+#ifndef _LIB_RIGIDROT_
+#define _LIB_RIGIDROT_
+
+//library for handling rigid rotation and translation
+
+#include <array>
+#include <vector>
+
+#include "Operators.hpp"
+#include "LinearAlgebra.hpp"
+
+// boolean vectors
+typedef vector< bool >                 bvector1D;
+typedef vector< bvector1D >            bvector2D;
+typedef vector< bvector2D >            bvector3D;
+typedef vector< bvector3D >            bvector4D;
+
+// characters vectors
+typedef vector< char >                 cvector1D;
+typedef vector< cvector1D >            cvector2D;
+typedef vector< cvector2D >            cvector3D;
+typedef vector< cvector3D >            cvector4D;
+
+// integer vectors
+typedef vector< int >                  ivector1D;
+typedef vector< ivector1D >            ivector2D;
+typedef vector< ivector2D >            ivector3D;
+typedef vector< ivector3D >            ivector4D;
+
+// double vectors
+typedef vector< double >               dvector1D;
+typedef vector< dvector1D >            dvector2D;
+typedef vector< dvector2D >            dvector3D;
+typedef vector< dvector3D >            dvector4D;
+
+// string vectors
+typedef vector< string >               svector1D;
+typedef vector< svector1D >            svector2D;
+typedef vector< svector2D >            svector3D;
+typedef vector< svector3D >            svector4D;
+
+using namespace std;
+
+namespace ROTOTRASL3D{
+
+	/*!create the rotation matrix around a x,y,z, local axis*/
+	dvector2D createRotationMatrix(double &, std::string);
+
+	/*! define the transformation matrix from absolute SDR to local SDR defined as follows:
+	 * rotate the axis of absolute SDR and identified by label to match the given direction */
+	dvector2D transfMatrixToLocalSDR(dvector1D & dir, std::string label);
+
+	/*! return a given a vertex cloud identifying a geometry, rotated around a given axis of a given angle.
+	 * A support point must be identified along the axis direction.
+	 */
+	dvector2D rotAroundAxis(dvector2D &, dvector1D &, dvector1D &,std::string, double & );
+	dvector2D translation(dvector2D &, dvector1D &);
+};
+
+#endif  
+

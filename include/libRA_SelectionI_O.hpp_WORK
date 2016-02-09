@@ -1,0 +1,117 @@
+#ifndef RA_SELECTIONI_O
+#define RA_SELECTIONI_O
+
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <cmath>
+#include <vector>
+#include <iomanip>
+
+#include "Operators.hpp"
+#include "customOperators.hpp"
+#include "libRA_PATCH.hpp"
+#include "Class_VTK.hpp"
+#include "Class_SurfTri.hpp"
+/*! The class reads the information provided by the User for drawing patches and indentifying PID's 
+ * (only for *.nas geometries) and instantiates 
+ * the suitable structures necessary to select a certain portion of the original tasselation (deformable support) -->
+ *  See INCLUSION/EXCLUSION methods in FFD_Ext::selectingTriangulation. 
+ *  Information are provided in an external file (see template patchInclusion.dat)  */
+
+	class Selection
+        {
+	public:
+	int numberInclusivePatch; /*!< Number of hexahedral PATCH<*> deputed to the INCLUSION selection procedure */	
+	int numberExclusivePatch; /*!< Number of hexahedral PATCH<*> deputed to the EXCLUSION selection procedure */
+	int numberInclusivePID;   /*!< Number of PID's deputed to the INCLUSION selection procedure */
+	int numberExclusivePID;   /*!< Number of PID's deputed to the EXCLUSION selection procedure */
+
+	std::string  selectionFile; /*!< External file providing USER information */
+		
+	std::vector<double> origin; /*!< Origin of the reference Lattice for the current selection */
+	std::vector<double> span;   /*!< Span of the reference Lattice box for the current selection  */
+
+	std::vector< PATCH <3> > inclusivePatch; /*!< Structure of inclusive Patches */
+	std::vector< PATCH <3> > exclusivePatch; /*!< Structure of exclusive Patches */
+	std::vector< int > inclusivePID;         /*!< Array of inclusive PID's */
+	std::vector< int > exclusivePID;         /*!< Array of exclusive PID's */
+	
+
+	//CONSTRUCTOR
+
+	/*! Acquires the name of the external file (std::string), the origin and box span of the reference 
+ 	 *  Lattice for the selection (std::vector<double>, std::vector<double>), and store them in their 
+ 	 *  appropriate class members */
+	Selection(std::string &,std::vector<double> &, std::vector<double> & ); 
+
+	/*! Reads the selectionFile and builds the structure of inclusive/exclusive patches and PID's */
+	void readUserGraphSelections();
+	}; //end of class Selection;
+
+
+	/*!Contains a collection of external methods of the library SelectionI_O */
+	namespace SELECTION_EXT{
+	
+	class VTK_Selection: public VTK_UnstructuredGrid<VTK_Selection> {
+
+	private:
+			 ivector1D simplTypes;
+	protected:
+			 Class_SurfTri * tri;
+
+	public:
+			  /*! default constructor */
+			  VTK_Selection();
+			  /*! custom constructor */
+			  VTK_Selection( std::string dir_, std::string name_, std::string cod_);
+			  /*! default constructor */
+			  ~VTK_Selection();
+
+		/*! link geometry data to VTK class */
+		void  linkData(Class_SurfTri &);
+		/*! unlink geometry data to VTK class */
+		void  unlinkData();
+		/*! Custom flush, for writing your linked data on vtu file */
+		void      Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+		/*! Custom flush, for reading your linked data from vtu file */
+		void      Absorb( fstream &str, string codex_, string name  ) ; //CRTP
+
+
+	};
+
+	/*!In order to define the Deformable Support, the method reads the selection from an external vtu file
+ 	 * and returns them in a Class_SurfTri object */
+	void readSelection(std::string &, Class_SurfTri & );
+
+	/*! Writes those simplicies marked with a specific lattice name in an external file vtu.
+	 * In input, it Requires: the output file name, the reference to the class
+ 	 * surfTri containing the original tasselation and the name of the Lattice/Deformable support under consideration*/
+  	 void writeSelection(std::string &, Class_SurfTri &);
+
+
+  	 /*! Compare two triangle by their vertices. If they match, return true, false otherwise.*/
+  	 bool compareTriangle(dvector2D &, dvector2D &);
+
+  	 /*! Ordering triangles of Class_SurfTri creating a bin cartesian mesh on its bounding box
+  	  * Require in Input a Class_surfTi Object
+  	  * input/output return the Bounding box of class_surfTri
+  	  * optional input the number of bins in each direction for the bin cartesian mesh based on the bounding box
+  	  * Return the map of triangles of tri with at least one vertex in bin cells*/
+  	 ivector2D BinSortT(Class_SurfTri & tri, dvector2D & binBBox, int nbins=128);
+
+
+  	 /* Mapping two triangulation: return a map greater as Daughter triangles number containing mother triangle indices.*/
+  	 ivector1D mapBinSort(Class_SurfTri & mother, Class_SurfTri & daughter, int nbins=128);
+
+
+
+
+
+
+
+	}
+#endif
+

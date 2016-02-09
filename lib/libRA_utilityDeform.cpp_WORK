@@ -1,0 +1,394 @@
+#include"libRA_utilityDeform.hpp"
+
+void UGLOB_FFD::deformationGlob(SHAPE & sh,
+							  ControlDeformation & cd)
+  {
+
+	 sh.moll_filter.resize(sh.nVertex, 0);
+	 dvector2D deformedStep(sh.nVertex, dvector1D(3,0.0));
+	 dvector2D originals(sh.nVertex, dvector1D(3,0.0));
+	 dvector1D zerovec(3,0.0);
+
+	 // 0 lattice first time calling deformation
+	if(cd.nLattices < 1)
+	{
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		deformedStep[i] = conVect(sh.Vertex[i]);
+		sh.deform_OR[i] = conArray<double,3>(zerovec);
+	  }
+
+	  return;
+	}
+
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		originals[i] = conVect(sh.Vertex[i]);
+	  }
+
+
+	deformation(originals, deformedStep, cd.morphLattices[0], &(sh.moll_filter));
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 deformation(deformedStep, deformedStep, cd.morphLattices[iLat], &(sh.moll_filter));
+	}
+
+	for(int i=0; i<sh.nVertex; i++) sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>(deformedStep[i]);
+
+	if(cd.adaptivity_level>0)
+	{
+	 for(int k=0; k<cd.adaptivity_level; k++)
+	 {
+		 for(int i=0; i<sh.nVertex; i++) deformedStep[i]= conVect(sh.Vertex[i]) ;
+
+		 for(int aL=0; aL<cd.adaptivityList[k].size(); aL++)
+		 {
+
+			 std::cout<< "On level "<<k+1<<" and sublattice "<< aL<<" we have a total of "<< cd.adaptivityList[k][aL].n_points+1 <<endl;
+			 for(int countk=0; countk<=cd.adaptivityList[k][aL].n_points; ++countk)
+			 {
+
+				 if(cd.adaptivityList[k][aL].points[countk].load[0]!= 0 ||
+						 cd.adaptivityList[k][aL].points[countk].load[1]!= 0 ||
+						 cd.adaptivityList[k][aL].points[countk].load[2]!= 0) {
+
+					 ivector1D coords = cd.adaptivityList[k][aL].listToMeshCoord(countk);
+
+					 std::cout<<coords<<'\t'<<cd.adaptivityList[k][aL].points[countk].load[0]<<'\t'
+							 <<cd.adaptivityList[k][aL].points[countk].load[1]<<'\t'
+							 <<cd.adaptivityList[k][aL].points[countk].load[2]<<endl;
+
+
+					 int pos = posVectorFind(cd.adaptivityList[k][aL].envelopeNodeList, countk);
+
+					 std::cout<<"find node in position of envelopeNodeList  "<<pos <<endl;
+					 if(pos != -1){
+						 std::cout<<cd.adaptivityList[k][aL].envelopeDependancy[pos].xdir<<'\t'
+								 <<cd.adaptivityList[k][aL].envelopeDependancy[pos].ydir<<'\t'
+								 <<cd.adaptivityList[k][aL].envelopeDependancy[pos].zdir<<endl;
+					 }
+				 }
+			 }
+
+			 deformation(deformedStep,deformedStep, cd.adaptivityList[k][aL]);
+		 }//next aL
+
+		 for(int i=0; i<sh.nVertex; i++)
+		 {
+			 	 sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>((deformedStep[i] - originals[i]));
+		 }
+	 }//next k
+	}//endif
+
+}//end of deformationGLOB
+
+void UGLOB_FFD::deformationGlob(SHAPE & sh,
+							  ControlDeformation & cd,
+							  Class_SurfTri * csh,
+							  Class_UCartMesh3D * backgroundMesh,
+							  dvector1D & LS_constraint,
+							  int * controlType,
+							  double *controlTol,
+							  bool * coplanCheck)
+  {
+
+	 sh.moll_filter.resize(sh.nVertex, 0);
+	 dvector2D * fuzz=NULL;
+	 dvector2D deformedStep(sh.nVertex, dvector1D(3,0.0));
+	 dvector2D originals(sh.nVertex, dvector1D(3,0.0));
+	 dvector1D zerovec(3,0.0);
+
+	 // 0 lattice first time calling deformation
+	if(cd.nLattices < 1)
+	{
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		deformedStep[i] = conVect(sh.Vertex[i]);
+		sh.deform_OR[i] = conArray<double,3>(zerovec);
+	  }
+
+	  return;
+	}
+
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		originals[i] = conVect(sh.Vertex[i]);
+	  }
+
+
+	deformation(originals, deformedStep, cd.morphLattices[0],&sh, csh,
+				controlType, controlTol, coplanCheck, backgroundMesh,
+				LS_constraint, &(sh.moll_filter));
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 deformation(deformedStep, deformedStep, cd.morphLattices[iLat],&sh, csh,
+				controlType, controlTol, coplanCheck, backgroundMesh,
+				LS_constraint, &(sh.moll_filter));
+	}
+
+	for(int i=0; i<sh.nVertex; i++) sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>(deformedStep[i]);
+
+	if(cd.adaptivity_level>0)
+	{
+	 for(int k=0; k<cd.adaptivity_level; k++)
+	 {
+		 for(int i=0; i<sh.nVertex; i++) deformedStep[i] =conVect(sh.Vertex[i]) ;
+
+		 for(int aL=0; aL<cd.adaptivityList[k].size(); aL++)
+		 {
+		 deformation(deformedStep,deformedStep, cd.morphLattices[aL],&sh, csh,
+					controlType, controlTol, coplanCheck, backgroundMesh,
+					LS_constraint, &(sh.moll_filter));
+		 }//next aL
+
+		 for(int i=0; i<sh.nVertex; i++)
+		 {
+			 	 sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>((deformedStep[i] - conVect(sh.Vertex[i])));
+		 }
+	 }//next k
+	}//endif
+
+
+  }//end of deformationGLOB
+
+
+void UGLOB_FFD::deformationGlob(SHAPE & sh,
+							   ControlSurfaceDeformation & cd)
+  {
+
+	 sh.moll_filter.resize(sh.nVertex, 0);
+	 dvector2D deformedStep(sh.nVertex, dvector1D(3,0.0));
+	 dvector2D originals(sh.nVertex, dvector1D(3,0.0));
+	 dvector1D zerovec(3,0.0);
+
+	 // 0 lattice first time calling deformation
+	if(cd.nLattices < 1)
+	{
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		deformedStep[i] = conVect(sh.Vertex[i]);
+		sh.deform_OR[i] = conArray<double,3>(zerovec);
+	  }
+
+	  return;
+	}
+
+	for(int i=0; i<sh.nVertex; i++)
+	  {
+		originals[i] = conVect(sh.Vertex[i]);
+	  }
+
+
+	deformation(originals, deformedStep, cd.morphLattices[0], &(sh.moll_filter));
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 deformation(deformedStep, deformedStep, cd.morphLattices[iLat], &(sh.moll_filter));
+	}
+
+	for(int i=0; i<sh.nVertex; i++) sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>(deformedStep[i]);
+
+}//end of deformationGLOB
+
+void UGLOB_FFD::deformationGlob(SHAPE & sh,
+							  ControlSurfaceDeformation & cd,
+							  Class_SurfTri * csh,
+							  Class_UCartMesh3D * backgroundMesh,
+							  dvector1D & LS_constraint,
+							  int * controlType,
+							  double *controlTol,
+							  bool * coplanCheck)
+  {
+
+	 sh.moll_filter.resize(sh.nVertex, 0);
+	 dvector2D * fuzz=NULL;
+	 dvector2D deformedStep(sh.nVertex, dvector1D(3,0.0));
+	 dvector2D originals(sh.nVertex, dvector1D(3,0.0));
+	 dvector1D zerovec(3,0.0);
+
+	 // 0 lattice first time calling deformation
+	if(cd.nLattices < 1)
+	{
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		deformedStep[i] = conVect(sh.Vertex[i]);
+		sh.deform_OR[i] = conArray<double,3>(zerovec);
+	  }
+
+	  return;
+	}
+
+	  for(int i=0; i<sh.nVertex; i++)
+	  {
+		originals[i] = conVect(sh.Vertex[i]);
+	  }
+
+
+	deformation(originals,deformedStep, cd.morphLattices[0],&sh, csh,
+			     controlType, controlTol, coplanCheck, backgroundMesh,
+			     LS_constraint, &(sh.moll_filter));
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 deformation(deformedStep,deformedStep, cd.morphLattices[iLat],&sh, csh,
+				controlType, controlTol, coplanCheck, backgroundMesh,
+				LS_constraint, &(sh.moll_filter));
+	}
+
+	for(int i=0; i<sh.nVertex; i++) sh.deform_OR[i] = sh.deform_OR[i] + conArray<double,3>(deformedStep[i]);
+
+  }//end of deformationGLOB
+
+
+void UGLOB_FFD::previewCloudLattices(ControlDeformation & cd, bool deformed, std::string folder)
+{
+
+	if(cd.morphLattices.size() == 0) return;
+
+	std::string namebase;
+	if(!deformed){namebase="latticeBase";}
+	else	     {namebase="latticeBase_deformed";}
+
+	dvector2D cloud_base_p;
+	cloud_base_p.resize(cd.morphLattices[0].envelopeNodeList.size(), dvector1D(3,0.0));
+
+	for(int iL=0; iL<cd.morphLattices[0].envelopeNodeList.size(); iL++)
+	   {
+	    int iiV = cd.morphLattices[0].envelopeNodeList[iL];
+	    for(int jL=0; jL<3; jL++) {
+	    	cloud_base_p[iL][jL] = cd.morphLattices[0].points[iiV].coord[jL];
+	    	if(deformed){cloud_base_p[iL][jL] += cd.morphLattices[0].points[iiV].load[jL];}
+	      	}
+		}
+
+	cd.morphLattices[0].plot_cloudVTU(folder, namebase, 0, true, cloud_base_p);
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 
+	 dvector2D cloud_base;
+	 cloud_base.resize(cd.morphLattices[iLat].envelopeNodeList.size(), dvector1D(3,0.0));
+
+	 		 for(int iL=0; iL<cd.morphLattices[iLat].envelopeNodeList.size(); iL++)
+	 		     {
+	 		        int iiV = cd.morphLattices[iLat].envelopeNodeList[iL];
+	 		        for(int jL=0; jL<3; jL++) {
+
+	 		        	cloud_base[iL][jL] = cd.morphLattices[iLat].points[iiV].coord[jL];
+	 		        	if(deformed){cloud_base[iL][jL] = cd.morphLattices[iLat].points[iiV].load[jL];}
+	 		      }
+	 		     }
+
+	 		cd.morphLattices[iLat].plot_cloudVTU(folder, namebase, iLat,true, cloud_base);
+
+	}
+
+	if(cd.adaptivity_level>0)
+	{
+	  std::string level= "_level";
+	  std::string def = "_deformed_";
+	 for(int k=0; k<cd.adaptivity_level; k++)
+	 {
+		 for(int aL=0; aL<cd.adaptivityList[k].size(); aL++)
+		 {
+		 //write lattices
+		 std::stringstream s1;
+		 if(!deformed){s1<<cd.adaptivityList[k][aL].name<<"CLOUD_"<<level<<(k+1)<<"_";}
+		 else		  {s1<<cd.adaptivityList[k][aL].name<<"CLOUD_"<<level<<(k+1)<<def;}
+
+		 dvector2D cloud_base;
+		 cloud_base.resize(cd.adaptivityList[k][aL].envelopeNodeList.size(), dvector1D(3,0.0));
+
+		 for(int iL=0; iL<cd.adaptivityList[k][aL].envelopeNodeList.size(); iL++)
+		     {
+		        int iiV = cd.adaptivityList[k][aL].envelopeNodeList[iL];
+		        for(int jL=0; jL<3; jL++) {
+		        	cloud_base[iL][jL] = cd.adaptivityList[k][aL].points[iiV].coord[jL];
+		        	if(deformed) {cloud_base[iL][jL] = cd.adaptivityList[k][aL].points[iiV].load[jL];}
+		     		}
+		     }
+
+		 cd.adaptivityList[k][aL].plot_cloudVTU(folder,s1.str(),aL, true, cloud_base);
+		 }//next aL
+
+	 }//next k
+	}//endif
+}
+
+void UGLOB_FFD::previewGridLattices(ControlDeformation & cd, bool deformed , bool whole, std::string folder)
+{
+	if(cd.morphLattices.size() == 0) return;
+
+	std::string namebase;
+	if(!deformed){namebase="latticeGrid";}
+	else		 {namebase="latticeGrid_deformed";}
+
+	cd.morphLattices[0].plot_hexagridVTU(folder, namebase, 0, deformed, false, whole);
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 cd.morphLattices[iLat].plot_hexagridVTU(folder, namebase, iLat, deformed, false, whole);
+	}
+
+	if(cd.adaptivity_level>0)
+	{
+	  std::string level= "_level";
+	  std::string def = "_deformed_";
+	 for(int k=0; k<cd.adaptivity_level; k++)
+	 {
+		 for(int aL=0; aL<cd.adaptivityList[k].size(); aL++)
+		 {
+		 //write lattices
+		 std::stringstream s1;
+		 if(!deformed){s1<<cd.adaptivityList[k][aL].name<<"GRID_"<<level<<(k+1)<<"_";}
+		 else		  {s1<<cd.adaptivityList[k][aL].name<<"GRID_"<<level<<(k+1)<<def;}
+
+		 cd.adaptivityList[k][aL].plot_hexagridVTU(folder,s1.str(),aL, deformed, false, whole);
+		 }//next aL
+
+	 }//next k
+	}//endif
+};
+
+
+void UGLOB_FFD::previewCloudLattices(ControlSurfaceDeformation & cd, bool deformed, std::string folder)
+{
+
+	if(cd.morphLattices.size() == 0) return;
+
+	std::string namebase;
+	if(!deformed){namebase="latticeBase";}
+	else		 {namebase="latticeBase_deformed";}
+
+	dvector2D cloud_base_p = cd.morphLattices[0].getCoordLattice(deformed);
+	cd.morphLattices[0].plot_cloudVTU(folder, namebase, 0, true, cloud_base_p);
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 dvector2D cloud_base = cd.morphLattices[iLat].getCoordLattice(deformed);
+	 cd.morphLattices[iLat].plot_cloudVTU(folder, namebase, iLat,true, cloud_base);
+
+	}
+}
+
+void UGLOB_FFD::previewGridLattices(ControlSurfaceDeformation & cd, bool deformed , std::string folder)
+{
+	if(cd.morphLattices.size() == 0) return;
+
+	std::string namebase;
+	if(!deformed){namebase="latticeGrid";}
+	else		 {namebase="latticeGrid_deformed";}
+
+	cd.morphLattices[0].plot_gridVTU(folder, namebase, 0, deformed, false);
+
+	for(int iLat = 1; iLat<cd.nLattices; iLat++)
+	{
+	 cd.morphLattices[iLat].plot_gridVTU(folder, namebase, iLat, deformed, false);
+	}
+};
+
+
+
+

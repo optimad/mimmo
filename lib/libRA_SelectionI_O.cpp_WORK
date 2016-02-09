@@ -1,0 +1,657 @@
+//coding of libRA_SelectionI_O
+#include "libRA_SelectionI_O.hpp"
+
+Selection::Selection(std::string & targetFile, std::vector<double> & origin1, std::vector<double> & span1) //constructor
+	   { selectionFile = targetFile;
+
+	     origin.resize(origin1.size(), 0.0);	
+	     span.resize(span1.size(),0.0);
+	
+	     origin = origin1;		
+	     span = span1;	
+
+	     numberInclusivePatch = 0;
+	     numberExclusivePatch = 0;
+	     numberInclusivePID = 0;
+	     numberExclusivePID= 0 ;
+
+	   } ; //end constructor  
+
+
+void Selection::readUserGraphSelections()
+	{ //given the selectionFile of the class, read and instantiate all the user-defined inclusive/exclusive Hexahedral patches or PID
+
+	ifstream reading;
+	std::string file, otype, line;
+
+        int vertexRangePatch=8;		
+	
+	file = selectionFile;	
+
+	reading.open(file.c_str());
+
+	if(reading.is_open()) 
+	{
+
+	 do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+	    } while(otype!="$PATCH_INCLUSIVE");	
+
+	   std::stringstream s1;
+	   s1.str(trim(line));
+	   s1 >> otype >> numberInclusivePatch;
+	
+	   //just read the number of patch inclusive --> resize the vector of Inclusive patch
+		inclusivePatch.resize(numberInclusivePatch);
+		
+	    //start filling the structure 
+	    int iPInclusive_counter= 0;
+	
+
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+
+	    if(otype == "$VERT" && numberInclusivePatch !=0)
+	     {
+		int currentPatch = iPInclusive_counter/vertexRangePatch;
+	      for(int i=0; i<3; i++)
+		  {
+			ss >> inclusivePatch[currentPatch].vertices[iPInclusive_counter - currentPatch*vertexRangePatch][i] ;
+
+			inclusivePatch[currentPatch].vertices[iPInclusive_counter - currentPatch*vertexRangePatch][i] = 
+			(inclusivePatch[currentPatch].vertices[iPInclusive_counter - currentPatch*vertexRangePatch][i]- origin[i])/span[i]; 
+
+		  }//next i	
+		  iPInclusive_counter++;
+		}// endif $VERT	
+
+	    } while(otype!="$END_PATCH_INCLUSIVE");	
+		
+		//next structure	
+
+	   do{	
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+	    } while(otype!="$PATCH_EXCLUSIVE");	
+
+	   std::stringstream  s2;
+	   s2.str(trim(line));
+	   s2 >> otype >> numberExclusivePatch;
+	
+	   //just read the number of patch inclusive --> resize the vector of Inclusive patch
+		exclusivePatch.resize(numberExclusivePatch);
+		
+	    //start filling the structure 
+	    int iPExclusive_counter= 0;
+
+
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+
+	    if(otype == "$VERT" && numberExclusivePatch !=0)
+	     {
+		int currentPatch = iPExclusive_counter/vertexRangePatch;
+	      for(int i=0; i<3; i++)
+		  {
+			ss >> exclusivePatch[currentPatch].vertices[iPExclusive_counter - currentPatch*vertexRangePatch][i];
+			exclusivePatch[currentPatch].vertices[iPExclusive_counter - currentPatch*vertexRangePatch][i] = 
+			(exclusivePatch[currentPatch].vertices[iPExclusive_counter - currentPatch*vertexRangePatch][i] - origin[i])/span[i];
+		  }//next i	
+		  iPExclusive_counter++;	
+		}// endif $VERT	
+
+	    } while(otype!="$END_PATCH_EXCLUSIVE");	
+
+		//next structure	
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+	    } while(otype!="$PID_INCLUSIVE");	
+
+	   std::stringstream  s3;
+	   s3.str(trim(line));
+	   s3 >> otype >> numberInclusivePID;
+	
+	   //just read the number of patch inclusive --> resize the vector of Inclusive patch
+		inclusivePID.resize(numberInclusivePID);
+		
+	    //start filling the structure 
+	    int iPInclusive_counterPID= 0;	
+
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+
+	    if(otype == "$ID" && numberInclusivePID !=0)
+	     {
+		ss >> inclusivePID[iPInclusive_counterPID];
+		iPInclusive_counterPID++;
+		}// endif $ID	
+
+	    } while(otype!="$END_PID_INCLUSIVE");	
+		
+		//next structure	
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+	    } while(otype!="$PID_EXCLUSIVE");	
+
+	   std::stringstream  s4;
+	   s4.str(trim(line));
+	   s4 >> otype >> numberExclusivePID;
+	
+	   //just read the number of patch inclusive --> resize the vector of Inclusive patch
+		exclusivePID.resize(numberExclusivePID);
+		
+	    //start filling the structure 
+	    int iPExclusive_counterPID= 0;	
+
+	   do{
+	    std::stringstream ss;
+	    std::getline(reading, line);
+	    ss.str(trim(line));
+	    ss >> otype;	
+
+	    if(otype == "$ID" && numberExclusivePID !=0)
+	     {
+		ss >> exclusivePID[iPExclusive_counterPID];
+		iPExclusive_counterPID++;
+		}// endif $ID	
+
+	    } while(otype!="$END_PID_EXCLUSIVE");
+
+	}//endif reading
+        else{std::cout<<"WARNING! cannot find the file for Reading Patch Selection "<< file<< " in folder Input. Please check it"<<endl;exit(1);}
+	reading.close();
+
+
+
+	}; //end of readUserGraphSelections
+
+void SELECTION_EXT::readSelection(std::string & inputFile, Class_SurfTri & target )
+     { //read from file a given list of Simplex belonging to the Mother triangulation and store it in a int vector listSimplex 
+	
+
+		target.nVertex=0; target.nSimplex=0;
+		target.ResizeVertex(); target.ResizeSimplex();
+		target.ResizeNormal(); target.ResizeAdjacency();
+
+		VTK_Selection handle_VTK_input;
+		handle_VTK_input.linkData(target);
+
+		std::string key1 = "/\\";
+		std::string key2 = ".";
+		std::size_t cut1 =inputFile.find_last_of(key1);
+		std::size_t cut2 =inputFile.rfind(key2);
+
+		std::string dir, name;
+		dir  = inputFile.substr(0, cut1);
+		name = inputFile.substr(cut1+1, cut2-cut1-1);
+
+		handle_VTK_input.SetNames(dir, name);
+
+		handle_VTK_input.Read();
+
+	};//end of readSelection
+
+
+void SELECTION_EXT::writeSelection(std::string & outputFile, Class_SurfTri & Daughter)
+     { //write on file the list of markIncluded Simplicies from the Mother Triangulation
+
+		std::string key1 = "/\\";
+		std::string key2 = ".";
+		std::size_t cut1 =outputFile.find_last_of(key1);
+		std::size_t cut2 =outputFile.rfind(key2);
+
+		std::string dir, name;
+		dir  = outputFile.substr(0, cut1);
+		name = outputFile.substr(cut1+1, cut2-cut1-1);
+
+		VTK_Selection handle_VTK_output(dir, name, "appended");
+		handle_VTK_output.SetGeomTypes("Float64", "Int32", "Int32", "Int32");
+		handle_VTK_output.linkData(Daughter);
+
+		handle_VTK_output.Write();
+
+      };
+
+
+/*ivector1D SELECTION_EXT::matchingTria(Class_SurfTri & daughter, Class_SurfTri & mother) {
+
+	ivector1D result;
+
+	result.resize(min(daughter.nSimplex, mother.nSimplex), -1);
+
+	std::cout<<daughter.Simplex.size()<<'\t'<<mother.Simplex.size()<<'\t'<<result.size()<<endl;
+
+	if(result.size()==0){std::cout<<"Nothing to read in your Selection"<<endl;return (result);}
+
+	int counter=0;
+	dvector2D T1(3,dvector1D(3,0)), T2(3,dvector1D(3,0));
+
+	for(int iD=0; iD<daughter.nSimplex; ++iD){
+		for(int iM=0; iM<mother.nSimplex; ++iM){
+
+			for(int loc=0; loc<3; ++loc){
+				T1[loc] = daughter.Vertex[daughter.Simplex[iD][loc]];
+				T2[loc] = mother.Vertex[mother.Simplex[iM][loc]];
+			}//next loc
+
+			bool check = compareTriangle(T1,T2);
+
+			if(check){
+					result[counter]=iM;
+					++counter;
+			}//endif
+			std::cout<<iD<<'\t'<<iM<<endl;
+		}//next iM
+	}//next iD
+
+	result.resize(counter);
+	return (result);
+};
+*/
+
+
+bool SELECTION_EXT::compareTriangle(dvector2D & T1, dvector2D & T2){
+
+	bool result=false;
+	bool check1=false;
+	bool check2=false;
+	bool check3=false;
+
+	double tol = 1.0E-4;
+	//extract seed
+	int init=-1;
+	while(init<2 && !check1){
+		++init;
+		check1 = (norm_2(T1[0]-T2[init]) <= tol);
+	}
+
+
+	if(check1){
+
+		check2=true;
+		//counterclockwise check
+		for(int k=1; k<3; k++){
+			int loc = (init + k)%3;
+			check2 = (check2 && (norm_2(T1[k] - T2[loc]) <= tol) );
+		}
+
+
+		check3=true;
+		//clockwise check
+		for(int k=1; k<3; k++){
+			int loc = (3 + init - k)%3;
+			check3 = (check3 && (norm_2(T1[k] - T2[loc]) <= tol) );
+		}
+	}
+	
+	result = (check2 || check3);
+
+	return (result);
+}
+
+ivector2D SELECTION_EXT::BinSortT(Class_SurfTri & tri, dvector2D & binBBox, int nbins)
+{
+	ivector2D result(nbins*nbins*nbins);
+	dvector1D dx(3,0.0);
+
+	binBBox.resize(3, dvector1D(2,0.0));
+	tri.BoundingBox(binBBox[0],binBBox[1],binBBox[2]);
+
+	//check for degenerate bounding box
+	double diag;
+	for(int i=0; i<3; ++i){
+			diag += pow( (binBBox[i][1] - binBBox[i][0]), 0.5);
+	}
+	for(int i=0; i<3; ++i){
+		dx[i] = binBBox[i][1] - binBBox[i][0];
+
+		if(dx[i] == 0) {dx[i] = 0.02*diag;}
+
+		binBBox[i][0] = binBBox[i][0] - 0.05 * dx[i];
+		binBBox[i][1] = binBBox[i][1] + 0.05 * dx[i];
+	}
+	// Mesh spacing
+	for (int j = 0; j < 3; ++j) {
+    dx[j] = (binBBox[j][1] - binBBox[j][0])/((double) nbins);
+	}
+
+
+	int ix, jx, kx,m, I_;
+    ivector1D supp(3,-1);
+	for ( ix = 0; ix < tri.nSimplex; ix++) {
+        m = tri.Simplex[ix].size();
+        for (jx = 0; jx < m; jx++) {
+            for (kx = 0; kx < 3; kx++) {
+                supp[kx] = (int)floor((tri.Vertex[tri.Simplex[ix][jx]][kx] - binBBox[kx][0])/dx[kx]);
+            } //next k
+
+            I_ = nbins * nbins * supp[2] + nbins * supp[1] + supp[0];
+            result[I_].push_back(ix);
+        } //next j
+    } //next i
+
+	return(result);
+};
+
+ivector1D SELECTION_EXT::mapBinSort(Class_SurfTri & mother, Class_SurfTri & daughter, int nbins)
+{
+	ivector1D result(daughter.nSimplex,-1);
+	dvector2D binBBox;
+	dvector1D dx(3,0.0);
+
+	int countGlobal=0;
+	if(mother.nSimplex < daughter.nSimplex){std::cout<<"WARNING, mapping failed. Mother triangulation is smaller than"
+			"your daughter triangulation "<<endl; return(result);}
+
+
+	ivector2D binMap = BinSortT(daughter,binBBox, nbins);
+
+	// Mesh spacing
+	for (int jmesh = 0; jmesh < 3; ++jmesh) {
+    dx[jmesh] = (binBBox[jmesh][1] - binBBox[jmesh][0])/((double) nbins);
+	}
+
+	int ix, jx, kx, m, I_, adjX;
+    ivector1D supp(3,-1);
+	for ( ix = 0; ix < mother.nSimplex; ++ix) {
+		int candidateT=-1;
+		m = mother.Simplex[ix].size();
+        jx=0;
+        bool check = false;
+        while (jx <m && !check) {
+
+            for (kx = 0; kx < 3; kx++) {
+                supp[kx] = (int)floor((mother.Vertex[mother.Simplex[ix][jx]][kx] - binBBox[kx][0])/dx[kx]);
+            } //next k
+            I_ = -1;
+
+            bool checkIndex= true;
+            for(int jj=0; jj<3; ++jj){
+             checkIndex = (checkIndex && ((supp[jj] >= 0) && (supp[jj]<nbins)));
+            }
+            if(checkIndex){
+            I_ = nbins * nbins * supp[2] + nbins * supp[1] + supp[0];
+            if(binMap[I_].size() > 0){
+            	int size = binMap[I_].size();
+            	adjX=0;
+
+            	while(adjX<size && !check){
+
+            		dvector2D T1(3,dvector1D(3,0)), T2(3,dvector1D(3,0));
+            		candidateT = binMap[I_][adjX];
+            		for(int loc=0; loc<3; ++loc){
+        				T1[loc] = conVect(daughter.Vertex[daughter.Simplex[candidateT][loc]]);
+        				T2[loc] = conVect(mother.Vertex[mother.Simplex[ix][loc]]);
+        			}//next loc
+
+        			check = compareTriangle(T1,T2);
+        			++adjX;
+            	}//next adjX
+            }//endif
+            }//endif
+
+            ++jx;
+        } //next jx
+
+        if(check){
+        	result[candidateT] = ix;
+        	++countGlobal;
+        }
+    } //next ix
+
+
+	ivector1D result_clean(countGlobal, 0);
+
+	int count2=0;
+	for(int ll=0; ll<daughter.nSimplex; ++ll){
+
+		if(result[ll] != -1){
+		result_clean[count2] = result[ll];
+		++count2;
+		}
+	}
+
+	return(result_clean);
+};
+
+
+SELECTION_EXT::VTK_Selection::VTK_Selection():VTK_UnstructuredGrid<VTK_Selection>()
+{
+	tri = NULL;
+
+};
+
+SELECTION_EXT::VTK_Selection::VTK_Selection(std::string dir_, std::string name_, std::string cod_) :
+													VTK_UnstructuredGrid<VTK_Selection>(dir_, name_)
+{
+	SetCodex(cod_);
+	SetDimensions(0, 0, 0);
+
+	tri=NULL;
+
+};
+/*! default constructor */
+SELECTION_EXT::VTK_Selection::~VTK_Selection(){
+	tri=NULL;
+};
+
+/*! link geometry data to VTK class */
+void  SELECTION_EXT::VTK_Selection::linkData(Class_SurfTri &trian ){
+
+	tri = &trian;
+	SetDimensions(tri->nSimplex, tri->nVertex, 3*tri->nSimplex);
+};
+/*! unlink geometry data to VTK class */
+void  SELECTION_EXT::VTK_Selection::unlinkData(){
+	tri=NULL;
+	SetDimensions(0,0,0);
+};
+
+/*! Custom flush, for writing your linked data on vtu file */
+void  SELECTION_EXT::VTK_Selection::Flush(  fstream &str, string codex_, string name  ){
+
+	int n;
+
+		 if(tri==NULL ){std::cout<<"not linked Data Structure"<<endl; return;}
+
+		  string indent("         ") ;
+
+		    if( codex_ == "ascii"){
+
+		      if( name == "Points" ){
+		        for( n=0; n<tri->nVertex; n++) {
+		          flush_ascii( str, indent ) ;
+		          flush_ascii( str, 3, tri->Vertex[n]) ;
+		          str<<endl;
+		        };
+
+		      };
+
+		      if( name == "connectivity" ){
+		        for( n=0; n<tri->nSimplex; n++) {
+		          flush_ascii( str, indent ) ;
+		          flush_ascii( str, 3, tri->Simplex[n]) ;
+		          str<<endl;
+		        };
+		      };
+
+		      if( name == "types" ){
+		        int type_(5) ;
+		        for( n=0; n<tri->nSimplex; n++) {
+		          flush_ascii( str, indent ) ;
+		          flush_ascii( str, type_  ) ;
+		          str<<endl;
+		        };
+		      };
+
+		      if( name == "offsets" ){
+		        int off_(0) ;
+		        for( n=0; n<tri->nSimplex; n++) {
+		          off_ += NumberOfElements( 5 ) ;
+		          flush_ascii( str, indent ) ;
+		          flush_ascii( str, off_  ) ;
+		          str<<endl;
+		        };
+		      };
+
+		    }
+
+		    else{
+
+		      if( name == "Points" ){
+		        for( n=0; n<tri->nVertex; n++) {
+		        	flush_binary( str, tri->Vertex[n]);
+		        }
+		      };
+
+		      if( name == "connectivity" ){
+		        for( n=0; n<tri->nSimplex; n++) {flush_binary( str, tri->Simplex[n]);}
+		      };
+
+		      if( name == "types"){
+		        int type_(5) ;
+		        for( n=0; n<tri->nSimplex; n++) flush_binary( str, type_  ) ;
+		      };
+
+		      if( name == "offsets"){
+		        int off_(0) ;
+		        for( n=0; n<tri->nSimplex; n++) {
+		          off_ += NumberOfElements( 5 ) ;
+		          flush_binary( str, off_  ) ;
+		        };
+		      };
+
+		      }
+
+ return;
+};
+
+/*! Custom flush, for reading your linked data from vtu file */
+void SELECTION_EXT::VTK_Selection::Absorb( fstream &str, string codex_, string name  ){
+	int n;
+
+		if(tri==NULL){std::cout<< "Not Linked Data Structure"<<endl; return;}
+
+		if( codex_ == "ascii" ){
+
+			if( name == "Points"){
+				tri->nVertex=nr_points;
+				tri->ResizeVertex();
+
+				for( n=0; n<nr_points; n++) {
+					for(int jj=0; jj<3; ++jj){
+						absorb_ascii( str, tri->Vertex[n][jj]) ;
+					};
+				};
+		      };
+
+		      if( name == "connectivity"){
+
+		    	  if(simplTypes.size() != nr_cells) {std::cout<<"Not able to reading simplicial types of your file.Exiting"<<std::endl; exit(1);}
+		    	  nconnectivity = 0;
+		    	  tri->nSimplex= nr_cells;
+		    	  tri->Simplex.resize(nr_cells);
+
+		    	  for(int k=0; k<simplTypes.size(); ++k) {
+		    		  nconnectivity += NumberOfElements(simplTypes[k]);
+		    		  tri->Simplex[k].resize(NumberOfElements(simplTypes[k]), 0);
+		    	  };
+
+		    	  geometry[3].SetElements(nconnectivity);
+
+		    	  for( n=0; n<nr_cells; n++) {
+		    		  for(int jj=0; jj<tri->Simplex[n].size(); ++jj){
+		    			  absorb_ascii( str, tri->Simplex[n][jj]) ;
+		    		  }
+		        };
+		      };
+
+		      if( name == "types"){
+		    	  if (simplTypes.size() < nr_cells){freeContainer(simplTypes);}
+		    	simplTypes.resize(nr_cells, -1) ;
+		        for( n=0; n<nr_cells; n++) {
+		          absorb_ascii( str, simplTypes[n]) ;
+		        };
+		      };
+
+		      if( name == "offsets"){
+		        int off_ ;
+		        for( n=0; n<nr_cells; n++) {
+		          absorb_ascii( str, off_  ) ;
+		        };
+		      };
+
+		    }
+
+		    else{
+
+		    	if( name == "Points"){
+		    	   tri->nVertex= nr_points;
+		    	   tri->ResizeVertex();
+
+		    	 for( n=0; n<nr_points; n++) {
+		    			absorb_binary( str, tri->Vertex[n]) ;
+		    	 };
+		    	};
+
+			   if( name == "connectivity"){
+			    	  if(simplTypes.size() != nr_cells) {std::cout<<"Not able to reading simplicial types of your file.Exiting"<<std::endl; exit(1);}
+			    	  nconnectivity = 0;
+			    	  tri->nSimplex=nr_cells; tri->Simplex.resize(nr_cells);
+
+			    	  for(int k=0; k<simplTypes.size(); ++k) {
+
+			    		  nconnectivity += NumberOfElements(simplTypes[k]);
+			    		  tri->Simplex[k].resize(NumberOfElements(simplTypes[k]), 0);
+			    	  };
+
+			    	 geometry[3].SetElements(nconnectivity);
+			    	  for( n=0; n<nr_cells; n++) {
+			    		  for(int jj=0; jj<tri->Simplex[n].size(); ++jj){
+			    			  absorb_binary( str, tri->Simplex[n][jj]) ;
+			    		  }
+			        };
+			      };
+
+			   if( name == "types"){
+				   if (simplTypes.size() < nr_cells){freeContainer(simplTypes);}
+				   simplTypes.resize(nr_cells, -1) ;
+				  	for( n=0; n<nr_cells; n++) {
+				  	    absorb_binary( str, simplTypes[n]) ;
+				  	};
+		      };
+
+		      if( name == "offsets"){
+		        int off_ ;
+		        for( n=0; n<nr_cells; n++) {
+		          absorb_binary( str, off_  ) ;
+		        };
+		      };
+
+		    };
+
+		  return ;
+
+
+} ;
+

@@ -1,0 +1,748 @@
+
+#include "libRA_SurfLattice.hpp"
+
+
+VTK_SURFLATTICE::VTK_SURFLATTICE():VTK_UnstructuredGrid<VTK_SURFLATTICE>()
+{
+	points = NULL;
+	connectivity=NULL;
+};
+
+VTK_SURFLATTICE::VTK_SURFLATTICE( std::string dir_, std::string name_, std::string cod_, int nC_, int nP_, int nConn_):
+												VTK_UnstructuredGrid<VTK_SURFLATTICE>(dir_, name_)
+{
+	SetCodex(cod_);
+	SetDimensions(nC_, nP_, nConn_);
+	points=NULL;
+	connectivity=NULL;
+};
+
+VTK_SURFLATTICE::~VTK_SURFLATTICE()
+{
+	points=NULL;
+	connectivity=NULL;
+};
+
+void VTK_SURFLATTICE::linkData(dvector2D & pp, ivector2D & conn )
+{
+	points = &pp;
+	connectivity = &conn;
+
+	//check data connection to vtk instatiated info and repair it.
+
+	if(pp.size() != nr_points || conn.size() != nr_cells){
+
+		SetDimensions( conn.size(), pp.size(), 4*conn.size());
+	}
+
+};
+
+void VTK_SURFLATTICE::unlinkData()
+{
+	points=NULL;
+	connectivity=NULL;
+};
+
+void VTK_SURFLATTICE::Flush(  fstream &str, string codex_, string name  )
+{
+	int n;
+	if(points == NULL || connectivity == NULL ){std::cout<<"not linked Data Structure"<<endl; return;}
+
+	string indent("         ") ;
+
+	if( codex_ == "ascii"){
+
+		if( name == "Points" ){
+			for( n=0; n<nr_points; n++) {
+				flush_ascii( str, indent ) ;
+				flush_ascii( str, 3, (*points)[n]);
+				str << endl ;
+			};
+		};
+
+		if( name == "connectivity" ){
+			for( n=0; n<connectivity->size(); n++) {
+				flush_ascii( str, indent ) ;
+				flush_ascii( str, 4, (*connectivity)[n]) ;
+				str << endl ;
+			};
+		};
+
+		if( name == "types" ){
+			int type_(9) ;
+			for( n=0; n<connectivity->size(); n++) {
+				flush_ascii( str, indent ) ;
+				flush_ascii( str, type_  ) ;
+				str << endl ;
+			};
+		};
+
+		if( name == "offsets" ){
+			int off_(0) ;
+			for( n=0; n<connectivity->size(); n++) {
+				off_ += NumberOfElements( 9 ) ;
+				flush_ascii( str, indent ) ;
+				flush_ascii( str, off_  ) ;
+				str << endl ;
+			};
+		};
+
+	}
+
+	else{
+
+		if( name == "Points" ){
+			for( n=0; n<nr_points; n++) {
+				flush_binary( str, (*points)[n]);
+			};
+		};
+
+		if( name == "connectivity" ){
+			for( n=0; n<connectivity->size(); n++) {
+				flush_binary( str, (*connectivity)[n]) ;
+			};
+		};
+
+		if( name == "types" ){
+			int type_(9) ;
+			for( n=0; n<connectivity->size(); n++) {
+				flush_binary( str, type_  ) ;
+			};
+		};
+
+		if( name == "offsets" ){
+			int off_(0) ;
+			for( n=0; n<connectivity->size(); n++) {
+				off_ += NumberOfElements( 9 ) ;
+				flush_binary( str, off_  ) ;
+			};
+		};
+
+	}
+
+	return ;
+
+};
+
+// Declaring Constructor
+SURFLATTICE::SURFLATTICE()
+{
+	name = "";
+
+	RefineSupport = 0;
+	transition = -1.0;
+	boundary.resize(4, -1);
+	n_points = 0;
+	points = NULL;
+	puntSelection=NULL;
+
+}//end constructor
+
+// Declaring Destructor
+SURFLATTICE::~SURFLATTICE()
+{
+	name = "";
+}//END OF DESTRUCTOR
+
+void SURFLATTICE::plot_gridVTU( std::string & folder, std::string outfile,int cfile, bool deformed, bool type)
+{
+
+	// manage points and connectivity
+
+	dvector2D points_ext;
+	ivector2D connectivityOR(n[0]*n[1], ivector1D(4,-1));
+
+	for(int k=0; k<n[0]*n[1]; ++k){
+		int ix, jx;
+
+		jx = (int)(k/n[0]);
+		ix = k - jx*n[0];
+
+		connectivityOR[k][0] = (n[0]+1)*jx + ix ;
+		connectivityOR[k][1] = (n[0]+1)*jx + ix +1 ;
+		connectivityOR[k][2] = (n[0]+1)*(jx+1) + ix +1 ;
+		connectivityOR[k][3] = (n[0]+1)*(jx+1) + ix;
+	}
+
+	points_ext = getCoordLattice(deformed);
+
+	//instantiate a VTk class for lattice writing.
+	std::string codex = "ascii";
+	if(type){codex="appended";}
+	VTK_SURFLATTICE handle_vtk_lattice(folder,outfile, codex, points_ext.size(), connectivityOR.size(), 4*connectivityOR.size());
+
+	if(cfile>=0){handle_vtk_lattice.SetCounter(cfile);}
+	handle_vtk_lattice.	SetGeomTypes("Float64", "Int32", "Int32", "Int32");;
+
+	handle_vtk_lattice.linkData(points_ext, connectivityOR);
+	handle_vtk_lattice.Write();
+
+};  //end of function plot_hexagridVTU
+
+void SURFLATTICE::plot_cloudVTU( std::string & folder, std::string  outfile, int cfile, bool flag, dvector2D & activep )
+{//writing point clouds of lattices, in a file .VTU, readable with paraview
+
+	std::string codex = "ascii";
+	if(flag){codex="appended";}
+	VTK_CLOUD handle_vtk_output(folder, outfile, codex, activep.size());
+
+	if(cfile>=0){handle_vtk_output.SetCounter(cfile);}
+	handle_vtk_output.	SetGeomTypes("Float64", "Int32", "Int32", "Int32");;
+
+	handle_vtk_output.linkData(activep);
+	handle_vtk_output.Write();
+
+};  //end of function plot_cloudVTU
+
+void SURFLATTICE::build_lattice()
+{
+	define_lattice_mesh_equi();
+
+}; // end of build_lattice
+
+
+void SURFLATTICE::define_lattice_mesh_equi()
+{
+	/* ============================================================================================================ !
+function define_lattice_mesh_equi(							        !
+											           		!
+Set an equispaced grid of control points on the lattice domain [0,1]^Dim, and store their values in       	!
+struct LATTICE.coord_point[Dim]                                                                           	!
+ ============================================================================================================ !
+  I/O statements												!
+ ============================================================================================================ !
+- punt_lattice: pointer to the struct type LATTICE (see the module's header)            			!
+  =========================================================================================================== !
+  Dependancies 		                								!
+ ============================================================================================================ !
+ - definition of a struct of type LATTICE                                                                     !
+ ============================================================================================================ !
+ DECLARE VARIABLES												!
+ ============================================================================================================ */
+
+	//  Workspace
+	double  deltax[] = {0.0e0,0.0e0,0.0e0} ;   // mesh step in x,y,z direction
+
+	// Counters
+	int ict[3],ll, intv;
+
+	// evaluate discretization step along x y z
+	for(intv=0; intv<3; intv++)
+	{
+		deltax[intv] = 1.0e0 / double(n[intv]) ;
+	}
+
+
+	// setting mat of coordinate points
+
+	for(ict[2] = 0; ict[2]<=n[2]; ict[2]++)
+	{
+		for (ict[1] = 0; ict[1]<= n[1]; ict[1]++)
+		{
+			for(ict[0] =0; ict[0]<=n[0]; ict[0]++)
+			{
+				ll = ict[2] * (n[1] + 1)*(n[0]+1) +ict[1]*(n[0]+1) + ict[0] ;
+
+				for(intv=0;intv<3;intv++)  points[ll].coord[intv] =ict[intv]*deltax[intv]  ;
+
+			} //next ict[0]
+		} //next ict[1]
+	} //next ict[2]
+}; // end of function define_lattice_mesh
+
+
+void SURFLATTICE::getBoundingBoxSelection(dvector1D & origin, dvector1D & span_lattice)
+{
+
+   	dvector1D pOrigin(3,1e18);
+   	dvector1D pDiagonal(3,-1e18);
+
+   	for(int iV= 0; iV < puntSelection->Daughter.Vertex.size(); iV++)
+   	{
+   	 for(int loc=0; loc<3; loc++)
+   	 {
+   		pOrigin[loc]    = fmin(pOrigin[loc]   , puntSelection->Daughter.Vertex[iV][loc]);
+   		pDiagonal[loc] = fmax(pDiagonal[loc], puntSelection->Daughter.Vertex[iV][loc]);
+
+   	 }//next loc
+   	}//next iV
+
+
+   origin = pOrigin;
+   span_lattice = (pDiagonal - pOrigin);
+   double rd = norm_2(span_lattice);
+
+   std::map<double, int> mapSpan;
+   for(int k=0; k<3; k++){
+   	 mapSpan[span_lattice[k]] = k;
+   	 }
+
+   dvector1D orderedSpan(3,0.0);
+   ivector1D indexing(3,0);
+   int countLocal=0;
+    for(std::map<double,int>::iterator itM = mapSpan.begin(); itM!= mapSpan.end(); ++itM){
+    	orderedSpan[countLocal] = span_lattice[(*itM).second];
+    	indexing[countLocal] = (*itM).second;
+    	++countLocal;
+    }
+
+     double val_rate=5.5;
+     if(orderedSpan[0]> 0.0) { val_rate= orderedSpan[1]/orderedSpan[0];}
+
+     if(val_rate >5){orderedSpan[0] = orderedSpan[1]/5.0;}
+
+
+     double oldspan = span_lattice[indexing[0]];
+     span_lattice[indexing[0]] = orderedSpan[0];
+
+     origin[indexing[0]] = origin[indexing[0]] - (span_lattice[indexing[0]] - oldspan)*0.5;
+
+
+   // get 5% of volume dilatation to avoid complanar surfaces and nodes.
+   span_lattice = span_lattice*1.05;
+   origin = origin -0.025*span_lattice;
+} //end of getBoundingBoxSelection
+
+
+void SURFLATTICE::writeLoadTemplate(bool flag)
+{
+	svector1D direction(3,"") ;
+	double value = 0.0;
+	ivector1D ii(3,0);
+
+	ofstream writeload;
+	// open file load_filename and check the result
+	writeload.open(loadfile.c_str());
+
+	if (writeload.is_open())   // check: successfully opened, proceed
+	{
+		//write preamble
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#AVAILABLE NODAL DISPLACEMENTS for LATTICE : "<< name <<'\n';
+		writeload<<"#Loads are expressed for each active node available, by declaring,  :		"<<'\n';
+		writeload<<"#identifying indices on the lattice's grid i,j,k "<<'\n';
+		writeload<<"#the label of displacement direction x,y or z " <<'\n';
+		writeload<<"#the signed value of displacement"<<'\n';
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		direction[0] = "x";
+		direction[1] = "y";
+		direction[2] = "z";
+
+		writeload<<"$DIMENSION"<<'\t'<<n[0]<<'\t'<<n[1]<<'\t'<<n[2]<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		for(int k=0; k<n_points; k++)
+		{
+			int iV = k;
+			ii[2] = 0;
+			ii[1] = iV /(n[0]+1);
+			ii[0] = iV - ii[1]*(n[0]+1);
+
+			if(!flag){
+				for(int j=0; j<3; j++)
+				{
+					writeload<<"$LOAD"<<'\t'<<ii[0]<<'\t'<<ii[1]<<'\t'<<direction[j]<<'\t'<<value<<'\n';
+				}//next j
+			}
+			else {
+					writeload<<"$LOAD"<<'\t'<<ii[0]<<'\t'<<ii[1]<<'\t'<<"normal"<<'\t'<<value<<'\n';
+			}
+		} //next k
+
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		writeload<<"$ENDLOAD"<<'\n';
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot open the file for writing the Lattice's load template "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	writeload.close();
+}
+
+void SURFLATTICE::readLoadFile()
+{
+	//----> CONTINUE TO READ DISPLACEMENTS (*.*.LOAD[2]) OF LATTICE NODES
+	//from the external file load_filename.
+	std::string line, direction, otype;
+	double value;
+	int jdir;
+	int ii[2];
+	//initializing load data
+	for(int k=0; k< n_points; k++)
+	{
+		for(int intv=0; intv<3; intv++)
+		{
+			points[k].load[intv] = 0.0 ;
+		} //next intv
+	} //next k
+
+	ifstream readload;
+	// open file load_filename and check the result
+	readload.open(loadfile.c_str());
+
+	if (readload.is_open())   // check: successfully opened, proceed
+	{
+		do{
+			std::stringstream ss;
+			std::getline(readload,line);
+			ss.str(trim(line));
+			ss >> otype;
+			// start reading the loads
+			if(otype =="$LOAD")
+			{
+				for(int intv=0; intv<2; intv++)  ss >> ii[intv];
+
+				ss >> direction >> value;
+
+				bool flag = false;
+				if(direction=="z") {jdir=2;}
+				if(direction=="y") {jdir=1;}
+				if(direction=="x") {jdir=0;}
+				if(direction=="normal"){flag=true;}
+
+				int kcount =  ii[1]*(n[0]+1) + ii[0];
+				if(!flag){
+					points[kcount].load[jdir] = value;
+				}
+				else{
+					for(int ls=0; ls<3; ++ls){
+						points[kcount].load[ls] = value*puntSelection->Daughter.Normal[nodalSupportTriangle[kcount]][ls];
+					}
+				}
+			}
+
+		} while(otype !="$ENDLOAD");
+
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot find the file for Reading the Lattice's loads "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	readload.close();
+
+} //END OF READ LOAD;
+
+
+SURFLATTICE& SURFLATTICE::operator=(const SURFLATTICE& other)
+{
+	name = other.name;
+	loadfile = other.loadfile;
+	n_points = other.n_points;
+
+	for(int i=0; i<3; i++) n[i] = other.n[i];
+
+	if(other.points != NULL)
+	{
+		this->points = new lattice_pt<3>[other.n_points+1];
+
+		for(int k=0; k<=this->n_points; k++) {this->points[k]= other.points[k];}
+	}
+	else {this->points = NULL;}
+
+	transition = other.transition;
+
+	boundary.resize(other.boundary.size(),-1);
+	boundary = other.boundary ;
+
+	geo_segmented.resize(other.geo_segmented.size());
+	geo_segmented = other.geo_segmented ;
+
+	RefineSupport = other.RefineSupport;
+
+	mode = other.mode;
+	file_external = other.file_external;
+	file_patch = other.file_patch;
+
+	puntSelection = other.puntSelection;
+	
+	mapCoord.resize(other.mapCoord.size());
+	for(int j=0; j<mapCoord.size(); ++j) {mapCoord[j] = other.mapCoord[j];}
+	
+	return(*this);
+}
+
+
+SURFLATTICE::SURFLATTICE(const SURFLATTICE & other)
+{
+	name = other.name;
+	loadfile = other.loadfile;
+	n_points = other.n_points;
+
+	for(int i=0; i<3; i++) n[i] = other.n[i];
+
+	if(other.points != NULL)
+	{
+		this->points = new lattice_pt<3>[other.n_points+1];
+
+		for(int k=0; k<=this->n_points; k++) {this->points[k]= other.points[k];}
+	}
+	else {this->points = NULL;}
+
+	transition = other.transition;
+
+	boundary.resize(other.boundary.size(),-1);
+	boundary = other.boundary ;
+
+	geo_segmented.resize(other.geo_segmented.size());
+	geo_segmented = other.geo_segmented ;
+
+
+	RefineSupport = other.RefineSupport;
+
+	mode = other.mode;
+	file_external = other.file_external;
+	file_patch = other.file_patch;
+
+	puntSelection = other.puntSelection;
+	mapCoord.resize(other.mapCoord.size());
+	for(int j=0; j<mapCoord.size(); ++j) {mapCoord[j] = other.mapCoord[j];}
+
+}
+
+void SURFLATTICE::linkSelection(ParaSurfMesh & mesh)
+{
+
+	if(&mesh ==NULL){std::cout<<"NO paraSurfMesh object build. Exiting" <<endl; exit(1);}
+
+	puntSelection = &mesh;
+	nodalSupportTriangle.resize(n_points,-1);
+
+	if(puntSelection->xyMap.size() == 0) {std::cout<<"No bivariant Map build or found. exiting"<<endl; exit(1);}
+	// get coord_or in real world of the elemental grid on bivariantMap.
+
+	dvector1D Point(2,0), Trial(2,0);
+
+	for(int i=0; i<n_points; ++i){
+
+		double tol = 1.0/puntSelection->Daughter.nSimplex;
+
+		Point[0] = points[i].coord[0];
+		Point[1] = points[i].coord[1];
+
+		ivector1D match;
+
+		int countmatch=0;
+		while(match.size()< 1){
+
+			freeContainer(match);
+
+			tol = tol*(1.0+countmatch/2.0);
+			for(int k=0; k<puntSelection->Daughter.nVertex; ++k){
+
+				Trial = puntSelection->xyMap[k];
+
+				if(norm_2(Point-Trial) <= tol){match.push_back(k); }
+			}
+			++countmatch;
+		}
+
+
+		//find all triangles in the neighborhood of matching vertices.
+		std::map<int, int> mappingT;
+		int size = match.size();
+		for(int ix =0; ix<size; ++ix){
+			int adjS = puntSelection->AdjacencyVT[match[ix]].size();
+			for(int jx=0; jx<adjS; ++jx ){
+				mappingT[puntSelection->AdjacencyVT[match[ix]][jx]] = puntSelection->AdjacencyVT[match[ix]][jx];
+			}
+		}
+
+		std::map<int,int>::iterator itF= mappingT.begin();
+		bool check = false;
+		int candidateT= -1;
+		ivector1D coordsT(3,0);
+		while(!check && itF != mappingT.end()){
+
+			candidateT = (*itF).second;
+
+
+			for(int loc=0; loc<3; ++loc){
+				coordsT[loc] = puntSelection->Daughter.Simplex[candidateT][loc];
+			}
+
+			check = point2DBelongsTriangle(puntSelection->xyMap[coordsT[0]],
+					puntSelection->xyMap[coordsT[1]],
+					puntSelection->xyMap[coordsT[2]],
+					Point);
+			++itF;
+		}
+
+		if(candidateT == -1){std::cout<<"A problem occurred in linking ParaSurf selection. Exiting"<<endl;exit(1);}
+
+
+		//Now I Have a triangle
+		dvector1D realPoint = mapPonTriangle(coordsT, Point);
+
+		nodalSupportTriangle[i] = candidateT;
+
+		mapCoord[i][0] = realPoint[0];
+		mapCoord[i][1] = realPoint[1];
+		mapCoord[i][2] = realPoint[2];
+	}
+
+} //end of linking stuff
+
+
+dvector2D SURFLATTICE::getCoordLattice(bool flag){
+
+	dvector2D result(n_points, dvector1D(3,0));
+
+	for(int k=0; k<n_points; ++k){
+
+		
+		for(int j=0; j<3; ++j){result[k][j] = mapCoord[k][j];}
+		
+		if(flag){
+			for(int j=0; j<3; ++j){result[k][j] += points[k].load[j];}
+		}
+	}
+
+	return(result);
+}
+
+void SURFLATTICE::extract_simplex(ivector1D &source, int &who,ivector1D &tasselationSimplex)
+{ //given a marked tasselation, previously builded, extract the simplicies of tassellation
+	// included in the lattice and store them in tasselationSimplex
+
+	tasselationSimplex.resize(source.size(),-1);
+	int counter = 0;
+	for(int nT=0; nT < source.size(); nT++)
+	{
+		if(source[nT] == who) {tasselationSimplex[counter] = nT; ++counter;}
+	}
+
+	tasselationSimplex.resize(counter);
+
+}; //end of extract_simplex
+
+dvector2D SURFLATTICE::getRBF(ivector1D &match, dvector2D & mapV, double & tol ){
+
+	dvector2D result(3, dvector1D(match.size(),0.0));
+
+	dvector2D rhs(3, dvector1D(match.size(), 0.0));
+	dvector2D matrix(match.size(), dvector1D(match.size(), 0.0));
+
+	int size = match.size();
+
+	tol = 1.0;
+	int counter = 0;
+	for(int i=0; i<size; ++i){
+		for(int j=i+1; j<size; ++j){
+			tol += norm_2(mapV[i] - mapV[j]);
+			++counter;
+		}
+	}
+
+	tol = (double)counter/tol;
+
+	for(int i=0; i<size; ++i){
+		for(int j=0; j<size; ++j){
+			double weight = pow(norm_2(mapV[i] - mapV[j]),2) + pow(tol,2);
+			matrix[i][j] = 1.0/pow(weight,0.5);
+		}
+		for(int k=0; k<3; ++k){
+			rhs[k][i] = puntSelection->Daughter.Vertex[match[i]][k];
+		}
+	}
+
+	for(int k=0; k<3; ++k){
+		SolveLU(matrix, rhs[k], result[k]);
+	}
+
+	return(result);
+}
+
+
+double SURFLATTICE::getArea3D(dvector1D & P1, dvector1D & P2, dvector1D & P3){
+
+	double result;
+	dvector1D x2(2,0), x3(3,0);
+	x2 = P2 -P1;
+	x3 = P3 -P1;
+
+	result = pow((x2[0]*x3[1] - x3[0]*x2[1]),2) +
+			pow((x2[0]*x3[2] - x3[0]*x2[2]),2) +
+			pow((x2[1]*x3[2] - x3[2]*x2[1]),2);
+
+	result = 0.5*pow(result,0.5);
+
+	return (result);
+}
+
+double SURFLATTICE::getArea2D(dvector1D & P1, dvector1D & P2, dvector1D & P3){
+
+	double result;
+
+	dvector1D x2(2,0), x3(3,0);
+
+	x2 = P2 - P1;
+	x3 = P3 - P1;
+
+	result = 0.5*(x3[0]*x2[1] - x3[1]*x2[0]);
+	//	result = abs(result);
+	return (result);
+}
+
+bool SURFLATTICE::point2DBelongsTriangle(dvector1D & p1, dvector1D & p2, dvector1D & p3, dvector1D & target)
+{
+	bool result = false;
+	std::array<double, 3> pp1;
+	std::array<double, 3> pp2;
+	std::array<double, 3> pp3;
+	std::array<double, 3> ttarget;
+
+	pp1.fill(0.0); pp2.fill(0.0);pp3.fill(0.0);ttarget.fill(0.0);
+
+	for(int k=0; k<2; ++k){
+		pp1[k] = p1[k];
+		pp2[k] = p2[k];
+		pp3[k] = p3[k];
+		ttarget[k] = target[k];
+	}
+
+	result = PointOnTriangle(pp1,pp2,pp3,ttarget);
+
+	return(result);
+}
+
+dvector1D SURFLATTICE::mapPonTriangle(ivector1D & coordsT, dvector1D & Point){
+
+	dvector1D result(3,0.0);
+
+	//first of all obtain triangular coordinates.
+	dvector1D triang_coords(3,0.0);
+
+	dvector2D Pt(3,dvector1D(2,0));
+
+	for(int i=0; i<3; ++i){
+		for(int j=0; j<2; ++j){
+			Pt[i][j] = puntSelection->xyMap[coordsT[i]][j];
+		}
+	}
+
+	double areaTOT = getArea2D(Pt[0],Pt[1],Pt[2]);
+
+	triang_coords[0] =  getArea2D(Point,Pt[1],Pt[2]);
+
+	triang_coords[1] =  getArea2D(Pt[0],Point,Pt[2]);
+
+	triang_coords[2] =  getArea2D(Pt[0],Pt[1],Point);
+
+	for(int k=0; k<3; ++k){triang_coords[k] = triang_coords[k]/areaTOT;}
+
+	// return in the xyz space with averaging on triangle coords.
+	for(int k=0; k<3; ++k){
+		result = result + triang_coords[k]*conVect(puntSelection->Daughter.Vertex[coordsT[k]]);
+	}
+
+	return(result);
+}
+
+

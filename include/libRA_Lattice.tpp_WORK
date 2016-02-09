@@ -1,0 +1,2810 @@
+//CLASS LATTICE TEMPLATE METHODS
+
+// data on the control points mesh, for FFD...->
+
+template <int Dim>
+lattice_pt<Dim>::lattice_pt(){}
+
+template <int Dim>
+lattice_pt<Dim>::~lattice_pt(){};
+
+template <int Dim>
+lattice_pt<Dim>::lattice_pt(const lattice_pt<Dim> & other)
+{
+	this->coord = other.coord;
+	this->load  = other.load;
+	this->loadstring = other.loadstring;
+};
+
+template <int Dim>
+lattice_pt<Dim> & lattice_pt<Dim>::operator=(const lattice_pt<Dim> & other)
+{
+	this->coord = other.coord;
+	this->load  = other.load;
+	this->loadstring = other.loadstring;
+
+	return(*this);
+};
+
+// Declaring Constructor
+template < int Dim, int Map_Dim >
+LATTICE <Dim,Map_Dim>::LATTICE()
+{
+	name = "";
+	origin.resize(Dim,0.0);
+	span_lattice.resize(Dim,0.0);
+
+	knots.resize(Dim);
+	multK.resize(Dim);
+	
+	RefineSupport = 0;
+	transition = -1.0;
+	boundary = -1;
+	boundary_int = -1;
+	n_points = 0;
+	heatTime = 0;
+	points = NULL;
+	puntSelection=NULL;
+	wholeLattice=false;
+
+}//end constructor
+
+// assignment function to fill basic lattice
+template < int Dim, int Map_Dim >
+void LATTICE <Dim,Map_Dim>::assignLattice(dvector1D or_,dvector1D span_, ivector1D n_, ivector1D deg_, std::string file_, bool wLatt_)
+{
+
+	if(or_.size() != Dim || span_.size() != Dim || n_.size() != Dim )
+	{
+		std::cout<<"Error in recall Lattice assignment function. Exiting"<<endl;
+		exit(1);
+	}
+
+	setLatticeOrigin(or_);
+	setLatticeSpan(span_);
+	setLatticeDimension(n_[0], n_[1], n_[2], deg_[0], deg_[1],deg_[2]);
+	setLatticeLoadFile(file_);
+	setLatticeWhole(wLatt_);
+}//assignLattice
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim,Map_Dim>::assignLattice(dvector1D or_,dvector1D span_, ivector1D n_, std::string file_, bool wLatt_)
+{
+	assignLattice(or_, span_, n_, n_, file_, wLatt_);
+}//assignLattice
+
+
+template < int Dim, int Map_Dim >
+LATTICE<Dim,Map_Dim>& LATTICE <Dim, Map_Dim>::operator=(const LATTICE<Dim,Map_Dim> & other)
+{
+	this->name = other.name;
+	this->loadfile = other.loadfile;
+	this->n_points = other.n_points;
+
+	for(int i=0; i<Dim; i++){ 
+	  this->n[i] = other.n[i];
+	  this->deg[i] = other.deg[i];   
+	}
+
+	this->origin.resize(other.origin.size());
+	this->span_lattice.resize(other.span_lattice.size());
+
+	this->origin = other.origin;
+	this->span_lattice = other.span_lattice;
+
+	if(other.points != NULL)
+	{
+		this->points = new lattice_pt<Dim>[other.n_points+1];
+
+		for(int k=0; k<=this->n_points; k++) {this->points[k]= other.points[k];}
+	}
+	else {this->points = NULL;}
+
+
+	this->transition = other.transition;
+	this->boundary = other.boundary ;
+	this->boundary_int = other.boundary_int ;
+
+	this->bc_segmented.resize(other.bc_segmented.size());
+	this->bc_segmented = other.bc_segmented;
+
+	this->seed.resize(other.seed.size());
+	this->seed = other.seed;
+
+	this->geo_segmented.resize(other.geo_segmented.size());
+	this->geo_segmented = other.geo_segmented;
+
+	this->RefineSupport = other.RefineSupport;
+	this->wholeLattice = other.wholeLattice;
+	this->levelset = other.levelset;
+	this->heatTime = other.heatTime;
+	this->mode = other.mode;
+	this->file_external = other.file_external;
+	this->file_patch = other.file_patch;
+
+	this->Hull = other.Hull;
+
+	this->envelopeNodeGradients.resize(other.envelopeNodeGradients.size());
+	for(int i=0; i<other.envelopeNodeGradients.size(); i++)
+	{
+		this->envelopeNodeGradients[i] = other.envelopeNodeGradients[i];
+	}
+	this->envelopeNodeList.resize(other.envelopeNodeList.size());
+	this->envelopeNodeList = other.envelopeNodeList;
+
+	this->envelopeDependancy.resize(other.envelopeDependancy.size());
+	this->envelopeDependancy = other.envelopeDependancy;
+
+	this->envelopeCells.resize(other.envelopeCells.size());
+	this->envelopeCells = other.envelopeCells;
+	this->puntSelection = other.puntSelection;
+
+	for(int i=0; i<3; ++i){
+	  knots[i].resize(other.knots[i].size());
+	  knots[i] = other.knots[i];
+
+	  multK[i].resize(other.multK[i].size());
+	  multK[i] = other.multK[i];
+	}
+	
+	weights.resize(other.weights.size());
+	weights = other.weights;
+	
+	return(*this);
+}
+
+template < int Dim, int Map_Dim >
+LATTICE <Dim, Map_Dim>::LATTICE(const LATTICE<Dim,Map_Dim> & other)
+{
+	this->name = other.name;
+	this->loadfile = other.loadfile;
+	this->n_points = other.n_points;
+
+	for(int i=0; i<Dim; i++){ 
+	  this->n[i] = other.n[i];
+	  this->deg[i] = other.deg[i];   
+	}
+
+	this->origin.resize(other.origin.size());
+	this->span_lattice.resize(other.span_lattice.size());
+
+	this->origin = other.origin;
+	this->span_lattice = other.span_lattice;
+
+	if(other.points != NULL)
+	{
+		this->points = new lattice_pt<Dim>[other.n_points+1];
+
+		for(int k=0; k<=this->n_points; k++) {this->points[k]= other.points[k];}
+	}
+	else {this->points = NULL;}
+
+
+	this->transition = other.transition;
+	this->boundary = other.boundary ;
+	this->boundary_int = other.boundary_int ;
+
+	this->bc_segmented.resize(other.bc_segmented.size());
+	this->bc_segmented = other.bc_segmented;
+
+	this->seed.resize(other.seed.size());
+	this->seed = other.seed;
+
+	this->geo_segmented.resize(other.geo_segmented.size());
+	this->geo_segmented = other.geo_segmented;
+
+	this->RefineSupport = other.RefineSupport;
+	this->wholeLattice = other.wholeLattice;
+	this->levelset = other.levelset;
+	this->heatTime = other.heatTime;
+	this->mode = other.mode;
+	this->file_external = other.file_external;
+	this->file_patch = other.file_patch;
+
+	this->Hull = other.Hull;
+
+	this->envelopeNodeGradients.resize(other.envelopeNodeGradients.size());
+	for(int i=0; i<other.envelopeNodeGradients.size(); i++)
+	{
+		this->envelopeNodeGradients[i] = other.envelopeNodeGradients[i];
+	}
+	this->envelopeNodeList.resize(other.envelopeNodeList.size());
+	this->envelopeNodeList = other.envelopeNodeList;
+
+	this->envelopeDependancy.resize(other.envelopeDependancy.size());
+	this->envelopeDependancy = other.envelopeDependancy;
+
+	this->envelopeCells.resize(other.envelopeCells.size());
+	this->envelopeCells = other.envelopeCells;
+	this->puntSelection = other.puntSelection;
+
+	for(int i=0; i<3; ++i){
+	  knots[i].resize(other.knots[i].size());
+	  knots[i] = other.knots[i];
+
+	  multK[i].resize(other.multK[i].size());
+	  multK[i] = other.multK[i];
+	}
+	
+	weights.resize(other.weights.size());
+	weights = other.weights;
+
+}
+
+
+
+
+// Declaring Destructor
+template < int Dim, int Map_Dim >
+LATTICE <Dim,Map_Dim>::~LATTICE()
+{
+	
+	cleanLattice();
+	freeContainer(origin);
+	freeContainer(span_lattice);
+	freeContainer(knots);
+	freeContainer(multK);
+
+}//END OF DESTRUCTOR
+
+
+template < int Dim, int Map_Dim>
+void LATTICE < Dim, Map_Dim >::cleanLattice()
+{
+  	name = "";
+	loadfile = "";
+	
+	for(int i=0; i<Dim; i++){ 
+	  n[i] = 1;
+	  deg[i] = 1;   
+	}
+	
+	RefineSupport = 0;
+	transition = -1.0;
+	boundary = -1;
+	boundary_int = -1;
+	n_points = 0;
+	heatTime = 0;	
+	wholeLattice=false;
+	mode = "";
+	file_external = "";
+	file_patch = "";
+	
+	freeContainer(origin);
+	freeContainer(span_lattice);
+	freeContainer(envelopeNodeGradients);
+	freeContainer(envelopeNodeList);
+	freeContainer(envelopeCells);
+	freeContainer(envelopeDependancy);
+	freeContainer(knots);
+	freeContainer(multK);
+	freeContainer(weights);
+	freeContainer(bc_segmented);
+	freeContainer(geo_segmented);
+	freeContainer(seed); 
+	
+	if(points != NULL){delete [] points; points=NULL;}
+	puntSelection=NULL;
+
+	origin.resize(Dim,0.0);
+	span_lattice.resize(Dim,0.0);
+
+	knots.resize(Dim);
+	multK.resize(Dim);
+	
+}
+
+
+template < int Dim, int Map_Dim >
+void LATTICE < Dim, Map_Dim >::plot_hexagridVTU( std::string & folder, std::string outfile,int cfile, bool deformed, bool type, bool whole)
+{
+
+	// manage points and connectivity
+
+	ivector1D extracted;
+	dvector2D points_ext;
+	ivector2D connectivityOR;
+
+	if (!whole){
+		connectivityOR.resize(envelopeCells.size(), ivector1D(8,0));
+		std::map<int, int> mapPoints;
+
+		for(int k=0; k<envelopeCells.size(); k++ )
+		{
+			ivector1D cartCell = CartesianCellLattice(envelopeCells[k]);
+			ivector1D nHexa = buildHexaNeighs(cartCell[0],cartCell[1], cartCell[2]);
+			connectivityOR[k] = nHexa;
+			for(int ll=0; ll<nHexa.size(); ll++){	mapPoints[nHexa[ll]] = nHexa[ll];}
+		}//next k
+
+		extracted.resize(mapPoints.size(),-1);
+		int counter = 0;
+		for(std::map<int,int>::iterator itF=mapPoints.begin(); itF !=mapPoints.end(); itF++)
+		{
+			extracted[counter] = (*itF).second;
+			counter++;
+		}
+	}
+	else {
+		connectivityOR.resize(n[0]*n[1]*n[2], ivector1D(8,0));
+		std::map<int,int> mapPoints;
+
+		for(int k=0; k<n[0]*n[1]*n[2]; k++ )
+		{
+			ivector1D cartCell = CartesianCellLattice(k);
+			ivector1D nHexa = buildHexaNeighs(cartCell[0],cartCell[1], cartCell[2]);
+			connectivityOR[k] = nHexa;
+			for(int ll=0; ll<nHexa.size(); ll++){	mapPoints[nHexa[ll]] = nHexa[ll];}
+		}//next k
+
+		extracted.resize(mapPoints.size(),-1);
+		int counter = 0;
+		for(std::map<int,int>::iterator itF=mapPoints.begin(); itF !=mapPoints.end(); itF++)
+		{
+			extracted[counter] = (*itF).second;
+			counter++;
+		}
+	}
+
+	points_ext.resize(extracted.size(), dvector1D(3,0));
+	for(int i =0; i<extracted.size(); ++i)
+	{
+		for(int intv=0; intv<Dim; intv++)
+		{
+			points_ext[i][intv] = points[extracted[i]].coord[intv];
+			if  (deformed)  {points_ext[i][intv] += points[extracted[i]].load[intv];}
+			
+		}
+	};
+
+	//reset connectivity to extracted list of nodes indexing
+	for(int lC=0; lC<connectivityOR.size(); lC++)
+	{
+		int sizeConn = connectivityOR[lC].size();
+		ivector1D dummy(sizeConn);
+		for(int lV=0; lV<sizeConn; lV++)
+		{
+			dummy[lV] = posVectorFind(extracted, connectivityOR[lC][lV]);
+		}
+		    connectivityOR[lC] = dummy;
+	};
+
+	//instantiate a VTk class for lattice writing.
+	std::string codex = "ascii";
+	if(type){codex="appended";}
+	VTK_LATTICE handle_vtk_lattice(folder,outfile, codex, points_ext.size(), connectivityOR.size(), 8*connectivityOR.size());
+
+	if(cfile>=0){handle_vtk_lattice.SetCounter(cfile);}
+	handle_vtk_lattice.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+
+	handle_vtk_lattice.linkData(points_ext, connectivityOR);
+	handle_vtk_lattice.Write();
+
+};  //end of function plot_hexagridVTU
+
+template < int Dim, int Map_Dim >
+void LATTICE < Dim, Map_Dim >::plot_cloudVTU( std::string & folder, std::string  outfile, int cfile, bool flag, dvector2D & activep )
+{//writing point clouds of lattices, in a file .VTU, readable with paraview
+
+	std::string codex = "ascii";
+	if(flag){codex="appended";}
+	VTK_CLOUD handle_vtk_output(folder, outfile, codex, activep.size());
+
+	if(cfile>=0){handle_vtk_output.SetCounter(cfile);}
+	handle_vtk_output.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+
+	handle_vtk_output.linkData(activep);
+	handle_vtk_output.Write();
+
+};  //end of function plot_cloudVTU
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::build_lattice(int &name, SHAPE * sh)
+{
+	define_lattice_mesh_equi();
+	if(sh !=NULL)
+	{
+		set_lattice((*sh), name);
+	}
+
+}; // end of build_lattice
+
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim,Map_Dim>::extract_vertex(SHAPE &shape, int &who, std::vector<int> &tasselationVert)
+{ //given a marked tasselation, previously builded, extract the vertexes of tassellation
+	// included in the lattice and store them in tasselationVert
+
+	map<int, int> map_vertex;
+	std::vector<int> work;
+
+	for(int nT=0; nT < shape.markInclusion.size(); nT++)
+	{
+		if(shape.markInclusion[nT] == who)
+		{
+			for(int intV=0; intV<3; intV++) work.push_back(shape.Simplex[nT][intV]);
+		}
+	}
+
+	// remove double vertex via map iterator
+	for (int k = 0; k<work.size(); k++)	map_vertex[work[k]] = work[k];
+	// transfer information in the tasselationVert member    
+	for(map<int,int>::iterator it_map_vertex = map_vertex.begin(); it_map_vertex !=map_vertex.end(); it_map_vertex++)
+	{
+		tasselationVert.push_back((*it_map_vertex).second);
+	}
+
+}; //end of extract_vertex
+
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::extract_simplex(std::vector<int> &source, int &who,std::vector<int> &tasselationSimplex)
+{ //given a marked tasselation, previously builded, extract the simplicies of tassellation
+	// included in the lattice and store them in tasselationSimplex
+
+	for(int nT=0; nT < source.size(); nT++)
+	{
+		if(source[nT] == who) tasselationSimplex.push_back(nT);
+	}
+
+}; //end of extract_simplex
+
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim,Map_Dim>::define_lattice_mesh_equi()
+{
+	/* ============================================================================================================ !
+ function define_lattice_mesh_equi(							        !
+											           		!
+ Set an equispaced grid of control points on the lattice domain [0,1]^Dim, and store their values in       	!
+ struct LATTICE.coord_point[Dim]                                                                           	!
+   ============================================================================================================ !
+    I/O statements												!
+   ============================================================================================================ !
+ - punt_lattice: pointer to the struct type LATTICE (see the module's header)            			!
+    =========================================================================================================== !
+    Dependancies 		                								!
+   ============================================================================================================ !
+   - definition of a struct of type LATTICE                                                                     !
+   ============================================================================================================ !
+   DECLARE VARIABLES												!
+   ============================================================================================================ */
+
+	//  Workspace
+	double  deltax[] = {0.0e0,0.0e0,0.0e0} ;   // mesh step in x,y,z direction
+
+
+	// Counters
+	int ict[3],ll, intv;
+
+	// evaluate discretization step along x y z
+	for(intv=0; intv<Dim; intv++)
+	{
+		deltax[intv] = span_lattice[intv] / double(n[intv]) ;
+	}
+
+
+	// setting mat of coordinate points
+
+	for(ict[2] = 0; ict[2]<=n[2]; ict[2]++)
+	{
+		for (ict[1] = 0; ict[1]<= n[1]; ict[1]++)
+		{
+			for(ict[0] =0; ict[0]<=n[0]; ict[0]++)
+			{
+				ll = ict[2] * (n[1] + 1)*(n[0]+1) +ict[1]*(n[0]+1) + ict[0] ;
+
+				for(intv=0;intv<Dim;intv++)  points[ll].coord[intv] =origin[intv] + ict[intv]*deltax[intv]  ;
+
+			} //next ict[0]
+		} //next ict[1]
+	} //next ict[2]
+
+
+}; // end of function define_lattice_mesh
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::set_lattice(SHAPE &sh, int &name)
+{ // makes the lattice operative. Thus: 
+	//	1) select the deformative patch of the lattice.
+	//    2) select the part of triangulation enclosed in the lattice -->
+	//		makes connections with the father triangulation
+
+	//Create the default patch of the lattice
+	set_default_hull();
+	Hull.set_planes();
+	//Select the triangulation internal to lattice
+	Hull.include_triangulation( sh, name, origin, span_lattice);	 
+
+}; //end of function set_lattice
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::set_default_hull()
+{ // setting deformative patch equal to the lattice volume
+
+	if (Dim ==3) {
+		Hull.vertices[0][0] = 0.0; Hull.vertices[0][1] = 0.0; Hull.vertices[0][2] =0.0;
+		Hull.vertices[1][0] = 1.0; Hull.vertices[1][1] = 0.0; Hull.vertices[1][2] =0.0;
+		Hull.vertices[2][0] = 1.0; Hull.vertices[2][1] = 1.0; Hull.vertices[2][2] =0.0;
+		Hull.vertices[3][0] = 0.0; Hull.vertices[3][1] = 1.0; Hull.vertices[3][2] =0.0;
+		Hull.vertices[4][0] = 0.0; Hull.vertices[4][1] = 0.0; Hull.vertices[4][2] =1.0;
+		Hull.vertices[5][0] = 1.0; Hull.vertices[5][1] = 0.0; Hull.vertices[5][2] =1.0;
+		Hull.vertices[6][0] = 1.0; Hull.vertices[6][1] = 1.0; Hull.vertices[6][2] =1.0;
+		Hull.vertices[7][0] = 0.0; Hull.vertices[7][1] = 1.0; Hull.vertices[7][2] =1.0;
+	}
+	else
+	{
+		Hull.vertices[0][0] = 0.0; Hull.vertices[0][1] = 0.0;
+		Hull.vertices[1][0] = 1.0; Hull.vertices[1][1] = 0.0;
+		Hull.vertices[2][0] = 1.0; Hull.vertices[2][1] = 1.0;
+		Hull.vertices[3][0] = 0.0; Hull.vertices[3][1] = 1.0;
+	}
+}; // end of set default hull
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::extractNearestNodes3D()
+{
+	// now I estimate a distance fuction of the geometry embedded in the Lattice over the Lattice grid itself
+	// (my cartesian background grid is exactly the Lattice grid). Pin with certain rules only the nearest node of the
+	//	 geometry.
+
+
+	Class_UCartMesh3D * Mesh = new Class_UCartMesh3D();
+
+	dvector1D xlim(2,0.0);
+	dvector1D ylim(2,0.0);
+	dvector1D zlim(2,0.0);
+
+	xlim[0] = origin[0]; xlim[1] = origin[0]+span_lattice[0];
+	ylim[0] = origin[1]; ylim[1] = origin[1]+span_lattice[1];
+	zlim[0] = origin[2]; zlim[1] = origin[2]+span_lattice[2];
+
+	Mesh->SetMesh(xlim,ylim,zlim, n[0], n[1], n[2]);
+
+	dvector1D LSet;
+	dvector2D LGradient;
+	
+
+	double sizenb;
+	{
+	dvector1D dum(3,0.0);
+	dum[0] = Mesh->dx; dum[1] = Mesh->dy; dum[2] = Mesh->dz;   
+	sizenb = norm_2(dum);
+	}
+		Class_LevelSet_Stl<Class_UCartMesh3D> LS_Open(Mesh, &(puntSelection->Daughter));
+		
+		LS_Open.setSdfGrad(true);
+		LS_Open.setUseRsearch(true);
+		LS_Open.setSizeNarrowBand(sizenb);
+
+		//compute Level Set
+		LS_Open.dfNarrowBand();
+
+		LSet = LS_Open.getSdf();
+		int lsetSize = LSet.size();
+		LGradient.resize(lsetSize, dvector1D(3,0.0));
+	
+		for(uint32_t i=0; i<lsetSize; ++i){
+			LGradient[i] = conVect(LS_Open.getSdfGradient(i));
+		}
+
+		//Mesh->Export_PointData_vtr("puppa.vtr", "ls", LSet);
+	
+	envelopeCells.resize(n[0]*n[1]*n[2]);
+	//check-it-out on the grid and select the nodes
+	ivector1D residualNodes(LSet.size());
+	{
+	  int counter = 0;
+	  for(int i=0; i<LSet.size(); ++i){
+	      
+	    residualNodes[counter] = LS_Open.getIsExact(i)*i;
+	    counter = counter + LS_Open.getIsExact(i);
+	  }  
+	 residualNodes.resize(counter);
+	} 
+		
+	std::map<int,int> mapNodes;
+	if(residualNodes.size() != 0)
+	{
+		int Vsize = (Mesh->nx) * (Mesh->ny) *(Mesh->nz);
+		int counterCells = 0;
+
+		for(int i=0; i<Vsize; i++)
+		{
+			int iCell = conCellUCartMeshtoLatticeNumb(i);
+			ivector1D cartCell = CartesianCellLattice(iCell);
+			ivector1D nHexa = buildHexaNeighs(cartCell[0], cartCell[1], cartCell[2]);
+
+			int jcount=0;
+			ivector1D checkNodes;
+			while (jcount<nHexa.size())
+			{
+				int iTarget = nHexa[jcount];
+				
+				int iTarg2 = conVertLatticetoUCartMeshNumb(iTarget);
+				int check = posVectorFind(residualNodes, iTarg2);
+				jcount++;
+				if(check !=-1){checkNodes.push_back(iTarget);}
+			}//end while
+
+			if(checkNodes.size()==8)
+			{
+				envelopeCells[counterCells] = iCell;
+				counterCells++;
+				for(int ls=0; ls<nHexa.size(); ls++)
+				{
+				  mapNodes[nHexa[ls]]= nHexa[ls];
+				} //next ls
+			}//endif check
+		}//next i
+
+		envelopeCells.resize(counterCells);
+	}//endif
+
+	// Save the selected nodes in the envelope structure
+	envelopeNodeList.resize(mapNodes.size(),0);
+	envelopeNodeGradients.resize(mapNodes.size(),dvector1D(3,0.0));
+
+	int IVcounter=0;
+	for( std::map<int,int>::iterator itV=mapNodes.begin(); itV != mapNodes.end(); itV++)
+	{
+		int jiV = (*itV).second;
+		envelopeNodeList[IVcounter] = jiV ;
+		int jiV2 = conVertLatticetoUCartMeshNumb(jiV);
+		envelopeNodeGradients[IVcounter] = abs(LSet[jiV2]) * LGradient[jiV2];
+		IVcounter++;
+	}
+  		  
+	//get outerShell dependancy !DON'T DO THAT FOR NOW! I'm B-Splining
+//	compileOuterShellDependancy();
+};
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::extractAllNodes3D()
+{
+	int cell_size= n[0]*n[1]*n[2];
+	envelopeCells.resize(cell_size);
+	for(int i=0; i<cell_size; ++i){envelopeCells[i]=i;}
+
+	// Save the selected nodes in the envelope structure
+	envelopeNodeList.resize(n_points+1,0);
+	envelopeNodeGradients.resize(n_points+1,dvector1D(3,0.0));
+
+	for( int i=0; i<=n_points; ++i)
+	{
+		envelopeNodeList[i] = i ;
+	}
+	//get outerShell dependancy
+//	compileOuterShellDependancy();
+};
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::getBoundingBoxSelection()
+{
+
+	dvector1D pOrigin(3,1e18);
+	dvector1D pDiagonal(3,-1e18);
+
+	for(int iV= 0; iV < puntSelection->Daughter.Vertex.size(); iV++)
+	{
+		for(int loc=0; loc<3; loc++)
+		{
+			pOrigin[loc]    = fmin(pOrigin[loc]   , puntSelection->Daughter.Vertex[iV][loc]);
+			pDiagonal[loc] = fmax(pDiagonal[loc], puntSelection->Daughter.Vertex[iV][loc]);
+
+		}//next loc
+	}//next iV
+
+
+	origin = pOrigin;
+	span_lattice = (pDiagonal - pOrigin);
+	double rd = norm_2(span_lattice);
+
+	std::map<double, int> mapSpan;
+	for(int k=0; k<3; k++){
+		mapSpan[span_lattice[k]] = k;
+	}
+
+	dvector1D orderedSpan(3,0.0);
+	ivector1D indexing(3,0);
+	int countLocal=0;
+	for(std::map<double,int>::iterator itM = mapSpan.begin(); itM!= mapSpan.end(); ++itM){
+		orderedSpan[countLocal] = span_lattice[(*itM).second];
+		indexing[countLocal] = (*itM).second;
+		++countLocal;
+	}
+
+	double val_rate=5.5;
+	if(orderedSpan[0]> 0.0) { val_rate= orderedSpan[1]/orderedSpan[0];}
+
+	if(val_rate >5.0){orderedSpan[0] = orderedSpan[1]/5.0;}
+
+
+	double oldspan = span_lattice[indexing[0]];
+	span_lattice[indexing[0]] = orderedSpan[0];
+
+	origin[indexing[0]] = origin[indexing[0]] - (span_lattice[indexing[0]] - oldspan)*0.5;
+
+
+	// get 5% of volume dilatation to avoid complanar surfaces and nodes.
+	span_lattice = span_lattice*1.05;
+	origin = origin -0.025*span_lattice;
+} //end of getBoundingBoxSelection
+
+template < int Dim, int Map_Dim >
+ivector1D LATTICE <Dim, Map_Dim>::getCartesianMeshElementConnectivity(Class_UCartMesh3D * mesh, int & i, int & j, int & k )
+{
+	ivector1D result(8,0);
+	ivector2D indexes(8,ivector1D(3,0));
+
+	for(int iLoc=0; iLoc<8; iLoc++)
+	{
+		indexes[iLoc][0] = i;
+		indexes[iLoc][1] = j;
+		indexes[iLoc][2] = k;
+	}
+
+	indexes[1][0] += 1;
+	indexes[2][0] += 1; indexes[2][1] += 1;
+	indexes[3][1] += 1;
+	indexes[4][2] += 1;
+	indexes[5][0] += 1; indexes[5][2] += 1;
+	indexes[6][0] += 1; indexes[6][1] += 1; indexes[6][2] += 1;
+	indexes[7][1] += 1; indexes[7][2] += 1;
+
+	for (int I=0; I<8; I++)
+	{
+		result[I] = mesh->AccessPointData(indexes[I][0], indexes[I][1], indexes[I][2]);
+	}
+
+	return (result);
+}//end of getCartesianMeshElementConnectivity
+
+template < int Dim, int Map_Dim >
+dvector2D LATTICE <Dim, Map_Dim>::getCartesianMeshElementCoordinate(Class_UCartMesh3D * mesh, int & i, int & j, int & k )
+{
+	dvector2D result(8,dvector1D(3,0.0));
+	ivector2D indexes(8,ivector1D(3,0));
+
+	for(int iLoc=0; iLoc<8; iLoc++)
+	{
+		indexes[iLoc][0] = i;
+		indexes[iLoc][1] = j;
+		indexes[iLoc][2] = k;
+	}
+
+	indexes[1][0] += 1;
+	indexes[2][0] += 1; indexes[2][1] += 1;
+	indexes[3][1] += 1;
+	indexes[4][2] += 1;
+	indexes[5][0] += 1; indexes[5][2] += 1;
+	indexes[6][0] += 1; indexes[6][1] += 1; indexes[6][2] += 1;
+	indexes[7][1] += 1; indexes[7][2] += 1;
+
+	for(int I=0; I<8; I++)
+	{
+		result[I][0] = mesh->xedge[indexes[I][0]];
+		result[I][1] = mesh->yedge[indexes[I][1]];
+		result[I][2] = mesh->zedge[indexes[I][2]];
+	}//next I
+
+	return (result);
+}// end of getCartesianElementMeshCoordinate
+
+template < int Dim, int Map_Dim >
+int LATTICE <Dim, Map_Dim>::findLSSupportTriangle(dvector1D & point, double & tolerance)
+{
+	//	 given a puntSelection tasselation, find the nearest vertex of traingulation to the point
+	int result;
+	dvector1D res(3,0.0);
+	bool check = false;
+	int iT =0;
+	while(iT<puntSelection->Daughter.nSimplex && !check )
+	{
+		int iV = puntSelection->Daughter.Simplex[iT][0];
+		res = point - conVect(puntSelection->Daughter.Vertex[iV]);
+
+		double valCheck = 0.0;
+		for(int k=0; k<3; k++) valCheck += puntSelection->Daughter.Normal[iT][k] * res[k];
+
+		if(abs(valCheck) <= tolerance) check = true;
+		iT++;
+	}//end while
+
+	result = iT-1;
+	return (result);
+}//end of findLSSupportTriangle.
+
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::writeLoadTemplate()
+{
+	svector1D direction(3,"") ;
+	double value = 0.0;
+	ivector1D ii(3,0);
+
+	ofstream writeload;
+	// open file load_filename and check the result
+	writeload.open(loadfile.c_str());
+
+	if (writeload.is_open())   // check: successfully opened, proceed
+	{
+		//write preamble
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#AVAILABLE NODAL DISPLACEMENTS for LATTICE : "<< name <<'\n';
+		writeload<<"#Loads are expressed for each active node available, by declaring,  :		"<<'\n';
+		writeload<<"#identifying indices on the lattice's grid i,j,k "<<'\n';
+		writeload<<"#the label of displacement direction x,y or z " <<'\n';
+		writeload<<"#the signed value of displacement"<<'\n';
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		direction[0] = "x";
+		direction[1] = "y";
+		direction[2] = "z";
+
+		writeload<<"#Dimension of lattice grid in C-style"<<std::endl;
+		writeload<<"$DIMENSION"<<'\t'<<n[0]<<'\t'<<n[1]<<'\t'<<n[2]<<endl;
+		writeload<<"$CURVEDEGREE"<<'\t'<<deg[0]<<'\t'<<deg[1]<<'\t'<<deg[2]<<endl;
+		writeload<<"$ORIGIN"<<'\t'<<std::scientific<<std::setprecision(12)<<origin[0]<<'\t'<<origin[1]<<'\t'<<origin[2]<<endl;
+		writeload<<"$SPAN"<<'\t'<<std::scientific<<std::setprecision(12)<<span_lattice[0]<<'\t'<<span_lattice[1]<<'\t'<<span_lattice[2]<<endl;
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		for(int k=0; k<envelopeNodeList.size(); k++)
+		{
+			int iV = envelopeNodeList[k];
+			ii[2] = iV / (n[0]+1)/(n[1]+1);
+			ii[1] = (iV - ii[2]*(n[0]+1)*(n[1]+1))/(n[0]+1);
+			ii[0] = iV - ii[2]*(n[0]+1)*(n[1]+1) - ii[1]*(n[0]+1);
+
+			for(int j=0; j<3; j++)
+			{
+				writeload<<"$LOAD"<<'\t'<<ii[0]<<'\t'<<ii[1]<<'\t'<<ii[2]<<'\t'<<direction[j]<<'\t'<<value<<'\n';
+			}//next j
+		} //next k
+
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		writeload<<"$ENDLOAD"<<'\n';
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot open the file for writing the Lattice's load template "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	writeload.close();
+}
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::readLoadFile()
+{
+	//----> CONTINUE TO READ DISPLACEMENTS (*.*.LOAD[2]) OF LATTICE NODES
+	//from the external file load_filename.
+	std::string line, direction, otype;
+	double value;
+	int jdir;
+	int ii[3];
+	//initializing load data
+	for(int k=0; k<= n_points; k++)
+	{
+		for(int intv=0; intv<3; intv++)
+		{
+			points[k].load[intv] = 0.0 ;
+		} //next intv
+	} //next k
+
+	ifstream readload;
+	// open file load_filename and check the result
+	readload.open(loadfile.c_str());
+
+	if (readload.is_open())   // check: successfully opened, proceed
+	{
+		do{
+			std::stringstream ss;
+			std::getline(readload,line);
+			ss.str(trim(line));
+			ss >> otype;
+			// start reading the loads
+			if(otype =="$LOAD")
+			{
+				for(int intv=0; intv<3; intv++)  ss >> ii[intv];
+
+				ss >> direction >> value;
+
+				if(direction=="z") jdir=2;
+				if(direction=="y") jdir=1;
+				if(direction=="x") jdir=0;
+
+				int kcount = ii[2]*(n[1]+1)*(n[0]+1) + ii[1]*(n[0]+1) + ii[0];
+				points[kcount].load[jdir] = value;
+			}
+
+		} while(otype !="$ENDLOAD");
+
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot find the file for Reading the Lattice's loads "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	readload.close();
+	
+	//DON'T DO THAT FOR NOW
+//	autoMoveOuterShell();
+} //END OF READ LOAD;
+
+
+
+template < int Dim, int Map_Dim >
+bool LATTICE <Dim, Map_Dim>::readLoadFileWP()
+{
+
+	bool check;
+	//----> CONTINUE TO READ DISPLACEMENTS (*.*.LOAD[2]) OF LATTICE NODES
+	//from the external file load_filename.
+	std::string line, direction, otype;
+	std::string value;
+	int jdir;
+	int ii[3];
+
+	ivector1D n_(3,0), deg_(3,0);
+	dvector1D or_(3,0), span_(3,0);
+	
+	ifstream readload;
+	// open file load_filename and check the result
+	readload.open(loadfile.c_str());
+
+	if (readload.is_open())   // check: successfully opened, proceed
+	{
+
+		do
+		{
+			std::getline(readload,line);
+			std::stringstream ss;
+			ss.str(trim(line));
+			ss >> otype;
+		} while(otype != "$DIMENSION");
+
+		//READING THE DOF NUMBERS OF LATTICE, IN EACH DIRECTION
+		std::stringstream s4;
+		s4.str(trim(line));
+		s4 >> otype;
+		for(int i=0; i<3; i++){	s4 >> n_[i];}
+
+		do
+		{
+			std::getline(readload,line);
+			std::stringstream ss;
+			ss.str(trim(line));
+			ss >> otype;
+		} while(otype != "$CURVEDEGREE");
+
+		//READING THE DOF NUMBERS OF LATTICE, IN EACH DIRECTION
+		std::stringstream s7;
+		s4.str(trim(line));
+		s4 >> otype;
+		for(int i=0; i<3; i++){	s7 >> deg_[i];}
+
+		do
+		{
+			std::getline(readload,line);
+			std::stringstream ss;
+			ss.str(trim(line));
+			ss >> otype;
+		} while(otype != "$ORIGIN");
+
+		//READING THE ORIGIN OF LATTICE, IN EACH DIRECTION
+		std::stringstream s5;
+		s5.str(trim(line));
+		s5 >> otype;
+		for(int i=0; i<3; i++){s5 >> or_[i];}//next i
+
+		do
+		{
+			std::getline(readload,line);
+			std::stringstream ss;
+			ss.str(trim(line));
+			ss >> otype;
+		} while(otype != "$SPAN");
+
+		//READING THE ORIGIN OF LATTICE, IN EACH DIRECTION
+		std::stringstream s6;
+		s6.str(trim(line));
+		s6 >> otype;
+		for(int i=0; i<3; i++){s6 >> span_[i];}//next i
+
+		setLatticeOrigin(or_);
+		setLatticeSpan(span_);
+		setLatticeDimension(n_[0],n_[1], n_[2], deg_[0], deg_[1], deg_[2]);
+		define_lattice_mesh_equi();
+		nullLoads();
+		
+		do{
+			std::stringstream ss;
+			std::getline(readload,line);
+			ss.str(trim(line));
+			ss >> otype;
+			// start reading the loads
+			if(otype =="$LOAD")
+			{
+				for(int intv=0; intv<3; intv++)  ss >> ii[intv];
+
+				ss >> direction >> value;
+
+				if(direction=="z") jdir=2;
+				if(direction=="y") jdir=1;
+				if(direction=="x") jdir=0;
+
+				int kcount = ii[2]*(n[1]+1)*(n[0]+1) + ii[1]*(n[0]+1) + ii[0];
+
+				points[kcount].loadstring[jdir] = value;
+				points[kcount].load[jdir]=0.0;
+			}
+
+		} while(otype !="$ENDLOAD");
+
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot find the file for Reading the Lattice's loads "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	readload.close();
+
+	check = convertLoadString(false);
+	//if check false i'm working in template mode.
+
+	extractAllNodes3D();
+	
+	//autoMoveOuterShell(); DON'T USE IT FOR NOW.
+	return(check);
+} //END OF READ LOAD;
+
+
+
+template < int Dim, int Map_Dim >
+void LATTICE<Dim,Map_Dim>::bindingLaws(ivector1D & coordT,
+		double  val,
+		double  where,
+		std::string  dir,
+		std::string  type,
+		std::string  dirtype,
+		dvector2D * result)
+		{
+
+	int funct_type = -1;
+
+	if(type== "constant"                		) funct_type=0;
+	if(type=="linear"   	&& where==0.0		) funct_type=1;
+	if(type=="linear"    	&& where==1.0 		) funct_type=2;
+	if(type=="quadratic" 	&& where==0.0 		) funct_type=3;
+	if(type=="quadratic" 	&& where==0.5 		) funct_type=4;
+	if(type=="quadratic" 	&& where==1.0 		) funct_type=5;
+	if(type=="cubic" 	 	&& where==0.0 		) funct_type=6;
+	if(type=="cubic"     	&& where==1.0/3.0 	) funct_type=7;
+	if(type=="cubic"     	&& where==2.0/3.0 	) funct_type=8;
+	if(type=="cubic"     	&& where==1.0 		) funct_type=9;
+	if(type=="biquadratic"  && where==0.0 		) funct_type=10;
+	if(type=="biquadratic"  && where==0.25 		) funct_type=11;
+	if(type=="biquadratic"  && where==0.50 		) funct_type=12;
+	if(type=="biquadratic"  && where==0.75 		) funct_type=13;
+	if(type=="biquadratic"  && where==1.0 		) funct_type=14;
+	if(type=="sinusoidal"  						) funct_type=15;
+
+	dir = mappingDirString(dir);
+	dirtype = mappingDirString(dirtype);
+
+	ivector1D rowNodes = getRow(coordT, dirtype);
+	int sizeRN = rowNodes.size();
+	int locV   = (dirtype=="xdir") + 2*(dirtype=="ydir") + 3*(dirtype=="zdir") - 1;
+	int locdir = (dir=="xdir") + 2*(dir=="ydir") + 3*(dir=="zdir") - 1;
+	if(locV ==-1 || locdir==-1){std::cout<<"Error in LATTICE::bindingLaws"<<endl; exit(1);}
+
+	double pi = 4.0*atan(1.0);
+
+	switch(funct_type){
+
+	case 0: for(int i=0; i<sizeRN; ++i){
+			if(result ==NULL){points[rowNodes[i]].load[locdir] += val;}
+			else			 {(*result)[rowNodes[i]][locdir] = val;}
+			}
+			break;
+
+	case 1:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(1.0 -point);}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(1.0 -point);}
+			}
+			break;
+
+	case 2:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*point;}
+			else			  {(*result)[rowNodes[i]][locdir] = val* point;}
+			}
+			break;
+
+	case 3:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(pow(point,2) - 2*point + 1.0);}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(pow(point,2) - 2*point + 1.0);}
+			}
+			break;
+
+	case 4:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*4.0*(-1.0*pow(point,2) +point );}
+			else			  {(*result)[rowNodes[i]][locdir] = val*4.0*(-1.0*pow(point,2) +point );}
+			}
+			break;
+
+	case 5:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(pow(point,2));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(pow(point,2));}
+			}
+			break;
+
+	case 6:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(-pow(point,3) +3.0*pow(point,2)- 3*point + 1.0);}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(-pow(point,3) +3.0*pow(point,2)- 3*point + 1.0);}
+			}
+			break;
+
+	case 7:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(27.0*pow(point,3)/4.0 -27.0*pow(point,2)/2.0 + 27.0*point/4.0);}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(27.0*pow(point,3)/4.0 -27.0*pow(point,2)/2.0 + 27.0*point/4.0);}
+			}
+			break;
+
+	case 8:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(-27.0*pow(point,3)/4.0 +27.0*pow(point,2)/4.0 );}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(-27.0*pow(point,3)/4.0 +27.0*pow(point,2)/4.0 );}
+			}
+			break;
+
+	case 9:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(pow(point,3));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(pow(point,3));}
+			}
+			break;
+
+	case 10:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(pow(point,4) - 4.0*pow(point,3)
+																		+6.0*pow(point,2) - 4.0*pow(point,1) + 1.0);}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(pow(point,4) - 4.0*pow(point,3)
+															+6.0*pow(point,2) - 4.0*pow(point,1) + 1.0);;}
+			}
+			break;
+
+	case 11:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(256.0/27.0)*(- pow(point,4) + 3.0*pow(point,3)
+																	    -3.0*pow(point,2) + pow(point,1));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(256.0/27.0)*(- pow(point,4) + 3.0*pow(point,3)
+		    																	-3.0*pow(point,2) + pow(point,1));}
+			}
+			break;
+	case 12:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(16.0)*(pow(point,4) -2.0*pow(point,3)+ pow(point,2) );}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(16.0)*(pow(point,4) -2.0*pow(point,3)+ pow(point,2) );}
+			}
+			break;
+
+	case 13:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(256.0/27.0)*(- pow(point,4) + pow(point,3));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(256.0/27.0)*(- pow(point,4) + pow(point,3));}
+			}
+			break;
+
+	case 14:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(pow(point,4));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(pow(point,4));}
+			}
+			break;
+
+	case 15:	for(int i=0; i<sizeRN; ++i){
+			double point = (points[rowNodes[i]].coord[locV] - origin[locV])/span_lattice[locV];
+			if(result == NULL){points[rowNodes[i]].load[locdir] += val*(sin(2.0*pi*(point - where)));}
+			else			  {(*result)[rowNodes[i]][locdir] = val*(sin(2.0*pi*(point - where)));}
+			}
+			break;
+
+	default: //never been reached
+		break;
+
+	}
+}
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::writeLoad()
+{
+	svector1D direction(3,"") ;
+	double value = 0.0;
+	ivector1D ii(3,0);
+
+	ofstream writeload;
+	// open file load_filename and check the result
+	writeload.open(loadfile.c_str());
+
+	if (writeload.is_open())   // check: successfully opened, proceed
+	{
+		//write preamble
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#AVAILABLE NODAL DISPLACEMENTS for LATTICE : "<< name <<'\n';
+		writeload<<"#Loads are expressed for each active node available, by declaring,  :		"<<'\n';
+		writeload<<"#identifying indices on the lattice's grid i,j,k "<<'\n';
+		writeload<<"#the label of displacement direction x,y or z " <<'\n';
+		writeload<<"#the signed value of displacement"<<'\n';
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		direction[0] = "x";
+		direction[1] = "y";
+		direction[2] = "z";
+
+		writeload<<"#Dimension of lattice grid in C-style"<<std::endl;
+		writeload<<"$DIMENSION"<<'\t'<<n[0]<<'\t'<<n[1]<<'\t'<<n[2]<<endl;
+		writeload<<"$CURVEDEGREE"<<'\t'<<deg[0]<<'\t'<<deg[1]<<'\t'<<deg[2]<<endl;
+		writeload<<"$ORIGIN"<<'\t'<<std::scientific<<std::setprecision(12)<<origin[0]<<'\t'<<origin[1]<<'\t'<<origin[2]<<endl;
+		writeload<<"$SPAN"<<'\t'<<std::scientific<<std::setprecision(12)<<span_lattice[0]<<'\t'<<span_lattice[1]<<'\t'<<span_lattice[2]<<endl;
+
+		writeload<<"#"<<endl;
+		writeload<<"#"<<endl;
+		writeload<<"#"<<endl;
+
+		for(int k=0; k<envelopeNodeList.size(); k++)
+		{
+			int iV = envelopeNodeList[k];
+			ii[2] = iV / (n[0]+1)/(n[1]+1);
+			ii[1] = (iV - ii[2]*(n[0]+1)*(n[1]+1))/(n[0]+1);
+			ii[0] = iV - ii[2]*(n[0]+1)*(n[1]+1) - ii[1]*(n[0]+1);
+
+
+			for(int j=0; j<3; j++)
+			{
+				value = points[iV].load[j];
+				writeload<<"$LOAD"<<'\t'<<ii[0]<<'\t'<<ii[1]<<'\t'<<ii[2]<<'\t'<<direction[j]<<'\t'<<std::scientific<<std::setprecision(12)<<value<<'\n';
+			}//next j
+		} //next k
+
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		writeload<<"$ENDLOAD"<<'\n';
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot open the file for writing the Lattice's load template "<< loadfile<< " in folder Input.Please check"<<endl;
+	exit(1);}
+
+	writeload.close();
+}
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::writeLoadWrapper()
+{
+	svector1D direction(3,"") ;
+	double value = 0.0;
+	ivector1D ii(3,0);
+
+	ofstream writeload;
+	// open file load_filename and check the result
+		std::string key2 = ".";
+		std::size_t cut2 =loadfile.rfind(key2);
+
+		std::string root, tag;
+		root  = loadfile.substr(0, cut2);
+		tag = loadfile.substr(cut2, std::string::npos);
+
+	std::string loadfilewp =root + "_wrapped" + tag;
+
+	writeload.open(loadfilewp.c_str());
+
+	if (writeload.is_open())   // check: successfully opened, proceed
+	{
+		//write preamble
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#AVAILABLE NODAL DISPLACEMENTS for LATTICE : "<< name <<'\n';
+		writeload<<"#Loads are expressed for each active node available, by declaring,  :		"<<'\n';
+		writeload<<"#identifying indices on the lattice's grid i,j,k "<<'\n';
+		writeload<<"#the label of displacement direction x,y or z " <<'\n';
+		writeload<<"#the signed value of displacement"<<'\n';
+		writeload<<"#------------------------------------------------------------------------#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		direction[0] = "x";
+		direction[1] = "y";
+		direction[2] = "z";
+
+		writeload<<"#Dimension of lattice grid in C-style"<<std::endl;
+		writeload<<"$DIMENSION"<<'\t'<<n[0]<<'\t'<<n[1]<<'\t'<<n[2]<<endl;
+		writeload<<"$CURVEDEGREE"<<'\t'<<deg[0]<<'\t'<<deg[1]<<'\t'<<deg[2]<<endl;
+		writeload<<"$ORIGIN"<<'\t'<<std::scientific<<std::setprecision(12)<<origin[0]<<'\t'<<origin[1]<<'\t'<<origin[2]<<endl;
+		writeload<<"$SPAN"<<'\t'<<std::scientific<<std::setprecision(12)<<span_lattice[0]<<'\t'<<span_lattice[1]<<'\t'<<span_lattice[2]<<endl;
+
+		writeload<<"#"<<endl;
+		writeload<<"#"<<endl;
+		writeload<<"#"<<endl;
+
+		for(int k=0; k<envelopeNodeList.size(); k++)
+		{
+			int iV = envelopeNodeList[k];
+			ii[2] = iV / (n[0]+1)/(n[1]+1);
+			ii[1] = (iV - ii[2]*(n[0]+1)*(n[1]+1))/(n[0]+1);
+			ii[0] = iV - ii[2]*(n[0]+1)*(n[1]+1) - ii[1]*(n[0]+1);
+
+
+			for(int j=0; j<3; j++)
+			{
+				value = points[iV].load[j];
+				writeload<<"$LOAD"<<'\t'<<ii[0]<<'\t'<<ii[1]<<'\t'<<ii[2]<<'\t'<<direction[j]<<'\t'<<std::scientific<<std::setprecision(12)<<value<<endl;
+			}//next j
+		} //next k
+
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+		writeload<<"#"<<'\n';
+
+		writeload<<"$ENDLOAD"<<'\n';
+	}// end of readload ifstream
+
+	else{std::cout<<"WARNING! cannot open the file for writing the Lattice's load "<< loadfilewp<< ".Please check"<<endl;
+	exit(1);}
+
+	writeload.close();
+}
+
+template < int Dim, int Map_Dim >
+void LATTICE <Dim, Map_Dim>::nullLoads()
+{
+	for(int iV=0; iV<=n_points; ++iV){
+		for(int j=0; j<3; ++j){
+			points[iV].load[j] = 0.0;
+		}
+	}
+
+};
+
+template < int Dim, int Map_Dim >
+ivector1D LATTICE<Dim,Map_Dim>::getRow(ivector1D & coord, std::string & dir){
+
+	ivector1D result;
+
+	int counter=0;
+	if(dir != "xdir" && dir != "ydir" && dir != "zdir" )
+	{
+		std::cout <<"Misleading calling LATTICE<Dim, Map_Dim>::getRow. Not correct input calling. Program will exit."<<'\n';
+		exit(1);
+	};
+
+	int itype = 0;
+	if(dir == "ydir") itype = 1;
+	if(dir == "zdir") itype = 2;
+
+	int i,j,k;
+	switch(itype)
+	{
+	case 0:
+		j=coord[1];
+		k=coord[2];
+		result.resize(n[0]+1);
+		for(i=0; i<=n[0]; i++){ result[i]=AccessPointLattice(i,j,k); }
+		break;
+	case 1:
+		i=coord[0];
+		k=coord[2];
+		result.resize(n[1]+1);
+		for(j=0; j<=n[1]; j++){ result[j]=AccessPointLattice(i,j,k); }
+		break;
+	case 2:
+		i=coord[0];
+		j=coord[1];
+		result.resize(n[2]+1);
+		for(k=0; k<=n[2]; k++){result[k]=AccessPointLattice(i,j,k); }
+		break;
+	default:
+		//doing nothing
+		break;
+	} //end switch
+	return(result);
+}
+
+template < int Dim, int Map_Dim >
+ivector1D LATTICE<Dim, Map_Dim>::buildHexaNeighs( int  i, int  j , int k )
+{
+	ivector1D result(8,0);
+
+	//build the list of the eight vertex composing the cell in 3D cartesian mesh.
+	//seed vertex i,j,k is the western-south-bottom vertex of the cell according to the axes orientation;
+
+	result[0] = AccessPointLattice(i, j, k);
+	result[1] = AccessPointLattice(i+1, j, k);
+	result[2] = AccessPointLattice(i+1, j+1, k);
+	result[3] = AccessPointLattice(i, j+1, k);
+	result[4] = AccessPointLattice(i, j, k+1);
+	result[5] = AccessPointLattice(i+1, j, k+1);
+	result[6] = AccessPointLattice(i+1, j+1, k+1);
+	result[7] = AccessPointLattice(i, j+1, k+1);
+
+	return (result);
+}
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::AccessPointLattice(int  i, int  j, int  k)
+{
+	int result;
+
+	if(i<0 || i>n[0]) {result=-1; return (result);}
+	if(j<0 || j>n[1]) {result=-1; return (result);}
+	if(k<0 || k>n[2]) {result=-1; return (result);}
+
+	result = k * (n[0]+1) * (n[1]+1) + j * (n[0]+1) + i ;
+	return (result);
+}
+
+template < int Dim, int Map_Dim >
+ivector1D LATTICE<Dim, Map_Dim>::CartesianPointLattice(int  target)
+{
+	ivector1D result(3,0);
+	result[2] = target / (n[0]+1) / (n[1]+1) ;
+	result[1] =(target - result[2]* (n[0]+1) * (n[1]+1) )/ (n[0]+1) ;
+	result[0] = target - result[2]* (n[0]+1) * (n[1]+1) - result[1]* (n[0]+1) ;
+
+	return (result);
+}
+
+
+template < int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::ReturnCartesianCell(darray3E & P, int &i, int &j, int &k){
+
+    i = min(n[0]-1, max(0, (int) floor((P[0] - origin[0])*n[0]/span_lattice[0])));
+    j = min(n[1]-1, max(0, (int) floor((P[1] - origin[1])*n[1]/span_lattice[1])));
+    k = min(n[2]-1, max(0, (int) floor((P[2] - origin[2])*n[2]/span_lattice[2])));
+}
+
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::AccessCellLattice(int  i, int  j, int  k)
+{
+	int result;
+
+	if(i<0 || i>(n[0]-1)) {result=-1; return (result);}
+	if(j<0 || j>(n[1]-1)) {result=-1; return (result);}
+	if(k<0 || k>(n[2]-1)) {result=-1; return (result);}
+
+	result = k * (n[0]) * (n[1]) + j * (n[0]) + i ;
+	return (result);
+}
+
+template < int Dim, int Map_Dim >
+ivector1D LATTICE<Dim, Map_Dim>::CartesianCellLattice(int  target)
+{
+	ivector1D result(3,0);
+	result[2] = target / (n[0]) / (n[1]) ;
+	result[1] =(target - result[2]* (n[0]) * (n[1]) )/ (n[0]) ;
+	result[0] = target - result[2]* (n[0]) * (n[1]) - result[1]* (n[0]) ;
+
+	return (result);
+}
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::conVertLatticetoUCartMeshNumb(int & target)
+{
+	int result;
+	ivector1D coo = CartesianPointLattice(target);
+	result = coo[0]*(n[2]+1)*(n[1]+1) + coo[1]*(n[2]+1) + coo[2];
+	return (result);
+};
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::conVertUCartMeshtoLatticeNumb(int & target)
+{
+	int result;
+	ivector1D coo(3,0.0);
+	coo[0] = target/(n[2]+1)/(n[1]+1);
+	coo[1] = (target  - coo[0] * (n[2]+1)*(n[1]+1) ) / (n[2]+1);
+	coo[2] = target  - coo[0] * (n[2]+1)*(n[1]+1) - coo[1]*(n[2]+1);
+
+	result = AccessPointLattice(coo[0],coo[1],coo[2]);
+	return (result);
+};
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::conCellLatticetoUCartMeshNumb(int & target)
+{
+	int result;
+	ivector1D coo = CartesianCellLattice(target);
+	result = coo[0]*(n[2])*(n[1]) + coo[1]*(n[2]) + coo[2];
+	return (result);
+};
+
+template < int Dim, int Map_Dim >
+int LATTICE<Dim, Map_Dim>::conCellUCartMeshtoLatticeNumb(int & target)
+{
+	int result;
+	ivector1D coo(3,0.0);
+	coo[0] = target/(n[2])/(n[1]);
+	coo[1] = (target  - coo[0] * (n[2])*(n[1]) ) / (n[2]);
+	coo[2] = target  - coo[0] * (n[2])*(n[1]) - coo[1]*(n[2]);
+
+	result = AccessCellLattice(coo[0],coo[1],coo[2]);
+	return (result);
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::compileOuterShellDependancy()
+{
+	envelopeDependancy.resize(envelopeNodeList.size());
+
+	// xdir strings check
+	for(int k=0; k<=n[2]; k++)
+	{
+		for(int j=0; j<=n[1]; j++)
+		{
+
+			ivector1D nodes;
+			bvector1D matches;
+
+			int count = findElementsinRow("xdir", j, k, envelopeNodeList, nodes, matches);
+
+			if (count > 1)
+			{
+				int jcount;
+				bool check;
+				ivector1D dum_work1, dum_work2;
+				int upNode, dwNode;
+
+				//first while up-row
+				jcount = -1;
+				check = false;
+				upNode = 0;
+				while (!check)
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work1.push_back(upNode);}
+				}
+
+
+				//second while down-row
+				jcount = nodes.size();
+				check = false;
+				while (!check )
+				{
+					jcount--;
+					dwNode = nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work2.push_back(dwNode);}
+				}
+
+
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].xdir.resize(dum_work1.size());
+				envelopeDependancy[upPos].xdir = dum_work1;
+
+				int dwPos = posVectorFind(envelopeNodeList, dwNode);
+				envelopeDependancy[dwPos].xdir.resize(dum_work2.size());
+				envelopeDependancy[dwPos].xdir = dum_work2;
+			}
+			else	if(count == 1)
+			{
+				int jcount;
+				bool check;
+				int upNode;
+
+				//while up-row
+				jcount = -1;
+				check = false;
+				while (!check )
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+				}
+
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].xdir.resize(nodes.size());
+
+				int ecnt=0;
+				for(int ls=0; ls<nodes.size(); ls++)
+				{
+					if(upNode != nodes[ls]){envelopeDependancy[upPos].xdir[ecnt] = nodes[ls]; ecnt++;}
+				}
+				envelopeDependancy[upPos].xdir.resize(ecnt);
+
+			} // end if
+
+		}//next j
+	}//next k
+
+
+	// ydir strings check
+	for(int k=0; k<=n[2]; k++)
+	{
+		for(int i=0; i<=n[0]; i++)
+		{
+
+			ivector1D nodes;
+			bvector1D matches;
+
+			int count = findElementsinRow("ydir", i, k, envelopeNodeList, nodes, matches);
+
+			if (count > 1)
+			{
+				int jcount;
+				bool check;
+				ivector1D dum_work1, dum_work2;
+				int upNode, dwNode;
+
+				//first while up-row
+				jcount = -1;
+				check = false;
+				while (!check )
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work1.push_back(nodes[jcount]);}
+				}
+
+				//second while down-row
+				jcount = nodes.size();
+				check = false;
+				while ( !check )
+				{
+					jcount--;
+					dwNode =  nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work2.push_back(nodes[jcount]);}
+				}
+
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].ydir.resize(dum_work1.size());
+				envelopeDependancy[upPos].ydir = dum_work1;
+
+				int dwPos = posVectorFind(envelopeNodeList, dwNode);
+				envelopeDependancy[dwPos].ydir.resize(dum_work2.size());
+				envelopeDependancy[dwPos].ydir = dum_work2;
+			}
+			else	if(count == 1)
+			{
+				int jcount;
+				bool check;
+				int upNode;
+
+				//while up-row
+				jcount = -1;
+				check = false;
+				while (!check )
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+
+				}
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].ydir.resize(nodes.size());
+
+				int ecnt=0;
+				for(int ls=0; ls<nodes.size(); ls++)
+				{
+					if(upNode != nodes[ls]){	envelopeDependancy[upPos].ydir[ecnt] = nodes[ls]; ecnt++;}
+				}
+				envelopeDependancy[upPos].ydir.resize(ecnt);
+			} // end if
+
+		}//next i
+	}//next k
+
+
+	// zdir strings check
+	for(int j=0; j<=n[1]; j++)
+	{
+		for(int i=0; i<=n[0]; i++)
+		{
+
+			ivector1D nodes;
+			bvector1D matches;
+
+			int count = findElementsinRow("zdir", i, j, envelopeNodeList, nodes, matches);
+
+			if (count > 1)
+			{
+				int jcount;
+				bool check;
+				ivector1D dum_work1, dum_work2;
+				int upNode, dwNode;
+
+				//first while up-row
+				jcount = -1;
+				check = false;
+				while (!check )
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work1.push_back(nodes[jcount]);}
+				}
+
+				//second while down-row
+				jcount = nodes.size();
+				check = false;
+				while ( !check )
+				{
+					jcount--;
+					dwNode= nodes[jcount];
+					check = matches[jcount];
+					if(!check){dum_work2.push_back(nodes[jcount]);}
+				}
+
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].zdir.resize(dum_work1.size());
+				envelopeDependancy[upPos].zdir = dum_work1;
+
+				int dwPos = posVectorFind(envelopeNodeList, dwNode);
+				envelopeDependancy[dwPos].zdir.resize(dum_work2.size());
+				envelopeDependancy[dwPos].zdir = dum_work2;
+			}
+			else	if(count == 1)
+			{
+				int jcount;
+				bool check;
+				int upNode;
+
+				//while up-row
+				jcount = -1;
+				check = false;
+				while (!check )
+				{
+					jcount++;
+					upNode = nodes[jcount];
+					check = matches[jcount];
+				}
+
+				int upPos = posVectorFind(envelopeNodeList, upNode);
+				envelopeDependancy[upPos].zdir.resize(nodes.size());
+
+				int ecnt=0;
+				for(int ls=0; ls<nodes.size(); ls++)
+				{
+					if(upNode != nodes[ls]){envelopeDependancy[upPos].zdir[ecnt] = nodes[ls]; ecnt++;}
+				}
+				envelopeDependancy[upPos].zdir.resize(ecnt);
+			} // end if
+
+		}//next i
+	}//next j
+
+
+
+};//end of compileOuterShellDependancy
+
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::autoMoveOuterShell()
+{
+	if(envelopeDependancy.size() == 0){return;}
+	for (int i=0; i<envelopeNodeList.size(); i++)
+	{
+		moveOuterShellNodes(envelopeNodeList[i]);
+	}//next i
+
+}; //end of autoMoveOuterShell
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::moveOuterShellNodes(int & target)
+{
+	int i = posVectorFind(envelopeNodeList, target);
+
+	if(i != -1){
+		double xvalue = points[envelopeNodeList[i]].load[0];
+		double yvalue = points[envelopeNodeList[i]].load[1];
+		double zvalue = points[envelopeNodeList[i]].load[2];
+
+
+		for(int k=0; k<envelopeDependancy[i].xdir.size(); k++)
+		{
+			points[envelopeDependancy[i].xdir[k]].load[0]= xvalue;
+		}
+
+		for(int k=0; k<envelopeDependancy[i].ydir.size(); k++)
+		{
+			points[envelopeDependancy[i].ydir[k]].load[1]= yvalue;
+		}
+
+		for(int k=0; k<envelopeDependancy[i].zdir.size(); k++)
+		{
+			points[envelopeDependancy[i].zdir[k]].load[2]= zvalue;
+		}
+	}
+}; //end of autoMoveOuterShell
+
+
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::findElementsinRow(std::string casedir,
+		int &f1,
+		int &f2,
+		ivector1D & tList,
+		ivector1D & nodeList,
+		bvector1D & matchList)
+		{
+
+	int counter=0;
+	if(casedir != "xdir" && casedir != "ydir" && casedir != "zdir" )
+	{
+		std::cout <<"Misleading calling LATTICE<Dim, Map_Dim>::findElementsinRow. Not correct input calling. Program will exit."<<'\n';
+		exit(1);
+	};
+
+	int itype = 0;
+	if(casedir == "ydir") itype = 1;
+	if(casedir == "zdir") itype = 2;
+
+	int i,j,k;
+	switch(itype)
+	{
+	case 0:
+		j=f1;
+		k=f2;
+		nodeList.resize(n[0]+1);
+		for(i=0; i<=n[0]; i++){ nodeList[i]=AccessPointLattice(i,j,k); }
+		break;
+	case 1:
+		i=f1;
+		k=f2;
+		nodeList.resize(n[1]+1);
+		for(j=0; j<=n[1]; j++){ nodeList[j]=AccessPointLattice(i,j,k); }
+		break;
+	case 2:
+		i=f1;
+		j=f2;
+		nodeList.resize(n[2]+1);
+		for(k=0; k<=n[2]; k++){ nodeList[k]=AccessPointLattice(i,j,k); }
+		break;
+	default:
+		//doing nothing
+		break;
+	} //end switch
+
+
+	// find matches with tList in your row
+	int size = nodeList.size();
+	matchList.resize(size, false);
+
+	for(int ll=0; ll<size; ll++)
+	{
+		ivector1D::iterator itF=std::find(tList.begin(), tList.end(), nodeList[ll]);
+		if(itF != tList.end()){matchList[ll] = true; counter++;}
+	}//next ll
+
+	return(counter);
+		}; //end of findElementsinRow.
+
+
+template <int Dim, int Map_Dim>
+bool LATTICE<Dim, Map_Dim>::checkSelection(){
+
+	bool check = true;
+
+	std::vector<double> val (3, 0.0);
+	int locN(0);
+	std::vector<bool> INTERNAL(6,false),initialize(6,false);
+
+	int nT = 0;
+	while(nT<puntSelection->Daughter.nSimplex && check)
+	{
+		INTERNAL = initialize;
+		// checking intersection with every face of the patch.
+		for( int nFaces = 0 ;nFaces<6; ++nFaces)
+		{
+			//checking position of nodes of Triangle in comparison with the plane.
+			// reference point locN
+
+			for ( locN = 0; locN<3; locN++)
+			{
+
+				val[locN] = Hull.planes[nFaces][0] * (puntSelection->Daughter.Vertex[puntSelection->Daughter.Simplex[nT][locN]][0] - origin[0]) / span_lattice[0]  +
+						Hull.planes[nFaces][1] * (puntSelection->Daughter.Vertex[puntSelection->Daughter.Simplex[nT][locN]][1] - origin[1]) / span_lattice[1]  +
+						Hull.planes[nFaces][2] * (puntSelection->Daughter.Vertex[puntSelection->Daughter.Simplex[nT][locN]][2] - origin[2]) / span_lattice[2]  +
+						Hull.planes[nFaces][3];
+			} //next locN
+
+
+			if(val[0] > 0 | val[1] > 0 | val[2] > 0 )           INTERNAL[nFaces] = true;
+
+		} //end of while loop on planes.
+
+		int count_int_booleans(0);
+		for(int k=0; k<6; k++) count_int_booleans+= INTERNAL[k];
+
+		if(count_int_booleans!=6){
+			check=false;}
+
+		++nT;
+	} // end whileloop on triangles
+
+	return (check);
+}
+
+template <int Dim, int Map_Dim>
+ivector1D LATTICE<Dim, Map_Dim>::getNodesOnGridPlane(std::string dir_, int n_)
+{
+	ivector1D result;
+
+	int index_dir = (dir_ == "y") + 2*(dir_ == "z");
+
+	//check n_
+	if(n_ < 0 || n_ > n[index_dir]){
+		std::cout<<"Error defining n_ for getting nodes on lattice grid planes"<<endl;
+		return(result);
+	}
+
+	ivector1D ngrid(3,0), igrid(3,0);
+	for(int i=0; i<3; ++i){ngrid[i] = n[i];}
+	ngrid[index_dir] = n_;
+	igrid[index_dir] = n_;
+
+	for(int i=igrid[0]; i<=ngrid[0]; ++i){
+		for(int j=igrid[1]; j<=ngrid[1]; ++j){
+			for(int k=igrid[2]; k<=ngrid[2]; ++k){
+
+				int valueN = k * (n[1] + 1)*(n[0]+1) + j*(n[0]+1) + i ;
+				result.push_back(valueN);
+			}
+		}
+	}
+	return(result);
+};
+
+
+template <int Dim, int Map_Dim>
+bool LATTICE<Dim, Map_Dim>::convertLoadString(bool flag )
+{
+	bool check=true;
+
+	for(int i=0; i<=n_points; i++){
+		for (int j=0; j<3; ++j){
+			std::stringstream ss;
+
+			if (flag) //converting load to loadstring;
+			{
+				ss<<points[i].load[j];
+				points[i].loadstring[j] = ss.str();
+			}
+			else   //converting loadstring to load;
+			{
+				ss.str(trim(points[i].loadstring[j]));
+				ss>>points[i].load[j];
+
+
+				{
+					double check_val;
+					std::string str_trial = trim(points[i].loadstring[j]);
+					try  { check_val = std::stod(str_trial);}
+					catch(std::invalid_argument &ia){ check=false; }
+				}
+
+			}
+		}
+	}
+	return(check);
+};
+
+
+template <int Dim, int Map_Dim>
+std::string LATTICE<Dim, Map_Dim>:: mappingDirString(std::string input_)
+{
+	std::string result="none";
+
+	if(trim(input_) == "x" || trim(input_) == "xdir") {result="xdir";}
+	if(trim(input_) == "y" || trim(input_) == "ydir") {result="ydir";}
+	if(trim(input_) == "z" || trim(input_) == "zdir") {result="zdir";}
+	return(result);
+
+};
+
+//TODO under review
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::torsionLaws(double valTor, double pinpoint, std::string axis, dvector2D *result)
+{
+
+	int typeaxis = (axis=="y") + 2*(axis=="z"); //xaxis is the default
+	if(typeaxis == 0) {axis ="x";}
+
+	int totPlanes = n[typeaxis] + 1;
+
+	// creating linear low of variation along axis for valTor
+	dvector1D linTor(totPlanes, 0.0);
+
+	double dx = 1.0/((double)n[typeaxis]);
+
+	for(int k=0; k<totPlanes; ++k)
+	{
+		if(pinpoint == 0.0){linTor[k] = valTor*(1.0 - dx*k);}
+		else			   {linTor[k] = valTor*dx*k;}
+	}
+
+	//cycling on planes along axis direction
+	for(int i=0; i<totPlanes; ++i){
+		// creating rotation matrix
+		dvector2D matRotation = ROTOTRASL3D::createRotationMatrix(linTor[i], axis);
+		ivector1D ensamble=getNodesOnGridPlane(axis, i);
+
+		int sizeE= ensamble.size();
+		dvector1D center = getBaricenterOfNodes(ensamble);
+
+		for(int j=0; j<sizeE; ++j){
+			dvector1D rotD = getRotDisplacement(center, ensamble[j], matRotation);
+
+			for(int locV=0; locV<3; ++locV){
+
+				if(result != NULL){(*result)[ensamble[j]][locV] = rotD[locV]/span_lattice[locV];}
+				else{points[ensamble[j]].load[locV] += rotD[locV]/span_lattice[locV];}
+			}
+		}
+	}
+
+};
+
+//TODO under review
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::rotationLaws(dvector1D & valRot, dvector2D *result)
+{
+
+	svector1D dirs(3,"");
+	dirs[0]="x";dirs[1]="y";dirs[2]="z";
+
+	// creating rotation matrix
+	dvector2D matRotation, output;
+	zeros(output,3,3);
+	eye(matRotation,3,3);
+
+	for(int i=0; i<3; ++i){
+		dvector2D matrix= ROTOTRASL3D::createRotationMatrix(valRot[i],dirs[i]);
+		matmul(matrix,matRotation,output);
+
+		for(int ll=0; ll<3; ++ll){
+			matRotation[ll]=output[ll];
+		}
+	}
+
+	display_matrix(cout,matRotation);
+
+		ivector1D ensamble(n_points + 1, 0);
+		for(int j=1; j<=n_points; ++j){ensamble[j] = ensamble[j-1]+1;}
+		dvector1D center = getBaricenterOfNodes(ensamble);
+
+		for(int j=0; j<=n_points; ++j){
+			dvector1D rotD = getRotDisplacement(center, ensamble[j], matRotation);
+
+			for(int locV=0; locV<3; ++locV){
+
+				if(result != NULL){(*result)[ensamble[j]][locV] = rotD[locV]/span_lattice[locV];}
+				else{points[ensamble[j]].load[locV] += rotD[locV]/span_lattice[locV];}
+			}
+		}
+};
+
+//TODO under review
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::rotationLaws(dvector1D & valRot, svector2D &SymbMat, dvector2D *result)
+{
+	//NO SYMBOLIC calculation yet
+	svector1D dirs(3,"");
+	dirs[0]="x";dirs[1]="y";dirs[2]="z";
+
+	// creating rotation matrix
+	dvector2D matRotation, output;
+	zeros(output,3,3);
+	eye(matRotation,3,3);
+
+	for(int i=0; i<3; ++i){
+		dvector2D matrix= ROTOTRASL3D::createRotationMatrix(valRot[i],dirs[i]);
+		matmul(matrix,matRotation,output);
+
+		for(int ll=0; ll<3; ++ll){
+			matRotation[ll]=output[ll];
+		}
+	}
+
+	display_matrix(cout,matRotation);
+
+		ivector1D ensamble(n_points + 1, 0);
+		for(int j=1; j<=n_points; ++j){ensamble[j] = ensamble[j-1]+1;}
+		dvector1D center(3,0.0);
+
+		for(int j=0; j<=n_points; ++j){
+			dvector1D rotD = getRotDisplacement(center, ensamble[j], matRotation);
+
+			for(int locV=0; locV<3; ++locV){
+
+				if(result != NULL){(*result)[ensamble[j]][locV] = rotD[locV]/span_lattice[locV];}
+				else{points[ensamble[j]].load[locV] += rotD[locV]/span_lattice[locV];}
+			}
+		}
+};
+
+//TODO under review
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::getRotDisplacement(dvector1D & center, int & coordNode, dvector2D & rotMat)
+{
+	dvector1D result(3,0.0);
+	dvector1D node(3,0.0), node_dum(3,0.0), rot_node(3,0.0);
+
+	for(int i=0; i<3; ++i){node[i] = points[coordNode].coord_OR[i];}
+	//dvector1D node = convertLatticeToOR(node_dum);
+
+	node = node -center;
+	matmul(rotMat, node, rot_node);
+	result = rot_node - node;
+	return(result);
+};
+
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::getBaricenterOfNodes(ivector1D & ensamble)
+{
+	dvector1D result(3,0.0);
+
+	int size = ensamble.size();
+	for(int i=0; i<size; ++i){
+		for(int j=0; j<3; ++j){
+			result[j] += points[ensamble[i]].coord[j];
+		}
+	}
+
+	result = result /((double)size );
+
+	//dvector1D result2 = convertLatticeToOR(result);
+
+	return(result);
+};
+
+template <int Dim, int Map_Dim>
+bool LATTICE<Dim, Map_Dim>::isBoundarySegmented()
+{
+	bool check=false;
+	if(bc_segmented.size()>0 && geo_segmented.size()>0){check=true;}
+	return(check);
+}
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeName(int name_)
+{
+	std::stringstream ss;
+	ss<<name_;
+	name=ss.str();
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeLoadFile(std::string inputLoadFile)
+{
+	loadfile = inputLoadFile;
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeOrigin(dvector1D & origin_)
+{
+	origin = origin_;
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeOrigin(double or1, double or2, double or3)
+{
+	origin[0] = or1;
+	origin[1] = or2;
+	origin[2] = or3;
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeSpan(dvector1D & span_)
+{
+	span_lattice = span_;
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeSpan(double sp1, double sp2, double sp3)
+{
+	span_lattice[0] = sp1;
+	span_lattice[1] = sp2;
+	span_lattice[2] = sp3;
+
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setTransitionParameter(double transition_)
+{
+	transition = transition_;
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setBoundaryInfo(std::string bc_out, std::string bc_int)
+{
+	bc_out = trim(bc_out);
+	bc_int = trim(bc_int);
+
+	boundary     = (bc_out == "F") + 2*(bc_out == "C0") + 3*(bc_out == "C1") + 4*(bc_out == "C2") - 1;
+	boundary_int = (bc_int == "F") + 2*(bc_int == "C0") + 3*(bc_int == "C1") + 4*(bc_int == "C2") - 1;
+
+	if(boundary == -1){boundary = 3;}
+	if(boundary_int == -1){boundary_int = 3;}
+
+}; //for classic boundary
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setBoundaryInfo(svector1D & bcs, svector1D & geo_ext)
+{
+	if (bcs.size()<4 || geo_ext.size()< 4){return;}
+
+	bc_segmented.resize(4,-1);
+	geo_segmented.resize(4,"");
+	for(int i=0; i<4; i++){
+		bc_segmented[i] = (bcs[i] == "F") + 2*(bcs[i] == "C0") + 3*(bcs[i] == "C1") + 4*(bcs[i] == "C2") - 1;
+		if(bc_segmented[i] == -1){bc_segmented[i] = 3;}
+
+		geo_segmented[i] = geo_ext[i];
+	}
+
+}; //for ext geometries boundary segmentation
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setBoundaryInfo(svector1D & bcs, dvector1D & seed_)
+{
+	if (bcs.size()<4 || seed_.size()< 3){return;}
+
+	bc_segmented.resize(4,-1);
+	seed.resize(3,0.0);
+	for(int i=0; i<4; i++){
+		bc_segmented[i] = (bcs[i] == "F") + 2*(bcs[i] == "C0") + 3*(bcs[i] == "C1") + 4*(bcs[i] == "C2") - 1;
+		if(bc_segmented[i] == -1){bc_segmented[i] = 3;}
+
+		seed[i] = seed_[i];
+	}
+
+
+}; //for automatic boundary segmentation w/ seed
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeRefineSupport(bool flag)
+{
+	RefineSupport = flag;
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>:: setLatticeWhole(bool flag)
+{
+	wholeLattice = flag;
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setSupportSelection(ParaSurfMesh * selection_)
+{
+	puntSelection = selection_;
+};
+
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLevelSetMode(std::string lsname)
+{
+	int check = (lsname == "GEODESIC") + 2*(lsname == "HEAT") -1;
+	if(check < 0){lsname = "DEFAULT";}
+	levelset = lsname;
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setHeatTime(double hTime)
+{
+	if(hTime < 1.0){hTime = 1.0;}
+	heatTime = hTime;
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setSelectionMode(std::string mode_, std::string file)
+{
+	int check = (mode_ == "BYPATCHES") + 2*(mode_ == "BYFILE") -1;
+	if(check == -1){mode_ = "DEFAULT";}
+	mode = mode_;
+
+	if(check == 0){file_patch = file;}
+	if(check == 0){file_external = file;}
+};
+
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::getLatticeName()
+{
+	std::stringstream ss(name);
+	int res;
+	ss>>res;
+	return(res);
+};
+template <int Dim, int Map_Dim>
+std::string  LATTICE<Dim, Map_Dim>::getLatticeLoadFile()
+{
+	return(loadfile);
+};
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::getLatticeOrigin()
+{
+	return(origin);
+};
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::getLatticeSpan()
+{
+	return(span_lattice);
+
+};
+template <int Dim, int Map_Dim>
+double LATTICE<Dim, Map_Dim>::getTransitionParameter()
+{
+	return(transition);
+};
+template <int Dim, int Map_Dim>
+svector1D  LATTICE<Dim, Map_Dim>::getBoundaryInfo()
+{
+	svector1D res(4,"");
+
+	int itype = 3;
+	if(bc_segmented.size() > 0 && geo_segmented.size() > 0) itype = 2;
+	if(bc_segmented.size() > 0 && geo_segmented.size() ==0)	itype = 1;
+	if(bc_segmented.size() == 0 && boundary !=-1 && boundary_int != -1)	itype = 0;
+
+
+	std::string line0, line1, line2, line3;
+	svector1D bcs(4,"");
+	bcs[0]="F"; bcs[1]="G0"; bcs[2]="G1"; bcs[3]="G2";
+	std::stringstream ss1;
+
+	switch(itype){
+	case 0: line0 = "0";
+		 	line1 = "DEFAULT unique boundary selected";
+			line2 = "External Boundary: " + bcs[boundary];
+			line3 = "Internal Boundary: " + bcs[boundary_int];
+			break;
+	case 1: line0 = "1";
+			line1 = "Auto Segmented boundary selected";
+			line2 = "Boundaries :";
+			for(int i=0; i<4; ++i){
+				line2 +=bcs[bc_segmented[i]] + " ";
+			}
+			ss1<<"Seed :"<<seed[0]<<seed[1]<<seed[2];
+			line3 = ss1.str();
+			break;
+	case 2: line0 = "2";
+			line1 = "Auto Segmented boundary selected";
+			line2 = "Boundaries :";
+			line3 = "Ref. Ext. geometries :";
+			for(int i=0; i<4; ++i){
+				line2 +=bcs[bc_segmented[i]] + " ";
+				line3 +=geo_segmented[i] + " ";
+			}
+			break;
+	default:line0 = "-1";
+			line1="No boundary conditions are currently set";
+			break;
+	}
+
+	res[0] = line0; res[1] = line1; res[2]=line2; res[3]=line3;
+
+	return(res);
+};
+template <int Dim, int Map_Dim>
+bool  LATTICE<Dim, Map_Dim>::getLatticeRefineSupport()
+{
+	bool res = RefineSupport;
+	return(res);
+};
+template <int Dim, int Map_Dim>
+bool LATTICE<Dim, Map_Dim>::getLatticeWhole()
+{
+	return(wholeLattice);
+};
+template <int Dim, int Map_Dim>
+ParaSurfMesh *  LATTICE<Dim, Map_Dim>::getSupportSelection(bool isReady)
+{
+	ParaSurfMesh * res;
+	res = puntSelection;
+	isReady = res->isLevelSet();
+	return(res);
+};
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::prepareSupport()
+{
+	if(puntSelection == NULL){return;}
+	if(puntSelection->isLevelSet()){return;}
+
+
+	svector1D infoBoundary = getBoundaryInfo();
+	std::string line = infoBoundary[0];
+	std::stringstream ss(trim(line));
+
+	bool checkPrepare;
+	int check; ss>>check;
+
+	if(check ==-1){std::cout<<"No suitable boundary found"<<endl; return;}
+
+	if(check == 0){
+	puntSelection->prepareSupport(levelset, heatTime,checkPrepare);
+	}
+	else {	puntSelection->evaluateBiMap(); }
+};
+
+template <int Dim, int Map_Dim>
+std::string LATTICE<Dim, Map_Dim>::getLevelSetMode()
+{
+	std::string res = levelset;
+	return(res);
+};
+
+template <int Dim, int Map_Dim>
+double LATTICE<Dim, Map_Dim>::getHeatTime()
+{
+	double res = heatTime;
+	return(res);
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::compileNodalStructure()
+{
+	freeContainer(envelopeNodeList);
+	freeContainer(envelopeCells);
+	freeContainer(envelopeNodeGradients);
+	freeContainer(envelopeDependancy);
+
+	if(getLatticeWhole()){
+		extractAllNodes3D();
+	}
+	else{
+		extractNearestNodes3D();
+	}
+};
+
+template <int Dim, int Map_Dim>
+svector1D LATTICE<Dim, Map_Dim>::getSelectionMode()
+{
+	svector1D res(2, "");
+	res[0] = mode;
+	if(mode == "BYPATCHES"){res[1] = file_patch;}
+	if(mode == "BYFILE"){res[1] = file_external;}
+	return(res);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::getNPoints(){return(n_points+1);};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setKnotsStructure()
+{
+  setKnotsStructure("x");
+  setKnotsStructure("y");
+  setKnotsStructure("z");
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setKnotsStructure(std::string dir)
+{
+    int k = (dir=="x") + 2*(dir=="y") + 3*(dir=="z") -1;    
+    if(k<0){return;}
+    
+    deg[k] = min(deg[k], n[k]);
+    int kEff = n[k] - deg[k]+ 2;
+    knots[k].resize(kEff);
+    multK[k].resize(kEff,1);
+ 
+  //set knots grid in the dir space
+    double dKn = span_lattice[k]/(kEff-1); 
+  for(int i=0; i<kEff; ++i){
+      knots[k][i] = origin[k] + i*dKn;
+  }
+  
+     multK[k][0]=multK[k][kEff-1]= deg[k]+1;
+
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::getKnotsStructure(dvector2D &knots_, ivector2D &multK_)
+{
+  knots_.resize(3);
+  multK_.resize(3);
+  
+  getKnotsStructure("x", knots_[0], multK_[0]);
+  getKnotsStructure("y", knots_[1], multK_[1]);
+  getKnotsStructure("z", knots_[2], multK_[2]);
+  
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::getKnotsStructure(std::string dir, dvector1D &knots_, ivector1D &multK_)
+{
+  
+   int k = (dir=="x") + 2*(dir=="y") + 3*(dir=="z") -1;    
+   if(k<0){return;}
+
+   knots_.resize(knots[k].size());
+   multK_.resize(multK[k].size());
+
+   knots_ = knots[k];   
+   multK_ = multK[k];
+};
+
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::getKnotInterval(double coord, int dir)
+{
+ int size = knots[dir].size(); 
+ if(coord< knots[dir][0] ){ return(getTheoreticalKnotIndex(0, dir));}
+ if(coord >= knots[dir][size-1]){ return(getTheoreticalKnotIndex(size-2, dir));}
+ 
+ int low = 0; 
+ int high = size-1; 
+ int mid = (low + high)/2;
+  while( coord < knots[dir][mid] || coord>= knots[dir][mid+1]){
+	if(coord < knots[dir][mid])	{high=mid;}
+	else				{low=mid;}
+	mid = (low+high)/2;
+  }
+  return(getTheoreticalKnotIndex(mid, dir));
+};
+
+
+//return knot value given its knot theoretical index
+template <int Dim, int Map_Dim>
+double LATTICE<Dim, Map_Dim>::getKnotValue(int index, int dir)
+{
+  int target = getKnotIndex(index, dir);
+  if(target ==-1){return(-1.0);}
+  return(knots[dir][target]);
+};
+
+//return knot true index given its theoretical index
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::getKnotIndex(int locIndex, int dir)
+{
+  int res = locIndex+1;
+  int counter=-1;
+  while (res > 0){
+    res = res - multK[dir][counter+1];
+    counter++;
+  }
+  return(counter);
+  
+};
+
+//return theoretical knot index given its true index
+template <int Dim, int Map_Dim>
+int LATTICE<Dim, Map_Dim>::getTheoreticalKnotIndex(int locIndex, int dir)
+{
+  if(locIndex <0){return(-1);}
+  return(multK[dir][locIndex] + getTheoreticalKnotIndex(locIndex-1, dir));
+};
+
+
+template <int Dim, int Map_Dim>
+ivector1D LATTICE<Dim, Map_Dim>::getLatticeDimension()
+{
+	ivector1D res(6,-1);
+	for(int i=0; i<3; ++i){
+		res[i] = n[i]+1;
+		res[i+3] = deg[i];
+	}
+	return(res);
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeDimension(int n1, int n2, int n3)
+{
+		//Pure Bezier
+		n[0] = std::max(2,n1) -1;
+		n[1] = std::max(2,n2) -1;
+		n[2] = std::max(2,n3) -1;
+		
+		deg[0] = n[0];
+		deg[1] = n[1];
+		deg[2] = n[2];
+		
+		int size = (n[0]+1)*(n[1]+1)*(n[2]+1);
+		n_points=size-1;
+
+		if(points != NULL){delete [] points; points=NULL;}
+		points = new lattice_pt<3>[size];
+		
+		//setting knots and eventually weights to non-rational B-Spline
+		setKnotsStructure();
+		
+		freeContainer(weights);
+		weights.resize(n_points+1, 1.0);
+};
+
+template <int Dim, int Map_Dim>
+void LATTICE<Dim, Map_Dim>::setLatticeDimension(int n1, int n2, int n3, int d1, int d2, int d3)
+{
+  
+		//general b-spline settings
+		n[0] = std::max(2,n1) -1;
+		n[1] = std::max(2,n2) -1;
+		n[2] = std::max(2,n3) -1;
+		
+		if(d1>n[0]){std::cout<<"Your xcurve degree is >= then number of supported control Points! Automatically Rescaling it"<<endl;}
+		if(d2>n[1]){std::cout<<"Your ycurve degree is >= then number of supported control Points! Automatically Rescaling it"<<endl;}
+		if(d3>n[2]){std::cout<<"Your zcurve degree is >= then number of supported control Points! Automatically Rescaling it"<<endl;}
+		
+		deg[0] = std::min(n[0], std::max(1, d1));
+		deg[1] = std::min(n[1], std::max(1, d2));
+		deg[2] = std::min(n[2], std::max(1, d3));
+		
+		
+		int size = (n[0]+1)*(n[1]+1)*(n[2]+1);
+		n_points=size-1;
+
+		if(points != NULL){delete [] points; points=NULL;}
+		points = new lattice_pt<3>[size];
+		
+		setKnotsStructure();
+		
+		freeContainer(weights);
+		weights.resize(n_points+1, 1.0);
+};
+
+template <int Dim, int Map_Dim>
+ivector1D LATTICE<Dim, Map_Dim>::getKnotsDimension()
+{
+  
+  ivector1D res(6,0);
+  
+    for(int i=0; i<3; i++){
+     res[i] = n[i] - deg[i] + 2;
+     res[i+3] = n[i] + deg[i] + 2;
+      
+    }
+  return(res);
+  
+};
+
+
+//evaluate NURBS displacement via ITS0' algorithm note loads must be feeded in homogeneous 4-D coordinate (w*x, w*y, w*z, w)
+//where w is the weight. Returns the point in homogeneous coordinate. Require in Input, theoretical knot interval which 
+// original point belongs to and the pre-calculated B-Spline basis.
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::getNurbsPoint(int k, dvector1D & basis, dvector2D & loads)
+{
+  // provide theoretical interval index, basis functions for that point, and loads row-> complete.
+  int p = basis.size() -1;
+  dvector1D res(loads[0].size(),0.0);
+ 
+  for(int i=0; i <= p; ++i){
+    res = res + basis[i] * loads[k - p + i]; 
+  }//next[i];
+    
+  return(res);
+};
+
+
+template <int Dim, int Map_Dim>
+dvector1D LATTICE<Dim, Map_Dim>::NurbsEvaluator(dvector1D & coord)
+{
+ 	 
+  // get reference Interval int the knot matrix
+  // and calculate basis;  
+  ivector1D knotInterval(3,0);
+    dvector2D BSbasis(3);
+    for(int i=0; i<3; i++){
+      knotInterval[i] = getKnotInterval(coord[i],i);
+      BSbasis[i] = basisITS0(knotInterval[i], i, coord[i]);
+    }
+  
+  //get loads in homogeneous coordinate.
+  // get local knot.
+  
+	dvector1D valH(4,0.0);
+	dvector2D temp2((n[1]+1)*(n[2]+1), dvector1D(4,0.0));
+	dvector2D work;
+	int counter, locT;
+	// start of De Casteljau algorithm........................................................
+	work.resize(n[0]+1, dvector1D(4, 0.0));
+	counter=0;
+	//reducing dimension x
+	for (int j=0; j<(n[1]+1)*(n[2]+1); ++j){ //  counting deformation due to every load applied in lattice control points
+	      
+	    for(int k=counter; k<counter+n[0]+1; ++k){	
+		for(int intv=0; intv<3; intv++){ work[k-counter][intv] = weights[k] * points[k].load[intv];}
+		work[k-counter][3] = weights[k];
+	    }
+	    counter +=(n[0]+1);
+	    temp2[j] = getNurbsPoint(knotInterval[0], BSbasis[0], work);
+	}// next j3
+
+	freeContainer(work);
+	work.resize(n[1]+1,dvector1D(4,0));
+	counter=0;
+	for (int j=0; j<(n[2]+1); ++j){ //  counting deformation due to every load applied in lattice control points
+	      
+	    for(int k=counter; k<counter+n[1]+1; ++k){	
+		work[k-counter] = temp2[k];
+	    }
+	    counter +=(n[1]+1);
+	    temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work);
+	}// next j
+
+	temp2.resize(n[2]+1);
+	valH = getNurbsPoint(knotInterval[2],BSbasis[2], temp2);
+	return(valH/valH[3]);
+};
+
+template <int Dim, int Map_Dim>
+double LATTICE<Dim, Map_Dim>::NurbsEvaluatorScalar(dvector1D & coord, int intV)
+{
+ 
+  // get reference Interval int the knot matrix
+    ivector1D knotInterval(3,0);
+    dvector2D BSbasis(3);
+    for(int i=0; i<3; i++){
+      knotInterval[i] = getKnotInterval(coord[i],i);
+      BSbasis[i] = basisITS0(knotInterval[i], i, coord[i]);
+    }
+  
+  //get loads in homogeneous coordinate.
+  // get local knot.
+  
+	dvector1D valH(2,0.0);
+	dvector2D temp2((n[1]+1)*(n[2]+1), dvector1D(2,0.0));
+	dvector2D work;
+	int counter, locT;
+	// start of De Casteljau algorithm........................................................
+	work.resize(n[0]+1, dvector1D(2, 0.0));
+	counter=0;
+	//reducing dimension x
+	for (int j=0; j<(n[1]+1)*(n[2]+1); ++j){ //  counting deformation due to every load applied in lattice control points
+	      
+	    for(int k=counter; k<counter+n[0]+1; ++k){	
+		work[k-counter][0] = weights[k] * points[k].load[intV];
+		work[k-counter][1] = weights[k];
+	    }
+	    counter +=(n[0]+1);
+	    temp2[j] = getNurbsPoint(knotInterval[0], BSbasis[0], work);
+	}// next j3
+
+	freeContainer(work);
+	work.resize(n[1]+1,dvector1D(2,0));
+	counter=0;
+	for (int j=0; j<(n[2]+1); ++j){ //  counting deformation due to every load applied in lattice control points
+	      
+	    for(int k=counter; k<counter+n[1]+1; ++k){	
+		work[k-counter] = temp2[k];
+	    }
+	    counter +=(n[1]+1);
+	    temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work);
+	}// next j
+
+	temp2.resize(n[2]+1);
+	valH = getNurbsPoint(knotInterval[2],BSbasis[2], temp2);
+	return(valH[0]/valH[1]);
+};
+
+template <int Dim, int Map_Dim>
+dvector1D  LATTICE<Dim, Map_Dim>::basisITS0(int k, int pos,  double coord){
+ 
+  //return local basis function given the local interval in theoretical knot index,
+  //local degree of the curve -> Please refer to NURBS book of PEIGL for this Inverted Triangular Scheme Algorithm (pag 74);
+  int dd = deg[pos]; 
+  dvector1D basis(dd+1,1);
+  dvector1D left(dd+1,0), right(dd+1,0);
+  
+  for(int j = 1; j <= dd; ++j){
+      double saved = 0.0;
+      left[j] = coord - getKnotValue(k+1-j, pos);
+      right[j]= getKnotValue(k+j, pos) - coord;
+      
+      for(int r = 0; r < j; ++r){
+	  double tmp = basis[r]/(right[r+1] + left[j-r]);
+	  basis[r] = saved + right[r+1] * tmp;
+	  saved = left[j-r] * tmp;
+      }//next r	
+    
+      basis[j] = saved;  
+  }//next j
+  
+  return(basis);
+};
+
+

@@ -1,0 +1,504 @@
+#ifndef _LIB_LATTICE_
+#define _LIB_LATTICE_
+
+// Basic Lattice Class Environment
+#include <array>
+
+#include "CG.hpp"
+#include "Class_LevelSet_Stl.hpp"
+#include "LevelSet_Geometry.hpp"
+#include "libRA_PATCH.hpp"
+#include "libRA_GEODESIC.hpp"
+#include "libRA_RigidRot.hpp"
+#include <stdexcept>
+
+using namespace std;
+
+typedef array<double,3> darray3E;
+/* ============================================================================================================
+   module library_Lattice suitable for FreeFormDeformation           							        
+
+   List of Classes/Structures
+    lattice_pt 		   --> structure of lattice grid points
+    LATTICE <*, * >        --> class defining methods and members for building a single deformative lattice
+    ControlDeformation 	   --> class defining and controlling a structure of multiple LATTICE< *, * >	 			
+
+ */
+
+
+/*! Sub- structure for storing indices of the Lattice's nodes, whose displacements depend from a target node I.
+ * For example, movements of all nodes contained in the xdir list will be linked to displacements in x direction of the
+ * target node I. The same applies to the ydir and zdir list.
+ */
+
+struct OuterShell
+{
+	std::vector< int > xdir;
+	std::vector< int > ydir;
+	std::vector< int > zdir;
+
+	OuterShell();
+	OuterShell(int, int, int );
+	OuterShell(const OuterShell &);
+	OuterShell & operator=(const OuterShell &);
+};
+
+
+
+/*! Sub- structure for storing the coordinates of Lattices' nodes and their displacements
+ *  The structure depends from the template variable Dim, which takes into account of dimensionality of the Lattice 
+ *  (2D or 3D problem).
+ */  
+template <int Dim>
+struct lattice_pt
+{
+	array<double, Dim> coord;     /*!<  coordinates of the lattice's single node, in lattice local reference system */
+	array<double, Dim> load ;     /*!<  displacement applied to the lattice's node, in lattice local reference system */
+	array<std::string, Dim> loadstring; /*!< string version of vector load, for templating purposes */
+
+	lattice_pt(); /*! structure constructor */
+	~lattice_pt();/*! structure destructor */
+	lattice_pt(const lattice_pt<Dim> & other); /*! copy structure constructor */
+	lattice_pt & operator=(const lattice_pt<Dim> & other); /* copy structure operator */
+
+};
+
+/*! Defines a cartesian grid (rectangular shape) of control nodes that encase a part of or the whole original geometry, and it is 
+ * responsible of the shape deformation. Displacements of such control nodes are directly linked to displacements of 
+ * all the vertex of the original tasselation, by means of a standard Bezier superficial/volumetric parametrization.   
+ * Each Lattice structure applies deformation, on a portion of the original tasselation, strictly contained in the lattice box, 
+ * and that need to be specified by the User.
+ *
+ * Class is defined as a template and requires two parameters: Dim and Map_Dim. These parameters account of the dimensionality Dim of the problem 
+ * (bi or three dimensional) and the shape Map_Dim of the basic structure of the lattice (rectangular box, sphere, tetrahedron etc..)
+ * Actually, only the shape option of rectangular box (Map_Dim = 4) is supported. 
+ */
+
+class VTK_LATTICE: public VTK_UnstructuredGrid<VTK_LATTICE>
+{
+protected:
+	dvector2D * points;
+	ivector2D * connectivity;
+public:
+	VTK_LATTICE();
+	VTK_LATTICE(std::string dir_, std::string name_, std::string cod_, int nP_, int nC_, int nConn_);
+	~VTK_LATTICE();
+
+	void linkData(dvector2D &, ivector2D & );
+	void unlinkData();
+	void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+	//	    void Absorb(  fstream &str, string codex_, string name  ) ; //CRTP
+};
+
+class VTK_CLOUD: public VTK_UnstructuredGrid<VTK_CLOUD>
+{
+protected:
+	dvector2D * points;
+public:
+	VTK_CLOUD();
+	VTK_CLOUD(std::string dir_, std::string name_, std::string cod_, int nP_);
+	~VTK_CLOUD();
+
+	void linkData(dvector2D &);
+	void unlinkData();
+	void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+	//	    void Absorb(  fstream &str, string codex_, string name  ) ; //CRTP
+};
+
+template < int Dim, int Map_Dim >
+class LATTICE {
+public:
+	// members
+
+	std::string name;				/*!< string. Name of the lattice, assigned by the user */
+	std::string loadfile;           /*! file of displacement of the lattice nodes */
+	int n_points;                     /*!<  Integer. Total number of nodes defined in the Lattice */
+
+	int n[Dim];                       /*!<  Integer, Array[Dim]. Number of nodes in each direction of the space (x,y) for Dim=2,
+							    (x,y,z) for Dim=3. Given a i direction, and N the number of effective nodes prescribed for that 
+							    direction,  n[i] is defined as: n[i] = N -1 */
+	int deg[Dim];			  /*!< curve degree for each direction in space */
+	
+	std::vector<double> origin;       /*!<  Double, Vector[Dim]. Coordinates of origin (x0,y0) of lattice reference
+							   system (expressed in CAD reference system) */
+
+	std::vector<double> span_lattice; /*!<  Double, Vector[Dim]. Span of the lattice box in each spatial direction */
+	lattice_pt <Dim> * points;        /*!<  Array of lattice_pt<Dim>. Allocatable structure of the Lattice's nodes */
+
+	
+	dvector2D knots;			 /*!< knots for each direction in space */
+	ivector2D multK;				 /*!<multiplicity vector */
+	dvector1D weights;			 /*!< weights of nodes for nurbs treatment */
+	
+	double transition;		      /*!<  Double. Parameter, defined in [0,1], set the transition zone between
+							    selected deformable and undeformable zones of geometry. If =0, no transition 
+							    is applied, if =1 all the selected region is used as a transition zone.*/	
+
+	int boundary;		      /*!<  Integer. Boundary condition at the frontier between the selected deformable zone
+							     of the geometry and the undeformable zone. Four types of b.c.'s can be 
+							     prescribed, according to the type of integer variable feeded: 
+
+									-->  0 - free boundary. No continuity enforced.
+
+									-->  1 -  enforced a G0 continuity
+
+									-->  2 -  enforced a G1 continuity
+
+									-->  3 -  enforced a G2 continuity */
+
+	int boundary_int;	 /*!<  Integer. Boundary condition at the most interior point of the deformable zone. Four types of b.c.'s can be
+							     prescribed, according to the type of integer variable feeded:
+
+									-->  0 - free boundary. No continuity enforced.
+
+									-->  1 -  enforced a G0 continuity
+
+									-->  2 -  enforced a G1 continuity
+
+									-->  3 -  enforced a G2 continuity */
+      
+	ivector1D bc_segmented; /*!< integer array of boundary condition on 4-branch segmented boundaries on deformable patch.*/
+	svector1D geo_segmented; /*!< file names of geometries in readable format (stl, vtu, nas or dgf) neighboring
+								with/ branches of segmented boundary on deformable patch */
+
+	dvector1D seed; /*!< 3D point for auto-segmentation of deformable patch boundaries purpose */
+
+	int RefineSupport;                /*!< Integer. Flag to activate the Red/Green Refinement on the selected deformable geometry.
+							   If =0, no Refinement is provided, if =1 Refinement becomes active.*/
+	std::string levelset;	     /*! std::string. Define the method to calculate the level set on the
+							 lattice's associated support. Two choices are possible:
+
+							1) Default OR Heat : select the Heat method
+
+							2) Geodesic	   : select the Fast Marching method */
+
+	double heatTime;		    /*! heat propagation time if an Heat method is selected to calculate
+							the support's level set. See Lattice<*,*>::levelset member */	
+
+	std::string mode;                 /*!< std::string. Define the way to select the deformable support associated to the Lattice,
+							   on the original tasselation. Three choices are possible:
+
+								1) 	DEFAULT choice: selecting all the triangulation contained in the Hull Patch of the Lattice. See Lattice<*,*>::Hull
+
+								2)	BYPATCHES choice: selecting/unselecting portions of triangulation contained in Hexaedrical patches draw by the User or 
+											  marked by some identifier PID's (only for *.nas superficial meshes)
+
+								3)      BYFILE choice:	reading the Id of each triangular Simplex that build the deformable support selection, directly from an external file */
+
+	std::string file_external;        /*!< std::string. Name of the external file, containing the deformable support selection. See LATTICE<*,*>::mode, BYFILE choice   */
+	std::string file_patch;           /*!< std::string. Name of the external file, containing those information about selecting/unselecting patches and PID markers, necessary
+									to build the defromable support selection. See LATTICE<*,*>::mode, BYPATCHES choice   */
+
+	PATCH <Dim> Hull;        /*!< Class PATCH <*>.  Definition of the basic patch (rectangle), attached to the Lattice. */
+
+	bool wholeLattice	;	 /*< Bolean flag to work with all control nodes of the lattice or with the nodes nearest to surface (Level set selection) */
+	dvector2D envelopeNodeGradients;
+	ivector1D envelopeNodeList;
+	ivector1D envelopeCells;
+
+	std::vector< OuterShell > envelopeDependancy;
+
+	ParaSurfMesh * puntSelection;
+
+	/*! Class Constructor. Symply resizing the class members LATTICE<*,*>::origin and LATTICE<*,*>::span_lattice to the Dim value */
+	LATTICE();
+
+	/*! Class Destructor. */
+	virtual ~LATTICE();
+
+	/*! cleaning all lattice structure */
+	 void cleanLattice();
+
+	/*!Write the Lattice mesh in an hexaedrical grid, in *.vtu format for ParaView. In input, it requires the definition, respectively, of:
+	 *
+	 * 	1) std::string & --> name of the folder where the grid file will be stored
+	 *
+	 * 	2) std::string   --> name of the grid file
+	 *
+	 *  3) int --> set counter for your file
+	 *
+	 *	4)bool --> select writing ascii/binary
+	 *
+	 * 	5) bool	--> select writing the deformed Lattice grid (true) or the undeformed one(false)   */
+	void plot_hexagridVTU(std::string &, std::string , int, bool, bool, bool ) ;
+
+	/*!Write the Lattice mesh in an point cloud, in *.vtu format for ParaView. In input, it requires the definition, respectively, of:
+	 *
+	 * 	1) std::string & --> name of the folder where the grid file will be stored
+	 *
+	 * 	2) std::string   --> name of the point cloud file
+	 *
+	 *	3) int --> set counter for your file
+	 *
+	 *	4)bool --> select writing ascii/binary
+	 *
+	 * 	5) dvector2D --> 3D points list.
+	 *
+	 * 	6) flag for whole mesh or castellated mesh grid for lattice
+	 * 	*/
+	void plot_cloudVTU( std::string & , std::string, int , bool ,  dvector2D & );
+
+	/*! Build the Lattice, the mesh of contro		
+	 * l nodes and set its parameters. It references to private method of the class:
+	 *	
+	 * 		- LATTICE<*,*>::define_lattice_mesh_equi()
+	 *
+	 * 		- LATTICE<*,*>::set_lattice()
+	 *
+	 * In input,it requires the reference to the class SHAPE, containing the information of the original geometry and an integer variables
+	 * that identifies the lattice --> see ControlDeformation class.			 */
+	virtual void build_lattice(int &,SHAPE *sh=NULL);
+
+	/*! fill basic info of your class.Assign class members LATTICE<*,*>::origin
+	 * and LATTICE<*,*>::span_lattice, LATTICE<*,*>::n, and set LATTICE<*,*>::wholeLattice to true. */
+	void	assignLattice(dvector1D or_,dvector1D span_, ivector1D n_, std::string file, bool wLatt_);
+
+	/*! fill basic info of your class.Assign class members LATTICE<*,*>::origin
+	 * and LATTICE<*,*>::span_lattice, LATTICE<*,*>::n, and set LATTICE<*,*>::wholeLattice to true. */
+	void	assignLattice(dvector1D or_,dvector1D span_, ivector1D n_, ivector1D deg_, std::string file, bool wLatt_);
+
+	/*! Extract vertices of original tasselation belonging to the deformable support associated to the lattice.
+	 * It requires the reference to a class SHAPE, where the original geometry is contained, an integer variables as the name of the lattice,
+	 * and store the list of extracted vertices in a std::vector<int> structure.      */
+	void extract_vertex(SHAPE &,  int &, std::vector<int> &);
+
+	/*! Extract simplicies of original tasselation belonging to the deformable support associated to the lattice.
+	 * It requires the reference to a source structure std::vector<int>, an integer variables as the name of the lattice,
+	 * and store the list of extracted simplicies in a new std::vector<int> structure. In general, the source structure has the size of the total number of simplicies
+	 * contained in the original tasselation, and if a simplex belongs to a deformable support of the lattice, assign the name of such lattice to it. See the SHAPE member markSupport        */
+	void extract_simplex(std::vector<int> &source, int &who,std::vector<int> &tasselationSimplex);
+
+	/*! extract by level set grid node nearest to a given geometry SHAPE. Store their global index in Lattice Convention
+	 * and its gradient direction in members envelopeNodeList and envelopeNodeGradients */
+	void extractNearestNodes3D();
+
+	/*! extract all control nodes available. Store their global index in Lattice Convention
+	 * and its gradient direction in members envelopeNodeList and envelopeNodeGradients */
+	void extractAllNodes3D();
+
+
+	/*! Set an equispaced grid of control nodes on the lattice domain, and save their position in the  LATTICE<*,*>::points->coord */
+	void define_lattice_mesh_equi();
+
+	/*! get bounding box of the selection associated to the lattice, and store origin and 3D span of the box to Lattice members */
+	void getBoundingBoxSelection();
+
+	/*! write template for Lattice nodal displacements file */
+	void writeLoadTemplate();
+	/*! read displacements of the LAttice's node from file */
+	void readLoadFile();
+	/*! read displacements of the LAttice's node from file. For wrapping purpose.
+	 * Returning false flag implies that you are working with templated load files.  */
+	bool readLoadFileWP();
+
+	/*! write actual loads for Lattice nodal displacements file */
+	void writeLoad();
+
+	/*! write actual loads for Wrapped Lattice nodal displacements file */
+	void writeLoadWrapper();
+
+
+	/*! binding laws utility. Given a cartesian lattice mesh, find all parents to a given node coordT (in cartesian index coordinates, c++ convention),
+	 * in a specified dirtype direction. Wrapped displacements can be applied to the nodes' ensamble, specifying the law for displacements
+	 * distribution type (constant, linear, quadratic, cubic, biquadratic and sinuosoidal for now), the maximum value of displacement val and the
+	 * application point where (in normalized coordinates along the direction of interest dirtype). The direction of val displacement must be specified also.
+	 * If a 2D vector result is specified, wrapped displacement will be reported in it. Otherwise, wrapped displacements will be summed up to
+	 * those already defined in the points.load member structure of the lattice.
+	 */
+	void bindingLaws(ivector1D & coordT, double  val, double  where, std::string  dir, std::string  type, std::string  dirtype, dvector2D*result=NULL);
+
+	/*! torsion utility. Binding all node to simulate a lattice torsion around a predefined axis.
+	 * Torsion is defined as linear along the axis and require an angular displacements on one of the ending
+	 * sections of the lattice(handled by pinpoint 0-1 definition).
+	 *  Returns applied displacements in an external 2D vector, if specified. Otherwise
+	 * it applies displacements directly to LATTICE<>::points.load structure.
+	 * NOT READY YET
+	 */
+	void torsionLaws(double valTor, double pinpoint, std::string axis, dvector2D *result=NULL);
+
+	/*! rotation utility. Binding all node to simulate a lattice rigid rotation in 3D.
+	 * Rigid rotation requires an angular displacement in vector form (3D).
+	 *  Returns applied displacements in an external 2D vector, if specified. Otherwise
+	 * it applies displacements directly to LATTICE<>::points.load structure.
+	 * NOT READY YET
+	 */
+	void rotationLaws(dvector1D & valRot, dvector2D *result=NULL);
+
+	/*!Overloading of rotationLaes. For templating purpose, returns the rotation matrix
+	 * in symbolic format (string matrix).
+	 * NOT READY YET
+	 */
+	void rotationLaws(dvector1D & valRot, svector2D & SymbMat=NULL, dvector2D *result=NULL);
+
+
+	//assignment and copy operators
+	virtual LATTICE<Dim,Map_Dim>  & operator=(const LATTICE<Dim,Map_Dim>  &);
+	//virtual LATTICE<Dim,Map_Dim>  & operator()(const LATTICE<Dim,Map_Dim>  &);
+	LATTICE(const LATTICE<Dim,Map_Dim>  &);
+
+	/*! Access the point of a lattice in cartesian coordinates i,j,k and returns the global index of the list*/
+	int AccessPointLattice( int , int , int );
+	/*! Access the point of a lattice in global list index and returns its cartesian coordinates i,j,k*/
+	ivector1D CartesianPointLattice( int  );
+	/*! build the map of nodes, in global list index, that identifies the cartesian cell i,j,k */
+	ivector1D buildHexaNeighs(int , int , int );
+
+	/*! Access CartesianCell index given a coordinate point*/
+	void ReturnCartesianCell(darray3E & coord, int &i, int &j, int &k);
+
+	
+	/*! Access the Cell of a lattice in cartesian coordinates i,j,k and returns the global index of the list*/
+	int AccessCellLattice( int , int , int );
+	/*! Access the Cell of a lattice in global list index and returns its cartesian coordinates i,j,k*/
+	ivector1D CartesianCellLattice( int  );
+
+	/*! convert  numbering of a Vertex global index from Lattice convention to UCartMesh one */
+	int conVertLatticetoUCartMeshNumb(int &);
+	/*! convert  numbering of a Vertex global index from UCartMesh one to Lattice convention */
+	int conVertUCartMeshtoLatticeNumb(int &);
+
+	/*! convert  numbering of a Cell global index from Lattice convention to UCartMesh one */
+	int conCellLatticetoUCartMeshNumb(int &);
+	/*! convert  numbering of a Cell global index from UCartMesh one to Lattice convention */
+	int conCellUCartMeshtoLatticeNumb(int &);
+
+	/*! The method compiles automatically the dependancy list of outer nodes movements,
+	 * once the envelope of the nearest lattice nodes is extracted.
+	 * -->input LATTICE<.,.>::envelopeNodeList
+	 * -->output LATTICE<.,.>::envelopeDependancy
+	 */
+	void compileOuterShellDependancy();
+
+	/*Once movement of the envelope nodes is defined, assign automatically movements to the outer shell nodes, by means
+	 * of LATTICE<.,.>::envelopeDependancy lists.
+	 */
+	void autoMoveOuterShell();
+
+	/*Once movement of int target node belonging to envelope nodes is defined, assign automatically movements to the outer shell nodes dependant from it, by means
+	 * of LATTICE<.,.>::envelopeDependancy lists.
+	 */
+	void moveOuterShellNodes(int &);
+
+	/* Counts the elements on a row of Lattice grid which belong also to the external provided list.
+	 * Returns the number of positive matches, the row list of nodes, and a boolean vector list with matches position marked as true.
+	 * The lattice row is identified by providing a string and two integers.
+	 * For example, let's assume a 2x6x4 grid, and you want to scan the row of i-indices from 0 to 3 which has coordinates
+	 * in the jk plane j=5, k=2. Just feed as input for the first three members a string "xdir", int j=5 and and the int k=2.
+	 * If you want to work w/ j-indices --> string 'ydir', x and k, for k indices --> string 'zdir' x and j*/
+	int findElementsinRow(std::string , int &, int &, ivector1D &, ivector1D &, bvector1D &);
+
+	ivector1D getRow(ivector1D &, std::string &);
+	void nullLoads();
+
+	/*! check if your current selection is contained into the lattice */
+	bool checkSelection();
+
+	/*! Set the vertices of the PATCH<*> Hull --> elementary cube in lattice local reference system*/
+	void set_default_hull();
+
+	/*! Given a Cartesian Lattice grid, extract all control nodes (in global numeration indices) lying on a plane normal to
+	 * specified direction dir, and positioned in the local cartesian coordinate n_ along dir.
+	 */
+	ivector1D getNodesOnGridPlane(std::string dir_, int n_);
+
+	/*!If input argument true, convert in member points, all doubles of lattice_pt<Dim>::load in strings, filling lattice_pt<Dim>::loadstring members.
+	 * If input argument false, get the exact contrary.
+	 * If action cannot be performed return a false flag.
+	 */
+	bool convertLoadString(bool );
+
+	/*! Returns info if Lattice is defined for boundary segmented patches or not */
+	bool isBoundarySegmented();
+
+
+	//get set methods.
+
+	void setLatticeName(int name_);
+	void setLatticeLoadFile(std::string inputLoadFile);
+	void setLatticeDimension(int, int, int);
+	void setLatticeDimension(int, int, int, int, int, int);
+	void setLatticeOrigin(dvector1D &);
+	void setLatticeOrigin(double, double, double);
+	void setLatticeSpan(dvector1D &);
+	void setLatticeSpan(double, double, double);
+	void setTransitionParameter(double);
+	void setBoundaryInfo(std::string, std::string); //for classic boundary
+	void setBoundaryInfo(svector1D &, svector1D &); //for ext geometries boundary segmentation
+	void setBoundaryInfo(svector1D &, dvector1D &); //for automatic boundary segmentation w/ seed
+	void setLevelSetMode(std::string);
+	void setHeatTime(double);
+	void setLatticeRefineSupport(bool);
+	void setLatticeWhole(bool);
+	void setSelectionMode(std::string, std::string file="");
+	void compileNodalStructure();
+	void setSupportSelection(ParaSurfMesh * selection_);
+
+	int getLatticeName();
+	std::string getLatticeLoadFile();
+	ivector1D getLatticeDimension();
+	ivector1D getKnotsDimension();
+	dvector1D getLatticeOrigin();
+	dvector1D getLatticeSpan();
+	double getTransitionParameter();
+	svector1D getBoundaryInfo();
+	std::string getLevelSetMode();
+	svector1D  getSelectionMode();
+	double getHeatTime();
+	bool getLatticeRefineSupport();
+	bool getLatticeWhole();
+	ParaSurfMesh * getSupportSelection(bool);
+
+	void prepareSupport();
+
+	
+	int getNPoints(); //number of points of nodal displacements
+	void setKnotsStructure(); //
+	void setKnotsStructure( std::string); //
+	void getKnotsStructure(dvector2D &, ivector2D &);
+	void getKnotsStructure( std::string, dvector1D &, ivector1D &);
+	int  getKnotInterval(double, int);
+	double getKnotValue(int, int);
+	int getKnotIndex(int,int);
+	int getTheoreticalKnotIndex(int,int);
+	
+	//deBoor Evaluator
+	dvector1D NurbsEvaluator(dvector1D &); 
+	double NurbsEvaluatorScalar(dvector1D &, int);
+	//1D elemental de boor algorithm
+	dvector1D getNurbsPoint(int k, dvector1D & basis, dvector2D & loads);
+	
+	dvector1D basisITS0(int k, int pos, double coord);
+	
+	
+private:
+	// declaring private methods
+
+	/*!Set the vertices of and build the PATCH<*> Hull associated to the lattice, extract those simplex encased in the Hull, and mark such simplex
+	 * on the member of the class SHAPE markSUpport with the lattice name (integer variable). In input, it requires a reference to a class SHAPE, where
+	 * the original tasselation is stored, the the name of the Lattice under consideration.  */
+	void set_lattice(SHAPE &, int &);
+
+	/*! Get the ordered list of vertices of a 3D cell defined on a UCartMesh3D, and identified by loc index i,j,k (minus vertex) */
+	ivector1D getCartesianMeshElementConnectivity(Class_UCartMesh3D *, int & , int & , int & );
+	dvector2D getCartesianMeshElementCoordinate  (Class_UCartMesh3D *, int & , int & , int & );
+
+	int findLSSupportTriangle(dvector1D &, double &);
+
+	std::string mappingDirString(std::string);
+
+	/*! given a center point and the transformation matrix for Rotation, get the displacement in x,y,z coordinates
+	 * of the coordNode, given in input as global lattice coordinates
+	 */
+	dvector1D getRotDisplacement(dvector1D & center, int & coordNode, dvector2D & rotMat);
+
+	/*! get baricenter position of an ensamble of lattice nodes. List of nodes must be provided in global lattice coordinate*/
+	dvector1D getBaricenterOfNodes(ivector1D & ensamble);
+
+
+
+};//end of class lattice
+
+#include "libRA_Lattice.tpp"
+
+#endif  
+

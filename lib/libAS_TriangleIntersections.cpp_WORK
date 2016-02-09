@@ -1,0 +1,425 @@
+#include "libAS_TriangleIntersections.hpp"
+
+//STRUCT RAYINTERSECTOUTPUT
+//Constructors
+RayIntersectOutput::RayIntersectOutput(){}
+
+RayIntersectOutput::RayIntersectOutput(const RayIntersectOutput & other)
+{
+	raytr_map.resize(other.raytr_map.size());
+	raytr_delta.resize(other.raytr_delta.size());
+
+	raytr_map = other.raytr_map;
+	raytr_delta = other.raytr_delta;
+}
+
+//method for member cleaning
+void RayIntersectOutput::clearRayIntersectOutput()
+{
+	freeContainer(raytr_map);
+	freeContainer(raytr_delta);
+}
+
+//assignment operator
+RayIntersectOutput & RayIntersectOutput::operator=(const RayIntersectOutput & other)
+{
+	raytr_map.resize(other.raytr_map.size());
+	raytr_delta.resize(other.raytr_delta.size());
+
+	raytr_map = other.raytr_map;
+	raytr_delta = other.raytr_delta;
+
+	return(*this);
+}
+
+
+//CG CUSTOM methods
+
+bool CG_Custom::sign_check(dvector1D & vect)
+{
+	int i=1;
+	bool check = false;
+	while (i<vect.size() && !check)
+	{
+		check = ( getSign(vect[i-1])!=getSign(vect[i]) );
+		i++;
+	}
+	return check;
+};
+
+
+bool CG_Custom::intersectTrianglePlane( array <double,3 > const & P1,
+						 	 	 	 	array< double,3 > const & P2,
+						 	 	 	 	array< double,3 > const & P3,
+						 	 	 	 	array< double,3 > const & Pp,
+						 	 	 	 	array< double,3 > const & nP)
+{
+	bool check = false;
+	double tol = 0.0;
+	double Dt = -1.0 * Dot_Product(Pp,nP);
+
+	dvector1D dPoints(3,0.0);
+
+	dPoints[0] = Dot_Product(P1,nP) + Dt;
+	dPoints[1] = Dot_Product(P2,nP) + Dt;
+	dPoints[2] = Dot_Product(P3,nP) + Dt;
+
+	double prodcheck= abs(dPoints[0]*dPoints[1]*dPoints[2]);
+
+	if(sign_check(dPoints) || prodcheck == tol){check = true;}
+
+	return check;
+};
+
+
+
+array< array< double, 3 >, 2> CG_Custom::planarIntersectionTriangleLine( array <double,3 > const & P0,
+															  	  	     array< double,3 > const & P1,
+															  	  	     array< double,3 > const & P2,
+															  	  	     array< double,3 > const & Pp,
+															  	  	     array< double,3 > const & nP)
+{
+ array< array< double, 3 >, 2> result;
+ result[0].fill(1E+18);
+ result[1].fill(1E+18);
+
+ double tol = 1e-14;
+ array< array< double, 3 >, 2> chosen;
+ int counter = 0;
+
+ {
+ //built lines along edges
+ array< array< double, 3 >, 3> directions;
+ array< array< double, 3 >, 3> supportP;
+
+
+ //P1-P0
+ directions[0] = (P1 - P0)/norm_2(P1 - P0);
+ supportP[0] = P0;
+ //P2-P1
+ directions[1] = (P2 - P1)/norm_2(P2 - P1);
+ supportP[1] = P1;
+ //P0-P2
+ directions[2] = (P0 - P2)/norm_2(P0 - P2);
+ supportP[2] = P2;
+
+ // find intersections line edge-lines and check if intersection is within the edge.
+ for(int i=0; i<3; ++i){
+	  array< double, 3> point = IntersectLines(supportP[i],directions[i], Pp,nP);
+	  supportP[i] = point;
+ 	 }
+
+ if(PointOnSegment(P1, P0, supportP[0])) {
+	 	 chosen[counter] = supportP[0];
+	 	 ++counter;
+ 	 }
+ if(PointOnSegment(P2, P1, supportP[1])) {
+	 	 chosen[counter] = supportP[1];
+	 	 ++counter;
+ 	 }
+ if(PointOnSegment(P0, P2, supportP[2]) && counter < 2) {
+	 	 chosen[counter] = supportP[2];
+	 	 ++counter;
+ 	 }
+ }
+
+ double dist1, dist2;
+
+	dist1 = Dot_Product((chosen[0] - Pp), nP);
+	dist2 = Dot_Product((chosen[1] - Pp), nP);
+
+	if(dist1 <= dist2){
+ 		result[0] = chosen[0];
+ 		result[1] = chosen[1];
+ 		}
+ 	else{
+ 		result[0] = chosen[1];
+ 		result[1] = chosen[0];
+ 		}
+
+
+return result;
+}
+
+
+//CLASS TRIANGLE_INTERSECTIONS
+//Constructors
+TRIANGLE_INTERSECTIONS::TRIANGLE_INTERSECTIONS()
+{
+	puntConstraint=NULL;
+	puntOriginal=NULL;
+}
+
+TRIANGLE_INTERSECTIONS::TRIANGLE_INTERSECTIONS(Class_SurfTri * or_shape, Class_SurfTri * co_shape)
+{
+	puntConstraint= co_shape;
+	puntOriginal  = or_shape;
+}
+
+TRIANGLE_INTERSECTIONS::TRIANGLE_INTERSECTIONS(Class_SurfTri * or_shape, dvector2D & vertex, ivector2D & connectivity)
+{
+	constraint.nVertex = vertex.size();
+	constraint.nSimplex= connectivity.size();
+	constraint.ResizeVertex();
+	constraint.ResizeSimplex();
+
+	for(int j=0; j<vertex.size(); j++)
+	{
+		constraint.Vertex[j]=conArray<double,3>(vertex[j]);
+	}
+
+	for(int j=0; j<connectivity.size(); j++)
+	{
+		constraint.Simplex[j]=connectivity[j];
+	}
+
+	puntConstraint= &constraint;
+	puntOriginal = or_shape;
+}
+
+TRIANGLE_INTERSECTIONS::TRIANGLE_INTERSECTIONS(const TRIANGLE_INTERSECTIONS & other )
+{
+	constraint  = other.constraint;
+	puntConstraint = other.puntConstraint;
+	puntOriginal = other.puntOriginal;
+}
+
+//Destructor
+TRIANGLE_INTERSECTIONS::~TRIANGLE_INTERSECTIONS()
+{};
+
+
+//assignment operator
+TRIANGLE_INTERSECTIONS & TRIANGLE_INTERSECTIONS::operator=(const TRIANGLE_INTERSECTIONS & other)
+{
+		constraint  = other.constraint;
+		puntConstraint = other.puntConstraint;
+		puntOriginal = other.puntOriginal;
+
+	return(*this);
+}
+
+
+
+RayIntersectOutput TRIANGLE_INTERSECTIONS::intersect_RayTri(dvector1D & orig, dvector1D & dir)
+{
+
+	//head check
+		if(puntConstraint == NULL)
+		{
+			std::cout<<"Your TRIANGLE_INTERSECTION class is pointing NULL data Structures. Be sure using "<<'\n';
+			std::cout<<"TRIANGLE_INTERSECTIONS::intersect_RayTri method to define a pointer to a Constraint Triangulation "<<'\n';
+			std::cout<<"Exiting now to prevent disasters"<<'\n';
+			exit(1);
+		}
+
+	// Local variables
+	double		norma;
+	dvector1D	norm_dir;
+	
+	RayIntersectOutput out;
+
+	out.raytr_map.resize(puntConstraint->nSimplex,-1);
+	out.raytr_delta.resize(puntConstraint->nSimplex,-1);
+
+	norma=norm_2(dir);
+	norm_dir=dir/norma;
+	
+	int counter_map = 0;
+
+	//prepare origin and direction
+	array<double,3> OR_array;
+	array<double,3> DIR_array;
+
+
+	std::copy_n(orig.begin(),orig.size(), OR_array.begin());
+	std::copy_n(norm_dir.begin(),norm_dir.size(), DIR_array.begin());
+
+
+	for (int j=0; j<puntConstraint->nSimplex; ++j)
+	{ // triangle index
+
+     array< array<double,3>, 3 > vertT;
+
+     	 for(int i=0; i<3; ++i){
+     		 int VV= puntConstraint->Simplex[j][i];
+     		 std::copy_n(puntConstraint->Vertex[VV].begin(), 3, vertT[i].begin());
+     	 }
+
+     array<double,3> Pp = vertT[0];
+     array<double,3> nP = Cross_Product((vertT[1]-vertT[0]), (vertT[2]-vertT[0]));
+     nP = nP/norm_2(nP);
+
+
+     //array<double,3> result = IntersectLineTriangle(vertT[0],vertT[1],vertT[2], OR_array, DIR_array);
+
+     array<double,3> result = IntersectLinePlane(OR_array, DIR_array, Pp, nP);
+
+	 bool check = false;
+     if(result[0] < 1E+18) {
+    	 check = (check || PointOnTriangle(vertT[0],vertT[1],vertT[2],result));
+    	 check = (check || PointOnSegment(vertT[1],vertT[0],result));
+    	 check = (check || PointOnSegment(vertT[2],vertT[1],result));
+    	 check = (check || PointOnSegment(vertT[0],vertT[2],result));
+     }
+
+     if(check) {//check out if real intersection
+	 		 out.raytr_map[counter_map] = j;
+     		 out.raytr_delta[counter_map] = norm_2(result-OR_array);
+     		 ++counter_map;
+     	 }
+	}	
+
+	out.raytr_map.resize(counter_map);
+	out.raytr_delta.resize(counter_map);
+	return out;
+};
+
+
+
+int TRIANGLE_INTERSECTIONS::checkTriangleSupport(ivector1D & DVertList, ivector2D & inverseConn, ivector1D & CTriList, dvector2D * vertex)
+{
+	int result = 0;
+
+	//head check
+	if(puntOriginal == NULL || puntConstraint == NULL)
+	{
+		std::cout<<"Your TRIANGLE_INTERSECTION class is pointing NULL data Structures. Be sure using "<<'\n';
+		std::cout<<"TRIANGLE_INTERSECTIONS::intersect_TriTri method to define a pointer to a Constraint Triangulation and"<<'\n';
+		std::cout<<"Original Collision Checkable Triangulation"<<'\n';
+		std::cout<<"Exiting now to prevent disasters"<<'\n';
+		exit(1);
+	}
+
+	// second check list
+	if(DVertList.size() != CTriList.size()) {
+
+		std::cout<<"Error occurring calling TRIANGLE_INTERSECTIONS::checkTriangleSupport."<<std::endl;
+		std::cout<<"List of vertices of target triangulation and list of simplicies of constraint triangulation does not match"<<std::endl;
+		exit(1);
+	}
+
+	bool checkVertexList = false;
+	//check if external list is assigned
+	 if (vertex != NULL){checkVertexList = true;}
+
+
+	// counting on list
+	for (int k=0; k<DVertList.size(); ++k)
+	{
+		bool check, isRing=true;
+
+		int Td = inverseConn[DVertList[k]][0];
+		int locTd = puntOriginal->vertex(Td,DVertList[k]);
+		ivector1D VRingList = puntOriginal->Ring_1(Td,locTd, check, isRing);
+		if(!isRing){ std::cout<<"Found flaws on triangulation! Cannot Perform Ring_1 in checkTriangleSupport"<<std::endl; exit(1);}
+
+
+		ivector1D destList;
+		int ix = 0;
+		while( ix<3) {
+			if(puntConstraint->Adjacency[CTriList[k]][ix][0] != -1)
+			{
+			 for(int iy=0; iy<puntConstraint->Adjacency[CTriList[k]][ix].size(); ++iy){
+				 destList.push_back(puntConstraint->Adjacency[CTriList[k]][ix][iy]);
+			 }//next iy
+			}//endif
+			++ix;
+		}//end while
+
+    //check triangle pair
+	for(int iV=0; iV<VRingList.size(); ++iV){
+		for(int iC=0; iC<destList.size(); ++iC){
+
+			array< array < double, 3 >, 3 > triV, triC;
+
+			// creting vertex list for triangles
+
+			for(int locV=0; locV<3; ++locV){
+				int lV = puntOriginal->Simplex[VRingList[iV]][locV];
+				int lC = puntConstraint->Simplex[destList[iC]][locV];
+
+				if(checkVertexList) {
+					std::copy_n((*vertex)[lV].begin(), 3, triV[locV].begin());
+				}
+				else {
+					std::copy_n(puntConstraint->Vertex[lV].begin(), 3, triV[locV].begin());
+				}
+
+					std::copy_n(puntConstraint->Vertex[lC].begin(), 3, triC[locV].begin());
+
+			}//next locV
+
+			int val = (int)CG_Custom::intersect_TriTri(triV, triC);
+			result = result + val;
+
+		}//next IC
+	}//next iV
+
+	}//next k
+	return result;
+};
+
+
+
+bool CG_Custom::intersect_TriTri(array< array < double, 3 >, 3 > & vDef, array< array < double, 3 >, 3 > & vConstr)
+{
+
+	bool check_return = false;
+	
+	array<double, 3> Pdef, nPdef, Pconstr, nPconstr; // defining support points and normals of plane of each triangle.
+
+	Pdef = vDef[0];
+	nPdef = Cross_Product((vDef[1]-vDef[0]), (vDef[2]-vDef[0]));
+	nPdef = nPdef/norm_2(nPdef);
+
+	Pconstr = vConstr[0];
+	nPconstr = Cross_Product((vConstr[1]-vConstr[0]), (vConstr[2]-vConstr[0]));
+	nPconstr = nPconstr/norm_2(nPconstr);
+
+
+	//1st check: see if triangle def intercept plane constr;
+	if(!CG_Custom::intersectTrianglePlane(vDef[0],vDef[1],vDef[2], Pconstr, nPconstr)){return check_return;}
+
+	//2nd check: see if triangle constr intercept plane def;
+	if(!CG_Custom::intersectTrianglePlane(vConstr[0],vConstr[1],vConstr[2], Pdef, nPdef)){return check_return;}
+
+
+	//now we have an intersection of planes, at least; Check the intersection line;
+	array< array< double, 3>, 2 > lineP = IntersectPlanes(Pdef,nPdef,Pconstr, nPconstr);
+
+	if(lineP[0][0] < 1E+18) { //regular intersection
+
+	//verify def triangle
+	array< array< double, 3 >, 2> segment1 = CG_Custom::planarIntersectionTriangleLine(vDef[0],vDef[1],vDef[2],lineP[0],lineP[1]);
+
+	//verify constr triangle
+	array< array< double, 3 >, 2> segment2 = CG_Custom::planarIntersectionTriangleLine(vConstr[0],vConstr[1],vConstr[2],lineP[0],lineP[1]);
+
+
+	check_return=true;
+	if( (Dot_Product((segment2[0] - lineP[0]), lineP[1]) > Dot_Product((segment1[1] - lineP[0]), lineP[1]) ) ||
+		(Dot_Product((segment1[0] - lineP[0]), lineP[1]) > Dot_Product((segment2[1] - lineP[0]), lineP[1]) )   ) {
+		check_return = false;
+		}
+
+	}
+
+
+	else { //coplanarity occurs
+
+
+		int k =0;
+		while (k < 3 && !check_return) {
+
+			check_return = (check_return || PointOnTriangle(vDef[0],vDef[1],vDef[2], vConstr[k]));
+			check_return = (check_return || PointOnSegment(vDef[1],vDef[0],vConstr[k]));
+			check_return = (check_return || PointOnSegment(vDef[2],vDef[1],vConstr[k]));
+			check_return = (check_return || PointOnSegment(vDef[0],vDef[2],vConstr[k]));
+			++k;
+		}
+	}
+
+	return check_return;
+};
+

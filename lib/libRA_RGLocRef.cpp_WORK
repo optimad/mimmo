@@ -1,0 +1,455 @@
+#include "libRA_RGLocRef.hpp"
+
+        //Constructor
+   REFINEMENT::REFINEMENT(SHAPE & XX): geo(XX)
+             { 
+              //starts with propagation of RED information (convex front) and 
+              //  come with the 1-ring of GREEN simplex
+              propagateRefinementStatus();
+              RefinementMap.resize(XX.nSimplex,false); 
+             }
+
+       // Methods
+   void REFINEMENT::propagateRefinementStatus()
+         {
+          // given a certain map of Simplex marked with a RED refinement flag (2), 
+          // the function propagates the information coherently through adjacent neighbours,
+          // and set up the green Refinement label to edge Simplex of RED marked tasselation.
+          // WARNING rules of marking apply to a pure triangulation for NOw. For mixed tasselation
+          // or Simplices different from triangles, PLEASE RECHECK marking rules. 
+
+            int nS, work, loc_neg; 
+            std::vector<int> nN(3,0);                                           
+            std::vector<int> mapSimplex;
+	    double worksize;	
+
+            extract_status_refinement(2,mapSimplex);
+
+
+            // first round to capture the convex hull of RED simplicies
+            int i=0;
+	    maxSimplexSize = 0.0;	
+            while( i <  mapSimplex.size()) 
+                 {
+
+                 // select local RED simplex nS
+                    nS = mapSimplex[i];
+		 //calculate Simplex characteristic dimension 
+ 		   worksize = checkSimplexSize(nS);
+		   maxSimplexSize = fmax(maxSimplexSize,worksize);
+
+                 // check adjacency of nS and store it in nN[]; 
+                    for(int j=0; j<3; j++)
+                       { 
+                        nN[j] = geo.Adjacency[nS][j][0];                        
+                       }                  
+                 // loop on neighbours nN of nS       
+                    for(int j=0; j<3; j++)
+                       { 
+                         if(geo.markRefinement[nN[j]] != 2 && nN[j] != -1) // target must not have RED status, nor be a free edge 
+                           {
+                            bool checkRED = false;
+                            int k=0;
+                            do { 
+                                 loc_neg = geo.Adjacency[nN[j]][k][0];
+                                 if(loc_neg == nS) break;
+                                 work = geo.markRefinement[loc_neg]; 
+                                 
+                                 if(work==2) {checkRED = true;
+                                              geo.markRefinement[nN[j]] = 2; // red status
+                                              mapSimplex.push_back(nN[j]);
+                                              }
+                                 k++;
+                               } while(!checkRED || k < 3); 
+                            
+                           if(!checkRED) geo.markRefinement[nN[j]] = 1; //green status
+                           }// end if on target !=2
+                        } // end for on neigh nN of nS
+                  i++;
+                 }// end while
+
+         // second round  to adjust inconstencies of the convex 1-ring of Green Simplicies
+
+            mapSimplex.resize(0);
+            extract_status_refinement(1,mapSimplex);
+        
+            i=0;
+            while(i<mapSimplex.size())
+                 {
+                  std::vector<bool> workGreen(3,false);
+                  int summing = 0;
+                 // select local GREEN simplex nS
+                    nS = mapSimplex[i]; 
+                 // check adjacency of nS and store it in nN[]; 
+                    for(int j=0; j<3; j++)
+                       { 
+                        nN[j] = geo.Adjacency[nS][j][0];                        
+                        if(geo.markRefinement[nN[j]]==2) workGreen[j] = true;
+                       }                  
+                     summing = workGreen[0]+workGreen[1]+workGreen[2];   
+                     
+                     switch(summing)
+                           {
+                            case 3 :
+                                    geo.markRefinement[nS] = 2; //mark the GREEN as RED, cos is surrounded by REDs
+                                    break;
+
+                            case 2 :
+                                    geo.markRefinement[nS] = 2; // two red neighbours, Green target becomes Red
+                                    for(int k=0; k<3; k++)
+                                       {
+                                        if(!workGreen[k])
+                                           { geo.markRefinement[nN[k]] = 1; //the other neighbour is Green
+                                             mapSimplex.push_back(nN[k]);}
+                                       }   
+                                    break;
+                            
+                            default : geo.markRefinement[nS] = 1;
+                           }  
+
+                  i++;
+                 }// end while
+
+
+       return;  
+       };
+
+   void REFINEMENT::extract_selection_refinement(Class_SurfTri & Target) 
+         {
+          //store the non-blank element of member markRefinement in a new class SurfTri
+
+          std::vector<int> workSimplex ;
+
+          extract_status_refinement(2,workSimplex);
+          extract_status_refinement(1,workSimplex);
+
+	  ivector2D simToAdd;
+ 
+          for(int k=0; k<workSimplex.size(); k++)
+             {
+              simToAdd.push_back(geo.Simplex[workSimplex[k]]); 
+             }
+            
+           // adding data
+
+           Target.AddSimplicies(simToAdd);
+           
+           //clever boy is cleaning up and consuming memory & wall time...HELLYEAH! 
+           if(simToAdd.size()!=0)
+           {
+           Target.AddVertices(geo.Vertex);
+           Target.SetTolerance(); 
+           Target.RemoveDoubleVertex();
+           Target.RemoveIsolatedVertex(); 
+           Target.ResizeVertex();
+           Target.ResizeSimplex();
+	   Target.GenerateNormals();
+           return;
+           } 
+          }// end of extract selection refinement
+
+   void REFINEMENT::manageRefinement()
+         {
+          // given a list of marks, of the same size of the number of 
+	  // simplex of triangulation (2-RED, 1-GREEN, 0-blank), performs refinement on father 
+	  // by means of this class private methods RED() and GREEN()
+
+            std::vector<int> mapRED, mapGREEN;
+            dvecarr3E  portionVertex; 
+            dvecarr3E * prova; 
+            ivector2D      portionSimplex; 
+            bvector1D                 portionPID;   
+            ivector1D                  portionMark, portionInclusion; 
+            int counter;
+            darray3E fakeVec{0,0,0}; 
+
+            counter = geo.Vertex.size();
+
+            // extract all RED/GREEN elements of triangulation
+            extract_status_refinement(2,mapRED);
+            extract_status_refinement(1,mapGREEN);
+         
+          //prova del 9
+           portionVertex.resize(3*mapRED.size() + mapGREEN.size(), darray3E{0,0,0});
+           portionSimplex.resize(3*mapRED.size() + mapGREEN.size(), ivector1D(3.0));
+           portionPID.resize(3*mapRED.size() + mapGREEN.size());
+           portionMark.resize(3*mapRED.size() + mapGREEN.size());
+           portionInclusion.resize(3*mapRED.size()+mapGREEN.size());
+             
+         //performing RED refinement
+        for(int i=0; i<mapRED.size(); i++) 
+         {
+          RED(counter + 3*i, 3*i, mapRED[i], portionVertex, portionSimplex, portionPID, portionMark, portionInclusion); 
+	  geo.markRefinement.push_back(2);
+	  geo.markRefinement.push_back(2);
+	  geo.markRefinement.push_back(2);
+         }
+                   
+       // performing GREEN refinement
+     for(int i=0; i<mapGREEN.size(); i++) 
+      {
+      GREEN(counter + 3*mapRED.size()+ i, 3*mapRED.size()+i, mapGREEN[i], portionVertex, portionSimplex, portionPID, portionMark, portionInclusion); 
+	  geo.markRefinement.push_back(1);
+      }
+
+              ivector1D flag_map;
+              
+            // adding vertex and simplex;
+
+              //convert portionVertex in dvecarr3E
+             {
+            	  int size = portionVertex.size();
+              	  dvecarr3E temp(size);
+              	  for(int i=0; i<size; ++i){
+              		  temp[i] = portionVertex[i];
+              	  }
+              	  geo.AddVertices(temp);
+             }
+             geo.AddSimplicies(portionSimplex); 
+
+               bool check=false;
+               if(portionVertex.size()==portionSimplex.size()) check=true;
+
+               if(check) {                 
+            //increasing coord in lattice sdr
+              for(int i=0; i<portionVertex.size(); i++)
+                 {
+                  geo.deform_OR.push_back(fakeVec);
+                 
+
+		  // act on simplicies
+
+                  geo.pid_surface.push_back(portionMark[i]);	
+		  geo.markInclusion.push_back(portionInclusion[i]);	
+                  }
+
+ 
+                  //clean'em all(the 4 horsemaid).
+
+                  geo.SetTolerance();
+
+                  geo.RemoveDoubleVertex(flag_map);
+
+                  geo.RemapPointData(flag_map, geo.deform_OR);
+
+                  geo.ResizeVertex();
+                  geo.ResizeSimplex();
+                  geo.ResizeNormal();
+                  geo.ResizeAdjacency();
+
+                  geo.GenerateNormals();
+                  geo.BuildAdjacency();
+                  
+                }
+          return;
+          }
+
+
+   void REFINEMENT::multilevelRefinement(int & level)
+         {    //perform directly the local refinement with the prescribed level of the class 
+
+
+            for(int l = 0; l<level; l++) 
+               {
+                 std::cout<< "------------------------------------------------------------------------"<<'\n'; 
+                 std::cout<< "...performing level  "<< l+1 <<" of refinement on selected triangulation;"<<'\n'; 
+                 std::cout<< "                    ->original simplex n.:"<<geo.nSimplex<<'\n'; 
+                 manageRefinement();
+                 std::cout<< "          ...done...->new simplex n.     :"<<geo.nSimplex<<'\n'; 
+                 std::cout<< "------------------------------------------------------------------------"<<'\n'; 
+               }
+ 
+           return; 
+          } 
+
+
+
+// working methods of Refinement
+
+   void REFINEMENT::extract_status_refinement(int status, std::vector<int> & markedSimplex)
+         {
+          // extracting group of Simplex w/status 0-blank, 1-green, 2-red and store it in a map
+          // markedSimplex. Signal is "to swap" the new data work to markedSimplex if the structure  
+          // is initially void, otherwise, for markedSimplex already full, signal is "to append" work data 
+          //to markedSimplex
+
+               
+             std::vector<int> work;
+             int sig_gio;
+            //check markedSimplex size
+              sig_gio = markedSimplex.size();
+              if (sig_gio !=0) swap(markedSimplex, work);
+
+
+             for(int i=0; i < geo.markRefinement.size(); i++) 
+                {
+                 if(geo.markRefinement[i]==status) work.push_back(i);
+                }
+
+
+              swap(work,markedSimplex);    
+             return;
+
+           };
+
+     void REFINEMENT::RED(int iv_old, int j_old,  int  nSimp, dvecarr3E & pV, ivector2D & pS, bvector1D & pPID, ivector1D & pMark, ivector1D &pIncl) 
+         { // create Red Refinement on simplex nSimp. Create 3 new vertices, create 3 new simplex
+           // and store it at the end of the geo's SurfTri structure. It takes the actual dimension 
+           // of vector VERTEX in the target father triangulation and 
+           // returns it increased by 3. Update the data structure appended to SurfTri in the class SHAPE. 
+	
+          dvecarr3E old_vert(4,darray3E{0,0,0});
+	  dvecarr3E new_vert(3,darray3E{0,0,0});
+          std::vector<int> indexOldVert(3,0);
+          std::vector<int> indexNewVert(3,0);
+          std::vector<std::vector<int> > new_simplex(3,std::vector<int> (3,0));
+          std::vector<int> backup (3,0);
+
+          
+
+         //initialize backup for connectivity loop
+
+           backup[0] = 2; backup[1] = 0; backup[2] =1;
+
+
+          //store old vertices of simplex nSimp and their indices on map
+          for(int i=0; i<3; i++) 
+             {
+              indexOldVert[i] = geo.Simplex[nSimp][i];              
+              old_vert[i]     = geo.Vertex[indexOldVert[i]];
+              }
+
+          //append 1st vertex at the end of list old_vert
+              old_vert[3] = old_vert[0]; 
+
+          for(int i=0; i<3; i++) 
+             {
+              for(int j=0; j<3; j++)   
+                 {
+              new_vert[i][j] = 0.5e0*(old_vert[i][j]+old_vert[i+1][j]);
+                 }
+              indexNewVert[i] = iv_old + i;
+              pV[j_old+i] = new_vert[i];
+             }
+           // create Simplex/Vertex connectivity of the new refined triangulation
+
+           // first substitute the original simplex connectivity with the connectivity of new vertex
+              geo.Simplex[nSimp] = indexNewVert;
+              RefinementMap[nSimp] = true;
+           // save connectivity of the other vertices
+             for(int jSim=0; jSim<3; jSim++)
+                {
+                new_simplex[jSim][0] = indexNewVert[backup[jSim]]; 
+		new_simplex[jSim][1] = indexOldVert[jSim]; 
+		new_simplex[jSim][2] = indexNewVert[jSim]; 
+
+                RefinementMap.push_back(true);
+
+                pS[j_old+jSim] = new_simplex[jSim];
+                }
+       
+                for(int i=0; i<3; i++)
+              {
+      
+              
+ 		pMark[j_old+i] = geo.pid_surface[nSimp];
+		pIncl[j_old+i] = geo.markInclusion[nSimp];
+              }  
+             return;
+         }
+
+     void REFINEMENT::GREEN(int iv_old,  int j_old,  int & nSimp, dvecarr3E & pV, ivector2D & pS, bvector1D & pPID,ivector1D & pMark, ivector1D &pIncl) 
+     
+         { // create Green Refinement on simplex nSimp. Create 1 new vertices, create 1 new simplex
+           // and store it at the end of the geo's SurfTri structure. It takes the actual dimension 
+           // of vector VERTEX in the target father triangulation and 
+           // returns it increased by 1. Update the data structure appended to SurfTri in the class SHAPE. 
+	
+          dvecarr3E old_vert(4,darray3E{0,0,0});
+	  darray3E new_vert{0,0,0};
+          std::vector<int> indexOldVert(3,0);
+          int indexNewVert = 0;
+          std::vector<int> new_simplex(3,0);
+
+          int edge, posix;
+           std::vector<int> backup(3,0);
+         
+      
+          //store old vertices of simplex nSimp and their indices on map
+          for(int i=0; i<3; i++) 
+             {
+              indexOldVert[i] = geo.Simplex[nSimp][i];              
+              old_vert[i]     = geo.Vertex[indexOldVert[i]];
+              }
+         
+          //append 1st vertex at the end of list old_vert
+              old_vert[3] = old_vert[0]; 
+
+          // search the common edge with the RED neighbour  
+
+              edge = geo.marking_RED_edge(nSimp);
+
+              for(int j=0; j<3; j++) new_vert[j] = 0.5e0*(old_vert[edge][j]+old_vert[edge+1][j]);
+                                     indexNewVert= iv_old;
+      
+              pV[j_old] = new_vert;
+           // create Simplex/Vertex connectivity of the new refined triangulation
+
+           // first substitute the original simplex connectivity with the connectivity of new vertex
+                geo.Simplex[nSimp][edge] = indexNewVert;
+
+                RefinementMap[nSimp]=true;
+
+ 
+              for(int i=0; i<3;i++) backup[i] = indexOldVert[i];
+
+              switch(edge)
+                    {
+                     case 1 :
+                             posix=2;
+                             break;
+                     case 2 :
+        		     posix=0;
+                             break;
+                     case 0 :
+                             posix=1;
+                             break;
+                     default:
+                            std::cout << "problems with GREEN() method of Class Refinement. No suitable edge is selected;"<<'\n'; 
+                    }                  
+
+              backup[posix] = indexNewVert;
+
+           // save connectivity of the other Simplex
+                for(int i=0; i<3; i++) new_simplex[i] = backup[i]; 
+
+                RefinementMap.push_back(true);
+                pS[j_old] = new_simplex;             
+	
+
+               
+		pMark[j_old] = geo.pid_surface[nSimp];	
+		pIncl[j_old] = geo.markInclusion[nSimp];
+
+           return;
+         }
+	
+	double REFINEMENT::checkSimplexSize(int &nSimp)
+	      {//calculate the characteristic dimension of a triangular Simplex
+	       double result = 0.0;
+
+	       dvecarr3E work(4,darray3E{0,0,0});
+
+	      for (int i=0; i<3; i++) work[i] = geo.Vertex[geo.Simplex[nSimp][i]];	
+	      work[3] = work[0];
+
+	      for(int i=0; i<3; i++) 
+		{
+		 double dummy;
+		 dummy = norm_2((work[i+1]-work[i]));
+		 result = fmax(result, dummy);
+		}			
+
+		return(result);
+	      }; //end of maxSimplexSize
+

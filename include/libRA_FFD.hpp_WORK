@@ -1,0 +1,230 @@
+#ifndef LIB_FFD
+#define LIB_FFD
+
+// main of 3D morpher based on  Free Form Deformation
+
+#include "libRA_SurfLattice.hpp"
+#include "Class_UCartMesh.hpp"
+#include "libRA_Lattice.hpp"
+#include "lib_STL_IO.hpp"
+#include "libAS_TriangleIntersections.hpp"
+using namespace std;
+
+typedef std::vector<double> dvector1D;
+typedef std::vector<dvector1D> dvector2D;
+
+/* ============================================================================================================ 
+   module library_FreeFormDeformation           							        
+
+   Module containing utilities of the free form deformation (FFD)  module for shape manipulation		
+   version multi-dimensional (using template for multidimensional version)                                                                                                                                                      
+
+ List of External Methods --> Namespace FFD_EXT  	                                                                                                                
+  - deformation < * >             : evaluate displacements of SHAPE points --> Deformation                                       
+  - BernCast < * >                : compute Bernstein/Bezier basis functions via De Casteljau algorithm           
+  - constraint                    : define a limiting function for deformation by using filterWindow                                          
+  - original_sdr_converter< *,* > : convert points in their original CAD sdr frame        			
+  - filterWindow		  : define the deformability function of the selected portions of the original geometry , consistently with
+				    the imposed constraints
+  ============================================================================================================= 
+  INFO                                                                                                          
+  ============================================================================================================= 
+  Author: Rocco Arpa 									       			
+  Company: Optimad Engineering s.r.l.										
+  Date: Septemper 14, 2012                                                                                      
+  ORIGINAL CODING: Fortran 90 ---> translation in C++ by R.A. 12/06/2013				        
+  Ver: v2.0													
+  All rights reserved												
+  ============================================================================================================= 
+  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ */
+
+//External Method.......................................................................... !
+/*! Contains a collection of external methods of the library FFD */
+namespace FFD_Ext {
+
+/*! Set the local rate of deformability on a target vertex I of the original tasselation, under the influence of a Lattice J.
+ * Such rate, defined in [0,1], modulates the displacement 	applied to the target vertex by the Lattice's control nodes,
+ * accounting of the deformation constraint imposed. The deformability rate is calculated by calling the function
+ *  FFD_Ext::filterWindow. As input, it requires, respectively:
+ *
+ *  		- Integer	    : Id of the target vertex in the original tasselation
+ *
+ *  		- Lattice class : needs the pointed Level Set, the boundary condition and the transition terms */
+double constraint(int & , LATTICE<3,4> &);
+
+/*! Set the local rate of deformability on a target vertex I of the original tasselation, under the influence of a Lattice J.
+ * Such rate, defined in [0,1], modulates the displacement 	applied to the target vertex by the Lattice's control nodes,
+ * accounting of the deformation constraint imposed. The deformability rate is calculated by calling the function
+ *  FFD_Ext::filterWindow. As input, it requires, respectively:
+ *
+ *  		- Integer	    : Id of the target vertex in the original tasselation
+ *
+ *  		- SurfLattice class : needs the pointed Level Set, the boundary condition and the transition terms */
+double constraint(int & , SURFLATTICE &);
+
+
+/*!Given a certain Lattice J, it calculates the rate of deformability of a point, based on its geodesic distance
+ * from the frontier of the deformable support associated to the Lattice. It accounts also of the type of boundary
+ * imposed on such frontier and the extent of the transition region between the frontier, where deformability is defined 0
+ * and the internal support where deformability is maximum (that is =1). It requires:
+ *
+ * 			- double: geodesic position of the point with respect of the deformable support frontier
+ *
+ * 			- double: the transition parameter associated to the Lattice J. See LATTICE<*,*>::transition
+ *
+ * 			- int   : the boundary condition at the frontier, associated to the lattice J. See LATTICE<*,*>::boundary  */
+double  filterWindow (double ,double , int , int, bool );
+
+//EXTERNAL TEMPLATE METHODS
+// prototype template functions list ....to unmatch coding order
+
+// /*! Template function of dimensionality parameter Dim. It applies the recursive de Casteljau algorithm to evaluate the displacement of a point of tasselation 
+//  * due to the displacements of the Lattice's control nodes, in one dimension. It requires, respectively:
+//  *
+//  * 		- Integer. Degree of Bezier curves, obtained with n+1 control points
+//  * 
+//  * 		- std vector<std::vector< double> > : double matrix [n+1][Dim] of deformative displacements applied to control nodes
+//  *
+//  * 		- double : coordinate of the point	
+//  *
+//  * 		- std::vector<double> : double,vector[Dim].Output: returns the displacement of the point under deformative loads.           		*/
+ template <int Dim>
+ void BernCast(int, std::vector < std::vector <double> > & , double , std::vector<double> & );
+
+/*! evaluator of point displacement by means of the DeCasteljau's algorithm for LATTICE<Dim,Map_Dim> structures */
+
+//template<int Map_Dim>
+//dvector1D deCasteljauEvaluator(LATTICE<3,Map_Dim> &, dvector1D &);
+
+///*! evaluator of point displacement by means of the DeCasteljau's algorithm for SURFLATTICE structures */
+dvector1D deCasteljauEvaluator(SURFLATTICE &, dvector1D &);
+//  void BernVS(int, dvector2D & , double , dvector1D & );
+//  
+//  dvector1D VSEvaluator(LATTICE<3,4> &, dvector1D &);
+// 
+
+
+/*! Evaluate the deformed Shape. 
+ * */
+template<int Map_Dim>
+void deformation( dvector2D &,
+		dvector2D &,
+		LATTICE<3,Map_Dim> &,
+		dvector1D * deformability=NULL
+);
+
+
+
+/*! overloaded FFD_Ext::deformation for Edo's handling*/
+
+template<int Map_Dim>
+void deformation( ivector1D &, dvector2D &,
+		dvector2D &,
+		LATTICE<3,Map_Dim> &,
+		dvector1D * deformability=NULL
+);
+
+
+
+
+
+/*! overloaded FFD_Ext::deformation for collision handling*/
+
+template<int Map_Dim>
+void deformation( dvector2D &,
+				  dvector2D &,
+				  LATTICE<3,Map_Dim> &,
+				  SHAPE * Oshape,
+				  Class_SurfTri * Cshape,
+				  int * controlType,
+				  double * controlTol,
+				  bool * coplan_check,
+				  Class_UCartMesh3D * Bmesh,
+				  dvector1D &,
+				  dvector1D * deformability=NULL);
+
+
+/*! Evaluate the deformed Shape.
+ * */
+void deformation( dvector2D &,
+		dvector2D &,
+		SURFLATTICE &,
+		dvector1D * deformability=NULL
+);
+
+/*! overloaded FFD_Ext::deformation for collision handling*/
+
+void deformation( dvector2D &,
+				  dvector2D &,
+				  SURFLATTICE &,
+				  SHAPE * Oshape,
+				  Class_SurfTri * Cshape,
+				  int * controlType,
+				  double * controlTol,
+				  bool * coplan_check,
+				  Class_UCartMesh3D * Bmesh,
+				  dvector1D &,
+				  dvector1D * deformability=NULL);
+
+
+/*! Routine checking intersections of a raypick, starting form a vertex iV of a working triangulation towards to a constraint geometry
+ * It requires:
+ *  a TRIANGLE_INTERSECTIONS class, pointing to the working geometry and the constraint geometry
+ *  the iV index of the ray origin vertex, on the working triangulation
+ *  a iT index of one of the triangle which iV belongs
+ *  the direction of the ray
+ *
+ *  Returns a double result: the distance between the ray origin and the nearest intersection with the constraint body, along the prescribed direction
+ *  resultTriSupport returns index of the triangle on Constraint triangulation that contains the intersection
+ */
+bool collision_WConstr(TRIANGLE_INTERSECTIONS * insectK,
+		int & iV,
+		int & iT,
+		dvector1D & direction,
+		double & result,
+		int & resultTriSupport);
+
+
+/*! Reset displacements, according to the whole body collision handling policy.
+ *  Require in Input:
+ *
+ *  - dvector1D allow_disp: maximum distance between colliding points and constraint body, along displacements directions
+ *  - ivector1D triSupport: list of constraint support triangles w.r.t the distance from colliding points is evaluated
+ *  - ivector1D map: map between list of colliding points and original displacement points
+ *  - Class_SurfTri * constraint : pointer to triangulation data structure of the constraint body
+ *
+ *  Input/Output:
+ *
+ *  - dvector2D: original displacements to be modified in input. Reset displacements with collision handling policy in output.
+ *  - int : index of most critical deformed point for penetration control
+ */
+void wConstr0_WholeBody(dvector1D & , ivector1D &, ivector1D &, Class_SurfTri * ,dvector2D &, int &);
+
+/*! Reset displacements, according to the fit body collision handling policy.
+ *  Require in Input:
+ *
+ *  - dvector1D allow_disp: maximum distance between colliding points and constraint body, along displacements directions
+ *  - ivector1D map: map between list of colliding points and original displacement points
+ *
+ *  Input/Output:
+ *
+ *  - dvector2D: original displacements to be modified in input. Reset displacements with collision handling policy in output.
+ *
+ */
+void wConstr1_FitBody(dvector1D &, ivector1D &,  dvector2D & );
+
+
+
+};
+
+//include coding from non standard c++ file for template stuffs
+#include "libRA_FFD.tpp"
+
+// end of libRA_FFD.hpp
+
+#endif
+
+ 
+
+
+

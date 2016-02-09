@@ -1,0 +1,98 @@
+/* Integration of BitPit Levelset Package, for CAMILO interface purpose */ 
+
+#ifndef __LEVELSET_GEOMFUNCT_HH__
+#define __LEVELSET_GEOMFUNCT_HH__
+
+// Standard Template Library
+#include <cmath>
+#include <array>
+#include <vector>
+#include <string>
+#include <map>
+
+// my_Lib
+#include "Operators.hpp"
+#include "SortAlgorithms.hpp"
+#include "CG_Basics.hpp"
+#include "Class_UCartMesh.hpp"
+#include "Class_SurfTri.hpp"
+#include "customOperators.hpp"
+
+// boolean vectors
+typedef vector< bool >                 bvector1D;
+typedef vector< bvector1D >            bvector2D;
+typedef vector< bvector2D >            bvector3D;
+typedef vector< bvector3D >            bvector4D;
+
+// characters vectors
+typedef vector< char >                 cvector1D;
+typedef vector< cvector1D >            cvector2D;
+typedef vector< cvector2D >            cvector3D;
+typedef vector< cvector3D >            cvector4D;
+
+// integer vectors
+typedef vector< int >                  ivector1D;
+typedef vector< ivector1D >            ivector2D;
+typedef vector< ivector2D >            ivector3D;
+typedef vector< ivector3D >            ivector4D;
+
+// double vectors
+typedef vector< double >               dvector1D;
+typedef vector< dvector1D >            dvector2D;
+typedef vector< dvector2D >            dvector3D;
+typedef vector< dvector3D >            dvector4D;
+
+// string vectors
+typedef vector< string >               svector1D;
+typedef vector< svector1D >            svector2D;
+typedef vector< svector2D >            svector3D;
+typedef vector< svector3D >            svector4D;
+
+
+
+// ========================================================================== //
+// FUNCTION PROTOTYPES                                                        //
+// ========================================================================== //
+
+
+namespace eikonal {
+	namespace triangulation {
+
+	/*! Essentially updates the SDFTri values on Daughter vertices, meanwhile the Front is propagated. see SupportMesh::Eikonal2DTriUpdate.
+ 	 * In input, the function requires the SDF field to be propagated, the propagation direction d, the propagation spees V, the index of local
+ 	 * Daughter vertex where SDF must be updated and a an internal flag vector of short integer
+ 	 *  that maps, each time, all those vertices of tasselation that are "already visited", "not visited at all", 
+ 	 *  and "already visited but still need an update" by the advancing front. */ 
+      double Eikonal2DTriUpdate(  Class_SurfTri     *,
+    		  	  	  	  	  	  dvector1D         &,   // scalar field to be propagated
+                                  double                ,   // propagation direction (inwards/outwards)
+                                  double                ,   // propagation speed
+                                  int                   ,   // index of working node
+                                  int					,
+                                  vector<short>        &);  // flag for dead/alive/far-away nodes
+
+
+	/*!Solving the Eikonal equation (|grad(SDF)|)^2 = d*V, the function calculates the geodesic signed distance function from the Dead Front, 
+ 	 * over the Daughter mesh. d =+/-1 denotes the propagation direction (internal or external to the Dead Front) and V is 
+ 	 * the propagation speed. An algorithm of Fast Marching (FMA) solves the Eikonal
+ 	 * equation. It basically starts from the Dead Front (where the SDF is set to zero) and propagates it over the tasselation with constant speed V,
+ 	 * updating the value of the SDF on vertices crossed by the front. Such Updating is realized invoking the function
+ 	 * SupportMesh::Eikonal2DTriUpdate. SDF values and eventually its Gradient ones are stored in the class members SupportMesh::SDFTri 
+ 	 * and SupportMesh::SDFGrad, resepctively. 
+ 	 * In input, the method requires, the vertex-vertex neighbors map, the initial scalar field SDF, its initial Gradient (if defined),
+ 	 * the propagation speed V and its direction d, respectively. 
+ 	 * The SDF and eventually its Gradient must be initialized only on those Daughter vertices belonging the Dead Front.   	*/ 	
+      void Eikonal2DTriSolve( Class_SurfTri   *,
+    		  	  	  	  	  ivector2D		  *,   // inverse_connectivity
+    		  	  	  	  	  dvector1D       &,   // scalar field to be propagated
+    		  	  	  	  	  dvector2D       &,   // gradient to be propagated
+                              double           ,  // propagation speed
+                              double           );  // propagation direction (inwards/outwards)
+
+
+	};
+};
+
+
+
+#endif
