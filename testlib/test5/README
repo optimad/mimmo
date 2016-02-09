@@ -1,6 +1,0 @@
-testing classes of libRA_CorePatches library
--> test result are monitored in testingCorePatches.log
-->require an initial geometry sphere.nas to work. If not present in the current folder,
- please provide it here from $INSTALLATION_FOLDER/testlib/data
-
-

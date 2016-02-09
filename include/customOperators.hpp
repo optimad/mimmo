@@ -7,7 +7,7 @@
 #include <array>
 #include <algorithm>
 
-#include "CAMILOtypedef.hpp"
+#include "MiMMO_TypeDef.hpp"
 
 
 /*! Template for freeing any std::vector container, by swap  

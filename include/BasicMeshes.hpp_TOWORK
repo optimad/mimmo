@@ -4,7 +4,7 @@
 // local libs
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "libRA_VTKInterfaces.hpp"
+#include "MiMMO_VTKInterfaces.hpp"
 
 /*!
  *	\date			31/12/2015
