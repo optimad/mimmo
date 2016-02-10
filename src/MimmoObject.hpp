@@ -6,7 +6,7 @@
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of bitbit.
+ *  This file is part of MiMMO.
  *
  *  MiMMO is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
@@ -40,8 +40,9 @@ class MimmoObject{
 private:
 
 	//members
-	bool			m_type			/**<Type of geometry (0 = surface mesh, 1 = volume mesh). */
-	Patch*			m_geometry		/**<Reference geometry. */
+	bool			m_type				/**<Type of geometry (0 = surface mesh, 1 = volume mesh). */
+	Patch*			m_geometry			/**<Reference geometry. */
+	bool			m_internalPatch;	/**<If the geometry is internally created. */
 
 //TODO CAPIRE SE SURFTRI/VOLTRI/PATCH HANNO METODI SET (E GET MANCANTI) PER MODIFICARE E CREARE VERTICI E CONNETTIVITA'
 public:
@@ -55,8 +56,8 @@ public:
 	bool		getType();
 	long		getNVertex();
 	long		getNCells();
-	dvecarr3E*	getVertex();
-	ivector2D*	getConnectivity();
+	dvecarr3E	getVertex();
+//	ivector2D*	getConnectivity();
 	Patch*		getGeometry();
 
 	bool		setVertex(dvecarr3E & vertex);
