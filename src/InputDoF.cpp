@@ -21,38 +21,53 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __APPLYDEFORMATION_HPP__
-#define __APPLYDEFORMATION_HPP__
+#ifndef __INPUTDOF_HPP__
+#define __INPUTDOF_HPP__
 
+#include "InputDoF.hpp"
+#include <ofstream>
 
-/*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
- *
- *	Apply is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply it to the target MiMMO object.
- *	After the execution of an object Apply, the original geometry will be modified.
- *
- */
-class Apply: public BaseManipulation{
-private:
-	//members
+using namespace std;
 
-public:
-	Apply();
-	Apply(MimmoObject* geometry, BaseManipulation* parent = NULL);
-	Apply(BaseManipulation* parent);
-	~Apply();
-
-	//relationship methods
-protected:
-	void	recoverDisplacements();   //called in exec
-public:
-	void 	exec();
-
+InputDoF::InputDoF(bool readFromFile){
+	m_readFromFile = readFromFile;
 };
 
-#endif /* __APPLYDEFORMATION_HPP__ */
+InputDoF::InputDoF(std::string filename){
+	m_readFromFile = true;
+	m_filename = filename;
+};
+
+InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements):BaseManipulation(ndeg, displacements){
+	m_readFromFile = false;
+};
+
+InputDoF::~InputDoF(){};
+
+void
+InputDoF::recoverDisplacements(){
+	if (readFromFile){
+		ifstream file;
+		file.open (m_filename);
+		if (file.is_open()){
+			file >> BaseManipulation::m_ndeg;
+			darray3E displ;
+			while(!file.eof()){
+				for (int i=0; i<3; i++){
+					file >> displ[i];
+				}
+				BaseManipulation::m_displacements.push_back(displ);
+			}
+			file.close();
+		}else{
+			BaseManipulation::m_ndeg = 0;
+			BaseManipulation::m_displacements.clear();
+		}
+	}
+};
+
+void
+InputDoF::exec(){
+	recoverDisplacements();
+};
+

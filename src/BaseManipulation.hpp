@@ -44,7 +44,7 @@
  *
  */
 class BaseManipulation{
-private:
+protected:
 	//members
 	dvecarr3E			m_displ			/**<Displacements of degrees of freedom. */
 	uint32_t			m_ndeg			/**<Number of degrees of freedom. */

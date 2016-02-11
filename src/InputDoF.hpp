@@ -21,31 +21,41 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __APPLYDEFORMATION_HPP__
-#define __APPLYDEFORMATION_HPP__
+#ifndef __INPUTDOF_HPP__
+#define __INPUTDOF_HPP__
 
+#include <string>
 
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
+ *	\brief InputDoF is the class that import the initialization of the degrees of freedom.
  *
- *	Apply is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply it to the target MiMMO object.
- *	After the execution of an object Apply, the original geometry will be modified.
+ *	InputDoF is derived from BaseManipulation class.
+ *	It uses and it sets the base members m_ndeg and m_displacements.
+ *	After the execution of an object InputDoF, the number of degrees of freedom and their initial
+ *	displacements are set. The values can be set by the user in construction or by set methods of base class.
+ *	Moreover the initial values can be read from an input file of text (ascii)
+ *	by setting the related flag.
  *
  */
-class Apply: public BaseManipulation{
+class InputDoF: public BaseManipulation{
 private:
 	//members
+	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
+	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
 
 public:
-	Apply();
-	Apply(MimmoObject* geometry, BaseManipulation* parent = NULL);
-	Apply(BaseManipulation* parent);
-	~Apply();
+	InputDoF(bool readFromFile = false);
+	InputDoF(std::string filename);
+	InputDoF(uint32_t ndeg, dvecarr3E & displacements);
+	~InputDoF();
+
+	void setReadFromFile(std::string filename);
+	void setFilename(std::string filename);
+
 
 	//relationship methods
 protected:
@@ -55,4 +65,4 @@ public:
 
 };
 
-#endif /* __APPLYDEFORMATION_HPP__ */
+#endif /* __INPUTDOF_HPP__ */
