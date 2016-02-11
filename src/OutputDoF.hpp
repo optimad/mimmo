@@ -21,8 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __INPUTDOF_HPP__
-#define __INPUTDOF_HPP__
+#ifndef __OUTPUTDOF_HPP__
+#define __OUTPUTDOF_HPP__
 
 #include <string>
 
@@ -31,32 +31,26 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief InputDoF is the class that import the initialization of the degrees of freedom.
+ *	\brief OutputDoF is the class that write the degrees of freedom.
  *
- *	InputDoF is derived from BaseManipulation class.
- *	It uses and it sets the base members m_ndeg and m_displacements.
- *	After the execution of an object InputDoF, the number of degrees of freedom and their initial
- *	displacements are set. The values can be set by the user in construction or by set methods of base class.
- *	Moreover the initial values can be read from an input file of text (ascii)
- *	by setting the related flag.
- *
+ *	OutputDoF is derived from BaseManipulation class.
+ *	It uses and it write the base members m_ndeg and m_displacements.
+ *	After the execution of an object OutputDoF, the number of degrees of freedom and their initial
+ *	displacements are write on a text file (ascii).
  */
-class InputDoF: public BaseManipulation{
+class OutputDoF: public BaseManipulation{
 private:
 	//members
-	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
-	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
+	std::string		m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
 
 public:
-	InputDoF(bool readFromFile = false);
-	InputDoF(std::string filename);
-	InputDoF(uint32_t ndeg, dvecarr3E & displacements);
-	~InputDoF();
+	OutputDoF(BaseManipulation* parent = NULL);
+	OutputDoF(std::string filename = "output.txt", BaseManipulation* parent = NULL);
+	~OutputDoF();
 
-	InputDoF(const InputDoF & other);
-	InputDoF & operator=(const InputDoF & other);
+	OutputDoF(const OutputDoF & other);
+	OutputDoF & operator=(const OutputDoF & other);
 
-	void setReadFromFile(bool readFromFile);
 	void setFilename(std::string filename);
 
 	//relationship methods
@@ -67,4 +61,4 @@ public:
 
 };
 
-#endif /* __INPUTDOF_HPP__ */
+#endif /* __OUTPUTDOF_HPP__ */

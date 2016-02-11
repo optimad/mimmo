@@ -59,6 +59,8 @@ void
 Apply::recoverDisplacements(){
 	if (m_parent == NULL) return;
 	setGeometryDisplacements(m_parent->getGeometryDisplacements());
+	setNDeg(m_parent->getNDeg());
+	setDisplacements(m_parent->getDisplacements());
 };
 
 /*!Execution command. It applies the deformation given by the parent manipulation

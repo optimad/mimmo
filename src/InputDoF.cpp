@@ -25,7 +25,7 @@
 #define __INPUTDOF_HPP__
 
 #include "InputDoF.hpp"
-#include <ofstream>
+#include <ifstream>
 
 using namespace std;
 
@@ -33,7 +33,7 @@ InputDoF::InputDoF(bool readFromFile){
 	m_readFromFile = readFromFile;
 };
 
-InputDoF::InputDoF(std::string filename){
+InputDoF::InputDoF(string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
 };
@@ -44,22 +44,36 @@ InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements):BaseManipulation(nd
 
 InputDoF::~InputDoF(){};
 
-/*!Copy constructor of Apply.
+/*!Copy constructor of InputDoF.
  */
 InputDoF::InputDoF(const InputDoF & other):BaseManipulation(other){
 	m_readFromFile 	= other.m_readFromFile;
 	m_filename 		= other.m_filename;
 };
 
-/*!Assignement operator of Apply.
+/*!Assignement operator of InputDoF.
  */
-InputDoF & InputDoF::operator=(const InputDoF & other):BaseManipulation(other){};
+InputDoF & InputDoF::operator=(const InputDoF & other):BaseManipulation(other){
+	m_readFromFile 	= other.m_readFromFile;
+	m_filename 		= other.m_filename;
+};
+
+void
+InputDoF::setReadFromFile(bool readFromFile){
+	m_readFromFile = readFromFile;
+};
+
+void
+InputDoF::setFilename(std::string filename){
+	m_filename = filename;
+};
+
 
 void
 InputDoF::recoverDisplacements(){
 	if (readFromFile){
 		ifstream file;
-		file.open (m_filename);
+		file.open(m_filename);
 		if (file.is_open()){
 			file >> BaseManipulation::m_ndeg;
 			darray3E displ;
