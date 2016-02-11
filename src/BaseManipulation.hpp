@@ -49,21 +49,26 @@ private:
 	uint32_t						m_ndeg			/**<Number of degrees of freedom. */
 	BaseManipulation*				m_manipulator	/**<Pointer to manipulation object manipulator giving info to actual class. */
 	MimmoObject*					m_geometry		/**<Pointer to manipulated geometry. */
-	classInfo						m_info			/**<Info object. */
+	dvecarr3E						m_gdispl;		/**<Displacements of vertices of geometry. */
 
 public:
 	BaseManipulation();
+	BaseManipulation(MimmoObject* geometry, BaseManipulation* parent = NULL);
 	BaseManipulation(BaseManipulation* parent);
 	~BaseManipulation();
 
 	//internal methods
-	const BaseManipulation*		getManipulator();
 	uint32_t					getNDeg();
 	const dvecarr3E*			getDisplacements();
-	classInfo*					getInfo();
+	const BaseManipulation*		getManipulator();
+	const MimmoObject*			getGeometry();
+	const dvecarr3E*			getGeometryDisplacements();
 
+	void	setNDeg(uint32_t Ndeg);
+	void	setDisplacements(dvecarr3E & displacements);
 	void 	setManipulator(BaseManipulation* manipulator);
 	void 	setGeometry(MimmoObject* geometry);
+	void	setGeometryDisplacements(dvecarr3E & gdisplacements);
 
 	void 	unsetManipulator();
 	void	clearDisplacements();
@@ -71,7 +76,7 @@ public:
 
 	//relationship methods
 protected:
-	virtual void	recoverDisplacement();   //called in exec
+	virtual void	recoverDisplacements();   //called in exec
 public:
 	virtual void 	exec() = 0;
 
