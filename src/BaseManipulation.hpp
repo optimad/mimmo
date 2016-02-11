@@ -58,6 +58,9 @@ public:
 	BaseManipulation(BaseManipulation* parent);
 	~BaseManipulation();
 
+	BaseManipulation(const BaseManipulation & other);
+	BaseManipulation & operator=(const BaseManipulation & other);
+
 	//internal methods
 	uint32_t					getNDeg();
 	const dvecarr3E*			getDisplacements();

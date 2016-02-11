@@ -34,8 +34,8 @@ InputDoF::InputDoF(bool readFromFile){
 };
 
 InputDoF::InputDoF(std::string filename){
-	m_readFromFile = true;
-	m_filename = filename;
+	m_readFromFile 	= true;
+	m_filename 		= filename;
 };
 
 InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements):BaseManipulation(ndeg, displacements){
@@ -43,6 +43,17 @@ InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements):BaseManipulation(nd
 };
 
 InputDoF::~InputDoF(){};
+
+/*!Copy constructor of Apply.
+ */
+InputDoF::InputDoF(const InputDoF & other):BaseManipulation(other){
+	m_readFromFile 	= other.m_readFromFile;
+	m_filename 		= other.m_filename;
+};
+
+/*!Assignement operator of Apply.
+ */
+InputDoF & InputDoF::operator=(const InputDoF & other):BaseManipulation(other){};
 
 void
 InputDoF::recoverDisplacements(){

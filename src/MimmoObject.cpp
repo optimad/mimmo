@@ -61,8 +61,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
  * \param[in] geometry Pointer to a geometry of class Patch to be linked.
  */
 MimmoObject::MimmoObject(int type, Patch* geometry){
-	m_type = type;
-	m_geometry = geometry;
+	m_type 			= type;
+	m_geometry 		= geometry;
 	m_internalPatch = false;
 }
 
@@ -71,6 +71,22 @@ MimmoObject::MimmoObject(int type, Patch* geometry){
  */
 MimmoObject::~MimmoObject(){
 	clear();
+};
+
+/*!Copy constructor of MimmoObject.
+ */
+MimmoObject::MimmoObject(const MimmoObject & other){
+	m_type 			= other.m_type;
+	m_geometry 		= other.m_geometry;
+	m_internalPatch = other.m_internalPatch;
+};
+
+/*!Assignement operator of MimmoObject.
+ */
+MimmoObject & MimmoObject::operator=(const MimmoObject & other){
+	m_type 			= other.m_type;
+	m_geometry 		= other.m_geometry;
+	m_internalPatch = other.m_internalPatch;
 };
 
 /*!It Clears the object. The pointer to the geometry is set to NULL and the

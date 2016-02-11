@@ -51,9 +51,9 @@ BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* pare
  */
 BaseManipulation::BaseManipulation(BaseManipulation* parent){
 	m_displ.clear();
-	m_ndeg = 0;
-	m_manipulator = parent;
-	m_geometry = NULL;
+	m_ndeg 			= 0;
+	m_manipulator 	= parent;
+	m_geometry 		= NULL;
 	m_gdispl.clear();
 };
 
@@ -61,6 +61,26 @@ BaseManipulation::BaseManipulation(BaseManipulation* parent){
  */
 BaseManipulation::~BaseManipulation(){
 	clear();
+};
+
+/*!Copy constructor of BaseManipulation.
+ */
+BaseManipulation::BaseManipulation(const BaseManipulation & other){
+	m_displ 		= other.m_displ;
+	m_ndeg 			= other.m_ndeg;
+	m_manipulator 	= other.m_manipulator;
+	m_geometry 		= other.m_geometry;
+	m_gdispl 		= other.m_gdispl;
+};
+
+/*!Assignement operator of BaseManipulation.
+ */
+BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
+	m_displ 		= other.m_displ;
+	m_ndeg 			= other.m_ndeg;
+	m_manipulator 	= other.m_manipulator;
+	m_geometry 		= other.m_geometry;
+	m_gdispl 		= other.m_gdispl;
 };
 
 /*!It gets the number of degrees of freedom of the manipulator object.

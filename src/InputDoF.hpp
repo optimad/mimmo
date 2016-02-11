@@ -53,6 +53,9 @@ public:
 	InputDoF(uint32_t ndeg, dvecarr3E & displacements);
 	~InputDoF();
 
+	InputDoF(const InputDoF & other);
+	InputDoF & operator=(const InputDoF & other);
+
 	void setReadFromFile(std::string filename);
 	void setFilename(std::string filename);
 

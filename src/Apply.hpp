@@ -47,6 +47,10 @@ public:
 	Apply(BaseManipulation* parent);
 	~Apply();
 
+	Apply(const Apply & other);
+	Apply & operator=(const Apply & other);
+
+
 	//relationship methods
 protected:
 	void	recoverDisplacements();   //called in exec

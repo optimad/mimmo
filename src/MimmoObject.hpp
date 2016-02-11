@@ -53,6 +53,9 @@ public:
 	MimmoObject(int type, Patch* geometry);
 	~MimmoObject();
 
+	MimmoObject(const MimmoObject & other);
+	MimmoObject & operator=(const MimmoObject & other);
+
 	void 		clear();
 	bool		isEmpty();
 	int			getType();

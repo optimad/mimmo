@@ -44,6 +44,14 @@ Apply::Apply(BaseManipulation* parent):BaseManipulation(parent){};
  */
 Apply::~Apply(){};
 
+/*!Copy constructor of Apply.
+ */
+Apply::Apply(const Apply & other):BaseManipulation(other){};
+
+/*!Assignement operator of Apply.
+ */
+Apply & Apply::operator=(const Apply & other):BaseManipulation(other){};
+
 /*!It recovers the GEOMETRY displacements as result of the linked parent manipulator.
  * The recovered displacements are pushed in the geometry displacements member of the base manipulation class.
  */
