@@ -136,7 +136,10 @@ MimmoObject::setGeometry(int type, Patch* geometry){
 	m_type = type;
 };
 
-
+void
+MimmoObject::write(string filename){
+	m_geometry->writeMesh(filename);
+};
 
 
 

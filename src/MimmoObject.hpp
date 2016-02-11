@@ -40,7 +40,7 @@ class MimmoObject{
 private:
 
 	//members
-	int			m_type					/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
+	int				m_type				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
 	Patch*			m_geometry			/**<Reference geometry. */
 	bool			m_internalPatch;	/**<If the geometry is internally created. */
 
@@ -65,6 +65,7 @@ public:
 	bool		setConnectivity(ivector2D & connectivity);
 	bool		setGeometry(int type, Patch* geometry);
 
+	void		write(std::string filename);
 };
 
 #endif /* __MIMMOOBJECT_HPP__ */

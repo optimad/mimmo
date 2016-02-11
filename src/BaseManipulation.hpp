@@ -36,20 +36,21 @@
  *
  *	\brief BaseManipulation is the base class of any object (derived class) for manipulation of the geometry.
  *
- *	Bla Bla
+ *	BaseManipulation is the base class used to build each generic or particular manipulation object.
+ *	This base class has some common interface methods, as the base get/set methods, and two virtual methods.
+ *	The only methods to be called to execute the manipulation object is the pure virtual method exec().
+ *	Each manipulation base object has a linked geometry (a target MiMMO object) and a linked manipulation
+ *	object from wich recover aome info (as number of degrees of freedom, initial displacements or other).
  *
  */
 class BaseManipulation{
-public:
-
-//TODO In derived set the type of object in order to safevly link parent and recover the correct info
 private:
 	//members
-	dvecarr3E						m_displ			/**<Displacements of degrees of freedom. */
-	uint32_t						m_ndeg			/**<Number of degrees of freedom. */
-	BaseManipulation*				m_manipulator	/**<Pointer to manipulation object manipulator giving info to actual class. */
-	MimmoObject*					m_geometry		/**<Pointer to manipulated geometry. */
-	dvecarr3E						m_gdispl;		/**<Displacements of vertices of geometry. */
+	dvecarr3E			m_displ			/**<Displacements of degrees of freedom. */
+	uint32_t			m_ndeg			/**<Number of degrees of freedom. */
+	BaseManipulation*	m_manipulator	/**<Pointer to manipulation object manipulator giving info to actual class. */
+	MimmoObject*		m_geometry		/**<Pointer to manipulated geometry. */
+	dvecarr3E			m_gdispl;		/**<Displacements of vertices of geometry. */
 
 public:
 	BaseManipulation();
@@ -64,7 +65,7 @@ public:
 	const MimmoObject*			getGeometry();
 	const dvecarr3E*			getGeometryDisplacements();
 
-	void	setNDeg(uint32_t Ndeg);
+	void	setNDeg(uint32_t ndeg);
 	void	setDisplacements(dvecarr3E & displacements);
 	void 	setManipulator(BaseManipulation* manipulator);
 	void 	setGeometry(MimmoObject* geometry);
