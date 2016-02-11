@@ -33,7 +33,10 @@
  *
  *	\brief MimmoObject is the base container of geometry for MiMMo library
  *
- *	Bla Bla
+ *	MiMMO container has the information about the geometry mesh:
+ *	- the type of the linked mesh of class bitpit::Patch (generic patch, surface patch or volume patch);
+ *	- the pointer to the mesh of class bitpit::Patch;
+ *	- the boolean indicator of the nature of the patch (true if the patch is created within the MiMMo container).
  *
  */
 class MimmoObject{
@@ -44,7 +47,6 @@ private:
 	Patch*			m_geometry			/**<Reference geometry. */
 	bool			m_internalPatch;	/**<If the geometry is internally created. */
 
-//TODO CAPIRE SE SURFTRI/VOLTRI/PATCH HANNO METODI SET (E GET MANCANTI) PER MODIFICARE E CREARE VERTICI E CONNETTIVITA'
 public:
 	MimmoObject(int type = 1);
 	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
