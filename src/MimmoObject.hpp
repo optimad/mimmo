@@ -40,30 +40,30 @@ class MimmoObject{
 private:
 
 	//members
-	bool			m_type				/**<Type of geometry (0 = surface mesh, 1 = volume mesh). */
+	int			m_type					/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
 	Patch*			m_geometry			/**<Reference geometry. */
 	bool			m_internalPatch;	/**<If the geometry is internally created. */
 
 //TODO CAPIRE SE SURFTRI/VOLTRI/PATCH HANNO METODI SET (E GET MANCANTI) PER MODIFICARE E CREARE VERTICI E CONNETTIVITA'
 public:
-	MimmoObject(bool type = 0);
-	MimmoObject(bool type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
-	MimmoObject(bool type, Patch* geometry);
+	MimmoObject(int type = 1);
+	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
+	MimmoObject(int type, Patch* geometry);
 	~MimmoObject();
 
 	void 		clear();
 	bool		isEmpty();
-	bool		getType();
+	int			getType();
 	long		getNVertex();
 	long		getNCells();
 	dvecarr3E	getVertex();
-//	ivector2D*	getConnectivity();
+	ivector2D*	getConnectivity();
 	Patch*		getGeometry();
 
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(int index, darray3E & vertex);
 	bool		setConnectivity(ivector2D & connectivity);
-	bool		setGeometry(bool type, Patch* geometry);
+	bool		setGeometry(int type, Patch* geometry);
 
 };
 
