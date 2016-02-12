@@ -255,8 +255,8 @@ std::vector< T > getVectorSubset(int i, int j, std::vector<T> & source){
 	
 	// check your controlling indices
 	int maxElement = source.size() -1;
-	i = max(min(i,maxElement), 0);
-	j = max(min(j,maxElement), 0);
+	i = std::max(std::min(i,maxElement), 0);
+	j = std::max(std::min(j,maxElement), 0);
 	
 	if(i>=j){
 		for(int k=i; k<source.size(); ++k ){
@@ -303,8 +303,8 @@ void fillVectorSubset(int i, int j, std::vector<T> & source, T cValue){
 	
 	// check your controlling indices
 	int maxElement = source.size() -1;
-	i = max(min(i,maxElement), 0);
-	j = max(min(j,maxElement), 0);
+	i = std::max(std::min(i,maxElement), 0);
+	j = std::max(std::min(j,maxElement), 0);
 	
 	if(i>=j){
 		for(int k=i; k<source.size(); ++k ){

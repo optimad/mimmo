@@ -1,5 +1,5 @@
-#ifndef CAMILOTYPEDEF_HH
-#define CAMILITYPEDEF_HH
+#ifndef MIMMOTYPEDEF_HH
+#define MIMMOTYPEDEF_HH
 
 #include <vector>
 #include <array>
@@ -32,20 +32,20 @@ typedef std::vector<bvector1D>		bvector2D;
 typedef std::vector<cvector1D>		cvector2D;
 typedef std::vector<svector1D>		svector2D;
 
-typedef vector< bvector2D >            bvector3D;
-typedef vector< bvector3D >            bvector4D;
+typedef std::vector< bvector2D >            bvector3D;
+typedef std::vector< bvector3D >            bvector4D;
 
-typedef vector< cvector2D >            cvector3D;
-typedef vector< cvector3D >            cvector4D;
+typedef std::vector< cvector2D >            cvector3D;
+typedef std::vector< cvector3D >            cvector4D;
 
-typedef vector< ivector2D >            ivector3D;
-typedef vector< ivector3D >            ivector4D;
+typedef std::vector< ivector2D >            ivector3D;
+typedef std::vector< ivector3D >            ivector4D;
 
-typedef vector< dvector2D >            dvector3D;
-typedef vector< dvector3D >            dvector4D;
+typedef std::vector< dvector2D >            dvector3D;
+typedef std::vector< dvector3D >            dvector4D;
 
-typedef vector< svector2D >            svector3D;
-typedef vector< svector3D >            svector4D;
+typedef std::vector< svector2D >            svector3D;
+typedef std::vector< svector3D >            svector4D;
 
 
-#endif //CAMILOTYPEDEF
+#endif //MIMMOTYPEDEF_HH

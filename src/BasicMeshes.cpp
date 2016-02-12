@@ -1,5 +1,7 @@
 #include "BasicMeshes.hpp"
 
+using namespace std;
+
 //*****************************************************************************************************************************
 // BASE_USTRUCTMESH IMPLEMENTATION 
 /*
@@ -73,7 +75,7 @@ BASE_UStructMesh & BASE_UStructMesh::operator=(const BASE_UStructMesh & other){
 	
 	// Cell Spacing
 	m_dx = other.m_dx;
-	m_m_dy = other.m_m_dy;
+	m_dy = other.m_dy;
 	m_dz = other.m_dz;
 	
 	// Mesh Origin & span	
@@ -96,7 +98,7 @@ BASE_UStructMesh & BASE_UStructMesh::operator=(const BASE_UStructMesh & other){
 /*!Clear the Mesh structure. Resize your nodal vector list to zero, but not destroy them.*/
 void BASE_UStructMesh::clearMesh(){
 	m_nx = 0; m_ny=0; m_nz =0;
-	m_dx=0; m_m_dy=0; m_dz=0;
+	m_dx=0; m_dy=0; m_dz=0;
 	
 	m_origin.fill(0.0);
 	m_span.fill(0.0);
@@ -155,7 +157,7 @@ darray3E BASE_UStructMesh::getSpan(){return(m_span);};
 /*! Return current mesh spacing */
 darray3E BASE_UStructMesh::getSpacing(){
 	darray3E res;
-	res[0] = m_dx; res[1] =m_m_dy; res[2] = m_dz;
+	res[0] = m_dx; res[1] =m_dy; res[2] = m_dz;
 	return(res); 
 };
 
@@ -306,7 +308,7 @@ void BASE_UStructMesh::returnCellID(darray3E & point, int &i, int &j, int &k){
 	
 	darray3E P = transfToLocal(point);
 	i = min(m_nx-1, max(0, (int) floor((P[0])/m_dx)));
-	j = min(m_ny-1, max(0, (int) floor((P[1])/m_m_dy)));
+	j = min(m_ny-1, max(0, (int) floor((P[1])/m_dy)));
 	k = min(m_nz-1, max(0, (int) floor((P[2])/m_dz)));
 };
 
@@ -320,7 +322,7 @@ void BASE_UStructMesh::returnCellID(dvector1D & point, int &i, int &j, int &k){
 	
 	dvector1D P = transfToLocal(point);
 	i = min(m_nx-1, max(0, (int) floor((P[0])/m_dx)));
-	j = min(m_ny-1, max(0, (int) floor((P[1])/m_m_dy)));
+	j = min(m_ny-1, max(0, (int) floor((P[1])/m_dy)));
 	k = min(m_nz-1, max(0, (int) floor((P[2])/m_dz)));
 };
 
@@ -398,7 +400,7 @@ double BASE_UStructMesh::interpolateCellData(darray3E & point, dvector1D & celld
 	
 	// Interpolation weights
 	wx1 = max(0.0, min(1.0, abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_m_dy)));     wy0 = 1.0 - wy1;
+	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
 	wz1 = max(0.0, min(1.0, abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
 	
 	// Interpolation
@@ -435,7 +437,7 @@ int BASE_UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata
 	
 	// Interpolation weights
 	wx1 = max(0.0, min(1.0, abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_m_dy)));     wy0 = 1.0 - wy1;
+	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
 	wz1 = max(0.0, min(1.0, abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
 	
 	// Interpolation
@@ -809,7 +811,7 @@ void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile, int c
 
 /*! Basic Constructor */
 UCubicMesh::UCubicMesh():BASE_UStructMesh() {
-	m_m_classType = "Cartesian";
+	m_classType = "Cartesian";
 };
 
 /*! Custom Constructor. Set mesh origin, span size, dimension and nodal data structure
@@ -822,20 +824,20 @@ UCubicMesh::UCubicMesh():BASE_UStructMesh() {
  * \param[in] nz_   number of cells in z-direction
  */
 UCubicMesh::UCubicMesh(darray3E origin_, double spanX_, double spanY_, double spanZ_, int nx_, int ny_, int nz_){
-	m_m_classType = "Cartesian";	      
+	m_classType = "Cartesian";
 	setMesh(origin_,spanX_, spanY_, spanZ_, nx_, ny_, nz_);
 };
 
 /*! Basic Destructor */
 UCubicMesh::~UCubicMesh(){
-	m_m_classType = "";
+	m_classType = "";
 };
 
 /*! Copy Constructor. 
  * \param[in] other UCubicMesh object where copy from
  */
 UCubicMesh::UCubicMesh(const UCubicMesh & other){
-	m_m_classType = other.m_m_classType;
+	m_classType = other.m_classType;
 	*(static_cast<BASE_UStructMesh * >(this)) = *(static_cast<const BASE_UStructMesh * >(&other));
 };
 
@@ -843,13 +845,13 @@ UCubicMesh::UCubicMesh(const UCubicMesh & other){
  * \param[in] other UCubicMesh object where copy from
  */
 UCubicMesh & UCubicMesh::operator=(const UCubicMesh & other){
-	m_m_classType = other.m_m_classType;
+	m_classType = other.m_classType;
 	*(static_cast<BASE_UStructMesh * >(this)) = *(static_cast<const BASE_UStructMesh * >(&other));
 	return(*this);  
 };
 
 /*! Return the class type. "Cartesian" keyword identifies the class type UCubicMesh */
-std::string UCubicMesh::getClassType(){return(m_m_classType);};
+std::string UCubicMesh::getClassType(){return(m_classType);};
 
 
 /*! Set mesh origin, span size, dimension and nodal data structure
@@ -1037,7 +1039,7 @@ darray3E UCubicMesh::getLocalScaling(int i_, int j_, int k_){
 /*! Basic Constructor */
 UCylindricalMesh::UCylindricalMesh():BASE_UStructMesh() {
 	m_classType = "Cylindrical";
-	m_m_thetaOrigin = 0.0;
+	m_thetaOrigin = 0.0;
 };
 
 /*! Custom Constructor. Set mesh origin, span size, dimension and nodal data structure
@@ -1065,7 +1067,7 @@ UCylindricalMesh::~UCylindricalMesh(){
 UCylindricalMesh::UCylindricalMesh(const UCylindricalMesh & other){
 	*(static_cast<BASE_UStructMesh * >(this)) = *(static_cast<const BASE_UStructMesh * >(&other));
 	m_classType = other.m_classType;
-	m_m_thetaOrigin = other.m_m_thetaOrigin;
+	m_thetaOrigin = other.m_thetaOrigin;
 };
 
 /*! Copy Operator. 
@@ -1074,7 +1076,7 @@ UCylindricalMesh::UCylindricalMesh(const UCylindricalMesh & other){
 UCylindricalMesh & UCylindricalMesh::operator=(const UCylindricalMesh & other){
 	*(static_cast<BASE_UStructMesh * >(this)) = *(static_cast<const BASE_UStructMesh * >(&other));
 	m_classType = other.m_classType;
-	m_m_thetaOrigin = other.m_m_thetaOrigin;
+	m_thetaOrigin = other.m_thetaOrigin;
 	return(*this);  
 };
 
@@ -1117,7 +1119,7 @@ void UCylindricalMesh::setMesh(darray3E origin_, double spanR_, double spanZ_, d
 	m_span[1] = thetalim[1] - thetalim[0]; 
 	m_span[2] = std::fmax(0, spanZ_);
 	
-	m_m_thetaOrigin= thetalim[0];
+	m_thetaOrigin= thetalim[0];
 	
 	//preliminary check
 	if(m_span[1]<=0 ){std::cout<<"Not correct span detected in setMesh"<<endl; return;};
@@ -1170,8 +1172,8 @@ void UCylindricalMesh::scaleMesh(double sr, double sz){
 darray3E UCylindricalMesh::transfToGlobal( darray3E & point){
 	
 	darray3E result;
-	result[0] = point[0]*std::cos(point[1] + m_m_thetaOrigin) + m_origin[0];
-	result[1] = point[0]*std::sin(point[1] + m_m_thetaOrigin) + m_origin[1];
+	result[0] = point[0]*std::cos(point[1] + m_thetaOrigin) + m_origin[0];
+	result[1] = point[0]*std::sin(point[1] + m_thetaOrigin) + m_origin[1];
 	result[2] = point[2] + m_origin[2];
 	
 	return(result);  
@@ -1185,8 +1187,8 @@ darray3E UCylindricalMesh::transfToGlobal( darray3E & point){
 dvector1D UCylindricalMesh::transfToGlobal( dvector1D & point){
 	
 	darray3E result;
-	result[0] = point[0]*std::cos(point[1] + m_m_thetaOrigin) + m_origin[0];
-	result[1] = point[0]*std::sin(point[1] + m_m_thetaOrigin) + m_origin[1];
+	result[0] = point[0]*std::cos(point[1] + m_thetaOrigin) + m_origin[0];
+	result[1] = point[0]*std::sin(point[1] + m_thetaOrigin) + m_origin[1];
 	result[2] = point[2] + m_origin[2];
 	
 	return(conVect(result));   
@@ -1227,7 +1229,7 @@ darray3E UCylindricalMesh::transfToLocal( darray3E & point){
 	
 	//get to the correct m_thetaOrigin mark
 	double param = 8*std::atan(1.0);
-	result[1] = result[1] - m_m_thetaOrigin;
+	result[1] = result[1] - m_thetaOrigin;
 	if(result[1] < 0) 		result[1] = param + result[1];
 	if(result[1] > param) 	result[1] = result[1] - param;
 	
@@ -1459,7 +1461,7 @@ void USphericalMesh::setMesh(darray3E origin_, double spanR_, dvector1D thetalim
 	m_span[2] = philim[1] - philim[0];
 	
 	m_thetaOrigin = thetalim[0];
-	m_m_phiOrigin = philim[0];
+	m_phiOrigin = philim[0];
 	
 	// Number of mesh cells
 	m_nx = nr_; m_ny = nt_; m_nz = np_;
@@ -1547,7 +1549,7 @@ darray3E USphericalMesh::transfToLocal( darray3E & point){
 	darray3E result; result.fill(0.0); 
 	double pdum;
 	darray3E P = point - m_origin;
-	result[0] = norm_2(P);
+	result[0] = norm2(P);
 	
 	if(result[0] ==0.0){return(result);}
 	
@@ -1583,7 +1585,7 @@ dvector1D USphericalMesh::transfToLocal( dvector1D & point){
 	double pdum;
 	
 	darray3E P = conArray<double,3>(point) - m_origin;
-	result[0] = norm_2(P);
+	result[0] = norm2(P);
 	
 	if(result[0] ==0.0){return(conVect(result));}
 	

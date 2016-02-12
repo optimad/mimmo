@@ -21,10 +21,12 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
+
 #ifndef __INPUTDOF_HPP__
 #define __INPUTDOF_HPP__
 
 #include <string>
+#include "BaseManipulation.hpp"
 
 /*!
  *	\date			09/feb/2016

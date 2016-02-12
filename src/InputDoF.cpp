@@ -21,11 +21,9 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __INPUTDOF_HPP__
-#define __INPUTDOF_HPP__
 
 #include "InputDoF.hpp"
-#include <ifstream>
+#include <fstream>
 
 using namespace std;
 
@@ -67,9 +65,11 @@ InputDoF::InputDoF(const InputDoF & other):BaseManipulation(other){
 
 /*!Assignement operator of InputDoF.
  */
-InputDoF & InputDoF::operator=(const InputDoF & other):BaseManipulation(other){
+InputDoF & InputDoF::operator=(const InputDoF & other){
+	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_readFromFile 	= other.m_readFromFile;
 	m_filename 		= other.m_filename;
+	return *this;
 };
 
 /*!It sets if the object imports the displacements from an input file.
@@ -95,7 +95,7 @@ InputDoF::setFilename(std::string filename){
  */
 void
 InputDoF::recoverDisplacements(){
-	if (readFromFile){
+	if (m_readFromFile){
 		ifstream file;
 		file.open(m_filename);
 		if (file.is_open()){
@@ -105,12 +105,12 @@ InputDoF::recoverDisplacements(){
 				for (int i=0; i<3; i++){
 					file >> displ[i];
 				}
-				BaseManipulation::m_displacements.push_back(displ);
+				BaseManipulation::m_displ.push_back(displ);
 			}
 			file.close();
 		}else{
 			BaseManipulation::m_ndeg = 0;
-			BaseManipulation::m_displacements.clear();
+			BaseManipulation::m_displ.clear();
 		}
 	}
 };

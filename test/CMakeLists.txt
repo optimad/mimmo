@@ -33,10 +33,10 @@ set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial test
 
 # List of parallel tests
 if (ENABLE_MPI)
-    set(TESTS_PARALLEL "")
-    list(APPEND TESTS_PARALLEL "test_MIMMO_parallel_00001")
+#    set(TESTS_PARALLEL "")
+#    list(APPEND TESTS_PARALLEL "test_MIMMO_parallel_00001")
 
-    set(MIMMO_TEST_LIST_PARALLEL "${TESTS_PARALLEL}" CACHE INTERNAL "List of parallel tests for the MIMMO module" FORCE)
+#    set(MIMMO_TEST_LIST_PARALLEL "${TESTS_PARALLEL}" CACHE INTERNAL "List of parallel tests for the MIMMO module" FORCE)
 endif()
 
 # Rules to build the tests

@@ -16,7 +16,7 @@
 // local libs
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "Class_VTK.hpp" //?? what is its new interface in bitpit? please check it out
+#include "bitpit_IO.hpp" //?? what is its new interface in bitpit? please check it out
 
 
 /*!
@@ -33,7 +33,7 @@
  *	Class for managing output on file of deformable structured grids as unstructured ones, based on VTK's formats (*.vtu)
  */
 
-class VTK_BASICMESH: public VTK_UnstructuredGrid<VTK_BASICMESH>
+class VTK_BASICMESH: public VTKUnstructuredGrid<VTK_BASICMESH>
 {
 protected:
 	dvecarr3E * m_points; /*!< pointer to list of vertices */

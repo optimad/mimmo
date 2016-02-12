@@ -46,10 +46,10 @@
 class BaseManipulation{
 protected:
 	//members
-	dvecarr3E			m_displ			/**<Displacements of degrees of freedom. */
-	uint32_t			m_ndeg			/**<Number of degrees of freedom. */
-	BaseManipulation*	m_manipulator	/**<Pointer to manipulation object manipulator giving info to actual class. */
-	MimmoObject*		m_geometry		/**<Pointer to manipulated geometry. */
+	dvecarr3E			m_displ;		/**<Displacements of degrees of freedom. */
+	uint32_t			m_ndeg;			/**<Number of degrees of freedom. */
+	BaseManipulation*	m_manipulator;	/**<Pointer to manipulation object manipulator giving info to actual class. */
+	MimmoObject*		m_geometry;		/**<Pointer to manipulated geometry. */
 	dvecarr3E			m_gdispl;		/**<Displacements of vertices of geometry. */
 
 public:
