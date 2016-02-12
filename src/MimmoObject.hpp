@@ -63,12 +63,12 @@ public:
 	long		getNCells();
 	dvecarr3E	getVertex();
 	darray3E	getVertex(long i);
-	ivector2D*	getConnectivity();
+	ivector1D	getConnectivity(long i);
 	Patch*		getGeometry();
 
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(int index, darray3E & vertex);
-	bool		setConnectivity(ivector2D & connectivity);
+	bool		setConnectivity(ivector2D * connectivity);
 	bool		setGeometry(int type, Patch* geometry);
 
 	void		write(std::string filename);

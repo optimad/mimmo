@@ -44,15 +44,14 @@ MimmoObject::MimmoObject(int type){
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
 	m_type = type;
 	m_internalPatch = true;
-	//TODO surftri e voltri con costruttore con vertici e connettività
-//	if (m_type){
-//		m_geometry = new Voltri();
-//	}else{
-//		m_geometry = new Surftri();
-//	}
-//	setVertex(vertex);
-//	if (connectivity != NULL)
-//		setConnectivity((*connectivity));
+	if (m_type == 2){
+		m_geometry = new VolTriPatch();
+	}else if(m_type == 1){
+		m_geometry = new SurfTriPatch();
+	}
+	setVertex(vertex);
+	if (connectivity != NULL)
+		setConnectivity(connectivity);
 };
 
 /*!Custom constructor of MimmoObject.
@@ -138,8 +137,9 @@ dvecarr3E
 MimmoObject::getVertex(){
 	long nv = getNVertex();
 	dvecarr3E result(nv);
-	for (int i=0; i<nv; i++){
-		result[i] = m_geometry->getVertexCoords(i);
+	long i = 0;
+	for (const Vertex &vertex : m_geometry->vertices()){
+		result[i++] = vertex->getCoords();
 	}
 	return result;
 };
@@ -153,9 +153,17 @@ MimmoObject::getVertex(long i){
 	return 	m_geometry->getVertexCoords(i);
 };
 
-//ivector2D*
-//MimmoObject::getConnectivity(){
-//};
+/*!It gets the connectivity of a cell of the geometry Patch.
+ * \param[in] i Index of the cell of geometry mesh.
+ * \return Connectivity of the i-th cell of geometry mesh.
+ */
+ivector1D
+MimmoObject::getConnectivity(long i){
+	if (m_geometry == NULL) return NULL;
+	ivector1D connect;
+	connect = (*m_geometry->getCell(i).getConnect());
+	return connect;
+};
 
 /*!It gets the geometry Patch linked by Mimmo Object.
  * \return Pointer to geometry mesh.
@@ -174,7 +182,7 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 	if (m_geometry == NULL) return false;
 	long nv = vertex.size();
 	long index;
-	for (int i=0; i<nv; i++){
+	for (long i=0; i<nv; i++){
 		index = m_geometry->addVertex();
 		m_geometry->getvertex(index).setCoords(vertex);
 	}
@@ -200,8 +208,22 @@ MimmoObject::setVertex(int index, darray3E & vertex){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setConnectivity(ivector2D & connectivity){
+MimmoObject::setConnectivity(ivector2D * connectivity){
 	if (m_geometry == NULL) return false;
+	int nv;
+	if (m_type == 1) nv = 3;
+	if (m_type == 1) nv = 4;  //only tetrahedra
+	long nc = connectivity->size();
+	long index;
+	for (long i=0; i<nc; i++){
+		unique_ptr<long[]> connect = std::unique_ptr<long[]>(new long[nv]);
+		for (int j=0; j<nv; j++){
+			connect[j] = (*connectivity)[i][j];
+		}
+		index = m_geometry->AddCell();
+		m_geometry->getCell(index).setConnect(move(connect));
+		connect.reset();
+	}
 };
 
 /*!It sets the geometry Patch.
