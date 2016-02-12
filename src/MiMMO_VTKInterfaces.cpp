@@ -1,5 +1,7 @@
 #include "MiMMO_VTKInterfaces.hpp"
 
+using namespace std;
+
 //*****************************************************************************************************************************
 // VTK_BASICMESH IMPLEMENTATION 
 /*
@@ -29,11 +31,11 @@ VTK_BASICMESH::VTK_BASICMESH(){
  * \param[in] nC_   number of cells in your mesh
  * \param[in] nConn connectivity leading dimension, as sequential vector (in general 8*nC_)
  */ 
-VTK_BASICMESH::VTK_BASICMESH(std::string dir_, std::string name_, std::string cod_, int nP_, int nC_, int nConn_):
-VTK_UnstructuredGrid<VTK_BASICMESH>(dir_, name_) 
+VTK_BASICMESH::VTK_BASICMESH(std::string dir_, std::string name_,bitpit::VTKFormat cod_, int nP_, int nC_, int nConn_):
+VTKUnstructuredGrid(dir_, name_)
 {
-	SetCodex(cod_);
-	SetDimensions(nC_, nP_, nConn_);
+	setCodex(cod_);
+	setDimensions(nC_, nP_, nConn_);
 	m_points=NULL;
 	m_connectivity=NULL;
 };
@@ -57,7 +59,7 @@ void VTK_BASICMESH::linkData(dvecarr3E & pp, ivector2D & conn ){
 	m_connectivity = &conn;
 	//check data connection to vtk instatiated info and repair it.
 	if(pp.size() != nr_points || conn.size() != nr_cells){
-		SetDimensions( conn.size(), pp.size(), typeC*conn.size());
+		setDimensions( conn.size(), pp.size(), typeC*conn.size());
 	}
 };
 /*! Unlink Class from points or connectivity external data*/
@@ -69,42 +71,42 @@ void VTK_BASICMESH::unlinkData(){
 /*! CRTP function to write data on file. Not suitable for a direct call. 
  * Please refer to documentation of VTK_UnstructuredGrid class in Bitpit_BASE 
  */
-void VTK_BASICMESH::Flush(  fstream &str, string codex_, string name  ){
+void VTK_BASICMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string name  ){
 	
 	int n;
 	if(m_points == NULL || m_connectivity == NULL ){std::cout<<"not linked Data Structure"<<endl; return;}
-	int type_ = 12;
+	bitpit::VTKElementType type_ = bitpit::VTKElementType::HEXAHEDRON;
 	int lconn = 8;
 	
 	if((*m_connectivity)[0].size() == 4){
-		type_ = 9; 
+		type_ = bitpit::VTKElementType::QUAD;
 		lconn=4;
 	}
 	
 	string indent("         ") ;
 	
-	if( codex_ == "ascii"){
+	if( codex_ == bitpit::VTKFormat::ASCII){
 		
 		if( name == "Points" ){
 			for( n=0; n<nr_points; n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, 3, (*m_points)[n]);
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, 3, (*m_points)[n]);
 				str << endl ;
 			};
 		};
 		
 		if( name == "connectivity" ){
 			for( n=0; n<m_connectivity->size(); n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, lconn, (*m_connectivity)[n]) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, lconn, (*m_connectivity)[n]) ;
 				str << endl ;
 			};
 		};
 		
 		if( name == "types" ){
 			for( n=0; n<m_connectivity->size(); n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, type_  ) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, static_cast<int>(type_)  ) ;
 				str << endl ;
 			};
 		};
@@ -112,9 +114,9 @@ void VTK_BASICMESH::Flush(  fstream &str, string codex_, string name  ){
 		if( name == "offsets" ){
 			int off_(0) ;
 			for( n=0; n<m_connectivity->size(); n++) {
-				off_ += NumberOfElements( type_ ) ;
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, off_  ) ;
+				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, off_  ) ;
 				str << endl ;
 			};
 		};
@@ -122,27 +124,27 @@ void VTK_BASICMESH::Flush(  fstream &str, string codex_, string name  ){
 	}else{
 		if( name == "Points" ){
 			for( n=0; n<nr_points; n++) {
-				flush_binary( str, (*m_points)[n]);
+				bitpit::genericIO::flushBINARY( str, (*m_points)[n]);
 			};
 		};
 		
 		if( name == "connectivity" ){
 			for( n=0; n<m_connectivity->size(); n++) {
-				flush_binary( str, (*m_connectivity)[n]) ;
+				bitpit::genericIO::flushBINARY( str, (*m_connectivity)[n]) ;
 			};
 		};
 		
 		if( name == "types" ){
 			for( n=0; n<m_connectivity->size(); n++) {
-				flush_binary( str, type_  ) ;
+				bitpit::genericIO::flushBINARY( str, static_cast<int>(type_)  ) ;
 			};
 		};
 		
 		if( name == "offsets" ){
 			int off_(0) ;
 			for( n=0; n<m_connectivity->size(); n++) {
-				off_ += NumberOfElements( type_ ) ;
-				flush_binary( str, off_  ) ;
+				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
+				bitpit::genericIO::flushBINARY( str, off_  ) ;
 			};
 		};
 		
@@ -178,11 +180,11 @@ VTK_BASICCLOUD::VTK_BASICCLOUD(){
  * \param[in] cod_  output codex: "ascii" or "appended"
  * \param[in] nP_   number of points in your mesh
  */ 
-VTK_BASICCLOUD::VTK_BASICCLOUD(std::string dir_, std::string name_, std::string cod_, int nP_):
-VTK_UnstructuredGrid<VTK_BASICCLOUD>(dir_, name_)  
+VTK_BASICCLOUD::VTK_BASICCLOUD(std::string dir_, std::string name_, bitpit::VTKFormat cod_, int nP_):
+VTKUnstructuredGrid(dir_, name_)
 {
-	SetCodex(cod_);
-	SetDimensions(nP_, nP_, nP_);
+	setCodex(cod_);
+	setDimensions(nP_, nP_, nP_);
 	m_points=NULL;
 };
 
@@ -199,7 +201,7 @@ void VTK_BASICCLOUD::linkData(dvecarr3E & pp){
 	m_points = &pp;
 	//check data connection to vtk instatiated info and repair it.
 	if(pp.size() != nr_points){
-		SetDimensions( pp.size(), pp.size(), pp.size());
+		setDimensions( pp.size(), pp.size(), pp.size());
 	}
 };
 
@@ -211,36 +213,37 @@ void VTK_BASICCLOUD::unlinkData(){
 /*! CRTP function to write data on file. Not suitable for a direct call. 
  * Please refer to documentation of VTK_UnstructuredGrid class in Bitpit_BASE 
  */
-void VTK_BASICCLOUD::Flush(  fstream &str, string codex_, string name  ){
+void VTK_BASICCLOUD::flushData(  fstream &str,bitpit::VTKFormat codex_, string name  ){
 	
 	int n;
 	if(m_points == NULL ){std::cout<<"not linked Data Structure"<<endl; return;}
+	bitpit::VTKElementType type_ = bitpit::VTKElementType::VERTEX;
 	
 	string indent("         ") ;
 	
-	if( codex_ == "ascii"){
+	if( codex_ == bitpit::VTKFormat::ASCII){
 		
 		if( name == "Points" ){
 			for( n=0; n<m_points->size(); n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, 3, (*m_points)[n]);
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, 3, (*m_points)[n]);
 				str << endl ;
 			};
 		};
 		
 		if( name == "connectivity" ){
 			for( n=0; n<m_points->size(); n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, n) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, n) ;
 				str << endl ;
 			};
 		};
 		
 		if( name == "types" ){
-			int type_(1) ;
+
 			for( n=0; n<m_points->size(); n++) {
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, type_  ) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, static_cast<int>(type_)  ) ;
 				str << endl ;
 			};
 		};
@@ -248,9 +251,9 @@ void VTK_BASICCLOUD::Flush(  fstream &str, string codex_, string name  ){
 		if( name == "offsets" ){
 			int off_(0) ;
 			for( n=0; n<m_points->size(); n++) {
-				off_ += NumberOfElements( 1 ) ;
-				flush_ascii( str, indent ) ;
-				flush_ascii( str, off_  ) ;
+				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
+				bitpit::genericIO::flushASCII( str, indent ) ;
+				bitpit::genericIO::flushASCII( str, off_  ) ;
 				str << endl ;
 			};
 		};
@@ -258,28 +261,28 @@ void VTK_BASICCLOUD::Flush(  fstream &str, string codex_, string name  ){
 	}else{
 		if( name == "Points" ){
 			for( n=0; n<m_points->size(); n++) {
-				flush_binary( str, (*m_points)[n]);
+				bitpit::genericIO::flushBINARY( str, (*m_points)[n]);
 			};
 		};
 		
 		if( name == "connectivity" ){
 			for( n=0; n<m_points->size(); n++) {
-				flush_binary( str, n) ;
+				bitpit::genericIO::flushBINARY( str, n) ;
 			};
 		};
 		
 		if( name == "types" ){
-			int type_(1) ;
+
 			for( n=0; n<m_points->size(); n++) {
-				flush_binary( str, type_  ) ;
+				bitpit::genericIO::flushBINARY( str, static_cast<int>(type_)  ) ;
 			};
 		};
 		
 		if( name == "offsets" ){
 			int off_(0) ;
 			for( n=0; n<m_points->size(); n++) {
-				off_ += NumberOfElements( 1 ) ;
-				flush_binary( str, off_  ) ;
+				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
+				bitpit::genericIO::flushBINARY( str, off_  ) ;
 			};
 		};
 	}

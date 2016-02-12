@@ -46,7 +46,7 @@ foreach(TEST_NAME IN LISTS MIMMO_TEST_LIST_SERIAL MIMMO_TEST_LIST_PARALLEL)
     set(TEST_SOURCES "${TEST_NAME}.cpp")
 
     add_executable(${TEST_NAME} "${TEST_SOURCES}")
-    target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY})
+    target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY} ${BITPIT_LIBRARY})
 endforeach()
 
 add_custom_target(tests-MIMMO DEPENDS ${MIMMO_TEST_LIST_SERIAL})

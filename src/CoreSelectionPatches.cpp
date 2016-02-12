@@ -1,5 +1,7 @@
 #include "CoreSelectionPatches.hpp"
 
+using namespace bitpit;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //BaseSelPatch IMPLEMENTATION 
 /*
@@ -39,12 +41,12 @@ BaseSelPatch & BaseSelPatch::operator=(const BaseSelPatch & other){
 std::string BaseSelPatch::getPatchType(){return(m_patchType);};
 
 
-/*! Given a bitpit class Patch tessellation, return cell identifiers of those simplex inside the volume of 
+/*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex inside the volume of
  * BaseSelPatch 
  * \param[in] tri target tessellation
  * \param[out] result list-by-ids of simplicies included in the volumetric patch
  */
-ivector1D BaseSelPatch::includeGeometry(Patch * tri ){
+ivector1D BaseSelPatch::includeGeometry(bitpit::Patch * tri ){
   
   int nCells = tri->getCellCount();	
   ivector1D result(nCells); 
@@ -61,12 +63,12 @@ ivector1D BaseSelPatch::includeGeometry(Patch * tri ){
   return(result);
 };
 
-/*! Given a bitpit class Patch tessellation, return cell identifiers of those simplex outside the volume of 
+/*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex outside the volume of
  * BaseSelPatch 
  * \param[in] tri target tesselation
  * \param[out] result list-by-ids of simplicies outside the volumetric patch
  */
-ivector1D BaseSelPatch::excludeGeometry(Patch * tri){
+ivector1D BaseSelPatch::excludeGeometry(bitpit::Patch * tri){
   
 	int nCells = tri->getCellCount();	
 	ivector1D result(nCells); 
@@ -81,7 +83,6 @@ ivector1D BaseSelPatch::excludeGeometry(Patch * tri){
 	}
 	result.resize(counter);
 	return(result);
-}
 };
 
 /*! Given a list of vertices of a point cloud, return indices of those vertices included into 
@@ -129,12 +130,12 @@ ivector1D BaseSelPatch::excludeCloudPoints(dvecarr3E & list){
   
 };
 
-/*! Given a bitpit class Patch point cloud, return identifiers of those points inside the volume of 
+/*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points inside the volume of
  * BaseSelPatch  
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices included in the volumetric patch
  */
-ivector1D BaseSelPatch::includeCloudPoints(Patch * tri){
+ivector1D BaseSelPatch::includeCloudPoints(bitpit::Patch * tri){
 	
 	int nVert = tri->getVertexCount();	
 	ivector1D result(nVert); 
@@ -151,12 +152,12 @@ ivector1D BaseSelPatch::includeCloudPoints(Patch * tri){
 	return(result);
 };
 
-/*! Given a bitpit class Patch point cloud, return identifiers of those points outside the volume of 
+/*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points outside the volume of
  * BaseSelPatch  
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices outside the volumetric patch
  */
-ivector1D BaseSelPatch::excludeCloudPoints(Patch * tri){
+ivector1D BaseSelPatch::excludeCloudPoints(bitpit::Patch * tri){
 	
 	int nVert = tri->getVertexCount();	
 	ivector1D result(nVert); 
@@ -287,11 +288,12 @@ bool BaseSelPatch::isSimplexIncluded(dvecarr3E & simplexVert){
  * \param[in] indexT triangle index of tri.
  * \param[out] result boolean
  */ 
-bool BaseSelPatch::isSimplexIncluded(Patch * tri, int indexT){
+bool BaseSelPatch::isSimplexIncluded(bitpit::Patch * tri, int indexT){
 
-  const Cell &cell = tri->getCell(indexT);
+  Cell cell = tri->getCell(indexT);
+//  CellIterator it = tri->getCell(indexT);
   long * conn = cell.getConnect();
-  int nVertices = cell.get_info().nVertices; 
+  int nVertices = cell.getVertexCount();
   bool check = false;
   for(int i=0; i<nVertices; ++i){ //recover vertex index
    check = check || isPointIncluded(tri, conn[i]); 
@@ -375,14 +377,14 @@ bool HullCube::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Patch tesselation / point cloud
+ * \param[in] tri pointer to a bitpit::Patch tesselation / point cloud
  * \param[in] indexV id of a vertex belonging to tri;
  * \param[out] result boolean
  */
-bool HullCube::isPointIncluded(Patch * tri, int indexV){
+bool HullCube::isPointIncluded(bitpit::Patch * tri, int indexV){
 
   bool check = true;
-  darray3E coords = tri->getVertex[indexV].getCoords();
+  darray3E coords = tri->getVertex(indexV).getCoords();
   darray3E temp = transfToLocal(coords);
   darray3E pSp = getSpan();
   
@@ -473,15 +475,15 @@ bool HullCylinder::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Patch tessellation / point cloud
+ * \param[in] tri pointer to a bitpit::Patch tessellation / point cloud
  * \param[in] indexV id of a vertex belonging to tri.
  * \param[out] result boolean
  */
-bool HullCylinder::isPointIncluded(Patch * tri, int indexV){
+bool HullCylinder::isPointIncluded(bitpit::Patch * tri, int indexV){
 
  bool check = true;
   darray3E pOr = getOrigin();
-  darray3E coords = tri->getVertex[indexV].getCoords();
+  darray3E coords = tri->getVertex(indexV).getCoords();
   darray3E temp2 = transfToLocal(coords);
   darray3E pSp = getSpan();
   
@@ -567,14 +569,14 @@ bool HullSphere::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Patch tessellation / point cloud
+ * \param[in] tri pointer to a bitpit::Patch tessellation / point cloud
  * \param[in] indexV id of a vertex belonging to tri.
  * \param[out] result boolean
  */
-bool HullSphere::isPointIncluded(Patch * tri, int indexV){
+bool HullSphere::isPointIncluded(bitpit::Patch * tri, int indexV){
    
   bool check = false;
-   darray3E coords = tri->getVertex[indexV].getCoords();
+   darray3E coords = tri->getVertex(indexV).getCoords();
    darray3E temp2 = transfToLocal(coords);
    darray3E pSp = getSpan();
   

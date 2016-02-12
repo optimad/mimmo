@@ -163,6 +163,7 @@ darray3E BASE_UStructMesh::getSpacing(){
 
 /*! Return current dimension of the mesh (number of cells in each direction) */
 ivector1D BASE_UStructMesh::getDimension(){
+
 	ivector1D res(3,0);
 	res[0] = m_nx; res[1] =m_ny; res[2] = m_nz;
 	return(res); 
@@ -621,8 +622,8 @@ darray3E BASE_UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & po
  * */
 void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, int counterFile, bool codexFlag, dvecarr3E * extPoints){
 	
-	std::string codex = "ascii";
-	if(codexFlag){codex="appended";}
+	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
 	ivector1D dim = getDimension();
 	int sizeTot = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
@@ -638,10 +639,10 @@ void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, in
 		}
 	}
 	
-	if(counterFile>=0){handle_vtk_output.SetCounter(counterFile);}
-	handle_vtk_output.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP);
-	handle_vtk_output.Write();
+	handle_vtk_output.write();
 };
 
 /*! Write your grid as a point cloud in a *.vtu file. 
@@ -655,8 +656,8 @@ void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, in
  * */
 void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, int counterFile, bool codexFlag, ivector1D & vertexList, dvecarr3E * extPoints){
 	
-	std::string codex = "ascii";
-	if(codexFlag){codex="appended";}
+	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
 	ivector1D dim = getDimension();
 	int sizeTot = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
@@ -676,10 +677,10 @@ void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, in
 		}
 	}
 	
-	if(counterFile>=0){handle_vtk_output.SetCounter(counterFile);}
-	handle_vtk_output.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP);
-	handle_vtk_output.Write();
+	handle_vtk_output.write();
 	
 };
 
@@ -693,10 +694,10 @@ void BASE_UStructMesh::plotCloud( std::string & folder , std::string outfile, in
  * */
 void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile , int counterFile, bool codexFlag, dvecarr3E * extPoints){
 	
-	std::string codex = "ascii";
-	if(codexFlag){codex="appended";}
+	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	ivector1D dim = BASE_UStructMesh::getDimension();
 	int sizePt = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
 	int sizeCl = dim[0]*dim[1]*dim[2];
 	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, sizePt, sizeCl, 8*sizeCl);
@@ -715,10 +716,10 @@ void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile , int 
 		activeConn[i] = getCellNeighs(i); 
 	}
 	
-	if(counterFile>=0){handle_vtk_output.SetCounter(counterFile);}
-	handle_vtk_output.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP,activeConn);
-	handle_vtk_output.Write();
+	handle_vtk_output.write();
 };
 
 /*! Write your grid as a hexahedrical one in a *.vtu file. 
@@ -733,10 +734,10 @@ void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile , int 
 
 void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile, int counterFile, bool codexFlag, ivector1D & cellList, dvecarr3E * extPoints){
 	
-	std::string codex = "ascii";
-	if(codexFlag){codex="appended";}
+	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+    if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	ivector1D dim = BASE_UStructMesh::getDimension();
 	int sizePt = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
 	int sizeCl = cellList.size();
 	
@@ -784,10 +785,10 @@ void BASE_UStructMesh::plotGrid(std::string & folder, std::string outfile, int c
 	}
 	
 	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, counter, sizeCl, 8*sizeCl);
-	if(counterFile>=0){handle_vtk_output.SetCounter(counterFile);}
-	handle_vtk_output.SetGeomTypes("Float64","Int32", "Int32", "Int32");
+	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP,activeConn);
-	handle_vtk_output.Write();
+	handle_vtk_output.write();
 };
 
 

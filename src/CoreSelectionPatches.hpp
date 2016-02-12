@@ -14,12 +14,12 @@
  *	\par			License:\n
  *	This class version is released under .
  *
- *	\brief Virtual class for Patch Selection Representation 
+ *	\brief Virtual class for bitpit::Patch Selection Representation
  *
  *	Base class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
  */
  
-class BaseSelPATCH {
+class BaseSelPatch {
   
 protected:
   std::string m_patchType;
@@ -33,14 +33,14 @@ public:
     
     std::string getPatchType();
     
-    ivector1D includeGeometry(Patch * );
-    ivector1D excludeGeometry(Patch * );
+    ivector1D includeGeometry(bitpit::Patch * );
+    ivector1D excludeGeometry(bitpit::Patch * );
     
     ivector1D includeCloudPoints(dvecarr3E &);
     ivector1D excludeCloudPoints(dvecarr3E &);
     
-	ivector1D includeCloudPoints(Patch * );
-	ivector1D excludeCloudPoints(Patch * );
+	ivector1D includeCloudPoints(bitpit::Patch * );
+	ivector1D excludeCloudPoints(bitpit::Patch * );
 	
 //     ivector1D includePIDTriangulation(SHAPE *, int );
 //     ivector1D excludePIDTriangulation(SHAPE *, int );
@@ -49,10 +49,10 @@ public:
 //     ivector1D excludePIDTriangulation(SHAPE *, ivector1D & );
     
     bool isSimplexIncluded(dvecarr3E &);
-	bool isSimplexIncluded(PATCH * , int indexT);
+	bool isSimplexIncluded(bitpit::Patch * , int indexT);
     
     virtual bool isPointIncluded(darray3E)=0;
-	virtual bool isPointIncluded(PATCH * , int indexV)=0;
+	virtual bool isPointIncluded(bitpit::Patch * , int indexV)=0;
 };
 
 
@@ -67,7 +67,7 @@ public:
     HullCube & operator=(const HullCube &);
    
     bool isPointIncluded(darray3E);
-	bool isPointIncluded(PATCH * , int indexV);
+	bool isPointIncluded(bitpit::Patch * , int indexV);
 };
 
 /*!
@@ -95,7 +95,7 @@ public:
     HullCylinder & operator=(const HullCylinder &);
    
     bool isPointIncluded(darray3E);
-	bool isPointIncluded(PATCH * , int indexV);
+	bool isPointIncluded(bitpit::Patch * , int indexV);
 };
 
 /*!
@@ -123,7 +123,7 @@ public:
     HullSphere & operator=(const HullSphere &);
    
     bool isPointIncluded(darray3E);
-	bool isPointIncluded(PATCH * , int indexV);
+	bool isPointIncluded(bitpit::Patch * , int indexV);
 };
 
 #endif // __CORESELECTIONPATCHES_HH

@@ -25,13 +25,97 @@
 #include "MiMMO.hpp"
 
 using namespace std;
-//using namespace bitpit;
+using namespace bitpit;
 
 // =================================================================================== //
 
 void test0001() {
 
-    return ;
+
+	//Creation of MiMMO container.
+	MimmoObject mimmo0;
+
+	int		np,	nt;
+	darray3E point;
+	ivector2D connect;
+	{
+		//Import STL
+		STLObj stl("sphere.stl", true);
+		dvector2D V,N;
+		ivector2D T;
+		stl.load(np, nt, V, N, T);
+
+		for (long ip=0; ip<np; ip++){
+			point = conArray<double,3>(V[ip]);
+			mimmo0.setVertex(ip, point);
+		}
+		mimmo0.setConnectivity(&T);
+	}
+
+	string filename = "mimmo0";
+	mimmo0.m_geometry->setName(filename);
+	mimmo0.m_geometry->write();
+
+	//Instantiation of a FFDobject (and Input object).
+	FFDLatticeBox* lattice = new FFDLatticeBox();
+
+	//Set lattice
+	darray3E origin = {{-0.5, -0.5, -0.5}};
+	darray3E span;
+	span.fill(1);
+	//Set Lattice
+	ivector1D dim(3,7), deg(3);
+	lattice->setMesh(origin, span[0], span[1], span[2], dim[0], dim[1], dim[2]);
+
+	deg[0] = dim[0]-4;
+	deg[1] = dim[1]-4;
+	deg[2] = dim[2]-4;
+	//Set number of nodes (and degrees of curves)
+	lattice->setDimension(dim, deg);
+
+	//Set geometry
+	lattice->setGeometry(&mimmo0);
+
+	//Init Displacements
+	int ndeg = lattice->getNDeg();
+	dvecarr3E displ(ndeg);
+	time_t Time = time(NULL);
+	srand(Time);
+	for (int i=0; i<ndeg; i++){
+		for (int j=0; j<3; j++){
+//			displ[i][j] = 0.01*j*(i+1);
+			displ[i][j] = 0.5*( (double) (rand()) / RAND_MAX );
+		}
+	}
+	lattice->setDisplacements(displ);
+
+	//create applier
+	Apply* applier = new Apply(&mimmo0, lattice);
+
+
+
+	//Create execution chain
+	vector<BaseManipulation*> chain;
+	chain.push_back(lattice);
+	chain.push_back(applier);
+
+	for (int i=0; i<chain.size(); i++){
+		chain[i]->exec();
+	}
+
+	//Plot results
+	lattice->plotGrid("./", "lattice", 0, false, false);
+	lattice->plotGrid("./", "lattice", 1, false, true);
+	filename = "mimmo1";
+	mimmo0.m_geometry->setName(filename);
+	mimmo0.m_geometry->write();
+
+	delete lattice, applier;
+	lattice = NULL;
+	applier = NULL;
+
+
+    return;
 
 }
 
@@ -46,7 +130,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-        test001() ;
+        test0001() ;
 
 #if ENABLE_MPI==1
 	}

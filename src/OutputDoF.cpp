@@ -21,11 +21,9 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __OUTPUTDOF_HPP__
-#define __OUTPUTDOF_HPP__
 
 #include "OutputDoF.hpp"
-#include <ofstream>
+#include <fstream>
 
 using namespace std;
 
@@ -54,8 +52,10 @@ OutputDoF::OutputDoF(const OutputDoF & other):BaseManipulation(other){
 
 /*!Assignement operator of OutputDoF.
  */
-OutputDoF & OutputDoF::operator=(const OutputDoF & other):BaseManipulation(other){
+OutputDoF & OutputDoF::operator=(const OutputDoF & other){
+	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_filename 		= other.m_filename;
+	return *this;
 };
 
 /*!It sets the name of the output file.
@@ -71,9 +71,9 @@ OutputDoF::setFilename(std::string filename){
  */
 void
 OutputDoF::recoverDisplacements(){
-	if (m_parent == NULL) return;
-	setNDeg(m_parent->getNDeg());
-	setDisplacements(m_parent->getDisplacements());
+	if (m_manipulator == NULL) return;
+	setNDeg(m_manipulator->getNDeg());
+	setDisplacements(*(m_manipulator->getDisplacements()));
 };
 
 /*!Execution command. It writes on file the displacements of the degrees of freedom
@@ -88,7 +88,7 @@ OutputDoF::exec(){
 		file << BaseManipulation::m_ndeg;
 		for (int iv=0; iv<m_ndeg; iv++){
 			for (int i=0; i<3; i++){
-				file << BaseManipulation::m_displacements[iv][i];
+				file << BaseManipulation::m_displ[iv][i];
 			}
 		}
 		file.close();

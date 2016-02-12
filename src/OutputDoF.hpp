@@ -24,6 +24,7 @@
 #ifndef __OUTPUTDOF_HPP__
 #define __OUTPUTDOF_HPP__
 
+#include "BaseManipulation.hpp"
 #include <string>
 
 /*!

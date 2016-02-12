@@ -24,6 +24,8 @@
 
 #include "FFDLattice.hpp"
 
+using namespace std;
+
 // IMPLEMENTATION OF FFDLatticeBox***********************************************//
 /*
  *	\date			09/feb/2016
@@ -133,13 +135,13 @@ dvector1D	FFDLatticeBox::getWeights(){
  * \param[out] knots knots list 
  * \param[out] multK multiplicity knot list 
  */ 
-void 		FFDLatticeBox::returnKnotsStructure(dvector2D & knot, ivector2D &multK){
+void 		FFDLatticeBox::returnKnotsStructure(dvector2D & knots, ivector2D &multK){
 	knots.resize(3);
 	multK.resize(3);
 	
-	getKnotsStructure("x", knots[0], multK[0]);
-	getKnotsStructure("y", knots[1], multK[1]);
-	getKnotsStructure("z", knots[2], multK[2]);
+	returnKnotsStructure("x", knots[0], multK[0]);
+	returnKnotsStructure("y", knots[1], multK[1]);
+	returnKnotsStructure("z", knots[2], multK[2]);
 };
 
 /*! Return knots structure and knot multiplicity vector for a specified Nurbs curve "dir"
@@ -192,10 +194,10 @@ void		FFDLatticeBox::setDimension(ivector1D dimension){
 		//setting knots and eventually weights to non-rational B-Spline
 		setKnotsStructure();
 	
-		freeContainer(weights);
+		freeContainer(m_weights);
 		ivector1D dd = getDimension();
 		int size= dd[0]*dd[1]*dd[2];
-		weights.resize(size, 1.0);
+		m_weights.resize(size, 1.0);
 };
 
 /*! Set number of control nodes in each space direction and degrees of Nurbs curves. 
@@ -221,10 +223,10 @@ void		FFDLatticeBox::setDimension(ivector1D dimension, ivector1D curveDegrees){
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	freeContainer(weights);
+	freeContainer(m_weights);
 	ivector1D dd = getDimension();
 	int size= dd[0]*dd[1]*dd[2];
-	weights.resize(size, 1.0);
+	m_weights.resize(size, 1.0);
 };
 
 /*! set Origin of your mesh
@@ -259,7 +261,7 @@ void FFDLatticeBox::setMesh(darray3E origin, double spanX, double spanY, double 
 	ny = std::max(2, ny); 
 	nz = std::max(2, nz); 
 	//set Origin and Span
-	m_origin = origin_;
+	m_origin = origin;
 	m_span[0] = std::fmax(0, spanX); 
 	m_span[1] = std::fmax(0, spanY); 
 	m_span[2] = std::fmax(0, spanZ); 
@@ -291,8 +293,8 @@ void FFDLatticeBox::setMesh(darray3E origin, double spanX, double spanY, double 
  * \param[in] val weight value
  * \param[in] index index of the control node -> gloab indexing
  */
-void 		FFDLatticeBox::setWeight(double val, int index){
-			m_weight[index] =  val;
+void 		FFDLatticeBox::setNodalWeight(double val, int index){
+			m_weights[index] =  val;
 };
 
 /*! Modify a weight of a control node. Access to a node in cartesian indexing
@@ -301,9 +303,9 @@ void 		FFDLatticeBox::setWeight(double val, int index){
  * \param[in] j index of y coordinates 
  * \param[in] k index of z coordinate
  */
-void 		FFDLatticeBox::setWeight(double val, int i, int j, int k){
+void 		FFDLatticeBox::setNodalWeight(double val, int i, int j, int k){
 		int index = accessPointData(i,j,k);
-		setWeight(val, index);
+		setNodalWeight(val, index);
 };
 
 
@@ -319,14 +321,15 @@ void		FFDLatticeBox::plotGrid(std::string directory, std::string filename,int co
 		if(deformed){
 				ivector1D n =getDimension();
 				const dvecarr3E * disp = getDisplacements(); 
-				int size = n[0]*n[1]*n[2]+1;
+				int size = n[0]*n[1]*n[2];
 				dvecarr3E data(size);
 				for(int i=0; i<size; ++i){
 					data[i] = getGlobalPoint(i) + (*disp)[i];
 				}
-			plotGrid(directory, filename, counter, ascii, & data);
+				BASE_UStructMesh::plotGrid(directory, filename, counter, ascii, &data);
 		}else{
-			plotGrid(directory, filename, counter, ascii, & data);
+			dvecarr3E* pnull = NULL;
+			BASE_UStructMesh::plotGrid(directory, filename, counter, ascii,  pnull);
 			
 		}
 			
@@ -350,9 +353,10 @@ void		FFDLatticeBox::plotCloud(std::string directory, std::string filename, int 
 		for(int i=0; i<size; ++i){
 			data[i] = getGlobalPoint(i) + (*disp)[i];
 		}
-		plotCloud(directory, filename, counter, ascii, & data);
+		BASE_UStructMesh::plotCloud(directory, filename, counter, ascii, &data);
 	}else{
-		plotCloud(directory, filename, counter, ascii, & data);
+		dvecarr3E* pnull = NULL;
+		BASE_UStructMesh::plotCloud(directory, filename, counter, ascii, pnull);
 		
 	}
 	
@@ -365,13 +369,13 @@ void 		FFDLatticeBox::exec(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
-			recoverInfo();
+			recoverDisplacements();
 			ivector1D map;
 			dvecarr3E localdef = apply(map);
 			
 			//reset displacement in a unique vector
-			Patch * tri = container->getGeometry(); 
-			int size = tri->nVertexCount();
+			bitpit::Patch * tri = container->getGeometry();
+			int size = tri->getVertexCount();
 			
 			dvecarr3E result(size, darray3E{0,0,0});
 			
@@ -400,19 +404,19 @@ darray3E 	FFDLatticeBox::apply(darray3E & point){
 dvecarr3E 	FFDLatticeBox::apply(ivector1D & list){
 	//TODO now geometry displacement points are recovered from a list of effectively displaced points +
 	// an internal map called list. This list contained an absolute id (get_id, set_id methods) of the geometry vertex, according to the 
-	// logic of bitpit Patch object for geometry data structure. You can rethink this outputs when your knowledge on
-	//how the object Patch work is more mature.
+	// logic of bitpit bitpit::Patch object for geometry data structure. You can rethink this outputs when your knowledge on
+	//how the object bitpit::Patch work is more mature.
 	
 	dvecarr3E result;
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return result;
 	
-	Patch * tri = container->getGeometry();
+	bitpit::Patch * tri = container->getGeometry();
 	
 	freeContainer(list);
 	list = includeCloudPoints(tri);
 
-	nVert = tri->getVertexCount;
+	const long nVert = tri->getVertexCount();
 	result.resize(list.size(), darray3E{0,0,0});
 	
 	for(int i=0; i<list.size(); ++i){
@@ -451,11 +455,11 @@ dvecarr3E 	FFDLatticeBox::apply(dvecarr3E * point){
  */
 void 		FFDLatticeBox::recoverDisplacements(){
 	
-			if(getParent() == NULL) return;
+			if(getManipulator() == NULL) return;
 			ivector1D n = getDimension();
 			int check = n[0]*n[1]*n[2];
-			dvecarr3E * parentInfo = other.getDisplacements();
-			if(parentInfo.size() != check) return;
+			dvecarr3E * parentInfo = m_manipulator->getDisplacements();
+			if(parentInfo->size() != check) return;
 			
 			setDisplacements(*parentInfo);
 };
@@ -507,8 +511,8 @@ darray3E 	FFDLatticeBox::nurbsEvaluator(darray3E & point){
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
 	for(int i=0; i<3; i++){
-		knotInterval[i] = getKnotInterval(coord[i],i);
-		BSbasis[i] = basisITS0(knotInterval[i], i, coord[i]);
+		knotInterval[i] = getKnotInterval(point[i],i);
+		BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 	}
 	
 	//get loads in homogeneous coordinate.
@@ -525,8 +529,8 @@ darray3E 	FFDLatticeBox::nurbsEvaluator(darray3E & point){
 	for (int j=0; j<(n[0])*(n[1]); ++j){ //  counting deformation due to every load applied in lattice control points
 		
 		for(int k=counter; k<counter+n[2]; ++k){	
-			for(int intv=0; intv<3; intv++){ work[k-counter][intv] = weights[k] * (*disp)[k][intv];}
-			work[k-counter][3] = weights[k];
+			for(int intv=0; intv<3; intv++){ work[k-counter][intv] = m_weights[k] * (*disp)[k][intv];}
+			work[k-counter][3] = m_weights[k];
 		}
 		counter +=(n[2]);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work);
@@ -585,8 +589,8 @@ double 		FFDLatticeBox::nurbsEvaluatorScalar(darray3E & coord, int intV){
 	for (int j=0; j<(n[0])*(n[1]); ++j){ //  counting deformation due to every load applied in lattice control points
 		
 		for(int k=counter; k<counter+n[2]; ++k){	
-			work[k-counter][0] = weights[k] * (*disp)[k][intV];
-			work[k-counter][1] = weights[k];
+			work[k-counter][0] = m_weights[k] * (*disp)[k][intV];
+			work[k-counter][1] = m_weights[k];
 		}
 		counter +=(n[2]);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work);
@@ -665,9 +669,9 @@ dvector1D 	FFDLatticeBox::basisITS0(int k, int pos, double coord){
 /*! Rebuild your mesh after a modification is applied in origin, span and dimension parameters*/
 void FFDLatticeBox::rebaseMesh(){
 	
-	m_nx = std::max(2, m_nx); 
-	m_ny = std::max(2, m_ny); 
-	m_nz = std::max(2, m_nz); 
+	m_nx = std::max(1, m_nx);
+	m_ny = std::max(1, m_ny);
+	m_nz = std::max(1, m_nz);
 
 	m_span[0] = std::fmax(0, m_span[0]); 
 	m_span[1] = std::fmax(0, m_span[1]); 
@@ -717,7 +721,7 @@ int  		FFDLatticeBox::getKnotInterval(double coord, int dir){
 double 		FFDLatticeBox::getKnotValue(int index, int dir){
 	int target = getKnotIndex(index, dir);
 	if(target ==-1){return(-1.0);}
-	return(knots[dir][target]);
+	return(m_knots[dir][target]);
 };
 /*! Return a knot real index given its theoretical index and a direction in space 
  * \param[in] index theoretical index of the knot
@@ -727,7 +731,7 @@ int 		FFDLatticeBox::getKnotIndex(int index ,int dir){
 	int res = index+1;
 	int counter=-1;
 	while (res > 0){
-		res = res - multK[dir][counter+1];
+		res = res - m_multK[dir][counter+1];
 		counter++;
 	}
 	return(counter);
@@ -739,7 +743,7 @@ int 		FFDLatticeBox::getKnotIndex(int index ,int dir){
  */
 int 		FFDLatticeBox::getTheoreticalKnotIndex(int locIndex,int dir){
 	if(locIndex <0){return(-1);}
-	return(multK[dir][locIndex] + getTheoreticalKnotIndex(locIndex-1, dir));
+	return(m_multK[dir][locIndex] + getTheoreticalKnotIndex(locIndex-1, dir));
 };
 
 /*! Resize BaseManipulation class member m_displ to fit a total number od degree of freedom nx*ny*nz.
@@ -754,5 +758,6 @@ void FFDLatticeBox::resizeDisplacements(int nx, int ny,int nz){
 	freeContainer(*displ);
 	int size = nx*ny*nz;
 	displ->resize(size, darray3E{0,0,0});
+	m_ndeg = size;
 }
 

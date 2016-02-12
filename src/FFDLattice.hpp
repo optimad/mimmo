@@ -26,7 +26,7 @@
 
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "BasicMeshes.hpp"
+#include "CoreSelectionPatches.hpp"
 #include "BaseManipulation.hpp"
 /*!
  *	\date			09/feb/2016
@@ -41,15 +41,14 @@
  *  encased into the lattice box.
  *
  */
-class FFDLatticeBox: public BaseManipulation, public UCubicMesh {
+class FFDLatticeBox: public BaseManipulation, public HullCube {
 
 protected:
-	ivector1D m_deg /**< Nurbs curve degree for each of the possible 3 direction in space*/
-	dvector2D m_knots  /**< Nurbs curve knots for each of the possible 3 direction in space*/
-	ivector2D m_multK;   /**< Nurbs curve knots multiplicity vector, for each direction */
-	dvector1D m_weights; /**< Weights of each control node*/
-	
-	
+	ivector1D m_deg;		/**< Nurbs curve degree for each of the possible 3 direction in space*/
+	dvector2D m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
+	ivector2D m_multK;		/**< Nurbs curve knots multiplicity vector, for each direction */
+	dvector1D m_weights;	/**< Weights of each control node*/
+
 public:
 	FFDLatticeBox();
 	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, MimmoObject* geometry, BaseManipulation * parent=NULL);
@@ -72,7 +71,7 @@ public:
 	ivector1D 	getDimension();
 	
 	void		setDimension(ivector1D dimension);
-	void		setDimension(ivector1D dimension, ivector1D knotsDimension);
+	void		setDimension(ivector1D dimension, ivector1D curveDegrees);
 	void		setOrigin(darray3E origin);
 	void		setSpan(darray3E span);
 	void 		setMesh(darray3E origin, double spanX, double spanY, double spanZ, int nx, int ny, int nz);
@@ -89,7 +88,6 @@ public:
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(ivector1D & map);
-	
 	
 	//relationship methods
 protected:

@@ -23,31 +23,44 @@
 \*---------------------------------------------------------------------------*/
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
+#include "bitpit.hpp"
 
 using namespace std;
+using namespace bitpit;
 
 /*!Default constructor of MimmoObject.
  * It sets to zero/null each member/pointer.
- * \param[in] type Type of linked Patch (0 = generic (default value), 1 = surface, 2 = volume).
+ * \param[in] type Type of linked Patch 1 = surface (default value), 2 = volume).
  */
 MimmoObject::MimmoObject(int type){
-	m_type = type;
-	m_geometry = NULL;
-	m_internalPatch = false;
+	m_type = max(type,1);
+//	m_geometry = NULL;
+	const int id = 0;
+	if (m_type == 2){
+		m_geometry = new VolTriPatch(id);
+		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+	}else{
+		m_geometry = new SurfTriPatch(id);
+		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
+	}
+	m_internalPatch = true;
 }
 
 /*!Custom constructor of MimmoObject. This constructor builds a generic patch from given vertex and connectivity.
- * \param[in] type Type of linked Patch (0 = generic (default value), 1 = surface, 2 = volume).
+ * \param[in] type Type of linked Patch (1 = surface (default value), 2 = volume).
  * \param[in] vertex Coordinates of vertices of the geometry.
  * \param[in] connectivity Pointer to connectivity strucutre of the surface/volume mesh.
  */
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
-	m_type = type;
+	m_type = max(1,type);
 	m_internalPatch = true;
+	const int id = 0;
 	if (m_type == 2){
-		m_geometry = new VolTriPatch();
-	}else if(m_type == 1){
-		m_geometry = new SurfTriPatch();
+		m_geometry = new VolTriPatch(id);
+		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+	}else{
+		m_geometry = new SurfTriPatch(id);
+		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
 	}
 	setVertex(vertex);
 	if (connectivity != NULL)
@@ -139,7 +152,7 @@ MimmoObject::getVertex(){
 	dvecarr3E result(nv);
 	long i = 0;
 	for (const Vertex &vertex : m_geometry->vertices()){
-		result[i++] = vertex->getCoords();
+		result[i++] = vertex.getCoords();
 	}
 	return result;
 };
@@ -159,9 +172,13 @@ MimmoObject::getVertex(long i){
  */
 ivector1D
 MimmoObject::getConnectivity(long i){
-	if (m_geometry == NULL) return NULL;
-	ivector1D connect;
-	connect = (*m_geometry->getCell(i).getConnect());
+	if (m_geometry == NULL) return ivector1D();
+	int np = m_geometry->getCell(i).getVertexCount();
+	ivector1D connect(np);
+	const long * connectivity = m_geometry->getCell(i).getConnect();
+	for (int i=0; i<np; i++){
+		connect[i] = connectivity[i];
+	}
 	return connect;
 };
 
@@ -181,13 +198,12 @@ bool
 MimmoObject::setVertex(dvecarr3E & vertex){
 	if (m_geometry == NULL) return false;
 	long nv = vertex.size();
-	long index;
+	VertexIterator index;
 	for (long i=0; i<nv; i++){
 		index = m_geometry->addVertex();
-		m_geometry->getvertex(index).setCoords(vertex);
+		index->setCoords(vertex[i]);
 	}
 	return true;
-
 };
 
 /*!It adds and it sets the coordinates of one vertex of the geometry Patch.
@@ -198,8 +214,21 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 bool
 MimmoObject::setVertex(int index, darray3E & vertex){
 	if (m_geometry == NULL) return false;
-	m_geometry->addVertex(index);
-	m_geometry->getvertex(index).setCoords(vertex);
+	VertexIterator it = m_geometry->addVertex();
+	it->setCoords(vertex);
+	return true;
+};
+
+/*!It modifies the coordinates of the vertex of the geometry Patch.
+ * \param[in] vertex Coordinates of vertex of geometry mesh.
+ * \param[in] id ID of vertex of geometry mesh to modify.
+ * \return False if no geometry is linked.
+ */
+bool
+MimmoObject::modifyVertex(darray3E & vertex, long id){
+	if (m_geometry == NULL) return false;
+	Vertex &vert = m_geometry->getVertex(id);
+	vert.setCoords(vertex);
 	return true;
 };
 
@@ -212,7 +241,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 	if (m_geometry == NULL) return false;
 	int nv;
 	if (m_type == 1) nv = 3;
-	if (m_type == 1) nv = 4;  //only tetrahedra
+	if (m_type == 2) nv = 4;  //only tetrahedra
 	long nc = connectivity->size();
 	long index;
 	for (long i=0; i<nc; i++){
@@ -220,9 +249,15 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 		for (int j=0; j<nv; j++){
 			connect[j] = (*connectivity)[i][j];
 		}
-		index = m_geometry->AddCell();
-		m_geometry->getCell(index).setConnect(move(connect));
-		connect.reset();
+		index = i;
+		CellIterator it;
+		if (m_type == 1)  it = m_geometry->addCell(ElementInfo::TRIANGLE, true, index);
+		if (m_type == 2)  it = m_geometry->addCell(ElementInfo::TETRA, true, index);
+		it->setConnect(move(connect));
+		//DEBUG FORCE SET_TYPE
+		if (m_type == 1)  it->setType(ElementInfo::TRIANGLE);
+		if (m_type == 2)  it->setType(ElementInfo::TRIANGLE);
+		//
 	}
 };
 
@@ -243,7 +278,7 @@ MimmoObject::setGeometry(int type, Patch* geometry){
  */
 void
 MimmoObject::write(string filename){
-	m_geometry->writeMesh(filename);
+	m_geometry->write(filename);
 };
 
 

@@ -38,7 +38,7 @@ BaseManipulation::BaseManipulation(){
  * \param[in] geometry Pointer to target geometry to be linked.
  * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
  */
-BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* parent = NULL){
+BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* parent){
 	m_displ.clear();
 	m_ndeg = 0;
 	m_manipulator = parent;
@@ -94,33 +94,33 @@ BaseManipulation::getNDeg(){
 /*!It gets the displacement of the degree of freedom currently stored in the object.
  * \return Displacements of the degrees of freedom.
  */
-const dvecarr3E*
+dvecarr3E*
 BaseManipulation::getDisplacements(){
-	return &m_displacements;
+	return &m_displ;
 };
 
 /*!It gets the manipulator object linked by this object.
  * \return Pointer to parent manipulator object.
  */
-const BaseManipulation*
+BaseManipulation*
 BaseManipulation::getManipulator(){
-	return &m_parent;
+	return m_manipulator;
 };
 
 /*!It gets the geometry linked by the manipulator object.
  * \return Pointer to geometry to be deformed by the manipulator object.
  */
-const MimmoObject*
+MimmoObject*
 BaseManipulation::getGeometry(){
-	return &m_geometry;
+	return m_geometry;
 };
 
 /*!It gets the displacements of the geometry linked by the manipulator object.
  * \return Displacements to be applied to the geometry linked by the manipulator object.
  */
-const dvecarr3E*
+dvecarr3E*
 BaseManipulation::getGeometryDisplacements(){
-	return &m_gdisplacements;
+	return &m_gdispl;
 };
 
 /*!It sets the number of degrees of freedom of the manipulator object.
@@ -136,7 +136,7 @@ BaseManipulation::setNDeg(uint32_t ndeg){
  */
 void
 BaseManipulation::setDisplacements(dvecarr3E & displacements){
-	m_displacements = displacements;
+	m_displ = displacements;
 };
 
 /*!It sets the manipulator object linked by this object.
@@ -144,7 +144,7 @@ BaseManipulation::setDisplacements(dvecarr3E & displacements){
  */
 void
 BaseManipulation::setManipulator(BaseManipulation* manipulator){
-	m_parent = manipulator;
+	m_manipulator = manipulator;
 };
 
 /*!It sets the geometry linked by the manipulator object.
@@ -160,7 +160,7 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
  */
 void
 BaseManipulation::setGeometryDisplacements(dvecarr3E & gdisplacements){
-	m_gdisplacements = gdisplacements;
+	m_gdispl = gdisplacements;
 };
 
 /*!It clears the manipulator object linked by this object.
@@ -168,14 +168,14 @@ BaseManipulation::setGeometryDisplacements(dvecarr3E & gdisplacements){
  */
 void
 BaseManipulation::unsetManipulator(){
-	m_parent = NULL;
+	m_manipulator = NULL;
 };
 
 /*!It clears the displacement of the degree of freedom currently stored in the object.
  */
 void
 BaseManipulation::clearDisplacements(){
-	m_displacements.clear();
+	m_displ.clear();
 };
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
@@ -193,6 +193,6 @@ BaseManipulation::clear(){
  */
 void
 BaseManipulation::recoverDisplacements(){
-	setNDeg(m_parent->getNDeg());
-	setDisplacements(m_parent->getDisplacements());
+	setNDeg(m_manipulator->getNDeg());
+	setDisplacements(*(m_manipulator->getDisplacements()));
 };

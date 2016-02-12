@@ -32,7 +32,7 @@ Apply::Apply():BaseManipulation(){};
  * \param[in] geometry MiMMO object with the geometry object of the deformation.
  * \param[in] parent Manipulation object linked by the apply object.
  */
-Apply(MimmoObject* geometry, BaseManipulation* parent = NULL):BaseManipulation(geometry, parent){};
+Apply::Apply(MimmoObject* geometry, BaseManipulation* parent):BaseManipulation(geometry, parent){};
 
 /*! Custom constructor of Apply.
  * It sets the linked parent of the apply object.
@@ -50,17 +50,19 @@ Apply::Apply(const Apply & other):BaseManipulation(other){};
 
 /*!Assignement operator of Apply.
  */
-Apply & Apply::operator=(const Apply & other):BaseManipulation(other){};
+Apply & Apply::operator=(const Apply & other){
+	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+};
 
 /*!It recovers the GEOMETRY displacements as result of the linked parent manipulator.
  * The recovered displacements are pushed in the geometry displacements member of the base manipulation class.
  */
 void
 Apply::recoverDisplacements(){
-	if (m_parent == NULL) return;
-	setGeometryDisplacements(m_parent->getGeometryDisplacements());
-	setNDeg(m_parent->getNDeg());
-	setDisplacements(m_parent->getDisplacements());
+	if (m_manipulator == NULL) return;
+	setGeometryDisplacements(*(m_manipulator->getGeometryDisplacements()));
+	setNDeg(m_manipulator->getNDeg());
+	setDisplacements(*(m_manipulator->getDisplacements()));
 	return;
 };
 
@@ -73,11 +75,9 @@ Apply::exec(){
 	recoverDisplacements();
 	dvecarr3E vertex = m_geometry->getVertex();
 	long nv = m_geometry->getNVertex();
-	for (int i=0; i<nv; i++){
+	for (long i=0; i<nv; i++){
 		vertex[i] += m_gdispl[i];
+		m_geometry->modifyVertex(vertex[i], i);
 	}
-	m_geometry->setVertex(vertex);
 	return;
 };
-
-#endif /* __BASEMANIPULATION_HPP__ */

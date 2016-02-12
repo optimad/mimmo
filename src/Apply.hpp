@@ -24,6 +24,7 @@
 #ifndef __APPLYDEFORMATION_HPP__
 #define __APPLYDEFORMATION_HPP__
 
+#include "BaseManipulation.hpp"
 
 /*!
  *	\date			09/feb/2016

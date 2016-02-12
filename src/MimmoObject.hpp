@@ -41,7 +41,7 @@
  *
  */
 class MimmoObject{
-private:
+public:
 
 	//members
 	int				m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
@@ -69,6 +69,7 @@ public:
 
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(int index, darray3E & vertex);
+	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
 	bool		setGeometry(int type, bitpit::Patch* geometry);
 

@@ -44,7 +44,7 @@
  *
  */
 class BaseManipulation{
-protected:
+public:
 	//members
 	dvecarr3E			m_displ;		/**<Displacements of degrees of freedom. */
 	uint32_t			m_ndeg;			/**<Number of degrees of freedom. */
@@ -63,10 +63,10 @@ public:
 
 	//internal methods
 	uint32_t					getNDeg();
-	dvecarr3E*			getDisplacements();
-	const BaseManipulation*		getManipulator();
-	const MimmoObject*			getGeometry();
-	const dvecarr3E*			getGeometryDisplacements();
+	dvecarr3E*					getDisplacements();
+	BaseManipulation*		getManipulator();
+	MimmoObject*			getGeometry();
+	dvecarr3E*					getGeometryDisplacements();
 
 	void	setNDeg(uint32_t ndeg);
 	void	setDisplacements(dvecarr3E & displacements);

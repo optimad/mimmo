@@ -33,19 +33,19 @@
  *	Class for managing output on file of deformable structured grids as unstructured ones, based on VTK's formats (*.vtu)
  */
 
-class VTK_BASICMESH: public VTKUnstructuredGrid<VTK_BASICMESH>
+class VTK_BASICMESH: public bitpit::VTKUnstructuredGrid
 {
 protected:
 	dvecarr3E * m_points; /*!< pointer to list of vertices */
 	ivector2D * m_connectivity; /*!< pointer to cell-vertex connectivity */
 public:
 	VTK_BASICMESH();
-	VTK_BASICMESH(std::string dir_, std::string name_, std::string cod_, int nP_, int nC_, int nConn_);
+	VTK_BASICMESH(std::string dir_, std::string name_, bitpit::VTKFormat cod_, int nP_, int nC_, int nConn_);
 	~VTK_BASICMESH();
 	
 	void linkData(dvecarr3E &, ivector2D & );
 	void unlinkData();
-	void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+	void flushData(  std::fstream &str, bitpit::VTKFormat codex_, std::string name  ) ; //CRTP
 };
 
 /*!
@@ -61,18 +61,18 @@ public:
  *
  *	Class for managing output on file of point clouds, based on VTK's formats (*.vtu)
  */
-class VTK_BASICCLOUD: public VTK_UnstructuredGrid<VTK_BASICCLOUD>
+class VTK_BASICCLOUD: public bitpit::VTKUnstructuredGrid
 {
 protected:
 	dvecarr3E * m_points; /*!< pointer lo cloud points list */
 public:
 	VTK_BASICCLOUD();
-	VTK_BASICCLOUD(std::string dir_, std::string name_, std::string cod_, int nP_);
+	VTK_BASICCLOUD(std::string dir_, std::string name_, bitpit::VTKFormat cod_, int nP_);
 	~VTK_BASICCLOUD();
 	
 	void linkData(dvecarr3E &);
 	void unlinkData();
-	void Flush(  fstream &str, string codex_, string name  ) ; //CRTP
+	void flushData(  std::fstream &str, bitpit::VTKFormat codex_, std::string name  ) ; //CRTP
 };
 
 #endif // __MiMMO_VTKINTERFACES__
