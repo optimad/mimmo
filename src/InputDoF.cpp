@@ -29,17 +29,31 @@
 
 using namespace std;
 
+/*!Default constructor of OutputDoF.
+ * \param[in] readFromFile True if the object reads the values from file.
+ */
 InputDoF::InputDoF(bool readFromFile){
 	m_readFromFile = readFromFile;
 };
 
+/*!Custom constructor of OutputDoF.
+ * \param[in] filename Name of the input file.
+ * The m_readFromFile flag is set to true.
+ */
 InputDoF::InputDoF(string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
 };
 
-InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements):BaseManipulation(ndeg, displacements){
+/*!Custom constructor of OutputDoF.
+ * \param[in] ndeg #Degrees of freedom.
+ * \param[in] displacements Displacements of the degrees of freedom.
+ * The m_readFromFile flag is set to false.
+ */
+InputDoF::InputDoF(uint32_t ndeg, dvecarr3E & displacements){
 	m_readFromFile = false;
+	setNDeg(ndeg);
+	setDisplacements(displacements);
 };
 
 InputDoF::~InputDoF(){};
@@ -58,17 +72,27 @@ InputDoF & InputDoF::operator=(const InputDoF & other):BaseManipulation(other){
 	m_filename 		= other.m_filename;
 };
 
+/*!It sets if the object imports the displacements from an input file.
+ * \param[in] readFromFile True if the object reads the values from file.
+ */
 void
 InputDoF::setReadFromFile(bool readFromFile){
 	m_readFromFile = readFromFile;
 };
 
+/*!It sets the name of the input file.
+ * \param[in] filename Name of the input file.
+ */
 void
 InputDoF::setFilename(std::string filename){
 	m_filename = filename;
 };
 
 
+/*!It recovers the information on the number of the degrees of freedom and their
+ * displacements from the input file. If the file is not open the number of degrees of freedom
+ * is set to zero.
+ */
 void
 InputDoF::recoverDisplacements(){
 	if (readFromFile){
@@ -91,6 +115,8 @@ InputDoF::recoverDisplacements(){
 	}
 };
 
+/*!Execution command. It reads by file the displacements of the degrees of freedom.
+ */
 void
 InputDoF::exec(){
 	recoverDisplacements();

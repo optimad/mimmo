@@ -29,12 +29,21 @@
 
 using namespace std;
 
-OutputDoF::OutputDoF(BaseManipulation* parent);
-OutputDoF::OutputDoF(std::string filename, BaseManipulation* parent){
-	m_filename 		= filename;
+/*!Default constructor of OutputDoF.
+ * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
+ */
+OutputDoF::OutputDoF(BaseManipulation* parent):BaseManipulation(parent){};
 
+/*!Custom constructor of OutputDoF
+ * \param[in] filename Name of the output file.
+ * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
+ */
+OutputDoF::OutputDoF(std::string filename, BaseManipulation* parent):BaseManipulation(parent){
+	m_filename 		= filename;
 };
 
+/*!Default destructor of OutputDoF.
+ */
 OutputDoF::~OutputDoF(){};
 
 /*!Copy constructor of OutputDoF.
@@ -49,11 +58,17 @@ OutputDoF & OutputDoF::operator=(const OutputDoF & other):BaseManipulation(other
 	m_filename 		= other.m_filename;
 };
 
+/*!It sets the name of the output file.
+ * \param[in] filename Name of the output file.
+ */
 void
 OutputDoF::setFilename(std::string filename){
 	m_filename = filename;
 };
 
+/*!It recovers the information on the number of the degrees of freedom and their
+ * displacements from the parent manipulator object.
+ */
 void
 OutputDoF::recoverDisplacements(){
 	if (m_parent == NULL) return;
@@ -61,6 +76,9 @@ OutputDoF::recoverDisplacements(){
 	setDisplacements(m_parent->getDisplacements());
 };
 
+/*!Execution command. It writes on file the displacements of the degrees of freedom
+ * given by the parent manipulation.
+ */
 void
 OutputDoF::exec(){
 	recoverDisplacements();
