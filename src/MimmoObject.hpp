@@ -62,6 +62,7 @@ public:
 	long		getNVertex();
 	long		getNCells();
 	dvecarr3E	getVertex();
+	darray3E	getVertex(long i);
 	ivector2D*	getConnectivity();
 	Patch*		getGeometry();
 

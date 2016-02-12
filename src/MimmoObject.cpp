@@ -144,6 +144,15 @@ MimmoObject::getVertex(){
 	return result;
 };
 
+/*!It gets the coordinates of the vertices of the geometry Patch.
+ * \param[in] i Index of the vertex of geometry mesh.
+ * \return Coordinates of the i-th vertex of geometry mesh.
+ */
+darray3E
+MimmoObject::getVertex(long i){
+	return 	m_geometry->getVertexCoords(i);
+};
+
 //ivector2D*
 //MimmoObject::getConnectivity(){
 //};

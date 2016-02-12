@@ -61,6 +61,7 @@ Apply::recoverDisplacements(){
 	setGeometryDisplacements(m_parent->getGeometryDisplacements());
 	setNDeg(m_parent->getNDeg());
 	setDisplacements(m_parent->getDisplacements());
+	return;
 };
 
 /*!Execution command. It applies the deformation given by the parent manipulation
@@ -70,7 +71,13 @@ void
 Apply::exec(){
 	if (m_geometry == NULL) return;
 	recoverDisplacements();
-	m_geometry->setVertex(m_gdispl);
+	dvecarr3E vertex = m_geometry->getVertex();
+	long nv = m_geometry->getNVertex();
+	for (int i=0; i<nv; i++){
+		vertex[i] += m_gdispl[i];
+	}
+	m_geometry->setVertex(vertex);
+	return;
 };
 
 #endif /* __BASEMANIPULATION_HPP__ */
