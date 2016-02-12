@@ -24,65 +24,99 @@
 #ifndef __FFDLATTICE_HPP__
 #define __FFDLATTICE_HPP__
 
+#include "Operators.hpp"
+#include "customOperators.hpp"
+#include "BasicMeshes.hpp"
+#include "BaseManipulation.hpp"
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Free Form Deformation of a 3D surface and cloud points.
+ *	\brief Free Form Deformation of a 3D surface and point clouds, with cartesian box structured lattice.
  *
- *	Bla Bla
+ *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds a 3D box around the geometry and 
+ *  and set a structured cartesian mesh of control points on it (lattice). Displacements of each control point is linked to the geometry inside 
+ *  the box by means of a NURBS volumetric parameterization. Deformation will be applied only to those portion of geometry
+ *  encased into the lattice box.
  *
  */
-class FFDLattice: public BaseManipulation{
+class FFDLatticeBox: public BaseManipulation, public UCubicMesh {
 
-private:
-	//members
-	dvecarr3E		m_result;
-
+protected:
+	ivector1D m_deg /**< Nurbs curve degree for each of the possible 3 direction in space*/
+	dvector2D m_knots  /**< Nurbs curve knots for each of the possible 3 direction in space*/
+	ivector2D m_multK;   /**< Nurbs curve knots multiplicity vector, for each direction */
+	dvector1D m_weights; /**< Weights of each control node*/
+	
+	
 public:
-	FFDLattice();
-	FFDLattice(MimmoObject* geometry);
-	~FFDLattice();
+	FFDLatticeBox();
+	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, MimmoObject* geometry, BaseManipulation * parent=NULL);
+	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension);
+	~FFDLatticeBox();
 
+	//copy operators/constructors
+	FFDLatticeBox(const FFDLatticeBox & other);
+	FFDLatticeBox & operator=(const FFDLatticeBox & other);
+	
+	//clean structure;
+	void cleanAll();
+	void cleanKnots();
+	
 	//internal methods
-	int 		accessPoint(int i, int j, int k);
-	ivector1D 	accessPoint(int idx);
-	int 		accessCell(int i, int j, int k);
-	ivector1D	accessCell(int idx);
-	ivector1D 	getNeighs(int i, int j, int k);
-	ivector1D 	getCellOwner(darray3E & coord);
-
-	//TODO VERIFICARE METODI PER KNOTS E GRADO POLINOMI
-	dvecarr3E	getResult();
-	ivector1D	getDimension();
 	ivector1D 	getKnotsDimension();
-	darray3E	getOrigin();
-	darray3E 	getSpan();
-	int  		getKnotInterval(double, int);
-	double 		getKnotValue(int, int);
-	int 		getKnotIndex(int,int);
-
-	void		setDisplacements(dvecarr3E & displ);
-	void 		setGeometry(MimmoObject* geometry);
+	dvector1D   getWeights();
+	void 		returnKnotsStructure(dvector2D &, ivector2D &);
+	void 		returnKnotsStructure( std::string, dvector1D &, ivector1D &);
+	ivector1D 	getDimension();
+	
 	void		setDimension(ivector1D dimension);
 	void		setDimension(ivector1D dimension, ivector1D knotsDimension);
-	void		setKnotsDimension(ivector1D knotsDimension);
 	void		setOrigin(darray3E origin);
 	void		setSpan(darray3E span);
-
-	void		plotGrid(std::string directory, std::string filename, bool ascii, bool deformed);
-	void		plotCloud(std::string directory, std::string filename, bool ascii, bool deformed);
-
-	//relationship methods
-protected:
-	void 		recoverInfo();
-
-public:
+	void 		setMesh(darray3E origin, double spanX, double spanY, double spanZ, int nx, int ny, int nz);
+	
+	void 		setNodalWeight(double , int );
+	void 		setNodalWeight(double , int, int, int);
+	
+	//plotting wrappers
+	void		plotGrid(std::string directory, std::string filename, int counter, bool ascii, bool deformed);
+	void		plotCloud(std::string directory, std::string filename, int counter, bool ascii, bool deformed);
+	
+	//execute deformation methods
 	void 		exec();
 	darray3E 	apply(darray3E & point);
-	dvecarr3E 	apply(dvecarr3E & point);
+	dvecarr3E 	apply(dvecarr3E * point);
+	dvecarr3E 	apply(ivector1D & map);
+	
+	
+	//relationship methods
+protected:
+	void 		recoverDisplacements();
 
+private:
+
+	//Nurbs Evaluators
+	darray3E nurbsEvaluator(darray3E &); 
+	double nurbsEvaluatorScalar(darray3E &, int);
+	dvector1D getNurbsPoint(int k, dvector1D & basis, dvector2D & loads);
+	dvector1D basisITS0(int k, int pos, double coord);	
+
+	//Mesh utility
+	void rebaseMesh();
+	
+	//knots mantenaince utilities
+	void setKnotsStructure(); 
+	void setKnotsStructure( std::string); 
+	int  	getKnotInterval(double, int);
+	double 	getKnotValue(int, int);
+	int 	getKnotIndex(int,int);
+	int 	getTheoreticalKnotIndex(int,int);
+
+	//nodal displacement utility
+	void resizeDisplacements(int, int, int);
+	
 };
 
-#endif /* __BASEMANIPULATION_HPP__ */
+#endif /* __FFDLATTICE_HPP__ */

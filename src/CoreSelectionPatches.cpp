@@ -39,19 +39,21 @@ BaseSelPatch & BaseSelPatch::operator=(const BaseSelPatch & other){
 std::string BaseSelPatch::getPatchType(){return(m_patchType);};
 
 
-/*! Given a triangulated tesselation, return indices of those triangles inside the patch 
- * \param[in] tri target triangulated tesselation
- * \param[out] result list-by-indices of triangles included in the volumetric patch
+/*! Given a bitpit class Patch tessellation, return cell identifiers of those simplex inside the volume of 
+ * BaseSelPatch 
+ * \param[in] tri target tessellation
+ * \param[out] result list-by-ids of simplicies included in the volumetric patch
  */
-ivector1D BaseSelPatch::includeTriangulation(Class_SurfTri * tri ){
+ivector1D BaseSelPatch::includeGeometry(Patch * tri ){
   
-  ivector1D result(tri->nSimplex); 
+  int nCells = tri->getCellCount();	
+  ivector1D result(nCells); 
   int counter=0;
   
-  for(int i=0; i<tri->nSimplex; ++i){
+  for(auto &cell : tri->cells()){
    
-    if(isTriangleIncluded(tri, i)){
-      result[counter] = i;
+    if(isSimplexIncluded(tri, cell.get_id())){
+      result[counter] = cell.get_id();
       ++counter;
     }
   }
@@ -59,27 +61,31 @@ ivector1D BaseSelPatch::includeTriangulation(Class_SurfTri * tri ){
   return(result);
 };
 
-/*! Given a triangulated tesselation, return indices of those triangles outside the patch 
- * \param[in] tri target triangulated tesselation
- * \param[out] result list-by-indices of triangles outside the volumetric patch
+/*! Given a bitpit class Patch tessellation, return cell identifiers of those simplex outside the volume of 
+ * BaseSelPatch 
+ * \param[in] tri target tesselation
+ * \param[out] result list-by-ids of simplicies outside the volumetric patch
  */
-ivector1D BaseSelPatch::excludeTriangulation(Class_SurfTri * tri){
+ivector1D BaseSelPatch::excludeGeometry(Patch * tri){
   
-  ivector1D result(tri->nSimplex); 
-  int counter=0;
-  
-  for(int i=0; i<tri->nSimplex; ++i){
-   
-    if(!isTriangleIncluded(tri, i)){
-      result[counter] = i;
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
+	int nCells = tri->getCellCount();	
+	ivector1D result(nCells); 
+	int counter=0;
+	
+	for(auto &cell : tri->cells()){
+		
+		if(!isSimplexIncluded(tri, cell.get_id())){
+			result[counter] = cell.get_id();
+			++counter;
+		}
+	}
+	result.resize(counter);
+	return(result);
+}
 };
 
-/*! Given a list of vertices of a point cloud, return indices of those vertices included into the patch 
+/*! Given a list of vertices of a point cloud, return indices of those vertices included into 
+ * the volume of BaseSelPatch object 
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices included in the volumetric patch
  */
@@ -100,7 +106,8 @@ ivector1D BaseSelPatch::includeCloudPoints(dvecarr3E & list){
   return(result);
 };
 
-/*! Given a list of vertices of a point cloud, return indices of those vertices outside the patch 
+/*! Given a list of vertices of a point cloud, return indices of those vertices outside 
+ * the volume of BaseSelPatch object 
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices outside the volumetric patch
  */
@@ -122,110 +129,155 @@ ivector1D BaseSelPatch::excludeCloudPoints(dvecarr3E & list){
   
 };
 
-/*! Given a pidded part of a triangulated tesselation, return those pidded triangles inside the patch 
+/*! Given a bitpit class Patch point cloud, return identifiers of those points inside the volume of 
+ * BaseSelPatch  
+ * \param[in] list list of cloud points
+ * \param[out] result list-by-indices of vertices included in the volumetric patch
+ */
+ivector1D BaseSelPatch::includeCloudPoints(Patch * tri){
+	
+	int nVert = tri->getVertexCount();	
+	ivector1D result(nVert); 
+	int counter=0;
+	
+	for(auto &vertex : tri->vertices()){
+		
+		if(isPointIncluded(tri, vertex.get_id())){
+			result[counter] = vertex.get_id();
+			++counter;
+		}
+	}
+	result.resize(counter);
+	return(result);
+};
+
+/*! Given a bitpit class Patch point cloud, return identifiers of those points outside the volume of 
+ * BaseSelPatch  
+ * \param[in] list list of cloud points
+ * \param[out] result list-by-indices of vertices outside the volumetric patch
+ */
+ivector1D BaseSelPatch::excludeCloudPoints(Patch * tri){
+	
+	int nVert = tri->getVertexCount();	
+	ivector1D result(nVert); 
+	int counter=0;
+	
+	for(auto &vertex : tri->vertices()){
+		
+		if(!isPointIncluded(tri, vertex.get_id())){
+			result[counter] = vertex.get_id();
+			++counter;
+		}
+	}
+	result.resize(counter);
+	return(result);	
+};
+
+/* Given a pidded part of a triangulated tesselation, return those pidded triangles inside the patch 
  * \param[in] sh target triangulated tesselation
  * \param[in] pidT target PID number
  * \param[out] result list-by-indices of pidded triangles inside the volumetric patch
  */
-ivector1D BaseSelPatch::includePIDTriangulation(SHAPE * sh, int pidT ){
-  
-  ivector1D temp = sh->extractPidded(pidT);
-  int size = temp.size();
-  ivector1D result(size); 
-  int counter=0;
-  
-  for(int i=0; i<size; ++i){
-    if(isTriangleIncluded(sh, temp[i]) ){
-      result[counter] = temp[i];
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
-};
+// ivector1D BaseSelPatch::includePIDTriangulation(SHAPE * sh, int pidT ){
+//   
+//   ivector1D temp = sh->extractPidded(pidT);
+//   int size = temp.size();
+//   ivector1D result(size); 
+//   int counter=0;
+//   
+//   for(int i=0; i<size; ++i){
+//     if(isTriangleIncluded(sh, temp[i]) ){
+//       result[counter] = temp[i];
+//       ++counter;
+//     }
+//   }
+//   result.resize(counter);
+//   return(result);
+// };
 
-/*! Given a pidded part of a triangulated tesselation, return those pidded triangles outside the patch 
+/* Given a pidded part of a triangulated tesselation, return those pidded triangles outside the patch 
  * \param[in] sh target triangulated tesselation
  * \param[in] pidT target PID number
  * \param[out] result list-by-indices of pidded triangles outside the volumetric patch
  */
-ivector1D BaseSelPatch::excludePIDTriangulation(SHAPE * sh, int pidT){
+// ivector1D BaseSelPatch::excludePIDTriangulation(SHAPE * sh, int pidT){
+// 
+//   ivector1D temp = sh->extractPidded(pidT);
+//   int size = temp.size();
+//   ivector1D result(size); 
+//   int counter=0;
+//   
+//   for(int i=0; i<size; ++i){
+//    
+//     if(!isTriangleIncluded(sh, temp[i]) ){
+//       result[counter] = temp[i];
+//       ++counter;
+//     }
+//   }
+//   result.resize(counter);
+//   return(result);
+// };
 
-  ivector1D temp = sh->extractPidded(pidT);
-  int size = temp.size();
-  ivector1D result(size); 
-  int counter=0;
-  
-  for(int i=0; i<size; ++i){
-   
-    if(!isTriangleIncluded(sh, temp[i]) ){
-      result[counter] = temp[i];
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
-};
-
-/*! Given one or more pidded part of a triangulated tesselation, return those pidded triangles inside the patch 
+/* Given one or more pidded part of a triangulated tesselation, return those pidded triangles inside the patch 
  * \param[in] sh target triangulated tesselation
  * \param[in] pidT target PID number
  * \param[out] result list-by-indices of pidded triangles inside the volumetric patch
  */
-ivector1D BaseSelPatch::includePIDTriangulation(SHAPE * sh, ivector1D & pidList ){
-  
-  int size = pidList.size();
-  ivector1D result(sh->nSimplex);
-  
-  int counterGlobal = 0;
-  for(int i=0; i<size; i++){
-   
-    ivector1D temp = includePIDTriangulation(sh, pidList[i]);
-    
-    int tempSize = temp.size();
-    for(int j=0; j<tempSize; ++j){
-	result[counterGlobal] = temp[j];
-	++counterGlobal;
-    } 
-  }
-    result.resize(counterGlobal);
-    return(result);
-};
+// ivector1D BaseSelPatch::includePIDTriangulation(SHAPE * sh, ivector1D & pidList ){
+//   
+//   int size = pidList.size();
+//   ivector1D result(sh->nSimplex);
+//   
+//   int counterGlobal = 0;
+//   for(int i=0; i<size; i++){
+//    
+//     ivector1D temp = includePIDTriangulation(sh, pidList[i]);
+//     
+//     int tempSize = temp.size();
+//     for(int j=0; j<tempSize; ++j){
+// 	result[counterGlobal] = temp[j];
+// 	++counterGlobal;
+//     } 
+//   }
+//     result.resize(counterGlobal);
+//     return(result);
+// };
 
-/*! Given one or more pidded part of a triangulated tesselation, return those pidded triangles outside the patch 
+/* Given one or more pidded part of a triangulated tesselation, return those pidded triangles outside the patch 
  * \param[in] sh target triangulated tesselation
  * \param[in] pidT target PID number
  * \param[out] result list-by-indices of pidded triangles outside the volumetric patch
  */
-ivector1D BaseSelPatch::excludePIDTriangulation(SHAPE * sh, ivector1D & pidList ){
+// ivector1D BaseSelPatch::excludePIDTriangulation(SHAPE * sh, ivector1D & pidList ){
+// 
+//   int size = pidList.size();
+//   ivector1D result(sh->nSimplex);
+//   
+//   int counterGlobal = 0;
+//   for(int i=0; i<size; i++){
+//    
+//     ivector1D temp = excludePIDTriangulation(sh, pidList[i]);
+//     
+//     int tempSize = temp.size();
+//     for(int j=0; j<tempSize; ++j){
+// 	result[counterGlobal] = temp[j];
+// 	++counterGlobal;
+//     } 
+//   }
+//     result.resize(counterGlobal);
+//     return(result);
+// };
 
-  int size = pidList.size();
-  ivector1D result(sh->nSimplex);
-  
-  int counterGlobal = 0;
-  for(int i=0; i<size; i++){
-   
-    ivector1D temp = excludePIDTriangulation(sh, pidList[i]);
-    
-    int tempSize = temp.size();
-    for(int j=0; j<tempSize; ++j){
-	result[counterGlobal] = temp[j];
-	++counterGlobal;
-    } 
-  }
-    result.resize(counterGlobal);
-    return(result);
-};
 
 /*! Return True if at least one vertex of a given triangle is included in the volumetric patch
- * \param[in] triangleVert 3 vertices of the given Triangle
+ * \param[in] simplexVert 3 vertices of the given Triangle
  * \param[out] result boolean
  */   
-bool BaseSelPatch::isTriangleIncluded(dvecarr3E & triangleVert){
+bool BaseSelPatch::isSimplexIncluded(dvecarr3E & simplexVert){
   
   bool check = false;
-  for(int i=0; i<3; ++i){
-   check = check || isPointIncluded(triangleVert[i]); 
+  for(int i=0; i<simplexVert.size(); ++i){
+   check = check || isPointIncluded(simplexVert[i]); 
   }
   return(check);
 };
@@ -235,11 +287,14 @@ bool BaseSelPatch::isTriangleIncluded(dvecarr3E & triangleVert){
  * \param[in] indexT triangle index of tri.
  * \param[out] result boolean
  */ 
-bool BaseSelPatch::isTriangleIncluded(Class_SurfTri * tri, int indexT){
+bool BaseSelPatch::isSimplexIncluded(Patch * tri, int indexT){
 
+  const Cell &cell = tri->getCell(indexT);
+  long * conn = cell.getConnect();
+  int nVertices = cell.get_info().nVertices; 
   bool check = false;
-  for(int i=0; i<3; ++i){
-   check = check || isPointIncluded(tri, tri->Simplex[indexT][i]); 
+  for(int i=0; i<nVertices; ++i){ //recover vertex index
+   check = check || isPointIncluded(tri, conn[i]); 
   }
   return(check);
 };
@@ -291,7 +346,7 @@ HullCube::HullCube(const HullCube & other){
 };
 
 /*! Copy Operator 
- * \param[in] other PATCH_CUBE object where copy from
+ * \param[in] other HullCube object where copy from
  */
 HullCube & HullCube::operator=(const HullCube & other){
   *(static_cast<BaseSelPatch*>(this))= *(static_cast<const BaseSelPatch*> (&other));
@@ -320,14 +375,15 @@ bool HullCube::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Class_SurfTri tesselation 
- * \param[in] indexV vertex index of tri.
+ * \param[in] tri pointer to a Patch tesselation / point cloud
+ * \param[in] indexV id of a vertex belonging to tri;
  * \param[out] result boolean
  */
-bool HullCube::isPointIncluded(Class_SurfTri * tri, int indexV){
+bool HullCube::isPointIncluded(Patch * tri, int indexV){
 
   bool check = true;
-  darray3E temp = transfToLocal(tri->Vertex[indexV]);
+  darray3E coords = tri->getVertex[indexV].getCoords();
+  darray3E temp = transfToLocal(coords);
   darray3E pSp = getSpan();
   
   for(int i=0; i< pSp.size(); ++i){   
@@ -417,15 +473,16 @@ bool HullCylinder::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Class_SurfTri tesselation 
- * \param[in] indexV vertex index of tri.
+ * \param[in] tri pointer to a Patch tessellation / point cloud
+ * \param[in] indexV id of a vertex belonging to tri.
  * \param[out] result boolean
  */
-bool HullCylinder::isPointIncluded(Class_SurfTri * tri, int indexV){
+bool HullCylinder::isPointIncluded(Patch * tri, int indexV){
 
  bool check = true;
   darray3E pOr = getOrigin();
-  darray3E temp2 = transfToLocal(tri->Vertex[indexV]);
+  darray3E coords = tri->getVertex[indexV].getCoords();
+  darray3E temp2 = transfToLocal(coords);
   darray3E pSp = getSpan();
   
     double radius_norm = temp2[0]/pSp[0];
@@ -510,14 +567,15 @@ bool HullSphere::isPointIncluded(darray3E point){
 };
 
 /*! Return True if the given point is included in the volumetric patch
- * \param[in] tri pointer to a Class_SurfTri tesselation 
- * \param[in] indexV vertex index of tri.
+ * \param[in] tri pointer to a Patch tessellation / point cloud
+ * \param[in] indexV id of a vertex belonging to tri.
  * \param[out] result boolean
  */
-bool HullSphere::isPointIncluded(Class_SurfTri * tri, int indexV){
+bool HullSphere::isPointIncluded(Patch * tri, int indexV){
    
   bool check = false;
-   darray3E temp2 = transfToLocal(tri->Vertex[indexV]);
+   darray3E coords = tri->getVertex[indexV].getCoords();
+   darray3E temp2 = transfToLocal(coords);
    darray3E pSp = getSpan();
   
     double radius_norm = temp2[0]/pSp[0];

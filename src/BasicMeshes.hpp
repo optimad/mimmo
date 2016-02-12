@@ -49,7 +49,7 @@ public:
 	darray3E getOrigin();
 	darray3E getSpan();
 	darray3E getSpacing();
-	ivector1D getDimension();
+	virtual ivector1D getDimension();
 	
 	darray3E getGridCCell(int);
 	darray3E getGridCCell(int, int, int);
@@ -133,7 +133,7 @@ public:
 	
 	virtual std::string getClassType();
 	
-	void setMesh(darray3E origin_, double spanX_, double spanY_, double spanZ_, int nx_, int ny_, int nz_);
+	virtual void setMesh(darray3E origin_, double spanX_, double spanY_, double spanZ_, int nx_, int ny_, int nz_);
 	// Mesh transforming  
 	void scaleMesh(double, double, double);
 	darray3E transfToGlobal( darray3E & point);
@@ -181,7 +181,7 @@ public:
 	UCylindricalMesh & operator=(const UCylindricalMesh & other);
 	
 	virtual std::string getClassType();
-	void setMesh(darray3E origin_, double spanR_, double spanZ_, dvector1D & thetalim_, int nr_, int nt_, int nz_);
+	virtual void setMesh(darray3E origin_, double spanR_, double spanZ_, dvector1D & thetalim_, int nr_, int nt_, int nz_);
 	
 	// Mesh transforming  
 	void scaleMesh(double, double);
@@ -235,7 +235,7 @@ public:
 	USphericalMesh & operator=(const USphericalMesh & other);
 	
 	virtual std::string getClassType();
-	void setMesh(darray3E origin_, double spanR_, dvector1D thetalim_, dvector1D philim_, int nr_, int nt_, int np_);
+	virtual void setMesh(darray3E origin_, double spanR_, dvector1D thetalim_, dvector1D philim_, int nr_, int nt_, int np_);
 	
 	// Mesh transforming  
 	void scaleMesh(double);

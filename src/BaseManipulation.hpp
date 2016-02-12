@@ -63,7 +63,7 @@ public:
 
 	//internal methods
 	uint32_t					getNDeg();
-	const dvecarr3E*			getDisplacements();
+	dvecarr3E*			getDisplacements();
 	const BaseManipulation*		getManipulator();
 	const MimmoObject*			getGeometry();
 	const dvecarr3E*			getGeometryDisplacements();

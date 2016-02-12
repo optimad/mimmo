@@ -2,9 +2,8 @@
 #define __CORESELECTIONPATCHES_HH
 
 // local libs
-#include "libRA_BasicEleShapes.hpp"
-#include "libRA_BasicMeshes.hpp"
-#include "MimmoObject.hpp"
+#include "bitpit.hpp"
+#include "BasicMeshes.hpp"
 
 /*!
  *	\date			31/12/2015
@@ -34,12 +33,15 @@ public:
     
     std::string getPatchType();
     
-    ivector1D includeTriangulation(MimmoObject * );
-    ivector1D excludeTriangulation(MimmoObject * );
+    ivector1D includeGeometry(Patch * );
+    ivector1D excludeGeometry(Patch * );
     
     ivector1D includeCloudPoints(dvecarr3E &);
     ivector1D excludeCloudPoints(dvecarr3E &);
     
+	ivector1D includeCloudPoints(Patch * );
+	ivector1D excludeCloudPoints(Patch * );
+	
 //     ivector1D includePIDTriangulation(SHAPE *, int );
 //     ivector1D excludePIDTriangulation(SHAPE *, int );
 // 
@@ -47,10 +49,10 @@ public:
 //     ivector1D excludePIDTriangulation(SHAPE *, ivector1D & );
     
     bool isSimplexIncluded(dvecarr3E &);
-    bool isTriangleIncluded(MimmoObject *, int indexT);
+	bool isSimplexIncluded(PATCH * , int indexT);
     
     virtual bool isPointIncluded(darray3E)=0;
-    virtual bool isPointIncluded(Class_SurfTri *, int indexV)=0;
+	virtual bool isPointIncluded(PATCH * , int indexV)=0;
 };
 
 
@@ -65,7 +67,7 @@ public:
     HullCube & operator=(const HullCube &);
    
     bool isPointIncluded(darray3E);
-    bool isPointIncluded(Class_SurfTri *, int indexV);
+	bool isPointIncluded(PATCH * , int indexV);
 };
 
 /*!
@@ -93,7 +95,7 @@ public:
     HullCylinder & operator=(const HullCylinder &);
    
     bool isPointIncluded(darray3E);
-    bool isPointIncluded(Class_SurfTri *, int indexV);
+	bool isPointIncluded(PATCH * , int indexV);
 };
 
 /*!
@@ -121,7 +123,7 @@ public:
     HullSphere & operator=(const HullSphere &);
    
     bool isPointIncluded(darray3E);
-    bool isPointIncluded(Class_SurfTri *, int indexV);
+	bool isPointIncluded(PATCH * , int indexV);
 };
 
 #endif // __CORESELECTIONPATCHES_HH
