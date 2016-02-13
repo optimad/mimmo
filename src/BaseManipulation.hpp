@@ -46,11 +46,12 @@
 class BaseManipulation{
 public:
 	//members
-	dvecarr3E			m_displ;		/**<Displacements of degrees of freedom. */
-	uint32_t			m_ndeg;			/**<Number of degrees of freedom. */
-	BaseManipulation*	m_manipulator;	/**<Pointer to manipulation object manipulator giving info to actual class. */
-	MimmoObject*		m_geometry;		/**<Pointer to manipulated geometry. */
-	dvecarr3E			m_gdispl;		/**<Displacements of vertices of geometry. */
+	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom. */
+	uint32_t						m_ndeg;			/**<Number of degrees of freedom. */
+	BaseManipulation*				m_manipulator;	/**<Pointer to manipulation object manipulator giving info to actual class. */
+	std::vector<BaseManipulation*>	m_filter;		/**<Pointer to manipulation object filter processing data of actual class. */
+	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
+	dvecarr3E						m_gdispl;		/**<Displacements of vertices of geometry. */
 
 public:
 	BaseManipulation();
@@ -62,27 +63,36 @@ public:
 	BaseManipulation & operator=(const BaseManipulation & other);
 
 	//internal methods
-	uint32_t					getNDeg();
-	dvecarr3E*					getDisplacements();
-	BaseManipulation*		getManipulator();
-	MimmoObject*			getGeometry();
-	dvecarr3E*					getGeometryDisplacements();
+	uint32_t						getNDeg();
+	dvecarr3E*						getDisplacements();
+	BaseManipulation*				getManipulator();
+	int								getNFilters();
+	std::vector<BaseManipulation*>	getFilters();
+	BaseManipulation*				getFilter(int i);
+	MimmoObject*					getGeometry();
+	dvecarr3E*						getGeometryDisplacements();
 
 	void	setNDeg(uint32_t ndeg);
 	void	setDisplacements(dvecarr3E & displacements);
 	void 	setManipulator(BaseManipulation* manipulator);
+	void 	setFilter(BaseManipulation* filter);
 	void 	setGeometry(MimmoObject* geometry);
 	void	setGeometryDisplacements(dvecarr3E & gdisplacements);
 
 	void 	unsetManipulator();
+	void 	unsetFilter();
 	void	clearDisplacements();
 	void	clear();
 
 	//relationship methods
+
+	void 	exec();
+
 protected:
-	virtual void	recoverDisplacements();   //called in exec
+	virtual void	recoverDisplacements();	//called in exec
+	virtual void	applyFilters();   		//called in exec
 public:
-	virtual void 	exec() = 0;
+	virtual void 	execute() = 0;			//called in exec
 
 };
 

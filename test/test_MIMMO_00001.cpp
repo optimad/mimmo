@@ -83,7 +83,6 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-//			displ[i][j] = 0.01*j*(i+1);
 			displ[i][j] = 0.5*( (double) (rand()) / RAND_MAX );
 		}
 	}
@@ -92,7 +91,24 @@ void test0001() {
 	//create applier
 	Apply* applier = new Apply(&mimmo0, lattice);
 
+	//create filter mask
+	MaskFilter* mask = new MaskFilter();
+	dvecarr3E coords(ndeg);
+	for (int i=0; i<dim[0]; i++){
+		for (int j=0; j<dim[1]; j++){
+			for (int k=0; k<dim[2]; k++){
+				coords[lattice->accessPointData(i,j,k)] = origin + lattice->getGridPoint(i,j,k);
+			}
+		}
+	}
+	mask->setCoords(coords);
+	darray3E thres;
+	thres.fill(-0.25);
+	mask->setThresholds(thres);
+	mask->setForward(true);
 
+	//set filter to lattice
+	lattice->setFilter(mask);
 
 	//Create execution chain
 	vector<BaseManipulation*> chain;

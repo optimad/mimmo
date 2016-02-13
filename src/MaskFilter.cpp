@@ -21,46 +21,47 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include "Apply.hpp"
+#include "MaskFilter.hpp"
 
-/*!Default constructor of Apply
+/*!Default constructor of MaskFilter
  */
-Apply::Apply():BaseManipulation(){};
+MaskFilter::MaskFilter():BaseManipulation(){};
 
-/*! Custom constructor of Apply.
- * It sets the linked geometry and the linked parent of the apply object.
- * \param[in] geometry MiMMO object with the geometry object of the deformation.
- * \param[in] parent Manipulation object linked by the apply object.
+/*!Default destructor of MaskFilter
  */
-Apply::Apply(MimmoObject* geometry, BaseManipulation* parent):BaseManipulation(geometry, parent){};
+MaskFilter::~MaskFilter(){};
 
-/*! Custom constructor of Apply.
- * It sets the linked parent of the apply object.
- * \param[in] parent Manipulation object linked by the apply object.
+/*!Copy constructor of MaskFilter.
  */
-Apply::Apply(BaseManipulation* parent):BaseManipulation(parent){};
+MaskFilter::MaskFilter(const MaskFilter & other):BaseManipulation(other){};
 
-/*!Default destructor of Apply
+/*!Assignement operator of MaskFilter.
  */
-Apply::~Apply(){};
-
-/*!Copy constructor of Apply.
- */
-Apply::Apply(const Apply & other):BaseManipulation(other){};
-
-/*!Assignement operator of Apply.
- */
-Apply & Apply::operator=(const Apply & other){
+MaskFilter & MaskFilter::operator=(const MaskFilter & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+};
+
+void
+MaskFilter::setCoords(dvecarr3E & coords){
+	m_coords = coords;
+};
+
+void
+MaskFilter::setThresholds(darray3E & thres){
+	m_thres = thres;
+};
+
+void
+MaskFilter::setForward(bool forward){
+	m_forward = forward;
 };
 
 /*!It recovers the GEOMETRY displacements as result of the linked parent manipulator.
  * The recovered displacements are pushed in the geometry displacements member of the base manipulation class.
  */
 void
-Apply::recoverDisplacements(){
+MaskFilter::recoverDisplacements(){
 	if (m_manipulator == NULL) return;
-	setGeometryDisplacements(*(m_manipulator->getGeometryDisplacements()));
 	setNDeg(m_manipulator->getNDeg());
 	setDisplacements(*(m_manipulator->getDisplacements()));
 	return;
@@ -70,14 +71,19 @@ Apply::recoverDisplacements(){
  * to the linked geometry. After exec() the original geometry will be permanently modified.
  */
 void
-Apply::execute(){
-	if (m_geometry == NULL) return;
+MaskFilter::execute(){
 	recoverDisplacements();
-	dvecarr3E vertex = m_geometry->getVertex();
-	long nv = m_geometry->getNVertex();
-	for (long i=0; i<nv; i++){
-		vertex[i] += m_gdispl[i];
-		m_geometry->modifyVertex(vertex[i], i);
+	for (int i=0; i<m_ndeg; i++){
+		for (int j=0; j<3; j++){
+			if (m_coords[i][j]>m_thres[j]){
+				m_displ[i][j] = (1-m_forward)*m_displ[i][j];
+			}
+			else{
+				m_displ[i][j] = (m_forward)*m_displ[i][j];
+			}
+		}
 	}
+
+	if (m_manipulator != NULL) m_manipulator->setDisplacements(m_displ);
 	return;
 };

@@ -363,7 +363,7 @@ void		FFDLatticeBox::plotCloud(std::string directory, std::string filename, int 
 };
 
 /*! Given pointer to a reference geometry and, execute deformation w/ the current setup */
-void 		FFDLatticeBox::exec(){
+void 		FFDLatticeBox::execute(){
 			
 	//TODO see todo note on "dvecarr3E 	FFDLatticeBox::apply(ivector1D & list)" method of the class. 
 			MimmoObject * container = getGeometry();

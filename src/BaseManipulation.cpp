@@ -23,6 +23,8 @@
 \*---------------------------------------------------------------------------*/
 #include "BaseManipulation.hpp"
 
+using namespace std;
+
 /*!Default constructor of BaseManipulation.
  * It sets to zero/null each member/pointer.
  */
@@ -30,6 +32,7 @@ BaseManipulation::BaseManipulation(){
 	m_displ.clear();
 	m_ndeg = 0;
 	m_manipulator = NULL;
+	m_filter.clear();
 	m_geometry = NULL;
 	m_gdispl.clear();
 };
@@ -42,6 +45,7 @@ BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* pare
 	m_displ.clear();
 	m_ndeg = 0;
 	m_manipulator = parent;
+	m_filter.clear();
 	m_geometry = geometry;
 	m_gdispl.clear();
 };
@@ -53,6 +57,7 @@ BaseManipulation::BaseManipulation(BaseManipulation* parent){
 	m_displ.clear();
 	m_ndeg 			= 0;
 	m_manipulator 	= parent;
+	m_filter.clear();
 	m_geometry 		= NULL;
 	m_gdispl.clear();
 };
@@ -69,6 +74,7 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	m_displ 		= other.m_displ;
 	m_ndeg 			= other.m_ndeg;
 	m_manipulator 	= other.m_manipulator;
+	m_filter		= other.m_filter;
 	m_geometry 		= other.m_geometry;
 	m_gdispl 		= other.m_gdispl;
 };
@@ -79,6 +85,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_displ 		= other.m_displ;
 	m_ndeg 			= other.m_ndeg;
 	m_manipulator 	= other.m_manipulator;
+	m_filter		= other.m_filter;
 	m_geometry 		= other.m_geometry;
 	m_gdispl 		= other.m_gdispl;
 };
@@ -105,6 +112,31 @@ BaseManipulation::getDisplacements(){
 BaseManipulation*
 BaseManipulation::getManipulator(){
 	return m_manipulator;
+};
+
+/*!It gets the number of filters linked to the manipulator object.
+ * \return #Filters.
+ */
+int
+BaseManipulation::getNFilters(){
+	return m_filter.size();
+};
+
+/*!It gets the filter objects linked by this object.
+ * \return Pointer to filter manipulator objects.
+ */
+vector<BaseManipulation*>
+BaseManipulation::getFilters(){
+	return m_filter;
+};
+
+/*!It gets one filter object linked by this object.
+ * \return Pointer to i-th filter manipulator object.
+ */
+BaseManipulation*
+BaseManipulation::getFilter(int i){
+	if (i>=m_filter.size()) return NULL;
+	return m_filter[i];
 };
 
 /*!It gets the geometry linked by the manipulator object.
@@ -145,6 +177,16 @@ BaseManipulation::setDisplacements(dvecarr3E & displacements){
 void
 BaseManipulation::setManipulator(BaseManipulation* manipulator){
 	m_manipulator = manipulator;
+};
+
+/*!It adds a filter object linked by this object. It sets the maniulator object
+ * to the filter too.
+ * \param[in] filter Pointer to filter manipulator object.
+ */
+void
+BaseManipulation::setFilter(BaseManipulation* filter){
+	m_filter.push_back(filter);
+	filter->setManipulator(this);
 };
 
 /*!It sets the geometry linked by the manipulator object.
@@ -188,6 +230,15 @@ BaseManipulation::clear(){
 	m_gdispl.clear();
 };
 
+/*!It applies the filters connected to the manipulator object (if present).
+ */
+void
+BaseManipulation::applyFilters(){
+	for (int i=0; i<m_filter.size(); i++){
+		m_filter[i]->exec();
+	}
+};
+
 /*!It recovers the information on the number of the degrees of freedom and their
  * displacements from the parent manipulator object.
  */
@@ -196,3 +247,15 @@ BaseManipulation::recoverDisplacements(){
 	setNDeg(m_manipulator->getNDeg());
 	setDisplacements(*(m_manipulator->getDisplacements()));
 };
+
+
+/*!Execution command. It runs recoverDisplacements applyFilters and execute.
+ * execute is pure virtual and it has to be implemented in a derived class.
+ */
+void
+BaseManipulation::exec(){
+	recoverDisplacements();
+	applyFilters();
+	execute();
+}
+

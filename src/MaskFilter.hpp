@@ -21,8 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __APPLYDEFORMATION_HPP__
-#define __APPLYDEFORMATION_HPP__
+#ifndef __MASKFILTER_HPP__
+#define __MASKFILTER_HPP__
 
 #include "BaseManipulation.hpp"
 
@@ -31,25 +31,30 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
+ *	\brief MaskFilter is the class that applies the masking filterto a manipulation object.
  *
- *	Apply is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply it to the target MiMMO object.
- *	After the execution of an object Apply, the original geometry will be modified.
+ *	MaskFilter is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
+ *	the result of the parent manipulator and apply the masking.
+ *	After the execution of an object MaskFilter (called by the linked manipulator), the original displacements will be modified.
  *
  */
-class Apply: public BaseManipulation{
+class MaskFilter: public BaseManipulation{
 private:
 	//members
+	dvecarr3E	m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
+	darray3E	m_thres;	/**<Limit of coordinates to apply the masking.*/
+	bool		m_forward;	/**<Condition to apply the mask (true/false to set to zero the displacements >/< the thershold).*/
 
 public:
-	Apply();
-	Apply(MimmoObject* geometry, BaseManipulation* parent = NULL);
-	Apply(BaseManipulation* parent);
-	~Apply();
+	MaskFilter();
+	~MaskFilter();
 
-	Apply(const Apply & other);
-	Apply & operator=(const Apply & other);
+	MaskFilter(const MaskFilter & other);
+	MaskFilter & operator=(const MaskFilter & other);
+
+	void	setCoords(dvecarr3E & coords);
+	void	setThresholds(darray3E & thres);
+	void	setForward(bool forward);
 
 
 	//relationship methods
@@ -60,4 +65,4 @@ public:
 
 };
 
-#endif /* __APPLYDEFORMATION_HPP__ */
+#endif /* __MASKFILTER_HPP__ */
