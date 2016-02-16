@@ -63,7 +63,7 @@ public:
 
 	//relationship methods
 protected:
-	void	recoverDisplacements();   //called in exec
+
 public:
 	void 	exec();
 

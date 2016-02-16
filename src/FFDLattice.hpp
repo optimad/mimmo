@@ -93,7 +93,6 @@ public:
 	
 	//relationship methods
 protected:
-	void 		recoverDisplacements();
 
 private:
 

@@ -62,12 +62,13 @@ void test0001() {
 	darray3E span;
 	span.fill(1);
 	//Set Lattice
-	ivector1D dim(3,7), deg(3);
+	ivector1D dim(3,5), deg(3);
 	lattice->setMesh(origin, span[0], span[1], span[2], dim[0], dim[1], dim[2]);
 
 	deg[0] = dim[0]-3;
 	deg[1] = dim[1]-3;
 	deg[2] = dim[2]-3;
+
 	//Set number of nodes (and degrees of curves)
 	lattice->setDimension(dim, deg);
 
@@ -86,8 +87,15 @@ void test0001() {
 	}
 	lattice->setDisplacements(displ);
 
+	cout << "lattice setup done" << endl;
+
 	//create applier
-	Apply* applier = new Apply(&mimmo0, lattice);
+	cout << "applier setup" << endl;
+	Apply* applier = new Apply(&mimmo0);
+
+	lattice->addChild(applier);
+
+	cout << "applier setup done" << endl;
 
 	//create filter mask
 	MaskFilter* mask = new MaskFilter();
@@ -103,17 +111,23 @@ void test0001() {
 	darray3E thres;
 	thres.fill(-0.25);
 	mask->setThresholds(thres);
-	mask->setForward(true);
+	mask->setForward(0,true);
+	mask->setForward(1,true);
+	mask->setForward(2,true);
 
 	//set filter to lattice
-	lattice->setFilter(mask);
+	mask->addChild(lattice);
+
+	cout << "mask setup done" << endl;
 
 	//Create execution chain
 	vector<BaseManipulation*> chain;
+	chain.push_back(mask);
 	chain.push_back(lattice);
 	chain.push_back(applier);
 
 	for (int i=0; i<chain.size(); i++){
+		cout << "exec " << i << endl;
 		chain[i]->exec();
 	}
 

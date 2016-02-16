@@ -28,7 +28,6 @@
 #include <string>
 
 
-
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -40,48 +39,52 @@
  *	This base class has some common interface methods, as the base get/set methods, and two virtual methods.
  *	The only methods to be called to execute the manipulation object is the pure virtual method exec().
  *	Each manipulation base object has a linked geometry (a target MiMMO object) and a linked manipulation
- *	object from wich recover aome info (as number of degrees of freedom, initial displacements or other).
+ *	object from wich recover some info (as number of degrees of freedom, initial displacements or other).
  *
  */
 class BaseManipulation{
 public:
 	//members
-	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom. */
-	uint32_t						m_ndeg;			/**<Number of degrees of freedom. */
-	BaseManipulation*				m_manipulator;	/**<Pointer to manipulation object manipulator giving info to actual class. */
-	std::vector<BaseManipulation*>	m_filter;		/**<Pointer to manipulation object filter processing data of actual class. */
+	uint32_t						m_ndeg;			/**<Number of degrees of freedom used as input. */
+	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
+	uint32_t						m_ndegout;		/**<Number of degrees of freedom given as output. */
+	dvecarr3E						m_displout;		/**<Displacements of degrees of freedom given as output. */
+	BaseManipulation*				m_parent;		/**<Pointer to manipulation object parent giving info to actual class. */
+	std::vector<BaseManipulation*>	m_child;		/**<Pointer to manipulation object child giving info to actual class. */
 	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
-	dvecarr3E						m_gdispl;		/**<Displacements of vertices of geometry. */
 
 public:
 	BaseManipulation();
-	BaseManipulation(MimmoObject* geometry, BaseManipulation* parent = NULL);
-	BaseManipulation(BaseManipulation* parent);
+	BaseManipulation(MimmoObject* geometry, BaseManipulation* child = NULL);
+	BaseManipulation(BaseManipulation* child);
 	~BaseManipulation();
 
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
 
 	//internal methods
-	uint32_t						getNDeg();
-	dvecarr3E*						getDisplacements();
-	BaseManipulation*				getManipulator();
-	int								getNFilters();
-	std::vector<BaseManipulation*>	getFilters();
-	BaseManipulation*				getFilter(int i);
-	MimmoObject*					getGeometry();
-	dvecarr3E*						getGeometryDisplacements();
+	uint32_t			getNDeg();
+	dvecarr3E*			getDisplacements();
+	uint32_t			getNDegOut();
+	dvecarr3E*			getDisplacementsOut();
+	BaseManipulation*	getParent();
+	int					getNChild();
+	BaseManipulation*	getChild(int i);
+	MimmoObject*		getGeometry();
 
 	void	setNDeg(uint32_t ndeg);
 	void	setDisplacements(dvecarr3E & displacements);
-	void 	setManipulator(BaseManipulation* manipulator);
-	void 	setFilter(BaseManipulation* filter);
+	void	setNDegOut(uint32_t ndeg);
+	void	setDisplacementsOut(dvecarr3E & displacements);
+	void 	setParent(BaseManipulation* parent);
+	void 	addChild(BaseManipulation* child);
 	void 	setGeometry(MimmoObject* geometry);
-	void	setGeometryDisplacements(dvecarr3E & gdisplacements);
 
-	void 	unsetManipulator();
-	void 	unsetFilter();
+	void 	unsetParent();
+	void 	unsetChild();
+	void 	unsetGeometry();
 	void	clearDisplacements();
+	void	clearDisplacementsOut();
 	void	clear();
 
 	//relationship methods
@@ -89,10 +92,11 @@ public:
 	void 	exec();
 
 protected:
-	virtual void	recoverDisplacements();	//called in exec
-	virtual void	applyFilters();   		//called in exec
+	virtual void	recoverDisplacementsOut();	//called in exec
+	virtual void	initChild();				//called in exec
+	virtual void	updateChild();				//called in exec
 public:
-	virtual void 	execute() = 0;			//called in exec
+	virtual void 	execute() = 0;				//called in exec
 
 };
 

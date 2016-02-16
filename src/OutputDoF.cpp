@@ -66,22 +66,11 @@ OutputDoF::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-/*!It recovers the information on the number of the degrees of freedom and their
- * displacements from the parent manipulator object.
- */
-void
-OutputDoF::recoverDisplacements(){
-	if (m_manipulator == NULL) return;
-	setNDeg(m_manipulator->getNDeg());
-	setDisplacements(*(m_manipulator->getDisplacements()));
-};
-
 /*!Execution command. It writes on file the displacements of the degrees of freedom
  * given by the parent manipulation.
  */
 void
 OutputDoF::exec(){
-	recoverDisplacements();
 	ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){

@@ -29,65 +29,72 @@ using namespace std;
  * It sets to zero/null each member/pointer.
  */
 BaseManipulation::BaseManipulation(){
+	m_ndeg 			= 0;
+	m_ndegout 		= 0;
+	m_parent 		= NULL;
+	m_geometry 		= NULL;
+	m_child.clear();
 	m_displ.clear();
-	m_ndeg = 0;
-	m_manipulator = NULL;
-	m_filter.clear();
-	m_geometry = NULL;
-	m_gdispl.clear();
+	m_displout.clear();
 };
 
 /*!Custom constructor of BaseManipulation.
  * \param[in] geometry Pointer to target geometry to be linked.
  * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
  */
-BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* parent){
+BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* child){
+	m_ndeg 			= 0;
+	m_ndegout 		= 0;
+	m_parent 		= NULL;
+	if (child != NULL)	addChild(child);
+	m_geometry 		= geometry;
 	m_displ.clear();
-	m_ndeg = 0;
-	m_manipulator = parent;
-	m_filter.clear();
-	m_geometry = geometry;
-	m_gdispl.clear();
+	m_displout.clear();
 };
 
 /*!Custom constructor of BaseManipulation.
  * \param[in] parent Pointer to reference manipulator object to be linked.
  */
-BaseManipulation::BaseManipulation(BaseManipulation* parent){
-	m_displ.clear();
+BaseManipulation::BaseManipulation(BaseManipulation* child){
 	m_ndeg 			= 0;
-	m_manipulator 	= parent;
-	m_filter.clear();
+	m_ndegout 		= 0;
+	m_parent 		= NULL;
+	addChild(child);
 	m_geometry 		= NULL;
-	m_gdispl.clear();
+	m_displ.clear();
+	m_displout.clear();
 };
 
 /*!Default destructor of BaseManipulation.
  */
 BaseManipulation::~BaseManipulation(){
 	clear();
+	m_ndeg = 0;
+	m_ndegout = 0;
 };
 
 /*!Copy constructor of BaseManipulation.
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
-	m_displ 		= other.m_displ;
 	m_ndeg 			= other.m_ndeg;
-	m_manipulator 	= other.m_manipulator;
-	m_filter		= other.m_filter;
+	m_displ 		= other.m_displ;
+	m_ndegout 		= other.m_ndegout;
+	m_displout 		= other.m_displout;
+	m_child 		= other.m_child;
+	m_parent 		= other.m_parent;
 	m_geometry 		= other.m_geometry;
-	m_gdispl 		= other.m_gdispl;
 };
 
 /*!Assignement operator of BaseManipulation.
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
-	m_displ 		= other.m_displ;
 	m_ndeg 			= other.m_ndeg;
-	m_manipulator 	= other.m_manipulator;
-	m_filter		= other.m_filter;
+	m_displ 		= other.m_displ;
+	m_ndegout 		= other.m_ndegout;
+	m_displout 		= other.m_displout;
+	m_parent 		= other.m_parent;
+	m_child 		= other.m_child;
 	m_geometry 		= other.m_geometry;
-	m_gdispl 		= other.m_gdispl;
 };
 
 /*!It gets the number of degrees of freedom of the manipulator object.
@@ -98,6 +105,11 @@ BaseManipulation::getNDeg(){
 	return m_ndeg;
 };
 
+uint32_t
+BaseManipulation::getNDegOut(){
+	return m_ndegout;
+};
+
 /*!It gets the displacement of the degree of freedom currently stored in the object.
  * \return Displacements of the degrees of freedom.
  */
@@ -106,37 +118,34 @@ BaseManipulation::getDisplacements(){
 	return &m_displ;
 };
 
+dvecarr3E*
+BaseManipulation::getDisplacementsOut(){
+	return &m_displout;
+};
+
 /*!It gets the manipulator object linked by this object.
  * \return Pointer to parent manipulator object.
  */
 BaseManipulation*
-BaseManipulation::getManipulator(){
-	return m_manipulator;
+BaseManipulation::getParent(){
+	return m_parent;
 };
 
 /*!It gets the number of filters linked to the manipulator object.
  * \return #Filters.
  */
 int
-BaseManipulation::getNFilters(){
-	return m_filter.size();
-};
-
-/*!It gets the filter objects linked by this object.
- * \return Pointer to filter manipulator objects.
- */
-vector<BaseManipulation*>
-BaseManipulation::getFilters(){
-	return m_filter;
+BaseManipulation::getNChild(){
+	return m_child.size();
 };
 
 /*!It gets one filter object linked by this object.
  * \return Pointer to i-th filter manipulator object.
  */
 BaseManipulation*
-BaseManipulation::getFilter(int i){
-	if (i>=m_filter.size()) return NULL;
-	return m_filter[i];
+BaseManipulation::getChild(int i){
+	if (i>=m_child.size()) return NULL;
+	return m_child[i];
 };
 
 /*!It gets the geometry linked by the manipulator object.
@@ -147,20 +156,19 @@ BaseManipulation::getGeometry(){
 	return m_geometry;
 };
 
-/*!It gets the displacements of the geometry linked by the manipulator object.
- * \return Displacements to be applied to the geometry linked by the manipulator object.
- */
-dvecarr3E*
-BaseManipulation::getGeometryDisplacements(){
-	return &m_gdispl;
-};
-
 /*!It sets the number of degrees of freedom of the manipulator object.
  * \param[in] ndeg #Degrees of freedom.
  */
 void
 BaseManipulation::setNDeg(uint32_t ndeg){
 	m_ndeg = ndeg;
+	m_displ.resize(m_ndeg);
+};
+
+void
+BaseManipulation::setNDegOut(uint32_t ndeg){
+	m_ndegout = ndeg;
+	m_displout.resize(m_ndegout);
 };
 
 /*!It sets the displacement of the degree of freedom currently stored in the object.
@@ -169,24 +177,27 @@ BaseManipulation::setNDeg(uint32_t ndeg){
 void
 BaseManipulation::setDisplacements(dvecarr3E & displacements){
 	m_displ = displacements;
+	m_ndeg = m_displ.size();
+};
+
+void
+BaseManipulation::setDisplacementsOut(dvecarr3E & displacements){
+	m_displout = displacements;
+	m_ndegout = m_displout.size();
 };
 
 /*!It sets the manipulator object linked by this object.
  * \param[in] manipulator Pointer to parent manipulator object.
  */
 void
-BaseManipulation::setManipulator(BaseManipulation* manipulator){
-	m_manipulator = manipulator;
+BaseManipulation::setParent(BaseManipulation* parent){
+	m_parent = parent;
 };
 
-/*!It adds a filter object linked by this object. It sets the maniulator object
- * to the filter too.
- * \param[in] filter Pointer to filter manipulator object.
- */
 void
-BaseManipulation::setFilter(BaseManipulation* filter){
-	m_filter.push_back(filter);
-	filter->setManipulator(this);
+BaseManipulation::addChild(BaseManipulation* child){
+	m_child.push_back(child);
+	m_child[m_child.size()-1]->setParent(this);
 };
 
 /*!It sets the geometry linked by the manipulator object.
@@ -197,20 +208,18 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
-/*!It sets the displacements of the geometry linked by the manipulator object.
- * \param[in] gdisplacements Displacements to be applied to the geometry linked by the manipulator object.
- */
-void
-BaseManipulation::setGeometryDisplacements(dvecarr3E & gdisplacements){
-	m_gdispl = gdisplacements;
-};
-
 /*!It clears the manipulator object linked by this object.
  * It sets to NULL the pointer to parent manipulator object.
  */
 void
-BaseManipulation::unsetManipulator(){
-	m_manipulator = NULL;
+BaseManipulation::unsetParent(){
+	m_parent = NULL;
+};
+
+void
+BaseManipulation::unsetChild(){
+	for (int i=0; i<m_child.size(); i++) m_child[i] = NULL;
+	m_child.clear();
 };
 
 /*!It clears the displacement of the degree of freedom currently stored in the object.
@@ -220,32 +229,65 @@ BaseManipulation::clearDisplacements(){
 	m_displ.clear();
 };
 
+void
+BaseManipulation::clearDisplacementsOut(){
+	m_displout.clear();
+};
+
+void
+BaseManipulation::unsetGeometry(){
+	m_geometry = NULL;
+};
+
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
 void
 BaseManipulation::clear(){
-	m_displ.clear();
-	m_manipulator = NULL;
-	m_geometry = NULL;
-	m_gdispl.clear();
+	unsetParent();
+	unsetChild();
+	unsetGeometry();
+	clearDisplacements();
+	clearDisplacementsOut();
 };
 
-/*!It applies the filters connected to the manipulator object (if present).
- */
-void
-BaseManipulation::applyFilters(){
-	for (int i=0; i<m_filter.size(); i++){
-		m_filter[i]->exec();
-	}
-};
 
 /*!It recovers the information on the number of the degrees of freedom and their
  * displacements from the parent manipulator object.
  */
+//void
+//BaseManipulation::recoverDisplacements(){
+//	if (m_parent == NULL) return;
+//	if (m_parent->getNDegOut() > 0){
+//		setNDeg(m_parent->getNDegOut());
+//		setDisplacements(*(m_parent->getDisplacementsOut()));
+//	}
+//};
+
 void
-BaseManipulation::recoverDisplacements(){
-	setNDeg(m_manipulator->getNDeg());
-	setDisplacements(*(m_manipulator->getDisplacements()));
+BaseManipulation::recoverDisplacementsOut(){
+	for (int i=0; i<m_child.size(); i++){
+		if (m_child[i] == NULL) return;
+		if (m_child[i]->getNDeg() > 0 && m_ndegout == 0){
+			setNDegOut(m_child[i]->getNDeg());
+			setDisplacementsOut(*(m_child[i]->getDisplacements()));
+		}
+	}
+};
+
+void
+BaseManipulation::initChild(){
+	for (int i=0; i<m_child.size(); i++){
+		if (m_child[i] == NULL) return;
+		if (m_child[i]->getNDeg() == 0) m_child[i]->setNDeg(m_ndegout);
+	}
+};
+
+void
+BaseManipulation::updateChild(){
+	for (int i=0; i<m_child.size(); i++){
+		if (m_child[i] == NULL) return;
+		m_child[i]->setDisplacements(m_displout);
+	}
 };
 
 
@@ -254,8 +296,9 @@ BaseManipulation::recoverDisplacements(){
  */
 void
 BaseManipulation::exec(){
-	recoverDisplacements();
-	applyFilters();
+	initChild();
+	recoverDisplacementsOut();
 	execute();
+	updateChild();
 }
 

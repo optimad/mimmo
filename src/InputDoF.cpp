@@ -88,13 +88,10 @@ InputDoF::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-
-/*!It recovers the information on the number of the degrees of freedom and their
- * displacements from the input file. If the file is not open the number of degrees of freedom
- * is set to zero.
+/*!Execution command. It reads by file the displacements of the degrees of freedom.
  */
 void
-InputDoF::recoverDisplacements(){
+InputDoF::exec(){
 	if (m_readFromFile){
 		ifstream file;
 		file.open(m_filename);
@@ -113,12 +110,5 @@ InputDoF::recoverDisplacements(){
 			BaseManipulation::m_displ.clear();
 		}
 	}
-};
-
-/*!Execution command. It reads by file the displacements of the degrees of freedom.
- */
-void
-InputDoF::exec(){
-	recoverDisplacements();
 };
 

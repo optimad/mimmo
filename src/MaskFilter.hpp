@@ -41,9 +41,9 @@
 class MaskFilter: public BaseManipulation{
 private:
 	//members
-	dvecarr3E	m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	darray3E	m_thres;	/**<Limit of coordinates to apply the masking.*/
-	bool		m_forward;	/**<Condition to apply the mask (true/false to set to zero the displacements >/< the thershold).*/
+	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
+	darray3E			m_thres;	/**<Limit of coordinates to apply the masking.*/
+	std::array<bool,3>	m_forward;	/**<Condition to apply the mask (true/false to set to zero the displacements >/< the thershold).*/
 
 public:
 	MaskFilter();
@@ -54,12 +54,12 @@ public:
 
 	void	setCoords(dvecarr3E & coords);
 	void	setThresholds(darray3E & thres);
-	void	setForward(bool forward);
+	void	setForward(int i, bool forward);
 
 
 	//relationship methods
 protected:
-	void	recoverDisplacements();   //called in exec
+
 public:
 	void 	execute();
 

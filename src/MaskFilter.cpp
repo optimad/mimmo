@@ -23,16 +23,16 @@
 \*---------------------------------------------------------------------------*/
 #include "MaskFilter.hpp"
 
-/*!Default constructor of MaskFilter
- */
-MaskFilter::MaskFilter():BaseManipulation(){};
-
-/*!Default destructor of MaskFilter
- */
+///*!Default constructor of MaskFilter
+// */
+MaskFilter::MaskFilter(){};
+//
+///*!Default destructor of MaskFilter
+// */
 MaskFilter::~MaskFilter(){};
 
-/*!Copy constructor of MaskFilter.
- */
+///*!Copy constructor of MaskFilter.
+// */
 MaskFilter::MaskFilter(const MaskFilter & other):BaseManipulation(other){};
 
 /*!Assignement operator of MaskFilter.
@@ -52,19 +52,8 @@ MaskFilter::setThresholds(darray3E & thres){
 };
 
 void
-MaskFilter::setForward(bool forward){
-	m_forward = forward;
-};
-
-/*!It recovers the GEOMETRY displacements as result of the linked parent manipulator.
- * The recovered displacements are pushed in the geometry displacements member of the base manipulation class.
- */
-void
-MaskFilter::recoverDisplacements(){
-	if (m_manipulator == NULL) return;
-	setNDeg(m_manipulator->getNDeg());
-	setDisplacements(*(m_manipulator->getDisplacements()));
-	return;
+MaskFilter::setForward(int i, bool forward){
+	if (i >= 0 && i < 3) m_forward[i] = forward;
 };
 
 /*!Execution command. It applies the deformation given by the parent manipulation
@@ -72,18 +61,16 @@ MaskFilter::recoverDisplacements(){
  */
 void
 MaskFilter::execute(){
-	recoverDisplacements();
-	for (int i=0; i<m_ndeg; i++){
+	recoverDisplacementsOut();
+	for (int i=0; i<m_ndegout; i++){
 		for (int j=0; j<3; j++){
 			if (m_coords[i][j]>m_thres[j]){
-				m_displ[i][j] = (1-m_forward)*m_displ[i][j];
+				m_displout[i][j] = (1-m_forward[j])*m_displout[i][j];
 			}
 			else{
-				m_displ[i][j] = (m_forward)*m_displ[i][j];
+				m_displout[i][j] = (m_forward[j])*m_displout[i][j];
 			}
 		}
 	}
-
-	if (m_manipulator != NULL) m_manipulator->setDisplacements(m_displ);
 	return;
 };

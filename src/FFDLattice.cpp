@@ -60,7 +60,7 @@ FFDLatticeBox::FFDLatticeBox(){
  * 
  */
 FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, 
-							 MimmoObject* geometry, BaseManipulation * parent):BaseManipulation(geometry, parent){
+							 MimmoObject* geometry, BaseManipulation * child):BaseManipulation(geometry, child){
 								
 	m_knots.resize(3);
 	m_multK.resize(3);
@@ -95,13 +95,14 @@ FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension
  */
 
 FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees, 
-			 MimmoObject* geometry, BaseManipulation * parent):BaseManipulation(geometry, parent){
+			 MimmoObject* geometry, BaseManipulation * child):BaseManipulation(geometry, child){
 								 
 	m_knots.resize(3);
 	m_multK.resize(3);
 	m_deg.resize(3,1);
 	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
 	setDimension(dimension, degrees);
+	setNDegOut(geometry->getNVertex());
 };
 
 
@@ -448,9 +449,11 @@ void 		FFDLatticeBox::execute(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
-			recoverDisplacements();
+			recoverDisplacementsOut();
 			ivector1D map;
+			cout << "apply" << endl;
 			dvecarr3E localdef = apply(map);
+			cout << "out apply" << endl;
 			
 			//reset displacement in a unique vector
 			bitpit::Patch * tri = container->getGeometry();
@@ -461,8 +464,8 @@ void 		FFDLatticeBox::execute(){
 			for(int i=0; i<map.size(); ++i){
 				result[map[i]] = localdef[i];
 			}
-			
-			setGeometryDisplacements(result);
+			cout << "set out displ" << endl;
+			setDisplacementsOut(result);
 };
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
@@ -527,22 +530,6 @@ dvecarr3E 	FFDLatticeBox::apply(dvecarr3E * point){
 	
 	return(result);
 };
-
-/*! Protect method of the class, recover info on nodal displacement of the lattice from
- * a parent BaseManipulation class (see setManipulator method). If parent is NULL or size of nodal degrees
- * of freedom mismatch between current object and its parent class, doing nothing
- */
-void 		FFDLatticeBox::recoverDisplacements(){
-	
-			if(getManipulator() == NULL) return;
-			ivector1D n = getDimension();
-			int check = n[0]*n[1]*n[2];
-			dvecarr3E * parentInfo = m_manipulator->getDisplacements();
-			if(parentInfo->size() != check) return;
-			
-			setDisplacements(*parentInfo);
-};
-
 
 /*! Apply knots structure after modifications to Nurbs curve degrees member */
 void 		FFDLatticeBox::setKnotsStructure(){

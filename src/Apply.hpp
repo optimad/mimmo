@@ -44,8 +44,8 @@ private:
 
 public:
 	Apply();
-	Apply(MimmoObject* geometry, BaseManipulation* parent = NULL);
-	Apply(BaseManipulation* parent);
+	Apply(MimmoObject* geometry, BaseManipulation* child = NULL);
+	Apply(BaseManipulation* child);
 	~Apply();
 
 	Apply(const Apply & other);
@@ -54,7 +54,7 @@ public:
 
 	//relationship methods
 protected:
-	void	recoverDisplacements();   //called in exec
+
 public:
 	void 	execute();
 
