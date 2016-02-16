@@ -32,12 +32,16 @@ using namespace std;
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Free Form Deformation of a 3D surface and cloud points, with cartesian box structured lattice.
+ *	\brief Free Form Deformation of a 3D surface and point clouds, with cartesian box structured lattice.
  *
- *	bla bla
+ *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds a 3D box around the geometry and 
+ *  and set a structured cartesian mesh of control points on it (lattice). Displacements of each control point is linked to the geometry inside 
+ *  the box by means of a NURBS volumetric parameterization. Deformation will be applied only to those portion of geometry
+ *  encased into the lattice box.
  *
  */
 
+/*! Basic Constructor. Doing nothing.*/
 FFDLatticeBox::FFDLatticeBox(){
 	
 	m_knots.resize(3);
@@ -45,20 +49,78 @@ FFDLatticeBox::FFDLatticeBox(){
 	m_deg.resize(3,1);
 	
 };
+/*! Custom Constructor. Build the lattice mesh, but still not the Nurbs knots structure. 
+ *  Link class to BaseManipulation parents and the target geometry. 
+ *
+ * \param[in] origin origin of the lattice box
+ * \param[in] span   span of the lattice box
+ * \param[in] dimension number of nodal points in each direction of the box  
+ * \param[in] geometry  pointer to MimmoObject class containg target geometry
+ * \param[in] parent	pointer to a BaseManipulation object parent of the current class
+ * 
+ */
 FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, 
 							 MimmoObject* geometry, BaseManipulation * parent):BaseManipulation(geometry, parent){
 								
-								 m_knots.resize(3);
-								 m_multK.resize(3);
-								 m_deg.resize(3,1);
-								 setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
+	m_knots.resize(3);
+	m_multK.resize(3);
+	m_deg.resize(3,1);
+	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
 };
+
+/*! Custom Constructor. Build the lattice mesh, but still not the Nurbs knots structure. 
+ *  BaseManipulation parents and the target geometry are still unlinked. 
+ *
+ * \param[in] origin origin of the lattice box
+ * \param[in] span   span of the lattice box
+ * \param[in] dimension number of nodal points in each direction of the box  
+ */
 FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension){
 	m_knots.resize(3);
 	m_multK.resize(3);
 	m_deg.resize(3,1);
 	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
 };
+
+/*! Custom Constructor. Build the lattice mesh, assign degrees to Nurbs curve and automatically compile
+ *  Nurbs knots structure. Link class to BaseManipulation parents and the target geometry. 
+ *
+ * \param[in] origin origin of the lattice box
+ * \param[in] span   span of the lattice box
+ * \param[in] dimension number of nodal points in each direction of the box  
+ * \param[in] degrees   Nurbs curve degrees in each space direction 
+ * \param[in] geometry  pointer to MimmoObject class containg target geometry
+ * \param[in] parent	pointer to a BaseManipulation object parent of the current class
+ * 
+ */
+
+FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees, 
+			 MimmoObject* geometry, BaseManipulation * parent):BaseManipulation(geometry, parent){
+								 
+	m_knots.resize(3);
+	m_multK.resize(3);
+	m_deg.resize(3,1);
+	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
+	setDimension(dimension, degrees);
+};
+
+
+/*! Custom Constructor. Build the lattice mesh, assign degrees to Nurbs curve and automatically compile
+ *  Nurbs knots structure. BaseManipulation parents and the target geometry unlinked. 
+ *
+ * \param[in] origin origin of the lattice box
+ * \param[in] span   span of the lattice box
+ * \param[in] dimension number of nodal points in each direction of the box  
+ * \param[in] degrees   Nurbs curve degrees in each space direction 
+ */
+FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees){
+	 m_knots.resize(3);
+	 m_multK.resize(3);
+	 m_deg.resize(3,1);
+	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
+	setDimension(dimension, degrees);
+};
+
 FFDLatticeBox::~FFDLatticeBox(){
 	cleanAll();
 	freeContainer(m_knots);
@@ -245,7 +307,10 @@ void		FFDLatticeBox::setSpan(darray3E span){
 };
 
 
-/*! Set lattice mesh origin, span size, dimension and nodal data structure
+/*! Set lattice mesh origin, span size, dimension and nodal data structure. 
+ *  Knots structure is built providing curve degrees as in case of a Pure Bezier Volumetric 
+ *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
+ *   
  * \param[in] origin point origin in global reference system
  * \param[in] spanX width span -> must be > 0;
  * \param[in] spanY height span -> must be > 0;
@@ -284,6 +349,20 @@ void FFDLatticeBox::setMesh(darray3E origin, double spanX, double spanY, double 
 	for (int i = 0; i < m_nx; i++) {m_xnode[i] = m_xedge[i] + 0.5 * m_dx;}
 	for (int i = 0; i < m_ny; i++) {m_ynode[i] = m_yedge[i] + 0.5 * m_dy;}
 	for (int i = 0; i < m_nz; i++) {m_znode[i] = m_zedge[i] + 0.5 * m_dz;}
+	
+	
+	m_deg[0] = m_nx;
+	m_deg[1] = m_ny;
+	m_deg[2] = m_nz;
+	
+	//setting knots and eventually weights to non-rational B-Spline
+	setKnotsStructure();
+	
+	freeContainer(m_weights);
+	ivector1D dd = getDimension();
+	int size= dd[0]*dd[1]*dd[2];
+	m_weights.resize(size, 1.0);
+	
 	
 	//reallocate your displacement node
 	resizeDisplacements(nx,ny,nz);

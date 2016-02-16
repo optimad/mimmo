@@ -53,6 +53,8 @@ public:
 	FFDLatticeBox();
 	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, MimmoObject* geometry, BaseManipulation * parent=NULL);
 	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension);
+	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees, MimmoObject* geometry, BaseManipulation * parent=NULL);
+	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees);	
 	~FFDLatticeBox();
 
 	//copy operators/constructors
