@@ -56,12 +56,11 @@ Mask::setForward(int i, bool forward){
 	if (i >= 0 && i < 3) m_forward[i] = forward;
 };
 
-/*!Execution command. It applies the deformation given by the parent manipulation
- * to the linked geometry. After exec() the original geometry will be permanently modified.
+/*!Execution command. It modifies the displacements given by the child manipulation object
+ * with the masking conditions. After exec() the original displacements will be permanently modified.
  */
 void
 Mask::execute(){
-//	recoverDisplacementsOut();
 	for (int i=0; i<m_ndegout; i++){
 		if (m_coords[i][0]>m_thres[0] && m_coords[i][1]>m_thres[1] && m_coords[i][2]>m_thres[2]){
 			for (int j=0; j<3; j++){

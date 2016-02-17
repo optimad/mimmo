@@ -49,8 +49,9 @@ public:
 	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
 	uint32_t						m_ndegout;		/**<Number of degrees of freedom given as output. */
 	dvecarr3E						m_displout;		/**<Displacements of degrees of freedom given as output. */
-	BaseManipulation*				m_parent;		/**<Pointer to manipulation object parent giving info to actual class. */
-	std::vector<BaseManipulation*>	m_child;		/**<Pointer to manipulation object child giving info to actual class. */
+	//TODO Verify its usefulness
+	BaseManipulation*				m_parent;		/**<Pointer to manipulation object parent giving info to current class. */
+	std::vector<BaseManipulation*>	m_child;		/**<Pointers to manipulation objects child giving/receiving info (degrees of freedom and its displacements) to current class. */
 	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
 
 public:
@@ -92,6 +93,7 @@ public:
 	void 	exec();
 
 protected:
+	virtual void	recoverDisplacementsIn();	//TODO Useful?
 	virtual void	recoverDisplacementsOut();	//called in exec
 	virtual void	initChild();				//called in exec
 	virtual void	updateChild();				//called in exec

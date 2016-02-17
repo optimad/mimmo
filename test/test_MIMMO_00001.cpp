@@ -160,7 +160,6 @@ void test0001() {
 	}
 
 	//Plot results
-//	lattice->plotGrid("./", "lattice", 1, false, true);
 	filename = "mimmo1";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();

@@ -38,8 +38,8 @@ class Bend: public BaseManipulation{
 private:
 	//members
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	dvecarr3E			m_degree;	/**<Degree of polynom for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
-	dvector3D			m_coeffs;	/**<Coeffs of polynom for each coordinate.*/
+	dvecarr3E			m_degree;	/**<Degree of polynomial law for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
+	dvector3D			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
 
 public:
 	Bend();

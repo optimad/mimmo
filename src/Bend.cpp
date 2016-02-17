@@ -56,8 +56,8 @@ Bend::setCoeffs(dvector3D & coeffs){
 	m_coeffs = coeffs;
 };
 
-/*!Execution command. It applies the deformation given by the parent manipulation
- * to the linked geometry. After exec() the original geometry will be permanently modified.
+/*!Execution command. It modifies the displacements given by the child manipulation object
+ * with the polynomial law. After exec() the original displacements will be permanently modified.
  */
 void
 Bend::execute(){

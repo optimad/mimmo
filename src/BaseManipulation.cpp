@@ -40,7 +40,7 @@ BaseManipulation::BaseManipulation(){
 
 /*!Custom constructor of BaseManipulation.
  * \param[in] geometry Pointer to target geometry to be linked.
- * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
+ * \param[in] child Pointer to reference manipulator object to be linked (default value = NULL).
  */
 BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* child){
 	m_ndeg 			= 0;
@@ -53,7 +53,7 @@ BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* chil
 };
 
 /*!Custom constructor of BaseManipulation.
- * \param[in] parent Pointer to reference manipulator object to be linked.
+ * \param[in] child Pointer to reference manipulator object to be linked.
  */
 BaseManipulation::BaseManipulation(BaseManipulation* child){
 	m_ndeg 			= 0;
@@ -105,6 +105,9 @@ BaseManipulation::getNDeg(){
 	return m_ndeg;
 };
 
+/*!It gets the number of degrees of freedom output of the manipulator object.
+ * \return #Degrees of freedom in output.
+ */
 uint32_t
 BaseManipulation::getNDegOut(){
 	return m_ndegout;
@@ -118,6 +121,9 @@ BaseManipulation::getDisplacements(){
 	return &m_displ;
 };
 
+/*!It gets the displacement of the degree of freedom output of the object.
+ * \return Displacements of the degrees of freedom in output.
+ */
 dvecarr3E*
 BaseManipulation::getDisplacementsOut(){
 	return &m_displout;
@@ -131,16 +137,16 @@ BaseManipulation::getParent(){
 	return m_parent;
 };
 
-/*!It gets the number of filters linked to the manipulator object.
- * \return #Filters.
+/*!It gets the number of children linked to the manipulator object.
+ * \return #Children.
  */
 int
 BaseManipulation::getNChild(){
 	return m_child.size();
 };
 
-/*!It gets one filter object linked by this object.
- * \return Pointer to i-th filter manipulator object.
+/*!It gets one child object linked by this object.
+ * \return Pointer to i-th child manipulator object.
  */
 BaseManipulation*
 BaseManipulation::getChild(int i){
@@ -165,6 +171,9 @@ BaseManipulation::setNDeg(uint32_t ndeg){
 	m_displ.resize(m_ndeg);
 };
 
+/*!It sets the number of degrees of freedom output of the manipulator object.
+ * \param[in] ndeg #Degrees of freedom output.
+ */
 void
 BaseManipulation::setNDegOut(uint32_t ndeg){
 	m_ndegout = ndeg;
@@ -180,6 +189,9 @@ BaseManipulation::setDisplacements(dvecarr3E & displacements){
 	m_ndeg = m_displ.size();
 };
 
+/*!It sets the displacement of the degree of freedom ouput of the object.
+ * \param[in] displacements Displacements of the degrees of freedom in output.
+ */
 void
 BaseManipulation::setDisplacementsOut(dvecarr3E & displacements){
 	m_displout = displacements;
@@ -194,6 +206,9 @@ BaseManipulation::setParent(BaseManipulation* parent){
 	m_parent = parent;
 };
 
+/*!It adds a child manipulator object to the children linked by this object.
+ * \param[in] child Pointer to child manipulator object.
+ */
 void
 BaseManipulation::addChild(BaseManipulation* child){
 	m_child.push_back(child);
@@ -216,6 +231,9 @@ BaseManipulation::unsetParent(){
 	m_parent = NULL;
 };
 
+/*!It clears the children objects linked by this object.
+ * It sets to NULL the pointers to children manipulator object and clear the vector.
+ */
 void
 BaseManipulation::unsetChild(){
 	for (int i=0; i<m_child.size(); i++) m_child[i] = NULL;
@@ -229,11 +247,15 @@ BaseManipulation::clearDisplacements(){
 	m_displ.clear();
 };
 
+/*!It clears the displacement of the degree of freedom output of the object.
+ */
 void
 BaseManipulation::clearDisplacementsOut(){
 	m_displout.clear();
 };
 
+/*!It clears the pointer to the geometry linked by the object.
+ */
 void
 BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
@@ -251,20 +273,24 @@ BaseManipulation::clear(){
 };
 
 
-/*!It recovers the information on the number of the degrees of freedom and their
+/*!It recovers the information on the number of the degrees of freedom in input and their
  * displacements from the parent manipulator object.
  */
-//void
-//BaseManipulation::recoverDisplacements(){
-//	if (m_parent == NULL) return;
-//	if (m_parent->getNDegOut() > 0){
-//		setNDeg(m_parent->getNDegOut());
-//		setDisplacements(*(m_parent->getDisplacementsOut()));
-//	}
-//};
+void
+BaseManipulation::recoverDisplacementsIn(){
+	if (m_parent == NULL) return;
+	if (m_parent->getNDegOut() > 0){
+		setNDeg(m_parent->getNDegOut());
+		setDisplacements(*(m_parent->getDisplacementsOut()));
+	}
+};
 
+/*!It recovers the information on the number of the degrees of freedom in output and their
+ * initial displacements from the children manipulator objects.
+ */
 void
 BaseManipulation::recoverDisplacementsOut(){
+	//TODO PAY ATTENTION!!! IN THIS MOMENT IT IS ONLY THE LAST CHILD THAT GIVES THE NDEGOUT AND DISPLACEMENTSOUT !!
 	for (int i=0; i<m_child.size(); i++){
 		if (m_child[i] == NULL) return;
 		if (m_child[i]->getNDeg() > 0 && m_ndegout == 0){
@@ -274,6 +300,9 @@ BaseManipulation::recoverDisplacementsOut(){
 	}
 };
 
+/*!It initializes the number of degrees of freedom of the children with the
+ * info of current object.
+ */
 void
 BaseManipulation::initChild(){
 	for (int i=0; i<m_child.size(); i++){
@@ -282,6 +311,9 @@ BaseManipulation::initChild(){
 	}
 };
 
+/*!It updates the displacements of the degrees of freedom of the children with the
+ * output of current object.
+ */
 void
 BaseManipulation::updateChild(){
 	for (int i=0; i<m_child.size(); i++){
@@ -289,7 +321,6 @@ BaseManipulation::updateChild(){
 		m_child[i]->setDisplacements(m_displout);
 	}
 };
-
 
 /*!Execution command. It runs recoverDisplacements applyFilters and execute.
  * execute is pure virtual and it has to be implemented in a derived class.
