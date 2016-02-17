@@ -31,20 +31,18 @@ using namespace bitpit;
 
 void test0001() {
 
-
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
 
 	int		np,	nt;
 	darray3E point;
-	ivector2D connect;
 	{
 		//Import STL
 		STLObj stl("sphere.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
-
+		
 		for (long ip=0; ip<np; ip++){
 			point = conArray<double,3>(V[ip]);
 			mimmo0.setVertex(ip, point);
@@ -67,9 +65,9 @@ void test0001() {
 	ivector1D dim(3,7), deg(3);
 	lattice->setMesh(origin, span[0], span[1], span[2], dim[0], dim[1], dim[2]);
 
-	deg[0] = dim[0]-4;
-	deg[1] = dim[1]-4;
-	deg[2] = dim[2]-4;
+	deg[0] = dim[0]-3;
+	deg[1] = dim[1]-3;
+	deg[2] = dim[2]-3;
 	//Set number of nodes (and degrees of curves)
 	lattice->setDimension(dim, deg);
 

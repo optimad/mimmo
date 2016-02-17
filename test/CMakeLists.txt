@@ -29,6 +29,10 @@ cmake_minimum_required(VERSION 2.8)
 set(TESTS_SERIAL "")
 list(APPEND TESTS_SERIAL "test_MIMMO_00001")
 
+
+##Copy significant source files
+configure_file(sphere.stl sphere.stl COPYONLY)
+
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
 # List of parallel tests

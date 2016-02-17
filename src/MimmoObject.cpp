@@ -196,12 +196,14 @@ MimmoObject::getGeometry(){
  */
 bool
 MimmoObject::setVertex(dvecarr3E & vertex){
+	
 	if (m_geometry == NULL) return false;
 	long nv = vertex.size();
-	VertexIterator index;
+	Patch::VertexIterator index;
 	for (long i=0; i<nv; i++){
 		index = m_geometry->addVertex();
 		index->setCoords(vertex[i]);
+		
 	}
 	return true;
 };
@@ -214,7 +216,7 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 bool
 MimmoObject::setVertex(int index, darray3E & vertex){
 	if (m_geometry == NULL) return false;
-	VertexIterator it = m_geometry->addVertex();
+	Patch::VertexIterator it = m_geometry->addVertex();
 	it->setCoords(vertex);
 	return true;
 };
@@ -250,7 +252,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 			connect[j] = (*connectivity)[i][j];
 		}
 		index = i;
-		CellIterator it;
+		Patch::CellIterator it;
 		if (m_type == 1)  it = m_geometry->addCell(ElementInfo::TRIANGLE, true, index);
 		if (m_type == 2)  it = m_geometry->addCell(ElementInfo::TETRA, true, index);
 		it->setConnect(move(connect));
