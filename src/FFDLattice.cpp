@@ -559,6 +559,9 @@ void 		FFDLatticeBox::setKnotsStructure( std::string dir){
 	int k = (dir=="x") + 2*(dir=="y") + 3*(dir=="z") -1;    
 	if(k<0){return;}
 	
+	freeContainer(m_knots[k]);
+	freeContainer(m_multK[k]);
+	
 	ivector1D n = getDimension();
 	
 	m_deg[k] = min(m_deg[k], n[k]-1);
