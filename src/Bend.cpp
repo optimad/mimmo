@@ -21,54 +21,54 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include "MaskFilter.hpp"
+#include "Bend.hpp"
 
-///*!Default constructor of MaskFilter
+///*!Default constructor of Bend
 // */
-MaskFilter::MaskFilter(){};
+Bend::Bend(){};
 //
-///*!Default destructor of MaskFilter
+///*!Default destructor of Bend
 // */
-MaskFilter::~MaskFilter(){};
+Bend::~Bend(){};
 
-///*!Copy constructor of MaskFilter.
+///*!Copy constructor of Bend.
 // */
-MaskFilter::MaskFilter(const MaskFilter & other):BaseManipulation(other){};
+Bend::Bend(const Bend & other):BaseManipulation(other){};
 
-/*!Assignement operator of MaskFilter.
+/*!Assignement operator of Bend.
  */
-MaskFilter & MaskFilter::operator=(const MaskFilter & other){
+Bend & Bend::operator=(const Bend & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 };
 
 void
-MaskFilter::setCoords(dvecarr3E & coords){
+Bend::setCoords(dvecarr3E & coords){
 	m_coords = coords;
 };
 
 void
-MaskFilter::setThresholds(darray3E & thres){
-	m_thres = thres;
+Bend::setDegree(dvecarr3E & degree){
+	m_degree = degree;
 };
 
 void
-MaskFilter::setForward(int i, bool forward){
-	if (i >= 0 && i < 3) m_forward[i] = forward;
+Bend::setCoeffs(dvector3D & coeffs){
+	m_coeffs = coeffs;
 };
 
 /*!Execution command. It applies the deformation given by the parent manipulation
  * to the linked geometry. After exec() the original geometry will be permanently modified.
  */
 void
-MaskFilter::execute(){
-	recoverDisplacementsOut();
-	for (int i=0; i<m_ndegout; i++){
-		for (int j=0; j<3; j++){
-			if (m_coords[i][j]>m_thres[j]){
-				m_displout[i][j] = (1-m_forward[j])*m_displout[i][j];
-			}
-			else{
-				m_displout[i][j] = (m_forward[j])*m_displout[i][j];
+Bend::execute(){
+	for (int j=0; j<3; j++){
+		for (int i=0; i<m_ndegout; i++){
+			for (int z=0; z<3; z++){
+				if (m_degree[j][z] > 0){
+					for (int k=0; k<m_degree[j][z]+1; k++){
+						m_displout[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
+					}
+				}
 			}
 		}
 	}

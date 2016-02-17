@@ -21,8 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __MASKFILTER_HPP__
-#define __MASKFILTER_HPP__
+#ifndef __BEND_HPP__
+#define __BEND_HPP__
 
 #include "BaseManipulation.hpp"
 
@@ -31,30 +31,26 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief MaskFilter is the class that applies the masking filterto a manipulation object.
- *
- *	MaskFilter is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply the masking.
- *	After the execution of an object MaskFilter (called by the linked manipulator), the original displacements will be modified.
+ *	\brief Bend is the class that applies the a polynomial bending to the displacements of a manipulation object.
  *
  */
-class MaskFilter: public BaseManipulation{
+class Bend: public BaseManipulation{
 private:
 	//members
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	darray3E			m_thres;	/**<Limit of coordinates to apply the masking.*/
-	std::array<bool,3>	m_forward;	/**<Condition to apply the mask (true/false to set to zero the displacements >/< the thershold).*/
+	dvecarr3E			m_degree;	/**<Degree of polynom for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
+	dvector3D			m_coeffs;	/**<Coeffs of polynom for each coordinate.*/
 
 public:
-	MaskFilter();
-	~MaskFilter();
+	Bend();
+	~Bend();
 
-	MaskFilter(const MaskFilter & other);
-	MaskFilter & operator=(const MaskFilter & other);
+	Bend(const Bend & other);
+	Bend & operator=(const Bend & other);
 
 	void	setCoords(dvecarr3E & coords);
-	void	setThresholds(darray3E & thres);
-	void	setForward(int i, bool forward);
+	void	setDegree(dvecarr3E & degree);
+	void	setCoeffs(dvector3D & coeffs);
 
 
 	//relationship methods
@@ -65,4 +61,4 @@ public:
 
 };
 
-#endif /* __MASKFILTER_HPP__ */
+#endif /* __BEND_HPP__ */

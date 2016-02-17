@@ -33,6 +33,7 @@
 #include "OutputDoF.hpp"
 #include "InputDoF.hpp"
 #include "Apply.hpp"
-#include "MaskFilter.hpp"
+#include "Mask.hpp"
+#include "Bend.hpp"
 
 #endif
