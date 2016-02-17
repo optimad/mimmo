@@ -45,8 +45,7 @@ private:
 	std::string		m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
 
 public:
-	OutputDoF(BaseManipulation* parent = NULL);
-	OutputDoF(std::string filename = "output.txt", BaseManipulation* parent = NULL);
+	OutputDoF(std::string filename = "output.txt");
 	~OutputDoF();
 
 	OutputDoF(const OutputDoF & other);
@@ -58,7 +57,7 @@ public:
 protected:
 
 public:
-	void 	exec();
+	void 	execute();
 
 };
 

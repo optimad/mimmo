@@ -47,8 +47,7 @@ public:
 	//members
 	uint32_t						m_ndeg;			/**<Number of degrees of freedom used as input. */
 	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
-private:
-	//TODO Verify its usefulness
+protected:
 	BaseManipulation*				m_parent;		/**<Pointer to manipulation object parent giving info to current class. */
 	std::vector<BaseManipulation*>	m_child;		/**<Pointers to manipulation objects child giving/receiving info (degrees of freedom and its displacements) to current class. */
 	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */

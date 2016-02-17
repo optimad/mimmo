@@ -58,18 +58,21 @@ void test0001() {
 	FFDLatticeBox* lattice = new FFDLatticeBox();
 
 	//Set lattice
-	darray3E origin = {{-0.25, -0.25, -0.05}};
+	darray3E origin = {{-0.01, -0.01, -0.01}};
 	darray3E span;
-	span[0] = 1.5;
-	span[1] = 0.5;
-	span[2] = 0.1;
+	span[0] = 1.02;
+	span[1] = 0.12;
+	span[2] = 0.02;
 	//Set Lattice
-	ivector1D dim(3,10), deg(3);
+	ivector1D dim(3), deg(3);
+	dim[0] = 30;
+	dim[1] = 4;
+	dim[2] = 4;
 	lattice->setMesh(origin, span[0], span[1], span[2], dim[0], dim[1], dim[2]);
 
-	deg[0] = dim[0]-7;
-	deg[1] = dim[1]-7;
-	deg[2] = dim[2]-7;
+	deg[0] = 3;
+	deg[1] = 3;
+	deg[2] = 3;
 
 	//Set number of nodes (and degrees of curves)
 	lattice->setDimension(dim, deg);
@@ -84,8 +87,7 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-			displ[i][j] = 0.1*( (double) (rand()) / RAND_MAX );
-//			displ[i][j] = 0.0;
+			displ[i][j] = 0.01*( (double) (rand()) / RAND_MAX );
 		}
 	}
 	lattice->setDisplacements(displ);
@@ -134,14 +136,18 @@ void test0001() {
 	dvector3D coeffs(3, vector<vector<double> >(3) );
 
 	coeffs[2][0].resize(degree[2][0]+1);
-	coeffs[2][0][0] = 0.0;
-	coeffs[2][0][1] = -0.2;
-	coeffs[2][0][2] = 0.5;
+	coeffs[2][0][0] = 0.195;
+	coeffs[2][0][1] = -0.8;
+	coeffs[2][0][2] = 0.8;
 
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
 	bend->addChild(lattice);
 	cout << "bend setup done" << endl;
+
+	//create output
+	OutputDoF* output = new OutputDoF();
+	lattice->addChild(output);
 
 	//Create execution chain
 	vector<BaseManipulation*> chain;
@@ -149,6 +155,7 @@ void test0001() {
 	chain.push_back(mask);
 	chain.push_back(lattice);
 	chain.push_back(applier);
+	chain.push_back(output);
 
 	lattice->plotGrid("./", "lattice", 0, false, false);
 	for (int i=0; i<chain.size(); i++){
@@ -161,6 +168,8 @@ void test0001() {
 	filename = "mimmo1";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
+
+
 
 	delete lattice, applier, mask, bend;
 	lattice = NULL;

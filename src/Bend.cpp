@@ -41,16 +41,25 @@ Bend & Bend::operator=(const Bend & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 };
 
+/*!It sets the coordinates of the degrees of freedom.
+ * \param[in] coords Coordinates of the degrees of freedom.
+ */
 void
 Bend::setCoords(dvecarr3E & coords){
 	m_coords = coords;
 };
 
+/*!It sets the degrees of polynomial law for each component of displacements of degrees of freedom.
+ * \param[in] degrees Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+ */
 void
 Bend::setDegree(dvecarr3E & degree){
 	m_degree = degree;
 };
 
+/*!It sets the coefficients of the polynomial laws.
+ * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+ */
 void
 Bend::setCoeffs(dvector3D & coeffs){
 	m_coeffs = coeffs;

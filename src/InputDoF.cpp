@@ -91,24 +91,28 @@ InputDoF::setFilename(std::string filename){
 /*!Execution command. It reads by file the displacements of the degrees of freedom.
  */
 void
-InputDoF::exec(){
+InputDoF::execute(){
 	if (m_readFromFile){
 		ifstream file;
 		file.open(m_filename);
 		if (file.is_open()){
-			file >> BaseManipulation::m_ndeg;
+			file >> m_ndeg;
 			darray3E displ;
 			while(!file.eof()){
 				for (int i=0; i<3; i++){
 					file >> displ[i];
 				}
-				BaseManipulation::m_displ.push_back(displ);
+				m_displ.push_back(displ);
 			}
 			file.close();
 		}else{
-			BaseManipulation::m_ndeg = 0;
-			BaseManipulation::m_displ.clear();
+			m_ndeg = 0;
+			m_displ.clear();
 		}
+	}
+	for (int i=0; i<m_child.size(); i++){
+		setNDegOut(i, m_ndeg);
+		setDisplacementsOut(i, m_displ);
 	}
 };
 

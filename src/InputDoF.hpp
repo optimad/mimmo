@@ -65,7 +65,7 @@ public:
 protected:
 
 public:
-	void 	exec();
+	void 	execute();
 
 };
 

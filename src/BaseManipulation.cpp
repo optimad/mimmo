@@ -98,6 +98,10 @@ BaseManipulation::getNDeg(){
 	return m_ndeg;
 };
 
+/*!It gets the number of degrees of freedom of a child of the manipulator object.
+ * \param[in] i Index of target child.
+ * \return #Degrees of freedom of ìtarget child.
+ */
 uint32_t
 BaseManipulation::getNDegOut(int i){
 	if (i>m_child.size()-1) return 0;
@@ -112,6 +116,10 @@ BaseManipulation::getDisplacements(){
 	return &m_displ;
 };
 
+/*!It gets the displacement of the degree of freedom currently stored in a child of the object.
+ * \param[in] i Index of target child.
+ * \return Displacements of the degrees of freedom of the target child.
+ */
 dvecarr3E*
 BaseManipulation::getDisplacementsOut(int i){
 	if (i>m_child.size()-1) return NULL;
@@ -135,6 +143,7 @@ BaseManipulation::getNChild(){
 };
 
 /*!It gets one child object linked by this object.
+ * \param[in] i Index of target child.
  * \return Pointer to i-th child manipulator object.
  */
 BaseManipulation*
@@ -160,8 +169,9 @@ BaseManipulation::setNDeg(uint32_t ndeg){
 	m_displ.resize(m_ndeg);
 };
 
-/*!It sets the number of degrees of freedom output of the manipulator object.
- * \param[in] ndeg #Degrees of freedom output.
+/*!It sets the number of degrees of freedom of a child of the manipulator object.
+ * \param[in] i Index of target child.
+ * \param[in] ndeg #Degrees of freedom to set in the target child.
  */
 void
 BaseManipulation::setNDegOut(int i, uint32_t ndeg){
@@ -178,8 +188,9 @@ BaseManipulation::setDisplacements(dvecarr3E & displacements){
 	m_ndeg = m_displ.size();
 };
 
-/*!It sets the displacement of the degree of freedom ouput of the object.
- * \param[in] displacements Displacements of the degrees of freedom in output.
+/*!It sets the displacement of the degree of freedom of a child of the object.
+ * \param[in] i Index of target child.
+ * \param[in] displacements Displacements of the degrees of freedom to set in the target child.
  */
 void
 BaseManipulation::setDisplacementsOut(int i, dvecarr3E & displacements){
@@ -237,14 +248,15 @@ BaseManipulation::clearDisplacements(){
 	m_displ.clear();
 };
 
-/*!It clears the displacements of the degrees of freedom output of the object.
+/*!It clears the displacements of the degrees of freedom of the children of the object.
  */
 void
 BaseManipulation::clearDisplacementsOut(){
 	for (int i=0; m_child.size(); i++)	m_child[i]->clearDisplacements();
 };
 
-/*!It clears the displacements of the degrees of freedom output of the object.
+/*!It clears the displacements of the degrees of freedom of a child of the object.
+ * \param[in] i Index of target child.
  */
 void
 BaseManipulation::clearDisplacementsOut(int i){
@@ -287,6 +299,7 @@ BaseManipulation::clear(){
  */
 void
 BaseManipulation::exec(){
+
 	execute();
 }
 

@@ -33,8 +33,8 @@
  *
  *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
  *
- *	Apply is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply it to the target MiMMO object.
+ *	Apply is derived from BaseManipulation class. It uses the base member m_geometry to apply
+ *	the result of the parent manipulator to the target MiMMO object.
  *	After the execution of an object Apply, the original geometry will be modified.
  *
  */

@@ -41,16 +41,27 @@ Mask & Mask::operator=(const Mask & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 };
 
+/*!It sets the coordinates of the degrees of freedom.
+ * \param[in] coords Coordinates of the degrees of freedom.
+ */
 void
 Mask::setCoords(dvecarr3E & coords){
 	m_coords = coords;
 };
 
+/*!It sets the limit of coordinates to apply the masking.
+ * \param[in] thres Limit of coordinates to apply the masking.
+ */
 void
 Mask::setThresholds(darray3E & thres){
 	m_thres = thres;
 };
 
+/*!It sets the condition to apply the mask
+ * (true/false to set to zero the displacements >/< the thershold).
+ * \param[in] i Index of component.
+ * \param[in] forward Condition to apply the mask for i-th component.
+ */
 void
 Mask::setForward(int i, bool forward){
 	if (i >= 0 && i < 3) m_forward[i] = forward;

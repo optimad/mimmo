@@ -56,7 +56,7 @@ Apply & Apply::operator=(const Apply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 };
 
-/*!Execution command. It applies the deformation given by the parent manipulation
+/*!Execution command. It applies the deformation given by the parent manipulation (in input for apply object)
  * to the linked geometry. After exec() the original geometry will be permanently modified.
  */
 void

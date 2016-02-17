@@ -27,16 +27,10 @@
 
 using namespace std;
 
-/*!Default constructor of OutputDoF.
- * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
+/*!Default constructor of OutputDoF
+ * \param[in] filename Name of the output file (default value = "output.txt").
  */
-OutputDoF::OutputDoF(BaseManipulation* parent):BaseManipulation(parent){};
-
-/*!Custom constructor of OutputDoF
- * \param[in] filename Name of the output file.
- * \param[in] parent Pointer to reference manipulator object to be linked (default value = NULL).
- */
-OutputDoF::OutputDoF(std::string filename, BaseManipulation* parent):BaseManipulation(parent){
+OutputDoF::OutputDoF(std::string filename){
 	m_filename 		= filename;
 };
 
@@ -67,18 +61,21 @@ OutputDoF::setFilename(std::string filename){
 };
 
 /*!Execution command. It writes on file the displacements of the degrees of freedom
- * given by the parent manipulation.
+ *of the parent manipulation.
  */
 void
-OutputDoF::exec(){
+OutputDoF::execute(){
+	m_ndeg = m_parent->getNDeg();
+	m_displ = *(m_parent->getDisplacements());
 	ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){
-		file << BaseManipulation::m_ndeg;
+		file << BaseManipulation::m_ndeg << "\n";
 		for (int iv=0; iv<m_ndeg; iv++){
 			for (int i=0; i<3; i++){
-				file << BaseManipulation::m_displ[iv][i];
+				file << BaseManipulation::m_displ[iv][i] << "\t";
 			}
+			file << "\n";
 		}
 		file.close();
 	}
