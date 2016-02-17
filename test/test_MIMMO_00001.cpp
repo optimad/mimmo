@@ -40,7 +40,7 @@ void test0001() {
 	ivector2D connect;
 	{
 		//Import STL
-		STLObj stl("sphere.stl", true);
+		STLObj stl("placca.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
