@@ -61,12 +61,15 @@ Bend::setCoeffs(dvector3D & coeffs){
  */
 void
 Bend::execute(){
-	for (int j=0; j<3; j++){
-		for (int i=0; i<m_ndegout; i++){
-			for (int z=0; z<3; z++){
-				if (m_degree[j][z] > 0){
-					for (int k=0; k<m_degree[j][z]+1; k++){
-						m_displout[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
+	for (int ichild=0; ichild<getNChild(); ichild++){
+		dvecarr3E* displout = getDisplacementsOut(ichild);
+		for (int j=0; j<3; j++){
+			for (int i=0; i<getNDegOut(ichild); i++){
+				for (int z=0; z<3; z++){
+					if (m_degree[j][z] > 0){
+						for (int k=0; k<m_degree[j][z]+1; k++){
+							(*displout)[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
+						}
 					}
 				}
 			}

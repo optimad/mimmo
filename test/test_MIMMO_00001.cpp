@@ -84,8 +84,8 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-//			displ[i][j] = 0.5*( (double) (rand()) / RAND_MAX );
-			displ[i][j] = 0.0;
+			displ[i][j] = 0.1*( (double) (rand()) / RAND_MAX );
+//			displ[i][j] = 0.0;
 		}
 	}
 	lattice->setDisplacements(displ);
@@ -125,7 +125,6 @@ void test0001() {
 
 	cout << "mask setup done" << endl;
 
-
 	//create bend
 	Bend* bend = new Bend();
 	bend->setCoords(coords);
@@ -143,7 +142,6 @@ void test0001() {
 	//set bend to lattice
 	bend->addChild(lattice);
 	cout << "bend setup done" << endl;
-
 
 	//Create execution chain
 	vector<BaseManipulation*> chain;
@@ -164,9 +162,11 @@ void test0001() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-	delete lattice, applier;
+	delete lattice, applier, mask, bend;
 	lattice = NULL;
 	applier = NULL;
+	mask 	= NULL;
+	bend 	= NULL;
 
 
     return;

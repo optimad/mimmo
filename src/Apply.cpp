@@ -61,12 +61,12 @@ Apply & Apply::operator=(const Apply & other){
  */
 void
 Apply::execute(){
-	if (m_geometry == NULL) return;
-	dvecarr3E vertex = m_geometry->getVertex();
-	long nv = m_geometry->getNVertex();
+	if (getGeometry() == NULL) return;
+	dvecarr3E vertex = getGeometry()->getVertex();
+	long nv = getGeometry()->getNVertex();
 	for (long i=0; i<nv; i++){
 		vertex[i] += m_displ[i];
-		m_geometry->modifyVertex(vertex[i], i);
+		getGeometry()->modifyVertex(vertex[i], i);
 	}
 	return;
 };

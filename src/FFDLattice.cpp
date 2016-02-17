@@ -102,7 +102,10 @@ FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension
 	m_deg.resize(3,1);
 	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
 	setDimension(dimension, degrees);
-	setNDegOut(geometry->getNVertex());
+	//	setNDegOut(geometry->getNVertex());
+	for (int i=0; i<getNChild(); i++){
+		setNDegOut(i, geometry->getNVertex());
+	}
 };
 
 
@@ -449,11 +452,9 @@ void 		FFDLatticeBox::execute(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
-			recoverDisplacementsOut();
+//			recoverDisplacementsOut();
 			ivector1D map;
-			cout << "apply" << endl;
 			dvecarr3E localdef = apply(map);
-			cout << "out apply" << endl;
 			
 			//reset displacement in a unique vector
 			bitpit::Patch * tri = container->getGeometry();
@@ -464,8 +465,10 @@ void 		FFDLatticeBox::execute(){
 			for(int i=0; i<map.size(); ++i){
 				result[map[i]] = localdef[i];
 			}
-			cout << "set out displ" << endl;
-			setDisplacementsOut(result);
+			for (int i=0; i<getNChild(); i++){
+				setDisplacementsOut(i, result);
+			}
+
 };
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
