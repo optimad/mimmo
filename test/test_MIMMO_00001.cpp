@@ -152,14 +152,15 @@ void test0001() {
 	chain.push_back(lattice);
 	chain.push_back(applier);
 
+	lattice->plotGrid("./", "lattice", 0, false, false);
 	for (int i=0; i<chain.size(); i++){
 		cout << "exec " << i << endl;
 		chain[i]->exec();
+		lattice->plotGrid("./", "lattice", i+1, false, true);
 	}
 
 	//Plot results
-	lattice->plotGrid("./", "lattice", 0, false, false);
-	lattice->plotGrid("./", "lattice", 1, false, true);
+//	lattice->plotGrid("./", "lattice", 1, false, true);
 	filename = "mimmo1";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
