@@ -102,10 +102,7 @@ FFDLatticeBox::FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension
 	m_deg.resize(3,1);
 	setMesh(origin, span[0],span[1],span[2],dimension[0],dimension[1],dimension[2]);
 	setDimension(dimension, degrees);
-	//	setNDegOut(geometry->getNVertex());
-	for (int i=0; i<getNChild(); i++){
-		setNDegOut(i, geometry->getNVertex());
-	}
+
 };
 
 

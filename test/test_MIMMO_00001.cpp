@@ -65,14 +65,14 @@ void test0001() {
 	span[2] = 0.02;
 	//Set Lattice
 	ivector1D dim(3), deg(3);
-	dim[0] = 30;
-	dim[1] = 4;
-	dim[2] = 4;
+	dim[0] = 21;
+	dim[1] = 7;
+	dim[2] = 7;
 	lattice->setMesh(origin, span[0], span[1], span[2], dim[0], dim[1], dim[2]);
 
-	deg[0] = 3;
-	deg[1] = 3;
-	deg[2] = 3;
+	deg[0] = 4;
+	deg[1] = 4;
+	deg[2] = 4;
 
 	//Set number of nodes (and degrees of curves)
 	lattice->setDimension(dim, deg);
