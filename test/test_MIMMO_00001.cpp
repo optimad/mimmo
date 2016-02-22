@@ -87,10 +87,12 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-			displ[i][j] = 0.01*( (double) (rand()) / RAND_MAX );
+			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
 		}
 	}
 	InputDoF* input = new InputDoF(ndeg, displ);
+	string file = "input.txt";
+	InputDoF* input0 = new InputDoF(file);
 
 	cout << "input setup done" << endl;
 
@@ -152,9 +154,18 @@ void test0001() {
 
 
 	//Create execution chain
-	input->addChild(bend);
 	vector<BaseManipulation*> chain;
-	chain.push_back(input);
+
+	int inp;
+	cout << "input zero (0) or random (1)?" << endl;
+	cin >> inp;
+	if (inp==0){
+		input0->addChild(bend);
+		chain.push_back(input0);
+	}else{
+		input->addChild(bend);
+		chain.push_back(input);
+	}
 	chain.push_back(bend);
 	chain.push_back(mask);
 	chain.push_back(lattice);
@@ -175,11 +186,14 @@ void test0001() {
 
 
 
-	delete lattice, applier, mask, bend;
+	delete lattice, applier, mask, bend, input, input0, output;
 	lattice = NULL;
 	applier = NULL;
 	mask 	= NULL;
 	bend 	= NULL;
+	input 	= NULL;
+	input0 	= NULL;
+	output 	= NULL;
 
 
     return;

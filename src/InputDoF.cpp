@@ -108,6 +108,8 @@ InputDoF::execute(){
 		}else{
 			m_ndeg = 0;
 			m_displ.clear();
+			cout << "file not open --> exit" << endl;
+			exit(1);
 		}
 	}
 	for (int i=0; i<m_child.size(); i++){
