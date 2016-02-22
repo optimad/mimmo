@@ -80,7 +80,7 @@ void test0001() {
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
-	//Init Displacements
+	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
 	dvecarr3E displ(ndeg);
 	time_t Time = time(NULL);
@@ -90,9 +90,9 @@ void test0001() {
 			displ[i][j] = 0.01*( (double) (rand()) / RAND_MAX );
 		}
 	}
-	lattice->setDisplacements(displ);
+	InputDoF* input = new InputDoF(ndeg, displ);
 
-	cout << "lattice setup done" << endl;
+	cout << "input setup done" << endl;
 
 	//create applier
 	cout << "applier setup" << endl;
@@ -142,27 +142,31 @@ void test0001() {
 
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
-	bend->addChild(lattice);
+	bend->addChild(mask);
 	cout << "bend setup done" << endl;
 
 	//create output
 	OutputDoF* output = new OutputDoF();
 	lattice->addChild(output);
 
+
+
 	//Create execution chain
+	input->addChild(bend);
 	vector<BaseManipulation*> chain;
+	chain.push_back(input);
 	chain.push_back(bend);
 	chain.push_back(mask);
 	chain.push_back(lattice);
 	chain.push_back(applier);
 	chain.push_back(output);
 
-	lattice->plotGrid("./", "lattice", 0, false, false);
 	for (int i=0; i<chain.size(); i++){
 		cout << "exec " << i << endl;
 		chain[i]->exec();
-		lattice->plotGrid("./", "lattice", i+1, false, true);
 	}
+	lattice->plotGrid("./", "lattice", 0, false, false);
+	lattice->plotGrid("./", "lattice", 1, false, true);
 
 	//Plot results
 	filename = "mimmo1";

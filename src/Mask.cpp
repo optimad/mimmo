@@ -72,20 +72,20 @@ Mask::setForward(int i, bool forward){
  */
 void
 Mask::execute(){
-	for (int j=0; j<getNChild(); j++){
-		dvecarr3E* displout = getDisplacementsOut(j);
-		for (int i=0; i<getNDegOut(j); i++){
-			if (m_coords[i][0]>m_thres[0] && m_coords[i][1]>m_thres[1] && m_coords[i][2]>m_thres[2]){
-				for (int j=0; j<3; j++){
-					(*displout)[i][j] = (1-m_forward[j])*(*displout)[i][j];
-				}
-			}
-			else{
-				for (int j=0; j<3; j++){
-					(*displout)[i][j] = (m_forward[j])*(*displout)[i][j];
-				}
+	for (int i=0; i<getNDeg(); i++){
+		if (m_coords[i][0]>m_thres[0] && m_coords[i][1]>m_thres[1] && m_coords[i][2]>m_thres[2]){
+			for (int j=0; j<3; j++){
+				m_displ[i][j] = (1-m_forward[j])*m_displ[i][j];
 			}
 		}
+		else{
+			for (int j=0; j<3; j++){
+				m_displ[i][j] = (m_forward[j])*m_displ[i][j];
+			}
+		}
+	}
+	for (int j=0; j<getNChild(); j++){
+		setDisplacementsOut(j, m_displ);
 	}
 	return;
 };
