@@ -172,10 +172,12 @@ void test0001() {
 	chain.push_back(applier);
 	chain.push_back(output);
 
+	cout << "execution start" << endl;
 	for (int i=0; i<chain.size(); i++){
-		cout << "exec " << i << endl;
 		chain[i]->exec();
 	}
+	cout << "execution done" << endl;
+
 	lattice->plotGrid("./", "lattice", 0, false, false);
 	lattice->plotGrid("./", "lattice", 1, false, true);
 
