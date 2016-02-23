@@ -34,7 +34,6 @@ using namespace bitpit;
  */
 MimmoObject::MimmoObject(int type){
 	m_type = max(type,1);
-//	m_geometry = NULL;
 	const int id = 0;
 	if (m_type == 2){
 		m_geometry = new VolTriPatch(id);
@@ -90,7 +89,8 @@ MimmoObject::~MimmoObject(){
 MimmoObject::MimmoObject(const MimmoObject & other){
 	m_type 			= other.m_type;
 	m_geometry 		= other.m_geometry;
-	m_internalPatch = other.m_internalPatch;
+//	m_internalPatch = other.m_internalPatch;
+	m_internalPatch = false;
 };
 
 /*!Assignement operator of MimmoObject.
@@ -98,7 +98,8 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_type 			= other.m_type;
 	m_geometry 		= other.m_geometry;
-	m_internalPatch = other.m_internalPatch;
+//	m_internalPatch = other.m_internalPatch;
+		m_internalPatch = false;
 };
 
 /*!It Clears the object. The pointer to the geometry is set to NULL and the

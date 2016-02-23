@@ -80,6 +80,9 @@ void test0001() {
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
+	//Set release Info
+	lattice->setReleaseInfo(true);
+
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
 	dvecarr3E displ(ndeg);
@@ -106,15 +109,16 @@ void test0001() {
 
 	//create filter mask
 	Mask* mask = new Mask();
-	dvecarr3E coords(ndeg);
+	dvecarr3E coords(ndeg),coords2(ndeg);
 	for (int i=0; i<dim[0]; i++){
 		for (int j=0; j<dim[1]; j++){
 			for (int k=0; k<dim[2]; k++){
 				coords[lattice->accessPointData(i,j,k)] = origin + lattice->getGridPoint(i,j,k);
+				coords2[lattice->accessPointData(i,j,k)] = {{0.0, 0.0, 0.0}};
 			}
 		}
 	}
-	mask->setCoords(coords);
+//	mask->setCoords(coords2);
 	darray3E thres;
 	thres[0] = 0.5;
 	thres[1] = -10.0;
@@ -131,7 +135,7 @@ void test0001() {
 
 	//create bend
 	Bend* bend = new Bend();
-	bend->setCoords(coords);
+//	bend->setCoords(coords);
 	dvecarr3E degree(3);
 	degree[2][0] = 2;
 	bend->setDegree(degree);
@@ -152,30 +156,33 @@ void test0001() {
 	lattice->addChild(output);
 
 
-
-	//Create execution chain
-	vector<BaseManipulation*> chain;
-
+	//Create chain
+	Chain ch0;
 	int inp;
 	cout << "input zero (0) or random (1)?" << endl;
 	cin >> inp;
 	if (inp==0){
 		input0->addChild(bend);
-		chain.push_back(input0);
+		cout << "input" << endl;
+		cout << ch0.addObject(input0) << endl;
 	}else{
 		input->addChild(bend);
-		chain.push_back(input);
+		cout << "input" << endl;
+		cout << ch0.addObject(input) << endl;
 	}
-	chain.push_back(bend);
-	chain.push_back(mask);
-	chain.push_back(lattice);
-	chain.push_back(applier);
-	chain.push_back(output);
+	cout << "output" << endl;
+	cout << ch0.addObject(output) << endl;
+	cout << "mask" << endl;
+	cout << ch0.addObject(mask) << endl;
+	cout << "applier" << endl;
+	cout << ch0.addObject(applier) << endl;
+	cout << "lattice" << endl;
+	cout << ch0.addObject(lattice) << endl;
+	cout << "bend" << endl;
+	cout << ch0.addObject(bend) << endl;
 
 	cout << "execution start" << endl;
-	for (int i=0; i<chain.size(); i++){
-		chain[i]->exec();
-	}
+	ch0.exec();
 	cout << "execution done" << endl;
 
 	lattice->plotGrid("./", "lattice", 0, false, false);
@@ -186,9 +193,16 @@ void test0001() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-
+	lattice->clear();
+	applier->clear();
+	mask->clear();
+	bend->clear();
+	input->clear();
+	input0->clear();
+	output->clear();
 
 	delete lattice, applier, mask, bend, input, input0, output;
+
 	lattice = NULL;
 	applier = NULL;
 	mask 	= NULL;
@@ -196,7 +210,6 @@ void test0001() {
 	input 	= NULL;
 	input0 	= NULL;
 	output 	= NULL;
-
 
     return;
 

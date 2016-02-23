@@ -20,22 +20,21 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
- \*---------------------------------------------------------------------------*/
-
-#ifndef __MIMMO_HPP__
-#define __MIMMO_HPP__
-
-//#include "MiMMO_version.hpp"
-
-#include "MimmoObject.hpp"
-#include "BaseManipulation.hpp"
-#include "FFDLattice.hpp"
-#include "OutputDoF.hpp"
-#include "InputDoF.hpp"
-#include "Apply.hpp"
-#include "Mask.hpp"
-#include "Bend.hpp"
-#include "Chain.hpp"
+\*---------------------------------------------------------------------------*/
 #include "Info.hpp"
 
-#endif
+///*!Default constructor of Info
+// */
+Info::Info(){};
+//
+///*!Default destructor of Info
+// */
+Info::~Info(){};
+
+///*!Copy constructor of Info.
+// */
+Info::Info(const Info & other){};
+
+/*!Assignement operator of Info.
+ */
+Info & Info::operator=(const Info & other){};

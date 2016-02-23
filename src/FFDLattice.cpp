@@ -442,6 +442,22 @@ void		FFDLatticeBox::plotCloud(std::string directory, std::string filename, int 
 	
 };
 
+void
+FFDLatticeBox::setInfo(){
+	m_info->m_naxes = 3;
+
+	ivector1D n =getDimension();
+	int size = n[0]*n[1]*n[2];
+	m_info->m_coords.resize(size, dvector1D(3));
+	for(int i=0; i<size; ++i){
+		darray3E data = getGlobalPoint(i);
+		for (int j=0; j<3; j++){
+			m_info->m_coords[i][j] = data[j];
+		}
+	}
+
+}
+
 /*! Given pointer to a reference geometry and, execute deformation w/ the current setup */
 void 		FFDLatticeBox::execute(){
 			
@@ -467,6 +483,8 @@ void 		FFDLatticeBox::execute(){
 			}
 
 };
+
+
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
  * \param[in] point coordinate of the points 

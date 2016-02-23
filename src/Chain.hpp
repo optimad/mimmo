@@ -21,44 +21,52 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __OUTPUTDOF_HPP__
-#define __OUTPUTDOF_HPP__
+#ifndef __CHAIN_HPP__
+#define __CHAIN_HPP__
 
 #include "BaseManipulation.hpp"
-#include <string>
 
 /*!
- *	\date			09/feb/2016
+ *	\date			22/feb/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief OutputDoF is the class that write the degrees of freedom.
+ *	\brief Chain is the class used to manager the execution chain of MiMMO objects.
  *
- *	OutputDoF is derived from BaseManipulation class.
- *	It uses and it write the base members m_ndeg and m_displacements.
- *	After the execution of an object OutputDoF, the number of degrees of freedom and their initial
- *	displacements are write on a text file (ascii).
+ *
  */
-class OutputDoF: public BaseManipulation{
-private:
+class Chain{
+public:
 	//members
-	svector1D	m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
+	uint8_t							m_id;			/**<ID of the chain.*/
+	std::vector<BaseManipulation*>	m_objects;		/**<Pointers to manipulation objects placed in the current execution chain. */
+	std::vector<int>				m_idObjects;	/**<ID (order of insertion) of the mimmo objects in the chain. */
+	uint32_t						m_objcounter;	/**<Counter of objects inserted the chain.*/
+
+	//static members
+	static	uint8_t					sm_chaincounter;/**<Current global number of chain in the instance. */
 
 public:
-	OutputDoF(std::string filename = "output.txt");
-	~OutputDoF();
+	Chain();
+	~Chain();
 
-	OutputDoF(const OutputDoF & other);
-	OutputDoF & operator=(const OutputDoF & other);
+	Chain(const Chain & other);
+	Chain & operator=(const Chain & other);
 
-	void addFilename(std::string filename);
+	//internal methods
+	uint32_t	getNObjects();
+	uint8_t		getID();
+	uint8_t		getNChains();
+
+	int			addObject(BaseManipulation* obj, int id_ = 0);
+
+	bool		deleteObject(int idobj);
+	void		clear();
 
 	//relationship methods
-protected:
-
-public:
-	void 	execute();
+	void 		exec();
+	void 		exec(int idobj);
 
 };
 
-#endif /* __OUTPUTDOF_HPP__ */
+#endif /* __CHAIN_HPP__ */

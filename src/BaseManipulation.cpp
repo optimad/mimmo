@@ -30,8 +30,9 @@ using namespace std;
  */
 BaseManipulation::BaseManipulation(){
 	m_ndeg 			= 0;
-	m_parent 		= NULL;
 	m_geometry 		= NULL;
+	m_relInfo 		= false;
+	m_parent.clear();
 	m_child.clear();
 	m_displ.clear();
 };
@@ -42,9 +43,10 @@ BaseManipulation::BaseManipulation(){
  */
 BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* child){
 	m_ndeg 			= 0;
-	m_parent 		= NULL;
 	m_geometry 		= geometry;
+	m_relInfo 		= false;
 	m_displ.clear();
+	m_parent.clear();
 	if (child != NULL){
 		addChild(child);
 	}
@@ -55,9 +57,10 @@ BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* chil
  */
 BaseManipulation::BaseManipulation(BaseManipulation* child){
 	m_ndeg 			= 0;
-	m_parent 		= NULL;
 	m_geometry 		= NULL;
+	m_relInfo 		= false;
 	m_displ.clear();
+	m_parent.clear();
 	if (child != NULL){
 		addChild(child);
 	}
@@ -78,6 +81,7 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	m_child 		= other.m_child;
 	m_parent 		= other.m_parent;
 	m_geometry 		= other.m_geometry;
+	m_relInfo 		= other.m_relInfo;
 };
 
 /*!Assignement operator of BaseManipulation.
@@ -88,6 +92,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_parent 		= other.m_parent;
 	m_child 		= other.m_child;
 	m_geometry 		= other.m_geometry;
+	m_relInfo 		= other.m_relInfo;
 };
 
 /*!It gets the number of degrees of freedom of the manipulator object.
@@ -126,12 +131,22 @@ BaseManipulation::getDisplacementsOut(int i){
 	return m_child[i]->getDisplacements();
 };
 
+/*!It gets the number of parent linked to the manipulator object.
+ * \return #Parent.
+ */
+int
+BaseManipulation::getNParent(){
+	return m_parent.size();
+};
+
 /*!It gets the manipulator object linked by this object.
- * \return Pointer to parent manipulator object.
+ * \param[in] i Index of target parent.
+ * \return Pointer to i-th parent manipulator object.
  */
 BaseManipulation*
-BaseManipulation::getParent(){
-	return m_parent;
+BaseManipulation::getParent(int i){
+	if (i>m_parent.size()-1) return NULL;
+	return m_parent[i];
 };
 
 /*!It gets the number of children linked to the manipulator object.
@@ -158,6 +173,16 @@ BaseManipulation::getChild(int i){
 MimmoObject*
 BaseManipulation::getGeometry(){
 	return m_geometry;
+};
+
+bool
+BaseManipulation::getReleaseInfo(){
+	return m_relInfo;
+};
+
+Info*
+BaseManipulation::getInfo(){
+	return m_info;
 };
 
 /*!It sets the number of degrees of freedom of the manipulator object.
@@ -198,12 +223,12 @@ BaseManipulation::setDisplacementsOut(int i, dvecarr3E & displacements){
 	m_child[i]->setDisplacements(displacements);
 };
 
-/*!It sets the manipulator object linked by this object.
- * \param[in] manipulator Pointer to parent manipulator object.
+/*!It adds a manipulator object linked by this object.
+ * \param[in] parent Pointer to parent manipulator object.
  */
 void
-BaseManipulation::setParent(BaseManipulation* parent){
-	m_parent = parent;
+BaseManipulation::addParent(BaseManipulation* parent){
+	m_parent.push_back(parent);
 };
 
 /*!It adds a child manipulator object to the children linked by this object.
@@ -213,7 +238,7 @@ void
 BaseManipulation::addChild(BaseManipulation* child){
 	int count = m_child.size();
 	m_child.push_back(child);
-	m_child[count]->setParent(this);
+	m_child[count]->addParent(this);
 };
 
 /*!It sets the geometry linked by the manipulator object.
@@ -224,12 +249,18 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
-/*!It clears the manipulator object linked by this object.
- * It sets to NULL the pointer to parent manipulator object.
+void
+BaseManipulation::setReleaseInfo(bool flag){
+	m_relInfo = flag;
+};
+
+/*!It clears the manipulator objects linked by this object.
+ * It sets to NULL the pointers to parent manipulator objects.
  */
 void
 BaseManipulation::unsetParent(){
-	m_parent = NULL;
+	for (int i=0; i<m_parent.size(); i++) m_parent[i] = NULL;
+	m_parent.clear();
 };
 
 /*!It clears the children objects linked by this object.
@@ -279,6 +310,7 @@ BaseManipulation::clear(){
 	unsetChild();
 	unsetGeometry();
 	clearDisplacements();
+	m_relInfo = false;
 };
 
 
@@ -294,12 +326,53 @@ BaseManipulation::clear(){
 //	}
 //};
 
+void
+BaseManipulation::releaseInfo(){
+	m_info = new Info();
+	setInfo();
+}
+
+Info*
+BaseManipulation::recoverInfo(){
+	bool found = false;
+	int ich = 0;
+	Info* pointInfo = NULL;
+	BaseManipulation* pointer;
+	if (getReleaseInfo()){
+		releaseInfo();
+		pointInfo = getInfo();
+	}
+	while(pointInfo == NULL && ich<m_child.size()){
+		pointer = m_child[ich];
+//		if (pointer->getReleaseInfo()){
+//			pointer->releaseInfo();
+//			pointInfo = pointer->getInfo();
+//		}
+//		else{
+			pointInfo = pointer->recoverInfo();
+//		}
+		ich++;
+	}
+	return pointInfo;
+}
+
+
+void
+BaseManipulation::setInfo(){
+}
+
+void
+BaseManipulation::useInfo(){
+}
+
+
 /*!Execution command. It runs recoverDisplacements applyFilters and execute.
  * execute is pure virtual and it has to be implemented in a derived class.
  */
 void
 BaseManipulation::exec(){
-
+	m_info = recoverInfo();
+	if (m_info != NULL) useInfo();
 	execute();
 }
 
