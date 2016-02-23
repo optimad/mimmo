@@ -33,12 +33,19 @@ Bend::~Bend(){};
 
 ///*!Copy constructor of Bend.
 // */
-Bend::Bend(const Bend & other):BaseManipulation(other){};
+Bend::Bend(const Bend & other):BaseManipulation(other){
+	m_coords = other.m_coords;
+	m_degree = other.m_degree;
+	m_coeffs = other.m_coeffs;
+};
 
 /*!Assignement operator of Bend.
  */
 Bend & Bend::operator=(const Bend & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+	m_coords = other.m_coords;
+	m_degree = other.m_degree;
+	m_coeffs = other.m_coeffs;
 };
 
 /*!It sets the coordinates of the degrees of freedom.
@@ -63,6 +70,21 @@ Bend::setDegree(dvecarr3E & degree){
 void
 Bend::setCoeffs(dvector3D & coeffs){
 	m_coeffs = coeffs;
+};
+
+void
+Bend::useInfo(){
+	if (m_ndeg !=  m_info->m_coords.size() || m_info->m_naxes != 3){
+		std::cout << "#degrees : " << m_ndeg << " - #coords : " << m_info->m_coords.size() << std::endl;
+		std::cout << "Incoherent Size ---> end of process " << std::endl;
+		exit(1001);
+	}
+	m_coords.resize(m_info->m_coords.size());
+	for (int i=0; i<m_ndeg; i++){
+		for (int j=0; j<3; j++){
+			m_coords[i][j] = m_info->m_coords[i][j];
+		}
+	}
 };
 
 /*!Execution command. It modifies the displacements given by the child manipulation object

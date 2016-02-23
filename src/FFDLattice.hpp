@@ -86,6 +86,7 @@ public:
 	void		plotCloud(std::string directory, std::string filename, int counter, bool ascii, bool deformed);
 	
 	//execute deformation methods
+	void		setInfo();
 	void 		execute();
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);

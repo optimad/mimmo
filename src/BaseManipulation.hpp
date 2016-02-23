@@ -25,6 +25,7 @@
 #define __BASEMANIPULATION_HPP__
 
 #include "MimmoObject.hpp"
+#include "Info.hpp"
 #include <string>
 
 
@@ -48,9 +49,12 @@ public:
 	uint32_t						m_ndeg;			/**<Number of degrees of freedom used as input. */
 	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
 protected:
-	BaseManipulation*				m_parent;		/**<Pointer to manipulation object parent giving info to current class. */
+	std::vector<BaseManipulation*>	m_parent;		/**<Pointers to manipulation objects parent giving info to current class. */
 	std::vector<BaseManipulation*>	m_child;		/**<Pointers to manipulation objects child giving/receiving info (degrees of freedom and its displacements) to current class. */
 	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
+
+	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
+	Info*							m_info;			/**<Pointer to related object of class Info.*/
 
 public:
 	BaseManipulation();
@@ -64,36 +68,44 @@ public:
 	//internal methods
 	uint32_t			getNDeg();
 	dvecarr3E*			getDisplacements();
-	uint32_t			getNDegOut(int i);
-	dvecarr3E*			getDisplacementsOut(int i);
-	BaseManipulation*	getParent();
+	uint32_t			getNDegOut(int i = 0);
+	dvecarr3E*			getDisplacementsOut(int i = 0);
+	int					getNParent();
+	BaseManipulation*	getParent(int i = 0);
 	int					getNChild();
-	BaseManipulation*	getChild(int i);
+	BaseManipulation*	getChild(int i = 0);
 	MimmoObject*		getGeometry();
+	bool			 	getReleaseInfo();
+	Info*			 	getInfo();
 
 	void	setNDeg(uint32_t ndeg);
 	void	setDisplacements(dvecarr3E & displacements);
 	void	setNDegOut(int i, uint32_t ndeg);
 	void	setDisplacementsOut(int i, dvecarr3E & displacements);
-	void 	setParent(BaseManipulation* parent);
+	void 	addParent(BaseManipulation* parent);
 	void 	addChild(BaseManipulation* child);
 	void 	setGeometry(MimmoObject* geometry);
+	void 	setReleaseInfo(bool flag = true);
 
 	void 	unsetParent();
 	void 	unsetChild();
 	void 	unsetGeometry();
 	void	clearDisplacements();
 	void	clearDisplacementsOut();
-	void	clearDisplacementsOut(int i);
+	void	clearDisplacementsOut(int i = 0);
 	void	clear();
 
 	//relationship methods
 	void 	exec();
+	void	releaseInfo();
+	Info* 	recoverInfo();
 
 protected:
 //	virtual void	recoverDisplacementsIn();	//TODO Useful?
 
 public:
+	virtual void	setInfo();
+	virtual void	useInfo();
 	virtual void 	execute() = 0;				//called in exec
 
 };

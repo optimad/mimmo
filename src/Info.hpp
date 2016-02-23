@@ -21,44 +21,41 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __OUTPUTDOF_HPP__
-#define __OUTPUTDOF_HPP__
+#ifndef __INFO_HPP__
+#define __INFO_HPP__
 
-#include "BaseManipulation.hpp"
-#include <string>
+#include "MiMMO_TypeDef.hpp"
 
 /*!
- *	\date			09/feb/2016
+ *	\date			23/feb/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief OutputDoF is the class that write the degrees of freedom.
+ *	\brief Info is the class that applies the deformation resulting from a manipulation object to the geometry.
  *
- *	OutputDoF is derived from BaseManipulation class.
- *	It uses and it write the base members m_ndeg and m_displacements.
- *	After the execution of an object OutputDoF, the number of degrees of freedom and their initial
- *	displacements are write on a text file (ascii).
+ *	Info is derived from BaseManipulation class. It uses the base member m_geometry to apply
+ *	the result of the parent manipulator to the target MiMMO object.
+ *	After the execution of an object Info, the original geometry will be modified.
+ *
  */
-class OutputDoF: public BaseManipulation{
-private:
+class Info{
+public:
 	//members
-	svector1D	m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
+	int			m_naxes;
+	int			m_npoints;
+	dvector2D	m_coords;
 
 public:
-	OutputDoF(std::string filename = "output.txt");
-	~OutputDoF();
+	Info();
+	~Info();
 
-	OutputDoF(const OutputDoF & other);
-	OutputDoF & operator=(const OutputDoF & other);
+	Info(const Info & other);
+	Info & operator=(const Info & other);
 
-	void addFilename(std::string filename);
 
-	//relationship methods
-protected:
+private:
 
-public:
-	void 	execute();
 
 };
 
-#endif /* __OUTPUTDOF_HPP__ */
+#endif /* __INFO_HPP__ */

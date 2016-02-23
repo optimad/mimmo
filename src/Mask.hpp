@@ -61,6 +61,7 @@ public:
 protected:
 
 public:
+	void 	useInfo();
 	void 	execute();
 
 };

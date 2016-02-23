@@ -31,7 +31,7 @@ using namespace std;
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
 OutputDoF::OutputDoF(std::string filename){
-	m_filename 		= filename;
+	m_filename.push_back(filename);
 };
 
 /*!Default destructor of OutputDoF.
@@ -52,12 +52,12 @@ OutputDoF & OutputDoF::operator=(const OutputDoF & other){
 	return *this;
 };
 
-/*!It sets the name of the output file.
+/*!It adds a name of the output files.
  * \param[in] filename Name of the output file.
  */
 void
-OutputDoF::setFilename(std::string filename){
-	m_filename = filename;
+OutputDoF::addFilename(std::string filename){
+	m_filename.push_back(filename);
 };
 
 /*!Execution command. It writes on file the displacements of the degrees of freedom
@@ -65,19 +65,23 @@ OutputDoF::setFilename(std::string filename){
  */
 void
 OutputDoF::execute(){
-	m_ndeg = m_parent->getNDeg();
-	m_displ = *(m_parent->getDisplacements());
-	ofstream file;
-	file.open(m_filename);
-	if (file.is_open()){
-		file << BaseManipulation::m_ndeg << "\n";
-		for (int iv=0; iv<m_ndeg; iv++){
-			for (int i=0; i<3; i++){
-				file << BaseManipulation::m_displ[iv][i] << "\t";
+	for (int i=0; i<getNParent(); i++){
+		if (m_parent[i] != NULL && i<m_filename.size()){
+			m_ndeg = m_parent[i]->getNDeg();
+			m_displ = *(m_parent[i]->getDisplacements());
+			ofstream file;
+			file.open(m_filename[i]);
+			if (file.is_open()){
+				file << BaseManipulation::m_ndeg << "\n";
+				for (int iv=0; iv<m_ndeg; iv++){
+					for (int i=0; i<3; i++){
+						file << BaseManipulation::m_displ[iv][i] << "\t";
+					}
+					file << "\n";
+				}
+				file.close();
 			}
-			file << "\n";
 		}
-		file.close();
 	}
 };
 
