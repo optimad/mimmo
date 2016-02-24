@@ -475,7 +475,7 @@ void 		FFDLatticeBox::execute(){
 darray3E 	FFDLatticeBox::apply(darray3E & point){
 	darray3E result;
 	result.fill(0.0);
-	if(isPointIncluded(point)) return result;
+	if(!isPointIncluded(point)) return result;
 	return(nurbsEvaluator(point));
 };
 /*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class 
