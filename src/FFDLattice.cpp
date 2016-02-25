@@ -465,7 +465,6 @@ void 		FFDLatticeBox::execute(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
-//			recoverDisplacementsOut();
 			ivector1D map;
 			dvecarr3E localdef = apply(map);
 			
@@ -481,9 +480,7 @@ void 		FFDLatticeBox::execute(){
 			for (int i=0; i<getNChild(); i++){
 				setDisplacementsOut(i, result);
 			}
-
 };
-
 
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero

@@ -67,7 +67,7 @@ DeformBox::execute(){
 	}
 	for (int i=0; i<m_child.size(); i++){
 		if (m_child[i] != NULL){
-			*(static_cast<FFDLatticeBox*>(m_child[i]))->setCoords(m_coords);
+//			*(static_cast<FFDLatticeBox*>(m_child[i]))->setCoords(m_coords);
 		}
 	}
 	return;
