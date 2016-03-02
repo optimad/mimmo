@@ -33,6 +33,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00002")
 ##Copy significant source files
 configure_file(sphere.stl sphere.stl COPYONLY)
 configure_file(placca.stl placca.stl COPYONLY)
+configure_file(input.txt input.txt COPYONLY)
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
