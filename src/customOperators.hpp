@@ -40,8 +40,9 @@
 template <class T>
 void freeContainer (std::vector<T> & t)
    {
-		std::vector<T> tmp;
-		t.swap(tmp);
+//		std::vector<T> tmp;
+//		t.swap(tmp);
+//		t.resize(0);
     }
 
 /*! Template for summing elements of any std::vector container, provided that 
