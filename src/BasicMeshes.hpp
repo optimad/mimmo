@@ -26,89 +26,93 @@
 #define __MiMMO_BASICMESHES_HH
 
 // local libs
-#include "Operators.hpp"
-#include "customOperators.hpp"
-#include "MiMMO_VTKInterfaces.hpp"
+#include <memory>
+#include "BasicShapes.hpp"
+#include "MiMMO_TypeDef.hpp"
 
 /*!
  *	\date			31/12/2015
- *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
- *	\authors		Arpa Rocco
+ *	\authors		Edoardo Lombardi
+ *	\authors		Rocco Arpa
  *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
  *
- *	\brief Virtual class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
+ *	\brief Class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
  *
- *	Base class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
- *	coordinates system.
+ *	Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
+ *	coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
+ *  The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame 
+ *	retained by its core BasicShape object. 
  */
 
-class BASE_UStructMesh{
-	
+class UStructMesh{
+
+private:
+	BasicShape * m_shape1;				 /**!< generic pointer to BasicShape core of the mesh, for External USE*/
+	std::unique_ptr<BasicShape> m_shape2;/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
+							
 protected:
-	darray3E m_origin; 	/**< Mesh origin*/
-	darray3E m_span;  	/**< Mesh span */
-	double m_dx, m_dy,m_dz;	/**< Mesh spacing in each direction */	
-	int m_nx, m_ny,m_nz;	/**< Mesh number of cells in each direction */
+	double m_dx, m_dy,m_dz;					/**< Mesh spacing in each direction */	
+	int m_nx, m_ny,m_nz;					/**< Mesh number of cells in each direction */
 	dvector1D m_xnode, m_ynode, m_znode; /**<Lists holding the center cells coordinates of the mesh, in local reference sistem */
 	dvector1D m_xedge, m_yedge, m_zedge; /**<Lists holding the point coordinates of the mesh, in local reference system */
-	
+	bool m_setmesh;						 /**< check true if mesh is actually set */
+
 public:	     
 	//Building stuffs	    
-	BASE_UStructMesh();
-	~BASE_UStructMesh();
+	UStructMesh();
+	UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, ivector1D & dimensions);
+	UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, dvector1D & spacing);
+	UStructMesh(BasicShape *, ivector1D & dimensions);
+	UStructMesh(BasicShape *, dvector1D & spacing);
+	virtual ~UStructMesh();
 	
 	// Copy constructor & assignment operators
-	BASE_UStructMesh(const BASE_UStructMesh & other);
-	BASE_UStructMesh & operator=(const BASE_UStructMesh & other);
+	UStructMesh(const UStructMesh & other);
+	UStructMesh & operator=(const UStructMesh & other);
 	
-	//generic mantenaince - get/set stuffs  
+	
+	//get-set methods  
+
+	BasicShape*		getShape();
+	const BasicShape*	getShape() const;
+	darray3E 		getSpacing();
+	ivector1D		getDimension();
+	darray3E 		getLocalCCell(int);
+	darray3E 		getLocalCCell(int, int, int);
+	darray3E 		getLocalPoint(int);
+	darray3E 		getLocalPoint(int, int, int);
+	darray3E 		getGlobalCCell(int);
+	darray3E 		getGlobalCCell(int, int, int);
+	darray3E 		getGlobalPoint(int);
+	darray3E 		getGlobalPoint(int, int, int);
+	
+	ivector1D 		getCellNeighs(int);
+	ivector1D 		getCellNeighs(int, int, int);
+
+	void 		setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, ivector1D & dimensions);
+	void 		setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, dvector1D & spacing);
+	void 		setMesh(BasicShape *, ivector1D & dimensions);
+	void 		setMesh(BasicShape *, dvector1D & spacing);
+
+	
+	//generic manteinance of the mesh
 	void clearMesh();  
-	void resizeMesh();
-	void destroyNodalStructure();
-	void reshapeNodalStructure();
+	bool isBuilt();
 	
-	darray3E getOrigin();
-	darray3E getSpan();
-	darray3E getSpacing();
-	virtual ivector1D getDimension();
+	//functionalities
+	void locateCellByPoint(darray3E & point, int &i, int &j, int &k);
+	void locateCellByPoint(dvector1D & point, int &i, int &j, int &k);
+	int  accessCellIndex(int i, int j, int k);
+	void accessCellIndex(int N_, int &i, int &j, int &k);
+	int  accessPointIndex(int i, int j, int k);
+	void accessPointIndex(int N_, int &i, int &j, int &k);
 	
-	darray3E getGridCCell(int);
-	darray3E getGridCCell(int, int, int);
-	darray3E getGridPoint(int);
-	darray3E getGridPoint(int, int, int);
-	
-	darray3E getGlobalCCell(int);
-	darray3E getGlobalCCell(int, int, int);
-	darray3E getGlobalPoint(int);
-	darray3E getGlobalPoint(int, int, int);
-	
-	ivector1D getCellNeighs(int);
-	ivector1D getCellNeighs(int, int, int);
-	
-	//access mesh methods
-	void returnCellID(darray3E & point, int &i, int &j, int &k);
-	void returnCellID(dvector1D & point, int &i, int &j, int &k);
-	int  accessCellData(int i, int j, int k);
-	void accessCellData(int N_, int &i, int &j, int &k);
-	int  accessPointData(int i, int j, int k);
-	void accessPointData(int N_, int &i, int &j, int &k);
-	
-	// Mesh transforming  
-	void translateMesh(double, double, double);
-	virtual darray3E transfToGlobal( darray3E & point) = 0;
-	virtual dvector1D transfToGlobal( dvector1D & point) = 0;
-	virtual dvecarr3E transfToGlobal( dvecarr3E & list_points) = 0;    
-	virtual darray3E transfToLocal( darray3E & point) = 0;
-	virtual dvector1D transfToLocal( dvector1D & point) = 0;
-	virtual dvecarr3E transfToLocal( dvecarr3E & list_points) = 0;    
-	
-	// various  
-	virtual double getCellVolume(int index) = 0;
-	virtual darray3E getLocalScaling(int index) = 0;
-	virtual darray3E getLocalScaling(int i_, int j_, int k_) = 0;
+	darray3E	transfToGlobal( darray3E & point);
+	dvector1D	transfToGlobal( dvector1D & point);
+	dvecarr3E	transfToGlobal( dvecarr3E & list_points);    
+	darray3E 	transfToLocal( darray3E & point);
+	dvector1D 	transfToLocal( dvector1D & point);
+	dvecarr3E 	transfToLocal( dvecarr3E & list_points);    
 	
 	// interpolators  
 	double interpolateCellData(darray3E & point, dvector1D & celldata);
@@ -118,168 +122,19 @@ public:
 	double interpolatePointData(darray3E & point, dvector1D & pointdata);
 	int interpolatePointData(darray3E & point, ivector1D & pointdata);
 	darray3E interpolatePointData(darray3E & point, dvecarr3E & pointdata);
-	
+
+	//plotting
 	void plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
 	void plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
 	void plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
 	void plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
-};
 
-/*!
- *	\date			31/12/2015
- *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
- *
- *	\brief Class for 3D uniform Cartesian Mesh 
- *
- *	Derived class from UStructMesh for uniform cartesian grids.
- */
-
-class UCubicMesh : public BASE_UStructMesh {
-	
 protected:
-	
-	std::string m_classType;
-	
-public:
-	
-	UCubicMesh();
-	UCubicMesh(darray3E origin_, double spanX_, double spanY_, double spanZ_, int nx_, int ny_, int nz_);
-	~UCubicMesh();
-	
-	// Copy constructor & assignment operators
-	UCubicMesh(const UCubicMesh & other);
-	UCubicMesh & operator=(const UCubicMesh & other);
-	
-	virtual std::string getClassType();
-	
-	virtual void setMesh(darray3E origin_, double spanX_, double spanY_, double spanZ_, int nx_, int ny_, int nz_);
-	// Mesh transforming  
-	void scaleMesh(double, double, double);
-	darray3E transfToGlobal( darray3E & point);
-	dvector1D transfToGlobal( dvector1D & point);
-	dvecarr3E transfToGlobal( dvecarr3E & list_points);    
-	darray3E transfToLocal( darray3E & point);
-	dvector1D transfToLocal( dvector1D & point);
-	dvecarr3E transfToLocal( dvecarr3E & list_points);    
-	
-	// various  
-	double getCellVolume(int index);
-	darray3E getLocalScaling(int index);
-	darray3E getLocalScaling(int i_, int j_, int k_);
-	
-}; 
-
-/*!
- *	\date			31/12/2015
- *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
- *
- *	\brief Class for 3D uniform Cylindrical Mesh 
- *
- *	Derived class from UStructMesh for uniform cartesian grids, in cylindrical reference frame.
- */
-
-class UCylindricalMesh : public BASE_UStructMesh {
-	
-protected:
-	
-	std::string m_classType;
-	double m_thetaOrigin;
-public:
-	
-	UCylindricalMesh();
-	UCylindricalMesh(darray3E origin_, double spanR_, double spanZ_, dvector1D & thetalim_, int nr_, int nt_, int nz_);
-	~UCylindricalMesh();
-	
-	// Copy constructor & assignment operators
-	UCylindricalMesh(const UCylindricalMesh & other);
-	UCylindricalMesh & operator=(const UCylindricalMesh & other);
-	
-	virtual std::string getClassType();
-	virtual void setMesh(darray3E origin_, double spanR_, double spanZ_, dvector1D & thetalim_, int nr_, int nt_, int nz_);
-	
-	// Mesh transforming  
-	void scaleMesh(double, double);
-	darray3E transfToGlobal( darray3E & point);
-	dvector1D transfToGlobal( dvector1D & point);
-	dvecarr3E transfToGlobal( dvecarr3E & list_points);    
-	darray3E transfToLocal( darray3E & point);
-	dvector1D transfToLocal( dvector1D & point);
-	dvecarr3E transfToLocal( dvecarr3E & list_points);    
-	
-	double getAzimuthalOrigin();
-	void  shiftAzimuthalOrigin(double);
-	
-	// various  
-	double getCellVolume(int index);
-	darray3E getLocalScaling(int index);
-	darray3E getLocalScaling(int i_, int j_, int k_);
-	
-	
-};  
-
-/*!
- *	\date			31/12/2015
- *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
- *
- *	\brief Class for 3D uniform Spherical Mesh 
- *
- *	Derived class from UStructMesh for uniform cartesian grids, in spherical reference frame.
- */
-
-class USphericalMesh : public BASE_UStructMesh {
-	
-protected:
-	
-	std::string m_classType;
-	double m_thetaOrigin;
-	double m_phiOrigin;
-public:
-	
-	USphericalMesh();
-	USphericalMesh(darray3E origin_, double spanR_, dvector1D thetalim_, dvector1D philim_, int nr_, int nt_, int np_);
-	~USphericalMesh();
-	
-	// Copy constructor & assignment operators
-	USphericalMesh(const USphericalMesh & other);
-	USphericalMesh & operator=(const USphericalMesh & other);
-	
-	virtual std::string getClassType();
-	virtual void setMesh(darray3E origin_, double spanR_, dvector1D thetalim_, dvector1D philim_, int nr_, int nt_, int np_);
-	
-	// Mesh transforming  
-	void scaleMesh(double);
-	darray3E transfToGlobal( darray3E & point);
-	dvector1D transfToGlobal( dvector1D & point);
-	dvecarr3E transfToGlobal( dvecarr3E & list_points);    
-	darray3E transfToLocal( darray3E & point);
-	dvector1D transfToLocal( dvector1D & point);
-	dvecarr3E transfToLocal( dvecarr3E & list_points);    
-	
-	double getAzimuthalOrigin();
-	void  shiftAzimuthalOrigin(double);
-	
-	double getPolarOrigin();
-	void  shiftPolarOrigin(double);
-	
-	// various  
-	double getCellVolume(int index);
-	darray3E getLocalScaling(int index);
-	darray3E getLocalScaling(int i_, int j_, int k_);
+	//internal manteinance of the mesh
+	void resizeMesh();
+	void destroyNodalStructure();
+	void reshapeNodalStructure();
+	void rebaseMesh();
 	
 };
 

@@ -29,7 +29,7 @@ using namespace bitpit;
 
 // =================================================================================== //
 
-void test0001() {
+void test0002() {
 
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
@@ -70,9 +70,9 @@ void test0001() {
 	dim[1] = 7;
 	dim[2] = 7;
 	
-	deg[0] = 4;
-	deg[1] = 4;
-	deg[2] = 4;
+	deg[0] = 2;
+	deg[1] = 2;
+	deg[2] = 2;
 
 	lattice->setMesh(origin, limits,BasicShape::ShapeType::CUBE,dim, deg);
 
@@ -92,125 +92,18 @@ void test0001() {
 			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
 		}
 	}
-	InputDoF* input = new InputDoF(ndeg, displ);
-	string file = "input.txt";
-	InputDoF* input0 = new InputDoF(file);
-
-	cout << "input setup done" << endl;
-
-	//create applier
-	cout << "applier setup" << endl;
-	Apply* applier = new Apply(&mimmo0);
-
-	lattice->addChild(applier);
-
-	cout << "applier setup done" << endl;
-
-	//create filter mask
-	Mask* mask = new Mask();
-	dvecarr3E coords(ndeg),coords2(ndeg);
-	for (int i=0; i<dim[0]; i++){
-		for (int j=0; j<dim[1]; j++){
-			for (int k=0; k<dim[2]; k++){
-				coords[lattice->accessPointIndex(i,j,k)] = origin + lattice->getLocalPoint(i,j,k);
-				coords2[lattice->accessPointIndex(i,j,k)] = {{0.0, 0.0, 0.0}};
-			}
-		}
-	}
-//	mask->setCoords(coords2);
-	darray3E thres;
-	thres[0] = 0.5;
-	thres[1] = -10.0;
-	thres[2] = -10.0;
-	mask->setThresholds(thres);
-	mask->setForward(0,false);
-	mask->setForward(1,false);
-	mask->setForward(2,false);
-
-	//set filter to lattice
-	mask->addChild(lattice);
-
-	cout << "mask setup done" << endl;
-
-	//create bend
-	Bend* bend = new Bend();
-//	bend->setCoords(coords);
-	dvecarr3E degree(3);
-	degree[2][0] = 2;
-	bend->setDegree(degree);
-	dvector3D coeffs(3, vector<vector<double> >(3) );
-
-	coeffs[2][0].resize(degree[2][0]+1);
-	coeffs[2][0][0] = 0.195;
-	coeffs[2][0][1] = -0.8;
-	coeffs[2][0][2] = 0.8;
-
-	bend->setCoeffs(coeffs);
-	//set bend to lattice
-	bend->addChild(mask);
-	cout << "bend setup done" << endl;
-
-	//create output
-	OutputDoF* output = new OutputDoF();
-	lattice->addChild(output);
-
-
-	//Create chain
-	Chain ch0;
-	int inp;
-	cout << "input zero (0) or random (1)?" << endl;
-	cin >> inp;
-	if (inp==0){
-		input0->addChild(bend);
-		cout << "input" << endl;
-		cout << ch0.addObject(input0) << endl;
-	}else{
-		input->addChild(bend);
-		cout << "input" << endl;
-		cout << ch0.addObject(input) << endl;
-	}
-	cout << "output" << endl;
-	cout << ch0.addObject(output) << endl;
-	cout << "mask" << endl;
-	cout << ch0.addObject(mask) << endl;
-	cout << "applier" << endl;
-	cout << ch0.addObject(applier) << endl;
-	cout << "lattice" << endl;
-	cout << ch0.addObject(lattice) << endl;
-	cout << "bend" << endl;
-	cout << ch0.addObject(bend) << endl;
-
-	cout << "execution start" << endl;
-	ch0.exec();
-	cout << "execution done" << endl;
-
+	lattice->setDisplacements(displ);
+	
+	//do not deform;
+	lattice->execute();
 	lattice->plotGrid("./", "lattice", 0, false, false);
 	lattice->plotGrid("./", "lattice", 1, false, true);
 
-	//Plot results
-	filename = "mimmo1";
-	mimmo0.m_geometry->setName(filename);
+	string filename2 = "mimmo1";
+	mimmo0.m_geometry->setName(filename2);
 	mimmo0.m_geometry->write();
-
-	lattice->clear();
-	applier->clear();
-	mask->clear();
-	bend->clear();
-	input->clear();
-	input0->clear();
-	output->clear();
-
-	delete lattice, applier, mask, bend, input, input0, output;
-
-	lattice = NULL;
-	applier = NULL;
-	mask 	= NULL;
-	bend 	= NULL;
-	input 	= NULL;
-	input0 	= NULL;
-	output 	= NULL;
-
-    return;
+	
+	return;
 
 }
 
@@ -225,7 +118,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-        test0001() ;
+        test0002() ;
 
 #if ENABLE_MPI==1
 	}

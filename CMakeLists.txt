@@ -32,7 +32,7 @@ project(MIMMO)
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
 #------------------------------------------------------------------------------------#
-set(BITPIT_FIND_MODULE_DIR "/opt/bitpit/bitpit/cmake/Modules" CACHE PATH "Directory where the CMake find module of bitpit is located")
+#set(BITPIT_FIND_MODULE_DIR "/opt/bitpit/bitpit/cmake/Modules" CACHE PATH "Directory where the CMake find module of bitpit is located")
 SET(ENABLE_PROFILING 0 CACHE BOOL "Set appropriate compiler flags to enable profiling fo GLORIA")
 SET(STATIC 1 CACHE BOOL "If set, the program is linked using static libraries")
 
@@ -49,7 +49,7 @@ include_directories("src")
 #------------------------------------------------------------------------------------#
 # External dependencies
 #------------------------------------------------------------------------------------#
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${BITPIT_FIND_MODULE_DIR}")
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${BITPIT_FIND_MODULE_DIR}")
 
 if (ENABLE_MPI)
     find_package(MPI)

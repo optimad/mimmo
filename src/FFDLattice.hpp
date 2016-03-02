@@ -26,64 +26,66 @@
 
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "CoreSelectionPatches.hpp"
+#include "BasicMeshes.hpp"
 #include "BaseManipulation.hpp"
+
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Free Form Deformation of a 3D surface and point clouds, with cartesian box structured lattice.
+ *	\brief Free Form Deformation of a 3D surface and point clouds, with structured lattice.
  *
- *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds a 3D box around the geometry and 
- *  and set a structured cartesian mesh of control points on it (lattice). Displacements of each control point is linked to the geometry inside 
- *  the box by means of a NURBS volumetric parameterization. Deformation will be applied only to those portion of geometry
- *  encased into the lattice box.
+ *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape 
+ *  (box, sphere, cylinder or part of them) around the geometry and set a structured cartesian mesh of control 
+ *  points on it (lattice). Displacements of each control point is linked to the geometry inside 
+ *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
+ *  those portion of geometry encased into the 3D shape.
  *
  */
-class FFDLatticeBox: public BaseManipulation, public HullCube {
+class FFDLattice: public BaseManipulation, public UStructMesh {
 
 protected:
 	ivector1D m_deg;		/**< Nurbs curve degree for each of the possible 3 direction in space*/
 	dvector2D m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
-	ivector2D m_multK;		/**< Nurbs curve knots multiplicity vector, for each direction */
+	ivector2D m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D m_weights;	/**< Weights of each control node*/
 
 public:
-	FFDLatticeBox();
-	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, MimmoObject* geometry, BaseManipulation * parent=NULL);
-	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension);
-	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees, MimmoObject* geometry, BaseManipulation * parent=NULL);
-	FFDLatticeBox(darray3E origin, darray3E span, ivector1D dimension, ivector1D degrees);	
-	~FFDLatticeBox();
+	FFDLattice();
+	FFDLattice(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimension);
+	FFDLattice(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
+	FFDLattice(BasicShape * shape, ivector1D & dimension);
+	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);	
+	virtual ~FFDLattice();
 
 	//copy operators/constructors
-	FFDLatticeBox(const FFDLatticeBox & other);
-	FFDLatticeBox & operator=(const FFDLatticeBox & other);
+	FFDLattice(const FFDLattice & other);
+	FFDLattice & operator=(const FFDLattice & other);
 	
 	//clean structure;
-	void cleanAll();
-	void cleanKnots();
+	void clearLattice();
 	
 	//internal methods
 	ivector1D 	getKnotsDimension();
 	dvector1D   getWeights();
 	void 		returnKnotsStructure(dvector2D &, ivector2D &);
-	void 		returnKnotsStructure( std::string, dvector1D &, ivector1D &);
-	ivector1D 	getDimension();
+	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
+		
+	void		setDimension(ivector1D &dimensions);
+	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
 	
-	void		setDimension(ivector1D dimension);
-	void		setDimension(ivector1D dimension, ivector1D curveDegrees);
-	void		setOrigin(darray3E origin);
-	void		setSpan(darray3E span);
-	void 		setMesh(darray3E origin, double spanX, double spanY, double spanZ, int nx, int ny, int nz);
+	void 		setMesh(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions);
+	void 		setMesh(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
+	void 		setMesh(BasicShape * shape, ivector1D & dimension);
+	void		setMesh(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 	
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
 	
 	//plotting wrappers
-	void		plotGrid(std::string directory, std::string filename, int counter, bool ascii, bool deformed);
-	void		plotCloud(std::string directory, std::string filename, int counter, bool ascii, bool deformed);
+	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
+	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	
 	//execute deformation methods
 	void		setInfo();
@@ -92,23 +94,22 @@ public:
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(ivector1D & map);
 	
-	//relationship methods
-protected:
-
 private:
 
 	//Nurbs Evaluators
 	darray3E nurbsEvaluator(darray3E &); 
 	double nurbsEvaluatorScalar(darray3E &, int);
 	dvector1D getNurbsPoint(int k, dvector1D & basis, dvector2D & loads);
-	dvector1D basisITS0(int k, int pos, double coord);	
 
-	//Mesh utility
-	void rebaseMesh();
+	//Nurbs utilities
+	dvector1D basisITS0(int k, int pos, double coord);	
+	dvector2D getWorkLoad(int dir, dvector2D & loads);
+	dvector1D getNodeSpacing(int dir);
 	
 	//knots mantenaince utilities
+	void clearKnots();
 	void setKnotsStructure(); 
-	void setKnotsStructure( std::string); 
+	void setKnotsStructure(int dir, bool flag); 
 	int  	getKnotInterval(double, int);
 	double 	getKnotValue(int, int);
 	int 	getKnotIndex(int,int);

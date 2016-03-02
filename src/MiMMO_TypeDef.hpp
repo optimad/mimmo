@@ -72,5 +72,7 @@ typedef std::vector< dvector3D >	dvector4D;
 typedef std::vector< svector2D >	svector3D;
 typedef std::vector< svector3D >	svector4D;
 
+typedef std::array<darray2E,3>		dmatrix32E;
+typedef std::array<darray3E,3>		dmatrix33E;
 
 #endif //MIMMOTYPEDEF_HH
