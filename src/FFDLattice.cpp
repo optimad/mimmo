@@ -815,10 +815,9 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
  */
 void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 
-//	dvector2D result;
-	bvector1D loop = getShape()->areClosedLoops();
+	bool loop = getShape()->areClosedLoops(dir);
 
-	if(loop[dir]){
+	if(loop){
 		//ivector1D dim = getDimension();
 		int dimdir = getDimension()[dir];
 		int nn = dimdir+m_deg[dir];
@@ -854,7 +853,7 @@ void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 			}
 		}
 	}else{
-		return(loads);
+		result = loads;
 	}
 
 };
