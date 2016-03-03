@@ -778,15 +778,16 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 		ivector1D dim = getDimension();
 		int nn = dim[dir]+m_deg[dir];
 		result.resize(nn, dvector1D(loads[0].size(),0));
+
 		int preNNumb = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
 		int postNNumb = (m_deg[dir]-1) - preNNumb;
 
 		// loads on extrema get averaged
-		result[preNNumb] = 0.5*(loads[0] + loads[dimdir -1]);
-		result[preNNumb + dimdir -1] = result[preNNumb];
+		result[preNNumb] = 0.5*(loads[0] + loads[dim[dir] -1]);
+		result[preNNumb + dim[dir] -1] = result[preNNumb];
 
 		// set the other internal loads
-		for(int i=1; i<dimdir-1; ++i){
+		for(int i=1; i<dim[dir]-1; ++i){
 			result[i+preNNumb] = loads[i];
 		}
 		//postpend the first preNNumb loads
@@ -797,7 +798,7 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 		//prepend the last postNNumb loads.
 		pInd = 1;
 		for(int i=0; i<=postNNumb; ++i){
-			result[i+preNNumb+dimdir] = loads[pInd+i];
+			result[i+preNNumb+dim[dir]] = loads[pInd+i];
 		}
 	}else{
 		return(loads);

@@ -103,7 +103,7 @@ private:
 
 	//Nurbs utilities
 	dvector1D basisITS0(int k, int pos, double coord);	
-//	dvector2D getWorkLoad(int dir, dvector2D & loads);
+	dvector2D getWorkLoad(int dir, dvector2D & loads);
 	void getWorkLoad(int dir, dvector2D & loads, dvector2D & result);
 	dvector1D getNodeSpacing(int dir);
 	
