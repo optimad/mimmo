@@ -44,14 +44,14 @@ class MimmoObject{
 public:
 
 	//members
-	int				m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
-	bitpit::Patch*	m_geometry;			/**<Reference geometry. */
-	bool			m_internalPatch;	/**<If the geometry is internally created. */
+	int						m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
+	bitpit::PatchKernel*	m_geometry;			/**<Reference geometry. */
+	bool					m_internalPatch;	/**<If the geometry is internally created. */
 
 public:
 	MimmoObject(int type = 1);
 	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
-	MimmoObject(int type, bitpit::Patch* geometry);
+	MimmoObject(int type, bitpit::PatchKernel* geometry);
 	~MimmoObject();
 
 	MimmoObject(const MimmoObject & other);
@@ -65,13 +65,13 @@ public:
 	dvecarr3E	getVertex();
 	darray3E	getVertex(long i);
 	ivector1D	getConnectivity(long i);
-	bitpit::Patch*		getGeometry();
+	bitpit::PatchKernel*		getGeometry();
 
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(int index, darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
-	bool		setGeometry(int type, bitpit::Patch* geometry);
+	bool		setGeometry(int type, bitpit::PatchKernel* geometry);
 
 	void		write(std::string filename);
 };

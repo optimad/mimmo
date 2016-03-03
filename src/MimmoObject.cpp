@@ -36,8 +36,8 @@ MimmoObject::MimmoObject(int type){
 	m_type = max(type,1);
 	const int id = 0;
 	if (m_type == 2){
-		m_geometry = new VolTriPatch(id);
-		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+//		m_geometry = new VolTriPatch(id);
+//		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
 	}else{
 		m_geometry = new SurfTriPatch(id);
 		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
@@ -55,8 +55,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	m_internalPatch = true;
 	const int id = 0;
 	if (m_type == 2){
-		m_geometry = new VolTriPatch(id);
-		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+//		m_geometry = new VolTriPatch(id);
+//		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
 	}else{
 		m_geometry = new SurfTriPatch(id);
 		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
@@ -69,9 +69,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 /*!Custom constructor of MimmoObject.
  * This constructor links a given patch of given type.
  * \param[in] type Type of linked Patch (0 = generic (default value), 1 = surface, 2 = volume).
- * \param[in] geometry Pointer to a geometry of class Patch to be linked.
+ * \param[in] geometry Pointer to a geometry of class PatchKernel to be linked.
  */
-MimmoObject::MimmoObject(int type, Patch* geometry){
+MimmoObject::MimmoObject(int type, PatchKernel* geometry){
 	m_type 			= type;
 	m_geometry 		= geometry;
 	m_internalPatch = false;
@@ -186,7 +186,7 @@ MimmoObject::getConnectivity(long i){
 /*!It gets the geometry Patch linked by Mimmo Object.
  * \return Pointer to geometry mesh.
  */
-Patch*
+PatchKernel*
 MimmoObject::getGeometry(){
 	return m_geometry;
 };
@@ -200,7 +200,7 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 	
 	if (m_geometry == NULL) return false;
 	long nv = vertex.size();
-	Patch::VertexIterator index;
+	PatchKernel::VertexIterator index;
 	for (long i=0; i<nv; i++){
 		index = m_geometry->addVertex();
 		index->setCoords(vertex[i]);
@@ -217,7 +217,7 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 bool
 MimmoObject::setVertex(int index, darray3E & vertex){
 	if (m_geometry == NULL) return false;
-	Patch::VertexIterator it = m_geometry->addVertex();
+	PatchKernel::VertexIterator it = m_geometry->addVertex();
 	it->setCoords(vertex);
 	return true;
 };
@@ -253,7 +253,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 			connect[j] = (*connectivity)[i][j];
 		}
 		index = i;
-		Patch::CellIterator it;
+		PatchKernel::CellIterator it;
 		if (m_type == 1)  it = m_geometry->addCell(ElementInfo::TRIANGLE, true, index);
 		if (m_type == 2)  it = m_geometry->addCell(ElementInfo::TETRA, true, index);
 		it->setConnect(move(connect));
@@ -270,7 +270,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
  * \return False if the argument pointer is NULL.
  */
 bool
-MimmoObject::setGeometry(int type, Patch* geometry){
+MimmoObject::setGeometry(int type, PatchKernel* geometry){
 	if (geometry == NULL) return false;
 	m_geometry = geometry;
 	m_type = type;

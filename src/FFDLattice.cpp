@@ -485,7 +485,7 @@ void 		FFDLattice::execute(){
 			dvecarr3E localdef = apply(map);
 			
 			//reset displacement in a unique vector
-			bitpit::Patch * tri = container->getGeometry();
+			bitpit::PatchKernel * tri = container->getGeometry();
 			int size = tri->getVertexCount();
 			
 			dvecarr3E result(size, darray3E{0,0,0});
@@ -525,14 +525,14 @@ darray3E 	FFDLattice::apply(darray3E & point){
 dvecarr3E 	FFDLattice::apply(ivector1D & list){
 	//TODO now geometry displacement points are recovered from a list of effectively displaced points +
 	// an internal map called list. This list contained an absolute id (get_id, set_id methods) of the geometry vertex, according to the 
-	// logic of bitpit bitpit::Patch object for geometry data structure. You can rethink this outputs when your knowledge on
-	//how the object bitpit::Patch work is more mature.
+	// logic of bitpit bitpit::PatchKernel object for geometry data structure. You can rethink this outputs when your knowledge on
+	//how the object bitpit::PatchKernel work is more mature.
 	
 	dvecarr3E result;
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return result;
 	
-	bitpit::Patch * tri = container->getGeometry();
+	bitpit::PatchKernel * tri = container->getGeometry();
 	
 	freeContainer(list);
 	list = getShape()->includeCloudPoints(tri);

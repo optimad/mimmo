@@ -210,7 +210,7 @@ darray3E BasicShape::getLocalSpan(){
  * \param[in] tri target tessellation
  * \param[out] result list-by-ids of simplicies included in the volumetric patch
  */
-ivector1D BasicShape::includeGeometry(bitpit::Patch * tri ){
+ivector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
   
   int nCells = tri->getCellCount();	
   ivector1D result(nCells); 
@@ -232,7 +232,7 @@ ivector1D BasicShape::includeGeometry(bitpit::Patch * tri ){
  * \param[in] tri target tesselation
  * \param[out] result list-by-ids of simplicies outside the volumetric patch
  */
-ivector1D BasicShape::excludeGeometry(bitpit::Patch * tri){
+ivector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
   
 	int nCells = tri->getCellCount();	
 	ivector1D result(nCells); 
@@ -299,7 +299,7 @@ ivector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices included in the volumetric patch
  */
-ivector1D BasicShape::includeCloudPoints(bitpit::Patch * tri){
+ivector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	
 	int nVert = tri->getVertexCount();	
 	ivector1D result(nVert); 
@@ -321,7 +321,7 @@ ivector1D BasicShape::includeCloudPoints(bitpit::Patch * tri){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices outside the volumetric patch
  */
-ivector1D BasicShape::excludeCloudPoints(bitpit::Patch * tri){
+ivector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 	
 	int nVert = tri->getVertexCount();	
 	ivector1D result(nVert); 
@@ -356,7 +356,7 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
  * \param[in] indexT triangle index of tri.
  * \param[out] result boolean
  */ 
-bool BasicShape::isSimplexIncluded(bitpit::Patch * tri, int indexT){
+bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, int indexT){
 
   Cell cell = tri->getCell(indexT);
   long * conn = cell.getConnect();
@@ -391,7 +391,7 @@ bool BasicShape::isPointIncluded(darray3E point){
  * \param[in] indexV id of a vertex belonging to tri;
  * \param[out] result boolean
  */
-bool BasicShape::isPointIncluded(bitpit::Patch * tri, int indexV){
+bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, int indexV){
 	
 	bool check = true;
 	darray3E coords = tri->getVertex(indexV).getCoords();

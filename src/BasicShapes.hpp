@@ -92,16 +92,16 @@ public:
 	
 	
 	//functionalities
-    ivector1D	includeGeometry(bitpit::Patch * );
-    ivector1D	excludeGeometry(bitpit::Patch * );
+    ivector1D	includeGeometry(bitpit::PatchKernel * );
+    ivector1D	excludeGeometry(bitpit::PatchKernel * );
     ivector1D	includeCloudPoints(dvecarr3E &);
     ivector1D	excludeCloudPoints(dvecarr3E &);
-	ivector1D	includeCloudPoints(bitpit::Patch * );
-	ivector1D	excludeCloudPoints(bitpit::Patch * );
+	ivector1D	includeCloudPoints(bitpit::PatchKernel * );
+	ivector1D	excludeCloudPoints(bitpit::PatchKernel * );
 	bool		isSimplexIncluded(dvecarr3E &);
-	bool		isSimplexIncluded(bitpit::Patch * , int indexT);
+	bool		isSimplexIncluded(bitpit::PatchKernel * , int indexT);
     bool		isPointIncluded(darray3E);
-	bool		isPointIncluded(bitpit::Patch * , int indexV);
+	bool		isPointIncluded(bitpit::PatchKernel * , int indexV);
 	
 	virtual	darray3E	toWorldCoord(darray3E & point)=0;
 	virtual	darray3E	toLocalCoord(darray3E & point)=0;
