@@ -60,8 +60,8 @@ protected:
 public:	     
 	//Building stuffs	    
 	UStructMesh();
-	UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, ivector1D & dimensions);
-	UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, dvector1D & spacing);
+	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
+	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
 	UStructMesh(BasicShape *, ivector1D & dimensions);
 	UStructMesh(BasicShape *, dvector1D & spacing);
 	virtual ~UStructMesh();
@@ -89,8 +89,8 @@ public:
 	ivector1D 		getCellNeighs(int);
 	ivector1D 		getCellNeighs(int, int, int);
 
-	void 		setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, ivector1D & dimensions);
-	void 		setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType, dvector1D & spacing);
+	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
+	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
 	void 		setMesh(BasicShape *, ivector1D & dimensions);
 	void 		setMesh(BasicShape *, dvector1D & spacing);
 

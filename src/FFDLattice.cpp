@@ -52,14 +52,14 @@ FFDLattice::FFDLattice(){
 /*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
  * \param[in] origin point origin in global reference system
- * \param[in] limits inferior/superior limits for each shape coordinate in space (local r.s.)
+ * \param[in] span span for each shape coordinate in space (local r.s.)
  * \param[in] type BasicShape::ShapeType enum identifies the shape
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
  */
-FFDLattice::FFDLattice(darray3E &origin, dmatrix32E &limits, BasicShape::ShapeType type, ivector1D &dimensions, 
+FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions, 
 						ivector1D & degrees):FFDLattice(){
-	setMesh(origin, limits, type, dimensions, degrees);
+	setMesh(origin, span, type, dimensions, degrees);
 };
 
 /*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
@@ -67,13 +67,13 @@ FFDLattice::FFDLattice(darray3E &origin, dmatrix32E &limits, BasicShape::ShapeTy
  *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
  *   
  * \param[in] origin point origin in global reference system
- * \param[in] limits inferior/superior limits for each shape coordinate in space (local r.s.)
+ * \param[in] span span for each shape coordinate in space (local r.s.)
  * \param[in] type BasicShape::ShapeType enum identifies the shape
  * \param[in] dimensions number of control nodes for each direction
  */
-FFDLattice::FFDLattice(darray3E &origin, dmatrix32E &limits, BasicShape::ShapeType type, ivector1D &dimensions 
+FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions 
 					   ):FFDLattice(){
-	   setMesh(origin, limits, type, dimensions);
+	   setMesh(origin, span, type, dimensions);
 };
 
 /*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
@@ -268,15 +268,15 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
  * \param[in] origin point origin in global reference system
- * \param[in] limits inferior/superior limits for each shape coordinate in space (local r.s.)
+ * \param[in] span span for each shape coordinate in space (local r.s.)
  * \param[in] type BasicShape::ShapeType enum identifies the shape
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
  */
-void FFDLattice::setMesh(darray3E &origin,dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees){
+void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees){
 	
 	clearMesh();
-	UStructMesh::setMesh(origin,limits,type,dimensions);
+	UStructMesh::setMesh(origin,span,type,dimensions);
 	
 	m_deg[0] = std::min(m_nx,std::max(1,degrees[0]));
 	m_deg[1] = std::min(m_ny,std::max(1,degrees[1]));
@@ -300,14 +300,14 @@ void FFDLattice::setMesh(darray3E &origin,dmatrix32E & limits, BasicShape::Shape
  *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
  *   
  * \param[in] origin point origin in global reference system
- * \param[in] limits inferior/superior limits for each shape coordinate in space (local r.s.)
+ * \param[in] span span for each shape coordinate in space (local r.s.)
  * \param[in] type BasicShape::ShapeType enum identifies the shape
  * \param[in] dimensions number of control nodes for each direction
  */
-void FFDLattice::setMesh(darray3E &origin,dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions){
+void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions){
 	
 	clearMesh();
-	UStructMesh::setMesh(origin,limits,type,dimensions);
+	UStructMesh::setMesh(origin,span,type,dimensions);
 	
 	m_deg[0] = m_nx;
 	m_deg[1] = m_ny;
@@ -757,9 +757,9 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 	
 	dvector2D result;
-	bvector1D loop = getShape()->areClosedLoops();
+	bool loop = getShape()->areClosedLoops(dir);
 	
-	if(loop[dir]){
+	if(loop){
 		ivector1D dim = getDimension();
 		int nn = dim[dir]+m_deg[dir];
 		result.resize(nn, dvector1D(loads[0].size(),0));
@@ -786,7 +786,7 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 			result[i+preNNumb+dim[dir]] = loads[pInd+i];
 		}
 	}else{
-		result = loads;
+		return(loads);
 	}
 	
 	return(result);
@@ -800,19 +800,18 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 	dvector1D result;
 	ivector1D dim = getDimension();
 	darray3E span = getShape()->getLocalSpan();
-	darray3E origin = getShape()->getLocalInfLimits();
-	bvector1D loop = getShape()->areClosedLoops();
+	bool loop = getShape()->areClosedLoops(dir);
 	
-	if(loop[dir]){
+	if(loop){
 		int nn = dim[dir]+m_deg[dir]-1;
 		result.resize(nn);
 		double dKn = span[dir]/(dim[dir]-1);
 		
 		int retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
-		origin[dir] = origin[dir] - retroOrigin*dKn;
+		double origin = -1.0 * retroOrigin * dKn;
 		
 		for(int i=0; i<nn; ++i){
-			result[i] = origin[dir] + i*dKn;
+			result[i] = origin + i*dKn;
 		}
 		
 	}else{
@@ -821,7 +820,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 		result.resize(nn);
 		double dKn = span[dir]/(dim[dir]-1);
 		for(int i=0; i<nn; ++i){
-			result[i] = origin[dir] + i*dKn;
+			result[i] = i*dKn;
 		}
 	}
 	
@@ -830,7 +829,6 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 
 /*!Clean all knots stuff in your lattice */
 void FFDLattice::clearKnots(){
-	
 	
 	freeContainer(m_knots);
 	freeContainer(m_mapEff);
@@ -844,9 +842,8 @@ void FFDLattice::clearKnots(){
 
 /*! Apply knots structure after modifications to Nurbs curve degrees member */
 void 		FFDLattice::setKnotsStructure(){
-		bvector1D loop = getShape()->areClosedLoops();
 		for(int i=0; i<3; i++){
-			setKnotsStructure(i,loop[i]);
+			setKnotsStructure(i,getShape()->areClosedLoops(i));
 		}
 }
 

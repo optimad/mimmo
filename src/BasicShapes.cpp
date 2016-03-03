@@ -45,13 +45,15 @@ using namespace bitpit;
 /*! Basic Constructor */
 BasicShape::BasicShape(){
 
+	m_shape = ShapeType::CUBE;
+	m_origin.fill(0.0);
+	m_span.fill(0.0);
+	m_infLimits.fill(0.0);
 	for(int i=0; i<3; ++i){
-		m_limitSpan[i].fill(0.0);
 		m_sdr[i].fill(0.0);
 	}
 	m_sdr[0][0] = m_sdr[1][1] = m_sdr[2][2] = 1.0;
 	m_closedLoops.resize(3, false);
-	m_shape = ShapeType::CUBE;
 	m_scaling.fill(1.0);
 };
 
@@ -72,27 +74,22 @@ void BasicShape::setOrigin(darray3E origin){
  */
 void BasicShape::setSpan(double s0, double s1, double s2){
 	checkSpan(s0,s1,s2);
-	m_limitSpan[0][1] = m_limitSpan[0][0] + s0;
-	m_limitSpan[1][1] = m_limitSpan[1][0] + s1;
-	m_limitSpan[2][1] = m_limitSpan[2][0] + s2;
-	setScaling();
+	setScaling(s0,s1,s2);
 }
 
 /*! Set coordinate's origin of your shape, according to its local reference system  
- * \param[in] o0 first coordinate origin
- * \param[in] o1 second coordinate origin
- * \param[in] o2 third coordinate origin
+ * \param[in] orig first coordinate origin
+ * \param[in] dir 0,1,2 int flag identifying coordinate
  */
-void BasicShape::setInfLimits(double o0, double o1, double o2){
+void BasicShape::setInfLimits(double orig, int dir){
+	if(dir<0 || dir>2) return;
 	
 	darray3E span = getSpan();
-	
-	checkInfLimits(o0,o1,o2);
-	m_limitSpan[0][0] =o0;
-	m_limitSpan[1][0] =o1;
-	m_limitSpan[2][0] =o2;
-	
-	setSpan(span[0],span[1],span[2]);
+	bool check = checkInfLimits(orig,dir);
+	if(check){
+		m_infLimits[dir] = orig; 
+		setSpan(span[0],span[1],span[2]);
+	}
 }
 
 /*! Set new axis orientation of the local reference system
@@ -135,14 +132,11 @@ void BasicShape::setRefSystem(darray3E axis, darray3E point){
 }
 
 /*! Set booleans to treat your shape coordinates as periodic (true) or regular (false)
- * \param[in] per0 first coordinate
- * \param[in] per1 second coordinate
- * \param[in] per2 third coordinate
+ * \param[in] flag true/false to mark coordinate as periodic/regular 
+ * \param[in] dir  0,1,2 int flag identifying coordinate
  */
-void BasicShape::setClosedLoops(bool per0, bool per1, bool per2){
-	m_closedLoops[0] = per0;
-	m_closedLoops[1] = per1;
-	m_closedLoops[2] = per2;
+void BasicShape::setClosedLoops(bool flag, int dir){
+	m_closedLoops[dir] = flag;
 }
 
 /*! Return current origin of your shape
@@ -156,22 +150,19 @@ darray3E BasicShape::getOrigin(){
  * \param[out] result span
  */
 darray3E BasicShape::getSpan(){
-	darray3E result;
-	for(int i=0; i<3; ++i) {
-		result[i] = m_limitSpan[i][1] - m_limitSpan[i][0];
+	darray3E result = getLocalSpan();
+	darray3E scale = getScaling();
+	for(int i; i<3; ++i){
+		result[i] = scale[i]*result[i];
 	}
 	return(result);
 }
 
-/*! Return current coordinates' origin of your shape
+/*! Return current coordinates' origin of your shape, in local coord system
  * \param[out] result coords origin
  */
 darray3E BasicShape::getInfLimits(){
-	darray3E result;
-	for(int i=0; i<3; ++i) {
-		result[i] = m_limitSpan[i][0];
-	}
-	return(result);
+	return(m_infLimits);
 }
 
 /*! Return actual axis of global relative sdr
@@ -181,11 +172,12 @@ dmatrix33E BasicShape::getRefSystem(){
 	return(m_sdr);
 }
 
-/*! Return if your current shape coordinates are set as periodic or not
- * \param[in] result boolean vector
+/*! Return if your current shape coordinate "dir" is set as periodic or not
+ * \param[in] result boolean flag , true if dir is periodic
+ * \param[in] dir   0,1,2 int flag identifying coordinate
  */
-bvector1D BasicShape::areClosedLoops(){
-	return(m_closedLoops);
+bool BasicShape::areClosedLoops(int dir){
+	return(m_closedLoops[dir]);
 }
 /*! Get current type of shape instantiated
  * \param[out] result BasicShape::ShapeType enum
@@ -204,6 +196,13 @@ const BasicShape::ShapeType BasicShape::getShapeType() const {
 /*! Get current scaling w.r.t the primitive unitary shape*/
 darray3E BasicShape::getScaling(){
 	return(m_scaling);
+}
+
+/*! Return span of your elementary shape, in local coord system
+ * \param[out] result span
+ */
+darray3E BasicShape::getLocalSpan(){
+	return(m_span);
 }
 
 /*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex inside the volume of
@@ -419,21 +418,14 @@ Cube::Cube(){
 	m_shape=ShapeType::CUBE;
 };
 
- /*! Custom Constructor. Set shape origin, inferior/superior limits of the cube,
+ /*! Custom Constructor. Set shape origin, span of the cube,
   * ordered as width, height, span. 
    * \param[in] origin_ point origin in global reference system
-   * \param[in] limits inf/sup limit for each shape coordinate;
+   * \param[in] span span in each shape local coordinate x,y,z;
    */
-Cube::Cube(darray3E &origin, dmatrix32E & limits): Cube(){
+ Cube::Cube(darray3E &origin, darray3E & span): Cube(){
 	      
 	setOrigin(origin);
-	darray3E span;
-	darray3E infLim;
-	for(int i=0; i<3; ++i){
-		span[i] = limits[i][1] - limits[i][0];
-		infLim[i] = limits[i][0];
-	}
-	setInfLimits(infLim[0], infLim[1], infLim[2]);
 	setSpan(span[0], span[1], span[2]);
 }; 
 
@@ -455,28 +447,14 @@ Cube & Cube::operator=(const Cube & other){
 	
 	m_shape = other.m_shape;
 	m_origin = other.m_origin;
-	m_limitSpan = other.m_limitSpan;
+	m_span = other.m_span;
+	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
 	m_closedLoops = other.m_closedLoops;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
 
-/*! Return current span of your shape
- * \param[out] result span
- */
-darray3E Cube::getLocalSpan(){
-	darray3E result{1.0,1.0,1.0};
-	return(result);
-}
-
-/*! Return current coordinates' origin of your shape
- * \param[out] result coords origin
- */
-darray3E Cube::getLocalInfLimits(){
-	darray3E result{-0.5,-0.5,-0.5};
-	return(result);
-}
 
 /*! Transform point from local reference system of the shape,
  * to world reference system. 
@@ -508,6 +486,7 @@ darray3E	Cube::toWorldCoord(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cube::toLocalCoord(darray3E & point){
+
 	darray3E work, work2;
 
 	//unapply origin translation
@@ -529,23 +508,21 @@ darray3E	Cube::toLocalCoord(darray3E & point){
 };
 
 /*! Transform point from unitary cube reference system, to local reference system 
- * of the shape.
+ * of the shape. Practically, doing nothing!
  * \param[in] point target
  * \param[out] result transformed point
  */
 darray3E	Cube::basicToLocal(darray3E & point){
-	darray3E basicOr{-0.5,-0.5,-0.5};
-	return(point + basicOr);
+	return(point);
 };
 
 /*! Transform point from local reference system of the shape,
- * to unitary cube reference system.
+ * to unitary cube reference system. Practically, doing nothing!
  * \param[in] point target
  * \param[out] result transformed point
  */
 darray3E	Cube::localToBasic(darray3E & point){
-	darray3E basicOr{-0.5,-0.5,-0.5};
-	return(point - basicOr);
+	return(point);
 };
 
 /*! Check if your new span values fit your current shape set up
@@ -558,17 +535,20 @@ void 		Cube::checkSpan(double &s0, double &s1, double &s2){
 };
 
 /*! Check if your coords origin values fit your current shape set up
- * and eventually return correct values.
+ * and eventually return correct values. Return true, if valid new value is set.
  */
-void 		Cube::checkInfLimits(double &o0, double &o1, double &o2){
+bool 		Cube::checkInfLimits(double &o0, int &dir){
 			//really doing nothing here.
+			//whatever origin for whatever coordinate must return always 0 for cubic/cuboidal shape
+			return(false);
 };
 
-/*! set scaling vector of your object */
-void 		Cube::setScaling(){
-			for(int i=0; i<3; ++i){
-				m_scaling[i] = m_limitSpan[i][1] - m_limitSpan[i][0];
-			}
+/*! set local span & scaling vectors of your object */
+void 		Cube::setScaling( double &s0, double &s1, double &s2){
+			m_span.fill(1.0);
+			m_scaling[0] = s0;
+			m_scaling[1] = s1;
+			m_scaling[2] = s2;
 };
 
 
@@ -596,16 +576,9 @@ Cylinder::Cylinder(){
  * \param[in] origin_ point origin in global reference system
  * \param[in] limits inf/sup limit for each shape coordinate;
  */
-Cylinder::Cylinder(darray3E &origin, dmatrix32E & limits): Cylinder(){
+Cylinder::Cylinder(darray3E &origin, darray3E & span): Cylinder(){
 	
 	setOrigin(origin);
-	darray3E span;
-	darray3E infLim;
-	for(int i=0; i<3; ++i){
-		span[i] = limits[i][1] - limits[i][0];
-		infLim[i] = limits[i][0];
-	}
-	setInfLimits(infLim[0], infLim[1], infLim[2]);
 	setSpan(span[0], span[1], span[2]);
 }; 
 
@@ -627,30 +600,13 @@ Cylinder & Cylinder::operator=(const Cylinder & other){
 	
 	m_shape = other.m_shape;
 	m_origin = other.m_origin;
-	m_limitSpan = other.m_limitSpan;
+	m_span = other.m_span;
+	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
 	m_closedLoops = other.m_closedLoops;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
-
-/*! Return current span of your shape
- * \param[out] result span
- */
-darray3E Cylinder::getLocalSpan(){
-	darray3E result{1.0,1.0,1.0};
-	result[1] = m_limitSpan[1][1] - m_limitSpan[1][0];
-	return(result);
-}
-
-/*! Return current coordinates' origin of your shape
- * \param[out] result coords origin
- */
-darray3E Cylinder::getLocalInfLimits(){
-	darray3E result{0.0,0.0,-0.5};
-	return(result);
-}
-
 
 
 /*! Transform point from local reference system of the shape,
@@ -660,23 +616,23 @@ darray3E Cylinder::getLocalInfLimits(){
  */
 darray3E	Cylinder::toWorldCoord(darray3E & point){
 	
-	darray3E work, work2, work3;
+	darray3E work, work2;
 	//unscale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = point[i]*m_scaling[i];
+		work2[i] = point[i]*m_scaling[i];
 	}
 	
 	//return to local xyz system
-	work2[0] = work[0]*std::cos(work[1] + m_limitSpan[1][0]); 
-	work2[1] = work[0]*std::sin(work[1] + m_limitSpan[1][0]); 
-	work2[2] = work[2];
+	work[0] = work2[0]*std::cos(work[1] + m_infLimits[1]); 
+	work[1] = work2[0]*std::sin(work[1] + m_infLimits[1]); 
+	work[2] = work2[2];
 	
 	//unapply change to local sdr transformation
 	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work2, transp, work3);
+	linearalgebra::matmul(work, transp, work2);
 	
 	//unapply origin translation
-	work = work3 + m_origin;
+	work = work2 + m_origin;
 	return(work);
 };
 /*! Transform point from world coordinate system, to local reference system 
@@ -685,31 +641,32 @@ darray3E	Cylinder::toWorldCoord(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cylinder::toLocalCoord(darray3E & point){
-	darray3E work, work2,work3;
+	darray3E work, work2;
 	
 	//unapply origin translation
-	work = point - m_origin;
+	work2 = point - m_origin;
 	
 	//apply change to local sdr transformation
-	linearalgebra::matmul(work, m_sdr, work2);
+	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//get to proper local system
-	if(work2[0] ==0.0 && work2[1] ==0.0){work3[0] = 0.0; work3[1] = 0.0;}
+	if(work[0] ==0.0 && work[1] ==0.0){work2[0] = 0.0; work2[1] = 0.0;}
 	else{
-		work3[0] = pow(work2[0]*work2[0] + work2[1]*work2[1],0.5);
-		double pdum = std::atan2(work2[1],work2[0]);
-		work3[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+		work2[0] = pow(work[0]*work[0] + work[1]*work[1],0.5);
+		double pdum = std::atan2(work[1],work[0]);
+		work2[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
 	}
 		//get to the correct m_thetaOrigin mark
 		double param = 8*std::atan(1.0);
-		work3[1] = work3[1] - m_limitSpan[1][0];
-		if(work3[1] < 0) 		work3[1] = param + work3[1];
-		if(work3[1] > param) 	work3[1] = work3[1] - param;
-		work3[2] = work2[2];
+		work2[1] = work2[1] - m_infLimits[1];
+		if(work2[1] < 0) 		work2[1] = param + work2[1];
+		if(work2[1] > param) 	work2[1] = work2[1] - param;
+		
+	work2[2] = work[2];
 	
 	//scale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = work3[i]/m_scaling[i];
+		work[i] = work2[i]/m_scaling[i];
 	}
 	return(work);
 };
@@ -720,9 +677,8 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cylinder::basicToLocal(darray3E & point){
-	darray3E basicOr{0.0,0.0,-0.5};
-	point[1] = point[1]*(m_limitSpan[1][1] - m_limitSpan[1][0]);
-	return(point + basicOr);
+	point[1] = point[1]*m_span[1];
+	return(point);
 };
 
 /*! Transform point from local reference system of the shape,
@@ -731,9 +687,8 @@ darray3E	Cylinder::basicToLocal(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cylinder::localToBasic(darray3E & point){
-	darray3E basicOr{0.0,0.0,-0.5};
-	point[1] = point[1]/(m_limitSpan[1][1] - m_limitSpan[1][0]);
-	return(point - basicOr);
+	point[1] = point[1]/(m_span[1]);
+	return(point);
 };
 
 /*! Check if your new span values fit your current shape set up
@@ -746,27 +701,34 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
 	
 	double thetalim = 8.0* std::atan(1.0);
 	s1 = std::min(s1, thetalim);
-	if(s1 <= 0.0) {s1 = thetalim;}
 	//check closedLoops;
-	m_closedLoops[1] = !(s1 < thetalim);
-	
+	setClosedLoops(!(s1 < thetalim),1);
 };
 
 /*! Check if your coords origin values fit your current shape set up
- * and eventually return correct values.
+ * and eventually return correct values. Return true, if valid new value is set.
  */
-void 		Cylinder::checkInfLimits(double &o0, double &o1, double &o2){
-	
-	o0 = std::max(o0,0.0);
+bool 	Cylinder::checkInfLimits(double &orig, int &dir){
 	double thetalim = 8.0* std::atan(1.0);
-	o1 = std::min(thetalim, std::max(0.0, o1));
+	bool check = false;
+	switch(dir){
+		case 1: 
+			orig = std::min(thetalim, std::max(0.0, orig));
+			check = true;
+			break;
+		default:	// doing nothing
+			break;
+	}
+	return(check);
 };
 
-/*! set scaling vector of your object */
-void 		Cylinder::setScaling(){
-	m_scaling[0] = m_limitSpan[0][1] - m_limitSpan[0][0];
-	m_scaling[1] = 1.0;
-	m_scaling[2] = m_limitSpan[2][1] - m_limitSpan[2][0];
+/*! set span and scaling vectors of your object */
+void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
+		m_span.fill(1.0);
+		m_scaling.fill(1.0);
+		m_span[1] = s1;
+		m_scaling[0] = s0;
+		m_scaling[2] = s2;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -793,16 +755,9 @@ Sphere::Sphere(){
  * \param[in] origin_ point origin in global reference system
  * \param[in] limits inf/sup limit for each shape coordinate;
  */
-Sphere::Sphere(darray3E &origin, dmatrix32E & limits): Sphere(){
+Sphere::Sphere(darray3E &origin, darray3E & span): Sphere(){
 	
 	setOrigin(origin);
-	darray3E span;
-	darray3E infLim;
-	for(int i=0; i<3; ++i){
-		span[i] = limits[i][1] - limits[i][0];
-		infLim[i] = limits[i][0];
-	}
-	setInfLimits(infLim[0], infLim[1], infLim[2]);
 	setSpan(span[0], span[1], span[2]);
 }; 
 
@@ -823,30 +778,13 @@ Sphere & Sphere::operator=(const Sphere & other){
 	
 	m_shape = other.m_shape;
 	m_origin = other.m_origin;
-	m_limitSpan = other.m_limitSpan;
+	m_span = other.m_span;
+	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
 	m_closedLoops = other.m_closedLoops;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
-
-/*! Return current span of your shape
- * \param[out] result span
- */
-darray3E Sphere::getLocalSpan(){
-	darray3E result{1.0,1.0,1.0};
-	result[1] = m_limitSpan[1][1] - m_limitSpan[1][0];
-	result[2] = m_limitSpan[2][1] - m_limitSpan[2][0];
-	return(result);
-}
-
-/*! Return current coordinates' origin of your shape
- * \param[out] result coords origin
- */
-darray3E Sphere::getLocalInfLimits(){
-	darray3E result{0.0,0.0,0.0};
-	return(result);
-}
 
 /*! Transform point from local reference system of the shape,
  * to world reference system. 
@@ -855,23 +793,23 @@ darray3E Sphere::getLocalInfLimits(){
  */
 darray3E	Sphere::toWorldCoord(darray3E & point){
 	
-	darray3E work, work2, work3;
+	darray3E work, work2;
 	//unscale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = point[i]*m_scaling[i];
+		work2[i] = point[i]*m_scaling[i];
 	}
 	
 	//return to local xyz system
-	work2[0] = work[0]*std::cos(work[1] + m_limitSpan[1][0])*std::sin(work[2] + m_limitSpan[2][0]); 
-	work2[1] = work[0]*std::sin(work[1] + m_limitSpan[1][0])*std::sin(work[2] + m_limitSpan[2][0]); 
-	work2[2] = work[0]*std::cos(work[2] + m_limitSpan[2][0]);
+	work[0] = work2[0]*std::cos(work2[1] + m_infLimits[1])*std::sin(work2[2] + m_infLimits[2]); 
+	work[1] = work2[0]*std::sin(work2[1] + m_infLimits[1])*std::sin(work2[2] + m_infLimits[2]); 
+	work[2] = work2[0]*std::cos(work2[2] + m_infLimits[2]);
 	
 	//unapply change to local sdr transformation
 	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work2, transp, work3);
+	linearalgebra::matmul(work, transp, work2);
 	
 	//unapply origin translation
-	work = work3 + m_origin;
+	work = work2 + m_origin;
 	return(work);
 };
 /*! Transform point from world coordinate system, to local reference system 
@@ -881,36 +819,36 @@ darray3E	Sphere::toWorldCoord(darray3E & point){
  */
 darray3E	Sphere::toLocalCoord(darray3E & point){
 	
-	darray3E work, work2, work3{0,0,0};
+	darray3E work, work2;
 	//unapply origin translation
-	work = point - m_origin;
+	work2 = point - m_origin;
 	
 	//apply change to local sdr transformation
-	linearalgebra::matmul(work, m_sdr, work2);
+	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//get to proper local system
-	work3[0] = norm2(work2);
+	work2[0] = norm2(work);
 	
-	if(work3[0]>0.0){
-		if(work2[0] ==0.0 && work2[1] ==0.0){
-			work3[1] = 0.0;
+	if(work2[0]>0.0){
+		if(work[0] ==0.0 && work[1] ==0.0){
+			work2[1] = 0.0;
 		}else{
-			double pdum = std::atan2(work2[1],work2[0]);
-			work3[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+			double pdum = std::atan2(work[1],work[0]);
+			work2[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
 		}
 		//get to the correct m_thetaOrigin mark
 		double param = 8*std::atan(1.0);
-		work3[1] = work3[1] - m_limitSpan[1][0];
-		if(work3[1] < 0) 		work3[1] = param + work3[1];
-		if(work3[1] > param) 	work3[1] = work3[1] - param;
+		work2[1] = work2[1] - m_infLimits[1];
+		if(work2[1] < 0) 		work2[1] = param + work2[1];
+		if(work2[1] > param) 	work2[1] = work2[1] - param;
 	
-		work3[2] = std::acos(work2[2]/work3[0]);
-		work3[2] = work3[2] - m_limitSpan[2][0];
+		work2[2] = std::acos(work[2]/work2[0]);
+		work2[2] = work2[2] - m_infLimits[2];
 	}
 	
 	//scale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = work3[i]/m_scaling[i];
+		work[i] = work2[i]/m_scaling[i];
 	}
 	return(work);
 };
@@ -921,11 +859,9 @@ darray3E	Sphere::toLocalCoord(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Sphere::basicToLocal(darray3E & point){
-	darray3E  basicOr{0.0,0.0,0.0};
-	
-	point[1] = point[1]*(m_limitSpan[1][1] - m_limitSpan[1][0]);
-	point[2] = point[2]*(m_limitSpan[2][1] - m_limitSpan[2][0]);
-	return(point + basicOr);
+	point[1] = point[1]*m_span[1];
+	point[2] = point[2]*m_span[2];
+	return(point);
 };
 
 /*! Transform point from local reference system of the shape,
@@ -934,11 +870,9 @@ darray3E	Sphere::basicToLocal(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Sphere::localToBasic(darray3E & point){
-	darray3E  basicOr{0.0,0.0,0.0};
-
-	point[1] = point[1]/(m_limitSpan[1][1] - m_limitSpan[1][0]);
-	point[2] = point[2]/(m_limitSpan[2][1] - m_limitSpan[2][0]);
-	return(point - basicOr);
+	point[1] = point[1]/m_span[1];
+	point[2] = point[2]/m_span[2];
+	return(point);
 };
 
 /*! Check if your new span values fit your current shape set up
@@ -951,34 +885,44 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	
 	double thetalim = 8.0* std::atan(1.0);
 	s1 = std::min(s1, thetalim);
-	if(s1<=0.0){s1 = thetalim;}
 	
-	double maxS2 = 0.5*thetalim - m_limitSpan[2][0];
-	
+	double maxS2 = 0.5*thetalim - m_infLimits[2];
 	s2 = std::min(s2, maxS2);
-	if(s2<=0.0){s2 = maxS2;};
 	
 	//check closedLoops;
-	m_closedLoops[1] = !(s1 < thetalim);
+	setClosedLoops(!(s1 < thetalim),1);
 	
 };
 
 /*! Check if your coords origin values fit your current shape set up
  * and eventually return correct values.
  */
-void 		Sphere::checkInfLimits(double &o0, double &o1, double &o2){
+bool 		Sphere::checkInfLimits(double &orig, int &dir){
 	
-	double tol = 1.e-12;
-	o0 = std::max(o0,0.0);
 	double thetalim = 8.0* std::atan(1.0);
-	double polarlim = (0.5 - tol)*thetalim;
-	o1 = std::min(thetalim, std::max(0.0, o1));
-	o2 = std::min(polarlim, std::max(0.0, o2));
+	double tol = 1.e-12;
+	bool check = false;
+	switch(dir){
+		case 1: 
+			orig = std::min(thetalim, std::max(0.0, orig));
+			check = true;
+			break;
+		case 2: 
+			orig = std::min((0.5-tol)*thetalim, std::max(0.0, orig));
+			check = true;
+			break;
+		default:	// doing nothing
+			break;
+	}
+	return(check);
 };
 
 /*! set scaling vector of your object */
-void 		Sphere::setScaling(){
-	m_scaling[0] = m_limitSpan[0][1] - m_limitSpan[0][0];
-	m_scaling[1] = 1.0;
-	m_scaling[2] = 1.0;
+void 		Sphere::setScaling(double &s0, double &s1, double &s2){
+	m_span.fill(1.0);
+	m_scaling.fill(1.0);
+	
+	m_scaling[0] = s0;
+	m_span[1] = s1;
+	m_span[2] = s2;
 };

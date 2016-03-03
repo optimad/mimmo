@@ -58,12 +58,11 @@ void test0001() {
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set lattice
-	darray3E origin = {{0.5, 0.05, 0.0}};
-	dmatrix32E limits;
-	limits[0][0]= limits[1][0] = limits[2][0] = -0.01;
-	limits[0][1]= 1.01;
-	limits[1][1]= 0.11;
-	limits[2][1]= 0.01;
+	darray3E origin = {-0.01, -0.01,-0.01};
+	darray3E span;
+	span[0]= 1.02;
+	span[1]= 0.12;
+	span[2]= 0.02;
 	//Set Lattice
 	ivector1D dim(3), deg(3);
 	dim[0] = 21;
@@ -74,7 +73,7 @@ void test0001() {
 	deg[1] = 4;
 	deg[2] = 4;
 
-	lattice->setMesh(origin, limits,BasicShape::ShapeType::CUBE,dim, deg);
+	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 
 	//Set geometry
 	lattice->setGeometry(&mimmo0);

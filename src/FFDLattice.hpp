@@ -53,8 +53,8 @@ protected:
 
 public:
 	FFDLattice();
-	FFDLattice(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimension);
-	FFDLattice(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
+	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
+	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
 	FFDLattice(BasicShape * shape, ivector1D & dimension);
 	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);	
 	virtual ~FFDLattice();
@@ -75,8 +75,8 @@ public:
 	void		setDimension(ivector1D &dimensions);
 	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
 	
-	void 		setMesh(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions);
-	void 		setMesh(darray3E &origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
+	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions);
+	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
 	void 		setMesh(BasicShape * shape, ivector1D & dimension);
 	void		setMesh(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 	

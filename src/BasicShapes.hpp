@@ -56,11 +56,12 @@ public:
 
 protected:
 	ShapeType	m_shape; 		/**< shape identifier, see BasicShape::ShapeType enum */
-	darray3E	m_origin; 		/**< origin of your shape. Meant as its baricenter*/
-	dmatrix32E	m_limitSpan;	/**< coordinate limits of your current shape, in its local reference system*/
+	darray3E	m_origin; 		/**< origin of your shape. May change according to the shape type*/
+	darray3E	m_span;			/**< coordinate span of your current shape, in its local reference system*/
+	darray3E    m_infLimits;	/**< inferior limits of coordinate of your current shape */
 	dmatrix33E	m_sdr;			/**< axis position of the local reference system w.r.t absolute one*/
 	bvector1D	m_closedLoops;	/**< boolean identifiers for periodic/simple shape coordinate definition*/
-	darray3E 	m_scaling; 		/**< scaling vector */
+	darray3E 	m_scaling; 		/**< scaling vector of dimensional coordinates */
 	
 	
 public:
@@ -72,23 +73,22 @@ public:
 	//set-get methods
 	void	setOrigin(darray3E);
 	void	setSpan(double, double, double);
-	void	setInfLimits(double, double, double);
+	void	setInfLimits(double val, int dir);
 	void	setRefSystem(darray3E, darray3E, darray3E);
 	void	setRefSystem(darray3E, darray3E);
 	
-	void	setClosedLoops(bool, bool, bool);
+	void	setClosedLoops(bool, int dir);
 	
-	darray3E	getOrigin();
-	darray3E	getSpan();
-	darray3E	getInfLimits();
-	dmatrix33E	getRefSystem();
-	bvector1D	areClosedLoops();
-	ShapeType   getShapeType();
-	const ShapeType   getShapeType() const;
+	darray3E			getOrigin();
+	darray3E			getSpan();
+	darray3E			getInfLimits();
+	dmatrix33E			getRefSystem();
+	bool				areClosedLoops(int dir);
+	ShapeType   		getShapeType();
+	const ShapeType		getShapeType() const;
 	
 	darray3E	getScaling();
-	virtual darray3E 	getLocalSpan()=0;
-	virtual darray3E 	getLocalInfLimits()=0;
+	darray3E	getLocalSpan();
 	
 	
 	//functionalities
@@ -98,10 +98,10 @@ public:
     ivector1D	excludeCloudPoints(dvecarr3E &);
 	ivector1D	includeCloudPoints(bitpit::Patch * );
 	ivector1D	excludeCloudPoints(bitpit::Patch * );
-	bool	isSimplexIncluded(dvecarr3E &);
-	bool	isSimplexIncluded(bitpit::Patch * , int indexT);
-    bool	isPointIncluded(darray3E);
-	bool	isPointIncluded(bitpit::Patch * , int indexV);
+	bool		isSimplexIncluded(dvecarr3E &);
+	bool		isSimplexIncluded(bitpit::Patch * , int indexT);
+    bool		isPointIncluded(darray3E);
+	bool		isPointIncluded(bitpit::Patch * , int indexV);
 	
 	virtual	darray3E	toWorldCoord(darray3E & point)=0;
 	virtual	darray3E	toLocalCoord(darray3E & point)=0;
@@ -110,8 +110,8 @@ private:
 	virtual	darray3E	basicToLocal(darray3E & point)=0;
 	virtual	darray3E	localToBasic(darray3E & point)=0;
 	virtual void 		checkSpan(double &, double &, double &)=0;
-	virtual void 		checkInfLimits(double &, double &, double &)=0;
-	virtual void		setScaling()=0;
+	virtual bool 		checkInfLimits(double &, int &dir)=0;
+	virtual void		setScaling(double &, double &, double &)=0;
 };
 
 /*!
@@ -132,7 +132,7 @@ public:
 	
 	//Costructors, Destructor, Copy/Assignment operators
 	Cube();
-	Cube(darray3E &origin, dmatrix32E &limits);
+	Cube(darray3E &origin, darray3E &span);
 	~Cube();
 
 	Cube(const Cube &);
@@ -140,8 +140,6 @@ public:
 	
 	//reimplementing pure virtuals	
 
-	darray3E 	getLocalSpan();
-	darray3E 	getLocalInfLimits();
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
 	
@@ -149,8 +147,8 @@ private:
 	darray3E	basicToLocal(darray3E & point);
 	darray3E	localToBasic(darray3E & point);
 	void 		checkSpan(double &, double &, double &);
-	void 		checkInfLimits(double &, double &, double &);
-	void 		setScaling();
+	bool 		checkInfLimits(double &, int & dir);
+	void 		setScaling(double &, double &, double &);
 	
 };
 
@@ -171,7 +169,7 @@ class Cylinder: public BasicShape {
 public:
 	//Costructors, Destructor, Copy/Assignment operators
 	Cylinder();
-	Cylinder(darray3E &origin, dmatrix32E &limits);
+	Cylinder(darray3E &origin, darray3E &span);
 	~Cylinder();
 
 	Cylinder(const Cylinder &);
@@ -179,8 +177,6 @@ public:
 	
 	
 	//reimplementing pure virtuals
-	darray3E 	getLocalSpan();
-	darray3E 	getLocalInfLimits();
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
 		
@@ -188,8 +184,8 @@ private:
 	darray3E	basicToLocal(darray3E & point);
 	darray3E	localToBasic(darray3E & point);
 	void 		checkSpan(double &, double &, double &);
-	void 		checkInfLimits(double &, double &, double &);
-	void 		setScaling();
+	bool 		checkInfLimits(double &, int &);
+	void 		setScaling(double &, double &, double &);
 };
 
 
@@ -210,7 +206,7 @@ class Sphere: public BasicShape {
 public:
 	//Costructors, Destructor, Copy/Assignment operators
 	Sphere();
-	Sphere(darray3E &origin, dmatrix32E &limits);
+	Sphere(darray3E &origin, darray3E &span);
 	~Sphere();
 	
 	Sphere(const Sphere &);
@@ -218,8 +214,6 @@ public:
 	
 	
 	//reimplementing pure virtuals
-	darray3E 	getLocalSpan();
-	darray3E 	getLocalInfLimits();
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
 	
@@ -227,9 +221,8 @@ private:
 	darray3E	basicToLocal(darray3E & point);
 	darray3E	localToBasic(darray3E & point);
 	void 		checkSpan(double &, double &, double &);
-	void 		checkInfLimits(double &, double &, double &);
-	void 		setScaling();
-	
+	bool 		checkInfLimits(double &, int &);
+	void 		setScaling(double &, double &, double &);
 };
 
 

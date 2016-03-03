@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 2.8)
 # List serial of tests
 set(TESTS_SERIAL "")
 list(APPEND TESTS_SERIAL "test_MIMMO_00001")
-list(APPEND TESTS_SERIAL "test_MIMMO_00002")
+#list(APPEND TESTS_SERIAL "test_MIMMO_00002")
 
 ##Copy significant source files
 configure_file(sphere.stl sphere.stl COPYONLY)

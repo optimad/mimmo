@@ -55,27 +55,27 @@ UStructMesh::UStructMesh(){
 };
 
 /*! Custom Constructor. Set your mesh, according to the following input parameters
- * \param[in] origin 3D point baricenter of your mesh 
- * \param[in] limits inferior/superior limits for each coordinate defining your mesh
+ * \param[in] origin 3D point origin of your mesh 
+ * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  * \param[in] dimensions number of mesh points for each coordinate.
  */
-UStructMesh::UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions): 
+UStructMesh::UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions): 
 			UStructMesh()
 {
-	setMesh(origin,limits,type,dimensions);
+	setMesh(origin,span,type,dimensions);
 };
 
 /*! Custom Constructor. Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
- * \param[in] limits inferior/superior limits for each coordinate defining your mesh
+ * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  * \param[in] spacing fixed spacing for each coordinate
  */
-UStructMesh::UStructMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType type, dvector1D &spacing):
+UStructMesh::UStructMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, dvector1D &spacing):
 		UStructMesh()
 {
-	setMesh(origin,limits,type,spacing);
+	setMesh(origin,span,type,spacing);
 };
 
 /*! Custom Constructor. Set your mesh, according to the following input parameters
@@ -262,8 +262,7 @@ darray3E UStructMesh::getLocalPoint(int i_, int j_, int k_){
 darray3E UStructMesh::getGlobalCCell(int index){
 	
 	darray3E res = getLocalCCell(index);
-	BasicShape * shape = getShape(); 
-	return(shape->toWorldCoord(res));
+	return(getShape()->toWorldCoord(res));
 };
 /*! Get n-th center cell coordinates in global absolute reference frame, 
  * given its cartesian cell indices on the mesh. 
@@ -274,8 +273,7 @@ darray3E UStructMesh::getGlobalCCell(int index){
 darray3E UStructMesh::getGlobalCCell(int i_, int j_, int k_){
 	
 	darray3E res = getLocalCCell(i_,j_,k_);
-	BasicShape * shape = getShape(); 
-	return(shape->toWorldCoord(res));
+	return(getShape()->toWorldCoord(res));
 };
 
 /*! Get n-th nodal vertex coordinates in global absolute reference frame, 
@@ -284,8 +282,7 @@ darray3E UStructMesh::getGlobalCCell(int i_, int j_, int k_){
  */
 darray3E UStructMesh::getGlobalPoint(int index){
 	darray3E res = getLocalPoint(index);
-	BasicShape * shape = getShape();
-	return(shape->toWorldCoord(res));
+	return(getShape()->toWorldCoord(res));
 };
 /*! Get n-th nodal vertex coordinates in global absolute reference frame, 
  * given its cartesian point indices on the mesh. 
@@ -296,8 +293,7 @@ darray3E UStructMesh::getGlobalPoint(int index){
 darray3E UStructMesh::getGlobalPoint(int i_, int j_, int k_){
 	
 	darray3E res = getLocalPoint(i_,j_,k_);
-	BasicShape * shape = getShape();
-	return(shape->toWorldCoord(res));
+	return(getShape()->toWorldCoord(res));
 };    
 
 /*! Get neighbor vertices (by their global indices and in VTK-hexahedra ordered) of a given cell
@@ -308,7 +304,6 @@ darray3E UStructMesh::getGlobalPoint(int i_, int j_, int k_){
 ivector1D UStructMesh::getCellNeighs(int i_, int j_, int k_){
 	
 	ivector1D result(8);
-	
 	result[0] = accessPointIndex(i_, j_, k_);
 	result[1] = accessPointIndex(i_+1, j_, k_);
 	result[2] = accessPointIndex(i_+1, j_+1, k_);
@@ -317,7 +312,6 @@ ivector1D UStructMesh::getCellNeighs(int i_, int j_, int k_){
 	result[5] = accessPointIndex(i_+1, j_, k_+1);
 	result[6] = accessPointIndex(i_+1, j_+1, k_+1);
 	result[7] = accessPointIndex(i_, j_+1, k_+1);
-	
 	return(result);  
 }
 
@@ -333,11 +327,11 @@ ivector1D UStructMesh::getCellNeighs(int index){
 
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
- * \param[in] limits inferior/superior limits for each coordinate defining your mesh
+ * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  * \param[in] dimensions number of mesh points for each coordinate.
  */
-void UStructMesh::setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType type, ivector1D & dimensions){
+void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, ivector1D & dimensions){
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
@@ -347,15 +341,15 @@ void UStructMesh::setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::Sh
 	
 	switch(type){
 		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, span));
 			dimLimit[1] = 5;
 			break;
 		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, span));
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, span));
 		break;
 	}
 	
@@ -370,11 +364,11 @@ void UStructMesh::setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::Sh
 
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
- * \param[in] limits inferior/superior limits for each coordinate defining your mesh
+ * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  * \param[in] spacing fixed spacing for each coordinate
  */
-void UStructMesh::setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::ShapeType type, dvector1D & spacing){
+void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, dvector1D & spacing){
 
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
@@ -384,25 +378,24 @@ void UStructMesh::setMesh(darray3E & origin, dmatrix32E & limits, BasicShape::Sh
 	
 	switch(type){
 		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, span));
 			dimLimit[1] = 5;
 			break;
 		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, span));
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, limits));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, span));
 			break;
 	}
 	
-	darray3E span = (m_shape2.get())->getSpan();
+	darray3E span2 = getShape()->getSpan();
 	ivector1D dim(3,0);
 	
 	for(int i=0; i<3; ++i){
-		
 		if(spacing[i] != 0.0) {
-			dim[i] = (int) std::floor(span[i]/spacing[i] +0.5) + 1;
+			dim[i] = (int) std::floor(span2[i]/spacing[i] +0.5) + 1;
 		}else{
 			dim[i] = dimLimit[i];
 		}
@@ -476,13 +469,13 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 			break;
 	}
 	
-	darray3E span = shape->getSpan();
+	darray3E span2 = shape->getSpan();
 	ivector1D dim(3,0);
 	
 	for(int i=0; i<3; ++i){
 		
 		if(spacing[i] != 0.0) {
-			dim[i] = (int) std::floor(span[i]/spacing[i] +0.5) + 1;
+			dim[i] = (int) std::floor(span2[i]/spacing[i] +0.5) + 1;
 		}else{
 			dim[i] = dimLimit[i];
 		}
@@ -712,11 +705,9 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 	
 	darray3E P = getShape()->toLocalCoord(point);
 	
-	darray3E locOr = getLocalPoint(0,0,0);
-	
-	i0 = max(0, min(m_nx, (int) floor((P[0] - locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1] - locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2] - locOr[2])/m_dz)));
+	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
 	else                  	{ ip = max(0, i0-1);      }
@@ -754,11 +745,9 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	
 	darray3E P = getShape()->toLocalCoord(point);
 
-	darray3E locOr = getLocalPoint(0,0,0);
-
-	i0 = max(0, min(m_nx, (int) floor((P[0] - locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1] - locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2] - locOr[2])/m_dz)));
+	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
 	else                  	{ ip = max(0, i0-1);      }
@@ -798,11 +787,9 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 	
 	darray3E P = getShape()->toLocalCoord(point);
 	
-	darray3E locOr = getLocalPoint(0,0,0);
-	
-	i0 = max(0, min(m_nx, (int) floor((P[0] - locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1] - locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2] - locOr[2])/m_dz)));
+	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
 	
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
@@ -845,7 +832,6 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
 	ivector1D dim = getDimension();
-	bvector1D loop = getShape()->areClosedLoops();
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	
 	VTK_BASICCLOUD handle_vtk_output(folder, outfile, codex, sizeTot);
@@ -1045,27 +1031,7 @@ void UStructMesh::resizeMesh(){
 void UStructMesh::rebaseMesh(){
 	
 	if(getShape() == NULL){return;}
-	darray3E spanEff{1,1,1};
-	darray3E locOrigin{-0.5,-0.5,-0.5};
-	darray3E temp = getShape()->getSpan();
-	switch(getShape()->getShapeType()){
-		
-		case BasicShape::ShapeType::CYLINDER:
-			spanEff[1] = temp[1];
-			locOrigin[0] = 0.0;
-			locOrigin[1] = 0.0;
-			break;
-		case BasicShape::ShapeType::SPHERE:
-			spanEff[1] = temp[1];
-			spanEff[2] = temp[2];
-			locOrigin[0] = 0.0;
-			locOrigin[1] = 0.0;
-			locOrigin[2] = 0.0;
-			break;
-		default:
-			//doing nothing
-			break;
-	}
+	darray3E spanEff = getShape()->getLocalSpan();
 	
 	reshapeNodalStructure();
 	
@@ -1074,9 +1040,9 @@ void UStructMesh::rebaseMesh(){
 	m_dz = spanEff[2]/m_nz;
 	
 	// get point distro;
-	for (int i = 0; i < m_nx+1; i++) {m_xedge[i] = locOrigin[0] + ((double) i) * m_dx;} 
-	for (int i = 0; i < m_ny+1; i++) {m_yedge[i] = locOrigin[1] + ((double) i) * m_dy;}
-	for (int i = 0; i < m_nz+1; i++) {m_zedge[i] = locOrigin[2] + ((double) i) * m_dz;}
+	for (int i = 0; i < m_nx+1; i++) {m_xedge[i] = ((double) i) * m_dx;} 
+	for (int i = 0; i < m_ny+1; i++) {m_yedge[i] = ((double) i) * m_dy;}
+	for (int i = 0; i < m_nz+1; i++) {m_zedge[i] = ((double) i) * m_dz;}
 	// get cell distro
 	for (int i = 0; i < m_nx; i++) {m_xnode[i] = m_xedge[i] + 0.5 * m_dx;}
 	for (int i = 0; i < m_ny; i++) {m_ynode[i] = m_yedge[i] + 0.5 * m_dy;}
