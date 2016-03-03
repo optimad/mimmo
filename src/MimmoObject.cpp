@@ -36,8 +36,8 @@ MimmoObject::MimmoObject(int type){
 	m_type = max(type,1);
 	const int id = 0;
 	if (m_type == 2){
-//		m_geometry = new VolTriPatch(id);
-//		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+		m_geometry = new VolTriPatch(id, 3);
+		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
 	}else{
 		m_geometry = new SurfTriPatch(id);
 		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
@@ -55,8 +55,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	m_internalPatch = true;
 	const int id = 0;
 	if (m_type == 2){
-//		m_geometry = new VolTriPatch(id);
-//		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+		m_geometry = new VolTriPatch(id, 3);
+		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
 	}else{
 		m_geometry = new SurfTriPatch(id);
 		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
