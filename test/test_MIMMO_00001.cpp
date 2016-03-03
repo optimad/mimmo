@@ -38,7 +38,8 @@ void test0001() {
 	darray3E point;
 	{
 		//Import STL
-		STLObj stl("placca.stl", true);
+//		STLObj stl("placca.stl", true);
+		STLObj stl("placca0.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
@@ -68,6 +69,9 @@ void test0001() {
 	dim[0] = 21;
 	dim[1] = 7;
 	dim[2] = 7;
+//	dim[0] = 7;
+//	dim[1] = 5;
+//	dim[2] = 5;
 	
 	deg[0] = 4;
 	deg[1] = 4;

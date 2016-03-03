@@ -607,7 +607,9 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 			work[k-counter][3] = m_weights[k];
 		}
 		counter +=n[2];
-		dvector2D work2 = getWorkLoad(2, work);
+		//dvector2D work2 = getWorkLoad(2, work);
+		dvector2D work2;
+		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work2);
 	}// next j3
 	
@@ -620,12 +622,16 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 			work[k-counter] = temp2[k];
 		}
 		counter +=(n[1]);
-		dvector2D work2 = getWorkLoad(1, work);
+		//dvector2D work2 = getWorkLoad(1, work);
+		dvector2D work2;
+		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work2);
 	}// next j
 	
 	temp2.resize(n[0]);
-	dvector2D work2 = getWorkLoad(0, temp2);
+	//dvector2D work2 = getWorkLoad(0, temp2);
+	dvector2D work2;
+	getWorkLoad(2, temp2, work2);
 	valH = getNurbsPoint(knotInterval[0],BSbasis[0], work2);
 	
 	darray3E outres;
@@ -672,7 +678,9 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 			work[k-counter][1] = m_weights[k];
 		}
 		counter +=(n[2]);
-		dvector2D work2 = getWorkLoad(2, work);
+		//dvector2D work2 = getWorkLoad(2, work);
+		dvector2D work2;
+		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work2);
 	}// next j3
 	
@@ -685,12 +693,16 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 			work[k-counter] = temp2[k];
 		}
 		counter +=(n[1]);
-		dvector2D work2 = getWorkLoad(1, work);
+		//dvector2D work2 = getWorkLoad(1, work);
+		dvector2D work2;
+		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work2);
 	}// next j
 	
 	temp2.resize(n[0]);
-	dvector2D work2 = getWorkLoad(1, temp2);
+	//dvector2D work2 = getWorkLoad(1, temp2);
+	dvector2D work2;
+	getWorkLoad(2, temp2, work2);
 	valH = getNurbsPoint(knotInterval[0],BSbasis[0], work2);
 	return(valH[0]/valH[1]);
 };
@@ -707,12 +719,15 @@ dvector1D 	FFDLattice::getNurbsPoint(int k, dvector1D & basis, dvector2D & loads
 	
 	// provide theoretical interval index, basis functions for that point, and loads row-> complete.
 	int p = basis.size() -1;
-	dvector1D res(loads[0].size(),0.0);
+	int rs = loads[0].size();
+	dvector1D res(rs,0.0);
 	
 	for(int i=0; i <= p; ++i){
-		res = res + basis[i] * loads[k - p + i]; 
+		for (int j=0; j<rs; ++j){
+			res[j] += basis[i] * loads[k - p + i][j];
+		}
 	}//next[i];
-	
+
 	return(res);
 };
 
@@ -763,16 +778,15 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 		ivector1D dim = getDimension();
 		int nn = dim[dir]+m_deg[dir];
 		result.resize(nn, dvector1D(loads[0].size(),0));
-		
 		int preNNumb = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
 		int postNNumb = (m_deg[dir]-1) - preNNumb;
-		
+
 		// loads on extrema get averaged
-		result[preNNumb] = 0.5*(loads[0] + loads[dim[dir] -1]);
-		result[preNNumb + dim[dir] -1] = result[preNNumb];
-		
+		result[preNNumb] = 0.5*(loads[0] + loads[dimdir -1]);
+		result[preNNumb + dimdir -1] = result[preNNumb];
+
 		// set the other internal loads
-		for(int i=1; i<dim[dir]-1; ++i){
+		for(int i=1; i<dimdir-1; ++i){
 			result[i+preNNumb] = loads[i];
 		}
 		//postpend the first preNNumb loads
@@ -783,13 +797,65 @@ dvector2D	FFDLattice::getWorkLoad(int dir, dvector2D & loads){
 		//prepend the last postNNumb loads.
 		pInd = 1;
 		for(int i=0; i<=postNNumb; ++i){
-			result[i+preNNumb+dim[dir]] = loads[pInd+i];
+			result[i+preNNumb+dimdir] = loads[pInd+i];
 		}
 	}else{
 		return(loads);
 	}
-	
+
 	return(result);
+};
+
+/*! Given a vector of nodal diplacement loads, associated to a curve dir(0,1,2)
+ *  wrap the right list of loads, according to the type of structure (periodic or clamped)
+ * associated to the curve
+ * \param[in] dir int id 0,1,2 for x,y,z direction Nurbs curve
+ * \param[in] loads list of homogeneous nodal displacements associated to dir Nurb curve
+ */
+void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
+
+//	dvector2D result;
+	bvector1D loop = getShape()->areClosedLoops();
+
+	if(loop[dir]){
+		//ivector1D dim = getDimension();
+		int dimdir = getDimension()[dir];
+		int nn = dimdir+m_deg[dir];
+		int ls = loads[0].size();
+		result.resize(nn, dvector1D(ls,0));
+
+		int preNNumb = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
+		int postNNumb = (m_deg[dir]-1) - preNNumb;
+
+		// loads on extrema get averaged
+		for (int j=0; j<ls; ++j){
+			result[preNNumb][j] = 0.5*(loads[0][j] + loads[dimdir -1][j]);
+			result[preNNumb + dimdir -1][j] = result[preNNumb][j];
+		}
+		// set the other internal loads
+		for(int i=1; i<dimdir-1; ++i){
+			for (int j=0; j<ls; ++j){
+				result[i+preNNumb][j] = loads[i][j];
+			}
+		}
+		//postpend the first preNNumb loads
+		int pInd = loads.size() - preNNumb -1;
+		for(int i=0; i<preNNumb; ++i){
+			for (int j=0; j<ls; ++j){
+				result[i][j] = loads[pInd + i][j];
+			}
+		}
+		//prepend the last postNNumb loads.
+		pInd = 1;
+		for(int i=0; i<=postNNumb; ++i){
+			for (int j=0; j<ls; ++j){
+				result[i+preNNumb+dimdir][j] = loads[pInd+i][j];
+			}
+		}
+	}else{
+		return(loads);
+	}
+
 };
 
 /*!Return list of equispaced knots for the Nurbs curve in a specific lattice direction
