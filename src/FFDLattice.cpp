@@ -595,6 +595,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	dvector1D valH(4,0.0);
 	dvector2D temp2(n[0]*n[1], dvector1D(4,0.0));
 	dvector2D work;
+	dvector2D work2;
 	int counter, locT;
 	// start of Dimensional reduction algorithm........................................................
 	work.resize(n[2], dvector1D(4, 0.0));
@@ -608,7 +609,6 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 		}
 		counter +=n[2];
 		//dvector2D work2 = getWorkLoad(2, work);
-		dvector2D work2;
 		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work2);
 	}// next j3
@@ -623,14 +623,12 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 		}
 		counter +=(n[1]);
 		//dvector2D work2 = getWorkLoad(1, work);
-		dvector2D work2;
 		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work2);
 	}// next j
 	
 	temp2.resize(n[0]);
 	//dvector2D work2 = getWorkLoad(0, temp2);
-	dvector2D work2;
 	getWorkLoad(2, temp2, work2);
 	valH = getNurbsPoint(knotInterval[0],BSbasis[0], work2);
 	
@@ -666,6 +664,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 	dvector1D valH(2,0.0);
 	dvector2D temp2((n[0])*(n[1]), dvector1D(2,0.0));
 	dvector2D work;
+	dvector2D work2;
 	int counter, locT;
 	// start of Dimensional reduction algorithm........................................................
 	work.resize(n[2], dvector1D(2, 0.0));
@@ -679,7 +678,6 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 		}
 		counter +=(n[2]);
 		//dvector2D work2 = getWorkLoad(2, work);
-		dvector2D work2;
 		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work2);
 	}// next j3
@@ -694,14 +692,12 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 		}
 		counter +=(n[1]);
 		//dvector2D work2 = getWorkLoad(1, work);
-		dvector2D work2;
 		getWorkLoad(2, work, work2);
 		temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work2);
 	}// next j
 	
 	temp2.resize(n[0]);
 	//dvector2D work2 = getWorkLoad(1, temp2);
-	dvector2D work2;
 	getWorkLoad(2, temp2, work2);
 	valH = getNurbsPoint(knotInterval[0],BSbasis[0], work2);
 	return(valH[0]/valH[1]);
@@ -853,7 +849,15 @@ void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 			}
 		}
 	}else{
-		result = loads;
+		int dimdir = getDimension()[dir];
+		int lls = loads.size();
+		int ls = loads[0].size();
+		result.resize(lls, dvector1D(ls,0));
+		for (int i=0; i<lls; ++i){
+			for (int j=0; j<ls; ++j){
+				result[i][j] = loads[i][j];
+			}
+		}
 	}
 
 };
