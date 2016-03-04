@@ -51,7 +51,8 @@ protected:
 	ivector2D m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D m_weights;	/**< Weights of each control node*/
 	iarray3E  m_mapdim;		/**< Map of dimension. Ordered by increasing number of nodes for each direction.*/
-
+	ivector2D m_mapNodes	/**< Internal map to access node index w/ knots structure theoretical indexing */
+	
 public:
 	FFDLattice();
 	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
@@ -118,7 +119,9 @@ private:
 
 	//nodal displacement utility
 	void resizeDisplacements(int, int, int);
-
+	void setMapNodes(int ind);
+	int  accessMapNodes(int,int,int);
+	void homogenizeDispl(int dim, dvector2D & result);
 	//dimension utilities
 	void orderDimension();
 	

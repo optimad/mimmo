@@ -47,7 +47,7 @@ FFDLattice::FFDLattice(){
 	m_knots.resize(3);
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
-	
+	m_mapNodes(3);
 };
 /*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
@@ -602,8 +602,8 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
 	darray3E point = getShape()->toLocalCoord(pointOr);
 	
-	const dvecarr3E *disp = getDisplacements();
 	ivector1D n = getDimension();
+
 	// get reference Interval int the knot matrix
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
@@ -613,52 +613,41 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	}
 	
 	//get loads in homogeneous coordinate.
-	// get local knot.
+	dvector2D loads;
+	homogenizeDispl(3, loads);
 	
-	dvector1D valH(4,0.0);
-	dvector2D temp2(n[0]*n[1], dvector1D(4,0.0));
-	dvector2D work;
-	dvector2D work2;
-	int counter, locT;
-	// start of Dimensional reduction algorithm........................................................
-	work.resize(n[2], dvector1D(4, 0.0));
-	counter=0;
-	//reducing dimension z
-	for (int j=0; j<(n[0])*(n[1]); ++j){ //  counting deformation due to every load applied in lattice control points
-
-		for(int k=counter; k<counter+n[2]; ++k){
-			for(int intv=0; intv<3; intv++){
-				work[k-counter][intv] = m_weights[k] * (*disp)[k][intv];
+	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
+	
+	
+	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
+	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
+	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
+	
+	for(int i=0; i<=m_deg[m_mapdim[0]; ++i){
+		
+		int u = uind+i;
+		temp1 = zeros;
+		
+		for(int j=0; j<=m_deg[m_mapdim[1]; ++j){
+			
+			int v = vind+j;
+			temp2 = zeros;
+			
+			for(int k=0; k<=m_deg[m_mapdim[2]; ++k){
+				
+				int w = wind+k;
+				int index = accessMapNodes(u,v,w);
+				temp2 += BSbasis[m_mapdim[2]]*loads[index]; 
 			}
-			work[k-counter][3] = m_weights[k];
+			temp1 += BSbasis[m_mapdim[1]]*temp2;	
 		}
-		counter +=n[2];
-		getWorkLoad(2, work, work2);
-		getNurbsPoint(knotInterval[2], BSbasis[2], work2, temp2[j]);
-	}// next j3
+		valH += BSbasis[m_mapdim[0]]*temp1;	
+	}
 
-	freeContainer(work);
-	work.resize(n[1],dvector1D(4,0));
-	counter=0;
-	for (int j=0; j<(n[0]); ++j){ //  counting deformation due to every load applied in lattice control points
-
-		for(int k=counter; k<counter+n[1]; ++k){
-			work[k-counter] = temp2[k];
-		}
-		counter +=(n[1]);
-		getWorkLoad(1, work, work2);
-		getNurbsPoint(knotInterval[1],BSbasis[1], work2, temp2[j]);
-	}// next j
-
-	temp2.resize(n[0]);
-	getWorkLoad(0, temp2, work2);
-	getNurbsPoint(knotInterval[0],BSbasis[0], work2, valH);
-	
 	darray3E outres;
 	for(int i=0; i<3; ++i){
 		outres[i] = valH[i]/valH[3];
 	}
-	
 	return(outres);
 	
 }; 
@@ -669,59 +658,52 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
  * \param[out] result return displacement disp[intV]
  */
 double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
+	darray3E point = getShape()->toLocalCoord(pointOr);
 	
-	darray3E coord = getShape()->toLocalCoord(coordOr);
-	
-	const dvecarr3E *disp = getDisplacements();
 	ivector1D n = getDimension();
+	
 	// get reference Interval int the knot matrix
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
 	for(int i=0; i<3; i++){
-		knotInterval[i] = getKnotInterval(coord[i],i);
-		BSbasis[i] = basisITS0(knotInterval[i], i, coord[i]);
+		knotInterval[i] = getKnotInterval(point[i],i);
+		BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 	}
 	
 	//get loads in homogeneous coordinate.
-	// get local knot.
+	dvector2D loads;
+	homogenizeDispl(1, loads);
 	
-	dvector1D valH(2,0.0);
-	dvector2D temp2((n[0])*(n[1]), dvector1D(2,0.0));
-	dvector2D work;
-	dvector2D work2;
-	int counter, locT;
-	// start of Dimensional reduction algorithm........................................................
-	work.resize(n[2], dvector1D(2, 0.0));
-	counter=0;
-	//reducing dimension z
-	for (int j=0; j<(n[0])*(n[1]); ++j){ //  counting deformation due to every load applied in lattice control points
+	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
+	
+	
+	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
+	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
+	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
+	
+	for(int i=0; i<=m_deg[m_mapdim[0]; ++i){
 		
-		for(int k=counter; k<counter+n[2]; ++k){	
-			work[k-counter][0] = m_weights[k] * (*disp)[k][intV];
-			work[k-counter][1] = m_weights[k];
-		}
-		counter +=(n[2]);
-		getWorkLoad(2, work, work2);
-		getNurbsPoint(knotInterval[2], BSbasis[2], work2, temp2[j]);
-	}// next j3
-	
-	freeContainer(work);
-	work.resize(n[1],dvector1D(2,0));
-	counter=0;
-	for (int j=0; j<(n[0]); ++j){ //  counting deformation due to every load applied in lattice control points
+		int u = uind+i;
+		temp1 = zeros;
 		
-		for(int k=counter; k<counter+n[1]; ++k){	
-			work[k-counter] = temp2[k];
+		for(int j=0; j<=m_deg[m_mapdim[1]; ++j){
+			
+			int v = vind+j;
+			temp2 = zeros;
+			
+			for(int k=0; k<=m_deg[m_mapdim[2]; ++k){
+				
+				int w = wind+k;
+				int index = accessMapNodes(u,v,w);
+				temp2 += BSbasis[m_mapdim[2]]*loads[index]; 
+			}
+			temp1 += BSbasis[m_mapdim[1]]*temp2;	
 		}
-		counter +=(n[1]);
-		getWorkLoad(1, work, work2);
-		getNurbsPoint(knotInterval[1],BSbasis[1], work2,temp2[j]);
-	}// next j
+		valH += BSbasis[m_mapdim[0]]*temp1;	
+	}
 	
-	temp2.resize(n[0]);
-	getWorkLoad(0, temp2, work2);
-	getNurbsPoint(knotInterval[0],BSbasis[0], work2, valH);
-	return(valH[0]/valH[1]);
+	double outres = valH[0]/valH[1];
+	return(outres);
 };
 
 /*!Evaluate NURBS displacement of a point coord via ITS0 algorithm (called after basisITS0 method).
@@ -781,64 +763,7 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 	return(basis);
 };	
 
-/*! Given a vector of nodal diplacement loads, associated to a curve dir(0,1,2)
- *  wrap the right list of loads, according to the type of structure (periodic or clamped)
- * associated to the curve
- * \param[in] dir int id 0,1,2 for x,y,z direction Nurbs curve
- * \param[in] loads list of homogeneous nodal displacements associated to dir Nurb curve
- * \param[out] result vector of nodal displacement loads
- */
-void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 
-	bool loop = getShape()->areClosedLoops(dir);
-
-	if(loop){
-		int dimdir = getDimension()[dir];
-		int nn = dimdir+m_deg[dir];
-		int ls = loads[0].size();
-		result.resize(nn, dvector1D(ls,0));
-
-		int preNNumb = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
-		int postNNumb = (m_deg[dir]-1) - preNNumb;
-
-		// loads on extrema get averaged
-		for (int j=0; j<ls; ++j){
-			result[preNNumb][j] = 0.5*(loads[0][j] + loads[dimdir -1][j]);
-			result[preNNumb + dimdir -1][j] = result[preNNumb][j];
-		}
-		// set the other internal loads
-		for(int i=1; i<dimdir-1; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i+preNNumb][j] = loads[i][j];
-			}
-		}
-		//postpend the first preNNumb loads
-		int pInd = loads.size() - preNNumb -1;
-		for(int i=0; i<preNNumb; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i][j] = loads[pInd + i][j];
-			}
-		}
-		//prepend the last postNNumb loads.
-		pInd = 1;
-		for(int i=0; i<=postNNumb; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i+preNNumb+dimdir][j] = loads[pInd+i][j];
-			}
-		}
-	}else{
-		int dimdir = getDimension()[dir];
-		int lls = loads.size();
-		int ls = loads[0].size();
-		result.resize(lls, dvector1D(ls,0));
-		for (int i=0; i<lls; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i][j] = loads[i][j];
-			}
-		}
-	}
-
-};
 
 /*!Return list of equispaced knots for the Nurbs curve in a specific lattice direction
  * \param[in] dir 0,1,2 int identifier of Lattice's Nurbs Curve.
@@ -882,9 +807,11 @@ void FFDLattice::clearKnots(){
 	freeContainer(m_mapEff);
 	freeContainer(m_deg);
 	freeContainer(m_weights);
+	freeContainer(m_mapNodes);
 	m_knots.resize(3);
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
+	m_mapNodes(3);
 	
 };
 
@@ -972,7 +899,9 @@ void 		FFDLattice::setKnotsStructure(int dir, bool flag){
 		for(int i=0; i<kTheo; i++){
 			m_mapEff[dir][i]=i;
 		}
-	}	
+	}
+	
+	setMapNodes(dir);
 	
 };
 
@@ -1045,21 +974,79 @@ void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	m_ndeg = size;
 }
 
-/*! Fill m_mapdim with the ordered indices of dimensions.
-*/
-void FFDLattice::orderDimension(){
+/*! Fill m_mapnodes, to access correct displacement w knots structure 
+ * theoretical knot indexing*/
+void FFDLattice::setMapNodes( int ind){
 
+		bool loop = getShape()->areClosedLoops(ind);
+		int dimdir = getDimension()[ind];
+		
+		if(loop){
+			int nn = dimdir+m_deg[ind];
+			m_mapNodes[ind].resize(nn);
+			
+			int preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
+			int postNNumb = (m_deg[ind]-1) - preNNumb;
+			
+			// set the other internal loads
+			for(int i=0; i<dimdir; ++i){
+				m_mapNodes[ind][i+preNNumb] = i;
+			}
+			
+			//postpend the first preNNumb loads
+			int pInd = dimdir - preNNumb -1;
+			for(int i=0; i<preNNumb; ++i){
+				m_mapNodes[ind][i] = pInd + i;
+			}
+			//prepend the last postNNumb loads.
+			pInd = 1;
+			for(int i=0; i<=postNNumb; ++i){
+				m_mapNodes[ind][i+preNNumb+dimdir] = pInd+i;
+			}
+			
+		}else{
+			m_mapNodes[ind].resize(dimdir);
+			for (int i=0; i<dimdir; ++i){
+				m_mapNodes[ind][i] = i;
+			}
+		}
+};
+
+/*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/
+int FFDLattice::accessMapNodes(int i, int j, int k){
+	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
+};
+
+/*! homogenezation of displacement vector */
+
+void FFDLattice::homogenizeDispl(int dim, dvector2D & result){
+	
+	dim = std::max(dim,3);
+	const dvecarr3E *disp = getDisplacements();
+	ivector1D n = getDimension();
+	// get reference Interval int the knot matrix
+	result.resize(n[0]*n[1]*n[2], dvector1D(dim+1,0.0));
+	for (int j=0; j<n[0]*n[1]*n[2]; ++j){ //  counting deformation due to every load applied in lattice control points
+			for(int intv=0; intv<dim; intv++){
+				result[j][intv] = m_weights[j] * (*disp)[j][intv];
+			}
+			work[j][dim] = m_weights[j];
+		}
+}
+
+/*! Fill m_mapdim with the ordered indices of dimensions.
+ */
+void FFDLattice::orderDimension(){
+	
 	map<int,int> dimmap;
 	dimmap[m_nx] = 0;
 	dimmap[m_ny] = 1;
 	dimmap[m_nz] = 2;
-
+	
 	int i = 0;
 	for (map<int,int>::iterator it = dimmap.begin(); it != dimmap.end(); ++it){
 		m_mapdim[i] = it->second;
 		i++;
 	}
-
+	
 };
-
-
