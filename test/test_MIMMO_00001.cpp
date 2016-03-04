@@ -76,9 +76,9 @@ void test0001() {
 //	dim[0] = 21;
 //	dim[1] = 7;
 //	dim[2] = 7;
-	dim[0] = 5;
+	dim[0] = 10;
 	dim[1] = 10;
-	dim[2] = 20;
+	dim[2] = 10;
 	
 	deg[0] = 4;
 	deg[1] = 4;
@@ -133,9 +133,9 @@ void test0001() {
 //	thres[0] = 0.5;
 //	thres[1] = -10.0;
 //	thres[2] = -10.0;
-	thres[0] = -0.5;
-	thres[1] = -0.5;
-	thres[2] = -0.5;
+	thres[0] = -0.0;
+	thres[1] = -0.0;
+	thres[2] = -0.0;
 	mask->setThresholds(thres);
 	mask->setForward(0,false);
 	mask->setForward(1,false);

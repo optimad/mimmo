@@ -99,12 +99,10 @@ private:
 	//Nurbs Evaluators
 	darray3E nurbsEvaluator(darray3E &); 
 	double nurbsEvaluatorScalar(darray3E &, int);
-	dvector1D getNurbsPoint(int k, dvector1D & basis, dvector2D & loads);
 	void getNurbsPoint(int k, dvector1D & basis, dvector2D & loads, dvector1D & res);
 
 	//Nurbs utilities
 	dvector1D basisITS0(int k, int pos, double coord);	
-	dvector2D getWorkLoad(int dir, dvector2D & loads);
 	void getWorkLoad(int dir, dvector2D & loads, dvector2D & result);
 	dvector1D getNodeSpacing(int dir);
 	

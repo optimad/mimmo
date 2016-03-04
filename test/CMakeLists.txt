@@ -32,7 +32,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00001")
 
 ##Copy significant source files
 configure_file(sphere.stl sphere.stl COPYONLY)
-configure_file(sphere.stl sphere2.stl COPYONLY)
+configure_file(sphere2.stl sphere2.stl COPYONLY)
 configure_file(placca.stl placca.stl COPYONLY)
 configure_file(placca.stl placca0.stl COPYONLY)
 configure_file(input.txt input.txt COPYONLY)
