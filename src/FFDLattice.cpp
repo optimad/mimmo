@@ -637,11 +637,11 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
-				temp2 += BSbasis[m_mapdim[2]]*loads[index]; 
+				temp2 += BSbasis[m_mapdim[2]][k]*loads[index]; 
 			}
-			temp1 += BSbasis[m_mapdim[1]]*temp2;	
+			temp1 += BSbasis[m_mapdim[1]][j]*temp2;	
 		}
-		valH += BSbasis[m_mapdim[0]]*temp1;	
+		valH += BSbasis[m_mapdim[0]][i]*temp1;	
 	}
 
 	darray3E outres;
@@ -695,11 +695,11 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
-				temp2 += BSbasis[m_mapdim[2]]*loads[index]; 
+				temp2 += BSbasis[m_mapdim[2]][k]*loads[index]; 
 			}
-			temp1 += BSbasis[m_mapdim[1]]*temp2;	
+			temp1 += BSbasis[m_mapdim[1]][j]*temp2;	
 		}
-		valH += BSbasis[m_mapdim[0]]*temp1;	
+		valH += BSbasis[m_mapdim[0]][i]*temp1;	
 	}
 	
 	double outres = valH[0]/valH[1];

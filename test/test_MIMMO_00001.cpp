@@ -40,8 +40,8 @@ void test0001() {
 		//Import STL
 //		STLObj stl("placca.stl", true);
 //		STLObj stl("placca0.stl", true);
-		STLObj stl("sphere.stl", true);
-//		STLObj stl("sphere2.stl", true);
+//		STLObj stl("sphere.stl", true);
+		STLObj stl("sphere2.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
