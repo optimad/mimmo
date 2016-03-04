@@ -50,6 +50,7 @@ protected:
 	dvector2D m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D m_weights;	/**< Weights of each control node*/
+	iarray3E  m_mapdim;		/**< Map of dimension. Ordered by increasing number of nodes for each direction.*/
 
 public:
 	FFDLattice();
@@ -117,6 +118,9 @@ private:
 
 	//nodal displacement utility
 	void resizeDisplacements(int, int, int);
+
+	//dimension utilities
+	void orderDimension();
 	
 };
 

@@ -221,6 +221,10 @@ void		FFDLattice::setDimension(ivector1D &dimensions){
 		m_weights.resize(size, 1.0);
 		
 		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
+
+		//reorder dimensions
+		orderDimension();
+
 };
 
 /*! Set number of control nodes in each space direction and degrees of Nurbs curves. 
@@ -263,6 +267,10 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	m_weights.resize(size, 1.0);
 	
 	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
+
+	//reorder dimensions
+	orderDimension();
+
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
@@ -293,6 +301,9 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	
 	//reallocate your displacement node
 	resizeDisplacements(dd[0],dd[1],dd[2]);
+
+	//reorder dimensions
+	orderDimension();
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
@@ -324,6 +335,10 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	
 	//reallocate your displacement node
 	resizeDisplacements(dd[0],dd[1],dd[2]);
+
+	//reorder dimensions
+	orderDimension();
+
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
@@ -352,6 +367,10 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions, ivector1D &
 	
 	//reallocate your displacement node
 	resizeDisplacements(dd[0],dd[1],dd[2]);
+
+	//reorder dimensions
+	orderDimension();
+
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
@@ -382,6 +401,10 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions){
 	
 	//reallocate your displacement node
 	resizeDisplacements(dd[0],dd[1],dd[2]);
+
+	//reorder dimensions
+	orderDimension();
+
 };
 
 /*! Modify a weight of a control node. Access to a node in global indexing
@@ -1021,4 +1044,22 @@ void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	displ->resize(size, darray3E{0,0,0});
 	m_ndeg = size;
 }
+
+/*! Fill m_mapdim with the ordered indices of dimensions.
+*/
+void FFDLattice::orderDimension(){
+
+	map<int,int> dimmap;
+	dimmap[m_nx] = 0;
+	dimmap[m_ny] = 1;
+	dimmap[m_nz] = 2;
+
+	int i = 0;
+	for (map<int,int>::iterator it = dimmap.begin(); it != dimmap.end(); ++it){
+		m_mapdim[i] = it->second;
+		i++;
+	}
+
+};
+
 

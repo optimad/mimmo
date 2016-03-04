@@ -41,6 +41,7 @@ typedef std::array<double,2>    	darray2E;
 typedef std::array<double,3>		darray3E;
 typedef std::array<double,4>		darray4E;
 typedef std::array<float,3>			farray3E;
+typedef std::array<int,3>			iarray3E;
 
 typedef std::vector<darray2E>		dvecarr2E;
 typedef std::vector<darray3E>		dvecarr3E;
