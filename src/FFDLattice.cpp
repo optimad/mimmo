@@ -602,35 +602,34 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	counter=0;
 	//reducing dimension z
 	for (int j=0; j<(n[0])*(n[1]); ++j){ //  counting deformation due to every load applied in lattice control points
-		
-		for(int k=counter; k<counter+n[2]; ++k){	
-			for(int intv=0; intv<3; intv++){ work[k-counter][intv] = m_weights[k] * (*disp)[k][intv];}
+
+		for(int k=counter; k<counter+n[2]; ++k){
+			for(int intv=0; intv<3; intv++){
+				work[k-counter][intv] = m_weights[k] * (*disp)[k][intv];
+			}
 			work[k-counter][3] = m_weights[k];
 		}
 		counter +=n[2];
-		//dvector2D work2 = getWorkLoad(2, work);
 		getWorkLoad(2, work, work2);
-		temp2[j] = getNurbsPoint(knotInterval[2], BSbasis[2], work2);
+		getNurbsPoint(knotInterval[2], BSbasis[2], work2, temp2[j]);
 	}// next j3
-	
-	freeContainer(work);
+
+//	freeContainer(work);
 	work.resize(n[1],dvector1D(4,0));
 	counter=0;
 	for (int j=0; j<(n[0]); ++j){ //  counting deformation due to every load applied in lattice control points
-		
-		for(int k=counter; k<counter+n[1]; ++k){	
+
+		for(int k=counter; k<counter+n[1]; ++k){
 			work[k-counter] = temp2[k];
 		}
 		counter +=(n[1]);
-		//dvector2D work2 = getWorkLoad(1, work);
 		getWorkLoad(2, work, work2);
-		temp2[j] = getNurbsPoint(knotInterval[1],BSbasis[1], work2);
+		getNurbsPoint(knotInterval[1],BSbasis[1], work2, temp2[j]);
 	}// next j
-	
+
 	temp2.resize(n[0]);
-	//dvector2D work2 = getWorkLoad(0, temp2);
 	getWorkLoad(2, temp2, work2);
-	valH = getNurbsPoint(knotInterval[0],BSbasis[0], work2);
+	getNurbsPoint(knotInterval[0],BSbasis[0], work2, valH);
 	
 	darray3E outres;
 	for(int i=0; i<3; ++i){outres[i] = valH[i]/valH[3];}
@@ -725,6 +724,33 @@ dvector1D 	FFDLattice::getNurbsPoint(int k, dvector1D & basis, dvector2D & loads
 	}//next[i];
 
 	return(res);
+};
+
+/*!Evaluate NURBS displacement of a point coord via ITS0 algorithm (called after basisITS0 method).
+ * Note nodal displacements must be given in homogeneous 4-D coordinate (w*x, w*y, w*z, w), where w is the weight
+ * and x,y,z are the components of the original displacement.
+ *  \param[in] k local knot interval in which a point coord resides -> theoretical knot indexing
+ *  \param[in] basis pre-calculated B-Spline basis of point coord
+ *  \param[in] loads nodal displacement of the nurbs curve in exam
+ *  \param[out] result point displacement in coord, in homogeneous coordinates
+*/
+void 	FFDLattice::getNurbsPoint(int k, dvector1D & basis, dvector2D & loads, dvector1D & res){
+
+	// provide theoretical interval index, basis functions for that point, and loads row-> complete.
+	int p = basis.size() -1;
+	int j;
+	int rs = loads[0].size();
+	res.clear();
+	res.resize(rs,0.0);
+
+	for(int i=0; i <= p; ++i){
+		j = 0;
+		for (double dres : res){
+			dres += basis[i] * loads[k - p + i][j];
+			j++;
+		}
+	}//next[i];
+
 };
 
 /*!Return the local basis function of a Nurbs Curve.Please refer to NURBS book of PEIGL 
@@ -830,8 +856,13 @@ void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 		}
 		// set the other internal loads
 		for(int i=1; i<dimdir-1; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i+preNNumb][j] = loads[i][j];
+//			for (int j=0; j<ls; ++j){
+//				result[i+preNNumb][j] = loads[i][j];
+//			}
+			int j = 0;
+			for (double dres :result[i+preNNumb]){
+				dres = loads[i][j];
+				j++;
 			}
 		}
 		//postpend the first preNNumb loads
@@ -854,8 +885,13 @@ void	FFDLattice::getWorkLoad(int dir, dvector2D & loads, dvector2D & result){
 		int ls = loads[0].size();
 		result.resize(lls, dvector1D(ls,0));
 		for (int i=0; i<lls; ++i){
-			for (int j=0; j<ls; ++j){
-				result[i][j] = loads[i][j];
+//			for (int j=0; j<ls; ++j){
+//				result[i][j] = loads[i][j];
+//			}
+			int j = 0;
+			for (double dres : result[i]){
+				dres = loads[i][j];
+				j++;
 			}
 		}
 	}

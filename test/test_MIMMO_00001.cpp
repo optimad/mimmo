@@ -38,8 +38,10 @@ void test0001() {
 	darray3E point;
 	{
 		//Import STL
-		STLObj stl("placca.stl", true);
+//		STLObj stl("placca.stl", true);
 //		STLObj stl("placca0.stl", true);
+//		STLObj stl("sphere.stl", true);
+		STLObj stl("sphere2.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
@@ -59,19 +61,24 @@ void test0001() {
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set lattice
-	darray3E origin = {-0.01, -0.01,-0.01};
+//	darray3E origin = {-0.01, -0.01,-0.01};
+//	darray3E span;
+//	span[0]= 1.02;
+//	span[1]= 0.12;
+//	span[2]= 0.02;
+	darray3E origin = {-0.6, -0.6,-0.6};
 	darray3E span;
-	span[0]= 1.02;
-	span[1]= 0.12;
-	span[2]= 0.02;
+	span[0]= 1.2;
+	span[1]= 1.2;
+	span[2]= 1.2;
 	//Set Lattice
 	ivector1D dim(3), deg(3);
-	dim[0] = 21;
-	dim[1] = 7;
-	dim[2] = 7;
-//	dim[0] = 7;
-//	dim[1] = 5;
-//	dim[2] = 5;
+//	dim[0] = 21;
+//	dim[1] = 7;
+//	dim[2] = 7;
+	dim[0] = 5;
+	dim[1] = 10;
+	dim[2] = 20;
 	
 	deg[0] = 4;
 	deg[1] = 4;
@@ -92,7 +99,8 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
+//			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
+			displ[i][j] = 0.25*( (double) (rand()) / RAND_MAX );
 		}
 	}
 	InputDoF* input = new InputDoF(ndeg, displ);
@@ -122,9 +130,12 @@ void test0001() {
 	}
 //	mask->setCoords(coords2);
 	darray3E thres;
-	thres[0] = 0.5;
-	thres[1] = -10.0;
-	thres[2] = -10.0;
+//	thres[0] = 0.5;
+//	thres[1] = -10.0;
+//	thres[2] = -10.0;
+	thres[0] = -0.5;
+	thres[1] = -0.5;
+	thres[2] = -0.5;
 	mask->setThresholds(thres);
 	mask->setForward(0,false);
 	mask->setForward(1,false);
@@ -162,7 +173,8 @@ void test0001() {
 	Chain ch0;
 	int inp;
 	cout << "input zero (0) or random (1)?" << endl;
-	cin >> inp;
+//	cin >> inp;
+	inp = 1;
 	if (inp==0){
 		input0->addChild(bend);
 		cout << "input" << endl;
