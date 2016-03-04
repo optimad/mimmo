@@ -47,7 +47,7 @@ FFDLattice::FFDLattice(){
 	m_knots.resize(3);
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
-	m_mapNodes(3);
+	m_mapNodes.resize(3);
 };
 /*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
@@ -623,17 +623,17 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
 	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
 	
-	for(int i=0; i<=m_deg[m_mapdim[0]; ++i){
+	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
 		
 		int u = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdim[1]; ++j){
+		for(int j=0; j<=m_deg[m_mapdim[1]]; ++j){
 			
 			int v = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdim[2]; ++k){
+			for(int k=0; k<=m_deg[m_mapdim[2]]; ++k){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
@@ -658,7 +658,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
  * \param[out] result return displacement disp[intV]
  */
 double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
-	darray3E point = getShape()->toLocalCoord(pointOr);
+	darray3E point = getShape()->toLocalCoord(coordOr);
 	
 	ivector1D n = getDimension();
 	
@@ -681,17 +681,17 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
 	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
 	
-	for(int i=0; i<=m_deg[m_mapdim[0]; ++i){
+	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
 		
 		int u = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdim[1]; ++j){
+		for(int j=0; j<=m_deg[m_mapdim[1]]; ++j){
 			
 			int v = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdim[2]; ++k){
+			for(int k=0; k<=m_deg[m_mapdim[2]]; ++k){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
@@ -811,7 +811,7 @@ void FFDLattice::clearKnots(){
 	m_knots.resize(3);
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
-	m_mapNodes(3);
+	m_mapNodes.resize(3);
 	
 };
 
@@ -1030,7 +1030,7 @@ void FFDLattice::homogenizeDispl(int dim, dvector2D & result){
 			for(int intv=0; intv<dim; intv++){
 				result[j][intv] = m_weights[j] * (*disp)[j][intv];
 			}
-			work[j][dim] = m_weights[j];
+			result[j][dim] = m_weights[j];
 		}
 }
 
@@ -1038,15 +1038,35 @@ void FFDLattice::homogenizeDispl(int dim, dvector2D & result){
  */
 void FFDLattice::orderDimension(){
 	
-	map<int,int> dimmap;
-	dimmap[m_nx] = 0;
-	dimmap[m_ny] = 1;
-	dimmap[m_nz] = 2;
-	
-	int i = 0;
-	for (map<int,int>::iterator it = dimmap.begin(); it != dimmap.end(); ++it){
-		m_mapdim[i] = it->second;
-		i++;
-	}
+		m_mapdim.push_back(0);
+		if (m_ny >= m_nx){
+			m_mapdim.push_back(1);
+			if (m_nz >= m_ny){
+				m_mapdim.push_back(2);
+			}
+			else{
+				if (m_nz >= m_nx){
+					m_mapdim.insert(m_mapdim.begin()+1, 2);
+				}
+				else{
+					m_mapdim.insert(m_mapdim.begin(), 2);
+				}
+			}
+		}
+		else{
+			m_mapdim.insert(m_mapdim.begin(), 1);
+			if (m_nz >= m_nx){
+				m_mapdim.push_back(2);
+			}
+			else{
+				if (m_nz >= m_ny){
+					m_mapdim.insert(m_mapdim.begin()+1, 2);
+				}
+				else{
+					m_mapdim.insert(m_mapdim.begin(), 2);
+				}
+			}
+		}
+
 	
 };
