@@ -27,10 +27,12 @@
 
 #include <vector>
 #include <array>
+#include <map>
 
 typedef std::vector<double>			dvector1D;
 typedef std::vector<float>			fvector1D;
 typedef std::vector<int>			ivector1D;
+typedef std::vector<long>			livector1D;
 typedef std::vector<uint32_t>		u32vector1D;
 typedef std::vector<short int>		shivector1D;
 typedef std::vector<bool>			bvector1D;
@@ -75,5 +77,8 @@ typedef std::vector< svector3D >	svector4D;
 
 typedef std::array<darray2E,3>		dmatrix32E;
 typedef std::array<darray3E,3>		dmatrix33E;
+
+typedef std::map<long int, int>		liimap;
+
 
 #endif //MIMMOTYPEDEF_HH

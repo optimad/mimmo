@@ -66,7 +66,7 @@ Apply::execute(){
 	long nv = getGeometry()->getNVertex();
 	for (long i=0; i<nv; i++){
 		vertex[i] += m_displ[i];
-		getGeometry()->modifyVertex(vertex[i], i);
+		getGeometry()->modifyVertex(vertex[i], getGeometry()->getMapData(i));
 	}
 	return;
 };

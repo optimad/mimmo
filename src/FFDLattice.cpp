@@ -500,7 +500,6 @@ FFDLattice::setInfo(){
 /*! Given pointer to a reference geometry and, execute deformation w/ the current setup */
 void 		FFDLattice::execute(){
 			
-	//TODO see todo note on "dvecarr3E 	FFDLatticeBox::apply(ivector1D & list)" method of the class. 
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
@@ -508,13 +507,12 @@ void 		FFDLattice::execute(){
 			dvecarr3E localdef = apply(map);
 			
 			//reset displacement in a unique vector
-			bitpit::PatchKernel * tri = container->getGeometry();
-			int size = tri->getVertexCount();
+			int size = container->getNVertex();
 			
 			dvecarr3E result(size, darray3E{0,0,0});
 			
 			for(int i=0; i<map.size(); ++i){
-				result[map[i]] = localdef[i];
+				result[container->getMapDataInv(map[i])] = localdef[i];
 			}
 	//debug
 // 			for(int i=0; i<size; ++i){
@@ -546,31 +544,17 @@ darray3E 	FFDLattice::apply(darray3E & point){
  * \param[out] map list of ids of non-zero displaced vertex belonging to geometry
  */
 dvecarr3E 	FFDLattice::apply(ivector1D & list){
-	//TODO now geometry displacement points are recovered from a list of effectively displaced points +
-	// an internal map called list. This list contained an absolute id (get_id, set_id methods) of the geometry vertex, according to the 
-	// logic of bitpit bitpit::PatchKernel object for geometry data structure. You can rethink this outputs when your knowledge on
-	//how the object bitpit::PatchKernel work is more mature.
 	
-	dvecarr3E result;
 	MimmoObject * container = getGeometry();
-	if(container == NULL ) return result;
+	if(container == NULL ) return dvecarr3E(0);
 	
 	bitpit::PatchKernel * tri = container->getGeometry();
 	
 	freeContainer(list);
 	list = getShape()->includeCloudPoints(tri);
-
-	const long nVert = tri->getVertexCount();
-	result.resize(list.size(), darray3E{0,0,0});
-
 	
-	for(int i=0; i<list.size(); ++i){
-		long id  = list[i];
-		darray3E target = tri->getVertex(id).getCoords();
-		result[i] = nurbsEvaluator(target);
-	}
-	
-	return(result);
+	return(nurbsEvaluator(list));
+
 };
 
 /*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed, 
@@ -615,37 +599,37 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
 	
-	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
-	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
-	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
+	int uind = knotInterval[m_mapdeg[0]] - m_deg[m_mapdeg[0]];
+	int vind = knotInterval[m_mapdeg[1]] - m_deg[m_mapdeg[1]];
+	int wind = knotInterval[m_mapdeg[2]] - m_deg[m_mapdeg[2]];
 
-	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
+	for(int i=0; i<=m_deg[m_mapdeg[0]]; ++i){
 		
 		int u = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdim[1]]; ++j){
+		for(int j=0; j<=m_deg[m_mapdeg[1]]; ++j){
 			
 			int v = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdim[2]]; ++k){
+			for(int k=0; k<=m_deg[m_mapdeg[2]]; ++k){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
 
 				for(int intv=0; intv<3; ++intv){
-					temp2[intv] += BSbasis[m_mapdim[2]][k]*m_weights[index]*(*displ)[index][intv]; 
+					temp2[intv] += BSbasis[m_mapdeg[2]][k]*m_weights[index]*(*displ)[index][intv];
 				}	
-				temp2[3] += BSbasis[m_mapdim[2]][k]*m_weights[index];
+				temp2[3] += BSbasis[m_mapdeg[2]][k]*m_weights[index];
 			}
 			for(int intv=0; intv<4; ++intv){
-				temp1[intv] += BSbasis[m_mapdim[1]][j]*temp2[intv]; 
+				temp1[intv] += BSbasis[m_mapdeg[1]][j]*temp2[intv];
 			}	
 			
 		}
 		for(int intv=0; intv<4; ++intv){
-			valH[intv] += BSbasis[m_mapdim[0]][i]*temp1[intv]; 
+			valH[intv] += BSbasis[m_mapdeg[0]][i]*temp1[intv];
 		}	
 	}
 
@@ -656,6 +640,106 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	return(outres);
 	
 }; 
+
+
+
+
+/*! Return displacement of a given point, under the deformation effect of the whole Lattice.
+ * \param[in] coord 3D point
+ * \param[out] result displacement
+ */
+dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
+
+	bitpit::PatchKernel * tri = getGeometry()->getGeometry();
+	long id;
+	int lsize = list.size();
+	ivector1D::iterator it, itend = list.end();
+	darray3E target, point;
+	ivector1D knotInterval(3,0);
+	dvector2D BSbasis(3);
+	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
+
+	//get loads in homogeneous coordinate.
+	dvecarr3E *displ = getDisplacements();
+
+	int uind, vind, wind, index;
+
+	int i0 = m_mapdeg[0];
+	int i1 = m_mapdeg[1];
+	int i2 = m_mapdeg[2];
+	iarray3E mappedIndex;
+
+	dvecarr3E outres(lsize);
+	dvecarr3E::iterator itout = outres.begin();
+
+	for(it = list.begin(); it != itend; ++it){
+
+		valH = zeros;
+
+		id  = *it;
+		target = tri->getVertex(id).getCoords();
+		point = getShape()->toLocalCoord(target);
+
+		// get reference Interval int the knot matrix
+		for(int i=0; i<3; i++){
+			knotInterval[i] = getKnotInterval(point[i],i);
+			BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
+		}
+
+		uind = knotInterval[i0] - m_deg[i0];
+		vind = knotInterval[i1] - m_deg[i1];
+		wind = knotInterval[i2] - m_deg[i2];
+
+		for(int i=0; i<=m_deg[i0]; ++i){
+
+			mappedIndex[i0] = uind + i;
+			temp1 = zeros;
+
+			for(int j=0; j<=m_deg[i1]; ++j){
+
+				mappedIndex[i1] = vind + j;
+				temp2 = zeros;
+
+				for(int k=0; k<=m_deg[i2]; ++k){
+
+					mappedIndex[i2] = wind + k;
+
+					index = accessMapNodes(mappedIndex[0], mappedIndex[1], mappedIndex[2]);
+
+					for(int intv=0; intv<3; ++intv){
+						temp2[intv] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][intv];
+					}
+					temp2[3] += BSbasis[i2][k]*m_weights[index];
+				}
+				for(int intv=0; intv<4; ++intv){
+					temp1[intv] += BSbasis[i1][j]*temp2[intv];
+				}
+
+			}
+			for(int intv=0; intv<4; ++intv){
+				valH[intv] += BSbasis[i0][i]*temp1[intv];
+			}
+		}
+
+		for(int i=0; i<3; ++i){
+			(*itout)[i] = valH[i]/valH[3];
+		}
+
+		itout++;
+	}//next list id
+
+	displ = NULL;
+	itout = outres.end();
+
+	return(outres);
+
+};
+
+
+
+
+
+
 
 /*! Return a specified component of a displacement of a given point, under the deformation effect of the whole Lattice. 
  * \param[in] coord 3D point
@@ -679,35 +763,35 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	
 	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
 	
-	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
-	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
-	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
+	int uind = knotInterval[m_mapdeg[0]] - m_deg[m_mapdeg[0]];
+	int vind = knotInterval[m_mapdeg[1]] - m_deg[m_mapdeg[1]];
+	int wind = knotInterval[m_mapdeg[2]] - m_deg[m_mapdeg[2]];
 	
-	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
+	for(int i=0; i<=m_deg[m_mapdeg[0]]; ++i){
 		
 		int u = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdim[1]]; ++j){
+		for(int j=0; j<=m_deg[m_mapdeg[1]]; ++j){
 			
 			int v = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdim[2]]; ++k){
+			for(int k=0; k<=m_deg[m_mapdeg[2]]; ++k){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
 				
-				temp2[0] += BSbasis[m_mapdim[2]][k]*m_weights[index]*(*displ)[index][targ]; 
-				temp2[1] += BSbasis[m_mapdim[2]][k]*m_weights[index];
+				temp2[0] += BSbasis[m_mapdeg[2]][k]*m_weights[index]*(*displ)[index][targ];
+				temp2[1] += BSbasis[m_mapdeg[2]][k]*m_weights[index];
 			}
 			for(int intv=0; intv<2; ++intv){
-				temp1[intv] += BSbasis[m_mapdim[1]][j]*temp2[intv]; 
+				temp1[intv] += BSbasis[m_mapdeg[1]][j]*temp2[intv];
 			}	
 			
 		}
 		for(int intv=0; intv<4; ++intv){
-			valH[intv] += BSbasis[m_mapdim[0]][i]*temp1[intv]; 
+			valH[intv] += BSbasis[m_mapdeg[0]][i]*temp1[intv];
 		}	
 	}
 	
@@ -1001,39 +1085,19 @@ int FFDLattice::accessMapNodes(int i, int j, int k){
 	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
 };
 
-/*! Fill m_mapdim with the ordered indices of dimensions.
- */
+/*! Fill m_mapdeg with the ordered indices of dimensions.
+*/
 void FFDLattice::orderDimension(){
-	
-		m_mapdim.push_back(0);
-		if (m_ny >= m_nx){
-			m_mapdim.push_back(1);
-			if (m_nz >= m_ny){
-				m_mapdim.push_back(2);
-			}
-			else{
-				if (m_nz >= m_nx){
-					m_mapdim.insert(m_mapdim.begin()+1, 2);
-				}
-				else{
-					m_mapdim.insert(m_mapdim.begin(), 2);
-				}
-			}
-		}
-		else{
-			m_mapdim.insert(m_mapdim.begin(), 1);
-			if (m_nz >= m_nx){
-				m_mapdim.push_back(2);
-			}
-			else{
-				if (m_nz >= m_ny){
-					m_mapdim.insert(m_mapdim.begin()+1, 2);
-				}
-				else{
-					m_mapdim.insert(m_mapdim.begin(), 2);
-				}
-			}
-		}
 
-	
+	map<pair<int,int>, int > mapsort;
+	mapsort[make_pair(m_nx,0)] = 0;
+	mapsort[make_pair(m_ny,1)] = 1;
+	mapsort[make_pair(m_nz,2)] = 2;
+
+	int i=0;
+	for (map<pair<int,int>, int >::iterator it = mapsort.begin(); it != mapsort.end(); ++it){
+		m_mapdeg[i] = it->second;
+		i++;
+	}
+
 };

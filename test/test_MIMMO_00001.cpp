@@ -27,9 +27,16 @@
 using namespace std;
 using namespace bitpit;
 
+
+#include <chrono>
+
+using namespace std::chrono;
+
 // =================================================================================== //
 
 void test0001() {
+
+
 
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
@@ -41,16 +48,18 @@ void test0001() {
 //		STLObj stl("placca.stl", true);
 //		STLObj stl("placca0.stl", true);
 //		STLObj stl("sphere.stl", true);
-		STLObj stl("sphere2.stl", true);
+//		STLObj stl("sphere2.stl", true);
+		STLObj stl("cad.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
 		
 		for (long ip=0; ip<np; ip++){
 			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(ip, point);
+			mimmo0.setVertex(point);
 		}
 		mimmo0.setConnectivity(&T);
+		mimmo0.cleanGeometry();
 	}
 
 	string filename = "mimmo0";
@@ -66,23 +75,42 @@ void test0001() {
 //	span[0]= 1.02;
 //	span[1]= 0.12;
 //	span[2]= 0.02;
-	darray3E origin = {-0.6, -0.6,-0.6};
+
+//	//sphere2
+//	darray3E origin = {-0.6, -0.6,-0.6};
+//	darray3E span;
+//	span[0]= 1.2;
+//	span[1]= 1.2;
+//	span[2]= 1.2;
+
+	//cadstl
+	darray3E origin = {-0.9, -1.0, 0.03};
 	darray3E span;
-	span[0]= 1.2;
-	span[1]= 1.2;
-	span[2]= 1.2;
+	span[0]= 5.1;
+	span[1]= 2;
+	span[2]= 1.31;
+
 	//Set Lattice
 	ivector1D dim(3), deg(3);
 //	dim[0] = 21;
 //	dim[1] = 7;
 //	dim[2] = 7;
-	dim[0] = 10;
-	dim[1] = 10;
-	dim[2] = 10;
-	
-	deg[0] = 4;
-	deg[1] = 4;
-	deg[2] = 4;
+
+//	dim[0] = 10;
+//	dim[1] = 10;
+//	dim[2] = 10;
+//
+//	deg[0] = 4;
+//	deg[1] = 4;
+//	deg[2] = 4;
+
+	dim[0] = 20;
+	dim[1] = 8;
+	dim[2] = 6;
+
+	deg[0] = 2;
+	deg[1] = 2;
+	deg[2] = 2;
 
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 
@@ -99,8 +127,8 @@ void test0001() {
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-//			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
-			displ[i][j] = 0.1+0.1*j;
+			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
+//			displ[i][j] = 0.1+0.1*j;
 		}
 	}
 	InputDoF* input = new InputDoF(ndeg, displ);
@@ -148,16 +176,19 @@ void test0001() {
 
 	//create bend
 	Bend* bend = new Bend();
-//	bend->setCoords(coords);
+	bend->setCoords(coords);
 	dvecarr3E degree(3);
 	degree[2][0] = 2;
 	bend->setDegree(degree);
 	dvector3D coeffs(3, vector<vector<double> >(3) );
 
 	coeffs[2][0].resize(degree[2][0]+1);
-	coeffs[2][0][0] = 0.195;
-	coeffs[2][0][1] = -0.8;
-	coeffs[2][0][2] = 0.8;
+//	coeffs[2][0][0] = 0.195;
+//	coeffs[2][0][1] = -0.8;
+//	coeffs[2][0][2] = 0.8;
+	coeffs[2][0][0] = 0.0;
+	coeffs[2][0][1] = -0.0;
+	coeffs[2][0][2] = 0.0;
 
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
@@ -196,7 +227,9 @@ void test0001() {
 	cout << ch0.addObject(bend) << endl;
 
 	cout << "execution start" << endl;
+	steady_clock::time_point t1 = steady_clock::now();
 	ch0.exec();
+	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
 	lattice->plotGrid("./", "lattice", 0, false, false);
@@ -224,6 +257,12 @@ void test0001() {
 	input 	= NULL;
 	input0 	= NULL;
 	output 	= NULL;
+
+
+	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+
+	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
+	std::cout << std::endl;
 
     return;
 

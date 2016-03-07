@@ -50,8 +50,9 @@ protected:
 	dvector2D m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D m_weights;	/**< Weights of each control node*/
-	ivector1D m_mapdim;	/**< Map of dimension. Ordered by increasing number of nodes for each direction.*/
 	ivector2D m_mapNodes;	/**< Internal map to access node index w/ knots structure theoretical indexing */
+private:
+	iarray3E  m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	
 public:
 	FFDLattice();
@@ -100,6 +101,7 @@ private:
 
 	//Nurbs Evaluators
 	darray3E nurbsEvaluator(darray3E &); 
+	dvecarr3E nurbsEvaluator(ivector1D &);
 	double nurbsEvaluatorScalar(darray3E &, int);
 
 	//Nurbs utilities

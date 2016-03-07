@@ -64,6 +64,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	setVertex(vertex);
 	if (connectivity != NULL)
 		setConnectivity(connectivity);
+	setMapData();
 };
 
 /*!Custom constructor of MimmoObject.
@@ -75,6 +76,7 @@ MimmoObject::MimmoObject(int type, PatchKernel* geometry){
 	m_type 			= type;
 	m_geometry 		= geometry;
 	m_internalPatch = false;
+	setMapData();
 }
 
 /*!Default destructor of MimmoObject.
@@ -89,8 +91,9 @@ MimmoObject::~MimmoObject(){
 MimmoObject::MimmoObject(const MimmoObject & other){
 	m_type 			= other.m_type;
 	m_geometry 		= other.m_geometry;
-//	m_internalPatch = other.m_internalPatch;
 	m_internalPatch = false;
+	m_mapData		= other.m_mapData;
+	m_mapDataInv	= other.m_mapDataInv;
 };
 
 /*!Assignement operator of MimmoObject.
@@ -98,8 +101,10 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_type 			= other.m_type;
 	m_geometry 		= other.m_geometry;
-//	m_internalPatch = other.m_internalPatch;
-		m_internalPatch = false;
+	m_internalPatch = false;
+	m_mapData		= other.m_mapData;
+	m_mapDataInv	= other.m_mapDataInv;
+	return *this;
 };
 
 /*!It Clears the object. The pointer to the geometry is set to NULL and the
@@ -191,6 +196,43 @@ MimmoObject::getGeometry(){
 	return m_geometry;
 };
 
+
+/*!It gets the vertex ids.
+ * \return Reference to Map data with vertex ids.
+ */
+livector1D&
+MimmoObject::getMapData(){
+	return m_mapData;
+};
+
+/*!It gets the i-th vertex id.
+ * \param[in] Index in a sequential vector of target vertex.
+ * \return ID of target vertex.
+ */
+long
+MimmoObject::getMapData(int i){
+	return m_mapData[i];
+};
+
+
+/*!It gets the vertex ids.
+ * \return Reference to inverse of Map data with vertex ids.
+ */
+liimap&
+MimmoObject::getMapDataInv(){
+	return m_mapDataInv;
+};
+
+/*!It gets the id-th vertex index in a sequential vector.
+ * \param[in] ID of target vertex.
+ * \return Index in a sequential vector of target vertex.
+ */
+int
+MimmoObject::getMapDataInv(long id){
+	return m_mapDataInv[id];
+};
+
+
 /*!It sets the coordinates of the vertices of the geometry Patch.
  * \param[in] vertex Coordinates of vertices of geometry mesh.
  * \return False if no geometry is linked.
@@ -200,25 +242,28 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 	
 	if (m_geometry == NULL) return false;
 	long nv = vertex.size();
+	int mapsize = m_mapData.size();
 	PatchKernel::VertexIterator index;
 	for (long i=0; i<nv; i++){
 		index = m_geometry->addVertex();
 		index->setCoords(vertex[i]);
-		
+		m_mapData.push_back(index->get_id());
+		m_mapDataInv[index->get_id()] = mapsize + i;
 	}
 	return true;
 };
 
 /*!It adds and it sets the coordinates of one vertex of the geometry Patch.
- * \param[in] index Index of vertex to be added to the geometry mesh.
  * \param[in] vertex Coordinates of vertex to be added to geometry mesh.
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setVertex(int index, darray3E & vertex){
+MimmoObject::setVertex(darray3E & vertex){
 	if (m_geometry == NULL) return false;
 	PatchKernel::VertexIterator it = m_geometry->addVertex();
 	it->setCoords(vertex);
+	m_mapData.push_back(it->get_id());
+	m_mapDataInv[it->get_id()] = m_mapData.size();
 	return true;
 };
 
@@ -274,7 +319,46 @@ MimmoObject::setGeometry(int type, PatchKernel* geometry){
 	if (geometry == NULL) return false;
 	m_geometry = geometry;
 	m_type = type;
+	setMapData();
+	return true;
 };
+
+
+/*!It cleans the geometry Patch.
+ * \return False if the geometry member pointer is NULL.
+ */
+bool
+MimmoObject::cleanGeometry(){
+	if (m_geometry == NULL) return false;
+	m_geometry->deleteCoincidentVertex();
+	setMapData();
+	return true;
+};
+
+
+/*!It sets the mapper external data/vertices.
+ * \return False if the geometry member pointer is NULL.
+ */
+bool
+MimmoObject::setMapData(){
+	if (m_geometry == NULL) return false;
+	long nv = getNVertex();
+	m_mapData.clear();
+	m_mapData.resize(nv);
+	m_mapDataInv.clear();
+	PatchKernel::VertexIterator it;
+	PatchKernel::VertexIterator itend = m_geometry->vertexEnd();
+	long i = 0;
+	for (it = m_geometry->vertexBegin(); it != itend; ++it){
+		m_mapData[i] = it->get_id();
+		m_mapDataInv[m_mapData[i]] = i;
+		i++;
+	}
+	return true;
+};
+
+
+
 
 /*!It writes the mesh geometry on an output file.
  * \param[in] filename Name of the output file.

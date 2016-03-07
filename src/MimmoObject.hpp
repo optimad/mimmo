@@ -47,6 +47,8 @@ public:
 	int						m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
 	bitpit::PatchKernel*	m_geometry;			/**<Reference geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
+	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
 public:
 	MimmoObject(int type = 1);
@@ -66,12 +68,18 @@ public:
 	darray3E	getVertex(long i);
 	ivector1D	getConnectivity(long i);
 	bitpit::PatchKernel*		getGeometry();
+	livector1D&	getMapData();
+	long		getMapData(int i);
+	liimap&		getMapDataInv();
+	int			getMapDataInv(long id);
 
 	bool		setVertex(dvecarr3E & vertex);
-	bool		setVertex(int index, darray3E & vertex);
+	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
 	bool		setGeometry(int type, bitpit::PatchKernel* geometry);
+	bool		setMapData();
+	bool		cleanGeometry();
 
 	void		write(std::string filename);
 };
