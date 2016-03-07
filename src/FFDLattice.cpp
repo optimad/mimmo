@@ -622,7 +622,8 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
 	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
 	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
-	
+
+	dvector1D dummy(4);	
 	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
 		
 		int u = uind+i;
@@ -637,11 +638,23 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
-				temp2 += BSbasis[m_mapdim[2]][k]*loads[index]; 
+
+				//				for(int intv=0; intv<4; ++intv){
+//					temp2[intv] += BSbasis[m_mapdim[2]][k]*loads[index][intv]; 
+				dummy = loads[index];
+//				dummy = BSbasis[m_mapdim[2]][k]*loads[index];	
+//				temp2 += dummy; 
+//				}	
 			}
-			temp1 += BSbasis[m_mapdim[1]][j]*temp2;	
+			for(int intv=0; intv<4; ++intv){
+				temp1[intv] += BSbasis[m_mapdim[1]][j]*temp2[intv]; 
+			}	
+			
 		}
-		valH += BSbasis[m_mapdim[0]][i]*temp1;	
+		valH += (temp2,BSbasis[m_mapdim[0]][i]*temp1);	
+		for(int intv=0; intv<4; ++intv){
+			valH[intv] += BSbasis[m_mapdim[0]][i]*temp1[intv]; 
+		}	
 	}
 
 	darray3E outres;
@@ -675,7 +688,6 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 	homogenizeDispl(1, loads);
 	
 	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
-	
 	
 	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
 	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
