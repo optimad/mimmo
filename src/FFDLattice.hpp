@@ -101,7 +101,6 @@ private:
 	//Nurbs Evaluators
 	darray3E nurbsEvaluator(darray3E &); 
 	double nurbsEvaluatorScalar(darray3E &, int);
-	void getNurbsPoint(int k, dvector1D & basis, dvector2D & loads, dvector1D & res);
 
 	//Nurbs utilities
 	dvector1D basisITS0(int k, int pos, double coord);	
@@ -121,7 +120,6 @@ private:
 	void resizeDisplacements(int, int, int);
 	void setMapNodes(int ind);
 	int  accessMapNodes(int,int,int);
-	void homogenizeDispl(int dim, dvector2D & result);
 	//dimension utilities
 	void orderDimension();
 	

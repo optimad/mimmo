@@ -56,7 +56,7 @@ void test0001() {
 	string filename = "mimmo0";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
-
+	
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 
@@ -100,7 +100,7 @@ void test0001() {
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
 //			displ[i][j] = 0.025*( (double) (rand()) / RAND_MAX );
-			displ[i][j] = 0.25*( (double) (rand()) / RAND_MAX );
+			displ[i][j] = 0.1+0.1*j;
 		}
 	}
 	InputDoF* input = new InputDoF(ndeg, displ);

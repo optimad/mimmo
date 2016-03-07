@@ -601,8 +601,6 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
 	darray3E point = getShape()->toLocalCoord(pointOr);
-	
-	ivector1D n = getDimension();
 
 	// get reference Interval int the knot matrix
 	ivector1D knotInterval(3,0);
@@ -613,17 +611,14 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	}
 	
 	//get loads in homogeneous coordinate.
-	dvector2D loads;
-	homogenizeDispl(3, loads);
+	dvecarr3E *displ = getDisplacements();
 	
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
-	
 	
 	int uind = knotInterval[m_mapdim[0]] - m_deg[m_mapdim[0]];
 	int vind = knotInterval[m_mapdim[1]] - m_deg[m_mapdim[1]];
 	int wind = knotInterval[m_mapdim[2]] - m_deg[m_mapdim[2]];
 
-	dvector1D dummy(4);	
 	for(int i=0; i<=m_deg[m_mapdim[0]]; ++i){
 		
 		int u = uind+i;
@@ -639,19 +634,16 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
 
-				//				for(int intv=0; intv<4; ++intv){
-//					temp2[intv] += BSbasis[m_mapdim[2]][k]*loads[index][intv]; 
-				dummy = loads[index];
-//				dummy = BSbasis[m_mapdim[2]][k]*loads[index];	
-//				temp2 += dummy; 
-//				}	
+				for(int intv=0; intv<3; ++intv){
+					temp2[intv] += BSbasis[m_mapdim[2]][k]*m_weights[index]*(*displ)[index][intv]; 
+				}	
+				temp2[3] += BSbasis[m_mapdim[2]][k]*m_weights[index];
 			}
 			for(int intv=0; intv<4; ++intv){
 				temp1[intv] += BSbasis[m_mapdim[1]][j]*temp2[intv]; 
 			}	
 			
 		}
-		valH += (temp2,BSbasis[m_mapdim[0]][i]*temp1);	
 		for(int intv=0; intv<4; ++intv){
 			valH[intv] += BSbasis[m_mapdim[0]][i]*temp1[intv]; 
 		}	
@@ -670,10 +662,9 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
  * \param[in] intV component of displacement vector (0,1,2)
  * \param[out] result return displacement disp[intV]
  */
-double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
-	darray3E point = getShape()->toLocalCoord(coordOr);
+double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	
-	ivector1D n = getDimension();
+	darray3E point = getShape()->toLocalCoord(coordOr);
 	
 	// get reference Interval int the knot matrix
 	ivector1D knotInterval(3,0);
@@ -684,8 +675,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 	}
 	
 	//get loads in homogeneous coordinate.
-	dvector2D loads;
-	homogenizeDispl(1, loads);
+	dvecarr3E *displ = getDisplacements();
 	
 	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
 	
@@ -707,41 +697,23 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int intV){
 				
 				int w = wind+k;
 				int index = accessMapNodes(u,v,w);
-				temp2 += BSbasis[m_mapdim[2]][k]*loads[index]; 
+				
+				temp2[0] += BSbasis[m_mapdim[2]][k]*m_weights[index]*(*displ)[index][targ]; 
+				temp2[1] += BSbasis[m_mapdim[2]][k]*m_weights[index];
 			}
-			temp1 += BSbasis[m_mapdim[1]][j]*temp2;	
+			for(int intv=0; intv<2; ++intv){
+				temp1[intv] += BSbasis[m_mapdim[1]][j]*temp2[intv]; 
+			}	
+			
 		}
-		valH += BSbasis[m_mapdim[0]][i]*temp1;	
+		for(int intv=0; intv<4; ++intv){
+			valH[intv] += BSbasis[m_mapdim[0]][i]*temp1[intv]; 
+		}	
 	}
 	
-	double outres = valH[0]/valH[1];
-	return(outres);
+	return(valH[1]/valH[0]);
 };
 
-/*!Evaluate NURBS displacement of a point coord via ITS0 algorithm (called after basisITS0 method).
- * Note nodal displacements must be given in homogeneous 4-D coordinate (w*x, w*y, w*z, w), where w is the weight
- * and x,y,z are the components of the original displacement.
- *  \param[in] k local knot interval in which a point coord resides -> theoretical knot indexing
- *  \param[in] basis pre-calculated B-Spline basis of point coord
- *  \param[in] loads nodal displacement of the nurbs curve in exam
- *  \param[out] res point displacement in coord, in homogeneous coordinates
-*/
-void 	FFDLattice::getNurbsPoint(int k, dvector1D & basis, dvector2D & loads, dvector1D & res){
-
-	// provide theoretical interval index, basis functions for that point, and loads row-> complete.
-	int p = basis.size() -1;
-	int j;
-	int rs = loads[0].size();
-	res.clear();
-	res.resize(rs,0.0);
-
-	for(int i=0; i <= p; ++i){
-		for (int j=0; j<rs; j++){
-			res[j] += basis[i] * loads[k - p + i][j];
-		}
-	}//next[i];
-
-};
 
 /*!Return the local basis function of a Nurbs Curve.Please refer to NURBS book of PEIGL 
  * for this Inverted Triangular Scheme Algorithm (pag 74);* 
@@ -1028,23 +1000,6 @@ void FFDLattice::setMapNodes( int ind){
 int FFDLattice::accessMapNodes(int i, int j, int k){
 	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
 };
-
-/*! homogenezation of displacement vector */
-
-void FFDLattice::homogenizeDispl(int dim, dvector2D & result){
-	
-	dim = std::max(dim,3);
-	const dvecarr3E *disp = getDisplacements();
-	ivector1D n = getDimension();
-	// get reference Interval int the knot matrix
-	result.resize(n[0]*n[1]*n[2], dvector1D(dim+1,0.0));
-	for (int j=0; j<n[0]*n[1]*n[2]; ++j){ //  counting deformation due to every load applied in lattice control points
-			for(int intv=0; intv<dim; intv++){
-				result[j][intv] = m_weights[j] * (*disp)[j][intv];
-			}
-			result[j][dim] = m_weights[j];
-		}
-}
 
 /*! Fill m_mapdim with the ordered indices of dimensions.
  */
