@@ -35,7 +35,6 @@ configure_file(sphere.stl sphere.stl COPYONLY)
 configure_file(sphere2.stl sphere2.stl COPYONLY)
 configure_file(placca.stl placca.stl COPYONLY)
 configure_file(placca.stl placca0.stl COPYONLY)
-configure_file(placca.stl cad.stl COPYONLY)
 configure_file(input.txt input.txt COPYONLY)
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)

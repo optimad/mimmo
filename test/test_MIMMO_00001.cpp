@@ -48,8 +48,8 @@ void test0001() {
 //		STLObj stl("placca.stl", true);
 //		STLObj stl("placca0.stl", true);
 //		STLObj stl("sphere.stl", true);
-//		STLObj stl("sphere2.stl", true);
-		STLObj stl("cad.stl", true);
+		STLObj stl("sphere2.stl", true);
+//		STLObj stl("cad.stl", true);
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
@@ -76,19 +76,19 @@ void test0001() {
 //	span[1]= 0.12;
 //	span[2]= 0.02;
 
-//	//sphere2
-//	darray3E origin = {-0.6, -0.6,-0.6};
-//	darray3E span;
-//	span[0]= 1.2;
-//	span[1]= 1.2;
-//	span[2]= 1.2;
-
-	//cadstl
-	darray3E origin = {-0.9, -1.0, 0.03};
+	//sphere2
+	darray3E origin = {-0.6, -0.6,-0.6};
 	darray3E span;
-	span[0]= 5.1;
-	span[1]= 2;
-	span[2]= 1.31;
+	span[0]= 1.2;
+	span[1]= 1.2;
+	span[2]= 1.2;
+
+//	//cadstl
+//	darray3E origin = {-0.9, -1.0, 0.03};
+//	darray3E span;
+//	span[0]= 5.1;
+//	span[1]= 2;
+//	span[2]= 1.31;
 
 	//Set Lattice
 	ivector1D dim(3), deg(3);
@@ -96,21 +96,21 @@ void test0001() {
 //	dim[1] = 7;
 //	dim[2] = 7;
 
-//	dim[0] = 10;
-//	dim[1] = 10;
-//	dim[2] = 10;
+	dim[0] = 10;
+	dim[1] = 10;
+	dim[2] = 10;
+
+	deg[0] = 4;
+	deg[1] = 4;
+	deg[2] = 4;
+
+//	dim[0] = 20;
+//	dim[1] = 8;
+//	dim[2] = 6;
 //
-//	deg[0] = 4;
-//	deg[1] = 4;
-//	deg[2] = 4;
-
-	dim[0] = 20;
-	dim[1] = 8;
-	dim[2] = 6;
-
-	deg[0] = 2;
-	deg[1] = 2;
-	deg[2] = 2;
+//	deg[0] = 2;
+//	deg[1] = 2;
+//	deg[2] = 2;
 
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 
@@ -183,12 +183,9 @@ void test0001() {
 	dvector3D coeffs(3, vector<vector<double> >(3) );
 
 	coeffs[2][0].resize(degree[2][0]+1);
-//	coeffs[2][0][0] = 0.195;
-//	coeffs[2][0][1] = -0.8;
-//	coeffs[2][0][2] = 0.8;
-	coeffs[2][0][0] = 0.0;
-	coeffs[2][0][1] = -0.0;
-	coeffs[2][0][2] = 0.0;
+	coeffs[2][0][0] = 0.195;
+	coeffs[2][0][1] = -0.8;
+	coeffs[2][0][2] = 0.8;
 
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
