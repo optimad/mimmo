@@ -585,51 +585,56 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
 	darray3E point = getShape()->toLocalCoord(pointOr);
-
-	// get reference Interval int the knot matrix
+	
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
+	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
+	int uind, vind, wind, index;
+	
+	dvecarr3E *displ = getDisplacements();
+
+	int i0 = m_mapdeg[0];
+	int i1 = m_mapdeg[1];
+	int i2 = m_mapdeg[2];
+
+	iarray3E mappedIndex;
+	
 	for(int i=0; i<3; i++){
 		knotInterval[i] = getKnotInterval(point[i],i);
 		BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 	}
 	
-	//get loads in homogeneous coordinate.
-	dvecarr3E *displ = getDisplacements();
-	
-	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
-	
-	int uind = knotInterval[m_mapdeg[0]] - m_deg[m_mapdeg[0]];
-	int vind = knotInterval[m_mapdeg[1]] - m_deg[m_mapdeg[1]];
-	int wind = knotInterval[m_mapdeg[2]] - m_deg[m_mapdeg[2]];
+	uind = knotInterval[i0] - m_deg[i0];
+	vind = knotInterval[i1] - m_deg[i1];
+	wind = knotInterval[i2] - m_deg[i2];
 
-	for(int i=0; i<=m_deg[m_mapdeg[0]]; ++i){
+	for(int i=0; i<=m_deg[i0]; ++i){
 		
-		int u = uind+i;
+		mappedIndex[0] = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdeg[1]]; ++j){
+		for(int j=0; j<=m_deg[i1]; ++j){
 			
-			int v = vind+j;
+			mappedIndex[1] = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdeg[2]]; ++k){
+			for(int k=0; k<=m_deg[i2]; ++k){
 				
-				int w = wind+k;
-				int index = accessMapNodes(u,v,w);
+				mappedIndex[2] = wind+k;
+				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 
 				for(int intv=0; intv<3; ++intv){
-					temp2[intv] += BSbasis[m_mapdeg[2]][k]*m_weights[index]*(*displ)[index][intv];
+					temp2[intv] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][intv];
 				}	
-				temp2[3] += BSbasis[m_mapdeg[2]][k]*m_weights[index];
+				temp2[3] += BSbasis[i2][k]*m_weights[index];
 			}
 			for(int intv=0; intv<4; ++intv){
-				temp1[intv] += BSbasis[m_mapdeg[1]][j]*temp2[intv];
+				temp1[intv] += BSbasis[i1][j]*temp2[intv];
 			}	
 			
 		}
 		for(int intv=0; intv<4; ++intv){
-			valH[intv] += BSbasis[m_mapdeg[0]][i]*temp1[intv];
+			valH[intv] += BSbasis[i0][i]*temp1[intv];
 		}	
 	}
 
@@ -637,12 +642,10 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	for(int i=0; i<3; ++i){
 		outres[i] = valH[i]/valH[3];
 	}
+	
 	return(outres);
 	
 }; 
-
-
-
 
 /*! Return displacement of a given point, under the deformation effect of the whole Lattice.
  * \param[in] coord 3D point
@@ -659,7 +662,6 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 	dvector2D BSbasis(3);
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
 
-	//get loads in homogeneous coordinate.
 	dvecarr3E *displ = getDisplacements();
 
 	int uind, vind, wind, index;
@@ -735,12 +737,6 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 
 };
 
-
-
-
-
-
-
 /*! Return a specified component of a displacement of a given point, under the deformation effect of the whole Lattice. 
  * \param[in] coord 3D point
  * \param[in] intV component of displacement vector (0,1,2)
@@ -750,48 +746,55 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	
 	darray3E point = getShape()->toLocalCoord(coordOr);
 	
-	// get reference Interval int the knot matrix
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
+	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
+	int uind, vind, wind, index;
+	
+	dvecarr3E *displ = getDisplacements();
+	
+	int i0 = m_mapdeg[0];
+	int i1 = m_mapdeg[1];
+	int i2 = m_mapdeg[2];
+	
+	iarray3E mappedIndex;
+	
 	for(int i=0; i<3; i++){
 		knotInterval[i] = getKnotInterval(point[i],i);
 		BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 	}
 	
-	//get loads in homogeneous coordinate.
-	dvecarr3E *displ = getDisplacements();
+	uind = knotInterval[i0] - m_deg[i0];
+	vind = knotInterval[i1] - m_deg[i1];
+	wind = knotInterval[i2] - m_deg[i2];
 	
-	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
-	
-	int uind = knotInterval[m_mapdeg[0]] - m_deg[m_mapdeg[0]];
-	int vind = knotInterval[m_mapdeg[1]] - m_deg[m_mapdeg[1]];
-	int wind = knotInterval[m_mapdeg[2]] - m_deg[m_mapdeg[2]];
-	
-	for(int i=0; i<=m_deg[m_mapdeg[0]]; ++i){
+	for(int i=0; i<=m_deg[i0]; ++i){
 		
-		int u = uind+i;
+		mappedIndex[0] = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[m_mapdeg[1]]; ++j){
+		for(int j=0; j<=m_deg[i1]; ++j){
 			
-			int v = vind+j;
+			mappedIndex[1] = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[m_mapdeg[2]]; ++k){
+			for(int k=0; k<=m_deg[i2]; ++k){
 				
-				int w = wind+k;
-				int index = accessMapNodes(u,v,w);
+				mappedIndex[2] = wind+k;
+				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 				
-				temp2[0] += BSbasis[m_mapdeg[2]][k]*m_weights[index]*(*displ)[index][targ];
-				temp2[1] += BSbasis[m_mapdeg[2]][k]*m_weights[index];
+				temp2[0] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][targ];
+				temp2[1] += BSbasis[i2][k]*m_weights[index];
 			}
+			
 			for(int intv=0; intv<2; ++intv){
-				temp1[intv] += BSbasis[m_mapdeg[1]][j]*temp2[intv];
+				temp1[intv] += BSbasis[i1][j]*temp2[intv];
 			}	
 			
 		}
-		for(int intv=0; intv<4; ++intv){
-			valH[intv] += BSbasis[m_mapdeg[0]][i]*temp1[intv];
+		
+		for(int intv=0; intv<2; ++intv){
+			valH[intv] += BSbasis[i0][i]*temp1[intv];
 		}	
 	}
 	
