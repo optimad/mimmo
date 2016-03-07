@@ -55,8 +55,8 @@ DeformBox::useInfo(){
 	}
 }
 
-/*!Execution command. It modifies the displacements given by the child manipulation object
- * with the masking conditions. After exec() the original displacements will be permanently modified.
+/*!Execution command. It modifies the coordinates given by the child manipulation object
+ * with the transform conditions. After exec() the original coordinates will be permanently modified.
  */
 void
 DeformBox::execute(){
