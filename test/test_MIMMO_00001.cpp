@@ -257,14 +257,6 @@ void test0001() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-	lattice->clear();
-	applier->clear();
-	mask->clear();
-	bend->clear();
-	input->clear();
-	input0->clear();
-	output->clear();
-
 	delete lattice, applier, mask, bend, input, input0, output;
 
 	lattice = NULL;
