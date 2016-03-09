@@ -67,7 +67,7 @@ void test0002() {
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set cylindrical lattice
-	darray3E origin = {-0.05, -0.05,-0.05};
+	darray3E origin = {0.0, -4.26,0.0};
 	darray3E span;
 	span[0]= 0.6;
 	span[1]= 8*std::atan(1.0);
@@ -75,15 +75,33 @@ void test0002() {
 
 	ivector1D dim(3), deg(3);
 	dim[0] = 2;
-	dim[1] = 10;
-	dim[2] = 10;
+	dim[1] = 20;
+	dim[2] = 6;
 
 	deg[0] = 1;
-	deg[1] = 9;
-	deg[2] = 2;
+	deg[1] = 1;
+	deg[2] = 1;
 
+// 	//Set cylindrical lattice
+// 	darray3E origin = {-0.51, -4.26,-0.51};
+// 	darray3E span;
+// 	span[0]= 1.02;
+// 	span[1]= 8.52;
+// 	span[2]= 1.02;
+// 	
+// 	ivector1D dim(3), deg(3);
+// 	dim[0] = 2;
+// 	dim[1] = 4;
+// 	dim[2] = 2;
+// 	
+// 	deg[0] = 1;
+// 	deg[1] = 1;
+// 	deg[2] = 1;
+	
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
+	lattice->getShape()->setRefSystem(darray3E{1,0,0}, darray3E{0,0,-1}, darray3E{0,1,0});	
+	
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
@@ -100,6 +118,20 @@ void test0002() {
 			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
 		}
 	}
+	
+	//debug
+	ivector1D ddd = lattice->getDimension();
+	int lsize = ddd[0]*ddd[1]*ddd[2];
+	for(int i=0; i<lsize; ++i){
+		
+		cout<<lattice->getLocalPoint(i)<<'\t'<<lattice->getGlobalPoint(i)<<endl;
+	}
+	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
+	exit(1);
+	
+	
+//	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
+	exit(1);
 //********************************************************************************************	
 	//CREATING INPUT	
 // 	InputDoF* input = new InputDoF(ndeg, displ);

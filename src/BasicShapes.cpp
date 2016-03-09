@@ -107,7 +107,6 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 	
 	double tol = 1.0e-12;
 	double check = dotProduct(axis0,axis1) + dotProduct(axis1,axis2) + dotProduct(axis0,axis2);
-	cout << "check " << check << endl;
 	if(check > tol) return;
 	m_sdr[0] = axis0;
 	m_sdr[1] = axis1;
@@ -474,8 +473,7 @@ darray3E	Cube::toWorldCoord(darray3E & point){
 	// -> cube, doing nothing
 	
 	//unapply change to local sdr transformation
-	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work, transp, work2);
+	linearalgebra::matmul(work, m_sdr, work2);
 	
 	//unapply origin translation
 	work = work2 + m_origin;
@@ -494,8 +492,9 @@ darray3E	Cube::toLocalCoord(darray3E & point){
 	work = point - m_origin;
 
 	//apply change to local sdr transformation
-	linearalgebra::matmul(work, m_sdr, work2);
-
+	dmatrix33E transp = linearalgebra::transpose(m_sdr);
+	linearalgebra::matmul(work, transp, work2);
+	
 	//get to proper local system
 	// -> cube, doing nothing
 	
@@ -620,21 +619,21 @@ darray3E	Cylinder::toWorldCoord(darray3E & point){
 	darray3E work, work2;
 	//unscale your local point
 	for(int i =0; i<3; ++i){
-		work2[i] = point[i]*m_scaling[i];
+		work[i] = point[i]*m_scaling[i];
 	}
 	
 	//return to local xyz system
-	work[0] = work2[0]*std::cos(work[1] + m_infLimits[1]); 
-	work[1] = work2[0]*std::sin(work[1] + m_infLimits[1]); 
-	work[2] = work2[2];
+	work2[0] = work[0]*std::cos(work[1] + m_infLimits[1]); 
+	work2[1] = work[0]*std::sin(work[1] + m_infLimits[1]); 
+	work2[2] = work[2];
 	
 	//unapply change to local sdr transformation
-	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work, transp, work2);
+	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//unapply origin translation
-	work = work2 + m_origin;
-	return(work);
+	work2 = work + m_origin;
+	
+	return(work2);
 };
 /*! Transform point from world coordinate system, to local reference system 
  * of the shape.
@@ -648,7 +647,9 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
 	work2 = point - m_origin;
 	
 	//apply change to local sdr transformation
-	linearalgebra::matmul(work2, m_sdr, work);
+	
+	dmatrix33E transp = linearalgebra::transpose(m_sdr);
+	linearalgebra::matmul(work2, transp, work);
 	
 	//get to proper local system
 	if(work[0] ==0.0 && work[1] ==0.0){work2[0] = 0.0; work2[1] = 0.0;}
@@ -657,12 +658,12 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
 		double pdum = std::atan2(work[1],work[0]);
 		work2[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
 	}
-		//get to the correct m_thetaOrigin mark
-		double param = 8*std::atan(1.0);
-		work2[1] = work2[1] - m_infLimits[1];
-		if(work2[1] < 0) 		work2[1] = param + work2[1];
-		if(work2[1] > param) 	work2[1] = work2[1] - param;
-		
+	//get to the correct m_thetaOrigin mark
+	double param = 8*std::atan(1.0);
+	work2[1] = work2[1] - m_infLimits[1];
+	if(work2[1] < 0) 		work2[1] = param + work2[1];
+	if(work2[1] > param) 	work2[1] = work2[1] - param;
+	
 	work2[2] = work[2];
 	
 	//scale your local point
@@ -806,12 +807,11 @@ darray3E	Sphere::toWorldCoord(darray3E & point){
 	work[2] = work2[0]*std::cos(work2[2] + m_infLimits[2]);
 	
 	//unapply change to local sdr transformation
-	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work, transp, work2);
+	linearalgebra::matmul(work, m_sdr, work2);
 	
 	//unapply origin translation
-	work = work2 + m_origin;
-	return(work);
+	work2 = work + m_origin;
+	return(work2);
 };
 /*! Transform point from world coordinate system, to local reference system 
  * of the shape.
@@ -825,7 +825,8 @@ darray3E	Sphere::toLocalCoord(darray3E & point){
 	work2 = point - m_origin;
 	
 	//apply change to local sdr transformation
-	linearalgebra::matmul(work2, m_sdr, work);
+	dmatrix33E transp = linearalgebra::transpose(m_sdr);
+	linearalgebra::matmul(work2, transp, work);
 	
 	//get to proper local system
 	work2[0] = norm2(work);
