@@ -77,6 +77,7 @@ typedef std::vector< svector3D >	svector4D;
 
 typedef std::array<darray2E,3>		dmatrix32E;
 typedef std::array<darray3E,3>		dmatrix33E;
+typedef std::array<darray4E,4>		dmatrix44E;
 
 typedef std::map<long int, int>		liimap;
 

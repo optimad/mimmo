@@ -42,7 +42,9 @@ class Info{
 public:
 	//members
 	int			m_naxes;
-	int			m_npoints;
+	dvector2D	m_axes;
+	dvector1D	m_origin;
+	ivector1D	m_npoints;
 	dvector2D	m_coords;
 
 public:

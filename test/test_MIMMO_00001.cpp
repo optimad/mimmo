@@ -196,6 +196,20 @@ void test0001() {
 	OutputDoF* output = new OutputDoF();
 	lattice->addChild(output);
 
+	//create translation
+	TranslationBox* transl = new TranslationBox();
+	transl->setDirection({ {0.5, 0.25, 1} });
+	transl->setTranslation(0.0);
+	//set translation
+	transl->addChild(lattice);
+
+	//create rotation
+	RotationBox* rotation = new RotationBox();
+	rotation->setDirection({ {1, 0.2, 0.1} });
+	rotation->setOrigin({ {-0.6, -0.6, -0.6} });
+	rotation->setRotation(0.1);
+	//set translation
+	rotation->addChild(lattice);
 
 	//Create chain
 	Chain ch0;
@@ -212,6 +226,10 @@ void test0001() {
 		cout << "input" << endl;
 		cout << ch0.addObject(input) << endl;
 	}
+	cout << "translation" << endl;
+	cout << ch0.addObject(transl) << endl;
+	cout << "rotation" << endl;
+	cout << ch0.addObject(rotation) << endl;
 	cout << "output" << endl;
 	cout << ch0.addObject(output) << endl;
 	cout << "mask" << endl;

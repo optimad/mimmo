@@ -54,6 +54,7 @@ Apply::Apply(const Apply & other){
  */
 Apply & Apply::operator=(const Apply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+	return(*this);
 };
 
 /*!Execution command. It applies the deformation given by the parent manipulation (in input for apply object)

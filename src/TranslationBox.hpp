@@ -21,8 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __DEFORMBOX_HPP__
-#define __DEFORMBOX_HPP__
+#ifndef __TRANSLATIONBOX_HPP__
+#define __TRANSLATIONBOX_HPP__
 
 #include "BaseManipulation.hpp"
 #include "FFDLattice.hpp"
@@ -32,25 +32,31 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief DeformBox is the class that applies the a deformation to the box of a latticeBox object.
+ *	\brief TranslationBox is the class that applies the a translation to the box of a latticeBox object.
  *
- *	The degrees of freedom are the components of the transformation matrix (ndeg = 3).
- *	The displacements are the row of the transformation matrix (matrix 3x3).
- *
+ *	The degrees of freedom is the translation value (ndeg = 1) and the direction of the translation
+ *	is a parameter of the object.
+ *	The displacements has to be one term. As the displacements are array3E only the first term is used,
+ *	i.e if alpha is the value of the translation in the chosen direction the only array of displacement
+ *	is set m_displ[0]={aplha, 0, 0};
  *
  */
-class DeformBox: public BaseManipulation{
+class TranslationBox: public BaseManipulation{
 private:
 	//members
-	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
+	darray3E			m_direction;	/**<Components of the translation axis.*/
+	darray3E			m_origin;		/**<Origin of box to be deformed (recovered in recoverInfo and used in useInfo).*/
+
 
 public:
-	DeformBox();
-	~DeformBox();
+	TranslationBox(darray3E direction = { {0, 0, 0} });
+	~TranslationBox();
 
-	DeformBox(const DeformBox & other);
-	DeformBox & operator=(const DeformBox & other);
+	TranslationBox(const TranslationBox & other);
+	TranslationBox & operator=(const TranslationBox & other);
 
+	void setDirection(darray3E direction);
+	void setTranslation(double alpha);
 
 	//relationship methods
 protected:
@@ -61,4 +67,4 @@ public:
 
 };
 
-#endif /* __DEFORMBOX_HPP__ */
+#endif /* __TRANSLATIONBOX_HPP__ */

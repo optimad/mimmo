@@ -39,6 +39,7 @@ Mask::Mask(const Mask & other):BaseManipulation(other){};
  */
 Mask & Mask::operator=(const Mask & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+	return(*this);
 };
 
 /*!It sets the coordinates of the degrees of freedom.

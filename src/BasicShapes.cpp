@@ -107,6 +107,7 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 	
 	double tol = 1.0e-12;
 	double check = dotProduct(axis0,axis1) + dotProduct(axis1,axis2) + dotProduct(axis0,axis2);
+	cout << "check " << check << endl;
 	if(check > tol) return;
 	m_sdr[0] = axis0;
 	m_sdr[1] = axis1;

@@ -134,10 +134,13 @@ Chain::addObject(BaseManipulation* obj, int id_){
 			idxchild = min(idxchild, int(distance(m_objects.begin(), itchild)));
 		}
 	}
-	if (obj->getParent() != NULL){
-		itparent = find(m_objects.begin(), m_objects.end(), obj->getParent());
-		if (itparent != m_objects.end()){
-			idxparent = distance(m_objects.begin(), itparent);
+	if (obj->getNParent()>0){
+		//TODO loop over all the parents
+		if (obj->getParent() != NULL){
+			itparent = find(m_objects.begin(), m_objects.end(), obj->getParent());
+			if (itparent != m_objects.end()){
+				idxparent = distance(m_objects.begin(), itparent);
+			}
 		}
 	}
 	if (idxparent == idxchild) return -1;

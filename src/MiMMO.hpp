@@ -35,6 +35,8 @@
 #include "Apply.hpp"
 #include "Mask.hpp"
 #include "Bend.hpp"
+#include "TranslationBox.hpp"
+#include "RotationBox.hpp"
 #include "Chain.hpp"
 #include "Info.hpp"
 

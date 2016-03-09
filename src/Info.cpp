@@ -33,8 +33,21 @@ Info::~Info(){};
 
 ///*!Copy constructor of Info.
 // */
-Info::Info(const Info & other){};
+Info::Info(const Info & other){
+	m_naxes 	= other.m_naxes;
+	m_axes 		= other.m_axes;
+	m_origin 	= other.m_origin;
+	m_npoints 	= other.m_npoints;
+	m_coords 	= other.m_coords;
+};
 
 /*!Assignement operator of Info.
  */
-Info & Info::operator=(const Info & other){};
+Info & Info::operator=(const Info & other){
+	m_naxes 	= other.m_naxes;
+	m_axes 		= other.m_axes;
+	m_origin 	= other.m_origin;
+	m_npoints 	= other.m_npoints;
+	m_coords 	= other.m_coords;
+	return (*this);
+};

@@ -344,13 +344,7 @@ BaseManipulation::recoverInfo(){
 	}
 	while(pointInfo == NULL && ich<m_child.size()){
 		pointer = m_child[ich];
-//		if (pointer->getReleaseInfo()){
-//			pointer->releaseInfo();
-//			pointInfo = pointer->getInfo();
-//		}
-//		else{
-			pointInfo = pointer->recoverInfo();
-//		}
+		pointInfo = pointer->recoverInfo();
 		ich++;
 	}
 	return pointInfo;

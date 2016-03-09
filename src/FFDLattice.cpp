@@ -485,7 +485,21 @@ void
 FFDLattice::setInfo(){
 	m_info->m_naxes = 3;
 
-	ivector1D n =getDimension();
+	darray3E origin = getShape()->getOrigin();
+	m_info->m_origin.resize(3);
+	for (int i=0; i<3; i++){
+		m_info->m_origin[i] = origin[i];
+	}
+
+	dmatrix33E sdr = getShape()->getRefSystem();
+	m_info->m_axes.resize(3, dvector1D(3));
+	for (int i=0; i<3; i++){
+		for (int j=0; j<3; j++){
+		m_info->m_axes[i][j] = sdr[i][j];
+		}
+	}
+
+	ivector1D n = getDimension();
 	int size = n[0]*n[1]*n[2];
 	m_info->m_coords.resize(size, dvector1D(3));
 	for(int i=0; i<size; ++i){
