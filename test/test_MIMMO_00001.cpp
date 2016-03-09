@@ -40,7 +40,7 @@ void test0001() {
 
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
-
+	//Input triangulation
 	int		np,	nt;
 	darray3E point;
 	{
@@ -62,28 +62,26 @@ void test0001() {
 		mimmo0.setConnectivity(&T);
 		mimmo0.cleanGeometry();
 	}
-
+	//Write undeformed geometry
 	string filename = "mimmo0";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 	
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
-
 	//Set lattice
+	//placca
 //	darray3E origin = {-0.01, -0.01,-0.01};
 //	darray3E span;
 //	span[0]= 1.02;
 //	span[1]= 0.12;
 //	span[2]= 0.02;
-
 	//sphere2
 	darray3E origin = {-0.6, -0.6,-0.6};
 	darray3E span;
 	span[0]= 1.2;
 	span[1]= 1.2;
 	span[2]= 1.2;
-
 //	//cadstl
 //	darray3E origin = {-0.9, -1.0, 0.03};
 //	darray3E span;
@@ -91,16 +89,11 @@ void test0001() {
 //	span[1]= 2;
 //	span[2]= 1.31;
 
-	//Set Lattice
+	//Set Lattice dimensions and degree
 	ivector1D dim(3), deg(3);
-//	dim[0] = 21;
-//	dim[1] = 7;
-//	dim[2] = 7;
-
 	dim[0] = 10;
 	dim[1] = 10;
 	dim[2] = 10;
-
 	deg[0] = 4;
 	deg[1] = 4;
 	deg[2] = 4;
@@ -121,6 +114,7 @@ void test0001() {
 	//Set release Info
 	lattice->setReleaseInfo(true);
 
+
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
 	dvecarr3E displ(ndeg);
@@ -136,15 +130,10 @@ void test0001() {
 	string file = "input/inputMIMMO_00001.txt";
 	InputDoF* input0 = new InputDoF(file);
 
-	cout << "input setup done" << endl;
 
 	//create applier
-	cout << "applier setup" << endl;
 	Apply* applier = new Apply(&mimmo0);
-
 	lattice->addChild(applier);
-
-	cout << "applier setup done" << endl;
 
 	//create filter mask
 	Mask* mask = new Mask();
@@ -169,11 +158,8 @@ void test0001() {
 	mask->setForward(0,false);
 	mask->setForward(1,false);
 	mask->setForward(2,false);
-
 	//set filter to lattice
 	mask->addChild(lattice);
-
-	cout << "mask setup done" << endl;
 
 	//create bend
 	Bend* bend = new Bend();
@@ -182,16 +168,13 @@ void test0001() {
 	degree[2][0] = 2;
 	bend->setDegree(degree);
 	dvector3D coeffs(3, vector<vector<double> >(3) );
-
 	coeffs[2][0].resize(degree[2][0]+1);
 	coeffs[2][0][0] = 0.195;
 	coeffs[2][0][1] = -0.8;
 	coeffs[2][0][2] = 0.8;
-
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
 	bend->addChild(mask);
-	cout << "bend setup done" << endl;
 
 	//create output
 	OutputDoF* output = new OutputDoF();
@@ -206,10 +189,9 @@ void test0001() {
 
 	//create rotation
 	RotationBox* rotation = new RotationBox();
-	rotation->setDirection({ {0.5, 1, 0.2} });
+	rotation->setDirection({ {1.0, 1.0, 0.0} });
 	rotation->setOrigin({ {0.0, 0.0, 0.0} });
-//	rotation->setRotation(1.5707963267/2);
-	rotation->setRotation(0.0);
+	rotation->setRotation(1.5707963267/2);
 	//set translation
 	rotation->addChild(lattice);
 
@@ -220,44 +202,44 @@ void test0001() {
 	cin >> inp;
 	if (inp==0){
 		input0->addChild(bend);
-		cout << "input 0" << endl;
-		cout << ch0.addObject(input0) << endl;
+		cout << "add input 0" << endl;
+		ch0.addObject(input0);
 	}else{
 		input->addChild(bend);
-		cout << "input 1" << endl;
-		cout << ch0.addObject(input) << endl;
+		cout << "add input 1" << endl;
+		ch0.addObject(input);
 	}
-	cout << "translation" << endl;
-	cout << ch0.addObject(transl) << endl;
-	cout << "rotation" << endl;
-	cout << ch0.addObject(rotation) << endl;
-	cout << "output" << endl;
-	cout << ch0.addObject(output) << endl;
-	cout << "mask" << endl;
-	cout << ch0.addObject(mask) << endl;
-	cout << "applier" << endl;
-	cout << ch0.addObject(applier) << endl;
-	cout << "lattice" << endl;
-	cout << ch0.addObject(lattice) << endl;
-	cout << "bend" << endl;
-	cout << ch0.addObject(bend) << endl;
+	cout << "add translation" << endl;
+	ch0.addObject(transl);
+	cout << "add rotation" << endl;
+	ch0.addObject(rotation);
+	cout << "add output" << endl;
+	ch0.addObject(output);
+	cout << "add mask" << endl;
+	ch0.addObject(mask);
+	cout << "add applier" << endl;
+	ch0.addObject(applier);
+	cout << "add lattice" << endl;
+	ch0.addObject(lattice);
+	cout << "add bend" << endl;
+	ch0.addObject(bend);
 
+	//Execution of chain
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
 	ch0.exec();
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
+	//Plot results
 	lattice->plotGrid("./", "lattice", 0, false, false);
 	lattice->plotGrid("./", "lattice", 1, false, true);
-
-	//Plot results
 	filename = "mimmo1";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
+	//Delete and nullify pointer
 	delete lattice, applier, mask, bend, input, input0, output;
-
 	lattice = NULL;
 	applier = NULL;
 	mask 	= NULL;
@@ -266,9 +248,8 @@ void test0001() {
 	input0 	= NULL;
 	output 	= NULL;
 
-
+	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-
 	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;
 
