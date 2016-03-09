@@ -44,10 +44,10 @@
 class RotationBox: public BaseManipulation{
 private:
 	//members
-	darray3E			m_origin;		/**<origin of the rotation axis.*/
-	darray3E			m_direction;	/**<Components of the rotation axis.*/
-	dvecarr3E			m_axes;			/**<Axes of box to be deformed (recovered in recoverInfo and used in useInfo).*/
-
+	darray3E	m_origin;		/**<origin of the rotation axis.*/
+	darray3E	m_direction;	/**<Components of the rotation axis.*/
+	dvecarr3E	m_axes;			/**<Axes of box to be deformed (recovered in recoverInfo and used in useInfo).*/
+	darray3E	m_axes_origin;
 
 public:
 	RotationBox(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });

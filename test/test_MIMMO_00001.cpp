@@ -47,8 +47,8 @@ void test0001() {
 		//Import STL
 //		STLObj stl("placca.stl", true);
 //		STLObj stl("placca0.stl", true);
-//		STLObj stl("sphere.stl", true);
-		STLObj stl("sphere2.stl", true);
+		STLObj stl("sphere.stl", true);
+//		STLObj stl("sphere2.stl", true);
 //		STLObj stl("cad.stl", true);
 		dvector2D V,N;
 		ivector2D T;
@@ -205,11 +205,13 @@ void test0001() {
 
 	//create rotation
 	RotationBox* rotation = new RotationBox();
-	rotation->setDirection({ {1, 0.2, 0.1} });
-	rotation->setOrigin({ {-0.6, -0.6, -0.6} });
-	rotation->setRotation(0.1);
+	rotation->setDirection({ {0.5, 1, 0.2} });
+	rotation->setOrigin({ {0.0, 0.0, 0.0} });
+	rotation->setRotation(1.5707963267/2);
 	//set translation
 	rotation->addChild(lattice);
+
+	lattice->plotGrid("./", "lattice00", 0, false, false);
 
 	//Create chain
 	Chain ch0;

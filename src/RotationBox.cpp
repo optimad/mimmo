@@ -65,8 +65,10 @@ RotationBox::setOrigin(darray3E origin){
 void
 RotationBox::setDirection(darray3E direction){
 	m_direction = direction;
+	double L = sqrt(m_direction[0]*m_direction[0] + m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
 	for (int i=0; i<3; i++)
-		m_direction[i] /= norm2(m_direction);
+		m_direction[i] /= L;
+//		m_direction[i] /= norm2(m_direction);
 }
 
 void
@@ -77,12 +79,15 @@ RotationBox::setRotation(double alpha){
 
 void
 RotationBox::useInfo(){
+	// 3 axes
 	m_axes.resize(m_info->m_naxes);
 	for (int i=0; i<m_info->m_naxes; i++){
 		for (int j=0; j<m_info->m_naxes; j++){
 			m_axes[i][j] = m_info->m_axes[i][j];
 		}
 	}
+	for (int i=0; i<3; i++)
+		m_axes_origin[i] = m_info->m_origin[i];
 }
 
 /*!Execution command. It modifies the coordinates of the origin given by the child manipulation object
@@ -92,125 +97,33 @@ RotationBox::useInfo(){
  */
 void
 RotationBox::execute(){
-	dmatrix44E D, Rx, Ry, Rz, Rym1, Rxm1, Dm1, T;
-	dvecarr4E P2(m_axes.size()), P1(m_axes.size());
-	double V = sqrt(m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
-	double L = sqrt(m_direction[0]*m_direction[0] + m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
 
-	bvector1D perpend(3);
+	//Rotation of origin
+	dvecarr3E rotated(1, {{0,0,0}});
+	m_axes_origin -= m_origin;
+	//rodrigues formula
+	rotated[0] = m_axes_origin * cos(m_displ[0][0]) +
+			dotProduct(m_direction, m_axes_origin) * (1 - cos(m_displ[0][0])) * m_direction +
+			crossProduct(m_direction, m_axes_origin) * sin(m_displ[0][0]);
 
-	for (int i=0;i<3; i++){
-		if (m_direction[i] == 0){
-			perpend[i] = true;
-		}
-		std::cout << "perpend " << i << " : " << perpend[i] << std::endl;
+	rotated[0] += m_origin;
+	if (m_child[0] != NULL){
+		static_cast<FFDLattice*>(m_child[0])->getShape()->setOrigin(rotated[0]);
 	}
 
-	std::cout << "V : " << V << std::endl;
-	std::cout << "L : " << L << std::endl;
+	//rotation of axes
+	rotated.clear();
+	rotated.resize(3, {{0,0,0}});
 
-
-	for (int i=0; i<4; i++){
-		for (int j=0; j<4; j++){
-			D[i][j] = Rx[i][j] = Ry[i][j] = Rz[i][j] = Rym1[i][j] = Rxm1[i][j] = Dm1[i][j] = T[i][j] = 0.0;
-		}
-	}
 	for (int i=0; i<3; i++){
-		D[i][i] = 1.0;
-		D[i][3] = -m_origin[i];
-		Rx[i][i] = 1.0;
-		Ry[i][i] = 1.0;
-		Rz[i][i] = 1.0;
-		Dm1[i][i] = 1.0;
-		Dm1[i][3] = m_origin[i];
-		Rxm1[i][i] = 1.0;
-		Rym1[i][i] = 1.0;
-		for (int j=0; j<m_axes.size(); j++){
-			P1[j][i] = m_axes[j][i];
-		}
+		rotated[i] = m_axes[i] * cos(m_displ[0][0]) +
+				dotProduct(m_direction, m_axes[i]) * (1 - cos(m_displ[0][0])) * m_direction +
+				crossProduct(m_direction, m_axes[i]) * sin(m_displ[0][0]);
 	}
-	D[3][3] = 1.0;
-	Rx[3][3] = 1.0;
-	Ry[3][3] = 1.0;
-	Rz[3][3] = 1.0;
-	Dm1[3][3] = 1.0;
-	Rxm1[3][3] = 1.0;
-	Rym1[3][3] = 1.0;
-	for (int j=0; j<m_axes.size(); j++){
-		P1[j][3] = 1.0;
-	}
-
-	Rx[1][1] = m_direction[2]/V;
-	Rx[2][1] = m_direction[1]/V;
-	Rx[1][2] = -m_direction[1]/V;
-	Rx[2][2] = m_direction[2]/V;
-
-	Rxm1[1][1] = m_direction[2]/V;
-	Rxm1[2][1] = -m_direction[1]/V;
-	Rxm1[1][2] = m_direction[1]/V;
-	Rxm1[2][2] = m_direction[2]/V;
-
-	Ry[0][0] = V/L;
-	Ry[0][2] = -m_direction[0]/L;
-	Ry[2][0] = m_direction[0]/L;
-	Ry[2][2] = V/L;
-
-	Rym1[0][0] = V/L;
-	Rym1[0][2] = m_direction[0]/L;
-	Rym1[2][0] = -m_direction[0]/L;
-	Rym1[2][2] = V/L;
-
-	Rz[0][0] = cos(m_displ[0][0]);
-	Rz[0][1] = -sin(m_displ[0][0]);
-	Rz[1][0] = sin(m_displ[0][0]);
-	Rz[1][1] = cos(m_displ[0][0]);
-
-
-	T = Dm1;
-	T = matMul(T,Rxm1);
-
-	T = matMul(T, Rym1);
-	T = matMul(T, Rz);
-	T = matMul(T, Ry);
-	T = matMul(T, Rx);
-	T = matMul(T, D);
-
-	std::cout << T << std::endl;
-	std::cout << P1 << std::endl;
-
-	for (int i=0; i<m_axes.size(); i++){
-		for (int j=0; j<4; j++){
-			P2[i][j] += dotProduct(T[j],P1[i]);
-		}
-	}
-	std::cout << "P2 : " << P2 << std::endl;
-
-	dvecarr3E rotated(m_axes.size());
-
-	for (int i=0; i<m_axes.size(); i++){
-		for (int j=0; j<3; j++){
-			rotated[i][j] = P2[j][i];
-		}
-	}
-
 	if (m_child[0] != NULL){
 		static_cast<FFDLattice*>(m_child[0])->getShape()->setRefSystem(rotated[0], rotated[1], rotated[2]);
 	}
+
 	return;
 };
-
-
-dmatrix44E
-RotationBox::matMul(dmatrix44E & a, dmatrix44E & b){
-	dmatrix44E res;
-	for (int i=0; i<4; i++){
-		for (int j=0; j<4; j++){
-			res[i][j] = 0;
-			for (int k=0; k<4; k++){
-				res[i][j] += a[i][k]*b[k][j];
-			}
-		}
-	}
-	return(res);
-}
 
