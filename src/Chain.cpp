@@ -127,7 +127,7 @@ Chain::addObject(BaseManipulation* obj, int id_){
 	vector<BaseManipulation*>::iterator itchild = m_objects.end();
 	vector<BaseManipulation*>::iterator itparent;
 	int idxchild = m_objects.size();
-	int idxparent = -1;
+	ivector1D idxparent(obj->getNParent(), -1);
 	if (obj->getNChild()>0){
 		for (int i=0; i<obj->getNChild(); i++){
 			itchild = find(m_objects.begin(), m_objects.end(), obj->getChild(i));
@@ -135,23 +135,44 @@ Chain::addObject(BaseManipulation* obj, int id_){
 		}
 	}
 	if (obj->getNParent()>0){
-		//TODO loop over all the parents
-		if (obj->getParent() != NULL){
-			itparent = find(m_objects.begin(), m_objects.end(), obj->getParent());
-			if (itparent != m_objects.end()){
-				idxparent = distance(m_objects.begin(), itparent);
+		for (int i=0; i<obj->getNParent(); i++){
+			if (obj->getParent(i) != NULL){
+				itparent = find(m_objects.begin(), m_objects.end(), obj->getParent(i));
+				if (itparent != m_objects.end()){
+					idxparent[i] = distance(m_objects.begin(), itparent);
+				}
 			}
 		}
 	}
-	if (idxparent == idxchild) return -1;
-	if (idxparent > idxchild){
-		BaseManipulation* parent = obj->getParent();
-		m_objects.erase(itparent);
-		int idparent = m_idObjects[idxparent];
-		m_idObjects.erase(m_idObjects.begin()+idxparent);
+	for (int i=0; i<obj->getNParent(); i++){
+		if (idxparent[i] == idxchild) return -1;
+	}
+
+	bool parentsMinor = true;
+	for (int i=0; i<obj->getNParent(); i++){
+		if (idxparent[i] > idxchild){
+			parentsMinor = false;
+		}
+	}
+	if (!parentsMinor){
+		ivector1D idparent(obj->getNParent(), -1);
+		vector<BaseManipulation*> parent(obj->getNParent());
+		for (int i=0; i<obj->getNParent(); i++){
+			if (idxparent[i] > idxchild){
+				parent[i] = obj->getParent(i);
+				itparent = find(m_objects.begin(), m_objects.end(), parent[i]);
+				m_objects.erase(itparent);
+				idparent[i] = m_idObjects[idxparent[i]];
+				m_idObjects.erase(m_idObjects.begin()+idxparent[i]);
+			}
+		}
 		int idx = addObject(obj, id);
-		int idxp = addObject(parent, idparent);
-		parent = NULL;
+		for (int i=0; i<obj->getNParent(); i++){
+			if (idxparent[i] > idxchild){
+				int idxp = addObject(parent[i], idparent[i]);
+				parent[i] = NULL;
+			}
+		}
 		return idx+1;
 	}else{
 		m_objects.insert(itchild, obj);
@@ -160,7 +181,6 @@ Chain::addObject(BaseManipulation* obj, int id_){
 	}
 	return 0;
 }
-
 
 void
 Chain::exec(){

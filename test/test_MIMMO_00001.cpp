@@ -207,25 +207,23 @@ void test0001() {
 	RotationBox* rotation = new RotationBox();
 	rotation->setDirection({ {0.5, 1, 0.2} });
 	rotation->setOrigin({ {0.0, 0.0, 0.0} });
-	rotation->setRotation(1.5707963267/2);
+//	rotation->setRotation(1.5707963267/2);
+	rotation->setRotation(0.0);
 	//set translation
 	rotation->addChild(lattice);
-
-	lattice->plotGrid("./", "lattice00", 0, false, false);
 
 	//Create chain
 	Chain ch0;
 	int inp;
 	cout << "input zero (0) or random (1)?" << endl;
-//	cin >> inp;
-	inp = 1;
+	cin >> inp;
 	if (inp==0){
 		input0->addChild(bend);
-		cout << "input" << endl;
+		cout << "input 0" << endl;
 		cout << ch0.addObject(input0) << endl;
 	}else{
 		input->addChild(bend);
-		cout << "input" << endl;
+		cout << "input 1" << endl;
 		cout << ch0.addObject(input) << endl;
 	}
 	cout << "translation" << endl;
