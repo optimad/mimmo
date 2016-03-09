@@ -101,7 +101,6 @@ void test0002() {
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
 	lattice->getShape()->setRefSystem(2, darray3E{0,1,0});	
-	
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
@@ -119,11 +118,11 @@ void test0002() {
 			lattice->accessPointIndex(i,l1,l2,l3);
 			if(l1>0){
 				displ[i][0] = 0.5;
-			//	displ[i][0] = 0.01*( (double) (rand()) / RAND_MAX );
+			//	displ[i][0] = 0.15*( (double) (rand()) / RAND_MAX );
 			}
-			if(l2 == nnn[1]-1){
-				displ[i][0] = 1.0;
-			}
+// 			if(l2 == nnn[1]-1){
+// 				displ[i][0] = 1.0;
+// 			}
 			
 	//	}	
 	}

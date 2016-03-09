@@ -691,7 +691,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	darray3E outres;
 	//summing scaled displ in local ref frame; 
 	for(int i=0; i<3; ++i){
-		point[i] +=  valH[i]/valH[3]/scaling[i];
+		point[i] +=  valH[i]/(valH[3]*scaling[i]);
 	}
 	
 	//get final displ in global ref frame:
@@ -780,7 +780,7 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 
 		//adding to local point displ rescaled
 		for(int i=0; i<3; ++i){
-			 point[i]+= valH[i]/valH[3]/scaling[i];
+			 point[i]+= valH[i]/(valH[3]*scaling[i]);
 		}
 
 		//get absolute displ as difference of 
@@ -856,7 +856,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 			valH[intv] += BSbasis[i0][i]*temp1[intv];
 		}	
 	}
-	point[targ] += valH[1]/valH[0]/scaling;
+	point[targ] += valH[0]/(valH[1]*scaling);
 	darray3E res = transfToGlobal(point)- coordOr;
 	return(res[targ]);
 };
