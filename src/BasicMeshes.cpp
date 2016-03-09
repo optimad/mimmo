@@ -200,7 +200,7 @@ ivector1D UStructMesh::getDimension(){
 };
 
 /*! Get n-th center cell coordinates in local mesh reference frame, 
- * given its global cell index on the mesh. 
+ * given its global cell index on the mesh.  
  * \param[in] index cell index in the global nodal list.
  */
 darray3E UStructMesh::getLocalCCell(int index){
@@ -513,9 +513,11 @@ void UStructMesh::clearMesh(){
 void UStructMesh::locateCellByPoint(darray3E & point, int &i, int &j, int &k){
 	
 	darray3E P = getShape()->toLocalCoord(point);
-	i = min(m_nx-1, max(0, (int) floor((P[0])/m_dx)));
-	j = min(m_ny-1, max(0, (int) floor((P[1])/m_dy)));
-	k = min(m_nz-1, max(0, (int) floor((P[2])/m_dz)));
+	darray3E locOr = getShape()->getLocalOrigin();
+
+	i = min(m_nx-1, max(0, (int) floor((P[0]-locOr[0])/m_dx)));
+	j = min(m_ny-1, max(0, (int) floor((P[1]-locOr[1])/m_dy)));
+	k = min(m_nz-1, max(0, (int) floor((P[2]-locOr[2])/m_dz)));
 };
 
 /*! Return cartesian indices of the cell containing the target point in global reference framne
@@ -578,6 +580,48 @@ void UStructMesh::accessPointIndex(int N_, int &i, int &j, int &k){
 	j = index % (m_ny+1);
 	i = index / (m_ny+1); 
 };
+
+/*! Transform point from Local to Global ref system*/
+darray3E	UStructMesh::transfToGlobal( darray3E & point){
+	return(getShape()->toWorldCoord(point));
+};
+/*! Transform point from Local to Global ref system*/
+dvector1D	UStructMesh::transfToGlobal( dvector1D & point){
+	darray3E temp = conArray<double,3>(point);
+	darray3E temp2 = getShape()->toWorldCoord(temp);
+	return(conVect(temp2));
+};
+/*! Transform list of points from Local to Global ref system*/
+dvecarr3E	UStructMesh::transfToGlobal( dvecarr3E & list_points){
+	int size = list_points.size();
+	dvecarr3E result(size);
+	for(int i=0; i<size; ++i){
+		result[i] = transfToGlobal(list_points[i]); 
+	}
+	return(result);
+};    
+/*! Transform point from Global to Local ref system*/
+darray3E 	UStructMesh::transfToLocal( darray3E & point){
+	return(getShape()->toLocalCoord(point));
+};
+/*! Transform point from Global to Local ref system*/
+dvector1D 	UStructMesh::transfToLocal( dvector1D & point){
+	darray3E temp = conArray<double,3>(point);
+	darray3E temp2 = getShape()->toLocalCoord(temp);
+	return(conVect(temp2));
+	
+};
+/*! Transform point from Global to Local ref system*/
+dvecarr3E 	UStructMesh::transfToLocal( dvecarr3E & list_points){
+	int size = list_points.size();
+	dvecarr3E result(size);
+	for(int i=0; i<size; ++i){
+		result[i] = transfToLocal(list_points[i]); 
+	}
+	return(result);
+	
+};  
+
 
 
 /*! Interpolate value of a given data field on a target point inside the mesh
@@ -704,10 +748,10 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	darray3E P = getShape()->toLocalCoord(point);
-	
-	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
+	darray3E locOr = getShape()->getLocalOrigin();
+	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
 	else                  	{ ip = max(0, i0-1);      }
@@ -744,10 +788,10 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	darray3E P = getShape()->toLocalCoord(point);
-
-	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
+	darray3E locOr = getShape()->getLocalOrigin();
+	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
 	else                  	{ ip = max(0, i0-1);      }
@@ -786,10 +830,10 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	darray3E P = getShape()->toLocalCoord(point);
-	
-	i0 = max(0, min(m_nx, (int) floor((P[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2])/m_dz)));
+	darray3E locOr = getShape()->getLocalOrigin();
+	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
+	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
+	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
 	
 	
 	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
@@ -1038,11 +1082,11 @@ void UStructMesh::rebaseMesh(){
 	m_dx = spanEff[0]/m_nx;
 	m_dy = spanEff[1]/m_ny;
 	m_dz = spanEff[2]/m_nz;
-	
+	darray3E locOr = getShape()->getLocalOrigin();
 	// get point distro;
-	for (int i = 0; i < m_nx+1; i++) {m_xedge[i] = ((double) i) * m_dx;} 
-	for (int i = 0; i < m_ny+1; i++) {m_yedge[i] = ((double) i) * m_dy;}
-	for (int i = 0; i < m_nz+1; i++) {m_zedge[i] = ((double) i) * m_dz;}
+	for (int i = 0; i < m_nx+1; i++) {m_xedge[i] = locOr[0] + ((double) i) * m_dx;} 
+	for (int i = 0; i < m_ny+1; i++) {m_yedge[i] = locOr[1] + ((double) i) * m_dy;}
+	for (int i = 0; i < m_nz+1; i++) {m_zedge[i] = locOr[2] + ((double) i) * m_dz;}
 	// get cell distro
 	for (int i = 0; i < m_nx; i++) {m_xnode[i] = m_xedge[i] + 0.5 * m_dx;}
 	for (int i = 0; i < m_ny; i++) {m_ynode[i] = m_yedge[i] + 0.5 * m_dy;}

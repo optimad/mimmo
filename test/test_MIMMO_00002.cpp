@@ -67,7 +67,7 @@ void test0002() {
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set cylindrical lattice
-	darray3E origin = {0.0, -4.26,0.0};
+	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
 	span[0]= 0.6;
 	span[1]= 8*std::atan(1.0);
@@ -76,11 +76,11 @@ void test0002() {
 	ivector1D dim(3), deg(3);
 	dim[0] = 2;
 	dim[1] = 20;
-	dim[2] = 6;
+	dim[2] = 12;
 
-	deg[0] = 1;
-	deg[1] = 1;
-	deg[2] = 1;
+	deg[0] = 2;
+	deg[1] = 2;
+	deg[2] = 2;
 
 // 	//Set cylindrical lattice
 // 	darray3E origin = {-0.51, -4.26,-0.51};
@@ -100,7 +100,7 @@ void test0002() {
 	
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
-	lattice->getShape()->setRefSystem(darray3E{1,0,0}, darray3E{0,0,-1}, darray3E{0,1,0});	
+	lattice->getShape()->setRefSystem(2, darray3E{0,1,0});	
 	
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
@@ -110,28 +110,32 @@ void test0002() {
 
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
-	dvecarr3E displ(ndeg);
+	dvecarr3E displ(ndeg, darray3E{0,0,0});
 	time_t Time = time(NULL);
 	srand(Time);
+	ivector1D nnn = lattice->getDimension();
 	for (int i=0; i<ndeg; i++){
-		for (int j=0; j<3; j++){
-			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
-		}
+			int l1,l2,l3;
+			lattice->accessPointIndex(i,l1,l2,l3);
+			if(l1>0){
+				displ[i][0] = 0.5;
+			//	displ[i][0] = 0.01*( (double) (rand()) / RAND_MAX );
+			}
+			if(l2 == nnn[1]-1){
+				displ[i][0] = 1.0;
+			}
+			
+	//	}	
 	}
 	
-	//debug
-	ivector1D ddd = lattice->getDimension();
-	int lsize = ddd[0]*ddd[1]*ddd[2];
-	for(int i=0; i<lsize; ++i){
-		
-		cout<<lattice->getLocalPoint(i)<<'\t'<<lattice->getGlobalPoint(i)<<endl;
-	}
-	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
-	exit(1);
 	
 	
-//	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
-	exit(1);
+ 	lattice->setDisplacements(displ);
+	
+// 	
+// 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
+// 	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
+// 	exit(1);
 //********************************************************************************************	
 	//CREATING INPUT	
 // 	InputDoF* input = new InputDoF(ndeg, displ);

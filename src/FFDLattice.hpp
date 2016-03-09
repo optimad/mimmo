@@ -97,6 +97,9 @@ public:
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(ivector1D & map);
 	
+protected:
+	darray3E convertDisplToXYZ(darray3E &, int i);
+	dvecarr3E convertDisplToXYZ();
 private:
 
 	//Nurbs Evaluators

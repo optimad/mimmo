@@ -114,22 +114,28 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 }
 
 /*! Set new axis orientation of the local reference system
- * \param[in] axis target axis
- * \param[in] point external point, not belonging to the axis, to recover the three axis system
+ * \param[in] int 0,1,2 identify local x,y,z axis of the primitive shape
+ * \param[in] axis new direction of selected local axis.
  */
-void BasicShape::setRefSystem(darray3E axis, darray3E point){
-
-	axis = axis/norm2(axis);
+void BasicShape::setRefSystem(int label, darray3E axis){
 	
-	double pj = dotProduct(point, axis);
-	darray3E axisN = point - pj*axis;
+	if(label <0 || label >2 ) return;
 	
-	axisN = axisN/norm2(axisN);
-
-	darray3E axisT = crossProduct(axis,axisN);
-
-	setRefSystem(axis, axisN, axisT);
+	m_sdr[label] = axis/norm2(axis);
+	dvecarr3E point_mat(3,darray3E{0,0,0});
+	point_mat[0][0] = point_mat[1][1]= point_mat[2][2]=1.0;
+	
+	int next_label = (label + 1)%3;
+	int fin_label = (label + 2)%3;
+	
+	double pj = dotProduct(point_mat[next_label], axis);
+	m_sdr[next_label] = point_mat[next_label] - pj*axis;
+	m_sdr[next_label] = m_sdr[next_label]/norm2(m_sdr[next_label]);
+	
+	m_sdr[fin_label] = crossProduct(m_sdr[label],m_sdr[next_label]);
+	m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
 }
+
 
 /*! Set booleans to treat your shape coordinates as periodic (true) or regular (false)
  * \param[in] flag true/false to mark coordinate as periodic/regular 
@@ -507,13 +513,18 @@ darray3E	Cube::toLocalCoord(darray3E & point){
 	
 };
 
+/*! Return local origin of your primitive shape*/
+darray3E	Cube::getLocalOrigin(){
+	return(darray3E{-0.5,-0.5,-0.5});
+};
+
 /*! Transform point from unitary cube reference system, to local reference system 
  * of the shape. Practically, doing nothing!
  * \param[in] point target
  * \param[out] result transformed point
  */
 darray3E	Cube::basicToLocal(darray3E & point){
-	return(point);
+	return(point + getLocalOrigin());
 };
 
 /*! Transform point from local reference system of the shape,
@@ -522,7 +533,7 @@ darray3E	Cube::basicToLocal(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cube::localToBasic(darray3E & point){
-	return(point);
+	return(point - getLocalOrigin());
 };
 
 /*! Check if your new span values fit your current shape set up
@@ -673,6 +684,11 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
 	return(work);
 };
 
+/*! Return local origin of your primitive shape*/
+darray3E	Cylinder::getLocalOrigin(){
+	return(darray3E{0.0,0.0,-0.5});
+};
+
 /*! Transform point from unitary cube reference system, to local reference system 
  * of the shape.
  * \param[in] point target
@@ -680,6 +696,7 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
  */
 darray3E	Cylinder::basicToLocal(darray3E & point){
 	point[1] = point[1]*m_span[1];
+	point[2] = point[2]-0.5;
 	return(point);
 };
 
@@ -690,6 +707,7 @@ darray3E	Cylinder::basicToLocal(darray3E & point){
  */
 darray3E	Cylinder::localToBasic(darray3E & point){
 	point[1] = point[1]/(m_span[1]);
+	point[2] = point[2]+0.5;
 	return(point);
 };
 
@@ -853,6 +871,11 @@ darray3E	Sphere::toLocalCoord(darray3E & point){
 		work[i] = work2[i]/m_scaling[i];
 	}
 	return(work);
+};
+
+/*! Return local origin of your primitive shape*/
+darray3E	Sphere::getLocalOrigin(){
+	return(darray3E{0.0,0.0,0.0});
 };
 
 /*! Transform point from unitary cube reference system, to local reference system 

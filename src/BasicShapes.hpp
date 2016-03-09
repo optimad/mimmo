@@ -75,8 +75,7 @@ public:
 	void	setSpan(double, double, double);
 	void	setInfLimits(double val, int dir);
 	void	setRefSystem(darray3E, darray3E, darray3E);
-	void	setRefSystem(darray3E, darray3E);
-	
+	void	setRefSystem(int, darray3E);
 	void	setClosedLoops(bool, int dir);
 	
 	darray3E			getOrigin();
@@ -105,7 +104,8 @@ public:
 	
 	virtual	darray3E	toWorldCoord(darray3E & point)=0;
 	virtual	darray3E	toLocalCoord(darray3E & point)=0;
-
+	virtual darray3E	getLocalOrigin()=0;  
+	
 private:	
 	virtual	darray3E	basicToLocal(darray3E & point)=0;
 	virtual	darray3E	localToBasic(darray3E & point)=0;
@@ -142,6 +142,7 @@ public:
 
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
+	darray3E	getLocalOrigin();
 	
 private:	
 	darray3E	basicToLocal(darray3E & point);
@@ -179,7 +180,8 @@ public:
 	//reimplementing pure virtuals
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
-		
+	darray3E	getLocalOrigin();
+
 private:	
 	darray3E	basicToLocal(darray3E & point);
 	darray3E	localToBasic(darray3E & point);
@@ -216,7 +218,8 @@ public:
 	//reimplementing pure virtuals
 	darray3E	toWorldCoord(darray3E & point);
 	darray3E	toLocalCoord(darray3E & point);
-	
+	darray3E	getLocalOrigin();
+
 private:	
 	darray3E	basicToLocal(darray3E & point);
 	darray3E	localToBasic(darray3E & point);
