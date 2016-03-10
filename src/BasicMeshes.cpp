@@ -556,16 +556,16 @@ void UStructMesh::accessCellIndex(int N_, int & i, int & j, int & k){
 	i = index / m_ny; 
 };
 
-/*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
- * \param[in] i x cartesian index
- *\param[in] j y cartesian index
- *\param[in] k z cartesian index
- *\param[out] result global index 
- */
-int  UStructMesh::accessPointIndex(int i, int j, int k){
-	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;
-	return(index);
-};
+///*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
+// * \param[in] i x cartesian index
+// *\param[in] j y cartesian index
+// *\param[in] k z cartesian index
+// *\param[out] result global index
+// */
+//inline int  UStructMesh::accessPointIndex(int i, int j, int k){
+//	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;
+//	return(index);
+//};
 
 /*! Return cartesian indices of the point given its global index. Follows the ordering sequences z-y-x
  * \param[in] N_ global index 
@@ -600,6 +600,7 @@ dvecarr3E	UStructMesh::transfToGlobal( dvecarr3E & list_points){
 	}
 	return(result);
 };    
+
 /*! Transform point from Global to Local ref system*/
 darray3E 	UStructMesh::transfToLocal( darray3E & point){
 	return(getShape()->toLocalCoord(point));

@@ -712,84 +712,111 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 	ivector1D::iterator it, itend = list.end();
 	darray3E target, point;
 	ivector1D knotInterval(3,0);
-	dvector2D BSbasis(3);
-	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
+	dvector1D BSbasisi0, BSbasisi1, BSbasisi2;
+	dvector1D valH(4,0), temp1(4,0),temp2(4,0);
 
 	dvecarr3E *displ = getDisplacements();
 
 	int uind, vind, wind, index;
+
+	int intv, i, j, k;
 
 	int i0 = m_mapdeg[0];
 	int i1 = m_mapdeg[1];
 	int i2 = m_mapdeg[2];
 	iarray3E mappedIndex;
 
+	int md0 = m_deg[i0];
+	int md1 = m_deg[i1];
+	int md2 = m_deg[i2];
+
 	dvecarr3E outres(lsize);
 	dvecarr3E::iterator itout = outres.begin();
 	darray3E scaling = getShape()->getScaling();
 	
-	
+	double bbasisw2;
+	double bbasis1, bbasis0;
+
 	for(it = list.begin(); it != itend; ++it){
 
-		valH = zeros;
-
+		for(intv=0; intv<4; ++intv){
+			valH[intv] = 0.0;
+		}
 		id  = *it;
 		target = tri->getVertex(id).getCoords();
 		point = transfToLocal(target);
 
 		// get reference Interval int the knot matrix
-		for(int i=0; i<3; i++){
+		for(i=0; i<3; i++){
 			knotInterval[i] = getKnotInterval(point[i],i);
-			BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 		}
+		BSbasisi0 = basisITS0(knotInterval[i0], i0, point[i0]);
+		BSbasisi1 = basisITS0(knotInterval[i1], i1, point[i1]);
+		BSbasisi2 = basisITS0(knotInterval[i2], i2, point[i2]);
 
-		uind = knotInterval[i0] - m_deg[i0];
-		vind = knotInterval[i1] - m_deg[i1];
-		wind = knotInterval[i2] - m_deg[i2];
+		uind = knotInterval[i0] - md0;
+		vind = knotInterval[i1] - md1;
+		wind = knotInterval[i2] - md2;
 
-		for(int i=0; i<=m_deg[i0]; ++i){
+
+		for(i=0; i<=md0; ++i){
 
 			mappedIndex[i0] = uind + i;
-			temp1 = zeros;
 
-			for(int j=0; j<=m_deg[i1]; ++j){
+			for(int intv=0; intv<4; ++intv){
+				temp1[intv] = 0.0;
+			}
+
+			for(j=0; j<=md1; ++j){
 
 				mappedIndex[i1] = vind + j;
-				temp2 = zeros;
 
-				for(int k=0; k<=m_deg[i2]; ++k){
+				for(intv=0; intv<4; ++intv){
+					temp2[intv] = 0.0;
+				}
+
+				for(k=0; k<=md2; ++k){
 
 					mappedIndex[i2] = wind + k;
 
 					index = accessMapNodes(mappedIndex[0], mappedIndex[1], mappedIndex[2]);
 
-					for(int intv=0; intv<3; ++intv){
-						temp2[intv] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][intv];
+					bbasisw2 = BSbasisi2[k]*m_weights[index];
+
+					for(intv=0; intv<3; ++intv){
+						temp2[intv] += bbasisw2*(*displ)[index][intv];
 					}
-					temp2[3] += BSbasis[i2][k]*m_weights[index];
+					temp2[3] += bbasisw2;
+
 				}
-				for(int intv=0; intv<4; ++intv){
-					temp1[intv] += BSbasis[i1][j]*temp2[intv];
+				bbasis1 = BSbasisi1[j];
+				for(intv=0; intv<4; ++intv){
+					temp1[intv] += bbasis1*temp2[intv];
 				}
 
 			}
-			for(int intv=0; intv<4; ++intv){
-				valH[intv] += BSbasis[i0][i]*temp1[intv];
+			bbasis0 = BSbasisi0[i];
+			for(intv=0; intv<4; ++intv){
+				valH[intv] += bbasis0*temp1[intv];
 			}
 		}
 
 		//adding to local point displ rescaled
-		for(int i=0; i<3; ++i){
+		for(i=0; i<3; ++i){
 			 point[i]+= valH[i]/(valH[3]*scaling[i]);
 		}
 
 		//get absolute displ as difference of 
-		(*itout) = transfToGlobal(point) - target;
+		for(i=0; i<3; ++i){
+			(*itout)[i] = transfToGlobal(point)[i] - target[i];
+		}
 		itout++;
+
 	}//next list id
 
 	displ = NULL;
 	itout = outres.end();
+
 
 	return(outres);
 
@@ -816,6 +843,10 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	int i1 = m_mapdeg[1];
 	int i2 = m_mapdeg[2];
 	
+	int md0 = m_deg[i0];
+	int md1 = m_deg[i1];
+	int md2 = m_deg[i2];
+
 	iarray3E mappedIndex;
 	
 	for(int i=0; i<3; i++){
@@ -823,21 +854,21 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 		BSbasis[i] = basisITS0(knotInterval[i], i, point[i]);
 	}
 	
-	uind = knotInterval[i0] - m_deg[i0];
-	vind = knotInterval[i1] - m_deg[i1];
-	wind = knotInterval[i2] - m_deg[i2];
+	uind = knotInterval[i0] - md0;
+	vind = knotInterval[i1] - md1;
+	wind = knotInterval[i2] - md2;
 	
-	for(int i=0; i<=m_deg[i0]; ++i){
+	for(int i=0; i<=md0; ++i){
 		
 		mappedIndex[0] = uind+i;
 		temp1 = zeros;
 		
-		for(int j=0; j<=m_deg[i1]; ++j){
+		for(int j=0; j<=md1; ++j){
 			
 			mappedIndex[1] = vind+j;
 			temp2 = zeros;
 			
-			for(int k=0; k<=m_deg[i2]; ++k){
+			for(int k=0; k<=md2; ++k){
 				
 				mappedIndex[2] = wind+k;
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
@@ -873,17 +904,18 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 	
 	//return local basis function given the local interval in theoretical knot index,
 	//local degree of the curve -> Please refer to NURBS book of PEIGL for this Inverted Triangular Scheme Algorithm (pag 74);
-	int dd = m_deg[pos]; 
-	dvector1D basis(dd+1,1);
-	dvector1D left(dd+1,0), right(dd+1,0);
+	int dd1 = m_deg[pos]+1;
+	dvector1D basis(dd1,1);
+	dvector1D left(dd1,0), right(dd1,0);
+	double saved, tmp;
 	
-	for(int j = 1; j <= dd; ++j){
-		double saved = 0.0;
+	for(int j = 1; j < dd1; ++j){
+		saved = 0.0;
 		left[j] = coord - getKnotValue(k+1-j, pos);
 		right[j]= getKnotValue(k+j, pos) - coord;
 		
 		for(int r = 0; r < j; ++r){
-			double tmp = basis[r]/(right[r+1] + left[j-r]);
+			tmp = basis[r]/(right[r+1] + left[j-r]);
 			basis[r] = saved + right[r+1] * tmp;
 			saved = left[j-r] * tmp;
 		}//next r	
@@ -1037,20 +1069,20 @@ void 		FFDLattice::setKnotsStructure(int dir, bool flag){
 	
 };
 
-/*! Given a knots distribution for one curve in direction "dir", return the index of 
+/*! Given a knots distribution for one curve in direction "dir", return the index of
  * interval which a coord belongs to
  * \param[in] coord target position
  * \param[in] dir   0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  * \param[out] result return the interval index.
- */ 
+ */
 int  		FFDLattice::getKnotInterval(double coord, int dir){
-	
-	int size = m_knots[dir].size(); 
+
+	int size = m_knots[dir].size();
 	if(coord< m_knots[dir][0] ){ return(getTheoreticalKnotIndex(0, dir));}
 	if(coord >= m_knots[dir][size-1]){ return(getTheoreticalKnotIndex(size-2, dir));}
-	
-	int low = 0; 
-	int high = size-1; 
+
+	int low = 0;
+	int high = size-1;
 	int mid = (low + high)/2;
 	while( coord < m_knots[dir][mid] || coord>= m_knots[dir][mid+1]){
 		if(coord < m_knots[dir][mid])	{high=mid;}
@@ -1060,7 +1092,7 @@ int  		FFDLattice::getKnotInterval(double coord, int dir){
 	return(getTheoreticalKnotIndex(mid, dir));
 };
 
-/*! Return value of a knot for a given its theoretical index and a direction in space 
+/*! Return value of a knot for a given its theoretical index and a direction in space
  * \param[in] index theoretical index of the knot
  * \param[in] dir 0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  */
@@ -1069,7 +1101,8 @@ double 		FFDLattice::getKnotValue(int index, int dir){
 	if(target ==-1){return(-1.0);}
 	return(m_knots[dir][target]);
 };
-/*! Return a knot real index given its theoretical index and a direction in space 
+
+/*! Return a knot real index given its theoretical index and a direction in space
  * \param[in] index theoretical index of the knot
  * \param[in] dir 0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  */
@@ -1078,13 +1111,13 @@ int 		FFDLattice::getKnotIndex(int index ,int dir){
 	return(m_mapEff[dir][index]);
 };
 
-/*! Return a knot theoretical index given its real index and a direction in space 
+/*! Return a knot theoretical index given its real index and a direction in space
  * \param[in] index theoretical index of the knot
  * \param[in] dir 0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  */
 int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
 	if(locIndex <0 || locIndex >= m_knots[dir].size()){return(-1);}
-	
+
 	// search from the end your m_mapEff vector
 	ivector1D::reverse_iterator it = find(m_mapEff[dir].rbegin(), m_mapEff[dir].rend(), locIndex);
 	int result = std::distance(m_mapEff[dir].begin(), (it.base()-1));
@@ -1144,10 +1177,10 @@ void FFDLattice::setMapNodes( int ind){
 		}
 };
 
-/*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/
-int FFDLattice::accessMapNodes(int i, int j, int k){
-	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
-};
+///*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/
+//inline int FFDLattice::accessMapNodes(int i, int j, int k){
+//	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
+//};
 
 /*! Fill m_mapdeg with the ordered indices of dimensions.
 */

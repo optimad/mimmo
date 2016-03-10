@@ -130,4 +130,9 @@ private:
 	
 };
 
+/*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/
+inline int FFDLattice::accessMapNodes(int i, int j, int k){
+	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
+};
+
 #endif /* __FFDLATTICE_HPP__ */
