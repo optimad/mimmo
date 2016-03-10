@@ -175,11 +175,17 @@ BaseManipulation::getGeometry(){
 	return m_geometry;
 };
 
+/*!It gets if the object is a "release Info" object.
+ * \return Is the object a "release Info" object?
+ */
 bool
 BaseManipulation::getReleaseInfo(){
 	return m_relInfo;
 };
 
+/*!It gets the pointer to the info release by a "release Info" object of the chain.
+ * \return Pointer to Info structure.
+ */
 Info*
 BaseManipulation::getInfo(){
 	return m_info;
@@ -249,6 +255,9 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
+/*!It sets if the object is a "release Info" object.
+ * \param[in] Is the object a "release Info" object?
+ */
 void
 BaseManipulation::setReleaseInfo(bool flag){
 	m_relInfo = flag;
@@ -326,12 +335,19 @@ BaseManipulation::clear(){
 //	}
 //};
 
+/*!It releases the info, i.e. it creates an Info structure and
+ * it sets it by setInfo() method.
+ */
 void
 BaseManipulation::releaseInfo(){
 	m_info = new Info();
 	setInfo();
 }
 
+/*!It recover the info from the Info structure released by a "release Info" object
+ * in the chain. It travels through the chain until it finds a not NULL pointer to info
+ * or a "release Info" object.
+ */
 Info*
 BaseManipulation::recoverInfo(){
 	bool found = false;
@@ -350,15 +366,21 @@ BaseManipulation::recoverInfo(){
 	return pointInfo;
 }
 
-
+/*!It sets the info structure. Virtual method to be eventually
+ * implemented in derived manipulation objects.
+ * Here it is a void method, i.e. it does nothing.
+ */
 void
 BaseManipulation::setInfo(){
 }
 
+/*!It uses the info structure. Virtual method to be eventually
+ * implemented in derived manipulation objects.
+ * Here it is a void method, i.e. it does nothing.
+ */
 void
 BaseManipulation::useInfo(){
 }
-
 
 /*!Execution command. It runs recoverDisplacements applyFilters and execute.
  * execute is pure virtual and it has to be implemented in a derived class.
