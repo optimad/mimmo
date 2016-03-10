@@ -45,11 +45,12 @@ void test0001() {
 	darray3E point;
 	{
 		//Import STL
-//		STLObj stl("placca.stl", true);
-//		STLObj stl("placca0.stl", true);
-		STLObj stl("sphere.stl", true);
-//		STLObj stl("sphere2.stl", true);
-//		STLObj stl("cad.stl", true);
+//		STLObj stl("geo_data/placca.stl", true);
+//		STLObj stl("geo_data/placca0.stl", true);
+//		STLObj stl("geo_data/sphere.stl", true);
+		STLObj stl("geo_data/sphere2.stl", true);
+//		STLObj stl("geo_data/cad.stl", true);
+
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
@@ -132,7 +133,7 @@ void test0001() {
 		}
 	}
 	InputDoF* input = new InputDoF(ndeg, displ);
-	string file = "input.txt";
+	string file = "input/inputMIMMO_00001.txt";
 	InputDoF* input0 = new InputDoF(file);
 
 	cout << "input setup done" << endl;
@@ -254,14 +255,6 @@ void test0001() {
 	filename = "mimmo1";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
-
-	lattice->clear();
-	applier->clear();
-	mask->clear();
-	bend->clear();
-	input->clear();
-	input0->clear();
-	output->clear();
 
 	delete lattice, applier, mask, bend, input, input0, output;
 

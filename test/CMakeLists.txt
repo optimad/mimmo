@@ -28,14 +28,8 @@ cmake_minimum_required(VERSION 2.8)
 # List serial of tests
 set(TESTS_SERIAL "")
 list(APPEND TESTS_SERIAL "test_MIMMO_00001")
-#list(APPEND TESTS_SERIAL "test_MIMMO_00002")
-
-##Copy significant source files
-configure_file(sphere.stl sphere.stl COPYONLY)
-configure_file(sphere2.stl sphere2.stl COPYONLY)
-configure_file(placca.stl placca.stl COPYONLY)
-configure_file(placca.stl placca0.stl COPYONLY)
-configure_file(input.txt input.txt COPYONLY)
+list(APPEND TESTS_SERIAL "test_MIMMO_00002")
+#list(APPEND TESTS_SERIAL "test_MIMMO_00003")
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
@@ -59,3 +53,25 @@ endforeach()
 
 add_custom_target(tests-MIMMO DEPENDS ${MIMMO_TEST_LIST_SERIAL})
 add_custom_target(clean-tests-MIMMO COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+
+# Data files
+add_custom_command(
+    TARGET "test_MIMMO_00001" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere2.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/placca.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/placca.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/placca0.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/placca0.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/inputMIMMO_00001.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/inputMIMMO_00001.txt"           
+    )
+
+add_custom_command(
+    TARGET "test_MIMMO_00002" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/pipe.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/pipe.stl"
+    )
+# add_custom_command(
+#     TARGET "test_MIMMO_00003" PRE_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ball.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ball.stl"
+#     )
+    
+

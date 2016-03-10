@@ -438,11 +438,11 @@ void		FFDLattice::plotGrid(std::string directory, std::string filename,int count
 		
 		if(deformed){
 				ivector1D n =getDimension();
-				const dvecarr3E * disp = getDisplacements(); 
+				dvecarr3E dispXYZ = convertDisplToXYZ(); 
 				int size = n[0]*n[1]*n[2];
 				dvecarr3E data(size);
 				for(int i=0; i<size; ++i){
-					data[i] = getGlobalPoint(i) + (*disp)[i];
+					data[i] = getGlobalPoint(i) + dispXYZ[i];
 				}
 			UStructMesh::plotGrid(directory, filename, counter, binary, &data);
 		}else{
@@ -465,11 +465,11 @@ void		FFDLattice::plotCloud(std::string directory, std::string filename, int cou
 	
 	if(deformed){
 		ivector1D n = getDimension();
-		const dvecarr3E * disp = getDisplacements(); 
+		dvecarr3E dispXYZ = convertDisplToXYZ(); 
 		int size = n[0]*n[1]*n[2];
 		dvecarr3E data(size);
 		for(int i=0; i<size; ++i){
-			data[i] = getGlobalPoint(i) + (*disp)[i];
+			data[i] = getGlobalPoint(i) + dispXYZ[i];
 		}
 		UStructMesh::plotCloud(directory, filename, counter, binary, &data);
 	}else{
@@ -592,13 +592,49 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	return(result);
 };
 
+
+/*! Convert a target displacement (expressed in local shape ref frame) in XYZ frame
+ *	\param[in] target  target displacement
+ * 	\param[out] result displacement in xyz ref frame
+ */
+darray3E FFDLattice::convertDisplToXYZ(darray3E & target, int i){
+	
+	darray3E scaling = getShape()->getScaling();
+	darray3E work;
+	for(int i=0; i<3; ++i){
+		work[i] = target[i]/scaling[i];
+	}
+	work += getLocalPoint(i);
+	darray3E result = transfToGlobal(work) -  getGlobalPoint(i);
+	return(result);
+};
+
+/*! Convert and return all target displacements (expressed in local shape ref frame) in XYZ frame
+ *	\param[in] target  target displacement
+ * 	\param[out] result displacement in xyz ref frame
+ */
+dvecarr3E FFDLattice::convertDisplToXYZ(){
+	
+	dvecarr3E * displ = getDisplacements();
+	int sizeD = displ->size();
+	
+	dvecarr3E result(sizeD);
+	for(int i=0; i<sizeD; ++i){
+		result[i] = convertDisplToXYZ((*displ)[i],i);
+	}
+	return(result);
+};
+
+
+
 /*! Return displacement of a given point, under the deformation effect of the whole Lattice. 
  * \param[in] coord 3D point
  * \param[out] result displacement  
  */
 darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
-	darray3E point = getShape()->toLocalCoord(pointOr);
+	darray3E point = transfToLocal(pointOr);
+	darray3E scaling = getShape()->getScaling();
 	
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
@@ -653,10 +689,13 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	}
 
 	darray3E outres;
+	//summing scaled displ in local ref frame; 
 	for(int i=0; i<3; ++i){
-		outres[i] = valH[i]/valH[3];
+		point[i] +=  valH[i]/(valH[3]*scaling[i]);
 	}
 	
+	//get final displ in global ref frame:
+	outres = transfToGlobal(point) - pointOr;
 	return(outres);
 	
 }; 
@@ -687,14 +726,16 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 
 	dvecarr3E outres(lsize);
 	dvecarr3E::iterator itout = outres.begin();
-
+	darray3E scaling = getShape()->getScaling();
+	
+	
 	for(it = list.begin(); it != itend; ++it){
 
 		valH = zeros;
 
 		id  = *it;
 		target = tri->getVertex(id).getCoords();
-		point = getShape()->toLocalCoord(target);
+		point = transfToLocal(target);
 
 		// get reference Interval int the knot matrix
 		for(int i=0; i<3; i++){
@@ -737,10 +778,13 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 			}
 		}
 
+		//adding to local point displ rescaled
 		for(int i=0; i<3; ++i){
-			(*itout)[i] = valH[i]/valH[3];
+			 point[i]+= valH[i]/(valH[3]*scaling[i]);
 		}
 
+		//get absolute displ as difference of 
+		(*itout) = transfToGlobal(point) - target;
 		itout++;
 	}//next list id
 
@@ -758,7 +802,8 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
  */
 double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	
-	darray3E point = getShape()->toLocalCoord(coordOr);
+	darray3E point = transfToLocal(coordOr);
+	double scaling = getShape()->getScaling()[targ];
 	
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
@@ -811,8 +856,9 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 			valH[intv] += BSbasis[i0][i]*temp1[intv];
 		}	
 	}
-	
-	return(valH[1]/valH[0]);
+	point[targ] += valH[0]/(valH[1]*scaling);
+	darray3E res = transfToGlobal(point)- coordOr;
+	return(res[targ]);
 };
 
 
@@ -856,17 +902,18 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 dvector1D	FFDLattice::getNodeSpacing(int dir){
 	
 	dvector1D result;
-	ivector1D dim = getDimension();
-	darray3E span = getShape()->getLocalSpan();
+	int dim = getDimension()[dir];
+	double span = getShape()->getLocalSpan()[dir];
+	double locOr= getShape()->getLocalOrigin()[dir];
 	bool loop = getShape()->areClosedLoops(dir);
 	
 	if(loop){
-		int nn = dim[dir]+m_deg[dir]-1;
+		int nn = dim+m_deg[dir]-1;
 		result.resize(nn);
-		double dKn = span[dir]/(dim[dir]-1);
+		double dKn = span/(dim-1);
 		
 		int retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
-		double origin = -1.0 * retroOrigin * dKn;
+		double origin = locOr-1.0 * retroOrigin * dKn;
 		
 		for(int i=0; i<nn; ++i){
 			result[i] = origin + i*dKn;
@@ -874,11 +921,11 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 		
 	}else{
 		
-		int nn = dim[dir];
+		int nn = dim;
 		result.resize(nn);
-		double dKn = span[dir]/(dim[dir]-1);
+		double dKn = span/(dim-1);
 		for(int i=0; i<nn; ++i){
-			result[i] = i*dKn;
+			result[i] =locOr+ i*dKn;
 		}
 	}
 	
