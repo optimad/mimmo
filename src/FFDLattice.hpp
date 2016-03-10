@@ -86,6 +86,8 @@ public:
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
 	
+	void 		setDisplacements(dvecarr3E & displacements);
+	
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);
@@ -123,6 +125,8 @@ private:
 
 	//nodal displacement utility
 	void resizeDisplacements(int, int, int);
+	void checkPeriodicDirections();
+	void checkPeriodicDirections(int dir);
 	void setMapNodes(int ind);
 	int  accessMapNodes(int,int,int);
 	//dimension utilities

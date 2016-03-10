@@ -189,6 +189,7 @@ void 		FFDLattice::returnKnotsStructure( int dir, dvector1D & knots, ivector1D &
  */
 void		FFDLattice::setDimension(ivector1D &dimensions){
 		
+		if(getShape() ==NULL) return;
 		if(dimensions.size() < 3 || getShape() ==NULL) return;
 		ivector1D dimLimit(3,2);
 		switch(getShape()->getShapeType()){
@@ -424,6 +425,18 @@ void 		FFDLattice::setNodalWeight(double val, int index){
 void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
 		int index = accessPointIndex(i,j,k);
 		setNodalWeight(val, index);
+};
+
+/*!Set the displacement of the degree of freedom currently stored in the object.
+ * \param[in] displacements Displacements of lattice nodal degrees of freedom.
+ */
+void
+FFDLattice::setDisplacements(dvecarr3E & displacements){
+	
+	if(m_ndeg != displacements.size() || getShape() == NULL) return;
+	
+	BaseManipulation::setDisplacements(displacements);
+	checkPeriodicDirections();
 };
 
 
@@ -1099,12 +1112,54 @@ int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
  */
 void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	//reallocate your displacement node
-	dvecarr3E * displ = getDisplacements();
-	freeContainer(*displ);
+	m_displ.clear();
 	int size = nx*ny*nz;
-	displ->resize(size, darray3E{0,0,0});
+	m_displ.resize(size, darray3E{0,0,0});
 	m_ndeg = size;
 }
+
+/*! Check periodic displacements distribution for each of lattice coordinates.
+ */
+void FFDLattice::checkPeriodicDirections(){
+
+	checkPeriodicDirections(0);
+	checkPeriodicDirections(1);
+	checkPeriodicDirections(2);
+};
+
+/*! Given a certain distribution of nodes in a specified direction, force displacements of nodes on extremes
+ * to be an average of their pre-existent values 
+ */
+void FFDLattice::checkPeriodicDirections(int dir){
+	
+	if(!getShape()->areClosedLoops(dir)) return;
+	
+	iarray3E map, u;
+	int index0, index1;
+	darray3E val;
+	map[0] = dir;
+	map[1] = (dir+1)%3;
+	map[2] = (dir+2)%3;
+	
+	ivector1D dim = getDimension();
+	
+	for(int k=0; k<dim[map[2]]; ++k){
+		u[map[2]] = k;
+		for(int j=0; j<dim[map[1]]; ++j){
+			u[map[1]] = j;
+		
+			u[map[0]] = 0;
+			index0 = accessPointIndex(u[0],u[1],u[2]);
+			
+			u[map[0]] = dim[map[0]]-1;
+			index1 = accessPointIndex(u[0],u[1],u[2]);
+			
+			val = 0.5*(m_displ[index0] + m_displ[index1]);
+			m_displ[index0] = val;
+			m_displ[index1] = val;
+		}
+	}
+};
 
 /*! Fill m_mapnodes, to access correct displacement w knots structure 
  * theoretical knot indexing*/

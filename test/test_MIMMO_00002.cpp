@@ -70,7 +70,7 @@ void test0002() {
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
 	span[0]= 0.51;
-	span[1]= 8*std::atan(1.0);
+	span[1]= 6*std::atan(1.0);
 	span[2]= 8.51;
 
 	ivector1D dim(3), deg(3);
@@ -79,8 +79,8 @@ void test0002() {
 	dim[2] = 12;
 
 	deg[0] = 1;
-	deg[1] = 4;
-	deg[2] = 4;
+	deg[1] = 3;
+	deg[2] = 3;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
@@ -102,7 +102,7 @@ void test0002() {
 			lattice->accessPointIndex(i,l1,l2,l3);
 			if(l1>0){
 			//	displ[i][0] = 0.5;
-				displ[i][0] = 0.25*( (double) (rand()) / RAND_MAX );
+				displ[i][0] = 0.4*( (double) (rand()) / RAND_MAX );
 			}
 // 			if(l2 == nnn[1]-1){
 // 				displ[i][0] = 1.0;
@@ -113,10 +113,6 @@ void test0002() {
 	
  	lattice->setDisplacements(displ);
 	
-// 	
-// 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
-// 	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
-// 	exit(1);
 //********************************************************************************************	
 	//CREATING INPUT	
 // 	InputDoF* input = new InputDoF(ndeg, displ);
@@ -134,51 +130,8 @@ void test0002() {
 	cout << "applier setup done" << endl;
 //********************************************************************************************	
 	//CREATE FILTER MASK
-// 	Mask* mask = new Mask();
-// 	dvecarr3E coords(ndeg),coords2(ndeg);
-// 	for (int i=0; i<dim[0]; i++){
-// 		for (int j=0; j<dim[1]; j++){
-// 			for (int k=0; k<dim[2]; k++){
-// 				coords[lattice->accessPointIndex(i,j,k)] = origin + lattice->getLocalPoint(i,j,k);
-// 				coords2[lattice->accessPointIndex(i,j,k)] = {{0.0, 0.0, 0.0}};
-// 			}
-// 		}
-// 	}
-// //	mask->setCoords(coords2);
-// 	darray3E thres;
-// //	thres[0] = 0.5;
-// //	thres[1] = -10.0;
-// //	thres[2] = -10.0;
-// 	thres[0] = -0.0;
-// 	thres[1] = -0.0;
-// 	thres[2] = -0.0;
-// 	mask->setThresholds(thres);
-// 	mask->setForward(0,false);
-// 	mask->setForward(1,false);
-// 	mask->setForward(2,false);
-// 
-// 	//set filter to lattice
-// 	mask->addChild(lattice);
-// 
-// 	cout << "mask setup done" << endl;
 //********************************************************************************************	
 	//CREATE BENDER-WRAPPER
-// 	Bend* bend = new Bend();
-// 	bend->setCoords(coords);
-// 	dvecarr3E degree(3);
-// 	degree[2][0] = 2;
-// 	bend->setDegree(degree);
-// 	dvector3D coeffs(3, vector<vector<double> >(3) );
-// 
-// 	coeffs[2][0].resize(degree[2][0]+1);
-// 	coeffs[2][0][0] = 0.195;
-// 	coeffs[2][0][1] = -0.8;
-// 	coeffs[2][0][2] = 0.8;
-// 
-// 	bend->setCoeffs(coeffs);
-// 	//set bend to lattice
-// 	bend->addChild(mask);
-// 	cout << "bend setup done" << endl;
 //********************************************************************************************	
 	//create output
 	cout << "output setup" << endl;
@@ -190,18 +143,10 @@ void test0002() {
 //Creating ELEMENT chain
 	Chain ch0;
 	ivector1D chain_pos;
-// 		input0->addChild(bend);
-// 		cout << "input" << endl;
-// 		cout << ch0.addObject(input0) << endl;
-// 		input->addChild(bend);
-// 		cout << "input" << endl;
-// 		cout << ch0.addObject(input) << endl;
 
 	chain_pos.push_back(ch0.addObject(output));
-// 	cout << ch0.addObject(mask) << endl;
 	chain_pos.push_back(ch0.addObject(applier));
 	chain_pos.push_back(ch0.addObject(lattice));
-// 	cout << ch0.addObject(bend) << endl;
 	cout<<chain_pos<<endl;
 //********************************************************************************************	
 	//Executing CHAIN

@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 2.8)
 set(TESTS_SERIAL "")
 list(APPEND TESTS_SERIAL "test_MIMMO_00001")
 list(APPEND TESTS_SERIAL "test_MIMMO_00002")
-#list(APPEND TESTS_SERIAL "test_MIMMO_00003")
+list(APPEND TESTS_SERIAL "test_MIMMO_00003")
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
@@ -69,9 +69,9 @@ add_custom_command(
     TARGET "test_MIMMO_00002" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/pipe.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/pipe.stl"
     )
-# add_custom_command(
-#     TARGET "test_MIMMO_00003" PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ball.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ball.stl"
-#     )
+add_custom_command(
+    TARGET "test_MIMMO_00003" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ball.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ball.stl"
+    )
     
 
