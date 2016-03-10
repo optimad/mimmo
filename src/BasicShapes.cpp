@@ -639,6 +639,7 @@ darray3E	Cylinder::toWorldCoord(darray3E & point){
 	work2[2] = work[2];
 	
 	//unapply change to local sdr transformation
+	work.fill(0.0);
 	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//unapply origin translation
@@ -655,33 +656,32 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
 	darray3E work, work2;
 	
 	//unapply origin translation
-	work2 = point - m_origin;
+	work = point - m_origin;
 	
 	//apply change to local sdr transformation
-	
 	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work2, transp, work);
+	linearalgebra::matmul(work, transp, work2);
 	
 	//get to proper local system
-	if(work[0] ==0.0 && work[1] ==0.0){work2[0] = 0.0; work2[1] = 0.0;}
+	if(work2[0] ==0.0 && work2[1] ==0.0){work[0] = 0.0; work[1] = 0.0;}
 	else{
-		work2[0] = pow(work[0]*work[0] + work[1]*work[1],0.5);
-		double pdum = std::atan2(work[1],work[0]);
-		work2[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+		work[0] = pow(work2[0]*work2[0] + work2[1]*work2[1],0.5);
+		double pdum = std::atan2(work2[1],work2[0]);
+		work[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
 	}
 	//get to the correct m_thetaOrigin mark
 	double param = 8*std::atan(1.0);
-	work2[1] = work2[1] - m_infLimits[1];
-	if(work2[1] < 0) 		work2[1] = param + work2[1];
-	if(work2[1] > param) 	work2[1] = work2[1] - param;
+	work[1] = work[1] - m_infLimits[1];
+	if(work[1] < 0) 		work[1] = param + work[1];
+	if(work[1] > param) 	work[1] = work[1] - param;
 	
-	work2[2] = work[2];
+	work[2] = work[2];
 	
 	//scale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = work2[i]/m_scaling[i];
+		work2[i] = work[i]/m_scaling[i];
 	}
-	return(work);
+	return(work2);
 };
 
 /*! Return local origin of your primitive shape*/
@@ -706,7 +706,7 @@ darray3E	Cylinder::basicToLocal(darray3E & point){
  * \param[out] result transformed point
  */
 darray3E	Cylinder::localToBasic(darray3E & point){
-	point[1] = point[1]/(m_span[1]);
+	point[1] = point[1]/m_span[1];
 	point[2] = point[2]+0.5;
 	return(point);
 };
@@ -816,16 +816,17 @@ darray3E	Sphere::toWorldCoord(darray3E & point){
 	darray3E work, work2;
 	//unscale your local point
 	for(int i =0; i<3; ++i){
-		work2[i] = point[i]*m_scaling[i];
+		work[i] = point[i]*m_scaling[i];
 	}
 	
 	//return to local xyz system
-	work[0] = work2[0]*std::cos(work2[1] + m_infLimits[1])*std::sin(work2[2] + m_infLimits[2]); 
-	work[1] = work2[0]*std::sin(work2[1] + m_infLimits[1])*std::sin(work2[2] + m_infLimits[2]); 
-	work[2] = work2[0]*std::cos(work2[2] + m_infLimits[2]);
+	work2[0] = work[0]*std::cos(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
+	work2[1] = work[0]*std::sin(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
+	work2[2] = work[0]*std::cos(work[2] + m_infLimits[2]);
 	
 	//unapply change to local sdr transformation
-	linearalgebra::matmul(work, m_sdr, work2);
+	work.fill(0.0);
+	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//unapply origin translation
 	work2 = work + m_origin;
@@ -840,37 +841,37 @@ darray3E	Sphere::toLocalCoord(darray3E & point){
 	
 	darray3E work, work2;
 	//unapply origin translation
-	work2 = point - m_origin;
+	work = point - m_origin;
 	
 	//apply change to local sdr transformation
 	dmatrix33E transp = linearalgebra::transpose(m_sdr);
-	linearalgebra::matmul(work2, transp, work);
+	linearalgebra::matmul(work, transp, work2);
 	
 	//get to proper local system
-	work2[0] = norm2(work);
+	work[0] = norm2(work2);
 	
-	if(work2[0]>0.0){
-		if(work[0] ==0.0 && work[1] ==0.0){
-			work2[1] = 0.0;
+	if(work[0]>0.0){
+		if(work2[0] ==0.0 && work2[1] ==0.0){
+			work[1] = 0.0;
 		}else{
-			double pdum = std::atan2(work[1],work[0]);
-			work2[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+			double pdum = std::atan2(work2[1],work2[0]);
+			work[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
 		}
 		//get to the correct m_thetaOrigin mark
 		double param = 8*std::atan(1.0);
-		work2[1] = work2[1] - m_infLimits[1];
-		if(work2[1] < 0) 		work2[1] = param + work2[1];
-		if(work2[1] > param) 	work2[1] = work2[1] - param;
+		work[1] = work[1] - m_infLimits[1];
+		if(work[1] < 0) 		work[1] = param + work[1];
+		if(work[1] > param) 	work[1] = work[1] - param;
 	
-		work2[2] = std::acos(work[2]/work2[0]);
-		work2[2] = work2[2] - m_infLimits[2];
+		work[2] = std::acos(work2[2]/work[0]);
+		work[2] = work[2] - m_infLimits[2];
 	}
 	
 	//scale your local point
 	for(int i =0; i<3; ++i){
-		work[i] = work2[i]/m_scaling[i];
+		work2[i] = work[i]/m_scaling[i];
 	}
-	return(work);
+	return(work2);
 };
 
 /*! Return local origin of your primitive shape*/

@@ -62,8 +62,8 @@ void test0002() {
 	mimmo0.m_geometry->write();
 
 //********************************************************************************************	
-	//CREATING LATTICE
-	//Instantiation of a FFDobject of cylindrical shape 
+// 	//CREATING LATTICE
+// 	//Instantiation of a FFDobject of cylindrical shape 
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set cylindrical lattice
@@ -129,7 +129,18 @@ void test0002() {
 	
 	
 	
- 	lattice->setDisplacements(displ);
+	
+	darray3E dum_point{-1.0,-5.0,1.0};
+	darray3E temp = lattice->transfToLocal(dum_point);
+	darray3E res = lattice->transfToGlobal(temp);
+	cout<<dum_point<<endl;
+	cout<<temp<<endl;
+	cout<<res<<endl;
+	exit(1);
+	
+	
+	
+ 	//lattice->setDisplacements(displ);
 	
 // 	
 // 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);

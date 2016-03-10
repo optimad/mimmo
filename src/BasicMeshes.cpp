@@ -219,7 +219,7 @@ darray3E UStructMesh::getLocalCCell(int index){
  */
 darray3E UStructMesh::getLocalCCell(int i_, int j_, int k_){
 	
-	darray3E res{0,0,0};
+	darray3E res;
 	res[0] = m_xnode[i_];
 	res[1] = m_ynode[j_];
 	res[2] = m_znode[k_];
@@ -247,7 +247,7 @@ darray3E UStructMesh::getLocalPoint(int index){
  */
 darray3E UStructMesh::getLocalPoint(int i_, int j_, int k_){
 	
-	darray3E res{0,0,0};
+	darray3E res;
 	res[0] = m_xedge[i_];
 	res[1] = m_yedge[j_];
 	res[2] = m_zedge[k_];
@@ -262,7 +262,7 @@ darray3E UStructMesh::getLocalPoint(int i_, int j_, int k_){
 darray3E UStructMesh::getGlobalCCell(int index){
 	
 	darray3E res = getLocalCCell(index);
-	return(getShape()->toWorldCoord(res));
+	return(transfToGlobal(res));
 };
 /*! Get n-th center cell coordinates in global absolute reference frame, 
  * given its cartesian cell indices on the mesh. 
@@ -273,7 +273,7 @@ darray3E UStructMesh::getGlobalCCell(int index){
 darray3E UStructMesh::getGlobalCCell(int i_, int j_, int k_){
 	
 	darray3E res = getLocalCCell(i_,j_,k_);
-	return(getShape()->toWorldCoord(res));
+	return(transfToGlobal(res));
 };
 
 /*! Get n-th nodal vertex coordinates in global absolute reference frame, 
@@ -282,7 +282,7 @@ darray3E UStructMesh::getGlobalCCell(int i_, int j_, int k_){
  */
 darray3E UStructMesh::getGlobalPoint(int index){
 	darray3E res = getLocalPoint(index);
-	return(getShape()->toWorldCoord(res));
+	return(transfToGlobal(res));
 };
 /*! Get n-th nodal vertex coordinates in global absolute reference frame, 
  * given its cartesian point indices on the mesh. 
@@ -293,7 +293,7 @@ darray3E UStructMesh::getGlobalPoint(int index){
 darray3E UStructMesh::getGlobalPoint(int i_, int j_, int k_){
 	
 	darray3E res = getLocalPoint(i_,j_,k_);
-	return(getShape()->toWorldCoord(res));
+	return(transfToGlobal(res));
 };    
 
 /*! Get neighbor vertices (by their global indices and in VTK-hexahedra ordered) of a given cell
@@ -512,7 +512,7 @@ void UStructMesh::clearMesh(){
  */ 
 void UStructMesh::locateCellByPoint(darray3E & point, int &i, int &j, int &k){
 	
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
 
 	i = min(m_nx-1, max(0, (int) floor((P[0]-locOr[0])/m_dx)));
@@ -635,7 +635,7 @@ double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	locateCellByPoint(point, i0, j0, k0);
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
 	else                  	{ ip = max(0, i0-1);      }
 	if (P[1] > m_ynode[j0]) 	{ jp = min(j0+1, m_ny-1);   }
@@ -672,7 +672,7 @@ int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	locateCellByPoint(point, i0, j0, k0);
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
 	else                  	{ ip = max(0, i0-1);      }
 	if (P[1] > m_ynode[j0]) 	{ jp = min(j0+1, m_ny-1);   }
@@ -710,7 +710,7 @@ darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
 	locateCellByPoint(point, i0, j0, k0);
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	
 	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
 	else                  	{ ip = max(0, i0-1);      }
@@ -747,7 +747,7 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 	int i0, j0, k0, ip, jp, kp;
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
 	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
 	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
@@ -787,7 +787,7 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	int i0, j0, k0, ip, jp, kp;
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
 	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
 	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
@@ -829,7 +829,7 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 	int i0, j0, k0, ip, jp, kp;
 	double wx0,wx1,wy0,wy1,wz0,wz1;
 	
-	darray3E P = getShape()->toLocalCoord(point);
+	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
 	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
 	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));

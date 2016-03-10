@@ -902,17 +902,18 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 dvector1D	FFDLattice::getNodeSpacing(int dir){
 	
 	dvector1D result;
-	ivector1D dim = getDimension();
-	darray3E span = getShape()->getLocalSpan();
+	int dim = getDimension()[dir];
+	double span = getShape()->getLocalSpan()[dir];
+	double locOr= getShape()->getLocalOrigin()[dir];
 	bool loop = getShape()->areClosedLoops(dir);
 	
 	if(loop){
-		int nn = dim[dir]+m_deg[dir]-1;
+		int nn = dim+m_deg[dir]-1;
 		result.resize(nn);
-		double dKn = span[dir]/(dim[dir]-1);
+		double dKn = span/(dim-1);
 		
 		int retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
-		double origin = -1.0 * retroOrigin * dKn;
+		double origin = locOr-1.0 * retroOrigin * dKn;
 		
 		for(int i=0; i<nn; ++i){
 			result[i] = origin + i*dKn;
@@ -920,9 +921,9 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 		
 	}else{
 		
-		int nn = dim[dir];
+		int nn = dim;
 		result.resize(nn);
-		double dKn = span[dir]/(dim[dir]-1);
+		double dKn = span/(dim-1);
 		for(int i=0; i<nn; ++i){
 			result[i] = i*dKn;
 		}
