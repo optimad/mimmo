@@ -925,7 +925,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 		result.resize(nn);
 		double dKn = span/(dim-1);
 		for(int i=0; i<nn; ++i){
-			result[i] = i*dKn;
+			result[i] =locOr+ i*dKn;
 		}
 	}
 	

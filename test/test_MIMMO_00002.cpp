@@ -63,41 +63,25 @@ void test0002() {
 
 //********************************************************************************************	
 // 	//CREATING LATTICE
-// 	//Instantiation of a FFDobject of cylindrical shape 
+	//Instantiation of a FFDobject of cylindrical shape 
 	FFDLattice* lattice = new FFDLattice();
 
 	//Set cylindrical lattice
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
-	span[0]= 0.6;
+	span[0]= 0.51;
 	span[1]= 8*std::atan(1.0);
-	span[2]= 8.6;
+	span[2]= 8.51;
 
 	ivector1D dim(3), deg(3);
 	dim[0] = 2;
 	dim[1] = 20;
 	dim[2] = 12;
 
-	deg[0] = 2;
-	deg[1] = 2;
-	deg[2] = 2;
+	deg[0] = 1;
+	deg[1] = 4;
+	deg[2] = 4;
 
-// 	//Set cylindrical lattice
-// 	darray3E origin = {-0.51, -4.26,-0.51};
-// 	darray3E span;
-// 	span[0]= 1.02;
-// 	span[1]= 8.52;
-// 	span[2]= 1.02;
-// 	
-// 	ivector1D dim(3), deg(3);
-// 	dim[0] = 2;
-// 	dim[1] = 4;
-// 	dim[2] = 2;
-// 	
-// 	deg[0] = 1;
-// 	deg[1] = 1;
-// 	deg[2] = 1;
-	
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
 	lattice->getShape()->setRefSystem(2, darray3E{0,1,0});	
@@ -117,8 +101,8 @@ void test0002() {
 			int l1,l2,l3;
 			lattice->accessPointIndex(i,l1,l2,l3);
 			if(l1>0){
-				displ[i][0] = 0.5;
-			//	displ[i][0] = 0.15*( (double) (rand()) / RAND_MAX );
+			//	displ[i][0] = 0.5;
+				displ[i][0] = 0.25*( (double) (rand()) / RAND_MAX );
 			}
 // 			if(l2 == nnn[1]-1){
 // 				displ[i][0] = 1.0;
@@ -127,20 +111,7 @@ void test0002() {
 	//	}	
 	}
 	
-	
-	
-	
-	darray3E dum_point{-1.0,-5.0,1.0};
-	darray3E temp = lattice->transfToLocal(dum_point);
-	darray3E res = lattice->transfToGlobal(temp);
-	cout<<dum_point<<endl;
-	cout<<temp<<endl;
-	cout<<res<<endl;
-	exit(1);
-	
-	
-	
- 	//lattice->setDisplacements(displ);
+ 	lattice->setDisplacements(displ);
 	
 // 	
 // 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);

@@ -675,7 +675,7 @@ darray3E	Cylinder::toLocalCoord(darray3E & point){
 	if(work[1] < 0) 		work[1] = param + work[1];
 	if(work[1] > param) 	work[1] = work[1] - param;
 	
-	work[2] = work[2];
+	work[2] = work2[2];
 	
 	//scale your local point
 	for(int i =0; i<3; ++i){
