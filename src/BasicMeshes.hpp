@@ -140,4 +140,17 @@ protected:
 
 
 
+/*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
+ * \param[in] i x cartesian index
+ *\param[in] j y cartesian index
+ *\param[in] k z cartesian index
+ *\param[out] result global index
+ */
+inline int  UStructMesh::accessPointIndex(int i, int j, int k){
+	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;
+	return(index);
+};
+
+
+
 #endif //__MiMMO_BASICMESHES_HH

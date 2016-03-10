@@ -47,8 +47,8 @@ void test0001() {
 		//Import STL
 //		STLObj stl("geo_data/placca.stl", true);
 //		STLObj stl("geo_data/placca0.stl", true);
-//		STLObj stl("geo_data/sphere.stl", true);
-		STLObj stl("geo_data/sphere2.stl", true);
+		STLObj stl("geo_data/sphere.stl", true);
+//		STLObj stl("geo_data/sphere2.stl", true);
 //		STLObj stl("geo_data/cad.stl", true);
 
 		dvector2D V,N;
@@ -77,7 +77,7 @@ void test0001() {
 //	span[1]= 0.12;
 //	span[2]= 0.02;
 	//sphere2
-	darray3E origin = {-0.6, -0.6,-0.6};
+	darray3E origin = {-0.0, -0.0,-0.0};
 	darray3E span;
 	span[0]= 1.2;
 	span[1]= 1.2;
@@ -94,9 +94,9 @@ void test0001() {
 	dim[0] = 10;
 	dim[1] = 10;
 	dim[2] = 10;
-	deg[0] = 4;
-	deg[1] = 4;
-	deg[2] = 4;
+	deg[0] = 9;
+	deg[1] = 9;
+	deg[2] = 9;
 
 //	dim[0] = 20;
 //	dim[1] = 8;
@@ -151,9 +151,9 @@ void test0001() {
 //	thres[0] = 0.5;
 //	thres[1] = -10.0;
 //	thres[2] = -10.0;
-	thres[0] = -0.0;
-	thres[1] = -0.0;
-	thres[2] = -0.0;
+	thres[0] = -5.0;
+	thres[1] = -5.0;
+	thres[2] = -5.0;
 	mask->setThresholds(thres);
 	mask->setForward(0,false);
 	mask->setForward(1,false);
@@ -191,7 +191,8 @@ void test0001() {
 	RotationBox* rotation = new RotationBox();
 	rotation->setDirection({ {1.0, 1.0, 0.0} });
 	rotation->setOrigin({ {0.0, 0.0, 0.0} });
-	rotation->setRotation(1.5707963267/2);
+//	rotation->setRotation(1.5707963267/2);
+	rotation->setRotation(0.0);
 	//set translation
 	rotation->addChild(lattice);
 
