@@ -70,8 +70,8 @@ void test0003() {
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
 	span[0]= 3.05;
-	span[1]= 4*std::atan(1.0);
-	span[2]= 2*std::atan(1.0);
+	span[1]= 8*std::atan(1.0);
+	span[2]= 4*std::atan(1.0);
 
 	ivector1D dim(3), deg(3);
 	dim[0] = 2;
@@ -84,7 +84,7 @@ void test0003() {
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
-	lattice->getShape()->setInfLimits(2*std::atan(1.0),2);
+	//lattice->getShape()->setInfLimits(2*std::atan(1.0),2);
 	lattice->getShape()->setInfLimits(std::atan(1.0),1);
 	//Set geometry
 	lattice->setGeometry(&mimmo0);

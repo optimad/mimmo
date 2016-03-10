@@ -35,5 +35,6 @@ release/
 debug/
 build/
 
-
+#kwrite swap files
+*.swp
 
