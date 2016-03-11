@@ -75,26 +75,32 @@ Chain::clear(){
 };
 
 
-/*!It gets the number of degrees of freedom of the manipulator object.
- * \return #Object in the chain.
+/*!It gets the number of manipulator objects in the chain.
+ * \return #Objects in the chain.
  */
 uint32_t
 Chain::getNObjects(){
 	return m_objects.size();
 };
 
+/*!It gets the ID of the chain.
+ * \return ID of the chain.
+ */
 uint8_t
 Chain::getID(){
 	return m_id;
 };
 
+/*!It gets the number of chains actually defined in the process.
+ * \return #Chains in the process.
+ */
 uint8_t
 Chain::getNChains(){
 	return sm_chaincounter;
 };
 
-/*!Return true if the chain is interrupted.
- *
+/*!It deletes a manipulator object in the chain.
+ * \return True if the chain after the deletion is interrupted.
  */
 bool
 Chain::deleteObject(int idobj){
@@ -109,8 +115,10 @@ Chain::deleteObject(int idobj){
 	return cut;
 };
 
-/*!Return false if the object cannot be inserted (wrong parent/child dependencies).
- *
+/*!It adds a manipulator object in the chain.
+ * The position of the objects after the insertion can be modified
+ * in order to respect the parent/child dependencies during the execution of the chain.
+ * \return False if the object cannot be inserted (wrong parent/child dependencies).
  */
 int
 Chain::addObject(BaseManipulation* obj, int id_){
@@ -182,6 +190,9 @@ Chain::addObject(BaseManipulation* obj, int id_){
 	return 0;
 }
 
+/*!It executes the chain, i.e. it executes all the manipulator objects
+ * contained in the chain following the correct order.
+ */
 void
 Chain::exec(){
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
@@ -191,12 +202,13 @@ Chain::exec(){
 	}
 }
 
+/*!It executes one manipulator object contained in the chain singularly.
+ * \param[in] idobj ID of the target manipulator object.
+ */
 void
 Chain::exec(int idobj){
 	int idx = distance(m_idObjects.begin(), find(m_idObjects.begin(), m_idObjects.end(), idobj));
-	cout << idx << "/" << m_objects.size() << endl;
-	m_objects[idx]->exec();
-	cout << idx << "/" << m_objects.size() << endl;
+	if (idx <  m_objects.size()) m_objects[idx]->exec();
 }
 
 

@@ -72,6 +72,9 @@ Mask::setForward(int i, bool forward){
 void
 Mask::useInfo(){
 	if (m_ndeg !=  m_info->m_coords.size() || m_info->m_naxes != 3){
+		std::cout << m_ndeg << std::endl;
+		std::cout << m_info->m_coords.size()  << std::endl;
+		std::cout << "#degrees : " << m_ndeg << " - #coords : " << m_info->m_coords.size() << std::endl;
 		std::cout << "Incoherent Size ---> end of process " << std::endl;
 		exit(1001);
 	}
