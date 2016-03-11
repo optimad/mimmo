@@ -48,6 +48,7 @@ FFDLattice::FFDLattice(){
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
 	m_mapNodes.resize(3);
+	m_globalDispl = false;
 };
 /*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
@@ -119,6 +120,7 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	m_knots = other.m_knots;
 	m_mapEff = other.m_mapEff;
 	m_weights = other.m_weights;
+	m_globalDispl = other.m_globalDispl;
 	return(*this);
 };
 
@@ -429,15 +431,21 @@ void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
 
 /*!Set the displacement of the degree of freedom currently stored in the object.
  * \param[in] displacements Displacements of lattice nodal degrees of freedom.
+ * \param[in] flag set displacements as Global(true) or Local (false)
  */
 void
-FFDLattice::setDisplacements(dvecarr3E & displacements){
+FFDLattice::setDisplacements(dvecarr3E & displacements, bool flag){
 	
 	if(m_ndeg != displacements.size() || getShape() == NULL) return;
-	
+	m_globalDispl = flag;
 	BaseManipulation::setDisplacements(displacements);
 	checkPeriodicDirections();
 };
+
+
+/*! Check if displacements are meant as global-true or local-false*/
+bool
+FFDLattice::isDisplGlobal(){return(m_globalDispl);}
 
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
@@ -451,7 +459,12 @@ void		FFDLattice::plotGrid(std::string directory, std::string filename,int count
 		
 		if(deformed){
 				ivector1D n =getDimension();
-				dvecarr3E dispXYZ = convertDisplToXYZ(); 
+				dvecarr3E dispXYZ;
+				if(isDisplGlobal()){
+					dispXYZ = *(getDisplacements());
+				}else{
+					dispXYZ = convertDisplToXYZ(); 
+				}
 				int size = n[0]*n[1]*n[2];
 				dvecarr3E data(size);
 				for(int i=0; i<size; ++i){
@@ -478,7 +491,14 @@ void		FFDLattice::plotCloud(std::string directory, std::string filename, int cou
 	
 	if(deformed){
 		ivector1D n = getDimension();
-		dvecarr3E dispXYZ = convertDisplToXYZ(); 
+		
+		dvecarr3E dispXYZ;
+		if(isDisplGlobal()){
+			dispXYZ = *(getDisplacements());
+		}else{
+			dispXYZ = convertDisplToXYZ(); 
+		}
+		
 		int size = n[0]*n[1]*n[2];
 		dvecarr3E data(size);
 		for(int i=0; i<size; ++i){
@@ -702,13 +722,20 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	}
 
 	darray3E outres;
-	//summing scaled displ in local ref frame; 
-	for(int i=0; i<3; ++i){
-		point[i] +=  valH[i]/(valH[3]*scaling[i]);
-	}
+	if(isDisplGlobal()){
+		for(int i=0; i<3; ++i){
+			point[i] +=  valH[i]/valH[3];
+		}
+		
+	}else{
+		//summing scaled displ in local ref frame; 
+		for(int i=0; i<3; ++i){
+			point[i] +=  valH[i]/(valH[3]*scaling[i]);
+		}
 	
-	//get final displ in global ref frame:
-	outres = transfToGlobal(point) - pointOr;
+		//get final displ in global ref frame:
+		outres = transfToGlobal(point) - pointOr;
+	}
 	return(outres);
 	
 }; 
