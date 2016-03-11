@@ -47,7 +47,7 @@ void test0002() {
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
-		
+
 		for (long ip=0; ip<np; ip++){
 			point = conArray<double,3>(V[ip]);
 			mimmo0.setVertex(point);
@@ -61,8 +61,8 @@ void test0002() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-//********************************************************************************************	
-// 	//CREATING LATTICE
+	//********************************************************************************************
+	// 	//CREATING LATTICE
 	//Instantiation of a FFDobject of cylindrical shape 
 	FFDLattice* lattice = new FFDLattice();
 
@@ -70,7 +70,8 @@ void test0002() {
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
 	span[0]= 0.51;
-	span[1]= 6*std::atan(1.0);
+	//span[1]= 6*std::atan(1.0);
+	span[1]= 2*M_PI;
 	span[2]= 8.51;
 
 	ivector1D dim(3), deg(3);
@@ -88,8 +89,8 @@ void test0002() {
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
-// 	//Set release Info
-// 	lattice->setReleaseInfo(true);
+	// 	//Set release Info
+	lattice->setReleaseInfo(true);
 
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
@@ -98,29 +99,28 @@ void test0002() {
 	srand(Time);
 	ivector1D nnn = lattice->getDimension();
 	for (int i=0; i<ndeg; i++){
-			int l1,l2,l3;
-			lattice->accessPointIndex(i,l1,l2,l3);
-			if(l1>0){
-			//	displ[i][0] = 0.5;
-				displ[i][0] = 0.4*( (double) (rand()) / RAND_MAX );
-			}
-// 			if(l2 == nnn[1]-1){
-// 				displ[i][0] = 1.0;
-// 			}
-			
-	//	}	
+		int l1,l2,l3;
+		lattice->accessPointIndex(i,l1,l2,l3);
+		if(l1>0){
+//			displ[i][0] = 0.4*( (double) (rand()) / RAND_MAX );
+		}
+		// 			if(l2 == nnn[1]-1){
+		// 				displ[i][0] = 1.0;
+		// 			}
+
+		//	}
 	}
-	
- 	lattice->setDisplacements(displ);
-	
-//********************************************************************************************	
+
+//	lattice->setDisplacements(displ);
+
+	//********************************************************************************************
 	//CREATING INPUT	
-// 	InputDoF* input = new InputDoF(ndeg, displ);
-// 	string file = "input.txt";
-// 	InputDoF* input0 = new InputDoF(file);
-// 
-// 	cout << "input setup done" << endl;
-//********************************************************************************************	
+	// 	InputDoF* input = new InputDoF(ndeg, displ);
+	// 	string file = "input.txt";
+	// 	InputDoF* input0 = new InputDoF(file);
+	//
+	// 	cout << "input setup done" << endl;
+	//********************************************************************************************
 	//CREATE APPLIER
 	cout << "applier setup" << endl;
 	Apply* applier = new Apply(&mimmo0);
@@ -128,38 +128,67 @@ void test0002() {
 	lattice->addChild(applier);
 
 	cout << "applier setup done" << endl;
-//********************************************************************************************	
+
+	//********************************************************************************************
 	//CREATE FILTER MASK
-//********************************************************************************************	
+	Mask* mask = new Mask();
+	mask->setNDeg(lattice->getNDeg());
+	darray3E thres;
+	thres[0] = -10.0;
+	thres[1] = 0.0;
+	thres[2] = -10.0;
+	mask->setThresholds(thres);
+	mask->setForward(0,false);
+	mask->setForward(1,false);
+	mask->setForward(2,false);
+	//set filter to lattice
+	mask->addChild(lattice);
+
+	//********************************************************************************************
 	//CREATE BENDER-WRAPPER
-//********************************************************************************************	
+	//********************************************************************************************
+	Bend* bend = new Bend();
+	dvecarr3E degree(3);
+	degree[0][1] = 2;
+	bend->setDegree(degree);
+	dvector3D coeffs(3, vector<vector<double> >(3) );
+	coeffs[0][1].resize(degree[0][1]+1);
+	coeffs[0][1][0] = 0.1;
+	coeffs[0][1][1] = -0.4;
+	coeffs[0][1][2] = 0.4;
+	bend->setCoeffs(coeffs);
+	//set bend to lattice
+	bend->addChild(mask);
+	bend->setDisplacements(displ);
+
 	//create output
 	cout << "output setup" << endl;
 	OutputDoF* output = new OutputDoF();
 	lattice->addChild(output);
 	cout << "output setup done" << endl;
-//********************************************************************************************	
 
-//Creating ELEMENT chain
+	//********************************************************************************************
+
+	//Creating ELEMENT chain
 	Chain ch0;
-	ivector1D chain_pos;
+	ch0.addObject(output);
+	ch0.addObject(applier);
+	ch0.addObject(lattice);
+	ch0.addObject(mask);
+	ch0.addObject(bend);
 
-	chain_pos.push_back(ch0.addObject(output));
-	chain_pos.push_back(ch0.addObject(applier));
-	chain_pos.push_back(ch0.addObject(lattice));
-	cout<<chain_pos<<endl;
-//********************************************************************************************	
+	//********************************************************************************************
 	//Executing CHAIN
-	
+
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
-		
+
 	ch0.exec();
-	
+
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
-//********************************************************************************************
+	//********************************************************************************************
 	//PLOT RESULTS
 
 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
@@ -169,7 +198,7 @@ void test0002() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-//********************************************************************************************	
+	//********************************************************************************************
 	//clean up & exit;
 	delete lattice, applier, output;
 
@@ -192,7 +221,7 @@ int	main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling MiMMO Test routines*/
-	  test0002() ;
+		test0002() ;
 
 #if ENABLE_MPI==1
 	}

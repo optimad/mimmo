@@ -137,16 +137,7 @@ void test0001() {
 
 	//create filter mask
 	Mask* mask = new Mask();
-	dvecarr3E coords(ndeg),coords2(ndeg);
-	for (int i=0; i<dim[0]; i++){
-		for (int j=0; j<dim[1]; j++){
-			for (int k=0; k<dim[2]; k++){
-				coords[lattice->accessPointIndex(i,j,k)] = origin + lattice->getLocalPoint(i,j,k);
-				coords2[lattice->accessPointIndex(i,j,k)] = {{0.0, 0.0, 0.0}};
-			}
-		}
-	}
-//	mask->setCoords(coords2);
+
 	darray3E thres;
 //	thres[0] = 0.5;
 //	thres[1] = -10.0;
@@ -163,7 +154,6 @@ void test0001() {
 
 	//create bend
 	Bend* bend = new Bend();
-	bend->setCoords(coords);
 	dvecarr3E degree(3);
 	degree[2][0] = 2;
 	bend->setDegree(degree);
