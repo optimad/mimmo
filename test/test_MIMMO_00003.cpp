@@ -74,13 +74,13 @@ void test0003() {
 	span[2]= 4*std::atan(1.0);
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 2;
-	dim[1] = 30;
-	dim[2] = 15;
+	dim[0] = 12;
+	dim[1] = 60;
+	dim[2] = 30;
 
-	deg[0] = 1;
-	deg[1] = 2;
-	deg[2] = 3;
+	deg[0] = 4;
+	deg[1] = 4;
+	deg[2] = 4;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
@@ -103,7 +103,9 @@ void test0003() {
 			lattice->accessPointIndex(i,l1,l2,l3);
 			if(l1>0){
 			//	displ[i][0] = 0.5;
-				displ[i][0] = 0.4*( (double) (rand()) / RAND_MAX );
+				//displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
+				//displ[i][1] = 0.5*( (double) (rand()) / RAND_MAX );
+				displ[i][2] = 0.5*( (double) (rand()) / RAND_MAX );
 			}
 // 			if(l2 == nnn[1]-1){
 // 				displ[i][0] = 1.0;

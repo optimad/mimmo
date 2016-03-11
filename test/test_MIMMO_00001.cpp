@@ -47,8 +47,8 @@ void test0001() {
 		//Import STL
 //		STLObj stl("geo_data/placca.stl", true);
 //		STLObj stl("geo_data/placca0.stl", true);
-		STLObj stl("geo_data/sphere.stl", true);
-//		STLObj stl("geo_data/sphere2.stl", true);
+//		STLObj stl("geo_data/sphere.stl", true);
+		STLObj stl("geo_data/sphere2.stl", true);
 //		STLObj stl("geo_data/cad.stl", true);
 
 		dvector2D V,N;

@@ -74,13 +74,13 @@ void test0002() {
 	span[2]= 8.51;
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 2;
-	dim[1] = 20;
-	dim[2] = 12;
+	dim[0] = 10;
+	dim[1] = 40;
+	dim[2] = 20;
 
-	deg[0] = 1;
-	deg[1] = 3;
-	deg[2] = 3;
+	deg[0] = 4;
+	deg[1] = 5;
+	deg[2] = 6;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
