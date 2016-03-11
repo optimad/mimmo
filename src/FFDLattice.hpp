@@ -53,6 +53,7 @@ protected:
 	ivector2D m_mapNodes;	/**< Internal map to access node index w/ knots structure theoretical indexing */
 private:
 	iarray3E  m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
+	bool	m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	
 public:
 	FFDLattice();
@@ -86,7 +87,8 @@ public:
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
 	
-	void 		setDisplacements(dvecarr3E & displacements);
+	void 		setDisplacements(dvecarr3E & displacements, bool flag=false);
+	bool 		isDisplGlobal();
 	
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
