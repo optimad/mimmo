@@ -46,14 +46,14 @@
 class FFDLattice: public BaseManipulation, public UStructMesh {
 
 protected:
-	ivector1D m_deg;		/**< Nurbs curve degree for each of the possible 3 direction in space*/
-	dvector2D m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
-	ivector2D m_mapEff;		/**< Nurbs map of theoretical node distribution */
-	dvector1D m_weights;	/**< Weights of each control node*/
-	ivector2D m_mapNodes;	/**< Internal map to access node index w/ knots structure theoretical indexing */
+	ivector1D	m_deg;			/**< Nurbs curve degree for each of the possible 3 direction in space*/
+	dvector2D	m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
+	ivector2D	m_mapEff;		/**< Nurbs map of theoretical node distribution */
+	dvector1D	m_weights;		/**< Weights of each control node*/
+	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
 private:
-	iarray3E  m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
-	bool	m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
+	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
+	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	
 public:
 	FFDLattice();
@@ -87,7 +87,8 @@ public:
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
 	
-	void 		setDisplacements(dvecarr3E & displacements, bool flag=false);
+	void 		setDisplacements(dvecarr3E & displacements);
+	void 		setDisplGlobal(bool flag);
 	bool 		isDisplGlobal();
 	
 	//plotting wrappers

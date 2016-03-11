@@ -434,19 +434,20 @@ void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
  * \param[in] flag set displacements as Global(true) or Local (false)
  */
 void
-FFDLattice::setDisplacements(dvecarr3E & displacements, bool flag){
+FFDLattice::setDisplacements(dvecarr3E & displacements){
 	
 	if(m_ndeg != displacements.size() || getShape() == NULL) return;
-	m_globalDispl = flag;
 	BaseManipulation::setDisplacements(displacements);
 	checkPeriodicDirections();
 };
-
 
 /*! Check if displacements are meant as global-true or local-false*/
 bool
 FFDLattice::isDisplGlobal(){return(m_globalDispl);}
 
+/*! Set if displacements are meant as global-true or local-false*/
+void
+FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory
@@ -625,7 +626,6 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	return(result);
 };
 
-
 /*! Convert a target displacement (expressed in local shape ref frame) in XYZ frame
  *	\param[in] target  target displacement
  * 	\param[out] result displacement in xyz ref frame
@@ -657,8 +657,6 @@ dvecarr3E FFDLattice::convertDisplToXYZ(){
 	}
 	return(result);
 };
-
-
 
 /*! Return displacement of a given point, under the deformation effect of the whole Lattice. 
  * \param[in] coord 3D point
@@ -724,7 +722,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	darray3E outres;
 	if(isDisplGlobal()){
 		for(int i=0; i<3; ++i){
-			point[i] +=  valH[i]/valH[3];
+			outres[i] =  valH[i]/valH[3];
 		}
 		
 	}else{
@@ -841,15 +839,28 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 			}
 		}
 
-		//adding to local point displ rescaled
-		for(i=0; i<3; ++i){
-			 point[i]+= valH[i]/(valH[3]*scaling[i]);
+
+		if(isDisplGlobal()){
+
+			//adding to local point displ rescaled
+			for(i=0; i<3; ++i){
+				(*itout)[i] = valH[i]/valH[3];
+			}
+
+		}else{
+
+			//adding to local point displ rescaled
+			for(i=0; i<3; ++i){
+				 point[i]+= valH[i]/(valH[3]*scaling[i]);
+			}
+
+			//get absolute displ as difference of
+			for(i=0; i<3; ++i){
+				(*itout)[i] = transfToGlobal(point)[i] - target[i];
+			}
+
 		}
 
-		//get absolute displ as difference of 
-		for(i=0; i<3; ++i){
-			(*itout)[i] = transfToGlobal(point)[i] - target[i];
-		}
 		itout++;
 
 	}//next list id
@@ -927,11 +938,16 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 			valH[intv] += BSbasis[i0][i]*temp1[intv];
 		}	
 	}
-	point[targ] += valH[0]/(valH[1]*scaling);
-	darray3E res = transfToGlobal(point)- coordOr;
+
+	darray3E res;
+	if(isDisplGlobal()){
+		res[targ] = valH[0]/valH[1];
+	}else{
+		point[targ] += valH[0]/(valH[1]*scaling);
+		res = transfToGlobal(point)- coordOr;
+	}
 	return(res[targ]);
 };
-
 
 /*!Return the local basis function of a Nurbs Curve.Please refer to NURBS book of PEIGL 
  * for this Inverted Triangular Scheme Algorithm (pag 74);* 
@@ -965,8 +981,6 @@ dvector1D 	FFDLattice::basisITS0(int k, int pos, double coord){
 	
 	return(basis);
 };	
-
-
 
 /*!Return list of equispaced knots for the Nurbs curve in a specific lattice direction
  * \param[in] dir 0,1,2 int identifier of Lattice's Nurbs Curve.
