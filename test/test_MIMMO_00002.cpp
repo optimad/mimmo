@@ -138,9 +138,9 @@ void test0002() {
 	dim[1] = 10;
 	dim[2] = 40;
 
-	deg[0] = 8;
-	deg[1] = 8;
-	deg[2] = 3;
+	deg[0] = 2;
+	deg[1] = 2;
+	deg[2] = 2;
 
 	//set lattice
 	lattice2->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
@@ -160,7 +160,7 @@ void test0002() {
 		int l1,l2,l3;
 		lattice2->accessPointIndex(i,l1,l2,l3);
 		if(l1>0){
-			displ2[i][0] = 0.2*( (double) (rand()) / RAND_MAX );
+			displ2[i][0] = 0.0*( (double) (rand()) / RAND_MAX );
 		}
 		// 			if(l2 == nnn[1]-1){
 		// 				displ[i][0] = 1.0;
@@ -212,16 +212,40 @@ void test0002() {
 	Bend* bend = new Bend();
 	dvecarr3E degree(3);
 	degree[0][1] = 2;
+	degree[1][0] = 2;
 	bend->setDegree(degree);
 	dvector3D coeffs(3, vector<vector<double> >(3) );
 	coeffs[0][1].resize(degree[0][1]+1);
 	coeffs[0][1][0] = 0.0;
 	coeffs[0][1][1] = 0.0;
 	coeffs[0][1][2] = 0.2;
+	coeffs[1][0].resize(degree[1][0]+1);
+	coeffs[1][0][0] = 0.0;
+	coeffs[1][0][1] = -0.5;
+	coeffs[1][0][2] = 0.0;
 	bend->setCoeffs(coeffs);
 	//set bend to lattice
 	bend->addChild(mask);
 	bend->setDisplacements(displ);
+
+	//********************************************************************************************
+	//CREATE BENDER-WRAPPER
+	//********************************************************************************************
+	Bend* bend2 = new Bend();
+	degree.clear();
+	degree.resize(3);
+	degree[0][1] = 2;
+	bend2->setDegree(degree);
+	coeffs.clear();
+	coeffs.resize(3, vector<vector<double> >(3));
+	coeffs[0][1].resize(degree[0][1]+1);
+	coeffs[0][1][0] = 0.0;
+	coeffs[0][1][1] = 0.1;
+	coeffs[0][1][2] = 0.05;
+	bend2->setCoeffs(coeffs);
+	//set bend to lattice
+	bend2->addChild(lattice2);
+	bend2->setDisplacements(displ2);
 
 	//create output
 	cout << "output setup" << endl;
