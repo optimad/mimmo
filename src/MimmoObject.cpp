@@ -21,6 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
+
+#include <set>
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
 #include "bitpit.hpp"
@@ -357,9 +359,6 @@ MimmoObject::setMapData(){
 	return true;
 };
 
-
-
-
 /*!It writes the mesh geometry on an output file.
  * \param[in] filename Name of the output file.
  */
@@ -368,6 +367,57 @@ MimmoObject::write(string filename){
 	m_geometry->write(filename);
 };
 
+/*! Extract Vertex List from an ensamble of geometry Simplicies
+ *\param[in] cellList list of bitpit::PatchKernel IDs identifying cells;
+ *\param[out] result   list of bitpit::PatchKernel IDs of involved vertices
+ */  
 
+livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
+	
+	livector1D result;
+	set<long int> ordV;
+	livector1D::iterator itCList;
+	livector1D::iterator itCListEnd=  cellList.end();
+	//get conn from each cell of the list
+	for(itCList=cellList.begin(); itCList != itCListEnd; ++itCList){
+		Cell cell = m_geometry->getCell(*itCList);
+		long * conn = cell.getConnect();
+		int nVloc = cell.getVertexCount();
+		for(int i=0; i<nVloc; ++i){
+			ordV.insert(conn[i]);
+		}
+	}
+	
+	result.resize(ordV.size());
+	set<long int>::iterator itS;
+	set<long int>::iterator itSEnd=ordV.end();
+	
+	int counter =0;
+	for(itS=ordV.begin(); itS != itSEnd; ++itS){
+		result[counter] = *itS;
+		++counter;
+	}
+	
+	return(result);
+}
+
+/*! Convert Vertex List of bitpit::PatchKernel IDs to local ordered MimmoObject Vertex List.
+ * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices;
+ *\param[out] result   list of local ids of vertices according m_mapData ordering; 
+ */  
+
+ivector1D MimmoObject::convertVertexIDtoLocal(livector1D vertexList){
+	
+	livector1D::iterator it;
+	livector1D::iterator itEnd=vertexList.end();
+	ivector1D result(vertexList.size());
+	
+	int counter=0;
+	for(it=vertexList.begin(); it != itEnd; ++it){
+		result[counter]=m_mapDataInv[*it];
+		++counter;
+	}
+	return result;
+}
 
 

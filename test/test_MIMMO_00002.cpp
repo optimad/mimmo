@@ -75,35 +75,44 @@ void test0002() {
 	span[2]= 8.51;
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 10;
-	dim[1] = 10;
+	dim[0] = 2;
+	dim[1] = 15;
 	dim[2] = 40;
 
-	deg[0] = 8;
-	deg[1] = 8;
-	deg[2] = 2;
+	deg[0] = 1;
+	deg[1] = 3;
+	deg[2] = 8;
 
+// 	dim[0] = 2;
+// 	dim[1] = 5;
+// 	dim[2] = 2;
+// 	deg[0] = 1;
+// 	deg[1] = 1;
+// 	deg[2] = 1;
+	
+	
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
-	lattice->getShape()->setRefSystem(2, darray3E{0,1,0});
+	lattice->setRefSystem(2, darray3E{0,1,0});
+	//lattice->setInfLimits(1.0*M_PI,1);
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
 	// 	//Set release Info
-	lattice->setReleaseInfo(true);
+	lattice->setReleaseInfo(false);
 
 	//Set Input with Init Displacements
-	int ndeg = lattice->getNDeg();
-	dvecarr3E displ(ndeg, darray3E{0,0,0});
+	int ndof = lattice->getNDeg();
+	dvecarr3E displ(ndof, darray3E{0,0,0});
 	time_t Time = time(NULL);
 	srand(Time);
-	ivector1D nnn = lattice->getDimension();
-	for (int i=0; i<ndeg; i++){
+	for (int i=0; i<ndof; i++){
 		int l1,l2,l3;
-		lattice->accessPointIndex(i,l1,l2,l3);
-		if(l1>0){
-			//			displ[i][0] = 0.4*( (double) (rand()) / RAND_MAX );
-		}
+		int index = lattice->accessGridFromDOF(i);
+		lattice->accessPointIndex(index,l1,l2,l3);
+ 		if(l1>0){
+				displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
+ 		}
 		// 			if(l2 == nnn[1]-1){
 		// 				displ[i][0] = 1.0;
 		// 			}
@@ -111,8 +120,8 @@ void test0002() {
 		//	}
 	}
 
-	//	lattice->setDisplacements(displ);
-	lattice->setDisplGlobal(true);
+	lattice->setDisplacements(displ);
+	lattice->setDisplGlobal(false);
 
 	//********************************************************************************************
 	// 	//CREATING LOCAL DISPLACEMENTS LATTICE
@@ -131,11 +140,11 @@ void test0002() {
 
 	deg[0] = 8;
 	deg[1] = 8;
-	deg[2] = 2;
+	deg[2] = 3;
 
 	//set lattice
 	lattice2->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
-	lattice2->getShape()->setRefSystem(2, darray3E{0,1,0});
+	lattice2->setRefSystem(2, darray3E{0,1,0});
 	//Set geometry
 	lattice2->setGeometry(&mimmo0);
 
@@ -143,12 +152,11 @@ void test0002() {
 	lattice2->setReleaseInfo(true);
 
 	//Set Input with Init Displacements
-	ndeg = lattice2->getNDeg();
-	dvecarr3E displ2(ndeg, darray3E{0,0,0});
+	ndof = lattice2->getNDeg();
+	dvecarr3E displ2(ndof, darray3E{0,0,0});
 	Time = time(NULL);
 	srand(Time);
-	nnn = lattice2->getDimension();
-	for (int i=0; i<ndeg; i++){
+	for (int i=0; i<ndof; i++){
 		int l1,l2,l3;
 		lattice2->accessPointIndex(i,l1,l2,l3);
 		if(l1>0){
@@ -163,6 +171,7 @@ void test0002() {
 
 	lattice2->setDisplacements(displ2);
 	lattice2->setDisplGlobal(false);
+
 
 	//********************************************************************************************
 	//CREATING INPUT	
@@ -224,12 +233,12 @@ void test0002() {
 
 	//Creating ELEMENT chain
 	Chain ch0;
-	ch0.addObject(lattice2);
+	//ch0.addObject(lattice2);
 	ch0.addObject(output);
 	ch0.addObject(lattice);
-	ch0.addObject(mask);
-	ch0.addObject(bend);
-	ch0.addObject(applier2);
+//	ch0.addObject(mask);
+//	ch0.addObject(bend);
+	//ch0.addObject(applier2);
 	ch0.addObject(applier);
 
 	//********************************************************************************************
@@ -248,8 +257,8 @@ void test0002() {
 
 	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
 	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
-	lattice2->plotGrid("./", "lattice2_pipe", 0, false, false);
-	lattice2->plotGrid("./", "lattice2_pipe", 1, false, true);
+// 	lattice2->plotGrid("./", "lattice2_pipe", 0, false, false);
+// 	lattice2->plotGrid("./", "lattice2_pipe", 1, false, true);
 
 	filename = "mimmo_pipe1";
 	mimmo0.m_geometry->setName(filename);

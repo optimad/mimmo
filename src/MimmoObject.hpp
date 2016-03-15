@@ -81,6 +81,9 @@ public:
 	bool		setMapData();
 	bool		cleanGeometry();
 
+	livector1D 	getVertexFromCellList(livector1D cellList);
+	ivector1D	convertVertexIDtoLocal(livector1D vertList);
+	
 	void		write(std::string filename);
 };
 

@@ -54,6 +54,8 @@ protected:
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
+	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */ 
+	
 	
 public:
 	FFDLattice();
@@ -91,6 +93,14 @@ public:
 	void 		setDisplGlobal(bool flag);
 	bool 		isDisplGlobal();
 	
+	void		changeSpan(double, double, double, bool flag = false);
+	void		setInfLimits(double val, int dir, bool flag = false);
+	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=false); 
+	
+	
+	int 		accessDOFFromGrid(int index);
+	int 		accessGridFromDOF(int index);
+	
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);
@@ -100,7 +110,7 @@ public:
 	void 		execute();
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);
-	dvecarr3E 	apply(ivector1D & map);
+	dvecarr3E 	apply(livector1D & map);
 	
 protected:
 	darray3E convertDisplToXYZ(darray3E &, int i);
@@ -109,7 +119,7 @@ private:
 
 	//Nurbs Evaluators
 	darray3E nurbsEvaluator(darray3E &); 
-	dvecarr3E nurbsEvaluator(ivector1D &);
+	dvecarr3E nurbsEvaluator(livector1D &);
 	double nurbsEvaluatorScalar(darray3E &, int);
 
 	//Nurbs utilities
@@ -120,7 +130,7 @@ private:
 	//knots mantenaince utilities
 	void clearKnots();
 	void setKnotsStructure(); 
-	void setKnotsStructure(int dir, bool flag); 
+	void setKnotsStructure(int dir, BasicShape::CoordType type); 
 	int  	getKnotInterval(double, int);
 	double 	getKnotValue(int, int);
 	int 	getKnotIndex(int,int);
@@ -128,10 +138,11 @@ private:
 
 	//nodal displacement utility
 	void resizeDisplacements(int, int, int);
-	void checkPeriodicDirections();
-	void checkPeriodicDirections(int dir);
+	dvecarr3E recoverFullGridDispl();
+	dvector1D recoverFullNodeWeights();
 	void setMapNodes(int ind);
 	int  accessMapNodes(int,int,int);
+	int  reduceDimToDOF(int,int,int, bvector1D &info);
 	//dimension utilities
 	void orderDimension();
 	

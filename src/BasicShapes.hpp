@@ -52,7 +52,7 @@ class BasicShape {
 
 public:
 	enum ShapeType{CUBE, CYLINDER, SPHERE}; /**< type of possible shape in your class */
-
+	enum CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment */
 
 protected:
 	ShapeType	m_shape; 		/**< shape identifier, see BasicShape::ShapeType enum */
@@ -60,7 +60,7 @@ protected:
 	darray3E	m_span;			/**< coordinate span of your current shape, in its local reference system*/
 	darray3E    m_infLimits;	/**< inferior limits of coordinate of your current shape */
 	dmatrix33E	m_sdr;			/**< axis position of the local reference system w.r.t absolute one*/
-	bvector1D	m_closedLoops;	/**< boolean identifiers for periodic/simple shape coordinate definition*/
+	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 	darray3E 	m_scaling; 		/**< scaling vector of dimensional coordinates */
 	
 	
@@ -76,13 +76,13 @@ public:
 	void	setInfLimits(double val, int dir);
 	void	setRefSystem(darray3E, darray3E, darray3E);
 	void	setRefSystem(int, darray3E);
-	void	setClosedLoops(bool, int dir);
+	void	setCoordinateType(CoordType, int dir);
 	
 	darray3E			getOrigin();
 	darray3E			getSpan();
 	darray3E			getInfLimits();
 	dmatrix33E			getRefSystem();
-	bool				areClosedLoops(int dir);
+	CoordType			getCoordinateType(int dir);
 	ShapeType   		getShapeType();
 	const ShapeType		getShapeType() const;
 	
@@ -91,21 +91,21 @@ public:
 	
 	
 	//functionalities
-    ivector1D	includeGeometry(bitpit::PatchKernel * );
-    ivector1D	excludeGeometry(bitpit::PatchKernel * );
-    ivector1D	includeCloudPoints(dvecarr3E &);
-    ivector1D	excludeCloudPoints(dvecarr3E &);
-	ivector1D	includeCloudPoints(bitpit::PatchKernel * );
-	ivector1D	excludeCloudPoints(bitpit::PatchKernel * );
+    livector1D	includeGeometry(bitpit::PatchKernel * );
+    livector1D	excludeGeometry(bitpit::PatchKernel * );
+    livector1D	includeCloudPoints(dvecarr3E &);
+    livector1D	excludeCloudPoints(dvecarr3E &);
+	livector1D	includeCloudPoints(bitpit::PatchKernel * );
+	livector1D	excludeCloudPoints(bitpit::PatchKernel * );
 	bool		isSimplexIncluded(dvecarr3E &);
-	bool		isSimplexIncluded(bitpit::PatchKernel * , int indexT);
+	bool		isSimplexIncluded(bitpit::PatchKernel * , long int indexT);
     bool		isPointIncluded(darray3E);
-	bool		isPointIncluded(bitpit::PatchKernel * , int indexV);
+	bool		isPointIncluded(bitpit::PatchKernel * , long int indexV);
 	
 	virtual	darray3E	toWorldCoord(darray3E & point)=0;
 	virtual	darray3E	toLocalCoord(darray3E & point)=0;
 	virtual darray3E	getLocalOrigin()=0;  
-	
+
 private:	
 	virtual	darray3E	basicToLocal(darray3E & point)=0;
 	virtual	darray3E	localToBasic(darray3E & point)=0;

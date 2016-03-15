@@ -72,11 +72,19 @@ public:
 	
 	
 	//get-set methods  
-
-	BasicShape*		getShape();
 	const BasicShape*	getShape() const;
+	darray3E			getOrigin();
+	darray3E			getSpan();
+	darray3E			getInfLimits();
+	dmatrix33E			getRefSystem();
+	darray3E			getScaling();
+	darray3E			getLocalSpan();
+	BasicShape::ShapeType getShapeType();
+	BasicShape::CoordType getCoordType(int);
+	
 	darray3E 		getSpacing();
 	ivector1D		getDimension();
+
 	darray3E 		getLocalCCell(int);
 	darray3E 		getLocalCCell(int, int, int);
 	darray3E 		getLocalPoint(int);
@@ -89,12 +97,17 @@ public:
 	ivector1D 		getCellNeighs(int);
 	ivector1D 		getCellNeighs(int, int, int);
 
+	void		changeOrigin(darray3E);
+	void		changeSpan(double, double, double, bool flag = false);
+	void		setInfLimits(double val, int dir, bool flag = false);
+	void		setRefSystem(darray3E, darray3E, darray3E);
+	void		setRefSystem(int, darray3E);
+	
 	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
 	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
 	void 		setMesh(BasicShape *, ivector1D & dimensions);
 	void 		setMesh(BasicShape *, dvector1D & spacing);
 
-	
 	//generic manteinance of the mesh
 	void clearMesh();  
 	bool isBuilt();
@@ -131,6 +144,7 @@ public:
 
 protected:
 	//internal manteinance of the mesh
+	BasicShape*		getShape();
 	void resizeMesh();
 	void destroyNodalStructure();
 	void reshapeNodalStructure();

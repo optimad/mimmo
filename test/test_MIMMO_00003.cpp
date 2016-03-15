@@ -69,26 +69,31 @@ void test0003() {
 	//Set cylindrical lattice
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
-	span[0]= 3.05;
-	span[1]= 8*std::atan(1.0);
-	span[2]= 4*std::atan(1.0);
+	span[0]= 3.01;
+	span[1]= 2*M_PI;
+	span[2]= M_PI;
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 12;
-	dim[1] = 60;
-	dim[2] = 30;
-
-	deg[0] = 4;
-	deg[1] = 4;
-	deg[2] = 4;
+	dim[0] = 4;
+	dim[1] = 31;
+	dim[2] = 12;
+// 	dim[0] = 3;
+// 	dim[1] = 5;
+// 	dim[2] = 3;
+	
+	deg[0] = 3;
+	deg[1] = 5;
+	deg[2] = 3;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
-	//lattice->getShape()->setInfLimits(2*std::atan(1.0),2);
-	lattice->getShape()->setInfLimits(std::atan(1.0),1);
+	lattice->setRefSystem(2, darray3E{0,1,0});
+//	lattice->setInfLimits(0.75*M_PI,2);
+//	lattice->setInfLimits(std::atan(1.0),1);
+//	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
-
+	
 // 	//Set release Info
 // 	lattice->setReleaseInfo(true);
 
@@ -97,25 +102,27 @@ void test0003() {
 	dvecarr3E displ(ndeg, darray3E{0,0,0});
 	time_t Time = time(NULL);
 	srand(Time);
-	ivector1D nnn = lattice->getDimension();
 	for (int i=0; i<ndeg; i++){
 			int l1,l2,l3;
-			lattice->accessPointIndex(i,l1,l2,l3);
+			int index = lattice->accessGridFromDOF(i);
+			lattice->accessPointIndex(index,l1,l2,l3);
 			if(l1>0){
-			//	displ[i][0] = 0.5;
-				//displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
-				//displ[i][1] = 0.5*( (double) (rand()) / RAND_MAX );
-				displ[i][2] = 0.5*( (double) (rand()) / RAND_MAX );
+// 				displ[i][0] = 0.5;
+// 				displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
+// 				displ[i][2] = 0.5*( (double) (rand()) / RAND_MAX );
+				
+// 				displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
 			}
-// 			if(l2 == nnn[1]-1){
-// 				displ[i][0] = 1.0;
-// 			}
 			
-	//	}	
+		}	
+	
+	for(int k=1; k<dim[2]-1; ++k){
+		int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
+		int indDof = lattice->accessDOFFromGrid(indGrid);
+		displ[indDof][0] = 1.0;
 	}
 	
- 	lattice->setDisplacements(displ);
-	
+	lattice->setDisplacements(displ);
 //********************************************************************************************	
 	//CREATING INPUT	
 // 	InputDoF* input = new InputDoF(ndeg, displ);

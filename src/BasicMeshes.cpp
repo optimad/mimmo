@@ -153,20 +153,6 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	return(*this); 
 };
 
-/*! Return a pointer to the inner BasicShape object the current mesh is built on 
- * \param[out] result BasicShape of the mesh
- */
-BasicShape * UStructMesh::getShape(){
-	
-	BasicShape * result;
-	if(m_shape2){
-		result = m_shape2.get();
-	}else{
-		result = m_shape1;
-	}
-	return(result);
-}
-
 /*! Return a const pointer to the inner BasicShape object the current mesh is built on. Const method 
  * \param[out] result BasicShape of the mesh
  */
@@ -181,10 +167,52 @@ const BasicShape * UStructMesh::getShape() const {
 	return(result);
 }
 
+/*! Return current origin of BasicShape core of the mesh*/
+darray3E UStructMesh::getOrigin(){
+	return(getShape()->getOrigin());
+}
+
+/*! Return current span of BasicShape core of the mesh*/
+darray3E UStructMesh::getSpan(){
+	return(getShape()->getSpan());
+}
+
+/*! Return current lower limits of coordinates in BasicShape core of the mesh*/
+darray3E UStructMesh::getInfLimits(){
+	return(getShape()->getInfLimits());
+}
+
+/*! Return current local Reference System af axes*/
+dmatrix33E UStructMesh::getRefSystem(){
+	return(getShape()->getRefSystem());
+}
+
+/*! Return actual scaling to primitive shape used in BasicShape core of the mesh*/
+darray3E UStructMesh::getScaling(){
+	return(getShape()->getScaling());
+}
+
+/*! Return local span of the primitive shape associated to BasicShape core of the mesh*/
+darray3E UStructMesh::getLocalSpan(){
+	return(getShape()->getLocalSpan());
+}
+
+/*! Return type of shape associated to mesh core. See BasicShape::ShapeType enum */
+BasicShape::ShapeType UStructMesh::getShapeType(){
+	return(getShape()->getShapeType());
+}
+
+/*! Return coordinate type of of a BasicShape mesh core. See BasicShape::CoordType enum.
+ * \param[in] dir 0,1,2 flag identifies coordinates
+ */
+BasicShape::CoordType UStructMesh::getCoordType(int dir){
+	return(getShape()->getCoordinateType(dir));
+}
+
 /*! Return current mesh spacing */
 darray3E UStructMesh::getSpacing(){
 	darray3E res;
-	darray3E scale = getShape()->getScaling();
+	darray3E scale = getScaling();
 	res[0] = m_dx*scale[0]; res[1] =m_dy*scale[1]; res[2] = m_dz*scale[2];
 	return(res); 
 };
@@ -325,6 +353,59 @@ ivector1D UStructMesh::getCellNeighs(int index){
 	return(getCellNeighs(pp[0],pp[1],pp[2]));
 }
 
+
+/*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
+ * \param[in] origin new origin point
+ */
+void UStructMesh::changeOrigin(darray3E origin){
+	getShape()->setOrigin(origin);
+}
+/*! Set span of your shape, according to its local reference system 
+ * \param[in] s0 first coordinate span
+ * \param[in] s1 second coordinate span
+ * \param[in] s2 third coordinate span
+ * \param[in] flag if true, mesh is rebuilt according to the new input 
+ */
+void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
+	getShape()->setSpan( s0, s1,s2);
+	
+	if(flag){
+		rebaseMesh();
+	}
+}
+
+/*! Set coordinate's origin of your shape, according to its local reference system  
+ * \param[in] orig first coordinate origin
+ * \param[in] dir 0,1,2 int flag identifying coordinate
+ * \param[in] flag if true mesh is rebuilt according to the new input
+ */
+void UStructMesh::setInfLimits(double orig, int dir, bool flag){
+	getShape()->setInfLimits(orig, dir);
+	
+	if(flag){
+		rebaseMesh();
+	}
+}
+
+/*! Set new axis orientation of the local reference system of your mesh core shape
+ * \param[in] axis0 first axis
+ * \param[in] axis1 second axis
+ * \param[in] axis2 third axis
+ * 
+ * if chosen axes are not orthogonal, doing nothing
+ */
+void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
+	getShape()->setRefSystem(axis0, axis1, axis2);
+}
+
+/*! Set new axis orientation of the local reference system of your mesh core shape
+ * \param[in] int 0,1,2 identify local x,y,z axis of the primitive shape
+ * \param[in] axis new direction of selected local axis.
+ */
+void UStructMesh::setRefSystem(int label, darray3E axis){
+	getShape()->setRefSystem(label,axis);
+}
+
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh
@@ -390,7 +471,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
 			break;
 	}
 	
-	darray3E span2 = getShape()->getSpan();
+	darray3E span2 = getSpan();
 	ivector1D dim(3,0);
 	
 	for(int i=0; i<3; ++i){
@@ -555,17 +636,6 @@ void UStructMesh::accessCellIndex(int N_, int & i, int & j, int & k){
 	j = index % m_ny;
 	i = index / m_ny; 
 };
-
-///*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
-// * \param[in] i x cartesian index
-// *\param[in] j y cartesian index
-// *\param[in] k z cartesian index
-// *\param[out] result global index
-// */
-//inline int  UStructMesh::accessPointIndex(int i, int j, int k){
-//	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;
-//	return(index);
-//};
 
 /*! Return cartesian indices of the point given its global index. Follows the ordering sequences z-y-x
  * \param[in] N_ global index 
@@ -1042,6 +1112,19 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	handle_vtk_output.write();
 };
 
+/*! Return a pointer to the inner BasicShape object the current mesh is built on 
+ * \param[out] result BasicShape of the mesh
+ */
+BasicShape * UStructMesh::getShape(){
+	
+	BasicShape * result;
+	if(m_shape2){
+		result = m_shape2.get();
+	}else{
+		result = m_shape1;
+	}
+	return(result);
+}
 
 /*! Destroy the all nodal structures of the mesh. */
 void UStructMesh::destroyNodalStructure(){
@@ -1076,7 +1159,7 @@ void UStructMesh::resizeMesh(){
 void UStructMesh::rebaseMesh(){
 	
 	if(getShape() == NULL){return;}
-	darray3E spanEff = getShape()->getLocalSpan();
+	darray3E spanEff = getLocalSpan();
 	
 	reshapeNodalStructure();
 	

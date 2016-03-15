@@ -154,7 +154,7 @@ ivector1D 	FFDLattice::getKnotsDimension(){
  * \param[out] result list of weights
  */
 dvector1D	FFDLattice::getWeights(){
-	return(m_weights);
+	return(recoverFullNodeWeights());
 };
 
 /*! Return knots structure and theoretical map of knots distributions for the current Lattice
@@ -194,7 +194,7 @@ void		FFDLattice::setDimension(ivector1D &dimensions){
 		if(getShape() ==NULL) return;
 		if(dimensions.size() < 3 || getShape() ==NULL) return;
 		ivector1D dimLimit(3,2);
-		switch(getShape()->getShapeType()){
+		switch(getShapeType()){
 			case BasicShape::ShapeType::CYLINDER :
 				dimLimit[1] = 5;
 				break;
@@ -218,13 +218,9 @@ void		FFDLattice::setDimension(ivector1D &dimensions){
 	
 		//setting knots and eventually weights to non-rational B-Spline
 		setKnotsStructure();
-	
-		freeContainer(m_weights);
-		int size= (m_nx+1)*(m_ny+1)*(m_nz+1);
-		m_weights.resize(size, 1.0);
-		
 		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-
+		m_weights.resize(m_ndeg, 1.0);
+		
 		//reorder dimensions
 		orderDimension();
 
@@ -240,7 +236,7 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	if(dimensions.size() < 3 || degrees.size() <3 || getShape() ==NULL) return;
 	
 	ivector1D dimLimit(3,2);
-	switch(getShape()->getShapeType()){
+	switch(getShapeType()){
 		case BasicShape::ShapeType::CYLINDER :
 			dimLimit[1] = 5;
 			break;
@@ -265,12 +261,9 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	freeContainer(m_weights);
-	int size= (m_nx+1)*(m_ny+1)*(m_nz+1);
-	m_weights.resize(size, 1.0);
-	
 	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-
+	m_weights.resize(m_ndeg, 1.0);
+	
 	//reorder dimensions
 	orderDimension();
 
@@ -296,15 +289,12 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	//reset your weights
-	freeContainer(m_weights);
-	ivector1D dd = getDimension();
-	int size= dd[0]*dd[1]*dd[2];
-	m_weights.resize(size, 1.0);
-	
 	//reallocate your displacement node
+	ivector1D dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
-
+	//reset your weights
+	m_weights.resize(m_ndeg, 1.0);
+	
 	//reorder dimensions
 	orderDimension();
 };
@@ -330,14 +320,11 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	//reset your weights
-	freeContainer(m_weights);
-	ivector1D dd = getDimension();
-	int size= dd[0]*dd[1]*dd[2];
-	m_weights.resize(size, 1.0);
-	
 	//reallocate your displacement node
+	ivector1D dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
+	//reset your weights
+	m_weights.resize(m_ndeg, 1.0);
 
 	//reorder dimensions
 	orderDimension();
@@ -362,15 +349,12 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions, ivector1D &
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	//reset your weights
-	freeContainer(m_weights);
-	ivector1D dd = getDimension();
-	int size= dd[0]*dd[1]*dd[2];
-	m_weights.resize(size, 1.0);
-	
 	//reallocate your displacement node
+	ivector1D dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
-
+	//reset your weights
+	m_weights.resize(m_ndeg, 1.0);
+	
 	//reorder dimensions
 	orderDimension();
 
@@ -396,26 +380,24 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions){
 	//setting knots and eventually weights to non-rational B-Spline
 	setKnotsStructure();
 	
-	//reset your weights
-	freeContainer(m_weights);
-	ivector1D dd = getDimension();
-	int size= dd[0]*dd[1]*dd[2];
-	m_weights.resize(size, 1.0);
-	
 	//reallocate your displacement node
+	ivector1D dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
-
+	//reset your weights
+	m_weights.resize(m_ndeg, 1.0);
+	
 	//reorder dimensions
 	orderDimension();
 
 };
 
-/*! Modify a weight of a control node. Access to a node in global indexing
+/*! Modify a weight of a control node. Access to a node in global GRID indexing
  * \param[in] val weight value
  * \param[in] index index of the control node -> gloab indexing
  */
 void 		FFDLattice::setNodalWeight(double val, int index){
-			m_weights[index] =  val;
+			int ind = accessDOFFromGrid(index);
+			m_weights[ind] =  val;
 };
 
 /*! Modify a weight of a control node. Access to a node in cartesian indexing
@@ -429,21 +411,77 @@ void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
 		setNodalWeight(val, index);
 };
 
-/*!Set the displacement of the degree of freedom currently stored in the object.
- * \param[in] displacements Displacements of lattice nodal degrees of freedom.
- * \param[in] flag set displacements as Global(true) or Local (false)
- */
+/*! set current DOF displacements of your lattice. If Input list does not fit current DOF size
+ * of lattice, return doing nothing */
 void
 FFDLattice::setDisplacements(dvecarr3E & displacements){
+	if (m_ndeg != displacements.size() || getShape() == NULL)	return;
 	
-	if(m_ndeg != displacements.size() || getShape() == NULL) return;
 	BaseManipulation::setDisplacements(displacements);
-	checkPeriodicDirections();
 };
 
 /*! Check if displacements are meant as global-true or local-false*/
 bool
 FFDLattice::isDisplGlobal(){return(m_globalDispl);}
+
+
+/*! Set span of your shape, according to its local reference system 
+ * \param[in] s0 first coordinate span
+ * \param[in] s1 second coordinate span
+ * \param[in] s2 third coordinate span
+ * \param[in] flag if true, lattice is rebuilt according to the new input 
+ */
+void FFDLattice::changeSpan(double s0, double s1, double s2, bool flag){
+	getShape()->setSpan( s0,  s1,s2);
+	
+	if(flag){
+		rebaseMesh();
+		setKnotsStructure();
+	}
+}
+
+/*! Set coordinate's origin of your shape, according to its local reference system  
+ * \param[in] orig first coordinate origin
+ * \param[in] dir 0,1,2 int flag identifying coordinate
+ * \param[in] flag if true lattice is rebuilt according to the new input
+ */
+void FFDLattice::setInfLimits(double orig, int dir, bool flag){
+	getShape()->setInfLimits( orig, dir);
+	
+	if(flag){
+		rebaseMesh();
+		setKnotsStructure();
+	}
+}
+
+/*! Set coordinate type of Lattice core shape. See BasicShape::CoordType enum
+ * \param[in] type coordinate type
+ * \param[in] dir  0,1,2 flag for coordinate
+ * \param[in] flag if true, force lattice nodal structure to be updated
+ */
+void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
+	getShape()->setCoordinateType(type,dir);
+	if(flag){
+		setKnotsStructure(dir, type);
+	}
+}
+
+
+/*! Find a corrispondent degree of freedom index of a lattice grid node
+ * \param[in] index lattice grid global index
+ * \param[out] result corrispondent DOF global index
+ */ 
+int FFDLattice::accessDOFFromGrid(int index){
+	return(m_intMapDOF[index]);
+}
+
+/*! Find a corrispondent lattice grid index of a degree of freedom node
+ * \param[in] index DOF global index
+ * \param[out] result corrispondent lattice grid global index
+ */  
+int FFDLattice::accessGridFromDOF(int index){
+	return(posVectorFind(m_intMapDOF, index));
+}
 
 /*! Set if displacements are meant as global-true or local-false*/
 void
@@ -462,7 +500,7 @@ void		FFDLattice::plotGrid(std::string directory, std::string filename,int count
 				ivector1D n =getDimension();
 				dvecarr3E dispXYZ;
 				if(isDisplGlobal()){
-					dispXYZ = *(getDisplacements());
+					dispXYZ = recoverFullGridDispl();
 				}else{
 					dispXYZ = convertDisplToXYZ(); 
 				}
@@ -495,7 +533,7 @@ void		FFDLattice::plotCloud(std::string directory, std::string filename, int cou
 		
 		dvecarr3E dispXYZ;
 		if(isDisplGlobal()){
-			dispXYZ = *(getDisplacements());
+			dispXYZ = recoverFullGridDispl();
 		}else{
 			dispXYZ = convertDisplToXYZ(); 
 		}
@@ -551,7 +589,7 @@ void 		FFDLattice::execute(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
-			ivector1D map;
+			livector1D map;
 			dvecarr3E localdef = apply(map);
 			
 			//reset displacement in a unique vector
@@ -591,16 +629,17 @@ darray3E 	FFDLattice::apply(darray3E & point){
  * \param[out] result list of non-zero displacement of m_geometry vertices 
  * \param[out] map list of ids of non-zero displaced vertex belonging to geometry
  */
-dvecarr3E 	FFDLattice::apply(ivector1D & list){
+dvecarr3E 	FFDLattice::apply(livector1D & list){
 	
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return dvecarr3E(0);
 	
 	bitpit::PatchKernel * tri = container->getGeometry();
-	
-	freeContainer(list);
-	list = getShape()->includeCloudPoints(tri);
-	
+	list.clear();
+
+	//check simplex included and extract their vertex in global IDs;
+	list= container->getVertexFromCellList(getShape()->includeGeometry(tri));
+	//return deformation
 	return(nurbsEvaluator(list));
 
 };
@@ -616,7 +655,7 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	if(point ==NULL ) return result;
 	
 	result.resize(point->size(), darray3E{0,0,0});
-	ivector1D list = getShape()->includeCloudPoints(*point);
+	livector1D list = getShape()->includeCloudPoints(*point);
 	
 	for(int i=0; i<list.size(); ++i){
 		darray3E target = (*point)[list[i]];
@@ -648,12 +687,12 @@ darray3E FFDLattice::convertDisplToXYZ(darray3E & target, int i){
  */
 dvecarr3E FFDLattice::convertDisplToXYZ(){
 	
-	dvecarr3E * displ = getDisplacements();
-	int sizeD = displ->size();
+	dvecarr3E displ = recoverFullGridDispl();
+	int sizeD = displ.size();
 	
 	dvecarr3E result(sizeD);
 	for(int i=0; i<sizeD; ++i){
-		result[i] = convertDisplToXYZ((*displ)[i],i);
+		result[i] = convertDisplToXYZ(displ[i],i);
 	}
 	return(result);
 };
@@ -705,7 +744,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 
 				for(int intv=0; intv<3; ++intv){
-					temp2[intv] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][intv];
+					temp2[intv] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][intv];
 				}	
 				temp2[3] += BSbasis[i2][k]*m_weights[index];
 			}
@@ -742,19 +781,20 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
  * \param[in] coord 3D point
  * \param[out] result displacement
  */
-dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
+dvecarr3E 	FFDLattice::nurbsEvaluator(livector1D & list){
 
 	bitpit::PatchKernel * tri = getGeometry()->getGeometry();
-	long id;
+	long int id;
 	int lsize = list.size();
-	ivector1D::iterator it, itend = list.end();
+	livector1D::iterator it, itend = list.end();
 	darray3E target, point;
 	ivector1D knotInterval(3,0);
 	dvector1D BSbasisi0, BSbasisi1, BSbasisi2;
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0);
 
-	dvecarr3E *displ = getDisplacements();
-
+	dvecarr3E displ = recoverFullGridDispl();
+	dvector1D weig = recoverFullNodeWeights();
+	
 	int uind, vind, wind, index;
 
 	int intv, i, j, k;
@@ -819,10 +859,10 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 
 					index = accessMapNodes(mappedIndex[0], mappedIndex[1], mappedIndex[2]);
 
-					bbasisw2 = BSbasisi2[k]*m_weights[index];
+					bbasisw2 = BSbasisi2[k]* weig[index];
 
 					for(intv=0; intv<3; ++intv){
-						temp2[intv] += bbasisw2*(*displ)[index][intv];
+						temp2[intv] += bbasisw2 * displ[index][intv];
 					}
 					temp2[3] += bbasisw2;
 
@@ -865,7 +905,6 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 
 	}//next list id
 
-	displ = NULL;
 	itout = outres.end();
 
 
@@ -881,7 +920,7 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(ivector1D & list){
 double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	
 	darray3E point = transfToLocal(coordOr);
-	double scaling = getShape()->getScaling()[targ];
+	double scaling = getScaling()[targ];
 	
 	ivector1D knotInterval(3,0);
 	dvector2D BSbasis(3);
@@ -924,7 +963,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 				mappedIndex[2] = wind+k;
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 				
-				temp2[0] += BSbasis[i2][k]*m_weights[index]*(*displ)[index][targ];
+				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][targ];
 				temp2[1] += BSbasis[i2][k]*m_weights[index];
 			}
 			
@@ -989,30 +1028,60 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 	
 	dvector1D result;
 	int dim = getDimension()[dir];
-	double span = getShape()->getLocalSpan()[dir];
+	double span = getLocalSpan()[dir];
 	double locOr= getShape()->getLocalOrigin()[dir];
-	bool loop = getShape()->areClosedLoops(dir);
 	
-	if(loop){
-		int nn = dim+m_deg[dir]-1;
-		result.resize(nn);
-		double dKn = span/(dim-1);
+	int nn, retroOrigin;
+	double dKn, origin;
+	
+	switch(getCoordType(dir))
+	{
+		case BasicShape::CoordType::PERIODIC :
+			nn = dim+m_deg[dir]-1;
+			result.resize(nn);
+			dKn = span/(dim-1);
 		
-		int retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
-		double origin = locOr-1.0 * retroOrigin * dKn;
+			retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
+			origin = locOr-1.0 * retroOrigin * dKn;
 		
-		for(int i=0; i<nn; ++i){
-			result[i] = origin + i*dKn;
-		}
-		
-	}else{
-		
-		int nn = dim;
-		result.resize(nn);
-		double dKn = span/(dim-1);
-		for(int i=0; i<nn; ++i){
-			result[i] =locOr+ i*dKn;
-		}
+			for(int i=0; i<nn; ++i){
+				result[i] = origin + i*dKn;
+			}
+			break;
+
+		case BasicShape::CoordType::SYMMETRIC :
+			nn = dim+m_deg[dir];
+			result.resize(nn);
+			dKn = span/(dim-1);
+			
+			retroOrigin = (m_deg[dir]-1)/2 + (m_deg[dir]-1)%2;
+			origin = locOr-1.0 * retroOrigin * dKn;
+			
+			for(int i=0; i<nn; ++i){
+				result[i] = origin + i*dKn;
+			}
+			break;
+			
+		case BasicShape::CoordType::CLAMPED :
+			nn = dim;
+			result.resize(nn);
+			dKn = span/(dim-1);
+			for(int i=0; i<nn; ++i){
+				result[i] =locOr+ i*dKn;
+			}
+			break;
+
+		case BasicShape::CoordType::UNCLAMPED :
+			nn = dim;
+			result.resize(nn);
+			dKn = span/(dim-1);
+			for(int i=0; i<nn; ++i){
+				result[i] =locOr+ i*dKn;
+			}
+			break;
+			
+		default: //never been reached
+			break;
 	}
 	
 	return(result);
@@ -1036,7 +1105,7 @@ void FFDLattice::clearKnots(){
 /*! Apply knots structure after modifications to Nurbs curve degrees member */
 void 		FFDLattice::setKnotsStructure(){
 		for(int i=0; i<3; i++){
-			setKnotsStructure(i,getShape()->areClosedLoops(i));
+			setKnotsStructure(i,getCoordType(i));
 		}
 }
 
@@ -1045,7 +1114,7 @@ void 		FFDLattice::setKnotsStructure(){
  * \param[in] dir int identifier
  * \param[in] flag identifies a closed periodic curve (true) or a clamped one (false)
  */
-void 		FFDLattice::setKnotsStructure(int dir, bool flag){
+void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 	
 	//recover number of node for direction dir;
 	ivector1D dim = getDimension();
@@ -1056,67 +1125,145 @@ void 		FFDLattice::setKnotsStructure(int dir, bool flag){
 	freeContainer(m_mapEff[dir]);
 	
 	dvector1D equinode = getNodeSpacing(dir);
+	int nEff, kEff,kTheo, kend;
+	double tol = 1.0E-12;
 	
-	if(!flag){ //clamped curve structure 
+	switch(type){
+		//clamped curve structure 
+		case BasicShape::CoordType::CLAMPED :
+			
+			m_deg[dir] = min(m_deg[dir], nn-1);
+			kEff = nn - m_deg[dir] + 1;
+			kTheo = nn + m_deg[dir] + 1;
+			m_knots[dir].resize(kEff);
+			m_mapEff[dir].resize(kTheo,0);
 		
-		m_deg[dir] = min(m_deg[dir], nn-1);
-		int kEff = nn - m_deg[dir] + 1;
-		int kTheo = nn + m_deg[dir] + 1;
-		m_knots[dir].resize(kEff);
-		m_mapEff[dir].resize(kTheo,0);
+			//set knots grid in the dir space considered 1 for this example
+			m_knots[dir][0] = equinode[0];
+			m_knots[dir][kEff-1] = equinode[equinode.size()-1];
 		
-		//set knots grid in the dir space considered 1 for this example
-		m_knots[dir][0] = equinode[0];
-		m_knots[dir][kEff-1] = equinode[equinode.size()-1];
-		
-		for(int i=1; i<kEff-1; ++i){
-			m_knots[dir][i] = 0.0;
-			for(int j=i; j<=i+m_deg[dir]-1; ++j){
-				m_knots[dir][i] += equinode[j]/((double) m_deg[dir]);
+			for(int i=1; i<kEff-1; ++i){
+				m_knots[dir][i] = 0.0;
+				for(int j=i; j<=i+m_deg[dir]-1; ++j){
+					m_knots[dir][i] += equinode[j]/((double) m_deg[dir]);
+				}
 			}
-		}
 		
-		for(int i=m_deg[dir]; i<(m_deg[dir]+kEff); i++){
-			m_mapEff[dir][i]=i-m_deg[dir];
-		}
-		
-		for(int i=(m_deg[dir]+kEff); i<kTheo; i++){
-			m_mapEff[dir][i]=kEff-1;
-		}
-		
-	}else{ //periodic curve structure
-		m_deg[dir] = min(m_deg[dir], nn-1);
-		int nEff = nn + m_deg[dir] - 1;
-		int kEff = nEff -m_deg[dir] + 1;
-		int kTheo = nEff +m_deg[dir] + 1;
-		m_knots[dir].resize(kTheo);
-		m_mapEff[dir].resize(kTheo,0);
-		
-		//set knots grid in the dir space considered 1 for this example
-		
-		m_knots[dir][m_deg[dir]] = 0.0;
-		for(int j=0; j<=m_deg[dir]-1; ++j){
-			m_knots[dir][m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
-		}
-		if(abs(m_knots[dir][m_deg[dir]])<1.e-12) m_knots[dir][m_deg[dir]] = 0.0;
-		
-		for(int i=1; i<kEff; ++i){
-			m_knots[dir][i+m_deg[dir]] = 0.0;
-			for(int j=i; j<=i+m_deg[dir]-1; ++j){
-				m_knots[dir][i+m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
+			for(int i=m_deg[dir]; i<(m_deg[dir]+kEff); i++){
+				m_mapEff[dir][i]=i-m_deg[dir];
 			}
-		}
 		
-		int kend = m_deg[dir] + kEff-1;
-		//unclamp the other nodes
-		for(int i=0; i<m_deg[dir]; ++i){
-			m_knots[dir][m_deg[dir]-i-1] = m_knots[dir][m_deg[dir]-i] - (m_knots[dir][kend-i] - m_knots[dir][kend-i-1]);
-			m_knots[dir][kend +1 +i] = m_knots[dir][kend + i] + (m_knots[dir][m_deg[dir]+i+1] - m_knots[dir][m_deg[dir]+i]);
-		}
+			for(int i=(m_deg[dir]+kEff); i<kTheo; i++){
+				m_mapEff[dir][i]=kEff-1;
+			}
+			break;
+			
+		case BasicShape::CoordType::PERIODIC :
+			
+			m_deg[dir] = min(m_deg[dir], nn-1);
+			nEff = nn + m_deg[dir] - 1;
+			kEff = nEff -m_deg[dir] + 1;
+			kTheo = nEff +m_deg[dir] + 1;
+			m_knots[dir].resize(kTheo);
+			m_mapEff[dir].resize(kTheo,0);
 		
-		for(int i=0; i<kTheo; i++){
-			m_mapEff[dir][i]=i;
-		}
+			//set knots grid in the dir space considered 1 for this example
+		
+			m_knots[dir][m_deg[dir]] = 0.0;
+			for(int j=0; j<=m_deg[dir]-1; ++j){
+				m_knots[dir][m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
+			}
+			if(abs(m_knots[dir][m_deg[dir]])<1.e-12) m_knots[dir][m_deg[dir]] = 0.0;
+		
+			for(int i=1; i<kEff; ++i){
+				m_knots[dir][i+m_deg[dir]] = 0.0;
+				for(int j=i; j<=i+m_deg[dir]-1; ++j){
+					m_knots[dir][i+m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
+				}
+			}
+		
+			kend = m_deg[dir] + kEff-1;
+			//unclamp the other nodes
+			for(int i=0; i<m_deg[dir]; ++i){
+				m_knots[dir][m_deg[dir]-i-1] = m_knots[dir][m_deg[dir]-i] - (m_knots[dir][kend-i] - m_knots[dir][kend-i-1]);
+				m_knots[dir][kend +1 +i] = m_knots[dir][kend + i] + (m_knots[dir][m_deg[dir]+i+1] - m_knots[dir][m_deg[dir]+i]);
+			}
+	
+			for(int i=0; i<kTheo; i++){
+				m_mapEff[dir][i]=i;
+			}
+			break;
+
+		case BasicShape::CoordType::SYMMETRIC :
+			
+			m_deg[dir] = min(m_deg[dir], nn-1);
+			nEff = nn + m_deg[dir];
+			kEff = nEff -m_deg[dir] + 1;
+			kTheo = nEff +m_deg[dir] + 1;
+			m_knots[dir].resize(kTheo);
+			m_mapEff[dir].resize(kTheo,0);
+			
+			//set knots grid in the dir space considered 1 for this example
+			
+			m_knots[dir][m_deg[dir]] = 0.0;
+			for(int j=0; j<=m_deg[dir]-1; ++j){
+				m_knots[dir][m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
+			}
+			if(abs(m_knots[dir][m_deg[dir]])<1.e-12) m_knots[dir][m_deg[dir]] = 0.0;
+			
+			for(int i=1; i<kEff; ++i){
+				m_knots[dir][i+m_deg[dir]] = 0.0;
+				for(int j=i; j<=i+m_deg[dir]-1; ++j){
+					m_knots[dir][i+m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
+				}
+			}
+			
+			kend = m_deg[dir] + kEff-1;
+			//unclamp the other nodes
+			for(int i=0; i<m_deg[dir]; ++i){
+				m_knots[dir][m_deg[dir]-i-1] = m_knots[dir][m_deg[dir]-i] - (m_knots[dir][kend-i] - m_knots[dir][kend-i-1]);
+				m_knots[dir][kend +1 +i] = m_knots[dir][kend + i] + (m_knots[dir][m_deg[dir]+i+1] - m_knots[dir][m_deg[dir]+i]);
+			}
+			
+			for(int i=0; i<kTheo; i++){
+				m_mapEff[dir][i]=i;
+			}
+			break;			
+			
+			
+		case BasicShape::CoordType::UNCLAMPED :
+			
+			m_deg[dir] = min(m_deg[dir], nn-1);
+			kEff = nn - m_deg[dir] + 1;
+			kTheo = nn + m_deg[dir] + 1;
+			m_knots[dir].resize(kTheo);
+			m_mapEff[dir].resize(kTheo,0);
+			
+			kend = m_deg[dir] + kEff-1;
+			//set knots grid in the dir space considered 1 for this example
+			m_knots[dir][m_deg[dir]] = equinode[0];
+			m_knots[dir][kend] = equinode[equinode.size()-1] + tol;
+			
+			for(int i=1; i<kEff-1; ++i){
+				m_knots[dir][m_deg[dir]+i] = 0.0;
+				for(int j=i; j<=i+m_deg[dir]-1; ++j){
+					m_knots[dir][m_deg[dir]+i] += equinode[j]/((double) m_deg[dir]);
+				}
+			}
+			
+			//unclamp the other nodes
+			for(int i=0; i<m_deg[dir]; ++i){
+				m_knots[dir][m_deg[dir]-i-1] = m_knots[dir][m_deg[dir]-i] - (m_knots[dir][kend-i] - m_knots[dir][kend-i-1]);
+				m_knots[dir][kend +1 +i] = m_knots[dir][kend + i] + (m_knots[dir][m_deg[dir]+i+1] - m_knots[dir][m_deg[dir]+i]);
+			}
+			
+			for(int i=0; i<kTheo; i++){
+				m_mapEff[dir][i]=i;
+			}
+			break;
+		
+		default: //never been reached
+				break;
 	}
 	
 	setMapNodes(dir);
@@ -1187,96 +1334,239 @@ int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
 void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	//reallocate your displacement node
 	m_displ.clear();
-	int size = nx*ny*nz;
-	m_displ.resize(size, darray3E{0,0,0});
-	m_ndeg = size;
+	m_intMapDOF.resize(nx*ny*nz, -1);
+	ivector1D::iterator itMapBegin = m_intMapDOF.begin();
+	ivector1D::iterator itMap = itMapBegin;
+	ivector1D::iterator itMapEnd = m_intMapDOF.end();
+	bvector1D info;
+	m_ndeg = reduceDimToDOF(nx,ny,nz, info);
+	m_displ.resize(m_ndeg, darray3E{0,0,0});
+	
+	//set m_intMapDOF
+	
+	int target;
+	int index;
+	ivector1D dummy;
+	
+	int i0,i1,i2;
+	switch(getShapeType()){
+		
+		case BasicShape::ShapeType::CYLINDER :
+			target=0;
+			while(itMap != itMapEnd){
+				
+				*itMap = target;
+				index = std::distance(itMapBegin, itMap);
+				accessPointIndex(index,i0,i1,i2);
+				
+				if(info[0] && i0 == 0){
+					for(int k=0; k<ny;++k){
+						m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
+					}
+				}
+				if(info[1] && i1 == 0){
+					m_intMapDOF[accessPointIndex(i0,ny-1,i2)] = target;
+				}
+			
+				itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+				target++;
+			}
+			break;
+			
+		case BasicShape::ShapeType::SPHERE :
+			
+			target = 0;
+			while(itMap != itMapEnd){
+				
+				*itMap = target;
+				index = std::distance(itMapBegin, itMap);
+				accessPointIndex(index,i0,i1,i2);
+				
+				if(info[0] && i0 == 0){
+					for(int k1=0; k1<ny;++k1){
+						for(int k2=0; k2<nz; ++k2){
+							m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
+						}
+					}
+				}
+				
+				if(info[1] && i1 == 0){
+					m_intMapDOF[accessPointIndex(i0,ny-1,i2)] = target;
+				}
+				
+				if(info[2] && i2 == 0){
+					for(int k1=0; k1<ny; ++k1){
+							m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+						}
+				}
+				
+				if(info[3] && i2 == (nz-1)){
+					for(int k1=0; k1<ny;++k1){
+						m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+					}
+				}
+				
+				itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+				target++;
+			}
+			break;
+			
+			
+		case BasicShape::ShapeType::CUBE :
+			target = 0;
+			while(itMap != itMapEnd){
+				
+				*itMap = target;
+				itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+				target++;
+			}
+			break;
+		
+		default: //doing nothing
+			break;
+	}//end switch
+	
 }
 
-/*! Check periodic displacements distribution for each of lattice coordinates.
- */
-void FFDLattice::checkPeriodicDirections(){
-
-	checkPeriodicDirections(0);
-	checkPeriodicDirections(1);
-	checkPeriodicDirections(2);
-};
-
-/*! Given a certain distribution of nodes in a specified direction, force displacements of nodes on extremes
- * to be an average of their pre-existent values 
- */
-void FFDLattice::checkPeriodicDirections(int dir){
-	
-	if(!getShape()->areClosedLoops(dir)) return;
-	
-	iarray3E map, u;
-	int index0, index1;
-	darray3E val;
-	map[0] = dir;
-	map[1] = (dir+1)%3;
-	map[2] = (dir+2)%3;
+/*! Recover full displacements vector from DOF */
+dvecarr3E FFDLattice::recoverFullGridDispl(){
 	
 	ivector1D dim = getDimension();
-	
-	for(int k=0; k<dim[map[2]]; ++k){
-		u[map[2]] = k;
-		for(int j=0; j<dim[map[1]]; ++j){
-			u[map[1]] = j;
-		
-			u[map[0]] = 0;
-			index0 = accessPointIndex(u[0],u[1],u[2]);
-			
-			u[map[0]] = dim[map[0]]-1;
-			index1 = accessPointIndex(u[0],u[1],u[2]);
-			
-			val = 0.5*(m_displ[index0] + m_displ[index1]);
-			m_displ[index0] = val;
-			m_displ[index1] = val;
-		}
+	int size = dim[0]*dim[1]*dim[2];
+	dvecarr3E result(size);
+	for(int i=0; i<size; ++i){
+		result[i] = m_displ[m_intMapDOF[i]];
 	}
+	return(result);
 };
+
+/*! Recover full displacements vector from DOF */
+dvector1D FFDLattice::recoverFullNodeWeights(){
+	
+	ivector1D dim = getDimension();
+	int size = dim[0]*dim[1]*dim[2];
+	dvector1D result(size);
+	for(int i=0; i<size; ++i){
+		result[i] = m_weights[m_intMapDOF[i]];
+	}
+	return(result);
+};
+
 
 /*! Fill m_mapnodes, to access correct displacement w knots structure 
  * theoretical knot indexing*/
 void FFDLattice::setMapNodes( int ind){
 
-		bool loop = getShape()->areClosedLoops(ind);
 		int dimdir = getDimension()[ind];
+		int nn,preNNumb,postNNumb, pInd;
 		
-		if(loop){
-			int nn = dimdir+m_deg[ind];
-			m_mapNodes[ind].resize(nn);
-			
-			int preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
-			int postNNumb = (m_deg[ind]-1) - preNNumb;
-			
-			// set the other internal loads
-			for(int i=0; i<dimdir; ++i){
-				m_mapNodes[ind][i+preNNumb] = i;
-			}
-			
-			//postpend the first preNNumb loads
-			int pInd = dimdir - preNNumb -1;
-			for(int i=0; i<preNNumb; ++i){
-				m_mapNodes[ind][i] = pInd + i;
-			}
-			//prepend the last postNNumb loads.
-			pInd = 1;
-			for(int i=0; i<=postNNumb; ++i){
-				m_mapNodes[ind][i+preNNumb+dimdir] = pInd+i;
-			}
-			
-		}else{
-			m_mapNodes[ind].resize(dimdir);
-			for (int i=0; i<dimdir; ++i){
-				m_mapNodes[ind][i] = i;
-			}
+		switch(getCoordType(ind)){
+			case BasicShape::CoordType::PERIODIC :
+				
+				nn = dimdir+m_deg[ind]-1;
+				m_mapNodes[ind].resize(nn);
+				
+				preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
+				postNNumb = (m_deg[ind]-1) - preNNumb;
+				
+				// set the other internal loads
+				for(int i=0; i<dimdir; ++i){
+					m_mapNodes[ind][i+preNNumb] = i;
+				}
+				
+				//postpend the first preNNumb loads
+				pInd = dimdir - preNNumb -1;
+				for(int i=0; i<preNNumb; ++i){
+					m_mapNodes[ind][i] = pInd + i;
+				}
+				//prepend the last postNNumb loads.
+				pInd = 1;
+				for(int i=0; i<postNNumb; ++i){
+					m_mapNodes[ind][i+preNNumb+dimdir] = pInd+i;
+				}
+			break;
+				
+			case BasicShape::CoordType::SYMMETRIC :
+				
+				nn = dimdir+m_deg[ind];
+				m_mapNodes[ind].resize(nn);
+				
+				preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
+				postNNumb = m_deg[ind] - preNNumb;
+				
+				// set the other internal loads
+				for(int i=0; i<dimdir; ++i){
+					m_mapNodes[ind][i+preNNumb] = i;
+				}
+				
+				//prepend symmetrically loads
+				for(int i=0; i<preNNumb; ++i){
+					m_mapNodes[ind][preNNumb -1 - i] = (i+1)%(dimdir-1);
+				}
+				//postpend symmetrically loads.
+				for(int i=0; i<postNNumb; ++i){
+					m_mapNodes[ind][i+preNNumb+dimdir] = (dimdir-2-i)%(dimdir-1);
+				}
+				break;
+				
+			default:
+				m_mapNodes[ind].resize(dimdir);
+				for (int i=0; i<dimdir; ++i){
+					m_mapNodes[ind][i] = i;
+				}
+			break;	
 		}
 };
 
-///*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/
-//inline int FFDLattice::accessMapNodes(int i, int j, int k){
-//	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
-//};
+/*!Get the effective dof size of the lattice according to its shape. Return info
+ * to build successfully m_intMapDOF
+ */ 
+int 
+FFDLattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
+	
+	int delta = 0;
+	int dum = 0;
+	double dval;
+	switch(getShapeType()){
+		
+		case BasicShape::ShapeType::CYLINDER :
+			delta += nz;
+			nx--;
+			if(getCoordType(1) == BasicShape::CoordType::PERIODIC)	ny--;
+
+			info.push_back(true);
+			info.push_back(getCoordType(1) == BasicShape::CoordType::PERIODIC);
+			break;
+
+		case BasicShape::ShapeType::SPHERE :
+			delta ++;
+			nx--;
+			if(getCoordType(1) == BasicShape::CoordType::PERIODIC)	ny--;
+			dval = getInfLimits()[2];
+			if(dval == 0.0)	{
+				nz--;
+				delta += nx;
+			}
+			if((dval + getLocalSpan()[2]) == M_PI){
+				nz--;
+				delta += nx;
+			}
+
+			info.push_back(true);
+			info.push_back(getCoordType(1) == BasicShape::CoordType::PERIODIC);
+			info.push_back(dval==0.0);
+			info.push_back((dval + getLocalSpan()[2]) == M_PI);
+			break;
+			
+		default:
+			//doing nothing
+			break;
+	}
+
+	int result = nx*ny*nz + delta;
+	return(result);
+};
+
 
 /*! Fill m_mapdeg with the ordered indices of dimensions.
 */

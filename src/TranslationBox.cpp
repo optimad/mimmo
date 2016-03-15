@@ -77,7 +77,7 @@ TranslationBox::execute(){
 			m_origin[i] += m_displ[0][0] * m_direction[i];
 	}
 	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->getShape()->setOrigin(m_origin);
+		static_cast<FFDLattice*>(m_child[0])->changeOrigin(m_origin);
 	}
 	return;
 };

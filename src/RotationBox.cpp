@@ -108,7 +108,7 @@ RotationBox::execute(){
 
 	rotated[0] += m_origin;
 	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->getShape()->setOrigin(rotated[0]);
+		static_cast<FFDLattice*>(m_child[0])->changeOrigin(rotated[0]);
 	}
 
 	//rotation of axes
@@ -121,7 +121,7 @@ RotationBox::execute(){
 				crossProduct(m_direction, m_axes[i]) * sin(m_displ[0][0]);
 	}
 	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->getShape()->setRefSystem(rotated[0], rotated[1], rotated[2]);
+		static_cast<FFDLattice*>(m_child[0])->setRefSystem(rotated[0], rotated[1], rotated[2]);
 	}
 
 	return;

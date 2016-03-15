@@ -53,7 +53,7 @@ BasicShape::BasicShape(){
 		m_sdr[i].fill(0.0);
 	}
 	m_sdr[0][0] = m_sdr[1][1] = m_sdr[2][2] = 1.0;
-	m_closedLoops.resize(3, false);
+	m_typeCoord.fill(BasicShape::CoordType::CLAMPED);
 	m_scaling.fill(1.0);
 };
 
@@ -137,12 +137,12 @@ void BasicShape::setRefSystem(int label, darray3E axis){
 }
 
 
-/*! Set booleans to treat your shape coordinates as periodic (true) or regular (false)
- * \param[in] flag true/false to mark coordinate as periodic/regular 
+/*! Set type to treat your shape coordinates. 
+ * \param[in] type BasicShape::CoordType enum.
  * \param[in] dir  0,1,2 int flag identifying coordinate
  */
-void BasicShape::setClosedLoops(bool flag, int dir){
-	m_closedLoops[dir] = flag;
+void BasicShape::setCoordinateType(BasicShape::CoordType type, int dir){
+	m_typeCoord[dir] = type;
 }
 
 /*! Return current origin of your shape
@@ -178,12 +178,11 @@ dmatrix33E BasicShape::getRefSystem(){
 	return(m_sdr);
 }
 
-/*! Return if your current shape coordinate "dir" is set as periodic or not
- * \param[in] result boolean flag , true if dir is periodic
+/*! Return type of your current shape coordinate "dir". See BasicShape::CoordType enum 
  * \param[in] dir   0,1,2 int flag identifying coordinate
  */
-bool BasicShape::areClosedLoops(int dir){
-	return(m_closedLoops[dir]);
+BasicShape::CoordType BasicShape::getCoordinateType(int dir){
+	return(m_typeCoord[dir]);
 }
 /*! Get current type of shape instantiated
  * \param[out] result BasicShape::ShapeType enum
@@ -216,10 +215,10 @@ darray3E BasicShape::getLocalSpan(){
  * \param[in] tri target tessellation
  * \param[out] result list-by-ids of simplicies included in the volumetric patch
  */
-ivector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
+livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
   
   int nCells = tri->getCellCount();	
-  ivector1D result(nCells); 
+  livector1D result(nCells); 
   int counter=0;
   
   for(auto &cell : tri->cells()){
@@ -238,10 +237,10 @@ ivector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
  * \param[in] tri target tesselation
  * \param[out] result list-by-ids of simplicies outside the volumetric patch
  */
-ivector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
+livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
   
 	int nCells = tri->getCellCount();	
-	ivector1D result(nCells); 
+	livector1D result(nCells); 
 	int counter=0;
 	
 	for(auto &cell : tri->cells()){
@@ -260,10 +259,10 @@ ivector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices included in the volumetric patch
  */
-ivector1D BasicShape::includeCloudPoints(dvecarr3E & list){
+livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
 
   int size = list.size();
-  ivector1D result(size); 
+  livector1D result(size); 
   int counter=0;
   
   for(int i=0; i<size; ++i){
@@ -282,10 +281,10 @@ ivector1D BasicShape::includeCloudPoints(dvecarr3E & list){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices outside the volumetric patch
  */
-ivector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
+livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
   
   int size = list.size();
-  ivector1D result(size); 
+  livector1D result(size); 
   int counter=0;
   
   for(int i=0; i<size; ++i){
@@ -305,10 +304,10 @@ ivector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices included in the volumetric patch
  */
-ivector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
+livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	
 	int nVert = tri->getVertexCount();	
-	ivector1D result(nVert); 
+	livector1D result(nVert); 
 	int counter=0;
 	
 	for(auto &vertex : tri->vertices()){
@@ -327,10 +326,10 @@ ivector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
  * \param[in] list list of cloud points
  * \param[out] result list-by-indices of vertices outside the volumetric patch
  */
-ivector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
+livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 	
 	int nVert = tri->getVertexCount();	
-	ivector1D result(nVert); 
+	livector1D result(nVert); 
 	int counter=0;
 	
 	for(auto &vertex : tri->vertices()){
@@ -362,7 +361,7 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
  * \param[in] indexT triangle index of tri.
  * \param[out] result boolean
  */ 
-bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, int indexT){
+bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
 
   Cell cell = tri->getCell(indexT);
   long * conn = cell.getConnect();
@@ -384,9 +383,10 @@ bool BasicShape::isPointIncluded(darray3E point){
 	bool check = true;
 	darray3E temp = toLocalCoord(point);
 	darray3E temp2 = localToBasic(temp);
+	double tol = 1.0E-12;
 	
 	for(int i=0; i<3; ++i){  
-		check = check && ((temp2[i] >= 0.0) && (temp2[i]<=1.0));
+		check = check && ((temp2[i] >= -1.0*tol) && (temp2[i]<=(1.0+tol)));
 	}
 	
 	return(check);  
@@ -397,7 +397,7 @@ bool BasicShape::isPointIncluded(darray3E point){
  * \param[in] indexV id of a vertex belonging to tri;
  * \param[out] result boolean
  */
-bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, int indexV){
+bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 	
 	bool check = true;
 	darray3E coords = tri->getVertex(indexV).getCoords();
@@ -456,7 +456,7 @@ Cube & Cube::operator=(const Cube & other){
 	m_span = other.m_span;
 	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
-	m_closedLoops = other.m_closedLoops;
+	m_typeCoord = other.m_typeCoord;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
@@ -614,7 +614,7 @@ Cylinder & Cylinder::operator=(const Cylinder & other){
 	m_span = other.m_span;
 	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
-	m_closedLoops = other.m_closedLoops;
+	m_typeCoord = other.m_typeCoord;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
@@ -722,7 +722,7 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
 	double thetalim = 8.0* std::atan(1.0);
 	s1 = std::min(s1, thetalim);
 	//check closedLoops;
-	setClosedLoops(!(s1 < thetalim),1);
+	if(!(s1 < thetalim)){setCoordinateType(BasicShape::CoordType::PERIODIC,1);}
 };
 
 /*! Check if your coords origin values fit your current shape set up
@@ -768,6 +768,7 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 /*! Basic Constructor */
 Sphere::Sphere(){
 	m_shape=ShapeType::SPHERE;
+	setCoordinateType(BasicShape::CoordType::SYMMETRIC, 2);
 };
 
 /*! Custom Constructor. Set shape origin, inferior/superior limits of the sphere
@@ -801,7 +802,7 @@ Sphere & Sphere::operator=(const Sphere & other){
 	m_span = other.m_span;
 	m_infLimits = other.m_infLimits;
 	m_sdr = other.m_sdr;
-	m_closedLoops = other.m_closedLoops;
+	m_typeCoord = other.m_typeCoord;
 	m_scaling = other.m_scaling;
 	return(*this);
 };
@@ -916,7 +917,7 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	s2 = std::min(s2, maxS2);
 	
 	//check closedLoops;
-	setClosedLoops(!(s1 < thetalim),1);
+	if(!(s1 < thetalim)){setCoordinateType(BasicShape::CoordType::PERIODIC,1);}
 	
 };
 
