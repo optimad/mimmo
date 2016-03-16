@@ -99,7 +99,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 /*!It gets the number of degrees of freedom of the manipulator object.
  * \return #Degrees of freedom.
  */
-uint32_t
+int
 BaseManipulation::getNDeg(){
 	return m_ndeg;
 };
@@ -108,7 +108,7 @@ BaseManipulation::getNDeg(){
  * \param[in] i Index of target child.
  * \return #Degrees of freedom of ìtarget child.
  */
-uint32_t
+int
 BaseManipulation::getNDegOut(int i){
 	if (i>m_child.size()-1) return 0;
 	return m_child[i]->getNDeg();
@@ -117,9 +117,9 @@ BaseManipulation::getNDegOut(int i){
 /*!It gets the displacement of the degree of freedom currently stored in the object.
  * \return Displacements of the degrees of freedom.
  */
-dvecarr3E*
+dvecarr3E&
 BaseManipulation::getDisplacements(){
-	return &m_displ;
+	return m_displ;
 };
 
 /*!It gets the displacement of the degree of freedom currently stored in a child of the object.
@@ -129,7 +129,7 @@ BaseManipulation::getDisplacements(){
 dvecarr3E*
 BaseManipulation::getDisplacementsOut(int i){
 	if (i>m_child.size()-1) return NULL;
-	return m_child[i]->getDisplacements();
+	return &m_child[i]->getDisplacements();
 };
 
 /*!It gets the number of parent linked to the manipulator object.
@@ -196,7 +196,7 @@ BaseManipulation::getInfo(){
  * \param[in] ndeg #Degrees of freedom.
  */
 void
-BaseManipulation::setNDeg(uint32_t ndeg){
+BaseManipulation::setNDeg(int ndeg){
 	m_ndeg = ndeg;
 	m_displ.resize(m_ndeg);
 };
@@ -206,7 +206,7 @@ BaseManipulation::setNDeg(uint32_t ndeg){
  * \param[in] ndeg #Degrees of freedom to set in the target child.
  */
 void
-BaseManipulation::setNDegOut(int i, uint32_t ndeg){
+BaseManipulation::setNDegOut(int i, int ndeg){
 	if (i>m_child.size()-1) return;
 	m_child[i]->setNDeg(ndeg);
 };
@@ -215,7 +215,7 @@ BaseManipulation::setNDegOut(int i, uint32_t ndeg){
  * \param[in] displacements Displacements of the degrees of freedom.
  */
 void
-BaseManipulation::setDisplacements(dvecarr3E & displacements){
+BaseManipulation::setDisplacements(dvecarr3E displacements){
 	m_displ = displacements;
 	m_ndeg = m_displ.size();
 };
@@ -324,36 +324,6 @@ BaseManipulation::clear(){
 };
 
 
-void
-BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvecarr3E*(void)> getVal, function<void(dvecarr3E&)> setVal){
-	InOut pin;
-	pin.setInput(objIn, getVal, setVal);
-	m_pins.push_back(pin);
-
-//	InOut pinout;
-//	pinout.setOutput(this, setVal, getVal);
-//	objIn->m_pins.push_back(pinout);
-
-//	addParent(objIn);
-//	objIn->addChild(this);
-};
-
-void
-BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvecarr3E&)> setVal, function<dvecarr3E*(void)> getVal){
-	InOut pin;
-	pin.setOutput(objOut, setVal, getVal);
-	m_pins.push_back(pin);
-
-//	InOut pinin;
-//	pinin.setInput(this, getVal, setVal);
-//	objOut->m_pins.push_back(pin);
-
-//	addChild(objOut);
-//	objOut->addParent(this);
-
-};
-
-
 /*!It releases the info, i.e. it creates an Info structure and
  * it sets it by setInfo() method.
  */
@@ -409,13 +379,256 @@ BaseManipulation::exec(){
 	m_info = recoverInfo();
 	if (m_info != NULL) useInfo();
 	execute();
-	for (int i=0; i<m_pins.size(); i++){
-		if (m_pins[i].m_objOut != NULL){
-			dvecarr3E* val = m_pins[i].m_getVal();
-			m_pins[i].m_setVal((*val));
+	for (int i=0; i<m_pinOut.size(); i++){
+		if (m_pinOut[i]->getLink() != NULL){
+			m_pinOut[i]->exec();
 		}
 	}
 }
+
+//============================//
+// OVERLOADED PINS METHODS
+//============================//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<double&(void)> getVal, function<void(double)> setVal){
+	InOutD* pin = new InOutD();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<double(void)> getVal, function<void(double)> setVal){
+	InOutD* pin = new InOutD();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(double)> setVal, function<double&(void)> getVal){
+	InOutD* pin = new InOutD();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(double)> setVal, function<double(void)> getVal){
+	InOutD* pin = new InOutD();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<int&(void)> getVal, function<void(int)> setVal){
+	InOutI* pin = new InOutI();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<int(void)> getVal, function<void(int)> setVal){
+	InOutI* pin = new InOutI();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(int)> setVal, function<int&(void)> getVal){
+	InOutI* pin = new InOutI();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(int)> setVal, function<int(void)> getVal){
+	InOutI* pin = new InOutI();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvector1D(void)> getVal, function<void(dvector1D)> setVal){
+	InOutDV1* pin = new InOutDV1();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvector1D)> setVal, function<dvector1D(void)> getVal){
+	InOutDV1* pin = new InOutDV1();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvector1D&(void)> getVal, function<void(dvector1D)> setVal){
+	InOutDV1* pin = new InOutDV1();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvector1D)> setVal, function<dvector1D&(void)> getVal){
+	InOutDV1* pin = new InOutDV1();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<ivector1D(void)> getVal, function<void(ivector1D)> setVal){
+	InOutIV1* pin = new InOutIV1();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(ivector1D)> setVal, function<ivector1D(void)> getVal){
+	InOutIV1* pin = new InOutIV1();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<ivector1D&(void)> getVal, function<void(ivector1D)> setVal){
+	InOutIV1* pin = new InOutIV1();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(ivector1D)> setVal, function<ivector1D&(void)> getVal){
+	InOutIV1* pin = new InOutIV1();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<darray3E(void)> getVal, function<void(darray3E)> setVal){
+	InOutDA3* pin = new InOutDA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(darray3E)> setVal, function<darray3E(void)> getVal){
+	InOutDA3* pin = new InOutDA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<darray3E&(void)> getVal, function<void(darray3E)> setVal){
+	InOutDA3* pin = new InOutDA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(darray3E)> setVal, function<darray3E&(void)> getVal){
+	InOutDA3* pin = new InOutDA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<iarray3E(void)> getVal, function<void(iarray3E)> setVal){
+	InOutIA3* pin = new InOutIA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(iarray3E)> setVal, function<iarray3E(void)> getVal){
+	InOutIA3* pin = new InOutIA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<iarray3E&(void)> getVal, function<void(iarray3E)> setVal){
+	InOutIA3* pin = new InOutIA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(iarray3E)> setVal, function<iarray3E&(void)> getVal){
+	InOutIA3* pin = new InOutIA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvecarr3E(void)> getVal, function<void(dvecarr3E)> setVal){
+	InOutDVA3* pin = new InOutDVA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvecarr3E)> setVal, function<dvecarr3E(void)> getVal){
+	InOutDVA3* pin = new InOutDVA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvecarr3E&(void)> getVal, function<void(dvecarr3E)> setVal){
+	InOutDVA3* pin = new InOutDVA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvecarr3E)> setVal, function<dvecarr3E&(void)> getVal){
+	InOutDVA3* pin = new InOutDVA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+//-----------------------------------------------------//
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<ivecarr3E(void)> getVal, function<void(ivecarr3E)> setVal){
+	InOutIVA3* pin = new InOutIVA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(ivecarr3E)> setVal, function<ivecarr3E(void)> getVal){
+	InOutIVA3* pin = new InOutIVA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<ivecarr3E&(void)> getVal, function<void(ivecarr3E)> setVal){
+	InOutIVA3* pin = new InOutIVA3();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(ivecarr3E)> setVal, function<ivecarr3E&(void)> getVal){
+	InOutIVA3* pin = new InOutIVA3();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+
 
 //EXTERNAL METHODS
 

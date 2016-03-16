@@ -92,7 +92,7 @@ public:
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
 	
-	void 		setDisplacements(dvecarr3E & displacements);
+	void 		setDisplacements(dvecarr3E displacements);
 	void 		setDisplGlobal(bool flag);
 	bool 		isDisplGlobal();
 	
@@ -104,7 +104,7 @@ public:
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
 	
-	dvecarr3E*	releaseResult();
+	dvecarr3E&	releaseResult();
 
 
 	//plotting wrappers

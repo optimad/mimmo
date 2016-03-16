@@ -68,7 +68,7 @@ OutputDoF::execute(){
 	for (int i=0; i<getNParent(); i++){
 		if (m_parent[i] != NULL && i<m_filename.size()){
 			m_ndeg = m_parent[i]->getNDeg();
-			m_displ = *(m_parent[i]->getDisplacements());
+			m_displ = m_parent[i]->getDisplacements();
 			ofstream file;
 			file.open(m_filename[i]);
 			if (file.is_open()){

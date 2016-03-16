@@ -48,7 +48,7 @@
 class BaseManipulation{
 public:
 	//members
-	uint32_t						m_ndeg;			/**<Number of degrees of freedom used as input. */
+	int								m_ndeg;			/**<Number of degrees of freedom used as input. */
 	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
 protected:
 	std::vector<BaseManipulation*>	m_parent;		/**<Pointers to manipulation objects parent giving info to current class. */
@@ -58,8 +58,8 @@ protected:
 	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
 	Info*							m_info;			/**<Pointer to related object of class Info.*/
 
-	InOut							m_inout;
-	std::vector<InOut>				m_pins;			/**<Input Output pins vector. */
+	std::vector<InOut*>				m_pinIn;			/**<Input pins vector. */
+	std::vector<InOut*>				m_pinOut;			/**<Output pins vector. */
 
 public:
 	BaseManipulation();
@@ -71,9 +71,9 @@ public:
 	BaseManipulation & operator=(const BaseManipulation & other);
 
 	//internal methods
-	uint32_t			getNDeg();
-	dvecarr3E*			getDisplacements();
-	uint32_t			getNDegOut(int i = 0);
+	int					getNDeg();
+	dvecarr3E&			getDisplacements();
+	int					getNDegOut(int i = 0);
 	dvecarr3E*			getDisplacementsOut(int i = 0);
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
@@ -83,9 +83,9 @@ public:
 	bool			 	getReleaseInfo();
 	Info*			 	getInfo();
 
-	void	setNDeg(uint32_t ndeg);
-	void	setDisplacements(dvecarr3E & displacements);
-	void	setNDegOut(int i, uint32_t ndeg);
+	void	setNDeg(int ndeg);
+	void	setDisplacements(dvecarr3E displacements);
+	void	setNDegOut(int i, int ndeg);
 	void	setDisplacementsOut(int i, dvecarr3E & displacements);
 	void 	addParent(BaseManipulation* parent);
 	void 	addChild(BaseManipulation* child);
@@ -100,12 +100,48 @@ public:
 	void	clearDisplacementsOut(int i = 0);
 	void	clear();
 
-	//relationship methods
-//	void	addPinIn(BaseManipulation* objIn, dvecarr3E* (*getVal) (), void (*setVal) (dvecarr3E &));
-//	void	addPinOut(BaseManipulation* objOut, void (*setVal) (dvecarr3E &), dvecarr3E* (*getVal) ());
-	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E*(void)> getVal, std::function<void(dvecarr3E&)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E&)> setVal, std::function<dvecarr3E*(void)> getVal);
+	//overloaded pins methods
+	void	addPinIn(BaseManipulation* objIn, std::function<double(void)> getVal, std::function<void(double)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<double&(void)> getVal, std::function<void(double)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double&(void)> getVal);
 
+	void	addPinIn(BaseManipulation* objIn, std::function<int(void)> getVal, std::function<void(int)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<int&(void)> getVal, std::function<void(int)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<dvector1D(void)> getVal, std::function<void(dvector1D)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<dvector1D&(void)> getVal, std::function<void(dvector1D)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<ivector1D(void)> getVal, std::function<void(ivector1D)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<ivector1D&(void)> getVal, std::function<void(ivector1D)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<darray3E(void)> getVal, std::function<void(darray3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<darray3E&(void)> getVal, std::function<void(darray3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<iarray3E(void)> getVal, std::function<void(iarray3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<iarray3E&(void)> getVal, std::function<void(iarray3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E(void)> getVal, std::function<void(dvecarr3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E&(void)> getVal, std::function<void(dvecarr3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E&(void)> getVal);
+
+	void	addPinIn(BaseManipulation* objIn, std::function<ivecarr3E(void)> getVal, std::function<void(ivecarr3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E(void)> getVal);
+	void	addPinIn(BaseManipulation* objIn, std::function<ivecarr3E&(void)> getVal, std::function<void(ivecarr3E)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E&(void)> getVal);
+
+	//relationship methods
 	void 	exec();
 	void	releaseInfo();
 	Info* 	recoverInfo();
@@ -125,8 +161,8 @@ public:
 
 //EXTERNAL TEMPLATE METHODS
 
-template<typename OO, typename G, typename OI, typename S>
-void addPin(OO* objSend, OI* objRec, dvecarr3E* (G::*fget) (), void (S::*fset) (dvecarr3E&)){
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
 
 	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
 	objRec->addPinIn(objSend, pinGet(fget, objSend), pinSet(fset, objRec));
@@ -135,15 +171,41 @@ void addPin(OO* objSend, OI* objRec, dvecarr3E* (G::*fget) (), void (S::*fset) (
 
 }
 
-template<typename T, typename U>
-std::function<dvecarr3E*(void)> pinGet(dvecarr3E* (T::*fget) (), U* obj){
-	std::function<dvecarr3E*(void)> res = bind(fget, obj);
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
+	objRec->addPinIn(objSend, pinGet(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGetR(fget, objSend));
+	objRec->addPinIn(objSend, pinGetR(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename T, typename U, typename VAL>
+std::function<VAL(void)> pinGet(VAL (T::*fget) (), U* obj){
+	std::function<VAL(void)> res = std::bind(fget, obj);
 	return res;
 }
 
-template<typename T, typename U>
-std::function<void(dvecarr3E&)> pinSet(void (T::*fset) (dvecarr3E&), U* obj){
-	std::function<void(dvecarr3E&)> res = bind(fset, obj, std::placeholders::_1);
+template<typename T, typename U, typename VAL>
+std::function<VAL&(void)> pinGetR(VAL& (T::*fget) (), U* obj){
+	std::function<VAL&(void)> res = std::bind(fget, obj);
+	return res;
+}
+
+template<typename T, typename U, typename VAL>
+std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj){
+	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
 

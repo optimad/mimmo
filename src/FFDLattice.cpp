@@ -417,9 +417,9 @@ void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
 /*! set current DOF displacements of your lattice. If Input list does not fit current DOF size
  * of lattice, return doing nothing */
 void
-FFDLattice::setDisplacements(dvecarr3E & displacements){
-	if (m_ndeg != displacements.size() || getShape() == NULL)	return;
-	
+FFDLattice::setDisplacements(dvecarr3E displacements){
+
+	if(m_ndeg != displacements.size() || getShape() == NULL) return;
 	BaseManipulation::setDisplacements(displacements);
 };
 
@@ -430,6 +430,7 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 /*! Check if displacements are meant as global-true or local-false*/
 bool
 FFDLattice::isDisplGlobal(){return(m_globalDispl);}
+
 
 /*! Set span of your shape, according to its local reference system 
  * \param[in] s0 first coordinate span
@@ -495,9 +496,9 @@ int FFDLattice::accessGridFromDOF(int index){
 void
 FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 
-dvecarr3E*
+dvecarr3E&
 FFDLattice::releaseResult(){
-	return(&m_result);
+	return(m_result);
 };
 
 
@@ -731,7 +732,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
 	int uind, vind, wind, index;
 	
-	dvecarr3E *displ = getDisplacements();
+	dvecarr3E& displ = getDisplacements();
 
 	int i0 = m_mapdeg[0];
 	int i1 = m_mapdeg[1];
@@ -814,7 +815,7 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(livector1D & list){
 
 	dvecarr3E displ = recoverFullGridDispl();
 	dvector1D weig = recoverFullNodeWeights();
-	
+
 	int uind, vind, wind, index;
 
 	int intv, i, j, k;
@@ -947,7 +948,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
 	int uind, vind, wind, index;
 	
-	dvecarr3E *displ = getDisplacements();
+	dvecarr3E& displ = getDisplacements();
 	
 	int i0 = m_mapdeg[0];
 	int i1 = m_mapdeg[1];
@@ -982,7 +983,6 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 				
 				mappedIndex[2] = wind+k;
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
-				
 				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][targ];
 				temp2[1] += BSbasis[i2][k]*m_weights[index];
 			}

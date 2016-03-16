@@ -49,6 +49,7 @@ typedef std::vector<darray2E>		dvecarr2E;
 typedef std::vector<darray3E>		dvecarr3E;
 typedef std::vector<darray4E>		dvecarr4E;
 typedef std::vector<farray3E>		fvecarr3E;
+typedef std::vector<iarray3E>		ivecarr3E;
 
 typedef std::vector<dvector1D>		dvector2D;
 typedef std::vector<fvector1D>		fvector2D;

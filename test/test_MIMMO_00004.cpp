@@ -132,7 +132,6 @@ void test0004() {
 	string file = "input/inputMIMMO_00001.txt";
 	InputDoF* input0 = new InputDoF(file);
 
-
 	//create applier
 	Apply* applier = new Apply(&mimmo0);
 
@@ -149,6 +148,7 @@ void test0004() {
 		addPin(input0, lattice, &InputDoF::getDisplacements, &FFDLattice::setDisplacements);
 	}else{
 		addPin(input, lattice, &InputDoF::getDisplacements, &FFDLattice::setDisplacements);
+		addPin(input, lattice, &InputDoF::getNDeg, &FFDLattice::setNDeg);
 	}
 	addPin(lattice, applier, &FFDLattice::releaseResult, &Apply::setDisplacements);
 
@@ -173,6 +173,7 @@ void test0004() {
 	ch0.exec();
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
+
 
 	//Plot results
 	lattice->plotGrid("./", "lattice", 0, false, false);

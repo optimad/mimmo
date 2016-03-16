@@ -41,12 +41,9 @@ class BaseManipulation;
 class InOut{
 public:
 	//members
+	bool				m_type;		/**<Type of pin 0/1 = input/output pin.*/
 	BaseManipulation*	m_obj;		/**<Owner object of this input-output PIN. */
-	BaseManipulation*	m_objIn;	/**<Input object from which recover the target variable. */
-	BaseManipulation*	m_objOut;	/**<Output object to which give the target variable. */
-
-	std::function<dvecarr3E*(void)>	m_getVal;
-	std::function<void(dvecarr3E&)>	m_setVal;
+	BaseManipulation*	m_objLink;	/**<Input/Output object from/to which recover/give the target variable. */
 
 
 public:
@@ -56,12 +53,231 @@ public:
 	InOut(const InOut & other);
 	InOut & operator=(const InOut & other);
 
-	void	setInput(BaseManipulation* objIn, std::function<dvecarr3E*(void)> getVal, std::function<void(dvecarr3E&)> setVal);
-	void	setOutput(BaseManipulation* objOut, std::function<void(dvecarr3E&)> setVal, std::function<dvecarr3E*(void)> getVal);
+	bool				getType();
+	BaseManipulation*	getLink();
+
+	virtual void exec() = 0;
+
+};
+
+//==============================================================//
+// DOUBLE DERIVED INOUT CLASS									//
+//==============================================================//
+
+class InOutD: public InOut {
+
+public:
+	std::function<double(void)>		m_getVal;
+	std::function<double&(void)>	m_getValR;
+	std::function<void(double)>		m_setVal;
+
+public:
+	InOutD();
+	~InOutD();
+
+	InOutD(const InOutD & other);
+	InOutD & operator=(const InOutD & other);
+
+	void setInput(BaseManipulation* objIn, std::function<double(void)> getVal, std::function<void(double)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<double&(void)> getValR, std::function<void(double)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double&(void)> getValR);
+
+	void exec();
+
+};
 
 
-private:
+//==============================================================//
+// INT DERIVED INOUT CLASS										//
+//==============================================================//
 
+class InOutI: public InOut {
+
+public:
+	std::function<int(void)>	m_getVal;
+	std::function<int&(void)>	m_getValR;
+	std::function<void(int)>	m_setVal;
+
+public:
+	InOutI();
+	~InOutI();
+
+	InOutI(const InOutI & other);
+	InOutI & operator=(const InOutI & other);
+
+	void setInput(BaseManipulation* objIn, std::function<int(void)> getVal, std::function<void(int)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<int&(void)> getVal, std::function<void(int)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int&(void)> getVal);
+
+	void exec();
+
+};
+
+
+//==============================================================//
+// VECTOR OF DOUBLE DERIVED INOUT CLASS							//
+//==============================================================//
+
+class InOutDV1: public InOut {
+
+public:
+	std::function<dvector1D(void)>	m_getVal;
+	std::function<dvector1D&(void)>	m_getValR;
+	std::function<void(dvector1D)>	m_setVal;
+
+public:
+	InOutDV1();
+	~InOutDV1();
+
+	InOutDV1(const InOutDV1 & other);
+	InOutDV1 & operator=(const InOutDV1 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<dvector1D(void)> getVal, std::function<void(dvector1D)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<dvector1D&(void)> getVal, std::function<void(dvector1D)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D&(void)> getVal);
+
+	void exec();
+
+};
+
+
+//==============================================================//
+// VECTOR OF INT DERIVED INOUT CLASS							//
+//==============================================================//
+
+class InOutIV1: public InOut {
+
+public:
+	std::function<ivector1D(void)>	m_getVal;
+	std::function<ivector1D&(void)>	m_getValR;
+	std::function<void(ivector1D)>	m_setVal;
+
+public:
+	InOutIV1();
+	~InOutIV1();
+
+	InOutIV1(const InOutIV1 & other);
+	InOutIV1 & operator=(const InOutIV1 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<ivector1D(void)> getVal, std::function<void(ivector1D)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<ivector1D&(void)> getVal, std::function<void(ivector1D)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D&(void)> getVal);
+
+	void exec();
+
+};
+
+
+//==============================================================//
+// ARRAY OF SIZE 3 OF DOUBLE DERIVED INOUT CLASS				//
+//==============================================================//
+
+class InOutDA3: public InOut {
+
+public:
+	std::function<darray3E(void)>	m_getVal;
+	std::function<darray3E&(void)>	m_getValR;
+	std::function<void(darray3E)>	m_setVal;
+
+public:
+	InOutDA3();
+	~InOutDA3();
+
+	InOutDA3(const InOutDA3 & other);
+	InOutDA3 & operator=(const InOutDA3 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<darray3E(void)> getVal, std::function<void(darray3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<darray3E&(void)> getVal, std::function<void(darray3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E&(void)> getVal);
+
+	void exec();
+
+};
+
+
+//==============================================================//
+// ARRAY OF SIZE 3 OF INT DERIVED INOUT CLASS					//
+//==============================================================//
+
+class InOutIA3: public InOut {
+
+public:
+	std::function<iarray3E(void)>	m_getVal;
+	std::function<iarray3E&(void)>	m_getValR;
+	std::function<void(iarray3E)>	m_setVal;
+
+public:
+	InOutIA3();
+	~InOutIA3();
+
+	InOutIA3(const InOutIA3 & other);
+	InOutIA3 & operator=(const InOutIA3 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<iarray3E(void)> getVal, std::function<void(iarray3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<iarray3E&(void)> getVal, std::function<void(iarray3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E&(void)> getVal);
+
+	void exec();
+
+};
+
+//==============================================================//
+// VECTOR OF ARRAY OF SIZE 3 OF DOUBLE DERIVED INOUT CLASS		//
+//==============================================================//
+
+class InOutDVA3: public InOut {
+
+public:
+	std::function<dvecarr3E(void)>	m_getVal;
+	std::function<dvecarr3E&(void)>	m_getValR;
+	std::function<void(dvecarr3E)>	m_setVal;
+
+public:
+	InOutDVA3();
+	~InOutDVA3();
+
+	InOutDVA3(const InOutDVA3 & other);
+	InOutDVA3 & operator=(const InOutDVA3 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<dvecarr3E(void)> getVal, std::function<void(dvecarr3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<dvecarr3E&(void)> getVal, std::function<void(dvecarr3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E&(void)> getVal);
+
+	void exec();
+
+};
+
+//==============================================================//
+// VECTOR OF ARRAY OF SIZE 3 OF INT DERIVED INOUT CLASS			//
+//==============================================================//
+
+class InOutIVA3: public InOut {
+
+public:
+	std::function<ivecarr3E(void)>	m_getVal;
+	std::function<ivecarr3E&(void)>	m_getValR;
+	std::function<void(ivecarr3E)>	m_setVal;
+
+public:
+	InOutIVA3();
+	~InOutIVA3();
+
+	InOutIVA3(const InOutIVA3 & other);
+	InOutIVA3 & operator=(const InOutIVA3 & other);
+
+	void setInput(BaseManipulation* objIn, std::function<ivecarr3E(void)> getVal, std::function<void(ivecarr3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E(void)> getVal);
+	void setInput(BaseManipulation* objIn, std::function<ivecarr3E&(void)> getValR, std::function<void(ivecarr3E)> setVal);
+	void setOutput(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E&(void)> getValR);
+
+	void exec();
 
 };
 
