@@ -26,7 +26,9 @@
 
 #include "MimmoObject.hpp"
 #include "Info.hpp"
+#include "InOut.hpp"
 #include <string>
+#include <functional>
 
 
 /*!
@@ -55,6 +57,9 @@ protected:
 
 	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
 	Info*							m_info;			/**<Pointer to related object of class Info.*/
+
+	InOut							m_inout;
+	std::vector<InOut>				m_pins;			/**<Input Output pins vector. */
 
 public:
 	BaseManipulation();
@@ -96,9 +101,15 @@ public:
 	void	clear();
 
 	//relationship methods
+//	void	addPinIn(BaseManipulation* objIn, dvecarr3E* (*getVal) (), void (*setVal) (dvecarr3E &));
+//	void	addPinOut(BaseManipulation* objOut, void (*setVal) (dvecarr3E &), dvecarr3E* (*getVal) ());
+	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E*(void)> getVal, std::function<void(dvecarr3E&)> setVal);
+	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E&)> setVal, std::function<dvecarr3E*(void)> getVal);
+
 	void 	exec();
 	void	releaseInfo();
 	Info* 	recoverInfo();
+
 
 protected:
 //	virtual void	recoverDisplacementsIn();	//TODO Useful?
@@ -109,5 +120,32 @@ public:
 	virtual void 	execute() = 0;				//called in exec
 
 };
+
+//EXTERNAL METHODS
+
+//EXTERNAL TEMPLATE METHODS
+
+template<typename OO, typename G, typename OI, typename S>
+void addPin(OO* objSend, OI* objRec, dvecarr3E* (G::*fget) (), void (S::*fset) (dvecarr3E&)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
+	objRec->addPinIn(objSend, pinGet(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename T, typename U>
+std::function<dvecarr3E*(void)> pinGet(dvecarr3E* (T::*fget) (), U* obj){
+	std::function<dvecarr3E*(void)> res = bind(fget, obj);
+	return res;
+}
+
+template<typename T, typename U>
+std::function<void(dvecarr3E&)> pinSet(void (T::*fset) (dvecarr3E&), U* obj){
+	std::function<void(dvecarr3E&)> res = bind(fset, obj, std::placeholders::_1);
+	return res;
+}
+
 
 #endif /* __BASEMANIPULATION_HPP__ */

@@ -113,8 +113,8 @@ InputDoF::execute(){
 		}
 	}
 	for (int i=0; i<m_child.size(); i++){
-		setNDegOut(i, m_ndeg);
-		setDisplacementsOut(i, m_displ);
+//		setNDegOut(i, m_ndeg);
+//		setDisplacementsOut(i, m_displ);
 	}
 };
 

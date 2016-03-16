@@ -57,6 +57,8 @@ private:
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */ 
 	
+	dvecarr3E	m_result;
+
 	
 public:
 	FFDLattice();
@@ -102,6 +104,9 @@ public:
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
 	
+	dvecarr3E*	releaseResult();
+
+
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);

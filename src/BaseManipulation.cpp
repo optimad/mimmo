@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "BaseManipulation.hpp"
 
+
 using namespace std;
 
 /*!Default constructor of BaseManipulation.
@@ -323,17 +324,35 @@ BaseManipulation::clear(){
 };
 
 
-/*!It recovers the information on the number of the degrees of freedom in input and their
- * displacements from the parent manipulator object.
- */
-//void
-//BaseManipulation::recoverDisplacementsIn(){
-//	if (m_parent == NULL) return;
-//	if (m_parent->getNDegOut() > 0){
-//		setNDeg(m_parent->getNDegOut());
-//		setDisplacements(*(m_parent->getDisplacementsOut()));
-//	}
-//};
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, function<dvecarr3E*(void)> getVal, function<void(dvecarr3E&)> setVal){
+	InOut pin;
+	pin.setInput(objIn, getVal, setVal);
+	m_pins.push_back(pin);
+
+//	InOut pinout;
+//	pinout.setOutput(this, setVal, getVal);
+//	objIn->m_pins.push_back(pinout);
+
+//	addParent(objIn);
+//	objIn->addChild(this);
+};
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, function<void(dvecarr3E&)> setVal, function<dvecarr3E*(void)> getVal){
+	InOut pin;
+	pin.setOutput(objOut, setVal, getVal);
+	m_pins.push_back(pin);
+
+//	InOut pinin;
+//	pinin.setInput(this, getVal, setVal);
+//	objOut->m_pins.push_back(pin);
+
+//	addChild(objOut);
+//	objOut->addParent(this);
+
+};
+
 
 /*!It releases the info, i.e. it creates an Info structure and
  * it sets it by setInfo() method.
@@ -390,5 +409,15 @@ BaseManipulation::exec(){
 	m_info = recoverInfo();
 	if (m_info != NULL) useInfo();
 	execute();
+	for (int i=0; i<m_pins.size(); i++){
+		if (m_pins[i].m_objOut != NULL){
+			dvecarr3E* val = m_pins[i].m_getVal();
+			m_pins[i].m_setVal((*val));
+		}
+	}
 }
+
+//EXTERNAL METHODS
+
+
 

@@ -423,10 +423,13 @@ FFDLattice::setDisplacements(dvecarr3E & displacements){
 	BaseManipulation::setDisplacements(displacements);
 };
 
+/*! Set if displacements are meant as global-true or local-false*/
+void
+FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
+
 /*! Check if displacements are meant as global-true or local-false*/
 bool
 FFDLattice::isDisplGlobal(){return(m_globalDispl);}
-
 
 /*! Set span of your shape, according to its local reference system 
  * \param[in] s0 first coordinate span
@@ -491,6 +494,12 @@ int FFDLattice::accessGridFromDOF(int index){
 /*! Set if displacements are meant as global-true or local-false*/
 void
 FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
+
+dvecarr3E*
+FFDLattice::releaseResult(){
+	return(&m_result);
+};
+
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory
@@ -614,8 +623,14 @@ void 		FFDLattice::execute(){
 			
 			
 			for (int i=0; i<getNChild(); i++){
-				setDisplacementsOut(i, result);
+//				setDisplacementsOut(i, result);
 			}
+
+
+			//temporary result in a member m_result
+			//TODO FIND ALTERNATIVE TO MEMORY SAVE (??)
+			m_result = result;
+
 };
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
