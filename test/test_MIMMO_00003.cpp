@@ -82,8 +82,8 @@ void test0003() {
 // 	dim[2] = 3;
 	
 	deg[0] = 2;
-	deg[1] = 30;
-	deg[2] = 11;
+	deg[1] = 3;
+	deg[2] = 3;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
@@ -130,21 +130,21 @@ void test0003() {
 // 				displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
 // 				displ[i][2] = 0.5*( (double) (rand()) / RAND_MAX );
 				
-// 				displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
+ 				displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
 			}
 			
 		}	
 	
-	for(int k=0; k<dim[2]; k=k+1){
-			
-			int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
-			int indDof = lattice->accessDOFFromGrid(indGrid);
-			displ[indDof][0] = 2;
-// 			int dum = dim[1]/2;
-// 			indGrid  = lattice->accessPointIndex(dim[0]-1,dum,k);
-// 			indDof = lattice->accessDOFFromGrid(indGrid);
-// 			displ[indDof][0] = 2.0;
-	}
+// 	for(int k=0; k<dim[2]; k=k+1){
+// 			
+// 			int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
+// 			int indDof = lattice->accessDOFFromGrid(indGrid);
+// 			displ[indDof][0] = 2;
+// // 			int dum = dim[1]/2;
+// // 			indGrid  = lattice->accessPointIndex(dim[0]-1,dum,k);
+// // 			indDof = lattice->accessDOFFromGrid(indGrid);
+// // 			displ[indDof][0] = 2.0;
+// 	}
 	
 // 	int indGrid  = lattice->accessPointIndex(dim[0]-1,0,0);
 // 	int indDof = lattice->accessDOFFromGrid(indGrid);
