@@ -100,55 +100,22 @@ public:
 	void	clearDisplacementsOut(int i = 0);
 	void	clear();
 
-	//overloaded pins methods
-	void	addPinIn(BaseManipulation* objIn, std::function<double(void)> getVal, std::function<void(double)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<double&(void)> getVal, std::function<void(double)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(double)> setVal, std::function<double&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<int(void)> getVal, std::function<void(int)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<int&(void)> getVal, std::function<void(int)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(int)> setVal, std::function<int&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<dvector1D(void)> getVal, std::function<void(dvector1D)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<dvector1D&(void)> getVal, std::function<void(dvector1D)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(dvector1D)> setVal, std::function<dvector1D&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<ivector1D(void)> getVal, std::function<void(ivector1D)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<ivector1D&(void)> getVal, std::function<void(ivector1D)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(ivector1D)> setVal, std::function<ivector1D&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<darray3E(void)> getVal, std::function<void(darray3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<darray3E&(void)> getVal, std::function<void(darray3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(darray3E)> setVal, std::function<darray3E&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<iarray3E(void)> getVal, std::function<void(iarray3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<iarray3E&(void)> getVal, std::function<void(iarray3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(iarray3E)> setVal, std::function<iarray3E&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E(void)> getVal, std::function<void(dvecarr3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<dvecarr3E&(void)> getVal, std::function<void(dvecarr3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(dvecarr3E)> setVal, std::function<dvecarr3E&(void)> getVal);
-
-	void	addPinIn(BaseManipulation* objIn, std::function<ivecarr3E(void)> getVal, std::function<void(ivecarr3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E(void)> getVal);
-	void	addPinIn(BaseManipulation* objIn, std::function<ivecarr3E&(void)> getVal, std::function<void(ivecarr3E)> setVal);
-	void	addPinOut(BaseManipulation* objOut, std::function<void(ivecarr3E)> setVal, std::function<ivecarr3E&(void)> getVal);
+	//templated pins methods
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
 
 	//relationship methods
 	void 	exec();
 	void	releaseInfo();
 	Info* 	recoverInfo();
 
-
 protected:
-//	virtual void	recoverDisplacementsIn();	//TODO Useful?
 
 public:
 	virtual void	setInfo();
@@ -157,9 +124,17 @@ public:
 
 };
 
+//==============================//
 //EXTERNAL METHODS
+//==============================//
 
+//==============================//
 //EXTERNAL TEMPLATE METHODS
+//==============================//
+
+//==============================//
+// TEMPLATED PINS METHODS		//
+//==============================//
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
@@ -208,6 +183,40 @@ std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj){
 	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
+
+
+template<typename T>
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
 
 
 #endif /* __BASEMANIPULATION_HPP__ */
