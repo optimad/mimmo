@@ -27,19 +27,6 @@
  */
 Apply::Apply():BaseManipulation(){};
 
-/*! Custom constructor of Apply.
- * It sets the linked geometry and the linked parent of the apply object.
- * \param[in] geometry MiMMO object with the geometry object of the deformation.
- * \param[in] parent Manipulation object linked by the apply object.
- */
-Apply::Apply(MimmoObject* geometry, BaseManipulation* child):BaseManipulation(geometry, child){};
-
-/*! Custom constructor of Apply.
- * It sets the linked parent of the apply object.
- * \param[in] parent Manipulation object linked by the apply object.
- */
-Apply::Apply(BaseManipulation* parent):BaseManipulation(parent){};
-
 /*!Default destructor of Apply
  */
 Apply::~Apply(){};
@@ -57,6 +44,7 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
+//TODO UPDATE EXECUT WITH NEW INPUT/OUTPUT AND PINS
 /*!Execution command. It applies the deformation given by the parent manipulation (in input for apply object)
  * to the linked geometry. After exec() the original geometry will be permanently modified.
  */

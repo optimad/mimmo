@@ -44,8 +44,6 @@ private:
 
 public:
 	Apply();
-	Apply(MimmoObject* geometry, BaseManipulation* child = NULL);
-	Apply(BaseManipulation* child);
 	~Apply();
 
 	Apply(const Apply & other);

@@ -103,6 +103,7 @@ GenericInput::execute(){
 			exit(1);
 		}
 	}
-	setResult(m_input);
+	dvecarr3E* dummy = getInput<dvecarr3E>();
+	setResult(dummy);
 };
 

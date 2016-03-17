@@ -121,7 +121,7 @@ BaseManipulation::setInput(T& data){
 template<typename T>
 T*
 BaseManipulation::getInput(){
-	return(dynamic_cast<IODataT<T>*>(m_input)->getData());
+	return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
 

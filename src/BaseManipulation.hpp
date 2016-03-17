@@ -205,8 +205,6 @@ protected:
 
 };
 
-#include "BaseManipulation.tpp"
-
 
 //==============================//
 //DATA CLASS
@@ -256,5 +254,6 @@ public:
 
 };
 
+#include "BaseManipulation.tpp"
 
 #endif /* __BASEMANIPULATION_HPP__ */

@@ -38,37 +38,6 @@ BaseManipulation::BaseManipulation(){
 	m_result		= NULL;
 };
 
-/*!Custom constructor of BaseManipulation.
- * \param[in] geometry Pointer to target geometry to be linked.
- * \param[in] child Pointer to reference manipulator object to be linked (default value = NULL).
- */
-BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* child){
-	m_ndeg 			= 0;
-	m_geometry 		= geometry;
-	m_relInfo 		= false;
-	m_displ.clear();
-	m_parent.clear();
-	if (child != NULL){
-		addChild(child);
-	}
-	m_result		= NULL;
-};
-
-/*!Custom constructor of BaseManipulation.
- * \param[in] child Pointer to reference manipulator object to be linked.
- */
-BaseManipulation::BaseManipulation(BaseManipulation* child){
-	m_ndeg 			= 0;
-	m_geometry 		= NULL;
-	m_relInfo 		= false;
-	m_displ.clear();
-	m_parent.clear();
-	if (child != NULL){
-		addChild(child);
-	}
-	m_result		= NULL;
-};
-
 /*!Default destructor of BaseManipulation.
  */
 BaseManipulation::~BaseManipulation(){
@@ -280,14 +249,12 @@ BaseManipulation::unsetGeometry(){
 
 void
 BaseManipulation::clearResult(){
-	delete m_result;
-	m_result = NULL;
+	m_result.release();
 }
 
 void
 BaseManipulation::clearInput(){
-	delete m_input;
-	m_input = NULL;
+	m_input.release();
 }
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
