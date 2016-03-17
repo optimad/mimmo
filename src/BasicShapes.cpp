@@ -349,9 +349,9 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
  */   
 bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   
-  bool check = false;
+  bool check = true;
   for(int i=0; i<simplexVert.size(); ++i){
-   check = check || isPointIncluded(simplexVert[i]); 
+   check = check && isPointIncluded(simplexVert[i]); 
   }
   return(check);
 };
@@ -366,10 +366,10 @@ bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
   Cell cell = tri->getCell(indexT);
   long * conn = cell.getConnect();
   int nVertices = cell.getVertexCount();
-  bool check = false;
+  bool check = true;
   for(int i=0; i<nVertices; ++i){ 
 	//recover vertex index
-	check = check || isPointIncluded(tri, conn[i]); 
+	check = check && isPointIncluded(tri, conn[i]); 
   }
   return(check);
 };
@@ -768,7 +768,7 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 /*! Basic Constructor */
 Sphere::Sphere(){
 	m_shape=ShapeType::SPHERE;
-	setCoordinateType(BasicShape::CoordType::SYMMETRIC, 2);
+	setCoordinateType(BasicShape::CoordType::CLAMPED, 2);
 };
 
 /*! Custom Constructor. Set shape origin, inferior/superior limits of the sphere

@@ -121,6 +121,9 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	m_mapEff = other.m_mapEff;
 	m_weights = other.m_weights;
 	m_globalDispl = other.m_globalDispl;
+	m_mapdeg = other.m_mapdeg;
+	m_globalDispl = other.m_globalDispl;
+	m_intMapDOF = other.m_intMapDOF;
 	return(*this);
 };
 
@@ -400,7 +403,7 @@ void 		FFDLattice::setNodalWeight(double val, int index){
 			m_weights[ind] =  val;
 };
 
-/*! Modify a weight of a control node. Access to a node in cartesian indexing
+/*! Modify a weight of a control node. Access to a node in GRID cartesian indexing
  * \param[in] val weight value
  * \param[in] i index of x coordinate
  * \param[in] j index of y coordinates 
@@ -429,7 +432,7 @@ FFDLattice::isDisplGlobal(){return(m_globalDispl);}
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
- * \param[in] flag if true, lattice is rebuilt according to the new input 
+ * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default 
  */
 void FFDLattice::changeSpan(double s0, double s1, double s2, bool flag){
 	getShape()->setSpan( s0,  s1,s2);
@@ -443,7 +446,7 @@ void FFDLattice::changeSpan(double s0, double s1, double s2, bool flag){
 /*! Set coordinate's origin of your shape, according to its local reference system  
  * \param[in] orig first coordinate origin
  * \param[in] dir 0,1,2 int flag identifying coordinate
- * \param[in] flag if true lattice is rebuilt according to the new input
+ * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
  */
 void FFDLattice::setInfLimits(double orig, int dir, bool flag){
 	getShape()->setInfLimits( orig, dir);
@@ -457,12 +460,14 @@ void FFDLattice::setInfLimits(double orig, int dir, bool flag){
 /*! Set coordinate type of Lattice core shape. See BasicShape::CoordType enum
  * \param[in] type coordinate type
  * \param[in] dir  0,1,2 flag for coordinate
- * \param[in] flag if true, force lattice nodal structure to be updated
+ * \param[in] flag if true, force lattice nodal structure to be updated.TRUE is default
  */
 void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
 	getShape()->setCoordinateType(type,dir);
 	if(flag){
 		setKnotsStructure(dir, type);
+		ivector1D dim = getDimension();
+		resizeDisplacements(dim[0],dim[1],dim[2]);
 	}
 }
 
@@ -1050,7 +1055,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 			break;
 
 		case BasicShape::CoordType::SYMMETRIC :
-			nn = dim+m_deg[dir];
+			nn = dim+m_deg[dir]-1;
 			result.resize(nn);
 			dKn = span/(dim-1);
 			
@@ -1090,15 +1095,19 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 /*!Clean all knots stuff in your lattice */
 void FFDLattice::clearKnots(){
 	
-	freeContainer(m_knots);
-	freeContainer(m_mapEff);
-	freeContainer(m_deg);
-	freeContainer(m_weights);
-	freeContainer(m_mapNodes);
+	m_knots.clear();
+	m_mapEff.clear();
+	m_deg.clear();
+	m_weights.clear();
+	m_mapNodes.clear();
+	m_intMapDOF.clear();
+	
 	m_knots.resize(3);
 	m_mapEff.resize(3);
 	m_deg.resize(3,1);
 	m_mapNodes.resize(3);
+	m_mapdeg[0]=0; m_mapdeg[1]=1; m_mapdeg[2]=2;
+	
 	
 };
 
@@ -1121,8 +1130,8 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 	int nn = dim[dir];
 	
 	// free necessary knot structures
-	freeContainer(m_knots[dir]);
-	freeContainer(m_mapEff[dir]);
+	m_knots[dir].clear();
+	m_mapEff[dir].clear();
 	
 	dvector1D equinode = getNodeSpacing(dir);
 	int nEff, kEff,kTheo, kend;
@@ -1197,7 +1206,7 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 		case BasicShape::CoordType::SYMMETRIC :
 			
 			m_deg[dir] = min(m_deg[dir], nn-1);
-			nEff = nn + m_deg[dir];
+			nEff = nn + m_deg[dir]-1;
 			kEff = nEff -m_deg[dir] + 1;
 			kTheo = nEff +m_deg[dir] + 1;
 			m_knots[dir].resize(kTheo);
@@ -1334,6 +1343,7 @@ int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
 void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	//reallocate your displacement node
 	m_displ.clear();
+	m_intMapDOF.clear();
 	m_intMapDOF.resize(nx*ny*nz, -1);
 	ivector1D::iterator itMapBegin = m_intMapDOF.begin();
 	ivector1D::iterator itMap = itMapBegin;
@@ -1459,12 +1469,13 @@ void FFDLattice::setMapNodes( int ind){
 
 		int dimdir = getDimension()[ind];
 		int nn,preNNumb,postNNumb, pInd;
-		
+		m_mapNodes[ind].clear();
+
 		switch(getCoordType(ind)){
 			case BasicShape::CoordType::PERIODIC :
 				
 				nn = dimdir+m_deg[ind]-1;
-				m_mapNodes[ind].resize(nn);
+				m_mapNodes[ind].resize(nn+1);
 				
 				preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
 				postNNumb = (m_deg[ind]-1) - preNNumb;
@@ -1481,18 +1492,18 @@ void FFDLattice::setMapNodes( int ind){
 				}
 				//prepend the last postNNumb loads.
 				pInd = 1;
-				for(int i=0; i<postNNumb; ++i){
+				for(int i=0; i<=postNNumb; ++i){
 					m_mapNodes[ind][i+preNNumb+dimdir] = pInd+i;
 				}
 			break;
 				
 			case BasicShape::CoordType::SYMMETRIC :
 				
-				nn = dimdir+m_deg[ind];
-				m_mapNodes[ind].resize(nn);
+				nn = dimdir+m_deg[ind]-1;
+				m_mapNodes[ind].resize(nn+1);
 				
 				preNNumb = (m_deg[ind]-1)/2 + (m_deg[ind]-1)%2;
-				postNNumb = m_deg[ind] - preNNumb;
+				postNNumb = (m_deg[ind]-1) - preNNumb;
 				
 				// set the other internal loads
 				for(int i=0; i<dimdir; ++i){
@@ -1504,7 +1515,7 @@ void FFDLattice::setMapNodes( int ind){
 					m_mapNodes[ind][preNNumb -1 - i] = (i+1)%(dimdir-1);
 				}
 				//postpend symmetrically loads.
-				for(int i=0; i<postNNumb; ++i){
+				for(int i=0; i<=postNNumb; ++i){
 					m_mapNodes[ind][i+preNNumb+dimdir] = (dimdir-2-i)%(dimdir-1);
 				}
 				break;

@@ -50,6 +50,7 @@ protected:
 	dvector2D	m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D	m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D	m_weights;		/**< Weights of each control node*/
+public:	
 	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
@@ -93,9 +94,9 @@ public:
 	void 		setDisplGlobal(bool flag);
 	bool 		isDisplGlobal();
 	
-	void		changeSpan(double, double, double, bool flag = false);
-	void		setInfLimits(double val, int dir, bool flag = false);
-	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=false); 
+	void		changeSpan(double, double, double, bool flag = true);
+	void		setInfLimits(double val, int dir, bool flag = true);
+	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=true); 
 	
 	
 	int 		accessDOFFromGrid(int index);

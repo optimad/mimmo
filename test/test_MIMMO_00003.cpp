@@ -74,23 +74,42 @@ void test0003() {
 	span[2]= M_PI;
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 4;
+	dim[0] = 5;
 	dim[1] = 31;
 	dim[2] = 12;
 // 	dim[0] = 3;
 // 	dim[1] = 5;
 // 	dim[2] = 3;
 	
-	deg[0] = 3;
-	deg[1] = 5;
-	deg[2] = 3;
+	deg[0] = 2;
+	deg[1] = 30;
+	deg[2] = 11;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,1,0});
-//	lattice->setInfLimits(0.75*M_PI,2);
-//	lattice->setInfLimits(std::atan(1.0),1);
-//	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
+	//lattice->setInfLimits(0.5*M_PI,2);
+// 	lattice->setCoordType(BasicShape::CoordType::PERIODIC, 0);
+ 	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
+// 	lattice->setCoordType(BasicShape::CoordType::PERIODIC, 1);
+
+	//manipulate weights on pole
+// 	lattice->setNodalWeight(2.0, dim[0]-1,0,0);
+// 	lattice->setNodalWeight(2.0, dim[0]-1,0,dim[2]-1);	
+		
+	
+// 	{
+// 		dvector2D knot;
+// 		ivector2D mapEff;
+// 		lattice->returnKnotsStructure(knot, mapEff);
+// 		cout<<lattice->getCoordType(2)<<endl;
+// 		for(int i=0; i<knot.size(); ++i){
+// 			cout<<knot[i]<<endl;
+// 			cout<<mapEff[i]<<endl;
+// 			cout<<lattice->m_mapNodes[i]<<endl;
+// 		}
+// 		exit(1);
+// 	}
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 	
@@ -116,11 +135,21 @@ void test0003() {
 			
 		}	
 	
-	for(int k=1; k<dim[2]-1; ++k){
-		int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
-		int indDof = lattice->accessDOFFromGrid(indGrid);
-		displ[indDof][0] = 1.0;
+	for(int k=0; k<dim[2]; k=k+1){
+			
+			int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
+			int indDof = lattice->accessDOFFromGrid(indGrid);
+			displ[indDof][0] = 2;
+// 			int dum = dim[1]/2;
+// 			indGrid  = lattice->accessPointIndex(dim[0]-1,dum,k);
+// 			indDof = lattice->accessDOFFromGrid(indGrid);
+// 			displ[indDof][0] = 2.0;
 	}
+	
+// 	int indGrid  = lattice->accessPointIndex(dim[0]-1,0,0);
+// 	int indDof = lattice->accessDOFFromGrid(indGrid);
+// 	displ[indDof][0] = 1.0;
+	
 	
 	lattice->setDisplacements(displ);
 //********************************************************************************************	

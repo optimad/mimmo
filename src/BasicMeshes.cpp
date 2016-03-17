@@ -364,7 +364,7 @@ void UStructMesh::changeOrigin(darray3E origin){
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
- * \param[in] flag if true, mesh is rebuilt according to the new input 
+ * \param[in] flag if true, mesh is rebuilt according to the new input.TRUE is default; 
  */
 void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
 	getShape()->setSpan( s0, s1,s2);
@@ -377,7 +377,7 @@ void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
 /*! Set coordinate's origin of your shape, according to its local reference system  
  * \param[in] orig first coordinate origin
  * \param[in] dir 0,1,2 int flag identifying coordinate
- * \param[in] flag if true mesh is rebuilt according to the new input
+ * \param[in] flag if true mesh is rebuilt according to the new input.TRUE is default
  */
 void UStructMesh::setInfLimits(double orig, int dir, bool flag){
 	getShape()->setInfLimits(orig, dir);
@@ -1128,12 +1128,12 @@ BasicShape * UStructMesh::getShape(){
 
 /*! Destroy the all nodal structures of the mesh. */
 void UStructMesh::destroyNodalStructure(){
-	freeContainer(m_xnode);
-	freeContainer(m_ynode);
-	freeContainer(m_znode);
-	freeContainer(m_xedge);
-	freeContainer(m_yedge);
-	freeContainer(m_zedge);  
+	m_xnode.clear();
+	m_ynode.clear();
+	m_znode.clear();
+	m_xedge.clear();
+	m_yedge.clear();
+	m_zedge.clear();  
 };
 
 /*! Destroy the all nodal structures of the mesh, and reinitialize them to current mesh dimensions. */

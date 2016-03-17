@@ -98,8 +98,8 @@ public:
 	ivector1D 		getCellNeighs(int, int, int);
 
 	void		changeOrigin(darray3E);
-	void		changeSpan(double, double, double, bool flag = false);
-	void		setInfLimits(double val, int dir, bool flag = false);
+	void		changeSpan(double, double, double, bool flag = true);
+	void		setInfLimits(double val, int dir, bool flag = true);
 	void		setRefSystem(darray3E, darray3E, darray3E);
 	void		setRefSystem(int, darray3E);
 	
