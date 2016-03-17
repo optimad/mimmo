@@ -30,6 +30,7 @@
 #include <string>
 #include <functional>
 
+class Result;
 
 /*!
  *	\date			09/feb/2016
@@ -57,9 +58,11 @@ protected:
 
 	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
 	Info*							m_info;			/**<Pointer to related object of class Info.*/
+	std::vector<InOut*>				m_pinIn;		/**<Input pins vector. */
+	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
 
-	std::vector<InOut*>				m_pinIn;			/**<Input pins vector. */
-	std::vector<InOut*>				m_pinOut;			/**<Output pins vector. */
+	Result*							m_result;		/**<Pointer to a bas class object Result (derived class is template).*/
+
 
 public:
 	BaseManipulation();
@@ -73,8 +76,7 @@ public:
 	//get/set methods
 	int					getNDeg();
 	dvecarr3E&			getDisplacements();
-	int					getNDegOut(int i = 0);
-//	dvecarr3E*			getDisplacementsOut(int i = 0);
+//	int					getNDegOut(int i = 0);
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
 	int					getNChild();
@@ -85,17 +87,28 @@ public:
 
 	void	setNDeg(int ndeg);
 	void	setDisplacements(dvecarr3E displacements);
-	void	setNDegOut(int i, int ndeg);
+//	void	setNDegOut(int i, int ndeg);
 	void	setDisplacementsOut(int i, dvecarr3E & displacements);
 	void 	setGeometry(MimmoObject* geometry);
 	void 	setReleaseInfo(bool flag = true);
 
+	//template set methods
+	template<typename T>
+	void 	setResult(T data);
+	template<typename T>
+	void 	setResult(T* data);
+	template<typename T>
+	void 	setResult(T& data);
+
+
 	void 	unsetGeometry();
 	void	clearDisplacements();
-	void	clearDisplacementsOut();
-	void	clearDisplacementsOut(int i = 0);
+//	void	clearDisplacementsOut();
+//	void	clearDisplacementsOut(int i = 0);
+	void	clearResult();
 	void	clear();
 
+	//TODO MAKE CHILD/PARENT ADD/UNSET METHODS PRIVATE
 	void 	addParent(BaseManipulation* parent);
 	void 	addChild(BaseManipulation* child);
 	void 	unsetParent();
@@ -150,7 +163,7 @@ public:
 };
 
 //==============================//
-//EXTERNAL METHODS
+//TEMPLATED AND EXTERNAL METHODS
 //==============================//
 
 //==============================//
@@ -253,6 +266,11 @@ std::function<void(VAL)> pinSet(void (T::*fset) (VAL*), U* obj){
 }
 
 
+//==================================================//
+// BASEMANIPULATION CLASS TEMPLATED PINS METHODS	//
+//==================================================//
+
+
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal){
@@ -350,6 +368,67 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 	pin->setOutput(objOut, setVal, getVal);
 	m_pinOut.push_back(pin);
 };
+
+
+
+//==============================//
+//RESULT BASE CLASS
+//==============================//
+class Result{};
+
+//==============================//
+//RESULT DERIVED TEMPLATE CLASS
+//==============================//
+template<typename T>
+class ResultT: public Result{
+	T m_data;
+
+	ResultT();
+	ResultT(T data){
+		m_data = data;
+	};
+	~ResultT();
+
+	ResultT(const ResultT & other){
+		m_data 	= other.m_data;
+	}
+
+	ResultT & operator=(const ResultT & other){
+		m_data 	= other.m_data;
+		return (*this);
+	}
+
+	void setResult(T data){
+		m_data = data;
+	}
+
+};
+
+
+
+
+//==================================================//
+// BASEMANIPULATION CLASS TEMPLATED RESULT METHODS	//
+//==================================================//
+
+template<typename T>
+void
+BaseManipulation::setResult(T data){
+	m_result = new ResultT<T>(data);
+}
+
+template<typename T>
+void
+BaseManipulation::setResult(T* data){
+	m_result = new ResultT<T>(*data);
+}
+
+template<typename T>
+void
+BaseManipulation::setResult(T& data){
+	m_result = new ResultT<T>(data);
+}
+
 
 
 

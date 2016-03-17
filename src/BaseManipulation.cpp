@@ -23,7 +23,6 @@
 \*---------------------------------------------------------------------------*/
 #include "BaseManipulation.hpp"
 
-
 using namespace std;
 
 /*!Default constructor of BaseManipulation.
@@ -36,6 +35,7 @@ BaseManipulation::BaseManipulation(){
 	m_parent.clear();
 	m_child.clear();
 	m_displ.clear();
+	m_result		= NULL;
 };
 
 /*!Custom constructor of BaseManipulation.
@@ -51,6 +51,7 @@ BaseManipulation::BaseManipulation(MimmoObject* geometry, BaseManipulation* chil
 	if (child != NULL){
 		addChild(child);
 	}
+	m_result		= NULL;
 };
 
 /*!Custom constructor of BaseManipulation.
@@ -65,6 +66,7 @@ BaseManipulation::BaseManipulation(BaseManipulation* child){
 	if (child != NULL){
 		addChild(child);
 	}
+	m_result		= NULL;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -104,15 +106,15 @@ BaseManipulation::getNDeg(){
 	return m_ndeg;
 };
 
-/*!It gets the number of degrees of freedom of a child of the manipulator object.
- * \param[in] i Index of target child.
- * \return #Degrees of freedom of ìtarget child.
- */
-int
-BaseManipulation::getNDegOut(int i){
-	if (i>m_child.size()-1) return 0;
-	return m_child[i]->getNDeg();
-};
+///*!It gets the number of degrees of freedom of a child of the manipulator object.
+// * \param[in] i Index of target child.
+// * \return #Degrees of freedom of ìtarget child.
+// */
+//int
+//BaseManipulation::getNDegOut(int i){
+//	if (i>m_child.size()-1) return 0;
+//	return m_child[i]->getNDeg();
+//};
 
 /*!It gets the displacement of the degree of freedom currently stored in the object.
  * \return Displacements of the degrees of freedom.
@@ -201,15 +203,15 @@ BaseManipulation::setNDeg(int ndeg){
 	m_displ.resize(m_ndeg);
 };
 
-/*!It sets the number of degrees of freedom of a child of the manipulator object.
- * \param[in] i Index of target child.
- * \param[in] ndeg #Degrees of freedom to set in the target child.
- */
-void
-BaseManipulation::setNDegOut(int i, int ndeg){
-	if (i>m_child.size()-1) return;
-	m_child[i]->setNDeg(ndeg);
-};
+///*!It sets the number of degrees of freedom of a child of the manipulator object.
+// * \param[in] i Index of target child.
+// * \param[in] ndeg #Degrees of freedom to set in the target child.
+// */
+//void
+//BaseManipulation::setNDegOut(int i, int ndeg){
+//	if (i>m_child.size()-1) return;
+//	m_child[i]->setNDeg(ndeg);
+//};
 
 /*!It sets the displacement of the degree of freedom currently stored in the object.
  * \param[in] displacements Displacements of the degrees of freedom.
@@ -246,7 +248,6 @@ BaseManipulation::setReleaseInfo(bool flag){
 	m_relInfo = flag;
 };
 
-
 /*!It clears the displacement of the degree of freedom currently stored in the object.
  */
 void
@@ -254,21 +255,21 @@ BaseManipulation::clearDisplacements(){
 	m_displ.clear();
 };
 
-/*!It clears the displacements of the degrees of freedom of the children of the object.
- */
-void
-BaseManipulation::clearDisplacementsOut(){
-	for (int i=0; m_child.size(); i++)	m_child[i]->clearDisplacements();
-};
-
-/*!It clears the displacements of the degrees of freedom of a child of the object.
- * \param[in] i Index of target child.
- */
-void
-BaseManipulation::clearDisplacementsOut(int i){
-	if (i>m_child.size()-1) return;
-	m_child[i]->clearDisplacements();
-};
+///*!It clears the displacements of the degrees of freedom of the children of the object.
+// */
+//void
+//BaseManipulation::clearDisplacementsOut(){
+//	for (int i=0; m_child.size(); i++)	m_child[i]->clearDisplacements();
+//};
+//
+///*!It clears the displacements of the degrees of freedom of a child of the object.
+// * \param[in] i Index of target child.
+// */
+//void
+//BaseManipulation::clearDisplacementsOut(int i){
+//	if (i>m_child.size()-1) return;
+//	m_child[i]->clearDisplacements();
+//};
 
 /*!It clears the pointer to the geometry linked by the object.
  */
@@ -276,6 +277,12 @@ void
 BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
+
+void
+BaseManipulation::clearResult(){
+	delete m_result;
+	m_result = NULL;
+}
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
@@ -287,7 +294,6 @@ BaseManipulation::clear(){
 	clearDisplacements();
 	m_relInfo = false;
 };
-
 
 /*!It adds a manipulator object linked by this object.
  * \param[in] parent Pointer to parent manipulator object.
@@ -366,7 +372,6 @@ BaseManipulation::removePinOut(int i){
 		m_pinOut.erase(m_pinOut.begin()+i);
 	}
 }
-
 
 /*!It releases the info, i.e. it creates an Info structure and
  * it sets it by setInfo() method.
