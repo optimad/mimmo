@@ -70,11 +70,11 @@ public:
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
 
-	//internal methods
+	//get/set methods
 	int					getNDeg();
 	dvecarr3E&			getDisplacements();
 	int					getNDegOut(int i = 0);
-	dvecarr3E*			getDisplacementsOut(int i = 0);
+//	dvecarr3E*			getDisplacementsOut(int i = 0);
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
 	int					getNChild();
@@ -109,7 +109,25 @@ public:
 	void	addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
 	template<typename T>
 	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
 
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void	addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
+
+public:
 	//relationship methods
 	void 	exec();
 	void	releaseInfo();
@@ -137,16 +155,6 @@ public:
 //==============================//
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
-void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
-
-	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
-	objRec->addPinIn(objSend, pinGet(fget, objSend), pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
-
-}
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
 void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
 
 	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
@@ -166,6 +174,47 @@ void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
 
 }
 
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGetR(fget, objSend));
+	objRec->addPinIn(objSend, pinGetR(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGet(fget, objSend));
+	objRec->addPinIn(objSend, pinGet(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGetR(fget, objSend));
+	objRec->addPinIn(objSend, pinGetR(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)){
+
+	objSend->addPinOut(objRec, pinSet(fset, objRec), pinGetR(fget, objSend));
+	objRec->addPinIn(objSend, pinGetR(fget, objSend), pinSet(fset, objRec));
+	objSend->addChild(objRec);
+	objRec->addParent(objSend);
+
+}
+
+
 template<typename T, typename U, typename VAL>
 std::function<VAL(void)> pinGet(VAL (T::*fget) (), U* obj){
 	std::function<VAL(void)> res = std::bind(fget, obj);
@@ -179,7 +228,19 @@ std::function<VAL&(void)> pinGetR(VAL& (T::*fget) (), U* obj){
 }
 
 template<typename T, typename U, typename VAL>
+std::function<VAL*(void)> pinGetR(VAL* (T::*fget) (), U* obj){
+	std::function<VAL*(void)> res = std::bind(fget, obj);
+	return res;
+}
+
+template<typename T, typename U, typename VAL>
 std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj){
+	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
+	return res;
+}
+
+template<typename T, typename U, typename VAL>
+std::function<void(VAL)> pinSet(void (T::*fset) (VAL*), U* obj){
 	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
@@ -203,6 +264,14 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVa
 
 template<typename T>
 void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal){
 	InOutT<T>* pin = new InOutT<T>();
 	pin->setOutput(objOut, setVal, getVal);
@@ -212,6 +281,64 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> set
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+
+
+template<typename T>
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	m_pinIn.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	m_pinOut.push_back(pin);
+};
+
+template<typename T>
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal){
 	InOutT<T>* pin = new InOutT<T>();
 	pin->setOutput(objOut, setVal, getVal);
 	m_pinOut.push_back(pin);

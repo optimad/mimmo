@@ -122,15 +122,15 @@ BaseManipulation::getDisplacements(){
 	return m_displ;
 };
 
-/*!It gets the displacement of the degree of freedom currently stored in a child of the object.
- * \param[in] i Index of target child.
- * \return Displacements of the degrees of freedom of the target child.
- */
-dvecarr3E*
-BaseManipulation::getDisplacementsOut(int i){
-	if (i>m_child.size()-1) return NULL;
-	return &m_child[i]->getDisplacements();
-};
+///*!It gets the displacement of the degree of freedom currently stored in a child of the object.
+// * \param[in] i Index of target child.
+// * \return Displacements of the degrees of freedom of the target child.
+// */
+//dvecarr3E*
+//BaseManipulation::getDisplacementsOut(int i){
+//	if (i>m_child.size()-1) return NULL;
+//	return &m_child[i]->getDisplacements();
+//};
 
 /*!It gets the number of parent linked to the manipulator object.
  * \return #Parent.
