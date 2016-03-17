@@ -103,8 +103,8 @@ Mask::execute(){
 			}
 		}
 	}
-	for (int j=0; j<getNChild(); j++){
-		setDisplacementsOut(j, m_displ);
-	}
+//	for (int j=0; j<getNChild(); j++){
+//		setDisplacementsOut(j, m_displ);
+//	}
 	return;
 };

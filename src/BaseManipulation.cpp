@@ -222,15 +222,15 @@ BaseManipulation::setDisplacements(dvecarr3E displacements){
 	m_ndeg = m_displ.size();
 };
 
-/*!It sets the displacement of the degree of freedom of a child of the object.
- * \param[in] i Index of target child.
- * \param[in] displacements Displacements of the degrees of freedom to set in the target child.
- */
-void
-BaseManipulation::setDisplacementsOut(int i, dvecarr3E & displacements){
-	if (i>m_child.size()-1) return;
-	m_child[i]->setDisplacements(displacements);
-};
+///*!It sets the displacement of the degree of freedom of a child of the object.
+// * \param[in] i Index of target child.
+// * \param[in] displacements Displacements of the degrees of freedom to set in the target child.
+// */
+//void
+//BaseManipulation::setDisplacementsOut(int i, dvecarr3E & displacements){
+//	if (i>m_child.size()-1) return;
+//	m_child[i]->setDisplacements(displacements);
+//};
 
 /*!It sets the geometry linked by the manipulator object.
  * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
@@ -282,6 +282,12 @@ void
 BaseManipulation::clearResult(){
 	delete m_result;
 	m_result = NULL;
+}
+
+void
+BaseManipulation::clearInput(){
+	delete m_input;
+	m_input = NULL;
 }
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.

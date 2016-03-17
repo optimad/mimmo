@@ -30,6 +30,7 @@
 #include <string>
 #include <functional>
 
+class Input;
 class Result;
 
 /*!
@@ -61,6 +62,7 @@ protected:
 	std::vector<InOut*>				m_pinIn;		/**<Input pins vector. */
 	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
 
+	Input*							m_input;		/**<Pointer to a bas class object Input (derived class is template).*/
 	Result*							m_result;		/**<Pointer to a bas class object Result (derived class is template).*/
 
 
@@ -88,23 +90,31 @@ public:
 	void	setNDeg(int ndeg);
 	void	setDisplacements(dvecarr3E displacements);
 //	void	setNDegOut(int i, int ndeg);
-	void	setDisplacementsOut(int i, dvecarr3E & displacements);
+//	void	setDisplacementsOut(int i, dvecarr3E & displacements);
 	void 	setGeometry(MimmoObject* geometry);
 	void 	setReleaseInfo(bool flag = true);
 
-	//template set methods
+	//template get/set methods
 	template<typename T>
-	void 	setResult(T data);
+	void 	setInput(T* data);
+	template<typename T>
+	void 	setInput(T& data);
 	template<typename T>
 	void 	setResult(T* data);
 	template<typename T>
 	void 	setResult(T& data);
+
+	template<typename T>
+	T* 	getInput();
+	template<typename T>
+	T* 	getResult();
 
 
 	void 	unsetGeometry();
 	void	clearDisplacements();
 //	void	clearDisplacementsOut();
 //	void	clearDisplacementsOut(int i = 0);
+	void	clearInput();
 	void	clearResult();
 	void	clear();
 
@@ -374,7 +384,10 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 //==============================//
 //RESULT BASE CLASS
 //==============================//
-class Result{};
+class Result{
+	template<typename T>
+	T* getResult(){};
+};
 
 //==============================//
 //RESULT DERIVED TEMPLATE CLASS
@@ -383,6 +396,7 @@ template<typename T>
 class ResultT: public Result{
 	T m_data;
 
+public:
 	ResultT();
 	ResultT(T data){
 		m_data = data;
@@ -402,20 +416,84 @@ class ResultT: public Result{
 		m_data = data;
 	}
 
+	T* getResult(){
+		return(&m_data);
+	}
+
 };
 
 
+//==============================//
+//INPUT BASE CLASS
+//==============================//
+class Input{
+
+	template<typename T>
+	T* getInput(){};
+
+};
+
+//==============================//
+//INPUT DERIVED TEMPLATE CLASS
+//==============================//
+template<typename T>
+class InputT: public Input{
+	T m_data;
+
+public:
+	InputT();
+	InputT(T data){
+		m_data = data;
+	};
+	~InputT();
+
+	InputT(const InputT & other){
+		m_data 	= other.m_data;
+	}
+
+	InputT & operator=(const InputT & other){
+		m_data 	= other.m_data;
+		return (*this);
+	}
+
+	void setInput(T data){
+		m_data = data;
+	}
+
+	T* getInput(){
+		return(&m_data);
+	}
+
+};
+
+
+
+//==================================================//
+// BASEMANIPULATION CLASS TEMPLATED INPUT METHODS	//
+//==================================================//
+
+template<typename T>
+void
+BaseManipulation::setInput(T* data){
+	m_input = new InputT<T>(*data);
+}
+
+template<typename T>
+void
+BaseManipulation::setInput(T& data){
+	m_input = new InputT<T>(data);
+}
+
+template<typename T>
+T*
+BaseManipulation::getInput(){
+	return(static_cast<InputT<T>*>(m_input)->getInput());
+}
 
 
 //==================================================//
 // BASEMANIPULATION CLASS TEMPLATED RESULT METHODS	//
 //==================================================//
-
-template<typename T>
-void
-BaseManipulation::setResult(T data){
-	m_result = new ResultT<T>(data);
-}
 
 template<typename T>
 void
@@ -427,6 +505,12 @@ template<typename T>
 void
 BaseManipulation::setResult(T& data){
 	m_result = new ResultT<T>(data);
+}
+
+template<typename T>
+T*
+BaseManipulation::getResult(){
+	return(static_cast<ResultT<T>*>(m_result)->getResult());
 }
 
 
