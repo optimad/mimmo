@@ -492,9 +492,6 @@ int FFDLattice::accessGridFromDOF(int index){
 	return(posVectorFind(m_intMapDOF, index));
 }
 
-/*! Set if displacements are meant as global-true or local-false*/
-void
-FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 
 dvecarr3E&
 FFDLattice::releaseResult(){
@@ -765,7 +762,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 
 				for(int intv=0; intv<3; ++intv){
-					temp2[intv] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][intv];
+					temp2[intv] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*displ[m_intMapDOF[index]][intv];
 				}	
 				temp2[3] += BSbasis[i2][k]*m_weights[index];
 			}
@@ -983,7 +980,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 				
 				mappedIndex[2] = wind+k;
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
-				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][targ];
+				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*displ[m_intMapDOF[index]][targ];
 				temp2[1] += BSbasis[i2][k]*m_weights[index];
 			}
 			
