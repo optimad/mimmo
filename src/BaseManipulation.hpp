@@ -87,18 +87,25 @@ public:
 	void	setDisplacements(dvecarr3E displacements);
 	void	setNDegOut(int i, int ndeg);
 	void	setDisplacementsOut(int i, dvecarr3E & displacements);
-	void 	addParent(BaseManipulation* parent);
-	void 	addChild(BaseManipulation* child);
 	void 	setGeometry(MimmoObject* geometry);
 	void 	setReleaseInfo(bool flag = true);
 
-	void 	unsetParent();
-	void 	unsetChild();
 	void 	unsetGeometry();
 	void	clearDisplacements();
 	void	clearDisplacementsOut();
 	void	clearDisplacementsOut(int i = 0);
 	void	clear();
+
+	void 	addParent(BaseManipulation* parent);
+	void 	addChild(BaseManipulation* child);
+	void 	unsetParent();
+	void 	unsetChild();
+
+	void 	removePins();
+	void 	removePinsIn();
+	void 	removePinsOut();
+	void 	removePinIn(int i);
+	void 	removePinOut(int i);
 
 	//templated pins methods
 	template<typename T>

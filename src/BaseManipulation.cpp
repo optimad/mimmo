@@ -230,24 +230,6 @@ BaseManipulation::setDisplacementsOut(int i, dvecarr3E & displacements){
 	m_child[i]->setDisplacements(displacements);
 };
 
-/*!It adds a manipulator object linked by this object.
- * \param[in] parent Pointer to parent manipulator object.
- */
-void
-BaseManipulation::addParent(BaseManipulation* parent){
-	m_parent.push_back(parent);
-};
-
-/*!It adds a child manipulator object to the children linked by this object.
- * \param[in] child Pointer to child manipulator object.
- */
-void
-BaseManipulation::addChild(BaseManipulation* child){
-	int count = m_child.size();
-	m_child.push_back(child);
-	m_child[count]->addParent(this);
-};
-
 /*!It sets the geometry linked by the manipulator object.
  * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
  */
@@ -264,23 +246,6 @@ BaseManipulation::setReleaseInfo(bool flag){
 	m_relInfo = flag;
 };
 
-/*!It clears the manipulator objects linked by this object.
- * It sets to NULL the pointers to parent manipulator objects.
- */
-void
-BaseManipulation::unsetParent(){
-	for (int i=0; i<m_parent.size(); i++) m_parent[i] = NULL;
-	m_parent.clear();
-};
-
-/*!It clears the children objects linked by this object.
- * It sets to NULL the pointers to children manipulator object and clear the vector.
- */
-void
-BaseManipulation::unsetChild(){
-	for (int i=0; i<m_child.size(); i++) m_child[i] = NULL;
-	m_child.clear();
-};
 
 /*!It clears the displacement of the degree of freedom currently stored in the object.
  */
@@ -322,6 +287,86 @@ BaseManipulation::clear(){
 	clearDisplacements();
 	m_relInfo = false;
 };
+
+
+/*!It adds a manipulator object linked by this object.
+ * \param[in] parent Pointer to parent manipulator object.
+ */
+void
+BaseManipulation::addParent(BaseManipulation* parent){
+	m_parent.push_back(parent);
+};
+
+/*!It adds a child manipulator object to the children linked by this object.
+ * \param[in] child Pointer to child manipulator object.
+ */
+void
+BaseManipulation::addChild(BaseManipulation* child){
+	int count = m_child.size();
+	m_child.push_back(child);
+	m_child[count]->addParent(this);
+};
+
+/*!It clears the manipulator objects linked by this object.
+ * It sets to NULL the pointers to parent manipulator objects.
+ */
+void
+BaseManipulation::unsetParent(){
+	for (int i=0; i<m_parent.size(); i++) m_parent[i] = NULL;
+	m_parent.clear();
+};
+
+/*!It clears the children objects linked by this object.
+ * It sets to NULL the pointers to children manipulator object and clear the vector.
+ */
+void
+BaseManipulation::unsetChild(){
+	for (int i=0; i<m_child.size(); i++) m_child[i] = NULL;
+	m_child.clear();
+};
+
+void
+BaseManipulation::removePins(){
+	removePinsIn();
+	removePinsOut();
+}
+
+void
+BaseManipulation::removePinsIn(){
+	for (int i=0; i<m_pinIn.size(); i++){
+		delete m_pinIn[i];
+		m_pinIn[i] = NULL;
+	}
+	m_pinIn.clear();
+}
+
+void
+BaseManipulation::removePinsOut(){
+	for (int i=0; i<m_pinOut.size(); i++){
+		delete m_pinOut[i];
+		m_pinOut[i] = NULL;
+	}
+	m_pinOut.clear();
+}
+
+void
+BaseManipulation::removePinIn(int i){
+	if (i<m_pinIn.size()){
+		delete m_pinIn[i];
+		m_pinIn[i] = NULL;
+		m_pinIn.erase(m_pinIn.begin()+i);
+	}
+}
+
+void
+BaseManipulation::removePinOut(int i){
+	if (i<m_pinOut.size()){
+		delete m_pinOut[i];
+		m_pinOut[i] = NULL;
+		m_pinOut.erase(m_pinOut.begin()+i);
+	}
+}
+
 
 /*!It releases the info, i.e. it creates an Info structure and
  * it sets it by setInfo() method.
