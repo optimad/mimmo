@@ -48,127 +48,147 @@ class Result;
  *
  */
 class BaseManipulation{
-public:
-	//members
-	int								m_ndeg;			/**<Number of degrees of freedom used as input. */
-	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
+
+	//friendship declaration
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
+	
+	
+	
 protected:
+	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
 	std::vector<BaseManipulation*>	m_parent;		/**<Pointers to manipulation objects parent giving info to current class. */
 	std::vector<BaseManipulation*>	m_child;		/**<Pointers to manipulation objects child giving/receiving info (degrees of freedom and its displacements) to current class. */
-	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
 
-	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
-	Info*							m_info;			/**<Pointer to related object of class Info.*/
 	std::vector<InOut*>				m_pinIn;		/**<Input pins vector. */
 	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
 
-	Input*							m_input;		/**<Pointer to a bas class object Input (derived class is template).*/
-	Result*							m_result;		/**<Pointer to a bas class object Result (derived class is template).*/
+	//TODO 1)intended for providing a slot to store a generic data input/output. Maybe is not necessary. if not, please clean it
+	Input*							m_input;		/**<Pointer to a base class object Input (derived class is template).*/
+	Result*							m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
+	//TODO 2)maybe can be TEMPORARY STRUCTURE
+	int								m_ndeg;			/**<Number of degrees of freedom used as input. */
+	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
+
+	//TODO 3)Info exchange can be useless later. Check it out and clean eventually
+	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
+	Info*							m_info;			/**<Pointer to related object of class Info.*/
+	
 
 public:
 	BaseManipulation();
-	BaseManipulation(MimmoObject* geometry, BaseManipulation* child = NULL);
-	BaseManipulation(BaseManipulation* child);
 	~BaseManipulation();
 
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
 
-	//get/set methods
-	int					getNDeg();
-	dvecarr3E&			getDisplacements();
-//	int					getNDegOut(int i = 0);
+	//get methods
+	MimmoObject*		getGeometry();
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
-	MimmoObject*		getGeometry();
-	bool			 	getReleaseInfo();
-	Info*			 	getInfo();
+	int 				getNPinIn();
+	int 				getNPinOut();
 
-	void	setNDeg(int ndeg);
-	void	setDisplacements(dvecarr3E displacements);
-//	void	setNDegOut(int i, int ndeg);
-//	void	setDisplacementsOut(int i, dvecarr3E & displacements);
-	void 	setGeometry(MimmoObject* geometry);
-	void 	setReleaseInfo(bool flag = true);
+	//TODO see 1)
+	template<typename T>	
+	T*					getInput();
+	template<typename T>
+	T* 					getResult();
+	
+	//TODO see 2)	
+	int					getNDeg();
+	dvecarr3E&			getDisplacements();
+	
+	//TODO see 3)
+	bool				getReleaseInfo();
+	Info*				getInfo();
 
-	//template get/set methods
-	template<typename T>
-	void 	setInput(T* data);
-	template<typename T>
-	void 	setInput(T& data);
-	template<typename T>
-	void 	setResult(T* data);
-	template<typename T>
-	void 	setResult(T& data);
+	//set methods
+	void 				setGeometry(MimmoObject* geometry);
 
+	
+	//TODO see 1)
 	template<typename T>
-	T* 	getInput();
+	void 				setInput(T* data);
 	template<typename T>
-	T* 	getResult();
+	void 				setInput(T& data);
+	template<typename T>
+	void 				setResult(T* data);
+	template<typename T>
+	void 				setResult(T& data);
+	
+	
+	//TODO see 2)
+	void				setNDeg(int ndeg);
+	void				setDisplacements(dvecarr3E displacements);
+	
+	//TODO see 3)
+	void 				setReleaseInfo(bool flag = true);
+	virtual void		setInfo();
+	
 
-
+	//cleaning/unset/remove
+	//TODO 5) Not complete list of cleaning methods. To be reviewed and reorganized
 	void 	unsetGeometry();
 	void	clearDisplacements();
-//	void	clearDisplacementsOut();
-//	void	clearDisplacementsOut(int i = 0);
 	void	clearInput();
 	void	clearResult();
 	void	clear();
-
-	//TODO MAKE CHILD/PARENT ADD/UNSET METHODS PRIVATE
-	void 	addParent(BaseManipulation* parent);
-	void 	addChild(BaseManipulation* child);
 	void 	unsetParent();
 	void 	unsetChild();
-
 	void 	removePins();
 	void 	removePinsIn();
 	void 	removePinsOut();
 	void 	removePinIn(int i);
 	void 	removePinOut(int i);
 
-	//templated pins methods
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
-
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void	addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void	addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
-
-public:
-	//relationship methods
+	//execution utils
 	void 	exec();
+
+	//TODO see 3)
 	void	releaseInfo();
 	Info* 	recoverInfo();
-
-protected:
-
-public:
-	virtual void	setInfo();
 	virtual void	useInfo();
+	
+	
+protected:
+	//TODO 4) public but not intended to user interface
+	void				addParent(BaseManipulation* parent); 
+	void				addChild(BaseManipulation* child);
+	
+	//TODO 4)
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
+	
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void				addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
+	
 	virtual void 	execute() = 0;				//called in exec
+	
+	
 
 };
 
@@ -328,7 +348,6 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> set
 	pin->setOutput(objOut, setVal, getVal);
 	m_pinOut.push_back(pin);
 };
-
 
 
 template<typename T>
