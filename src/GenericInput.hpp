@@ -35,7 +35,8 @@
  *
  *	\brief GenericInput is the class that set the initialization of a generic input data.
  *
- *	GenericInput is derived from BaseManipulation class.
+ *	GenericInput is derived from BaseManipulation class. 
+ *  Data passed as input are retained and always available in BaseManipulation::Result member.
  *
  */
 class GenericInput: public BaseManipulation{
@@ -43,16 +44,15 @@ private:
 	//members
 	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
 	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
-
+	
 public:
 	GenericInput(bool readFromFile = false);
 	GenericInput(std::string filename);
 
 	template<typename T>
 	GenericInput(T data){
-		setGenericInput(data);
+		setInput<T>(data);
 	}
-
 	~GenericInput();
 
 	GenericInput(const GenericInput & other);
@@ -61,11 +61,6 @@ public:
 	void setReadFromFile(bool readFromFile);
 	void setFilename(std::string filename);
 
-
-	//relationship methods
-protected:
-
-public:
 	void 	execute();
 
 };

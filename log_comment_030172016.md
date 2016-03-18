@@ -6,11 +6,9 @@
 
  - 1.2. Comments   
 
- - 1.3. line 124 and 149 static_cast unique pointer?  [&#10004;]
-		(if no virtuals are present in the base class, dynamic_cast on reference fails.
-		 the only way to do this job, in template context, is using static_cast (checked at compiler runtime) and hoping the
-		 user knows how is doing. But, static_cast works.
-		) 
+ - 1.3. line 124 and 149 static_cast unique pointer? if no virtuals are present in the base class, dynamic_cast on reference fails. The only way to do this job, 
+   in template context, is using static_cast (checked at compiler runtime) and hoping theuser knows how is doing. But, static_cast works. [&#10004;]
+		 
 
  - 1.4. add mimmonamespace to each mimmo class
 
@@ -23,6 +21,7 @@
 ##3. GenericInput
 
  - 3.1. Better implementation
+ - 3.2. when reading files is not exactly a generic input but is specialized only to dvecarr3E data  
 
 
 ##4. Info
@@ -63,6 +62,8 @@
 - 8.2. modify execute to avoid parent/child relationship (deprecated)
 
 - 8.3. useInfo maybe useless
+
+- 8.4  must become a GenericOutput class
 
 
 ##9. Rotation and Translation Box

@@ -77,7 +77,7 @@ protected:
 	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
 
 	//TODO 1)intended for providing a slot to store a generic data input/output. Maybe is not necessary. if not, please clean it
-	std::unique_ptr<IOData>			m_input;		/**<Pointer to a base class object Input (derived class is template).*/
+	std::unique_ptr<IOData>			m_input;		/**<Pointer to a base class object Input, meant for temporary data (derived class is template).*/
 	std::unique_ptr<IOData>			m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
 	//TODO 2)maybe can be TEMPORARY STRUCTURE

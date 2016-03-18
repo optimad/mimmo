@@ -395,6 +395,7 @@ BaseManipulation::useInfo(){
 
 /*!Execution command. It runs recoverDisplacements applyFilters and execute.
  * execute is pure virtual and it has to be implemented in a derived class.
+ * Temporary Inputs are cleared from class
  */
 void
 BaseManipulation::exec(){
@@ -406,6 +407,7 @@ BaseManipulation::exec(){
 			m_pinOut[i]->exec();
 		}
 	}
+	clearInput();
 }
 
 
