@@ -36,5 +36,5 @@ debug/
 build/
 
 #kwrite swap files
-*.swp
+*-swp
 

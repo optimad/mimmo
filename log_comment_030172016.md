@@ -26,7 +26,7 @@
 
 ##4. Info
 
- - 4.1. recoding manipulation objects to avoid the use of info (?)
+ - 4.1. recoding manipulation objects to avoid the use of info (?) DOES NOT EXIST ANYMORE [&#10004;]
 
 
 ##5. FFD Lattice
