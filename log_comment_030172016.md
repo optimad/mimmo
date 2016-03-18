@@ -11,7 +11,7 @@
  - 1.4. add mimmonamespace to each mimmo class
 
 
-##2. Apply
+##2. Apply  [&#10004;]
 
  - 2.1. Update execut with new input/output pins  [&#10004;]
 
