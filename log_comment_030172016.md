@@ -6,7 +6,11 @@
 
  - 1.2. Comments   
 
- - 1.3. line 124 and 149 static_cast unique pointer?
+ - 1.3. line 124 and 149 static_cast unique pointer?  [&#10004;]
+		(if no virtuals are present in the base class, dynamic_cast on reference fails.
+		 the only way to do this job, in template context, is using static_cast (checked at compiler runtime) and hoping the
+		 user knows how is doing. But, static_cast works.
+		) 
 
  - 1.4. add mimmonamespace to each mimmo class
 
