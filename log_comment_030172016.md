@@ -28,15 +28,46 @@
 
 ##5. FFD Lattice
 
- - 5.1. modify execute in order to use m_result of base class
+- 5.1. modify execute in order to use m_result of base class
 
 - 5.2. use input of base class and avoid the use of displ
 
 
-##6. Mimmo Tests
+##6. Bend
 
-- 6.1. make them coherent with new basemanipulation objects design
+- 6.1. modify execute in order to use input/output of base class (deprecated use of displ and ndeg)
 
+- 6.2. useInfo maybe useless
+
+
+##7. Mask
+
+- 7.1. modify execute in order to use input/output of base class (deprecated use of displ)  [&#10004;]
+
+- 7.2. useInfo maybe useless
+
+
+##8. OutputDoF
+
+- 8.1. modify execute in order to use input/output of base class
+
+- 8.2. modify execute to avoid parent/child relationship (deprecated)
+
+- 8.3. useInfo maybe useless
+
+
+##9. Rotation and Translation Box
+
+- 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation
+
+- 9.2. modify execute to save the result in result and then use input/output pins
+
+- 9.3. useInfo maybe useless
+
+
+##10. Mimmo Tests
+
+- 10.1. make them coherent with new basemanipulation objects design
 
 
 

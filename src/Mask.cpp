@@ -54,18 +54,62 @@ Mask::setCoords(dvecarr3E & coords){
  * \param[in] thres Limit of coordinates to apply the masking.
  */
 void
-Mask::setThresholds(darray3E & thres){
+Mask::setThresholds(dmatrix32E & thres){
 	m_thres = thres;
 };
 
+/*!It sets the limit of one coordinate to apply the masking.
+ * \param[in] thres Limit of coordinate to apply the masking.
+ * \param[in] dir Index of component.
+ */
+void
+Mask::setThresholds(darray2E & thres, int dir){
+	m_thres[dir] = thres;
+};
+
+/*!It sets the limit of x-coordinate to apply the masking.
+ * \param[in] thres Limit of coordinate to apply the masking.
+ */
+void
+Mask::setThresholdx(darray2E & thres){
+	m_thres[0] = thres;
+};
+
+/*!It sets the limit of y-coordinate to apply the masking.
+ * \param[in] thres Limit of coordinate to apply the masking.
+ */
+void
+Mask::setThresholdy(darray2E & thres){
+	m_thres[1] = thres;
+};
+
+/*!It sets the limit of z-coordinate to apply the masking.
+ * \param[in] thres Limit of coordinate to apply the masking.
+ */
+void
+Mask::setThresholdz(darray2E & thres){
+	m_thres[2] = thres;
+};
+
 /*!It sets the condition to apply the mask
- * (true/false to set to zero the displacements >/< the thershold).
+ * (true/false to set to zero the displacements inside/outside the thresholds).
+ * \param[in] forward Condition to apply the mask for all the components.
+ */
+void
+Mask::setInside(bool inside){
+	for (int i=0; i<3; i++){
+		m_inside[i] = inside;
+	}
+};
+
+/*!It sets the condition to apply the mask
+ * (true/false to set to zero the displacements inside/outside the thresholds).
  * \param[in] i Index of component.
  * \param[in] forward Condition to apply the mask for i-th component.
  */
 void
-Mask::setForward(int i, bool forward){
-	if (i >= 0 && i < 3) m_forward[i] = forward;
+Mask::setInside(int i, bool inside){
+	if (i >= 0 && i < 3) m_inside[i] = inside;
 };
 
 
@@ -86,25 +130,30 @@ Mask::useInfo(){
 	}
 }
 
-/*!Execution command. It modifies the displacements given by the child manipulation object
- * with the masking conditions. After exec() the original displacements will be permanently modified.
+/*!Execution command. It modifies the displacements given by the input manipulation object
+ * with the masking conditions.
+ * The input has to be set with a dvecarr3E variable (mask it casts the template method getInput
+ * to this type) and the result will be of the same type.
+ * After exec() the original displacements will be permanently modified.
  */
 void
 Mask::execute(){
-	for (int i=0; i<getNDeg(); i++){
-		if (m_coords[i][0]>m_thres[0] && m_coords[i][1]>m_thres[1] && m_coords[i][2]>m_thres[2]){
+	dvecarr3E displ = *(getInput<dvecarr3E>());
+	int	ndispl;
+	for (int i=0; i<ndispl; i++){
+		if (m_coords[i][0]>m_thres[0][0] && m_coords[i][0]<m_thres[0][1] &&
+				m_coords[i][1]>m_thres[1][0] && m_coords[i][1]<m_thres[1][1] &&
+				m_coords[i][2]>m_thres[2][0] && m_coords[i][2]<m_thres[2][1]){
 			for (int j=0; j<3; j++){
-				m_displ[i][j] = (1-m_forward[j])*m_displ[i][j];
+				displ[i][j] = (1-m_inside[j])*displ[i][j];
 			}
 		}
 		else{
 			for (int j=0; j<3; j++){
-				m_displ[i][j] = (m_forward[j])*m_displ[i][j];
+				displ[i][j] = (m_inside[j])*displ[i][j];
 			}
 		}
 	}
-//	for (int j=0; j<getNChild(); j++){
-//		setDisplacementsOut(j, m_displ);
-//	}
+	setResult(displ);
 	return;
 };

@@ -43,6 +43,7 @@
 class Apply: public BaseManipulation{
 
 public:
+
 	Apply();
 	~Apply();
 

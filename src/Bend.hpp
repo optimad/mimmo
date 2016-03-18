@@ -53,9 +53,6 @@ public:
 	void	setCoeffs(dvector3D & coeffs);
 
 
-	//relationship methods
-protected:
-
 public:
 	void 	useInfo();
 	void 	execute();

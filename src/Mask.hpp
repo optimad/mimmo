@@ -40,10 +40,9 @@
  */
 class Mask: public BaseManipulation{
 private:
-	//members
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	darray3E			m_thres;	/**<Limit of coordinates to apply the masking.*/
-	std::array<bool,3>	m_forward;	/**<Condition to apply the mask (true/false to set to zero the displacements >/< the thershold).*/
+	dmatrix32E			m_thres;	/**<Limit of coordinates (min,max for each coordinate) to apply the masking.*/
+	std::array<bool,3>	m_inside;	/**<Condition to apply the mask (true/false to set to zero the displacements inside/outside the thresholds).*/
 
 public:
 	Mask();
@@ -53,12 +52,13 @@ public:
 	Mask & operator=(const Mask & other);
 
 	void	setCoords(dvecarr3E & coords);
-	void	setThresholds(darray3E & thres);
-	void	setForward(int i, bool forward);
-
-
-	//relationship methods
-protected:
+	void	setThresholds(dmatrix32E & thres);
+	void	setThresholds(darray2E & thres, int dir);
+	void	setThresholdx(darray2E & thres);
+	void	setThresholdy(darray2E & thres);
+	void	setThresholdz(darray2E & thres);
+	void	setInside(bool inside);
+	void	setInside(int i, bool inside);
 
 public:
 	void 	useInfo();
