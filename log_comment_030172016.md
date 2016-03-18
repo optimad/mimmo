@@ -32,6 +32,11 @@
 
 - 5.2. use input of base class and avoid the use of displ
 
+- 5.3 	Atomize set/get methods for paramaters & output of classes, according to new pin inout style
+
+- 5.4  Adjusting set/get of primitive class BasicMesh and included Class BasicShape
+
+
 
 ##6. Bend
 
