@@ -35,7 +35,7 @@
 
 ##6. Bend
 
-- 6.1. modify execute in order to use input/output of base class (deprecated use of displ and ndeg)
+- 6.1. modify execute in order to use input/output of base class (deprecated use of displ and ndeg)  [&#10004;]
 
 - 6.2. useInfo maybe useless
 

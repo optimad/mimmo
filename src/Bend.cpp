@@ -87,24 +87,27 @@ Bend::useInfo(){
 	}
 };
 
-/*!Execution command. It modifies the displacements given by the child manipulation object
- * with the polynomial law. After exec() the original displacements will be permanently modified.
+/*!Execution command. It modifies the displacements given by the input manipulation object
+ * with the polynomial law.
+ * The input has to be set with a dvecarr3E variable (mask it casts the template method getInput
+ * to this type) and the result will be of the same type.
+ * After exec() the original displacements will be permanently modified.
  */
 void
 Bend::execute(){
+	dvecarr3E displ = *(getInput<dvecarr3E>());
+	int	ndispl;
 	for (int j=0; j<3; j++){
-		for (int i=0; i<getNDeg(); i++){
+		for (int i=0; i<ndispl; i++){
 			for (int z=0; z<3; z++){
 				if (m_degree[j][z] > 0){
 					for (int k=0; k<m_degree[j][z]+1; k++){
-						m_displ[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
+						displ[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
 					}
 				}
 			}
 		}
 	}
-//	for (int j=0; j<getNChild(); j++){
-//		setDisplacementsOut(j, m_displ);
-//	}
+	setResult(displ);
 	return;
 };
