@@ -26,8 +26,6 @@
 
 namespace mimmo{
 
-
-
 namespace pin{
 
 

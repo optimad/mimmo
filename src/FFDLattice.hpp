@@ -57,6 +57,7 @@ private:
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */ 
 	
+	//TODO now in basemanipulation base class there is a result member, here it is useless!
 	dvecarr3E	m_result;
 
 	

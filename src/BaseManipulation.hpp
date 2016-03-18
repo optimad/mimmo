@@ -201,8 +201,6 @@ protected:
 	
 	virtual void 	execute() = 0;				//called in exec
 	
-	
-
 };
 
 

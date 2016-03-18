@@ -111,10 +111,6 @@ void test0001() {
 	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
-	//Set release Info
-	lattice->setReleaseInfo(true);
-
-
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNDeg();
 	dvecarr3E displ(ndeg);
