@@ -39,8 +39,6 @@
  *
  */
 class Apply: public BaseManipulation{
-private:
-	//members
 
 public:
 	Apply();
@@ -49,11 +47,6 @@ public:
 	Apply(const Apply & other);
 	Apply & operator=(const Apply & other);
 
-
-	//relationship methods
-protected:
-
-public:
 	void 	execute();
 
 };

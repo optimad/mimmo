@@ -44,17 +44,18 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
-//TODO UPDATE EXECUT WITH NEW INPUT/OUTPUT AND PINS
-/*!Execution command. It applies the deformation given by the parent manipulation (in input for apply object)
- * to the linked geometry. After exec() the original geometry will be permanently modified.
+/*!Execution command. It applies the deformation given by the parent manipulation (casting the input
+ * for apply object to dvecarr3E) to the linked geometry.
+ * After exec() the original geometry will be permanently modified.
  */
 void
 Apply::execute(){
 	if (getGeometry() == NULL) return;
 	dvecarr3E vertex = getGeometry()->getVertex();
+	dvecarr3E* displ = getInput<dvecarr3E>();
 	long nv = getGeometry()->getNVertex();
 	for (long i=0; i<nv; i++){
-		vertex[i] += m_displ[i];
+		vertex[i] += (*displ)[i];
 		getGeometry()->modifyVertex(vertex[i], getGeometry()->getMapData(i));
 	}
 	return;

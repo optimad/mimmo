@@ -13,7 +13,7 @@
 
 ##2. Apply
 
- - 2.1. UPDATE EXECUTE WITH NEW INPUT/OUTPUT AND PINS
+ - 2.1. Update execut with new input/output pins  [&#10004;]
 
 
 ##3. GenericInput
