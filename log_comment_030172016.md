@@ -76,5 +76,5 @@
 ##12. Chain ROCCO
 
 - 11.1	managing total DOF of your manipulation  
-- 11.2	Useful to bypass some block in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
+- 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
 - 11.3 	Comments
