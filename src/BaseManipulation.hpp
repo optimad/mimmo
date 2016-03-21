@@ -92,21 +92,23 @@ class BaseManipulation{
 	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	void mimmo::pin::removeAllPins(OO* objSend, OI* objRec);
+	friend void removeAllPins(OO* objSend, OI* objRec);
 	
+	//type definitions
+	typedef std::unordered_map<BaseManipulation*, int> bmumap;
+
+
 	
 protected:
-	MimmoObject*								m_geometry;		/**<Pointer to manipulated geometry. */
-	std::unordered_map<BaseManipulation*, int>	m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each 
-																	pointer a counter. When this counter is 0, pointer is released*/
-	std::unordered_map<BaseManipulation*, int>	m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each 
-																	pointer a counter. When this counter is 0, pointer is released*/
-																	
-	std::vector<InOut*>				m_pinIn;		/**<Input pins vector. */
-	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
-
-	std::unique_ptr<IOData>			m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
-	std::unique_ptr<IOData>			m_result;		/**<Pointer to a base class object Result (derived class is template).*/
+	MimmoObject*				m_geometry;		/**<Pointer to manipulated geometry. */
+	bmumap						m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+													pointer a counter. When this counter is 0, pointer is released*/
+	bmumap						m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
+													pointer a counter. When this counter is 0, pointer is released*/
+	std::vector<InOut*>			m_pinIn;		/**<Input pins vector. */
+	std::vector<InOut*>			m_pinOut;		/**<Output pins vector. */
+	std::unique_ptr<IOData>		m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+	std::unique_ptr<IOData>		m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
 public:
 	BaseManipulation();
@@ -123,8 +125,8 @@ public:
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
 	bool				isChild(BaseManipulation *, int);
-	int 				getNPinIn();
-	int 				getNPinOut();
+	int 				getNPinsIn();
+	int 				getNPinsOut();
 
 	template<typename T>	
 	T*					getInput();
@@ -159,16 +161,16 @@ public:
 	
 protected:
 
-	void				addParent(BaseManipulation* parent); 
-	void				addChild(BaseManipulation* child);
-	void 				unsetParent(BaseManipulation * parent);
-	void 				unsetChild(BaseManipulation * child);
+	void		addParent(BaseManipulation* parent);
+	void		addChild(BaseManipulation* child);
+	void 		unsetParent(BaseManipulation * parent);
+	void 		unsetChild(BaseManipulation * child);
 	
 	std::vector<InOut*> getPinsIn();
 	std::vector<InOut*> getPinsOut();
 
-	int				findPinIn(InOut* pin);
-	int				findPinOut(InOut* pin);
+	int			findPinIn(InOut* pin);
+	int			findPinOut(InOut* pin);
 
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);

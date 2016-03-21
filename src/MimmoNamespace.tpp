@@ -96,7 +96,7 @@ void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
 	vector<Inout*> pinsOut = objSend->getPinsOut();
 	int removed = 0;
-	for (int i=0; i<objSend->getNPinOut(); i++){
+	for (int i=0; i<objSend->getNPinsOut(); i++){
 		if (pinsOut[i]->getLink() == objRec){
 			objSend->removePinOut(i-removed);
 			removed++;
@@ -107,7 +107,7 @@ void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
 	vector<Inout*> pinsIn = objRec->getPinsIn();
 	int removed = 0;
-	for (int i=0; i<objRec->getNPinIn(); i++){
+	for (int i=0; i<objRec->getNPinsIn(); i++){
 		if (pinsIn[i]->getLink() == objSend){
 			objRec->removePinIn(i-removed);
 			removed++;

@@ -82,5 +82,4 @@ typedef std::array<darray4E,4>		dmatrix44E;
 
 typedef std::map<long int, int>		liimap;
 
-
 #endif //MIMMOTYPEDEF_HH
