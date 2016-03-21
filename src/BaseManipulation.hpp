@@ -144,10 +144,10 @@ public:
 	void 	unsetGeometry();
 
 	//TODO 6) is useful to cancel all connection of this object and parent together with the presence of parent itself? see TODO 5) 
-	void 	unsetParent(BaseManipulation * parent);
-	void 	unsetChild(BaseManipulation * child);
-	void 	unsetAllParent();
-	void 	unsetAllChild();
+	void 	removeParent(BaseManipulation * parent);
+	void 	removeChild(BaseManipulation * child);
+	void 	removeAllParent();
+	void 	removeAllChild();
 	
 	
 	void	clearInput();
@@ -160,6 +160,8 @@ public:
 protected:
 	void				addParent(BaseManipulation* parent); 
 	void				addChild(BaseManipulation* child);
+	void 				unsetParent(BaseManipulation * parent);
+	void 				unsetChild(BaseManipulation * child);
 	
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
