@@ -45,8 +45,6 @@ class BaseManipulation;
 class InOut{
 public:
 	//members
-	bool				m_type;		/**<Type of pin 0/1 = input/output pin.*/
-	BaseManipulation*	m_obj;		/**<Owner object of this input/output PIN. */
 	BaseManipulation*	m_objLink;	/**<Input/Output object from/to which recover/give the target variable. */
 
 
@@ -57,7 +55,6 @@ public:
 	InOut(const InOut & other);
 	InOut & operator=(const InOut & other);
 
-	bool				getType();
 	BaseManipulation*	getLink();
 
 	virtual void exec() = 0;

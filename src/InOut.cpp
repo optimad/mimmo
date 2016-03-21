@@ -37,35 +37,21 @@ InOut::InOut(){};
 /*!Default destructor of InOut
 */
 InOut::~InOut(){
-	m_type 		= false;
-	m_obj 		= NULL;
 	m_objLink	= NULL;
 };
 
 /*!Copy constructor of InOut.
 */
 InOut::InOut(const InOut & other){
-	m_type 		= other.m_type;
-	m_obj 		= other.m_obj;
 	m_objLink 	= other.m_objLink;
 };
 
 /*!Assignement operator of InOut.
  */
 InOut & InOut::operator=(const InOut & other){
-	m_type 		= other.m_type;
-	m_obj 		= other.m_obj;
 	m_objLink 	= other.m_objLink;
 	return (*this);
 };
-
-/*!It gets the type of pin, i.e. if it is an input or an output pin.
- * \return Is the pin an output pin?
- */
-bool
-InOut::getType(){
-	return(m_type);
-}
 
 /*!It gets the linked object by this pin.
  * \return Pointer to linked object.
@@ -74,6 +60,4 @@ BaseManipulation*
 InOut::getLink(){
 	return(m_objLink);
 }
-
-
 
