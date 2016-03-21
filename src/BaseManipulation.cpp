@@ -123,6 +123,23 @@ BaseManipulation::getParent(int i){
 	return next(m_parent.begin(), i)->first;
 };
 
+/*! Return true if the target is contained in the parent list.
+ * \param[in] target BaseManipulation object
+ * \param[out] index return actual position in the list(may vary if the parent list is modified). If not in the list return -1.
+ * \param[out] result boolean flag.
+ */
+bool
+BaseManipulation::isParent(BaseManipulation * target, int index){
+	unordered_map<BaseManipulation *, int>::iterator it;
+	it = m_parent.find(target);
+	index = -1;
+	if(it == m_parent.end()) return false;
+	
+	index = distance(m_parent.begin(), it);
+	return true;
+};
+
+
 /*!It gets the number of children linked to the manipulator object.
  * \return #Children.
  */
@@ -139,6 +156,23 @@ BaseManipulation*
 BaseManipulation::getChild(int i){
 	if (i>m_child.size()-1) return NULL;
 	return next(m_child.begin(), i)->first;
+};
+
+
+/*! Return true if the target is contained in the child list.
+ * \param[in] target BaseManipulation object
+ * \param[out] index return actual position in the list(may vary if the parent list is modified). If not in the list return -1.
+ * \param[out] result boolean flag.
+ */
+bool
+BaseManipulation::isChild(BaseManipulation * target, int index){
+	unordered_map<BaseManipulation *, int>::iterator it;
+	it = m_child.find(target);
+	index = -1;
+	if(it == m_child.end()) return false;
+	
+	index = distance(m_child.begin(), it);
+	return true;
 };
 
 /*!It gets the geometry linked by the manipulator object.
