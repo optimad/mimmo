@@ -49,6 +49,20 @@ InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
 	return (*this);
 };
 
+/*!Compare operator of InOutT.
+ */
+template<typename T>
+bool InOutT<T>::operator==(const InOutT<T> & other){
+	bool equal = true;
+	equal &= (*this InOut::== other);
+	equal &= (m_getVal == other.m_getVal);
+	equal &= (m_getValR == other.m_getValR);
+	equal &= (m_getValP == other.m_getValP);
+	equal &= (m_setVal == other.m_setVal);
+	equal &= (m_setValP == other.m_setValP);
+	return (equal);
+};
+
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
  * \param[in] getVal Bound get function of the parent object (copy return).

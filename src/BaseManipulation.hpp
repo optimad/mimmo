@@ -25,13 +25,14 @@
 #define __BASEMANIPULATION_HPP__
 
 #include "MimmoObject.hpp"
-#include "Info.hpp"
+#include "MimmoNamespace.hpp"
 #include "InOut.hpp"
 
 #include <string>
 #include <functional>
 #include <unordered_map>
 
+using namespace mimmo::pin;
 
 class IOData;
 
@@ -90,6 +91,8 @@ class BaseManipulation{
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
 	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	void mimmo::pin::removeAllPins(OO* objSend, OI* objRec);
 	
 	
 protected:
@@ -143,12 +146,9 @@ public:
 	//cleaning/unset
 	void 	unsetGeometry();
 
-	//TODO 6) is useful to cancel all connection of this object and parent together with the presence of parent itself? see TODO 5) 
-	void 	removeParent(BaseManipulation * parent);
-	void 	removeChild(BaseManipulation * child);
-	void 	removeAllParent();
-	void 	removeAllChild();
-	
+	void 	removePins();
+	void 	removePinsIn();
+	void 	removePinsOut();
 	
 	void	clearInput();
 	void	clearResult();
@@ -158,11 +158,18 @@ public:
 	void 	exec();
 	
 protected:
+
 	void				addParent(BaseManipulation* parent); 
 	void				addChild(BaseManipulation* child);
 	void 				unsetParent(BaseManipulation * parent);
 	void 				unsetChild(BaseManipulation * child);
 	
+	std::vector<InOut*> getPinsIn();
+	std::vector<InOut*> getPinsOut();
+
+	int				findPinIn(InOut* pin);
+	int				findPinOut(InOut* pin);
+
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
 	template<typename T>
@@ -201,7 +208,7 @@ protected:
 	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
 	template<typename T>
 	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
-	
+
 	template<typename T>
 	void				removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
 	template<typename T>
@@ -215,18 +222,11 @@ protected:
 	template<typename T>
 	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
 	
-	
-	virtual void 	execute() = 0;				//called in exec
-	
-private:
-	//TODO 5) Not completely meaningful list of internal pin cleaning methods. To be reviewed and reorganized. When launch them 
-	// pins of other linked objects survive. You need to manage them also! Another case is when a class is destroyed? Destructor 
-	//must implement also this pin removal.
-	void 	removePins();
-	void 	removePinsIn();
-	void 	removePinsOut();
 	void 	removePinIn(int i);
 	void 	removePinOut(int i);
+
+	virtual void 	execute() = 0;				//called in exec
+	
 	
 };
 

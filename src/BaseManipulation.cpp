@@ -329,48 +329,6 @@ BaseManipulation::addChild(BaseManipulation* child){
 	}	
 };
 
-/*!It clears the current father object linked by this object.
- * It object is not linked doing nothing.
- * \param[in] parent pointer to BaseManipulation object 
- */
-void
-BaseManipulation::removeParent(BaseManipulation * parent){
-	
-	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
-	if(got != m_parent.end())
-		m_parent.erase();
-	//need to clear mutual connection
-	
-};
-
-/*!It clears the current child object linked by this object.
- * It object is not linked doing nothing.
- * \param[in] child pointer to BaseManipulation object  
- */
-void
-BaseManipulation::removeChild(BaseManipulation * child){
-	unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
-	if(got != m_child.end())
-		m_child.erase();
-	
-	//need to clear mutual connection;
-};
-
-/*!It clears all father objects linked by this object. */
-void
-BaseManipulation::removeAllParent(){
-	m_parent.clear();
-	//need to clear all mutual connection involving this object
-};
-
-/*!It clears all child objects linked by this object.*/
-void
-BaseManipulation::removeAllChild(){
-	m_child.clear();
-	//need to clear all mutual connection involving this object
-};
-
-
 /*! Decrement target parent multiplicity, contained in member m_parent.
  * If multiplicity is zero, erase target from list. The method is meant to be used in conjuction 
  * to manual cut off of object pins. 
@@ -409,25 +367,31 @@ BaseManipulation::removePins(){
 
 void
 BaseManipulation::removePinsIn(){
-	for (int i=0; i<m_pinIn.size(); i++){
-		delete m_pinIn[i];
-		m_pinIn[i] = NULL;
+
+	unordered_map<BaseManipulation*, int>::iterator it;
+	//Warning!! If infinite while unset parent wrong
+	while(m_parent.size()){
+		it = m_parent.begin();
+		removeAllPins(it->first, this);
 	}
-	m_pinIn.clear();
+
 }
 
 void
 BaseManipulation::removePinsOut(){
-	for (int i=0; i<m_pinOut.size(); i++){
-		delete m_pinOut[i];
-		m_pinOut[i] = NULL;
+
+	unordered_map<BaseManipulation*, int>::iterator it;
+	//Warning!! If infinite while unset parent wrong
+	while(m_child.size()){
+		it = m_child.begin();
+		removeAllPins(this, it->first);
 	}
-	m_pinOut.clear();
+
 }
 
 void
 BaseManipulation::removePinIn(int i){
-	if (i<m_pinIn.size()){
+	if (i<m_pinIn.size() && i != -1){
 		delete m_pinIn[i];
 		m_pinIn[i] = NULL;
 		m_pinIn.erase(m_pinIn.begin()+i);
@@ -436,7 +400,7 @@ BaseManipulation::removePinIn(int i){
 
 void
 BaseManipulation::removePinOut(int i){
-	if (i<m_pinOut.size()){
+	if (i<m_pinOut.size() && i != -1){
 		delete m_pinOut[i];
 		m_pinOut[i] = NULL;
 		m_pinOut.erase(m_pinOut.begin()+i);
@@ -505,6 +469,33 @@ BaseManipulation::exec(){
 		}
 	}
 	clearInput();
+}
+
+
+vector<InOut*>
+BaseManipulation::getPinsIn(){
+	return (m_pinIn);
+}
+
+std::vector<InOut*>
+BaseManipulation::getPinsOut(){
+	return (m_pinOut);
+}
+
+int
+BaseManipulation::findPinIn(InOut& pin){
+	for (int i=0; i<m_pinIn.size(); i++){
+		if (pin == *(m_pinIn[i])) return(i);
+	}
+	return(-1);
+}
+
+int
+BaseManipulation::findPinOut(InOut& pin){
+	for (int i=0; i<m_pinOut.size(); i++){
+		if (pin == *(m_pinOut[i])) return(i);
+	}
+	return(-1);
 }
 
 

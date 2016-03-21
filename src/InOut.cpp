@@ -53,6 +53,12 @@ InOut & InOut::operator=(const InOut & other){
 	return (*this);
 };
 
+/*!Compare operator of InOut.
+ */
+bool InOut::operator==(const InOut & other){
+	return(m_objLink == other.m_objLink);
+};
+
 /*!It gets the linked object by this pin.
  * \return Pointer to linked object.
  */

@@ -54,6 +54,7 @@ public:
 
 	InOut(const InOut & other);
 	InOut & operator=(const InOut & other);
+	bool operator==(const InOut & other);
 
 	BaseManipulation*	getLink();
 
@@ -104,6 +105,7 @@ public:
 
 	InOutT(const InOutT & other);
 	InOutT & operator=(const InOutT & other);
+	bool operator=(const InOutT & other);
 
 	void setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
 	void setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);

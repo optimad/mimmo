@@ -100,6 +100,144 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 };
 
 
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setInput(objIn, getVal, setVal);
+	int idx = findPinIn(pin);
+	removePinIn(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+template<typename T>
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal){
+	InOutT<T>* pin = new InOutT<T>();
+	pin->setOutput(objOut, setVal, getVal);
+	int idx = findPinOut(pin);
+	removePinOut(idx);
+	delete pin;
+	pin = NULL;
+};
+
+
+
+
+
+
 //==================================================//
 // BASEMANIPULATION CLASS TEMPLATED INPUT METHODS	//
 //==================================================//

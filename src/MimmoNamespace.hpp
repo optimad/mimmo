@@ -66,6 +66,9 @@ template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removeAllPins(OO* objSend, OI* objRec);
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
+void findPin(OO* objSend, OI* objRec);
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL));
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
@@ -82,6 +85,7 @@ void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*));
+
 
 
 };
