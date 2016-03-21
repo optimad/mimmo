@@ -27,8 +27,11 @@
 #include "MimmoObject.hpp"
 #include "Info.hpp"
 #include "InOut.hpp"
+
 #include <string>
 #include <functional>
+#include <unordered_map>
+
 
 class IOData;
 
@@ -40,15 +43,17 @@ class IOData;
  *	\brief BaseManipulation is the base class of any object (derived class) for manipulation of the geometry.
  *
  *	BaseManipulation is the base class used to build each generic or particular manipulation object.
- *	This base class has some common interface methods, as the base get/set methods, and one virtual method.
+ *	This base class has some common interface methods, as the base get/set methods.
  *	The only method to be called to execute the manipulation object is the method exec() that calls the pure virtual execute().
  *	Each manipulation base object has a linked geometry (a target MiMMO object) and one or more linked manipulation
- *	objects from wich recovering some info (as number of degrees of freedom, initial displacements or other).
+ *	objects from wich recovering/distributing relevant data (as number of degrees of freedom, initial displacements or other). 
+ *  The exchange of such data is realized through Pins (input/output link to same class objects). See mimmo::pin namespace 
+ *  for further information about the linking procedure of BaseManipulation objects.
  *
  */
 class BaseManipulation{
 
-	//friendship declaration
+	//friendship declaration of mimmo::pin methods
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
 	friend void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
 	
@@ -67,27 +72,38 @@ class BaseManipulation{
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
 	friend void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
+	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
+	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
+	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
+	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
+	
+	template<typename OO, typename G, typename OI, typename S, typename VAL>
+	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
+	
+	
 	
 protected:
-	MimmoObject*					m_geometry;		/**<Pointer to manipulated geometry. */
-	std::vector<BaseManipulation*>	m_parent;		/**<Pointers to manipulation objects parent giving info to current class. */
-	std::vector<BaseManipulation*>	m_child;		/**<Pointers to manipulation objects child giving/receiving info (degrees of freedom and its displacements) to current class. */
-
+	MimmoObject*								m_geometry;		/**<Pointer to manipulated geometry. */
+	std::unordered_map<BaseManipulation*, int>	m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each 
+																	pointer a counter. When this counter is 0, pointer is released*/
+	std::unordered_map<BaseManipulation*, int>	m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each 
+																	pointer a counter. When this counter is 0, pointer is released*/
+																	
 	std::vector<InOut*>				m_pinIn;		/**<Input pins vector. */
 	std::vector<InOut*>				m_pinOut;		/**<Output pins vector. */
 
-	//TODO 1)intended for providing a slot to store a generic data input/output. Maybe is not necessary. if not, please clean it
-	std::unique_ptr<IOData>			m_input;		/**<Pointer to a base class object Input, meant for temporary data (derived class is template).*/
+	std::unique_ptr<IOData>			m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>			m_result;		/**<Pointer to a base class object Result (derived class is template).*/
-
-	//TODO 2)maybe can be TEMPORARY STRUCTURE
-	int								m_ndeg;			/**<Number of degrees of freedom used as input. */
-	dvecarr3E						m_displ;		/**<Displacements of degrees of freedom used as input. */
-
-	//TODO 3)Info exchange can be useless later. Check it out and clean eventually
-	bool							m_relInfo;		/**<Is this object a "release Info" object?.*/
-	Info*							m_info;			/**<Pointer to related object of class Info.*/
-	
 
 public:
 	BaseManipulation();
@@ -105,25 +121,14 @@ public:
 	int 				getNPinIn();
 	int 				getNPinOut();
 
-	//TODO see 1)
 	template<typename T>	
 	T*					getInput();
 	template<typename T>
 	T* 					getResult();
 	
-	//TODO see 2)	
-	int					getNDeg();
-	dvecarr3E&			getDisplacements();
-	
-	//TODO see 3)
-	bool				getReleaseInfo();
-	Info*				getInfo();
-
 	//set methods
 	void 				setGeometry(MimmoObject* geometry);
-
 	
-	//TODO see 1)
 	template<typename T>
 	void 				setInput(T* data);
 	template<typename T>
@@ -132,47 +137,28 @@ public:
 	void 				setResult(T* data);
 	template<typename T>
 	void 				setResult(T& data);
-	
-	
-	//TODO see 2)
-	void				setNDeg(int ndeg);
-	void				setDisplacements(dvecarr3E displacements);
-	
-	//TODO see 3)
-	void 				setReleaseInfo(bool flag = true);
-	virtual void		setInfo();
-	
 
-	//cleaning/unset/remove
-	//TODO 5) Not complete list of cleaning methods. To be reviewed and reorganized
+	//cleaning/unset
 	void 	unsetGeometry();
-	void	clearDisplacements();
+
+	//TODO 6) is useful to cancel all connection of this object and parent together with the presence of parent itself? see TODO 5) 
+	void 	unsetParent(BaseManipulation * parent);
+	void 	unsetChild(BaseManipulation * child);
+	void 	unsetAllParent();
+	void 	unsetAllChild();
+	
+	
 	void	clearInput();
 	void	clearResult();
 	void	clear();
-	void 	unsetParent();
-	void 	unsetChild();
-	void 	removePins();
-	void 	removePinsIn();
-	void 	removePinsOut();
-	void 	removePinIn(int i);
-	void 	removePinOut(int i);
-
+	
 	//execution utils
 	void 	exec();
-
-	//TODO see 3)
-	void	releaseInfo();
-	Info* 	recoverInfo();
-	virtual void	useInfo();
-	
 	
 protected:
-	//TODO 4) public but not intended to user interface
 	void				addParent(BaseManipulation* parent); 
 	void				addChild(BaseManipulation* child);
 	
-	//TODO 4)
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
 	template<typename T>
@@ -198,8 +184,45 @@ protected:
 	void				addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
 	template<typename T>
 	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
+
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
+	
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
+	template<typename T>
+	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
+	template<typename T>
+	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
+	
 	
 	virtual void 	execute() = 0;				//called in exec
+	
+private:
+	//TODO 5) Not completely meaningful list of internal pin cleaning methods. To be reviewed and reorganized. When launch them 
+	// pins of other linked objects survive. You need to manage them also! Another case is when a class is destroyed? Destructor 
+	//must implement also this pin removal.
+	void 	removePins();
+	void 	removePinsIn();
+	void 	removePinsOut();
+	void 	removePinIn(int i);
+	void 	removePinOut(int i);
 	
 };
 

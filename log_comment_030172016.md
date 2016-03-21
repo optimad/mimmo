@@ -2,11 +2,12 @@
 
 ##1. MimmoNamespace e BaseManipulation / ROCCO
 
- - 1.1. 5 todos in basemanipulation
+ - 1.1. 6 todos in basemanipulation
  - 1.2. Comments 
  - 1.3. line 124 and 149 static_cast unique pointer? If no virtuals are present in the base class, dynamic cast on reference fails. The only way to do this job, in template context, is using static cast (checked at compiler runtime) and hoping theuser knows how is doing. But, static cast works. [&#10004;]
  - 1.4. add mimmonamespace to each mimmo class
- - 1.5  members ndeg/displ no more required in base class. 
+ - 1.5  members ndeg/displ no more required in base class. [&#10004;]
+ - 1.6  Removal of internal pins only of a BaseManipulation class, without external removalPin method-> is meaningful? When a class is destroyed, pins with other class survive eventually. how to manage this?
 
 
 ##2. Apply / ROCCO
@@ -75,4 +76,5 @@
 ##12. Chain ROCCO
 
 - 11.1	managing total DOF of your manipulation  
-- 11.2. Comments
+- 11.2	Useful to bypass some block in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
+- 11.3 	Comments
