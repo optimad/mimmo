@@ -92,12 +92,23 @@ std::function<void(VAL)> mimmo::pin::pinSet(void (T::*fset) (VAL*), U* obj){
 
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
+void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
+
+	objSend->removePinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGet(fget, objSend));
+	objRec->removePinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSet(fset, objRec));
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
+
+
+
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
 
 	objSend->removePinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGet(fget, objSend));
 	objRec->removePinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
@@ -106,8 +117,8 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S:
 
 	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
 	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
@@ -116,8 +127,8 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S:
 
 	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
 	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
@@ -126,8 +137,8 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::
 
 	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGet(fget, objSend));
 	objRec->addPinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
@@ -136,8 +147,8 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S:
 
 	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
 	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
@@ -146,8 +157,8 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S:
 
 	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
 	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+	objSend->unsetChild(objRec);
+	objRec->unsetParent(objSend);
 
 }
 
