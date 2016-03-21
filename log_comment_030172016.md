@@ -27,11 +27,12 @@
 
 ##5. FFD Lattice / EDOARDO
 
-- 5.1. modify execute in order to use m_result of base class
-- 5.2. use input of base class and avoid the use of displ
-- 5.3 	Atomize set/get methods for paramaters & output of classes, according to new pin inout style
-- 5.4  Adjusting set/get of primitive class BasicMesh and included Class BasicShape
-- 5.5. Comments
+- 5.1. modify execute in order to use m_result of base class  [&#10004;]
+- 5.2. use input of base class and avoid the use of displ (m_displ for the moment set as member of lattice, input of base class is temporary)  [&#10004;] 
+- 5.3 	Atomize set/get methods for paramaters & output of classes, according to new pin inout style  [&#10004;]
+- 5.4  Adjusting set/get of primitive class BasicMesh and included Class BasicShape  [&#10004;]
+- 5.5. Test new design 
+- 5.6. Comments 
 
 
 ##6. Bend / ROCCO
