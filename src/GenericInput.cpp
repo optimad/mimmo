@@ -77,7 +77,8 @@ GenericInput::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-/*!Execution command. It reads by file the displacements of the degrees of freedom.
+/*!Execution command. It reads by file the input or it uses the input of base class
+ * set by user.
  */
 void
 GenericInput::execute(){
@@ -85,7 +86,6 @@ GenericInput::execute(){
 		ifstream file;
 		file.open(m_filename);
 		if (file.is_open()){
-			file >> m_ndeg;
 			darray3E row;
 			dvecarr3E input;
 			while(!file.eof()){
@@ -97,13 +97,14 @@ GenericInput::execute(){
 			file.close();
 			setInput(input);
 		}else{
-			m_ndeg = 0;
 			clearInput();
 			cout << "file not open --> exit" << endl;
 			exit(1);
 		}
 	}
-	dvecarr3E* dummy = getInput<dvecarr3E>();
-	setResult(dummy);
+	setResult(getInput());
 };
+
+
+
 

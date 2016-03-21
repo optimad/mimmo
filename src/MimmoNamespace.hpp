@@ -54,13 +54,13 @@ template<typename T, typename U, typename VAL>
 std::function<VAL&(void)> pinGetR(VAL& (T::*fget) (), U* obj);
 
 template<typename T, typename U, typename VAL>
-std::function<VAL*(void)> pinGetR(VAL* (T::*fget) (), U* obj);
+std::function<VAL*(void)> pinGetP(VAL* (T::*fget) (), U* obj);
 
 template<typename T, typename U, typename VAL>
 std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj);
 
 template<typename T, typename U, typename VAL>
-std::function<void(VAL)> pinSet(void (T::*fset) (VAL*), U* obj);
+std::function<void(VAL)> pinSetP(void (T::*fset) (VAL*), U* obj);
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removeAllPins(OO* objSend, OI* objRec);

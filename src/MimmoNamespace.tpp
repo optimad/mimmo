@@ -1,3 +1,4 @@
+#include "InOut.hpp"
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
@@ -94,7 +95,7 @@ std::function<void(VAL*)> mimmo::pin::pinSetP(void (T::*fset) (VAL*), U* obj){
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
-	vector<Inout*> pinsOut = objSend->getPinsOut();
+	std::vector<InOut*> pinsOut = objSend->getPinsOut();
 	int removed = 0;
 	for (int i=0; i<objSend->getNPinsOut(); i++){
 		if (pinsOut[i]->getLink() == objRec){
@@ -105,8 +106,8 @@ void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 		pinsOut[i] = NULL;
 	}
 
-	vector<Inout*> pinsIn = objRec->getPinsIn();
-	int removed = 0;
+	std::vector<InOut*> pinsIn = objRec->getPinsIn();
+	removed = 0;
 	for (int i=0; i<objRec->getNPinsIn(); i++){
 		if (pinsIn[i]->getLink() == objSend){
 			objRec->removePinIn(i-removed);

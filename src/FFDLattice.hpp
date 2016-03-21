@@ -99,7 +99,7 @@ public:
 	void 		setCoordTypex(BasicShape::CoordType type);
 	void 		setCoordTypey(BasicShape::CoordType type);
 	void 		setCoordTypez(BasicShape::CoordType type);
-	void 		setCoordType(array<BasicShape::CoordType,3> type);
+	void 		setCoordType(std::array<BasicShape::CoordType,3> type);
 	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions);
 	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
 	void 		setMesh(BasicShape * shape, ivector1D & dimension);

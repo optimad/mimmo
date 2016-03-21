@@ -61,7 +61,8 @@ public:
 	void setReadFromFile(bool readFromFile);
 	void setFilename(std::string filename);
 
-	void 	execute();
+	//TODO read generic input (template read?)
+	void execute();
 
 };
 

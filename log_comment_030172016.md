@@ -17,8 +17,8 @@
 
 ##3. GenericInput / ROCCO
 
- - 3.1. Better implementation
- - 3.2. when reading files is not exactly a generic input but is specialized only to dvecarr3E data  
+ - 3.1. Template read implementation
+ - 3.1. Template set input implementation
  - 3.3. Comments
 
 ##4. Info

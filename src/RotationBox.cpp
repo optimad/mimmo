@@ -26,7 +26,6 @@
 ///*!Default constructor of RotationBox
 // */
 RotationBox::RotationBox(darray3E origin, darray3E direction){
-	m_ndeg = 1;
 	m_origin = origin;
 	m_direction = direction;
 };

@@ -422,6 +422,7 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 /*! Basic Constructor */
 Cube::Cube(){
 	m_shape=ShapeType::CUBE;
+	m_span = {{1.0, 1.0, 1.0}};
 };
 
  /*! Custom Constructor. Set shape origin, span of the cube,
@@ -580,6 +581,8 @@ void 		Cube::setScaling( double &s0, double &s1, double &s2){
 /*! Basic Constructor */
 Cylinder::Cylinder(){
 	m_shape=ShapeType::CYLINDER;
+	m_span = {{1.0, 2*M_PI, 1.0}};
+	setCoordinateType(CoordType::PERIODIC, 1);
 };
 
 /*! Custom Constructor. Set shape origin, inferior/superior limits of the cylinder
@@ -768,7 +771,9 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 /*! Basic Constructor */
 Sphere::Sphere(){
 	m_shape=ShapeType::SPHERE;
-	setCoordinateType(BasicShape::CoordType::CLAMPED, 2);
+	m_span = {{1.0, 2*M_PI, M_PI}};
+	setCoordinateType(CoordType::PERIODIC, 1);
+	setCoordinateType(CoordType::CLAMPED, 2);
 };
 
 /*! Custom Constructor. Set shape origin, inferior/superior limits of the sphere

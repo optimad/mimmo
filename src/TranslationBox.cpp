@@ -26,7 +26,6 @@
 ///*!Default constructor of TranslationBox
 // */
 TranslationBox::TranslationBox(darray3E direction){
-	m_ndeg = 1;
 	m_direction = direction;
 };
 //

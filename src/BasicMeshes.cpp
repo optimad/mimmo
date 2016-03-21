@@ -227,7 +227,11 @@ BasicShape::CoordType UStructMesh::getCoordTypez(){
  * \return Type of all the cooordinates.
  */
 array<BasicShape::CoordType, 3> UStructMesh::getCoordType(){
-	return(getShape()->getCoordinateType(dir));
+	array<BasicShape::CoordType, 3> types;
+	for (int i=0; i<3; i++){
+		types[i] = getShape()->getCoordinateType(i);
+	}
+	return(types);
 }
 
 /*! Return current mesh spacing */
@@ -457,16 +461,6 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 	getShape()->setRefSystem(2,axes[2]);
 }
 
-/*! Set mesh spacing
- * \param[in] spacing Spacing for the three dimensions*/
-void UStructMesh::setSpacing(darray3E spacing){
-	darray3E scale = max(0, getScaling());
-	if (scale == 0) scale = 1;
-	m_dx = spacing[0]/scale[0];
-	m_dy = spacing[1]/scale[1];
-	m_dz = spacing[2]/scale[2];
-};
-
 /*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
  void UStructMesh::setDimension(ivector1D dim){
 	 m_nx = dim[0] - 1;
@@ -487,24 +481,26 @@ void UStructMesh::setSpacing(darray3E spacing){
  * It rebuilds the mesh after set the shape.
  * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  */
-void UStructMesh::setShapeType(BasicShape::ShapeType type){
+void UStructMesh::setShape(BasicShape::ShapeType type){
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
 	// unlink external shape eventually
 	m_shape1 = NULL;
 	if(m_shape2){m_shape2.release();}
 
+	//default values of origin (0,0,0) and span (1,1,1)cube (1,2*pi,pi)sphere (1,2*pi,1)cylinder
+
 	switch(type){
 		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(m_origin, m_span));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder());
 			dimLimit[1] = 5;
 			break;
 		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(m_origin, m_span));
+			m_shape2 = std::unique_ptr<BasicShape>(new Sphere());
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube(m_origin, m_span));
+			m_shape2 = std::unique_ptr<BasicShape>(new Cube());
 		break;
 	}
 

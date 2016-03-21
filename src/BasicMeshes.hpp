@@ -27,6 +27,7 @@
 
 // local libs
 #include <memory>
+#include <array>
 #include "BasicShapes.hpp"
 #include "MiMMO_TypeDef.hpp"
 
@@ -73,9 +74,7 @@ public:
 	
 	
 	//get-set methods  
-	//const BasicShape*		getShape() const;
-	//Basic shape members private (even methods + friendship to basicmesh)
-	//With const we can't use in pins in/out methods.
+	const BasicShape*		getShape() const;
 	BasicShape*				getShape();
 	darray3E				getOrigin();
 	darray3E				getSpan();
@@ -89,7 +88,7 @@ public:
 	BasicShape::CoordType	getCoordTypey();
 	BasicShape::CoordType	getCoordTypez();
 
-	array<BasicShape::CoordType,3>	getCoordType();
+	std::array<BasicShape::CoordType,3>	getCoordType();
 	
 	darray3E 				getSpacing();
 	ivector1D				getDimension();
@@ -118,11 +117,10 @@ public:
 	void	setRefSystem(int, darray3E);
 	void	setRefSystem(dmatrix33E);
 
-	void	setSpacing(darray3E spaceing);
 	void	setDimension(ivector1D dim);
 	void	setDimension(iarray3E dim);
 
-	void 	setShapeType(BasicShape::ShapeType type);
+	void 	setShape(BasicShape::ShapeType type);
 	void 	setShape(BasicShape *);
 
 	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);

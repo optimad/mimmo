@@ -112,24 +112,6 @@ Mask::setInside(int i, bool inside){
 	if (i >= 0 && i < 3) m_inside[i] = inside;
 };
 
-
-void
-Mask::useInfo(){
-	if (m_ndeg !=  m_info->m_coords.size() || m_info->m_naxes != 3){
-		std::cout << m_ndeg << std::endl;
-		std::cout << m_info->m_coords.size()  << std::endl;
-		std::cout << "#degrees : " << m_ndeg << " - #coords : " << m_info->m_coords.size() << std::endl;
-		std::cout << "Incoherent Size ---> end of process " << std::endl;
-		exit(1001);
-	}
-	m_coords.resize(m_info->m_coords.size());
-	for (int i=0; i<m_ndeg; i++){
-		for (int j=0; j<3; j++){
-			m_coords[i][j] = m_info->m_coords[i][j];
-		}
-	}
-}
-
 /*!Execution command. It modifies the displacements given by the input manipulation object
  * with the masking conditions.
  * The input has to be set with a dvecarr3E variable (mask it casts the template method getInput

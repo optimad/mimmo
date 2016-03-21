@@ -54,7 +54,7 @@ InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
 template<typename T>
 bool InOutT<T>::operator==(const InOutT<T> & other){
 	bool equal = true;
-	equal &= (*this InOut::== other);
+	equal &= (m_objLink == other.m_objLink);
 	equal &= (m_getVal == other.m_getVal);
 	equal &= (m_getValR == other.m_getValR);
 	equal &= (m_getValP == other.m_getValP);
@@ -71,7 +71,6 @@ bool InOutT<T>::operator==(const InOutT<T> & other){
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getVal	= getVal;
 	m_setVal	= setVal;
@@ -85,7 +84,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std:
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getVal	= getVal;
 	m_setVal	= setVal;
@@ -99,7 +97,6 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getValR	= getValR;
 	m_setVal	= setVal;
@@ -113,7 +110,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, st
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getValR	= getValR;
 	m_setVal	= setVal;
@@ -127,7 +123,6 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getValP	= getValP;
 	m_setVal	= setVal;
@@ -141,7 +136,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, st
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getValP	= getValP;
 	m_setVal	= setVal;
@@ -155,7 +149,6 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getVal	= getVal;
 	m_setValP	= setValP;
@@ -169,7 +162,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std:
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getVal	= getVal;
 	m_setValP	= setValP;
@@ -183,7 +175,6 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getValR	= getValR;
 	m_setValP	= setValP;
@@ -197,7 +188,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, st
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getValR	= getValR;
 	m_setValP	= setValP;
@@ -211,7 +201,6 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
 template<typename T>
 void
 InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP){
-	m_type 		= false;
 	m_objLink 	= objIn;
 	m_getValP	= getValP;
 	m_setValP	= setValP;
@@ -225,7 +214,6 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, st
 template<typename T>
 void
 InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP){
-	m_type 		= true;
 	m_objLink	= objOut;
 	m_getValP	= getValP;
 	m_setValP	= setValP;

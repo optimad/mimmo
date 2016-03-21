@@ -68,7 +68,7 @@ protected:
 	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 	
 	
-private:
+public:
 	
 	//Costructors, Destructor, Copy/Assignment operators
     BasicShape();
