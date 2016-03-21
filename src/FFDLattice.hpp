@@ -55,7 +55,7 @@ public:
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
-	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */ 
+	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */
 	
 	//TODO now in basemanipulation base class there is a result member, here it is useless!
 	dvecarr3E	m_result;
@@ -66,7 +66,7 @@ public:
 	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
 	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
 	FFDLattice(BasicShape * shape, ivector1D & dimension);
-	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);	
+	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 	virtual ~FFDLattice();
 
 	//copy operators/constructors

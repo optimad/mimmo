@@ -47,23 +47,24 @@
 class UStructMesh{
 
 private:
-	BasicShape * m_shape1;				 /**!< generic pointer to BasicShape core of the mesh, for External USE*/
-	std::unique_ptr<BasicShape> m_shape2;/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
+	BasicShape * 				m_shape1; 	/**!< generic pointer to BasicShape core of the mesh, for External USE*/
+	std::unique_ptr<BasicShape>	m_shape2;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
 							
 protected:
-	double m_dx, m_dy,m_dz;					/**< Mesh spacing in each direction */	
-	int m_nx, m_ny,m_nz;					/**< Mesh number of cells in each direction */
-	dvector1D m_xnode, m_ynode, m_znode; /**<Lists holding the center cells coordinates of the mesh, in local reference sistem */
-	dvector1D m_xedge, m_yedge, m_zedge; /**<Lists holding the point coordinates of the mesh, in local reference system */
-	bool m_setmesh;						 /**< check true if mesh is actually set */
+	double				m_dx, m_dy, m_dz;	/**< Mesh spacing in each direction */
+	int					m_nx, m_ny, m_nz;	/**< Mesh number of cells in each direction */
+	dvector1D 	m_xnode, m_ynode, m_znode; 	/**< Lists holding the center cells coordinates of the mesh, in local reference sistem */
+	dvector1D 	m_xedge, m_yedge, m_zedge; 	/**< Lists holding the point coordinates of the mesh, in local reference system */
+	//TODO m_setmesh useful?
+	bool						m_setmesh; 	/**< check true if mesh is actually set */
 
 public:	     
 	//Building stuffs	    
 	UStructMesh();
-	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
-	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
-	UStructMesh(BasicShape *, ivector1D & dimensions);
-	UStructMesh(BasicShape *, dvector1D & spacing);
+//	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
+//	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
+//	UStructMesh(BasicShape *, ivector1D & dimensions);
+//	UStructMesh(BasicShape *, dvector1D & spacing);
 	virtual ~UStructMesh();
 	
 	// Copy constructor & assignment operators
@@ -72,53 +73,70 @@ public:
 	
 	
 	//get-set methods  
-	const BasicShape*	getShape() const;
-	darray3E			getOrigin();
-	darray3E			getSpan();
-	darray3E			getInfLimits();
-	dmatrix33E			getRefSystem();
-	darray3E			getScaling();
-	darray3E			getLocalSpan();
-	BasicShape::ShapeType getShapeType();
-	BasicShape::CoordType getCoordType(int);
-	
-	darray3E 		getSpacing();
-	ivector1D		getDimension();
+	const BasicShape*		getShape() const;
+	darray3E				getOrigin();
+	darray3E				getSpan();
+	darray3E				getInfLimits();
+	dmatrix33E				getRefSystem();
+	darray3E				getScaling();
+	darray3E				getLocalSpan();
+	BasicShape::ShapeType	getShapeType();
+	BasicShape::CoordType	getCoordType(int);
+	BasicShape::CoordType	getCoordTypex();
+	BasicShape::CoordType	getCoordTypey();
+	BasicShape::CoordType	getCoordTypez();
 
-	darray3E 		getLocalCCell(int);
-	darray3E 		getLocalCCell(int, int, int);
-	darray3E 		getLocalPoint(int);
-	darray3E 		getLocalPoint(int, int, int);
-	darray3E 		getGlobalCCell(int);
-	darray3E 		getGlobalCCell(int, int, int);
-	darray3E 		getGlobalPoint(int);
-	darray3E 		getGlobalPoint(int, int, int);
+	array<BasicShape::CoordType,3>	getCoordType();
 	
-	ivector1D 		getCellNeighs(int);
-	ivector1D 		getCellNeighs(int, int, int);
+	darray3E 				getSpacing();
+	ivector1D				getDimension();
 
-	void		changeOrigin(darray3E);
-	void		changeSpan(double, double, double, bool flag = true);
-	void		setInfLimits(double val, int dir, bool flag = true);
-	void		setRefSystem(darray3E, darray3E, darray3E);
-	void		setRefSystem(int, darray3E);
+	darray3E 				getLocalCCell(int);
+	darray3E 				getLocalCCell(int, int, int);
+	darray3E 				getLocalPoint(int);
+	darray3E 				getLocalPoint(int, int, int);
+	darray3E 				getGlobalCCell(int);
+	darray3E 				getGlobalCCell(int, int, int);
+	darray3E 				getGlobalPoint(int);
+	darray3E 				getGlobalPoint(int, int, int);
 	
-	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
-	void 		setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
-	void 		setMesh(BasicShape *, ivector1D & dimensions);
-	void 		setMesh(BasicShape *, dvector1D & spacing);
+	ivector1D 				getCellNeighs(int);
+	ivector1D 				getCellNeighs(int, int, int);
+
+	//TODO each set method does a rebuild of the mesh, can be found an alternative strategy?
+	void	changeOrigin(darray3E origin);
+	void	changeSpan(double, double, double, bool flag = true);
+	void	changeSpan(darray3E span);
+	void	setInfLimits(double val, int dir, bool flag = true);
+	void	setInfLimits(darray3E val);
+
+	void	setRefSystem(darray3E, darray3E, darray3E);
+	void	setRefSystem(int, darray3E);
+	void	setRefSystem(dmatrix33E);
+
+	void	setSpacing(darray3E spaceing);
+	void	setDimension(ivector1D dim);
+	void	setDimension(iarray3E dim);
+
+	void 	setShapeType(BasicShape::ShapeType type);
+	void 	setShape(BasicShape *);
+
+	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
+	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
+	void 	setMesh(BasicShape *, ivector1D & dimensions);
+	void 	setMesh(BasicShape *, dvector1D & spacing);
 
 	//generic manteinance of the mesh
-	void clearMesh();  
-	bool isBuilt();
+	void	clearMesh();
+	bool	isBuilt();
 	
 	//functionalities
-	void locateCellByPoint(darray3E & point, int &i, int &j, int &k);
-	void locateCellByPoint(dvector1D & point, int &i, int &j, int &k);
-	int  accessCellIndex(int i, int j, int k);
-	void accessCellIndex(int N_, int &i, int &j, int &k);
-	int  accessPointIndex(int i, int j, int k);
-	void accessPointIndex(int N_, int &i, int &j, int &k);
+	void 	locateCellByPoint(darray3E & point, int &i, int &j, int &k);
+	void 	locateCellByPoint(dvector1D & point, int &i, int &j, int &k);
+	int  	accessCellIndex(int i, int j, int k);
+	void 	accessCellIndex(int N_, int &i, int &j, int &k);
+	int  	accessPointIndex(int i, int j, int k);
+	void 	accessPointIndex(int N_, int &i, int &j, int &k);
 	
 	darray3E	transfToGlobal( darray3E & point);
 	dvector1D	transfToGlobal( dvector1D & point);
@@ -128,27 +146,27 @@ public:
 	dvecarr3E 	transfToLocal( dvecarr3E & list_points);    
 	
 	// interpolators  
-	double interpolateCellData(darray3E & point, dvector1D & celldata);
-	int interpolateCellData(darray3E & point, ivector1D & celldata);
-	darray3E interpolateCellData(darray3E & point, dvecarr3E & celldata);
+	double 		interpolateCellData(darray3E & point, dvector1D & celldata);
+	int 		interpolateCellData(darray3E & point, ivector1D & celldata);
+	darray3E	interpolateCellData(darray3E & point, dvecarr3E & celldata);
 	
-	double interpolatePointData(darray3E & point, dvector1D & pointdata);
-	int interpolatePointData(darray3E & point, ivector1D & pointdata);
-	darray3E interpolatePointData(darray3E & point, dvecarr3E & pointdata);
+	double		interpolatePointData(darray3E & point, dvector1D & pointdata);
+	int 		interpolatePointData(darray3E & point, ivector1D & pointdata);
+	darray3E	interpolatePointData(darray3E & point, dvecarr3E & pointdata);
 
 	//plotting
-	void plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
-	void plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
-	void plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
-	void plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
+	void 		plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
+	void 		plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
+	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
+	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
 
 protected:
 	//internal manteinance of the mesh
-	BasicShape*		getShape();
-	void resizeMesh();
-	void destroyNodalStructure();
-	void reshapeNodalStructure();
-	void rebaseMesh();
+	BasicShape*	getShape();
+	void 		resizeMesh();
+	void 		destroyNodalStructure();
+	void 		reshapeNodalStructure();
+	void 		rebaseMesh();
 	
 };
 

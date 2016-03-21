@@ -54,45 +54,45 @@ UStructMesh::UStructMesh(){
 	m_setmesh = false;
 };
 
-/*! Custom Constructor. Set your mesh, according to the following input parameters
- * \param[in] origin 3D point origin of your mesh 
- * \param[in] span span for each coordinate defining your mesh
- * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
- * \param[in] dimensions number of mesh points for each coordinate.
- */
-UStructMesh::UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions): 
-			UStructMesh()
-{
-	setMesh(origin,span,type,dimensions);
-};
-
-/*! Custom Constructor. Set your mesh, according to the following input parameters
- * \param[in] origin 3D point baricenter of your mesh 
- * \param[in] span span for each coordinate defining your mesh
- * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
- * \param[in] spacing fixed spacing for each coordinate
- */
-UStructMesh::UStructMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, dvector1D &spacing):
-		UStructMesh()
-{
-	setMesh(origin,span,type,spacing);
-};
-
-/*! Custom Constructor. Set your mesh, according to the following input parameters
- * \param[in] shape pointer to an external allocated BasicShape object
- * \param[in] dimensions number of mesh points for each coordinate.
- */
-UStructMesh::UStructMesh(BasicShape * shape, ivector1D & dimensions):UStructMesh(){
-	setMesh(shape, dimensions);
-};
-
-/*! Custom Constructor. Set your mesh, according to the following input parameters
- * \param[in] shape pointer to an external allocated BasicShape object
- * \param[in] spacing fixed spacing for each coordinate
- */
-UStructMesh::UStructMesh(BasicShape * shape, dvector1D & spacing):UStructMesh(){
-	setMesh(shape, spacing);
-};
+///*! Custom Constructor. Set your mesh, according to the following input parameters
+// * \param[in] origin 3D point origin of your mesh
+// * \param[in] span span for each coordinate defining your mesh
+// * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+// * \param[in] dimensions number of mesh points for each coordinate.
+// */
+//UStructMesh::UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions):
+//			UStructMesh()
+//{
+//	setMesh(origin,span,type,dimensions);
+//};
+//
+///*! Custom Constructor. Set your mesh, according to the following input parameters
+// * \param[in] origin 3D point baricenter of your mesh
+// * \param[in] span span for each coordinate defining your mesh
+// * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+// * \param[in] spacing fixed spacing for each coordinate
+// */
+//UStructMesh::UStructMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, dvector1D &spacing):
+//		UStructMesh()
+//{
+//	setMesh(origin,span,type,spacing);
+//};
+//
+///*! Custom Constructor. Set your mesh, according to the following input parameters
+// * \param[in] shape pointer to an external allocated BasicShape object
+// * \param[in] dimensions number of mesh points for each coordinate.
+// */
+//UStructMesh::UStructMesh(BasicShape * shape, ivector1D & dimensions):UStructMesh(){
+//	setMesh(shape, dimensions);
+//};
+//
+///*! Custom Constructor. Set your mesh, according to the following input parameters
+// * \param[in] shape pointer to an external allocated BasicShape object
+// * \param[in] spacing fixed spacing for each coordinate
+// */
+//UStructMesh::UStructMesh(BasicShape * shape, dvector1D & spacing):UStructMesh(){
+//	setMesh(shape, spacing);
+//};
 
 /*! Basic destructor */
 UStructMesh::~UStructMesh(){
@@ -202,10 +202,31 @@ BasicShape::ShapeType UStructMesh::getShapeType(){
 	return(getShape()->getShapeType());
 }
 
-/*! Return coordinate type of of a BasicShape mesh core. See BasicShape::CoordType enum.
- * \param[in] dir 0,1,2 flag identifies coordinates
+/*! Return coordinate type of component 0 a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
  */
-BasicShape::CoordType UStructMesh::getCoordType(int dir){
+BasicShape::CoordType UStructMesh::getCoordTypex(){
+	return(getShape()->getCoordinateType(0));
+}
+
+/*! Return coordinate type of component 1 a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ */
+BasicShape::CoordType UStructMesh::getCoordTypey(){
+	return(getShape()->getCoordinateType(1));
+}
+
+/*! Return coordinate type of component 2 a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ */
+BasicShape::CoordType UStructMesh::getCoordTypez(){
+	return(getShape()->getCoordinateType(2));
+}
+
+/*! Return coordinates type of a BasicShape mesh core. See BasicShape::CoordType enum.
+ * \return Type of all the cooordinates.
+ */
+array<BasicShape::CoordType, 3> UStructMesh::getCoordType(){
 	return(getShape()->getCoordinateType(dir));
 }
 
@@ -360,6 +381,7 @@ ivector1D UStructMesh::getCellNeighs(int index){
 void UStructMesh::changeOrigin(darray3E origin){
 	getShape()->setOrigin(origin);
 }
+
 /*! Set span of your shape, according to its local reference system 
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
@@ -374,6 +396,15 @@ void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
 	}
 }
 
+/*! Set span of your shape, according to its local reference system. After set the span
+ * the mesh i rebuilt according to the new input.
+ * \param[in] s coordinates span
+ */
+void UStructMesh::changeSpan(darray3E s){
+	getShape()->setSpan( s[0], s[1], s[2]);
+	rebaseMesh();
+}
+
 /*! Set coordinate's origin of your shape, according to its local reference system  
  * \param[in] orig first coordinate origin
  * \param[in] dir 0,1,2 int flag identifying coordinate
@@ -385,6 +416,17 @@ void UStructMesh::setInfLimits(double orig, int dir, bool flag){
 	if(flag){
 		rebaseMesh();
 	}
+}
+
+/*! Set coordinates' origin of your shape, according to its local reference system.
+ * Mesh is rebuilt according to the new input.
+ * \param[in] orig coordinates' origin
+ */
+void UStructMesh::setInfLimits(darray3E orig){
+	getShape()->setInfLimits(orig[0], 0);
+	getShape()->setInfLimits(orig[1], 1);
+	getShape()->setInfLimits(orig[2], 2);
+	rebaseMesh();
 }
 
 /*! Set new axis orientation of the local reference system of your mesh core shape
@@ -405,6 +447,113 @@ void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 void UStructMesh::setRefSystem(int label, darray3E axis){
 	getShape()->setRefSystem(label,axis);
 }
+
+/*! Set new axis orientation of the local reference system of your mesh core shape
+ * \param[in] axis new direction of all local axes.
+ */
+void UStructMesh::setRefSystem(dmatrix33E axes){
+	getShape()->setRefSystem(0,axes[0]);
+	getShape()->setRefSystem(1,axes[1]);
+	getShape()->setRefSystem(2,axes[2]);
+}
+
+/*! Set mesh spacing
+ * \param[in] spacing Spacing for the three dimensions*/
+void UStructMesh::setSpacing(darray3E spacing){
+	darray3E scale = max(0, getScaling());
+	if (scale == 0) scale = 1;
+	m_dx = spacing[0]/scale[0];
+	m_dy = spacing[1]/scale[1];
+	m_dz = spacing[2]/scale[2];
+};
+
+/*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
+ void UStructMesh::setDimension(ivector1D dim){
+	 m_nx = dim[0] - 1;
+	 m_ny = dim[1] - 1;
+	 m_nz = dim[2] - 1;
+};
+
+ /*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
+  void UStructMesh::setDimension(iarray3E dim){
+ 	 m_nx = dim[0] - 1;
+ 	 m_ny = dim[1] - 1;
+ 	 m_nz = dim[2] - 1;
+ };
+
+
+
+/*! Set your shape, according to the following input parameters and the already saved/default parmaters.
+ * It rebuilds the mesh after set the shape.
+ * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+ */
+void UStructMesh::setShapeType(BasicShape::ShapeType type){
+	ivector1D dimLimit(3,2);
+	//create internal shape using unique_ptr member.
+	// unlink external shape eventually
+	m_shape1 = NULL;
+	if(m_shape2){m_shape2.release();}
+
+	switch(type){
+		case BasicShape::ShapeType::CYLINDER :
+			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(m_origin, m_span));
+			dimLimit[1] = 5;
+			break;
+		case BasicShape::ShapeType::SPHERE :
+			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(m_origin, m_span));
+			dimLimit[1] = 5; dimLimit[2] = 3;
+			break;
+		default://CUBE
+			m_shape2 = std::unique_ptr<BasicShape>(new Cube(m_origin, m_span));
+		break;
+	}
+
+	//check on dimensions and eventual closed loops on coordinates.
+	m_nx = std::max(m_nx, dimLimit[0])-1;
+	m_ny = std::max(m_ny, dimLimit[1])-1;
+	m_nz = std::max(m_nz, dimLimit[2])-1;
+
+	rebaseMesh();
+	m_setmesh = true;
+}
+
+
+/*! Set mesh shape, according to the following input parameters.
+ * It sets to default values of number of point in each direction [ (2,2,2) for a cube,
+ * (2,5,2) for a cylinder, (2,5,3) for a sphere ].
+ * It rebuilds a mesh after the set of the shape.
+ * \param[in] shape pointer to an external allocated BasicShape object
+ */
+void UStructMesh::setShape(BasicShape * shape){
+
+	ivector1D dimLimit(3,2);
+	//create internal shape using unique_ptr member.
+	// unlink external shape eventually
+	m_shape1 = NULL;
+	if(m_shape2){m_shape2.release();}
+
+	m_shape1 = shape;
+
+	switch(shape->getShapeType()){
+		case BasicShape::ShapeType::CYLINDER :
+			dimLimit[1] = 5;
+			break;
+		case BasicShape::ShapeType::SPHERE :
+			dimLimit[1] = 5; dimLimit[2] = 3;
+			break;
+		default://CUBE
+			break;
+	}
+
+	//check on dimensions and eventual closed loops on coordinates.
+	m_nx = std::max(m_nx, dimLimit[0])-1;
+	m_ny = std::max(m_ny, dimLimit[1])-1;
+	m_nz = std::max(m_nz, dimLimit[2])-1;
+
+	rebaseMesh();
+	m_setmesh = true;
+
+};
 
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
