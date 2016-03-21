@@ -62,9 +62,9 @@
 - 9.3. useInfo maybe useless
 - 9.4. Comments
 
-##10. InOut Pin block/ EDOARDO
+##10. InOut Pin block/ EDOARDO  [&#10004;]
 
-- 10.1 Comments
+- 10.1 Comments  [&#10004;]
 
 
 ##11. Mimmo Tests/ ROCCO/ EDOARDO

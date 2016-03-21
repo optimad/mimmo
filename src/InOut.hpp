@@ -28,6 +28,7 @@
 #include <functional>
 
 class BaseManipulation;
+
 /*!
  *	\date			14/mar/2016
  *	\authors		Rocco Arpa
@@ -35,7 +36,10 @@ class BaseManipulation;
  *
  *	\brief InOut is the input-output PIN class.
  *
- *	OR input OR output.
+ *	A pin is an object member of BaseManipulation object.
+ *	Through a pin two base manipulation objects are linked together. One of these two
+ *	objects is the parent object that gives an output to the other one that takes
+ *	this value as input. Therefore a pin can be OR input OR output pin for an object.
  *
  */
 class InOut{
@@ -64,6 +68,29 @@ public:
 // TEMPLATE DERIVED INOUT CLASS									//
 //==============================================================//
 
+/*!
+ *	\date			14/mar/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief InOutT is the input-output templated PIN class derived from base InOut pin class.
+ *
+ *	A pin is an object member of BaseManipulation object.
+ *	Through a pin two base manipulation objects are linked together. One of these two
+ *	objects is the parent object that gives an output to the other one that takes
+ *	this value as input. Therefore a pin can be OR input OR output pin for an object.
+ *
+ *	The parent object gives the output value by a function set by the user
+ *	during the creation of the pin (getVal functions), while the child object
+ *	use this value by a set function (setVal function).
+ *	The functions are given to the pin by get/set function objects with any
+ *	type of value (the same for the two functions of the linked object) by using
+ *	the template formulation. The functions have to be function objects of the standard library
+ *	(functional include) created by the bind method.
+ *	The input/output value can be returned by copy, reference or pointer by the get function
+ *	of the parent and it can be passed by copy or pointer to the set value of the child object.
+ *
+ */
 template<typename T>
 class InOutT: public InOut {
 
@@ -99,192 +126,6 @@ public:
 
 };
 
-//==============================================================//
-// TEMPLATE DERIVED INOUT CLASS	TEMPLATE METHODS				//
-//==============================================================//
-
-/*!Default constructor of InOutT
- */
-template<typename T>
-InOutT<T>::InOutT(){
-	m_getVal 	= NULL;
-	m_getValR 	= NULL;
-	m_getValP 	= NULL;
-	m_setVal 	= NULL;
-	m_setValP 	= NULL;
-};
-
-
-/*!Default destructor of InOutT
- */
-template<typename T>
-InOutT<T>::~InOutT(){
-	m_getVal 	= NULL;
-	m_getValR 	= NULL;
-	m_getValP 	= NULL;
-	m_setVal 	= NULL;
-	m_setValP 	= NULL;
-};
-
-/*!Copy constructor of InOutT.
- */
-template<typename T>
-InOutT<T>::InOutT(const InOutT<T> & other){
-	m_getVal 	= other.m_getVal;
-	m_getValR 	= other.m_getValR;
-	m_getValP 	= other.m_getValP;
-	m_setVal 	= other.m_setVal;
-	m_setValP 	= other.m_setValP;
-};
-
-/*!Assignement operator of InOutT.
- */
-template<typename T>
-InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
-	m_getVal 	= other.m_getVal;
-	m_getValR 	= other.m_getValR;
-	m_getValP 	= other.m_getValP;
-	m_setVal 	= other.m_setVal;
-	m_setValP 	= other.m_setValP;
-	return (*this);
-};
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getVal	= getVal;
-	m_setVal	= setVal;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getVal	= getVal;
-	m_setVal	= setVal;
-};
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getValR	= getValR;
-	m_setVal	= setVal;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getValR	= getValR;
-	m_setVal	= setVal;
-};
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getValP	= getValP;
-	m_setVal	= setVal;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getValP	= getValP;
-	m_setVal	= setVal;
-};
-
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getVal	= getVal;
-	m_setValP	= setValP;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getVal	= getVal;
-	m_setValP	= setValP;
-};
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getValR	= getValR;
-	m_setValP	= setValP;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getValR	= getValR;
-	m_setValP	= setValP;
-};
-
-template<typename T>
-void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP){
-	m_type 		= false;
-	m_objLink 	= objIn;
-	m_getValP	= getValP;
-	m_setValP	= setValP;
-};
-
-template<typename T>
-void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP){
-	m_type 		= true;
-	m_objLink	= objOut;
-	m_getValP	= getValP;
-	m_setValP	= setValP;
-};
-
-
-template<typename T>
-void
-InOutT<T>::exec(){
-	if (m_getVal != NULL){
-		T val = m_getVal();
-		if (m_setVal != NULL){
-			m_setVal(val);
-		}else if (m_setValP != NULL){
-			m_setValP(&val);
-		}
-	}else if (m_getValR != NULL){
-		T& val = m_getValR();
-		if (m_setVal != NULL){
-			m_setVal(val);
-		}else if (m_setValP != NULL){
-			m_setValP(&val);
-		}
-	}else if (m_getValP != NULL){
-		T* val = m_getValP();
-		if (m_setVal != NULL){
-			m_setVal(*val);
-		}else if (m_setValP != NULL){
-			m_setValP(val);
-		}
-	}
-};
-
+#include "InOut.tpp"
 
 #endif /* __INOUT_HPP__ */
