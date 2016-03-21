@@ -21,6 +21,8 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
+#include <iterator>
+#include <utility>
 #include "BaseManipulation.hpp"
 
 using namespace std;
@@ -118,7 +120,7 @@ BaseManipulation::getNParent(){
 BaseManipulation*
 BaseManipulation::getParent(int i){
 	if (i>m_parent.size()-1) return NULL;
-	return m_parent[i];
+	return next(m_parent.begin(), i)->first;
 };
 
 /*!It gets the number of children linked to the manipulator object.
@@ -136,7 +138,7 @@ BaseManipulation::getNChild(){
 BaseManipulation*
 BaseManipulation::getChild(int i){
 	if (i>m_child.size()-1) return NULL;
-	return m_child[i];
+	return next(m_child.begin(), i)->first;
 };
 
 /*!It gets the geometry linked by the manipulator object.
@@ -273,7 +275,12 @@ BaseManipulation::clear(){
  */
 void
 BaseManipulation::addParent(BaseManipulation* parent){
-	m_parent.push_back(parent);
+	
+	if(!m_parent.count(parent)){
+		m_parent.insert(pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
+	}else{
+		m_parent[parent]++; //just incrementing pre-existent parent counter;
+	}	
 };
 
 /*!It adds a child manipulator object to the children linked by this object.
@@ -281,28 +288,49 @@ BaseManipulation::addParent(BaseManipulation* parent){
  */
 void
 BaseManipulation::addChild(BaseManipulation* child){
-	int count = m_child.size();
-	m_child.push_back(child);
-	m_child[count]->addParent(this);
+	if(!m_child.count(parent)){
+		m_child.insert(pair<BaseManipulation*,int>(child,1)); //add new child with counter 1;
+	}else{
+		m_child[child]++; //just incrementing pre-existent child counter;
+	}	
 };
 
-/*!It clears the manipulator objects linked by this object.
- * It sets to NULL the pointers to parent manipulator objects.
+/*!It clears the current father object linked by this object.
+ * It object is not linked doing nothing.
+ * \param[in] parent pointer to BaseManipulation object 
  */
 void
-BaseManipulation::unsetParent(){
-	for (int i=0; i<m_parent.size(); i++) m_parent[i] = NULL;
+BaseManipulation::unsetParent(BaseManipulation * parent){
+	
+	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
+	if(got != m_parent.end())
+		m_parent.erase();
+	
+};
+
+/*!It clears the current child object linked by this object.
+ * It object is not linked doing nothing.
+ * \param[in] child pointer to BaseManipulation object  
+ */
+void
+BaseManipulation::unsetChild(BaseManipulation * child){
+	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
+	if(got != m_parent.end())
+		m_parent.erase();
+};
+
+/*!It clears all father objects linked by this object. */
+void
+BaseManipulation::unsetAllParent(){
 	m_parent.clear();
 };
 
-/*!It clears the children objects linked by this object.
- * It sets to NULL the pointers to children manipulator object and clear the vector.
- */
+/*!It clears all child objects linked by this object.*/
 void
-BaseManipulation::unsetChild(){
-	for (int i=0; i<m_child.size(); i++) m_child[i] = NULL;
+BaseManipulation::unsetAllChild(){
 	m_child.clear();
 };
+
 
 void
 BaseManipulation::removePins(){
