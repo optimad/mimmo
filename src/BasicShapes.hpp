@@ -50,6 +50,9 @@
  
 class BasicShape {
 
+	friend class BasicMeshes;
+	friend class FFD_Lattice;
+
 public:
 	enum ShapeType{CUBE, CYLINDER, SPHERE}; /**< type of possible shape in your class */
 	enum CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment */
@@ -60,23 +63,24 @@ protected:
 	darray3E	m_span;			/**< coordinate span of your current shape, in its local reference system*/
 	darray3E    m_infLimits;	/**< inferior limits of coordinate of your current shape */
 	dmatrix33E	m_sdr;			/**< axis position of the local reference system w.r.t absolute one*/
-	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 	darray3E 	m_scaling; 		/**< scaling vector of dimensional coordinates */
+
+	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 	
 	
-public:
+private:
 	
 	//Costructors, Destructor, Copy/Assignment operators
     BasicShape();
     virtual ~BasicShape();
  	
 	//set-get methods
-	void	setOrigin(darray3E);
-	void	setSpan(double, double, double);
-	void	setInfLimits(double val, int dir);
-	void	setRefSystem(darray3E, darray3E, darray3E);
-	void	setRefSystem(int, darray3E);
-	void	setCoordinateType(CoordType, int dir);
+	void		setOrigin(darray3E);
+	void		setSpan(double, double, double);
+	void		setInfLimits(double val, int dir);
+	void		setRefSystem(darray3E, darray3E, darray3E);
+	void		setRefSystem(int, darray3E);
+	void		setCoordinateType(CoordType, int dir);
 	
 	darray3E			getOrigin();
 	darray3E			getSpan();

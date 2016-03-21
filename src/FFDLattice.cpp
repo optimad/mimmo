@@ -50,54 +50,55 @@ FFDLattice::FFDLattice(){
 	m_mapNodes.resize(3);
 	m_globalDispl = false;
 };
-/*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *   
- * \param[in] origin point origin in global reference system
- * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
- * \param[in] dimensions number of control nodes for each direction
- * \param[in] degrees   curve degrees for each direction;
- */
-FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions, 
-						ivector1D & degrees):FFDLattice(){
-	setMesh(origin, span, type, dimensions, degrees);
-};
 
-/*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
- *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric 
- *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
- *   
- * \param[in] origin point origin in global reference system
- * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
- * \param[in] dimensions number of control nodes for each direction
- */
-FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions 
-					   ):FFDLattice(){
-	   setMesh(origin, span, type, dimensions);
-};
-
-/*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *   
- * \param[in] shape pointer to an external BasicShape object
- * \param[in] dimensions number of control nodes for each direction
- * \param[in] degrees   curve degrees for each direction;
- */
-FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions, ivector1D & degrees):FFDLattice(){
-	setMesh(shape, dimensions, degrees);
-};
-
-/*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
- *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric 
- *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
- *   
- * \param[in] shape pointer to an external BasicShape object
- * \param[in] dimensions number of control nodes for each direction
- *
- */
-FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions):FFDLattice(){
-	setMesh(shape, dimensions);
-};
+///*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
+// *
+// * \param[in] origin point origin in global reference system
+// * \param[in] span span for each shape coordinate in space (local r.s.)
+// * \param[in] type BasicShape::ShapeType enum identifies the shape
+// * \param[in] dimensions number of control nodes for each direction
+// * \param[in] degrees   curve degrees for each direction;
+// */
+//FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions,
+//						ivector1D & degrees):FFDLattice(){
+//	setMesh(origin, span, type, dimensions, degrees);
+//};
+//
+///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
+// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
+// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
+// *
+// * \param[in] origin point origin in global reference system
+// * \param[in] span span for each shape coordinate in space (local r.s.)
+// * \param[in] type BasicShape::ShapeType enum identifies the shape
+// * \param[in] dimensions number of control nodes for each direction
+// */
+//FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions
+//					   ):FFDLattice(){
+//	   setMesh(origin, span, type, dimensions);
+//};
+//
+///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
+// *
+// * \param[in] shape pointer to an external BasicShape object
+// * \param[in] dimensions number of control nodes for each direction
+// * \param[in] degrees   curve degrees for each direction;
+// */
+//FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions, ivector1D & degrees):FFDLattice(){
+//	setMesh(shape, dimensions, degrees);
+//};
+//
+///*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
+// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
+// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
+// *
+// * \param[in] shape pointer to an external BasicShape object
+// * \param[in] dimensions number of control nodes for each direction
+// *
+// */
+//FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions):FFDLattice(){
+//	setMesh(shape, dimensions);
+//};
 
 /*! Destructor */
 FFDLattice::~FFDLattice(){};
@@ -129,9 +130,10 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 
 /*!Clean all stuffs in your lattice */
 void FFDLattice::clearLattice(){
-		clear(); //base manipulation stuff clear
-		clearMesh(); // structured mesh cleaned
-		clearKnots(); //clear all knots stuff;
+	m_displ.clear();
+	clear(); //base manipulation stuff clear
+	clearMesh(); // structured mesh cleaned
+	clearKnots(); //clear all knots stuff;
 };
 
 /*! Return a vector of six elements reporting the real number of knots effectively stored in the current class (first 3 elements)
@@ -187,6 +189,45 @@ void 		FFDLattice::returnKnotsStructure( int dir, dvector1D & knots, ivector1D &
 	knots = m_knots[dir];   
 	mapT = m_mapEff[dir];
 };
+
+
+/*! Get number of control nodes in each space direction.
+ * \return Array of control nodes numbers in each direction
+ */
+iarray3E		FFDLattice::getDimension(){
+	iarray3E dim;
+	dim[0] = m_nx;
+	dim[1] = m_ny;
+	dim[2] = m_nz;
+	return(dim);
+}
+
+
+/*! Get the degree of nurbs curve in each direction.
+ * \return Array of degree of nurbs curve in each direction
+ */
+iarray3E		FFDLattice::getDegrees(){
+	iarray3E deg;
+	deg[0] = m_deg[0];
+	deg[1] = m_deg[1];
+	deg[2] = m_deg[2];
+	return(deg);
+}
+
+
+/*! It gets current DOF displacements of lattice.
+ * \return Displacements of control points.
+ */
+dvecarr3E*	FFDLattice::getDisplacements(){
+	return(&m_displ);
+};
+
+
+
+/*! Check if displacements are meant as global-true or local-false*/
+bool
+FFDLattice::isDisplGlobal(){return(m_globalDispl);}
+
 
 /*! Set number of control nodes in each space direction.Nurbs curves are treated as
  * Bezier curves, their degree is automatically set. Weights are reset to unitary value
@@ -271,6 +312,257 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	orderDimension();
 
 };
+
+/*! Set number of control nodes in each space direction.Nurbs curves are treated as
+ * Bezier curves, their degree is automatically set. Weights are reset to unitary value
+ * \param[in] dimension vector of control nodes numbers in each direction
+ */
+void		FFDLattice::setDimension(iarray3E &dimensions){
+
+		if(getShape() ==NULL) return;
+		ivector1D dimLimit(3,2);
+		switch(getShapeType()){
+			case BasicShape::ShapeType::CYLINDER :
+				dimLimit[1] = 5;
+				break;
+			case BasicShape::ShapeType::SPHERE :
+				dimLimit[1] = 5; dimLimit[2] = 3;
+				break;
+			default://CUBE
+				break;
+		}
+
+		//check on dimensions and eventual closed loops on coordinates.
+		m_nx = std::max(dimensions[0], dimLimit[0])-1;
+		m_ny = std::max(dimensions[1], dimLimit[1])-1;
+		m_nz = std::max(dimensions[2], dimLimit[2])-1;
+
+		rebaseMesh();
+
+		m_deg[0] = m_nx;
+		m_deg[1] = m_ny;
+		m_deg[2] = m_nz;
+
+		//setting knots and eventually weights to non-rational B-Spline
+		setKnotsStructure();
+		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
+		m_weights.resize(m_ndeg, 1.0);
+
+		//reorder dimensions
+		orderDimension();
+
+};
+
+
+/*! Set the degree of nurbs curve in each direction. If the number of control nodes are
+ * not initialized, they are set to the minimum number admissible.
+ *  Weights are reset to unitary value
+ * \param[in] degrees vector of degree of nurbs curve in each direction
+ */
+void		FFDLattice::setDegrees(ivector1D &degrees){
+
+	if(dimensions.size() < 3 || degrees.size() <3 || getShape() ==NULL) return;
+
+	ivector1D dimLimit(3,2);
+	switch(getShapeType()){
+		case BasicShape::ShapeType::CYLINDER :
+			dimLimit[1] = 5;
+			break;
+		case BasicShape::ShapeType::SPHERE :
+			dimLimit[1] = 5; dimLimit[2] = 3;
+			break;
+		default://CUBE
+			break;
+	}
+
+	//check on dimensions and eventual closed loops on coordinates.
+	m_nx = std::max(m_nx, dimLimit[0])-1;
+	m_ny = std::max(m_ny, dimLimit[1])-1;
+	m_nz = std::max(m_nz, dimLimit[2])-1;
+
+	rebaseMesh();
+
+	m_deg[0] = std::min(m_nx,std::max(1,degrees[0]));
+	m_deg[1] = std::min(m_ny,std::max(1,degrees[1]));
+	m_deg[2] = std::min(m_nz,std::max(1,degrees[2]));
+
+	//setting knots and eventually weights to non-rational B-Spline
+	setKnotsStructure();
+
+	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
+	m_weights.resize(m_ndeg, 1.0);
+
+	//reorder dimensions
+	orderDimension();
+
+};
+
+/*! Set the degree of nurbs curve in each direction. If the number of control nodes are
+ * not initialized, they are set to the minimum number admissible.
+ *  Weights are reset to unitary value
+ * \param[in] degrees vector of degree of nurbs curve in each direction
+ */
+void		FFDLattice::setDegrees(iarray3E &degrees){
+
+	if(dimensions.size() < 3 || getShape() ==NULL) return;
+
+	ivector1D dimLimit(3,2);
+	switch(getShapeType()){
+		case BasicShape::ShapeType::CYLINDER :
+			dimLimit[1] = 5;
+			break;
+		case BasicShape::ShapeType::SPHERE :
+			dimLimit[1] = 5; dimLimit[2] = 3;
+			break;
+		default://CUBE
+			break;
+	}
+
+	//check on dimensions and eventual closed loops on coordinates.
+	m_nx = std::max(m_nx, dimLimit[0])-1;
+	m_ny = std::max(m_ny, dimLimit[1])-1;
+	m_nz = std::max(m_nz, dimLimit[2])-1;
+
+	rebaseMesh();
+
+	m_deg[0] = std::min(m_nx,std::max(1,degrees[0]));
+	m_deg[1] = std::min(m_ny,std::max(1,degrees[1]));
+	m_deg[2] = std::min(m_nz,std::max(1,degrees[2]));
+
+	//setting knots and eventually weights to non-rational B-Spline
+	setKnotsStructure();
+
+	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
+	m_weights.resize(m_ndeg, 1.0);
+
+	//reorder dimensions
+	orderDimension();
+
+};
+
+
+/*! set current DOF displacements of your lattice. If Input list does not fit current DOF size
+ * of lattice, return doing nothing */
+void
+FFDLattice::setDisplacements(dvecarr3E displacements){
+	if(getShape() == NULL) return;
+	m_displ = displacements;
+};
+
+/*! Set if displacements are meant as global-true or local-false*/
+void
+FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
+
+/*! Set span of your shape, according to its local reference system
+ * \param[in] s0 first coordinate span
+ * \param[in] s1 second coordinate span
+ * \param[in] s2 third coordinate span
+ * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
+ */
+void FFDLattice::setSpan(double s0, double s1, double s2, bool flag){
+	getShape()->setSpan( s0,  s1,s2);
+
+	if(flag){
+		rebaseMesh();
+		setKnotsStructure();
+	}
+}
+
+/*! Set span of your shape, according to its local reference system
+ * Lattice is rebuilt according to the new input.
+ * \param[in] Coordinates span
+ */
+void FFDLattice::setSpan(darray3E s){
+	getShape()->setSpan( s[0], s[1], s[2]);
+	rebaseMesh();
+	setKnotsStructure();
+}
+
+/*! Set coordinate's origin of your shape, according to its local reference system
+ * \param[in] orig first coordinate origin
+ * \param[in] dir 0,1,2 int flag identifying coordinate
+ * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
+ */
+void FFDLattice::setInfLimits(double orig, int dir, bool flag){
+	getShape()->setInfLimits( orig, dir);
+
+	if(flag){
+		rebaseMesh();
+		setKnotsStructure();
+	}
+}
+
+/*! Set coordinates' origin of your shape, according to its local reference system.
+ *  Lattice is rebuilt according to the new input.
+ * \param[in] orig coordinates origin
+ */
+void FFDLattice::setInfLimits(darray3E orig){
+	getShape()->setInfLimits( orig[0], 0);
+	getShape()->setInfLimits( orig[1], 1);
+	getShape()->setInfLimits( orig[2], 2);
+	rebaseMesh();
+	setKnotsStructure();
+}
+
+/*! Set coordinate type of Lattice core shape. See BasicShape::CoordType enum
+ * \param[in] type coordinate type
+ * \param[in] dir  0,1,2 flag for coordinate
+ * \param[in] flag if true, force lattice nodal structure to be updated.TRUE is default
+ */
+void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
+	getShape()->setCoordinateType(type,dir);
+	if(flag){
+		setKnotsStructure(dir, type);
+		ivector1D dim = getDimension();
+		resizeDisplacements(dim[0],dim[1],dim[2]);
+	}
+}
+
+/*! Set x-coordinate type of Lattice core shape. See BasicShape::CoordType enum
+ * Force lattice nodal structure to be updated.
+ * \param[in] type coordinate type
+ */
+void FFDLattice::setCoordTypex(BasicShape::CoordType type){
+	getShape()->setCoordinateType(type,0);
+	setKnotsStructure(0, type);
+	ivector1D dim = getDimension();
+	resizeDisplacements(dim[0],dim[1],dim[2]);
+}
+
+/*! Set y-coordinate type of Lattice core shape. See BasicShape::CoordType enum
+ * Force lattice nodal structure to be updated.
+ * \param[in] type coordinate type
+ */
+void FFDLattice::setCoordTypey(BasicShape::CoordType type){
+	getShape()->setCoordinateType(type,1);
+	setKnotsStructure(1, type);
+	ivector1D dim = getDimension();
+	resizeDisplacements(dim[0],dim[1],dim[2]);
+}
+
+/*! Set z-coordinate type of Lattice core shape. See BasicShape::CoordType enum
+ * Force lattice nodal structure to be updated.
+ * \param[in] type coordinate type
+ */
+void FFDLattice::setCoordTypez(BasicShape::CoordType type){
+	getShape()->setCoordinateType(type,2);
+	setKnotsStructure(2, type);
+	ivector1D dim = getDimension();
+	resizeDisplacements(dim[0],dim[1],dim[2]);
+}
+
+/*! Set coordinates type of Lattice core shape. See BasicShape::CoordType enum
+ * Force lattice nodal structure to be updated.
+ * \param[in] type coordinates type
+ */
+void FFDLattice::setCoordType(array<BasicShape::CoordType,3> type){
+	for (int i=0; i<3; i++){
+		getShape()->setCoordinateType(type[i],i);
+		setKnotsStructure(i, type[i]);
+	}
+	ivector1D dim = getDimension();
+	resizeDisplacements(dim[0],dim[1],dim[2]);
+}
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
  *   
@@ -406,75 +698,13 @@ void 		FFDLattice::setNodalWeight(double val, int index){
 /*! Modify a weight of a control node. Access to a node in GRID cartesian indexing
  * \param[in] val weight value
  * \param[in] i index of x coordinate
- * \param[in] j index of y coordinates 
+ * \param[in] j index of y coordinates
  * \param[in] k index of z coordinate
  */
 void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
 		int index = accessPointIndex(i,j,k);
 		setNodalWeight(val, index);
 };
-
-/*! set current DOF displacements of your lattice. If Input list does not fit current DOF size
- * of lattice, return doing nothing */
-void
-FFDLattice::setDisplacements(dvecarr3E displacements){
-
-	if(m_ndeg != displacements.size() || getShape() == NULL) return;
-	BaseManipulation::setDisplacements(displacements);
-};
-
-/*! Set if displacements are meant as global-true or local-false*/
-void
-FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
-
-/*! Check if displacements are meant as global-true or local-false*/
-bool
-FFDLattice::isDisplGlobal(){return(m_globalDispl);}
-
-
-/*! Set span of your shape, according to its local reference system 
- * \param[in] s0 first coordinate span
- * \param[in] s1 second coordinate span
- * \param[in] s2 third coordinate span
- * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default 
- */
-void FFDLattice::changeSpan(double s0, double s1, double s2, bool flag){
-	getShape()->setSpan( s0,  s1,s2);
-	
-	if(flag){
-		rebaseMesh();
-		setKnotsStructure();
-	}
-}
-
-/*! Set coordinate's origin of your shape, according to its local reference system  
- * \param[in] orig first coordinate origin
- * \param[in] dir 0,1,2 int flag identifying coordinate
- * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
- */
-void FFDLattice::setInfLimits(double orig, int dir, bool flag){
-	getShape()->setInfLimits( orig, dir);
-	
-	if(flag){
-		rebaseMesh();
-		setKnotsStructure();
-	}
-}
-
-/*! Set coordinate type of Lattice core shape. See BasicShape::CoordType enum
- * \param[in] type coordinate type
- * \param[in] dir  0,1,2 flag for coordinate
- * \param[in] flag if true, force lattice nodal structure to be updated.TRUE is default
- */
-void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
-	getShape()->setCoordinateType(type,dir);
-	if(flag){
-		setKnotsStructure(dir, type);
-		ivector1D dim = getDimension();
-		resizeDisplacements(dim[0],dim[1],dim[2]);
-	}
-}
-
 
 /*! Find a corrispondent degree of freedom index of a lattice grid node
  * \param[in] index lattice grid global index
@@ -491,13 +721,6 @@ int FFDLattice::accessDOFFromGrid(int index){
 int FFDLattice::accessGridFromDOF(int index){
 	return(posVectorFind(m_intMapDOF, index));
 }
-
-
-dvecarr3E&
-FFDLattice::releaseResult(){
-	return(m_result);
-};
-
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory
@@ -564,38 +787,9 @@ void		FFDLattice::plotCloud(std::string directory, std::string filename, int cou
 	
 };
 
-/*! TODO per Edo: ma che fa sto metodo me lo potevi pure lasciar detto no? :-D */
-void
-FFDLattice::setInfo(){
-	m_info->m_naxes = 3;
-
-	darray3E origin = getShape()->getOrigin();
-	m_info->m_origin.resize(3);
-	for (int i=0; i<3; i++){
-		m_info->m_origin[i] = origin[i];
-	}
-
-	dmatrix33E sdr = getShape()->getRefSystem();
-	m_info->m_axes.resize(3, dvector1D(3));
-	for (int i=0; i<3; i++){
-		for (int j=0; j<3; j++){
-		m_info->m_axes[i][j] = sdr[i][j];
-		}
-	}
-
-	ivector1D n = getDimension();
-	int size = n[0]*n[1]*n[2];
-	m_info->m_coords.resize(size, dvector1D(3));
-	for(int i=0; i<size; ++i){
-		darray3E data = getGlobalPoint(i);
-		for (int j=0; j<3; j++){
-			m_info->m_coords[i][j] = data[j];
-		}
-	}
-
-}
-
-/*! Given pointer to a reference geometry and, execute deformation w/ the current setup */
+/*! Given pointer to a reference geometry and, execute deformation w/ the current setup.
+ * Result is stored in BaseManipulation IOData member m_result.
+ */
 void 		FFDLattice::execute(){
 			
 			MimmoObject * container = getGeometry();
@@ -612,22 +806,8 @@ void 		FFDLattice::execute(){
 			for(int i=0; i<map.size(); ++i){
 				result[container->getMapDataInv(map[i])] = localdef[i];
 			}
-	//debug
-// 			for(int i=0; i<size; ++i){
-// 				darray3E pV = container->getVertex(i);
-// 				pV = pV + result[i];
-// 				container->modifyVertex(pV, i);
-// 			}	
-			
-			
-			for (int i=0; i<getNChild(); i++){
-//				setDisplacementsOut(i, result);
-			}
 
-
-			//temporary result in a member m_result
-			//TODO FIND ALTERNATIVE TO MEMORY SAVE (??)
-			m_result = result;
+			setResut<dvecarr3E>(result);
 
 };
 
@@ -1474,7 +1654,6 @@ dvector1D FFDLattice::recoverFullNodeWeights(){
 	return(result);
 };
 
-
 /*! Fill m_mapnodes, to access correct displacement w knots structure 
  * theoretical knot indexing*/
 void FFDLattice::setMapNodes( int ind){
@@ -1589,7 +1768,6 @@ FFDLattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
 	int result = nx*ny*nz + delta;
 	return(result);
 };
-
 
 /*! Fill m_mapdeg with the ordered indices of dimensions.
 */

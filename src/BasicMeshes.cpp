@@ -378,7 +378,7 @@ ivector1D UStructMesh::getCellNeighs(int index){
 /*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
  * \param[in] origin new origin point
  */
-void UStructMesh::changeOrigin(darray3E origin){
+void UStructMesh::setOrigin(darray3E origin){
 	getShape()->setOrigin(origin);
 }
 
@@ -388,7 +388,7 @@ void UStructMesh::changeOrigin(darray3E origin){
  * \param[in] s2 third coordinate span
  * \param[in] flag if true, mesh is rebuilt according to the new input.TRUE is default; 
  */
-void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
+void UStructMesh::setSpan(double s0, double s1, double s2, bool flag){
 	getShape()->setSpan( s0, s1,s2);
 	
 	if(flag){
@@ -400,7 +400,7 @@ void UStructMesh::changeSpan(double s0, double s1, double s2, bool flag){
  * the mesh i rebuilt according to the new input.
  * \param[in] s coordinates span
  */
-void UStructMesh::changeSpan(darray3E s){
+void UStructMesh::setSpan(darray3E s){
 	getShape()->setSpan( s[0], s[1], s[2]);
 	rebaseMesh();
 }
@@ -841,7 +841,6 @@ dvecarr3E 	UStructMesh::transfToLocal( dvecarr3E & list_points){
 	return(result);
 	
 };  
-
 
 
 /*! Interpolate value of a given data field on a target point inside the mesh

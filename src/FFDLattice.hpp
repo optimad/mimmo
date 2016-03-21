@@ -50,6 +50,7 @@ protected:
 	dvector2D	m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D	m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D	m_weights;		/**< Weights of each control node*/
+	dvecarr3E	m_displ;		/**< Displacements of control nodes.*/
 public:	
 	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
 private:
@@ -57,16 +58,13 @@ private:
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */
 	
-	//TODO now in basemanipulation base class there is a result member, here it is useless!
-	dvecarr3E	m_result;
-
 	
 public:
 	FFDLattice();
-	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
-	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
-	FFDLattice(BasicShape * shape, ivector1D & dimension);
-	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
+//	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
+//	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
+//	FFDLattice(BasicShape * shape, ivector1D & dimension);
+//	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 	virtual ~FFDLattice();
 
 	//copy operators/constructors
@@ -74,17 +72,34 @@ public:
 	FFDLattice & operator=(const FFDLattice & other);
 	
 	//clean structure;
-	void clearLattice();
-	
+	void 		clearLattice();
+
 	//internal methods
 	ivector1D 	getKnotsDimension();
 	dvector1D   getWeights();
 	void 		returnKnotsStructure(dvector2D &, ivector2D &);
 	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
-		
+	iarray3E	getDimension();
+	iarray3E	getDegrees();
+	dvecarr3E* 	getDisplacements();
+	bool 		isDisplGlobal();
+
 	void		setDimension(ivector1D &dimensions);
 	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
-	
+	void		setDimension(iarray3E &dimensions);
+	void		setDegrees(ivector1D &curveDegrees);
+	void		setDegrees(iarray3E &curveDegrees);
+	void 		setDisplacements(dvecarr3E displacements);
+	void 		setDisplGlobal(bool flag);
+	void		setSpan(double, double, double, bool flag = true);
+	void		setSpan(darray3E span);
+	void		setInfLimits(double val, int dir, bool flag = true);
+	void		setInfLimits(darray3E val);
+	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=true); 
+	void 		setCoordTypex(BasicShape::CoordType type);
+	void 		setCoordTypey(BasicShape::CoordType type);
+	void 		setCoordTypez(BasicShape::CoordType type);
+	void 		setCoordType(array<BasicShape::CoordType,3> type);
 	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions);
 	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
 	void 		setMesh(BasicShape * shape, ivector1D & dimension);
@@ -92,66 +107,53 @@ public:
 	
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
-	
-	void 		setDisplacements(dvecarr3E displacements);
-	void 		setDisplGlobal(bool flag);
-	bool 		isDisplGlobal();
-	
-	void		changeSpan(double, double, double, bool flag = true);
-	void		setInfLimits(double val, int dir, bool flag = true);
-	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=true); 
-	
-	
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
-	
-	dvecarr3E&	releaseResult();
-
 
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	
 	//execute deformation methods
-	void		setInfo();
 	void 		execute();
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(livector1D & map);
+
 	
 protected:
-	darray3E convertDisplToXYZ(darray3E &, int i);
-	dvecarr3E convertDisplToXYZ();
+	darray3E	convertDisplToXYZ(darray3E &, int i);
+	dvecarr3E	convertDisplToXYZ();
 private:
 
 	//Nurbs Evaluators
-	darray3E nurbsEvaluator(darray3E &); 
-	dvecarr3E nurbsEvaluator(livector1D &);
-	double nurbsEvaluatorScalar(darray3E &, int);
+	darray3E	nurbsEvaluator(darray3E &);
+	dvecarr3E	nurbsEvaluator(livector1D &);
+	double		nurbsEvaluatorScalar(darray3E &, int);
 
 	//Nurbs utilities
-	dvector1D basisITS0(int k, int pos, double coord);	
-	void getWorkLoad(int dir, dvector2D & loads, dvector2D & result);
-	dvector1D getNodeSpacing(int dir);
+	dvector1D	basisITS0(int k, int pos, double coord);
+	void		getWorkLoad(int dir, dvector2D & loads, dvector2D & result);
+	dvector1D	getNodeSpacing(int dir);
 	
 	//knots mantenaince utilities
-	void clearKnots();
-	void setKnotsStructure(); 
-	void setKnotsStructure(int dir, BasicShape::CoordType type); 
-	int  	getKnotInterval(double, int);
-	double 	getKnotValue(int, int);
-	int 	getKnotIndex(int,int);
-	int 	getTheoreticalKnotIndex(int,int);
+	void 		clearKnots();
+	void 		setKnotsStructure();
+	void 		setKnotsStructure(int dir, BasicShape::CoordType type);
+	int  		getKnotInterval(double, int);
+	double 		getKnotValue(int, int);
+	int 		getKnotIndex(int,int);
+	int 		getTheoreticalKnotIndex(int,int);
 
 	//nodal displacement utility
-	void resizeDisplacements(int, int, int);
-	dvecarr3E recoverFullGridDispl();
-	dvector1D recoverFullNodeWeights();
-	void setMapNodes(int ind);
-	int  accessMapNodes(int,int,int);
-	int  reduceDimToDOF(int,int,int, bvector1D &info);
+	void 		resizeDisplacements(int, int, int);
+	dvecarr3E	recoverFullGridDispl();
+	dvector1D	recoverFullNodeWeights();
+	void		setMapNodes(int ind);
+	int			accessMapNodes(int,int,int);
+	int			reduceDimToDOF(int,int,int, bvector1D &info);
 	//dimension utilities
-	void orderDimension();
+	void		orderDimension();
 	
 };
 

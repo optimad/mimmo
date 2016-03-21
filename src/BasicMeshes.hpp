@@ -73,7 +73,10 @@ public:
 	
 	
 	//get-set methods  
-	const BasicShape*		getShape() const;
+	//const BasicShape*		getShape() const;
+	//Basic shape members private (even methods + friendship to basicmesh)
+	//With const we can't use in pins in/out methods.
+	BasicShape*				getShape();
 	darray3E				getOrigin();
 	darray3E				getSpan();
 	darray3E				getInfLimits();
@@ -91,6 +94,7 @@ public:
 	darray3E 				getSpacing();
 	ivector1D				getDimension();
 
+	//TODO Useful for pin in/out interface? (Now they can't be used with pins)
 	darray3E 				getLocalCCell(int);
 	darray3E 				getLocalCCell(int, int, int);
 	darray3E 				getLocalPoint(int);
@@ -104,9 +108,9 @@ public:
 	ivector1D 				getCellNeighs(int, int, int);
 
 	//TODO each set method does a rebuild of the mesh, can be found an alternative strategy?
-	void	changeOrigin(darray3E origin);
-	void	changeSpan(double, double, double, bool flag = true);
-	void	changeSpan(darray3E span);
+	void	setOrigin(darray3E origin);
+	void	setSpan(double, double, double, bool flag = true);
+	void	setSpan(darray3E span);
 	void	setInfLimits(double val, int dir, bool flag = true);
 	void	setInfLimits(darray3E val);
 
@@ -161,8 +165,8 @@ public:
 	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
 
 protected:
-	//internal manteinance of the mesh
-	BasicShape*	getShape();
+	//internal maintenance of the mesh
+//	BasicShape*	getShape();
 	void 		resizeMesh();
 	void 		destroyNodalStructure();
 	void 		reshapeNodalStructure();
