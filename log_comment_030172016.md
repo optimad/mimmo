@@ -65,6 +65,7 @@
 ##10. InOut Pin block/ EDOARDO  [&#10004;]
 
 - 10.1 Comments  [&#10004;]
+- 10.1 Template .tpp file  [&#10004;]
 
 
 ##11. Mimmo Tests/ ROCCO/ EDOARDO
