@@ -334,11 +334,12 @@ BaseManipulation::addChild(BaseManipulation* child){
  * \param[in] parent pointer to BaseManipulation object 
  */
 void
-BaseManipulation::unsetParent(BaseManipulation * parent){
+BaseManipulation::removeParent(BaseManipulation * parent){
 	
 	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
 	if(got != m_parent.end())
 		m_parent.erase();
+	//need to clear mutual connection
 	
 };
 
@@ -347,22 +348,56 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
  * \param[in] child pointer to BaseManipulation object  
  */
 void
-BaseManipulation::unsetChild(BaseManipulation * child){
-	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
-	if(got != m_parent.end())
-		m_parent.erase();
+BaseManipulation::removeChild(BaseManipulation * child){
+	unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
+	if(got != m_child.end())
+		m_child.erase();
+	
+	//need to clear mutual connection;
 };
 
 /*!It clears all father objects linked by this object. */
 void
-BaseManipulation::unsetAllParent(){
+BaseManipulation::removeAllParent(){
 	m_parent.clear();
+	//need to clear all mutual connection involving this object
 };
 
 /*!It clears all child objects linked by this object.*/
 void
-BaseManipulation::unsetAllChild(){
+BaseManipulation::removeAllChild(){
 	m_child.clear();
+	//need to clear all mutual connection involving this object
+};
+
+
+/*! Decrement target parent multiplicity, contained in member m_parent.
+ * If multiplicity is zero, erase target from list. The method is meant to be used in conjuction 
+ * to manual cut off of object pins. 
+ * \param[in] parent pointer to BaseManipulation object 
+ */
+void
+BaseManipulation::unsetParent(BaseManipulation * parent){
+	
+	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
+	if(got != m_parent.end()){
+		m_parent[parent]--;
+	}
+	if(m_parent[parent] <1)	m_parent.erase();
+};
+
+/*! Decrement target child multiplicity, contained in member m_child.
+ * If multiplicity is zero, erase target from list. The method is meant to be used in conjuction 
+ * to manual cut off of object pins.
+ * \param[in] child pointer to BaseManipulation object  
+ */
+void
+BaseManipulation::unsetChild(BaseManipulation * child){
+	unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
+	if(got != m_child.end()){
+		m_child[child]--;
+	}
+	if(m_child[child] <1)	m_child.erase();
 };
 
 
