@@ -66,7 +66,9 @@ public:
 	template<typename T>
 	void 				setInput(T& data);
 
-	//TODO read generic input (template read?)
+	template<typename T>
+	T*					getResult();
+
 	void execute();
 
 };

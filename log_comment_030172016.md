@@ -17,7 +17,7 @@
 
 ##3. GenericInput / ROCCO
 
- - 3.1. Template read implementation
+ - 3.1. Template read implementation [&#10004;]
  - 3.1. Template set input implementation [&#10004;]
  - 3.3. Comments
 
@@ -32,7 +32,6 @@
 - 5.2. use input of base class and avoid the use of displ (m_displ for the moment set as member of lattice, input of base class is temporary)  [&#10004;] 
 - 5.3 	Atomize set/get methods for paramaters & output of classes, according to new pin inout style  [&#10004;]
 - 5.4  Adjusting set/get of primitive class BasicMesh and included Class BasicShape  [&#10004;]
-- 5.5. Test new design 
 - 5.6. Comments 
 
 
@@ -54,7 +53,7 @@
 - 8.2. modify execute to avoid parent/child relationship (deprecated) [&#10004;]
 - 8.3. useInfo maybe useless [&#10004;]
 - 8.4  must become a GenericOutput class [&#10004;]
-- 8.5  template data to ofstream maybe doesn't work, try to use it
+- 8.5  template data to ofstream maybe doesn't work, try to use it [&#10004;]
 - 8.5. Comments
 
 ##9. Rotation and Translation Box / ROCCO
@@ -79,4 +78,9 @@
 
 - 11.1	managing total DOF of your manipulation  
 - 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
-- 11.3 	Comments
+- 11.3  Loop detection and blocking 
+- 11.4  Tracking of DOF along the chain
+- 11.5 	Comments
+
+##13. RBF MORPHERS
+

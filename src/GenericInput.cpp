@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
 #include "GenericInput.hpp"
+#include "Operators.hpp"
 #include <fstream>
 
 using namespace std;
@@ -83,29 +84,7 @@ GenericInput::setFilename(std::string filename){
  * set by user.
  */
 void
-GenericInput::execute(){
-	if (m_readFromFile){
-		ifstream file;
-		file.open(m_filename);
-		if (file.is_open()){
-			darray3E row;
-			dvecarr3E input;
-			while(!file.eof()){
-				for (int i=0; i<3; i++){
-					file >> row[i];
-				}
-				input.push_back(row);
-			}
-			file.close();
-			setInput(input);
-		}else{
-			clearInput();
-			cout << "file not open --> exit" << endl;
-			exit(1);
-		}
-	}
-	return;
-};
+GenericInput::execute(){};
 
 
 

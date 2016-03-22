@@ -58,7 +58,7 @@ GenericOutput & GenericOutput::operator=(const GenericOutput & other){
  * \param[in] filename Name of the output file.
  */
 void
-GenericOutput::addFilename(std::string filename){
+GenericOutput::setFilename(std::string filename){
 	m_filename = filename;
 };
 

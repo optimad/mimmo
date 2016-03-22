@@ -51,7 +51,7 @@ public:
 	GenericOutput(const GenericOutput & other);
 	GenericOutput & operator=(const GenericOutput & other);
 
-	void addFilename(std::string filename);
+	void setFilename(std::string filename);
 
 	template<typename T>
 	void 	setInput(T* data);

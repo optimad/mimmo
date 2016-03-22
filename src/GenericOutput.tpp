@@ -1,4 +1,5 @@
 #include <fstream>
+#include "Operators.hpp"
 
 /*!It sets the input/result and write on file at the same time.
  */

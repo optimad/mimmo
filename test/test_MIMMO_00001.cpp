@@ -106,7 +106,8 @@ void test0001() {
 	}
 
 	GenericInput* input = new GenericInput();
-	input->setInput(displ);
+	input->setReadFromFile(true);
+	input->setFilename("inputMIMMO_00001.txt");
 
 	//create applier
 	Apply* applier = new Apply();
