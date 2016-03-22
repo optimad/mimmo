@@ -38,7 +38,6 @@
 #include "TranslationBox.hpp"
 #include "RotationBox.hpp"
 #include "Chain.hpp"
-#include "Info.hpp"
 #include "InOut.hpp"
 
 #endif
