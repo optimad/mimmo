@@ -133,7 +133,7 @@ public:
 	template<typename T>	
 	T*					getInput();
 
-	std::type_info		getInputType();
+	std::type_index		getInputType();
 
 	template<typename T>
 	T* 					getResult();
@@ -261,7 +261,7 @@ public:
 	template<typename T>
 	void setData(T data);
 
-	std::type_info	getDataType();
+	std::type_index	getDataType();
 
 };
 
@@ -270,14 +270,14 @@ public:
 //==============================//
 template<typename T>
 class IODataT: public IOData{
+public:
 	T 				m_data;
-	std::type_info	m_type;
+	std::type_index	m_type;
 
 public:
-	IODataT();
-	IODataT(T data){
+	IODataT(){};
+	IODataT(T data):m_type(typeid(data)){
 		m_data = data;
-		m_type = typeid(data);
 	};
 	~IODataT();
 
@@ -299,9 +299,9 @@ public:
 		return(&m_data);
 	}
 
-	std::type_info
+	std::type_index
 	getDataType(){
-		return typeid(m_data);
+		return m_type;
 	}
 
 

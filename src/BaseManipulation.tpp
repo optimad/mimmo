@@ -262,9 +262,8 @@ BaseManipulation::getInput(){
 	return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
-template<typename T>
-std::type_info	getInputType(){
-//	m_input.get()
+std::type_index	BaseManipulation::getInputType(){
+	m_input.get()->getDataType();
 };
 
 //==================================================//

@@ -102,7 +102,8 @@ GenericInput::execute(){
 			exit(1);
 		}
 	}
-//	setResult(getInput<>());
+	constexpr type_index itype = getInputType();
+	setResult(getInput<getInputType()>());
 };
 
 
