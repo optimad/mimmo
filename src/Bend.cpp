@@ -48,6 +48,31 @@ Bend & Bend::operator=(const Bend & other){
 	m_coeffs = other.m_coeffs;
 };
 
+/*!It gets the coordinates of the degrees of freedom.
+ * \return Coordinates of the degrees of freedom.
+ */
+dvecarr3E
+Bend::getCoords(){
+	return(m_coords);
+};
+
+/*!It gets the degrees of polynomial law for each component of displacements of degrees of freedom.
+ * \return Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+ */
+dvecarr3E
+Bend::getDegree(){
+	return(m_degree);
+};
+
+/*!It gets the coefficients of the polynomial laws.
+ * \return Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+ */
+dvector3D
+Bend::getCoeffs(){
+	return(m_coeffs);
+};
+
+
 /*!It sets the coordinates of the degrees of freedom.
  * \param[in] coords Coordinates of the degrees of freedom.
  */
@@ -70,21 +95,6 @@ Bend::setDegree(dvecarr3E & degree){
 void
 Bend::setCoeffs(dvector3D & coeffs){
 	m_coeffs = coeffs;
-};
-
-void
-Bend::useInfo(){
-	if (m_ndeg !=  m_info->m_coords.size() || m_info->m_naxes != 3){
-		std::cout << "#degrees : " << m_ndeg << " - #coords : " << m_info->m_coords.size() << std::endl;
-		std::cout << "Incoherent Size ---> end of process " << std::endl;
-		exit(1001);
-	}
-	m_coords.resize(m_info->m_coords.size());
-	for (int i=0; i<m_ndeg; i++){
-		for (int j=0; j<3; j++){
-			m_coords[i][j] = m_info->m_coords[i][j];
-		}
-	}
 };
 
 /*!Execution command. It modifies the displacements given by the input manipulation object

@@ -33,6 +33,9 @@
  *
  *	\brief Bend is the class that applies the a polynomial bending to the displacements of a manipulation object.
  *
+ *	The displacements to be bend have to be stored in input of base class. The bend result
+ *	is stored in result member of base class.
+ *
  */
 class Bend: public BaseManipulation{
 private:
@@ -47,11 +50,14 @@ public:
 	Bend(const Bend & other);
 	Bend & operator=(const Bend & other);
 
+	dvecarr3E	getCoords();
+	dvecarr3E	getDegree();
+	dvector3D	getCoeffs();
+
 	void	setCoords(dvecarr3E & coords);
 	void	setDegree(dvecarr3E & degree);
 	void	setCoeffs(dvector3D & coeffs);
 
-	void 	useInfo();
 	void 	execute();
 
 };
