@@ -1,62 +1,91 @@
 #include "InOut.hpp"
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
 
-	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGet(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+		objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGet(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSet(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
+
+		objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
 
 }
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
 
-	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
-
-}
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
-
-	objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetP(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGetP(fget, objSend), mimmo::pin::pinSet(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+		objSend->addPinOut(objRec, mimmo::pin::pinSet(fset, objRec), mimmo::pin::pinGetP(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGetP(fget, objSend), mimmo::pin::pinSet(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
 
 }
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)){
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
 
-	objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGet(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
-
-}
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)){
-
-	objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+		objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGet(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGet(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
 
 }
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
-void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)){
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
 
-	objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGetP(fget, objSend));
-	objRec->addPinIn(objSend, mimmo::pin::pinGetP(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
-	objSend->addChild(objRec);
-	objRec->addParent(objSend);
+		objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGetR(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGetR(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
+
+}
+
+template<typename OO, typename G, typename OI, typename S, typename VAL>
+bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)){
+	bool done = false;
+	if (!(objSend->getPinType() == PinsType::BACKWARD) && !(objRec->getPinType() == PinsType::FORWARD) ){
+
+		objSend->addPinOut(objRec, mimmo::pin::pinSetP(fset, objRec), mimmo::pin::pinGetP(fget, objSend));
+		objRec->addPinIn(objSend, mimmo::pin::pinGetP(fget, objSend), mimmo::pin::pinSetP(fset, objRec));
+		objSend->addChild(objRec);
+		objRec->addParent(objSend);
+		done = true;
+	}
+	return done;
 
 }
 

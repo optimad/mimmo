@@ -32,6 +32,7 @@ using namespace std;
  */
 BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
+	m_pinType		= PinsType::BOTH;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -52,6 +53,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_geometry 		= other.m_geometry;
 	m_parent 		= other.m_parent;
 	m_child 		= other.m_child;
+	m_pinType		= other.m_pinType;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
 	//input and result are not copied (unique pointer of template memebers)
@@ -133,6 +135,11 @@ BaseManipulation::isChild(BaseManipulation * target, int index){
 	index = distance(m_child.begin(), it);
 	return true;
 };
+
+PinsType
+BaseManipulation::getPinType(){
+	return (m_pinType);
+}
 
 int
 BaseManipulation::getNPinsIn(){

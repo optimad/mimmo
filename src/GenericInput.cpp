@@ -32,6 +32,7 @@ using namespace std;
  */
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
+	m_pinType 		= BaseManipulation::PinsType::FORWARD;
 };
 
 /*!Custom constructor of OutputDoF.
@@ -41,6 +42,7 @@ GenericInput::GenericInput(bool readFromFile){
 GenericInput::GenericInput(string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
+	m_pinType 		= BaseManipulation::PinsType::FORWARD;
 };
 
 GenericInput::~GenericInput(){};

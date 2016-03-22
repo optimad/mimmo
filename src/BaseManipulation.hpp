@@ -57,22 +57,22 @@ class BaseManipulation{
 
 	//friendship declaration of mimmo::pin methods
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
 	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
@@ -95,17 +95,18 @@ class BaseManipulation{
 	template<typename OO, typename OI>
 	friend void mimmo::pin::removeAllPins(OO* objSend, OI* objRec);
 	
+public:
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int> bmumap;
+	typedef mimmo::pin::PinsType PinsType;
 
-
-	
 protected:
 	MimmoObject*				m_geometry;		/**<Pointer to manipulated geometry. */
 	bmumap						m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
 													pointer a counter. When this counter is 0, pointer is released*/
 	bmumap						m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
 													pointer a counter. When this counter is 0, pointer is released*/
+	PinsType					m_pinType;		/**< Type of pins of the object.*/
 	std::vector<InOut*>			m_pinIn;		/**<Input pins vector. */
 	std::vector<InOut*>			m_pinOut;		/**<Output pins vector. */
 	std::unique_ptr<IOData>		m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
@@ -126,6 +127,7 @@ public:
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
 	bool				isChild(BaseManipulation *, int);
+	PinsType 			getPinType();
 	int 				getNPinsIn();
 	int 				getNPinsOut();
 

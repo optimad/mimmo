@@ -30,12 +30,15 @@ using namespace std;
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
 GenericOutput::GenericOutput(std::string filename){
-	m_filename = filename;
+	m_filename	= filename;
+	m_pinType	= PinsType::BACKWARD;
 };
 
 /*!Default destructor of GenericOutput.
  */
-GenericOutput::~GenericOutput(){};
+GenericOutput::~GenericOutput(){
+	m_pinType 	= PinsType::BACKWARD;
+};
 
 /*!Copy constructor of GenericOutput.
  */
