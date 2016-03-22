@@ -282,13 +282,12 @@ public:
 	~IODataT();
 
 	IODataT(const IODataT & other){
-		m_data 	= other.m_data;
-		m_type 	= other.m_type;
+		*this = other;
 	}
 
 	IODataT & operator=(const IODataT & other){
-		m_data 	= other.m_data;
-		m_type 	= other.m_type;
+		this->m_data 	= other.m_data;
+		this->m_type 	= other.m_type;
 		return (*this);
 	}
 
