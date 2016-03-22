@@ -60,7 +60,7 @@ template<typename T, typename U, typename VAL>
 std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj);
 
 template<typename T, typename U, typename VAL>
-std::function<void(VAL)> pinSetP(void (T::*fset) (VAL*), U* obj);
+std::function<void(VAL*)> pinSetP(void (T::*fset) (VAL*), U* obj);
 
 template<typename OO, typename OI>
 void removeAllPins(OO* objSend, OI* objRec);

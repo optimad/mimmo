@@ -87,7 +87,7 @@ std::function<void(VAL)> mimmo::pin::pinSet(void (T::*fset) (VAL), U* obj){
 
 template<typename T, typename U, typename VAL>
 std::function<void(VAL*)> mimmo::pin::pinSetP(void (T::*fset) (VAL*), U* obj){
-	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
+	std::function<void(VAL*)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
 

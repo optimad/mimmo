@@ -69,6 +69,7 @@ add_custom_command(
 add_custom_command(
     TARGET "test_MIMMO_00002" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/pipe.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/pipe.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/catpipe.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/catpipe.stl"
     )
 add_custom_command(
     TARGET "test_MIMMO_00003" PRE_BUILD

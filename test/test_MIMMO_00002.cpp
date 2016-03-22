@@ -36,272 +36,211 @@ using namespace std::chrono;
 
 void test0002() {
 
-	//Creation of MiMMO container.
-	MimmoObject mimmo0;
+	for (int iter = 0; iter < 20; iter++){
 
-	int		np,	nt;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/pipe.stl", true);
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
+		//Creation of MiMMO container.
+		MimmoObject mimmo0;
+		int		np,	nt;
+		darray3E point;
+		{
+			//Import STL
+			//STLObj stl("geo_data/pipe.stl", true);
+			STLObj stl("geo_data/catpipe.stl", true);
+			dvector2D V,N;
+			ivector2D T;
+			stl.load(np, nt, V, N, T);
 
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
+			for (long ip=0; ip<np; ip++){
+				point = conArray<double,3>(V[ip]);
+				mimmo0.setVertex(point);
+			}
+			mimmo0.setConnectivity(&T);
+			mimmo0.cleanGeometry();
 		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
 
-	//writing undeformed geometry stock in mimmo container
-	string filename = "mimmo_pipe0";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+		//writing undeformed geometry stock in mimmo container
+		string filename = "mimmo_pipe_0";
+		mimmo0.m_geometry->setName(filename);
+		mimmo0.m_geometry->write();
 
-	//********************************************************************************************
-	// 	//CREATING GLOBAL DISPLACEMENTS LATTICE
-	//Instantiation of a FFDobject of cylindrical shape
-	FFDLattice* lattice = new FFDLattice();
 
-	//Set cylindrical lattice
-	darray3E origin = {0.0, 0.0,0.0};
-	darray3E span;
-	span[0]= 0.51;
-	//span[1]= 6*std::atan(1.0);
-	span[1]= 2*M_PI;
-	span[2]= 8.51;
+		//********************************************************************************************
+		// 	//CREATING LOCAL DISPLACEMENTS LATTICE
+		//Instantiation of a FFDobject of cylindrical shape
+		FFDLattice* lattice = new FFDLattice();
 
-	ivector1D dim(3), deg(3);
-	dim[0] = 2;
-	dim[1] = 15;
-	dim[2] = 40;
+		//Set cylindrical lattice
+		darray3E origin = {-1537.5, -500.0, 3352.5};
+		darray3E span;
+		span[0]= 100.0;
+		span[1]= 2*M_PI;
+		span[2]= 1000.0;
 
-	deg[0] = 1;
-	deg[1] = 3;
-	deg[2] = 8;
+		ivector1D dim(3), deg(3);
+		dim[0] = 2;
+		dim[1] = 15;
+		dim[2] = 20;
 
-// 	dim[0] = 2;
-// 	dim[1] = 5;
-// 	dim[2] = 2;
-// 	deg[0] = 1;
-// 	deg[1] = 1;
-// 	deg[2] = 1;
-	
-	
-	//set lattice
-	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
-	lattice->setRefSystem(2, darray3E{0,1,0});
-	//lattice->setInfLimits(1.0*M_PI,1);
-	//Set geometry
-	lattice->setGeometry(&mimmo0);
+		deg[0] = 1;
+		deg[1] = 2;
+		deg[2] = 10;
 
-	// 	//Set release Info
-	lattice->setReleaseInfo(false);
 
-	//Set Input with Init Displacements
-	int ndof = lattice->getNDeg();
-	dvecarr3E displ(ndof, darray3E{0,0,0});
-	time_t Time = time(NULL);
-	srand(Time);
-	for (int i=0; i<ndof; i++){
-		int l1,l2,l3;
-		int index = lattice->accessGridFromDOF(i);
-		lattice->accessPointIndex(index,l1,l2,l3);
- 		if(l1>0){
-				displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
- 		}
-		// 			if(l2 == nnn[1]-1){
-		// 				displ[i][0] = 1.0;
-		// 			}
 
-		//	}
-	}
+		//set lattice
+		lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
+		lattice->setRefSystem(2, darray3E{0,-1,0});
+		//lattice->setInfLimits(1.0*M_PI,1);
+		//Set geometry
+		lattice->setGeometry(&mimmo0);
 
-	lattice->setDisplacements(displ);
-	lattice->setDisplGlobal(false);
 
-	//********************************************************************************************
-	// 	//CREATING LOCAL DISPLACEMENTS LATTICE
-	//Instantiation of a FFDobject of cylindrical shape 
-	FFDLattice* lattice2 = new FFDLattice();
-
-	//Set cylindrical lattice
-	span[0]= 0.51;
-	//span[1]= 6*std::atan(1.0);
-	span[1]= 2*M_PI;
-	span[2]= 8.51;
-
-	dim[0] = 10;
-	dim[1] = 10;
-	dim[2] = 40;
-
-	deg[0] = 2;
-	deg[1] = 2;
-	deg[2] = 2;
-
-	//set lattice
-	lattice2->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
-	lattice2->setRefSystem(2, darray3E{0,1,0});
-	//Set geometry
-	lattice2->setGeometry(&mimmo0);
-
-	// 	//Set release Info
-	lattice2->setReleaseInfo(true);
-
-	//Set Input with Init Displacements
-	ndof = lattice2->getNDeg();
-	dvecarr3E displ2(ndof, darray3E{0,0,0});
-	Time = time(NULL);
-	srand(Time);
-	for (int i=0; i<ndof; i++){
-		int l1,l2,l3;
-		lattice2->accessPointIndex(i,l1,l2,l3);
-		if(l1>0){
-			displ2[i][0] = 0.0*( (double) (rand()) / RAND_MAX );
+		//Set Input with Init Displacements
+		int ndof = lattice->getNNodes();
+		dvecarr3E displ(ndof, darray3E{0,0,0});
+		double lt = 2*dim[2]/3;
+		double lx;
+		double a, b, c, max;
+		c = 6;
+		b = -15;
+		a = 10;
+		max = 100;
+		for (int i=0; i<ndof; i++){
+			int l1,l2,l3;
+			int index = lattice->accessGridFromDOF(i);
+			lattice->accessPointIndex(index,l1,l2,l3);
+			if (l2 < iter){
+				if (l3 < int(lt) && l1 > 0){
+					lx = double(l3)/lt;
+					displ[i][0] = max*(c*pow(lx,5) + b*pow(lx,4) + a*pow(lx,3));
+				}
+				else if (l1 > 0){
+					displ[i][0] = max;
+				}
+			}
 		}
-		// 			if(l2 == nnn[1]-1){
-		// 				displ[i][0] = 1.0;
-		// 			}
 
-		//	}
+		lattice->setDisplacements(displ);
+		lattice->setDisplGlobal(false);
+
+		//********************************************************************************************
+		//********************************************************************************************
+		// 	//CREATING LOCAL DISPLACEMENTS LATTICE
+		//Instantiation of a FFDobject of box shape
+		FFDLattice* lattice2 = new FFDLattice();
+
+		//Set box lattice
+		origin = {-110.0, 592.0, 3420.0};
+		span[0]= 1000.0;
+		span[1]= 400.0;
+		span[2]= 150.0;
+
+		dim[0] = 10;
+		dim[1] = 2;
+		dim[2] = 2;
+
+		deg[0] = 5;
+		deg[1] = 2;
+		deg[2] = 2;
+
+		//set lattice
+		lattice2->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+		//Set geometry
+		lattice2->setGeometry(&mimmo0);
+
+		//Set Input with Init Displacements
+		ndof = lattice2->getNNodes();
+		displ.clear();
+		displ.resize(ndof, darray3E{0,0,0});
+		for (int i=0; i<ndof; i++){
+			int l1,l2,l3;
+			int index = lattice2->accessGridFromDOF(i);
+			lattice2->accessPointIndex(index,l1,l2,l3);
+			if (l1 > 3 && l1 < 6){
+				if (l2 == 0){
+					displ[i][1] = 100;
+				}
+				if (l2 == 1){
+					displ[i][1] = -100;
+				}
+			}
+		}
+
+		lattice2->setDisplacements(displ);
+		lattice2->setDisplGlobal(true);
+
+
+		//********************************************************************************************
+		//CREATE BENDER-WRAPPER
+		//Bend* bend = new Bend();
+
+
+		//********************************************************************************************
+
+		//CREATE APPLIERS
+		cout << "applier setup" << endl;
+		Apply* applier = new Apply();
+		applier->setGeometry(&mimmo0);
+		Apply* applier2 = new Apply();
+		applier2->setGeometry(&mimmo0);
+		cout << "applier setup done" << endl;
+
+
+		//********************************************************************************************
+		//Creating PINS
+		addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+		addPin(lattice2, applier2, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+
+
+		//********************************************************************************************
+
+		//Creating ELEMENT chain
+		Chain ch0;
+		ch0.addObject(lattice);
+		ch0.addObject(applier);
+//		ch0.addObject(lattice2);
+//		ch0.addObject(applier2);
+
+		//********************************************************************************************
+		//Executing CHAIN
+
+		cout << "execution start" << endl;
+		steady_clock::time_point t1 = steady_clock::now();
+
+		ch0.exec();
+
+		steady_clock::time_point t2 = steady_clock::now();
+		cout << "execution done" << endl;
+
+		//********************************************************************************************
+		//PLOT RESULTS
+
+		lattice->plotGrid("./", "lattice_pipe_", 0, false, false);
+		lattice->plotGrid("./", "lattice_pipe_", iter+1, false, true);
+
+//		lattice2->plotGrid("./", "lattice2_pipe_" + to_string(iter+1), 0, false, false);
+//		lattice2->plotGrid("./", "lattice2_pipe_" + to_string(iter+1), 1, false, true);
+
+		//	filename = "mimmo_pipe1";
+		//	mimmo0.m_geometry->setName(filename);
+		//	mimmo0.m_geometry->write();
+
+		//********************************************************************************************
+		//clean up & exit;
+		delete lattice, applier;
+
+		lattice = NULL;
+		applier = NULL;
+
+		duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+		std::cout << "MiMMO Deformation execution took me " << time_span.count() << " seconds.";
+		std::cout << std::endl;
+
+		filename = "mimmo_pipe_" + to_string(iter+1);
+		mimmo0.m_geometry->setName(filename);
+		mimmo0.m_geometry->write();
+
 	}
-
-	lattice2->setDisplacements(displ2);
-	lattice2->setDisplGlobal(false);
-
-
-	//********************************************************************************************
-	//CREATING INPUT	
-	// 	InputDoF* input = new InputDoF(ndeg, displ);
-	// 	string file = "input.txt";
-	// 	InputDoF* input0 = new InputDoF(file);
-	//
-	// 	cout << "input setup done" << endl;
-	//********************************************************************************************
-	//CREATE APPLIERS
-	cout << "applier setup" << endl;
-	Apply* applier = new Apply(&mimmo0);
-	Apply* applier2 = new Apply(&mimmo0);
-
-	lattice2->addChild(applier2);
-	lattice->addChild(applier);
-
-	cout << "applier setup done" << endl;
-
-	//********************************************************************************************
-	//CREATE FILTER MASK
-	Mask* mask = new Mask();
-	mask->setNDeg(lattice->getNDeg());
-	darray3E thres;
-	thres[0] = -10.0;
-	thres[1] = 0.0;
-	thres[2] = -10.0;
-	mask->setThresholds(thres);
-	mask->setForward(0,false);
-	mask->setForward(1,false);
-	mask->setForward(2,false);
-	//set filter to lattice
-	mask->addChild(lattice);
-
-	//********************************************************************************************
-	//CREATE BENDER-WRAPPER
-	//********************************************************************************************
-	Bend* bend = new Bend();
-	dvecarr3E degree(3);
-	degree[0][1] = 2;
-	degree[1][0] = 2;
-	bend->setDegree(degree);
-	dvector3D coeffs(3, vector<vector<double> >(3) );
-	coeffs[0][1].resize(degree[0][1]+1);
-	coeffs[0][1][0] = 0.0;
-	coeffs[0][1][1] = 0.0;
-	coeffs[0][1][2] = 0.2;
-	coeffs[1][0].resize(degree[1][0]+1);
-	coeffs[1][0][0] = 0.0;
-	coeffs[1][0][1] = -0.5;
-	coeffs[1][0][2] = 0.0;
-	bend->setCoeffs(coeffs);
-	//set bend to lattice
-	bend->addChild(mask);
-	bend->setDisplacements(displ);
-
-	//********************************************************************************************
-	//CREATE BENDER-WRAPPER
-	//********************************************************************************************
-	Bend* bend2 = new Bend();
-	degree.clear();
-	degree.resize(3);
-	degree[0][1] = 2;
-	bend2->setDegree(degree);
-	coeffs.clear();
-	coeffs.resize(3, vector<vector<double> >(3));
-	coeffs[0][1].resize(degree[0][1]+1);
-	coeffs[0][1][0] = 0.0;
-	coeffs[0][1][1] = 0.1;
-	coeffs[0][1][2] = 0.05;
-	bend2->setCoeffs(coeffs);
-	//set bend to lattice
-	bend2->addChild(lattice2);
-	bend2->setDisplacements(displ2);
-
-	//create output
-	cout << "output setup" << endl;
-	OutputDoF* output = new OutputDoF();
-	lattice->addChild(output);
-	cout << "output setup done" << endl;
-
-	//********************************************************************************************
-
-	//Creating ELEMENT chain
-	Chain ch0;
-	//ch0.addObject(lattice2);
-	ch0.addObject(output);
-	ch0.addObject(lattice);
-//	ch0.addObject(mask);
-//	ch0.addObject(bend);
-	//ch0.addObject(applier2);
-	ch0.addObject(applier);
-
-	//********************************************************************************************
-	//Executing CHAIN
-
-	cout << "execution start" << endl;
-	steady_clock::time_point t1 = steady_clock::now();
-
-	ch0.exec();
-
-	steady_clock::time_point t2 = steady_clock::now();
-	cout << "execution done" << endl;
-
-	//********************************************************************************************
-	//PLOT RESULTS
-
-	lattice->plotGrid("./", "lattice_pipe", 0, false, false);
-	lattice->plotGrid("./", "lattice_pipe", 1, false, true);
-// 	lattice2->plotGrid("./", "lattice2_pipe", 0, false, false);
-// 	lattice2->plotGrid("./", "lattice2_pipe", 1, false, true);
-
-	filename = "mimmo_pipe1";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
-
-	//********************************************************************************************
-	//clean up & exit;
-	delete lattice, applier, output, applier2, lattice2, mask, bend;
-
-	lattice = NULL;
-	applier = NULL;
-	lattice2 = NULL;
-	applier2 = NULL;
-	mask = NULL;
-	bend = NULL;
-
-	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "MiMMO Deformation execution took me " << time_span.count() << " seconds.";
-	std::cout << std::endl;
 }
 
 // =================================================================================== //

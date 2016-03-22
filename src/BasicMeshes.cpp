@@ -209,6 +209,14 @@ BasicShape::CoordType UStructMesh::getCoordTypex(){
 	return(getShape()->getCoordinateType(0));
 }
 
+/*! Return coordinate type of a component of a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ * \param[in] i index of component.
+ */
+BasicShape::CoordType UStructMesh::getCoordType(int i){
+	return(getShape()->getCoordinateType(i));
+}
+
 /*! Return coordinate type of component 1 a BasicShape mesh core.
  * See BasicShape::CoordType enum.
  */
@@ -1170,7 +1178,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 	dvecarr3E activeP(sizePt);
 	ivector2D activeConn(sizeCl, ivector1D(8,0));
 	
-	if(extPoints != NULL && extPoints->size() == sizePt){activeP = *extPoints; }
+	if(extPoints != NULL && extPoints->size() == sizePt){activeP = *extPoints;}
 	else{
 		for(int i=0; i<sizePt; i++){
 			activeP[i] = getGlobalPoint(i);

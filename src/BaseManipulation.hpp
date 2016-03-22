@@ -247,8 +247,10 @@ protected:
 class IOData{
 
 public:
-	IOData();
-	IOData(const IOData & other);
+	IOData(){};
+	IOData(const IOData & other){
+		*this = other;
+	}
 
 	IOData & operator=(const IOData & other){
 		return (*this);

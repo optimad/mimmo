@@ -280,6 +280,6 @@ BaseManipulation::setResult(T& data){
 template<typename T>
 T*
 BaseManipulation::getResult(){
-	return(static_cast<IODataT<T>*>(m_result)->getData());
+	return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
 

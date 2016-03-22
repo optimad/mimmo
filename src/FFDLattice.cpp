@@ -198,9 +198,9 @@ void 		FFDLattice::returnKnotsStructure( int dir, dvector1D & knots, ivector1D &
  */
 iarray3E		FFDLattice::getDimension(){
 	iarray3E dim;
-	dim[0] = m_nx;
-	dim[1] = m_ny;
-	dim[2] = m_nz;
+	dim[0] = m_nx + 1;
+	dim[1] = m_ny + 1;
+	dim[2] = m_nz + 1;
 	return(dim);
 }
 
@@ -741,7 +741,7 @@ int FFDLattice::accessGridFromDOF(int index){
 void		FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bool binary, bool deformed){
 		
 		if(deformed){
-			iarray3E n =getDimension();
+			iarray3E n = getDimension();
 				dvecarr3E dispXYZ;
 				if(isDisplGlobal()){
 					dispXYZ = recoverFullGridDispl();
@@ -878,7 +878,7 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
  */
 darray3E FFDLattice::convertDisplToXYZ(darray3E & target, int i){
 	
-	darray3E scaling = getShape()->getScaling();
+	darray3E scaling = getScaling();
 	darray3E work;
 	for(int i=0; i<3; ++i){
 		work[i] = target[i]/scaling[i];
