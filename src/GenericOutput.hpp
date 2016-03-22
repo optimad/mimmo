@@ -32,33 +32,37 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief OutputDoF is the class that write the degrees of freedom.
+ *	\brief GenericOutput is the class that write the degrees of freedom.
  *
- *	OutputDoF is derived from BaseManipulation class.
+ *	GenericOutput is derived from BaseManipulation class.
  *	It uses and it write the base members m_ndeg and m_displacements.
- *	After the execution of an object OutputDoF, the number of degrees of freedom and their initial
+ *	After the execution of an object GenericOutput, the number of degrees of freedom and their initial
  *	displacements are write on a text file (ascii).
  */
-class OutputDoF: public BaseManipulation{
+class GenericOutput: public BaseManipulation{
 private:
 	//members
-	svector1D	m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
+	std::string	m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
 
 public:
-	OutputDoF(std::string filename = "output.txt");
-	~OutputDoF();
+	GenericOutput(std::string filename = "output.txt");
+	~GenericOutput();
 
-	OutputDoF(const OutputDoF & other);
-	OutputDoF & operator=(const OutputDoF & other);
+	GenericOutput(const GenericOutput & other);
+	GenericOutput & operator=(const GenericOutput & other);
 
 	void addFilename(std::string filename);
 
-	//relationship methods
-protected:
+	template<typename T>
+	void 	setInput(T* data);
 
-public:
+	template<typename T>
+	void 	setInput(T& data);
+
 	void 	execute();
 
 };
+
+#include "GenericOutput.tpp"
 
 #endif /* __OUTPUTDOF_HPP__ */

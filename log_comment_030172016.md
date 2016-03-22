@@ -50,10 +50,11 @@
 
 ##8. OutputDoF / ROCCO
 
-- 8.1. modify execute in order to use input/output of base class
-- 8.2. modify execute to avoid parent/child relationship (deprecated)
-- 8.3. useInfo maybe useless
-- 8.4  must become a GenericOutput class
+- 8.1. modify execute in order to use input/output of base class [&#10004;]
+- 8.2. modify execute to avoid parent/child relationship (deprecated) [&#10004;]
+- 8.3. useInfo maybe useless [&#10004;]
+- 8.4  must become a GenericOutput class [&#10004;]
+- 8.5  template data to ofstream maybe doesn't work, try to use it
 - 8.5. Comments
 
 ##9. Rotation and Translation Box / ROCCO

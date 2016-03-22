@@ -22,31 +22,30 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#include "OutputDoF.hpp"
-#include <fstream>
+#include "GenericOutput.hpp"
 
 using namespace std;
 
-/*!Default constructor of OutputDoF
+/*!Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
-OutputDoF::OutputDoF(std::string filename){
-	m_filename.push_back(filename);
+GenericOutput::GenericOutput(std::string filename){
+	m_filename = filename;
 };
 
-/*!Default destructor of OutputDoF.
+/*!Default destructor of GenericOutput.
  */
-OutputDoF::~OutputDoF(){};
+GenericOutput::~GenericOutput(){};
 
-/*!Copy constructor of OutputDoF.
+/*!Copy constructor of GenericOutput.
  */
-OutputDoF::OutputDoF(const OutputDoF & other):BaseManipulation(other){
+GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other){
 	m_filename 		= other.m_filename;
 };
 
-/*!Assignement operator of OutputDoF.
+/*!Assignement operator of GenericOutput.
  */
-OutputDoF & OutputDoF::operator=(const OutputDoF & other){
+GenericOutput & GenericOutput::operator=(const GenericOutput & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_filename 		= other.m_filename;
 	return *this;
@@ -56,32 +55,12 @@ OutputDoF & OutputDoF::operator=(const OutputDoF & other){
  * \param[in] filename Name of the output file.
  */
 void
-OutputDoF::addFilename(std::string filename){
-	m_filename.push_back(filename);
+GenericOutput::addFilename(std::string filename){
+	m_filename = filename;
 };
 
-/*!Execution command. It writes on file the displacements of the degrees of freedom
- *of the parent manipulation.
+/*!Execution command. VOID (setInput does the work).
  */
 void
-OutputDoF::execute(){
-	for (int i=0; i<getNParent(); i++){
-		if (m_parent[i] != NULL && i<m_filename.size()){
-			m_ndeg = m_parent[i]->getNDeg();
-			m_displ = m_parent[i]->getDisplacements();
-			ofstream file;
-			file.open(m_filename[i]);
-			if (file.is_open()){
-				file << BaseManipulation::m_ndeg << "\n";
-				for (int iv=0; iv<m_ndeg; iv++){
-					for (int i=0; i<3; i++){
-						file << BaseManipulation::m_displ[iv][i] << "\t";
-					}
-					file << "\n";
-				}
-				file.close();
-			}
-		}
-	}
-};
+GenericOutput::execute(){};
 
