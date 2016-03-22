@@ -272,11 +272,11 @@ public:
 	~IODataT();
 
 	IODataT(const IODataT & other){
-		m_data 	= other.m_data;
+		this->m_data 	= other.m_data;
 	}
 
 	IODataT & operator=(const IODataT & other){
-		m_data 	= other.m_data;
+		this->m_data 	= other.m_data;
 		return (*this);
 	}
 

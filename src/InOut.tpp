@@ -30,22 +30,23 @@ InOutT<T>::~InOutT(){
  */
 template<typename T>
 InOutT<T>::InOutT(const InOutT<T> & other){
-	m_getVal 	= other.m_getVal;
-	m_getValR 	= other.m_getValR;
-	m_getValP 	= other.m_getValP;
-	m_setVal 	= other.m_setVal;
-	m_setValP 	= other.m_setValP;
+	*this = other;
 };
 
 /*!Assignement operator of InOutT.
  */
 template<typename T>
 InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
-	m_getVal 	= other.m_getVal;
-	m_getValR 	= other.m_getValR;
-	m_getValP 	= other.m_getValP;
-	m_setVal 	= other.m_setVal;
-	m_setValP 	= other.m_setValP;
+	
+	//inherited members
+	this->m_objLink 	= other.m_objLink;
+	
+	//its own members
+	this->m_getVal 	= other.m_getVal;
+	this->m_getValR 	= other.m_getValR;
+	this->m_getValP 	= other.m_getValP;
+	this->m_setVal 	= other.m_setVal;
+	this->m_setValP 	= other.m_setValP;
 	return (*this);
 };
 

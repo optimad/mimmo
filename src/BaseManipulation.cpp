@@ -43,12 +43,7 @@ BaseManipulation::~BaseManipulation(){
 /*!Copy constructor of BaseManipulation.
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
-	m_geometry 		= other.m_geometry;
-	m_parent 		= other.m_parent;
-	m_child 		= other.m_child;
-	m_pinIn			= other.m_pinIn;
-	m_pinOut		= other.m_pinOut;
-	//Input and result are unique pointer -> not copyed in copy constructor
+	*this = other;
 };
 
 /*!Assignement operator of BaseManipulation.
@@ -59,7 +54,17 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_child 		= other.m_child;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
-	//Input and result are unique pointer -> not copyed in copy constructor
+	
+	if(other.m_input){
+		std::unique_ptr<IOData> ptemp(new IODataT(*(static_cast<IODataT*>(other.m_input.get()))));
+		m_input = move(ptemp);
+	}
+	
+	if(other.m_result){
+		std::unique_ptr<IOData> ptemp(new IODataT(*(static_cast<IODataT*>(other.m_result.get()))));
+		m_result = move(ptemp);
+	}
+
 	return (*this);
 };
 
