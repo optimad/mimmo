@@ -23,19 +23,19 @@
 \*---------------------------------------------------------------------------*/
 #include "RotationBox.hpp"
 
-///*!Default constructor of RotationBox
-// */
+/*!Default constructor of RotationBox
+ */
 RotationBox::RotationBox(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
 };
-//
-///*!Default destructor of RotationBox
-// */
+
+/*!Default destructor of RotationBox
+ */
 RotationBox::~RotationBox(){};
 
-///*!Copy constructor of RotationBox.
-// */
+/*!Copy constructor of RotationBox.
+ */
 RotationBox::RotationBox(const RotationBox & other):BaseManipulation(other){
 	m_origin = other.m_origin;
 	m_direction = other.m_direction;
@@ -64,35 +64,39 @@ RotationBox::setOrigin(darray3E origin){
 void
 RotationBox::setDirection(darray3E direction){
 	m_direction = direction;
-	double L = sqrt(m_direction[0]*m_direction[0] + m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
+//	double L = sqrt(m_direction[0]*m_direction[0] + m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
 	for (int i=0; i<3; i++)
-		m_direction[i] /= L;
-//		m_direction[i] /= norm2(m_direction);
+//		m_direction[i] /= L;
+		m_direction[i] /= norm2(m_direction);
 }
 
 void
 RotationBox::setRotation(double alpha){
-	m_displ.resize(1);
-	m_displ[0] = { {alpha, 0 , 0} };
+	setInput(alpha);
 }
 
 void
-RotationBox::useInfo(){
-	// 3 axes
-	m_axes.resize(m_info->m_naxes);
-	for (int i=0; i<m_info->m_naxes; i++){
-		for (int j=0; j<m_info->m_naxes; j++){
-			m_axes[i][j] = m_info->m_axes[i][j];
-		}
-	}
-	for (int i=0; i<3; i++)
-		m_axes_origin[i] = m_info->m_origin[i];
+RotationBox::setAxes(dvecarr3E axes){
+	m_axes = axes;
 }
 
-/*!Execution command. It modifies the coordinates of the origin given by the child manipulation object
- * with the rotation conditions. After exec() the original origin will be permanently modified.
- * Set the translated origin only for one child (the first one) and it has to be a FFDLattice
- * (static cast to use setOrigin method of basic shape).
+void
+RotationBox::setAxesOrigin(darray3E axes_origin){
+	m_axes_origin = axes_origin;
+}
+
+dvecarr3E
+RotationBox::getRotatedAxes(){
+	return(m_rotax);
+}
+
+darray3E
+RotationBox::getRotatedOrigin(){
+	return(m_rotax_origin);
+}
+
+/*!Execution command. It saves in "rot"-terms the modified axes and origin, by the
+ * rotation conditions, to be furnished by a pin to the child object.
  */
 void
 RotationBox::execute(){
@@ -100,27 +104,23 @@ RotationBox::execute(){
 	//Rotation of origin
 	dvecarr3E rotated(1, {{0,0,0}});
 	m_axes_origin -= m_origin;
+	double alpha = *getInput<double>();
 	//rodrigues formula
-	rotated[0] = m_axes_origin * cos(m_displ[0][0]) +
-			dotProduct(m_direction, m_axes_origin) * (1 - cos(m_displ[0][0])) * m_direction +
-			crossProduct(m_direction, m_axes_origin) * sin(m_displ[0][0]);
+	m_rotax_origin = m_axes_origin * cos(alpha) +
+			dotProduct(m_direction, m_axes_origin) * (1 - cos(alpha)) * m_direction +
+			crossProduct(m_direction, m_axes_origin) * sin(alpha);
 
-	rotated[0] += m_origin;
-	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->changeOrigin(rotated[0]);
-	}
+	m_rotax_origin += m_origin;
+	m_axes_origin += m_origin;
 
 	//rotation of axes
-	rotated.clear();
-	rotated.resize(3, {{0,0,0}});
+	m_rotax.clear();
+	m_rotax.resize(3, {{0,0,0}});
 
 	for (int i=0; i<3; i++){
-		rotated[i] = m_axes[i] * cos(m_displ[0][0]) +
-				dotProduct(m_direction, m_axes[i]) * (1 - cos(m_displ[0][0])) * m_direction +
-				crossProduct(m_direction, m_axes[i]) * sin(m_displ[0][0]);
-	}
-	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->setRefSystem(rotated[0], rotated[1], rotated[2]);
+		m_rotax[i] = m_axes[i] * cos(alpha) +
+				dotProduct(m_direction, m_axes[i]) * (1 - cos(alpha)) * m_direction +
+				crossProduct(m_direction, m_axes[i]) * sin(alpha);
 	}
 
 	return;

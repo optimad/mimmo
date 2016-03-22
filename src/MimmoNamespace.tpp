@@ -92,7 +92,7 @@ std::function<void(VAL*)> mimmo::pin::pinSetP(void (T::*fset) (VAL*), U* obj){
 }
 
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
+template<typename OO, typename OI>
 void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
 	std::vector<InOut*> pinsOut = objSend->getPinsOut();

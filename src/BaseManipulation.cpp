@@ -48,8 +48,7 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	m_child 		= other.m_child;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
-	m_input			= other.m_input;
-	m_result		= other.m_result;
+	//Input and result are unique pointer -> not copyed in copy constructor
 };
 
 /*!Assignement operator of BaseManipulation.
@@ -60,8 +59,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_child 		= other.m_child;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
-	m_input			= other.m_input;
-	m_result		= other.m_result;
+	//Input and result are unique pointer -> not copyed in copy constructor
 	return (*this);
 };
 
@@ -178,7 +176,7 @@ BaseManipulation::removePinsIn(){
 	//Warning!! If infinite while unset parent wrong
 	while(m_parent.size()){
 		it = m_parent.begin();
-		removeAllPins(it->first, this);
+		mimmo::pin::removeAllPins(it->first, this);
 	}
 }
 
@@ -188,7 +186,7 @@ BaseManipulation::removePinsOut(){
 	//Warning!! If infinite while unset parent wrong
 	while(m_child.size()){
 		it = m_child.begin();
-		removeAllPins(this, it->first);
+		mimmo::pin::removeAllPins(this, it->first);
 	}
 }
 
@@ -207,7 +205,7 @@ BaseManipulation::clearResult(){
 void
 BaseManipulation::clear(){
 	unsetGeometry();
-	removeAllPins();
+	removePins();
 	clearInput();
 	clearResult();
 };
@@ -277,7 +275,7 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 	unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
 	if(got != m_child.end()){
 		m_child[child]--;
-		if(m_child[child] <1) m_child.erase();
+		if(m_child[child] <1) m_child.erase(child);
 	}
 };
 

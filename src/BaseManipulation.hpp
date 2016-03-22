@@ -56,43 +56,43 @@ class BaseManipulation{
 
 	//friendship declaration of mimmo::pin methods
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
+	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void removeAllPins(OO* objSend, OI* objRec);
+	template<typename OO, typename OI>
+	friend void mimmo::pin::removeAllPins(OO* objSend, OI* objRec);
 	
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int> bmumap;
@@ -169,8 +169,8 @@ protected:
 	std::vector<InOut*> getPinsIn();
 	std::vector<InOut*> getPinsOut();
 
-	int			findPinIn(InOut* pin);
-	int			findPinOut(InOut* pin);
+	int			findPinIn(InOut& pin);
+	int			findPinOut(InOut& pin);
 
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
@@ -241,6 +241,15 @@ protected:
 //DATA BASE CLASS
 //==============================//
 class IOData{
+
+public:
+	IOData();
+	IOData(const IOData & other);
+
+	IOData & operator=(const IOData & other){
+		return (*this);
+	}
+
 	template<typename T>
 	T* getData();
 

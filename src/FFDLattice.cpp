@@ -125,6 +125,8 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	m_mapdeg = other.m_mapdeg;
 	m_globalDispl = other.m_globalDispl;
 	m_intMapDOF = other.m_intMapDOF;
+	m_displ = other.m_displ;
+	m_np = other.m_np;
 	return(*this);
 };
 
@@ -202,6 +204,13 @@ iarray3E		FFDLattice::getDimension(){
 	return(dim);
 }
 
+/*! Get the total number of control nodes.
+ * \return Number of control nodes
+ */
+double		FFDLattice::getNNodes(){
+	return(m_np);
+}
+
 
 /*! Get the degree of nurbs curve in each direction.
  * \return Array of degree of nurbs curve in each direction
@@ -256,14 +265,14 @@ void		FFDLattice::setDimension(ivector1D &dimensions){
 		
 		rebaseMesh();
 		
-		m_deg[0] = m_nx;
-		m_deg[1] = m_ny;
-		m_deg[2] = m_nz;
+//		m_deg[0] = m_nx;
+//		m_deg[1] = m_ny;
+//		m_deg[2] = m_nz;
 	
 		//setting knots and eventually weights to non-rational B-Spline
 		setKnotsStructure();
 		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-		m_weights.resize(m_ndeg, 1.0);
+		m_weights.resize(m_np, 1.0);
 		
 		//reorder dimensions
 		orderDimension();
@@ -306,7 +315,7 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	setKnotsStructure();
 	
 	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 	
 	//reorder dimensions
 	orderDimension();
@@ -346,7 +355,7 @@ void		FFDLattice::setDimension(iarray3E &dimensions){
 		//setting knots and eventually weights to non-rational B-Spline
 		setKnotsStructure();
 		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-		m_weights.resize(m_ndeg, 1.0);
+		m_weights.resize(m_np, 1.0);
 
 		//reorder dimensions
 		orderDimension();
@@ -361,7 +370,7 @@ void		FFDLattice::setDimension(iarray3E &dimensions){
  */
 void		FFDLattice::setDegrees(ivector1D &degrees){
 
-	if(dimensions.size() < 3 || degrees.size() <3 || getShape() ==NULL) return;
+	if(degrees.size() <3 || getShape() ==NULL) return;
 
 	ivector1D dimLimit(3,2);
 	switch(getShapeType()){
@@ -390,7 +399,7 @@ void		FFDLattice::setDegrees(ivector1D &degrees){
 	setKnotsStructure();
 
 	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 
 	//reorder dimensions
 	orderDimension();
@@ -404,7 +413,7 @@ void		FFDLattice::setDegrees(ivector1D &degrees){
  */
 void		FFDLattice::setDegrees(iarray3E &degrees){
 
-	if(dimensions.size() < 3 || getShape() ==NULL) return;
+	if(getShape() ==NULL) return;
 
 	ivector1D dimLimit(3,2);
 	switch(getShapeType()){
@@ -433,7 +442,7 @@ void		FFDLattice::setDegrees(iarray3E &degrees){
 	setKnotsStructure();
 
 	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 
 	//reorder dimensions
 	orderDimension();
@@ -513,7 +522,7 @@ void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
 	getShape()->setCoordinateType(type,dir);
 	if(flag){
 		setKnotsStructure(dir, type);
-		ivector1D dim = getDimension();
+		iarray3E dim = getDimension();
 		resizeDisplacements(dim[0],dim[1],dim[2]);
 	}
 }
@@ -525,7 +534,7 @@ void FFDLattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
 void FFDLattice::setCoordTypex(BasicShape::CoordType type){
 	getShape()->setCoordinateType(type,0);
 	setKnotsStructure(0, type);
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	resizeDisplacements(dim[0],dim[1],dim[2]);
 }
 
@@ -536,7 +545,7 @@ void FFDLattice::setCoordTypex(BasicShape::CoordType type){
 void FFDLattice::setCoordTypey(BasicShape::CoordType type){
 	getShape()->setCoordinateType(type,1);
 	setKnotsStructure(1, type);
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	resizeDisplacements(dim[0],dim[1],dim[2]);
 }
 
@@ -547,7 +556,7 @@ void FFDLattice::setCoordTypey(BasicShape::CoordType type){
 void FFDLattice::setCoordTypez(BasicShape::CoordType type){
 	getShape()->setCoordinateType(type,2);
 	setKnotsStructure(2, type);
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	resizeDisplacements(dim[0],dim[1],dim[2]);
 }
 
@@ -560,7 +569,7 @@ void FFDLattice::setCoordType(array<BasicShape::CoordType,3> type){
 		getShape()->setCoordinateType(type[i],i);
 		setKnotsStructure(i, type[i]);
 	}
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	resizeDisplacements(dim[0],dim[1],dim[2]);
 }
 
@@ -585,10 +594,10 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	setKnotsStructure();
 	
 	//reallocate your displacement node
-	ivector1D dd = getDimension();
+	iarray3E dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
 	//reset your weights
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 	
 	//reorder dimensions
 	orderDimension();
@@ -616,10 +625,10 @@ void FFDLattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType
 	setKnotsStructure();
 	
 	//reallocate your displacement node
-	ivector1D dd = getDimension();
+	iarray3E dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
 	//reset your weights
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 
 	//reorder dimensions
 	orderDimension();
@@ -645,10 +654,10 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions, ivector1D &
 	setKnotsStructure();
 	
 	//reallocate your displacement node
-	ivector1D dd = getDimension();
+	iarray3E dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
 	//reset your weights
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 	
 	//reorder dimensions
 	orderDimension();
@@ -676,10 +685,10 @@ void FFDLattice::setMesh(BasicShape * shape, ivector1D & dimensions){
 	setKnotsStructure();
 	
 	//reallocate your displacement node
-	ivector1D dd = getDimension();
+	iarray3E dd = getDimension();
 	resizeDisplacements(dd[0],dd[1],dd[2]);
 	//reset your weights
-	m_weights.resize(m_ndeg, 1.0);
+	m_weights.resize(m_np, 1.0);
 	
 	//reorder dimensions
 	orderDimension();
@@ -732,7 +741,7 @@ int FFDLattice::accessGridFromDOF(int index){
 void		FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bool binary, bool deformed){
 		
 		if(deformed){
-				ivector1D n =getDimension();
+			iarray3E n =getDimension();
 				dvecarr3E dispXYZ;
 				if(isDisplGlobal()){
 					dispXYZ = recoverFullGridDispl();
@@ -764,7 +773,7 @@ void		FFDLattice::plotGrid(std::string directory, std::string filename,int count
 void		FFDLattice::plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed){
 	
 	if(deformed){
-		ivector1D n = getDimension();
+		iarray3E n = getDimension();
 		
 		dvecarr3E dispXYZ;
 		if(isDisplGlobal()){
@@ -807,7 +816,7 @@ void 		FFDLattice::execute(){
 				result[container->getMapDataInv(map[i])] = localdef[i];
 			}
 
-			setResut<dvecarr3E>(result);
+			setResult(result);
 
 };
 
@@ -909,7 +918,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	dvector1D valH(4,0), temp1(4,0),temp2(4,0), zeros(4,0);
 	int uind, vind, wind, index;
 	
-	dvecarr3E& displ = getDisplacements();
+	dvecarr3E* displ = getDisplacements();
 
 	int i0 = m_mapdeg[0];
 	int i1 = m_mapdeg[1];
@@ -942,7 +951,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
 
 				for(int intv=0; intv<3; ++intv){
-					temp2[intv] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*displ[m_intMapDOF[index]][intv];
+					temp2[intv] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][intv];
 				}	
 				temp2[3] += BSbasis[i2][k]*m_weights[index];
 			}
@@ -1125,7 +1134,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 	dvector1D valH(2,0), temp1(2,0),temp2(2,0), zeros(2,0);
 	int uind, vind, wind, index;
 	
-	dvecarr3E& displ = getDisplacements();
+	dvecarr3E* displ = getDisplacements();
 	
 	int i0 = m_mapdeg[0];
 	int i1 = m_mapdeg[1];
@@ -1160,7 +1169,7 @@ double 		FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
 				
 				mappedIndex[2] = wind+k;
 				index = accessMapNodes(mappedIndex[0],mappedIndex[1],mappedIndex[2]);
-				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*displ[m_intMapDOF[index]][targ];
+				temp2[0] += BSbasis[i2][k]*m_weights[m_intMapDOF[index]]*(*displ)[m_intMapDOF[index]][targ];
 				temp2[1] += BSbasis[i2][k]*m_weights[index];
 			}
 			
@@ -1318,7 +1327,7 @@ void 		FFDLattice::setKnotsStructure(){
 void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 	
 	//recover number of node for direction dir;
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int nn = dim[dir];
 	
 	// free necessary knot structures
@@ -1541,8 +1550,8 @@ void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 	ivector1D::iterator itMap = itMapBegin;
 	ivector1D::iterator itMapEnd = m_intMapDOF.end();
 	bvector1D info;
-	m_ndeg = reduceDimToDOF(nx,ny,nz, info);
-	m_displ.resize(m_ndeg, darray3E{0,0,0});
+	m_np = reduceDimToDOF(nx,ny,nz, info);
+	m_displ.resize(m_np, darray3E{0,0,0});
 	
 	//set m_intMapDOF
 	
@@ -1633,7 +1642,7 @@ void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
 /*! Recover full displacements vector from DOF */
 dvecarr3E FFDLattice::recoverFullGridDispl(){
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int size = dim[0]*dim[1]*dim[2];
 	dvecarr3E result(size);
 	for(int i=0; i<size; ++i){
@@ -1645,7 +1654,7 @@ dvecarr3E FFDLattice::recoverFullGridDispl(){
 /*! Recover full displacements vector from DOF */
 dvector1D FFDLattice::recoverFullNodeWeights(){
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int size = dim[0]*dim[1]*dim[2];
 	dvector1D result(size);
 	for(int i=0; i<size; ++i){

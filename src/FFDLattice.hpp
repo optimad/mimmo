@@ -50,6 +50,7 @@ protected:
 	dvector2D	m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D	m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D	m_weights;		/**< Weights of each control node*/
+	double		m_np;			/**< Number of control nodes.*/
 	dvecarr3E	m_displ;		/**< Displacements of control nodes.*/
 public:	
 	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
@@ -82,6 +83,7 @@ public:
 	iarray3E	getDimension();
 	iarray3E	getDegrees();
 	dvecarr3E* 	getDisplacements();
+	double		getNNodes();
 	bool 		isDisplGlobal();
 
 	void		setDimension(ivector1D &dimensions);
