@@ -30,16 +30,16 @@ InOutT<T>::~InOutT(){
  */
 template<typename T>
 InOutT<T>::InOutT(const InOutT<T> & other){
-	this = other;
+	*this = other;
 };
 
 /*!Assignement operator of InOutT.
  */
 template<typename T>
 InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
-	//inherited member
-	this->m_objLink	= other.m_objLink;
-	//members
+	//inherited members
+	this->m_objLink 	= other.m_objLink;
+	//its own members
 	this->m_getVal 	= other.m_getVal;
 	this->m_getValR 	= other.m_getValR;
 	this->m_getValP 	= other.m_getValP;

@@ -8,7 +8,7 @@
  - 1.4. add mimmonamespace to each mimmo class [&#10004;]
  - 1.5  members ndeg/displ no more required in base class. [&#10004;]
  - 1.6  Removal of internal pins only of a BaseManipulation class, without external removalPin method-> is meaningful? When a class is destroyed, pins with other class survive eventually. how to manage this?  remove all input/output pins. Party ended. [&#10004;]
-
+ - 1.7  Copy Operator and Constructor Done managing m_input, m_result (IOdata modified in copyOp and CopyConstr) [&#10004;]
 
 ##2. Apply / ROCCO
 
