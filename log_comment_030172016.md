@@ -18,10 +18,10 @@
 ##3. GenericInput / ROCCO
 
  - 3.1. Template read implementation
- - 3.1. Template set input implementation
+ - 3.1. Template set input implementation [&#10004;]
  - 3.3. Comments
 
-##4. Info
+##4. Info [&#10004;]
 
  - 4.1. recoding manipulation objects to avoid the use of info (?) DOES NOT EXIST ANYMORE [&#10004;]
 
@@ -39,13 +39,13 @@
 ##6. Bend / ROCCO
 
 - 6.1. modify execute to use input/output of base class (no displ and ndeg) [&#10004;]
-- 6.2. useInfo maybe useless
+- 6.2. useInfo maybe useless [&#10004;]
 - 6.3. Comments
 
 ##7. Mask / ROCCO
 
 - 7.1. modify execute in order to use input/output of base class (deprecated use of displ)  [&#10004;]
-- 7.2. useInfo maybe useless
+- 7.2. useInfo maybe useless [&#10004;]
 - 7.3. Comments
 
 ##8. OutputDoF / ROCCO
@@ -58,9 +58,9 @@
 
 ##9. Rotation and Translation Box / ROCCO
 
-- 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation
-- 9.2. modify execute to save the result in result and then use input/output pins
-- 9.3. useInfo maybe useless
+- 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation [&#10004;]
+- 9.2. modify execute to save the result in result and then use input/output pins [&#10004;]
+- 9.3. useInfo maybe useless [&#10004;]
 - 9.4. Comments
 
 ##10. InOut Pin block/ EDOARDO  [&#10004;]

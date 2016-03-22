@@ -235,9 +235,6 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)>
 
 
 
-
-
-
 //==================================================//
 // BASEMANIPULATION CLASS TEMPLATED INPUT METHODS	//
 //==================================================//
@@ -261,10 +258,6 @@ T*
 BaseManipulation::getInput(){
 	return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
-
-std::type_index	BaseManipulation::getInputType(){
-	m_input.get()->getDataType();
-};
 
 //==================================================//
 // BASEMANIPULATION CLASS TEMPLATED RESULT METHODS	//

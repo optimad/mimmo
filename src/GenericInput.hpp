@@ -61,9 +61,16 @@ public:
 	void setReadFromFile(bool readFromFile);
 	void setFilename(std::string filename);
 
+	template<typename T>
+	void 				setInput(T* data);
+	template<typename T>
+	void 				setInput(T& data);
+
 	//TODO read generic input (template read?)
 	void execute();
 
 };
+
+#include "GenericInput.tpp"
 
 #endif /* __INPUTDOF_HPP__ */

@@ -54,17 +54,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_child 		= other.m_child;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
-
-//	if(other.m_input){
-//		std::unique_ptr<IOData> ptemp(new IODataT(*(static_cast<IODataT*>(other.m_input.get()))));
-//		m_input = move(ptemp);
-//	}
-//
-//	if(other.m_result){
-//		std::unique_ptr<IOData> ptemp(new IODataT(*(static_cast<IODataT*>(other.m_result.get()))));
-//		m_result = move(ptemp);
-//	}
-
+	//input and result are not copied (unique pointer of template memebers)
 	return (*this);
 };
 

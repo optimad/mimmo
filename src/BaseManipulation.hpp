@@ -133,8 +133,6 @@ public:
 	template<typename T>	
 	T*					getInput();
 
-	std::type_index		getInputType();
-
 	template<typename T>
 	T* 					getResult();
 	
@@ -145,10 +143,6 @@ public:
 	void 				setInput(T* data);
 	template<typename T>
 	void 				setInput(T& data);
-	template<typename T>
-	void 				setResult(T* data);
-	template<typename T>
-	void 				setResult(T& data);
 
 	//cleaning/unset
 	void 	unsetGeometry();
@@ -165,6 +159,11 @@ public:
 	void 	exec();
 	
 protected:
+
+	template<typename T>
+	void 				setResult(T* data);
+	template<typename T>
+	void 				setResult(T& data);
 
 	void		addParent(BaseManipulation* parent);
 	void		addChild(BaseManipulation* child);
@@ -261,8 +260,6 @@ public:
 	template<typename T>
 	void setData(T data);
 
-	std::type_index	getDataType();
-
 };
 
 //==============================//
@@ -272,11 +269,10 @@ template<typename T>
 class IODataT: public IOData{
 public:
 	T 				m_data;
-	std::type_index	m_type;
 
 public:
 	IODataT(){};
-	IODataT(T data):m_type(typeid(data)){
+	IODataT(T data){
 		m_data = data;
 	};
 	~IODataT();
@@ -287,7 +283,6 @@ public:
 
 	IODataT & operator=(const IODataT & other){
 		this->m_data 	= other.m_data;
-		this->m_type 	= other.m_type;
 		return (*this);
 	}
 
@@ -298,12 +293,6 @@ public:
 	T* getData(){
 		return(&m_data);
 	}
-
-	std::type_index
-	getDataType(){
-		return m_type;
-	}
-
 
 };
 
