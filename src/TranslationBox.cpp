@@ -47,6 +47,21 @@ TranslationBox & TranslationBox::operator=(const TranslationBox & other){
 	return(*this);
 };
 
+darray3E
+TranslationBox::getDirection(){
+	return(m_direction);
+}
+
+double
+TranslationBox::getTranslation(){
+	return(m_alpha);
+}
+
+darray3E
+TranslationBox::getOrigin(){
+	return(m_origin);
+}
+
 void
 TranslationBox::setDirection(darray3E direction){
 	m_direction = direction;
@@ -54,15 +69,12 @@ TranslationBox::setDirection(darray3E direction){
 
 void
 TranslationBox::setTranslation(double alpha){
-	m_displ.resize(1);
-	m_displ[0] = { {alpha, 0 , 0} };
+	m_alpha = alpha;
 }
 
 void
-TranslationBox::useInfo(){
-	for (int i=0; i<m_info->m_naxes; i++){
-		m_origin[i] = m_info->m_origin[i];
-	}
+TranslationBox::setOrigin(darray3E origin){
+	m_origin = origin;
 }
 
 /*!Execution command. It modifies the coordinates of the origin given by the child manipulation object
@@ -73,10 +85,8 @@ TranslationBox::useInfo(){
 void
 TranslationBox::execute(){
 	for (int i=0; i<3; i++){
-			m_origin[i] += m_displ[0][0] * m_direction[i];
+			m_origin[i] += m_alpha * m_direction[i];
 	}
-	if (m_child[0] != NULL){
-		static_cast<FFDLattice*>(m_child[0])->changeOrigin(m_origin);
-	}
+	setResult(m_origin);
 	return;
 };

@@ -31,6 +31,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include <typeinfo>
 
 using namespace mimmo::pin;
 
@@ -128,8 +129,12 @@ public:
 	int 				getNPinsIn();
 	int 				getNPinsOut();
 
+
 	template<typename T>	
 	T*					getInput();
+
+	std::type_info		getInputType();
+
 	template<typename T>
 	T* 					getResult();
 	
@@ -255,6 +260,9 @@ public:
 
 	template<typename T>
 	void setData(T data);
+
+	std::type_info	getDataType();
+
 };
 
 //==============================//
@@ -262,21 +270,25 @@ public:
 //==============================//
 template<typename T>
 class IODataT: public IOData{
-	T m_data;
+	T 				m_data;
+	std::type_info	m_type;
 
 public:
 	IODataT();
 	IODataT(T data){
 		m_data = data;
+		m_type = typeid(data);
 	};
 	~IODataT();
 
 	IODataT(const IODataT & other){
 		m_data 	= other.m_data;
+		m_type 	= other.m_type;
 	}
 
 	IODataT & operator=(const IODataT & other){
 		m_data 	= other.m_data;
+		m_type 	= other.m_type;
 		return (*this);
 	}
 
@@ -287,6 +299,12 @@ public:
 	T* getData(){
 		return(&m_data);
 	}
+
+	std::type_info
+	getDataType(){
+		return typeid(m_data);
+	}
+
 
 };
 

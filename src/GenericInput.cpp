@@ -102,7 +102,7 @@ GenericInput::execute(){
 			exit(1);
 		}
 	}
-	setResult(getInput());
+//	setResult(getInput<>());
 };
 
 

@@ -34,19 +34,14 @@
  *
  *	\brief TranslationBox is the class that applies the a translation to the box of a latticeBox object.
  *
- *	The degrees of freedom is the translation value (ndeg = 1) and the direction of the translation
- *	is a parameter of the object.
- *	The displacements has to be one term. As the displacements are array3E only the first term is used,
- *	i.e if alpha is the value of the translation in the chosen direction the only array of displacement
- *	is set m_displ[0]={aplha, 0, 0};
- *
+ *	Result saved in result of base class and in modified member m_origin.
  */
 class TranslationBox: public BaseManipulation{
 private:
 	//members
-	darray3E			m_direction;	/**<Components of the translation axis.*/
-	darray3E			m_origin;		/**<Origin of box to be deformed (recovered in recoverInfo and used in useInfo).*/
-
+	darray3E	m_direction;	/**<Components of the translation axis.*/
+	darray3E	m_origin;		/**<Origin of box to be deformed (recovered in recoverInfo and used in useInfo).*/
+	double		m_alpha;		/**<Value of translation.*/
 
 public:
 	TranslationBox(darray3E direction = { {0, 0, 0} });
@@ -55,14 +50,13 @@ public:
 	TranslationBox(const TranslationBox & other);
 	TranslationBox & operator=(const TranslationBox & other);
 
-	void setDirection(darray3E direction);
-	void setTranslation(double alpha);
+	darray3E 	getDirection();
+	darray3E 	getOrigin();
+	double 		getTranslation();
+	void 		setDirection(darray3E direction);
+	void 		setOrigin(darray3E origin);
+	void 		setTranslation(double alpha);
 
-	//relationship methods
-protected:
-
-public:
-	void 	useInfo();
 	void 	execute();
 
 };
