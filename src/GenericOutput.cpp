@@ -32,6 +32,8 @@ using namespace std;
 GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
 	m_pinType	= PinsType::BACKWARD;
+	m_name 		= "MiMMO.GenericOutput";
+
 };
 
 /*!Default destructor of GenericOutput.

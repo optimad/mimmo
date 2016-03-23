@@ -59,13 +59,18 @@ void test0004() {
 		mimmo0.cleanGeometry();
 	}
 	//Write undeformed geometry
-	string filename = "mimmo0";
+	string filename = "mimmo.0000";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
+
+
 	//Set lattice
+	lattice->setGeometry(&mimmo0);
+
+
 	darray3E origin = {-0.0, -0.0,-0.0};
 	darray3E span;
 	span[0]= 1.2;
@@ -73,7 +78,7 @@ void test0004() {
 	span[2]= 1.2;
 
 	//Set Lattice dimensions and degree
-	ivector1D dim(3), deg(3);
+	iarray3E dim, deg;
 	dim[0] = 20;
 	dim[1] = 20;
 	dim[2] = 20;
@@ -81,13 +86,36 @@ void test0004() {
 	deg[1] = 2;
 	deg[2] = 2;
 
-	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+//	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 
-	//Set geometry
-	lattice->setGeometry(&mimmo0);
+	//Set Inputs with Shape and Mesh Info
+//	BasicShape::ShapeType shapet = BasicShape::ShapeType::CUBE;
+	int t = 0;
+	GenericInput* inputshapet = new GenericInput();
+	inputshapet->setInput(t);
+
+	GenericInput* inputorig = new GenericInput();
+	inputorig->setInput(origin);
+
+	GenericInput* inputspan = new GenericInput();
+	inputspan->setInput(span);
+
+	GenericInput* inputdim = new GenericInput();
+	inputdim->setInput(dim);
+
+	GenericInput* inputdeg = new GenericInput();
+	inputdeg->setInput(deg);
+
+	GenericInput* inputname = new GenericInput();
+	string name = "test_MIMMO_0004.out";
+	inputname->setInput(name);
+
+	GenericOutput* output = new GenericOutput();
+
 
 	//Set Input with Init Displacements
-	int ndeg = lattice->getNNodes();
+	//int ndeg = lattice->getNNodes();
+	int ndeg = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
 	dvecarr3E displ(ndeg);
 	time_t Time = time(NULL);
 	srand(Time);
@@ -105,18 +133,33 @@ void test0004() {
 
 	//Set PINS
 	cout << "set pins" << endl;
+	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
+	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
+	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
+	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
+	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
+	addPin(input, output, &GenericInput::getResult<dvecarr3E>, &GenericOutput::setInput<dvecarr3E>);
 	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
 	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 	cout << "set pins done" << endl;
 
 	//Create chain
 	Chain ch0;
-	cout << "add input " << endl;
+	cout << "add inputs " << endl;
+	ch0.addObject(inputorig);
+	ch0.addObject(inputshapet);
+	ch0.addObject(inputspan);
+	ch0.addObject(inputdim);
+	ch0.addObject(inputdeg);
+	ch0.addObject(inputname);
 	ch0.addObject(input);
-	cout << "add applier" << endl;
-	ch0.addObject(applier);
 	cout << "add lattice" << endl;
 	ch0.addObject(lattice);
+	cout << "add output" << endl;
+	ch0.addObject(output);
+	cout << "add applier" << endl;
+	ch0.addObject(applier);
 
 	//Execution of chain
 	cout << "execution start" << endl;
@@ -128,15 +171,21 @@ void test0004() {
 	//Plot results
 	lattice->plotGrid("./", "lattice", 0, false, false);
 	lattice->plotGrid("./", "lattice", 1, false, true);
-	filename = "mimmo1";
+	filename = "mimmo.0001";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input;
-	lattice = NULL;
-	applier = NULL;
-	input 	= NULL;
+	delete lattice, applier, input, inputorig, inputspan, inputshapet, inputdim, inputdeg;
+
+	lattice 	= NULL;
+	applier 	= NULL;
+	inputorig 	= NULL;
+	inputspan 	= NULL;
+	inputshapet	= NULL;
+	inputdim 	= NULL;
+	inputdeg 	= NULL;
+	input 		= NULL;
 
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

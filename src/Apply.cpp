@@ -25,7 +25,9 @@
 
 /*!Default constructor of Apply
  */
-Apply::Apply():BaseManipulation(){};
+Apply::Apply():BaseManipulation(){
+	m_name = "MiMMO.Apply";
+};
 
 /*!Default destructor of Apply
  */

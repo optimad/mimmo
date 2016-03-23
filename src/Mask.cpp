@@ -25,7 +25,9 @@
 
 ///*!Default constructor of Mask
 // */
-Mask::Mask(){};
+Mask::Mask(){
+	m_name = "MiMMO.Mask";
+};
 //
 ///*!Default destructor of Mask
 // */

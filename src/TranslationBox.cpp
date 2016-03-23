@@ -27,6 +27,7 @@
 // */
 TranslationBox::TranslationBox(darray3E direction){
 	m_direction = direction;
+	m_name = "MiMMO.RotationBox";
 };
 //
 ///*!Default destructor of TranslationBox

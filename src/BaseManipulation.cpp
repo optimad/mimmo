@@ -33,6 +33,7 @@ using namespace std;
 BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
 	m_pinType		= PinsType::BOTH;
+	m_name			= "MiMMO";
 };
 
 /*!Default destructor of BaseManipulation.
@@ -56,8 +57,17 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_pinType		= other.m_pinType;
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
+	m_name 			= other.m_name;
 	//input and result are not copied (unique pointer of template memebers)
 	return (*this);
+};
+
+/*!It gets the name of the manipulator object.
+ * \return Name of the manipulator object.
+ */
+string
+BaseManipulation::getName(){
+	return m_name;
 };
 
 /*!It gets the geometry linked by the manipulator object.
@@ -150,6 +160,14 @@ int
 BaseManipulation::getNPinsOut(){
 	return (m_pinOut.size());
 }
+
+/*!It sets the name of the manipulator object.
+ * \param[in] name Name of the manipulator object.
+ */
+void
+BaseManipulation::setName(string name){
+	m_name = name;
+};
 
 /*!It sets the geometry linked by the manipulator object.
  * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.

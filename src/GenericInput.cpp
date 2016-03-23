@@ -34,6 +34,7 @@ using namespace std;
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
 	m_pinType 		= BaseManipulation::PinsType::FORWARD;
+	m_name 			= "MiMMO.GenericInput";
 };
 
 /*!Custom constructor of OutputDoF.

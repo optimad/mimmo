@@ -25,7 +25,9 @@
 
 ///*!Default constructor of Bend
 // */
-Bend::Bend(){};
+Bend::Bend(){
+	m_name = "MiMMO.Bend";
+};
 //
 ///*!Default destructor of Bend
 // */

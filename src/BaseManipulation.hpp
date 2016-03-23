@@ -101,6 +101,7 @@ public:
 	typedef mimmo::pin::PinsType PinsType;
 
 protected:
+	std::string					m_name;			/**<Name of the manipulation object.*/
 	MimmoObject*				m_geometry;		/**<Pointer to manipulated geometry. */
 	bmumap						m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
 													pointer a counter. When this counter is 0, pointer is released*/
@@ -120,6 +121,7 @@ public:
 	BaseManipulation & operator=(const BaseManipulation & other);
 
 	//get methods
+	std::string			getName();
 	MimmoObject*		getGeometry();
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
@@ -139,6 +141,7 @@ public:
 	T* 					getResult();
 	
 	//set methods
+	void				setName(std::string name);
 	void 				setGeometry(MimmoObject* geometry);
 	
 	template<typename T>

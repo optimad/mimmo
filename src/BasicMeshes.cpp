@@ -46,9 +46,10 @@ using namespace std;
 */
 
 
-/*! Basic Constructor */
+/*! Basic Constructor. Default Shape CUBE */
 UStructMesh::UStructMesh(){
 	m_shape1 = NULL;
+	setShape(BasicShape::ShapeType::CUBE);
 	m_nx = 0; m_ny=0; m_nz=0;
 	m_dx = 0; m_dy=0; m_dz=0;
 	m_setmesh = false;
@@ -391,6 +392,10 @@ ivector1D UStructMesh::getCellNeighs(int index){
  * \param[in] origin new origin point
  */
 void UStructMesh::setOrigin(darray3E origin){
+	if (getShape() == NULL){
+		std::cout << "none Shape set ---> exit" << std::endl;
+		exit(2);
+	}
 	getShape()->setOrigin(origin);
 }
 
@@ -485,41 +490,79 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 
 
 
-/*! Set your shape, according to the following input parameters and the already saved/default parmaters.
- * It rebuilds the mesh after set the shape.
- * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
- */
-void UStructMesh::setShape(BasicShape::ShapeType type){
-	ivector1D dimLimit(3,2);
-	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
+  /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
+   * It rebuilds the mesh after set the shape.
+   * \param[in] type shape of your mesh, casted to enum.(option available are: 0-CUBE(default), 1-CYLINDER, 2-SPHERE)
+   */
+  void UStructMesh::setShape(int itype){
+	  BasicShape::ShapeType type = static_cast<BasicShape::ShapeType>(itype);
+	  ivector1D dimLimit(3,2);
+  	//create internal shape using unique_ptr member.
+  	// unlink external shape eventually
+  	m_shape1 = NULL;
+  	if(m_shape2){m_shape2.release();}
 
-	//default values of origin (0,0,0) and span (1,1,1)cube (1,2*pi,pi)sphere (1,2*pi,1)cylinder
+  	//default values of origin (0,0,0) and span (1,1,1)cube (1,2*pi,pi)sphere (1,2*pi,1)cylinder
 
-	switch(type){
-		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder());
-			dimLimit[1] = 5;
-			break;
-		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere());
-			dimLimit[1] = 5; dimLimit[2] = 3;
-			break;
-		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube());
-		break;
-	}
+  	switch(type){
+  		case BasicShape::ShapeType::CYLINDER :
+  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder());
+  			dimLimit[1] = 5;
+  			break;
+  		case BasicShape::ShapeType::SPHERE :
+  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere());
+  			dimLimit[1] = 5; dimLimit[2] = 3;
+  			break;
+  		default://CUBE
+  			m_shape2 = std::unique_ptr<BasicShape>(new Cube());
+  		break;
+  	}
 
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(m_nx, dimLimit[0])-1;
-	m_ny = std::max(m_ny, dimLimit[1])-1;
-	m_nz = std::max(m_nz, dimLimit[2])-1;
+  	//check on dimensions and eventual closed loops on coordinates.
+  	m_nx = std::max(m_nx, dimLimit[0])-1;
+  	m_ny = std::max(m_ny, dimLimit[1])-1;
+  	m_nz = std::max(m_nz, dimLimit[2])-1;
 
-	rebaseMesh();
-	m_setmesh = true;
-}
+  	rebaseMesh();
+  	m_setmesh = true;
+  }
+
+
+  /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
+   * It rebuilds the mesh after set the shape.
+   * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+   */
+  void UStructMesh::setShape(BasicShape::ShapeType type){
+  	ivector1D dimLimit(3,2);
+  	//create internal shape using unique_ptr member.
+  	// unlink external shape eventually
+  	m_shape1 = NULL;
+  	if(m_shape2){m_shape2.release();}
+
+  	//default values of origin (0,0,0) and span (1,1,1)cube (1,2*pi,pi)sphere (1,2*pi,1)cylinder
+
+  	switch(type){
+  		case BasicShape::ShapeType::CYLINDER :
+  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder());
+  			dimLimit[1] = 5;
+  			break;
+  		case BasicShape::ShapeType::SPHERE :
+  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere());
+  			dimLimit[1] = 5; dimLimit[2] = 3;
+  			break;
+  		default://CUBE
+  			m_shape2 = std::unique_ptr<BasicShape>(new Cube());
+  		break;
+  	}
+
+  	//check on dimensions and eventual closed loops on coordinates.
+  	m_nx = std::max(m_nx, dimLimit[0])-1;
+  	m_ny = std::max(m_ny, dimLimit[1])-1;
+  	m_nz = std::max(m_nz, dimLimit[2])-1;
+
+  	rebaseMesh();
+  	m_setmesh = true;
+  }
 
 
 /*! Set mesh shape, according to the following input parameters.

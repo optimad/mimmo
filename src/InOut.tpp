@@ -1,7 +1,8 @@
-
 //==============================================================//
 // TEMPLATE DERIVED INOUT CLASS	TEMPLATE METHODS				//
 //==============================================================//
+
+#include <iostream>
 
 /*!Default constructor of InOutT
  */

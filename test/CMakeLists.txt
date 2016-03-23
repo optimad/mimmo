@@ -63,7 +63,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere2.stl"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/placca.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/placca.stl"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/placca0.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/placca0.stl"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/inputMIMMO_00001.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/inputMIMMO_00001.txt"           
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/input_MIMMO_00001.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/input_MIMMO_00001.txt"           
     )
 
 add_custom_command(

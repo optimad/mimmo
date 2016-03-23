@@ -120,7 +120,8 @@ public:
 	void	setDimension(ivector1D dim);
 	void	setDimension(iarray3E dim);
 
-	void 	setShape(BasicShape::ShapeType type);
+	void 	setShape(BasicShape::ShapeType type = BasicShape::ShapeType::CUBE);
+	void 	setShape(int itype = 0);
 	void 	setShape(BasicShape *);
 
 	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);

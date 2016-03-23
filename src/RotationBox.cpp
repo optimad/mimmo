@@ -28,6 +28,7 @@
 RotationBox::RotationBox(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
+	m_name = "MiMMO.RotationBox";
 };
 
 /*!Default destructor of RotationBox

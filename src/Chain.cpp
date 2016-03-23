@@ -197,9 +197,18 @@ void
 Chain::exec(){
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
 	vector<BaseManipulation*>::iterator itend = m_objects.end();
+	std::cout << " " << std::endl;
+	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
+	std::cout << "MiMMO : execution of chain - "<< m_objcounter << " objects" << std::endl;
+	std::cout << " " << std::endl;
+	int i = 1;
 	for (it = itb; it != itend; ++it){
+		std::cout << "MiMMO : execution object " << i << "	: " << (*it)->getName() << std::endl;
 		(*it)->exec();
+		i++;
 	}
+	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
+	std::cout << " " << std::endl;
 }
 
 /*!It executes one manipulator object contained in the chain singularly.

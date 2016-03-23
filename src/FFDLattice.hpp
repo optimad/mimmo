@@ -86,11 +86,11 @@ public:
 	double		getNNodes();
 	bool 		isDisplGlobal();
 
-	void		setDimension(ivector1D &dimensions);
+	void		setDimension(ivector1D dimensions);
 	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
-	void		setDimension(iarray3E &dimensions);
-	void		setDegrees(ivector1D &curveDegrees);
-	void		setDegrees(iarray3E &curveDegrees);
+	void		setDimension(iarray3E dimensions);
+	void		setDegrees(ivector1D curveDegrees);
+	void		setDegrees(iarray3E curveDegrees);
 	void 		setDisplacements(dvecarr3E displacements);
 	void 		setDisplGlobal(bool flag);
 	void		setSpan(double, double, double, bool flag = true);

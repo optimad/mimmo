@@ -32,6 +32,9 @@ GenericInput::getResult(){
 		}
 		BaseManipulation::setResult(data);
 	}
-	return BaseManipulation::getResult<T>();
+	return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
+
+
+
 

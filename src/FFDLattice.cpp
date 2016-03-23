@@ -49,6 +49,7 @@ FFDLattice::FFDLattice(){
 	m_deg.resize(3,1);
 	m_mapNodes.resize(3);
 	m_globalDispl = false;
+	m_name = "MiMMO.FFDlattice";
 };
 
 ///*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
@@ -242,7 +243,7 @@ FFDLattice::isDisplGlobal(){return(m_globalDispl);}
  * Bezier curves, their degree is automatically set. Weights are reset to unitary value
  * \param[in] dimension vector of control nodes numbers in each direction
  */
-void		FFDLattice::setDimension(ivector1D &dimensions){
+void		FFDLattice::setDimension(ivector1D dimensions){
 		
 		if(getShape() ==NULL) return;
 		if(dimensions.size() < 3 || getShape() ==NULL) return;
@@ -326,7 +327,7 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
  * Bezier curves, their degree is automatically set. Weights are reset to unitary value
  * \param[in] dimension vector of control nodes numbers in each direction
  */
-void		FFDLattice::setDimension(iarray3E &dimensions){
+void		FFDLattice::setDimension(iarray3E dimensions){
 
 		if(getShape() ==NULL) return;
 		ivector1D dimLimit(3,2);
@@ -368,7 +369,7 @@ void		FFDLattice::setDimension(iarray3E &dimensions){
  *  Weights are reset to unitary value
  * \param[in] degrees vector of degree of nurbs curve in each direction
  */
-void		FFDLattice::setDegrees(ivector1D &degrees){
+void		FFDLattice::setDegrees(ivector1D degrees){
 
 	if(degrees.size() <3 || getShape() ==NULL) return;
 
@@ -411,7 +412,7 @@ void		FFDLattice::setDegrees(ivector1D &degrees){
  *  Weights are reset to unitary value
  * \param[in] degrees vector of degree of nurbs curve in each direction
  */
-void		FFDLattice::setDegrees(iarray3E &degrees){
+void		FFDLattice::setDegrees(iarray3E degrees){
 
 	if(getShape() ==NULL) return;
 

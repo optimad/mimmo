@@ -45,11 +45,7 @@ void test0001() {
 	darray3E point;
 	{
 		//Import STL
-//		STLObj stl("geo_data/placca.stl", true);
-//		STLObj stl("geo_data/placca0.stl", true);
-//		STLObj stl("geo_data/sphere.stl", true);
 		STLObj stl("geo_data/sphere2.stl", true);
-//		STLObj stl("geo_data/cad.stl", true);
 
 		dvector2D V,N;
 		ivector2D T;
@@ -70,14 +66,11 @@ void test0001() {
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 	//Set lattice
-
-	//sphere2
 	darray3E origin = {-0.0, -0.0,-0.0};
 	darray3E span;
 	span[0]= 1.2;
 	span[1]= 1.2;
 	span[2]= 1.2;
-
 
 	//Set Lattice dimensions and degree
 	ivector1D dim(3), deg(3);
@@ -88,10 +81,7 @@ void test0001() {
 	deg[1] = 2;
 	deg[2] = 2;
 
-
 	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
-
-	//Set geometry
 	lattice->setGeometry(&mimmo0);
 
 	//Set Input with Init Displacements
@@ -107,7 +97,7 @@ void test0001() {
 
 	GenericInput* input = new GenericInput();
 	input->setReadFromFile(true);
-	input->setFilename("inputMIMMO_00001.txt");
+	input->setFilename("input/input_MIMMO_00001.txt");
 
 	//create applier
 	Apply* applier = new Apply();
