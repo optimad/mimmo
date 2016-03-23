@@ -121,7 +121,6 @@ public:
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(livector1D & map);
-
 	
 protected:
 	darray3E	convertDisplToXYZ(darray3E &, int i);

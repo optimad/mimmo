@@ -54,6 +54,7 @@ Apply::execute(){
 	dvecarr3E vertex = getGeometry()->getVertex();
 	dvecarr3E* displ = getInput<dvecarr3E>();
 	long nv = getGeometry()->getNVertex();
+	nv = long(std::min(int(nv), int((*displ).size()) ));
 	for (long i=0; i<nv; i++){
 		vertex[i] += (*displ)[i];
 		getGeometry()->modifyVertex(vertex[i], getGeometry()->getMapData(i));

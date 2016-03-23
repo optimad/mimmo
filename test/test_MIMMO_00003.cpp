@@ -47,7 +47,7 @@ void test0003() {
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
-		
+
 		for (long ip=0; ip<np; ip++){
 			point = conArray<double,3>(V[ip]);
 			mimmo0.setVertex(point);
@@ -61,12 +61,12 @@ void test0003() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-//********************************************************************************************	
-// 	//CREATING LATTICE
+	//********************************************************************************************
+	// 	//CREATING LATTICE
 	//Instantiation of a FFDobject of spherical shape 
 	FFDLattice* lattice = new FFDLattice();
 
-	//Set cylindrical lattice
+	//Set spherical lattice
 	darray3E origin = {0.0, 0.0,0.0};
 	darray3E span;
 	span[0]= 3.01;
@@ -74,131 +74,84 @@ void test0003() {
 	span[2]= M_PI;
 
 	ivector1D dim(3), deg(3);
-	dim[0] = 5;
-	dim[1] = 31;
-	dim[2] = 12;
-// 	dim[0] = 3;
-// 	dim[1] = 5;
-// 	dim[2] = 3;
-	
+	dim[0] = 30;
+	dim[1] = 30;
+	dim[2] = 30;
+
 	deg[0] = 2;
-	deg[1] = 3;
-	deg[2] = 3;
+	deg[1] = 2;
+	deg[2] = 2;
 
 	//set lattice
 	lattice->setMesh(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,1,0});
-	//lattice->setInfLimits(0.5*M_PI,2);
-// 	lattice->setCoordType(BasicShape::CoordType::PERIODIC, 0);
- 	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
-// 	lattice->setCoordType(BasicShape::CoordType::PERIODIC, 1);
-
-	//manipulate weights on pole
-// 	lattice->setNodalWeight(2.0, dim[0]-1,0,0);
-// 	lattice->setNodalWeight(2.0, dim[0]-1,0,dim[2]-1);	
-		
-	
-// 	{
-// 		dvector2D knot;
-// 		ivector2D mapEff;
-// 		lattice->returnKnotsStructure(knot, mapEff);
-// 		cout<<lattice->getCoordType(2)<<endl;
-// 		for(int i=0; i<knot.size(); ++i){
-// 			cout<<knot[i]<<endl;
-// 			cout<<mapEff[i]<<endl;
-// 			cout<<lattice->m_mapNodes[i]<<endl;
-// 		}
-// 		exit(1);
-// 	}
-	//Set geometry
+	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
 	lattice->setGeometry(&mimmo0);
-	
-// 	//Set release Info
-// 	lattice->setReleaseInfo(true);
 
 	//Set Input with Init Displacements
-	int ndeg = lattice->getNDeg();
+	int ndeg = lattice->getNNodes();
 	dvecarr3E displ(ndeg, darray3E{0,0,0});
 	time_t Time = time(NULL);
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
-			int l1,l2,l3;
-			int index = lattice->accessGridFromDOF(i);
-			lattice->accessPointIndex(index,l1,l2,l3);
-			if(l1>0){
-// 				displ[i][0] = 0.5;
-// 				displ[i][0] = 0.5*( (double) (rand()) / RAND_MAX );
-// 				displ[i][2] = 0.5*( (double) (rand()) / RAND_MAX );
-				
- 				displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
-			}
-			
-		}	
-	
-// 	for(int k=0; k<dim[2]; k=k+1){
-// 			
-// 			int indGrid  = lattice->accessPointIndex(dim[0]-1,0,k);
-// 			int indDof = lattice->accessDOFFromGrid(indGrid);
-// 			displ[indDof][0] = 2;
-// // 			int dum = dim[1]/2;
-// // 			indGrid  = lattice->accessPointIndex(dim[0]-1,dum,k);
-// // 			indDof = lattice->accessDOFFromGrid(indGrid);
-// // 			displ[indDof][0] = 2.0;
-// 	}
-	
-// 	int indGrid  = lattice->accessPointIndex(dim[0]-1,0,0);
-// 	int indDof = lattice->accessDOFFromGrid(indGrid);
-// 	displ[indDof][0] = 1.0;
-	
-	
-	lattice->setDisplacements(displ);
-//********************************************************************************************	
-	//CREATING INPUT	
-// 	InputDoF* input = new InputDoF(ndeg, displ);
-// 	string file = "input.txt";
-// 	InputDoF* input0 = new InputDoF(file);
-// 
-// 	cout << "input setup done" << endl;
-//********************************************************************************************	
+		int l1,l2,l3;
+		int index = lattice->accessGridFromDOF(i);
+		lattice->accessPointIndex(index,l1,l2,l3);
+		if(l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] < M_PI){
+			displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
+		}
+		if( (l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] >= M_PI)
+				|| lattice->getLocalPoint(l1,l2,l3)[1] == 0){
+			displ[i][0] = 1.5;
+		}
+
+	}
+
+	//********************************************************************************************
+	//	CREATING INPUT
+	cout << "input setup" << endl;
+	GenericInput* input = new GenericInput();
+	input->setInput(displ);
+	cout << "input setup done" << endl;
+
+	//********************************************************************************************
 	//CREATE APPLIER
 	cout << "applier setup" << endl;
-	Apply* applier = new Apply(&mimmo0);
-
-	lattice->addChild(applier);
-
+	Apply* applier = new Apply();
+	applier->setGeometry(&mimmo0);
 	cout << "applier setup done" << endl;
-//********************************************************************************************	
-	//CREATE FILTER MASK
-//********************************************************************************************	
-	//CREATE BENDER-WRAPPER
-//********************************************************************************************	
-	//create output
-	cout << "output setup" << endl;
-	OutputDoF* output = new OutputDoF();
-	lattice->addChild(output);
-	cout << "output setup done" << endl;
-//********************************************************************************************	
 
-//Creating ELEMENT chain
+	//********************************************************************************************
+	//CREATE FILTER MASK
+
+	//********************************************************************************************
+	//CREATE BENDER-WRAPPER
+
+	//********************************************************************************************
+	//SETUP PINS
+	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
+	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+
+	//********************************************************************************************
+	//Creating ELEMENT chain
 	Chain ch0;
 	ivector1D chain_pos;
-
-	chain_pos.push_back(ch0.addObject(output));
+	chain_pos.push_back(ch0.addObject(input));
 	chain_pos.push_back(ch0.addObject(applier));
 	chain_pos.push_back(ch0.addObject(lattice));
-	cout<<chain_pos<<endl;
-//********************************************************************************************	
+
+	//********************************************************************************************
 	//Executing CHAIN
-	
+
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
-		
+
 	ch0.exec();
-	
+
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
-//********************************************************************************************
+	//********************************************************************************************
 	//PLOT RESULTS
 
 	lattice->plotGrid("./", "lattice_ball", 0, false, false);
@@ -208,13 +161,13 @@ void test0003() {
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
-//********************************************************************************************	
+	//********************************************************************************************
 	//clean up & exit;
-	delete lattice, applier, output;
+	delete lattice, applier, input;
 
 	lattice = NULL;
 	applier = NULL;
-	output 	= NULL;
+	input 	= NULL;
 
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout << "MiMMO Deformation execution took me " << time_span.count() << " seconds.";
@@ -231,7 +184,7 @@ int	main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling MiMMO Test routines*/
-	  test0003() ;
+		test0003() ;
 
 #if ENABLE_MPI==1
 	}
