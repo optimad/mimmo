@@ -30,7 +30,7 @@
 #include "BaseManipulation.hpp"
 
 /*!
- *	\date			09/feb/2016
+ *	\date			24/mar/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *

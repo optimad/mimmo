@@ -71,16 +71,21 @@
 
 ##11. Mimmo Tests/ ROCCO/ EDOARDO
 
-- 10.1. make them coherent with new basemanipulation objects design
-- 10.2. Comments
+- 10.1. make them coherent with new basemanipulation objects design  [&#10004;]
+- 10.2. Comments 
 
 ##12. Chain ROCCO
 
 - 11.1	managing total DOF of your manipulation  
 - 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
 - 11.3  Loop detection and blocking 
-- 11.4  Tracking of DOF along the chain
+- 11.4  Tracking of DOF along the chain (11.1?)
 - 11.5 	Comments
+
+##12. Lattice - new object
+
+- 12.1 Make the FFDLattice derived from here ?
+- 12.2 Comments
 
 ##13. RBF MORPHERS
 

@@ -28,17 +28,17 @@ using namespace std;
 
 // IMPLEMENTATION OF FFDLATTICE ***********************************************//
 /*
- *	\date			09/feb/2016
+ *	\date			24/mar/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Free Form Deformation of a 3D surface and point clouds, with structured lattice.
+ *	\brief Structured lattice.
  *
- *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape
+ *	Basically, it builds an elemental 3D shape
  *  (box, sphere, cylinder or part of them) around the geometry and set a structured cartesian mesh of control
- *  points on it (lattice). Displacements of each control point is linked to the geometry inside
- *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to
- *  those portion of geometry encased into the 3D shape.
+ *  points on it (lattice). NO displacements for control points and NO NURBS parameters for FFD are present
+ *  in this structure, only geometrical information are stored in the object.
+ *
  *
  */
 
