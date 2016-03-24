@@ -29,6 +29,7 @@
 
 #include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
+#include "Lattice.hpp"
 #include "FFDLattice.hpp"
 #include "GenericOutput.hpp"
 #include "GenericInput.hpp"

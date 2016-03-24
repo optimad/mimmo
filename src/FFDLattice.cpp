@@ -208,7 +208,7 @@ iarray3E		FFDLattice::getDimension(){
 /*! Get the total number of control nodes.
  * \return Number of control nodes
  */
-double		FFDLattice::getNNodes(){
+int		FFDLattice::getNNodes(){
 	return(m_np);
 }
 
@@ -239,6 +239,21 @@ bool
 FFDLattice::isDisplGlobal(){return(m_globalDispl);}
 
 
+dvecarr3E
+FFDLattice::getGlobalCoords(){
+	int np = (getNNodes());
+	dvecarr3E coords(np);
+	int index, i0, i1, i2;
+	for (int i=0; i<np; i++){
+		index = accessGridFromDOF(i);
+		accessPointIndex(index,i0,i1,i2);
+		coords[i] = getGlobalPoint(i0,i1,i2);
+	}
+	return(coords);
+};
+
+
+
 /*! Set number of control nodes in each space direction.Nurbs curves are treated as
  * Bezier curves, their degree is automatically set. Weights are reset to unitary value
  * \param[in] dimension vector of control nodes numbers in each direction
@@ -260,9 +275,13 @@ void		FFDLattice::setDimension(ivector1D dimensions){
 		}
 		
 		//check on dimensions and eventual closed loops on coordinates.
-		m_nx = std::max(dimensions[0], dimLimit[0])-1;
-		m_ny = std::max(dimensions[1], dimLimit[1])-1;
-		m_nz = std::max(dimensions[2], dimLimit[2])-1;
+//		m_nx = std::max(dimensions[0], dimLimit[0])-1;
+//		m_ny = std::max(dimensions[1], dimLimit[1])-1;
+//		m_nz = std::max(dimensions[2], dimLimit[2])-1;
+		//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
+		m_nx = std::max(dimensions[0], dimLimit[0]);
+		m_ny = std::max(dimensions[1], dimLimit[1]);
+		m_nz = std::max(dimensions[2], dimLimit[2]);
 		
 		rebaseMesh();
 		
@@ -302,9 +321,13 @@ void		FFDLattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
 	}
 	
 	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(dimensions[0], dimLimit[0])-1;
-	m_ny = std::max(dimensions[1], dimLimit[1])-1;
-	m_nz = std::max(dimensions[2], dimLimit[2])-1;
+//	m_nx = std::max(dimensions[0], dimLimit[0])-1;
+//	m_ny = std::max(dimensions[1], dimLimit[1])-1;
+//	m_nz = std::max(dimensions[2], dimLimit[2])-1;
+	//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
+	m_nx = std::max(dimensions[0], dimLimit[0]);
+	m_ny = std::max(dimensions[1], dimLimit[1]);
+	m_nz = std::max(dimensions[2], dimLimit[2]);
 	
 	rebaseMesh();
 	
@@ -343,9 +366,13 @@ void		FFDLattice::setDimension(iarray3E dimensions){
 		}
 
 		//check on dimensions and eventual closed loops on coordinates.
-		m_nx = std::max(dimensions[0], dimLimit[0])-1;
-		m_ny = std::max(dimensions[1], dimLimit[1])-1;
-		m_nz = std::max(dimensions[2], dimLimit[2])-1;
+//		m_nx = std::max(dimensions[0], dimLimit[0])-1;
+//		m_ny = std::max(dimensions[1], dimLimit[1])-1;
+//		m_nz = std::max(dimensions[2], dimLimit[2])-1;
+		//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
+		m_nx = std::max(dimensions[0], dimLimit[0]);
+		m_ny = std::max(dimensions[1], dimLimit[1]);
+		m_nz = std::max(dimensions[2], dimLimit[2]);
 
 		rebaseMesh();
 
@@ -386,9 +413,13 @@ void		FFDLattice::setDegrees(ivector1D degrees){
 	}
 
 	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(m_nx, dimLimit[0])-1;
-	m_ny = std::max(m_ny, dimLimit[1])-1;
-	m_nz = std::max(m_nz, dimLimit[2])-1;
+//	m_nx = std::max(m_nx, dimLimit[0])-1;
+//	m_ny = std::max(m_ny, dimLimit[1])-1;
+//	m_nz = std::max(m_nz, dimLimit[2])-1;
+	//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
+	m_nx = std::max(m_nx, dimLimit[0]);
+	m_ny = std::max(m_ny, dimLimit[1]);
+	m_nz = std::max(m_nz, dimLimit[2]);
 
 	rebaseMesh();
 
@@ -429,9 +460,13 @@ void		FFDLattice::setDegrees(iarray3E degrees){
 	}
 
 	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(m_nx, dimLimit[0])-1;
-	m_ny = std::max(m_ny, dimLimit[1])-1;
-	m_nz = std::max(m_nz, dimLimit[2])-1;
+//	m_nx = std::max(m_nx, dimLimit[0])-1;
+//	m_ny = std::max(m_ny, dimLimit[1])-1;
+//	m_nz = std::max(m_nz, dimLimit[2])-1;
+	//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
+	m_nx = std::max(m_nx, dimLimit[0]);
+	m_ny = std::max(m_ny, dimLimit[1]);
+	m_nz = std::max(m_nz, dimLimit[2]);
 
 	rebaseMesh();
 
@@ -470,10 +505,10 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
  * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
  */
 void FFDLattice::setSpan(double s0, double s1, double s2, bool flag){
-	getShape()->setSpan( s0,  s1,s2);
-
+//	getShape()->setSpan( s0, s1,s2);
+	UStructMesh::setSpan(s0,s1,s2, flag);
 	if(flag){
-		rebaseMesh();
+//		rebaseMesh();
 		setKnotsStructure();
 	}
 }
@@ -484,7 +519,8 @@ void FFDLattice::setSpan(double s0, double s1, double s2, bool flag){
  */
 void FFDLattice::setSpan(darray3E s){
 	getShape()->setSpan( s[0], s[1], s[2]);
-	rebaseMesh();
+	UStructMesh::setSpan(s);
+//	rebaseMesh();
 	setKnotsStructure();
 }
 
@@ -494,10 +530,10 @@ void FFDLattice::setSpan(darray3E s){
  * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
  */
 void FFDLattice::setInfLimits(double orig, int dir, bool flag){
-	getShape()->setInfLimits( orig, dir);
-
+//	getShape()->setInfLimits( orig, dir);
+	UStructMesh::setInfLimits( orig, dir, flag);
 	if(flag){
-		rebaseMesh();
+//		rebaseMesh();
 		setKnotsStructure();
 	}
 }
@@ -507,10 +543,11 @@ void FFDLattice::setInfLimits(double orig, int dir, bool flag){
  * \param[in] orig coordinates origin
  */
 void FFDLattice::setInfLimits(darray3E orig){
-	getShape()->setInfLimits( orig[0], 0);
-	getShape()->setInfLimits( orig[1], 1);
-	getShape()->setInfLimits( orig[2], 2);
-	rebaseMesh();
+//	getShape()->setInfLimits( orig[0], 0);
+//	getShape()->setInfLimits( orig[1], 1);
+//	getShape()->setInfLimits( orig[2], 2);
+	UStructMesh::setInfLimits(orig);
+//	rebaseMesh();
 	setKnotsStructure();
 }
 

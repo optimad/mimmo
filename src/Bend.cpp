@@ -27,6 +27,7 @@
 // */
 Bend::Bend(){
 	m_name = "MiMMO.Bend";
+	m_degree.fill({{0,0,0}});
 };
 //
 ///*!Default destructor of Bend
@@ -53,15 +54,15 @@ Bend & Bend::operator=(const Bend & other){
 /*!It gets the coordinates of the degrees of freedom.
  * \return Coordinates of the degrees of freedom.
  */
-dvecarr3E
+dvecarr3E*
 Bend::getCoords(){
-	return(m_coords);
+	return(&m_coords);
 };
 
 /*!It gets the degrees of polynomial law for each component of displacements of degrees of freedom.
  * \return Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
  */
-dvecarr3E
+umatrix33E
 Bend::getDegree(){
 	return(m_degree);
 };
@@ -69,7 +70,7 @@ Bend::getDegree(){
 /*!It gets the coefficients of the polynomial laws.
  * \return Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
  */
-dvector3D
+dmat33Evec
 Bend::getCoeffs(){
 	return(m_coeffs);
 };
@@ -79,24 +80,45 @@ Bend::getCoeffs(){
  * \param[in] coords Coordinates of the degrees of freedom.
  */
 void
-Bend::setCoords(dvecarr3E & coords){
+Bend::setCoords(dvecarr3E coords){
 	m_coords = coords;
 };
 
 /*!It sets the degrees of polynomial law for each component of displacements of degrees of freedom.
- * \param[in] degrees Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+ * \param[in] degree Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
  */
 void
-Bend::setDegree(dvecarr3E & degree){
+Bend::setDegree(umatrix33E degree){
 	m_degree = degree;
+};
+
+/*!It sets the degrees of a term of a polynomial law for a component of displacements of degrees of freedom.
+ * \param[in] i Components of displacement.
+ * \param[in] j Coordinate of the function related to input degree.
+ * \param[in] degree Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+ */
+void
+Bend::setDegree(int i, int j, uint32_t degree){
+	m_degree[i][j] = degree;
+	m_coeffs[i][j].resize(degree);
 };
 
 /*!It sets the coefficients of the polynomial laws.
  * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
  */
 void
-Bend::setCoeffs(dvector3D & coeffs){
+Bend::setCoeffs(dmat33Evec coeffs){
 	m_coeffs = coeffs;
+};
+
+/*!It sets the coefficients of the polynomial laws.
+ * \param[in] i Components of displacement.
+ * \param[in] j Coordinate of the function related to input degree.
+ * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+ */
+void
+Bend::setCoeffs(int i, int j, dvector1D coeffs){
+	m_coeffs[i][j] = coeffs;
 };
 
 /*!Execution command. It modifies the displacements given by the input manipulation object
@@ -108,7 +130,8 @@ Bend::setCoeffs(dvector3D & coeffs){
 void
 Bend::execute(){
 	dvecarr3E displ = *(getInput<dvecarr3E>());
-	int	ndispl;
+	int	ndispl = displ.size();
+	ndispl = std::min(ndispl, int(m_coords.size()));
 	for (int j=0; j<3; j++){
 		for (int i=0; i<ndispl; i++){
 			for (int z=0; z<3; z++){

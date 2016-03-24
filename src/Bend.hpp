@@ -40,8 +40,8 @@
 class Bend: public BaseManipulation{
 private:
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	dvecarr3E			m_degree;	/**<Degree of polynomial law for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
-	dvector3D			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
+	umatrix33E			m_degree;	/**<Degree of polynomial law for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
+	dmat33Evec			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
 
 public:
 	Bend();
@@ -50,13 +50,15 @@ public:
 	Bend(const Bend & other);
 	Bend & operator=(const Bend & other);
 
-	dvecarr3E	getCoords();
-	dvecarr3E	getDegree();
-	dvector3D	getCoeffs();
+	dvecarr3E*	getCoords();
+	umatrix33E	getDegree();
+	dmat33Evec	getCoeffs();
 
-	void	setCoords(dvecarr3E & coords);
-	void	setDegree(dvecarr3E & degree);
-	void	setCoeffs(dvector3D & coeffs);
+	void	setCoords(dvecarr3E coords);
+	void	setDegree(umatrix33E degree);
+	void	setDegree(int i, int j, uint32_t degree);
+	void	setCoeffs(dmat33Evec coeffs);
+	void	setCoeffs(int i, int j, dvector1D coeffs);
 
 	void 	execute();
 

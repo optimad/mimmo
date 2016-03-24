@@ -83,8 +83,9 @@ public:
 	iarray3E	getDimension();
 	iarray3E	getDegrees();
 	dvecarr3E* 	getDisplacements();
-	double		getNNodes();
+	int			getNNodes();
 	bool 		isDisplGlobal();
+	dvecarr3E 	getGlobalCoords();
 
 	void		setDimension(ivector1D dimensions);
 	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);

@@ -56,7 +56,7 @@ void test0002() {
 	}
 
 	//writing undeformed geometry stock in mimmo container
-	string filename = "mimmo_pipe_0";
+	string filename = "mimmo_0002.0000";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
@@ -205,13 +205,13 @@ void test0002() {
 	//********************************************************************************************
 	//PLOT RESULTS
 
-	lattice->plotGrid("./", "lattice_pipe_", 0, false, false);
-	lattice->plotGrid("./", "lattice_pipe_", 1, false, true);
+	lattice->plotGrid("./", "lattice_0002", 0, false, false);
+	lattice->plotGrid("./", "lattice_0002", 1, false, true);
 
-	lattice2->plotGrid("./", "lattice2_pipe_" , 0, false, false);
-	lattice2->plotGrid("./", "lattice2_pipe_" , 1, false, true);
+	lattice2->plotGrid("./", "lattice2_0002" , 0, false, false);
+	lattice2->plotGrid("./", "lattice2_0002" , 1, false, true);
 
-	filename = "mimmo_pipe_1";
+	filename = "mimmo_0002.0001";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 

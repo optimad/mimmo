@@ -59,7 +59,7 @@ void test0001() {
 		mimmo0.cleanGeometry();
 	}
 	//Write undeformed geometry
-	string filename = "mimmo0";
+	string filename = "mimmo_0001.0000";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 	
@@ -125,9 +125,9 @@ void test0001() {
 	cout << "execution done" << endl;
 
 	//Plot results
-	lattice->plotGrid("./", "lattice", 0, false, false);
-	lattice->plotGrid("./", "lattice", 1, false, true);
-	filename = "mimmo1";
+	lattice->plotGrid("./", "lattice_0001", 0, false, false);
+	lattice->plotGrid("./", "lattice_0001", 1, false, true);
+	filename = "mimmo_0001.0001";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 

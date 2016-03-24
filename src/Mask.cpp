@@ -27,6 +27,9 @@
 // */
 Mask::Mask(){
 	m_name = "MiMMO.Mask";
+	m_thres.fill({{0,0}});
+	m_inside = {{true, true, true}};
+
 };
 //
 ///*!Default destructor of Mask
@@ -44,11 +47,19 @@ Mask & Mask::operator=(const Mask & other){
 	return(*this);
 };
 
+/*!It gets the coordinates of the degrees of freedom.
+ * \return Coordinates of the degrees of freedom.
+ */
+dvecarr3E*
+Mask::getCoords(){
+	return(&m_coords);
+};
+
 /*!It sets the coordinates of the degrees of freedom.
  * \param[in] coords Coordinates of the degrees of freedom.
  */
 void
-Mask::setCoords(dvecarr3E & coords){
+Mask::setCoords(dvecarr3E coords){
 	m_coords = coords;
 };
 
@@ -56,7 +67,7 @@ Mask::setCoords(dvecarr3E & coords){
  * \param[in] thres Limit of coordinates to apply the masking.
  */
 void
-Mask::setThresholds(dmatrix32E & thres){
+Mask::setThresholds(dmatrix32E thres){
 	m_thres = thres;
 };
 
@@ -65,7 +76,7 @@ Mask::setThresholds(dmatrix32E & thres){
  * \param[in] dir Index of component.
  */
 void
-Mask::setThresholds(darray2E & thres, int dir){
+Mask::setThresholds(darray2E thres, int dir){
 	m_thres[dir] = thres;
 };
 
@@ -73,7 +84,7 @@ Mask::setThresholds(darray2E & thres, int dir){
  * \param[in] thres Limit of coordinate to apply the masking.
  */
 void
-Mask::setThresholdx(darray2E & thres){
+Mask::setThresholdx(darray2E thres){
 	m_thres[0] = thres;
 };
 
@@ -81,7 +92,7 @@ Mask::setThresholdx(darray2E & thres){
  * \param[in] thres Limit of coordinate to apply the masking.
  */
 void
-Mask::setThresholdy(darray2E & thres){
+Mask::setThresholdy(darray2E thres){
 	m_thres[1] = thres;
 };
 
@@ -89,7 +100,7 @@ Mask::setThresholdy(darray2E & thres){
  * \param[in] thres Limit of coordinate to apply the masking.
  */
 void
-Mask::setThresholdz(darray2E & thres){
+Mask::setThresholdz(darray2E thres){
 	m_thres[2] = thres;
 };
 
@@ -123,7 +134,8 @@ Mask::setInside(int i, bool inside){
 void
 Mask::execute(){
 	dvecarr3E displ = *(getInput<dvecarr3E>());
-	int	ndispl;
+	int	ndispl = displ.size();
+	ndispl = std::min(ndispl, int(m_coords.size()));
 	for (int i=0; i<ndispl; i++){
 		if (m_coords[i][0]>m_thres[0][0] && m_coords[i][0]<m_thres[0][1] &&
 				m_coords[i][1]>m_thres[1][0] && m_coords[i][1]<m_thres[1][1] &&

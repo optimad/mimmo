@@ -51,12 +51,14 @@ public:
 	Mask(const Mask & other);
 	Mask & operator=(const Mask & other);
 
-	void	setCoords(dvecarr3E & coords);
-	void	setThresholds(dmatrix32E & thres);
-	void	setThresholds(darray2E & thres, int dir);
-	void	setThresholdx(darray2E & thres);
-	void	setThresholdy(darray2E & thres);
-	void	setThresholdz(darray2E & thres);
+	dvecarr3E*	getCoords();
+
+	void	setCoords(dvecarr3E coords);
+	void	setThresholds(dmatrix32E thres);
+	void	setThresholds(darray2E thres, int dir);
+	void	setThresholdx(darray2E thres);
+	void	setThresholdy(darray2E thres);
+	void	setThresholdz(darray2E thres);
 	void	setInside(bool inside);
 	void	setInside(int i, bool inside);
 

@@ -28,6 +28,7 @@
 // local libs
 #include <memory>
 #include <array>
+#include "BaseManipulation.hpp"
 #include "BasicShapes.hpp"
 #include "MiMMO_TypeDef.hpp"
 
@@ -56,8 +57,13 @@ protected:
 	int					m_nx, m_ny, m_nz;	/**< Mesh number of cells in each direction */
 	dvector1D 	m_xnode, m_ynode, m_znode; 	/**< Lists holding the center cells coordinates of the mesh, in local reference sistem */
 	dvector1D 	m_xedge, m_yedge, m_zedge; 	/**< Lists holding the point coordinates of the mesh, in local reference system */
+
+	bool					m_setorigin;	/**< True if origin has been set independently*/
+	bool					m_setspan;		/**< True if span has been set independently*/
+	darray3E				m_origin;		/**< True if origin has been set independently*/
+	darray3E				m_span;			/**< True if span has been set independently*/
 	//TODO m_setmesh useful?
-	bool						m_setmesh; 	/**< check true if mesh is actually set */
+	bool					m_setmesh; 		/**< check true if mesh is actually set */
 
 public:	     
 	//Building stuffs	    
@@ -105,6 +111,10 @@ public:
 	
 	ivector1D 				getCellNeighs(int);
 	ivector1D 				getCellNeighs(int, int, int);
+
+	dvecarr3E				getLocalCoords();
+	dvecarr3E				getGlobalCoords();
+
 
 	//TODO each set method does a rebuild of the mesh, can be found an alternative strategy?
 	void	setOrigin(darray3E origin);
@@ -163,9 +173,10 @@ public:
 	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
 	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
 
+	void 		execute();
+
 protected:
 	//internal maintenance of the mesh
-//	BasicShape*	getShape();
 	void 		resizeMesh();
 	void 		destroyNodalStructure();
 	void 		reshapeNodalStructure();

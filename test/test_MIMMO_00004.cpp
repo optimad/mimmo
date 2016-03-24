@@ -59,7 +59,7 @@ void test0004() {
 		mimmo0.cleanGeometry();
 	}
 	//Write undeformed geometry
-	string filename = "mimmo.0000";
+	string filename = "mimmo_0004.0000";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 
@@ -70,14 +70,13 @@ void test0004() {
 	//Set lattice
 	lattice->setGeometry(&mimmo0);
 
-
-	darray3E origin = {-0.0, -0.0,-0.0};
+	//Set Inputs with Shape and Mesh Info
+	darray3E origin = {0.0, 0.0, 0.0};
 	darray3E span;
 	span[0]= 1.2;
 	span[1]= 1.2;
 	span[2]= 1.2;
 
-	//Set Lattice dimensions and degree
 	iarray3E dim, deg;
 	dim[0] = 20;
 	dim[1] = 20;
@@ -86,10 +85,6 @@ void test0004() {
 	deg[1] = 2;
 	deg[2] = 2;
 
-//	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
-
-	//Set Inputs with Shape and Mesh Info
-//	BasicShape::ShapeType shapet = BasicShape::ShapeType::CUBE;
 	int t = 0;
 	GenericInput* inputshapet = new GenericInput();
 	inputshapet->setInput(t);
@@ -112,20 +107,40 @@ void test0004() {
 
 	GenericOutput* output = new GenericOutput();
 
-
 	//Set Input with Init Displacements
-	//int ndeg = lattice->getNNodes();
 	int ndeg = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
 	dvecarr3E displ(ndeg);
 	time_t Time = time(NULL);
 	srand(Time);
 	for (int i=0; i<ndeg; i++){
 		for (int j=0; j<3; j++){
-			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
+			displ[i][j] = 0.25*( (double) (rand()) / RAND_MAX - 0.5);
 		}
 	}
 	GenericInput* input = new GenericInput();
 	input->setInput(displ);
+
+	//create aux lattice for mesh and nodes coordinates
+	Lattice* mesh = new Lattice();
+
+	//create Mask
+	Mask* mask = new Mask();
+	mask->setThresholds({{-10.0,0}}, 0);
+	mask->setThresholds({{-10.0,10.0}}, 1);
+	mask->setThresholds({{-10.0,10.0}}, 2);
+	mask->setInside(0, true);
+	mask->setInside(1, true);
+	mask->setInside(2, true);
+
+	//create Bend
+	Bend* bend = new Bend();
+	uint32_t	degree = 2;
+	dvector1D	coeffs(degree+1);
+	coeffs[0] = 0;
+	coeffs[1] = 0;
+	coeffs[2] = 1;
+	bend->setDegree(2,0,degree);
+	bend->setCoeffs(2,0,coeffs);
 
 	//create applier
 	Apply* applier = new Apply();
@@ -133,15 +148,30 @@ void test0004() {
 
 	//Set PINS
 	cout << "set pins" << endl;
+
+	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
+	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
+	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
+	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
+
+	addPin(mesh, mask, &Lattice::getGlobalCoords, &Mask::setCoords);
+	addPin(input, mask, &GenericInput::getResult<dvecarr3E>, &Mask::setInput<dvecarr3E>);
+
+	addPin(mask, bend, &Mask::getCoords, &Bend::setCoords);
+	addPin(mask, bend, &Mask::getResult<dvecarr3E>, &Bend::setInput<dvecarr3E>);
+
 	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
 	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
 	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
 	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
 	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+
 	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
-	addPin(input, output, &GenericInput::getResult<dvecarr3E>, &GenericOutput::setInput<dvecarr3E>);
-	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
+	addPin(bend, output, &Bend::getResult<dvecarr3E>, &GenericOutput::setInput<dvecarr3E>);
+
+	addPin(bend, lattice, &Bend::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
 	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+
 	cout << "set pins done" << endl;
 
 	//Create chain
@@ -154,6 +184,12 @@ void test0004() {
 	ch0.addObject(inputdeg);
 	ch0.addObject(inputname);
 	ch0.addObject(input);
+	cout << "add mesh" << endl;
+	ch0.addObject(mesh);
+	cout << "add mask" << endl;
+	ch0.addObject(mask);
+	cout << "add bend" << endl;
+	ch0.addObject(bend);
 	cout << "add lattice" << endl;
 	ch0.addObject(lattice);
 	cout << "add output" << endl;
@@ -169,9 +205,9 @@ void test0004() {
 	cout << "execution done" << endl;
 
 	//Plot results
-	lattice->plotGrid("./", "lattice", 0, false, false);
-	lattice->plotGrid("./", "lattice", 1, false, true);
-	filename = "mimmo.0001";
+	lattice->plotGrid("./", "lattice_0004", 0, false, false);
+	lattice->plotGrid("./", "lattice_0004", 1, false, true);
+	filename = "mimmo_0004.0001";
 	mimmo0.m_geometry->setName(filename);
 	mimmo0.m_geometry->write();
 

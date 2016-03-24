@@ -44,6 +44,7 @@ typedef std::array<double,3>		darray3E;
 typedef std::array<double,4>		darray4E;
 typedef std::array<float,3>			farray3E;
 typedef std::array<int,3>			iarray3E;
+typedef std::array<uint32_t,3>		uarray3E;
 
 typedef std::vector<darray2E>		dvecarr2E;
 typedef std::vector<darray3E>		dvecarr3E;
@@ -79,6 +80,10 @@ typedef std::vector< svector3D >	svector4D;
 typedef std::array<darray2E,3>		dmatrix32E;
 typedef std::array<darray3E,3>		dmatrix33E;
 typedef std::array<darray4E,4>		dmatrix44E;
+typedef std::array<uarray3E,3>		umatrix33E;
+
+typedef std::array<dvector1D,3>		darr3Evec;
+typedef std::array<darr3Evec,3>		dmat33Evec;
 
 typedef std::map<long int, int>		liimap;
 
