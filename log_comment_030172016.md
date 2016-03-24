@@ -1,6 +1,6 @@
 #MIMMO TASKS
 
-##1. MimmoNamespace e BaseManipulation / ROCCO
+##1. MimmoNamespace e BaseManipulation
 
  - 1.1. 6 todos in basemanipulation  [&#10004;]
  - 1.2. Comments 
@@ -10,12 +10,12 @@
  - 1.6  Removal of internal pins only of a BaseManipulation class, without external removalPin method-> is meaningful? When a class is destroyed, pins with other class survive eventually. how to manage this?  remove all input/output pins. Party ended. [&#10004;]
  - 1.7  Copy Operator and Constructor Done managing m_input, m_result (IOdata modified in copyOp and CopyConstr) [&#10004;]
 
-##2. Apply / ROCCO
+##2. Apply
 
  - 2.1. Update execut with new input/output pins  [&#10004;]
  - 2.2. Comments
 
-##3. GenericInput / ROCCO
+##3. GenericInput
 
  - 3.1. Template read implementation [&#10004;]
  - 3.1. Template set input implementation [&#10004;]
@@ -26,7 +26,7 @@
  - 4.1. recoding manipulation objects to avoid the use of info (?) DOES NOT EXIST ANYMORE [&#10004;]
 
 
-##5. FFD Lattice / EDOARDO
+##5. FFD Lattice
 
 - 5.1. modify execute in order to use m_result of base class  [&#10004;]
 - 5.2. use input of base class and avoid the use of displ (m_displ for the moment set as member of lattice, input of base class is temporary)  [&#10004;] 
@@ -35,19 +35,19 @@
 - 5.6. Comments 
 
 
-##6. Bend / ROCCO
+##6. Bend
 
 - 6.1. modify execute to use input/output of base class (no displ and ndeg) [&#10004;]
 - 6.2. useInfo maybe useless [&#10004;]
 - 6.3. Comments
 
-##7. Mask / ROCCO
+##7. Mask
 
 - 7.1. modify execute in order to use input/output of base class (deprecated use of displ)  [&#10004;]
 - 7.2. useInfo maybe useless [&#10004;]
 - 7.3. Comments
 
-##8. OutputDoF / ROCCO
+##8. OutputDoF
 
 - 8.1. modify execute in order to use input/output of base class [&#10004;]
 - 8.2. modify execute to avoid parent/child relationship (deprecated) [&#10004;]
@@ -56,25 +56,25 @@
 - 8.5  template data to ofstream maybe doesn't work, try to use it [&#10004;]
 - 8.5. Comments
 
-##9. Rotation and Translation Box / ROCCO
+##9. Rotation and Translation Box 
 
 - 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation [&#10004;]
 - 9.2. modify execute to save the result in result and then use input/output pins [&#10004;]
 - 9.3. useInfo maybe useless [&#10004;]
 - 9.4. Comments
 
-##10. InOut Pin block/ EDOARDO  [&#10004;]
+##10. InOut Pin block  [&#10004;]
 
 - 10.1 Comments  [&#10004;]
 - 10.1 Template .tpp file  [&#10004;]
 
 
-##11. Mimmo Tests/ ROCCO/ EDOARDO
+##11. Mimmo Tests
 
 - 10.1. make them coherent with new basemanipulation objects design  [&#10004;]
 - 10.2. Comments 
 
-##12. Chain ROCCO
+##12. Chain
 
 - 11.1	managing total DOF of your manipulation  
 - 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
