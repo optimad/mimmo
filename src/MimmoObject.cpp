@@ -38,11 +38,11 @@ MimmoObject::MimmoObject(int type){
 	m_type = max(type,1);
 	const int id = 0;
 	if (m_type == 2){
-		m_geometry = new VolTriPatch(id, 3);
-		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+//		m_geometry = new VolumeKernel::VolUnstructured(id, 3);
+//		dynamic_cast<VolumeKernel::VolUnstructured*>(m_geometry)->setExpert(true);
 	}else{
-		m_geometry = new SurfTriPatch(id);
-		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
+		m_geometry = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured*>(m_geometry)->setExpert(true);
 	}
 	m_internalPatch = true;
 }
@@ -57,11 +57,11 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	m_internalPatch = true;
 	const int id = 0;
 	if (m_type == 2){
-		m_geometry = new VolTriPatch(id, 3);
-		dynamic_cast<VolTriPatch*> (m_geometry)->setExpert(true);
+//		m_geometry = new VolUnstructured(id, 3);
+//		dynamic_cast<VolUnstructured*> (m_geometry)->setExpert(true);
 	}else{
-		m_geometry = new SurfTriPatch(id);
-		dynamic_cast<SurfTriPatch*> (m_geometry)->setExpert(true);
+		m_geometry = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured*> (m_geometry)->setExpert(true);
 	}
 	setVertex(vertex);
 	if (connectivity != NULL)
@@ -159,7 +159,7 @@ MimmoObject::getVertex(){
 	long nv = getNVertex();
 	dvecarr3E result(nv);
 	long i = 0;
-	for (const Vertex &vertex : m_geometry->vertices()){
+	for (const Vertex &vertex : m_geometry->getVertices()){
 		result[i++] = vertex.getCoords();
 	}
 	return result;
@@ -247,10 +247,9 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 	int mapsize = m_mapData.size();
 	PatchKernel::VertexIterator index;
 	for (long i=0; i<nv; i++){
-		index = m_geometry->addVertex();
-		index->setCoords(vertex[i]);
-		m_mapData.push_back(index->get_id());
-		m_mapDataInv[index->get_id()] = mapsize + i;
+		index = m_geometry->addVertex(vertex[i]);
+		m_mapData.push_back(index->getId());
+		m_mapDataInv[index->getId()] = mapsize + i;
 	}
 	return true;
 };
@@ -262,10 +261,9 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 bool
 MimmoObject::setVertex(darray3E & vertex){
 	if (m_geometry == NULL) return false;
-	PatchKernel::VertexIterator it = m_geometry->addVertex();
-	it->setCoords(vertex);
-	m_mapData.push_back(it->get_id());
-	m_mapDataInv[it->get_id()] = m_mapData.size();
+	PatchKernel::VertexIterator it = m_geometry->addVertex(vertex);
+	m_mapData.push_back(it->getId());
+	m_mapDataInv[it->getId()] = m_mapData.size();
 	return true;
 };
 
@@ -332,7 +330,7 @@ MimmoObject::setGeometry(int type, PatchKernel* geometry){
 bool
 MimmoObject::cleanGeometry(){
 	if (m_geometry == NULL) return false;
-	m_geometry->deleteCoincidentVertex();
+	m_geometry->deleteCoincidentVertices();
 	setMapData();
 	return true;
 };
@@ -352,7 +350,7 @@ MimmoObject::setMapData(){
 	PatchKernel::VertexIterator itend = m_geometry->vertexEnd();
 	long i = 0;
 	for (it = m_geometry->vertexBegin(); it != itend; ++it){
-		m_mapData[i] = it->get_id();
+		m_mapData[i] = it->getId();
 		m_mapDataInv[m_mapData[i]] = i;
 		i++;
 	}

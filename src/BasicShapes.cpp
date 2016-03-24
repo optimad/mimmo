@@ -221,10 +221,10 @@ livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
   livector1D result(nCells); 
   int counter=0;
   
-  for(auto &cell : tri->cells()){
+  for(auto &cell : tri->getCells()){
    
-    if(isSimplexIncluded(tri, cell.get_id())){
-      result[counter] = cell.get_id();
+    if(isSimplexIncluded(tri, cell.getId())){
+      result[counter] = cell.getId();
       ++counter;
     }
   }
@@ -243,10 +243,10 @@ livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
 	livector1D result(nCells); 
 	int counter=0;
 	
-	for(auto &cell : tri->cells()){
+	for(auto &cell : tri->getCells()){
 		
-		if(!isSimplexIncluded(tri, cell.get_id())){
-			result[counter] = cell.get_id();
+		if(!isSimplexIncluded(tri, cell.getId())){
+			result[counter] = cell.getId();
 			++counter;
 		}
 	}
@@ -310,10 +310,10 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	livector1D result(nVert); 
 	int counter=0;
 	
-	for(auto &vertex : tri->vertices()){
+	for(auto &vertex : tri->getVertices()){
 		
-		if(isPointIncluded(tri, vertex.get_id())){
-			result[counter] = vertex.get_id();
+		if(isPointIncluded(tri, vertex.getId())){
+			result[counter] = vertex.getId();
 			++counter;
 		}
 	}
@@ -332,10 +332,10 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 	livector1D result(nVert); 
 	int counter=0;
 	
-	for(auto &vertex : tri->vertices()){
+	for(auto &vertex : tri->getVertices()){
 		
-		if(!isPointIncluded(tri, vertex.get_id())){
-			result[counter] = vertex.get_id();
+		if(!isPointIncluded(tri, vertex.getId())){
+			result[counter] = vertex.getId();
 			++counter;
 		}
 	}
