@@ -45,9 +45,9 @@ private:
 	//members
 	darray3E	m_origin;		/**<Origin of the rotation axis.*/
 	darray3E	m_direction;	/**<Components of the rotation axis.*/
-	dvecarr3E	m_axes;			/**<Axes of box to be deformed.*/
+	dmatrix33E	m_axes;			/**<Axes of box to be deformed.*/
 	darray3E	m_axes_origin;	/**<Origin of the axes to be rotated. */
-	dvecarr3E	m_rotax;		/**<Axes of box deformed.*/
+	dmatrix33E	m_rotax;		/**<Axes of box deformed.*/
 	darray3E	m_rotax_origin;	/**<Origin of the axes rotated. */
 
 public:
@@ -61,10 +61,10 @@ public:
 	void setOrigin(darray3E origin);
 	void setDirection(darray3E direction);
 	void setRotation(double alpha);
-	void setAxes(dvecarr3E axes);
+	void setAxes(dmatrix33E axes);
 	void setAxesOrigin(darray3E axes_origin);
 
-	dvecarr3E getRotatedAxes();
+	dmatrix33E getRotatedAxes();
 	darray3E getRotatedOrigin();
 
 	void 	execute();

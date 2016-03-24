@@ -119,6 +119,7 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
  */
 void BasicShape::setRefSystem(int label, darray3E axis){
 	
+	//TODO CHECK IF THIS IS OK!
 	if(label <0 || label >2 ) return;
 	
 	m_sdr[label] = axis/norm2(axis);
@@ -134,6 +135,15 @@ void BasicShape::setRefSystem(int label, darray3E axis){
 	
 	m_sdr[fin_label] = crossProduct(m_sdr[label],m_sdr[next_label]);
 	m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
+}
+
+/*! Set new axes orientation of the local reference system
+ * \param[in] axes new direction of local axes.
+ */
+void BasicShape::setRefSystem(dmatrix33E axes){
+	for (int i=0; i<3; i++){
+		m_sdr[i] = axes[i]/norm2(axes[i]);
+	}
 }
 
 

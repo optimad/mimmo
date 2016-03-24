@@ -77,7 +77,7 @@ RotationBox::setRotation(double alpha){
 }
 
 void
-RotationBox::setAxes(dvecarr3E axes){
+RotationBox::setAxes(dmatrix33E axes){
 	m_axes = axes;
 }
 
@@ -86,7 +86,7 @@ RotationBox::setAxesOrigin(darray3E axes_origin){
 	m_axes_origin = axes_origin;
 }
 
-dvecarr3E
+dmatrix33E
 RotationBox::getRotatedAxes(){
 	return(m_rotax);
 }
@@ -103,7 +103,7 @@ void
 RotationBox::execute(){
 
 	//Rotation of origin
-	dvecarr3E rotated(1, {{0,0,0}});
+	m_rotax_origin = {{0,0,0}};
 	m_axes_origin -= m_origin;
 	double alpha = *getInput<double>();
 	//rodrigues formula
@@ -115,14 +115,17 @@ RotationBox::execute(){
 	m_axes_origin += m_origin;
 
 	//rotation of axes
-	m_rotax.clear();
-	m_rotax.resize(3, {{0,0,0}});
+	m_rotax.fill(darray3E{{0,0,0}});
 
 	for (int i=0; i<3; i++){
 		m_rotax[i] = m_axes[i] * cos(alpha) +
 				dotProduct(m_direction, m_axes[i]) * (1 - cos(alpha)) * m_direction +
 				crossProduct(m_direction, m_axes[i]) * sin(alpha);
 	}
+
+	std::cout << dotProduct(m_rotax[0], m_rotax[1]) << std::endl;
+	std::cout << dotProduct(m_rotax[1], m_rotax[2]) << std::endl;
+	std::cout << dotProduct(m_rotax[0], m_rotax[2]) << std::endl;
 
 	return;
 };

@@ -147,7 +147,11 @@ void test0005() {
 	translation->setDirection({{1.0, 1.0, 0.2}});
 	translation->setTranslation(0.25);
 
-
+	//create RotationBox
+	RotationBox* rotation = new RotationBox();
+	rotation->setOrigin({{-0.1, 0.1, -0.1}});
+	rotation->setDirection({{1.0, 1.0, 2.0}});
+	rotation->setRotation(1.25);
 
 	//create applier
 	Apply* applier = new Apply();
@@ -168,9 +172,12 @@ void test0005() {
 	addPin(mask, bend, &Mask::getResult<dvecarr3E>, &Bend::setInput<dvecarr3E>);
 
 	addPin(mesh, translation, &Lattice::getOrigin, &TranslationBox::setOrigin);
+	addPin(translation, rotation, &TranslationBox::getOrigin, &RotationBox::setAxesOrigin);
+	addPin(mesh, rotation, &Lattice::getRefSystem, &RotationBox::setAxes);
 
 	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
-	addPin(translation, lattice, &TranslationBox::getOrigin, &FFDLattice::setOrigin);
+	addPin(rotation, lattice, &RotationBox::getRotatedOrigin, &FFDLattice::setOrigin);
+	addPin(rotation, lattice, &RotationBox::getRotatedAxes, &FFDLattice::setRefSystem);
 	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
 	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
 	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
@@ -201,6 +208,8 @@ void test0005() {
 	ch0.addObject(bend);
 	cout << "add translation" << endl;
 	ch0.addObject(translation);
+	cout << "add rotation" << endl;
+	ch0.addObject(rotation);
 	cout << "add lattice" << endl;
 	ch0.addObject(lattice);
 	cout << "add output" << endl;

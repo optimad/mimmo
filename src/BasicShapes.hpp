@@ -80,6 +80,7 @@ public:
 	void		setInfLimits(double val, int dir);
 	void		setRefSystem(darray3E, darray3E, darray3E);
 	void		setRefSystem(int, darray3E);
+	void		setRefSystem(dmatrix33E axes);
 	void		setCoordinateType(CoordType, int dir);
 	
 	darray3E			getOrigin();

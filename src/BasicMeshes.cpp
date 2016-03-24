@@ -505,9 +505,7 @@ void UStructMesh::setRefSystem(int label, darray3E axis){
  * \param[in] axis new direction of all local axes.
  */
 void UStructMesh::setRefSystem(dmatrix33E axes){
-	getShape()->setRefSystem(0,axes[0]);
-	getShape()->setRefSystem(1,axes[1]);
-	getShape()->setRefSystem(2,axes[2]);
+	getShape()->setRefSystem(axes);
 }
 
 /*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
