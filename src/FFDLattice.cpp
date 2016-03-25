@@ -1580,16 +1580,22 @@ int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
  *  \param[in] nz number of control nodes in z direction
  */
 void 		FFDLattice::resizeDisplacements(int nx, int ny,int nz){
-	//reallocate your displacement node
-	m_displ.clear();
+
+	//check on dimensions: if displacements have different size clear and resize
+	// otherwise do nothing (implcitly considered as input from other objects)
+	bvector1D info;
+	m_np = reduceDimToDOF(nx,ny,nz, info);
 	m_intMapDOF.clear();
 	m_intMapDOF.resize(nx*ny*nz, -1);
 	ivector1D::iterator itMapBegin = m_intMapDOF.begin();
 	ivector1D::iterator itMap = itMapBegin;
 	ivector1D::iterator itMapEnd = m_intMapDOF.end();
-	bvector1D info;
-	m_np = reduceDimToDOF(nx,ny,nz, info);
-	m_displ.resize(m_np, darray3E{0,0,0});
+
+	if (m_displ.size() != m_np){
+		//reallocate your displacement node
+		m_displ.clear();
+		m_displ.resize(m_np, darray3E{0,0,0});
+	}
 	
 	//set m_intMapDOF
 	

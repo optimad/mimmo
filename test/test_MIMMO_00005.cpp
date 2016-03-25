@@ -87,22 +87,28 @@ void test0005() {
 	int t = 0;
 	GenericInput* inputshapet = new GenericInput();
 	inputshapet->setInput(t);
+	inputshapet->setName("MiMMO.InputShape");
 
 	GenericInput* inputorig = new GenericInput();
 	inputorig->setInput(origin);
+	inputorig->setName("MiMMO.InputOrigin");
 
 	GenericInput* inputspan = new GenericInput();
 	inputspan->setInput(span);
+	inputspan->setName("MiMMO.InputSpan");
 
 	GenericInput* inputdim = new GenericInput();
 	inputdim->setInput(dim);
+	inputdim->setName("MiMMO.InputDim");
 
 	GenericInput* inputdeg = new GenericInput();
 	inputdeg->setInput(deg);
+	inputdeg->setName("MiMMO.InputDeg");
 
 	GenericInput* inputname = new GenericInput();
 	string name = "test_MIMMO_0005.out";
 	inputname->setInput(name);
+	inputname->setName("MiMMO.InputName");
 
 	GenericOutput* output = new GenericOutput();
 
@@ -118,6 +124,7 @@ void test0005() {
 	}
 	GenericInput* input = new GenericInput();
 	input->setInput(displ);
+	input->setName("MiMMO.InputDispl");
 
 	//create aux lattice for mesh and nodes coordinates
 	Lattice* mesh = new Lattice();
@@ -191,30 +198,27 @@ void test0005() {
 
 	//Create chain
 	Chain ch0;
-	cout << "add inputs " << endl;
+	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(inputorig);
+	ch0.addObject(lattice);
 	ch0.addObject(inputshapet);
+	ch0.addObject(bend);
 	ch0.addObject(inputspan);
+	ch0.addObject(applier);
 	ch0.addObject(inputdim);
+	ch0.addObject(mesh);
 	ch0.addObject(inputdeg);
+	ch0.addObject(rotation);
 	ch0.addObject(inputname);
 	ch0.addObject(input);
-	cout << "add mesh" << endl;
-	ch0.addObject(mesh);
-	cout << "add mask" << endl;
 	ch0.addObject(mask);
-	cout << "add bend" << endl;
-	ch0.addObject(bend);
-	cout << "add translation" << endl;
 	ch0.addObject(translation);
-	cout << "add rotation" << endl;
-	ch0.addObject(rotation);
-	cout << "add lattice" << endl;
-	ch0.addObject(lattice);
-	cout << "add output" << endl;
 	ch0.addObject(output);
-	cout << "add applier" << endl;
-	ch0.addObject(applier);
+
+	//Print ids and name of objects in the chain
+	for (int i=0; i<ch0.getNObjects(); i++){
+		cout << ch0.getName(i) << " has id : " << ch0.getID(i) << endl;
+	}
 
 	//Execution of chain
 	cout << "execution start" << endl;

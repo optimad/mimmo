@@ -36,7 +36,7 @@
  *
  */
 class Chain{
-public:
+protected:
 	//members
 	uint8_t							m_id;			/**<ID of the chain.*/
 	std::vector<BaseManipulation*>	m_objects;		/**<Pointers to manipulation objects placed in the current execution chain. */
@@ -53,12 +53,14 @@ public:
 	Chain(const Chain & other);
 	Chain & operator=(const Chain & other);
 
-	//internal methods
+	//get/set methods
 	uint32_t	getNObjects();
 	uint8_t		getID();
 	uint8_t		getNChains();
+	int			getID(int i);
+	std::string	getName(int i);
 
-	int			addObject(BaseManipulation* obj, int id_ = 0);
+	int			addObject(BaseManipulation* obj, int id_ = -1);
 
 	bool		deleteObject(int idobj);
 	void		clear();
@@ -66,6 +68,11 @@ public:
 	//relationship methods
 	void 		exec();
 	void 		exec(int idobj);
+
+private:
+	//check methods
+	void		checkLoops();
+
 
 };
 

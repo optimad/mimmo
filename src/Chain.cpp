@@ -99,6 +99,24 @@ Chain::getNChains(){
 	return sm_chaincounter;
 };
 
+/*!It gets the ID of an object in the chain.
+ * \param[in] i Index of the target object in the chain.
+ * \return ID of the i-th object.
+ */
+int
+Chain::getID(int i){
+	return m_idObjects[i];
+};
+
+/*!It gets the name of an object in the chain.
+ * \param[in] i Index of the target object in the chain.
+ * \return name of the i-th object.
+ */
+string
+Chain::getName(int i){
+	return m_objects[i]->getName();
+};
+
 /*!It deletes a manipulator object in the chain.
  * \return True if the chain after the deletion is interrupted.
  */
@@ -118,12 +136,15 @@ Chain::deleteObject(int idobj){
 /*!It adds a manipulator object in the chain.
  * The position of the objects after the insertion can be modified
  * in order to respect the parent/child dependencies during the execution of the chain.
- * \return False if the object cannot be inserted (wrong parent/child dependencies).
+ * \param[in] obj Pointer to object to be inserted.
+ * \param[in] id_ Id of the object to be inserted (optional, if not passed or negative it is computed).
+ * \return Index of insertion of the object in the chain. Return -1 if the object cannot be inserted
+ * (wrong parent/child dependencies).
  */
 int
 Chain::addObject(BaseManipulation* obj, int id_){
-	int id;
-	if (id_ == 0){
+	int id = id_;
+	if (id_ < 0){
 		id = m_objcounter;
 		m_objcounter++;
 	}
@@ -139,7 +160,9 @@ Chain::addObject(BaseManipulation* obj, int id_){
 	if (obj->getNChild()>0){
 		for (int i=0; i<obj->getNChild(); i++){
 			itchild = find(m_objects.begin(), m_objects.end(), obj->getChild(i));
-			idxchild = min(idxchild, int(distance(m_objects.begin(), itchild)));
+			if (itchild != m_objects.end()){
+				idxchild = min(idxchild, int(distance(m_objects.begin(), itchild)));
+			}
 		}
 	}
 	if (obj->getNParent()>0){
@@ -169,9 +192,10 @@ Chain::addObject(BaseManipulation* obj, int id_){
 			if (idxparent[i] > idxchild){
 				parent[i] = obj->getParent(i);
 				itparent = find(m_objects.begin(), m_objects.end(), parent[i]);
+				int idxtemp = distance(m_objects.begin(), itparent);
+				idparent[i] = m_idObjects[idxtemp];
 				m_objects.erase(itparent);
-				idparent[i] = m_idObjects[idxparent[i]];
-				m_idObjects.erase(m_idObjects.begin()+idxparent[i]);
+				m_idObjects.erase(m_idObjects.begin()+idxtemp);
 			}
 		}
 		int idx = addObject(obj, id);
@@ -183,7 +207,7 @@ Chain::addObject(BaseManipulation* obj, int id_){
 		}
 		return idx+1;
 	}else{
-		m_objects.insert(itchild, obj);
+		m_objects.insert(m_objects.begin()+idxchild, obj);
 		m_idObjects.insert(m_idObjects.begin()+idxchild, id);
 		return idxchild;
 	}
@@ -201,12 +225,14 @@ Chain::exec(){
 	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
 	std::cout << "MiMMO : execution of chain - "<< m_objcounter << " objects" << std::endl;
 	std::cout << " " << std::endl;
+	checkLoops();
 	int i = 1;
 	for (it = itb; it != itend; ++it){
 		std::cout << "MiMMO : execution object " << i << "	: " << (*it)->getName() << std::endl;
 		(*it)->exec();
 		i++;
 	}
+	std::cout << " " << std::endl;
 	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
 	std::cout << " " << std::endl;
 }
@@ -221,5 +247,26 @@ Chain::exec(int idobj){
 }
 
 
+
+void
+Chain::checkLoops(){
+	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
+	vector<BaseManipulation*>::iterator itend = m_objects.end();
+	int actualidx = 0;
+	int childidx = 0;
+	for (it = itb; it != itend; ++it){
+		for (int i=0; i<(*it)->getNChild(); i++){
+			int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));
+			if (idxchild <= actualidx){
+				std::cout << "MiMMO : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
+				std::cout << " " << std::endl;
+				std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
+				std::cout << " " << std::endl;
+				exit(8);
+			}
+		}
+		actualidx++;
+	}
+}
 
 
