@@ -68,7 +68,6 @@
 - 10.1 Comments  [&#10004;]
 - 10.1 Template .tpp file  [&#10004;]
 
-
 ##11. Mimmo Tests
 
 - 10.1. make them coherent with new basemanipulation objects design  [&#10004;]
@@ -78,7 +77,7 @@
 
 - 11.1	managing total DOF of your manipulation  
 - 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
-- 11.3  Loop detection and blocking 
+- 11.3  Loop detection and blocking  [&#10004;]
 - 11.4  Tracking of DOF along the chain (11.1?)
 - 11.5 	Comments
 
@@ -91,6 +90,12 @@
 
 - 13.2 Check setRefSystem with one axis as input (not orthogonal result?)
 
-##13. RBF MORPHERS
+##14. RBF MORPHERS
 
+- 14.1 Add more geometric interfaces
+- 14.2 Comments
+
+##15. MISC
+
+- 15.1 Object that transform coordinates/DOF needed (?).
 
