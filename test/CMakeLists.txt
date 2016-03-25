@@ -32,6 +32,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00002")
 list(APPEND TESTS_SERIAL "test_MIMMO_00003")
 list(APPEND TESTS_SERIAL "test_MIMMO_00004")
 list(APPEND TESTS_SERIAL "test_MIMMO_00005")
+list(APPEND TESTS_SERIAL "test_MIMMO_00006")
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
@@ -51,6 +52,9 @@ foreach(TEST_NAME IN LISTS MIMMO_TEST_LIST_SERIAL MIMMO_TEST_LIST_PARALLEL)
 
     add_executable(${TEST_NAME} "${TEST_SOURCES}")
     target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY} ${BITPIT_LIBRARY})
+    target_link_libraries(${TEST_NAME} "lapack")
+    target_link_libraries(${TEST_NAME} "lapacke")
+
 endforeach()
 
 add_custom_target(tests-MIMMO DEPENDS ${MIMMO_TEST_LIST_SERIAL})
@@ -75,6 +79,11 @@ add_custom_command(
 add_custom_command(
     TARGET "test_MIMMO_00003" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ball.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ball.stl"
+    )
+add_custom_command(
+    TARGET "test_MIMMO_00006" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/plane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/plane.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/disk.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/disk.stl"
     )
     
 

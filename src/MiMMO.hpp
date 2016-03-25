@@ -31,6 +31,7 @@
 #include "BaseManipulation.hpp"
 #include "Lattice.hpp"
 #include "FFDLattice.hpp"
+#include "MRBF.hpp"
 #include "GenericOutput.hpp"
 #include "GenericInput.hpp"
 #include "Apply.hpp"
