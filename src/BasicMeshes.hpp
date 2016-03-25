@@ -28,7 +28,6 @@
 // local libs
 #include <memory>
 #include <array>
-#include "BaseManipulation.hpp"
 #include "BasicShapes.hpp"
 #include "MiMMO_TypeDef.hpp"
 

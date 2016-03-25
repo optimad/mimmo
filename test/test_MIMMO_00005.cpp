@@ -51,6 +51,7 @@ void test0005() {
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
 
+		cout << "execution start" << endl;
 		for (long ip=0; ip<np; ip++){
 			point = conArray<double,3>(V[ip]);
 			mimmo0.setVertex(point);
@@ -65,8 +66,6 @@ void test0005() {
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
-
-
 	//Set lattice
 	lattice->setGeometry(&mimmo0);
 
@@ -145,13 +144,13 @@ void test0005() {
 	//create TranslationBox
 	TranslationBox* translation = new TranslationBox();
 	translation->setDirection({{1.0, 1.0, 0.2}});
-	translation->setTranslation(0.25);
+	translation->setTranslation(-0.1);
 
 	//create RotationBox
 	RotationBox* rotation = new RotationBox();
-	rotation->setOrigin({{-0.1, 0.1, -0.1}});
-	rotation->setDirection({{1.0, 1.0, 2.0}});
-	rotation->setRotation(1.25);
+	rotation->setOrigin({{-0.25, -0.25, 0.0}});
+	rotation->setDirection({{0.5, 0.5, 2.0}});
+	rotation->setRotation(M_PI/4.0);
 
 	//create applier
 	Apply* applier = new Apply();

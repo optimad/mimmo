@@ -44,6 +44,8 @@ using namespace std;
 
 /*! Basic Constructor. Doing nothing.*/
 Lattice::Lattice(){
+	m_np = 0;
+	m_intMapDOF.clear();
 	m_name = "MiMMO.Lattice";
 };
 

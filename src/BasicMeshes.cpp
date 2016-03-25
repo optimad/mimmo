@@ -49,14 +49,14 @@ using namespace std;
 /*! Basic Constructor. Default Shape CUBE */
 UStructMesh::UStructMesh(){
 	m_shape1 = NULL;
-	setShape(BasicShape::ShapeType::CUBE);
+	m_setmesh = false;
 	m_setorigin = false;
 	m_setspan = false;
 	m_origin = {{0.0,0.0,0.0}};
 	m_span = {{0.0,0.0,0.0}};
 	m_nx = 0; m_ny=0; m_nz=0;
 	m_dx = 0; m_dy=0; m_dz=0;
-	m_setmesh = false;
+	setShape(BasicShape::ShapeType::CUBE);
 };
 
 ///*! Custom Constructor. Set your mesh, according to the following input parameters
@@ -1423,7 +1423,7 @@ void UStructMesh::resizeMesh(){
 	m_xnode.resize(m_nx, 0.0);
 	m_ynode.resize(m_ny, 0.0);
 	m_znode.resize(m_nz, 0.0);
-	
+
 	// Points
 	m_xedge.resize(m_nx+1, 0.0);
 	m_yedge.resize(m_ny+1, 0.0);

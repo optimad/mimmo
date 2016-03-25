@@ -65,10 +65,9 @@ RotationBox::setOrigin(darray3E origin){
 void
 RotationBox::setDirection(darray3E direction){
 	m_direction = direction;
-//	double L = sqrt(m_direction[0]*m_direction[0] + m_direction[1]*m_direction[1] + m_direction[2]*m_direction[2]);
+	double L = norm2(m_direction);
 	for (int i=0; i<3; i++)
-//		m_direction[i] /= L;
-		m_direction[i] /= norm2(m_direction);
+		m_direction[i] /= L;
 }
 
 void
@@ -116,16 +115,12 @@ RotationBox::execute(){
 
 	//rotation of axes
 	m_rotax.fill(darray3E{{0,0,0}});
-
+	//rodrigues formula
 	for (int i=0; i<3; i++){
 		m_rotax[i] = m_axes[i] * cos(alpha) +
 				dotProduct(m_direction, m_axes[i]) * (1 - cos(alpha)) * m_direction +
 				crossProduct(m_direction, m_axes[i]) * sin(alpha);
 	}
-
-	std::cout << dotProduct(m_rotax[0], m_rotax[1]) << std::endl;
-	std::cout << dotProduct(m_rotax[1], m_rotax[2]) << std::endl;
-	std::cout << dotProduct(m_rotax[0], m_rotax[2]) << std::endl;
 
 	return;
 };
