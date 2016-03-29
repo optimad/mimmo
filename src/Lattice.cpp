@@ -143,8 +143,9 @@ double		Lattice::getNNodes(){
 	return(m_np);
 }
 
-
-
+/*! Return position of effective mesh nodes in the lattice, in absolute ref system 
+ * \return effective mesh nodes position 
+ */
 dvecarr3E
 Lattice::getGlobalCoords(){
 	int np = (getNNodes());
@@ -158,6 +159,9 @@ Lattice::getGlobalCoords(){
 	return(coords);
 };
 
+/*! Return position of effective mesh nodes in the lattice, in absolute ref system 
+ * \return effective mesh nodes position 
+ */
 dvecarr3E
 Lattice::getLocalCoords(){
 	int np = (getNNodes());
@@ -170,281 +174,6 @@ Lattice::getLocalCoords(){
 	}
 	return(coords);
 };
-
-
-
-/*! Set number of control nodes in each space direction.Nurbs curves are treated as
- * Bezier curves, their degree is automatically set. Weights are reset to unitary value
- * \param[in] dimension vector of control nodes numbers in each direction
- */
-void		Lattice::setDimension(ivector1D dimensions){
-
-		if(getShape() ==NULL) return;
-		if(dimensions.size() < 3 || getShape() ==NULL) return;
-		ivector1D dimLimit(3,2);
-		switch(getShapeType()){
-			case BasicShape::ShapeType::CYLINDER :
-				dimLimit[1] = 5;
-				break;
-			case BasicShape::ShapeType::SPHERE :
-				dimLimit[1] = 5; dimLimit[2] = 3;
-				break;
-			default://CUBE
-				break;
-		}
-
-		//check on dimensions and eventual closed loops on coordinates.
-//		m_nx = std::max(dimensions[0], dimLimit[0])-1;
-//		m_ny = std::max(dimensions[1], dimLimit[1])-1;
-//		m_nz = std::max(dimensions[2], dimLimit[2])-1;
-		//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
-		m_nx = std::max(dimensions[0], dimLimit[0]);
-		m_ny = std::max(dimensions[1], dimLimit[1]);
-		m_nz = std::max(dimensions[2], dimLimit[2]);
-
-		rebaseMesh();
-
-		//setting knots and eventually weights to non-rational B-Spline
-		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-
-};
-
-/*! Set number of control nodes in each space direction and degrees of Nurbs curves.
- *  Weights are reset to unitary value
- * \param[in] dimension vector of control nodes numbers in each direction
- * \param[in] degrees vector of degree of nurbs curve in each direction
- */
-void		Lattice::setDimension(ivector1D &dimensions, ivector1D &degrees){
-
-	if(dimensions.size() < 3 || degrees.size() <3 || getShape() ==NULL) return;
-
-	ivector1D dimLimit(3,2);
-	switch(getShapeType()){
-		case BasicShape::ShapeType::CYLINDER :
-			dimLimit[1] = 5;
-			break;
-		case BasicShape::ShapeType::SPHERE :
-			dimLimit[1] = 5; dimLimit[2] = 3;
-			break;
-		default://CUBE
-			break;
-	}
-
-	//check on dimensions and eventual closed loops on coordinates.
-//	m_nx = std::max(dimensions[0], dimLimit[0])-1;
-//	m_ny = std::max(dimensions[1], dimLimit[1])-1;
-//	m_nz = std::max(dimensions[2], dimLimit[2])-1;
-	//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
-	m_nx = std::max(dimensions[0], dimLimit[0]);
-	m_ny = std::max(dimensions[1], dimLimit[1]);
-	m_nz = std::max(dimensions[2], dimLimit[2]);
-
-	rebaseMesh();
-
-	resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-
-};
-
-/*! Set number of control nodes in each space direction.Nurbs curves are treated as
- * Bezier curves, their degree is automatically set. Weights are reset to unitary value
- * \param[in] dimension vector of control nodes numbers in each direction
- */
-void		Lattice::setDimension(iarray3E dimensions){
-
-		if(getShape() ==NULL) return;
-		ivector1D dimLimit(3,2);
-		switch(getShapeType()){
-			case BasicShape::ShapeType::CYLINDER :
-				dimLimit[1] = 5;
-				break;
-			case BasicShape::ShapeType::SPHERE :
-				dimLimit[1] = 5; dimLimit[2] = 3;
-				break;
-			default://CUBE
-				break;
-		}
-
-		//check on dimensions and eventual closed loops on coordinates.
-//		m_nx = std::max(dimensions[0], dimLimit[0])-1;
-//		m_ny = std::max(dimensions[1], dimLimit[1])-1;
-//		m_nz = std::max(dimensions[2], dimLimit[2])-1;
-		//TODO RIGHT IN THIS WAY?? WITH -1 NODES AND DISPL ARE NOT COHERENT
-		m_nx = std::max(dimensions[0], dimLimit[0]);
-		m_ny = std::max(dimensions[1], dimLimit[1]);
-		m_nz = std::max(dimensions[2], dimLimit[2]);
-
-		rebaseMesh();
-
-		resizeDisplacements(m_nx+1, m_ny+1, m_nz+1);
-
-};
-
-/*! Set span of your shape, according to its local reference system
- * \param[in] s0 first coordinate span
- * \param[in] s1 second coordinate span
- * \param[in] s2 third coordinate span
- * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
- */
-void Lattice::setSpan(double s0, double s1, double s2, bool flag){
-	UStructMesh::setSpan(s0,s1,s2, flag);
-}
-
-/*! Set span of your shape, according to its local reference system
- * Lattice is rebuilt according to the new input.
- * \param[in] Coordinates span
- */
-void Lattice::setSpan(darray3E s){
-	getShape()->setSpan( s[0], s[1], s[2]);
-	UStructMesh::setSpan(s);
-}
-
-/*! Set coordinate's origin of your shape, according to its local reference system
- * \param[in] orig first coordinate origin
- * \param[in] dir 0,1,2 int flag identifying coordinate
- * \param[in] flag if true, lattice is rebuilt according to the new input.TRUE is default
- */
-void Lattice::setInfLimits(double orig, int dir, bool flag){
-	UStructMesh::setInfLimits( orig, dir, flag);
-}
-
-/*! Set coordinates' origin of your shape, according to its local reference system.
- *  Lattice is rebuilt according to the new input.
- * \param[in] orig coordinates origin
- */
-void Lattice::setInfLimits(darray3E orig){
-	UStructMesh::setInfLimits(orig);
-}
-
-/*! Set coordinate type of Lattice core shape. See BasicShape::CoordType enum
- * \param[in] type coordinate type
- * \param[in] dir  0,1,2 flag for coordinate
- * \param[in] flag if true, force lattice nodal structure to be updated.TRUE is default
- */
-void Lattice::setCoordType(BasicShape::CoordType type, int dir, bool flag){
-	getShape()->setCoordinateType(type,dir);
-	if(flag){
-		iarray3E dim = getDimension();
-		resizeDisplacements(dim[0],dim[1],dim[2]);
-	}
-}
-
-/*! Set x-coordinate type of Lattice core shape. See BasicShape::CoordType enum
- * Force lattice nodal structure to be updated.
- * \param[in] type coordinate type
- */
-void Lattice::setCoordTypex(BasicShape::CoordType type){
-	getShape()->setCoordinateType(type,0);
-	iarray3E dim = getDimension();
-	resizeDisplacements(dim[0],dim[1],dim[2]);
-}
-
-/*! Set y-coordinate type of Lattice core shape. See BasicShape::CoordType enum
- * Force lattice nodal structure to be updated.
- * \param[in] type coordinate type
- */
-void Lattice::setCoordTypey(BasicShape::CoordType type){
-	getShape()->setCoordinateType(type,1);
-	iarray3E dim = getDimension();
-	resizeDisplacements(dim[0],dim[1],dim[2]);
-}
-
-/*! Set z-coordinate type of Lattice core shape. See BasicShape::CoordType enum
- * Force lattice nodal structure to be updated.
- * \param[in] type coordinate type
- */
-void Lattice::setCoordTypez(BasicShape::CoordType type){
-	getShape()->setCoordinateType(type,2);
-	iarray3E dim = getDimension();
-	resizeDisplacements(dim[0],dim[1],dim[2]);
-}
-
-/*! Set coordinates type of Lattice core shape. See BasicShape::CoordType enum
- * Force lattice nodal structure to be updated.
- * \param[in] type coordinates type
- */
-void Lattice::setCoordType(array<BasicShape::CoordType,3> type){
-	for (int i=0; i<3; i++){
-		getShape()->setCoordinateType(type[i],i);
-	}
-	iarray3E dim = getDimension();
-	resizeDisplacements(dim[0],dim[1],dim[2]);
-}
-
-/*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *
- * \param[in] origin point origin in global reference system
- * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
- * \param[in] dimensions number of control nodes for each direction
- * \param[in] degrees   curve degrees for each direction;
- */
-void Lattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees){
-
-	clearMesh();
-	UStructMesh::setMesh(origin,span,type,dimensions);
-
-	//reallocate your displacement node
-	iarray3E dd = getDimension();
-	resizeDisplacements(dd[0],dd[1],dd[2]);
-
-};
-
-/*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
- *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
- *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
- *
- * \param[in] origin point origin in global reference system
- * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
- * \param[in] dimensions number of control nodes for each direction
- */
-void Lattice::setMesh(darray3E &origin,darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions){
-
-	clearMesh();
-	UStructMesh::setMesh(origin,span,type,dimensions);
-
-	//reallocate your displacement node
-	iarray3E dd = getDimension();
-	resizeDisplacements(dd[0],dd[1],dd[2]);
-
-};
-
-/*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *
- * \param[in] shape pointer to an external BasicShape object
- * \param[in] dimensions number of control nodes for each direction
- * \param[in] degrees   curve degrees for each direction;
- */
-void Lattice::setMesh(BasicShape * shape, ivector1D & dimensions, ivector1D & degrees){
-
-	clearMesh();
-	UStructMesh::setMesh(shape,dimensions);
-
-	//reallocate your displacement node
-	iarray3E dd = getDimension();
-	resizeDisplacements(dd[0],dd[1],dd[2]);
-
-};
-
-/*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
- *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
- *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
- *
- * \param[in] shape pointer to an external BasicShape object
- * \param[in] dimensions number of control nodes for each direction
- *
- */
-void Lattice::setMesh(BasicShape * shape, ivector1D & dimensions){
-
-	clearMesh();
-	UStructMesh::setMesh(shape,dimensions);
-
-	//reallocate your displacement node
-	iarray3E dd = getDimension();
-	resizeDisplacements(dd[0],dd[1],dd[2]);
-
-};
-
 
 /*! Find a corrispondent degree of freedom index of a lattice grid node
  * \param[in] index lattice grid global index
@@ -490,24 +219,22 @@ void		Lattice::plotCloud(std::string directory, std::string filename, int counte
  * Result is stored in BaseManipulation IOData member m_result.
  */
 void 		Lattice::execute(){
-	rebaseMesh();
+	UStructMesh::execute();
+	resizeMapDof();
 };
 
-/*! Resize BaseManipulation class member m_displ to fit a total number od degree of freedom nx*ny*nz.
+/*! Resize map of effective nodes of the lattice grid to fit a total number od degree of freedom nx*ny*nz.
  * Old structure is deleted and reset to zero.
- *  \param[in] nx number of control nodes in x direction
- *  \param[in] ny number of control nodes in y direction
- *  \param[in] nz number of control nodes in z direction
  */
-void 		Lattice::resizeDisplacements(int nx, int ny,int nz){
+void 		Lattice::resizeMapDof(){
 	//reallocate your displacement node
 	m_intMapDOF.clear();
-	m_intMapDOF.resize(nx*ny*nz, -1);
+	m_intMapDOF.resize((m_nx+1)*(m_ny+1)*(m_nz+1), -1);
 	ivector1D::iterator itMapBegin = m_intMapDOF.begin();
 	ivector1D::iterator itMap = itMapBegin;
 	ivector1D::iterator itMapEnd = m_intMapDOF.end();
 	bvector1D info;
-	m_np = reduceDimToDOF(nx,ny,nz, info);
+	m_np = reduceDimToDOF(m_nx+1,m_ny+1,m_nz+1, info);
 
 	//set m_intMapDOF
 

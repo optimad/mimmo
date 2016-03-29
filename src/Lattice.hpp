@@ -49,7 +49,7 @@ class Lattice: public BaseManipulation, public UStructMesh {
 protected:
 	double		m_np;			/**< Number of control nodes.*/
 	ivector1D   m_intMapDOF;    /**< Map of grid nodes -> degrees of freedom of lattice */
-
+	
 public:
 	Lattice();
 	virtual ~Lattice();
@@ -62,27 +62,9 @@ public:
 	void 		clearLattice();
 
 	//internal methods
-	iarray3E	getDimension();
 	double		getNNodes();
 	dvecarr3E 	getGlobalCoords();
 	dvecarr3E 	getLocalCoords();
-
-	void		setDimension(ivector1D dimensions);
-	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
-	void		setDimension(iarray3E dimensions);
-	void		setSpan(double, double, double, bool flag = true);
-	void		setSpan(darray3E span);
-	void		setInfLimits(double val, int dir, bool flag = true);
-	void		setInfLimits(darray3E val);
-	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=true);
-	void 		setCoordTypex(BasicShape::CoordType type);
-	void 		setCoordTypey(BasicShape::CoordType type);
-	void 		setCoordTypez(BasicShape::CoordType type);
-	void 		setCoordType(std::array<BasicShape::CoordType,3> type);
-	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions);
-	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
-	void 		setMesh(BasicShape * shape, ivector1D & dimension);
-	void		setMesh(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
@@ -97,7 +79,7 @@ public:
 private:
 
 	//nodal displacement utility
-	void 		resizeDisplacements(int, int, int);
+	void 		resizeMapDof();
 	int			reduceDimToDOF(int,int,int, bvector1D &info);
 
 };

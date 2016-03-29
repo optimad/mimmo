@@ -171,7 +171,7 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 };
 
 /*! Return a const pointer to the inner BasicShape object the current mesh is built on. Const method 
- * \param[out] result BasicShape of the mesh
+ * \return BasicShape of the mesh
  */
 const BasicShape * UStructMesh::getShape() const {
 	return(m_shape.get());
@@ -844,7 +844,7 @@ void UStructMesh::locateCellByPoint(dvector1D & point, int &i, int &j, int &k){
  * \param[in] i x cartesian index
  *\param[in] j y cartesian index
  *\param[in] k z cartesian index
- *\param[out] result global index 
+ *\return global index 
  */
 int UStructMesh::accessCellIndex(int i, int j, int k){
 	
@@ -925,7 +925,7 @@ dvecarr3E 	UStructMesh::transfToLocal( dvecarr3E & list_points){
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 	
@@ -962,7 +962,7 @@ double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 	
@@ -1000,7 +1000,7 @@ int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata){
 	
@@ -1038,7 +1038,7 @@ darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata){
 	
@@ -1078,7 +1078,7 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	
@@ -1120,7 +1120,7 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 /*! Interpolate value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \param[out] interpResult interpolated value
+ * \returninterpResult interpolated value
  */
 darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointdata){
 	
@@ -1340,7 +1340,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 };
 
 /*! Return a pointer to the inner BasicShape object the current mesh is built on 
- * \param[out] result BasicShape of the mesh
+ * \return BasicShape of the mesh
  */
 BasicShape * UStructMesh::getShape(){
 	return(m_shape.get());
