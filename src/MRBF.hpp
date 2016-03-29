@@ -32,8 +32,12 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Radial Basis Function from point clouds.
+ *	\brief Radial Basis Function evaluation from clouds of control points.
  *
+ *	This class is derived from BaseManipulation class of MiMMO and from RBF class
+ *	of bitpit library.
+ *	It evaluates the result of RBF built over a set of control point given by the user
+ *	or stored in a MimmoObject (geometry container).
  *
  */
 class MRBF: public BaseManipulation, public bitpit::RBF {

@@ -221,7 +221,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
 
 /*! Execution of the pin.
  * During the execution the get/set function of the parent/child objects are called.
- * All the pins of an object are called in execute of the owner after its own exec.
+ * All the pins of an object are called in execute of the owner after its own execution.
  *
  */
 template<typename T>

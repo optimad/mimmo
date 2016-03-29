@@ -79,7 +79,7 @@
 - 11.2	Useful to bypass some blocks in the chain: Switch mechanism or break/unbreak pins? to be decided and scheduled
 - 11.3  Loop detection and blocking  [&#10004;]
 - 11.4  Tracking of DOF along the chain (11.1?)
-- 11.5 	Comments
+- 11.5 	Comments  [&#10004;]
 
 ##12. Lattice - new object
 
@@ -93,7 +93,7 @@
 ##14. RBF MORPHERS
 
 - 14.1 Add more geometric interfaces
-- 14.2 Comments
+- 14.2 Comments  [&#10004;]
 
 ##15. MISC
 

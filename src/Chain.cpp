@@ -68,7 +68,6 @@ Chain & Chain::operator=(const Chain & other){
  */
 void
 Chain::clear(){
-	m_id 			= sm_chaincounter;
 	m_objcounter	= 0;
 	m_objects.clear();
 	m_idObjects.clear();
@@ -118,7 +117,7 @@ Chain::getName(int i){
 };
 
 /*!It deletes a manipulator object in the chain.
- * \return True if the chain after the deletion is interrupted.
+ * \return True if some linking in the chain after the deletion are interrupted.
  */
 bool
 Chain::deleteObject(int idobj){
@@ -216,6 +215,8 @@ Chain::addObject(BaseManipulation* obj, int id_){
 
 /*!It executes the chain, i.e. it executes all the manipulator objects
  * contained in the chain following the correct order.
+ * In the case that a loop exists in the chain the execution doesn't start and
+ * the process ends with an error.
  */
 void
 Chain::exec(){
@@ -246,8 +247,9 @@ Chain::exec(int idobj){
 	if (idx <  m_objects.size()) m_objects[idx]->exec();
 }
 
-
-
+/*!It checks if a loop exists in the chain.
+ * In the case that a loop exists the process ends with an error.
+ */
 void
 Chain::checkLoops(){
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();

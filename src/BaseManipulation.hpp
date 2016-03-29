@@ -97,8 +97,8 @@ class BaseManipulation{
 	
 public:
 	//type definitions
-	typedef std::unordered_map<BaseManipulation*, int> bmumap;
-	typedef mimmo::pin::PinsType PinsType;
+	typedef std::unordered_map<BaseManipulation*, int>	bmumap;
+	typedef mimmo::pin::PinsType 						PinsType;
 
 protected:
 	std::string					m_name;			/**<Name of the manipulation object.*/
@@ -107,7 +107,8 @@ protected:
 													pointer a counter. When this counter is 0, pointer is released*/
 	bmumap						m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
 													pointer a counter. When this counter is 0, pointer is released*/
-	PinsType					m_pinType;		/**< Type of pins of the object.*/
+	PinsType					m_pinType;		/**<Type of pins of the object: BOTH (bidirectional),
+												BACKWARD (only input) or FORWARD (only output).*/
 	std::vector<InOut*>			m_pinIn;		/**<Input pins vector. */
 	std::vector<InOut*>			m_pinOut;		/**<Output pins vector. */
 	std::unique_ptr<IOData>		m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/

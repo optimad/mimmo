@@ -34,7 +34,7 @@ class BaseManipulation;
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief InOut is the input-output PIN class.
+ *	\brief InOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -45,8 +45,8 @@ class BaseManipulation;
 class InOut{
 public:
 	//members
-	BaseManipulation*	m_objLink;	/**<Input/Output object from/to which recover/give the target variable. */
-
+	BaseManipulation*	m_objLink;	/**<Input/Output object from/to which
+										recover/give the target variable. */
 
 public:
 	InOut();
@@ -87,6 +87,7 @@ public:
  *	(functional include) created by the bind method.
  *	The input/output value can be returned by copy, reference or pointer by the get function
  *	of the parent and it can be passed by copy or pointer to the set value of the child object.
+ *	The output pins of an object are executed after its own execution.
  *
  */
 template<typename T>

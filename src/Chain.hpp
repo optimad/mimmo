@@ -31,20 +31,26 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Chain is the class used to manager the execution chain of MiMMO objects.
+ *	\brief Chain is the class used to manage the execution chain of MiMMO objects.
  *
+ *	Each object added to the chain is inserted with the correct position in the chain.
+ *	An ID is assigned to a new chain and to every object in the chain, in order to give to the user a persistent
+ *	information to recover or the position or the ID of the object in the chain.
+ *	The execution is performed following the correct order of the object chain in order to avoid
+ *	conflicts in parent/child dependencies.
+ *	Loops in the chain are not allowed.
  *
  */
 class Chain{
 protected:
 	//members
-	uint8_t							m_id;			/**<ID of the chain.*/
-	std::vector<BaseManipulation*>	m_objects;		/**<Pointers to manipulation objects placed in the current execution chain. */
-	std::vector<int>				m_idObjects;	/**<ID (order of insertion) of the mimmo objects in the chain. */
-	uint32_t						m_objcounter;	/**<Counter of objects inserted the chain.*/
+	uint8_t							m_id;				/**<ID of the chain.*/
+	std::vector<BaseManipulation*>	m_objects;			/**<Pointers to manipulation objects placed in the current execution chain. */
+	std::vector<int>				m_idObjects;		/**<ID (order of insertion) of the mimmo objects in the chain. */
+	uint32_t						m_objcounter;		/**<Counter of objects inserted the chain.*/
 
 	//static members
-	static	uint8_t					sm_chaincounter;/**<Current global number of chain in the instance. */
+	static	uint8_t					sm_chaincounter;	/**<Current global number of chain in the instance. */
 
 public:
 	Chain();

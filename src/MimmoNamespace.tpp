@@ -1,5 +1,12 @@
 #include "InOut.hpp"
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
 	bool done = false;
@@ -14,6 +21,13 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fs
 	return done;
 }
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
 	bool done = false;
@@ -29,6 +43,13 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*f
 
 }
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
 	bool done = false;
@@ -44,6 +65,13 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*f
 
 }
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)){
 	bool done = false;
@@ -59,6 +87,13 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fs
 
 }
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)){
 	bool done = false;
@@ -74,6 +109,13 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*f
 
 }
 
+/*!It adds a pin between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \return True if the pin is added.
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)){
 	bool done = false;
@@ -89,38 +131,60 @@ bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*f
 
 }
 
-
+/*!It binds the get function of an object.
+ * \param[in] obj Pointer to BaseManipulation object.
+ * \param[in] fget Get function of the object (copy return).
+ */
 template<typename T, typename U, typename VAL>
 std::function<VAL(void)> mimmo::pin::pinGet(VAL (T::*fget) (), U* obj){
 	std::function<VAL(void)> res = std::bind(fget, obj);
 	return res;
 }
 
+/*!It binds the get function of an object.
+ * \param[in] obj Pointer to BaseManipulation object.
+ * \param[in] fget Get function of the object (reference return).
+ */
 template<typename T, typename U, typename VAL>
 std::function<VAL&(void)> mimmo::pin::pinGetR(VAL& (T::*fget) (), U* obj){
 	std::function<VAL&(void)> res = std::bind(fget, obj);
 	return res;
 }
 
+/*!It binds the get function of an object.
+ * \param[in] obj Pointer to BaseManipulation object.
+ * \param[in] fget Get function of the object (pointer return).
+ */
 template<typename T, typename U, typename VAL>
 std::function<VAL*(void)> mimmo::pin::pinGetP(VAL* (T::*fget) (), U* obj){
 	std::function<VAL*(void)> res = std::bind(fget, obj);
 	return res;
 }
 
+/*!It binds the set function of an object.
+ * \param[in] obj Pointer to BaseManipulation object.
+ * \param[in] fset Set function of the object (copy argument).
+ */
 template<typename T, typename U, typename VAL>
 std::function<void(VAL)> mimmo::pin::pinSet(void (T::*fset) (VAL), U* obj){
 	std::function<void(VAL)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
 
+/*!It binds the set function of an object.
+ * \param[in] obj Pointer to BaseManipulation object.
+ * \param[in] fset Set function of the object (pointer argument).
+ */
 template<typename T, typename U, typename VAL>
 std::function<void(VAL*)> mimmo::pin::pinSetP(void (T::*fset) (VAL*), U* obj){
 	std::function<void(VAL*)> res = std::bind(fset, obj, std::placeholders::_1);
 	return res;
 }
 
-
+/*!It remove all pins between two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ */
 template<typename OO, typename OI>
 void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
@@ -148,7 +212,13 @@ void mimmo::pin::removeAllPins(OO* objSend, OI* objRec){
 
 }
 
-
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)){
 
@@ -159,6 +229,13 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::
 
 }
 
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)){
 
@@ -169,6 +246,13 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S:
 
 }
 
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of the receiver object (copy argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)){
 
@@ -179,6 +263,13 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S:
 
 }
 
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)){
 
@@ -189,6 +280,13 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::
 
 }
 
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)){
 
@@ -199,6 +297,13 @@ void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S:
 
 }
 
+/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+ * nothing is done.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ */
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)){
 

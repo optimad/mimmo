@@ -26,25 +26,15 @@
 
 using namespace std;
 
-// IMPLEMENTATION OF MRBF ***********************************************//
-/*
- *	\date			26/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *
- *	\brief Radial Basis Function from point clouds.
- *
- */
 
-/*! Basic Constructor. Doing nothing.*/
+/*! Default Constructor.*/
 MRBF::MRBF(){
 	m_tol = 0.00001;
 	m_name = "MiMMO.MRBF";
 };
 
 
-/*! Destructor */
+/*! Default Destructor */
 MRBF::~MRBF(){};
 
 /*! Copy Constructor
@@ -62,15 +52,27 @@ MRBF & MRBF::operator=(const MRBF & other){
 	return(*this);
 };
 
+/*!It sets the tolerance used in greedy algorithm of bitpit::RBF class to choose
+ * a sub-set of the control points.
+ * \param[in] tol Tolerance used in greedy algorithm.
+ */
 void MRBF::setTol(double tol){
 	m_tol = tol;
 };
+
+/*!It adds a set of points to the control points used in RBF execution.
+ * \param[in] nodes Coordinates of control points.
+ */
 void MRBF::addNodes(dvecarr3E nodes){
 	for (auto &node : nodes){
 		RBF::addNode(node);
 	}
 };
 
+/*!It adds a set of points to the control points used in RBF execution by extracting
+ * the vertices stored in a MimmoObject container.
+ * \param[in] geometry Pointer to MimmoObject that contains the geometry.
+ */
 void MRBF::addNodes(MimmoObject* geometry){
 	int nv = geometry->getNVertex();
 	dvecarr3E vertex = geometry->getVertex();
@@ -79,7 +81,10 @@ void MRBF::addNodes(MimmoObject* geometry){
 	}
 };
 
-
+/*!It adds a field of values on the control points to be interpolated by RBF techniques (in this library it is
+ * supposed to be a displacements field).
+ * \param[in] field Field of displacements of control points.
+ */
 void MRBF::addField(dvecarr3E field){
 	int np = field.size();
 	dvector1D f(np);
@@ -97,7 +102,11 @@ void MRBF::addField(dvecarr3E field){
 
 };
 
-//execute deformation methods
+/*!Execution of RBF object. It evaluates the displacements (values) over the point of the
+ * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
+ * The result is stored in the result member of BaseManipulation base class.
+ *
+ */
 void MRBF::execute(){
 
 	greedy(m_tol);

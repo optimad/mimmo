@@ -28,7 +28,8 @@ namespace mimmo{
 
 namespace pin{
 
-enum PinsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidirectional, only input or only output.*/
+enum PinsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidirectional,
+												only input or only output.*/
 
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL));
