@@ -97,8 +97,8 @@ BaseManipulation::getParent(int i){
 };
 
 /*! Return true if the target is contained in the parent list.
- * \param[in] target BaseManipulation object
- * \param[out] index return actual position in the list(may vary if the parent list is modified). If not in the list return -1.
+ * \param[in] target BaseManipulation target object
+ * \param[out] index Actual position in the list (may vary if the parent list is modified).
  * \return false if not found.
  */
 bool
@@ -131,9 +131,9 @@ BaseManipulation::getChild(int i){
 };
 
 /*! Return true if the target is contained in the child list.
- * \param[in] target BaseManipulation object
- * \param[out] index return actual position in the list(may vary if the parent list is modified). If not in the list return -1.
- * \return false if not found.
+ * \param[in] target BaseManipulation target object
+ * \param[out] index Actual position in the list.
+ * \return False if not found.
  */
 bool
 BaseManipulation::isChild(BaseManipulation * target, int index){
@@ -146,16 +146,25 @@ BaseManipulation::isChild(BaseManipulation * target, int index){
 	return true;
 };
 
+/*!It gets the pin-type of the manipulation object.
+ * \return PinsType of manipulation object (bi-directional, only backward, only forward).
+ */
 PinsType
 BaseManipulation::getPinType(){
 	return (m_pinType);
 }
 
+/*! It gets the number of input pins of the object.
+ * \return #Input pins of the object.
+ */
 int
 BaseManipulation::getNPinsIn(){
 	return (m_pinIn.size());
 }
 
+/*! It gets the number of output pins of the object.
+ * \return #Output pins of the object.
+ */
 int
 BaseManipulation::getNPinsOut(){
 	return (m_pinOut.size());
@@ -184,12 +193,17 @@ BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
 
+/*!It removes all the pins of the object and the related pins of the linked objects.
+ */
 void
 BaseManipulation::removePins(){
 	removePinsIn();
 	removePinsOut();
 }
 
+/*!It removes all the input pins of the object and the related
+ * output pins of the linked objects.
+ */
 void
 BaseManipulation::removePinsIn(){
 	unordered_map<BaseManipulation*, int>::iterator it;
@@ -200,6 +214,9 @@ BaseManipulation::removePinsIn(){
 	}
 }
 
+/*!It removes all the output pins of the object and the related
+ * input pins of the linked objects.
+ */
 void
 BaseManipulation::removePinsOut(){
 	unordered_map<BaseManipulation*, int>::iterator it;
@@ -210,11 +227,15 @@ BaseManipulation::removePinsOut(){
 	}
 }
 
+/*!It clear the input member of the object
+ */
 void
 BaseManipulation::clearInput(){
 	m_input.release();
 }
 
+/*!It clear the result member of the object
+ */
 void
 BaseManipulation::clearResult(){
 	m_result.release();
@@ -232,7 +253,7 @@ BaseManipulation::clear(){
 
 /*!Execution command. exec() runs the execution of output pins at the end of the execution.
  * execute is pure virtual and it has to be implemented in a derived class.
- * Temporary Inputs are cleared from class
+ * Temporary Inputs are cleared from the object.
  */
 void
 BaseManipulation::exec(){
@@ -271,9 +292,9 @@ BaseManipulation::addChild(BaseManipulation* child){
 };
 
 /*! Decrement target parent multiplicity, contained in member m_parent.
- * If multiplicity is zero, erase target from list. The method is meant to be used in conjuction 
- * to manual cut off of object pins. 
- * \param[in] parent pointer to BaseManipulation object 
+ * If multiplicity is zero, erase target from list.
+ * The method is meant to be used together to manual cut off of object pins.
+ * \param[in] parent Pointer to BaseManipulation object
  */
 void
 BaseManipulation::unsetParent(BaseManipulation * parent){
@@ -286,9 +307,9 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
 };
 
 /*! Decrement target child multiplicity, contained in member m_child.
- * If multiplicity is zero, erase target from list. The method is meant to be used in conjuction 
- * to manual cut off of object pins.
- * \param[in] child pointer to BaseManipulation object  
+ * If multiplicity is zero, erase target from list.
+ * The method is meant to be used in together to manual cut off of object pins.
+ * \param[in] child Pointer to BaseManipulation object
  */
 void
 BaseManipulation::unsetChild(BaseManipulation * child){
@@ -299,16 +320,26 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 	}
 };
 
+/*!It gets all the input pins of the object
+ * \return Vector of pointer to input pins.
+ */
 vector<InOut*>
 BaseManipulation::getPinsIn(){
 	return (m_pinIn);
 }
 
+/*!It gets all the output pins of the object
+ * \return Vector of pointer to output pins.
+ */
 std::vector<InOut*>
 BaseManipulation::getPinsOut(){
 	return (m_pinOut);
 }
 
+/*!It finds an input pin of the object
+ * \param[in] Target pin.
+ * \return Index of target pin in the input pins structure. Return -1 if pin not found.
+ */
 int
 BaseManipulation::findPinIn(InOut& pin){
 	for (int i=0; i<m_pinIn.size(); i++){
@@ -317,6 +348,10 @@ BaseManipulation::findPinIn(InOut& pin){
 	return(-1);
 }
 
+/*!It finds an output pin of the object
+ * \param[in] Target pin.
+ * \return Index of target pin in the output pins structure. Return -1 if pin not found.
+ */
 int
 BaseManipulation::findPinOut(InOut& pin){
 	for (int i=0; i<m_pinOut.size(); i++){
@@ -325,6 +360,9 @@ BaseManipulation::findPinOut(InOut& pin){
 	return(-1);
 }
 
+/*!It removes an input pin of the object and the related output pin of the linked object.
+ * \param[in] Index of target input pin.
+ */
 void
 BaseManipulation::removePinIn(int i){
 	if (i<m_pinIn.size() && i != -1){
@@ -334,6 +372,9 @@ BaseManipulation::removePinIn(int i){
 	}
 }
 
+/*!It removes an output pin of the object and the related input pin of the linked object.
+ * \param[in] Index of target output pin.
+ */
 void
 BaseManipulation::removePinOut(int i){
 	if (i<m_pinOut.size() && i != -1){

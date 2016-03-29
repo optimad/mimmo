@@ -250,14 +250,32 @@ protected:
 //==============================//
 //DATA BASE CLASS
 //==============================//
+/*!
+ *	\date			26/feb/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief IOData is the base class of generic data stored as input or result in a manipulation object.
+ *
+ *	IOData represents a generic data used in manipulation objects. Get and set methods of
+ *	this class are templated methods on the type of attached data.
+ *
+ */
 class IOData{
 
 public:
+	/*!Default constructor of IOData.
+	 */
 	IOData(){};
+
+	/*!Copy constructor of IOData.
+	 */
 	IOData(const IOData & other){
 		*this = other;
 	}
 
+	/*!Assignement operator of IOData.
+	 */
 	IOData & operator=(const IOData & other){
 		return (*this);
 	}
@@ -273,31 +291,59 @@ public:
 //==============================//
 //DATA DERIVED TEMPLATE CLASS
 //==============================//
+/*!
+ *	\date			26/feb/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief IODataT is the templated class of generic data derived from IOData base class.
+ *
+ *	IODataT stores a generic data used in manipulation objects.
+ */
 template<typename T>
 class IODataT: public IOData{
 public:
-	T 				m_data;
+	T 				m_data;	/*<Data contained in the object.*/
 
 public:
+	/*!Default constructor of IODataT.
+	 */
 	IODataT(){};
+
+	/*!Custom constructor of IODataT.
+	 * \param[in] data Data to be stored.
+	 */
 	IODataT(T data){
 		m_data = data;
 	};
+
+	/*!Default destructor of IODataT.
+	 */
 	~IODataT();
 
+	/*!Copy constructor of IODataT.
+	 */
 	IODataT(const IODataT & other){
 		*this = other;
 	}
 
+	/*!Assignement operator of IODataT.
+	 */
 	IODataT & operator=(const IODataT & other){
 		this->m_data 	= other.m_data;
 		return (*this);
 	}
 
+	/*!It sets the data stored in the object.
+	 * \param[in] data Data to be stored.
+	 */
 	void setData(T data){
 		m_data = data;
 	}
 
+	/*!It gets the data stored in the object.
+	 * \return Pointer to data stored.
+	 */
 	T* getData(){
 		return(&m_data);
 	}

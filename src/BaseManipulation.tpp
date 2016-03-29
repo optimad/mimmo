@@ -2,6 +2,11 @@
 // BASEMANIPULATION CLASS TEMPLATED PINS METHODS	//
 //==================================================//
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal){
@@ -10,6 +15,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getV
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
@@ -18,6 +28,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVa
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal){
@@ -26,6 +41,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getV
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (reference return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal){
@@ -34,6 +54,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> set
 	m_pinOut.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (copy return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
@@ -42,6 +67,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> set
 	m_pinOut.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (pointer return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal){
@@ -51,6 +81,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T)> set
 };
 
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal){
@@ -59,6 +94,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T&(void)> getV
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal){
@@ -67,6 +107,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T(void)> getVa
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal){
@@ -75,6 +120,11 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, std::function<T*(void)> getV
 	m_pinIn.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (reference return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal){
@@ -83,6 +133,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 	m_pinOut.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (copy return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal){
@@ -91,6 +146,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 	m_pinOut.push_back(pin);
 };
 
+/*!It adds an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (pointer return).
+ */
 template<typename T>
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal){
@@ -99,7 +159,11 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, std::function<void(T*)> se
 	m_pinOut.push_back(pin);
 };
 
-
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal){
@@ -111,6 +175,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> g
 	pin = NULL;
 };
 
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
@@ -122,6 +191,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> ge
 	pin = NULL;
 };
 
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of this receiver object (copy argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal){
@@ -133,6 +207,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> g
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (reference return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal){
@@ -144,6 +223,11 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> 
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (copy return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
@@ -155,6 +239,11 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> 
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] fget Get function of this sender object (pointer return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal){
@@ -166,7 +255,11 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T)> 
 	pin = NULL;
 };
 
-
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (reference return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal){
@@ -178,6 +271,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T&(void)> g
 	pin = NULL;
 };
 
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (copy return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal){
@@ -189,6 +287,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T(void)> ge
 	pin = NULL;
 };
 
+/*!It removes an input pin to the object.
+ * \param[in] objIn Pointer to BaseManipulation sender object.
+ * \param[in] fget Get function of the sender object (pointer return).
+ * \param[in] fset Set function of this receiver object (pointer argument).
+ */
 template<typename T>
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal){
@@ -200,6 +303,11 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, std::function<T*(void)> g
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (reference return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal){
@@ -211,6 +319,11 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)>
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (copy return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal){
@@ -222,6 +335,11 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)>
 	pin = NULL;
 };
 
+/*!It removes an output pin to the object.
+ * \param[in] objOut Pointer to BaseManipulation receiver object.
+ * \param[in] fset Set function of the receiver object (pointer argument).
+ * \param[in] fget Get function of this sender object (pointer return).
+ */
 template<typename T>
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal){
@@ -239,6 +357,9 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)>
 // BASEMANIPULATION CLASS TEMPLATED INPUT METHODS	//
 //==================================================//
 
+/*!It sets the input member of the object.
+ * \param[in] data Pointer to data to be stored in the input member.
+ */
 template<typename T>
 void
 BaseManipulation::setInput(T* data){
@@ -246,6 +367,9 @@ BaseManipulation::setInput(T* data){
 	m_input = std::move(dummy);
 }
 
+/*!It sets the input member of the object.
+ * \param[in] data Data to be stored in the input member.
+ */
 template<typename T>
 void
 BaseManipulation::setInput(T& data){
@@ -253,6 +377,9 @@ BaseManipulation::setInput(T& data){
 	m_input = std::move(dummy);
 }
 
+/*!It gets the input member of the object.
+ * \return Pointer to data stored in the input member.
+ */
 template<typename T>
 T*
 BaseManipulation::getInput(){
@@ -263,6 +390,9 @@ BaseManipulation::getInput(){
 // BASEMANIPULATION CLASS TEMPLATED RESULT METHODS	//
 //==================================================//
 
+/*!It sets the result member of the object.
+ * \param[in] data Pointer to data to be stored in the result member.
+ */
 template<typename T>
 void
 BaseManipulation::setResult(T* data){
@@ -270,6 +400,9 @@ BaseManipulation::setResult(T* data){
 	m_result = std::move(dummy);
 }
 
+/*!It sets the result member of the object.
+ * \param[in] data Data to be stored in the result member.
+ */
 template<typename T>
 void
 BaseManipulation::setResult(T& data){
@@ -277,6 +410,9 @@ BaseManipulation::setResult(T& data){
 	m_result = std::move(dummy);
 }
 
+/*!It gets the result member of the object.
+ * \return Pointer to data stored in the result member.
+ */
 template<typename T>
 T*
 BaseManipulation::getResult(){
