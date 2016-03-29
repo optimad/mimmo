@@ -48,15 +48,19 @@ using namespace std;
 
 /*! Basic Constructor. Default Shape CUBE */
 UStructMesh::UStructMesh(){
-	m_shape1 = NULL;
-	m_setmesh = false;
-	m_setorigin = false;
-	m_setspan = false;
-	m_origin = {{0.0,0.0,0.0}};
-	m_span = {{0.0,0.0,0.0}};
 	m_nx = 0; m_ny=0; m_nz=0;
 	m_dx = 0; m_dy=0; m_dz=0;
-	setShape(BasicShape::ShapeType::CUBE);
+	
+	m_setorigin = false;
+	m_setspan = false;
+	m_setInfLimits = false;
+	m_setRefSys = false;
+	m_isBuild = false;
+	m_origin_temp = {{0.0,0.0,0.0}};
+	m_span_temp = {{1.0,1.0,1.0}};
+	m_inflimits_temp = {{0.0,0.0,0.0}};
+	for(int i=0; i<3; ++i){m_refsystem_temp[i].fill(0.0); m_refsystem_temp[i][i] = 1.0;}
+	m_shapetype_temp = BasicShape::ShapeType::CUBE;
 };
 
 ///*! Custom Constructor. Set your mesh, according to the following input parameters
@@ -103,7 +107,6 @@ UStructMesh::UStructMesh(){
 UStructMesh::~UStructMesh(){
 	m_xnode.clear(); m_ynode.clear(); m_znode.clear();
 	m_xedge.clear(); m_yedge.clear(); m_zedge.clear();
-	m_shape1 = NULL;
 }
 
 /*! Copy Constructor.
@@ -136,27 +139,34 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	m_yedge = other.m_yedge;
 	m_zedge = other.m_zedge;
 
-	m_setorigin = other.m_setorigin;
-	m_setspan = other.m_setspan;
-	m_setmesh = other.m_setmesh;
-	m_shape1 = other.m_shape1;
-
-	if(other.m_shape2){
+	if(other.m_shape){
 		switch(other.getShape()->getShapeType()){
 			case BasicShape::ShapeType::CUBE :
-				m_shape2 = std::unique_ptr<BasicShape>(new Cube(*(dynamic_cast<const Cube *> (&other))));
+				m_shape = std::unique_ptr<BasicShape>(new Cube(*(dynamic_cast<const Cube *> (other.getShape()))));
 				break;
 			case BasicShape::ShapeType::CYLINDER :
-				m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(*(dynamic_cast<const Cylinder*> (&other))));
+				m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(dynamic_cast<const Cylinder*> (other.getShape()))));
 				break;
 			case BasicShape::ShapeType::SPHERE :
-				m_shape2 = std::unique_ptr<BasicShape>(new Sphere(*(dynamic_cast<const Sphere*> (&other))));
+				m_shape = std::unique_ptr<BasicShape>(new Sphere(*(dynamic_cast<const Sphere*> (other.getShape()))));
 				break;
 			default:
 				//never been reached
 				break;
 		}
 	}
+
+	//copy temporary members
+	m_origin_temp = other.m_origin_temp;
+	m_span_temp = other.m_span_temp;
+	m_inflimits_temp = other.m_inflimits_temp;
+	m_refsystem_temp = other.m_refsystem_temp;
+	m_shapetype_temp = other.m_shapetype_temp;
+	m_setorigin = other.m_setorigin;
+	m_setspan = other.m_setspan;
+	m_setInfLimits = other.m_setInfLimits;
+	m_setRefSys = other.m_setRefSys;
+	
 	return(*this); 
 };
 
@@ -164,49 +174,48 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
  * \param[out] result BasicShape of the mesh
  */
 const BasicShape * UStructMesh::getShape() const {
-	
-	BasicShape * result;
-	if(m_shape2){
-		result = m_shape2.get();
-	}else{
-		result = m_shape1;
-	}
-	return(result);
+	return(m_shape.get());
 }
 
 /*! Return current origin of BasicShape core of the mesh*/
 darray3E UStructMesh::getOrigin(){
-	if (getShape() == NULL) return(darray3E({{-9999, -9999, -9999}}));
+	if (getShape() == NULL) return(m_origin_temp);
 	return(getShape()->getOrigin());
 }
 
 /*! Return current span of BasicShape core of the mesh*/
 darray3E UStructMesh::getSpan(){
+	if (getShape() == NULL) return(m_span_temp);
 	return(getShape()->getSpan());
 }
 
 /*! Return current lower limits of coordinates in BasicShape core of the mesh*/
 darray3E UStructMesh::getInfLimits(){
+	if (getShape() == NULL) return(m_inflimits_temp);
 	return(getShape()->getInfLimits());
 }
 
 /*! Return current local Reference System af axes*/
 dmatrix33E UStructMesh::getRefSystem(){
+	if (getShape() == NULL) return(m_refsystem_temp);
 	return(getShape()->getRefSystem());
 }
 
 /*! Return actual scaling to primitive shape used in BasicShape core of the mesh*/
 darray3E UStructMesh::getScaling(){
+	if (getShape() == NULL) return(darray3E{{1,1,1}});
 	return(getShape()->getScaling());
 }
 
 /*! Return local span of the primitive shape associated to BasicShape core of the mesh*/
 darray3E UStructMesh::getLocalSpan(){
+	if (getShape() == NULL) return(darray3E{{1,1,1}});
 	return(getShape()->getLocalSpan());
 }
 
 /*! Return type of shape associated to mesh core. See BasicShape::ShapeType enum */
 BasicShape::ShapeType UStructMesh::getShapeType(){
+	if (getShape() == NULL) return(m_shapetype_temp);
 	return(getShape()->getShapeType());
 }
 
@@ -214,6 +223,7 @@ BasicShape::ShapeType UStructMesh::getShapeType(){
  * See BasicShape::CoordType enum.
  */
 BasicShape::CoordType UStructMesh::getCoordTypex(){
+	if (getShape() == NULL) return(BasicShape::CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(0));
 }
 
@@ -222,6 +232,7 @@ BasicShape::CoordType UStructMesh::getCoordTypex(){
  * \param[in] i index of component.
  */
 BasicShape::CoordType UStructMesh::getCoordType(int i){
+	if (getShape() == NULL) return(BasicShape::CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(i));
 }
 
@@ -229,6 +240,7 @@ BasicShape::CoordType UStructMesh::getCoordType(int i){
  * See BasicShape::CoordType enum.
  */
 BasicShape::CoordType UStructMesh::getCoordTypey(){
+	if (getShape() == NULL) return(BasicShape::CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(1));
 }
 
@@ -236,6 +248,7 @@ BasicShape::CoordType UStructMesh::getCoordTypey(){
  * See BasicShape::CoordType enum.
  */
 BasicShape::CoordType UStructMesh::getCoordTypez(){
+	if (getShape() == NULL) return(BasicShape::CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(2));
 }
 
@@ -259,9 +272,9 @@ darray3E UStructMesh::getSpacing(){
 };
 
 /*! Return current dimension of the mesh (number of mesh nodes in each direction) */
-ivector1D UStructMesh::getDimension(){
+iarray3E UStructMesh::getDimension(){
 	
-	ivector1D res(3,0);
+	iarray3E res;
 	res[0] = m_nx + 1; 
 	res[1] = m_ny + 1; 
 	res[2] = m_nz + 1;
@@ -394,8 +407,9 @@ ivector1D UStructMesh::getCellNeighs(int index){
 	return(getCellNeighs(pp[0],pp[1],pp[2]));
 }
 
-
+/*! Return complete list of mesh nodes, in local shape ref system */
 dvecarr3E UStructMesh::getLocalCoords(){
+
 	int np = (m_nx+1)*(m_ny+1)*(m_nz+1);
 	dvecarr3E coords(np);
 	for (int i=0; i<np; i++){
@@ -404,6 +418,7 @@ dvecarr3E UStructMesh::getLocalCoords(){
 	return coords;
 };
 
+/*! Return complete list of mesh nodes, in global absolute ref system */
 dvecarr3E UStructMesh::getGlobalCoords(){
 	int np = (m_nx+1)*(m_ny+1)*(m_nz+1);
 	dvecarr3E coords(np);
@@ -413,76 +428,78 @@ dvecarr3E UStructMesh::getGlobalCoords(){
 	return coords;
 };
 
-
 /*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
  * \param[in] origin new origin point
  */
 void UStructMesh::setOrigin(darray3E origin){
 	if (getShape() == NULL){
-		std::cout << "none Shape set ---> exit" << std::endl;
-		exit(2);
-	}
-	m_origin = origin;
-	m_setorigin = true;
-	getShape()->setOrigin(origin);
+		m_origin_temp = origin;
+		m_setorigin = true;
+	}else{
+		getShape()->setOrigin(origin);
+	}	
 }
 
-/*! Set span of your shape, according to its local reference system 
+/*! Set span of your shape, according to its local reference system.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
- * \param[in] flag if true, mesh is rebuilt according to the new input.TRUE is default; 
  */
-void UStructMesh::setSpan(double s0, double s1, double s2, bool flag){
-	getShape()->setSpan( s0, s1,s2);
-	m_span[0] = s0;
-	m_span[1] = s1;
-	m_span[2] = s2;
-	m_setspan = true;
-	if(flag){
-		rebaseMesh();
-	}
+void UStructMesh::setSpan(double s0, double s1, double s2){
+
+	if (getShape() == NULL){
+		m_span_temp[0] = s0;
+		m_span_temp[1] = s1;
+		m_span_temp[2] = s2;
+		m_setspan = true;
+	}else{
+		getShape()->setSpan( s0, s1,s2);
+	}	
+	m_isBuild = false;
 }
 
-/*! Set span of your shape, according to its local reference system. After set the span
- * the mesh i rebuilt according to the new input.
+/*! Set span of your shape, according to its local reference system. 
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
  * \param[in] s coordinates span
  */
 void UStructMesh::setSpan(darray3E s){
-	getShape()->setSpan( s[0], s[1], s[2]);
-	m_span = s;
-	m_setspan = true;
-	rebaseMesh();
+	setSpan( s[0], s[1], s[2]);
 }
 
-/*! Set coordinate's origin of your shape, according to its local reference system  
- * \param[in] orig first coordinate origin
+/*! Set inferior limits of your shape, according to its local reference system.
+ *  Info is just passed and stored in memory, but no modifications are a*pplied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method.   
+ * \param[in] inflim coordinate inferior limit
  * \param[in] dir 0,1,2 int flag identifying coordinate
- * \param[in] flag if true mesh is rebuilt according to the new input.TRUE is default
  */
-void UStructMesh::setInfLimits(double orig, int dir, bool flag){
-	getShape()->setInfLimits(orig, dir);
-	m_origin[dir] = orig;
-	m_setorigin = true;
-	if(flag){
-		rebaseMesh();
-	}
+void UStructMesh::setInfLimits(double inflim, int dir){
+	if (getShape() == NULL){
+		m_inflimits_temp[dir] = inflim;
+		m_setInfLimits = true;
+	}else{	
+		getShape()->setInfLimits(inflim, dir);
+	}	
 }
 
-/*! Set coordinates' origin of your shape, according to its local reference system.
- * Mesh is rebuilt according to the new input.
- * \param[in] orig coordinates' origin
+/*! Set coordinates' inferior limits of your shape, according to its local reference system.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method.    
+ * \param[in] inflim coordinates inferior limits
  */
-void UStructMesh::setInfLimits(darray3E orig){
-	getShape()->setInfLimits(orig[0], 0);
-	getShape()->setInfLimits(orig[1], 1);
-	getShape()->setInfLimits(orig[2], 2);
-	m_origin = orig;
-	m_setorigin = true;
-	rebaseMesh();
+void UStructMesh::setInfLimits(darray3E inflim){
+	setInfLimits(inflim[0], 0);
+	setInfLimits(inflim[1], 1);
+	setInfLimits(inflim[2], 2);
 }
 
-/*! Set new axis orientation of the local reference system of your mesh core shape
+/*! Set new axis orientation of the local reference system of your mesh core shape.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
  * \param[in] axis0 first axis
  * \param[in] axis1 second axis
  * \param[in] axis2 third axis
@@ -490,42 +507,83 @@ void UStructMesh::setInfLimits(darray3E orig){
  * if chosen axes are not orthogonal, doing nothing
  */
 void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
-	getShape()->setRefSystem(axis0, axis1, axis2);
+
+	if (getShape() == NULL){
+		m_refsystem_temp[0] = axis0;
+		m_refsystem_temp[1] = axis1;
+		m_refsystem_temp[2] = axis2;
+		m_setRefSys = true;
+	}else{	
+		getShape()->setRefSystem(axis0, axis1, axis2);
+	}	
 }
 
 /*! Set new axis orientation of the local reference system of your mesh core shape
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
  * \param[in] int 0,1,2 identify local x,y,z axis of the primitive shape
  * \param[in] axis new direction of selected local axis.
  */
 void UStructMesh::setRefSystem(int label, darray3E axis){
-	getShape()->setRefSystem(label,axis);
+	
+	if(getShape() == NULL){
+		BasicShape * temp = new Cube();
+		temp->setRefSystem(label, axis);
+		m_refsystem_temp = temp->getRefSystem();
+		delete temp;
+		temp = NULL;
+		m_setRefSys = true;
+	}else{
+		getShape()->setRefSystem(label,axis);
+	}
 }
 
 /*! Set new axis orientation of the local reference system of your mesh core shape
- * \param[in] axis new direction of all local axes.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method. 
+ * \param[in] axes new direction of all local axes.
  */
 void UStructMesh::setRefSystem(dmatrix33E axes){
-	getShape()->setRefSystem(axes);
+
+	if (getShape() == NULL){
+		m_refsystem_temp[0] = axes[0];
+		m_refsystem_temp[1] = axes[1];
+		m_refsystem_temp[2] = axes[2];
+		m_setRefSys = true;
+	}else{	
+		getShape()->setRefSystem(axes);
+	}	
+	
 }
 
-/*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
+/*! Set the dimensions of the mesh.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method.	
+ *  \param[in] dim  number of mesh nodes in each direction
+ */
  void UStructMesh::setDimension(ivector1D dim){
 	 m_nx = dim[0] - 1;
 	 m_ny = dim[1] - 1;
 	 m_nz = dim[2] - 1;
-	 rebaseMesh();
+	 
+	 m_isBuild = false;
 };
 
- /*! Set the dimensions of the mesh (number of mesh nodes in each direction) */
+/*! Set the dimensions of the mesh.
+ *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ *  To apply current modifications use UStructMesh::execute() method.	
+ *  \param[in] dim  number of mesh nodes in each direction
+ */
   void UStructMesh::setDimension(iarray3E dim){
  	 m_nx = dim[0] - 1;
  	 m_ny = dim[1] - 1;
  	 m_nz = dim[2] - 1;
- 	 rebaseMesh();
+	 
+	 m_isBuild = false;
  };
 
   /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
-   * It rebuilds the mesh after set the shape.
+   * Mesh is still not build. use UStructMesh::execute() to build the mesh.
    * \param[in] type shape of your mesh, casted to enum.(option available are: 0-CUBE(default), 1-CYLINDER, 2-SPHERE)
    */
   void UStructMesh::setShape(int itype){
@@ -534,128 +592,91 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
   }
 
   /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
-   * It rebuilds the mesh after set the shape.
+   * Mesh is still not build. use UStructMesh::execute() to build the mesh.
    * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
    */
   void UStructMesh::setShape(BasicShape::ShapeType type){
-	  ivector1D dimLimit(3,2);
-	  darray3E span, origin;
 	  //create internal shape using unique_ptr member.
 	  // unlink external shape eventually
-  	m_shape1 = NULL;
-  	if(m_shape2){m_shape2.release();}
-
-  	//default values of origin (0,0,0) and span (1,1,1)cube (1,2*pi,pi)sphere (1,2*pi,1)cylinder
-
-  	if (!m_setspan && !m_setorigin){
+		if(m_shape){
+			
+			m_origin_temp = m_shape.get()->getOrigin();
+			m_span_temp = m_shape.get()->getSpan();
+			m_inflimits_temp = m_shape.get()->getInfLimits();
+			m_refsystem_temp = m_shape.get()->getRefSystem();
+			m_setorigin = true;
+			m_setspan = true;
+			m_setInfLimits = true;
+			m_setRefSys = true;
+		
+			m_shape.release();
+		}
+		
+		darray3E origin{{0,0,0}};
+		dmatrix33E spanMat;
+		spanMat[0].fill(1);	spanMat[2].fill(1);	spanMat[2].fill(1);
+		spanMat[1][1] = spanMat[2][1] = 2*M_PI;
+		spanMat[2][2] = M_PI;
+		
+		if(m_setorigin){origin = m_origin_temp; m_setorigin= false;}
+		if(m_setspan){
+			for(int i=0; i<3; ++i) spanMat[i] = m_span_temp;
+			m_setspan = false;
+		}
+		
   		switch(type){
   		case BasicShape::ShapeType::CYLINDER :
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder());
-  			dimLimit[1] = 5;
-  			break;
+  			m_shape = std::unique_ptr<BasicShape>(new Cylinder(origin,spanMat[1]));
+			break;
   		case BasicShape::ShapeType::SPHERE :
-  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere());
-  			dimLimit[1] = 5; dimLimit[2] = 3;
+  			m_shape = std::unique_ptr<BasicShape>(new Sphere(origin, spanMat[2]));
   			break;
   		default://CUBE
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cube());
+  			m_shape = std::unique_ptr<BasicShape>(new Cube(origin, spanMat[0]));
   			break;
-  		}
-  	}else if (!m_setspan && m_setorigin){
-  		switch(type){
-  		case BasicShape::ShapeType::CYLINDER :
-  			span = {{1, 1, 1}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(m_origin, span));
-  			dimLimit[1] = 5;
-  			break;
-  		case BasicShape::ShapeType::SPHERE :
-  			span = {{1, 2*M_PI, M_PI}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(m_origin, span));
-  			dimLimit[1] = 5; dimLimit[2] = 3;
-  			break;
-  		default://CUBE
-  			span = {{1, 2*M_PI, 1}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cube(m_origin, span));
-  			break;
-  		}
-  	}else if (m_setspan && !m_setorigin){
-  		switch(type){
-  		case BasicShape::ShapeType::CYLINDER :
-  			origin = {{0.0, 0.0, 0.0}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, m_span));
-  			dimLimit[1] = 5;
-  			break;
-  		case BasicShape::ShapeType::SPHERE :
-  			origin = {{0.0, 0.0, 0.0}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, m_span));
-  			dimLimit[1] = 5; dimLimit[2] = 3;
-  			break;
-  		default://CUBE
-  			origin = {{0.0, 0.0, 0.0}};
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, m_span));
-  			break;
-  		}
-  	}else{
-  		switch(type){
-  		case BasicShape::ShapeType::CYLINDER :
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(m_origin, m_span));
-  			dimLimit[1] = 5;
-  			break;
-  		case BasicShape::ShapeType::SPHERE :
-  			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(m_origin, m_span));
-  			dimLimit[1] = 5; dimLimit[2] = 3;
-  			break;
-  		default://CUBE
-  			m_shape2 = std::unique_ptr<BasicShape>(new Cube(m_origin, m_span));
-  			break;
-  		}
-  	}
+		}
 
-  	//check on dimensions and eventual closed loops on coordinates.
-  	m_nx = std::max(m_nx, dimLimit[0]-1);
-  	m_ny = std::max(m_ny, dimLimit[1]-1);
-  	m_nz = std::max(m_nz, dimLimit[2]-1);
+		if(m_setInfLimits){
+			m_shape.get()->setInfLimits(m_inflimits_temp[0],0);
+			m_shape.get()->setInfLimits(m_inflimits_temp[1],1);
+			m_shape.get()->setInfLimits(m_inflimits_temp[2],2);
+			m_setInfLimits = false;
+		}
+		
+		if(m_setRefSys){
+			m_shape.get()->setRefSystem(m_refsystem_temp); 
+			m_setRefSys = false;
+		}
+		
+		m_isBuild = false;
+}
 
-  	rebaseMesh();
-  	m_setmesh = true;
-  }
-
-
-/*! Set mesh shape, according to the following input parameters.
- * It sets to default values of number of point in each direction [ (2,2,2) for a cube,
- * (2,5,2) for a cylinder, (2,5,3) for a sphere ].
- * It rebuilds a mesh after the set of the shape.
+/*! Set mesh shape, copying an external BasicShape object .
+ * Mesh is still not build. use UStructMesh::execute() to build the mesh.
  * \param[in] shape pointer to an external allocated BasicShape object
  */
-void UStructMesh::setShape(BasicShape * shape){
-
-	ivector1D dimLimit(3,2);
-	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
-
-	m_shape1 = shape;
-
+void UStructMesh::setShape(const BasicShape * shape){
+	
+	if(shape == NULL) return;
+	m_shape.release();
+	m_setorigin = false;
+	m_setspan = false;
+	m_setInfLimits = false;
+	m_setRefSys = false;
+	
 	switch(shape->getShapeType()){
 		case BasicShape::ShapeType::CYLINDER :
-			dimLimit[1] = 5;
+			m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(dynamic_cast<const Cylinder*>(shape))));
 			break;
 		case BasicShape::ShapeType::SPHERE :
-			dimLimit[1] = 5; dimLimit[2] = 3;
+			m_shape = std::unique_ptr<BasicShape>(new Sphere(*(dynamic_cast<const Sphere*>(shape))));
 			break;
 		default://CUBE
+			m_shape = std::unique_ptr<BasicShape>(new Cube(*(dynamic_cast<const Cube*>(shape))));
 			break;
 	}
 
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(m_nx, dimLimit[0]-1);
-	m_ny = std::max(m_ny, dimLimit[1]-1);
-	m_nz = std::max(m_nz, dimLimit[2]-1);
-
-	rebaseMesh();
-	m_setmesh = true;
-
+	m_isBuild = false;
 };
 
 /*! Set your mesh, according to the following input parameters
@@ -664,41 +685,17 @@ void UStructMesh::setShape(BasicShape * shape){
  * \param[in] type   shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
  * \param[in] dimensions number of mesh points for each coordinate.
  */
-void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, ivector1D & dimensions){
+void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeType type, iarray3E & dimensions){
 	
-	ivector1D dimLimit(3,2);
-	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
+	if(m_shape){m_shape.release();}
 	
-	switch(type){
-		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, span));
-			dimLimit[1] = 5;
-			break;
-		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, span));
-			dimLimit[1] = 5; dimLimit[2] = 3;
-			break;
-		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, span));
-		break;
-	}
-	
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(dimensions[0], dimLimit[0])-1;
-	m_ny = std::max(dimensions[1], dimLimit[1])-1;
-	m_nz = std::max(dimensions[2], dimLimit[2])-1;
-	
-	m_origin = origin;
-	m_setorigin = true;
-	m_span = span;
-	m_setspan = true;
-
-	rebaseMesh();
-	m_setmesh = true;
+	setShape(type);
+	setOrigin(origin);
+	setSpan(span);
+	setDimension(dimensions);
+	execute();
 };
+
 
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
@@ -710,26 +707,25 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
 
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
+	if(m_shape){m_shape.release();}
 	
 	switch(type){
 		case BasicShape::ShapeType::CYLINDER :
-			m_shape2 = std::unique_ptr<BasicShape>(new Cylinder(origin, span));
 			dimLimit[1] = 5;
 			break;
 		case BasicShape::ShapeType::SPHERE :
-			m_shape2 = std::unique_ptr<BasicShape>(new Sphere(origin, span));
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
-			m_shape2 = std::unique_ptr<BasicShape>(new Cube(origin, span));
 			break;
 	}
 	
+	setShape(type);
+	setOrigin(origin);
+	setSpan(span);
+	
 	darray3E span2 = getSpan();
-	ivector1D dim(3,0);
+	iarray3E dim;
 	
 	for(int i=0; i<3; ++i){
 		if(spacing[i] != 0.0) {
@@ -738,58 +734,20 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
 			dim[i] = dimLimit[i];
 		}
 	}
-	
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(dim[0], dimLimit[0])-1;
-	m_ny = std::max(dim[1], dimLimit[1])-1;
-	m_nz = std::max(dim[2], dimLimit[2])-1;
-	
-	m_origin = origin;
-	m_setorigin = true;
-	m_span = span;
-	m_setspan = true;
 
-	rebaseMesh();
-	m_setmesh = true;
+	setDimension(dim);
+	execute();
 };
 
 /*! Set your mesh, according to the following input parameters
  * \param[in] shape pointer to an external allocated BasicShape object
  * \param[in] dimensions number of mesh points for each coordinate.
  */
-void UStructMesh::setMesh(BasicShape * shape, ivector1D & dimensions){
+void UStructMesh::setMesh(BasicShape * shape, iarray3E & dimensions){
 
-	ivector1D dimLimit(3,2);
-	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
-
-	m_shape1 = shape;
-	
-	switch(shape->getShapeType()){
-		case BasicShape::ShapeType::CYLINDER :
-			dimLimit[1] = 5;
-			break;
-		case BasicShape::ShapeType::SPHERE :
-			dimLimit[1] = 5; dimLimit[2] = 3;
-			break;
-		default://CUBE
-			break;
-	}
-	
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(dimensions[0], dimLimit[0])-1;
-	m_ny = std::max(dimensions[1], dimLimit[1])-1;
-	m_nz = std::max(dimensions[2], dimLimit[2])-1;
-	
-	m_origin = {{0.0,0.0,0.0}};
-	m_setorigin = false;
-	m_span = {{0.0,0.0,0.0}};
-	m_setspan = false;
-
-	rebaseMesh();
-	m_setmesh = true;
+	setShape(shape);
+	setDimension(dimensions);
+	execute();
 };
 
 /*!Set your mesh, according to the following input parameters
@@ -800,11 +758,7 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	// unlink external shape eventually
-	m_shape1 = NULL;
-	if(m_shape2){m_shape2.release();}
-	
-	m_shape1 = shape;
+	if(m_shape){m_shape.release();}
 	
 	switch(shape->getShapeType()){
 		case BasicShape::ShapeType::CYLINDER :
@@ -817,11 +771,12 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 			break;
 	}
 	
-	darray3E span2 = shape->getSpan();
-	ivector1D dim(3,0);
+	setShape(shape);
+	
+	darray3E span2 = getSpan();
+	iarray3E dim;
 	
 	for(int i=0; i<3; ++i){
-		
 		if(spacing[i] != 0.0) {
 			dim[i] = (int) std::floor(span2[i]/spacing[i] +0.5) + 1;
 		}else{
@@ -829,35 +784,32 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 		}
 	}
 	
-	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(dim[0], dimLimit[0]) -1;
-	m_ny = std::max(dim[1], dimLimit[1]) -1;
-	m_nz = std::max(dim[2], dimLimit[2]) -1;
-	
-	m_origin = {{0.0,0.0,0.0}};
-	m_setorigin = false;
-	m_span = {{0.0,0.0,0.0}};
-	m_setspan = false;
-
-	rebaseMesh();
-	m_setmesh = true;
+	setDimension(dim);
+	execute();
 };
 
 
 /*!Clear the Mesh structure. Unlink external shapes or destroy internal shapes, destroy nodal structure.*/
 void UStructMesh::clearMesh(){
 	
-	m_shape1 = NULL;
-	m_shape2.release();
+	m_shape.release();
 	m_nx=0; m_ny=0; m_nz=0;
 	m_dx=0.0; m_dy=0.0; m_dz=0.0;
-	m_origin = {{0.0,0.0,0.0}};
-	m_setorigin = false;
-	m_span = {{0.0,0.0,0.0}};
-	m_setspan = false;
 
+	
+	m_setorigin = false;
+	m_setspan = false;
+	m_setInfLimits = false;
+	m_setRefSys = false;
+	m_isBuild = false;
+	
+	m_origin_temp = {{0.0,0.0,0.0}};
+	m_span_temp = {{1.0,1.0,1.0}};
+	m_inflimits_temp = {{0.0,0.0,0.0}};
+	for(int i=0; i<3; ++i){m_refsystem_temp[i].fill(0.0); m_refsystem_temp[i][i] = 1.0;}
+	m_shapetype_temp = BasicShape::ShapeType::CUBE;
+	
 	destroyNodalStructure();
-	m_setmesh = false;
 };  
 
 
@@ -1221,7 +1173,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	
 	VTK_BASICCLOUD handle_vtk_output(folder, outfile, codex, sizeTot);
@@ -1255,7 +1207,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	int sizeMap = std::min((int)vertexList.size(), sizeTot);
 	
@@ -1293,7 +1245,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int sizePt = dim[0]*dim[1]*dim[2];
 	int sizeCl = (dim[0]-1)*(dim[1]-1)*(dim[2]-1);
 	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, sizePt, sizeCl, 8*sizeCl);
@@ -1333,7 +1285,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
     if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 	
-	ivector1D dim = getDimension();
+	iarray3E dim = getDimension();
 	int sizePt = dim[0]*dim[1]*dim[2];
 	int sizeCl = cellList.size();
 	
@@ -1391,14 +1343,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
  * \param[out] result BasicShape of the mesh
  */
 BasicShape * UStructMesh::getShape(){
-	
-	BasicShape * result;
-	if(m_shape2){
-		result = m_shape2.get();
-	}else{
-		result = m_shape1;
-	}
-	return(result);
+	return(m_shape.get());
 }
 
 /*! Destroy the all nodal structures of the mesh. */
@@ -1430,10 +1375,32 @@ void UStructMesh::resizeMesh(){
 	m_zedge.resize(m_nz+1, 0.0);
 };
 
-/*! Check current mesh dimensions and refresh nodal structures*/
-void UStructMesh::rebaseMesh(){
+/*! Apply stored mesh information and build the mesh. If no core shape is
+ *  build, does nothing and exit.
+ */
+void UStructMesh::execute(){
 	
 	if(getShape() == NULL){return;}
+	
+	ivector1D dimLimit(3,2);
+	//create internal shape using unique_ptr member.
+	// unlink external shape eventually
+	switch(getShapeType()){
+		case BasicShape::ShapeType::CYLINDER :
+			dimLimit[1] = 5;
+			break;
+		case BasicShape::ShapeType::SPHERE :
+			dimLimit[1] = 5; dimLimit[2] = 3;
+			break;
+		default://CUBE
+			break;
+	}
+	
+	//check on dimensions and eventual closed loops on coordinates.
+	m_nx = std::max(m_nx, dimLimit[0]);
+	m_ny = std::max(m_ny, dimLimit[1]);
+	m_nz = std::max(m_nz, dimLimit[2]);
+	
 	darray3E spanEff = getLocalSpan();
 	
 	reshapeNodalStructure();
@@ -1451,13 +1418,14 @@ void UStructMesh::rebaseMesh(){
 	for (int i = 0; i < m_ny; i++) {m_ynode[i] = m_yedge[i] + 0.5 * m_dy;}
 	for (int i = 0; i < m_nz; i++) {m_znode[i] = m_zedge[i] + 0.5 * m_dz;}
 	
-};
-
-void UStructMesh::execute(){
-	rebaseMesh();
+	m_isBuild = true;
 };
 
 
+/*Check true if mesh is build according to the currently set parameters, or false if not*/
+bool UStructMesh::isBuilt(){
+	return(m_isBuild);
+}
 
 
 

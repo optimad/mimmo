@@ -48,8 +48,7 @@
 class UStructMesh{
 
 private:
-	BasicShape * 				m_shape1; 	/**!< generic pointer to BasicShape core of the mesh, for External USE*/
-	std::unique_ptr<BasicShape>	m_shape2;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
+	std::unique_ptr<BasicShape>	m_shape;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
 							
 protected:
 	double				m_dx, m_dy, m_dz;	/**< Mesh spacing in each direction */
@@ -57,20 +56,22 @@ protected:
 	dvector1D 	m_xnode, m_ynode, m_znode; 	/**< Lists holding the center cells coordinates of the mesh, in local reference sistem */
 	dvector1D 	m_xedge, m_yedge, m_zedge; 	/**< Lists holding the point coordinates of the mesh, in local reference system */
 
-	bool					m_setorigin;	/**< True if origin has been set independently*/
-	bool					m_setspan;		/**< True if span has been set independently*/
-	darray3E				m_origin;		/**< True if origin has been set independently*/
-	darray3E				m_span;			/**< True if span has been set independently*/
-	//TODO m_setmesh useful?
-	bool					m_setmesh; 		/**< check true if mesh is actually set */
+	bool					m_setorigin;		/**< True if origin has been set and a shape is not available yet */
+	bool					m_setspan;			/**< True if span has been set and a shape is not available yet */
+	bool					m_setInfLimits;		/**< True if inferior limits has been set and a shape is not available yet */
+	bool					m_setRefSys;		/**< True if reference system has been set and a shape is not available yet */
+	bool					m_isBuild;			/**< check if mesh is build according to the currently set parameters, or not */
+private:	
+	//list of temp members 
+	darray3E				m_origin_temp;		
+	darray3E				m_span_temp;			
+	darray3E				m_inflimits_temp;
+	dmatrix33E				m_refsystem_temp;
+	BasicShape::ShapeType	m_shapetype_temp;
 
 public:	     
 	//Building stuffs	    
 	UStructMesh();
-//	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
-//	UStructMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
-//	UStructMesh(BasicShape *, ivector1D & dimensions);
-//	UStructMesh(BasicShape *, dvector1D & spacing);
 	virtual ~UStructMesh();
 	
 	// Copy constructor & assignment operators
@@ -96,9 +97,8 @@ public:
 	std::array<BasicShape::CoordType,3>	getCoordType();
 	
 	darray3E 				getSpacing();
-	ivector1D				getDimension();
+	iarray3E				getDimension();
 
-	//TODO Useful for pin in/out interface? (Now they can't be used with pins)
 	darray3E 				getLocalCCell(int);
 	darray3E 				getLocalCCell(int, int, int);
 	darray3E 				getLocalPoint(int);
@@ -115,11 +115,10 @@ public:
 	dvecarr3E				getGlobalCoords();
 
 
-	//TODO each set method does a rebuild of the mesh, can be found an alternative strategy?
 	void	setOrigin(darray3E origin);
-	void	setSpan(double, double, double, bool flag = true);
+	void	setSpan(double, double, double);
 	void	setSpan(darray3E span);
-	void	setInfLimits(double val, int dir, bool flag = true);
+	void	setInfLimits(double val, int dir);
 	void	setInfLimits(darray3E val);
 
 	void	setRefSystem(darray3E, darray3E, darray3E);
@@ -131,16 +130,15 @@ public:
 
 	void 	setShape(BasicShape::ShapeType type = BasicShape::ShapeType::CUBE);
 	void 	setShape(int itype = 0);
-	void 	setShape(BasicShape *);
+	void 	setShape(const BasicShape *);
 
-	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, ivector1D & dimensions);
+	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, iarray3E & dimensions);
 	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
-	void 	setMesh(BasicShape *, ivector1D & dimensions);
+	void 	setMesh(BasicShape *, iarray3E & dimensions);
 	void 	setMesh(BasicShape *, dvector1D & spacing);
 
 	//generic manteinance of the mesh
 	void	clearMesh();
-	bool	isBuilt();
 	
 	//functionalities
 	void 	locateCellByPoint(darray3E & point, int &i, int &j, int &k);
@@ -173,13 +171,14 @@ public:
 	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
 
 	void 		execute();
-
+	bool		isBuilt();
+	
 protected:
 	//internal maintenance of the mesh
 	void 		resizeMesh();
 	void 		destroyNodalStructure();
 	void 		reshapeNodalStructure();
-	void 		rebaseMesh();
+
 	
 };
 
