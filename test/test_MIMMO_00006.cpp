@@ -148,8 +148,8 @@ void test0006() {
 	coeffs[2] = 15;
 	bend->setDegree(0,1,degree);
 	bend->setCoeffs(0,1,coeffs);
-	bend->setDegree(2,1,degree);
-	bend->setCoeffs(2,1,coeffs);
+//	bend->setDegree(2,1,degree);
+//	bend->setCoeffs(2,1,coeffs);
 
 	//create applier
 	Apply* applier = new Apply();

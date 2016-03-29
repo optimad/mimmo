@@ -612,9 +612,9 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
   	}
 
   	//check on dimensions and eventual closed loops on coordinates.
-  	m_nx = std::max(m_nx, dimLimit[0])-1;
-  	m_ny = std::max(m_ny, dimLimit[1])-1;
-  	m_nz = std::max(m_nz, dimLimit[2])-1;
+  	m_nx = std::max(m_nx, dimLimit[0]-1);
+  	m_ny = std::max(m_ny, dimLimit[1]-1);
+  	m_nz = std::max(m_nz, dimLimit[2]-1);
 
   	rebaseMesh();
   	m_setmesh = true;
@@ -649,9 +649,9 @@ void UStructMesh::setShape(BasicShape * shape){
 	}
 
 	//check on dimensions and eventual closed loops on coordinates.
-	m_nx = std::max(m_nx, dimLimit[0])-1;
-	m_ny = std::max(m_ny, dimLimit[1])-1;
-	m_nz = std::max(m_nz, dimLimit[2])-1;
+	m_nx = std::max(m_nx, dimLimit[0]-1);
+	m_ny = std::max(m_ny, dimLimit[1]-1);
+	m_nz = std::max(m_nz, dimLimit[2]-1);
 
 	rebaseMesh();
 	m_setmesh = true;
