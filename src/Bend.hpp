@@ -31,16 +31,22 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Bend is the class that applies the a polynomial bending to the displacements of a manipulation object.
+ *	\brief Bend is the class that applies the a polynomial bending function of coordinates
+ *	 to the displacements of a manipulation object.
  *
- *	The displacements to be bend have to be stored in input of base class. The bend result
- *	is stored in result member of base class.
+ *	The displacements to be bend have to be stored in the input of base class.
+ *	The bend result is stored in result member of base class.
+ *	For each component i the bending function of the displacement is Si = sum_jk( aijk * xj^k );
+ *	where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
+ *	applied to the i-th displacements.
  *
  */
 class Bend: public BaseManipulation{
 private:
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	umatrix33E			m_degree;	/**<Degree of polynomial law for each coordinate (each componentns of displacement is f(x,y,z) with no mixed terms)*/
+	umatrix33E			m_degree;	/**<Degree of polynomial law for each coordinate
+										(each componentns of displacement is
+										f(x,y,z) with no mixed terms)*/
 	dmat33Evec			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
 
 public:

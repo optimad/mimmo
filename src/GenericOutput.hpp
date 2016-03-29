@@ -32,17 +32,17 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief GenericOutput is the class that write the degrees of freedom.
+ *	\brief GenericOutput is the class that write the an output on file.
  *
  *	GenericOutput is derived from BaseManipulation class.
- *	It uses and it write the base members m_ndeg and m_displacements.
- *	After the execution of an object GenericOutput, the number of degrees of freedom and their initial
- *	displacements are write on a text file (ascii).
+ *	It uses and it writes the base members input.
+ *
  */
 class GenericOutput: public BaseManipulation{
 private:
 	//members
-	std::string	m_filename;		/**<Name of the output file. The file will be an ascii text file.*/
+	std::string	m_filename;		/**<Name of the output file.
+								The file will be an ascii text file.*/
 
 public:
 	GenericOutput(std::string filename = "output.txt");

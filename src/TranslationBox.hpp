@@ -32,15 +32,19 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief TranslationBox is the class that applies the a translation to the box of a latticeBox object.
+ *	\brief TranslationBox is the class that applies the a translation to a point.
  *
- *	Result saved in result of base class and in modified member m_origin.
+ *	Here the point is supposed to be an origin of a reference system.
+ *	The point is translated over a direction and for a quantity set by the user or
+ *	an external input.
+ *	Result of the translation are saved in result of base class and
+ *	in the modified member m_origin.
  */
 class TranslationBox: public BaseManipulation{
 private:
 	//members
 	darray3E	m_direction;	/**<Components of the translation axis.*/
-	darray3E	m_origin;		/**<Origin of box to be deformed (recovered in recoverInfo and used in useInfo).*/
+	darray3E	m_origin;		/**<Origin of box to be deformed.*/
 	double		m_alpha;		/**<Value of translation.*/
 
 public:

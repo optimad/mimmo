@@ -56,7 +56,7 @@ GenericOutput & GenericOutput::operator=(const GenericOutput & other){
 	return *this;
 };
 
-/*!It adds a name of the output files.
+/*!It sets the name of the output file.
  * \param[in] filename Name of the output file.
  */
 void
@@ -64,7 +64,8 @@ GenericOutput::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-/*!Execution command. VOID (setInput does the work).
+/*!Execution command. It does nothing, the real execution of the object
+ * happens in setInput.
  */
 void
 GenericOutput::execute(){};

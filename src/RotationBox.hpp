@@ -32,13 +32,11 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief RotationBox is the class that applies the a rotation to the box of a latticeBox object.
+ *	\brief RotationBox is the class that applies a rotation to a given reference system.
  *
- *	The degrees of freedoms are the rotation value used as input and the direction of the rotation
- *	as a parameter of the object.
- *	The input of the base class is used as rotation value and it has to be one double term,
- *	i.e if alpha is the value of the rotation in the chosen direction use:
- *	setInput(aplha).
+ *	The used parameters are the rotation value and the direction and the origin
+ *	of the rotation axis.
+ *
  */
 class RotationBox: public BaseManipulation{
 private:

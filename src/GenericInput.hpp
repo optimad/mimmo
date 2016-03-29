@@ -36,7 +36,10 @@
  *	\brief GenericInput is the class that set the initialization of a generic input data.
  *
  *	GenericInput is derived from BaseManipulation class. 
- *  Data passed as input are retained and always available in BaseManipulation::Result member.
+ *  Data passed as input are retained and always available
+ *  in BaseManipulation::Result member.
+ *  GenericInput can be read the input from a file or
+ *   it can be set by using setInput methods.
  *
  */
 class GenericInput: public BaseManipulation{

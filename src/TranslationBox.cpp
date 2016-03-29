@@ -23,19 +23,19 @@
 \*---------------------------------------------------------------------------*/
 #include "TranslationBox.hpp"
 
-///*!Default constructor of TranslationBox
-// */
+/*!Default constructor of TranslationBox
+ */
 TranslationBox::TranslationBox(darray3E direction){
 	m_direction = direction;
 	m_name = "MiMMO.TranslationBox";
 };
-//
-///*!Default destructor of TranslationBox
-// */
+
+/*!Default destructor of TranslationBox
+ */
 TranslationBox::~TranslationBox(){};
 
-///*!Copy constructor of TranslationBox.
-// */
+/*!Copy constructor of TranslationBox.
+ */
 TranslationBox::TranslationBox(const TranslationBox & other):BaseManipulation(other){
 	m_direction = other.m_direction;
 };
@@ -48,40 +48,60 @@ TranslationBox & TranslationBox::operator=(const TranslationBox & other){
 	return(*this);
 };
 
+/*!It gets the direction of the translation.
+ * \return Direction of translation.
+ */
 darray3E
 TranslationBox::getDirection(){
 	return(m_direction);
 }
 
+/*!It gets the value of the translation.
+ * \return Value of translation.
+ */
 double
 TranslationBox::getTranslation(){
 	return(m_alpha);
 }
 
+/*!It gets the original position of the point to be translated (before the execution)
+ * or the position of the translated point (after the execution of the object).
+ * \return Position of the point.
+ */
 darray3E
 TranslationBox::getOrigin(){
 	return(m_origin);
 }
 
+/*!It sets the direction of the translation.
+ * \param[in] direction Direction of translation.
+ */
 void
 TranslationBox::setDirection(darray3E direction){
 	m_direction = direction;
 }
 
+/*!It sets the value of the translation.
+ * \param[in] alpha Value of translation.
+ */
 void
 TranslationBox::setTranslation(double alpha){
 	m_alpha = alpha;
 }
 
+/*!It sets the original coordinates of the point to be translated.
+ * \param[in] origin Position of the point.
+ */
 void
 TranslationBox::setOrigin(darray3E origin){
 	m_origin = origin;
 }
 
-/*!Execution command. It modifies the coordinates of the origin given by the child manipulation object
- * with the translation conditions. After exec() the original origin will be permanently modified.
- * Set the translated origin only for one child (the first one) and it has to be a FFDLattice
- * (static cast to use setOrigin method of basic shape).
+/*!Execution command. It modifies the coordinates of the origin
+ * with the translation conditions.
+ * The result of the translation is stored in member result of base class
+ * and in the member m_origin.
+ * After exec() the original point coordinates will be permanently modified.
  */
 void
 TranslationBox::execute(){

@@ -35,10 +35,10 @@
  *
  *	Apply is derived from BaseManipulation class. It uses the base member m_geometry to apply
  *	the result of the parent manipulator to the target MiMMO object.
- *	The deformation displacements have to be passed and stored in the input member of base class,
- *	i.e. use setInput method to set the displacements to be applied to the geometry.
+ *	The deformation displacements have to be passed to the input member of base class through
+ *	a pin linking or set by the user, i.e. one has to use setInput method to set
+ *	the displacements to be applied to the geometry.
  *	After the execution of an object Apply, the original geometry will be modified.
- *
  */
 class Apply: public BaseManipulation{
 

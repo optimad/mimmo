@@ -46,7 +46,8 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
-/*!Execution command. It applies the deformation given by the parent manipulation (casting the input
+/*!Execution command.
+ * It applies the deformation stored in the input of base class (casting the input
  * for apply object to dvecarr3E) to the linked geometry.
  * After exec() the original geometry will be permanently modified.
  */

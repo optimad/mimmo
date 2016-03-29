@@ -13,13 +13,13 @@
 ##2. Apply
 
  - 2.1. Update execut with new input/output pins  [&#10004;]
- - 2.2. Comments
+ - 2.2. Comments  [&#10004;]
 
 ##3. GenericInput
 
  - 3.1. Template read implementation [&#10004;]
  - 3.1. Template set input implementation [&#10004;]
- - 3.3. Comments
+ - 3.3. Comments  [&#10004;]
 
 ##4. Info [&#10004;]
 
@@ -39,13 +39,13 @@
 
 - 6.1. modify execute to use input/output of base class (no displ and ndeg) [&#10004;]
 - 6.2. useInfo maybe useless [&#10004;]
-- 6.3. Comments
+- 6.3. Comments  [&#10004;]
 
 ##7. Mask
 
 - 7.1. modify execute in order to use input/output of base class (deprecated use of displ)  [&#10004;]
 - 7.2. useInfo maybe useless [&#10004;]
-- 7.3. Comments
+- 7.3. Comments  [&#10004;]
 
 ##8. OutputDoF
 
@@ -54,14 +54,14 @@
 - 8.3. useInfo maybe useless [&#10004;]
 - 8.4  must become a GenericOutput class [&#10004;]
 - 8.5  template data to ofstream maybe doesn't work, try to use it [&#10004;]
-- 8.5. Comments
+- 8.5. Comments  [&#10004;]
 
 ##9. Rotation and Translation Box 
 
 - 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation [&#10004;]
 - 9.2. modify execute to save the result in result and then use input/output pins [&#10004;]
 - 9.3. useInfo maybe useless [&#10004;]
-- 9.4. Comments
+- 9.4. Comments  [&#10004;]
 
 ##10. InOut Pin block  [&#10004;]
 

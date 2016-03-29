@@ -1,6 +1,10 @@
 #include <fstream>
 #include "Operators.hpp"
 
+/*!Overloaded function of base class setInput.
+ * It sets the input of the object, but at the same time it sets even the result.
+ * \param[in] data Pointer to data to be used to set the input/result.
+ */
 template<typename T>
 void
 GenericInput::setInput(T* data){
@@ -8,6 +12,10 @@ GenericInput::setInput(T* data){
 	BaseManipulation::setResult(data);
 }
 
+/*!Overloaded function of base class setInput.
+ * It sets the input of the object, but at the same time it sets even the result.
+ * \param[in] data Data to be used to set the input/result.
+ */
 template<typename T>
 void
 GenericInput::setInput(T& data){
@@ -15,7 +23,11 @@ GenericInput::setInput(T& data){
 	BaseManipulation::setResult(data);
 }
 
-
+/*!Overloaded function of base class getResult.
+ * It gets the result of the object, equal to the input.
+ * In the case it reads the input from file before to set and to get the result.
+ * \return Pointer to data stored in result member.
+ */
 template<typename T>
 T*
 GenericInput::getResult(){

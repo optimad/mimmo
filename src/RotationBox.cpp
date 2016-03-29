@@ -51,17 +51,27 @@ RotationBox & RotationBox::operator=(const RotationBox & other){
 	return(*this);
 };
 
+/*!It sets the origin and direction of the rotation axis.
+ * \param[in] origin Origin of rotation axis.
+ * \param[in] direction Direction of rotation axis.
+ */
 void
 RotationBox::setAxis(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
 }
 
+/*!It sets the origin of the rotation axis.
+ * \param[in] origin Origin of rotation axis.
+ */
 void
 RotationBox::setOrigin(darray3E origin){
 	m_origin = origin;
 }
 
+/*!It sets the direction of the rotation axis.
+ * \param[in] direction Direction of rotation axis.
+ */
 void
 RotationBox::setDirection(darray3E direction){
 	m_direction = direction;
@@ -70,33 +80,49 @@ RotationBox::setDirection(darray3E direction){
 		m_direction[i] /= L;
 }
 
+/*!It sets the value of the rotation.
+ * \param[in] alpha Value of rotation axis.
+ */
 void
 RotationBox::setRotation(double alpha){
 	setInput(alpha);
 }
 
+/*!It sets the reference system to be rotated.
+ * \param[in] axes Original reference system.
+ */
 void
 RotationBox::setAxes(dmatrix33E axes){
 	m_axes = axes;
 }
 
+/*!It sets the origin of the reference system to be rotated.
+ * \param[in] axes_origin Origin of reference system.
+ */
 void
 RotationBox::setAxesOrigin(darray3E axes_origin){
 	m_axes_origin = axes_origin;
 }
 
+/*!It gets the rotated reference system.
+ * \return Rotated reference system.
+ */
 dmatrix33E
 RotationBox::getRotatedAxes(){
 	return(m_rotax);
 }
 
+/*!It gets the rotated origin of the reference system.
+ * \return Rotated origin of reference system.
+ */
 darray3E
 RotationBox::getRotatedOrigin(){
 	return(m_rotax_origin);
 }
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the
- * rotation conditions, to be furnished by a pin to the child object.
+ * rotation conditions. This terms can be recovered and passed by a pin to a child object
+ * by the related get-methods.
  */
 void
 RotationBox::execute(){

@@ -29,7 +29,7 @@
 using namespace std;
 
 /*!Default constructor of OutputDoF.
- * \param[in] readFromFile True if the object reads the values from file.
+ * \param[in] readFromFile True if the object reads the values from file (default value false).
  */
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
@@ -81,8 +81,8 @@ GenericInput::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-/*!Execution command. It reads by file the input or it uses the input of base class
- * set by user.
+/*!Execution command. It does nothing, the real execution of the object
+ * happens in setInput/getResult.
  */
 void
 GenericInput::execute(){};

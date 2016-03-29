@@ -23,21 +23,21 @@
 \*---------------------------------------------------------------------------*/
 #include "Mask.hpp"
 
-///*!Default constructor of Mask
-// */
+/*!Default constructor of Mask
+*/
 Mask::Mask(){
 	m_name = "MiMMO.Mask";
 	m_thres.fill({{0,0}});
 	m_inside = {{true, true, true}};
 
 };
-//
-///*!Default destructor of Mask
-// */
+
+/*!Default destructor of Mask
+ */
 Mask::~Mask(){};
 
-///*!Copy constructor of Mask.
-// */
+/*!Copy constructor of Mask.
+ */
 Mask::Mask(const Mask & other):BaseManipulation(other){};
 
 /*!Assignement operator of Mask.
@@ -47,32 +47,32 @@ Mask & Mask::operator=(const Mask & other){
 	return(*this);
 };
 
-/*!It gets the coordinates of the degrees of freedom.
- * \return Coordinates of the degrees of freedom.
+/*!It gets the coordinates of points stored in the object.
+ * \return Coordinates of points stored in the object.
  */
 dvecarr3E*
 Mask::getCoords(){
 	return(&m_coords);
 };
 
-/*!It sets the coordinates of the degrees of freedom.
- * \param[in] coords Coordinates of the degrees of freedom.
+/*!It sets the coordinates of points used by the masking.
+ * \param[in] coords Coordinates of points used by the masking.
  */
 void
 Mask::setCoords(dvecarr3E coords){
 	m_coords = coords;
 };
 
-/*!It sets the limit of coordinates to apply the masking.
- * \param[in] thres Limit of coordinates to apply the masking.
+/*!It sets the limits of coordinates to apply the masking.
+ * \param[in] thres Limits of coordinates to apply the masking.
  */
 void
 Mask::setThresholds(dmatrix32E thres){
 	m_thres = thres;
 };
 
-/*!It sets the limit of one coordinate to apply the masking.
- * \param[in] thres Limit of coordinate to apply the masking.
+/*!It sets the limits of one coordinate to apply the masking.
+ * \param[in] thres Limits of coordinate to apply the masking.
  * \param[in] dir Index of component.
  */
 void
@@ -80,33 +80,33 @@ Mask::setThresholds(darray2E thres, int dir){
 	m_thres[dir] = thres;
 };
 
-/*!It sets the limit of x-coordinate to apply the masking.
- * \param[in] thres Limit of coordinate to apply the masking.
+/*!It sets the limits of x-coordinate to apply the masking.
+ * \param[in] thres Limits of x-coordinate to apply the masking.
  */
 void
 Mask::setThresholdx(darray2E thres){
 	m_thres[0] = thres;
 };
 
-/*!It sets the limit of y-coordinate to apply the masking.
- * \param[in] thres Limit of coordinate to apply the masking.
+/*!It sets the limits of y-coordinate to apply the masking.
+ * \param[in] thres Limits of y-coordinate to apply the masking.
  */
 void
 Mask::setThresholdy(darray2E thres){
 	m_thres[1] = thres;
 };
 
-/*!It sets the limit of z-coordinate to apply the masking.
- * \param[in] thres Limit of coordinate to apply the masking.
+/*!It sets the limits of z-coordinate to apply the masking.
+ * \param[in] thres Limits of z-coordinate to apply the masking.
  */
 void
 Mask::setThresholdz(darray2E thres){
 	m_thres[2] = thres;
 };
 
-/*!It sets the condition to apply the mask
+/*!It sets the condition to apply the masking
  * (true/false to set to zero the displacements inside/outside the thresholds).
- * \param[in] forward Condition to apply the mask for all the components.
+ * \param[in] inside Condition to apply the mask for all the components.
  */
 void
 Mask::setInside(bool inside){
@@ -118,18 +118,19 @@ Mask::setInside(bool inside){
 /*!It sets the condition to apply the mask
  * (true/false to set to zero the displacements inside/outside the thresholds).
  * \param[in] i Index of component.
- * \param[in] forward Condition to apply the mask for i-th component.
+ * \param[in] inside Condition to apply the mask for i-th component.
  */
 void
 Mask::setInside(int i, bool inside){
 	if (i >= 0 && i < 3) m_inside[i] = inside;
 };
 
-/*!Execution command. It modifies the displacements given by the input manipulation object
+/*!Execution command. It modifies the values given by the input manipulation object
  * with the masking conditions.
- * The input has to be set with a dvecarr3E variable (mask it casts the template method getInput
- * to this type) and the result will be of the same type.
- * After exec() the original displacements will be permanently modified.
+ * The input has to be set with a dvecarr3E variable
+ * (mask it casts the template method getInput to this type) and the result
+ * will be of the same type.
+ * After exec() the modified values are stored in the result member of base class.
  */
 void
 Mask::execute(){

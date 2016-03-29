@@ -31,12 +31,13 @@
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Mask is the class that applies the masking filterto a manipulation object.
+ *	\brief Mask is the class that applies a geometrical masking filter to a set of data.
  *
- *	Mask is derived from BaseManipulation class. It uses the base members m_parent and m_geometry to recover
- *	the result of the parent manipulator and apply the masking.
- *	After the execution of an object Mask (called by the linked manipulator), the original displacements will be modified.
- *
+ *	Mask is derived from BaseManipulation class.
+ *	It uses the members m_coords as values to be compared with the thresholds
+ *	fixed by the user for each coordinate.
+ *	The flags into m_inside define, for each coordinate,
+ *	if the object applies the masking inside or outside the thersholds.
  */
 class Mask: public BaseManipulation{
 private:
@@ -62,8 +63,6 @@ public:
 	void	setInside(bool inside);
 	void	setInside(int i, bool inside);
 
-public:
-	void 	useInfo();
 	void 	execute();
 
 };

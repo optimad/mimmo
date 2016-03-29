@@ -50,9 +50,6 @@
  
 class BasicShape {
 
-	friend class BasicMeshes;
-	friend class FFD_Lattice;
-
 public:
 	enum ShapeType{CUBE, CYLINDER, SPHERE}; /**< type of possible shape in your class */
 	enum CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment */

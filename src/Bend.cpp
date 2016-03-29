@@ -123,9 +123,9 @@ Bend::setCoeffs(int i, int j, dvector1D coeffs){
 
 /*!Execution command. It modifies the displacements given by the input manipulation object
  * with the polynomial law.
- * The input has to be set with a dvecarr3E variable (mask it casts the template method getInput
- * to this type) and the result will be of the same type.
- * After exec() the original displacements will be permanently modified.
+ * The input has to be set with a dvecarr3E variable (bend it casts the template method
+ * getInput to this type) and the result will be of the same type.
+ * After exec() the modified displacements are stored in result of base class.
  */
 void
 Bend::execute(){
