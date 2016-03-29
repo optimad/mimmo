@@ -35,6 +35,8 @@
 
 using namespace mimmo::pin;
 
+namespace mimmo{
+
 class IOData;
 
 /*!
@@ -351,5 +353,7 @@ public:
 };
 
 #include "BaseManipulation.tpp"
+
+}
 
 #endif /* __BASEMANIPULATION_HPP__ */

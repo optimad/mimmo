@@ -26,6 +26,7 @@
 #include "BaseManipulation.hpp"
 
 using namespace std;
+using namespace mimmo;
 
 /*!Default constructor of BaseManipulation.
  * It sets to zero/null each member/pointer.

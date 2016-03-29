@@ -7,7 +7,7 @@
  */
 template<typename T>
 void
-GenericOutput::setInput(T* data){
+mimmo::GenericOutput::setInput(T* data){
 	BaseManipulation::setInput(data);
 	BaseManipulation::setResult(data);
 	std::ofstream file;
@@ -24,7 +24,7 @@ GenericOutput::setInput(T* data){
  */
 template<typename T>
 void
-GenericOutput::setInput(T& data){
+mimmo::GenericOutput::setInput(T& data){
 	BaseManipulation::setInput(data);
 	BaseManipulation::setResult(data);
 	std::ofstream file;

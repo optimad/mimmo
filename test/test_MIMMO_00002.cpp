@@ -26,6 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
+using namespace mimmo;
 
 
 #include <chrono>

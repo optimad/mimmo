@@ -27,6 +27,8 @@
 #include "MiMMO_TypeDef.hpp"
 #include <functional>
 
+namespace mimmo{
+
 class BaseManipulation;
 
 /*!
@@ -125,6 +127,9 @@ public:
 	void exec();
 
 };
+
+
+}
 
 #include "InOut.tpp"
 

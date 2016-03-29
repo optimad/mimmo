@@ -25,6 +25,7 @@
 #include "BaseManipulation.hpp"
 
 using namespace std;
+using namespace mimmo;
 
 //==============================================================//
 // BASE INOUT CLASS	IMPLEMENTATION								//

@@ -25,6 +25,7 @@
 #include "GenericOutput.hpp"
 
 using namespace std;
+using namespace mimmo;
 
 /*!Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").

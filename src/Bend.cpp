@@ -23,19 +23,21 @@
 \*---------------------------------------------------------------------------*/
 #include "Bend.hpp"
 
-///*!Default constructor of Bend
-// */
+using namespace mimmo;
+
+/*!Default constructor of Bend
+ */
 Bend::Bend(){
 	m_name = "MiMMO.Bend";
 	m_degree.fill({{0,0,0}});
 };
-//
-///*!Default destructor of Bend
-// */
+
+/*!Default destructor of Bend
+ */
 Bend::~Bend(){};
 
-///*!Copy constructor of Bend.
-// */
+/*!Copy constructor of Bend.
+ */
 Bend::Bend(const Bend & other):BaseManipulation(other){
 	m_coords = other.m_coords;
 	m_degree = other.m_degree;

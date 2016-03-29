@@ -31,6 +31,7 @@ using namespace bitpit;
 #include <chrono>
 
 using namespace std::chrono;
+using namespace mimmo;
 
 // =================================================================================== //
 

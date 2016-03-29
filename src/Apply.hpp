@@ -26,6 +26,7 @@
 
 #include "BaseManipulation.hpp"
 
+namespace mimmo{
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -53,5 +54,7 @@ public:
 	void 	execute();
 
 };
+
+}
 
 #endif /* __APPLYDEFORMATION_HPP__ */

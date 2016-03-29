@@ -23,6 +23,8 @@
 \*---------------------------------------------------------------------------*/
 #include "Mask.hpp"
 
+using namespace mimmo;
+
 /*!Default constructor of Mask
 */
 Mask::Mask(){

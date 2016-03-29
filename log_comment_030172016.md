@@ -1,21 +1,21 @@
 #MIMMO TASKS
 
-##1. MimmoNamespace e BaseManipulation
+##1. MimmoNamespace e BaseManipulation  [&#10004;]
 
  - 1.1. 6 todos in basemanipulation  [&#10004;]
- - 1.2. Comments 
+ - 1.2. Comments  [&#10004;]
  - 1.3. line 124 and 149 static_cast unique pointer? If no virtuals are present in the base class, dynamic cast on reference fails. The only way to do this job, in template context, is using static cast (checked at compiler runtime) and hoping theuser knows how is doing. But, static cast works. [&#10004;]
- - 1.4. add mimmonamespace to each mimmo class [&#10004;]
+ - 1.4. add mimmonamespace to each mimmo class  [&#10004;]
  - 1.5  members ndeg/displ no more required in base class. [&#10004;]
  - 1.6  Removal of internal pins only of a BaseManipulation class, without external removalPin method-> is meaningful? When a class is destroyed, pins with other class survive eventually. how to manage this?  remove all input/output pins. Party ended. [&#10004;]
  - 1.7  Copy Operator and Constructor Done managing m_input, m_result (IOdata modified in copyOp and CopyConstr) [&#10004;]
 
-##2. Apply
+##2. Apply  [&#10004;]
 
  - 2.1. Update execut with new input/output pins  [&#10004;]
  - 2.2. Comments  [&#10004;]
 
-##3. GenericInput
+##3. GenericInput  [&#10004;]
 
  - 3.1. Template read implementation [&#10004;]
  - 3.1. Template set input implementation [&#10004;]
@@ -35,19 +35,19 @@
 - 5.6. Comments 
 
 
-##6. Bend
+##6. Bend  [&#10004;]
 
 - 6.1. modify execute to use input/output of base class (no displ and ndeg) [&#10004;]
 - 6.2. useInfo maybe useless [&#10004;]
 - 6.3. Comments  [&#10004;]
 
-##7. Mask
+##7. Mask  [&#10004;]
 
 - 7.1. modify execute in order to use input/output of base class (deprecated use of displ)  [&#10004;]
 - 7.2. useInfo maybe useless [&#10004;]
 - 7.3. Comments  [&#10004;]
 
-##8. OutputDoF
+##8. OutputDoF  [&#10004;]
 
 - 8.1. modify execute in order to use input/output of base class [&#10004;]
 - 8.2. modify execute to avoid parent/child relationship (deprecated) [&#10004;]
@@ -56,7 +56,7 @@
 - 8.5  template data to ofstream maybe doesn't work, try to use it [&#10004;]
 - 8.5. Comments  [&#10004;]
 
-##9. Rotation and Translation Box 
+##9. Rotation and Translation Box   [&#10004;]
 
 - 9.1. modify execute in order to use input/output of base class or new parameter values for rotation and translation [&#10004;]
 - 9.2. modify execute to save the result in result and then use input/output pins [&#10004;]

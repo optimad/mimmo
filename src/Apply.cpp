@@ -23,6 +23,8 @@
 \*---------------------------------------------------------------------------*/
 #include "Apply.hpp"
 
+using namespace mimmo;
+
 /*!Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){

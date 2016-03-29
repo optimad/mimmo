@@ -26,6 +26,8 @@
 
 #include "BaseManipulation.hpp"
 
+namespace mimmo{
+
 /*!
  *	\date			22/feb/2016
  *	\authors		Rocco Arpa
@@ -81,5 +83,7 @@ private:
 
 
 };
+
+}
 
 #endif /* __CHAIN_HPP__ */

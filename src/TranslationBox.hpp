@@ -27,6 +27,8 @@
 #include "BaseManipulation.hpp"
 #include "FFDLattice.hpp"
 
+namespace mimmo{
+
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -64,5 +66,7 @@ public:
 	void 	execute();
 
 };
+
+}
 
 #endif /* __TRANSLATIONBOX_HPP__ */

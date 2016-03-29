@@ -27,6 +27,8 @@
 #include "BaseManipulation.hpp"
 #include "rbf.hpp"
 
+namespace mimmo{
+
 /*!
  *	\date			25/mar/2016
  *	\authors		Rocco Arpa
@@ -68,24 +70,8 @@ public:
 	//execute deformation methods
 	void 		execute();
 
-
-protected:
-
-private:
-
-	//Nurbs Evaluators
-
-
-	//Nurbs utilities
-
-	//knots mantenaince utilities
-
-
-	//nodal displacement utility
-
-	//dimension utilities
-
-
 };
+
+}
 
 #endif /* __MRBF_HPP__ */

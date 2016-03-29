@@ -27,6 +27,8 @@
 #include "BaseManipulation.hpp"
 #include <string>
 
+namespace mimmo{
+
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -62,6 +64,8 @@ public:
 	void 	execute();
 
 };
+
+}
 
 #include "GenericOutput.tpp"
 

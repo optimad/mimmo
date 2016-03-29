@@ -24,6 +24,7 @@
 #include "Chain.hpp"
 
 using namespace std;
+using namespace mimmo;
 
 uint8_t Chain::sm_chaincounter(0);
 

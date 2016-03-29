@@ -23,6 +23,8 @@
 \*---------------------------------------------------------------------------*/
 #include "RotationBox.hpp"
 
+using namespace mimmo;
+
 /*!Default constructor of RotationBox
  */
 RotationBox::RotationBox(darray3E origin, darray3E direction){

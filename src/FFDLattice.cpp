@@ -25,8 +25,8 @@
 #include "FFDLattice.hpp"
 
 using namespace std;
+using namespace mimmo;
 
-// IMPLEMENTATION OF FFDLATTICE ***********************************************//
 /*
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa

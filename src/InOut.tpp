@@ -7,7 +7,7 @@
 /*!Default constructor of InOutT
  */
 template<typename T>
-InOutT<T>::InOutT(){
+mimmo::InOutT<T>::InOutT(){
 	m_getVal 	= NULL;
 	m_getValR 	= NULL;
 	m_getValP 	= NULL;
@@ -19,7 +19,7 @@ InOutT<T>::InOutT(){
 /*!Default destructor of InOutT
  */
 template<typename T>
-InOutT<T>::~InOutT(){
+mimmo::InOutT<T>::~InOutT(){
 	m_getVal 	= NULL;
 	m_getValR 	= NULL;
 	m_getValP 	= NULL;
@@ -30,14 +30,14 @@ InOutT<T>::~InOutT(){
 /*!Copy constructor of InOutT.
  */
 template<typename T>
-InOutT<T>::InOutT(const InOutT<T> & other){
+mimmo::InOutT<T>::InOutT(const InOutT<T> & other){
 	*this = other;
 };
 
 /*!Assignement operator of InOutT.
  */
 template<typename T>
-InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
+mimmo::InOutT<T> & mimmo::InOutT<T>::operator=(const InOutT<T> & other){
 	//inherited members
 	this->m_objLink 	= other.m_objLink;
 	//its own members
@@ -52,7 +52,7 @@ InOutT<T> & InOutT<T>::operator=(const InOutT<T> & other){
 /*!Compare operator of InOutT.
  */
 template<typename T>
-bool InOutT<T>::operator==(const InOutT<T> & other){
+bool mimmo::InOutT<T>::operator==(const InOutT<T> & other){
 	bool equal = true;
 	equal &= (m_objLink == other.m_objLink);
 	equal &= (m_getVal == other.m_getVal);
@@ -70,7 +70,7 @@ bool InOutT<T>::operator==(const InOutT<T> & other){
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
 	m_objLink 	= objIn;
 	m_getVal	= getVal;
 	m_setVal	= setVal;
@@ -83,7 +83,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std:
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
 	m_objLink	= objOut;
 	m_getVal	= getVal;
 	m_setVal	= setVal;
@@ -96,7 +96,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal){
 	m_objLink 	= objIn;
 	m_getValR	= getValR;
 	m_setVal	= setVal;
@@ -109,7 +109,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, st
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR){
 	m_objLink	= objOut;
 	m_getValR	= getValR;
 	m_setVal	= setVal;
@@ -122,7 +122,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal){
 	m_objLink 	= objIn;
 	m_getValP	= getValP;
 	m_setVal	= setVal;
@@ -135,7 +135,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, st
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP){
 	m_objLink	= objOut;
 	m_getValP	= getValP;
 	m_setVal	= setVal;
@@ -148,7 +148,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, st
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP){
 	m_objLink 	= objIn;
 	m_getVal	= getVal;
 	m_setValP	= setValP;
@@ -161,7 +161,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std:
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal){
 	m_objLink	= objOut;
 	m_getVal	= getVal;
 	m_setValP	= setValP;
@@ -174,7 +174,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP){
 	m_objLink 	= objIn;
 	m_getValR	= getValR;
 	m_setValP	= setValP;
@@ -187,7 +187,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, st
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR){
 	m_objLink	= objOut;
 	m_getValR	= getValR;
 	m_setValP	= setValP;
@@ -200,7 +200,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
  */
 template<typename T>
 void
-InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP){
+mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP){
 	m_objLink 	= objIn;
 	m_getValP	= getValP;
 	m_setValP	= setValP;
@@ -213,7 +213,7 @@ InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, st
  */
 template<typename T>
 void
-InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP){
+mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP){
 	m_objLink	= objOut;
 	m_getValP	= getValP;
 	m_setValP	= setValP;
@@ -226,7 +226,7 @@ InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, 
  */
 template<typename T>
 void
-InOutT<T>::exec(){
+mimmo::InOutT<T>::exec(){
 	if (m_getVal != NULL){
 		T val = m_getVal();
 		if (m_setVal != NULL){

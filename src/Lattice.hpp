@@ -29,6 +29,8 @@
 #include "BasicMeshes.hpp"
 #include "BaseManipulation.hpp"
 
+namespace mimmo{
+
 /*!
  *	\date			24/mar/2016
  *	\authors		Rocco Arpa
@@ -99,5 +101,7 @@ private:
 	int			reduceDimToDOF(int,int,int, bvector1D &info);
 
 };
+
+}
 
 #endif /* __LATTICE_HPP__ */

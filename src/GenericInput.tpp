@@ -7,7 +7,7 @@
  */
 template<typename T>
 void
-GenericInput::setInput(T* data){
+mimmo::GenericInput::setInput(T* data){
 	BaseManipulation::setInput(data);
 	BaseManipulation::setResult(data);
 }
@@ -18,7 +18,7 @@ GenericInput::setInput(T* data){
  */
 template<typename T>
 void
-GenericInput::setInput(T& data){
+mimmo::GenericInput::setInput(T& data){
 	BaseManipulation::setInput(data);
 	BaseManipulation::setResult(data);
 }
@@ -30,7 +30,7 @@ GenericInput::setInput(T& data){
  */
 template<typename T>
 T*
-GenericInput::getResult(){
+mimmo::GenericInput::getResult(){
 	if (m_readFromFile){
 		T data;
 		std::ifstream file;

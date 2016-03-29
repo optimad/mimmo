@@ -23,6 +23,8 @@
 \*---------------------------------------------------------------------------*/
 #include "TranslationBox.hpp"
 
+using namespace mimmo;
+
 /*!Default constructor of TranslationBox
  */
 TranslationBox::TranslationBox(darray3E direction){

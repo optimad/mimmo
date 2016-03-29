@@ -27,6 +27,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace mimmo;
 
 /*!Default constructor of OutputDoF.
  * \param[in] readFromFile True if the object reads the values from file (default value false).

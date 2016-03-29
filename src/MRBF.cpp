@@ -25,6 +25,7 @@
 #include "MRBF.hpp"
 
 using namespace std;
+using namespace mimmo;
 
 
 /*! Default Constructor.*/
