@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "Lattice.hpp"
+#include "Operators.hpp"
+#include "customOperators.hpp"
+
 
 using namespace std;
 using namespace mimmo;
@@ -188,7 +191,6 @@ int Lattice::accessGridFromDOF(int index){
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
  * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
- * \param[in] deformed  boolean flag for plotting 0-"original lattice", 1-"deformed lattice"
  */
 void		Lattice::plotGrid(std::string directory, std::string filename,int counter, bool binary){
 	dvecarr3E* pnull = NULL;
@@ -200,7 +202,6 @@ void		Lattice::plotGrid(std::string directory, std::string filename,int counter,
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
  * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
- * \param[in] deformed  boolean flag for plotting 0-"original lattice", 1-"deformed lattice"
  */
 void		Lattice::plotCloud(std::string directory, std::string filename, int counter, bool binary){
 	dvecarr3E* pnull = NULL;
@@ -208,10 +209,10 @@ void		Lattice::plotCloud(std::string directory, std::string filename, int counte
 };
 
 /*! Build your mesh and create wrapped map of effective degree of freedom of the current lattice mesh.
- *  Map is stored in internal member m_intMapDOF. Reimplemented from UstructMesh::execute();
+ *  Map is stored in internal member m_intMapDOF. Reimplemented from UstructMesh::build();
  */
-void 		Lattice::execute(){
-	UStructMesh::execute();
+void 		Lattice::build(){
+	UStructMesh::build();
 	resizeMapDof();
 };
 

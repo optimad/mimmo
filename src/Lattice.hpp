@@ -24,8 +24,6 @@
 #ifndef __LATTICE_HPP__
 #define __LATTICE_HPP__
 
-#include "Operators.hpp"
-#include "customOperators.hpp"
 #include "BasicMeshes.hpp"
 #include "BaseManipulation.hpp"
 
@@ -73,8 +71,8 @@ public:
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary);
 
-	//execute method
-	void 		execute();
+	//building method
+	virtual void build();
 
 private:
 

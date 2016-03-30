@@ -24,10 +24,7 @@
 #ifndef __FFDLATTICE_HPP__
 #define __FFDLATTICE_HPP__
 
-#include "Operators.hpp"
-#include "customOperators.hpp"
-#include "BasicMeshes.hpp"
-#include "BaseManipulation.hpp"
+#include "Lattice.hpp"
 
 namespace mimmo{
 
@@ -45,29 +42,22 @@ namespace mimmo{
  *  those portion of geometry encased into the 3D shape.
  *
  */
-class FFDLattice: public BaseManipulation, public UStructMesh {
+class FFDLattice: public Lattice {
 
 protected:
-	ivector1D	m_deg;			/**< Nurbs curve degree for each of the possible 3 direction in space*/
+	iarray3E	m_deg;			/**< Nurbs curve degree for each of the possible 3 direction in space*/
 	dvector2D	m_knots;		/**< Nurbs curve knots for each of the possible 3 direction in space*/
 	ivector2D	m_mapEff;		/**< Nurbs map of theoretical node distribution */
 	dvector1D	m_weights;		/**< Weights of each control node*/
-	double		m_np;			/**< Number of control nodes.*/
 	dvecarr3E	m_displ;		/**< Displacements of control nodes.*/
-public:	
 	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
-	ivector1D   m_intMapDOF;     /**< Map of grid nodes -> degrees of freedom of lattice */
-	
+	std::unordered_map<int, double> m_collect_wg /**< temporary collector of nodal weights passed as parameter. Nodal weight can be applied by build() method */
 	
 public:
 	FFDLattice();
-//	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension);
-//	FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimension, ivector1D & degrees);
-//	FFDLattice(BasicShape * shape, ivector1D & dimension);
-//	FFDLattice(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
 	virtual ~FFDLattice();
 
 	//copy operators/constructors
@@ -82,54 +72,38 @@ public:
 	dvector1D   getWeights();
 	void 		returnKnotsStructure(dvector2D &, ivector2D &);
 	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
-	iarray3E	getDimension();
-	iarray3E	getDegrees();
 	dvecarr3E* 	getDisplacements();
-	int			getNNodes();
 	bool 		isDisplGlobal();
-	dvecarr3E 	getGlobalCoords();
 
-	void		setDimension(ivector1D dimensions);
-	void		setDimension(ivector1D &dimensions, ivector1D &curveDegrees);
-	void		setDimension(iarray3E dimensions);
-	void		setDegrees(ivector1D curveDegrees);
 	void		setDegrees(iarray3E curveDegrees);
 	void 		setDisplacements(dvecarr3E displacements);
 	void 		setDisplGlobal(bool flag);
-	void		setSpan(double, double, double, bool flag = true);
-	void		setSpan(darray3E span);
-	void		setInfLimits(double val, int dir, bool flag = true);
-	void		setInfLimits(darray3E val);
-	void 		setCoordType(BasicShape::CoordType type, int dir, bool flag=true); 
-	void 		setCoordTypex(BasicShape::CoordType type);
-	void 		setCoordTypey(BasicShape::CoordType type);
-	void 		setCoordTypez(BasicShape::CoordType type);
-	void 		setCoordType(std::array<BasicShape::CoordType,3> type);
-	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions);
-	void 		setMesh(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D & dimensions, ivector1D & degrees);
-	void 		setMesh(BasicShape * shape, ivector1D & dimension);
-	void		setMesh(BasicShape * shape, ivector1D & dimension, ivector1D & degrees);
+	void 		setLattice(darray3E & origin, darray3E & span, BasicShape::ShapeType, iarray3E & dimensions, iarray3E & degrees);
+	void 		setLattice(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing, iarray3E & degrees);
+	void 		setLattice(BasicShape *, iarray3E & dimensions,  iarray3E & degrees);
+	void 		setLattice(BasicShape *, dvector1D & spacing,iarray3E & degrees);
 	
 	void 		setNodalWeight(double , int );
 	void 		setNodalWeight(double , int, int, int);
-	int 		accessDOFFromGrid(int index);
-	int 		accessGridFromDOF(int index);
+	void 		setNodalWeight(dvector1D );
 
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);
+	
 	
 	//execute deformation methods
 	void 		execute();
 	darray3E 	apply(darray3E & point);
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(livector1D & map);
+	virtual void 		build();
 	
 protected:
 	darray3E	convertDisplToXYZ(darray3E &, int i);
 	dvecarr3E	convertDisplToXYZ();
-private:
 
+private:
 	//Nurbs Evaluators
 	darray3E	nurbsEvaluator(darray3E &);
 	dvecarr3E	nurbsEvaluator(livector1D &);
@@ -150,15 +124,13 @@ private:
 	int 		getTheoreticalKnotIndex(int,int);
 
 	//nodal displacement utility
-	void 		resizeDisplacements(int, int, int);
 	dvecarr3E	recoverFullGridDispl();
 	dvector1D	recoverFullNodeWeights();
 	void		setMapNodes(int ind);
 	int			accessMapNodes(int,int,int);
-	int			reduceDimToDOF(int,int,int, bvector1D &info);
+
 	//dimension utilities
 	void		orderDimension();
-	
 };
 
 /*! Return real global index of a nodal displacement, given its position i,j,k in knots indexing logic*/

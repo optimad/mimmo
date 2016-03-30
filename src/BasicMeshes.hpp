@@ -173,6 +173,8 @@ public:
 	void 		execute();
 	bool		isBuilt();
 	
+	virtual void 		build();
+
 protected:
 	//internal maintenance of the mesh
 	void 		resizeMesh();

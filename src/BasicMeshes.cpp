@@ -430,7 +430,7 @@ dvecarr3E UStructMesh::getGlobalCoords(){
 
 /*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] origin new origin point
  */
 void UStructMesh::setOrigin(darray3E origin){
@@ -444,7 +444,7 @@ void UStructMesh::setOrigin(darray3E origin){
 
 /*! Set span of your shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
@@ -464,7 +464,7 @@ void UStructMesh::setSpan(double s0, double s1, double s2){
 
 /*! Set span of your shape, according to its local reference system. 
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] s coordinates span
  */
 void UStructMesh::setSpan(darray3E s){
@@ -473,7 +473,7 @@ void UStructMesh::setSpan(darray3E s){
 
 /*! Set inferior limits of your shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are a*pplied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method.   
+ *  To apply current modifications use UStructMesh::execute()/build() method.   
  * \param[in] inflim coordinate inferior limit
  * \param[in] dir 0,1,2 int flag identifying coordinate
  */
@@ -488,7 +488,7 @@ void UStructMesh::setInfLimits(double inflim, int dir){
 
 /*! Set coordinates' inferior limits of your shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method.    
+ *  To apply current modifications use UStructMesh::execute()/build() method.    
  * \param[in] inflim coordinates inferior limits
  */
 void UStructMesh::setInfLimits(darray3E inflim){
@@ -499,7 +499,7 @@ void UStructMesh::setInfLimits(darray3E inflim){
 
 /*! Set new axis orientation of the local reference system of your mesh core shape.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] axis0 first axis
  * \param[in] axis1 second axis
  * \param[in] axis2 third axis
@@ -520,7 +520,7 @@ void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 
 /*! Set new axis orientation of the local reference system of your mesh core shape
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] int 0,1,2 identify local x,y,z axis of the primitive shape
  * \param[in] axis new direction of selected local axis.
  */
@@ -540,7 +540,7 @@ void UStructMesh::setRefSystem(int label, darray3E axis){
 
 /*! Set new axis orientation of the local reference system of your mesh core shape
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method. 
+ *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] axes new direction of all local axes.
  */
 void UStructMesh::setRefSystem(dmatrix33E axes){
@@ -558,7 +558,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 
 /*! Set the dimensions of the mesh.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method.	
+ *  To apply current modifications use UStructMesh::execute()/build() method.	
  *  \param[in] dim  number of mesh nodes in each direction
  */
  void UStructMesh::setDimension(ivector1D dim){
@@ -571,7 +571,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 
 /*! Set the dimensions of the mesh.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute() method.	
+ *  To apply current modifications use UStructMesh::execute()/build() method.	
  *  \param[in] dim  number of mesh nodes in each direction
  */
   void UStructMesh::setDimension(iarray3E dim){
@@ -583,7 +583,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
  };
 
   /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
-   * Mesh is still not build. use UStructMesh::execute() to build the mesh.
+   * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] type shape of your mesh, casted to enum.(option available are: 0-CUBE(default), 1-CYLINDER, 2-SPHERE)
    */
   void UStructMesh::setShape(int itype){
@@ -592,7 +592,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
   }
 
   /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
-   * Mesh is still not build. use UStructMesh::execute() to build the mesh.
+   * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] type shape of your mesh, based on BasicShape::ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
    */
   void UStructMesh::setShape(BasicShape::ShapeType type){
@@ -652,7 +652,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 }
 
 /*! Set mesh shape, copying an external BasicShape object .
- * Mesh is still not build. use UStructMesh::execute() to build the mesh.
+ * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
  * \param[in] shape pointer to an external allocated BasicShape object
  */
 void UStructMesh::setShape(const BasicShape * shape){
@@ -693,7 +693,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
 	setOrigin(origin);
 	setSpan(span);
 	setDimension(dimensions);
-	execute();
+	build();
 };
 
 
@@ -736,7 +736,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
 	}
 
 	setDimension(dim);
-	execute();
+	build();
 };
 
 /*! Set your mesh, according to the following input parameters
@@ -745,9 +745,11 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, BasicShape::ShapeTy
  */
 void UStructMesh::setMesh(BasicShape * shape, iarray3E & dimensions){
 
+	if(m_shape){m_shape.release();}
+	
 	setShape(shape);
 	setDimension(dimensions);
-	execute();
+	build();
 };
 
 /*!Set your mesh, according to the following input parameters
@@ -785,7 +787,7 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 	}
 	
 	setDimension(dim);
-	execute();
+	build();
 };
 
 
@@ -1378,7 +1380,7 @@ void UStructMesh::resizeMesh(){
 /*! Apply stored mesh information and build the mesh. If no core shape is
  *  build, does nothing and exit.
  */
-void UStructMesh::execute(){
+void UStructMesh::build(){
 	
 	if(getShape() == NULL){return;}
 	
@@ -1421,6 +1423,12 @@ void UStructMesh::execute(){
 	m_isBuild = true;
 };
 
+
+/*! Execute the object, that is build the mesh with current stored parameters.
+ */
+void UStructMesh::execute(){
+	build();
+}
 
 /*Check true if mesh is build according to the currently set parameters, or false if not*/
 bool UStructMesh::isBuilt(){
