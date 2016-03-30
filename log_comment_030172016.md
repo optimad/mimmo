@@ -19,3 +19,7 @@
 
 - 3.1 Object that transform coordinates/DOF needed (?).
 
+##4. CMAKE
+
+- 4.1 Update cmake files with bitpit last version.
+

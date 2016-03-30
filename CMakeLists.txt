@@ -1,12 +1,12 @@
 #---------------------------------------------------------------------------
 #
-#  MIMMO
+#  MiMMO
 #
 #  Copyright (C) 2015-2016 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
-#  This file is part of MIMMO.
+#  This file is part of MiMMO.
 #
 #  bitpit is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License v3 (LGPL)
@@ -27,7 +27,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 #Name your project here
-project(MIMMO)
+project(MiMMO)
 
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
@@ -122,7 +122,7 @@ add_subdirectory(examples)
 add_subdirectory(test)
 
 # Docs
-#add_subdirectory(doc)
+add_subdirectory(doc)
 
 
 #------------------------------------------------------------------------------------#
