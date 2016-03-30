@@ -60,6 +60,9 @@ public:
 
 	BaseManipulation*	getLink();
 
+	/*!Execution method.
+	 * Pure virtual method, it has to be implemented in derived classes.
+	 */
 	virtual void exec() = 0;
 
 };

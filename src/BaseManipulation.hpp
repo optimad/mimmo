@@ -99,8 +99,8 @@ class BaseManipulation{
 	
 public:
 	//type definitions
-	typedef std::unordered_map<BaseManipulation*, int>	bmumap;
-	typedef mimmo::pin::PinsType 						PinsType;
+	typedef std::unordered_map<BaseManipulation*, int>	bmumap;		/**<Unordered map type used for parent/child storing.*/
+	typedef mimmo::pin::PinsType 						PinsType;	/**<Pin type specification.*/
 
 protected:
 	std::string					m_name;			/**<Name of the manipulation object.*/
@@ -239,7 +239,10 @@ protected:
 	void 	removePinIn(int i);
 	void 	removePinOut(int i);
 
-	virtual void 	execute() = 0;				//called in exec
+	/*!Execution method.
+	 * Pure virtual method, it has to be implemented in derived classes.
+	 */
+	virtual void 	execute() = 0;
 	
 	
 };
@@ -282,9 +285,21 @@ public:
 		return (*this);
 	}
 
+	/*!It gets the data stored in the object.
+	 * Even if not declared as pure virtual its behavior is
+	 * like a pure virtual method, i.e. an analogous method
+	 * is implemented in the template derived class IODataT.
+	 * \return Pointer to data stored.
+	 */
 	template<typename T>
 	T* getData();
 
+	/*!It sets the data stored in the object.
+	 * Even if not declared as pure virtual its behavior is
+	 * like a pure virtual method, i.e. an analogous method
+	 * is implemented in the template derived class IODataT.
+	 * \param[in] data Data to be stored.
+	 */
 	template<typename T>
 	void setData(T data);
 
@@ -305,7 +320,7 @@ public:
 template<typename T>
 class IODataT: public IOData{
 public:
-	T 				m_data;	/*<Data contained in the object.*/
+	T 				m_data;	/**<Data contained in the object.*/
 
 public:
 	/*!Default constructor of IODataT.

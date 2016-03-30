@@ -29,7 +29,7 @@
 using namespace std;
 using namespace mimmo;
 
-/*!Default constructor of OutputDoF.
+/*!Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
  */
 GenericInput::GenericInput(bool readFromFile){
@@ -38,7 +38,7 @@ GenericInput::GenericInput(bool readFromFile){
 	m_name 			= "MiMMO.GenericInput";
 };
 
-/*!Custom constructor of OutputDoF.
+/*!Custom constructor of GenericInput.
  * \param[in] filename Name of the input file.
  * The m_readFromFile flag is set to true.
  */

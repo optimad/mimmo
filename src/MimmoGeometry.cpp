@@ -179,7 +179,7 @@ MimmoGeometry::setFileType(FileType type){
  */
 void
 MimmoGeometry::setFileType(int type){
-	m_type = static_cast<MimmoGeometry::FileType>(type);
+	m_type = static_cast<FileType>(type);
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -236,7 +236,7 @@ MimmoGeometry::read(){
 	switch(m_type){
 
 	//Import STL
-	case MimmoGeometry::FileType::STL :
+	case FileType::STL :
 		int		np,	nt;
 		darray3E point;
 		{

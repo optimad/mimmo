@@ -77,9 +77,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVa
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (copy argument).
- * \param[in] setVal Bound get function of the pin owner object (copy return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setVal Bound set function of the child object (copy argument).
+ * \param[in] getVal Bound get function of the pin owner object (copy return).
  */
 template<typename T>
 void
@@ -91,7 +91,7 @@ mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> set
 
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (reference return).
+ * \param[in] getValR Bound get function of the parent object (reference return).
  * \param[in] setVal Bound set function of the pin owner object (copy argument).
  */
 template<typename T>
@@ -103,9 +103,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getV
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (copy argument).
- * \param[in] setVal Bound get function of the pin owner object (reference return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setVal Bound set function of the child object (copy argument).
+ * \param[in] getValR Bound get function of the pin owner object (reference return).
  */
 template<typename T>
 void
@@ -117,7 +117,7 @@ mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> set
 
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (pointer return).
+ * \param[in] getValP Bound get function of the parent object (pointer return).
  * \param[in] setVal Bound set function of the pin owner object (copy argument).
  */
 template<typename T>
@@ -129,9 +129,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getV
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (copy argument).
- * \param[in] setVal Bound get function of the pin owner object (pointer return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setVal Bound get function of the pin owner object (copy argument).
+ * \param[in] getValP Bound set function of the child object (pointer return).
  */
 template<typename T>
 void
@@ -144,7 +144,7 @@ mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> set
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
  * \param[in] getVal Bound get function of the parent object (copy return).
- * \param[in] setVal Bound set function of the pin owner object (pointer argument).
+ * \param[in] setValP Bound set function of the pin owner object (pointer argument).
  */
 template<typename T>
 void
@@ -155,9 +155,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVa
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (pointer argument).
- * \param[in] setVal Bound get function of the pin owner object (copy return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setValP Bound set function of the child object (pointer argument).
+ * \param[in] getVal Bound get function of the pin owner object (copy return).
  */
 template<typename T>
 void
@@ -169,8 +169,8 @@ mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> se
 
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (reference return).
- * \param[in] setVal Bound set function of the pin owner object (pointer argument).
+ * \param[in] getValR Bound get function of the parent object (reference return).
+ * \param[in] setValP Bound set function of the pin owner object (pointer argument).
  */
 template<typename T>
 void
@@ -181,9 +181,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getV
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (pointer argument).
- * \param[in] setVal Bound get function of the pin owner object (reference return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setValP Bound set function of the child object (pointer argument).
+ * \param[in] getValR Bound get function of the pin owner object (reference return).
  */
 template<typename T>
 void
@@ -195,8 +195,8 @@ mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> se
 
 /*!It sets an input pin for the owner of this pin.
  * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (pointer return).
- * \param[in] setVal Bound set function of the pin owner object (pointer argument).
+ * \param[in] getValP Bound get function of the parent object (pointer return).
+ * \param[in] setValP Bound set function of the pin owner object (pointer argument).
  */
 template<typename T>
 void
@@ -207,9 +207,9 @@ mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getV
 };
 
 /*!It sets an output pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation child object to be linked.
- * \param[in] getVal Bound set function of the child object (pointer argument).
- * \param[in] setVal Bound get function of the pin owner object (pointer return).
+ * \param[in] objOut Pointer to BaseManipulation child object to be linked.
+ * \param[in] setValP Bound set function of the child object (pointer argument).
+ * \param[in] getValP Bound get function of the pin owner object (pointer return).
  */
 template<typename T>
 void

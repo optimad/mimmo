@@ -79,8 +79,8 @@ BaseManipulation::getGeometry(){
 	return m_geometry;
 };
 
-/*!It gets the number of parent linked to the manipulator object.
- * \return #Parent.
+/*!It gets the number of parents linked to the manipulator object.
+ * \return Number of parents.
  */
 int
 BaseManipulation::getNParent(){
@@ -114,7 +114,7 @@ BaseManipulation::isParent(BaseManipulation * target, int index){
 };
 
 /*!It gets the number of children linked to the manipulator object.
- * \return #Children.
+ * \return Number of children.
  */
 int
 BaseManipulation::getNChild(){
@@ -156,7 +156,7 @@ BaseManipulation::getPinType(){
 }
 
 /*! It gets the number of input pins of the object.
- * \return #Input pins of the object.
+ * \return Number of input pins of the object.
  */
 int
 BaseManipulation::getNPinsIn(){
@@ -164,7 +164,7 @@ BaseManipulation::getNPinsIn(){
 }
 
 /*! It gets the number of output pins of the object.
- * \return #Output pins of the object.
+ * \return Number of output pins of the object.
  */
 int
 BaseManipulation::getNPinsOut(){
@@ -338,7 +338,7 @@ BaseManipulation::getPinsOut(){
 }
 
 /*!It finds an input pin of the object
- * \param[in] Target pin.
+ * \param[in] pin Target pin.
  * \return Index of target pin in the input pins structure. Return -1 if pin not found.
  */
 int
@@ -350,7 +350,7 @@ BaseManipulation::findPinIn(InOut& pin){
 }
 
 /*!It finds an output pin of the object
- * \param[in] Target pin.
+ * \param[in] pin Target pin.
  * \return Index of target pin in the output pins structure. Return -1 if pin not found.
  */
 int
@@ -362,7 +362,7 @@ BaseManipulation::findPinOut(InOut& pin){
 }
 
 /*!It removes an input pin of the object and the related output pin of the linked object.
- * \param[in] Index of target input pin.
+ * \param[in] i Index of target input pin.
  */
 void
 BaseManipulation::removePinIn(int i){
@@ -374,7 +374,7 @@ BaseManipulation::removePinIn(int i){
 }
 
 /*!It removes an output pin of the object and the related input pin of the linked object.
- * \param[in] Index of target output pin.
+ * \param[in] i Index of target output pin.
  */
 void
 BaseManipulation::removePinOut(int i){

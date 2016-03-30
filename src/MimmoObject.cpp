@@ -75,7 +75,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
  * \param[in] type Type of linked Patch (0 = generic (default value), 1 = surface, 2 = volume).
  * \param[in] geometry Pointer to a geometry of class PatchKernel to be linked.
  */
-MimmoObject::MimmoObject(int type, PatchKernel* geometry){
+MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_type 			= type;
 	m_geometry 		= geometry;
 	m_internalPatch = false;
@@ -209,7 +209,7 @@ MimmoObject::getMapData(){
 };
 
 /*!It gets the i-th vertex id.
- * \param[in] Index in a sequential vector of target vertex.
+ * \param[in] i Index in a sequential vector of target vertex.
  * \return ID of target vertex.
  */
 long
@@ -227,7 +227,7 @@ MimmoObject::getMapDataInv(){
 };
 
 /*!It gets the id-th vertex index in a sequential vector.
- * \param[in] ID of target vertex.
+ * \param[in] id ID of target vertex.
  * \return Index in a sequential vector of target vertex.
  */
 int
@@ -367,9 +367,9 @@ MimmoObject::write(string filename){
 	m_geometry->write(filename);
 };
 
-/*! Extract Vertex List from an ensamble of geometry Simplicies
- *\param[in] cellList list of bitpit::PatchKernel IDs identifying cells;
- *\param[out] result   list of bitpit::PatchKernel IDs of involved vertices
+/*! Extract Vertex List from an ensamble of geometry Simplicies.
+ *\param[in] cellList List of bitpit::PatchKernel IDs identifying cells.
+ *\return List of bitpit::PatchKernel IDs of involved vertices.
  */  
 
 livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
@@ -402,10 +402,9 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
 }
 
 /*! Convert Vertex List of bitpit::PatchKernel IDs to local ordered MimmoObject Vertex List.
- * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices;
- *\param[out] result   list of local ids of vertices according m_mapData ordering; 
+ * \param[in] vertexList List of bitpit::PatchKernel IDs identifying vertices.
+ * \return List of local ids of vertices according m_mapData ordering.
  */  
-
 ivector1D MimmoObject::convertVertexIDtoLocal(livector1D vertexList){
 	
 	livector1D::iterator it;

@@ -76,7 +76,7 @@ Chain::clear(){
 
 
 /*!It gets the number of manipulator objects in the chain.
- * \return #Objects in the chain.
+ * \return Number of objects in the chain.
  */
 uint32_t
 Chain::getNObjects(){
@@ -92,7 +92,7 @@ Chain::getID(){
 };
 
 /*!It gets the number of chains actually defined in the process.
- * \return #Chains in the process.
+ * \return Number of chains in the process.
  */
 uint8_t
 Chain::getNChains(){

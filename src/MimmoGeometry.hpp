@@ -28,6 +28,8 @@
 
 namespace mimmo{
 
+enum FileType{STL};		/**Extension of file to read the geometry.*/
+
 /*!
  *	\date			30/mar/2016
  *	\authors		Rocco Arpa
@@ -41,7 +43,6 @@ namespace mimmo{
  */
 class MimmoGeometry: public BaseManipulation{
 public:
-	enum FileType{STL};			/**<Extension of file to read the geometry.*/
 
 	FileType	m_type;			/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**< If true it reads the geometry from file during the execution.*/

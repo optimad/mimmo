@@ -54,6 +54,10 @@ public:
 	GenericInput(bool readFromFile = false);
 	GenericInput(std::string filename);
 
+	/*!Custom template constructor of GenericInput.
+	 * It sets the base class input with data passed as argument.
+	 * \param[in] data Data used to set the input.
+	 */
 	template<typename T>
 	GenericInput(T data){
 		setInput<T>(data);
