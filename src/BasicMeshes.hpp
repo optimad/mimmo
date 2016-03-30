@@ -47,10 +47,8 @@
 
 class UStructMesh{
 
-private:
-	std::unique_ptr<BasicShape>	m_shape;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
-							
 protected:
+	std::unique_ptr<BasicShape>	m_shape;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
 	double				m_dx, m_dy, m_dz;	/**< Mesh spacing in each direction */
 	int					m_nx, m_ny, m_nz;	/**< Mesh number of cells in each direction */
 	dvector1D 	m_xnode, m_ynode, m_znode; 	/**< Lists holding the center cells coordinates of the mesh, in local reference sistem */
@@ -132,6 +130,13 @@ public:
 	void 	setShape(int itype = 0);
 	void 	setShape(const BasicShape *);
 
+	void	setCoordType(BasicShape::CoordType,int);
+	void 	setCoordTypex(BasicShape::CoordType);
+	void 	setCoordTypey(BasicShape::CoordType);
+	void 	setCoordTypez(BasicShape::CoordType);
+	
+	void	setCoordType(std::array<BasicShape::CoordType,3>);
+	
 	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, iarray3E & dimensions);
 	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
 	void 	setMesh(BasicShape *, iarray3E & dimensions);

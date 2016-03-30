@@ -24,6 +24,7 @@
 
 #include "MiMMO.hpp"
 #include <functional>
+#include "customOperators.hpp"
 
 using namespace std;
 using namespace bitpit;

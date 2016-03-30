@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
 #include "MiMMO.hpp"
-
+#include "customOperators.hpp"
 using namespace std;
 using namespace bitpit;
 
@@ -74,7 +74,7 @@ void test0001() {
 	span[2]= 1.2;
 
 	//Set Lattice dimensions and degree
-	ivector1D dim(3), deg(3);
+	iarray3E dim, deg;
 	dim[0] = 20;
 	dim[1] = 20;
 	dim[2] = 20;
@@ -82,7 +82,7 @@ void test0001() {
 	deg[1] = 2;
 	deg[2] = 2;
 
-	lattice->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+	lattice->setLattice(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 	lattice->setGeometry(&mimmo0);
 
 	//Set Input with Init Displacements

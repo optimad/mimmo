@@ -679,6 +679,49 @@ void UStructMesh::setShape(const BasicShape * shape){
 	m_isBuild = false;
 };
 
+
+/*! Set coordinate type of component 0 of a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ */
+void UStructMesh::setCoordTypex(BasicShape::CoordType type){
+	if (getShape() == NULL) return;
+	getShape()->setCoordinateType(type,0);
+}
+
+/*! Set coordinate type of a component of a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ * \param[in] i index of component.
+ */
+void UStructMesh::setCoordType(BasicShape::CoordType type, int i){
+	if (getShape() == NULL) return;
+	getShape()->setCoordinateType(type,i);
+}
+
+/*! Set coordinate type of component 1 a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ */
+void UStructMesh::setCoordTypey(BasicShape::CoordType type){
+	if (getShape() == NULL) return;
+	getShape()->setCoordinateType(type,1);
+}
+
+/*! Set coordinate type of component 2 a BasicShape mesh core.
+ * See BasicShape::CoordType enum.
+ */
+void UStructMesh::setCoordTypez(BasicShape::CoordType type){
+	if (getShape() == NULL) return;
+	getShape()->setCoordinateType(type,2);
+}
+
+/*! Set coordinates type of a BasicShape mesh core. See BasicShape::CoordType enum.
+ * \param[in] types array of BasicShape::CoordType for all the cooordinates.
+ */
+void UStructMesh::setCoordType(array<BasicShape::CoordType, 3> types){
+	for (int i=0; i<3; i++){
+		getShape()->setCoordinateType(types[i],i);
+	}
+}
+
 /*! Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh

@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
 #include "MiMMO.hpp"
-
+#include "customOperators.hpp"
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -74,7 +74,7 @@ void test0002() {
 	span[1]= 2*M_PI;
 	span[2]= 1000.0;
 
-	ivector1D dim(3), deg(3);
+	iarray3E dim, deg;
 	dim[0] = 2;
 	dim[1] = 15;
 	dim[2] = 20;
@@ -84,7 +84,7 @@ void test0002() {
 	deg[2] = 10;
 
 	//set lattice
-	lattice->setMesh(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
+	lattice->setLattice(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,-1,0});
 	lattice->setGeometry(&mimmo0);
 
@@ -135,7 +135,7 @@ void test0002() {
 	deg[2] = 2;
 
 	//set lattice
-	lattice2->setMesh(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+	lattice2->setLattice(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
 	//Set geometry
 	lattice2->setGeometry(&mimmo0);
 
@@ -151,7 +151,7 @@ void test0002() {
 			if (l2 == 0){
 				displ[i][1] = 100;
 			}
-			if (l2 == 1){
+			if (l2 == 2){
 				displ[i][1] = -100;
 			}
 		}

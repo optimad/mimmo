@@ -54,7 +54,7 @@ protected:
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
-	std::unordered_map<int, double> m_collect_wg /**< temporary collector of nodal weights passed as parameter. Nodal weight can be applied by build() method */
+	std::unordered_map<int, double> m_collect_wg; /**< temporary collector of nodal weights passed as parameter. Nodal weight can be applied by build() method */
 	
 public:
 	FFDLattice();
@@ -74,6 +74,7 @@ public:
 	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
 	dvecarr3E* 	getDisplacements();
 	bool 		isDisplGlobal();
+	iarray3E	getDegrees();
 
 	void		setDegrees(iarray3E curveDegrees);
 	void 		setDisplacements(dvecarr3E displacements);
@@ -102,7 +103,8 @@ public:
 protected:
 	darray3E	convertDisplToXYZ(darray3E &, int i);
 	dvecarr3E	convertDisplToXYZ();
-
+	void 		resizeMapDof();
+	
 private:
 	//Nurbs Evaluators
 	darray3E	nurbsEvaluator(darray3E &);
@@ -128,6 +130,7 @@ private:
 	dvector1D	recoverFullNodeWeights();
 	void		setMapNodes(int ind);
 	int			accessMapNodes(int,int,int);
+	
 
 	//dimension utilities
 	void		orderDimension();

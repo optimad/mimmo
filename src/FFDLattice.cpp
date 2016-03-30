@@ -253,7 +253,7 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
  */
-void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeType type, iarray3E & dimensions, ivector1D & degrees){
+void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeType type, iarray3E & dimensions, iarray3E & degrees){
 	
 	if(m_shape){m_shape.release();}
 	
@@ -324,7 +324,7 @@ void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeT
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
  */
-void FFDLattice::setMesh(BasicShape * shape, iarray3E & dimensions, iarray3E & degrees){
+void FFDLattice::setLattice(BasicShape * shape, iarray3E & dimensions, iarray3E & degrees){
 	
 	setShape(shape);
 	setDimension(dimensions);
@@ -343,7 +343,7 @@ void FFDLattice::setMesh(BasicShape * shape, iarray3E & dimensions, iarray3E & d
  * \param[in] dimensions number of control nodes for each direction
  *
  */
-void FFDLattice::setMesh(BasicShape * shape, dvector1D & spacing, iarray3E & degrees){
+void FFDLattice::setLattice(BasicShape * shape, dvector1D & spacing, iarray3E & degrees){
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
@@ -980,7 +980,6 @@ void FFDLattice::clearKnots(){
 	
 	m_knots.clear();
 	m_mapEff.clear();
-	m_deg.clear();
 	m_weights.clear();
 	m_mapNodes.clear();
 	m_collect_wg.clear();
@@ -1222,7 +1221,7 @@ int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
 void 		FFDLattice::resizeMapDof(){
 	Lattice::resizeMapDof();
 	m_displ.clear();
-	m_displ.resize(m_np, 0.0);
+	m_displ.resize(m_np, darray3E{{0.0,0.0,0.0}});
 }
 
 /*! Recover full displacements vector from DOF */

@@ -73,11 +73,12 @@ public:
 
 	//building method
 	virtual void build();
-
-private:
-
-	//nodal displacement utility
+	void execute();
+	
+	//nodal displacement utility	
+protected:
 	void 		resizeMapDof();
+private:
 	int			reduceDimToDOF(int,int,int, bvector1D &info);
 
 };

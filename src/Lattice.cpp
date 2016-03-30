@@ -216,6 +216,12 @@ void 		Lattice::build(){
 	resizeMapDof();
 };
 
+/*!Execute your object, that is recall method Lattice::build(). Implementation of pure virtual BaseManipulation::execute
+ */
+void 		Lattice::execute(){
+	build();
+};
+
 /*! Resize map of effective nodes of the lattice grid to fit a total number od degree of freedom nx*ny*nz.
  * Old structure is deleted and reset to zero.
  */
@@ -247,12 +253,12 @@ void 		Lattice::resizeMapDof(){
 				accessPointIndex(index,i0,i1,i2);
 
 				if(info[0] && i0 == 0){
-					for(int k=0; k<ny;++k){
+					for(int k=0; k<=m_ny;++k){
 						m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
 					}
 				}
 				if(info[1] && i1 == 0){
-					m_intMapDOF[accessPointIndex(i0,ny-1,i2)] = target;
+					m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
 				}
 
 				itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
@@ -270,25 +276,25 @@ void 		Lattice::resizeMapDof(){
 				accessPointIndex(index,i0,i1,i2);
 
 				if(info[0] && i0 == 0){
-					for(int k1=0; k1<ny;++k1){
-						for(int k2=0; k2<nz; ++k2){
+					for(int k1=0; k1<=m_ny;++k1){
+						for(int k2=0; k2<=m_nz; ++k2){
 							m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
 						}
 					}
 				}
 
 				if(info[1] && i1 == 0){
-					m_intMapDOF[accessPointIndex(i0,ny-1,i2)] = target;
+					m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
 				}
 
 				if(info[2] && i2 == 0){
-					for(int k1=0; k1<ny; ++k1){
+					for(int k1=0; k1<=m_ny; ++k1){
 							m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
 						}
 				}
 
-				if(info[3] && i2 == (nz-1)){
-					for(int k1=0; k1<ny;++k1){
+				if(info[3] && i2 == (m_nz)){
+					for(int k1=0; k1<=m_ny;++k1){
 						m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
 					}
 				}
