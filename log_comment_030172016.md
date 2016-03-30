@@ -95,7 +95,11 @@
 - 14.1 Add more geometric interfaces
 - 14.2 Comments  [&#10004;]
 
-##15. MISC
+##15. GEOMETRY WRAPPER  [&#10004;]
 
-- 15.1 Object that transform coordinates/DOF needed (?).
+- 15.1 Object that wraps a MimmoObject.  [&#10004;]
+
+##16. MISC
+
+- 16.1 Object that transform coordinates/DOF needed (?).
 

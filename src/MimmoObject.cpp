@@ -307,6 +307,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 		if (m_type == 2)  it->setType(ElementInfo::TRIANGLE);
 		//
 	}
+	return true;
 };
 
 /*!It sets the geometry Patch.
