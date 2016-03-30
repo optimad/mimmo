@@ -39,35 +39,45 @@ using namespace std::placeholders;
 
 void test0005() {
 
-	//Creation of MiMMO container.
-	MimmoObject mimmo0;
-	//Input triangulation
-	int		np,	nt;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/sphere2.stl", true);
-
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
-		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
-	//Write undeformed geometry
+//	//Creation of MiMMO container.
+//	MimmoObject mimmo0;
+//	//Input triangulation
+//	int		np,	nt;
+//	darray3E point;
+//	{
+//		//Import STL
+//		STLObj stl("geo_data/sphere2.stl", true);
+//
+//		dvector2D V,N;
+//		ivector2D T;
+//		stl.load(np, nt, V, N, T);
+//
+//		for (long ip=0; ip<np; ip++){
+//			point = conArray<double,3>(V[ip]);
+//			mimmo0.setVertex(point);
+//		}
+//		mimmo0.setConnectivity(&T);
+//		mimmo0.cleanGeometry();
+//	}
+//	//Write undeformed geometry
 	string filename = "mimmo_0005.0000";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+//	mimmo0.m_geometry->setName(filename);
+//	mimmo0.m_geometry->write();
+
+
+	//Instantiation of mimmo geometry Object.
+	MimmoGeometry* geometry = new MimmoGeometry();
+	geometry->setRead(true);
+	geometry->setFileType(0);
+	geometry->setReadFilename("geo_data/sphere2");
+	geometry->setWrite(true);
+	geometry->setWriteFilename(filename);
+
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 	//Set lattice
-	lattice->setGeometry(&mimmo0);
+//	lattice->setGeometry(&mimmo0);
 
 	//Set Inputs with Shape and Mesh Info
 	darray3E origin = {0.0, 0.0, 0.0};
@@ -161,10 +171,13 @@ void test0005() {
 
 	//create applier
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmo0);
+//	applier->setGeometry(&mimmo0);
 
 	//Set PINS
 	cout << "set pins" << endl;
+
+	addPin(geometry, lattice, &MimmoGeometry::getGeometry, &FFDLattice::setGeometry);
+	addPin(geometry, applier, &MimmoGeometry::getGeometry, &Apply::setGeometry);
 
 	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
 	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
@@ -200,6 +213,7 @@ void test0005() {
 	Chain ch0;
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(inputorig);
+	ch0.addObject(geometry);
 	ch0.addObject(lattice);
 	ch0.addObject(inputshapet);
 	ch0.addObject(bend);
@@ -231,12 +245,23 @@ void test0005() {
 	lattice->plotGrid("./", "lattice_0005", 0, false, false);
 	lattice->plotGrid("./", "lattice_0005", 1, false, true);
 	filename = "mimmo_0005.0001";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+//	mimmo0.m_geometry->setName(filename);
+//	mimmo0.m_geometry->write();
+	geometry->setWriteFilename(filename);
+	geometry->write();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input, inputorig, inputspan, inputshapet, inputdim, inputdeg;
+	delete geometry;
+	delete lattice;
+	delete applier;
+	delete input;
+	delete inputorig;
+	delete inputspan;
+	delete inputshapet;
+	delete inputdim;
+	delete inputdeg;
 
+	geometry 	= NULL;
 	lattice 	= NULL;
 	applier 	= NULL;
 	inputorig 	= NULL;

@@ -29,6 +29,7 @@
 
 #include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
+#include "MimmoGeometry.hpp"
 #include "Lattice.hpp"
 #include "FFDLattice.hpp"
 #include "MRBF.hpp"

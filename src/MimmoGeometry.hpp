@@ -41,9 +41,19 @@ namespace mimmo{
  */
 class MimmoGeometry: public BaseManipulation{
 public:
-	bool		m_write; 		/*< If true it writes the geometry on file during the execution.*/
-	std::string	m_filename;		/*< Name of file to write the geometry.*/
+	enum FileType{STL};			/**<Extension of file to read the geometry.*/
 
+	FileType	m_type;			/**<Extension of file to read the geometry.*/
+	bool		m_read; 		/**< If true it reads the geometry from file during the execution.*/
+	std::string	m_rfilename;	/**< Name of file to read the geometry.*/
+
+	bool		m_write; 		/**< If true it writes the geometry on file during the execution.*/
+	std::string	m_wfilename;	/**< Name of file to write the geometry.*/
+
+private:
+	bool		m_local;		/**<Is the geometry locally instantiated?.*/
+
+public:
 	MimmoGeometry();
 	~MimmoGeometry();
 
@@ -61,10 +71,15 @@ public:
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
+	void		setFileType(FileType type);
+	void		setFileType(int type);
+	void		setRead(bool read);
+	void		setReadFilename(std::string filename);
 	void		setWrite(bool write);
-	void		setFilename(std::string filename);
+	void		setWriteFilename(std::string filename);
 
-	void		write();
+	bool		write();
+	void		read();
 
 	void 		execute();
 
