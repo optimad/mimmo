@@ -29,6 +29,7 @@
 
 using namespace std;
 using namespace bitpit;
+using namespace mimmo;
 
 /*!Default constructor of MimmoObject.
  * It sets to zero/null each member/pointer.

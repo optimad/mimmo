@@ -25,9 +25,10 @@
 #ifndef __MIMMOBASICSHAPES_HH
 #define __MIMMOBASICSHAPES_HH
 
-// local libs
 #include "bitpit.hpp"
 #include "MiMMO_TypeDef.hpp"
+
+namespace mimmo{
 
 /*!
  *	\date			03/01/2015
@@ -230,6 +231,7 @@ private:
 	void 		setScaling(double &, double &, double &);
 };
 
+}
 
 #endif //  __MIMMOBASICSHAPES_HH
 

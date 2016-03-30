@@ -25,7 +25,6 @@
 #ifndef __MiMMO_VTKINTERFACES__
 #define __MiMMO_VTKINTERFACES__
 
-//std libs
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
@@ -37,11 +36,11 @@
 #include <iomanip>
 #include <map>
 
-// local libs
 #include "Operators.hpp"
 #include "customOperators.hpp"
 #include "bitpit_IO.hpp" //?? what is its new interface in bitpit? please check it out
 
+namespace mimmo{
 
 /*!
  *	\date			31/12/2015
@@ -99,4 +98,5 @@ public:
 	void flushData(  std::fstream &str, bitpit::VTKFormat codex_, std::string name  ) ; //CRTP
 };
 
+}
 #endif // __MiMMO_VTKINTERFACES__

@@ -25,11 +25,12 @@
 #ifndef __MiMMO_BASICMESHES_HH
 #define __MiMMO_BASICMESHES_HH
 
-// local libs
 #include <memory>
 #include <array>
 #include "BasicShapes.hpp"
 #include "MiMMO_TypeDef.hpp"
+
+namespace mimmo{
 
 /*!
  *	\date			31/12/2015
@@ -202,6 +203,6 @@ inline int  UStructMesh::accessPointIndex(int i, int j, int k){
 	return(index);
 };
 
-
+}
 
 #endif //__MiMMO_BASICMESHES_HH

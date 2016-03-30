@@ -27,6 +27,8 @@
 #include "bitpit.hpp"
 #include "MiMMO_TypeDef.hpp"
 
+namespace mimmo{
+
 /*!
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -86,5 +88,7 @@ public:
 	
 	void		write(std::string filename);
 };
+
+}
 
 #endif /* __MIMMOOBJECT_HPP__ */

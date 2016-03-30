@@ -25,9 +25,8 @@
 #include "MiMMO_VTKInterfaces.hpp"
 
 using namespace std;
+using namespace mimmo;
 
-//*****************************************************************************************************************************
-// VTK_BASICMESH IMPLEMENTATION 
 /*
  *	\date			31/12/2015
  *	\authors		Gallizio Federico

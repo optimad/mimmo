@@ -25,9 +25,8 @@
 #include "customOperators.hpp"
 
 using namespace bitpit;
+using namespace mimmo;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//BasicShape IMPLEMENTATION 
 /*
  *	\date			03/01/2015
  *  \authors		Edoardo Lombardi

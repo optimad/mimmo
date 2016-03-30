@@ -28,9 +28,8 @@
 #include "MiMMO_VTKInterfaces.hpp"
 
 using namespace std;
+using namespace mimmo;
 
-//*****************************************************************************************************************************
-// USTRUCTMESH IMPLEMENTATION 
 /*
 *	\date			31/12/2015
 *	\authors		Edoardo Lombardi
