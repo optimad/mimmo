@@ -123,18 +123,8 @@ Lattice & Lattice::operator=(const Lattice & other){
 void Lattice::clearLattice(){
 	clear(); //base manipulation stuff clear
 	clearMesh(); // structured mesh cleaned
+	m_intMapDOF.clear();
 };
-
-/*! Get number of control nodes in each space direction.
- * \return Array of control nodes numbers in each direction
- */
-iarray3E		Lattice::getDimension(){
-	iarray3E dim;
-	dim[0] = m_nx + 1;
-	dim[1] = m_ny + 1;
-	dim[2] = m_nz + 1;
-	return(dim);
-}
 
 /*! Get the total number of control nodes.
  * \return Number of control nodes
@@ -143,7 +133,8 @@ double		Lattice::getNNodes(){
 	return(m_np);
 }
 
-/*! Return position of effective mesh nodes in the lattice, in absolute ref system 
+/*! Return position of effective mesh nodes in the lattice, in absolute ref system.
+ *  Reimplemented from UstructMesh::getGlobalCoords 
  * \return effective mesh nodes position 
  */
 dvecarr3E
@@ -159,7 +150,8 @@ Lattice::getGlobalCoords(){
 	return(coords);
 };
 
-/*! Return position of effective mesh nodes in the lattice, in absolute ref system 
+/*! Return position of effective mesh nodes in the lattice, in local shape ref system.
+ *  Reimplemented from UstructMesh::getLocalCoords. 
  * \return effective mesh nodes position 
  */
 dvecarr3E
@@ -177,7 +169,7 @@ Lattice::getLocalCoords(){
 
 /*! Find a corrispondent degree of freedom index of a lattice grid node
  * \param[in] index lattice grid global index
- * \param[out] result corrispondent DOF global index
+ * \return corrispondent DOF global index
  */
 int Lattice::accessDOFFromGrid(int index){
 	return(m_intMapDOF[index]);
@@ -185,7 +177,7 @@ int Lattice::accessDOFFromGrid(int index){
 
 /*! Find a corrispondent lattice grid index of a degree of freedom node
  * \param[in] index DOF global index
- * \param[out] result corrispondent lattice grid global index
+ * \return corrispondent lattice grid global index
  */
 int Lattice::accessGridFromDOF(int index){
 	return(posVectorFind(m_intMapDOF, index));
@@ -215,8 +207,8 @@ void		Lattice::plotCloud(std::string directory, std::string filename, int counte
 	UStructMesh::plotCloud(directory, filename, counter, binary, pnull);
 };
 
-/*! Given pointer to a reference geometry and, execute deformation w/ the current setup.
- * Result is stored in BaseManipulation IOData member m_result.
+/*! Build your mesh and create wrapped map of effective degree of freedom of the current lattice mesh.
+ *  Map is stored in internal member m_intMapDOF. Reimplemented from UstructMesh::execute();
  */
 void 		Lattice::execute(){
 	UStructMesh::execute();
