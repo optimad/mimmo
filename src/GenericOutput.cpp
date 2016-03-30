@@ -69,5 +69,7 @@ GenericOutput::setFilename(std::string filename){
  * happens in setInput.
  */
 void
-GenericOutput::execute(){};
+GenericOutput::execute(){
+	rename("output.txt", m_filename.c_str());
+};
 

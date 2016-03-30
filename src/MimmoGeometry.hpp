@@ -28,7 +28,7 @@
 
 namespace mimmo{
 
-enum FileType{STL};		/**Extension of file to read the geometry.*/
+enum FileType{/*!Binary stl.*/ STL};		/**Extension of file to read the geometry.*/
 
 /*!
  *	\date			30/mar/2016
@@ -45,11 +45,11 @@ class MimmoGeometry: public BaseManipulation{
 public:
 
 	FileType	m_type;			/**<Extension of file to read the geometry.*/
-	bool		m_read; 		/**< If true it reads the geometry from file during the execution.*/
-	std::string	m_rfilename;	/**< Name of file to read the geometry.*/
+	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
+	std::string	m_rfilename;	/**<Name of file to read the geometry (with extension).*/
 
-	bool		m_write; 		/**< If true it writes the geometry on file during the execution.*/
-	std::string	m_wfilename;	/**< Name of file to write the geometry.*/
+	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
+	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
 private:
 	bool		m_local;		/**<Is the geometry locally instantiated?.*/
@@ -80,7 +80,7 @@ public:
 	void		setWriteFilename(std::string filename);
 
 	bool		write();
-	void		read();
+	bool		read();
 
 	void 		execute();
 

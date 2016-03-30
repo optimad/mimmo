@@ -55,6 +55,7 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 /*!Assignement operator of MimmoGeometry.
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
+	m_type = other.m_type;
 	m_read = other.m_read;
 	m_rfilename = other.m_rfilename;
 	m_write = other.m_write;
@@ -180,6 +181,7 @@ MimmoGeometry::setFileType(FileType type){
 void
 MimmoGeometry::setFileType(int type){
 	m_type = static_cast<FileType>(type);
+
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -225,9 +227,11 @@ MimmoGeometry::write(){
 };
 
 /*!It reads the mesh geometry from an input file.
+ * \return False if file doesn't exists.
  */
-void
+bool
 MimmoGeometry::read(){
+
 	m_local = true;
 	//Local Instantiation of mimmo Object.
 	MimmoObject* mimmo0 = new MimmoObject();
@@ -240,7 +244,12 @@ MimmoGeometry::read(){
 		int		np,	nt;
 		darray3E point;
 		{
-			STLObj stl(m_rfilename+".stl", true);
+			{
+				std::ifstream infile(m_rfilename);
+				bool check = infile.good();
+				if (!check) return false;
+			}
+			STLObj stl(m_rfilename, true);
 			dvector2D V,N;
 			ivector2D T;
 			stl.load(np, nt, V, N, T);
@@ -254,14 +263,27 @@ MimmoGeometry::read(){
 		break;
 
 	}
+	return true;
 };
+
 
 /*!Execution command.
  * It writes the geometry if the condition m_write is true.
  */
 void
 MimmoGeometry::execute(){
-	if (m_read) read();
-	if (m_write) write();
+	bool check;
+	if (m_read) check = read();
+	if (!check){
+		std::cout << "MiMMO : ERROR : file not found : "<< m_rfilename << std::endl;
+		std::cout << " " << std::endl;
+		exit(10);
+	}
+	if (m_write) check = write();
+	if (!check){
+		std::cout << "MiMMO : ERROR : write not done : geometry not linked " << std::endl;
+		std::cout << " " << std::endl;
+		exit(11);
+	}
 }
 

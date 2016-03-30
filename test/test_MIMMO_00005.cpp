@@ -39,45 +39,21 @@ using namespace std::placeholders;
 
 void test0005() {
 
-//	//Creation of MiMMO container.
-//	MimmoObject mimmo0;
-//	//Input triangulation
-//	int		np,	nt;
-//	darray3E point;
-//	{
-//		//Import STL
-//		STLObj stl("geo_data/sphere2.stl", true);
-//
-//		dvector2D V,N;
-//		ivector2D T;
-//		stl.load(np, nt, V, N, T);
-//
-//		for (long ip=0; ip<np; ip++){
-//			point = conArray<double,3>(V[ip]);
-//			mimmo0.setVertex(point);
-//		}
-//		mimmo0.setConnectivity(&T);
-//		mimmo0.cleanGeometry();
-//	}
-//	//Write undeformed geometry
-	string filename = "mimmo_0005.0000";
-//	mimmo0.m_geometry->setName(filename);
-//	mimmo0.m_geometry->write();
+
 
 
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
 	geometry->setFileType(0);
-	geometry->setReadFilename("geo_data/sphere2");
+	geometry->setReadFilename("geo_data/sphere2.stl");
 	geometry->setWrite(true);
+	string filename = "mimmo_0005.0000";
 	geometry->setWriteFilename(filename);
 
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
-	//Set lattice
-//	lattice->setGeometry(&mimmo0);
 
 	//Set Inputs with Shape and Mesh Info
 	darray3E origin = {0.0, 0.0, 0.0};
@@ -171,7 +147,6 @@ void test0005() {
 
 	//create applier
 	Apply* applier = new Apply();
-//	applier->setGeometry(&mimmo0);
 
 	//Set PINS
 	cout << "set pins" << endl;
@@ -212,6 +187,7 @@ void test0005() {
 	//Create chain
 	Chain ch0;
 	cout << "add inputs and objects to the chain" << endl;
+	ch0.addObject(inputname);
 	ch0.addObject(inputorig);
 	ch0.addObject(geometry);
 	ch0.addObject(lattice);
@@ -223,16 +199,10 @@ void test0005() {
 	ch0.addObject(mesh);
 	ch0.addObject(inputdeg);
 	ch0.addObject(rotation);
-	ch0.addObject(inputname);
 	ch0.addObject(input);
 	ch0.addObject(mask);
 	ch0.addObject(translation);
 	ch0.addObject(output);
-
-	//Print ids and name of objects in the chain
-	for (int i=0; i<ch0.getNObjects(); i++){
-		cout << ch0.getName(i) << " has id : " << ch0.getID(i) << endl;
-	}
 
 	//Execution of chain
 	cout << "execution start" << endl;
@@ -244,9 +214,8 @@ void test0005() {
 	//Plot results
 	lattice->plotGrid("./", "lattice_0005", 0, false, false);
 	lattice->plotGrid("./", "lattice_0005", 1, false, true);
+
 	filename = "mimmo_0005.0001";
-//	mimmo0.m_geometry->setName(filename);
-//	mimmo0.m_geometry->write();
 	geometry->setWriteFilename(filename);
 	geometry->write();
 
