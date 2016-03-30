@@ -30,6 +30,10 @@
 
 namespace mimmo{
 
+
+enum class ShapeType{CUBE, CYLINDER, SPHERE};	 /**< type of possible shape available */
+enum class CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment available */
+
 /*!
  *	\date			03/01/2015
  *	\authors		Edoardo Lombardi
@@ -46,10 +50,6 @@ namespace mimmo{
  *  3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
  *   
  */
-
-enum class ShapeType{CUBE, CYLINDER, SPHERE};	 /**< type of possible shape available */
-enum class CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment available */
-
 class BasicShape {
 
 protected:
