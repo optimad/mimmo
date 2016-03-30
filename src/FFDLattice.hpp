@@ -79,8 +79,8 @@ public:
 	void		setDegrees(iarray3E curveDegrees);
 	void 		setDisplacements(dvecarr3E displacements);
 	void 		setDisplGlobal(bool flag);
-	void 		setLattice(darray3E & origin, darray3E & span, BasicShape::ShapeType, iarray3E & dimensions, iarray3E & degrees);
-	void 		setLattice(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing, iarray3E & degrees);
+	void 		setLattice(darray3E & origin, darray3E & span, ShapeType, iarray3E & dimensions, iarray3E & degrees);
+	void 		setLattice(darray3E & origin, darray3E & span, ShapeType, dvector1D & spacing, iarray3E & degrees);
 	void 		setLattice(BasicShape *, iarray3E & dimensions,  iarray3E & degrees);
 	void 		setLattice(BasicShape *, dvector1D & spacing,iarray3E & degrees);
 	
@@ -119,7 +119,7 @@ private:
 	//knots mantenaince utilities
 	void 		clearKnots();
 	void 		setKnotsStructure();
-	void 		setKnotsStructure(int dir, BasicShape::CoordType type);
+	void 		setKnotsStructure(int dir, CoordType type);
 	int  		getKnotInterval(double, int);
 	double 		getKnotValue(int, int);
 	int 		getKnotIndex(int,int);

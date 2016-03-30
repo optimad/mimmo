@@ -55,55 +55,6 @@ FFDLattice::FFDLattice(){
 	m_name = "MiMMO.FFDlattice";
 };
 
-///*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
-// *
-// * \param[in] origin point origin in global reference system
-// * \param[in] span span for each shape coordinate in space (local r.s.)
-// * \param[in] type BasicShape::ShapeType enum identifies the shape
-// * \param[in] dimensions number of control nodes for each direction
-// * \param[in] degrees   curve degrees for each direction;
-// */
-//FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions,
-//						ivector1D & degrees):FFDLattice(){
-//	setMesh(origin, span, type, dimensions, degrees);
-//};
-//
-///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
-// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
-// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
-// *
-// * \param[in] origin point origin in global reference system
-// * \param[in] span span for each shape coordinate in space (local r.s.)
-// * \param[in] type BasicShape::ShapeType enum identifies the shape
-// * \param[in] dimensions number of control nodes for each direction
-// */
-//FFDLattice::FFDLattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions
-//					   ):FFDLattice(){
-//	   setMesh(origin, span, type, dimensions);
-//};
-//
-///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
-// *
-// * \param[in] shape pointer to an external BasicShape object
-// * \param[in] dimensions number of control nodes for each direction
-// * \param[in] degrees   curve degrees for each direction;
-// */
-//FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions, ivector1D & degrees):FFDLattice(){
-//	setMesh(shape, dimensions, degrees);
-//};
-//
-///*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
-// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
-// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
-// *
-// * \param[in] shape pointer to an external BasicShape object
-// * \param[in] dimensions number of control nodes for each direction
-// *
-// */
-//FFDLattice::FFDLattice(BasicShape * shape, ivector1D &dimensions):FFDLattice(){
-//	setMesh(shape, dimensions);
-//};
-
 /*! Destructor */
 FFDLattice::~FFDLattice(){};
 
@@ -142,7 +93,7 @@ void FFDLattice::clearLattice(){
 
 /*! Return a vector of six elements reporting the real number of knots effectively stored in the current class (first 3 elements)
  * and the theoretical number of knots (last 3 elements) for Nurbs representation (see Nurbs Books of Peigl)
- * \param[out] result six element vector
+ * \return six element vector
  */
 ivector1D 	FFDLattice::getKnotsDimension(){
 	ivector1D res(6,0);
@@ -249,11 +200,11 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
  * 
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
+ * \param[in] type ShapeType enum identifies the shape
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
  */
-void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeType type, iarray3E & dimensions, iarray3E & degrees){
+void FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, iarray3E & dimensions, iarray3E & degrees){
 	
 	if(m_shape){m_shape.release();}
 	
@@ -273,21 +224,21 @@ void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeT
  *
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
- * \param[in] type BasicShape::ShapeType enum identifies the shape
+ * \param[in] type ShapeType enum identifies the shape
  * \param[in] spacing define spacing step for each lattice dimension
  * \param[in] degrees   curve degrees for each direction;
  */
-void FFDLattice::setLattice(darray3E &origin,darray3E & span, BasicShape::ShapeType type, dvector1D & spacing, iarray3E & degrees ){
+void FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, dvector1D & spacing, iarray3E & degrees ){
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
 	if(m_shape){m_shape.release();}
 	
 	switch(type){
-		case BasicShape::ShapeType::CYLINDER :
+		case ShapeType::CYLINDER :
 			dimLimit[1] = 5;
 			break;
-		case BasicShape::ShapeType::SPHERE :
+		case ShapeType::SPHERE :
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
@@ -340,8 +291,8 @@ void FFDLattice::setLattice(BasicShape * shape, iarray3E & dimensions, iarray3E 
  *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications. 
  *   
  * \param[in] shape pointer to an external BasicShape object
- * \param[in] dimensions number of control nodes for each direction
- *
+ * \param[in] spacing define spacing step for each lattice dimension
+ * \param[in] degrees   curve degrees for each direction;
  */
 void FFDLattice::setLattice(BasicShape * shape, dvector1D & spacing, iarray3E & degrees){
 	
@@ -350,10 +301,10 @@ void FFDLattice::setLattice(BasicShape * shape, dvector1D & spacing, iarray3E & 
 	if(m_shape){m_shape.release();}
 	
 	switch(shape->getShapeType()){
-		case BasicShape::ShapeType::CYLINDER :
+		case ShapeType::CYLINDER :
 			dimLimit[1] = 5;
 			break;
-		case BasicShape::ShapeType::SPHERE :
+		case ShapeType::SPHERE :
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
 		default://CUBE
@@ -504,7 +455,7 @@ void 		FFDLattice::execute(){
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
  * \param[in] point coordinate of the points 
- * \param[out] result point displacement 
+ * \return point displacement 
  */
 darray3E 	FFDLattice::apply(darray3E & point){
 	darray3E result;
@@ -515,8 +466,8 @@ darray3E 	FFDLattice::apply(darray3E & point){
 
 /*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class 
  * (see method getGeometry).If MimmoObject member m_geometry is NULL,return void results. 
- * \param[out] result list of non-zero displacement of m_geometry vertices 
- * \param[out] map list of ids of non-zero displaced vertex belonging to geometry
+ * \param[out] list list of non-zero displacement of m_geometry vertices 
+ * \return list of ids of non-zero displaced vertex belonging to geometry
  */
 dvecarr3E 	FFDLattice::apply(livector1D & list){
 	
@@ -536,7 +487,7 @@ dvecarr3E 	FFDLattice::apply(livector1D & list){
 /*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed, 
  *  diplacement of the others will be set to zero. If point list is NULL,return void results. 
  * \param[in] point pointer to a list of 3D points. 
- * \param[out] result displacements of points 
+ * \return displacements of points 
  */
 dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	
@@ -556,7 +507,8 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 
 /*! Convert a target displacement (expressed in local shape ref frame) in XYZ frame
  *	\param[in] target  target displacement
- * 	\param[out] result displacement in xyz ref frame
+ *  \param[in] i reference displacement index
+ * 	\return displacement in xyz ref frame
  */
 darray3E FFDLattice::convertDisplToXYZ(darray3E & target, int i){
 	
@@ -571,8 +523,7 @@ darray3E FFDLattice::convertDisplToXYZ(darray3E & target, int i){
 };
 
 /*! Convert and return all target displacements (expressed in local shape ref frame) in XYZ frame
- *	\param[in] target  target displacement
- * 	\param[out] result displacement in xyz ref frame
+ *	\return displacement in xyz ref frame
  */
 dvecarr3E FFDLattice::convertDisplToXYZ(){
 	
@@ -588,7 +539,7 @@ dvecarr3E FFDLattice::convertDisplToXYZ(){
 
 /*! Return displacement of a given point, under the deformation effect of the whole Lattice. 
  * \param[in] coord 3D point
- * \param[out] result displacement  
+ * \return displacement  
  */
 darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 	
@@ -924,7 +875,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 	
 	switch(getCoordType(dir))
 	{
-		case BasicShape::CoordType::PERIODIC :
+		case CoordType::PERIODIC :
 			nn = dim+m_deg[dir]-1;
 			result.resize(nn);
 			dKn = span/(dim-1);
@@ -937,7 +888,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 			}
 			break;
 
-		case BasicShape::CoordType::SYMMETRIC :
+		case CoordType::SYMMETRIC :
 			nn = dim+m_deg[dir]-1;
 			result.resize(nn);
 			dKn = span/(dim-1);
@@ -950,7 +901,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 			}
 			break;
 			
-		case BasicShape::CoordType::CLAMPED :
+		case CoordType::CLAMPED :
 			nn = dim;
 			result.resize(nn);
 			dKn = span/(dim-1);
@@ -959,7 +910,7 @@ dvector1D	FFDLattice::getNodeSpacing(int dir){
 			}
 			break;
 
-		case BasicShape::CoordType::UNCLAMPED :
+		case CoordType::UNCLAMPED :
 			nn = dim;
 			result.resize(nn);
 			dKn = span/(dim-1);
@@ -1004,7 +955,7 @@ void 		FFDLattice::setKnotsStructure(){
  * \param[in] dir int identifier
  * \param[in] flag identifies a closed periodic curve (true) or a clamped one (false)
  */
-void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
+void 		FFDLattice::setKnotsStructure(int dir,CoordType type){
 	
 	//recover number of node for direction dir;
 	iarray3E dim = getDimension();
@@ -1020,7 +971,7 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 	
 	switch(type){
 		//clamped curve structure 
-		case BasicShape::CoordType::CLAMPED :
+		case CoordType::CLAMPED :
 			
 			m_deg[dir] = min(m_deg[dir], nn-1);
 			kEff = nn - m_deg[dir] + 1;
@@ -1048,7 +999,7 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 			}
 			break;
 			
-		case BasicShape::CoordType::PERIODIC :
+		case CoordType::PERIODIC :
 			
 			m_deg[dir] = min(m_deg[dir], nn-1);
 			nEff = nn + m_deg[dir] - 1;
@@ -1084,7 +1035,7 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 			}
 			break;
 
-		case BasicShape::CoordType::SYMMETRIC :
+		case CoordType::SYMMETRIC :
 			
 			m_deg[dir] = min(m_deg[dir], nn-1);
 			nEff = nn + m_deg[dir]-1;
@@ -1121,7 +1072,7 @@ void 		FFDLattice::setKnotsStructure(int dir,BasicShape::CoordType type){
 			break;			
 			
 			
-		case BasicShape::CoordType::UNCLAMPED :
+		case CoordType::UNCLAMPED :
 			
 			m_deg[dir] = min(m_deg[dir], nn-1);
 			kEff = nn - m_deg[dir] + 1;
@@ -1257,7 +1208,7 @@ void FFDLattice::setMapNodes( int ind){
 		m_mapNodes[ind].clear();
 
 		switch(getCoordType(ind)){
-			case BasicShape::CoordType::PERIODIC :
+			case CoordType::PERIODIC :
 				
 				nn = dimdir+m_deg[ind]-1;
 				m_mapNodes[ind].resize(nn+1);
@@ -1282,7 +1233,7 @@ void FFDLattice::setMapNodes( int ind){
 				}
 			break;
 				
-			case BasicShape::CoordType::SYMMETRIC :
+			case CoordType::SYMMETRIC :
 				
 				nn = dimdir+m_deg[ind]-1;
 				m_mapNodes[ind].resize(nn+1);

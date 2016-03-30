@@ -52,7 +52,7 @@ VTK_BASICMESH::VTK_BASICMESH(){
  * \param[in] cod_  output codex: "ascii" or "appended"
  * \param[in] nP_   number of points in your mesh
  * \param[in] nC_   number of cells in your mesh
- * \param[in] nConn connectivity leading dimension, as sequential vector (in general 8*nC_)
+ * \param[in] nConn_ connectivity leading dimension, as sequential vector (in general 8*nC_)
  */ 
 VTK_BASICMESH::VTK_BASICMESH(std::string dir_, std::string name_,bitpit::VTKFormat cod_, int nP_, int nC_, int nConn_):
 VTKUnstructuredGrid(dir_, name_)

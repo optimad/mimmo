@@ -57,7 +57,7 @@ BasicShape::BasicShape(){
 		m_sdr[i].fill(0.0);
 	}
 	m_sdr[0][0] = m_sdr[1][1] = m_sdr[2][2] = 1.0;
-	m_typeCoord.fill(BasicShape::CoordType::CLAMPED);
+	m_typeCoord.fill(CoordType::CLAMPED);
 	m_scaling.fill(1.0);
 };
 
@@ -122,7 +122,7 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 }
 
 /*! Set new axis orientation of the local reference system
- * \param[in] int 0,1,2 identify local x,y,z axis of the primitive shape
+ * \param[in] label 0,1,2 identify local x,y,z axis of the primitive shape
  * \param[in] axis new direction of selected local axis.
  */
 void BasicShape::setRefSystem(int label, darray3E axis){
@@ -154,10 +154,10 @@ void BasicShape::setRefSystem(dmatrix33E axes){
 }
 
 /*! Set type to treat your shape coordinates. 
- * \param[in] type BasicShape::CoordType enum.
+ * \param[in] type CoordType enum.
  * \param[in] dir  0,1,2 int flag identifying coordinate
  */
-void BasicShape::setCoordinateType(BasicShape::CoordType type, int dir){
+void BasicShape::setCoordinateType(CoordType type, int dir){
 	m_typeCoord[dir] = type;
 }
 
@@ -194,23 +194,23 @@ dmatrix33E BasicShape::getRefSystem(){
 	return(m_sdr);
 }
 
-/*! Return type of your current shape coordinate "dir". See BasicShape::CoordType enum 
+/*! Return type of your current shape coordinate "dir". See CoordType enum 
  * \param[in] dir   0,1,2 int flag identifying coordinate
  */
-BasicShape::CoordType BasicShape::getCoordinateType(int dir){
+CoordType BasicShape::getCoordinateType(int dir){
 	return(m_typeCoord[dir]);
 }
 /*! Get current type of shape instantiated
- * \return BasicShape::ShapeType enum
+ * \return ShapeType enum
  */
-BasicShape::ShapeType BasicShape::getShapeType(){
+ShapeType BasicShape::getShapeType(){
 	return(m_shape);
 };
 
 /*! Get current type of shape instantiated. Const method overloading
- * \return const BasicShape::ShapeType enum
+ * \return const ShapeType enum
  */
-const BasicShape::ShapeType BasicShape::getShapeType() const {
+const ShapeType BasicShape::getShapeType() const {
 	return(m_shape);
 };
 
@@ -317,7 +317,7 @@ livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points inside the volume of
  * the BasicShape object  
- * \param[in] list list of cloud points
+ * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-indices of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
@@ -339,7 +339,7 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points outside the volume of
  * the BasicShape object  
- * \param[in] list list of cloud points
+ * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-indices of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
@@ -443,7 +443,7 @@ Cube::Cube(){
 
  /*! Custom Constructor. Set shape origin and its span,
   * ordered as width, height and depth. 
-   * \param[in] origin_ point origin in global reference system
+   * \param[in] origin point origin in global reference system
    * \param[in] span span in each shape local coordinate x,y,z;
    */
  Cube::Cube(darray3E &origin, darray3E & span): Cube(){
@@ -603,7 +603,7 @@ Cylinder::Cylinder(){
 
 /*! Custom Constructor. Set shape origin and its dimensions, 
  * ordered as basis radius, azimuthal/tangential coordinate and height. 
- * \param[in] origin_ point origin in global reference system
+ * \param[in] origin point origin in global reference system
  * \param[in] span  characteristic dimension of your cylinder;
  */
 Cylinder::Cylinder(darray3E &origin, darray3E & span): Cylinder(){
@@ -740,7 +740,7 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
 	double thetalim = 8.0* std::atan(1.0);
 	s1 = std::min(s1, thetalim);
 	//check closedLoops;
-	if(!(s1 < thetalim)){setCoordinateType(BasicShape::CoordType::PERIODIC,1);}
+	if(!(s1 < thetalim)){setCoordinateType(CoordType::PERIODIC,1);}
 };
 
 /*! Check if your coords origin values fit your current shape set up
@@ -793,8 +793,8 @@ Sphere::Sphere(){
 
 /*! Custom Constructor. Set shape originand its dimensions, 
  * ordered as overall radius, azimuthal/tangential coordinate, polar coordinate. 
- * \param[in] origin_ point origin in global reference system
- * \param[in] limits inf/sup limit for each shape coordinate;
+ * \param[in] origin point origin in global reference system
+ * \param[in] span  characteristic dimension of your sphere/ portion of;
  */
 Sphere::Sphere(darray3E &origin, darray3E & span): Sphere(){
 	
@@ -937,7 +937,7 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	s2 = std::min(s2, maxS2);
 	
 	//check closedLoops;
-	if(!(s1 < thetalim)){setCoordinateType(BasicShape::CoordType::PERIODIC,1);}
+	if(!(s1 < thetalim)){setCoordinateType(CoordType::PERIODIC,1);}
 	
 };
 

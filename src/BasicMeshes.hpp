@@ -49,11 +49,19 @@ namespace mimmo{
 class UStructMesh{
 
 protected:
-	std::unique_ptr<BasicShape>	m_shape;	/**!< unique pointer to BasicShape core of the mesh, for Internal USE*/
-	double				m_dx, m_dy, m_dz;	/**< Mesh spacing in each direction */
-	int					m_nx, m_ny, m_nz;	/**< Mesh number of cells in each direction */
-	dvector1D 	m_xnode, m_ynode, m_znode; 	/**< Lists holding the center cells coordinates of the mesh, in local reference sistem */
-	dvector1D 	m_xedge, m_yedge, m_zedge; 	/**< Lists holding the point coordinates of the mesh, in local reference system */
+	std::unique_ptr<BasicShape>	m_shape;	/**< unique pointer to BasicShape core of the mesh, for Internal USE*/
+	double				m_dx;	/**< Mesh spacing in x direction */
+	double				m_dy;	/**< Mesh spacing in y direction */
+	double 				m_dz;	/**< Mesh spacing in z direction */
+	int					m_nx;	/**< Mesh number of cells in x direction */
+	int 				m_ny;	/**< Mesh number of cells in y direction */
+	int 				m_nz;	/**< Mesh number of cells in z direction */
+	dvector1D 	m_xnode;	/**< Lists holding the x-center cells coordinate of the mesh, in local reference sistem */
+	dvector1D	m_ynode;	/**< Lists holding the y-center cells coordinate of the mesh, in local reference sistem */
+	dvector1D	m_znode; 	/**< Lists holding the z-center cells coordinate of the mesh, in local reference sistem */
+	dvector1D 	m_xedge; 	/**< Lists holding the x-point coordinate of the mesh, in local reference system */
+	dvector1D	m_yedge; 	/**< Lists holding the y-point coordinate of the mesh, in local reference system */
+	dvector1D	m_zedge; 	/**< Lists holding the z-point coordinate of the mesh, in local reference system */
 
 	bool					m_setorigin;		/**< True if origin has been set and a shape is not available yet */
 	bool					m_setspan;			/**< True if span has been set and a shape is not available yet */
@@ -66,7 +74,7 @@ private:
 	darray3E				m_span_temp;			
 	darray3E				m_inflimits_temp;
 	dmatrix33E				m_refsystem_temp;
-	BasicShape::ShapeType	m_shapetype_temp;
+	ShapeType	m_shapetype_temp;
 
 public:	     
 	//Building stuffs	    
@@ -87,13 +95,13 @@ public:
 	dmatrix33E				getRefSystem();
 	darray3E				getScaling();
 	darray3E				getLocalSpan();
-	BasicShape::ShapeType	getShapeType();
-	BasicShape::CoordType	getCoordType(int);
-	BasicShape::CoordType	getCoordTypex();
-	BasicShape::CoordType	getCoordTypey();
-	BasicShape::CoordType	getCoordTypez();
+	ShapeType	getShapeType();
+	CoordType	getCoordType(int);
+	CoordType	getCoordTypex();
+	CoordType	getCoordTypey();
+	CoordType	getCoordTypez();
 
-	std::array<BasicShape::CoordType,3>	getCoordType();
+	std::array<CoordType,3>	getCoordType();
 	
 	darray3E 				getSpacing();
 	iarray3E				getDimension();
@@ -127,19 +135,19 @@ public:
 	void	setDimension(ivector1D dim);
 	void	setDimension(iarray3E dim);
 
-	void 	setShape(BasicShape::ShapeType type = BasicShape::ShapeType::CUBE);
+	void 	setShape(ShapeType type = ShapeType::CUBE);
 	void 	setShape(int itype = 0);
 	void 	setShape(const BasicShape *);
 
-	void	setCoordType(BasicShape::CoordType,int);
-	void 	setCoordTypex(BasicShape::CoordType);
-	void 	setCoordTypey(BasicShape::CoordType);
-	void 	setCoordTypez(BasicShape::CoordType);
+	void	setCoordType(CoordType,int);
+	void 	setCoordTypex(CoordType);
+	void 	setCoordTypey(CoordType);
+	void 	setCoordTypez(CoordType);
 	
-	void	setCoordType(std::array<BasicShape::CoordType,3>);
+	void	setCoordType(std::array<CoordType,3>);
 	
-	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, iarray3E & dimensions);
-	void 	setMesh(darray3E & origin, darray3E & span, BasicShape::ShapeType, dvector1D & spacing);
+	void 	setMesh(darray3E & origin, darray3E & span, ShapeType, iarray3E & dimensions);
+	void 	setMesh(darray3E & origin, darray3E & span, ShapeType, dvector1D & spacing);
 	void 	setMesh(BasicShape *, iarray3E & dimensions);
 	void 	setMesh(BasicShape *, dvector1D & spacing);
 
@@ -196,7 +204,7 @@ protected:
  * \param[in] i x cartesian index
  *\param[in] j y cartesian index
  *\param[in] k z cartesian index
- *\param[out] result global index
+ *\return global index
  */
 inline int  UStructMesh::accessPointIndex(int i, int j, int k){
 	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;

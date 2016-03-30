@@ -45,11 +45,7 @@ namespace mimmo{
 /*!
  *	\date			31/12/2015
  *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
  *
  *	\brief Class for VTK Output of structured grids  
  *
@@ -74,11 +70,7 @@ public:
 /*!
  *	\date			31/12/2015
  *	\authors		Gallizio Federico
- * 	\authors 		Amos Tori
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *	This class version is released under .
  *
  *	\brief Class for VTK Output of Cloud points 
  *

@@ -84,9 +84,9 @@ void test0003() {
 	deg[2] = 2;
 
 	//set lattice
-	lattice->setLattice(origin,span,BasicShape::ShapeType::SPHERE,dim, deg);
+	lattice->setLattice(origin,span,ShapeType::SPHERE,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,1,0});
-	lattice->setCoordType(BasicShape::CoordType::CLAMPED, 2);
+	lattice->setCoordType(CoordType::CLAMPED, 2);
 	lattice->setGeometry(&mimmo0);
 
 	//Set Input with Init Displacements

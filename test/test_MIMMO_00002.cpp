@@ -84,7 +84,7 @@ void test0002() {
 	deg[2] = 10;
 
 	//set lattice
-	lattice->setLattice(origin,span,BasicShape::ShapeType::CYLINDER,dim, deg);
+	lattice->setLattice(origin,span,ShapeType::CYLINDER,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,-1,0});
 	lattice->setGeometry(&mimmo0);
 
@@ -135,7 +135,7 @@ void test0002() {
 	deg[2] = 2;
 
 	//set lattice
-	lattice2->setLattice(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+	lattice2->setLattice(origin,span,ShapeType::CUBE,dim, deg);
 	//Set geometry
 	lattice2->setGeometry(&mimmo0);
 

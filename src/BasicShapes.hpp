@@ -34,8 +34,6 @@ namespace mimmo{
  *	\date			03/01/2015
  *	\authors		Edoardo Lombardi
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
  *
  *	\brief Abstract Interface class for Elementary Shape Representation
  *
@@ -48,12 +46,11 @@ namespace mimmo{
  *  3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
  *   
  */
- 
-class BasicShape {
 
-public:
-	enum ShapeType{CUBE, CYLINDER, SPHERE}; /**< type of possible shape in your class */
-	enum CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment */
+enum class ShapeType{CUBE, CYLINDER, SPHERE};	 /**< type of possible shape available */
+enum class CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment available */
+
+class BasicShape {
 
 protected:
 	ShapeType	m_shape; 		/**< shape identifier, see BasicShape::ShapeType enum */
@@ -105,8 +102,11 @@ public:
     bool		isPointIncluded(darray3E);
 	bool		isPointIncluded(bitpit::PatchKernel * , long int indexV);
 	
+	/*! pure virtual method to convert from Local to World Coordinates*/
 	virtual	darray3E	toWorldCoord(darray3E & point)=0;
+	/*! pure virtual method to convert from World to Local Coordinates*/
 	virtual	darray3E	toLocalCoord(darray3E & point)=0;
+	/*! pure virtual method to get local Coordinate inferior limits of primitive shape*/
 	virtual darray3E	getLocalOrigin()=0;  
 
 private:	
@@ -121,8 +121,6 @@ private:
  *	\date			03/01/2015
  *	\authors		Edoardo Lombardi
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
  *
  *	\brief Elementary Shape Representation of a Cube
  *
@@ -160,8 +158,6 @@ private:
  *	\date			03/01/2015
  *	\authors		Edoardo Lombardi
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
  *
  *	\brief Elementary Shape Representation of a Cylinder or portion of it
  *
@@ -198,8 +194,6 @@ private:
  *	\date			03/01/2015
  *	\authors		Edoardo Lombardi
  *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
  *
  *	\brief Elementary Shape Representation of a Sphere or portion of it
  *

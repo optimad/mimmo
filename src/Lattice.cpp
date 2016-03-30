@@ -52,55 +52,6 @@ Lattice::Lattice(){
 	m_name = "MiMMO.Lattice";
 };
 
-///*! Custom constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
-// *
-// * \param[in] origin point origin in global reference system
-// * \param[in] span span for each shape coordinate in space (local r.s.)
-// * \param[in] type BasicShape::ShapeType enum identifies the shape
-// * \param[in] dimensions number of control nodes for each direction
-// * \param[in] degrees   curve degrees for each direction;
-// */
-//Lattice::Lattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions,
-//						ivector1D & degrees):Lattice(){
-//	setMesh(origin, span, type, dimensions, degrees);
-//};
-//
-///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
-// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
-// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
-// *
-// * \param[in] origin point origin in global reference system
-// * \param[in] span span for each shape coordinate in space (local r.s.)
-// * \param[in] type BasicShape::ShapeType enum identifies the shape
-// * \param[in] dimensions number of control nodes for each direction
-// */
-//Lattice::Lattice(darray3E &origin, darray3E & span, BasicShape::ShapeType type, ivector1D &dimensions
-//					   ):Lattice(){
-//	   setMesh(origin, span, type, dimensions);
-//};
-//
-///*! Custom Constructor.Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
-// *
-// * \param[in] shape pointer to an external BasicShape object
-// * \param[in] dimensions number of control nodes for each direction
-// * \param[in] degrees   curve degrees for each direction;
-// */
-//Lattice::Lattice(BasicShape * shape, ivector1D &dimensions, ivector1D & degrees):Lattice(){
-//	setMesh(shape, dimensions, degrees);
-//};
-//
-///*! Set lattice mesh, dimensions and curve degree for Rational Bezier trivariate parameterization.
-// *  Knots structure is built with curve degrees as in case of a Pure Bezier Volumetric
-// *  Parameterization, that is degX = nx-1, degY = ny-1, degZ=nz-1.
-// *
-// * \param[in] shape pointer to an external BasicShape object
-// * \param[in] dimensions number of control nodes for each direction
-// *
-// */
-//Lattice::Lattice(BasicShape * shape, ivector1D &dimensions):Lattice(){
-//	setMesh(shape, dimensions);
-//};
-
 /*! Destructor */
 Lattice::~Lattice(){};
 
@@ -244,7 +195,7 @@ void 		Lattice::resizeMapDof(){
 	int i0,i1,i2;
 	switch(getShapeType()){
 
-		case BasicShape::ShapeType::CYLINDER :
+		case ShapeType::CYLINDER :
 			target=0;
 			while(itMap != itMapEnd){
 
@@ -266,7 +217,7 @@ void 		Lattice::resizeMapDof(){
 			}
 			break;
 
-		case BasicShape::ShapeType::SPHERE :
+		case ShapeType::SPHERE :
 
 			target = 0;
 			while(itMap != itMapEnd){
@@ -305,7 +256,7 @@ void 		Lattice::resizeMapDof(){
 			break;
 
 
-		case BasicShape::ShapeType::CUBE :
+		case ShapeType::CUBE :
 			target = 0;
 			while(itMap != itMapEnd){
 
@@ -332,19 +283,19 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
 	double dval;
 	switch(getShapeType()){
 
-		case BasicShape::ShapeType::CYLINDER :
+		case ShapeType::CYLINDER :
 			delta += nz;
 			nx--;
-			if(getCoordType(1) == BasicShape::CoordType::PERIODIC)	ny--;
+			if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 
 			info.push_back(true);
-			info.push_back(getCoordType(1) == BasicShape::CoordType::PERIODIC);
+			info.push_back(getCoordType(1) == CoordType::PERIODIC);
 			break;
 
-		case BasicShape::ShapeType::SPHERE :
+		case ShapeType::SPHERE :
 			delta ++;
 			nx--;
-			if(getCoordType(1) == BasicShape::CoordType::PERIODIC)	ny--;
+			if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 			dval = getInfLimits()[2];
 			if(dval == 0.0)	{
 				nz--;
@@ -356,7 +307,7 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
 			}
 
 			info.push_back(true);
-			info.push_back(getCoordType(1) == BasicShape::CoordType::PERIODIC);
+			info.push_back(getCoordType(1) == CoordType::PERIODIC);
 			info.push_back(dval==0.0);
 			info.push_back((dval + getLocalSpan()[2]) == M_PI);
 			break;

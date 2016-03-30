@@ -82,7 +82,7 @@ void test0001() {
 	deg[1] = 2;
 	deg[2] = 2;
 
-	lattice->setLattice(origin,span,BasicShape::ShapeType::CUBE,dim, deg);
+	lattice->setLattice(origin,span,ShapeType::CUBE,dim, deg);
 	lattice->setGeometry(&mimmo0);
 
 	//Set Input with Init Displacements
