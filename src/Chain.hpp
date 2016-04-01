@@ -88,21 +88,36 @@ private:
 
 public:
 	//dof/out methods
-	template<typename T, typename C>
-	int addDofInput(BaseManipulation* obj, T (C::*fget) ());
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T (C::*fget) ());
 
-	template<typename T, typename C>
-	int addDofInput(BaseManipulation* obj, T* (C::*fget) ());
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T* (C::*fget) ());
 
-	template<typename T, typename C>
-	int addDofInput(BaseManipulation* obj, T (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
 
-	template<typename T, typename C>
-	int addDofInput(BaseManipulation* obj, T* (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T* (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
+
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T (C::*fget) (), std::vector<bool> map = std::vector<bool>(0));
+
+	template<typename T, typename C, typename O>
+	int addDofInput(O* obj, T* (C::*fget) (), std::vector<bool> map = std::vector<bool>(0));
 
 	void setNdof(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
 
+	template<typename T, typename C, typename O>
+	int activateDof(O* obj, T* (C::*fget) (), int i);
+
+	void activateDof(int i, int j);
+	void disableDof(int i, int j);
+
 	int getNdof();
+
+	dvector1D getDof();
+	double getDof(int i);
 
 };
 

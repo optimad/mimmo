@@ -281,7 +281,8 @@ Chain::checkLoops(){
 
 //DOF/OUT METHODS
 
-void Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
+void
+Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
 	if (i>m_dof.size()) return;
 	m_dof[i]->m_nglob = nglob;
 	m_dof[i]->m_nuse = nuse;
@@ -289,12 +290,44 @@ void Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
 	m_dof[i]->m_actives = map;
 }
 
+void
+Chain::activateDof(int i, int j){
+	if (i>m_dof.size()) return;
+	if (j>m_dof[i]->getNgdof()) return;
+	m_dof[i]->m_actives[j] = true;
+}
 
-int Chain::getNdof(){
+void
+Chain::disableDof(int i, int j){
+	if (i>m_dof.size()) return;
+	if (j>m_dof[i]->getNgdof()) return;
+	m_dof[i]->m_actives[j] = false;
+}
+
+int
+Chain::getNdof(){
 	int n=0;
 	for (int i=0; i<m_dof.size(); i++){
 		n += m_dof[i]->getNuse();
 	}
+	return n;
+}
+
+dvector1D
+Chain::getDof(){
+	dvector1D dofs, idofs;
+	int ninput = m_dof.size();
+	for (int i=0; i<ninput; i++){
+		idofs = m_dof[i]->getDof();
+		dofs.insert(dofs.end(), idofs.begin(), idofs.end());
+	}
+	return dofs;
+}
+
+double
+Chain::getDof(int i){
+	dvector1D dofs = getDof();
+	return dofs[i];
 }
 
 

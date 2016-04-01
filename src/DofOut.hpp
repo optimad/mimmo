@@ -41,11 +41,10 @@ class BaseManipulation;
  *
  */
 class DofOut{
-
+public:
 	//friendship declaration
 	friend class Chain;
 
-private:
 	//members
 	BaseManipulation*	m_obj;		/**<InputDOF/Output object from/to which
 										recover/give the target variables.*/
@@ -53,7 +52,6 @@ private:
 	int					m_nuse;		/**<Number of variables to be used as dof/output.*/
 	std::vector<bool>	m_actives;	/**<List of true/false to map the variables to be used as dof/output.*/
 
-public:
 	DofOut();
 	~DofOut();
 
@@ -61,9 +59,11 @@ public:
 	DofOut & operator=(const DofOut & other);
 	bool operator==(const DofOut & other);
 
-private:
 	BaseManipulation*	getLink();
+	int					getNgdof();
 	int					getNuse();
+
+	virtual dvector1D	getDof() = 0;
 
 };
 
@@ -80,27 +80,34 @@ private:
  *
  *
  */
-template<typename T, typename C>
+template<typename T, typename C, typename O>
 class DofOutT: public DofOut {
 public:
+	//friendship declaration
+	friend class Chain;
 
 	std::function<T(void)>	m_getVal;	/**<Pointer to get function with copy return.*/
 	std::function<T*(void)>	m_getValP;	/**<Pointer to get function with pointer return.*/
 
 	DofOutT();
-	DofOutT(BaseManipulation* obj, T (C::*fget) ());
-	DofOutT(BaseManipulation* obj, T* (C::*fget) ());
+	DofOutT(O* obj, T (C::*fget) ());
+	DofOutT(O* obj, T* (C::*fget) ());
 	~DofOutT();
 
 	DofOutT(const DofOutT & other);
 	DofOutT & operator=(const DofOutT & other);
 	bool operator==(const DofOutT & other);
 
-	void setGetFunction(T (C::*fget) ());
-	void setGetFunction(T* (C::*fget) ());
+	void setGetFunction(T (C::*fget) (), O* obj);
+	void setGetFunction(T* (C::*fget) (), O* obj);
 
 	T get();
 	T* getP();
+
+	dvector1D getDof();
+	dvector1D getValue(T value);
+	dvector1D getValue(double value);
+	dvector1D getValue(darray3E value);
 
 };
 
