@@ -86,6 +86,7 @@ private:
 	//check methods
 	void		checkLoops();
 
+
 public:
 	//dof/out methods
 	template<typename T, typename C, typename O>
@@ -109,15 +110,17 @@ public:
 	void setNdof(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
 
 	template<typename T, typename C, typename O>
-	int activateDof(O* obj, T* (C::*fget) (), int i);
+	void activateDof(O* obj, T* (C::*fget) (), int j);
 
 	void activateDof(int i, int j);
 	void disableDof(int i, int j);
 
 	int getNdof();
 
-	dvector1D getDof();
-	double getDof(int i);
+	dvector1D 	getDof();
+	double 		getDof(int i);
+	template<typename T, typename C, typename O>
+	int			findDofInput(O* obj, T* (C::*fget) ());
 
 };
 

@@ -283,7 +283,7 @@ Chain::checkLoops(){
 
 void
 Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
-	if (i>m_dof.size()) return;
+	if (i>=m_dof.size()) return;
 	m_dof[i]->m_nglob = nglob;
 	m_dof[i]->m_nuse = nuse;
 	map.resize(nuse, true);
@@ -292,15 +292,15 @@ Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
 
 void
 Chain::activateDof(int i, int j){
-	if (i>m_dof.size()) return;
-	if (j>m_dof[i]->getNgdof()) return;
+	if (i>=m_dof.size()) return;
+	if (j>=m_dof[i]->getNgdof()) return;
 	m_dof[i]->m_actives[j] = true;
 }
 
 void
 Chain::disableDof(int i, int j){
-	if (i>m_dof.size()) return;
-	if (j>m_dof[i]->getNgdof()) return;
+	if (i>=m_dof.size()) return;
+	if (j>=m_dof[i]->getNgdof()) return;
 	m_dof[i]->m_actives[j] = false;
 }
 
