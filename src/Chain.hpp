@@ -25,6 +25,7 @@
 #define __CHAIN_HPP__
 
 #include "BaseManipulation.hpp"
+#include "DofOut.hpp"
 
 namespace mimmo{
 
@@ -54,6 +55,10 @@ protected:
 	//static members
 	static	uint8_t					sm_chaincounter;	/**<Current global number of chain in the instance. */
 
+	//dof/out members
+	std::vector<DofOut*>			m_dof;
+	std::vector<DofOut*>			m_out;
+
 public:
 	Chain();
 	~Chain();
@@ -81,9 +86,28 @@ private:
 	//check methods
 	void		checkLoops();
 
+public:
+	//dof/out methods
+	template<typename T, typename C>
+	int addDofInput(BaseManipulation* obj, T (C::*fget) ());
+
+	template<typename T, typename C>
+	int addDofInput(BaseManipulation* obj, T* (C::*fget) ());
+
+	template<typename T, typename C>
+	int addDofInput(BaseManipulation* obj, T (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
+
+	template<typename T, typename C>
+	int addDofInput(BaseManipulation* obj, T* (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
+
+	void setNdof(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
+
+	int getNdof();
 
 };
 
 }
+
+#include "Chain.tpp"
 
 #endif /* __CHAIN_HPP__ */

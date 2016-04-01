@@ -72,6 +72,12 @@ Chain::clear(){
 	m_objcounter	= 0;
 	m_objects.clear();
 	m_idObjects.clear();
+	for (int i=0; i<m_dof.size(); i++){
+		delete m_dof[i];
+	}
+	for (int i=0; i<m_out.size(); i++){
+		delete m_out[i];
+	}
 };
 
 
@@ -269,6 +275,25 @@ Chain::checkLoops(){
 			}
 		}
 		actualidx++;
+	}
+}
+
+
+//DOF/OUT METHODS
+
+void Chain::setNdof(int i, int nglob, int nuse, std::vector<bool> map){
+	if (i>m_dof.size()) return;
+	m_dof[i]->m_nglob = nglob;
+	m_dof[i]->m_nuse = nuse;
+	map.resize(nuse, true);
+	m_dof[i]->m_actives = map;
+}
+
+
+int Chain::getNdof(){
+	int n=0;
+	for (int i=0; i<m_dof.size(); i++){
+		n += m_dof[i]->getNuse();
 	}
 }
 
