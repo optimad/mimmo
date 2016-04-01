@@ -107,27 +107,76 @@ public:
 	template<typename T, typename C, typename O>
 	int addDofInput(O* obj, T* (C::*fget) (), std::vector<bool> map);
 
-	void setNdof(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
-
+	void setNdofs(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
 
 	void activateDof(int i, int j);
-	void activateAllDof(int i);
+	void activateDofs(int i);
 	void disableDof(int i, int j);
+	void disableDofs(int i);
 
 	template<typename T, typename C, typename O>
 	void activateDof(O* obj, T* (C::*fget) (), int j);
 
 	template<typename T, typename C, typename O>
-	void activateAllDof(O* obj, T* (C::*fget) ());
+	void activateDofs(O* obj, T* (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	void activateDof(O* obj, T (C::*fget) (), int j);
+
+	template<typename T, typename C, typename O>
+	void activateDofs(O* obj, T (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	void disableDof(O* obj, T* (C::*fget) (), int j);
+
+	template<typename T, typename C, typename O>
+	void disableDofs(O* obj, T* (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	void disableDof(O* obj, T (C::*fget) (), int j);
+
+	template<typename T, typename C, typename O>
+	void disableDofs(O* obj, T (C::*fget) ());
 
 
-
-	int 		getNdof();
-	dvector1D 	getDof();
-	double 		getDof(int i);
 
 	template<typename T, typename C, typename O>
 	int			findDofInput(O* obj, T* (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	int			findDofInput(O* obj, T (C::*fget) ());
+
+	//global getdof
+	int 		getNdofs();
+	dvector1D 	getDofs();
+	double 		getDof(int i);
+
+	//local getdof
+	int 		getNdofs(int i);
+	dvector1D	getDofs(int i);
+	double		getDof(int i, int j);
+
+	template<typename T, typename C, typename O>
+	int			getNdofs(O* obj, T* (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	int			getNdofs(O* obj, T (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	dvector1D	getDofs(O* obj, T* (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	dvector1D	getDofs(O* obj, T (C::*fget) ());
+
+	template<typename T, typename C, typename O>
+	double	getDof(O* obj, T* (C::*fget) (), int j);
+
+	template<typename T, typename C, typename O>
+	double	getDof(O* obj, T (C::*fget) (), int j);
+
+
+
+	bool		isActive(int i, int j);
 
 };
 

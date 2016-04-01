@@ -78,6 +78,13 @@ DofOut::getNgdof(){
 }
 
 
+bool
+DofOut::isActive(int j){
+	if (j>=getNgdof()) return false;
+	return m_actives[j];
+}
+
+
 
 
 

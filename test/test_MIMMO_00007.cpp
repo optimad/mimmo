@@ -200,7 +200,7 @@ void test0007() {
 
 
 	//Add DOF
-	ch0.addDofInput(lattice, &FFDLattice::getDisplacements);
+	ch0.addDofInput(lattice, &FFDLattice::getDisplacements, ndeg*3, ndeg*3, vector<bool>(45,true));
 
 
 	//Execution of chain
@@ -219,7 +219,17 @@ void test0007() {
 
 
 	//get dof
-	cout << ch0.getNdof() << endl;
+	ch0.disableDof(0,45);
+	cout << ch0.getNdofs() << endl;
+	cout << ch0.getDof(45) << endl;
+	ch0.activateDof(0,45);
+	cout << ch0.getNdofs() << endl;
+	cout << ch0.getDof(45) << endl;
+	ch0.disableDof(0,45);
+	cout << ch0.getNdofs() << endl;
+	cout << ch0.getDof(45) << endl;
+	ch0.activateDof(0,45);
+	cout << ch0.getNdofs() << endl;
 	cout << ch0.getDof(45) << endl;
 
 

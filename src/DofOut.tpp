@@ -111,7 +111,7 @@ mimmo::DofOutT<T,C,O>::getP(){
 
 template<typename T, typename C, typename O>
 dvector1D
-mimmo::DofOutT<T,C,O>::getDof(){
+mimmo::DofOutT<T,C,O>::getDofs(){
 	T value;
 	if (m_getVal != NULL){
 		value = m_getVal();

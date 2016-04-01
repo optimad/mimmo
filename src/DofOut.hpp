@@ -62,8 +62,10 @@ public:
 	BaseManipulation*	getLink();
 	int					getNgdof();
 	int					getNuse();
+	bool				isActive(int j);
 
-	virtual dvector1D	getDof() = 0;
+
+	virtual dvector1D	getDofs() = 0;
 
 };
 
@@ -104,7 +106,7 @@ public:
 	T get();
 	T* getP();
 
-	dvector1D getDof();
+	dvector1D getDofs();
 	dvector1D getValue(T value);
 	dvector1D getValue(double value);
 	dvector1D getValue(darray3E value);
