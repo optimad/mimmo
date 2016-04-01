@@ -298,6 +298,12 @@ Chain::activateDof(int i, int j){
 }
 
 void
+Chain::activateAllDof(int i){
+	if (i>=m_dof.size()) return;
+	m_dof[i]->m_actives = std::vector<bool>(m_dof[i]->getNgdof(), true);
+}
+
+void
 Chain::disableDof(int i, int j){
 	if (i>=m_dof.size()) return;
 	if (j>=m_dof[i]->getNgdof()) return;

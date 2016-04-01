@@ -200,7 +200,7 @@ void test0007() {
 
 
 	//Add DOF
-	ch0.addDofInput(lattice, &FFDLattice::getDisplacements, ndeg, ndeg);
+	ch0.addDofInput(lattice, &FFDLattice::getDisplacements);
 
 
 	//Execution of chain

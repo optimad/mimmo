@@ -102,23 +102,30 @@ public:
 	int addDofInput(O* obj, T* (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
 
 	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T (C::*fget) (), std::vector<bool> map = std::vector<bool>(0));
+	int addDofInput(O* obj, T (C::*fget) (), std::vector<bool> map);
 
 	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T* (C::*fget) (), std::vector<bool> map = std::vector<bool>(0));
+	int addDofInput(O* obj, T* (C::*fget) (), std::vector<bool> map);
 
 	void setNdof(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
+
+
+	void activateDof(int i, int j);
+	void activateAllDof(int i);
+	void disableDof(int i, int j);
 
 	template<typename T, typename C, typename O>
 	void activateDof(O* obj, T* (C::*fget) (), int j);
 
-	void activateDof(int i, int j);
-	void disableDof(int i, int j);
+	template<typename T, typename C, typename O>
+	void activateAllDof(O* obj, T* (C::*fget) ());
 
-	int getNdof();
 
+
+	int 		getNdof();
 	dvector1D 	getDof();
 	double 		getDof(int i);
+
 	template<typename T, typename C, typename O>
 	int			findDofInput(O* obj, T* (C::*fget) ());
 
