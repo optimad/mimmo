@@ -3,6 +3,7 @@
 //==============================================================//
 
 #include <iostream>
+#include <numeric>
 
 /*!Default constructor of DofOutT
  */
@@ -93,6 +94,7 @@ mimmo::DofOutT<T,C,O>::setGetFunction(T* (C::*fget) (), O* obj){
 	m_getVal	= NULL;
 };
 
+
 template<typename T, typename C, typename O>
 T
 mimmo::DofOutT<T,C,O>::get(){
@@ -106,6 +108,7 @@ mimmo::DofOutT<T,C,O>::getP(){
 	return (m_getValP());
 };
 
+
 template<typename T, typename C, typename O>
 dvector1D
 mimmo::DofOutT<T,C,O>::getDof(){
@@ -113,16 +116,27 @@ mimmo::DofOutT<T,C,O>::getDof(){
 	if (m_getVal != NULL){
 		value = m_getVal();
 	}
-	if (m_getValP != NULL){
+	else if (m_getValP != NULL){
 		value = (*m_getValP());
+	}
+	else{
+		return dvector1D(0);
 	}
 	dvector1D dofs = getValue(value);
 	dvector1D res;
-	for (int i=0; i<dofs.size(); i++){
+
+	//update members with size of dofs (in case they are not coherent)
+	int size = dofs.size();
+	m_actives.resize(size, true);
+	m_nglob = size;
+	m_nuse = std::accumulate(m_actives.begin(), m_actives.end(), 0);
+
+	for (int i=0; i<size; i++){
 		if (m_actives[i]) res.push_back(dofs[i]);
 	}
 	return res;
 }
+
 
 template<typename T, typename C, typename O>
 dvector1D

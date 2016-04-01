@@ -333,6 +333,7 @@ Chain::getDof(){
 double
 Chain::getDof(int i){
 	dvector1D dofs = getDof();
+	if (i >= dofs.size()) return NAN;
 	return dofs[i];
 }
 
