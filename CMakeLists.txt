@@ -106,6 +106,35 @@ endif (ENABLE_PROFILING)
 
 add_compile_options("-std=c++11")
 
+
+#------------------------------------------------------------------------------------#
+# Library version
+#------------------------------------------------------------------------------------#
+set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}_version.hpp")
+string(TOUPPER "${CMAKE_PROJECT_NAME}_VERSION" VERSION_DEFINE_NAME)
+
+file(READ "${VERSION_HEADER_FILENAME}" header)
+
+string(REGEX REPLACE ".*#[ \t]*define[ \t]*${VERSION_DEFINE_NAME}[ \t]*\"([^\n]*)\".*" "\\1" match "${header}")
+set(MIMMO_VERSION "${match}")
+
+STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_MAJOR_VERSION "${match}")
+
+STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_MINOR_VERSION "${match}")
+
+STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_PATCH_VERSION "${match}")
+
+STRING(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" match "${MIMMO_VERSION}")
+if (NOT match STREQUAL "")
+    STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" "\\1" match "${MIMMO_VERSION}")
+    set(MIMMO_TAG_VERSION "${match}")
+else ()
+    set(MIMMO_TAG_VERSION "")
+endif ()
+
 #------------------------------------------------------------------------------------#
 # Subdirectories
 #------------------------------------------------------------------------------------#
@@ -113,7 +142,7 @@ add_compile_options("-std=c++11")
 add_subdirectory(src)
 
 # CMake
-#add_subdirectory(cmake)
+add_subdirectory(cmake)
 
 # Examples
 add_subdirectory(examples)

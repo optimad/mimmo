@@ -1,0 +1,92 @@
+# MIMMOConfig.cmake - MIMMO CMake configuration file for external projects.
+# -----------
+#
+# This file is configured by MIMMO and used by the UseMIMMO.cmake module
+# to load MIMMO's settings for an external project.
+
+# Compute the installation prefix from this MIMMOConfig.cmake file location.
+@MIMMO_CONFIG_CODE@
+
+# The C and C++ flags added by MIMMO to the cmake-configured flags.
+SET(MIMMO_REQUIRED_C_FLAGS "")
+SET(MIMMO_REQUIRED_CXX_FLAGS "")
+SET(MIMMO_REQUIRED_EXE_LINKER_FLAGS "")
+SET(MIMMO_REQUIRED_SHARED_LINKER_FLAGS "")
+SET(MIMMO_REQUIRED_MODULE_LINKER_FLAGS "")
+
+# The MIMMO version number
+SET(MIMMO_MAJOR_VERSION "@MIMMO_MAJOR_VERSION@")
+SET(MIMMO_MINOR_VERSION "@MIMMO_MINOR_VERSION@")
+SET(MIMMO_PATCH_VERSION "@MIMMO_PATCH_VERSION@")
+SET(MIMMO_VERSION "@MIMMO_VERSION@")
+
+# The location of the UseMIMMO.cmake file.
+SET(MIMMO_CMAKE_DIR "@MIMMO_CONFIG_CMAKE_DIR@")
+SET(MIMMO_USE_FILE "${MIMMO_CMAKE_DIR}/UseMIMMO.cmake")
+
+# Include macros for finding packages
+list(APPEND CMAKE_MODULE_PATH ${MIMMO_CMAKE_DIR})
+include(LibFindMacros)
+include(FindPackageHandleStandardArgs)
+
+#-----------------------------------------------------------------------------
+# Find mimmo libraries and headers
+#-----------------------------------------------------------------------------
+
+# Headers
+find_path(MIMMO_INCLUDE_DIR "@PROJECT_NAME@_version.hpp"
+          HINTS "${MIMMO_INSTALL_PREFIX}/include/mimmo")
+
+mark_as_advanced(MIMMO_INCLUDE_DIR)
+
+# Library
+find_library(MIMMO_LIBRARY_RELEASE
+             NAMES @PROJECT_NAME@@MIMMO_RELEASE_POSTFIX@ @PROJECT_NAME@
+             HINTS "${MIMMO_INSTALL_PREFIX}/lib")
+
+find_library(MIMMO_LIBRARY_DEBUG
+             NAMES @PROJECT_NAME@@MIMMO_DEBUG_POSTFIX@ @PROJECT_NAME@
+             HINTS "${MIMMO_INSTALL_PREFIX}/lib")
+
+mark_as_advanced(MIMMO_LIBRARY_RELEASE)
+mark_as_advanced(MIMMO_LIBRARY_DEBUG)
+
+# Choose good values for MIMMO_LIBRARY, MIMMO_LIBRARIES,
+# MIMMO_LIBRARY_DEBUG, and MIMMO_LIBRARY_RELEASE depending on what
+# has been found and set.  If only MIMMO_LIBRARY_RELEASE is defined,
+# MIMMO_LIBRARY will be set to the release value, and
+# MIMMO_LIBRARY_DEBUG will be set to MIMMO_LIBRARY_DEBUG-NOTFOUND.
+# If only MIMMO_LIBRARY_DEBUG is defined, then MIMMO_LIBRARY will
+# take the debug value, and MIMMO_LIBRARY_RELEASE will be set to
+# MIMMO_LIBRARY_RELEASE-NOTFOUND.
+#
+# If the generator supports configuration types, then MIMMO_LIBRARY
+# and MIMMO_LIBRARIES will be set with debug and optimized flags
+# specifying the library to be used for the given configuration.  If no
+# build type has been set or the generator in use does not support
+# configuration types, then MIMMO_LIBRARY and MIMMO_LIBRARIES will
+# take only the release value, or the debug value if the release one is
+# not set.
+if (MIMMO_LIBRARY_DEBUG AND MIMMO_LIBRARY_RELEASE AND
+       NOT MIMMO_LIBRARY_DEBUG STREQUAL MIMMO_LIBRARY_RELEASE AND
+           (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE))
+    set( MIMMO_LIBRARY "" )
+    foreach( _libname IN LISTS MIMMO_LIBRARY_RELEASE )
+        list( APPEND MIMMO_LIBRARY optimized "${_libname}" )
+    endforeach()
+    foreach( _libname IN LISTS MIMMO_LIBRARY_DEBUG )
+        list( APPEND MIMMO_LIBRARY debug "${_libname}" )
+    endforeach()
+elseif (MIMMO_LIBRARY_RELEASE)
+    set (MIMMO_LIBRARY ${MIMMO_LIBRARY_RELEASE})
+elseif (MIMMO_LIBRARY_DEBUG)
+    set (MIMMO_LIBRARY ${MIMMO_LIBRARY_DEBUG})
+else ()
+    set( MIMMO_LIBRARY "MIMMO_LIBRARY-NOTFOUND")
+endif ()
+
+# MIMMO Definitions
+set(MIMMO_DEFINITIONS "@MIMMO_DEFINITIONS_PUBLIC@")
+
+# Let libfind_process initialize the appropriate variables
+libfind_process(MIMMO)
