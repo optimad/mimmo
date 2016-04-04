@@ -26,7 +26,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Name your project here
-set(MIMMO_LIBRARY "MIMMO" CACHE INTERNAL "MIMMO Library" FORCE)
+set(MIMMO_LIBRARY "MiMMO" CACHE INTERNAL "MIMMO Library" FORCE)
 
 # Library type
 if (STATIC)

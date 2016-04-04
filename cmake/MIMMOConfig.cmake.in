@@ -35,7 +35,7 @@ include(FindPackageHandleStandardArgs)
 
 # Headers
 find_path(MIMMO_INCLUDE_DIR "@PROJECT_NAME@_version.hpp"
-          HINTS "${MIMMO_INSTALL_PREFIX}/include/mimmo")
+          HINTS "${MIMMO_INSTALL_PREFIX}/include/@PROJECT_NAME@")
 
 mark_as_advanced(MIMMO_INCLUDE_DIR)
 
