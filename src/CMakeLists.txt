@@ -40,7 +40,7 @@ file(GLOB SOURCE_FILES "*.cpp")
 set(MIMMO_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of MIMMO Library" FORCE)
 unset(SOURCE_FILES)
 
-file(GLOB HEADER_FILES "*.hpp")
+file(GLOB HEADER_FILES "*.hpp" "*.tpp")
 set(MIMMO_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of MIMMO Library" FORCE)
 unset(BASE_HEADERS)
 
