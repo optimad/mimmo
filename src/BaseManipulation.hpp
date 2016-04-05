@@ -115,6 +115,8 @@ protected:
 	std::vector<InOut*>			m_pinOut;		/**<Output pins vector. */
 	std::unique_ptr<IOData>		m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>		m_result;		/**<Pointer to a base class object Result (derived class is template).*/
+	bool						m_active;		/**<True/false to activate/disable the object.*/
+
 
 public:
 	BaseManipulation();
@@ -135,7 +137,7 @@ public:
 	PinsType 			getPinType();
 	int 				getNPinsIn();
 	int 				getNPinsOut();
-
+	bool				isActive();
 
 	template<typename T>	
 	T*					getInput();
@@ -151,6 +153,9 @@ public:
 	void 				setInput(T* data);
 	template<typename T>
 	void 				setInput(T& data);
+
+	void				activate();
+	void				disable();
 
 	//cleaning/unset
 	void 	unsetGeometry();

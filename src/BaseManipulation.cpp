@@ -35,6 +35,7 @@ BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
 	m_pinType		= PinsType::BOTH;
 	m_name			= "MiMMO";
+	m_active		= true;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -59,6 +60,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_pinIn			= other.m_pinIn;
 	m_pinOut		= other.m_pinOut;
 	m_name 			= other.m_name;
+	m_active 		= other.m_active;
 	//input and result are not copied (unique pointer of template memebers)
 	return (*this);
 };
@@ -171,6 +173,13 @@ BaseManipulation::getNPinsOut(){
 	return (m_pinOut.size());
 }
 
+/*!It gets if the object is activates or disable during the execution.
+ */
+bool
+BaseManipulation::isActive(){
+	return(m_active);
+};
+
 /*!It sets the name of the manipulator object.
  * \param[in] name Name of the manipulator object.
  */
@@ -185,6 +194,20 @@ BaseManipulation::setName(string name){
 void
 BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
+};
+
+/*!It activates the object during the execution.
+ */
+void
+BaseManipulation::activate(){
+	m_active = true;
+};
+
+/*!It disables the object during the execution.
+ */
+void
+BaseManipulation::disable(){
+	m_active = false;
 };
 
 /*!It clears the pointer to the geometry linked by the object.
@@ -258,9 +281,9 @@ BaseManipulation::clear(){
  */
 void
 BaseManipulation::exec(){
-	execute();
+	if (m_active) execute();
 	for (int i=0; i<m_pinOut.size(); i++){
-		if (m_pinOut[i]->getLink() != NULL){
+		if (m_pinOut[i]->getLink() != NULL && m_pinOut[i]->getLink()->isActive()){
 			m_pinOut[i]->exec();
 		}
 	}
