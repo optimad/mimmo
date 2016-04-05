@@ -39,19 +39,11 @@ namespace mimmo{
  *	This class is derived from BaseManipulation class of MiMMO and from RBF class
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control point given by the user
- *	or stored in a MimmoObject (geometry container).
+ *	or stored in a MimmoObject (geometry container). Class is built as default in 
+ *  bitpit::RBFType::PARAM mode. See bitpit::RBF docs for further information. 
  *
  */
 class MRBF: public BaseManipulation, public bitpit::RBF {
-
-protected:
-
-public:
-
-private:
-
-	double m_tol; 	/**< Tolerance value for greedy method in node insert.*/
-
 
 public:
 	MRBF();
@@ -61,15 +53,18 @@ public:
 	MRBF(const MRBF & other);
 	MRBF & operator=(const MRBF & other);
 
-	//internal methods
-	void setTol(double tol);
-	void addNodes(dvecarr3E nodes);
-	void addNodes(MimmoObject* geometry);
-	void addField(dvecarr3E field);
+	int 								addNode(darray3E &);
+	ivector1D		 					addNode(dvecarr3E &);
+	std::unordered_map<long_int, int> 	addNode(MimmoObject* geometry);
+	
+	ivector1D		checkDuplicatedNodes();
+	bool 			removeNode(int);
+	bvector1D 		removeNode(std::vector<int>);
+	
+	void 			setDisplacements(dvecarr3E &);
 
 	//execute deformation methods
 	void 		execute();
-
 };
 
 }
