@@ -174,6 +174,7 @@ BaseManipulation::getNPinsOut(){
 }
 
 /*!It gets if the object is activates or disable during the execution.
+ * \return True/false if the object is activates or disable during the execution.
  */
 bool
 BaseManipulation::isActive(){
