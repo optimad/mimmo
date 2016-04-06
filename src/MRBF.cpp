@@ -25,15 +25,16 @@
 #include "MRBF.hpp"
 
 using namespace std;
+using namespace bitpit;
 using namespace mimmo;
 
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
-	m_tol = 0.00001;
 	m_name = "MiMMO.MRBF";
+	setType(RBFType::PARAM);
+	m_maxFields=-1;
 };
-
 
 /*! Default Destructor */
 MRBF::~MRBF(){};
@@ -49,32 +50,33 @@ MRBF::MRBF(const MRBF & other){
  * \param[in] other MRBF where copy from
  */
 MRBF & MRBF::operator=(const MRBF & other){
-	m_tol = other.m_tol;
+	*(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
+	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	return(*this);
 };
 
-/*!It sets the tolerance used in greedy algorithm of bitpit::RBF class to choose
- * a sub-set of the control points.
- * \param[in] tol Tolerance used in greedy algorithm.
+/*!Adds a RBF point to the total control node list and activate it.
+ * \param[in] node coordinates of control point.
  */
-void MRBF::setTol(double tol){
-	m_tol = tol;
+int MRBF::addNode(darray3E & node){
+	return(RBF::addNode(node));
 };
 
-/*!It adds a set of points to the control points used in RBF execution.
- * \param[in] nodes Coordinates of control points.
+/*!Adds a list of RBF points to the total control node list and activate them.
+ * \param[in] nodes coordinates of control points.
  */
-void MRBF::addNodes(dvecarr3E nodes){
-	for (auto &node : nodes){
-		RBF::addNode(node);
-	}
+std::vector<int> MRBF::addNode(dvecarr3E & nodes){
+	return(RBF::addNode(nodes));
 };
 
-/*!It adds a set of points to the control points used in RBF execution by extracting
- * the vertices stored in a MimmoObject container.
+/*!Adds a set of RBF points to the total control node list extracting
+ * the vertices stored in a MimmoObject container. Return an unordered map < a,b > 
+ * with key a equal to the global ID of the MimmoObject Vertex, and b equal to 
+ * the RBF node id.
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
+ * \return unordered map of MimmoObject vertex/RBF node ids
  */
-void MRBF::addNodes(MimmoObject* geometry){
+std::unordered_map<long int, int> MRBF::addNode(MimmoObject* geometry){
 	int nv = geometry->getNVertex();
 	dvecarr3E vertex = geometry->getVertex();
 	for (auto &node : vertex){
@@ -82,26 +84,99 @@ void MRBF::addNodes(MimmoObject* geometry){
 	}
 };
 
-/*!It adds a field of values on the control points to be interpolated by RBF techniques (in this library it is
- * supposed to be a displacements field).
- * \param[in] field Field of displacements of control points.
- */
-void MRBF::addField(dvecarr3E field){
-	int np = field.size();
-	dvector1D f(np);
-	for (int i=0; i<3; i++){
-		for (int j=0; j<np; j++){
-			f[j] = field[j][i];
-		}
-		RBF::addField(f);
-	}
-	double maxdispl = 0.0;
-	for (int j=0; j<np; j++){
-		maxdispl = max(maxdispl, norm2(field[j]));
-	}
-	setSupportRadius(3*maxdispl);
 
-};
+/*! Find all possible duplicated nodes within a prescribed distance tolerance.
+ * Default tolerance value is 1.0E-12;
+ * \param[in] tol distance tolerance
+ * \return	list of duplicated nodes.
+ */
+
+ivector1D MRBF::checkDuplicatedNodes(double tol){
+	
+	ivector1D marked;
+	int sizeEff = getTotalNodesCount();
+	if( sizeEff == 0 ) return marked;
+	
+	bvector1D check(sizeEff, false);
+	
+	darray3E target = m_node[0];
+	
+	for(int i=1; i<sizeEff; ++i){
+		double dist = norm2(m_node[i] - target);
+		if(!check[i] && dist <= tol){
+			marked.push_back(i);
+			check[i] = true;
+		}
+	}
+	return(marked);	
+}
+
+/*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all 
+ * possible duplicated nodes within a default tolerance of 1.0E-12 and erase them, if any.
+ * \param[in] list pointer to a list of id's of RBF candidate nodes
+ * \return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
+ */
+
+bool MRBF::removeDuplicatedNodes(ivector1D * list){
+	
+	ivector1D marked;
+	if(list==NULL){
+		marked = checkDuplicatedNodes();
+		list = &marked;
+	}
+	
+	return(removeNode(*list));
+}
+
+/*!
+ * Define 3D displacements of your RBF parameterization. The method is not active in RBFType::INTERP mode
+ * \param[in] displ list of nodal displacements
+ */
+void MRBF::setDisplacements(dvecarr3E & displ){
+
+	int size = displ.size();
+	if(size != getTotalNodesCount()){
+		std::cout<<"displacement size does not fit number of RBF nodes."<<std::endl;
+		std::cout<<"displacement are not set"<<endl;
+	}
+	
+	removeAllData();
+	
+	dvector1D temp(size);
+	for(int loc=0; loc<3; ++loc){
+		
+		for(int i=0; i<size; ++i){
+			temp[i] = displ[i][loc];
+		}
+		
+		addData(temp);
+	}
+}
+
+/*!
+ * Define 3D displacements of your RBF parameterization, only on currently active Nodes. The method is not active in RBFType::INTERP mode
+ * \param[in] displ list of nodal displacements on active nodes
+ */
+void MRBF::setActiveDisplacements(dvecarr3E & displ){
+	
+	int size = displ.size();
+	if(size != getActiveCount()){
+		std::cout<<"displacement size does not fit number of currently active RBF nodes."<<std::endl;
+		std::cout<<"displacement are not set"<<endl;
+	}
+	
+	removeAllData();
+	
+	dvector1D temp(size);
+	for(int loc=0; loc<3; ++loc){
+		
+		for(int i=0; i<size; ++i){
+			temp[i] = displ[i][loc];
+		}
+		dvector1D dummy = convertActiveToTotal(temp);
+		addData(dummy);
+	}
+}
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
  * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
@@ -109,8 +184,6 @@ void MRBF::addField(dvecarr3E field){
  *
  */
 void MRBF::execute(){
-
-	greedy(m_tol);
 
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
@@ -129,4 +202,21 @@ void MRBF::execute(){
 
 };
 
+
+/*!
+ * Expand vector of weights defined only for active RBF nodes to a vector defined on all RBF nodes. 
+ * Zero weight is provided on inactive nodes
+ */
+dvector1D MRBF::convertActiveToTotal(dvector1D & target){
+	
+	dvector1D result(getTotalNodesCount(), 0.0);
+	if(target.size() != getActiveCount()) return result;
+	
+	ivector1D list = getActiveSet();
+	int size = list.size();
+	for(int i=0; i<size; ++i){
+		result[list[i]] = target[i];
+	}
+	return result;
+}
 

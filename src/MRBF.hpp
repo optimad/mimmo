@@ -41,7 +41,8 @@ namespace mimmo{
  *	It evaluates the result of RBF built over a set of control point given by the user
  *	or stored in a MimmoObject (geometry container). Class is built as default in 
  *  bitpit::RBFType::PARAM mode. See bitpit::RBF docs for further information. 
- *
+ * 
+ *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
  */
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
@@ -55,16 +56,18 @@ public:
 
 	int 								addNode(darray3E &);
 	ivector1D		 					addNode(dvecarr3E &);
-	std::unordered_map<long_int, int> 	addNode(MimmoObject* geometry);
+	std::unordered_map<long int, int> 	addNode(MimmoObject* geometry);
 	
-	ivector1D		checkDuplicatedNodes();
-	bool 			removeNode(int);
-	bvector1D 		removeNode(std::vector<int>);
+	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
+	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
 	
 	void 			setDisplacements(dvecarr3E &);
-
+	void			setActiveDisplacements(dvecarr3E &);
 	//execute deformation methods
 	void 		execute();
+	
+private:
+	dvector1D convertActiveToTotal(dvector1D &);
 };
 
 }
