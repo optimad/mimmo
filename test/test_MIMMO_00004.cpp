@@ -110,7 +110,7 @@ void test0004() {
 	GenericOutput* output = new GenericOutput();
 
 	//Set Input with Init Displacements
-	int ndeg = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
+	int ndeg = (dim[0])*(dim[1])*(dim[2]);
 	dvecarr3E displ(ndeg);
 	time_t Time = time(NULL);
 	srand(Time);

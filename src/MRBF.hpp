@@ -45,6 +45,8 @@ namespace mimmo{
  *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
  */
 class MRBF: public BaseManipulation, public bitpit::RBF {
+private:
+	double m_tol;		/**< Tolerance for greedy algorithm.*/
 
 public:
 	MRBF();
@@ -54,15 +56,16 @@ public:
 	MRBF(const MRBF & other);
 	MRBF & operator=(const MRBF & other);
 
-	int 								addNode(darray3E &);
-	ivector1D		 					addNode(dvecarr3E &);
-	std::unordered_map<long int, int> 	addNode(MimmoObject* geometry);
+	int 			addNode(darray3E &);
+	ivector1D		addNode(dvecarr3E &);
+	ivector1D	 	addNode(MimmoObject* geometry);
 	
 	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
 	
-	void 			setDisplacements(dvecarr3E &);
-	void			setActiveDisplacements(dvecarr3E &);
+	void 			setTol(double tol);
+	void 			setDisplacements(dvecarr3E);
+	void			setActiveDisplacements(dvecarr3E);
 	//execute deformation methods
 	void 		execute();
 	

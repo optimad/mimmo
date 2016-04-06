@@ -34,6 +34,7 @@ MRBF::MRBF(){
 	m_name = "MiMMO.MRBF";
 	setType(RBFType::PARAM);
 	m_maxFields=-1;
+	m_tol = 0.00001;
 };
 
 /*! Default Destructor */
@@ -52,11 +53,13 @@ MRBF::MRBF(const MRBF & other){
 MRBF & MRBF::operator=(const MRBF & other){
 	*(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
+	m_tol = other.m_tol;
 	return(*this);
 };
 
 /*!Adds a RBF point to the total control node list and activate it.
  * \param[in] node coordinates of control point.
+ * \return RBF id.
  */
 int MRBF::addNode(darray3E & node){
 	return(RBF::addNode(node));
@@ -64,6 +67,7 @@ int MRBF::addNode(darray3E & node){
 
 /*!Adds a list of RBF points to the total control node list and activate them.
  * \param[in] nodes coordinates of control points.
+ * \return Vector of RBF ids.
  */
 std::vector<int> MRBF::addNode(dvecarr3E & nodes){
 	return(RBF::addNode(nodes));
@@ -74,14 +78,11 @@ std::vector<int> MRBF::addNode(dvecarr3E & nodes){
  * with key a equal to the global ID of the MimmoObject Vertex, and b equal to 
  * the RBF node id.
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
- * \return unordered map of MimmoObject vertex/RBF node ids
+ * \return Vector of RBF ids.
  */
-std::unordered_map<long int, int> MRBF::addNode(MimmoObject* geometry){
-	int nv = geometry->getNVertex();
+ivector1D MRBF::addNode(MimmoObject* geometry){
 	dvecarr3E vertex = geometry->getVertex();
-	for (auto &node : vertex){
-		RBF::addNode(node);
-	}
+	return(RBF::addNode(vertex));
 };
 
 
@@ -128,11 +129,18 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
 	return(removeNode(*list));
 }
 
+/*!It sets the tolerance for greedy algorithm.
+ * \param[in] tol Target tolerance.
+ */
+void MRBF::setTol(double tol){
+	m_tol = tol;
+}
+
 /*!
  * Define 3D displacements of your RBF parameterization. The method is not active in RBFType::INTERP mode
  * \param[in] displ list of nodal displacements
  */
-void MRBF::setDisplacements(dvecarr3E & displ){
+void MRBF::setDisplacements(dvecarr3E displ){
 
 	int size = displ.size();
 	if(size != getTotalNodesCount()){
@@ -141,6 +149,13 @@ void MRBF::setDisplacements(dvecarr3E & displ){
 	}
 	
 	removeAllData();
+
+	double maxdispl = 0.0;
+	for(int i=0; i<size; ++i){
+		maxdispl = std::max(maxdispl, norm2(displ[i]));
+	}
+
+	setSupportRadius(3*maxdispl);
 	
 	dvector1D temp(size);
 	for(int loc=0; loc<3; ++loc){
@@ -151,13 +166,14 @@ void MRBF::setDisplacements(dvecarr3E & displ){
 		
 		addData(temp);
 	}
+
 }
 
 /*!
  * Define 3D displacements of your RBF parameterization, only on currently active Nodes. The method is not active in RBFType::INTERP mode
  * \param[in] displ list of nodal displacements on active nodes
  */
-void MRBF::setActiveDisplacements(dvecarr3E & displ){
+void MRBF::setActiveDisplacements(dvecarr3E displ){
 	
 	int size = displ.size();
 	if(size != getActiveCount()){
@@ -187,6 +203,8 @@ void MRBF::execute(){
 
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
+
+	if (whichType() == RBFType::INTERP) greedy(m_tol);
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();

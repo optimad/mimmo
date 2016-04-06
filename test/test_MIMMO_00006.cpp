@@ -88,7 +88,6 @@ void test0006() {
 	lattice->setDisplGlobal(true);
 
 
-
 	//Set Inputs with Shape and Mesh Info
 	darray3E origin = {0.05, 0.05, 0.0};
 	darray3E span;
@@ -126,7 +125,7 @@ void test0006() {
 	inputdeg->setName("MiMMO.InputDeg");
 
 	//Set Input with Init Displacements
-	int ndeg = (dim[0]+1)*(dim[1]+1)*(dim[2]+1);
+	int ndeg = (dim[0])*(dim[1])*(dim[2]);
 	dvecarr3E displ(ndeg);
 	time_t Time = time(NULL);
 	srand(Time);
@@ -158,9 +157,9 @@ void test0006() {
 
 	//createRBF
 	MRBF* mrbf = new MRBF();
+	mrbf->setType(RBFType::INTERP);
 	mrbf->setGeometry(&mimmoPlane);
-	mrbf->addNodes(&mimmoDisk);
-	mrbf->setTol( 0.000001 ) ;
+	mrbf->addNode(&mimmoDisk);
 
 	//create applier
 	Apply* applier2 = new Apply();
@@ -188,7 +187,7 @@ void test0006() {
 
 	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 
-	addPin(lattice, mrbf, &FFDLattice::getResult<dvecarr3E>, &MRBF::addField);
+	addPin(lattice, mrbf, &FFDLattice::getResult<dvecarr3E>, &MRBF::setDisplacements);
 	addPin(mrbf, applier2, &MRBF::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 
 	cout << "set pins done" << endl;
