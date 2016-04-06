@@ -305,7 +305,7 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 		it->setConnect(move(connect));
 		//DEBUG FORCE SET_TYPE
 		if (m_type == 1)  it->setType(ElementInfo::TRIANGLE);
-		if (m_type == 2)  it->setType(ElementInfo::TRIANGLE);
+		if (m_type == 2)  it->setType(ElementInfo::TETRA);
 		//
 	}
 	return true;
