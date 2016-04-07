@@ -115,16 +115,12 @@ void MRBF::setNode(MimmoObject* geometry){
 	return;
 };
 
-
-
 /*! Find all possible duplicated nodes within a prescribed distance tolerance.
  * Default tolerance value is 1.0E-12;
  * \param[in] tol distance tolerance
  * \return	list of duplicated nodes.
  */
-
 ivector1D MRBF::checkDuplicatedNodes(double tol){
-	
 	ivector1D marked;
 	int sizeEff = getTotalNodesCount();
 	if( sizeEff == 0 ) return marked;
@@ -132,7 +128,6 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
 	bvector1D check(sizeEff, false);
 	
 	darray3E target = m_node[0];
-	
 	for(int i=1; i<sizeEff; ++i){
 		double dist = norm2(m_node[i] - target);
 		if(!check[i] && dist <= tol){
@@ -148,15 +143,12 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
  * \param[in] list pointer to a list of id's of RBF candidate nodes
  * \return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
-
 bool MRBF::removeDuplicatedNodes(ivector1D * list){
-	
 	ivector1D marked;
 	if(list==NULL){
 		marked = checkDuplicatedNodes();
 		list = &marked;
 	}
-	
 	return(removeNode(*list));
 }
 
@@ -172,11 +164,12 @@ void MRBF::setTol(double tol){
  * \param[in] displ list of nodal displacements
  */
 void MRBF::setDisplacements(dvecarr3E displ){
-
 	int size = displ.size();
 	if(size != getTotalNodesCount()){
-		std::cout<<"displacement size does not fit number of RBF nodes."<<std::endl;
-		std::cout<<"displacement are not set"<<endl;
+		std::cout << "MiMMO : ERROR : " << getName() << " displacements size (" << size << ") does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+		std::cout << "MiMMO :         " << getName() << " displacements resize to "<< getTotalNodesCount() << " (0 value for new displacements) " << std::endl;
+		displ.resize(getTotalNodesCount(), {{0.0, 0.0, 0.0}});
+		size = displ.size();
 	}
 	
 	removeAllData();
@@ -185,19 +178,15 @@ void MRBF::setDisplacements(dvecarr3E displ){
 	for(int i=0; i<size; ++i){
 		maxdispl = std::max(maxdispl, norm2(displ[i]));
 	}
-
 	setSupportRadius(3*maxdispl);
 	
 	dvector1D temp(size);
 	for(int loc=0; loc<3; ++loc){
-		
 		for(int i=0; i<size; ++i){
 			temp[i] = displ[i][loc];
 		}
-		
 		addData(temp);
 	}
-
 }
 
 /*!
@@ -205,11 +194,12 @@ void MRBF::setDisplacements(dvecarr3E displ){
  * \param[in] displ list of nodal displacements on active nodes
  */
 void MRBF::setActiveDisplacements(dvecarr3E displ){
-	
 	int size = displ.size();
 	if(size != getActiveCount()){
-		std::cout<<"displacement size does not fit number of currently active RBF nodes."<<std::endl;
-		std::cout<<"displacement are not set"<<endl;
+		std::cout << "MiMMO : ERROR : " << getName() << " displacements size (" << size << ") does not fit number of active RBF nodes ("<< getActiveCount() << ")" << std::endl;
+		std::cout << "MiMMO :         " << getName() << " displacements resize to "<< getActiveCount() << " (0 value for new displacements) " << std::endl;
+		displ.resize(getActiveCount(), {{0.0, 0.0, 0.0}});
+		size = displ.size();
 	}
 	
 	removeAllData();
@@ -246,14 +236,12 @@ void MRBF::execute(){
 		displ = RBF::evalRBF(vertex[i]);
 		for (int j=0; j<3; j++) result[i][j] = displ[j];
 	}
-
 	setResult(result);
-
 };
 
 
-/*!
- * Expand vector of weights defined only for active RBF nodes to a vector defined on all RBF nodes. 
+/*! Expand vector of weights defined only for active RBF nodes
+ * to a vector defined on all RBF nodes.
  * Zero weight is provided on inactive nodes
  */
 dvector1D MRBF::convertActiveToTotal(dvector1D & target){
