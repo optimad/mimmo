@@ -28,7 +28,15 @@
 #include "rbf.hpp"
 
 namespace mimmo{
-
+	
+/*!
+ * Solver enum for your RBF data fields interpolation
+ */
+enum class MRBFSol{
+	WHOLE = 1,
+	GREEDY= 2
+};
+	
 /*!
  *	\date			25/mar/2016
  *	\authors		Rocco Arpa
@@ -39,15 +47,17 @@ namespace mimmo{
  *	This class is derived from BaseManipulation class of MiMMO and from RBF class
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control point given by the user
- *	or stored in a MimmoObject (geometry container). Class is built as default in 
- *  bitpit::RBFType::INTERP mode. See bitpit::RBF docs for further information.
+ *	or stored in a MimmoObject (geometry container). Default solver in execution is  MRBFSol::GREEDY.
+ *  See bitpit::RBF docs for further information.
  *
+ *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
  */
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
-//TODO now use it always in interp mode, find an alternative param for the current one.
 class MRBF: public BaseManipulation, public bitpit::RBF {
+
 private:
 	double m_tol;		/**< Tolerance for greedy algorithm.*/
+	MRBFSol m_solver; 	/**<Type of solver specified for the class as default in execution*/
 
 public:
 	MRBF();
@@ -57,6 +67,12 @@ public:
 	MRBF(const MRBF & other);
 	MRBF & operator=(const MRBF & other);
 
+	void 			setGeometry(MimmoObject* geometry);
+	
+	MRBFSol			getSolver();
+	void			setSolver(MRBFSol);
+	void			setSolver(int);
+	
 	int 			addNode(darray3E);
 	ivector1D		addNode(dvecarr3E);
 	ivector1D	 	addNode(MimmoObject* geometry);
@@ -70,12 +86,10 @@ public:
 	
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E);
-//	void			setActiveDisplacements(dvecarr3E);
+
 	//execute deformation methods
 	void 		execute();
 	
-private:
-	dvector1D convertActiveToTotal(dvector1D &);
 };
 
 }

@@ -32,9 +32,9 @@ using namespace mimmo;
 /*! Default Constructor.*/
 MRBF::MRBF(){
 	m_name = "MiMMO.MRBF";
-	setType(RBFType::INTERP);
 	m_maxFields=-1;
 	m_tol = 0.00001;
+	m_solver = MRBFSol::GREEDY;
 };
 
 /*! Default Destructor */
@@ -54,7 +54,43 @@ MRBF & MRBF::operator=(const MRBF & other){
 	*(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
+	m_solver = other.m_solver;
 	return(*this);
+};
+
+
+/*!It sets the geometry linked by the manipulator object (overloading of base class method).
+ * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
+ */
+void
+MRBF::setGeometry(MimmoObject* geometry){
+	m_geometry = geometry;
+};
+
+/*! 
+ * Return actual solver set for RBF data fields interpolation in MRBF::execute
+ */
+MRBFSol
+MRBF::getSolver(){
+	return m_solver;
+};
+
+/*!
+ * Set type of solver set for RBF data fields interpolation in MRBF::execute
+ * \param[in] solver type of MRBFSol enum; 
+ */
+void
+MRBF::setSolver(MRBFSol solver){
+	m_solver = solver;
+};
+/*!
+ * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
+ * \param[in] int type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
+ */
+void 
+MRBF::setSolver(int type){
+	m_solver = MRBFSol::GREEDY;
+	if(type ==1){	m_solver = MRBFSol::WHOLE;}
 };
 
 /*!Adds a RBF point to the total control node list and activate it.
@@ -160,7 +196,8 @@ void MRBF::setTol(double tol){
 }
 
 /*!
- * Define 3D displacements of your RBF parameterization. The method is not active in RBFType::INTERP mode
+ * Define 3D displacements of your RBF parameterization. 
+ * The method temporary set your RBF supportRadius to 3*max norm value of vector field displ.
  * \param[in] displ list of nodal displacements
  */
 void MRBF::setDisplacements(dvecarr3E displ){
@@ -175,6 +212,7 @@ void MRBF::setDisplacements(dvecarr3E displ){
 	for(int i=0; i<size; ++i){
 		maxdispl = std::max(maxdispl, norm2(displ[i]));
 	}
+
 	setSupportRadius(3*maxdispl);
 	
 	dvector1D temp(size);
@@ -185,29 +223,6 @@ void MRBF::setDisplacements(dvecarr3E displ){
 		addData(temp);
 	}
 }
-
-///*!
-// * Define 3D displacements of your RBF parameterization, only on currently active Nodes. The method is not active in RBFType::INTERP mode
-// * \param[in] displ list of nodal displacements on active nodes
-// */
-//void MRBF::setActiveDisplacements(dvecarr3E displ){
-//	int size = displ.size();
-//	if(size != getActiveCount()){
-//		std::cout << "MiMMO : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getActiveCount() << ")" << std::endl;
-//	}
-//
-//	removeAllData();
-//
-//	dvector1D temp(size);
-//	for(int loc=0; loc<3; ++loc){
-//
-//		for(int i=0; i<size; ++i){
-//			temp[i] = displ[i][loc];
-//		}
-//		dvector1D dummy = convertActiveToTotal(temp);
-//		addData(dummy);
-//	}
-//}
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
  * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
@@ -221,15 +236,15 @@ void MRBF::execute(){
 
 	int size;
 	for (int i=0; i<getDataCount(); i++){
-		if (whichType() == RBFType::INTERP) size = m_value[i].size();
-		if (whichType() == RBFType::PARAM)  size = m_weight[i].size();
+		size = m_value[i].size();
 		if(size != getTotalNodesCount()){
 			std::cout << "MiMMO : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 			fitDataToNodes(i);
 		}
 	}
 
-	if (whichType() == RBFType::INTERP) greedy(m_tol);
+	if (m_solver == MRBFSol::WHOLE) solve();
+	else	greedy(m_tol);
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();
@@ -243,21 +258,4 @@ void MRBF::execute(){
 	setResult(result);
 };
 
-
-/*! Expand vector of weights defined only for active RBF nodes
- * to a vector defined on all RBF nodes.
- * Zero weight is provided on inactive nodes
- */
-dvector1D MRBF::convertActiveToTotal(dvector1D & target){
-	
-	dvector1D result(getTotalNodesCount(), 0.0);
-	if(target.size() != getActiveCount()) return result;
-	
-	ivector1D list = getActiveSet();
-	int size = list.size();
-	for(int i=0; i<size; ++i){
-		result[list[i]] = target[i];
-	}
-	return result;
-}
 
