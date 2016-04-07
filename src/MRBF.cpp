@@ -32,7 +32,7 @@ using namespace mimmo;
 /*! Default Constructor.*/
 MRBF::MRBF(){
 	m_name = "MiMMO.MRBF";
-	setType(RBFType::PARAM);
+	setType(RBFType::INTERP);
 	m_maxFields=-1;
 	m_tol = 0.00001;
 };
@@ -61,7 +61,7 @@ MRBF & MRBF::operator=(const MRBF & other){
  * \param[in] node coordinates of control point.
  * \return RBF id.
  */
-int MRBF::addNode(darray3E & node){
+int MRBF::addNode(darray3E node){
 	return(RBF::addNode(node));
 };
 
@@ -69,7 +69,7 @@ int MRBF::addNode(darray3E & node){
  * \param[in] nodes coordinates of control points.
  * \return Vector of RBF ids.
  */
-std::vector<int> MRBF::addNode(dvecarr3E & nodes){
+std::vector<int> MRBF::addNode(dvecarr3E nodes){
 	return(RBF::addNode(nodes));
 };
 
@@ -84,6 +84,37 @@ ivector1D MRBF::addNode(MimmoObject* geometry){
 	dvecarr3E vertex = geometry->getVertex();
 	return(RBF::addNode(vertex));
 };
+
+
+/*!Set a RBF point as unique control node and activate it.
+ * \param[in] node coordinates of control point.
+ */
+void MRBF::setNode(darray3E node){
+	removeAllNodes();
+	RBF::addNode(node);
+	return;
+};
+
+/*!Set a list of RBF points as control nodes and activate it.
+ * \param[in] node coordinates of control points.
+ */
+void MRBF::setNode(dvecarr3E nodes){
+	removeAllNodes();
+	RBF::addNode(nodes);
+	return;
+};
+
+/*!Set the RBF points as control nodes extracting
+ * the vertices stored in a MimmoObject container.
+ * \param[in] geometry Pointer to MimmoObject that contains the geometry.
+ */
+void MRBF::setNode(MimmoObject* geometry){
+	removeAllNodes();
+	dvecarr3E vertex = geometry->getVertex();
+	RBF::addNode(vertex);
+	return;
+};
+
 
 
 /*! Find all possible duplicated nodes within a prescribed distance tolerance.
