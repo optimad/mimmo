@@ -222,13 +222,23 @@ void MRBF::setActiveDisplacements(dvecarr3E displ){
  */
 void MRBF::execute(){
 
+	cout << "mrbf " << endl;
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
+	cout << "mrbf " << endl;
+
+	cout << "mtol " << m_tol << endl;
+	cout << "n " << getTotalNodesCount() << endl;
+	cout << "nact " << getActiveCount() << endl;
+	cout << "type " << int(whichType()) << endl;
+	cout << "data " << getDataCount() << endl;
 
 	if (whichType() == RBFType::INTERP) greedy(m_tol);
+	cout << "mrbf " << endl;
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();
+	cout << "mrbf " << endl;
 
 	dvecarr3E result(nv, darray3E{0,0,0});
 	dvector1D displ;
