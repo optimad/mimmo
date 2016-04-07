@@ -177,10 +177,7 @@ void MRBF::setTol(double tol){
 void MRBF::setDisplacements(dvecarr3E displ){
 	int size = displ.size();
 	if(size != getTotalNodesCount()){
-		std::cout << "MiMMO : ERROR : " << getName() << " displacements size (" << size << ") does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-		std::cout << "MiMMO :         " << getName() << " displacements resize to "<< getTotalNodesCount() << " (0 value for new displacements) " << std::endl;
-		displ.resize(getTotalNodesCount(), {{0.0, 0.0, 0.0}});
-		size = displ.size();
+		std::cout << "MiMMO : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 	}
 	
 	removeAllData();
@@ -196,35 +193,33 @@ void MRBF::setDisplacements(dvecarr3E displ){
 		for(int i=0; i<size; ++i){
 			temp[i] = displ[i][loc];
 		}
+		cout << "loc " << loc << endl;
 		addData(temp);
 	}
 }
 
-/*!
- * Define 3D displacements of your RBF parameterization, only on currently active Nodes. The method is not active in RBFType::INTERP mode
- * \param[in] displ list of nodal displacements on active nodes
- */
-void MRBF::setActiveDisplacements(dvecarr3E displ){
-	int size = displ.size();
-	if(size != getActiveCount()){
-		std::cout << "MiMMO : ERROR : " << getName() << " displacements size (" << size << ") does not fit number of active RBF nodes ("<< getActiveCount() << ")" << std::endl;
-		std::cout << "MiMMO :         " << getName() << " displacements resize to "<< getActiveCount() << " (0 value for new displacements) " << std::endl;
-		displ.resize(getActiveCount(), {{0.0, 0.0, 0.0}});
-		size = displ.size();
-	}
-	
-	removeAllData();
-	
-	dvector1D temp(size);
-	for(int loc=0; loc<3; ++loc){
-		
-		for(int i=0; i<size; ++i){
-			temp[i] = displ[i][loc];
-		}
-		dvector1D dummy = convertActiveToTotal(temp);
-		addData(dummy);
-	}
-}
+///*!
+// * Define 3D displacements of your RBF parameterization, only on currently active Nodes. The method is not active in RBFType::INTERP mode
+// * \param[in] displ list of nodal displacements on active nodes
+// */
+//void MRBF::setActiveDisplacements(dvecarr3E displ){
+//	int size = displ.size();
+//	if(size != getActiveCount()){
+//		std::cout << "MiMMO : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getActiveCount() << ")" << std::endl;
+//	}
+//
+//	removeAllData();
+//
+//	dvector1D temp(size);
+//	for(int loc=0; loc<3; ++loc){
+//
+//		for(int i=0; i<size; ++i){
+//			temp[i] = displ[i][loc];
+//		}
+//		dvector1D dummy = convertActiveToTotal(temp);
+//		addData(dummy);
+//	}
+//}
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
  * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
@@ -233,23 +228,23 @@ void MRBF::setActiveDisplacements(dvecarr3E displ){
  */
 void MRBF::execute(){
 
-	cout << "mrbf " << endl;
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
-	cout << "mrbf " << endl;
 
-	cout << "mtol " << m_tol << endl;
-	cout << "n " << getTotalNodesCount() << endl;
-	cout << "nact " << getActiveCount() << endl;
-	cout << "type " << int(whichType()) << endl;
-	cout << "data " << getDataCount() << endl;
+	int size;
+	for (int i=0; i<getDataCount(); i++){
+		if (whichType() == RBFType::INTERP) size = m_value[i].size();
+		if (whichType() == RBFType::PARAM)  size = m_weight[i].size();
+		if(size != getTotalNodesCount()){
+			std::cout << "MiMMO : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+			fitDataToNodes(i);
+		}
+	}
 
 	if (whichType() == RBFType::INTERP) greedy(m_tol);
-	cout << "mrbf " << endl;
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();
-	cout << "mrbf " << endl;
 
 	dvecarr3E result(nv, darray3E{0,0,0});
 	dvector1D displ;

@@ -71,7 +71,7 @@ public:
 	
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E);
-	void			setActiveDisplacements(dvecarr3E);
+//	void			setActiveDisplacements(dvecarr3E);
 	//execute deformation methods
 	void 		execute();
 	
