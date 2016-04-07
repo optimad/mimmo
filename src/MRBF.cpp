@@ -32,7 +32,7 @@ using namespace mimmo;
 /*! Default Constructor.*/
 MRBF::MRBF(){
 	m_name = "MiMMO.MRBF";
-	setType(RBFType::INTERP);
+	setType(RBFType::PARAM);
 	m_maxFields=-1;
 	m_tol = 0.00001;
 };
@@ -55,6 +55,17 @@ MRBF & MRBF::operator=(const MRBF & other){
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
 	return(*this);
+};
+
+/*!It sets the geometry linked by the manipulator object (overloading of base class method).
+ * It sets the behaviour of MRBF object : surface geometry -> PARAM, volume geometry -> INTERP).
+ * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
+ */
+void
+MRBF::setGeometry(MimmoObject* geometry){
+	m_geometry = geometry;
+	if (m_geometry->getType() == 1) setType(RBFType::PARAM);
+	if (m_geometry->getType() == 2) setType(RBFType::INTERP);
 };
 
 /*!Adds a RBF point to the total control node list and activate it.

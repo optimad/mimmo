@@ -40,7 +40,7 @@ namespace mimmo{
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control point given by the user
  *	or stored in a MimmoObject (geometry container). Class is built as default in 
- *  bitpit::RBFType::INTERP mode. See bitpit::RBF docs for further information.
+ *  bitpit::RBFType::PARAM mode. See bitpit::RBF docs for further information.
  * 
  *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
  */
@@ -55,6 +55,8 @@ public:
 	//copy operators/constructors
 	MRBF(const MRBF & other);
 	MRBF & operator=(const MRBF & other);
+
+	void 			setGeometry(MimmoObject* geometry);
 
 	int 			addNode(darray3E);
 	ivector1D		addNode(dvecarr3E);
