@@ -48,11 +48,12 @@ enum WFORMAT{Short, Long};
 class MimmoGeometry: public BaseManipulation{
 public:
 
-	FileType	m_type;			/**<Extension of file to read the geometry.*/
+	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
 	std::string	m_dir;			/**<Name of directory to read/write the geometry (without final "/").*/
 	std::string	m_rfilename;	/**<Name of file to read the geometry (without extension).*/
 
+	FileType	m_wtype;		/**<Extension of file to write the geometry.*/
 	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
@@ -82,8 +83,10 @@ public:
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
-	void		setFileType(FileType type);
-	void		setFileType(int type);
+	void		setReadFileType(FileType type);
+	void		setReadFileType(int type);
+	void		setWriteFileType(FileType type);
+	void		setWriteFileType(int type);
 	void		setRead(bool read);
 	void		setDir(std::string dir);
 	void		setReadFilename(std::string filename);
@@ -96,7 +99,6 @@ public:
 	void		setPIDforce(long i, int pid);
 
 	void		setFormatNAS(WFORMAT wform);
-
 
 	bool		write();
 	bool		read();
@@ -119,8 +121,11 @@ public:
 	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, ivector1D* PIDS = NULL);
 	void writeFooter(std::ofstream& os);
 	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS = NULL);
+	void read(std::string& outputDir, std::string& surfaceName, std::string faceType, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS);
+	void readGeometry(dvecarr3E& points, ivector2D& faces, std::string faceType, std::ifstream& is, ivector1D& PIDS);
 
-
+	std::string trim(std::string in);
+	std::string convertVertex(std::string in);
 
 	template<class Type>
 	void writeValue (Type& value, std::ofstream& os){

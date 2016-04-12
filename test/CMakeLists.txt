@@ -82,6 +82,12 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ball.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ball.stl"
     )
 add_custom_command(
+    TARGET "test_MIMMO_00005" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere2.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sfera.nas" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sfera.nas"
+    )
+add_custom_command(
     TARGET "test_MIMMO_00006" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/plane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/plane.stl"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/disk.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/disk.stl"

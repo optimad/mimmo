@@ -45,12 +45,13 @@ void test0005() {
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
-	geometry->setFileType(0);
-	geometry->setReadFilename("geo_data/sphere2.stl");
+	geometry->setReadFileType(3);
+	geometry->setDir(".");
+	geometry->setReadFilename("geo_data/sfera");
 	geometry->setWrite(true);
+	geometry->setWriteFileType(3);
 	string filename = "mimmo_0005.0000";
 	geometry->setWriteFilename(filename);
-
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();

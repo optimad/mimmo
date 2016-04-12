@@ -169,17 +169,17 @@ void test0006() {
 
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
-	geometry->setFileType(3);
-	geometry->setWrite(true);
 	geometry->setDir(".");
-	filename = "mimmo_0006p.out.0001";
+	filename = "mimmo_0006p.outgeom.0001";
+	geometry->setWrite(true);
+	geometry->setWriteFileType(1);
 	geometry->setWriteFilename(filename);
-	//set pids
-	ivector1D pids(mimmoPlane.getNCells());
-	for (int i=0; i<mimmoPlane.getNCells(); i++){
-		pids[i] = i/1000 + 1;
-	}
-	geometry->setPID(pids);
+//	//set pids
+//	ivector1D pids(mimmoPlane.getNCells());
+//	for (int i=0; i<mimmoPlane.getNCells(); i++){
+//		pids[i] = i/1000 + 1;
+//	}
+//	geometry->setPID(pids);
 
 
 
