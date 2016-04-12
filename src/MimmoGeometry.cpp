@@ -33,8 +33,10 @@ using namespace mimmo;
  */
 MimmoGeometry::MimmoGeometry(){
 	m_name 		= "MiMMO.Geometry";
+	m_rtype		= STL;
 	m_read		= false;
 	m_rfilename	= "mimmoGeometry";
+	m_wtype		= STL;
 	m_write		= false;
 	m_wfilename	= "mimmoGeometry";
 	m_dir		= "./";
@@ -58,11 +60,16 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 /*!Assignement operator of MimmoGeometry.
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-	m_type = other.m_type;
+	m_rtype = other.m_rtype;
+	m_wtype = other.m_wtype;
 	m_read = other.m_read;
 	m_rfilename = other.m_rfilename;
 	m_write = other.m_write;
 	m_wfilename = other.m_wfilename;
+	m_dir = other.m_dir;
+	m_local = other.m_local;
+	m_wformat = other.m_wformat;
+	m_pids = other.m_pids;
 	return *this;
 };
 
@@ -194,16 +201,16 @@ MimmoGeometry::setConnectivity(ivector2D * connectivity){
  * \param[in] type Extension of file.
  */
 void
-MimmoGeometry::setFileType(FileType type){
-	m_type = type;
+MimmoGeometry::setReadFileType(FileType type){
+	m_rtype = type;
 }
 
 /*!It sets the type of file to read the geometry during the execution.
  * \param[in] type Label of file type (0 = bynary STL).
  */
 void
-MimmoGeometry::setFileType(int type){
-	m_type = static_cast<FileType>(type);
+MimmoGeometry::setReadFileType(int type){
+	m_rtype = static_cast<FileType>(type);
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -229,6 +236,23 @@ MimmoGeometry::setDir(string dir){
 void
 MimmoGeometry::setReadFilename(string filename){
 	m_rfilename = filename;
+}
+
+
+/*!It sets the type of file to write the geometry during the execution.
+ * \param[in] type Extension of file.
+ */
+void
+MimmoGeometry::setWriteFileType(FileType type){
+	m_wtype = type;
+}
+
+/*!It sets the type of file to write the geometry during the execution.
+ * \param[in] type Label of file type (0 = bynary STL).
+ */
+void
+MimmoGeometry::setWriteFileType(int type){
+	m_wtype = static_cast<FileType>(type);
 }
 
 /*!It sets the condition to write the geometry on file during the execution.
@@ -297,7 +321,8 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
 bool
 MimmoGeometry::write(){
 	if (getGeometry() == NULL) return false;
-	switch(m_type){
+
+	switch(m_wtype){
 	case FileType::STL :
 		//Export STL
 		//TODO patchkernel writes VTU!!!
@@ -368,7 +393,7 @@ MimmoGeometry::read(){
 	//Local Instantiation of mimmo Object.
 	m_local = true;
 
-	switch(m_type){
+	switch(m_rtype){
 
 	//Import STL
 	case FileType::STL :
@@ -400,13 +425,16 @@ MimmoGeometry::read(){
 		}
 		getGeometry()->setConnectivity(&T);
 		getGeometry()->cleanGeometry();
-		cout << getGeometry()->getGeometry()->getCell(4244).getConnect()[0] << endl;
-		cout << getGeometry()->getConnectivity(4244)[0] << endl;
 	}
 	break;
 	case FileType::SVTU :
 		//Import Surface VTU
 	{
+
+		std::ifstream infile(m_dir+"/"+m_rfilename+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+
 		MimmoObject* mimmo0 = new MimmoObject(1);
 		setGeometry(mimmo0);
 
@@ -427,14 +455,51 @@ MimmoGeometry::read(){
 	case FileType::VVTU :
 		//Import Volume VTU
 	{
+
+		std::ifstream infile(m_dir+"/"+m_rfilename+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+
 		MimmoObject* mimmo0 = new MimmoObject(2);
 		setGeometry(mimmo0);
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
+		//TODO TETRA OR VOXEL ELEMENTS?!?
 		bitpit::VTKUnstructuredGrid  vtk(m_dir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
 		vtk.read() ;
+
+		int	np = Ipoints.size();
+		for (long ip=0; ip<np; ip++){
+			getGeometry()->setVertex(Ipoints[ip]);
+		}
+		getGeometry()->setConnectivity(&Iconnectivity);
+		getGeometry()->cleanGeometry();
+	}
+	break;
+	case FileType::NAS :
+		//Import Surface NAS
+	{
+
+		std::ifstream infile(m_dir+"/"+m_rfilename+".nas");
+		bool check = infile.good();
+		if (!check) return false;
+
+		MimmoObject* mimmo0 = new MimmoObject(1);
+		setGeometry(mimmo0);
+
+		dvecarr3E	Ipoints ;
+		ivector2D	Iconnectivity ;
+
+		NastranInterface nastran;
+		nastran.setWFormat(m_wformat);
+
+		string faceType = "CTRIA3";
+		//TODO Long format -> long also ctria?!?
+		// if (m_wformat == Long) faceType = "CTRIA3*";
+
+		nastran.read(m_dir, m_rfilename, faceType, Ipoints, Iconnectivity, m_pids );
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
@@ -447,7 +512,6 @@ MimmoGeometry::read(){
 	}
 	return true;
 };
-
 
 /*!Execution command.
  * It reads the geometry if the condition m_read is true.
@@ -471,12 +535,15 @@ MimmoGeometry::execute(){
 }
 
 
+//===============================//
+//====== NASTRAN INTERFACE ======//
+//===============================//
+
 void NastranInterface::setWFormat(WFORMAT wf){
 	wformat = wf;
 }
 
 void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
-
 	os.setf(ios_base::left);
 	switch (wformat)
 	{
@@ -507,13 +574,9 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 	// 9 SEID : super-element ID
 
 	string separator_("");
-
 	writeKeyword(string("GRID"), os);
-
 	os << separator_;
-
 	os.setf(ios_base::right);
-
 	int pointI1 = pointI+1;
 	writeValue(pointI1, os);
 	os << separator_;
@@ -528,12 +591,10 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 	case Short:
 	{
 		writeValue(p[2], os);
-
 		os << nl;
 //		os << setw(8) << p[2]
 //						   << nl;
 		os.unsetf(ios_base::right);
-
 		break;
 	}
 	case Long:
@@ -544,7 +605,6 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 		os.setf(ios_base::right);
 		writeValue(p[2], os);
 		os << nl;
-
 		break;
 	}
 	default:
@@ -553,11 +613,8 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 		exit(999);
 	}
 	}
-
 	os.unsetf(ios_base::right);
 }
-
-// NASTRAN INTERFACE //
 
 void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os, int PID){
 	// Only valid surface elements are CTRIA3 and CQUAD4
@@ -576,22 +633,14 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 
 	WFORMAT wformat_ = wformat;
 	wformat = Short;
-
 	string separator_("");
-
 	writeKeyword(faceType, os);
-
 	os << separator_;
-
 	os.setf(ios_base::right);
-
 	nFace++;
 	writeValue(nFace, os);
-
 	os << separator_;
-
 	writeValue(PID, os);
-
 	int fp1;
 	switch (wformat)
 	{
@@ -609,7 +658,6 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 	{
 		for (int i=0; i< facePts.size(); i++)
 		{
-
 			fp1 = facePts[i] + 1;
 			writeValue(fp1, os);
 //			if (i == 1)
@@ -620,7 +668,6 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 //				os.setf(ios_base::right);
 //			}
 		}
-
 		break;
 	}
 	default:
@@ -629,14 +676,10 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 		exit(999);
 	}
 	}
-
 	os << nl;
 	os.unsetf(ios_base::right);
-
 	wformat = wformat_;
-
 }
-
 
 void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, ivector1D* PIDS){
 	// Write points
@@ -648,13 +691,10 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 	{
 		writeCoord(points[pointI], pointI, os);
 	}
-
-
 	// Write faces
 	os << "$" << nl
 			<< "$ Faces" << nl
 			<< "$" << nl;
-
 	int nFace = 0;
 	bool flagpid = (PIDS != NULL);
 	for (int faceI=0; faceI< faces.size(); faceI++)
@@ -662,7 +702,6 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 		const ivector1D& f = faces[faceI];
 		int PID = 1;
 		if (flagpid) PID = (*PIDS)[faceI];
-
 		if (f.size() == 3)
 		{
 			writeFace("CTRIA3", faces[faceI], nFace, os, PID);
@@ -679,17 +718,12 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 	}
 }
 
-
 void NastranInterface::writeFooter(ofstream& os){
 	int PID = 1;
 	string separator_("");
-
 	writeKeyword("PSHELL", os);
-
 	os << separator_;
-
 	writeValue(PID, os);
-
 	for (int i = 0; i < 7; i++)
 	{
 		// Dummy values
@@ -697,47 +731,137 @@ void NastranInterface::writeFooter(ofstream& os){
 		int uno = 1;
 		writeValue(uno, os);
 	}
-
 	os << nl;
 	writeKeyword("MAT1", os);
 	os << separator_;
-
 	int MID = 1;
-
 	writeValue(MID, os);
-
 	for (int i = 0; i < 7; i++)
 	{
 		// Dummy values
 		os << separator_;
 		writeValue("", os);
 	}
-
 	os << nl;
 }
 
-
-
 void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS){
 
-
 	ofstream os(outputDir +"/"+surfaceName + ".nas");
-//	formatOS(os);
-
 	os << "TITLE=MiMMO " << surfaceName << " mesh" << nl
 			<< "$" << nl
 			<< "BEGIN BULK" << nl;
-
 	writeGeometry(points, faces, os, PIDS);
-
 	writeFooter(os);
-
 	os << "ENDDATA" << endl;
-
 	return;
 }
 
+//========READ====//
 
+void NastranInterface::read(string& inputDir, string& surfaceName, string faceType, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS){
+
+	ifstream is(inputDir +"/"+surfaceName + ".nas");
+
+	points.clear();
+	faces.clear();
+	PIDS.clear();
+
+	int ipoint = 0;
+	int iface  = 0;
+	darray3E point;
+	ivector1D face(3);
+	map<int,int> mapnodes;
+	int id;
+	int pid;
+	string sread;
+	string ssub = trim(sread.substr(0,8));
+
+	while(!is.eof()){
+		while(ssub != "GRID" &&
+				ssub != faceType &&
+				ssub != "GRID*" &&
+				!is.eof()){
+
+			getline(is,sread);
+			ssub = trim(sread.substr(0,8));
+
+		}
+		if(ssub == "GRID"){
+			id = stoi(sread.substr(8,8));
+			mapnodes[id] = ipoint;
+			point[0] = stod(convertVertex(trim(sread.substr(24,8))));
+			point[1] = stod(convertVertex(trim(sread.substr(32,8))));
+			point[2] = stod(convertVertex(trim(sread.substr(40,8))));
+			points.push_back(point);
+			ipoint++;
+			getline(is,sread);
+			ssub = trim(sread.substr(0,8));
+		}
+		else if(ssub == "GRID*"){
+			id = stoi(sread.substr(16,16));
+			mapnodes[id] = ipoint;
+			point[0] = stod(convertVertex(trim(sread.substr(48,16))));
+			point[1] = stod(convertVertex(trim(sread.substr(64,16))));
+			point[2] = stod(convertVertex(trim(sread.substr(80,16))));
+			points.push_back(point);
+			ipoint++;
+			getline(is,sread);
+			ssub = trim(sread.substr(0,8));
+		}
+		else if(ssub == "CTRIA3"){
+			pid = stoi(sread.substr(16,8));
+			face[0] = mapnodes[stoi(sread.substr(24,8))];
+			face[1] = mapnodes[stoi(sread.substr(32,8))];
+			face[2] = mapnodes[stoi(sread.substr(40,8))];
+			faces.push_back(face);
+			PIDS.push_back(pid);
+			iface++;
+			getline(is,sread);
+			ssub = trim(sread.substr(0,8));
+		}
+		else if(ssub == "CTRIA3*"){
+			pid = stoi(sread.substr(32,16));
+			face[0] = mapnodes[stoi(sread.substr(48,16))];
+			face[1] = mapnodes[stoi(sread.substr(64,16))];
+			face[2] = mapnodes[stoi(sread.substr(80,16))];
+			faces.push_back(face);
+			PIDS.push_back(pid);
+			iface++;
+			getline(is,sread);
+			ssub = trim(sread.substr(0,8));
+		}
+
+	}
+	is.close();
+	return;
+
+}
+
+string
+NastranInterface::trim(string in){
+
+	stringstream out;
+	out << in;
+	out >> in;
+	return in;
+}
+
+
+string
+NastranInterface::convertVertex(string in){
+	int pos = in.find_last_of("-");
+	if (pos<in.size() && pos > 0){
+		in.insert(pos, "E");
+	}
+	else{
+		pos = in.find_last_of("+");
+		if (pos<in.size() && pos > 0){
+				in.insert(pos, "E");
+		}
+	}
+	return in;
+}
 
 
 
