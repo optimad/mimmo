@@ -69,6 +69,7 @@ public:
 	dvecarr3E	getVertex();
 	darray3E	getVertex(long i);
 	ivector1D	getConnectivity(long i);
+	ivector2D	getConnectivity();
 	bitpit::PatchKernel*		getGeometry();
 	livector1D&	getMapData();
 	long		getMapData(int i);

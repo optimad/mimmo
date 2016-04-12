@@ -28,7 +28,12 @@
 
 namespace mimmo{
 
-enum FileType{/*!Binary stl.*/ STL};		/**Extension of file to read the geometry.*/
+class NastranInterface;
+
+enum FileType{/*!Binary stl.*/ STL = 0, /*!Surface vtu.*/ SVTU = 1,
+			/*!Volume VTU.*/ VVTU = 2, /*!Nastran .*/ NAS = 3};		/**Extension of file to read
+																	the geometry.*/
+enum WFORMAT{Short, Long};
 
 /*!
  *	\date			30/mar/2016
@@ -39,20 +44,23 @@ enum FileType{/*!Binary stl.*/ STL};		/**Extension of file to read the geometry.
  *
  *	The parameter of linked geometry are given by wrapper functions of this BaseManipulation
  *	derived class.
- *
  */
 class MimmoGeometry: public BaseManipulation{
 public:
 
 	FileType	m_type;			/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
-	std::string	m_rfilename;	/**<Name of file to read the geometry (with extension).*/
+	std::string	m_dir;			/**<Name of directory to read/write the geometry (without final "/").*/
+	std::string	m_rfilename;	/**<Name of file to read the geometry (without extension).*/
 
 	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
 private:
 	bool		m_local;		/**<Is the geometry locally instantiated?.*/
+
+	WFORMAT		m_wformat;		/**<Format for .nas import/export. (Short/Long).*/
+	ivector1D	m_pids;			/**<Cells' PID.*/
 
 public:
 	MimmoGeometry();
@@ -67,6 +75,8 @@ public:
 	dvecarr3E	getVertex();
 	darray3E	getVertex(long i);
 	ivector1D	getConnectivity(long i);
+	ivector1D	getPID();
+	int			getPID(long i);
 
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(darray3E & vertex);
@@ -75,9 +85,18 @@ public:
 	void		setFileType(FileType type);
 	void		setFileType(int type);
 	void		setRead(bool read);
+	void		setDir(std::string dir);
 	void		setReadFilename(std::string filename);
 	void		setWrite(bool write);
 	void		setWriteFilename(std::string filename);
+
+	void		activatePID();
+	void		setPID(ivector1D pids);
+	void		setPID(long i, int pid);
+	void		setPIDforce(long i, int pid);
+
+	void		setFormatNAS(WFORMAT wform);
+
 
 	bool		write();
 	bool		read();
@@ -85,6 +104,64 @@ public:
 	void 		execute();
 
 };
+
+
+class NastranInterface{
+	static const char nl = '\n';
+public:
+
+	WFORMAT	wformat;
+
+	void setWFormat(WFORMAT);
+	void writeKeyword(std::string key, std::ofstream& os);
+	void writeCoord(darray3E & p, int& pointI, std::ofstream& os);
+	void writeFace(std::string faceType, ivector1D& facePts, int& nFace, std::ofstream& os, int PID);
+	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, ivector1D* PIDS = NULL);
+	void writeFooter(std::ofstream& os);
+	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS = NULL);
+
+
+
+	template<class Type>
+	void writeValue (Type& value, std::ofstream& os){
+
+		int offset = 5;
+		if (wformat == Long) offset = 13;
+
+		std::stringstream manip;
+		manip << value;
+		std::string manips = manip.str();
+		std::string mantissa, expon;
+		int pos = manips.find("E");
+		if (pos < manips.size()){
+			mantissa = manips.substr(0,std::min(offset,pos));
+			expon = manips.substr(pos+1,manips.size());
+			manips = mantissa + expon;
+		}
+		pos = manips.find("e");
+		if (pos < manips.size()){
+			mantissa = manips.substr(0,std::min(offset,pos));
+			expon = manips.substr(pos+1,manips.size());
+			manips = mantissa + expon;
+		}
+		manips = manips.substr(0, offset+3);
+
+		switch (wformat)
+		{
+		case Short:
+		{
+			os << std::setw(8) << manips;
+			break;
+		}
+		case Long:
+		{
+			os << std::setw(16) << manips;
+			break;
+		}
+		}
+	}
+};
+
 
 }
 
