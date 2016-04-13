@@ -221,7 +221,6 @@ MimmoGeometry::setReadFileType(int type){
 void
 MimmoGeometry::setRead(bool read){
 	m_read = read;
-	//	if (read) m_write = false;
 }
 
 /*!It sets the name of directory to read the geometry.
@@ -263,7 +262,6 @@ MimmoGeometry::setWriteFileType(int type){
 void
 MimmoGeometry::setWrite(bool write){
 	m_write = write;
-	//	if (write)m_read = false;
 }
 
 /*!It sets the name of directory to write the geometry.
@@ -316,14 +314,13 @@ MimmoGeometry::setPIDforce(long i, int pid){
 	m_pids[i] = pid;
 };
 
-/*!It sets the format to import/export .nas file.
+/*!It sets the format to export .nas file.
  * \param[in] wform Format of .nas file (Short/Long).
  */
 void
 MimmoGeometry::setFormatNAS(WFORMAT wform){
 	m_wformat = wform;
 }
-
 
 /*!It writes the mesh geometry on output .vtu file.
  *\return False if geometry is not linked.

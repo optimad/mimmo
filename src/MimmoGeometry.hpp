@@ -50,8 +50,7 @@ enum WFORMAT{Short, Long};
  *
  */
 class MimmoGeometry: public BaseManipulation{
-public:
-
+private:
 	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
 	std::string	m_rdir;			/**<Name of directory to read the geometry (without final "/").*/
@@ -62,7 +61,6 @@ public:
 	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
-private:
 	bool		m_local;		/**<Is the geometry locally instantiated?.*/
 
 	WFORMAT		m_wformat;		/**<Format for .nas import/export. (Short/Long).*/
