@@ -49,7 +49,7 @@ void test0005() {
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename("sphere2");
 	geometry->setWrite(true);
-	geometry->setWriteFileType(1);
+	geometry->setWriteFileType(0);
 	geometry->setWriteDir(".");
 	string filename = "mimmo_0005.0000";
 	geometry->setWriteFilename(filename);
