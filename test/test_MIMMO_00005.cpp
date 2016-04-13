@@ -45,11 +45,12 @@ void test0005() {
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
-	geometry->setReadFileType(3);
-	geometry->setDir(".");
-	geometry->setReadFilename("geo_data/sfera");
+	geometry->setReadFileType(0);
+	geometry->setReadDir("./geo_data");
+	geometry->setReadFilename("sphere2");
 	geometry->setWrite(true);
-	geometry->setWriteFileType(3);
+	geometry->setWriteFileType(1);
+	geometry->setWriteDir(".");
 	string filename = "mimmo_0005.0000";
 	geometry->setWriteFilename(filename);
 
