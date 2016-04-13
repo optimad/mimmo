@@ -167,22 +167,6 @@ void test0006() {
 	Apply* applier2 = new Apply();
 	applier2->setGeometry(&mimmoPlane);
 
-	//Instantiation of mimmo geometry Object.
-	MimmoGeometry* geometry = new MimmoGeometry();
-	geometry->setDir(".");
-	filename = "mimmo_0006p.outgeom.0001";
-	geometry->setWrite(true);
-	geometry->setWriteFileType(1);
-	geometry->setWriteFilename(filename);
-//	//set pids
-//	ivector1D pids(mimmoPlane.getNCells());
-//	for (int i=0; i<mimmoPlane.getNCells(); i++){
-//		pids[i] = i/1000 + 1;
-//	}
-//	geometry->setPID(pids);
-
-
-
 	//Set PINS
 	cout << "set pins" << endl;
 
@@ -207,7 +191,6 @@ void test0006() {
 	addPin(lattice, mrbf, &FFDLattice::getResult<dvecarr3E>, &MRBF::setDisplacements);
 	addPin(mrbf, applier2, &MRBF::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 
-	addPin(applier2, geometry, &Apply::getGeometry, &MimmoGeometry::setGeometry);
 	cout << "set pins done" << endl;
 
 	//Create chain
@@ -225,7 +208,6 @@ void test0006() {
 	ch0.addObject(applier);
 	ch0.addObject(mrbf);
 	ch0.addObject(applier2);
-	ch0.addObject(geometry);
 
 	//Execution of chain
 	cout << "execution start" << endl;

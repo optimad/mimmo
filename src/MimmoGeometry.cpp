@@ -39,7 +39,8 @@ MimmoGeometry::MimmoGeometry(){
 	m_wtype		= STL;
 	m_write		= false;
 	m_wfilename	= "mimmoGeometry";
-	m_dir		= "./";
+	m_rdir		= "./";
+	m_wdir		= "./";
 	m_local 	= false;
 	m_wformat	= Short;
 }
@@ -66,7 +67,8 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_rfilename = other.m_rfilename;
 	m_write = other.m_write;
 	m_wfilename = other.m_wfilename;
-	m_dir = other.m_dir;
+	m_rdir = other.m_rdir;
+	m_wdir = other.m_wdir;
 	m_local = other.m_local;
 	m_wformat = other.m_wformat;
 	m_pids = other.m_pids;
@@ -222,12 +224,12 @@ MimmoGeometry::setRead(bool read){
 	//	if (read) m_write = false;
 }
 
-/*!It sets the name of directory to read/write the geometry.
- * \param[in] filename Name of directory.
+/*!It sets the name of directory to read the geometry.
+ * \param[in] dir Name of directory.
  */
 void
-MimmoGeometry::setDir(string dir){
-	m_dir = dir;
+MimmoGeometry::setReadDir(string dir){
+	m_rdir = dir;
 }
 
 /*!It sets the name of file to read the geometry.
@@ -262,6 +264,14 @@ void
 MimmoGeometry::setWrite(bool write){
 	m_write = write;
 	//	if (write)m_read = false;
+}
+
+/*!It sets the name of directory to write the geometry.
+ * \param[in] dir Name of directory.
+ */
+void
+MimmoGeometry::setWriteDir(string dir){
+	m_wdir = dir;
 }
 
 /*!It sets the name of file to write the geometry.
@@ -327,7 +337,7 @@ MimmoGeometry::write(){
 		//Export STL
 		//TODO patchkernel writes VTU!!!
 	{
-		getGeometry()->write(m_dir+"/"+m_wfilename);
+		getGeometry()->write(m_wdir+"/"+m_wfilename);
 		return true;
 	}
 	break;
@@ -341,7 +351,7 @@ MimmoGeometry::write(){
 				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
 			}
 		}
-		bitpit::VTKUnstructuredGrid  vtk(m_dir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
 		vtk.write() ;
 		return true;
 	}
@@ -356,7 +366,7 @@ MimmoGeometry::write(){
 				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
 			}
 		}
-		bitpit::VTKUnstructuredGrid  vtk(m_dir, m_wfilename, bitpit::VTKElementType::VOXEL, points , connectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
 		vtk.write() ;
 		return true;
 	}
@@ -374,10 +384,10 @@ MimmoGeometry::write(){
 		NastranInterface nastran;
 		nastran.setWFormat(m_wformat);
 		if (m_pids.size() == connectivity.size()){
-			nastran.write(m_dir,m_wfilename,points,connectivity, &m_pids);
+			nastran.write(m_wdir,m_wfilename,points,connectivity, &m_pids);
 		}
 		else{
-			nastran.write(m_dir,m_wfilename,points,connectivity);
+			nastran.write(m_wdir,m_wfilename,points,connectivity);
 		}
 	}
 	break;
@@ -405,13 +415,13 @@ MimmoGeometry::read(){
 		int		np,	nt;
 		darray3E point;
 		{
-			std::ifstream infile(m_dir+"/"+m_rfilename+".stl");
+			std::ifstream infile(m_rdir+"/"+m_rfilename+".stl");
 			bool check = infile.good();
-			name = m_dir+m_rfilename+".stl";
+			name = m_rdir+"/"+m_rfilename+".stl";
 			if (!check){
-				infile.open(m_dir+m_rfilename+".STL");
+				infile.open(m_rdir+m_rfilename+".STL");
 				check = infile.good();
-				name = m_dir+m_rfilename+".STL";
+				name = m_rdir+"/"+m_rfilename+".STL";
 				if (!check) return false;
 			}
 		}
@@ -431,7 +441,7 @@ MimmoGeometry::read(){
 		//Import Surface VTU
 	{
 
-		std::ifstream infile(m_dir+"/"+m_rfilename+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
@@ -441,7 +451,7 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_dir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
 		vtk.read() ;
 
 		int	np = Ipoints.size();
@@ -456,7 +466,7 @@ MimmoGeometry::read(){
 		//Import Volume VTU
 	{
 
-		std::ifstream infile(m_dir+"/"+m_rfilename+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
@@ -467,7 +477,7 @@ MimmoGeometry::read(){
 		ivector2D	Iconnectivity ;
 
 		//TODO TETRA OR VOXEL ELEMENTS?!?
-		bitpit::VTKUnstructuredGrid  vtk(m_dir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
 		vtk.read() ;
 
 		int	np = Ipoints.size();
@@ -482,7 +492,7 @@ MimmoGeometry::read(){
 		//Import Surface NAS
 	{
 
-		std::ifstream infile(m_dir+"/"+m_rfilename+".nas");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".nas");
 		bool check = infile.good();
 		if (!check) return false;
 
@@ -495,11 +505,7 @@ MimmoGeometry::read(){
 		NastranInterface nastran;
 		nastran.setWFormat(m_wformat);
 
-		string faceType = "CTRIA3";
-		//TODO Long format -> long also ctria?!?
-		// if (m_wformat == Long) faceType = "CTRIA3*";
-
-		nastran.read(m_dir, m_rfilename, faceType, Ipoints, Iconnectivity, m_pids );
+		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, m_pids );
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
@@ -759,7 +765,7 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
 
 //========READ====//
 
-void NastranInterface::read(string& inputDir, string& surfaceName, string faceType, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS){
+void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS){
 
 	ifstream is(inputDir +"/"+surfaceName + ".nas");
 
@@ -779,8 +785,9 @@ void NastranInterface::read(string& inputDir, string& surfaceName, string faceTy
 
 	while(!is.eof()){
 		while(ssub != "GRID" &&
-				ssub != faceType &&
 				ssub != "GRID*" &&
+				ssub != "CTRIA3" &&
+				ssub != "CTRIA3*" &&
 				!is.eof()){
 
 			getline(is,sread);

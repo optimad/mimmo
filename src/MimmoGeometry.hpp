@@ -42,19 +42,24 @@ enum WFORMAT{Short, Long};
  *
  *	\brief MimmoGeometry is the class that wrap a geometry Mimmo Object .
  *
- *	The parameter of linked geometry are given by wrapper functions of this BaseManipulation
- *	derived class.
+ *	The parameter of linked geometry are given by wrapper functions of this
+ *	BaseManipulation derived class.
+ *	MimmoGeometry is the object to manage the import/export of geometry file.
+ *	The valid format are: binary .stl, ascii .vtu (triangle elements) and
+ *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra elements) for volume mesh.
+ *
  */
 class MimmoGeometry: public BaseManipulation{
 public:
 
 	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
-	std::string	m_dir;			/**<Name of directory to read/write the geometry (without final "/").*/
+	std::string	m_rdir;			/**<Name of directory to read the geometry (without final "/").*/
 	std::string	m_rfilename;	/**<Name of file to read the geometry (without extension).*/
 
 	FileType	m_wtype;		/**<Extension of file to write the geometry.*/
 	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
+	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
 private:
@@ -83,12 +88,13 @@ public:
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
+	void		setReadDir(std::string dir);
 	void		setReadFileType(FileType type);
 	void		setReadFileType(int type);
 	void		setWriteFileType(FileType type);
 	void		setWriteFileType(int type);
 	void		setRead(bool read);
-	void		setDir(std::string dir);
+	void		setWriteDir(std::string dir);
 	void		setReadFilename(std::string filename);
 	void		setWrite(bool write);
 	void		setWriteFilename(std::string filename);
@@ -121,8 +127,7 @@ public:
 	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, ivector1D* PIDS = NULL);
 	void writeFooter(std::ofstream& os);
 	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS = NULL);
-	void read(std::string& outputDir, std::string& surfaceName, std::string faceType, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS);
-	void readGeometry(dvecarr3E& points, ivector2D& faces, std::string faceType, std::ifstream& is, ivector1D& PIDS);
+	void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS);
 
 	std::string trim(std::string in);
 	std::string convertVertex(std::string in);
