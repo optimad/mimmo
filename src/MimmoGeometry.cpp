@@ -422,7 +422,17 @@ MimmoGeometry::read(){
 				if (!check) return false;
 			}
 		}
-		STLObj stl(name, true);
+
+		ifstream in(name);
+		string	ss, sstype;
+		getline(in,ss);
+		stringstream ins;
+		ins << ss;
+		ins >> sstype;
+		bool binary = true;
+		if (sstype == "solid" || sstype == "SOLID") binary = false;
+		STLObj stl(name, binary);
+
 		dvector2D V,N;
 		ivector2D T;
 		stl.load(np, nt, V, N, T);
