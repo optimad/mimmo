@@ -178,8 +178,8 @@ BaseManipulation::getNPinsOut(){
  */
 bool
 BaseManipulation::isActive(){
-	return(m_active);
-};
+	return (m_active);
+}
 
 /*!It sets the name of the manipulator object.
  * \param[in] name Name of the manipulator object.
