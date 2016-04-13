@@ -335,7 +335,7 @@ MimmoGeometry::write(){
 	switch(m_wtype){
 	case FileType::STL :
 		//Export STL
-		//TODO patchkernel writes VTU!!!
+		//TODO patchkernel writes VTU update with new bitpit and use writeSTL!!!
 	{
 		getGeometry()->write(m_wdir+"/"+m_wfilename);
 		return true;
