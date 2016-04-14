@@ -195,23 +195,6 @@ MimmoObject::getConnectivity(long i){
 	return connecti;
 };
 
-/*!It gets the connectivity of the cells of the geometry Patch.
- * \return Connectivity of the cells of geometry mesh.
- */
-ivector2D
-MimmoObject::getConnectivity(){
-	if (m_geometry == NULL) return ivector2D();
-	int np = m_geometry->getCell(0).getVertexCount();
-	int nc = m_geometry->getCellCount();
-	ivector2D connect(nc, ivector1D(np));
-	for (int i=0; i<nc; i++){
-		const long * connectivity = m_geometry->getCell(i).getConnect();
-		for (int j=0; j<np; j++){
-			connect[i][j] = connectivity[j];
-		}
-	}
-	return connect;
-};
 
 /*!It gets the geometry Patch linked by Mimmo Object.
  * \return Pointer to geometry mesh.
