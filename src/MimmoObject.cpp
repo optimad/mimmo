@@ -187,12 +187,12 @@ ivector1D
 MimmoObject::getConnectivity(long i){
 	if (m_geometry == NULL) return ivector1D();
 	int np = m_geometry->getCell(i).getVertexCount();
-	ivector1D connect(np);
+	ivector1D connecti(np);
 	const long * connectivity = m_geometry->getCell(i).getConnect();
 	for (int i=0; i<np; i++){
-		connect[i] = connectivity[i];
+		connecti[i] = connectivity[i];
 	}
-	return connect;
+	return connecti;
 };
 
 /*!It gets the connectivity of the cells of the geometry Patch.
