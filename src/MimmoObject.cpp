@@ -68,6 +68,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	if (connectivity != NULL)
 		setConnectivity(connectivity);
 	setMapData();
+	setMapCell();
 };
 
 /*!Custom constructor of MimmoObject.
@@ -80,6 +81,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_geometry 		= geometry;
 	m_internalPatch = false;
 	setMapData();
+	setMapCell();
 }
 
 /*!Default destructor of MimmoObject.
@@ -97,6 +99,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_internalPatch = false;
 	m_mapData		= other.m_mapData;
 	m_mapDataInv	= other.m_mapDataInv;
+	m_mapCellInv	= other.m_mapCellInv;
 };
 
 /*!Assignement operator of MimmoObject.
@@ -107,6 +110,7 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_internalPatch = false;
 	m_mapData		= other.m_mapData;
 	m_mapDataInv	= other.m_mapDataInv;
+	m_mapCellInv	= other.m_mapCellInv;
 	return *this;
 };
 
@@ -254,6 +258,15 @@ MimmoObject::getMapDataInv(long id){
 };
 
 
+/*!It gets the cell ids.
+ * \return Reference to inverse of Map data with cell ids.
+ */
+liimap&
+MimmoObject::getMapCellInv(){
+	return m_mapCellInv;
+};
+
+
 /*!It sets the coordinates of the vertices of the geometry Patch.
  * \param[in] vertex Coordinates of vertices of geometry mesh.
  * \return False if no geometry is linked.
@@ -312,20 +325,22 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 	long nc = connectivity->size();
 	long index;
 	for (long i=0; i<nc; i++){
-		unique_ptr<long[]> connect = std::unique_ptr<long[]>(new long[nv]);
+		unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[nv]);
 		for (int j=0; j<nv; j++){
-			connect[j] = (*connectivity)[i][j];
+			connecti[j] = (*connectivity)[i][j];
 		}
 		index = i;
 		PatchKernel::CellIterator it;
 		if (m_type == 1)  it = m_geometry->addCell(ElementInfo::TRIANGLE, true, index);
 		if (m_type == 2)  it = m_geometry->addCell(ElementInfo::TETRA, true, index);
-		it->setConnect(move(connect));
+		it->setConnect(move(connecti));
 		//DEBUG FORCE SET_TYPE
 		if (m_type == 1)  it->setType(ElementInfo::TRIANGLE);
 		if (m_type == 2)  it->setType(ElementInfo::TETRA);
-		//
 	}
+	
+	//create inverse map of cells
+	setMapCell();
 	return true;
 };
 
@@ -340,9 +355,13 @@ MimmoObject::setGeometry(int type, PatchKernel* geometry){
 	m_geometry = geometry;
 	m_type = type;
 	setMapData();
+	setMapCell();
 	return true;
 };
 
+
+//TODO enrich cleaning of geometry with other useful utilities as double cells removal,
+//		zero area/volume cells removal, isolated cells/vertices.
 
 /*!It cleans the geometry Patch.
  * \return False if the geometry member pointer is NULL.
@@ -352,6 +371,7 @@ MimmoObject::cleanGeometry(){
 	if (m_geometry == NULL) return false;
 	m_geometry->deleteCoincidentVertices();
 	setMapData();
+	setMapCell();
 	return true;
 };
 
@@ -372,6 +392,23 @@ MimmoObject::setMapData(){
 	for (it = m_geometry->vertexBegin(); it != itend; ++it){
 		m_mapData[i] = it->getId();
 		m_mapDataInv[m_mapData[i]] = i;
+		i++;
+	}
+	return true;
+};
+
+/*!It sets the mapper external data/cells.
+ * \return False if the geometry member pointer is NULL.
+ */
+bool
+MimmoObject::setMapData(){
+	if (m_geometry == NULL) return false;
+	m_mapCellInv.clear();
+	PatchKernel::cellIterator it;
+	PatchKernel::CellIterator itend = m_geometry->cellEnd();
+	long i = 0;
+	for (it = m_geometry->cellBegin(); it != itend; ++it){
+		m_mapDataInv[it->getId()] = i;
 		i++;
 	}
 	return true;
