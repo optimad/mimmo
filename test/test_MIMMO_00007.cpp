@@ -48,9 +48,9 @@ void test0007() {
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename("points");
 	geometry->setWrite(true);
-	geometry->setWriteFileType(0);
+	geometry->setWriteFileType(OFP);
 	geometry->setWriteDir(".");
-	string filename = "mimmo_0007.0000";
+	string filename = "points";
 	geometry->setWriteFilename(filename);
 
 	//Set PINS

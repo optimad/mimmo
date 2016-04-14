@@ -388,6 +388,15 @@ MimmoGeometry::write(){
 		}
 	}
 	break;
+	//Export ascii OpenFOAM point cloud
+	case FileType::OFP :
+	{
+
+		dvecarr3E points = getGeometry()->getVertex();
+		writeOFP(m_wdir, m_wfilename, points);
+
+	}
+	break;
 	}
 };
 
@@ -612,65 +621,63 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
 void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
 
 	ofstream os(outputDir +"/"+surfaceName);
+	char nl = '\n';
 
 	string separator(" ");
-	string par("(");
+	string parl("("), parr(")");
 	string hline;
 
-	hline = "/*--------------------------------*- C++ -*----------------------------------*\";
-			hline = "| =========                 |                                                 |";
-	hline = "	| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-	hline = "|  \\    /   O peration     | Version:  2.4.x                                 |";
-	hline = "|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-	hline = "|    \\/     M anipulation  |                                                 |";
-	hline = "\*---------------------------------------------------------------------------*/";
+	hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
+	os << hline << nl;
+	hline = "| =========                 |                                                 |";
+	os << hline << nl;
+	hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
+	os << hline << nl;
+	hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
+	os << hline << nl;
+	hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
+	os << hline << nl;
+	hline = "|    \\\\/     M anipulation  |                                                 |";
+	os << hline << nl;
+	hline = "\\*---------------------------------------------------------------------------*/";
+	os << hline << nl;
 	hline = "FoamFile";
+	os << hline << nl;
 	hline = "{";
-	hline = "	    version     2.0;";
-	hline = "	    format      ascii;";
-	hline = "	    class       vectorField;";
-	hline = "	    location    "constant/polyMesh";";
-	hline = "	    object      points;";
-	hline = "	}";
+	os << hline << nl;
+	hline = "    version     2.0;";
+	os << hline << nl;
+	hline = "    format      ascii;";
+	os << hline << nl;
+	hline = "    class       vectorField;";
+	os << hline << nl;
+	hline = "    location    \"constant/polyMesh\";";
+	os << hline << nl;
+	hline = "    object      points;";
+	os << hline << nl;
+	hline = "}";
+	os << hline << nl;
 	hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-
-
-
-
-	int ip = 0;
+	os << hline << nl;
+	os << nl;
+	os << nl;
 	int np = points.size();
-	darray3E point;
-	string sread;
-	char par;
-
-
-
-
-	for (int pointI=0; pointI< points.size(); pointI++)
-	{
-		writeCoord(points[pointI], pointI, os);
+	os << np << nl;
+	os << parl << nl;
+	for (int i=0; i<np; i++){
+		os << parl;
+		for (int j=0; j<2; j++){
+			os << points[i][j] << separator;
+		}
+		os << points[i][2] << parr << nl;
 	}
+	os << parr << nl;
+	os << nl;
+	os << nl;
+	hline = "// ************************************************************************* //";
+	os << hline << nl;
 
-
-
-	for (int i=0; i<18; i++){
-		getline(is,sread);
-		cout << sread << endl;
-	}
-	is >> np;
-	getline(is,sread);
-	getline(is,sread);
-
-	points.resize(np);
-	while(!is.eof() && ip<np){
-		is.get(par);
-		for (int i=0; i<3; i++) is >> point[i];
-		is.get(par);
-		getline(is,sread);
-		points[ip] = point;
-		ip++;
-	}
-	is.close();
+	os.close();
 	return;
 
 }
