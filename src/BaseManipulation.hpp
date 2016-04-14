@@ -117,9 +117,6 @@ protected:
 	std::unique_ptr<IOData>		m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 	bool						m_active;		/**<True/false to activate/disable the object.*/
 
-
-	bool						m_active;		/**<Is the object active? (if false the object and pin functions execution not done).*/
-
 public:
 	BaseManipulation();
 	~BaseManipulation();
