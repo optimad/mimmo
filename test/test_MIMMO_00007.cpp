@@ -44,7 +44,7 @@ void test0007() {
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
-	geometry->setReadFileType(4);
+	geometry->setReadFileType(OFP);
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename("points");
 	geometry->setWrite(true);

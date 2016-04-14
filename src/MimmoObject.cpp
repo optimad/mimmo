@@ -58,8 +58,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	m_internalPatch = true;
 	const int id = 0;
 	if (m_type == 2){
-//		m_geometry = new VolUnstructured(id, 3);
-//		dynamic_cast<VolUnstructured*> (m_geometry)->setExpert(true);
+		m_geometry = new VolUnstructured(id, 3);
+		dynamic_cast<VolUnstructured*> (m_geometry)->setExpert(true);
 	}else{
 		m_geometry = new SurfUnstructured(id);
 		dynamic_cast<SurfUnstructured*> (m_geometry)->setExpert(true);
@@ -320,10 +320,23 @@ bool
 MimmoObject::setConnectivity(ivector2D * connectivity){
 	if (m_geometry == NULL) return false;
 	int nv;
-	if (m_type == 1) nv = 3;
-	if (m_type == 2) nv = 4;  //only tetrahedra
+//	if (m_type == 1) nv = 3;
+//	if (m_type == 2) nv = 4;  //only tetrahedra
+	nv = (*connectivity)[0].size();
 	long nc = connectivity->size();
 	long index;
+	ElementInfo::Type eltype;
+	if (m_type == 1){
+		if (nv == 3) eltype = ElementInfo::TRIANGLE;
+		if (nv == 4) eltype = ElementInfo::QUAD;
+	}
+	else if (m_type == 2){
+		if (nv == 4) eltype = ElementInfo::TETRA;
+		if (nv == 8) eltype = ElementInfo::QUAD;
+	}
+	else{
+		return false;
+	}
 	for (long i=0; i<nc; i++){
 		unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[nv]);
 		for (int j=0; j<nv; j++){
@@ -331,12 +344,10 @@ MimmoObject::setConnectivity(ivector2D * connectivity){
 		}
 		index = i;
 		PatchKernel::CellIterator it;
-		if (m_type == 1)  it = m_geometry->addCell(ElementInfo::TRIANGLE, true, index);
-		if (m_type == 2)  it = m_geometry->addCell(ElementInfo::TETRA, true, index);
+		it = m_geometry->addCell(eltype, true, index);
 		it->setConnect(move(connecti));
 		//DEBUG FORCE SET_TYPE
-		if (m_type == 1)  it->setType(ElementInfo::TRIANGLE);
-		if (m_type == 2)  it->setType(ElementInfo::TETRA);
+		it->setType(eltype);
 	}
 	
 	//create inverse map of cells

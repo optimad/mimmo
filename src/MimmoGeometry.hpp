@@ -30,9 +30,13 @@ namespace mimmo{
 
 class NastranInterface;
 
-enum FileType{/*!Ascii/Binary stl.*/ STL = 0, /*!Surface triangulation vtu.*/ SVTU = 1,
-			/*!Volume tetrahedral VTU.*/ VVTU = 2, /*!Nastran triangulation nas.*/ NAS = 3,
-			/*!Ascii OpenFoam point cloud.*/ OFP = 4};					/**Type of file to read
+enum FileType{/*!Ascii/Binary triangulation stl.*/ STL = 0,
+				/*!Surface triangulation vtu.*/ STVTU = 1,
+				/*!Surface quadrilateral vtu.*/ SQVTU = 2,
+				/*!Volume tetrahedral VTU.*/ VTVTU = 3,
+				/*!Volume hexahedral VTU.*/ VHVTU = 4,
+				/*!Nastran triangulation nas.*/ NAS = 5,
+				/*!Ascii OpenFoam point cloud.*/ OFP = 6};		/**Type of file to read/write
 																	the geometry.*/
 enum WFORMAT{Short, Long};
 
@@ -46,8 +50,10 @@ enum WFORMAT{Short, Long};
  *	The parameter of linked geometry are given by wrapper functions of this
  *	BaseManipulation derived class.
  *	MimmoGeometry is the object to manage the import/export of geometry file.
- *	The valid format are: binary .stl, ascii .vtu (triangle elements) and
- *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra elements) for volume mesh.
+ *	The mesh to import/export has to be a mesh with constant type elements.
+ *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
+ *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
+ *	for volume mesh.
  *
  */
 class MimmoGeometry: public BaseManipulation{

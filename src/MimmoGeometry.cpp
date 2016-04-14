@@ -338,8 +338,8 @@ MimmoGeometry::write(){
 		return true;
 	}
 	break;
-	case FileType::SVTU :
-		//Export Surface VTU
+	case FileType::STVTU :
+		//Export Triangulation Surface VTU
 	{
 		dvecarr3E	points = getGeometry()->getVertex();
 		ivector2D	connectivity = getGeometry()->getConnectivity();
@@ -353,8 +353,23 @@ MimmoGeometry::write(){
 		return true;
 	}
 	break;
-	case FileType::VVTU :
-		//Export Volume VTU
+	case FileType::SQVTU :
+		//Export Quadrilateral Surface VTU
+	{
+		dvecarr3E	points = getGeometry()->getVertex();
+		ivector2D	connectivity = getGeometry()->getConnectivity();
+		for (int i=0; i<connectivity.size(); i++){
+			for (int j=0; j<4; j++){
+				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+			}
+		}
+		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
+		vtk.write() ;
+		return true;
+	}
+	break;
+	case FileType::VTVTU :
+		//Export Tetra Volume VTU
 	{
 		dvecarr3E	points = getGeometry()->getVertex();
 		ivector2D	connectivity = getGeometry()->getConnectivity();
@@ -364,6 +379,20 @@ MimmoGeometry::write(){
 			}
 		}
 		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
+		vtk.write() ;
+		return true;
+	}
+	case FileType::VHVTU :
+		//Export Hexa Volume VTU
+	{
+		dvecarr3E	points = getGeometry()->getVertex();
+		ivector2D	connectivity = getGeometry()->getConnectivity();
+		for (int i=0; i<connectivity.size(); i++){
+			for (int j=0; j<8; j++){
+				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+			}
+		}
+		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
 		vtk.write() ;
 		return true;
 	}
@@ -454,8 +483,8 @@ MimmoGeometry::read(){
 		getGeometry()->cleanGeometry();
 	}
 	break;
-	case FileType::SVTU :
-		//Import Surface VTU
+	case FileType::STVTU :
+		//Import Triangulation Surface VTU
 	{
 
 		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
@@ -481,8 +510,33 @@ MimmoGeometry::read(){
 		getGeometry()->cleanGeometry();
 	}
 	break;
-	case FileType::VVTU :
-		//Import Volume VTU
+	case FileType::SQVTU :
+		//Import Quadrilateral Surface VTU
+	{
+
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+
+		MimmoObject* mimmo0 = new MimmoObject(1);
+		setGeometry(mimmo0);
+
+		dvecarr3E	Ipoints ;
+		ivector2D	Iconnectivity ;
+
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD, Ipoints, Iconnectivity );
+		vtk.read() ;
+
+		int	np = Ipoints.size();
+		for (long ip=0; ip<np; ip++){
+			getGeometry()->setVertex(Ipoints[ip]);
+		}
+		getGeometry()->setConnectivity(&Iconnectivity);
+		getGeometry()->cleanGeometry();
+	}
+	break;
+	case FileType::VTVTU :
+		//Import Tetra Volume VTU
 	{
 
 		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
@@ -495,11 +549,34 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		//TODO TETRA OR VOXEL ELEMENTS?!?
 		//TODO Import with generic element type ?!?!
-		//bitpit::VTKElementType eltype = getGeometry()->getElementType();
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
+		vtk.read() ;
+
+		int	np = Ipoints.size();
+		for (long ip=0; ip<np; ip++){
+			getGeometry()->setVertex(Ipoints[ip]);
+		}
+		getGeometry()->setConnectivity(&Iconnectivity);
+		getGeometry()->cleanGeometry();
+	}
+	break;
+	case FileType::VHVTU :
+		//Import Hexa Volume VTU
+	{
+
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+
+		MimmoObject* mimmo0 = new MimmoObject(2);
+		setGeometry(mimmo0);
+
+		dvecarr3E	Ipoints ;
+		ivector2D	Iconnectivity ;
+
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON, Ipoints, Iconnectivity );
 		vtk.read() ;
 
 		int	np = Ipoints.size();
