@@ -51,6 +51,7 @@ public:
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
 	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
 public:
 	MimmoObject(int type = 1);
@@ -74,13 +75,15 @@ public:
 	long		getMapData(int i);
 	liimap&		getMapDataInv();
 	int			getMapDataInv(long id);
-
+	liimap&		getMapCellInv();
+	
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);
 	bool		setGeometry(int type, bitpit::PatchKernel* geometry);
 	bool		setMapData();
+	bool		setMapCell();
 	bool		cleanGeometry();
 
 	livector1D 	getVertexFromCellList(livector1D cellList);
