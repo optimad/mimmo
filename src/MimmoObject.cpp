@@ -401,14 +401,14 @@ MimmoObject::setMapData(){
  * \return False if the geometry member pointer is NULL.
  */
 bool
-MimmoObject::setMapData(){
+MimmoObject::setMapCell(){
 	if (m_geometry == NULL) return false;
 	m_mapCellInv.clear();
-	PatchKernel::cellIterator it;
+	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_geometry->cellEnd();
 	long i = 0;
 	for (it = m_geometry->cellBegin(); it != itend; ++it){
-		m_mapDataInv[it->getId()] = i;
+		m_mapCellInv[it->getId()] = i;
 		i++;
 	}
 	return true;
