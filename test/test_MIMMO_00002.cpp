@@ -39,7 +39,8 @@ void test0002() {
 
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
-	int		np,	nt;
+	int	np = 0;
+	int	nt = 0;
 	darray3E point;
 	{
 		//Import STL

@@ -42,7 +42,8 @@ void test0006() {
 	//Creation of MiMMO container.
 	MimmoObject mimmoPlane, mimmoDisk;
 	//Input triangulation
-	int		np,	nt;
+	int	np = 0;
+	int	nt = 0;
 	darray3E point;
 
 	{
@@ -62,7 +63,8 @@ void test0006() {
 	mimmoPlane.m_geometry->setName(filename);
 	mimmoPlane.m_geometry->write();
 
-
+	np = 0;
+	nt = 0;
 	{
 		//Import STL
 		STLObj stl("geo_data/disk.stl", true);

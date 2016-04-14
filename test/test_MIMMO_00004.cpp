@@ -43,7 +43,8 @@ void test0004() {
 	//Creation of MiMMO container.
 	MimmoObject mimmo0;
 	//Input triangulation
-	int		np,	nt;
+	int	np = 0;
+	int	nt = 0;
 	darray3E point;
 	{
 		//Import STL
