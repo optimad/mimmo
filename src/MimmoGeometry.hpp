@@ -30,8 +30,8 @@ namespace mimmo{
 
 class NastranInterface;
 
-enum FileType{/*!Ascii/Binary stl.*/ STL = 0, /*!Surface vtu.*/ SVTU = 1,
-			/*!Volume VTU.*/ VVTU = 2, /*!Nastran .*/ NAS = 3,
+enum FileType{/*!Ascii/Binary stl.*/ STL = 0, /*!Surface triangulation vtu.*/ SVTU = 1,
+			/*!Volume tetrahedral VTU.*/ VVTU = 2, /*!Nastran triangulation nas.*/ NAS = 3,
 			/*!Ascii OpenFoam point cloud.*/ OFP = 4};					/**Type of file to read
 																	the geometry.*/
 enum WFORMAT{Short, Long};

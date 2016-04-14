@@ -468,6 +468,8 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
+		//TODO Import with generic element type ?!?!
+
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
 		vtk.read() ;
 
@@ -494,6 +496,9 @@ MimmoGeometry::read(){
 		ivector2D	Iconnectivity ;
 
 		//TODO TETRA OR VOXEL ELEMENTS?!?
+		//TODO Import with generic element type ?!?!
+		//bitpit::VTKElementType eltype = getGeometry()->getElementType();
+
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
 		vtk.read() ;
 
@@ -581,7 +586,7 @@ MimmoGeometry::execute(){
 
 
 //===============================//
-//====== OFOAM INTERFACE ======//
+//====== OFOAM INTERFACE ========//
 //===============================//
 
 void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
