@@ -332,9 +332,11 @@ MimmoGeometry::write(){
 	switch(m_wtype){
 	case FileType::STL :
 		//Export STL
-		//TODO patchkernel writes VTU update with new bitpit and use writeSTL!!!
 	{
-		getGeometry()->write(m_wdir+"/"+m_wfilename);
+		string name = (m_wdir+"/"+m_wfilename+".stl");
+		//forced binary write
+		bool binary = true;
+		dynamic_cast<SurfUnstructured*>(getGeometry()->getGeometry())->exportSTL(name, binary);
 		return true;
 	}
 	break;
@@ -447,8 +449,6 @@ MimmoGeometry::read(){
 		setGeometry(mimmo0);
 		string name;
 
-		int		np,	nt;
-		darray3E point;
 		{
 			std::ifstream infile(m_rdir+"/"+m_rfilename+".stl");
 			bool check = infile.good();
@@ -470,16 +470,8 @@ MimmoGeometry::read(){
 		bool binary = true;
 		if (sstype == "solid" || sstype == "SOLID") binary = false;
 		in.close();
-		STLObj stl(name, binary);
 
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			getGeometry()->setVertex(point);
-		}
-		getGeometry()->setConnectivity(&T);
+		dynamic_cast<SurfUnstructured*>(getGeometry()->getGeometry())->importSTL(name, binary);
 		getGeometry()->cleanGeometry();
 	}
 	break;
