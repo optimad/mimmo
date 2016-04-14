@@ -431,6 +431,7 @@ MimmoGeometry::read(){
 		ins >> sstype;
 		bool binary = true;
 		if (sstype == "solid" || sstype == "SOLID") binary = false;
+		in.close();
 		STLObj stl(name, binary);
 
 		dvector2D V,N;
@@ -502,6 +503,7 @@ MimmoGeometry::read(){
 		std::ifstream infile(m_rdir+"/"+m_rfilename+".nas");
 		bool check = infile.good();
 		if (!check) return false;
+		infile.close();
 
 		MimmoObject* mimmo0 = new MimmoObject(1);
 		setGeometry(mimmo0);
@@ -520,6 +522,28 @@ MimmoGeometry::read(){
 		}
 		getGeometry()->setConnectivity(&Iconnectivity);
 		getGeometry()->cleanGeometry();
+	}
+	break;
+	//Import ascii OpenFOAM point cloud
+	case FileType::OFP :
+	{
+		//It uses surface type of mimmo object for the moment
+		MimmoObject* mimmo0 = new MimmoObject(1);
+		setGeometry(mimmo0);
+
+		std::ifstream infile(m_rdir+"/"+m_rfilename);
+		bool check = infile.good();
+		if (!check) return false;
+		infile.close();
+
+		dvecarr3E	Ipoints;
+		readOFP(m_rdir, m_rfilename, Ipoints);
+
+		int np = Ipoints.size();
+		for (long ip=0; ip<np; ip++){
+			getGeometry()->setVertex(Ipoints[ip]);
+			cout << Ipoints[ip] << endl;
+		}
 	}
 	break;
 	}
@@ -547,6 +571,109 @@ MimmoGeometry::execute(){
 	}
 }
 
+
+//===============================//
+//====== OFOAM INTERFACE ======//
+//===============================//
+
+void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
+
+	ifstream is(inputDir +"/"+surfaceName);
+
+	points.clear();
+	int ip = 0;
+	int np;
+	darray3E point;
+	string sread;
+	char par;
+
+	for (int i=0; i<18; i++){
+		getline(is,sread);
+		cout << sread << endl;
+	}
+	is >> np;
+	getline(is,sread);
+	getline(is,sread);
+
+	points.resize(np);
+	while(!is.eof() && ip<np){
+		is.get(par);
+		for (int i=0; i<3; i++) is >> point[i];
+		is.get(par);
+		getline(is,sread);
+		points[ip] = point;
+		ip++;
+	}
+	is.close();
+	return;
+
+}
+
+void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
+
+	ofstream os(outputDir +"/"+surfaceName);
+
+	string separator(" ");
+	string par("(");
+	string hline;
+
+	hline = "/*--------------------------------*- C++ -*----------------------------------*\";
+			hline = "| =========                 |                                                 |";
+	hline = "	| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
+	hline = "|  \\    /   O peration     | Version:  2.4.x                                 |";
+	hline = "|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |";
+	hline = "|    \\/     M anipulation  |                                                 |";
+	hline = "\*---------------------------------------------------------------------------*/";
+	hline = "FoamFile";
+	hline = "{";
+	hline = "	    version     2.0;";
+	hline = "	    format      ascii;";
+	hline = "	    class       vectorField;";
+	hline = "	    location    "constant/polyMesh";";
+	hline = "	    object      points;";
+	hline = "	}";
+	hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
+
+
+
+
+	int ip = 0;
+	int np = points.size();
+	darray3E point;
+	string sread;
+	char par;
+
+
+
+
+	for (int pointI=0; pointI< points.size(); pointI++)
+	{
+		writeCoord(points[pointI], pointI, os);
+	}
+
+
+
+	for (int i=0; i<18; i++){
+		getline(is,sread);
+		cout << sread << endl;
+	}
+	is >> np;
+	getline(is,sread);
+	getline(is,sread);
+
+	points.resize(np);
+	while(!is.eof() && ip<np){
+		is.get(par);
+		for (int i=0; i<3; i++) is >> point[i];
+		is.get(par);
+		getline(is,sread);
+		points[ip] = point;
+		ip++;
+	}
+	is.close();
+	return;
+
+}
 
 //===============================//
 //====== NASTRAN INTERFACE ======//

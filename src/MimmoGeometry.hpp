@@ -30,8 +30,9 @@ namespace mimmo{
 
 class NastranInterface;
 
-enum FileType{/*!Binary stl.*/ STL = 0, /*!Surface vtu.*/ SVTU = 1,
-			/*!Volume VTU.*/ VVTU = 2, /*!Nastran .*/ NAS = 3};		/**Extension of file to read
+enum FileType{/*!Ascii/Binary stl.*/ STL = 0, /*!Surface vtu.*/ SVTU = 1,
+			/*!Volume VTU.*/ VVTU = 2, /*!Nastran .*/ NAS = 3,
+			/*!Ascii OpenFoam point cloud.*/ OFP = 4};					/**Type of file to read
 																	the geometry.*/
 enum WFORMAT{Short, Long};
 
@@ -108,6 +109,9 @@ public:
 	bool		read();
 
 	void 		execute();
+
+
+	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points);
 
 };
 
