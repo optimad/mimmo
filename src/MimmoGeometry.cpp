@@ -388,7 +388,6 @@ MimmoGeometry::write(){
 		}
 	}
 	break;
-<<<<<<< HEAD
 	//Export ascii OpenFOAM point cloud
 	case FileType::OFP :
 	{
@@ -398,8 +397,6 @@ MimmoGeometry::write(){
 
 	}
 	break;
-=======
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 	}
 };
 
@@ -554,7 +551,6 @@ MimmoGeometry::read(){
 		int np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
 			getGeometry()->setVertex(Ipoints[ip]);
-			cout << Ipoints[ip] << endl;
 		}
 	}
 	break;
@@ -601,7 +597,6 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
 
 	for (int i=0; i<18; i++){
 		getline(is,sread);
-		cout << sread << endl;
 	}
 	is >> np;
 	getline(is,sread);
@@ -624,7 +619,6 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
 void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
 
 	ofstream os(outputDir +"/"+surfaceName);
-<<<<<<< HEAD
 	char nl = '\n';
 
 	string separator(" ");
@@ -682,67 +676,6 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
 	os << hline << nl;
 
 	os.close();
-=======
-
-	string separator(" ");
-	string par("(");
-	string hline;
-
-	hline = "/*--------------------------------*- C++ -*----------------------------------*\";
-			hline = "| =========                 |                                                 |";
-	hline = "	| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-	hline = "|  \\    /   O peration     | Version:  2.4.x                                 |";
-	hline = "|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-	hline = "|    \\/     M anipulation  |                                                 |";
-	hline = "\*---------------------------------------------------------------------------*/";
-	hline = "FoamFile";
-	hline = "{";
-	hline = "	    version     2.0;";
-	hline = "	    format      ascii;";
-	hline = "	    class       vectorField;";
-	hline = "	    location    "constant/polyMesh";";
-	hline = "	    object      points;";
-	hline = "	}";
-	hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-
-
-
-
-	int ip = 0;
-	int np = points.size();
-	darray3E point;
-	string sread;
-	char par;
-
-
-
-
-	for (int pointI=0; pointI< points.size(); pointI++)
-	{
-		writeCoord(points[pointI], pointI, os);
-	}
-
-
-
-	for (int i=0; i<18; i++){
-		getline(is,sread);
-		cout << sread << endl;
-	}
-	is >> np;
-	getline(is,sread);
-	getline(is,sread);
-
-	points.resize(np);
-	while(!is.eof() && ip<np){
-		is.get(par);
-		for (int i=0; i<3; i++) is >> point[i];
-		is.get(par);
-		getline(is,sread);
-		points[ip] = point;
-		ip++;
-	}
-	is.close();
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 	return;
 
 }

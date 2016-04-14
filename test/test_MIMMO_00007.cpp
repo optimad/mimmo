@@ -25,10 +25,7 @@
 #include "MiMMO.hpp"
 #include <functional>
 #include "customOperators.hpp"
-<<<<<<< HEAD
 
-=======
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -51,15 +48,9 @@ void test0007() {
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename("points");
 	geometry->setWrite(true);
-<<<<<<< HEAD
 	geometry->setWriteFileType(OFP);
 	geometry->setWriteDir(".");
 	string filename = "points";
-=======
-	geometry->setWriteFileType(0);
-	geometry->setWriteDir(".");
-	string filename = "mimmo_0007.0000";
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 	geometry->setWriteFilename(filename);
 
 	//Set PINS
@@ -69,17 +60,10 @@ void test0007() {
 
 	//Create chain
 	Chain ch0;
-<<<<<<< HEAD
 
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(geometry);
 
-
-=======
-	cout << "add inputs and objects to the chain" << endl;
-	ch0.addObject(geometry);
-
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 	//Execution of chain
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
@@ -87,10 +71,6 @@ void test0007() {
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 	//Delete and nullify pointer
 	delete geometry;
 

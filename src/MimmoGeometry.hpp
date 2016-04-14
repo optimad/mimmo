@@ -112,10 +112,7 @@ public:
 
 
 	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points);
-<<<<<<< HEAD
 	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points);
-=======
->>>>>>> be53bd32d1e0802a4bac626aeaeedeaaa46d334c
 
 };
 
