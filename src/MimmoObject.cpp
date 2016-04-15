@@ -485,4 +485,38 @@ ivector1D MimmoObject::convertVertexIDtoLocal(livector1D vertexList){
 	return result;
 }
 
+/*!
+ * Extract ids of all vertices at mesh boundaries.
+ * \return list of vertex IDs.
+ */
+livector1D 	MimmoObject::extractBoundaryVertexID(){
+	
+	std::set<long> container;
+	std::set<long>::iterator it;
+	std::set<long>::iterator itEnd = container.end();
+	
+	for (const auto & cell : m_geometry->getCells()){
+		long * conn = cell.getConnect();
+		int size = cell.getFaceCount();
+		for(int face=0; face<size; ++face){
+			
+			if(cell.isFaceBorder(face)){
+				ivector1D list = cell.getFaceLocalConnect(face);
+				for(auto && index : list ){
+					container.insert(conn[index]);
+				}
+			}//endif
+		}// end loop on face
+		conn=NULL;
+	}
+	
+	livector1D result(container.size());
+	int counter = 0;
+	for(it = container.begin(); it !=itEnd; ++it){
+		result[counter] = *it;
+		++counter;
+	}
+	return result;
+};
+
 
