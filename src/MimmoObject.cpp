@@ -485,6 +485,24 @@ ivector1D MimmoObject::convertVertexIDtoLocal(livector1D vertexList){
 	return result;
 }
 
+/*! Convert local ordered MimmoObject Vertex List to Vertex List of bitpit::PatchKernel IDs.
+ * \param[in] vList List of local ids of vertices according m_mapData ordering
+ * \return list of bitpit::PatchKernel IDs identifying vertices.
+ */  
+livector1D MimmoObject::convertLocaltoVertexID(ivector1D vList){
+	
+	ivector1D::iterator it;
+	ivector1D::iterator itEnd=vList.end();
+	livector1D result(vList.size());
+	
+	int counter=0;
+	for(it=vList.begin(); it != itEnd; ++it){
+		result[counter]=m_mapData[*it];
+		++counter;
+	}
+	return result;
+}
+
 /*!
  * Extract ids of all vertices at mesh boundaries.
  * \return list of vertex IDs.

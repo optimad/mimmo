@@ -89,9 +89,11 @@ public:
 
 	livector1D 	getVertexFromCellList(livector1D cellList);
 	ivector1D	convertVertexIDtoLocal(livector1D vertList);
-
+	livector1D	convertLocaltoVertexID(ivector1D vList);
+	
 	livector1D  extractBoundaryVertexID();
 	void		write(std::string filename);
+	//TODO implement safe access to m_mapData/Cell members in getMap... methods and convertVertexIDToLocal, convertLocalToVertexID methods.
 };
 
 }
