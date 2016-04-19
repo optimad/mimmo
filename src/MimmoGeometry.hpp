@@ -91,6 +91,8 @@ public:
 	int			getPID(long i);
 
 	bool		setVertex(dvecarr3E & vertex);
+	void		setVertex(dvecarr3E * vertex);
+	void		resetVertex(dvecarr3E * vertex);
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);

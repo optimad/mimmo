@@ -85,6 +85,7 @@ public:
 	int			getMapCellInv(long id);
 	
 	bool		setVertex(dvecarr3E & vertex);
+	bool		resetVertex(dvecarr3E & vertex);
 	bool		setVertex(darray3E & vertex);
 	bool		modifyVertex(darray3E & vertex, long id);
 	bool		setConnectivity(ivector2D * connectivity);

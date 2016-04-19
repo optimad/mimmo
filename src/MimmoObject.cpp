@@ -291,6 +291,7 @@ MimmoObject::getMapCellInv(long id){
 	return m_mapCellInv[id];
 };
 
+//TODO is this an ADDVERTEX instead of SETVERTEX?
 /*!It sets the coordinates of the vertices of the geometry Patch.
  * \param[in] vertex Coordinates of vertices of geometry mesh.
  * \return False if no geometry is linked.
@@ -306,6 +307,26 @@ MimmoObject::setVertex(dvecarr3E & vertex){
 		index = m_geometry->addVertex(vertex[i]);
 		m_mapData.push_back(index->getId());
 		m_mapDataInv[index->getId()] = mapsize + i;
+	}
+	return true;
+};
+
+/*!It resets the coordinates of the vertices of the geometry Patch.
+ * \param[in] vertex Coordinates of vertices of geometry mesh.
+ * \return False if no geometry is linked.
+ */
+bool
+MimmoObject::resetVertex(dvecarr3E & vertex){
+
+	if (m_geometry == NULL) return false;
+	m_mapData.clear();
+	m_geometry->resetVertices();
+	long nv = vertex.size();
+	PatchKernel::VertexIterator index;
+	for (long i=0; i<nv; i++){
+		index = m_geometry->addVertex(vertex[i]);
+		m_mapData.push_back(index->getId());
+		m_mapDataInv[index->getId()] = i;
 	}
 	return true;
 };

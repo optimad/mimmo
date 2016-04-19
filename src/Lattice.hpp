@@ -60,7 +60,7 @@ public:
 	void 		clearLattice();
 
 	//internal methods
-	double		getNNodes();
+	int			getNNodes();
 	dvecarr3E 	getGlobalCoords();
 	dvecarr3E 	getLocalCoords();
 

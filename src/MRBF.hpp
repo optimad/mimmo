@@ -71,6 +71,8 @@ public:
 
 	void 			setGeometry(MimmoObject* geometry);
 	
+	dvecarr3E*		getNodes();
+
 	MRBFSol			getSolver();
 	void			setSolver(MRBFSol);
 	void			setSolver(int);

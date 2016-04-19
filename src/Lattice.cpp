@@ -83,7 +83,7 @@ void Lattice::clearLattice(){
 /*! Get the total number of control nodes.
  * \return Number of control nodes
  */
-double		Lattice::getNNodes(){
+int		Lattice::getNNodes(){
 	return(m_np);
 }
 

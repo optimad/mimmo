@@ -68,6 +68,13 @@ MRBF::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
+
+dvecarr3E*
+MRBF::getNodes(){
+	return(&m_node);
+}
+
+
 /*! 
  * Return actual solver set for RBF data fields interpolation in MRBF::execute
  */

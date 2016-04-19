@@ -168,6 +168,28 @@ MimmoGeometry::setVertex(dvecarr3E & vertex){
 	return getGeometry()->setVertex(vertex);
 };
 
+/*!It sets the coordinates of the vertices of the geometry Patch.
+ * \param[in] vertex Coordinates of vertices of geometry mesh.
+ * \return False if no geometry is linked.
+ */
+void
+MimmoGeometry::setVertex(dvecarr3E * vertex){
+	if (getGeometry() == NULL) return;
+	getGeometry()->setVertex((*vertex));
+	return;
+};
+
+/*!It resets the coordinates of the vertices of the geometry Patch.
+ * \param[in] vertex Coordinates of vertices of geometry mesh.
+ * \return False if no geometry is linked.
+ */
+void
+MimmoGeometry::resetVertex(dvecarr3E * vertex){
+	if (getGeometry() == NULL) return;
+	getGeometry()->resetVertex((*vertex));
+	return;
+};
+
 /*!It adds and it sets the coordinates of one vertex of the geometry Patch.
  * \param[in] vertex Coordinates of vertex to be added to geometry mesh.
  * \return False if no geometry is linked.
@@ -417,6 +439,7 @@ MimmoGeometry::write(){
 		else{
 			nastran.write(m_wdir,m_wfilename,points,connectivity);
 		}
+		return true;
 	}
 	break;
 	//Export ascii OpenFOAM point cloud
@@ -426,6 +449,7 @@ MimmoGeometry::write(){
 		dvecarr3E points = getGeometry()->getVertex();
 		writeOFP(m_wdir, m_wfilename, points);
 
+		return true;
 	}
 	break;
 	}
@@ -739,9 +763,9 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
 	for (int i=0; i<np; i++){
 		os << parl;
 		for (int j=0; j<2; j++){
-			os << points[i][j] << separator;
+			os << setprecision(16) << points[i][j] << separator;
 		}
-		os << points[i][2] << parr << nl;
+		os << setprecision(16) << points[i][2] << parr << nl;
 	}
 	os << parr << nl;
 	os << nl;
