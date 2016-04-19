@@ -514,7 +514,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 	std::set<long>::iterator itEnd = container.end();
 	
 	for (const auto & cell : m_geometry->getCells()){
-		long * conn = cell.getConnect();
+		const long * conn = cell.getConnect();
 		int size = cell.getFaceCount();
 		for(int face=0; face<size; ++face){
 			
