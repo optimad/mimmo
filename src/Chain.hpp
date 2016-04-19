@@ -25,7 +25,6 @@
 #define __CHAIN_HPP__
 
 #include "BaseManipulation.hpp"
-#include "DofOut.hpp"
 
 namespace mimmo{
 
@@ -55,9 +54,6 @@ protected:
 	//static members
 	static	uint8_t					sm_chaincounter;	/**<Current global number of chain in the instance. */
 
-	//dof/out members
-	std::vector<DofOut*>			m_dof;
-	std::vector<DofOut*>			m_out;
 
 public:
 	Chain();
@@ -86,102 +82,9 @@ private:
 	//check methods
 	void		checkLoops();
 
-
-public:
-	//dof/out methods
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
-
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T* (C::*fget) (), int nglob, int nact, std::vector<bool> map = std::vector<bool>(0));
-
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T (C::*fget) (), std::vector<bool> map);
-
-	template<typename T, typename C, typename O>
-	int addDofInput(O* obj, T* (C::*fget) (), std::vector<bool> map);
-
-	void setNdofs(int i, int nglob, int nuse, std::vector<bool> map = std::vector<bool>(0));
-
-	void activateDof(int i, int j);
-	void activateDofs(int i);
-	void disableDof(int i, int j);
-	void disableDofs(int i);
-
-	template<typename T, typename C, typename O>
-	void activateDof(O* obj, T* (C::*fget) (), int j);
-
-	template<typename T, typename C, typename O>
-	void activateDofs(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	void activateDof(O* obj, T (C::*fget) (), int j);
-
-	template<typename T, typename C, typename O>
-	void activateDofs(O* obj, T (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	void disableDof(O* obj, T* (C::*fget) (), int j);
-
-	template<typename T, typename C, typename O>
-	void disableDofs(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	void disableDof(O* obj, T (C::*fget) (), int j);
-
-	template<typename T, typename C, typename O>
-	void disableDofs(O* obj, T (C::*fget) ());
-
-
-
-	template<typename T, typename C, typename O>
-	int			findDofInput(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	int			findDofInput(O* obj, T (C::*fget) ());
-
-	//global getdof
-	int 		getNdofs();
-	dvector1D 	getDofs();
-	double 		getDof(int i);
-
-	//local getdof
-	int 		getNdofs(int i);
-	dvector1D	getDofs(int i);
-	double		getDof(int i, int j);
-
-	template<typename T, typename C, typename O>
-	int			getNdofs(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	int			getNdofs(O* obj, T (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	dvector1D	getDofs(O* obj, T* (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	dvector1D	getDofs(O* obj, T (C::*fget) ());
-
-	template<typename T, typename C, typename O>
-	double	getDof(O* obj, T* (C::*fget) (), int j);
-
-	template<typename T, typename C, typename O>
-	double	getDof(O* obj, T (C::*fget) (), int j);
-
-
-
-	bool		isActive(int i, int j);
-
 };
 
 }
 
-#include "Chain.tpp"
 
 #endif /* __CHAIN_HPP__ */
