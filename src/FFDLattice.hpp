@@ -55,6 +55,8 @@ private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
 	std::unordered_map<int, double> m_collect_wg; /**< temporary collector of nodal weights passed as parameter. Nodal weight can be applied by build() method */
+	dvector1D   m_filter;		/**< Filter scalar field defined on geometry nodes for displacements modulation*/
+	bool 		m_bfilter;		/**< Boolean to recognize if a filter field for for displacements modulation is set or not */
 	
 public:
 	FFDLattice();
@@ -64,15 +66,17 @@ public:
 	FFDLattice(const FFDLattice & other);
 	FFDLattice & operator=(const FFDLattice & other);
 	
-	//clean structure;
+	//clean structure
 	void 		clearLattice();
-
+	void 		clearFilter();
+	
 	//internal methods
 	ivector1D 	getKnotsDimension();
 	dvector1D   getWeights();
 	void 		returnKnotsStructure(dvector2D &, ivector2D &);
 	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
 	dvecarr3E* 	getDisplacements();
+	dvector1D   getFilter();
 	bool 		isDisplGlobal();
 	iarray3E	getDegrees();
 
@@ -88,6 +92,8 @@ public:
 	void 		setNodalWeight(double , int, int, int);
 	void 		setNodalWeight(dvector1D );
 
+	void		setFilter(dvector1D );
+	
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed);

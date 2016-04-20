@@ -58,7 +58,9 @@ class MRBF: public BaseManipulation, public bitpit::RBF {
 private:
 	double m_tol;		/**< Tolerance for greedy algorithm.*/
 	MRBFSol m_solver; 	/**<Type of solver specified for the class as default in execution*/
-
+	dvector1D m_filter;	/**<Filter field for displacements modulation */
+	bool m_bfilter;		/**<boolean to recognize if a filter field is applied */
+	
 public:
 	MRBF();
 	virtual ~MRBF();
@@ -72,6 +74,7 @@ public:
 	MRBFSol			getSolver();
 	void			setSolver(MRBFSol);
 	void			setSolver(int);
+	dvector1D		getFilter();
 	
 	int 			addNode(darray3E);
 	ivector1D		addNode(dvecarr3E);
@@ -80,6 +83,7 @@ public:
 	void 			setNode(darray3E);
 	void			setNode(dvecarr3E);
 	void		 	setNode(MimmoObject* geometry);
+	void			setFilter(dvector1D );
 	
 	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
@@ -87,6 +91,9 @@ public:
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E);
 
+	void 		clear();
+	void 		clearFilter();
+	
 	//execute deformation methods
 	void 		execute();
 	

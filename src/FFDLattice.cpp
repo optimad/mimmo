@@ -52,6 +52,7 @@ FFDLattice::FFDLattice(){
 	m_deg.fill(1);
 	m_mapNodes.resize(3);
 	m_globalDispl = false;
+	m_bfilter = false;
 	m_name = "MiMMO.FFDlattice";
 };
 
@@ -80,6 +81,7 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	m_mapNodes = other.m_mapNodes;
 	m_mapdeg = other.m_mapdeg;
 	m_globalDispl = other.m_globalDispl;
+	m_filter = other.m_filter;
 	return(*this);
 };
 
@@ -87,9 +89,17 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 void FFDLattice::clearLattice(){
 	Lattice::clearLattice();
 	clearKnots(); //clear all knots stuff;
+	clearFilter();
 	m_displ.clear();
 	
 };
+
+/*!Clean filter field */
+void FFDLattice::clearFilter(){
+		m_filter.clear();
+		m_bfilter = false;
+};
+
 
 /*! Return a vector of six elements reporting the real number of knots effectively stored in the current class (first 3 elements)
  * and the theoretical number of knots (last 3 elements) for Nurbs representation (see Nurbs Books of Peigl)
@@ -162,6 +172,14 @@ iarray3E		FFDLattice::getDegrees(){
 dvecarr3E*	FFDLattice::getDisplacements(){
 	return(&m_displ);
 };
+
+/*! It gets current set filter field. See FFDLattice::setFilter
+ * \return filter field.
+ */
+dvector1D	FFDLattice::getFilter(){
+	return(m_filter);
+};
+
 
 /*! Check if displacements are meant as global-true or local-false*/
 bool
@@ -361,6 +379,18 @@ void 		FFDLattice::setNodalWeight(dvector1D wg){
 	
 };
 
+/*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
+ * coherent size between field size and number of geometry vertices is expected.
+ * \param[in] filter fields.
+ */
+void	FFDLattice::setFilter(dvector1D filter){
+	m_filter.clear();
+	m_bfilter = !(filter.empty());
+	m_filter = filter;
+};
+
+
+
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
@@ -453,7 +483,8 @@ void 		FFDLattice::execute(){
 
 };
 
-/*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero
+/*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero.
+ *  The method does not apply filter field modulation if any.
  * \param[in] point coordinate of the points 
  * \return point displacement 
  */
@@ -466,6 +497,7 @@ darray3E 	FFDLattice::apply(darray3E & point){
 
 /*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class 
  * (see method getGeometry).If MimmoObject member m_geometry is NULL,return void results. 
+ * The method applies filter field modulation if any
  * \param[out] list list of non-zero displacement of m_geometry vertices 
  * \return list of ids of non-zero displaced vertex belonging to geometry
  */
@@ -473,19 +505,31 @@ dvecarr3E 	FFDLattice::apply(livector1D & list){
 	
 	MimmoObject * container = getGeometry();
 	if(container == NULL || !isBuilt()) return dvecarr3E(0);
-	
+
 	bitpit::PatchKernel * tri = container->getGeometry();
 	list.clear();
 
 	//check simplex included and extract their vertex in global IDs;
 	list= container->getVertexFromCellList(getShape()->includeGeometry(tri));
 	//return deformation
-	return(nurbsEvaluator(list));
-
+	dvecarr3E result = nurbsEvaluator(list);
+	if(m_bfilter){
+		
+		m_filter.resize(tri->getVertexCount(),0.0);
+		
+		dvecarr3E::iterator itL= result.begin();
+		liimap & vMap = container->getMapDataInv();
+		for ( auto && vID : list){
+			*itL = (*itL) * m_filter[vMap[vID]];
+			++itL;
+		}
+	}
+	return(result);
 };
 
 /*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed, 
- *  diplacement of the others will be set to zero. If point list is NULL,return void results. 
+ *  displacement of the others will be set to zero. If point list is NULL,return void results. 
+ *  The method does not apply filter field modulation if any
  * \param[in] point pointer to a list of 3D points. 
  * \return displacements of points 
  */
@@ -494,7 +538,7 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	dvecarr3E result;
 	if(point ==NULL || !isBuilt() ) return result;
 	
-	result.resize(point->size(), darray3E{0,0,0});
+	result.resize(point->size(), darray3E{{0,0,0}});
 	livector1D list = getShape()->includeCloudPoints(*point);
 	
 	for(int i=0; i<list.size(); ++i){
@@ -618,6 +662,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
 }; 
 
 /*! Return displacement of a given point, under the deformation effect of the whole Lattice.
+ *  
  * \param[in] coord 3D point
  * \param[out] result displacement
  */

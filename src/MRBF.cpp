@@ -35,6 +35,7 @@ MRBF::MRBF(){
 	m_maxFields=-1;
 	m_tol = 0.00001;
 	m_solver = MRBFSol::GREEDY;
+	m_bfilter = false;
 };
 
 /*! Default Destructor */
@@ -93,6 +94,14 @@ MRBF::setSolver(int type){
 	if(type ==1){	m_solver = MRBFSol::WHOLE;}
 };
 
+/*! It gets current set filter field. See MRBF::setFilter
+ * \return filter field.
+ */
+dvector1D	MRBF::getFilter(){
+	return(m_filter);
+};
+
+
 /*!Adds a RBF point to the total control node list and activate it.
  * \param[in] node coordinates of control point.
  * \return RBF id.
@@ -150,6 +159,17 @@ void MRBF::setNode(MimmoObject* geometry){
 	RBF::addNode(vertex);
 	return;
 };
+
+/*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
+ * coherent size between field size and number of geometry vertices is expected.
+ * \param[in] filter fields.
+ */
+void	MRBF::setFilter(dvector1D filter){
+	m_filter.clear();
+	m_bfilter = !(filter.empty());
+	m_filter = filter;
+};
+
 
 /*! Find all possible duplicated nodes within a prescribed distance tolerance.
  * Default tolerance value is 1.0E-12;
@@ -224,6 +244,21 @@ void MRBF::setDisplacements(dvecarr3E displ){
 	}
 }
 
+/*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
+void MRBF::clear(){
+	BaseManipulation::clear();
+	clearFilter();
+};
+
+
+
+/*!Clean filter field */
+void MRBF::clearFilter(){
+	m_filter.clear();
+	m_bfilter = false;
+};
+
+
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
  * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
  * The result is stored in the result member of BaseManipulation base class.
@@ -255,6 +290,17 @@ void MRBF::execute(){
 		displ = RBF::evalRBF(vertex[i]);
 		for (int j=0; j<3; j++) result[i][j] = displ[j];
 	}
+	
+	//if m_filter is active;
+	if(m_bfilter){
+		m_filter.resize(nv,0.0);
+		int counter = 0;
+		for (auto && vec : result){
+			vec = vec * m_filter[counter];
+			++counter;
+		}
+	}
+
 	setResult(result);
 };
 
