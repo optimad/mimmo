@@ -34,11 +34,10 @@
 #include <vector>
 #include <array>
 #include <iomanip>
-#include <map>
-
+#include <unordered_map>
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "bitpit_IO.hpp" //?? what is its new interface in bitpit? please check it out
+#include "bitpit_IO.hpp" 
 
 namespace mimmo{
 
@@ -89,6 +88,46 @@ public:
 	void unlinkData();
 	void flushData(  std::fstream &str, bitpit::VTKFormat codex_, std::string name  ) ; //CRTP
 };
+
+
+/*!
+ *	\date			31/12/2015
+ *	\authors		Gallizio Federico
+ *	\authors		Arpa Rocco
+ *
+ *	\brief Class for VTK Output of structured grids  
+ *
+ *	Class for managing output on file of unstructured grids with scalar/vector data attached, based on VTK's formats (*.vtu)
+ */
+
+class VTK_DATAMESH: public bitpit::VTKUnstructuredGrid
+{
+protected:
+	dvecarr3E * m_points; /*!< pointer to list of vertices */
+	ivector2D * m_connectivity; /*!< pointer to cell-vertex connectivity */
+	std::unordered_map< std::string, dvector1D * > m_scalar; /*! map of scalar field added */
+	std::unordered_map< std::string, dvecarr3E * > m_vector; /*! map of vector field added */
+	bitpit::VTKElementType m_element;
+public:
+	VTK_DATAMESH();
+	VTK_DATAMESH(dvecarr3E *, ivector2D * ,std::string dir_, std::string name_, bitpit::VTKFormat cod_);
+	VTK_DATAMESH(dvecarr3E *, ivector2D * ,std::string filename);
+	~VTK_DATAMESH();
+	
+	bool linkMeshData(dvecarr3E *, ivector2D * );
+	void unlinkMeshData();
+	bool addScalarField(std::string &, dvector1D &, bitpit::VTKLocation);
+	bool addVectorField(std::string &, dvecarr3E &, bitpit::VTKLocation);
+	void removeField(std::string &);
+	void removeAllFields();
+	void flushData(  std::fstream &str, bitpit::VTKFormat codex_, std::string name  ) ; //CRTP
+	
+private:
+	void flushScalarField(std::string,bitpit::VTKFormat codex_, std::fstream &);
+	void flushVectorField(std::string,bitpit::VTKFormat codex_, std::fstream &);
+};
+
+
 
 }
 #endif // __MiMMO_VTKINTERFACES__
