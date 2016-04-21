@@ -33,6 +33,7 @@ namespace mimmo{
  * Solver enum for your RBF data fields interpolation
  */
 enum class MRBFSol{
+	NONE = 0,
 	WHOLE = 1,
 	GREEDY= 2
 };
@@ -47,7 +48,8 @@ enum class MRBFSol{
  *	This class is derived from BaseManipulation class of MiMMO and from RBF class
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control point given by the user
- *	or stored in a MimmoObject (geometry container). Default solver in execution is  MRBFSol::GREEDY.
+ *	or stored in a MimmoObject (geometry container). Default solver in execution is
+ *	MRBFSol::GREEDY. Use MRBFSol::NONE for direct parametrization.
  *  See bitpit::RBF docs for further information.
  *
  *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
@@ -56,11 +58,13 @@ enum class MRBFSol{
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
-	double m_tol;		/**< Tolerance for greedy algorithm.*/
+	double 	m_tol;		/**< Tolerance for greedy algorithm.*/
 	MRBFSol m_solver; 	/**<Type of solver specified for the class as default in execution*/
 	dvector1D m_filter;	/**<Filter field for displacements modulation */
 	bool m_bfilter;		/**<boolean to recognize if a filter field is applied */
 	
+	bool	m_srset;	/**<True if the support radius is set by the user.*/
+
 public:
 	MRBF();
 	virtual ~MRBF();
@@ -90,15 +94,19 @@ public:
 	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
 	
+	void 			setSupportRadius(const double & suppR);
 	void 			setTol(double tol);
-	void 			setDisplacements(dvecarr3E);
+	void 			setDisplacements(dvecarr3E displ);
 
 	void 		clear();
 	void 		clearFilter();
 	
 	//execute deformation methods
-	void 		execute();
-	
+	void 			execute();
+
+private:
+	void			setWeight(dvector2D value);
+
 };
 
 }

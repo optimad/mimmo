@@ -34,8 +34,9 @@ MRBF::MRBF(){
 	m_name = "MiMMO.MRBF";
 	m_maxFields=-1;
 	m_tol = 0.00001;
-	m_solver = MRBFSol::GREEDY;
+	m_solver = MRBFSol::NONE;
 	m_bfilter = false;
+	m_srset = false;
 };
 
 /*! Default Destructor */
@@ -56,6 +57,7 @@ MRBF & MRBF::operator=(const MRBF & other){
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
 	m_solver = other.m_solver;
+	m_srset  = other.m_srset;
 	return(*this);
 };
 
@@ -215,6 +217,12 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
 	return(removeNode(*list));
 }
 
+void
+MRBF::setSupportRadius(const double & suppR){
+	m_srset = true;
+	RBF::setSupportRadius(suppR);
+}
+
 /*!It sets the tolerance for greedy algorithm.
  * \param[in] tol Target tolerance.
  */
@@ -240,7 +248,7 @@ void MRBF::setDisplacements(dvecarr3E displ){
 		maxdispl = std::max(maxdispl, norm2(displ[i]));
 	}
 
-	setSupportRadius(3*maxdispl);
+	if (!m_srset) setSupportRadius(3*maxdispl);
 	
 	dvector1D temp(size);
 	for(int loc=0; loc<3; ++loc){
@@ -257,13 +265,16 @@ void MRBF::clear(){
 	clearFilter();
 };
 
-
-
 /*!Clean filter field */
 void MRBF::clearFilter(){
 	m_filter.clear();
 	m_bfilter = false;
 };
+
+void
+MRBF::setWeight(dvector2D value){
+	m_weight = value;
+}
 
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
@@ -285,8 +296,17 @@ void MRBF::execute(){
 		}
 	}
 
-	if (m_solver == MRBFSol::WHOLE) solve();
-	else	greedy(m_tol);
+	if (m_solver == MRBFSol::NONE){
+		setWeight(m_value);
+	}
+	else if (m_solver == MRBFSol::WHOLE){
+		solve();
+	}
+	else{
+		greedy(m_tol);
+	}
+
+	std::cout << "solver mrbf " << int(m_solver) << std::endl;
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();
