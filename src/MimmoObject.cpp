@@ -261,7 +261,7 @@ MimmoObject::getMapDataInv(long id){
  * \return Reference to Map Cell with cell ids.
  */
 livector1D&
-MimmoObject::getCellData(){
+MimmoObject::getMapCell(){
 	return m_mapCell;
 };
 
@@ -438,7 +438,7 @@ MimmoObject::setMapData(){
 bool
 MimmoObject::setMapCell(){
 	if (m_geometry == NULL) return false;
-	m_mapCell.clear
+	m_mapCell.clear();
 	m_mapCellInv.clear();
 	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_geometry->cellEnd();

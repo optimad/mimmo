@@ -50,7 +50,7 @@ public:
 	bitpit::PatchKernel*	m_geometry;			/**<Reference geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
 	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
-	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ *
+	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
@@ -73,10 +73,12 @@ public:
 	ivector1D	getConnectivity(long i);
 	ivector2D	getConnectivity();
 	bitpit::PatchKernel*		getGeometry();
+	
 	livector1D&	getMapData();
 	long		getMapData(int i);
 	liimap&		getMapDataInv();
 	int			getMapDataInv(long id);
+	
 	livector1D&	getMapCell();
 	long		getMapCell(int i);
 	liimap&		getMapCellInv();
