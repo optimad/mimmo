@@ -306,8 +306,6 @@ void MRBF::execute(){
 		greedy(m_tol);
 	}
 
-	std::cout << "solver mrbf " << int(m_solver) << std::endl;
-
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertex();
 
