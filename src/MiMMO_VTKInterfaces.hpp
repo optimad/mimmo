@@ -107,7 +107,7 @@ protected:
 	ivector2D * m_connectivity; /*!< pointer to cell-vertex connectivity */
 	std::unordered_map< std::string, dvector1D * > m_scalar; /*! map of scalar field added */
 	std::unordered_map< std::string, dvecarr3E * > m_vector; /*! map of vector field added */
-	bitpit::VTKElementType m_element;
+	bitpit::VTKElementType m_elDM;
 public:
 	VTK_DATAMESH();
 	VTK_DATAMESH(dvecarr3E *, ivector2D * ,std::string dir_, std::string name_, bitpit::VTKFormat cod_);

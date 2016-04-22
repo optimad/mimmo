@@ -42,7 +42,8 @@ using namespace mimmo;
  */
 
 /*! Base Class Constructor */
-VTK_BASICMESH::VTK_BASICMESH(){
+VTK_BASICMESH::VTK_BASICMESH():VTKUnstructuredGrid(){
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	m_points = NULL;
 	m_connectivity=NULL;
 };
@@ -55,12 +56,15 @@ VTK_BASICMESH::VTK_BASICMESH(){
  * \param[in] nConn_ connectivity leading dimension, as sequential vector (in general 8*nC_)
  */ 
 VTK_BASICMESH::VTK_BASICMESH(std::string dir_, std::string name_,bitpit::VTKFormat cod_, int nP_, int nC_, int nConn_):
-VTKUnstructuredGrid(dir_, name_)
+VTKUnstructuredGrid()
 {
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	setCodex(cod_);
 	setDimensions(nC_, nP_, nConn_);
+	setNames(dir_, name_);
 	m_points=NULL;
 	m_connectivity=NULL;
+	
 };
 
 /*!Basic Class Destructor */
@@ -92,7 +96,7 @@ void VTK_BASICMESH::unlinkData(){
 };
 
 /*! CRTP function to write data on file. Not suitable for a direct call. 
- * Please refer to documentation of VTK_UnstructuredGrid class in Bitpit_BASE 
+ * Please refer to documentation of VTKUnstructuredGrid class in Bitpit_BASE 
  */
 void VTK_BASICMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string name  ){
 	
@@ -129,13 +133,13 @@ void VTK_BASICMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string n
 		if( name == "types" ){
 			for( n=0; n<m_connectivity->size(); n++) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, static_cast<int>(type_)  ) ;
+				bitpit::genericIO::flushASCII( str, static_cast<uint8_t>(type_)  ) ;
 				str << endl ;
 			};
 		};
 		
 		if( name == "offsets" ){
-			int off_(0) ;
+			uint64_t off_(0) ;
 			for( n=0; n<m_connectivity->size(); n++) {
 				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
 				bitpit::genericIO::flushASCII( str, indent ) ;
@@ -159,12 +163,12 @@ void VTK_BASICMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string n
 		
 		if( name == "types" ){
 			for( n=0; n<m_connectivity->size(); n++) {
-				bitpit::genericIO::flushBINARY( str, static_cast<int>(type_)  ) ;
+				bitpit::genericIO::flushBINARY( str, static_cast<uint8_t>(type_)  ) ;
 			};
 		};
 		
 		if( name == "offsets" ){
-			int off_(0) ;
+			uint64_t off_(0) ;
 			for( n=0; n<m_connectivity->size(); n++) {
 				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
 				bitpit::genericIO::flushBINARY( str, off_  ) ;
@@ -193,7 +197,8 @@ void VTK_BASICMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string n
  */
 
 /*! Basic class Constructor */
-VTK_BASICCLOUD::VTK_BASICCLOUD(){
+VTK_BASICCLOUD::VTK_BASICCLOUD():VTKUnstructuredGrid(){
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	m_points = NULL;
 };
 
@@ -204,10 +209,12 @@ VTK_BASICCLOUD::VTK_BASICCLOUD(){
  * \param[in] nP_   number of points in your mesh
  */ 
 VTK_BASICCLOUD::VTK_BASICCLOUD(std::string dir_, std::string name_, bitpit::VTKFormat cod_, int nP_):
-VTKUnstructuredGrid(dir_, name_)
+VTKUnstructuredGrid()
 {
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	setCodex(cod_);
 	setDimensions(nP_, nP_, nP_);
+	setNames(dir_, name_);
 	m_points=NULL;
 };
 
@@ -234,7 +241,7 @@ void VTK_BASICCLOUD::unlinkData(){
 };
 
 /*! CRTP function to write data on file. Not suitable for a direct call. 
- * Please refer to documentation of VTK_UnstructuredGrid class in Bitpit_BASE 
+ * Please refer to documentation of VTKUnstructuredGrid class in Bitpit_BASE 
  */
 void VTK_BASICCLOUD::flushData(  fstream &str,bitpit::VTKFormat codex_, string name  ){
 	
@@ -266,13 +273,13 @@ void VTK_BASICCLOUD::flushData(  fstream &str,bitpit::VTKFormat codex_, string n
 
 			for( n=0; n<m_points->size(); n++) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, static_cast<int>(type_)  ) ;
+				bitpit::genericIO::flushASCII( str, static_cast<uint8_t>(type_)  ) ;
 				str << endl ;
 			};
 		};
 		
 		if( name == "offsets" ){
-			int off_(0) ;
+			uint64_t off_(0) ;
 			for( n=0; n<m_points->size(); n++) {
 				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
 				bitpit::genericIO::flushASCII( str, indent ) ;
@@ -297,12 +304,12 @@ void VTK_BASICCLOUD::flushData(  fstream &str,bitpit::VTKFormat codex_, string n
 		if( name == "types" ){
 
 			for( n=0; n<m_points->size(); n++) {
-				bitpit::genericIO::flushBINARY( str, static_cast<int>(type_)  ) ;
+				bitpit::genericIO::flushBINARY( str, static_cast<uint8_t>(type_)  ) ;
 			};
 		};
 		
 		if( name == "offsets" ){
-			int off_(0) ;
+			uint64_t off_(0) ;
 			for( n=0; n<m_points->size(); n++) {
 				off_ += bitpit::vtk::getNNodeInElement( type_ ) ;
 				bitpit::genericIO::flushBINARY( str, off_  ) ;
@@ -313,11 +320,12 @@ void VTK_BASICCLOUD::flushData(  fstream &str,bitpit::VTKFormat codex_, string n
 }; //CRTP
 
 /*! Default Constructor.Retains all members to null pointers */
-VTK_DATAMESH::VTK_DATAMESH(){
+VTK_DATAMESH::VTK_DATAMESH():VTKUnstructuredGrid(){
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	m_points=NULL;
 	m_connectivity=NULL;
-	m_element = bitpit::VTKElementType::UNDEFINED;
-	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
+	m_elDM = bitpit::VTKElementType::UNDEFINED;
+	
 };
 
 /*!Custom Constructor, for Output usage of the class purposes. 
@@ -330,11 +338,12 @@ VTK_DATAMESH::VTK_DATAMESH(){
  * \param[in] cod_   writing codex of the file (binary-1 or ascii-0);
  */
 VTK_DATAMESH::VTK_DATAMESH(dvecarr3E * points, ivector2D * conn, std::string dir_, std::string name_, bitpit::VTKFormat cod_) :
-VTKUnstructuredGrid(dir_, name_)
+VTKUnstructuredGrid()
 {
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	if(!linkMeshData(points,conn)) return;	
 	setCodex(cod_);
-	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
+	setNames(dir_, name_);
 };
 
 /*!Custom Constructor, for Input usage of the class purposes. 
@@ -344,8 +353,9 @@ VTKUnstructuredGrid(dir_, name_)
  * \param[in] conn   pointer to mesh local connectivity;
  * \param[in] filename_ string for filename absolute path, where vtu data will be managed	
  */
-VTK_DATAMESH::VTK_DATAMESH(dvecarr3E * points, ivector2D * conn, std::string filename_){
+VTK_DATAMESH::VTK_DATAMESH(dvecarr3E * points, ivector2D * conn, std::string filename_):VTKUnstructuredGrid(){
 	
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::UInt64, bitpit::VTKDataType::UInt8, bitpit::VTKDataType::Int32);
 	
 	if(!linkMeshData(points,conn)) return;
 	
@@ -359,7 +369,6 @@ VTK_DATAMESH::VTK_DATAMESH(dvecarr3E * points, ivector2D * conn, std::string fil
 	name = filename_.substr(cut1+1, cut2-cut1-1);
 	
 	setNames(dir, name);
-	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 };
 
 /*! Default Destructor of the class.*/ 
@@ -375,11 +384,23 @@ VTK_DATAMESH::~VTK_DATAMESH(){
  */
 bool VTK_DATAMESH::linkMeshData(dvecarr3E * points, ivector2D * conn){
 	if(conn == NULL || points == NULL) return false;
-	if((int)conn->size() < 1)	return false;
+	if(conn->empty() || points->empty())	return false;
+	
 	
 	int size = (*conn)[0].size();
-	m_element = static_cast< bitpit::VTKElementType > (size);
-	setDimensions((uint64_t)conn->size(), (uint64_t)points->size(), m_element);
+	switch(size){
+		case 3:
+			m_elDM = bitpit::VTKElementType::TRIANGLE;
+			break;
+		case 4:
+			m_elDM = bitpit::VTKElementType::QUAD;
+			break;
+		default:
+			m_elDM = bitpit::VTKElementType::UNDEFINED;
+			break;
+	}
+	
+	setDimensions(conn->size(), points->size(), size*conn->size());
 	m_points = points;
 	m_connectivity = conn;
 	
@@ -392,7 +413,7 @@ bool VTK_DATAMESH::linkMeshData(dvecarr3E * points, ivector2D * conn){
 void  VTK_DATAMESH::unlinkMeshData(){
 	m_points = NULL;
 	m_connectivity = NULL;
-	m_element = bitpit::VTKElementType::UNDEFINED;
+	m_elDM = bitpit::VTKElementType::UNDEFINED;
 	
 }
 
@@ -452,7 +473,7 @@ void VTK_DATAMESH::removeAllFields(){
 };
 
 /*! CRTP method to write VTU files. Not intended for public usage purpose. 
- *  Custom implementation of VTK_UnstructuredGrid base class in BITPIT_BASE library. 
+ *  Custom implementation of VTKUnstructuredGrid base class in BITPIT_BASE library. 
  *  Check BITPIT_BASE documentation for more information  */
 void VTK_DATAMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string name  )
 {
@@ -460,36 +481,39 @@ void VTK_DATAMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string na
 	
 	if(m_points == NULL || m_connectivity == NULL ){std::cout<<"not linked Mesh Data Structure"<<endl; return;}
 	
-	string indent("         ") ;
+	std::string indent("         ") ;
 	
+	int connS = (*m_connectivity)[0].size();
 	if( codex_ == bitpit::VTKFormat::ASCII){
+		
 		if( name == "Points" ){
 			for( auto && p : *m_points) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, 3, p) ;}
+				bitpit::genericIO::flushASCII( str, 3, p) ;
 				str<<endl;
+			}	
 		};
 		
 		if( name == "connectivity" ){
 			for( auto && cc : *m_connectivity) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, 3, cc) ;
+				bitpit::genericIO::flushASCII( str, connS, cc) ;
 				str<<endl;
 			};
 		};
 		
 		if( name == "types" ){
-			for(auto && cc : *m_connectivity) {
+			for(int i=0; i<m_connectivity->size(); ++i) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, (int)m_element ) ;
+				bitpit::genericIO::flushASCII( str, static_cast<uint8_t>(m_elDM) ) ;
 				str<<endl;
 			};
 		};
 		
 		if( name == "offsets" ){
-			int off_(0) ;
-			for(auto && cc : *m_connectivity) {
-				off_ += bitpit::vtk::getNNodeInElement( m_element ) ;
+			uint64_t off_(0) ;
+			for(int i=0; i<m_connectivity->size(); ++i) {
+				off_ += bitpit::vtk::getNNodeInElement( m_elDM ) ;
 				bitpit::genericIO::flushASCII( str, indent ) ;
 				bitpit::genericIO::flushASCII( str, off_  ) ;
 				str<<endl;
@@ -509,14 +533,13 @@ void VTK_DATAMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string na
 		};
 		
 		if( name == "types"){
-		
-			for( auto && cc : *m_connectivity) bitpit::genericIO::flushBINARY( str, (int)m_element ) ;
+			for(int i=0; i<m_connectivity->size(); ++i) bitpit::genericIO::flushBINARY( str, static_cast<uint8_t>(m_elDM) ) ;
 		};
 		
 		if( name == "offsets"){
-			int off_(0) ;
-			for(auto && cc : *m_connectivity) {
-				off_ += bitpit::vtk::getNNodeInElement( m_element ) ;
+			uint64_t off_(0) ;
+			for(int i=0; i<m_connectivity->size(); ++i) {				
+				off_ += bitpit::vtk::getNNodeInElement( m_elDM ) ;
 				bitpit::genericIO::flushBINARY( str, off_  ) ;
 			};
 		};
@@ -542,47 +565,21 @@ void VTK_DATAMESH::flushData(  fstream &str, bitpit::VTKFormat codex_, string na
  */
 void 	VTK_DATAMESH::flushScalarField(std::string name, bitpit::VTKFormat codex_, std::fstream & str){
 	
-	bitpit::VTKField **myfield;
-	bool check = getFieldByName(name, myfield);
-	bitpit::VTKLocation datatype = (*myfield)->getLocation();	
-	
-	string indent("         ") ;
+	std::string indent("         ") ;
 	
 	dvector1D * datafield = m_scalar[name]; 
 	if( codex_ == bitpit::VTKFormat::ASCII){	
 		
-		if(datatype==bitpit::VTKLocation::POINT && datafield->size() == m_points->size()){
-			
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, data);
-				str<<endl;
-			};
+		for(auto && data : *datafield) {
+			bitpit::genericIO::flushASCII( str, indent ) ;
+			bitpit::genericIO::flushASCII( str, data);
+			str<<endl;
 		};
-		
-		if(datatype==bitpit::VTKLocation::CELL && datafield->size() == m_connectivity->size()){
-			
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, data);
-				str<<endl;
-			};
-		};
-	
-		
+
 	}else{
 	
-		if(datatype==bitpit::VTKLocation::POINT && datafield->size() == m_points->size()){
-			
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushBINARY( str, data);
-			};
-		};
-		
-		if(datatype==bitpit::VTKLocation::CELL && datafield->size() == m_connectivity->size()){
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushBINARY( str, data);
-			};
+		for(auto && data : *datafield) {
+			bitpit::genericIO::flushBINARY( str, data);
 		};
 	}
 	
@@ -595,55 +592,20 @@ void 	VTK_DATAMESH::flushScalarField(std::string name, bitpit::VTKFormat codex_,
  */
 void 	VTK_DATAMESH::flushVectorField(std::string name, bitpit::VTKFormat codex_, std::fstream & str){
 	
-	bitpit::VTKField ** myfield;
-	bool check = getFieldByName(name, myfield);
-	bitpit::VTKLocation datatype = (*myfield)->getLocation();	
-	
 	string indent("         ") ;
-	
 	dvecarr3E * datafield = m_vector[name]; 
 	if( codex_ == bitpit::VTKFormat::ASCII){	
-		
-		if(datatype==bitpit::VTKLocation::POINT && datafield->size() == m_points->size()){
-			
-			for(auto && data : *datafield) {
+
+		for(auto && data : *datafield) {
 				bitpit::genericIO::flushASCII( str, indent ) ;
 				bitpit::genericIO::flushASCII( str, 3, data);
 				str<<endl;
-			};
 		};
-		
-		if(datatype==bitpit::VTKLocation::CELL && datafield->size() == m_connectivity->size()){
-			
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushASCII( str, indent ) ;
-				bitpit::genericIO::flushASCII( str, 3, data);
-				str<<endl;
-			};
-		};
-		
 		
 	}else{
-		
-		if(datatype==bitpit::VTKLocation::POINT && datafield->size() == m_points->size()){
-			
-			//myfield->setElements(m_points->size());
-			//myfield->setOffset(m_points->size());
-			
 			for(auto && data : *datafield) {
 				bitpit::genericIO::flushBINARY( str, data);
 			};
-		};
-		
-		if(datatype==bitpit::VTKLocation::CELL && datafield->size() == m_connectivity->size()){
-			
-			//myfield->setElements(m_connectivity->size());
-			//myfield->setOffset(m_connectivity->size());
-			
-			for(auto && data : *datafield) {
-				bitpit::genericIO::flushBINARY( str, data);
-			};
-		};
 	};
 
 	datafield = NULL;
