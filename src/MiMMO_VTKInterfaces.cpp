@@ -317,6 +317,7 @@ VTK_DATAMESH::VTK_DATAMESH(){
 	m_points=NULL;
 	m_connectivity=NULL;
 	m_element = bitpit::VTKElementType::UNDEFINED;
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 };
 
 /*!Custom Constructor, for Output usage of the class purposes. 
@@ -333,6 +334,7 @@ VTKUnstructuredGrid(dir_, name_)
 {
 	if(!linkMeshData(points,conn)) return;	
 	setCodex(cod_);
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 };
 
 /*!Custom Constructor, for Input usage of the class purposes. 
@@ -357,6 +359,7 @@ VTK_DATAMESH::VTK_DATAMESH(dvecarr3E * points, ivector2D * conn, std::string fil
 	name = filename_.substr(cut1+1, cut2-cut1-1);
 	
 	setNames(dir, name);
+	setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 };
 
 /*! Default Destructor of the class.*/ 
@@ -383,10 +386,14 @@ bool VTK_DATAMESH::linkMeshData(dvecarr3E * points, ivector2D * conn){
 	return true;
 };
 
+/*!
+ * unlink your mesh data, but not remove linked fields. use removeAllFields to get them.
+ */
 void  VTK_DATAMESH::unlinkMeshData(){
 	m_points = NULL;
 	m_connectivity = NULL;
 	m_element = bitpit::VTKElementType::UNDEFINED;
+	
 }
 
 /*! Adds a scalar field data.

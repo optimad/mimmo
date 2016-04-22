@@ -95,7 +95,7 @@ public:
  *	\authors		Gallizio Federico
  *	\authors		Arpa Rocco
  *
- *	\brief Class for VTK Output of structured grids  
+ *	\brief Class for VTK Output of unstructured grids  
  *
  *	Class for managing output on file of unstructured grids with scalar/vector data attached, based on VTK's formats (*.vtu)
  */

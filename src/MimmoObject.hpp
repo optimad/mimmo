@@ -49,7 +49,8 @@ public:
 	int						m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
 	bitpit::PatchKernel*	m_geometry;			/**<Reference geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
-	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
+	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ *
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
@@ -76,7 +77,10 @@ public:
 	long		getMapData(int i);
 	liimap&		getMapDataInv();
 	int			getMapDataInv(long id);
+	livector1D&	getMapCell();
+	long		getMapCell(int i);
 	liimap&		getMapCellInv();
+	int			getMapCellInv(long id);
 	
 	bool		setVertex(dvecarr3E & vertex);
 	bool		setVertex(darray3E & vertex);
@@ -90,6 +94,8 @@ public:
 	livector1D 	getVertexFromCellList(livector1D cellList);
 	ivector1D	convertVertexIDtoLocal(livector1D vertList);
 	livector1D	convertLocaltoVertexID(ivector1D vList);
+	ivector1D	convertCellIDtoLocal(livector1D cellList);
+	livector1D	convertLocaltoCellID(ivector1D cList);
 	
 	livector1D  extractBoundaryVertexID();
 	void		write(std::string filename);

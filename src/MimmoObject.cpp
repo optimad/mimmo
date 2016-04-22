@@ -94,12 +94,7 @@ MimmoObject::~MimmoObject(){
 /*!Copy constructor of MimmoObject.
  */
 MimmoObject::MimmoObject(const MimmoObject & other){
-	m_type 			= other.m_type;
-	m_geometry 		= other.m_geometry;
-	m_internalPatch = false;
-	m_mapData		= other.m_mapData;
-	m_mapDataInv	= other.m_mapDataInv;
-	m_mapCellInv	= other.m_mapCellInv;
+	*this = other;
 };
 
 /*!Assignement operator of MimmoObject.
@@ -109,6 +104,7 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_geometry 		= other.m_geometry;
 	m_internalPatch = false;
 	m_mapData		= other.m_mapData;
+	m_mapCell		= other.m_mapCell;
 	m_mapDataInv	= other.m_mapDataInv;
 	m_mapCellInv	= other.m_mapCellInv;
 	return *this;
@@ -179,27 +175,29 @@ MimmoObject::getVertex(long i){
 	return 	m_geometry->getVertexCoords(i);
 };
 
-/*!It gets the connectivity of a cell of the geometry Patch.
- * \param[in] i Index of the cell of geometry mesh.
- * \return Connectivity of the i-th cell of geometry mesh.
+/*!It gets the connectivity of a cell, in local class sequential indexing, of the linked geometry .
+ * \param[in] i bitpit::PatchKernel ID of the cell of geometry mesh.
+ * \return vertex connectivity of the i-th cell of geometry mesh, in local sequential indexing.
  */
 ivector1D
 MimmoObject::getConnectivity(long i){
+	liimap & vmap = getMapDataInv();
 	if (m_geometry == NULL) return ivector1D();
 	int np = m_geometry->getCell(i).getVertexCount();
 	ivector1D connecti(np);
 	const long * connectivity = m_geometry->getCell(i).getConnect();
 	for (int i=0; i<np; i++){
-		connecti[i] = connectivity[i];
+		connecti[i] = vmap[connectivity[i]];
 	}
 	return connecti;
 };
 
-/*!It gets the connectivity of the cells of the geometry Patch.
- * \return Connectivity of the cells of geometry mesh.
+/*!It gets the connectivity of the cells of the linked geometry, in local class sequential indexing
+ * \return vertex connectivity of the cells of geometry mesh, in local sequential indexing.
  */
 ivector2D
 MimmoObject::getConnectivity(){
+	liimap & vmap = getMapDataInv();
 	if (m_geometry == NULL) return ivector2D();
 	int np = m_geometry->getCell(0).getVertexCount();
 	int nc = m_geometry->getCellCount();
@@ -207,7 +205,7 @@ MimmoObject::getConnectivity(){
 	for (int i=0; i<nc; i++){
 		const long * connectivity = m_geometry->getCell(i).getConnect();
 		for (int j=0; j<np; j++){
-			connecti[i][j] = connectivity[j];
+			connecti[i][j] = vmap[connectivity[j]];
 		}
 	}
 	return connecti;
@@ -258,6 +256,24 @@ MimmoObject::getMapDataInv(long id){
 };
 
 
+
+/*!It gets the cell ids.
+ * \return Reference to Map Cell with cell ids.
+ */
+livector1D&
+MimmoObject::getCellData(){
+	return m_mapCell;
+};
+
+/*!It gets the i-th cell id.
+ * \param[in] i Index in a sequential vector of target cells.
+ * \return ID of target cell.
+ */
+long
+MimmoObject::getMapCell(int i){
+	return m_mapCell[i];
+};
+
 /*!It gets the cell ids.
  * \return Reference to inverse of Map data with cell ids.
  */
@@ -266,6 +282,14 @@ MimmoObject::getMapCellInv(){
 	return m_mapCellInv;
 };
 
+/*!It gets the id-th cell index in a sequential vector.
+ * \param[in] id ID of target cell.
+ * \return Index in a sequential vector of target cell.
+ */
+int
+MimmoObject::getMapCellInv(long id){
+	return m_mapCellInv[id];
+};
 
 /*!It sets the coordinates of the vertices of the geometry Patch.
  * \param[in] vertex Coordinates of vertices of geometry mesh.
@@ -414,12 +438,14 @@ MimmoObject::setMapData(){
 bool
 MimmoObject::setMapCell(){
 	if (m_geometry == NULL) return false;
+	m_mapCell.clear
 	m_mapCellInv.clear();
 	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_geometry->cellEnd();
 	long i = 0;
 	for (it = m_geometry->cellBegin(); it != itend; ++it){
-		m_mapCellInv[it->getId()] = i;
+		m_mapCell[i] = it->getId();
+		m_mapCellInv[m_mapCell[i]] = i;
 		i++;
 	}
 	return true;
@@ -502,6 +528,44 @@ livector1D MimmoObject::convertLocaltoVertexID(ivector1D vList){
 	}
 	return result;
 }
+
+
+/*! Convert Cell List of bitpit::PatchKernel IDs to local ordered MimmoObject Cell List.
+ * \param[in] cellList list of bitpit::PatchKernel IDs identifying cells.
+ * \return list of local ids of cells according m_mapCell ordering.
+ */  
+ivector1D MimmoObject::convertCellIDtoLocal(livector1D cellList){
+	
+	livector1D::iterator it;
+	livector1D::iterator itEnd=cellList.end();
+	ivector1D result(cellList.size());
+	
+	int counter=0;
+	for(it=cellList.begin(); it != itEnd; ++it){
+		result[counter]=m_mapCellInv[*it];
+		++counter;
+	}
+	return result;
+}
+
+/*! Convert local ordered MimmoObject Cell List to Cell List of bitpit::PatchKernel IDs.
+ * \param[in] cList List of local ids of cells according m_mapCell ordering
+ * \return list of bitpit::PatchKernel IDs identifying cells.
+ */  
+livector1D MimmoObject::convertLocaltoCellID(ivector1D cList){
+	
+	ivector1D::iterator it;
+	ivector1D::iterator itEnd=cList.end();
+	livector1D result(cList.size());
+	
+	int counter=0;
+	for(it=cList.begin(); it != itEnd; ++it){
+		result[counter]=m_mapCell[*it];
+		++counter;
+	}
+	return result;
+}
+
 
 /*!
  * Extract ids of all vertices at mesh boundaries.
