@@ -439,6 +439,7 @@ bool
 MimmoObject::setMapCell(){
 	if (m_geometry == NULL) return false;
 	m_mapCell.clear();
+	m_mapCell.resize(getNCells());
 	m_mapCellInv.clear();
 	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_geometry->cellEnd();
