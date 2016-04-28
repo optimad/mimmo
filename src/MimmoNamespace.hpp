@@ -24,6 +24,11 @@
 #ifndef __MIMMONAMESPACE_HPP__
 #define __MIMMONAMESPACE_HPP__
 
+#include <functional>
+#include <map>
+
+#include "MimmoObject.hpp"
+
 namespace mimmo{
 
 namespace pin{
@@ -92,6 +97,8 @@ void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL
 
 };
 
+
+std::map<int,int> mapVertex(MimmoObject* obj1, MimmoObject* obj2);
 
 
 };

@@ -42,7 +42,6 @@ namespace mimmo{
  *	After the execution of an object Apply, the original geometry will be modified.
  */
 class Apply: public BaseManipulation{
-
 public:
 
 	Apply();
