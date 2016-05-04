@@ -1195,7 +1195,6 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	}
 	
 	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP);
 	handle_vtk_output.write();
 };
@@ -1233,7 +1232,6 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	}
 	
 	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP);
 	handle_vtk_output.write();
 	
@@ -1272,7 +1270,6 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 	}
 	
 	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP,activeConn);
 	handle_vtk_output.write();
 };
@@ -1341,7 +1338,6 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	
 	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, counter, sizeCl, 8*sizeCl);
 	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.setGeomTypes(bitpit::VTKDataType::Float64,bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32, bitpit::VTKDataType::Int32);
 	handle_vtk_output.linkData(activeP,activeConn);
 	handle_vtk_output.write();
 };
