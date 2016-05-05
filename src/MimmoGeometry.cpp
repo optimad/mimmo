@@ -48,8 +48,11 @@ MimmoGeometry::MimmoGeometry(){
 /*!Default destructor of MimmoGeometry.
  */
 MimmoGeometry::~MimmoGeometry(){
-	if (m_local) delete getGeometry();
-
+	if (m_local) {
+		delete getGeometry();
+		MimmoObject * dum = nullptr;
+		setGeometry(dum);
+	}
 };
 
 /*!Copy constructor of MimmoGeometry.
@@ -61,6 +64,7 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 /*!Assignement operator of MimmoGeometry.
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
+	*(static_cast<MimmoObject * >(this)) = *(static_cast<const MimmoObject * >(&other));
 	m_rtype = other.m_rtype;
 	m_wtype = other.m_wtype;
 	m_read = other.m_read;
@@ -71,7 +75,6 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_wdir = other.m_wdir;
 	m_local = other.m_local;
 	m_wformat = other.m_wformat;
-	m_pids = other.m_pids;
 	return *this;
 };
 
@@ -126,9 +129,10 @@ MimmoGeometry::getVertex(long i){
 	return 	getGeometry()->getVertex(i);
 };
 
+//TODO return IDs of vertices as long not simple int!
 /*!It gets the connectivity of a cell of the geometry Patch.
  * \param[in] i Index of the cell of geometry mesh.
- * \return Connectivity of the i-th cell of geometry mesh.
+ * \return Connectivity of the i-th cell of geometry mesh, in unique global indexing.
  * Return vector of size 0 if none geometry linked.
  */
 ivector1D
@@ -141,7 +145,7 @@ MimmoGeometry::getConnectivity(long i){
  * \return PIDs of the cells of geometry mesh.
  * Return vector of size 0 if none geometry linked.
  */
-ivector1D
+shivector1D
 MimmoGeometry::getPID(){
 	if (getGeometry() == NULL) return ivector1D(0);
 	return m_pids;

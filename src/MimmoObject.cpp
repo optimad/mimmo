@@ -65,10 +65,13 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 		dynamic_cast<SurfUnstructured*> (m_geometry)->setExpert(true);
 	}
 	setVertex(vertex);
-	if (connectivity != NULL)
-		setConnectivity(connectivity);
 	setMapData();
-	setMapCell();
+	
+	if (connectivity != NULL){
+		setConnectivity(connectivity);	
+		setMapCell();
+	}
+	
 };
 
 /*!Custom constructor of MimmoObject.
@@ -81,7 +84,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_geometry 		= geometry;
 	m_internalPatch = false;
 	setMapData();
-	setMapCell();
+	if(m_geometry->getCellCount() != 0)	setMapCell();
 }
 
 /*!Default destructor of MimmoObject.
@@ -107,6 +110,8 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_mapCell		= other.m_mapCell;
 	m_mapDataInv	= other.m_mapDataInv;
 	m_mapCellInv	= other.m_mapCellInv;
+	m_pids			= other.m_pids;
+	m_pidsType		= other.m_pidsType;
 	return *this;
 };
 
@@ -291,6 +296,23 @@ MimmoObject::getMapCellInv(long id){
 	return m_mapCellInv[id];
 };
 
+/*!Return the list of pid types actually present in your geometry
+ * If empty list is provided, pidding is actually not supported
+ */
+const shivector1D 	&
+MimmoObject::getPidTypeList() const{
+	return m_pidsType;
+};
+
+/*!Return the list of pid associated to each cell of tessellation in compact 
+ * sequential ordering
+ * If empty list is provided, pidding is not supported for this geometry
+ */
+const shivector1D 	&
+MimmoObject::getPid() const{
+	return m_pids;
+};
+
 //TODO is this an ADDVERTEX instead of SETVERTEX?
 /*!It sets the coordinates of the vertices of the geometry Patch.
  * \param[in] vertex Coordinates of vertices of geometry mesh.
@@ -341,6 +363,21 @@ MimmoObject::setVertex(darray3E & vertex){
 	PatchKernel::VertexIterator it = m_geometry->addVertex(vertex);
 	m_mapData.push_back(it->getId());
 	m_mapDataInv[it->getId()] = m_mapData.size();
+	return true;
+};
+
+/*!It adds and it sets the coordinates of one vertex of the geometry Patch.
+ * \param[in] vertex Coordinates of vertex to be added to geometry mesh.
+ * \param[in] idTag  unique ID associated to the vertex	
+ * \return False if no geometry is linked.
+ */
+bool
+MimmoObject::setVertex(darray3E & vertex, long idTag){
+	if (m_geometry == NULL) return false;
+	m_geometry->addVertex(vertex, idTag);
+	
+	m_mapData.push_back(idTag);
+	m_mapDataInv[idTag] = m_mapData.size();
 	return true;
 };
 
@@ -426,6 +463,7 @@ bool
 MimmoObject::cleanGeometry(){
 	if (m_geometry == NULL) return false;
 	m_geometry->deleteCoincidentVertices();
+	m_geometry->updateBoundingBox(true);
 	setMapData();
 	setMapCell();
 	return true;
@@ -623,4 +661,23 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 	return result;
 };
 
-
+/*!
+ * Extract all cells by their bitpit::PatchKernel unique ID, associated to 
+ * PID flag.
+ * \param[in]	flag	PID for extraction
+ * \return		list of cell ID marked as PID flag
+ */
+livector1D	MimmoObject::extractPIDCells(short flag){
+	
+	int size = m_pid.size();
+	livector1D result(size);
+	int counter = 0;
+	for(int i=0; i<size; ++i){
+		if (m_pid[i] == flag)	{
+			result[counter] = getMapCell(i);	 
+			++counter;
+		}	
+	}
+	result.resize(counter);
+	return	result;
+};

@@ -53,9 +53,12 @@ public:
 	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
-
+	shivector1D				m_pids;				/**<pid data associated to each tessellation cell, in local compact indexing */
+	shivector1D				m_pidsType;			/**<pid type available for your geometry */
+	
 public:
 	MimmoObject(int type = 1);
+	//TODO connectivity must be a vector<vector<long int> >
 	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
 	MimmoObject(int type, bitpit::PatchKernel* geometry);
 	~MimmoObject();
@@ -84,10 +87,16 @@ public:
 	liimap&		getMapCellInv();
 	int			getMapCellInv(long id);
 	
+	const shivector1D 	&	getPidTypeList() const ;
+	const shivector1D	&	getPid() const;
+	
 	bool		setVertex(dvecarr3E & vertex);
 	bool		resetVertex(dvecarr3E & vertex);
 	bool		setVertex(darray3E & vertex);
+	bool		setVertex(darray3E & vertex, long idtag);
 	bool		modifyVertex(darray3E & vertex, long id);
+
+	//TODO connectivity must be a vector<vector<long int> >
 	bool		setConnectivity(ivector2D * connectivity);
 	bool		setGeometry(int type, bitpit::PatchKernel* geometry);
 	bool		setMapData();
@@ -101,6 +110,7 @@ public:
 	livector1D	convertLocaltoCellID(ivector1D cList);
 	
 	livector1D  extractBoundaryVertexID();
+	livector1D	extractPIDCells(short);
 	void		write(std::string filename);
 	//TODO implement safe access to m_mapData/Cell members in getMap... methods and convertVertexIDToLocal, convertLocalToVertexID methods.
 };

@@ -71,7 +71,6 @@ private:
 	bool		m_local;		/**<Is the geometry locally instantiated?.*/
 
 	WFORMAT		m_wformat;		/**<Format for .nas import/export. (Short/Long).*/
-	ivector1D	m_pids;			/**<Cells' PID.*/
 
 public:
 	MimmoGeometry();
@@ -87,8 +86,8 @@ public:
 	darray3E	getVertex(long i);
 	ivector1D	getConnectivity(long i);
 	ivector2D	getConnectivity();
-	ivector1D	getPID();
-	int			getPID(long i);
+	shivector1D	getPID();
+	short		getPID(long i);
 
 	bool		setVertex(dvecarr3E & vertex);
 	void		setVertex(dvecarr3E * vertex);
@@ -108,7 +107,7 @@ public:
 	void		setWriteFilename(std::string filename);
 
 	void		activatePID();
-	void		setPID(ivector1D pids);
+	void		setPID(shivector1D pids);
 	void		setPID(long i, int pid);
 	void		setPIDforce(long i, int pid);
 
@@ -136,10 +135,10 @@ public:
 	void writeKeyword(std::string key, std::ofstream& os);
 	void writeCoord(darray3E & p, int& pointI, std::ofstream& os);
 	void writeFace(std::string faceType, ivector1D& facePts, int& nFace, std::ofstream& os, int PID);
-	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, ivector1D* PIDS = NULL);
+	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, shivector1D* PIDS = NULL);
 	void writeFooter(std::ofstream& os);
-	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS = NULL);
-	void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS);
+	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS = NULL);
+	void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS);
 
 	std::string trim(std::string in);
 	std::string convertVertex(std::string in);
