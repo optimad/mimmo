@@ -43,11 +43,10 @@ namespace mimmo{
  *
  */
 class MimmoObject{
-public:
-
+protected:
 	//members
 	int						m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
-	bitpit::PatchKernel*	m_geometry;			/**<Reference geometry. */
+	bitpit::PatchKernel*	m_patch;			/**<Reference to bitpit patch handling geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
 	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
 	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
@@ -58,49 +57,58 @@ public:
 	
 public:
 	MimmoObject(int type = 1);
-	//TODO connectivity must be a vector<vector<long int> >
-	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
+	MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
 	MimmoObject(int type, bitpit::PatchKernel* geometry);
 	~MimmoObject();
 
 	MimmoObject(const MimmoObject & other);
 	MimmoObject & operator=(const MimmoObject & other);
 
-	void 		clear();
-	bool		isEmpty();
-	int			getType();
-	long		getNVertex();
-	long		getNCells();
-	dvecarr3E	getVertex();
-	darray3E	getVertex(long i);
-	ivector1D	getConnectivity(long i);
-	ivector2D	getConnectivity();
-	bitpit::PatchKernel*		getGeometry();
+	void 				clear();
+	bool				isEmpty();
+	int					getType();
+	long				getNVertex()const ;
+	long				getNCells()const;
+	dvecarr3E			getVertex();
+	dvecarr3E			getVertex()const ;
+	darray3E			getVertex(long i);
+	ivector1D			getConnectivity(long i);
+	ivector2D			getConnectivity();
+	ivector2D			getConnectivity()const ;
 	
-	livector1D&	getMapData();
-	long		getMapData(int i);
-	liimap&		getMapDataInv();
-	int			getMapDataInv(long id);
+	bitpit::PatchKernel*		getPatch();
 	
-	livector1D&	getMapCell();
-	long		getMapCell(int i);
-	liimap&		getMapCellInv();
-	int			getMapCellInv(long id);
+	const livector1D&	getMapData() const;
+	long				getMapData(int i);
+	const liimap&		getMapDataInv() const;
+	int					getMapDataInv(long id);
+	
+	const livector1D&	getMapCell() const ;
+	long				getMapCell(int i);
+	const liimap&		getMapCellInv() const;
+	int					getMapCellInv(long id);
 	
 	const shivector1D 	&	getPidTypeList() const ;
 	const shivector1D	&	getPid() const;
 	
+	const MimmoObject * getCopy();
+	
 	bool		setVertex(dvecarr3E & vertex);
+	bool		setVertex(dvecarr3E * vertex);
 	bool		resetVertex(dvecarr3E & vertex);
-	bool		setVertex(darray3E & vertex);
-	bool		setVertex(darray3E & vertex, long idtag);
+	bool		resetVertex(dvecarr3E * vertex);
+	bool		setVertex(darray3E & vertex, long idtag =bitpit::Vertex::NULL_ID);
 	bool		modifyVertex(darray3E & vertex, long id);
 
-	//TODO connectivity must be a vector<vector<long int> >
-	bool		setConnectivity(ivector2D * connectivity);
-	bool		setGeometry(int type, bitpit::PatchKernel* geometry);
+	bool		setConnectivity(livector2D * connectivity);
+	bool		setConnectivity(livector1D & locConn, long idtag=bitpit::Cell:NULL_ID);
+	bool		setPatch(int type, bitpit::PatchKernel* geometry);
 	bool		setMapData();
 	bool		setMapCell();
+
+	void		setSOFTCopy(const MimmoObject * other);
+	void		setHARDCopy(const MimmoObject * other);
+	
 	bool		cleanGeometry();
 
 	livector1D 	getVertexFromCellList(livector1D cellList);
@@ -111,7 +119,7 @@ public:
 	
 	livector1D  extractBoundaryVertexID();
 	livector1D	extractPIDCells(short);
-	void		write(std::string filename);
+	
 	//TODO implement safe access to m_mapData/Cell members in getMap... methods and convertVertexIDToLocal, convertLocalToVertexID methods.
 };
 

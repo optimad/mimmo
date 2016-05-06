@@ -33,26 +33,13 @@ using namespace mimmo;
  */
 MimmoGeometry::MimmoGeometry(){
 	m_name 		= "MiMMO.Geometry";
-	m_rtype		= STL;
-	m_read		= false;
-	m_rfilename	= "mimmoGeometry";
-	m_wtype		= STL;
-	m_write		= false;
-	m_wfilename	= "mimmoGeometry";
-	m_rdir		= "./";
-	m_wdir		= "./";
-	m_local 	= false;
-	m_wformat	= Short;
+	setDefaults();
 }
 
 /*!Default destructor of MimmoGeometry.
  */
 MimmoGeometry::~MimmoGeometry(){
-	if (m_local) {
-		delete getGeometry();
-		MimmoObject * dum = nullptr;
-		setGeometry(dum);
-	}
+	MimmoObject::clear()
 };
 
 /*!Copy constructor of MimmoGeometry.
@@ -64,7 +51,8 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 /*!Assignement operator of MimmoGeometry.
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-	*(static_cast<MimmoObject * >(this)) = *(static_cast<const MimmoObject * >(&other));
+	*(static_cast<MimmoObject * >(this)) = *(static_cast<const MimmoObject * >(&other)); //soft copy
+	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
 	m_rtype = other.m_rtype;
 	m_wtype = other.m_wtype;
 	m_read = other.m_read;
@@ -73,158 +61,25 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_wfilename = other.m_wfilename;
 	m_rdir = other.m_rdir;
 	m_wdir = other.m_wdir;
-	m_local = other.m_local;
 	m_wformat = other.m_wformat;
 	return *this;
 };
 
-/*!It gets the type of the geometry Patch.
- * \return Type of geometry mesh (0 = generic (deprecated), 1 = surface, 2 = volume).
- * Return -1 if none geometry linked.
+/*!
+ * Return a const pointer to your current class.
+ * Reimplementation of MimmoObject::getCopy;
  */
-int
-MimmoGeometry::getType(){
-	if (getGeometry() == NULL) return -1;
-	return getGeometry()->getType();
-};
+const MimmoGeometry * MimmoGeometry::getCopy(){
+	return this;
+}
 
-/*!It gets the number of vertices of the geometry Patch.
- * \return Number of vertices of geometry mesh.
- * Return -1 if none geometry linked.
+/*!
+ * Return a pointer as MimmoObject to your current class.
+ * Static casting is enforced. Reimplementation of BaseManipulation::getGeometry();
  */
-long
-MimmoGeometry::getNVertex(){
-	if (getGeometry() == NULL) return -1;
-	return getGeometry()->getNVertex();
-};
-
-/*!It gets the number of cells of the geometry Patch.
- * \return Number of cells of geometry mesh.
- * Return -1 if none geometry linked.
- */
-long
-MimmoGeometry::getNCells(){
-	if (getGeometry() == NULL) return -1;
-	return getGeometry()->getNCells();
-};
-
-/*!It gets the coordinates of the vertices of the geometry Patch.
- * \return Coordinates of vertices of geometry mesh.
- * Return vector of size 0 if none geometry linked.
- */
-dvecarr3E
-MimmoGeometry::getVertex(){
-	if (getGeometry() == NULL) return vector<darray3E>(0);
-	return getGeometry()->getVertex();
-};
-
-/*!It gets the coordinates of the vertices of the geometry Patch.
- * \param[in] i Index of the vertex of geometry mesh.
- * \return Coordinates of the i-th vertex of geometry mesh.
- * Return -9999 array if none geometry linked.
- */
-darray3E
-MimmoGeometry::getVertex(long i){
-	if (getGeometry() == NULL) return {{-9999, -9999, -9999}};
-	return 	getGeometry()->getVertex(i);
-};
-
-//TODO return IDs of vertices as long not simple int!
-/*!It gets the connectivity of a cell of the geometry Patch.
- * \param[in] i Index of the cell of geometry mesh.
- * \return Connectivity of the i-th cell of geometry mesh, in unique global indexing.
- * Return vector of size 0 if none geometry linked.
- */
-ivector1D
-MimmoGeometry::getConnectivity(long i){
-	if (getGeometry() == NULL) return vector<int>(0);
-	return getGeometry()->getConnectivity(i);
-};
-
-/*!It gets the PIDs of all the cells of the geometry Patch.
- * \return PIDs of the cells of geometry mesh.
- * Return vector of size 0 if none geometry linked.
- */
-shivector1D
-MimmoGeometry::getPID(){
-	if (getGeometry() == NULL) return ivector1D(0);
-	return m_pids;
-};
-
-/*!It gets the PID of a cell of the geometry Patch.
- * \param[in] i Index of the cell of geometry mesh.
- * \return PID of the i-th cell of geometry mesh.
- * Return -1 if none geometry linked or out of bound of pids stored.
- */
-int
-MimmoGeometry::getPID(long i){
-	if (getGeometry() == NULL || m_pids.size() <= i) return -1;
-	return m_pids[i];
-};
-
-/*!It sets the coordinates of the vertices of the geometry Patch.
- * \param[in] vertex Coordinates of vertices of geometry mesh.
- * \return False if no geometry is linked.
- */
-bool
-MimmoGeometry::setVertex(dvecarr3E & vertex){
-	if (getGeometry() == NULL) return false;
-	return getGeometry()->setVertex(vertex);
-};
-
-/*!It sets the coordinates of the vertices of the geometry Patch.
- * \param[in] vertex Coordinates of vertices of geometry mesh.
- * \return False if no geometry is linked.
- */
-void
-MimmoGeometry::setVertex(dvecarr3E * vertex){
-	if (getGeometry() == NULL) return;
-	getGeometry()->setVertex((*vertex));
-	return;
-};
-
-/*!It resets the coordinates of the vertices of the geometry Patch.
- * \param[in] vertex Coordinates of vertices of geometry mesh.
- * \return False if no geometry is linked.
- */
-void
-MimmoGeometry::resetVertex(dvecarr3E * vertex){
-	if (getGeometry() == NULL) return;
-	getGeometry()->resetVertex((*vertex));
-	return;
-};
-
-/*!It adds and it sets the coordinates of one vertex of the geometry Patch.
- * \param[in] vertex Coordinates of vertex to be added to geometry mesh.
- * \return False if no geometry is linked.
- */
-bool
-MimmoGeometry::setVertex(darray3E & vertex){
-	if (getGeometry() == NULL) return false;
-	return getGeometry()->setVertex(vertex);
-};
-
-/*!It modifies the coordinates of the vertex of the geometry Patch.
- * \param[in] vertex Coordinates of vertex of geometry mesh.
- * \param[in] id ID of vertex of geometry mesh to modify.
- * \return False if no geometry is linked.
- */
-bool
-MimmoGeometry::modifyVertex(darray3E & vertex, long id){
-	if (getGeometry() == NULL) return false;
-	return getGeometry()->modifyVertex(vertex,id);
-};
-
-/*!It sets the connectivity of the cells of the geometry Patch.
- * \param[in] connectivity Connectivity of cells of geometry mesh.
- * \return False if no geometry is linked.
- */
-bool
-MimmoGeometry::setConnectivity(ivector2D * connectivity){
-	if (getGeometry() == NULL) return false;
-	return getGeometry()->setConnectivity(connectivity);
-};
-
+MimmoObject * MimmoGeometry::getGeometry(){
+	return	static_cast<MimmoObject *>(this);
+}
 /*!It sets the type of file to read the geometry during the execution.
  * \param[in] type Extension of file.
  */
@@ -306,38 +161,68 @@ MimmoGeometry::setWriteFilename(string filename){
 	m_wfilename = filename;
 }
 
+/*!Sets your current class as a "soft" copy of the argument.
+ * Reimplementation of MimmoObject::setSOFTCopy(), get its documentation
+ * for further information.
+ * \param[in] other pointer to MimmoGeometry class.
+ */
+void
+MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
+	clear();	
+	*this = *other;
+}
+
+/*!Sets your current class as a "HARD" copy of the argument.
+ * Reimplementation of MimmoObject::setSOFTCopy(), get its documentation
+ * for further information.
+ * \param[in] other pointer to MimmoGeometry class.
+ */
+void
+MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
+	clear();	
+	MimmoObject::getHARDCopy(static_cast<const MimmoObject * >(other));
+	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
+	m_rtype = other->m_rtype;
+	m_wtype = other->m_wtype;
+	m_read = other->m_read;
+	m_rfilename = other->m_rfilename;
+	m_write = other->m_write;
+	m_wfilename = other->m_wfilename;
+	m_rdir = other->m_rdir;
+	m_wdir = other->m_wdir;
+	m_wformat = other->m_wformat;
+}
+
+/*!
+ * Set geometry. Do Nothing. Reimplementation of BaseManipulation::setGeometry
+ */
+void
+MimmoGeometry::setGeometry(){};
+
 /*!It sets the PIDs of all the cells of the geometry Patch.
  * \param[in] pids PIDs of the cells of geometry mesh.
  */
 void
-MimmoGeometry::setPID(ivector1D pids){
+MimmoGeometry::setPID(shivector1D pids){
+	if((int)pids.size != getNCells())	return;
 	m_pids = pids;
+	
+	//find different type of pids.
+	std::unordered_set<short> map;
+	map.insert(pids.begin(),pids.end());
+	m_pidsType.clear();
+	m_pidsType.insert(m_pidsType.end(), map.begin(), map.end());
 };
 
-/*!It sets the PID of a cell of the geometry Patch.
- * \param[in] i Index of the cell of geometry mesh.
- * \param[in] PID of the i-th cell of geometry mesh.
- * Return if out of range of number of cells of the geometry linked
- * or of the pids vector stored.
+/*!
+ * Clear all stuffs in your class
  */
-void
-MimmoGeometry::setPID(long i, int pid){
-	if (m_pids.size() <= i && getNCells() <= i) return;
-	long size = m_pids.size();
-	m_pids.resize(max(size, getNCells()), 1);
-	m_pids[i] = pid;
-};
 
-/*!It sets the PID of a cell of the geometry Patch.
- * \param[in] i Index of the cell of geometry mesh.
- * \param[in] PID of the i-th cell of geometry mesh.
- * Resize the pids vector stored if out of bound.
- */
 void
-MimmoGeometry::setPIDforce(long i, int pid){
-	long size = m_pids.size();
-	m_pids.resize(max(size, i), 1);
-	m_pids[i] = pid;
+MimmoGeometry::clear(){
+	MimmoObject::clear();
+	BaseManipulation::clear();
+	setDefaults();
 };
 
 /*!It sets the format to export .nas file.
@@ -353,7 +238,7 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
  */
 bool
 MimmoGeometry::write(){
-	if (getGeometry() == NULL) return false;
+	if (isEmpty()) return false;
 
 	switch(m_wtype){
 	case FileType::STL :
@@ -362,18 +247,18 @@ MimmoGeometry::write(){
 		string name = (m_wdir+"/"+m_wfilename+".stl");
 		//forced binary write
 		bool binary = true;
-		dynamic_cast<SurfUnstructured*>(getGeometry()->getGeometry())->exportSTL(name, binary);
+		dynamic_cast<SurfUnstructured*>(getPatch())->exportSTL(name, binary);
 		return true;
 	}
 	break;
 	case FileType::STVTU :
 		//Export Triangulation Surface VTU
 	{
-		dvecarr3E	points = getGeometry()->getVertex();
-		ivector2D	connectivity = getGeometry()->getConnectivity();
+		dvecarr3E	points = getVertex();
+		ivector2D	connectivity = getConnectivity();
 		for (int i=0; i<connectivity.size(); i++){
 			for (int j=0; j<3; j++){
-				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
 			}
 		}
 		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
@@ -384,11 +269,11 @@ MimmoGeometry::write(){
 	case FileType::SQVTU :
 		//Export Quadrilateral Surface VTU
 	{
-		dvecarr3E	points = getGeometry()->getVertex();
-		ivector2D	connectivity = getGeometry()->getConnectivity();
+		dvecarr3E	points = getVertex();
+		ivector2D	connectivity = getConnectivity();
 		for (int i=0; i<connectivity.size(); i++){
 			for (int j=0; j<4; j++){
-				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
 			}
 		}
 		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
@@ -399,11 +284,11 @@ MimmoGeometry::write(){
 	case FileType::VTVTU :
 		//Export Tetra Volume VTU
 	{
-		dvecarr3E	points = getGeometry()->getVertex();
-		ivector2D	connectivity = getGeometry()->getConnectivity();
+		dvecarr3E	points = getVertex();
+		ivector2D	connectivity = getConnectivity();
 		for (int i=0; i<connectivity.size(); i++){
 			for (int j=0; j<4; j++){
-				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				connectivity[i][j] =getMapDataInv(connectivity[i][j]);
 			}
 		}
 		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
@@ -413,11 +298,11 @@ MimmoGeometry::write(){
 	case FileType::VHVTU :
 		//Export Hexa Volume VTU
 	{
-		dvecarr3E	points = getGeometry()->getVertex();
-		ivector2D	connectivity = getGeometry()->getConnectivity();
+		dvecarr3E	points = getVertex();
+		ivector2D	connectivity = getConnectivity();
 		for (int i=0; i<connectivity.size(); i++){
 			for (int j=0; j<8; j++){
-				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
 			}
 		}
 		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
@@ -428,11 +313,11 @@ MimmoGeometry::write(){
 	case FileType::NAS :
 		//Export Nastran file
 	{
-		dvecarr3E	points = getGeometry()->getVertex();
-		ivector2D	connectivity = getGeometry()->getConnectivity();
+		dvecarr3E	points = getVertex();
+		ivector2D	connectivity = getConnectivity();
 		for (int i=0; i<connectivity.size(); i++){
 			for (int j=0; j<3; j++){
-				connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
 			}
 		}
 		NastranInterface nastran;
@@ -450,7 +335,7 @@ MimmoGeometry::write(){
 	case FileType::OFP :
 	{
 
-		dvecarr3E points = getGeometry()->getVertex();
+		dvecarr3E points = getVertex();
 		writeOFP(m_wdir, m_wfilename, points);
 
 		return true;
@@ -473,8 +358,12 @@ MimmoGeometry::read(){
 	//Import STL
 	case FileType::STL :
 	{
-		MimmoObject* mimmo0 = new MimmoObject(1);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 1;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
 		string name;
 
 		{
@@ -499,8 +388,8 @@ MimmoGeometry::read(){
 		if (sstype == "solid" || sstype == "SOLID") binary = false;
 		in.close();
 
-		dynamic_cast<SurfUnstructured*>(getGeometry()->getGeometry())->importSTL(name, binary);
-		getGeometry()->cleanGeometry();
+		dynamic_cast<SurfUnstructured*>(getPatch())->importSTL(name, binary);
+		cleanGeometry();
 	}
 	break;
 	case FileType::STVTU :
@@ -511,8 +400,12 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject* mimmo0 = new MimmoObject(1);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 1;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -524,10 +417,10 @@ MimmoGeometry::read(){
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
-		getGeometry()->setConnectivity(&Iconnectivity);
-		getGeometry()->cleanGeometry();
+		setConnectivity(&Iconnectivity);
+		cleanGeometry();
 	}
 	break;
 	case FileType::SQVTU :
@@ -538,8 +431,12 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject* mimmo0 = new MimmoObject(1);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 1;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -549,10 +446,10 @@ MimmoGeometry::read(){
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
-		getGeometry()->setConnectivity(&Iconnectivity);
-		getGeometry()->cleanGeometry();
+		setConnectivity(&Iconnectivity);
+		cleanGeometry();
 	}
 	break;
 	case FileType::VTVTU :
@@ -563,8 +460,12 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject* mimmo0 = new MimmoObject(2);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 2;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new VolUnstructured(id,3);
+		dynamic_cast<VolUnstructured * >(m_patch)->setExpert(true);
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -576,10 +477,10 @@ MimmoGeometry::read(){
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
-		getGeometry()->setConnectivity(&Iconnectivity);
-		getGeometry()->cleanGeometry();
+		setConnectivity(&Iconnectivity);
+		cleanGeometry();
 	}
 	break;
 	case FileType::VHVTU :
@@ -590,9 +491,13 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject* mimmo0 = new MimmoObject(2);
-		setGeometry(mimmo0);
-
+		MimmoObject::clear();
+		m_type = 2;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new VolUnstructured(id,3);
+		dynamic_cast<VolUnstructured * >(m_patch)->setExpert(true);
+		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
@@ -601,10 +506,10 @@ MimmoGeometry::read(){
 
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
-		getGeometry()->setConnectivity(&Iconnectivity);
-		getGeometry()->cleanGeometry();
+		setConnectivity(&Iconnectivity);
+		cleanGeometry();
 	}
 	break;
 	case FileType::NAS :
@@ -616,8 +521,12 @@ MimmoGeometry::read(){
 		if (!check) return false;
 		infile.close();
 
-		MimmoObject* mimmo0 = new MimmoObject(1);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 1;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -625,22 +534,29 @@ MimmoGeometry::read(){
 		NastranInterface nastran;
 		nastran.setWFormat(m_wformat);
 
-		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, m_pids );
-
+		shivector1D pids;
+		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, pids );
+		setPID(pids);
+		
 		int	np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
-		getGeometry()->setConnectivity(&Iconnectivity);
-		getGeometry()->cleanGeometry();
+		setConnectivity(&Iconnectivity);
+		cleanGeometry();
 	}
 	break;
 	//Import ascii OpenFOAM point cloud
 	case FileType::OFP :
 	{
 		//It uses surface type of mimmo object for the moment
-		MimmoObject* mimmo0 = new MimmoObject(1);
-		setGeometry(mimmo0);
+		MimmoObject::clear();
+		m_type = 1;
+		m_internalPatch = true;
+		const int  id =0;
+		m_patch = new SurfUnstructured(id);
+		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
+		
 
 		std::ifstream infile(m_rdir+"/"+m_rfilename);
 		bool check = infile.good();
@@ -652,7 +568,7 @@ MimmoGeometry::read(){
 
 		int np = Ipoints.size();
 		for (long ip=0; ip<np; ip++){
-			getGeometry()->setVertex(Ipoints[ip]);
+			setVertex(Ipoints[ip]);
 		}
 	}
 	break;
@@ -782,6 +698,24 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
 
 }
 
+/*!
+ * Set proper member of the class to defaults
+ */
+void
+MimmoGeometry::setDefaults(){
+	m_rtype		= STL;
+	m_read		= false;
+	m_rfilename	= "mimmoGeometry";
+	m_wtype		= STL;
+	m_write		= false;
+	m_wfilename	= "mimmoGeometry";
+	m_rdir		= "./";
+	m_wdir		= "./";
+	m_wformat	= Short;
+}
+
+
+
 //===============================//
 //====== NASTRAN INTERFACE ======//
 //===============================//
@@ -863,7 +797,7 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 	os.unsetf(ios_base::right);
 }
 
-void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os, int PID){
+void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os,int PID){
 	// Only valid surface elements are CTRIA3 and CQUAD4
 
 	// Fixed short/long formats:
@@ -928,7 +862,7 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 	wformat = wformat_;
 }
 
-void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, ivector1D* PIDS){
+void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
 	// Write points
 	os << "$" << nl
 			<< "$ Points" << nl
@@ -964,6 +898,9 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 		}
 	}
 }
+
+//TODO we have PIDs, we need to write them here in the footer also. CHECK IT OUT. You can access only
+// pidType through the MimmoGeometry member m_pidsType
 
 void NastranInterface::writeFooter(ofstream& os){
 	int PID = 1;
@@ -1006,7 +943,7 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
 
 //========READ====//
 
-void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D& PIDS){
+void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS){
 
 	ifstream is(inputDir +"/"+surfaceName + ".nas");
 
@@ -1074,7 +1011,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
 			face[1] = mapnodes[stoi(sread.substr(64,16))];
 			face[2] = mapnodes[stoi(sread.substr(80,16))];
 			faces.push_back(face);
-			PIDS.push_back(pid);
+			PIDS.push_back((short)pid);
 			iface++;
 			getline(is,sread);
 			ssub = trim(sread.substr(0,8));

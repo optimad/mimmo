@@ -57,6 +57,7 @@ typedef std::vector<fvector1D>		fvector2D;
 
 
 typedef std::vector<ivector1D>		ivector2D;
+typedef std::vector<livector1D>		livector2D;
 typedef std::vector<shivector1D>	shivector2D;
 typedef std::vector<bvector1D>		bvector2D;
 typedef std::vector<cvector1D>		cvector2D;

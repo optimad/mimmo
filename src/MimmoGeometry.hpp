@@ -45,18 +45,17 @@ enum WFORMAT{Short, Long};
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief MimmoGeometry is the class that wrap a geometry Mimmo Object .
+ *	\brief MimmoGeometry is an executable block class derived from Mimmo Object, handling geometry.
  *
- *	The parameter of linked geometry are given by wrapper functions of this
- *	BaseManipulation derived class.
- *	MimmoGeometry is the object to manage the import/export of geometry file.
+ *	MimmoGeometry is the object to manage the import/export/substantial modifications of geometries. It returns a 
+ *  standard MimmoObject class as product of its execution;
  *	The mesh to import/export has to be a mesh with constant type elements.
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *	for volume mesh.
  *
  */
-class MimmoGeometry: public BaseManipulation{
+class MimmoGeometry: public MimmoObject, public BaseManipulation{
 private:
 	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
@@ -68,8 +67,6 @@ private:
 	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
-	bool		m_local;		/**<Is the geometry locally instantiated?.*/
-
 	WFORMAT		m_wformat;		/**<Format for .nas import/export. (Short/Long).*/
 
 public:
@@ -79,22 +76,9 @@ public:
 	MimmoGeometry(const MimmoGeometry & other);
 	MimmoGeometry & operator=(const MimmoGeometry & other);
 
-	int			getType();
-	long		getNVertex();
-	long		getNCells();
-	dvecarr3E	getVertex();
-	darray3E	getVertex(long i);
-	ivector1D	getConnectivity(long i);
-	ivector2D	getConnectivity();
-	shivector1D	getPID();
-	short		getPID(long i);
-
-	bool		setVertex(dvecarr3E & vertex);
-	void		setVertex(dvecarr3E * vertex);
-	void		resetVertex(dvecarr3E * vertex);
-	bool		setVertex(darray3E & vertex);
-	bool		modifyVertex(darray3E & vertex, long id);
-	bool		setConnectivity(ivector2D * connectivity);
+	const MimmoGeometry *	getCopy();
+	MimmoObject *	getGeometry();
+	
 	void		setReadDir(std::string dir);
 	void		setReadFileType(FileType type);
 	void		setReadFileType(int type);
@@ -105,23 +89,28 @@ public:
 	void		setReadFilename(std::string filename);
 	void		setWrite(bool write);
 	void		setWriteFilename(std::string filename);
-
-	void		activatePID();
+	
+	void		setHARDCopy( const MimmoGeometry * other);		
+	void		setSOFTCopy( const MimmoGeometry * other);
+	void		setGeometry();
+	
 	void		setPID(shivector1D pids);
-	void		setPID(long i, int pid);
-	void		setPIDforce(long i, int pid);
-
 	void		setFormatNAS(WFORMAT wform);
 
+	void 		clear();
 	bool		write();
 	bool		read();
 
 	void 		execute();
 
 
-	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points);
-	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points);
+	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
+	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
 
+private:
+	void 	setDefaults();
+	
+	
 };
 
 
