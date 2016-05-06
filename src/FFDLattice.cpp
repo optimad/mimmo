@@ -506,7 +506,7 @@ dvecarr3E 	FFDLattice::apply(livector1D & list){
 	MimmoObject * container = getGeometry();
 	if(container == NULL || !isBuilt()) return dvecarr3E(0);
 
-	bitpit::PatchKernel * tri = container->getGeometry();
+	bitpit::PatchKernel * tri = container->getPatch();
 	list.clear();
 
 	//check simplex included and extract their vertex in global IDs;
@@ -668,7 +668,7 @@ darray3E 	FFDLattice::nurbsEvaluator(darray3E & pointOr){
  */
 dvecarr3E 	FFDLattice::nurbsEvaluator(livector1D & list){
 
-	bitpit::PatchKernel * tri = getGeometry()->getGeometry();
+	bitpit::PatchKernel * tri = getGeometry()->getPatch();
 	long int id;
 	int lsize = list.size();
 	livector1D::iterator it, itend = list.end();

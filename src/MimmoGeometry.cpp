@@ -39,7 +39,7 @@ MimmoGeometry::MimmoGeometry(){
 /*!Default destructor of MimmoGeometry.
  */
 MimmoGeometry::~MimmoGeometry(){
-	MimmoObject::clear()
+	MimmoObject::clear();
 };
 
 /*!Copy constructor of MimmoGeometry.
@@ -180,7 +180,7 @@ MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
 void
 MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 	clear();	
-	MimmoObject::getHARDCopy(static_cast<const MimmoObject * >(other));
+	MimmoObject::setHARDCopy(static_cast<const MimmoObject * >(other));
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
 	m_rtype = other->m_rtype;
 	m_wtype = other->m_wtype;
@@ -204,7 +204,8 @@ MimmoGeometry::setGeometry(){};
  */
 void
 MimmoGeometry::setPID(shivector1D pids){
-	if((int)pids.size != getNCells())	return;
+	if((int)pids.size() != getNCells())	return;
+	m_pids.clear();
 	m_pids = pids;
 	
 	//find different type of pids.
@@ -350,9 +351,6 @@ MimmoGeometry::write(){
 bool
 MimmoGeometry::read(){
 
-	//Local Instantiation of mimmo Object.
-	m_local = true;
-
 	switch(m_rtype){
 
 	//Import STL
@@ -409,7 +407,7 @@ MimmoGeometry::read(){
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-
+		
 		//TODO Import with generic element type ?!?!
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
@@ -419,7 +417,26 @@ MimmoGeometry::read(){
 		for (long ip=0; ip<np; ip++){
 			setVertex(Ipoints[ip]);
 		}
-		setConnectivity(&Iconnectivity);
+		
+		// convert Iconnectivity to livector1D
+		livector2D  Iconn;
+		{
+			Iconn.resize(Iconnectivity.size());
+			livector1D::iterator it;
+			int counter=0;
+			for(auto && val : Iconnectivity){
+				it=Iconn[counter].begin();
+				for(auto && element : val){
+					*it = long(element);
+					++it;
+				}
+				++counter;
+			}
+			Iconnectivity.clear();
+		}
+		
+		
+		setConnectivity(&Iconn);
 		cleanGeometry();
 	}
 	break;
@@ -448,7 +465,27 @@ MimmoGeometry::read(){
 		for (long ip=0; ip<np; ip++){
 			setVertex(Ipoints[ip]);
 		}
-		setConnectivity(&Iconnectivity);
+		
+		// convert Iconnectivity to livector1D
+		livector2D  Iconn;
+		{
+			Iconn.resize(Iconnectivity.size());
+			livector1D::iterator it;
+			int counter=0;
+			for(auto && val : Iconnectivity){
+				it=Iconn[counter].begin();
+				for(auto && element : val){
+					*it = long(element);
+					++it;
+				}
+				++counter;
+			}
+			Iconnectivity.clear();
+		}
+		
+		
+		setConnectivity(&Iconn);
+		
 		cleanGeometry();
 	}
 	break;
@@ -479,7 +516,27 @@ MimmoGeometry::read(){
 		for (long ip=0; ip<np; ip++){
 			setVertex(Ipoints[ip]);
 		}
-		setConnectivity(&Iconnectivity);
+		
+		// convert Iconnectivity to livector1D
+		livector2D  Iconn;
+		{
+			Iconn.resize(Iconnectivity.size());
+			livector1D::iterator it;
+			int counter=0;
+			for(auto && val : Iconnectivity){
+				it=Iconn[counter].begin();
+				for(auto && element : val){
+					*it = long(element);
+					++it;
+				}
+				++counter;
+			}
+			Iconnectivity.clear();
+		}
+		
+		
+		setConnectivity(&Iconn);
+		
 		cleanGeometry();
 	}
 	break;
@@ -508,7 +565,27 @@ MimmoGeometry::read(){
 		for (long ip=0; ip<np; ip++){
 			setVertex(Ipoints[ip]);
 		}
-		setConnectivity(&Iconnectivity);
+		
+		// convert Iconnectivity to livector1D
+		livector2D  Iconn;
+		{
+			Iconn.resize(Iconnectivity.size());
+			livector1D::iterator it;
+			int counter=0;
+			for(auto && val : Iconnectivity){
+				it=Iconn[counter].begin();
+				for(auto && element : val){
+					*it = long(element);
+					++it;
+				}
+				++counter;
+			}
+			Iconnectivity.clear();
+		}
+		
+		
+		setConnectivity(&Iconn);
+		
 		cleanGeometry();
 	}
 	break;
@@ -542,7 +619,27 @@ MimmoGeometry::read(){
 		for (long ip=0; ip<np; ip++){
 			setVertex(Ipoints[ip]);
 		}
-		setConnectivity(&Iconnectivity);
+		
+		// convert Iconnectivity to livector1D
+		livector2D  Iconn;
+		{
+			Iconn.resize(Iconnectivity.size());
+			livector1D::iterator it;
+			int counter=0;
+			for(auto && val : Iconnectivity){
+				it=Iconn[counter].begin();
+				for(auto && element : val){
+					*it = long(element);
+					++it;
+				}
+				++counter;
+			}
+			Iconnectivity.clear();
+		}
+		
+		
+		setConnectivity(&Iconn);
+		
 		cleanGeometry();
 	}
 	break;
@@ -929,7 +1026,7 @@ void NastranInterface::writeFooter(ofstream& os){
 	os << nl;
 }
 
-void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, ivector1D* PIDS){
+void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS){
 
 	ofstream os(outputDir +"/"+surfaceName + ".nas");
 	os << "TITLE=MiMMO " << surfaceName << " mesh" << nl

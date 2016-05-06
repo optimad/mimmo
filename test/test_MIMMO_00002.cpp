@@ -37,30 +37,20 @@ using namespace std::chrono;
 
 void test0002() {
 
-	//Creation of MiMMO container.
-	MimmoObject mimmo0;
-	int	np = 0;
-	int	nt = 0;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/catpipe.stl", true);
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
-		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
-
-	//writing undeformed geometry stock in mimmo container
-	string filename = "mimmo_0002.0000";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	
+	mimmo0->setRead(true);
+	mimmo0->setReadDir("geo_data");
+	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFilename("catpipe");
+	
+	mimmo0->setWrite(true);
+	mimmo0->setWriteDir("geo_data");
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFilename("mimmo_0002.0000");
+	
+	mimmo0->execute();
+	MimmoObject * object = mimmo0->getGeometry();
 
 
 	//********************************************************************************************
@@ -87,7 +77,7 @@ void test0002() {
 	//set lattice
 	lattice->setLattice(origin,span,ShapeType::CYLINDER,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,-1,0});
-	lattice->setGeometry(&mimmo0);
+	lattice->setGeometry(object);
 
 	//Set Input with Init Displacements
 	int ndof = lattice->getNNodes();
@@ -138,7 +128,7 @@ void test0002() {
 	//set lattice
 	lattice2->setLattice(origin,span,ShapeType::CUBE,dim, deg);
 	//Set geometry
-	lattice2->setGeometry(&mimmo0);
+	lattice2->setGeometry(object);
 
 	//Set Input with Init Displacements
 	ndof = lattice2->getNNodes();
@@ -172,9 +162,9 @@ void test0002() {
 	//CREATE APPLIERS
 	cout << "applier setup" << endl;
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmo0);
+	applier->setGeometry(object);
 	Apply* applier2 = new Apply();
-	applier2->setGeometry(&mimmo0);
+	applier2->setGeometry(object);
 	cout << "applier setup done" << endl;
 
 
@@ -213,20 +203,23 @@ void test0002() {
 	lattice2->plotGrid("./", "lattice2_0002" , 0, false, false);
 	lattice2->plotGrid("./", "lattice2_0002" , 1, false, true);
 
-	filename = "mimmo_0002.0001";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	mimmo0->setRead(false);
+	mimmo0->setWriteFilename("mimmo_0002.0001");
+	mimmo0->execute();
 
 	//********************************************************************************************
 	//clean up & exit;
 	delete lattice, applier;
 	delete lattice2, applier2;
-
+	delete mimmo0;
+	
 	lattice = NULL;
 	applier = NULL;
 	lattice2 = NULL;
 	applier2 = NULL;
-
+	mimmo0 = NULL;
+	object = NULL;
+	
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout << "MiMMO Deformation execution took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;

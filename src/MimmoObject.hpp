@@ -78,15 +78,18 @@ public:
 	
 	bitpit::PatchKernel*		getPatch();
 	
-	const livector1D&	getMapData() const;
-	long				getMapData(int i);
-	const liimap&		getMapDataInv() const;
-	int					getMapDataInv(long id);
+	livector1D&		getMapData();
+	long			getMapData(int i);
 	
-	const livector1D&	getMapCell() const ;
-	long				getMapCell(int i);
-	const liimap&		getMapCellInv() const;
-	int					getMapCellInv(long id);
+	liimap&					getMapDataInv();
+	const liimap&			getMapDataInv()const;
+	
+	int				getMapDataInv(long id);
+	
+	livector1D&		getMapCell();
+	long			getMapCell(int i);
+	liimap&			getMapCellInv();
+	int				getMapCellInv(long id);
 	
 	const shivector1D 	&	getPidTypeList() const ;
 	const shivector1D	&	getPid() const;
@@ -97,11 +100,11 @@ public:
 	bool		setVertex(dvecarr3E * vertex);
 	bool		resetVertex(dvecarr3E & vertex);
 	bool		resetVertex(dvecarr3E * vertex);
-	bool		setVertex(darray3E & vertex, long idtag =bitpit::Vertex::NULL_ID);
-	bool		modifyVertex(darray3E & vertex, long id);
+	bool		setVertex(const darray3E & vertex, long idtag = bitpit::Vertex::NULL_ID);
+	bool		modifyVertex(const darray3E & vertex, long id);
 
 	bool		setConnectivity(livector2D * connectivity);
-	bool		setConnectivity(livector1D & locConn, long idtag=bitpit::Cell:NULL_ID);
+	bool		setConnectivity(const livector1D & locConn, long idtag = bitpit::Cell::NULL_ID);
 	bool		setPatch(int type, bitpit::PatchKernel* geometry);
 	bool		setMapData();
 	bool		setMapCell();

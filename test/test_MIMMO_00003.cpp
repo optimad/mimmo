@@ -38,29 +38,20 @@ using namespace std::chrono;
 void test0003() {
 
 	//Creation of MiMMO container.
-	MimmoObject mimmo0;
-	int	np = 0;
-	int	nt = 0;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/ball.stl", true);
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
-		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
-
-	//writing undeformed geometry stock in mimmo container
-	string filename = "mimmo_0003.0000";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	
+	mimmo0->setRead(true);
+	mimmo0->setReadDir("geo_data");
+	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFilename("ball");
+	
+	mimmo0->setWrite(true);
+	mimmo0->setWriteDir("geo_data");
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFilename("mimmo_0003.0000");
+	
+	mimmo0->execute();
+	MimmoObject * object = mimmo0->getGeometry();
 
 	//********************************************************************************************
 	// 	//CREATING LATTICE
@@ -87,7 +78,7 @@ void test0003() {
 	lattice->setLattice(origin,span,ShapeType::SPHERE,dim, deg);
 	lattice->setRefSystem(2, darray3E{0,1,0});
 	lattice->setCoordType(CoordType::CLAMPED, 2);
-	lattice->setGeometry(&mimmo0);
+	lattice->setGeometry(object);
 
 	//Set Input with Init Displacements
 	int ndeg = lattice->getNNodes();
@@ -119,7 +110,7 @@ void test0003() {
 	//CREATE APPLIER
 	cout << "applier setup" << endl;
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmo0);
+	applier->setGeometry(object);
 	cout << "applier setup done" << endl;
 
 	//********************************************************************************************
@@ -158,17 +149,20 @@ void test0003() {
 	lattice->plotGrid("./", "lattice_0003", 0, false, false);
 	lattice->plotGrid("./", "lattice_0003", 1, false, true);
 
-	filename = "mimmo_0003.0001";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	mimmo0->setRead(false);
+	mimmo0->setWriteFilename("mimmo_0003.0001");
+	mimmo0->execute();
 
 	//********************************************************************************************
 	//clean up & exit;
-	delete lattice, applier, input;
+	delete lattice, applier, input, mimmo0;
 
 	lattice = NULL;
 	applier = NULL;
 	input 	= NULL;
+	object = NULL;
+	mimmo0 = NULL;
+	
 
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout << "MiMMO Deformation execution took me " << time_span.count() << " seconds.";

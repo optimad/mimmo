@@ -40,53 +40,40 @@ using namespace std::placeholders;
 void test0006() {
 
 	//Creation of MiMMO container.
-	MimmoObject mimmoPlane, mimmoDisk;
-	//Input triangulation
-	int	np = 0;
-	int	nt = 0;
-	darray3E point;
+	MimmoGeometry * mimmoP = new MimmoGeometry();
+	MimmoGeometry * mimmoD = new MimmoGeometry();
+	
+	mimmoP->setRead(true);
+	mimmoP->setReadDir("geo_data");
+	mimmoP->setReadFileType(mimmo::FileType::STL);
+	mimmoP->setReadFilename("plane");
+	
+	mimmoP->setWrite(true);
+	mimmoP->setWriteDir("geo_data");
+	mimmoP->setWriteFileType(mimmo::FileType::STL);
+	mimmoP->setWriteFilename("mimmo_0006p.0000");
+	
+	mimmoP->execute();
+	MimmoObject * objectPlane = mimmoP->getGeometry();
 
-	{
-		//Import STL
-		STLObj stl("geo_data/plane.stl", true);
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmoPlane.setVertex(point);
-		}
-		mimmoPlane.setConnectivity(&T);
-		mimmoPlane.cleanGeometry();
-	}
-	string filename = "mimmo_0006p.0000";
-	mimmoPlane.m_geometry->setName(filename);
-	mimmoPlane.m_geometry->write();
-
-	np = 0;
-	nt = 0;
-	{
-		//Import STL
-		STLObj stl("geo_data/disk.stl", true);
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmoDisk.setVertex(point);
-		}
-		mimmoDisk.setConnectivity(&T);
-		mimmoDisk.cleanGeometry();
-	}
-	//Write undeformed geometry
-	filename = "mimmo_0006d.0000";
-	mimmoDisk.m_geometry->setName(filename);
-	mimmoDisk.m_geometry->write();
+	mimmoD->setRead(true);
+	mimmoD->setReadDir("geo_data");
+	mimmoD->setReadFileType(mimmo::FileType::STL);
+	mimmoD->setReadFilename("disk");
+	
+	mimmoD->setWrite(true);
+	mimmoD->setWriteDir("geo_data");
+	mimmoD->setWriteFileType(mimmo::FileType::STL);
+	mimmoD->setWriteFilename("mimmo_0006d.0000");
+	
+	mimmoD->execute();
+	MimmoObject * objectDisk = mimmoD->getGeometry();
+	
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 	//Set lattice
-	lattice->setGeometry(&mimmoDisk);
+	lattice->setGeometry(objectDisk);
 	lattice->setDisplGlobal(true);
 
 
@@ -157,17 +144,17 @@ void test0006() {
 
 	//create applier
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmoDisk);
+	applier->setGeometry(objectDisk);
 
 	//createRBF
 	MRBF* mrbf = new MRBF();
-	mrbf->setGeometry(&mimmoPlane);
-	mrbf->addNode(&mimmoDisk);
+	mrbf->setGeometry(objectPlane);
+	mrbf->addNode(objectDisk);
 	mrbf->setTol(0.00001);
 
 	//create applier
 	Apply* applier2 = new Apply();
-	applier2->setGeometry(&mimmoPlane);
+	applier2->setGeometry(objectPlane);
 
 	//Set PINS
 	cout << "set pins" << endl;
@@ -221,13 +208,12 @@ void test0006() {
 	//Plot results
 	lattice->plotGrid("./", "lattice_0006", 0, false, false);
 	lattice->plotGrid("./", "lattice_0006", 1, false, true);
-	filename = "mimmo_0006d.0001";
-	mimmoDisk.m_geometry->setName(filename);
-	mimmoDisk.m_geometry->write();
-
-	filename = "mimmo_0006p.0001";
-	mimmoPlane.m_geometry->setName(filename);
-	mimmoPlane.m_geometry->write();
+	
+	
+	mimmoP->setWriteFilename("mimmo_0006p.0001");
+	mimmoP->write();
+	mimmoD->setWriteFilename("mimmo_0006d.0001");
+	mimmoD->write();
 
 	//Delete and nullify pointer
 	delete lattice;
@@ -240,7 +226,8 @@ void test0006() {
 	delete inputshapet;
 	delete inputdim;
 	delete inputdeg;
-
+	delete	mimmoP, mimmoD;
+	
 	lattice 	= NULL;
 	applier 	= NULL;
 	mrbf 		= NULL;
@@ -251,7 +238,11 @@ void test0006() {
 	inputdim 	= NULL;
 	inputdeg 	= NULL;
 	input 		= NULL;
-
+	mimmoP = NULL;
+	mimmoD = NULL;
+	objectPlane = NULL;
+	objectDisk = NULL;
+	
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";

@@ -40,30 +40,20 @@ void test0001() {
 
 
 	//Creation of MiMMO container.
-	MimmoObject mimmo0;
-	//Input triangulation
-	int	np = 0;
-	int	nt = 0;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/sphere2.stl", true);
-
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-		
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
-		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
-	//Write undeformed geometry
-	string filename = "mimmo_0001.0000";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	
+	mimmo0->setRead(true);
+	mimmo0->setReadDir("geo_data");
+	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFilename("sphere2");
+	
+	mimmo0->setWrite(true);
+	mimmo0->setWriteDir("./");
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFilename("mimmo_0001.0000");
+	
+	mimmo0->execute();
+	MimmoObject * object = mimmo0->getGeometry();
 	
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
@@ -84,10 +74,10 @@ void test0001() {
 	deg[2] = 2;
 
 	lattice->setLattice(origin,span,ShapeType::CUBE,dim, deg);
-	lattice->setGeometry(&mimmo0);
+	lattice->setGeometry(object);
 
 	//Set Input with Init Displacements
-	np = lattice->getNNodes();
+	int np = lattice->getNNodes();
 	dvecarr3E displ(np);
 	time_t Time = time(NULL);
 	srand(Time);
@@ -103,7 +93,7 @@ void test0001() {
 
 	//create applier
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmo0);
+	applier->setGeometry(object);
 
 
 	//Create PINS
@@ -129,15 +119,18 @@ void test0001() {
 	//Plot results
 	lattice->plotGrid("./", "lattice_0001", 0, false, false);
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
-	filename = "mimmo_0001.0001";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	
+	mimmo0->setRead(false);
+	mimmo0->setWriteFilename("mimmo_0001.0001");
+	mimmo0->execute();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input;
+	delete lattice, applier, input, mimmo0;
 	lattice = NULL;
 	applier = NULL;
 	input 	= NULL;
+	object  = NULL;
+	mimmo0  = NULL;
 
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

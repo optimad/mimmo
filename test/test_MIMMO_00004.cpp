@@ -41,37 +41,27 @@ using namespace std::placeholders;
 void test0004() {
 
 	//Creation of MiMMO container.
-	MimmoObject mimmo0;
-	//Input triangulation
-	int	np = 0;
-	int	nt = 0;
-	darray3E point;
-	{
-		//Import STL
-		STLObj stl("geo_data/sphere2.stl", true);
-
-		dvector2D V,N;
-		ivector2D T;
-		stl.load(np, nt, V, N, T);
-
-		for (long ip=0; ip<np; ip++){
-			point = conArray<double,3>(V[ip]);
-			mimmo0.setVertex(point);
-		}
-		mimmo0.setConnectivity(&T);
-		mimmo0.cleanGeometry();
-	}
-	//Write undeformed geometry
-	string filename = "mimmo_0004.0000";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	
+	mimmo0->setRead(true);
+	mimmo0->setReadDir("geo_data");
+	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFilename("sphere2");
+	
+	mimmo0->setWrite(true);
+	mimmo0->setWriteDir("geo_data");
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFilename("mimmo_0004.0000");
+	
+	mimmo0->execute();
+	MimmoObject * object = mimmo0->getGeometry();
 
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 
 
 	//Set lattice
-	lattice->setGeometry(&mimmo0);
+	lattice->setGeometry(object);
 
 	//Set Inputs with Shape and Mesh Info
 	darray3E origin = {0.0, 0.0, 0.0};
@@ -147,7 +137,7 @@ void test0004() {
 
 	//create applier
 	Apply* applier = new Apply();
-	applier->setGeometry(&mimmo0);
+	applier->setGeometry(object);
 
 	//Set PINS
 	cout << "set pins" << endl;
@@ -210,12 +200,13 @@ void test0004() {
 	//Plot results
 	lattice->plotGrid("./", "lattice_0004", 0, false, false);
 	lattice->plotGrid("./", "lattice_0004", 1, false, true);
-	filename = "mimmo_0004.0001";
-	mimmo0.m_geometry->setName(filename);
-	mimmo0.m_geometry->write();
+	
+	mimmo0->setRead(false);
+	mimmo0->setWriteFilename("mimmo_0004.0001");
+	mimmo0->execute();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input, inputorig, inputspan, inputshapet, inputdim, inputdeg;
+	delete lattice, applier, input, inputorig, inputspan, inputshapet, inputdim, inputdeg, mimmo0;
 
 	lattice 	= NULL;
 	applier 	= NULL;
@@ -225,6 +216,8 @@ void test0004() {
 	inputdim 	= NULL;
 	inputdeg 	= NULL;
 	input 		= NULL;
+	mimmo0 = NULL;
+	object = NULL;
 
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

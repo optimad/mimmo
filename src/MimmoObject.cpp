@@ -75,11 +75,11 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_type 			= type;
-	m_geometry 		= geometry;
+	m_patch 		= geometry;
 	m_internalPatch = false;
 
 	setMapData();
-	if(m_geometry->getCellCount() != 0)	setMapCell();
+	if(m_patch->getCellCount() != 0)	setMapCell();
 }
 
 /*!Default destructor of MimmoObject.
@@ -203,7 +203,7 @@ MimmoObject::getVertex(long i){
 ivector1D
 MimmoObject::getConnectivity(long i){
 	
-	const liimap & vmap = getMapDataInv();
+	liimap & vmap = getMapDataInv();
 	
 	if (isEmpty()) return ivector1D(0);
 	
@@ -224,7 +224,7 @@ MimmoObject::getConnectivity(long i){
 ivector2D
 MimmoObject::getConnectivity(){
 	
-	const liimap & vmap = getMapDataInv();
+	liimap & vmap = getMapDataInv();
 	
 	if (isEmpty()) return ivector2D(0);
 	
@@ -261,7 +261,8 @@ MimmoObject::getConnectivity() const {
 		np = cell.getVertexCount();
 		connecti[counter].resize(np);
 		for (int i=0; i<np; ++i){
-			connecti[counter][i] = vmap[cell.getVertex(i)];
+			liimap::const_iterator it = vmap.find(cell.getVertex(i));
+			connecti[counter][i] = it->second;
 		}
 		++counter;
 	}
@@ -274,15 +275,15 @@ MimmoObject::getConnectivity() const {
  * \return Pointer to geometry mesh.
  */
 PatchKernel*
-MimmoObject::getGeometry(){
+MimmoObject::getPatch(){
 	return m_patch;
 };
 
 /*!It gets the vertex ids.
  * \return Reference to Map data with vertex ids.
  */
-const livector1D&
-MimmoObject::getMapData() const{
+livector1D&
+MimmoObject::getMapData(){
 	return m_mapData;
 };
 
@@ -299,8 +300,16 @@ MimmoObject::getMapData(int i){
 /*!It gets the vertex ids.
  * \return Reference to inverse of Map data with vertex ids.
  */
+liimap&
+MimmoObject::getMapDataInv(){
+	return m_mapDataInv;
+};
+
+/*!It gets the vertex ids.
+ * \return Reference to inverse of Map data with vertex ids. Const overloading
+ */
 const liimap&
-MimmoObject::getMapDataInv() const {
+MimmoObject::getMapDataInv()const{
 	return m_mapDataInv;
 };
 
@@ -318,8 +327,8 @@ MimmoObject::getMapDataInv(long id){
 /*!It gets the cell ids.
  * \return Reference to Map Cell with cell ids.
  */
-const livector1D&
-MimmoObject::getMapCell() const{
+livector1D&
+MimmoObject::getMapCell(){
 	return m_mapCell;
 };
 
@@ -335,8 +344,8 @@ MimmoObject::getMapCell(int i){
 /*!It gets the cell ids.
  * \return Reference to inverse of Map data with cell ids.
  */
-const liimap&
-MimmoObject::getMapCellInv() const{
+liimap&
+MimmoObject::getMapCellInv(){
 	return m_mapCellInv;
 };
 
@@ -410,7 +419,7 @@ MimmoObject::setVertex(dvecarr3E * vertex){
  */
 bool
 MimmoObject::resetVertex(dvecarr3E & vertex){
-	if (m_geometry == NULL) return false;
+	if (isEmpty()) return false;
 	m_mapData.clear();
 	m_mapDataInv.clear();
 	m_patch->resetVertices();
@@ -434,10 +443,17 @@ MimmoObject::resetVertex(dvecarr3E * vertex){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setVertex(darray3E & vertex, long idtag){
+MimmoObject::setVertex(const darray3E & vertex, long idtag){
 	if (isEmpty()) return false;
-	PatchKernel::VertexIterator it = m_geometry->addVertex(vertex);
-	if(idtag == bitpit::Vertex::NULL_ID)	idtag = it->getId();
+	if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
+	
+	PatchKernel::VertexIterator it;
+	if(idtag == bitpit::Vertex::NULL_ID){
+		it =m_patch->addVertex(vertex);
+		idtag = it->getId();
+	}else{
+		it =m_patch->addVertex(vertex, idtag);
+	}
 	
 	m_mapData.push_back(idtag);
 	m_mapDataInv[idtag] = m_mapData.size();
@@ -451,14 +467,14 @@ MimmoObject::setVertex(darray3E & vertex, long idtag){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::modifyVertex(darray3E & vertex, long id){
+MimmoObject::modifyVertex(const darray3E & vertex, long id){
 	if (isEmpty()) return false;
 	bitpit::Vertex &vert = m_patch->getVertex(id);
 	vert.setCoords(vertex);
 	return true;
 };
 
-/*!It sets the connectivity of the cells of the geometry Patch.
+/*!It sets/adds stock of cells with their connectivity by vertex IDS on the geometry Patch.
  * \param[in] connectivity Connectivity of cells of geometry mesh.
  * \return False if no geometry is linked.
  */
@@ -499,13 +515,64 @@ MimmoObject::setConnectivity(livector2D * connectivity){
 	return true;
 };
 
+/*!It sets/adds one cell with its connectivity by vertex IDs and its own ID 
+ * on the geometry Patch. If no ID is specified, assign it automatically
+ * \param[in] connectivity Connectivity of target cell of geometry mesh.
+ * \return False if no geometry is linked.
+ */
+bool
+MimmoObject::setConnectivity(const livector1D & conn, long idtag){
+	if (isEmpty()) return false;
+	if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
+	
+	int nv = conn.size();
+	long index;
+	ElementInfo::Type eltype;
+	
+	switch (m_type){
+		case 1 :
+			if (nv == 3) eltype = ElementInfo::TRIANGLE;
+			if (nv == 4) eltype = ElementInfo::QUAD;
+			break;
+		case 2 :
+			if (nv == 4) eltype = ElementInfo::TETRA;
+			if (nv == 8) eltype = ElementInfo::QUAD;
+			break;
+		default: 
+			return false;
+			break;		
+	}
+	
+	PatchKernel::CellIterator it;
+	
+	std::unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[nv]);
+	for (int j=0; j<nv; ++j)	connecti[j] = conn[j];
+	
+	if(idtag == bitpit::Cell::NULL_ID){
+		it = m_patch->addCell(eltype, true);
+		idtag = it->getId();
+	}else{
+		it = m_patch->addCell(eltype, true,idtag);
+	}
+	
+	it->setConnect(move(connecti));
+	it->setType(eltype);
+	
+	//create inverse map of cells
+	m_mapCell.push_back(idtag);
+	m_mapCellInv[idtag] = m_mapCell.size();
+	return true;
+};
+
+
+
 /*!It sets the geometry Patch.
  * \param[in] type Type of linked Patch (1 = surface, 2 = volume).
  * \param[in] geometry Pointer to a geometry of class Patch to be linked.
  * \return False if the argument pointer is NULL or not correct type.
  */
 bool
-MimmoObject::setGeometry(int type, PatchKernel* geometry){
+MimmoObject::setPatch(int type, PatchKernel* geometry){
 	if (geometry == NULL ) return false;
 	if (type<1 || type >2 ) return false;
 	m_patch = geometry;
@@ -525,8 +592,7 @@ MimmoObject::setGeometry(int type, PatchKernel* geometry){
 bool
 MimmoObject::cleanGeometry(){
 	if (isEmpty()) return false;
-	m_geometry->deleteCoincidentVertices();
-	m_geometry->updateBoundingBox(true);
+	m_patch->deleteCoincidentVertices();
 	setMapData();
 	setMapCell();
 	return true;
@@ -544,9 +610,9 @@ MimmoObject::setMapData(){
 	m_mapData.resize(nv);
 	m_mapDataInv.clear();
 	PatchKernel::VertexIterator it;
-	PatchKernel::VertexIterator itend = m_geometry->vertexEnd();
+	PatchKernel::VertexIterator itend = m_patch->vertexEnd();
 	long i = 0;
-	for (it = m_geometry->vertexBegin(); it != itend; ++it){
+	for (it = m_patch->vertexBegin(); it != itend; ++it){
 		m_mapData[i] = it->getId();
 		m_mapDataInv[m_mapData[i]] = i;
 		i++;
@@ -564,9 +630,9 @@ MimmoObject::setMapCell(){
 	m_mapCell.resize(getNCells());
 	m_mapCellInv.clear();
 	PatchKernel::CellIterator it;
-	PatchKernel::CellIterator itend = m_geometry->cellEnd();
+	PatchKernel::CellIterator itend = m_patch->cellEnd();
 	long i = 0;
-	for (it = m_geometry->cellBegin(); it != itend; ++it){
+	for (it = m_patch->cellBegin(); it != itend; ++it){
 		m_mapCell[i] = it->getId();
 		m_mapCellInv[m_mapCell[i]] = i;
 		i++;
@@ -599,7 +665,6 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	m_pids			= other->m_pids;
 	m_pidsType		= other->m_pidsType;
 	
-	m_type = std::max(1,other->type);
 	m_internalPatch = true;
 	const int id = 0;
 	if (m_type == 2){
@@ -610,29 +675,30 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 		dynamic_cast<SurfUnstructured*> (m_patch)->setExpert(true);
 	}
 	//copy data without ids
+	
 	const dvecarr3E points = other->getVertex();
-	for(auto && val : points)	setVertex(val);
+	int counter = 0;
+	long idtag;
+	for(auto && val : points){
+		idtag = other->m_mapData[counter];
+		setVertex(val,idtag);
+		++counter;
+	}
 	
 	const ivector2D conn  = other->getConnectivity();
 	
 	if(!conn.empty()){
-		
-		livector1D connID(conn.size());
-	
-		int counter = -1;
-		for(auto && val : conn){
-			connID[++counter] = convertLocalToVertexID(val);
-			setConnectivity(connID);
+		livector1D connID;
+		counter = 0;
+		for(auto & val : conn){
+			connID	= convertLocaltoVertexID(val);
+			idtag = other->m_mapCell[counter];
+			setConnectivity(connID, idtag);
+			connID.clear();
+			++counter;
 		}
 	}
-	
-	//copy maps 
-	m_mapData = other->m_mapData;
-	m_mapCell = other->m_mapCell;
-	m_mapDataInv = other->m_mapDataInv;
-	m_mapCellInv = other->m_mapCellInv;
-	
-	//it's all copied
+	//it's all copied(maps are update in the loops)
 };
 
 
@@ -649,7 +715,7 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
 	livector1D::iterator itCListEnd=  cellList.end();
 	//get conn from each cell of the list
 	for(itCList=cellList.begin(); itCList != itCListEnd; ++itCList){
-		Cell cell = m_geometry->getCell(*itCList);
+		Cell cell = m_patch->getCell(*itCList);
 		long * conn = cell.getConnect();
 		int nVloc = cell.getVertexCount();
 		for(int i=0; i<nVloc; ++i){
@@ -754,7 +820,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 	std::set<long>::iterator it;
 	std::set<long>::iterator itEnd = container.end();
 	
-	for (const auto & cell : m_geometry->getCells()){
+	for (const auto & cell : m_patch->getCells()){
 		const long * conn = cell.getConnect();
 		int size = cell.getFaceCount();
 		for(int face=0; face<size; ++face){
@@ -786,11 +852,11 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
  */
 livector1D	MimmoObject::extractPIDCells(short flag){
 	
-	int size = m_pid.size();
+	int size = m_pids.size();
 	livector1D result(size);
 	int counter = 0;
 	for(int i=0; i<size; ++i){
-		if (m_pid[i] == flag)	{
+		if (m_pids[i] == flag)	{
 			result[counter] = getMapCell(i);	 
 			++counter;
 		}	
