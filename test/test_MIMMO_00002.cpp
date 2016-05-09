@@ -45,7 +45,7 @@ void test0002() {
 	mimmo0->setReadFilename("catpipe");
 	
 	mimmo0->setWrite(true);
-	mimmo0->setWriteDir("geo_data");
+	mimmo0->setWriteDir(".");
 	mimmo0->setWriteFileType(mimmo::FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0002.0000");
 	

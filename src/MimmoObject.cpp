@@ -167,9 +167,10 @@ MimmoObject::getNCells() const {
 dvecarr3E
 MimmoObject::getVertex(){
 	dvecarr3E result(getNVertex());
-	int  i = -1;
+	int  i = 0;
 	for (auto & vertex : m_patch->getVertices()){
-		result[i++] = vertex.getCoords();
+		result[i] = vertex.getCoords();
+		++i;
 	}
 	return result;
 };
@@ -180,9 +181,10 @@ MimmoObject::getVertex(){
 dvecarr3E
 MimmoObject::getVertex() const {
 	dvecarr3E result(getNVertex());
-	int  i = -1;
+	int  i = 0;
 	for (auto & vertex : m_patch->getVertices()){
-		result[i++] = vertex.getCoords();
+		result[i] = vertex.getCoords();
+		++i;
 	}
 	return result;
 };
@@ -392,13 +394,14 @@ bool
 MimmoObject::setVertex(dvecarr3E & vertex){
 	
 	if (isEmpty()) return false;
-	int mapsize = m_mapData.size() -1 ;
+	int mapsize = m_mapData.size();
 	PatchKernel::VertexIterator index;
 	
 	for (auto && val : vertex){
 		index = m_patch->addVertex(val);
 		m_mapData.push_back(index->getId());
-		m_mapDataInv[index->getId()] = mapsize++;
+		m_mapDataInv[index->getId()] = mapsize;
+		++mapsize;
 	}
 	return true;
 };
@@ -443,7 +446,7 @@ MimmoObject::resetVertex(dvecarr3E * vertex){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setVertex(darray3E & vertex, long idtag){
+MimmoObject::setVertex(const darray3E & vertex, long idtag){
 	if (isEmpty()) return false;
 	if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
 	
@@ -467,7 +470,7 @@ MimmoObject::setVertex(darray3E & vertex, long idtag){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::modifyVertex(darray3E & vertex, long id){
+MimmoObject::modifyVertex(const darray3E & vertex, long id){
 	if (isEmpty()) return false;
 	bitpit::Vertex &vert = m_patch->getVertex(id);
 	vert.setCoords(vertex);
@@ -521,7 +524,7 @@ MimmoObject::setConnectivity(livector2D * connectivity){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setConnectivity(livector1D & conn, long idtag){
+MimmoObject::setConnectivity(const livector1D & conn, long idtag){
 	if (isEmpty()) return false;
 	if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
 	

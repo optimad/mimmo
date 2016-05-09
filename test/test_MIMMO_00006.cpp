@@ -49,7 +49,7 @@ void test0006() {
 	mimmoP->setReadFilename("plane");
 	
 	mimmoP->setWrite(true);
-	mimmoP->setWriteDir("geo_data");
+	mimmoP->setWriteDir(".");
 	mimmoP->setWriteFileType(mimmo::FileType::STL);
 	mimmoP->setWriteFilename("mimmo_0006p.0000");
 	
@@ -62,7 +62,7 @@ void test0006() {
 	mimmoD->setReadFilename("disk");
 	
 	mimmoD->setWrite(true);
-	mimmoD->setWriteDir("geo_data");
+	mimmoD->setWriteDir(".");
 	mimmoD->setWriteFileType(mimmo::FileType::STL);
 	mimmoD->setWriteFilename("mimmo_0006d.0000");
 	

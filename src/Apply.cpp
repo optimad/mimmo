@@ -58,11 +58,13 @@ Apply::execute(){
 	if (getGeometry() == NULL) return;
 	dvecarr3E vertex = getGeometry()->getVertex();
 	dvecarr3E* displ = getInput<dvecarr3E>();
+	
 	long nv = getGeometry()->getNVertex();
 	nv = long(std::min(int(nv), int((*displ).size()) ));
+	livector1D & idmap = getGeometry()->getMapData();
 	for (long i=0; i<nv; i++){
 		vertex[i] += (*displ)[i];
-		getGeometry()->modifyVertex(vertex[i], getGeometry()->getMapData(i));
+		getGeometry()->modifyVertex(vertex[i], idmap[i]);
 	}
 	displ = NULL;
 	return;

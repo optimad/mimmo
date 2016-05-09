@@ -679,7 +679,7 @@ MimmoGeometry::read(){
  */
 void
 MimmoGeometry::execute(){
-	bool check;
+	bool check = true;
 	if (m_read) check = read();
 	if (!check){
 		std::cout << "MiMMO : ERROR : file not found : "<< m_rfilename << std::endl;

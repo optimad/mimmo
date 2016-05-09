@@ -49,7 +49,7 @@ void test0004() {
 	mimmo0->setReadFilename("sphere2");
 	
 	mimmo0->setWrite(true);
-	mimmo0->setWriteDir("geo_data");
+	mimmo0->setWriteDir(".");
 	mimmo0->setWriteFileType(mimmo::FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0004.0000");
 	
