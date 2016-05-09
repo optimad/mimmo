@@ -56,7 +56,7 @@ enum WFORMAT{Short, Long};
  *	for volume mesh.
  *
  */
-class MimmoGeometry: public MimmoObject, public BaseManipulation{
+class MimmoGeometry: public BaseManipulation{
 private:
 	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
@@ -75,7 +75,7 @@ private:
 
 public:
 	MimmoGeometry();
-	~MimmoGeometry();
+	virtual ~MimmoGeometry();
 
 	MimmoGeometry(const MimmoGeometry & other);
 	MimmoGeometry & operator=(const MimmoGeometry & other);

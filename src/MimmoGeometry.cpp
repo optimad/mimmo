@@ -39,7 +39,7 @@ MimmoGeometry::MimmoGeometry(){
 /*!Default destructor of MimmoGeometry.
  */
 MimmoGeometry::~MimmoGeometry(){
-	MimmoObject::clear();
+	clear();
 };
 
 /*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
@@ -390,8 +390,9 @@ MimmoGeometry::write(){
 			}
 			NastranInterface nastran;
 			nastran.setWFormat(m_wformat);
-			if (m_pids.size() == connectivity.size()){
-				nastran.write(m_wdir,m_wfilename,points,connectivity, &m_pids);
+			shivector1D & pids = getGeometry()->getPid();
+			if (pids.size() == connectivity.size()){
+				nastran.write(m_wdir,m_wfilename,points,connectivity, &pids);
 			}else{
 				nastran.write(m_wdir,m_wfilename,points,connectivity);
 			}
@@ -402,7 +403,7 @@ MimmoGeometry::write(){
 		case FileType::OFP : //Export ascii OpenFOAM point cloud
 		{
 
-			dvecarr3E points = getVertex();
+			dvecarr3E points = getGeometry()->getVertex();
 			writeOFP(m_wdir, m_wfilename, points);
 			return true;
 		}
@@ -492,6 +493,7 @@ MimmoGeometry::read(){
 			livector1D::iterator it;
 			int counter=0;
 			for(auto && val : Iconnectivity){
+				Iconn[counter].resize(val.size());
 				it=Iconn[counter].begin();
 				for(auto && element : val){
 					*it = long(element);
@@ -540,6 +542,7 @@ MimmoGeometry::read(){
 			livector1D::iterator it;
 			int counter=0;
 			for(auto && val : Iconnectivity){
+				Iconn[counter].resize(val.size());
 				it=Iconn[counter].begin();
 				for(auto && element : val){
 					*it = long(element);
@@ -590,6 +593,7 @@ MimmoGeometry::read(){
 			livector1D::iterator it;
 			int counter=0;
 			for(auto && val : Iconnectivity){
+				Iconn[counter].resize(val.size());
 				it=Iconn[counter].begin();
 				for(auto && element : val){
 					*it = long(element);
@@ -638,6 +642,7 @@ MimmoGeometry::read(){
 			livector1D::iterator it;
 			int counter=0;
 			for(auto && val : Iconnectivity){
+				Iconn[counter].resize(val.size());
 				it=Iconn[counter].begin();
 				for(auto && element : val){
 					*it = long(element);
@@ -690,6 +695,7 @@ MimmoGeometry::read(){
 			livector1D::iterator it;
 			int counter=0;
 			for(auto && val : Iconnectivity){
+				Iconn[counter].resize(val.size());
 				it=Iconn[counter].begin();
 				for(auto && element : val){
 					*it = long(element);

@@ -91,8 +91,8 @@ public:
 	liimap&			getMapCellInv();
 	int				getMapCellInv(long id);
 	
-	const shivector1D 	&	getPidTypeList() const ;
-	const shivector1D	&	getPid() const;
+	shivector1D &	getPidTypeList();
+	shivector1D	&	getPid();
 	
 	const MimmoObject * getCopy();
 	

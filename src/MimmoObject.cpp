@@ -363,8 +363,8 @@ MimmoObject::getMapCellInv(long id){
 /*!Return the list of pid types actually present in your geometry
  * If empty list is provided, pidding is actually not supported
  */
-const shivector1D 	&
-MimmoObject::getPidTypeList() const{
+shivector1D 	&
+MimmoObject::getPidTypeList(){
 	return m_pidsType;
 };
 
@@ -372,8 +372,8 @@ MimmoObject::getPidTypeList() const{
  * sequential ordering
  * If empty list is provided, pidding is not supported for this geometry
  */
-const shivector1D 	&
-MimmoObject::getPid() const{
+shivector1D 	&
+MimmoObject::getPid() {
 	return m_pids;
 };
 
