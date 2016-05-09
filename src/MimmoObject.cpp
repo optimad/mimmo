@@ -520,6 +520,19 @@ MimmoObject::setConnectivity(livector2D * connectivity){
 	return true;
 };
 
+/*!It resets cells and their connectivity by vertex IDS on the geometry Patch.
+ * \param[in] connectivity Connectivity of cells of geometry mesh.
+ * \return False if no geometry is linked.
+ */
+bool
+MimmoObject::resetConnectivity(livector2D * connectivity){
+	if (isEmpty()) return false;
+	m_mapCell.clear();
+	m_mapCellInv.clear();
+	getPatch()->resetCells();
+	return setConnectivity(connectivity);
+};
+
 /*!It sets/adds one cell with its connectivity by vertex IDs and its own ID 
  * on the geometry Patch. If no ID is specified, assign it automatically
  * \param[in] connectivity Connectivity of target cell of geometry mesh.

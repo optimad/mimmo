@@ -245,6 +245,73 @@ MimmoGeometry::setGeometry(MimmoObject * external){
 	m_isInternal = false;
 };
 
+/*!
+ * Force your class to allocate an internal MimmoObject of type 1-Superficial mesh
+ * 2-Volume Mesh. Other internal object allocated or externally linked geometries
+ * will be destroyed/unlinked.
+ * \param[in] type 1-Surface MimmoObject, 2-Volume MimmoObject. Default is 1, no other type are supported
+ */
+void
+MimmoGeometry::setGeometry(int type){
+	m_geometry = NULL;
+	m_intgeo.reset(nullptr);
+	std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+	m_intgeo = std::move(dum);
+	m_isInternal = true;
+};
+
+/*!
+ * Wrapping to add vertices to your internal MimmoObject structure. If an internal object is not 
+ * allocated return error flag false. 
+ * \param[in] vertex pointer to a list of vertices
+ * \return boolean error flag, true for successfull adding, false otherwise 
+ */
+bool
+MimmoGeometry::setVertex(dvecarr3E * vertex){
+	
+	if(m_intgeo.get() == NULL) return false;
+	
+	return m_intgeo->setVertex(vertex);
+};
+
+/*!
+ * Wrapping to clear all preexistent vertices and add new vertices to your 
+ * internal MimmoObject structure. If an internal object is not 
+ * allocated return error flag false. 
+ * \param[in] vertex pointer to a list of vertices
+ * \return boolean error flag, true for successfull resetting, false otherwise 
+ */
+bool
+MimmoGeometry::resetVertex(dvecarr3E * vertex){
+	if(m_intgeo.get() == NULL) return false;
+	return m_intgeo->resetVertex(vertex);
+};
+
+/*!
+ * Wrapping to add connectivity to your internal MimmoObject structure. If an internal object is not 
+ * allocated return error flag false. 
+ * \param[in] connectivity pointer to a connectivity list 
+ * \return boolean error flag, true for successfull adding, false otherwise 
+ */
+bool		
+MimmoGeometry::setConnectivity(livector2D * connectivity){
+	if(m_intgeo.get() == NULL) return false;
+	return 	m_intgeo->setConnectivity(connectivity);
+};
+
+/*!
+ * Wrapping to clear all preexistent connectivity adn add a new one to your 
+ * internal MimmoObject structure. If an internal object is not 
+ * allocated return error flag false. 
+ * \param[in] connectivity pointer to a connectivity list 
+ * \return boolean error flag, true for successfull resetting, false otherwise 
+ */
+bool		
+MimmoGeometry::resetConnectivity(livector2D * connectivity){
+	if(m_intgeo.get() == NULL) return false;
+	return 	m_intgeo->resetConnectivity(connectivity);
+};
+
 /*!It sets the PIDs of all the cells of the geometry Patch.
  * \param[in] pids PIDs of the cells of geometry mesh.
  */

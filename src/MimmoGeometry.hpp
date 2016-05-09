@@ -100,6 +100,13 @@ public:
 	void		setSOFTCopy( const MimmoGeometry * other);
 	void		setGeometry( MimmoObject * external);
 	
+	void		setGeometry(int type=1);
+	
+	bool		setVertex(dvecarr3E *);
+	bool		resetVertex(dvecarr3E *);
+	bool		setConnectivity(livector2D *);
+	bool		resetConnectivity(livector2D *);
+	
 	void		setPID(shivector1D pids);
 	void		setFormatNAS(WFORMAT wform);
 	
@@ -116,6 +123,7 @@ public:
 
 private:
 	void 	setDefaults();
+	
 };
 
 

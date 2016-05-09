@@ -104,6 +104,7 @@ public:
 	bool		modifyVertex(const darray3E & vertex, long id);
 
 	bool		setConnectivity(livector2D * connectivity);
+	bool		resetConnectivity(livector2D * connectivity);
 	bool		setConnectivity(const livector1D & locConn, long idtag = bitpit::Cell::NULL_ID);
 	bool		setPatch(int type, bitpit::PatchKernel* geometry);
 	bool		setMapData();
