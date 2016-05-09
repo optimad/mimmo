@@ -42,16 +42,18 @@ MimmoGeometry::~MimmoGeometry(){
 	MimmoObject::clear();
 };
 
-/*!Copy constructor of MimmoGeometry.
+/*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
  */
 MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 	*this = other;
 };
 
-/*!Assignement operator of MimmoGeometry.
+/*!
+ * Assignement operator of MimmoGeometry. Soft copy of MimmoObject
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-	*(static_cast<MimmoObject * >(this)) = *(static_cast<const MimmoObject * >(&other)); //soft copy
+	
+	clear();
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
 	m_rtype = other.m_rtype;
 	m_wtype = other.m_wtype;
@@ -62,24 +64,41 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_rdir = other.m_rdir;
 	m_wdir = other.m_wdir;
 	m_wformat = other.m_wformat;
+	m_isInternal = other.m_isInternal;
+	m_codex = other.m_codex;
+	
+	if(m_isInternal){
+		m_geometry = other.m_intgeo.get();
+		m_isInternal = false;
+	}	
+	
 	return *this;
 };
 
 /*!
  * Return a const pointer to your current class.
- * Reimplementation of MimmoObject::getCopy;
  */
 const MimmoGeometry * MimmoGeometry::getCopy(){
 	return this;
 }
 
 /*!
- * Return a pointer as MimmoObject to your current class.
- * Static casting is enforced. Reimplementation of BaseManipulation::getGeometry();
+ * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry
  */
 MimmoObject * MimmoGeometry::getGeometry(){
-	return	static_cast<MimmoObject *>(this);
+	if(m_isInternal)	return m_intgeo.get();
+	else				return m_geometry;
 }
+
+/*!
+ * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry,
+ * const overloading
+ */
+const MimmoObject * MimmoGeometry::getGeometry() const{
+	if(m_isInternal)	return m_intgeo.get();
+	else				return m_geometry;
+}
+
 /*!It sets the type of file to read the geometry during the execution.
  * \param[in] type Extension of file.
  */
@@ -161,9 +180,19 @@ MimmoGeometry::setWriteFilename(string filename){
 	m_wfilename = filename;
 }
 
+/*!
+ * set codex ASCII false, BINARY true for writing sessions ONLY.
+ * Default is Binary/Appended. Pay attention, binary writing is effective
+ * only those file formats which support it.(ex STL, STVTU, SQVTU, VTVTU, VHVTU)
+ */
+void MimmoGeometry::setCodex(bool binary){
+	m_codex = binary;
+}
+
 /*!Sets your current class as a "soft" copy of the argument.
- * Reimplementation of MimmoObject::setSOFTCopy(), get its documentation
- * for further information.
+ * Soft copy means that only your current geometric object MimmoObject is
+ * copied only through its pointer and stored in the internal member m_geometry
+ * Other members are exactly copied
  * \param[in] other pointer to MimmoGeometry class.
  */
 void
@@ -173,15 +202,24 @@ MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
 }
 
 /*!Sets your current class as a "HARD" copy of the argument.
- * Reimplementation of MimmoObject::setSOFTCopy(), get its documentation
- * for further information.
+ * Hard copy means that only your current geometric object MimmoObject is
+ * copied as a stand alone internal member and stored in the unique pointer member m_intgeo. 
+ * Other members are exactly copied
  * \param[in] other pointer to MimmoGeometry class.
  */
 void
 MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
-	clear();	
-	MimmoObject::setHARDCopy(static_cast<const MimmoObject * >(other));
+
+	clear();
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
+	
+	std::unique_ptr<MimmoObject> dum (new MimmoObject());
+	dum->setHARDCopy(other->getGeometry());
+
+	m_geometry = NULL;
+	m_isInternal = true;
+	m_intgeo = std::move(dum);
+	
 	m_rtype = other->m_rtype;
 	m_wtype = other->m_wtype;
 	m_read = other->m_read;
@@ -191,37 +229,53 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 	m_rdir = other->m_rdir;
 	m_wdir = other->m_wdir;
 	m_wformat = other->m_wformat;
+	m_codex = other->m_codex;
 }
 
 /*!
- * Set geometry. Do Nothing. Reimplementation of BaseManipulation::setGeometry
+ * Set geometry from an external MimmoObject source, softly linked. 
+ * Reimplementation of BaseManipulation::setGeometry
  */
 void
-MimmoGeometry::setGeometry(){};
+MimmoGeometry::setGeometry(MimmoObject * external){
+	if(!isEmpty() && m_isInternal){
+		m_intgeo.reset(nullptr);
+	}
+	m_geometry = external;
+	m_isInternal = false;
+};
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
  * \param[in] pids PIDs of the cells of geometry mesh.
  */
 void
 MimmoGeometry::setPID(shivector1D pids){
-	if((int)pids.size() != getNCells())	return;
-	m_pids.clear();
-	m_pids = pids;
-	
-	//find different type of pids.
-	std::unordered_set<short> map;
-	map.insert(pids.begin(),pids.end());
-	m_pidsType.clear();
-	m_pidsType.insert(m_pidsType.end(), map.begin(), map.end());
+	getGeometry()->setPID(pids);
 };
+
+
+/*!
+ * Check if geometry is not linked or not locally instantiated in your class.
+ * True - no geometry present, False otherwise.
+ */
+bool MimmoGeometry::isEmpty(){
+	return (m_geometry == NULL && (m_intgeo.get() == NULL));
+}
+
+/*!
+ * Check if geometry is internally instantiated (true) or externally linked(false).
+ * Return false if no geometry is checked. Please verify it with isEmpty method first
+ */
+bool MimmoGeometry::isInternal(){
+	return (m_isInternal);
+}
 
 /*!
  * Clear all stuffs in your class
  */
-
 void
 MimmoGeometry::clear(){
-	MimmoObject::clear();
+	m_intgeo.reset(nullptr);
 	BaseManipulation::clear();
 	setDefaults();
 };
@@ -242,107 +296,121 @@ MimmoGeometry::write(){
 	if (isEmpty()) return false;
 
 	switch(m_wtype){
-	case FileType::STL :
-		//Export STL
-	{
-		string name = (m_wdir+"/"+m_wfilename+".stl");
-		//forced binary write
-		bool binary = true;
-		dynamic_cast<SurfUnstructured*>(getPatch())->exportSTL(name, binary);
-		return true;
-	}
-	break;
-	case FileType::STVTU :
-		//Export Triangulation Surface VTU
-	{
-		dvecarr3E	points = getVertex();
-		ivector2D	connectivity = getConnectivity();
-		for (int i=0; i<connectivity.size(); i++){
-			for (int j=0; j<3; j++){
-				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
+		
+		case FileType::STL :
+			//Export STL
+			{
+			string name = (m_wdir+"/"+m_wfilename+".stl");
+			dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex);
+			return true;
 			}
-		}
-		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
-		vtk.write() ;
-		return true;
-	}
-	break;
-	case FileType::SQVTU :
+		break;
+		
+		case FileType::STVTU :
+			//Export Triangulation Surface VTU
+			{
+				dvecarr3E	points = getGeometry()->getVertex();
+				ivector2D	connectivity = getGeometry()->getConnectivity();
+				for (int i=0; i<connectivity.size(); i++){
+					for (int j=0; j<3; j++){
+						connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+					}
+				}
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
+				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+				vtk.write() ;
+				return true;
+			}
+		break;
+		
+		case FileType::SQVTU :
 		//Export Quadrilateral Surface VTU
-	{
-		dvecarr3E	points = getVertex();
-		ivector2D	connectivity = getConnectivity();
-		for (int i=0; i<connectivity.size(); i++){
-			for (int j=0; j<4; j++){
-				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
+		{
+			dvecarr3E	points = getGeometry()->getVertex();
+			ivector2D	connectivity = getGeometry()->getConnectivity();
+			for (int i=0; i<connectivity.size(); i++){
+				for (int j=0; j<4; j++){
+					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				}
 			}
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
+			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.write() ;
+			return true;
 		}
-		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
-		vtk.write() ;
-		return true;
-	}
-	break;
-	case FileType::VTVTU :
-		//Export Tetra Volume VTU
-	{
-		dvecarr3E	points = getVertex();
-		ivector2D	connectivity = getConnectivity();
-		for (int i=0; i<connectivity.size(); i++){
-			for (int j=0; j<4; j++){
-				connectivity[i][j] =getMapDataInv(connectivity[i][j]);
+		break;
+		
+		case FileType::VTVTU :
+			//Export Tetra Volume VTU
+			{
+				dvecarr3E	points = getGeometry()->getVertex();
+				ivector2D	connectivity = getGeometry()->getConnectivity();
+				for (int i=0; i<connectivity.size(); i++){
+					for (int j=0; j<4; j++){
+					connectivity[i][j] =getGeometry()->getMapDataInv(connectivity[i][j]);
+					}
+				}
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
+				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);		
+				vtk.write() ;
+				return true;
 			}
-		}
-		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
-		vtk.write() ;
-		return true;
-	}
-	case FileType::VHVTU :
+		break;
+		
+		case FileType::VHVTU :
 		//Export Hexa Volume VTU
-	{
-		dvecarr3E	points = getVertex();
-		ivector2D	connectivity = getConnectivity();
-		for (int i=0; i<connectivity.size(); i++){
-			for (int j=0; j<8; j++){
-				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
+		{
+			dvecarr3E	points = getGeometry()->getVertex();
+			ivector2D	connectivity = getGeometry()->getConnectivity();
+			for (int i=0; i<connectivity.size(); i++){
+				for (int j=0; j<8; j++){
+					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				}
 			}
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
+			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.write() ;
+			return true;
 		}
-		bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
-		vtk.write() ;
-		return true;
-	}
-	break;
-	case FileType::NAS :
+		break;
+	
+		case FileType::NAS :
 		//Export Nastran file
-	{
-		dvecarr3E	points = getVertex();
-		ivector2D	connectivity = getConnectivity();
-		for (int i=0; i<connectivity.size(); i++){
-			for (int j=0; j<3; j++){
-				connectivity[i][j] = getMapDataInv(connectivity[i][j]);
+		{
+			dvecarr3E	points = getGeometry()->getVertex();
+			ivector2D	connectivity = getGeometry()->getConnectivity();
+			for (int i=0; i<connectivity.size(); i++){
+				for (int j=0; j<3; j++){
+					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
+				}
 			}
+			NastranInterface nastran;
+			nastran.setWFormat(m_wformat);
+			if (m_pids.size() == connectivity.size()){
+				nastran.write(m_wdir,m_wfilename,points,connectivity, &m_pids);
+			}else{
+				nastran.write(m_wdir,m_wfilename,points,connectivity);
+			}
+			return true;
 		}
-		NastranInterface nastran;
-		nastran.setWFormat(m_wformat);
-		if (m_pids.size() == connectivity.size()){
-			nastran.write(m_wdir,m_wfilename,points,connectivity, &m_pids);
-		}
-		else{
-			nastran.write(m_wdir,m_wfilename,points,connectivity);
-		}
-		return true;
-	}
-	break;
-	//Export ascii OpenFOAM point cloud
-	case FileType::OFP :
-	{
+		break;
+	
+		case FileType::OFP : //Export ascii OpenFOAM point cloud
+		{
 
-		dvecarr3E points = getVertex();
-		writeOFP(m_wdir, m_wfilename, points);
-
-		return true;
+			dvecarr3E points = getVertex();
+			writeOFP(m_wdir, m_wfilename, points);
+			return true;
+		}
+		break;
+		default: //never been reached
+			break;
 	}
-	break;
-	}
+	
 };
 
 /*!It reads the mesh geometry from an input file.
@@ -356,12 +424,13 @@ MimmoGeometry::read(){
 	//Import STL
 	case FileType::STL :
 	{
-		MimmoObject::clear();
-		m_type = 1;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new SurfUnstructured(id);
-		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
 		string name;
 
 		{
@@ -386,25 +455,26 @@ MimmoGeometry::read(){
 		if (sstype == "solid" || sstype == "SOLID") binary = false;
 		in.close();
 
-		dynamic_cast<SurfUnstructured*>(getPatch())->importSTL(name, binary);
-		cleanGeometry();
+		dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	case FileType::STVTU :
 		//Import Triangulation Surface VTU
 	{
-
 		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject::clear();
-		m_type = 1;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new SurfUnstructured(id);
-		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
-
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
+				
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 		
@@ -413,10 +483,7 @@ MimmoGeometry::read(){
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		int	np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+		getGeometry()->setVertex(Ipoints);
 		
 		// convert Iconnectivity to livector1D
 		livector2D  Iconn;
@@ -436,10 +503,11 @@ MimmoGeometry::read(){
 		}
 		
 		
-		setConnectivity(&Iconn);
-		cleanGeometry();
+		getGeometry()->setConnectivity(&Iconn);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	case FileType::SQVTU :
 		//Import Quadrilateral Surface VTU
 	{
@@ -448,23 +516,22 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject::clear();
-		m_type = 1;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new SurfUnstructured(id);
-		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
-
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
+		
+		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		int	np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+		getGeometry()->setVertex(Ipoints);
 		
 		// convert Iconnectivity to livector1D
 		livector2D  Iconn;
@@ -484,11 +551,11 @@ MimmoGeometry::read(){
 		}
 		
 		
-		setConnectivity(&Iconn);
-		
-		cleanGeometry();
+		getGeometry()->setConnectivity(&Iconn);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	case FileType::VTVTU :
 		//Import Tetra Volume VTU
 	{
@@ -497,13 +564,15 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject::clear();
-		m_type = 2;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new VolUnstructured(id,3);
-		dynamic_cast<VolUnstructured * >(m_patch)->setExpert(true);
-
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(2));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
+		
+		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
@@ -512,10 +581,7 @@ MimmoGeometry::read(){
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		int	np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+		getGeometry()->setVertex(Ipoints);
 		
 		// convert Iconnectivity to livector1D
 		livector2D  Iconn;
@@ -535,11 +601,11 @@ MimmoGeometry::read(){
 		}
 		
 		
-		setConnectivity(&Iconn);
-		
-		cleanGeometry();
+		getGeometry()->setConnectivity(&Iconn);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	case FileType::VHVTU :
 		//Import Hexa Volume VTU
 	{
@@ -548,12 +614,14 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		MimmoObject::clear();
-		m_type = 2;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new VolUnstructured(id,3);
-		dynamic_cast<VolUnstructured * >(m_patch)->setExpert(true);
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(2));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
+		
 		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -561,10 +629,7 @@ MimmoGeometry::read(){
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		int	np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+		getGeometry()->setVertex(Ipoints);
 		
 		// convert Iconnectivity to livector1D
 		livector2D  Iconn;
@@ -584,11 +649,11 @@ MimmoGeometry::read(){
 		}
 		
 		
-		setConnectivity(&Iconn);
-		
-		cleanGeometry();
+		getGeometry()->setConnectivity(&Iconn);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	case FileType::NAS :
 		//Import Surface NAS
 	{
@@ -598,12 +663,14 @@ MimmoGeometry::read(){
 		if (!check) return false;
 		infile.close();
 
-		MimmoObject::clear();
-		m_type = 1;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new SurfUnstructured(id);
-		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
+		
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
@@ -613,12 +680,8 @@ MimmoGeometry::read(){
 
 		shivector1D pids;
 		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, pids );
-		setPID(pids);
-		
-		int	np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+
+		getGeometry()->setVertex(Ipoints);
 		
 		// convert Iconnectivity to livector1D
 		livector2D  Iconn;
@@ -638,22 +701,23 @@ MimmoGeometry::read(){
 		}
 		
 		
-		setConnectivity(&Iconn);
-		
-		cleanGeometry();
+		getGeometry()->setConnectivity(&Iconn);
+		getGeometry()->setPID(pids);
+		getGeometry()->cleanGeometry();
 	}
 	break;
+	
 	//Import ascii OpenFOAM point cloud
 	case FileType::OFP :
 	{
 		//It uses surface type of mimmo object for the moment
-		MimmoObject::clear();
-		m_type = 1;
-		m_internalPatch = true;
-		const int  id =0;
-		m_patch = new SurfUnstructured(id);
-		dynamic_cast<SurfUnstructured * >(m_patch)->setExpert(true);
-		
+		if(m_isInternal){
+			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+			m_intgeo =std::move(dum);
+			m_isInternal = true;
+		}else{
+			m_geometry->clear();
+		}	
 
 		std::ifstream infile(m_rdir+"/"+m_rfilename);
 		bool check = infile.good();
@@ -663,13 +727,15 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints;
 		readOFP(m_rdir, m_rfilename, Ipoints);
 
-		int np = Ipoints.size();
-		for (long ip=0; ip<np; ip++){
-			setVertex(Ipoints[ip]);
-		}
+		getGeometry()->setVertex(Ipoints);
 	}
 	break;
+	
+	default: //never been reached
+		break;
+	
 	}
+	
 	return true;
 };
 
@@ -686,6 +752,8 @@ MimmoGeometry::execute(){
 		std::cout << " " << std::endl;
 		exit(10);
 	}
+	
+	check = true;
 	if (m_write) check = write();
 	if (!check){
 		std::cout << "MiMMO : ERROR : write not done : geometry not linked " << std::endl;
@@ -809,6 +877,8 @@ MimmoGeometry::setDefaults(){
 	m_rdir		= "./";
 	m_wdir		= "./";
 	m_wformat	= Short;
+	m_isInternal  = true;
+	m_codex = true;
 }
 
 

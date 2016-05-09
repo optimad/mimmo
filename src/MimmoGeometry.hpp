@@ -45,7 +45,8 @@ enum WFORMAT{Short, Long};
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief MimmoGeometry is an executable block class derived from Mimmo Object, handling geometry.
+ *	\brief MimmoGeometry is an executable block class wrapping(linking or internally instantiating)
+ *           a Mimmo Object, handling geometry.
  *
  *	MimmoGeometry is the object to manage the import/export/substantial modifications of geometries. It returns a 
  *  standard MimmoObject class as product of its execution;
@@ -67,7 +68,10 @@ private:
 	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
 
-	WFORMAT		m_wformat;		/**<Format for .nas import/export. (Short/Long).*/
+	bool		m_isInternal;				/**< flag for internal instantiated MimmoObject */
+	std::unique_ptr<MimmoObject> m_intgeo;	/**< pointer to internal allocated geometry, if any */
+	bool		m_codex;					/**< Set codex format for writing true binary, false ascii */
+	WFORMAT		m_wformat;					/**<Format for .nas import/export. (Short/Long).*/
 
 public:
 	MimmoGeometry();
@@ -77,7 +81,8 @@ public:
 	MimmoGeometry & operator=(const MimmoGeometry & other);
 
 	const MimmoGeometry *	getCopy();
-	MimmoObject *	getGeometry();
+	MimmoObject * 	getGeometry();
+	const MimmoObject * 	getGeometry()const ;
 	
 	void		setReadDir(std::string dir);
 	void		setReadFileType(FileType type);
@@ -89,28 +94,28 @@ public:
 	void		setReadFilename(std::string filename);
 	void		setWrite(bool write);
 	void		setWriteFilename(std::string filename);
+	void		setCodex(bool binary = true);
 	
 	void		setHARDCopy( const MimmoGeometry * other);		
 	void		setSOFTCopy( const MimmoGeometry * other);
-	void		setGeometry();
+	void		setGeometry( MimmoObject * external);
 	
 	void		setPID(shivector1D pids);
 	void		setFormatNAS(WFORMAT wform);
-
+	
+	bool 		isEmpty();
+	bool		isInternal();
 	void 		clear();
 	bool		write();
 	bool		read();
 
 	void 		execute();
 
-
 	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
 	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
 
 private:
 	void 	setDefaults();
-	
-	
 };
 
 

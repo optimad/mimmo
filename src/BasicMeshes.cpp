@@ -568,7 +568,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 			m_setInfLimits = true;
 			m_setRefSys = true;
 		
-			m_shape.release();
+			m_shape.reset(nullptr);
 		}
 		
 		darray3E origin{{0,0,0}};
@@ -617,7 +617,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 void UStructMesh::setShape(const BasicShape * shape){
 	
 	if(shape == NULL) return;
-	m_shape.release();
+	m_shape.reset(nullptr);
 	m_setorigin = false;
 	m_setspan = false;
 	m_setInfLimits = false;
@@ -692,7 +692,7 @@ void UStructMesh::setCoordType(array<CoordType, 3> types){
  */
 void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, iarray3E & dimensions){
 	
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	setShape(type);
 	setOrigin(origin);
@@ -712,7 +712,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dve
 
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	switch(type){
 		case ShapeType::CYLINDER :
@@ -750,7 +750,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dve
  */
 void UStructMesh::setMesh(BasicShape * shape, iarray3E & dimensions){
 
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	setShape(shape);
 	setDimension(dimensions);
@@ -765,7 +765,7 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	switch(shape->getShapeType()){
 		case ShapeType::CYLINDER :
@@ -799,7 +799,7 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 /*!Clear the Mesh structure. Unlink external shapes or destroy internal shapes, destroy nodal structure.*/
 void UStructMesh::clearMesh(){
 	
-	m_shape.release();
+	m_shape.reset(nullptr);
 	m_nx=0; m_ny=0; m_nz=0;
 	m_dx=0.0; m_dy=0.0; m_dz=0.0;
 

@@ -224,7 +224,7 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
  */
 void FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, iarray3E & dimensions, iarray3E & degrees){
 	
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	setShape(type);
 	setOrigin(origin);
@@ -250,7 +250,7 @@ void FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, dv
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	switch(type){
 		case ShapeType::CYLINDER :
@@ -316,7 +316,7 @@ void FFDLattice::setLattice(BasicShape * shape, dvector1D & spacing, iarray3E & 
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
-	if(m_shape){m_shape.release();}
+	if(m_shape){m_shape.reset(nullptr);}
 	
 	switch(shape->getShapeType()){
 		case ShapeType::CYLINDER :

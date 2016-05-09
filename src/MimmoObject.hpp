@@ -81,8 +81,8 @@ public:
 	livector1D&		getMapData();
 	long			getMapData(int i);
 	
-	liimap&					getMapDataInv();
-	const liimap&			getMapDataInv()const;
+	liimap&			getMapDataInv();
+	const liimap&	getMapDataInv()const;
 	
 	int				getMapDataInv(long id);
 	
@@ -109,6 +109,7 @@ public:
 	bool		setMapData();
 	bool		setMapCell();
 
+	void 		setPID(shivector1D );
 	void		setSOFTCopy(const MimmoObject * other);
 	void		setHARDCopy(const MimmoObject * other);
 	
@@ -122,7 +123,7 @@ public:
 	
 	livector1D  extractBoundaryVertexID();
 	livector1D	extractPIDCells(short);
-	
+	livector1D	extractPIDCells(shivector1D);
 	//TODO implement safe access to m_mapData/Cell members in getMap... methods and convertVertexIDToLocal, convertLocalToVertexID methods.
 };
 

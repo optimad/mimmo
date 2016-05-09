@@ -53,7 +53,11 @@ void test0001() {
 	mimmo0->setWriteFilename("mimmo_0001.0000");
 	
 	mimmo0->execute();
-	MimmoObject * object = mimmo0->getGeometry();
+	
+	MimmoObject * object = new MimmoObject();
+	object->setHARDCopy(mimmo0->getGeometry());
+	
+	delete mimmo0; mimmo0=NULL;
 	
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
@@ -119,12 +123,18 @@ void test0001() {
 	lattice->plotGrid("./", "lattice_0001", 0, false, false);
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
 	
-	mimmo0->setRead(false);
+	
+	mimmo0 = new MimmoGeometry();
+	
+	mimmo0->setWrite(true);
+	mimmo0->setWriteDir("./");
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0001.0001");
+	mimmo0->setGeometry(object);
 	mimmo0->execute();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input, mimmo0;
+	delete lattice, applier, input, mimmo0, object;
 	lattice = NULL;
 	applier = NULL;
 	input 	= NULL;

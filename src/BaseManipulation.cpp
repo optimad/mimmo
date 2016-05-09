@@ -256,14 +256,14 @@ BaseManipulation::removePinsOut(){
  */
 void
 BaseManipulation::clearInput(){
-	m_input.release();
+	m_input.reset(nullptr);
 }
 
 /*!It clear the result member of the object
  */
 void
 BaseManipulation::clearResult(){
-	m_result.release();
+	m_result.reset(nullptr);
 }
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.

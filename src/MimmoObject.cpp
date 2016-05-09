@@ -119,9 +119,9 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 void
 MimmoObject::clear(){
 	if (m_internalPatch){
-		delete m_patch; 
+		delete m_patch;
 	}
-	m_patch = nullptr;
+	m_patch = NULL;
 	m_mapData.clear();
 	m_mapCell.clear();
 	m_mapDataInv.clear();
@@ -449,17 +449,19 @@ bool
 MimmoObject::setVertex(const darray3E & vertex, long idtag){
 	if (isEmpty()) return false;
 	if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
+	long checkedID;
 	
 	PatchKernel::VertexIterator it;
 	if(idtag == bitpit::Vertex::NULL_ID){
 		it =m_patch->addVertex(vertex);
-		idtag = it->getId();
+		checkedID = it->getId();
 	}else{
 		it =m_patch->addVertex(vertex, idtag);
+		checkedID = idtag;
 	}
 	
-	m_mapData.push_back(idtag);
-	m_mapDataInv[idtag] = m_mapData.size();
+	m_mapData.push_back(checkedID);
+	m_mapDataInv[checkedID] = m_mapData.size()-1;
 	return true;
 };
 
@@ -550,20 +552,21 @@ MimmoObject::setConnectivity(const livector1D & conn, long idtag){
 	
 	std::unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[nv]);
 	for (int j=0; j<nv; ++j)	connecti[j] = conn[j];
-	
+	long checkedID;
 	if(idtag == bitpit::Cell::NULL_ID){
 		it = m_patch->addCell(eltype, true);
-		idtag = it->getId();
+		checkedID = it->getId();
 	}else{
 		it = m_patch->addCell(eltype, true,idtag);
+		checkedID = idtag;
 	}
 	
 	it->setConnect(move(connecti));
 	it->setType(eltype);
 	
 	//create inverse map of cells
-	m_mapCell.push_back(idtag);
-	m_mapCellInv[idtag] = m_mapCell.size();
+	m_mapCell.push_back(checkedID);
+	m_mapCellInv[checkedID] = m_mapCell.size()-1;
 	return true;
 };
 
@@ -614,10 +617,10 @@ MimmoObject::setMapData(){
 	m_mapDataInv.clear();
 	PatchKernel::VertexIterator it;
 	PatchKernel::VertexIterator itend = m_patch->vertexEnd();
-	long i = 0;
+	int i = 0;
 	for (it = m_patch->vertexBegin(); it != itend; ++it){
 		m_mapData[i] = it->getId();
-		m_mapDataInv[m_mapData[i]] = i;
+		m_mapDataInv[ it->getId()] = i;
 		i++;
 	}
 	return true;
@@ -634,10 +637,10 @@ MimmoObject::setMapCell(){
 	m_mapCellInv.clear();
 	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_patch->cellEnd();
-	long i = 0;
+	int i = 0;
 	for (it = m_patch->cellBegin(); it != itend; ++it){
 		m_mapCell[i] = it->getId();
-		m_mapCellInv[m_mapCell[i]] = i;
+		m_mapCellInv[ it->getId()] = i;
 		i++;
 	}
 	return true;
@@ -682,7 +685,7 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	const dvecarr3E points = other->getVertex();
 	int counter = 0;
 	long idtag;
-	for(auto && val : points){
+	for(auto & val : points){
 		idtag = other->m_mapData[counter];
 		setVertex(val,idtag);
 		++counter;
@@ -702,6 +705,23 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 		}
 	}
 	//it's all copied(maps are update in the loops)
+};
+
+
+/*!It sets the PIDs of all the cells of the geometry Patch.
+ * \param[in] pids PIDs of the cells of geometry mesh.
+ */
+void
+MimmoObject::setPID(shivector1D pids){
+	if((int)pids.size() != getNCells())	return;
+	m_pids.clear();
+	m_pids = pids;
+	
+	//find different type of pids.
+	std::unordered_set<short> map;
+	map.insert(pids.begin(),pids.end());
+	m_pidsType.clear();
+	m_pidsType.insert(m_pidsType.end(), map.begin(), map.end());
 };
 
 
@@ -866,4 +886,21 @@ livector1D	MimmoObject::extractPIDCells(short flag){
 	}
 	result.resize(counter);
 	return	result;
+};
+
+/*!
+ * Extract all cells by their bitpit::PatchKernel unique ID, associated to 
+ * PID flag.
+ * \param[in]	flag	list of PIDs for extraction
+ * \return		list of cell ID marked as PID flags
+ */
+livector1D	MimmoObject::extractPIDCells(shivector1D flag){
+	livector1D result;
+	std::unordered_set<long> map;
+	for(auto && id : flag){
+		livector1D partial = extractPIDCells(id);
+		map.insert(partial.begin(), partial.end());
+	}
+	result.insert(result.end(), map.begin(), map.end());
+	return(result);
 };
