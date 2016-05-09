@@ -44,16 +44,15 @@ void test0001() {
 	
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
-	mimmo0->setReadFileType(mimmo::FileType::NAS);
-	mimmo0->setReadFilename("sfera");
+	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFilename("sphere2");
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
-	mimmo0->setWriteFileType(mimmo::FileType::NAS);
+	mimmo0->setWriteFileType(mimmo::FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0001.0000");
 	
 	mimmo0->execute();
-	exit(1);
 	MimmoObject * object = new MimmoObject();
 	object->setHARDCopy(mimmo0->getGeometry());
 	
