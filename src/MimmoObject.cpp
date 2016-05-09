@@ -443,7 +443,7 @@ MimmoObject::resetVertex(dvecarr3E * vertex){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setVertex(const darray3E & vertex, long idtag){
+MimmoObject::setVertex(darray3E & vertex, long idtag){
 	if (isEmpty()) return false;
 	if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
 	
@@ -467,7 +467,7 @@ MimmoObject::setVertex(const darray3E & vertex, long idtag){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::modifyVertex(const darray3E & vertex, long id){
+MimmoObject::modifyVertex(darray3E & vertex, long id){
 	if (isEmpty()) return false;
 	bitpit::Vertex &vert = m_patch->getVertex(id);
 	vert.setCoords(vertex);
@@ -521,7 +521,7 @@ MimmoObject::setConnectivity(livector2D * connectivity){
  * \return False if no geometry is linked.
  */
 bool
-MimmoObject::setConnectivity(const livector1D & conn, long idtag){
+MimmoObject::setConnectivity(livector1D & conn, long idtag){
 	if (isEmpty()) return false;
 	if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
 	

@@ -64,5 +64,6 @@ Apply::execute(){
 		vertex[i] += (*displ)[i];
 		getGeometry()->modifyVertex(vertex[i], getGeometry()->getMapData(i));
 	}
+	displ = NULL;
 	return;
 };

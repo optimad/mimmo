@@ -86,10 +86,11 @@ void test0001() {
 			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
 		}
 	}
-
+	
+	lattice->setDisplacements(displ);
 	GenericInput* input = new GenericInput();
-	input->setReadFromFile(true);
-	input->setFilename("input/input_MIMMO_00001.txt");
+//	input->setReadFromFile(true);
+//	input->setFilename("input/input_MIMMO_00001.txt");
 
 	//create applier
 	Apply* applier = new Apply();
@@ -97,7 +98,7 @@ void test0001() {
 
 
 	//Create PINS
-	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
+//	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
 	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 
 	//Create chain
@@ -115,7 +116,7 @@ void test0001() {
 	ch0.exec();
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
-
+	exit(1);
 	//Plot results
 	lattice->plotGrid("./", "lattice_0001", 0, false, false);
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
