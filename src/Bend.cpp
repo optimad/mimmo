@@ -51,6 +51,7 @@ Bend & Bend::operator=(const Bend & other){
 	m_coords = other.m_coords;
 	m_degree = other.m_degree;
 	m_coeffs = other.m_coeffs;
+	return	*this;
 };
 
 /*!It gets the coordinates of the degrees of freedom.

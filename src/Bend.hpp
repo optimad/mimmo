@@ -42,6 +42,7 @@ namespace mimmo{
  *	where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  *	applied to the i-th displacements.
  *
+ * TODO implementation of user interface seems not ROBUST. Please recheck set*** methods.
  */
 class Bend: public BaseManipulation{
 private:
