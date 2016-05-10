@@ -102,6 +102,7 @@ public:
 	
 	void		setGeometry(int type=1);
 	
+	//TODO		get methods
 	bool		setVertex(dvecarr3E *);
 	bool		resetVertex(dvecarr3E *);
 	bool		setConnectivity(livector2D *);
