@@ -28,7 +28,6 @@ using namespace mimmo;
 /*!Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){
-	m_mapflag = false;
 	m_name = "MiMMO.Apply";
 };
 
@@ -46,8 +45,6 @@ Apply::Apply(const Apply & other){
  */
 Apply & Apply::operator=(const Apply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-	m_mapflag = other.m_mapflag;
-	m_mapper = other.m_mapper;
 	return(*this);
 };
 
