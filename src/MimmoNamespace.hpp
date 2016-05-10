@@ -93,13 +93,7 @@ void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*));
 
-
-
 };
-
-
-std::map<int,int> mapVertex(MimmoObject* obj1, MimmoObject* obj2);
-
 
 };
 
