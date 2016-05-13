@@ -132,7 +132,7 @@ void test0006() {
 	Bend* bend = new Bend();
 	uint32_t	degree = 2;
 	dvector1D	coeffs(degree+1);
-	coeffs[0] = -0.25;
+	coeffs[0] = -0.0625;
 //	coeffs[1] = -1;
 //	coeffs[2] = 15;
 	coeffs[1] = 0;
@@ -148,9 +148,9 @@ void test0006() {
 
 	//createRBF
 	MRBF* mrbf = new MRBF();
-	mrbf->setGeometry(objectPlane);
-	mrbf->addNode(objectDisk);
-	mrbf->setTol(0.00001);
+	mrbf->setMode(MRBFSol::NONE);
+	mrbf->setGeometry(&mimmoPlane);
+	mrbf->addNode(&mimmoDisk);
 
 	//create applier
 	Apply* applier2 = new Apply();

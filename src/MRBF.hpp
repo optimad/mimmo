@@ -30,12 +30,13 @@
 namespace mimmo{
 	
 /*!
- * Solver enum for your RBF data fields interpolation
+ * @enum MRBFSol
+ * @brief Solver enum for your RBF data fields interpolation/ direct parameterization
  */
 enum class MRBFSol{
-	NONE = 0,
-	WHOLE = 1,
-	GREEDY= 2
+	NONE = 0, 	/**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
+	WHOLE = 1,	/**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/ 
+	GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
 };
 	
 /*!
@@ -43,18 +44,23 @@ enum class MRBFSol{
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
+ *  @class MRBF
  *	\brief Radial Basis Function evaluation from clouds of control points.
  *
  *	This class is derived from BaseManipulation class of MiMMO and from RBF class
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control point given by the user
  *	or stored in a MimmoObject (geometry container). Default solver in execution is
- *	MRBFSol::GREEDY. Use MRBFSol::NONE for direct parametrization.
+ *	MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
+ *  interpolation features.
  *  See bitpit::RBF docs for further information.
  *
- *  \\TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
+ * 
  */
+
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
+//TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
+
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
@@ -77,9 +83,9 @@ public:
 	
 	dvecarr3E*		getNodes();
 
-	MRBFSol			getSolver();
-	void			setSolver(MRBFSol);
-	void			setSolver(int);
+	MRBFSol			getMode();
+	void			setMode(MRBFSol);
+	void			setMode(int);
 	dvector1D		getFilter();
 	
 	int 			addNode(darray3E);
