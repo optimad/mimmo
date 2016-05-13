@@ -74,12 +74,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  * \param[in] geometry Pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
-	m_type 			= type;
-	m_patch 		= geometry;
-	m_internalPatch = false;
-
-	setMapData();
-	if(m_patch->getCellCount() != 0)	setMapCell();
+	setPatch(type,geometry);
 }
 
 /*!Default destructor of MimmoObject.
@@ -594,10 +589,12 @@ bool
 MimmoObject::setPatch(int type, PatchKernel* geometry){
 	if (geometry == NULL ) return false;
 	if (type<1 || type >2 ) return false;
-	m_patch = geometry;
-	m_type = type;
+	m_type 			= type;
+	m_patch 		= geometry;
+	m_internalPatch = false;
+	
 	setMapData();
-	setMapCell();
+	if(m_patch->getCellCount() != 0)	setMapCell();
 	return true;
 };
 

@@ -64,14 +64,12 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_rdir = other.m_rdir;
 	m_wdir = other.m_wdir;
 	m_wformat = other.m_wformat;
-	m_isInternal = other.m_isInternal;
 	m_codex = other.m_codex;
 	
 	if(m_isInternal){
 		m_geometry = other.m_intgeo.get();
-		m_isInternal = false;
 	}	
-	
+	m_isInternal = false;
 	return *this;
 };
 
@@ -238,9 +236,7 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
  */
 void
 MimmoGeometry::setGeometry(MimmoObject * external){
-	if(!isEmpty() && m_isInternal){
-		m_intgeo.reset(nullptr);
-	}
+	m_intgeo.reset(nullptr);
 	m_geometry = external;
 	m_isInternal = false;
 };
@@ -253,9 +249,11 @@ MimmoGeometry::setGeometry(MimmoObject * external){
  */
 void
 MimmoGeometry::setGeometry(int type){
+	int type_ = std::min(std::max(2,type),1);
 	m_geometry = NULL;
 	m_intgeo.reset(nullptr);
-	std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
+	
+	std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
 	m_intgeo = std::move(dum);
 	m_isInternal = true;
 };
@@ -268,9 +266,7 @@ MimmoGeometry::setGeometry(int type){
  */
 bool
 MimmoGeometry::setVertex(dvecarr3E * vertex){
-	
 	if(m_intgeo.get() == NULL) return false;
-	
 	return m_intgeo->setVertex(vertex);
 };
 
@@ -342,9 +338,9 @@ bool MimmoGeometry::isInternal(){
  */
 void
 MimmoGeometry::clear(){
+	setDefaults();
 	m_intgeo.reset(nullptr);
 	BaseManipulation::clear();
-	setDefaults();
 };
 
 /*!It sets the format to export .nas file.
