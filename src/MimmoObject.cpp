@@ -209,8 +209,8 @@ MimmoObject::getConnectivity(long i){
 	int np = cell.getVertexCount();
 	ivector1D connecti(np);
 	
-	for (int i=0; i<np; i++){
-		connecti[i] = vmap[cell.getVertex(i)];
+	for (int j=0; j<np; j++){
+		connecti[j] = vmap[cell.getVertex(j)];
 	}
 	return connecti;
 };
