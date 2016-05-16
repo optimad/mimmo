@@ -37,7 +37,8 @@
 # include "MimmoNamespace.hpp"
 # include "bitpit_patchkernel.hpp"
 
-namespace mimmo::bvtree{
+namespace mimmo{
+namespace bvtree{
 
 /*!
  \ingroup   SortAlgorithms
@@ -201,8 +202,8 @@ void BvTree::initBoundingPoint(BvNode *nod_, bitpit::Cell *C_, int dim)
 	nod_->m_minP = m_patch_->getVertex(C_->getVertex(iV))[dim];
 	nod_->m_maxP = m_patch_->getVertex(C_->getVertex(iV))[dim];
 	for (iV=1; iV<nV; ++iV){
-		nod_->m_minP = min(nod_->m_minP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
-		nod_->m_maxP = max(nod_->m_maxP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
+		nod_->m_minP = bitpit::min(nod_->m_minP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
+		nod_->m_maxP = bitpit::max(nod_->m_maxP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
 	}
 	return;
 }
@@ -211,8 +212,8 @@ void BvTree::updateBoundingPoint(BvNode *nod_, bitpit::Cell *C_, int dim)
 {
 	int iV, nV = C_->getVertexCount();
 	for (iV=0; iV<nV; ++iV){
-		nod_->m_minP = min(nod_->m_minP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
-		nod_->m_maxP = max(nod_->m_maxP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
+		nod_->m_minP = bitpit::min(nod_->m_minP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
+		nod_->m_maxP = bitpit::max(nod_->m_maxP, m_patch_->getVertex(C_->getVertex(iV))[dim]);
 	}
 	return;
 }
@@ -762,8 +763,8 @@ void BvTree::decreaseStack()
 	// ========================================================================== //
 	// INCREASE STACK SIZE                                                        //
 	// ========================================================================== //
-	m_nodes.resize(max(m_MAXSTK, int(m_nodes.size()) - m_MAXSTK));
-	m_elements.resize(max(m_MAXSTK, int(m_elements.size()) - m_MAXSTK));
+	m_nodes.resize(bitpit::max(m_MAXSTK, int(m_nodes.size()) - m_MAXSTK));
+	m_elements.resize(bitpit::max(m_MAXSTK, int(m_elements.size()) - m_MAXSTK));
 	return;
 };
 
@@ -855,4 +856,5 @@ void BvTree::decreaseStack()
  \}
  */
 
+}
 }
