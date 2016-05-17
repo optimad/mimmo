@@ -49,7 +49,9 @@ MimmoObject::MimmoObject(int type){
 }
 
 /*!Custom constructor of MimmoObject. This constructor builds a generic patch from given vertex list and its related
- * local connectivity.
+ * local connectivity. Connectivities supported must be homogeneus w/ a single element type. Element available area
+ * triangles or quads for surface geometries of tetrahedrons or hexahedrons for volume ones. 
+ * Cloud points are always supported (providing null connectivity)
  * \param[in] type Type of linked Patch (1 = surface (default value), 2 = volume).
  * \param[in] vertex Coordinates of vertices of the geometry.
  * \param[in] connectivity Pointer to connectivity structure of the surface/volume mesh.
@@ -66,11 +68,33 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 		dynamic_cast<SurfUnstructured*> (m_patch)->setExpert(true);
 	}
 	
+	bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::UNDEFINED;
+	
 	for(auto & vv : vertex)	addVertex(vv);
 	if (connectivity != NULL){
-		for(auto & cc : *connectivity){
-			addConnectedCell(cc);
+		int sizeConn = *connectivity[0].size();
+		switch(m_type){
+			case 1: 
+				if(sizeConn == 3)	eltype = bitpit::ElementInfo::TRIANGLE;
+				if(sizeConn == 4)	eltype = bitpit::ElementInfo::QUAD;	
+				break;
+			case 2: 
+				if(sizeConn == 4)	eltype = bitpit::ElementInfo::TETRA;
+				if(sizeConn == 8)	eltype = bitpit::ElementInfo::HEXAHEDRON;	
+				break;
+			default: 
+				 // never been reached
+				break;
 		}
+		
+		if(eltype != bitpit::ElementInfo::UNDEFINED){
+			for(auto & cc : *connectivity){
+				addConnectedCell(cc, eltype);
+			}
+		}else{
+			std::cout<<"Not supported connectivity found for MimmoObject"<<std::endl;
+			std::cout<<"Proceeding as Point Cloud geometry"<<std::endl;
+		}	
 	}	
 };
 

@@ -52,7 +52,6 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
  * Assignement operator of MimmoGeometry. Soft copy of MimmoObject
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-	
 	clear();
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
 	m_rtype = other.m_rtype;
@@ -66,7 +65,7 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_wformat = other.m_wformat;
 	m_codex = other.m_codex;
 	
-	if(m_isInternal){
+	if(other.m_isInternal){
 		m_geometry = other.m_intgeo.get();
 	}	
 	m_isInternal = false;
@@ -249,7 +248,7 @@ MimmoGeometry::setGeometry(MimmoObject * external){
  */
 void
 MimmoGeometry::setGeometry(int type){
-	int type_ = std::min(std::max(2,type),1);
+	int type_ = std::max(std::min(2,type),1);
 	m_geometry = NULL;
 	m_intgeo.reset(nullptr);
 	
@@ -259,53 +258,48 @@ MimmoGeometry::setGeometry(int type){
 };
 
 /*!
- * Wrapping to add vertices to your internal MimmoObject structure. If an internal object is not 
- * allocated return error flag false. 
- * \param[in] vertex pointer to a list of vertices
- * \return boolean error flag, true for successfull adding, false otherwise 
+ * Return a pointer to the Vertex structure of the MimmoObject geometry actually pointed or allocated by
+ * the class. If no geometry is actually available return a nullptr
  */
-bool
-MimmoGeometry::setVertex(dvecarr3E * vertex){
-	if(m_intgeo.get() == NULL) return false;
-	return m_intgeo->setVertex(vertex);
+bitpit::PiercedVector<bitpit::Vertex> * MimmoGeometry::getVertices(){
+	if(isEmpty())	return NULL;
+	return	getGeometry()->getVertices();
 };
 
 /*!
- * Wrapping to clear all preexistent vertices and add new vertices to your 
- * internal MimmoObject structure. If an internal object is not 
- * allocated return error flag false. 
- * \param[in] vertex pointer to a list of vertices
- * \return boolean error flag, true for successfull resetting, false otherwise 
+ * Return a pointer to the Cell structure of the MimmoObject geometry actually pointed or allocated by
+ * the class. If no geometry is actually available return a nullptr 
  */
-bool
-MimmoGeometry::resetVertex(dvecarr3E * vertex){
-	if(m_intgeo.get() == NULL) return false;
-	return m_intgeo->resetVertex(vertex);
+bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
+	if(isEmpty())	return NULL;
+	return	getGeometry()->getVertices();
+};
+
+
+/*!
+ * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
+ * structure will be erased and substituted by the new ones. If an internal object is not 
+ * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
+ * doing anything even in case of argument pointing to nullptr; 
+ * \param[in] vertices pointer to a vertex PiercedVector structure 
+ */
+void
+MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
+	if(m_intgeo.get() == NULL || vertices == NULL) return false;
+	m_intgeo->setVertices(*vertices);
 };
 
 /*!
- * Wrapping to add connectivity to your internal MimmoObject structure. If an internal object is not 
- * allocated return error flag false. 
- * \param[in] connectivity pointer to a connectivity list 
- * \return boolean error flag, true for successfull adding, false otherwise 
+ * Wrapping to set cells to your internal MimmoObject structure ONLY. Cells in the internal
+ * structure will be erased and substituted by the new ones. If an internal object is not 
+ * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
+ * doing anything even in case of argument pointing to nullptr; 
+ * \param[in] vertices pointer to a cell PiercedVector structure 
  */
-bool		
-MimmoGeometry::setConnectivity(livector2D * connectivity){
-	if(m_intgeo.get() == NULL) return false;
-	return 	m_intgeo->setConnectivity(connectivity);
-};
-
-/*!
- * Wrapping to clear all preexistent connectivity adn add a new one to your 
- * internal MimmoObject structure. If an internal object is not 
- * allocated return error flag false. 
- * \param[in] connectivity pointer to a connectivity list 
- * \return boolean error flag, true for successfull resetting, false otherwise 
- */
-bool		
-MimmoGeometry::resetConnectivity(livector2D * connectivity){
-	if(m_intgeo.get() == NULL) return false;
-	return 	m_intgeo->resetConnectivity(connectivity);
+void
+MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
+	if(m_intgeo.get() == NULL || cells == NULL) return false;
+	m_intgeo->setCells(*cells);
 };
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
@@ -372,13 +366,8 @@ MimmoGeometry::write(){
 		case FileType::STVTU :
 			//Export Triangulation Surface VTU
 			{
-				dvecarr3E	points = getGeometry()->getVertex();
-				ivector2D	connectivity = getGeometry()->getConnectivity();
-				for (int i=0; i<connectivity.size(); i++){
-					for (int j=0; j<3; j++){
-						connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
-					}
-				}
+				dvecarr3E	points = getGeometry()->getVertexCoords();
+				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
@@ -390,13 +379,8 @@ MimmoGeometry::write(){
 		case FileType::SQVTU :
 		//Export Quadrilateral Surface VTU
 		{
-			dvecarr3E	points = getGeometry()->getVertex();
-			ivector2D	connectivity = getGeometry()->getConnectivity();
-			for (int i=0; i<connectivity.size(); i++){
-				for (int j=0; j<4; j++){
-					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
-				}
-			}
+			dvecarr3E	points = getGeometry()->getVertexCoords();
+			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
@@ -408,13 +392,8 @@ MimmoGeometry::write(){
 		case FileType::VTVTU :
 			//Export Tetra Volume VTU
 			{
-				dvecarr3E	points = getGeometry()->getVertex();
-				ivector2D	connectivity = getGeometry()->getConnectivity();
-				for (int i=0; i<connectivity.size(); i++){
-					for (int j=0; j<4; j++){
-					connectivity[i][j] =getGeometry()->getMapDataInv(connectivity[i][j]);
-					}
-				}
+				dvecarr3E	points = getGeometry()->getVertexCoords();
+				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);		
@@ -426,13 +405,8 @@ MimmoGeometry::write(){
 		case FileType::VHVTU :
 		//Export Hexa Volume VTU
 		{
-			dvecarr3E	points = getGeometry()->getVertex();
-			ivector2D	connectivity = getGeometry()->getConnectivity();
-			for (int i=0; i<connectivity.size(); i++){
-				for (int j=0; j<8; j++){
-					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
-				}
-			}
+			dvecarr3E	points = getGeometry()->getVertexCoords();
+			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
@@ -444,13 +418,8 @@ MimmoGeometry::write(){
 		case FileType::NAS :
 		//Export Nastran file
 		{
-			dvecarr3E	points = getGeometry()->getVertex();
-			ivector2D	connectivity = getGeometry()->getConnectivity();
-			for (int i=0; i<connectivity.size(); i++){
-				for (int j=0; j<3; j++){
-					connectivity[i][j] = getGeometry()->getMapDataInv(connectivity[i][j]);
-				}
-			}
+			dvecarr3E	points = getGeometry()->getVertexCoords();
+			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 			NastranInterface nastran;
 			nastran.setWFormat(m_wformat);
 			shivector1D & pids = getGeometry()->getPid();
@@ -466,7 +435,7 @@ MimmoGeometry::write(){
 		case FileType::OFP : //Export ascii OpenFOAM point cloud
 		{
 
-			dvecarr3E points = getGeometry()->getVertex();
+			dvecarr3E points = getGeometry()->getVertexCoords();
 			writeOFP(m_wdir, m_wfilename, points);
 			return true;
 		}
@@ -477,24 +446,20 @@ MimmoGeometry::write(){
 	
 };
 
-/*!It reads the mesh geometry from an input file.
- * \return False if file doesn't exists.
+/*!It reads the mesh geometry from an input file and reverse it in the internal 
+ * MimmoObject container. If an external container is linked skip reading and doing nothing.
+ * \return False if file doesn't exists or not found geometry container address.
  */
 bool
 MimmoGeometry::read(){
-
+	if(!m_isInternal) return false;
+	
 	switch(m_rtype){
 
 	//Import STL
 	case FileType::STL :
 	{
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
+		setGeometry(1);
 		string name;
 
 		{
@@ -531,45 +496,20 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
-				
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 		
-		//TODO Import with generic element type ?!?!
-
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
 		vtk.read() ;
-
-		getGeometry()->setVertex(Ipoints);
 		
-		// convert Iconnectivity to livector1D
-		livector2D  Iconn;
-		{
-			Iconn.resize(Iconnectivity.size());
-			livector1D::iterator it;
-			int counter=0;
-			for(auto && val : Iconnectivity){
-				Iconn[counter].resize(val.size());
-				it=Iconn[counter].begin();
-				for(auto && element : val){
-					*it = long(element);
-					++it;
-				}
-				++counter;
-			}
-			Iconnectivity.clear();
-		}
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 		
+		setGeometry(1);
 		
-		getGeometry()->setConnectivity(&Iconn);
-		getGeometry()->cleanGeometry();
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+				
+		m_intgeo->cleanGeometry();
 	}
 	break;
 	
@@ -580,45 +520,21 @@ MimmoGeometry::read(){
 		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
-
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
-		
-		
+	
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		getGeometry()->setVertex(Ipoints);
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
 		
-		// convert Iconnectivity to livector1D
-		livector2D  Iconn;
-		{
-			Iconn.resize(Iconnectivity.size());
-			livector1D::iterator it;
-			int counter=0;
-			for(auto && val : Iconnectivity){
-				Iconn[counter].resize(val.size());
-				it=Iconn[counter].begin();
-				for(auto && element : val){
-					*it = long(element);
-					++it;
-				}
-				++counter;
-			}
-			Iconnectivity.clear();
-		}
+		setGeometry(1);
 		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
 		
-		getGeometry()->setConnectivity(&Iconn);
-		getGeometry()->cleanGeometry();
+		m_intgeo->cleanGeometry();
 	}
 	break;
 	
@@ -630,46 +546,20 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(2));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
-		
-		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-
-		//TODO Import with generic element type ?!?!
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		getGeometry()->setVertex(Ipoints);
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
 		
-		// convert Iconnectivity to livector1D
-		livector2D  Iconn;
-		{
-			Iconn.resize(Iconnectivity.size());
-			livector1D::iterator it;
-			int counter=0;
-			for(auto && val : Iconnectivity){
-				Iconn[counter].resize(val.size());
-				it=Iconn[counter].begin();
-				for(auto && element : val){
-					*it = long(element);
-					++it;
-				}
-				++counter;
-			}
-			Iconnectivity.clear();
-		}
+		setGeometry(2);
 		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
 		
-		getGeometry()->setConnectivity(&Iconn);
-		getGeometry()->cleanGeometry();
+		m_intgeo->cleanGeometry();
 	}
 	break;
 	
@@ -681,44 +571,20 @@ MimmoGeometry::read(){
 		bool check = infile.good();
 		if (!check) return false;
 
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(2));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
-		
-		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
 		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON, Ipoints, Iconnectivity );
 		vtk.read() ;
 
-		getGeometry()->setVertex(Ipoints);
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
 		
-		// convert Iconnectivity to livector1D
-		livector2D  Iconn;
-		{
-			Iconn.resize(Iconnectivity.size());
-			livector1D::iterator it;
-			int counter=0;
-			for(auto && val : Iconnectivity){
-				Iconn[counter].resize(val.size());
-				it=Iconn[counter].begin();
-				for(auto && element : val){
-					*it = long(element);
-					++it;
-				}
-				++counter;
-			}
-			Iconnectivity.clear();
-		}
+		setGeometry(2);
 		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
 		
-		getGeometry()->setConnectivity(&Iconn);
-		getGeometry()->cleanGeometry();
+		m_intgeo->cleanGeometry();
 	}
 	break;
 	
@@ -731,15 +597,6 @@ MimmoGeometry::read(){
 		if (!check) return false;
 		infile.close();
 
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
-		
-
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
@@ -749,44 +606,21 @@ MimmoGeometry::read(){
 		shivector1D pids;
 		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, pids );
 
-		getGeometry()->setVertex(Ipoints);
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 		
-		// convert Iconnectivity to livector1D
-		livector2D  Iconn;
-		{
-			Iconn.resize(Iconnectivity.size());
-			livector1D::iterator it;
-			int counter=0;
-			for(auto && val : Iconnectivity){
-				Iconn[counter].resize(val.size());
-				it=Iconn[counter].begin();
-				for(auto && element : val){
-					*it = long(element);
-					++it;
-				}
-				++counter;
-			}
-			Iconnectivity.clear();
-		}
+		setGeometry(1);
 		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
 		
-		getGeometry()->setConnectivity(&Iconn);
-		getGeometry()->setPID(pids);
-		getGeometry()->cleanGeometry();
+		m_intgeo->cleanGeometry();
 	}
+	
 	break;
 	
 	//Import ascii OpenFOAM point cloud
 	case FileType::OFP :
 	{
-		//It uses surface type of mimmo object for the moment
-		if(m_isInternal){
-			std::unique_ptr<MimmoObject> dum(new MimmoObject(1));
-			m_intgeo =std::move(dum);
-			m_isInternal = true;
-		}else{
-			m_geometry->clear();
-		}	
 
 		std::ifstream infile(m_rdir+"/"+m_rfilename);
 		bool check = infile.good();
@@ -796,7 +630,9 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints;
 		readOFP(m_rdir, m_rfilename, Ipoints);
 
-		getGeometry()->setVertex(Ipoints);
+		setGeometry(1);
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		
 	}
 	break;
 	
@@ -836,6 +672,13 @@ MimmoGeometry::execute(){
 //====== OFOAM INTERFACE ========//
 //===============================//
 
+/*!
+ *	Read openFoam format geometry file and absorb it as a point cloud ONLY.
+ *\param[in]	inputDir	folder of file
+ *\param[in]	surfaceName	name of file
+ *\param[out]	points		list of points in the cloud  
+ * 
+ */
 void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
 
 	ifstream is(inputDir +"/"+surfaceName);
@@ -867,7 +710,13 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
 	return;
 
 }
-
+/*!
+ *	Write geometry file in openFoam format as a point cloud ONLY.
+ *\param[in]	inputDir	folder of file
+ *\param[in]	surfaceName	name of file
+ *\param[out]	points		list of points in the cloud  
+ * 
+ */
 void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
 
 	ofstream os(outputDir +"/"+surfaceName);
