@@ -454,19 +454,13 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 	m_patch->resetVertices();
 	
 	long id;
-	int mapsize = 0;
 	darray3E coords;
 	bool checkTot = true, check;
 	for (auto && val : vertices){
 		id = val.getId();
 		coords = val.getCoords();
 		check =  addVertex(coords, id);
-		if(check){
-			m_mapData.push_back(id);
-			m_mapDataInv[id] = mapsize;
-			++mapsize;
-		}
-		checkTot = checkTot || check;
+		checkTot = checkTot && check;
 	}	
 	
 	return checkTot;
@@ -627,11 +621,15 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
  */
 bool
 MimmoObject::setMapData(){
+	
 	if (isEmpty()) return false;
+	
 	long nv = getNVertex();
+	
 	m_mapData.clear();
 	m_mapData.resize(nv);
 	m_mapDataInv.clear();
+	
 	PatchKernel::VertexIterator it;
 	PatchKernel::VertexIterator itend = m_patch->vertexEnd();
 	int i = 0;
@@ -648,12 +646,16 @@ MimmoObject::setMapData(){
  */
 bool
 MimmoObject::setMapCell(){
+	
 	if (isEmpty()) return false;
+	
 	m_mapCell.clear();
 	m_mapCell.resize(getNCells());
 	m_mapCellInv.clear();
+	
 	PatchKernel::CellIterator it;
 	PatchKernel::CellIterator itend = m_patch->cellEnd();
+	
 	int i = 0;
 	for (it = m_patch->cellBegin(); it != itend; ++it){
 		m_mapCell[i] = it->getId();
@@ -716,8 +718,8 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	}
 
 	//copy data 
-	const bitpit::PiercedVector<bitpit::Vertex> pvert = other->getVertices();
-	const bitpit::PiercedVector<bitpit::Cell> pcell = other->getCells();
+	const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
+	const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
 	setVertices(pvert);
 	setCells(pcell);
 	//it's all copied(maps are update in the loops)
@@ -924,7 +926,7 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 	int check = -1;
 	int patchType =getType();
 	
-	switch(type){
+	switch(patchType){
 		case 1:
 			if	(type == bitpit::ElementInfo::TRIANGLE) check = 3;
 			if  (type == bitpit::ElementInfo::QUAD)		check = 4;
