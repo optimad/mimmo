@@ -135,7 +135,8 @@ std::vector<int> MRBF::addNode(dvecarr3E nodes){
  * \return Vector of RBF ids.
  */
 ivector1D MRBF::addNode(MimmoObject* geometry){
-	dvecarr3E vertex = geometry->getVertex();
+	if(geometry == NULL)	return	ivector1D(0);
+	dvecarr3E vertex = geometry->getVertexCoords();
 	return(RBF::addNode(vertex));
 };
 
@@ -163,8 +164,9 @@ void MRBF::setNode(dvecarr3E nodes){
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
  */
 void MRBF::setNode(MimmoObject* geometry){
+	if(geometry == NULL)	return ;
 	removeAllNodes();
-	dvecarr3E vertex = geometry->getVertex();
+	dvecarr3E vertex = geometry->getVertexCoords();
 	RBF::addNode(vertex);
 	return;
 };
@@ -307,7 +309,7 @@ void MRBF::execute(){
 	}
 
 	int nv = container->getNVertex();
-	dvecarr3E vertex = container->getVertex();
+	dvecarr3E vertex = container->getVertexCoords();
 
 	dvecarr3E result(nv, darray3E{0,0,0});
 	dvector1D displ;
