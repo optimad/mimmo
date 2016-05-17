@@ -263,7 +263,7 @@ MimmoGeometry::setGeometry(int type){
  */
 bitpit::PiercedVector<bitpit::Vertex> * MimmoGeometry::getVertices(){
 	if(isEmpty())	return NULL;
-	return	getGeometry()->getVertices();
+	return &(getGeometry()->getVertices());
 };
 
 /*!
@@ -272,7 +272,8 @@ bitpit::PiercedVector<bitpit::Vertex> * MimmoGeometry::getVertices(){
  */
 bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
 	if(isEmpty())	return NULL;
-	return	getGeometry()->getVertices();
+	return	&(getGeometry()->getCells());
+	
 };
 
 
@@ -285,7 +286,7 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
  */
 void
 MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
-	if(m_intgeo.get() == NULL || vertices == NULL) return false;
+	if(m_intgeo.get() == NULL || vertices == NULL) return ;
 	m_intgeo->setVertices(*vertices);
 };
 
@@ -298,7 +299,7 @@ MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
  */
 void
 MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
-	if(m_intgeo.get() == NULL || cells == NULL) return false;
+	if(m_intgeo.get() == NULL || cells == NULL) return;
 	m_intgeo->setCells(*cells);
 };
 
@@ -507,7 +508,16 @@ MimmoGeometry::read(){
 		setGeometry(1);
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
 				
 		m_intgeo->cleanGeometry();
 	}
@@ -532,7 +542,17 @@ MimmoGeometry::read(){
 		setGeometry(1);
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
+		
 		
 		m_intgeo->cleanGeometry();
 	}
@@ -557,7 +577,17 @@ MimmoGeometry::read(){
 		setGeometry(2);
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
+		
 		
 		m_intgeo->cleanGeometry();
 	}
@@ -582,7 +612,16 @@ MimmoGeometry::read(){
 		setGeometry(2);
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
 		
 		m_intgeo->cleanGeometry();
 	}
@@ -611,7 +650,16 @@ MimmoGeometry::read(){
 		setGeometry(1);
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	m_intgeo->addConnectedCell(cc, eltype);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
 		
 		m_intgeo->cleanGeometry();
 	}
