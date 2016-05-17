@@ -98,15 +98,15 @@ public:
 	
 	void		setHARDCopy( const MimmoGeometry * other);		
 	void		setSOFTCopy( const MimmoGeometry * other);
+	
 	void		setGeometry( MimmoObject * external);
-	
 	void		setGeometry(int type=1);
+
+	bitpit::PiercedVector<bitpit::Vertex> * 	getVertices();
+	bitpit::PiercedVector<bitpit::Cell> * 		getCells();
 	
-	//TODO		get methods
-	bool		setVertex(dvecarr3E *);
-	bool		resetVertex(dvecarr3E *);
-	bool		setConnectivity(livector2D *);
-	bool		resetConnectivity(livector2D *);
+	void		setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices);
+	void		setCells(bitpit::PiercedVector<bitpit::Cell> * cells);
 	
 	void		setPID(shivector1D pids);
 	void		setFormatNAS(WFORMAT wform);

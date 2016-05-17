@@ -128,7 +128,7 @@ public:
 	livector1D 	convertLocalToVertexID(ivector1D);
 	ivector1D 	convertVertexIDToLocal(livector1D);
 	livector1D 	convertLocalToCellID(ivector1D);
-	ivector1D 	convertCellIDToLocal(ivector1D);
+	ivector1D 	convertCellIDToLocal(livector1D);
 	
 	livector1D  extractBoundaryVertexID();
 	livector1D	extractPIDCells(short);

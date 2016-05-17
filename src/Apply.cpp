@@ -56,7 +56,7 @@ Apply & Apply::operator=(const Apply & other){
 void
 Apply::execute(){
 	if (getGeometry() == NULL) return;
-	dvecarr3E vertex = getGeometry()->getVertex();
+	dvecarr3E vertex = getGeometry()->getVertexCoords();
 	dvecarr3E* displ = getInput<dvecarr3E>();
 	long nv = getGeometry()->getNVertex();
 	nv = long(std::min(int(nv), int((*displ).size()) ));
