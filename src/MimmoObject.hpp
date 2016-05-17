@@ -43,6 +43,7 @@ namespace mimmo{
  *
  */
 class MimmoObject{
+	
 protected:
 	//members
 	int						m_type;				/**<Type of geometry (0 = generic patch, 1 = surface mesh, 2 = volume mesh). */
@@ -52,12 +53,14 @@ protected:
 	livector1D				m_mapCell;			/**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+	
+	//TODO to be updated w/ new PID feature of PatchKernel
 	shivector1D				m_pids;				/**<pid data associated to each tessellation cell, in local compact indexing */
 	shivector1D				m_pidsType;			/**<pid type available for your geometry */
 	
 public:
 	MimmoObject(int type = 1);
-	MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
+	MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
 	MimmoObject(int type, bitpit::PatchKernel* geometry);
 	~MimmoObject();
 
@@ -69,12 +72,17 @@ public:
 	int					getType();
 	long				getNVertex()const ;
 	long				getNCells()const;
-	dvecarr3E			getVertex();
-	dvecarr3E			getVertex()const ;
-	darray3E			getVertex(long i);
-	ivector1D			getConnectivity(long i);
-	ivector2D			getConnectivity();
-	ivector2D			getConnectivity()const ;
+	
+	dvecarr3E									getVertexCoords();
+	darray3E									getVertexCoords(long i);
+	bitpit::PiercedVector<bitpit::Vertex> &				getVertices();
+	const bitpit::PiercedVector<bitpit::Vertex> &		getVertices() const ;
+	
+	ivector2D									getCompactConnectivity();
+	livector2D									getConnectivity();
+	livector1D									getCellConnectivity(long id);
+	bitpit::PiercedVector<bitpit::Cell> &		getCells();
+	const bitpit::PiercedVector<bitpit::Cell> &		getCells() const;
 	
 	bitpit::PatchKernel*		getPatch();
 	
@@ -91,41 +99,43 @@ public:
 	liimap&			getMapCellInv();
 	int				getMapCellInv(long id);
 	
+	//TODO to be updated w/ new PID feature of PatchKernel
 	shivector1D &	getPidTypeList();
 	shivector1D	&	getPid();
 	
 	const MimmoObject * getCopy();
 	
-	bool		setVertex(dvecarr3E & vertex);
-	bool		setVertex(dvecarr3E * vertex);
-	bool		resetVertex(dvecarr3E & vertex);
-	bool		resetVertex(dvecarr3E * vertex);
-	bool		setVertex(const darray3E & vertex, long idtag = bitpit::Vertex::NULL_ID);
-	bool		modifyVertex(const darray3E & vertex, long id);
+	bool	setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
+	bool	addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
+	bool	modifyVertex(const darray3E & vertex, long id);
 
-	bool		setConnectivity(livector2D * connectivity);
-	bool		resetConnectivity(livector2D * connectivity);
-	bool		setConnectivity(const livector1D & locConn, long idtag = bitpit::Cell::NULL_ID);
+	bool	setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
+	bool	addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
+	
 	bool		setPatch(int type, bitpit::PatchKernel* geometry);
+	
 	bool		setMapData();
 	bool		setMapCell();
 
-	void 		setPID(shivector1D );
+	void 		setPID(shivector1D ); //TODO to be updated w/ new PID feature of PatchKernel
 	void		setSOFTCopy(const MimmoObject * other);
 	void		setHARDCopy(const MimmoObject * other);
 	
 	bool		cleanGeometry();
 
 	livector1D 	getVertexFromCellList(livector1D cellList);
-	ivector1D	convertVertexIDtoLocal(livector1D vertList);
-	livector1D	convertLocaltoVertexID(ivector1D vList);
-	ivector1D	convertCellIDtoLocal(livector1D cellList);
-	livector1D	convertLocaltoCellID(ivector1D cList);
+
+	livector1D 	convertLocalToVertexID(ivector1D);
+	ivector1D 	convertVertexIDToLocal(livector1D);
+	livector1D 	convertLocalToCellID(ivector1D);
+	ivector1D 	convertCellIDToLocal(ivector1D);
 	
 	livector1D  extractBoundaryVertexID();
 	livector1D	extractPIDCells(short);
 	livector1D	extractPIDCells(shivector1D);
-	//TODO implement safe access to m_mapData/Cell members in getMap... methods and convertVertexIDToLocal, convertLocalToVertexID methods.
+	
+private:
+	int checkCellType(bitpit::ElementInfo::Type type);
 };
 
 }
