@@ -183,6 +183,7 @@ public:
 	void 		plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
 	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
 	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
+	void 		plotGridScalar(std::string, std::string , int, bool, dvector1D & data);
 
 	void 		execute();
 	bool		isBuilt();

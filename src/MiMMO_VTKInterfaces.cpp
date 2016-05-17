@@ -395,6 +395,9 @@ bool VTK_DATAMESH::linkMeshData(dvecarr3E * points, ivector2D * conn){
 		case 4:
 			m_elDM = bitpit::VTKElementType::QUAD;
 			break;
+		case 8:
+			m_elDM = bitpit::VTKElementType::HEXAHEDRON;
+			break;
 		default:
 			m_elDM = bitpit::VTKElementType::UNDEFINED;
 			break;

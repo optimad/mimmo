@@ -1283,7 +1283,6 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
  * \param[in] extPoints OPTIONAL. If defined, use the current vertexList and write them as point cloud, provided that coherent dimensions with the mesh are set. 
  *			If Not, write the current mesh vertices. 
  * */
-
 void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counterFile, bool codexFlag, ivector1D & cellList, dvecarr3E * extPoints){
 	
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
@@ -1341,6 +1340,46 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	handle_vtk_output.linkData(activeP,activeConn);
 	handle_vtk_output.write();
 };
+
+/*! Write your grid as a hexahedrical one in a *.vtu file.
+ * \param[in] folder output directory path
+ * \param[in] outfile output namefile w/out tag
+ * \param[in] counterFile integer to mark output with a counter number
+ * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
+ * \param[in] data. Scalar field
+ * */
+void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int counterFile, bool codexFlag, dvector1D & data){
+
+	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
+
+	iarray3E dim = getDimension();
+	int sizePt = dim[0]*dim[1]*dim[2];
+	int sizeCl = (dim[0]-1)*(dim[1]-1)*(dim[2]-1);
+
+	dvecarr3E activeP(sizePt);
+	ivector2D activeConn(sizeCl, ivector1D(8,0));
+
+	for(int i=0; i<sizePt; i++){
+		activeP[i] = getGlobalPoint(i);
+	}
+
+	for(int i=0; i<sizeCl; ++i){
+		activeConn[i] = getCellNeighs(i);
+	}
+
+	VTK_DATAMESH handle_vtk_output(&activeP, &activeConn,folder, outfile, codex);
+
+	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+
+	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+	if (data.size() == sizeCl) loc = bitpit::VTKLocation::CELL;
+
+	std::string namefield = "field";
+	handle_vtk_output.addScalarField(namefield, data, loc );
+	handle_vtk_output.write();
+};
+
 
 /*! Return a pointer to the inner BasicShape object the current mesh is built on 
  * \return BasicShape of the mesh
