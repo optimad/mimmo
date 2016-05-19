@@ -50,18 +50,13 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	*this = other;
 };
 
-/*!Assignement operator of BaseManipulation.
+/*! //TODO NOW
+ * Assignement operator of BaseManipulation.
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_geometry 		= other.m_geometry;
-	m_parent 		= other.m_parent;
-	m_child 		= other.m_child;
 	m_pinType		= other.m_pinType;
-	m_pinIn			= other.m_pinIn;
-	m_pinOut		= other.m_pinOut;
 	m_name 			= other.m_name;
-	m_active 		= other.m_active;
-	//input and result are not copied (unique pointer of template memebers)
 	return (*this);
 };
 

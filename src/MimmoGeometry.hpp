@@ -119,9 +119,9 @@ public:
 
 	void 		execute();
 
-	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
-	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points); //TODO not documented
-
+	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points); 
+	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points); 
+	
 private:
 	void 	setDefaults();
 	

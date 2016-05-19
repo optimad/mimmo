@@ -44,7 +44,7 @@ Chain::Chain(){
  */
 Chain::~Chain(){
 	clear();
-	sm_chaincounter--;
+	sm_chaincounter = 0;
 };
 
 /*!Copy constructor of Chain.

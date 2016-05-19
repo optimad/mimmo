@@ -52,7 +52,7 @@ public:
 
 public:
 	InOut();
-	~InOut();
+	virtual ~InOut();
 
 	InOut(const InOut & other);
 	InOut & operator=(const InOut & other);
@@ -107,7 +107,7 @@ public:
 
 public:
 	InOutT();
-	~InOutT();
+	virtual ~InOutT();
 
 	InOutT(const InOutT & other);
 	InOutT & operator=(const InOutT & other);

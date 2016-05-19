@@ -53,6 +53,9 @@ class IOData;
  *	objects from wich recovering/distributing relevant data (as number of degrees of freedom, initial displacements or other). 
  *  The exchange of such data is realized through Pins (input/output link to same class objects). See mimmo::pin namespace 
  *  for further information about the linking procedure of BaseManipulation objects.
+ *  Please note, when you get a copy by deputed operators/constructors of the class, pins, parental linking as well as custom 
+ *  input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
+ *  only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Pins. 
  *
  */
 class BaseManipulation{

@@ -507,6 +507,12 @@ MimmoGeometry::read(){
 		
 		setGeometry(1);
 		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -540,6 +546,13 @@ MimmoGeometry::read(){
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
 		
 		setGeometry(1);
+		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
@@ -576,6 +589,13 @@ MimmoGeometry::read(){
 		
 		setGeometry(2);
 		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
+		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -610,6 +630,13 @@ MimmoGeometry::read(){
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
 		
 		setGeometry(2);
+		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
@@ -649,6 +676,13 @@ MimmoGeometry::read(){
 		
 		setGeometry(1);
 		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
+		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -679,6 +713,10 @@ MimmoGeometry::read(){
 		readOFP(m_rdir, m_rfilename, Ipoints);
 
 		setGeometry(1);
+
+		int sizeV = Ipoints.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		
 	}

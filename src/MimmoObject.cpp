@@ -69,10 +69,17 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	}
 	
 	bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::UNDEFINED;
+	int sizeVert, sizeCell;
+	
+	sizeVert = vertex.size();
+	m_patch->reserveVertices(sizeVert);
 	
 	for(auto & vv : vertex)	addVertex(vv);
+	
 	if (connectivity != NULL){
 		int sizeConn = (*connectivity)[0].size();
+		sizeCell = connectivity->size();
+		
 		switch(m_type){
 			case 1: 
 				if(sizeConn == 3)	eltype = bitpit::ElementInfo::TRIANGLE;
@@ -88,6 +95,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 		}
 		
 		if(eltype != bitpit::ElementInfo::UNDEFINED){
+			
+			m_patch->reserveCells(sizeCell);
+			
 			for(auto & cc : *connectivity){
 				
 				livector1D temp(cc.size());
@@ -453,6 +463,9 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 	m_mapDataInv.clear();
 	m_patch->resetVertices();
 	
+	int sizeVert = vertices.size();
+	m_patch->reserveVertices(sizeVert);
+	
 	long id;
 	darray3E coords;
 	bool checkTot = true, check;
@@ -521,30 +534,21 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	m_mapCellInv.clear();
 	getPatch()->resetCells();
 	
+	int sizeCell = cells.size();
+	getPatch()->reserveCells(sizeCell);
+	
 	long idc;
 	int nVert;
-	const long * conn;
 	ElementInfo::Type eltype;
-	bitpit::PatchKernel::CellIterator it;
 
-	for (auto & cell : cells){
+	for (const auto & cell : cells){
 		
 		// get ID
 		idc = cell.getId();
-		//get element type
-		eltype = cell.getType();
-		nVert = checkCellType(eltype);
-		//get connectivity
-		if(nVert > 0){
-			std::unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[nVert]);
-			conn = cell.getConnect();
-			for (int j=0; j<nVert; j++)		connecti[j] = conn[j];
-			// pass info to my local cell
-			it = m_patch->addCell(eltype, true);
-			it->setConnect(move(connecti));
-			it->setType(eltype);
-			it->setId(idc);
-		}	
+		//check on element type
+		nVert = checkCellType(cell.getType());
+		//pass info to my local cell
+		if(nVert > 0)	m_patch->addCell(cell, idc);
 	}
 	//create inverse map of cells
 	setMapCell();
@@ -574,20 +578,14 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 	livector1D conn_dum = conn;
 	conn_dum.resize(sizeElement, 0);
 	
-	std::unique_ptr<long[]> connecti = std::unique_ptr<long[]>(new long[sizeElement]);
-	for (int j=0; j<sizeElement; ++j)	connecti[j] = conn_dum[j];
-	
 	long checkedID;
 	if(idtag == bitpit::Cell::NULL_ID){
-		it = m_patch->addCell(type, true);
+		it = m_patch->addCell(type, true, conn_dum);
 		checkedID = it->getId();
 	}else{
-		it = m_patch->addCell(type, true,idtag);
+		it = m_patch->addCell(type, true,conn_dum, idtag);
 		checkedID = idtag;
 	}
-	
-	it->setConnect(move(connecti));
-	it->setType(type);
 	
 	//create inverse map of cells
 	m_mapCell.push_back(checkedID);
@@ -845,15 +843,18 @@ livector1D MimmoObject::convertLocalToCellID(ivector1D cList){
  * \return list of vertex IDs.
  */
 livector1D 	MimmoObject::extractBoundaryVertexID(){
-	if(isEmpty())	return livector1D(0);
 	
-	std::set<long> container;
-	std::set<long>::iterator it;
-	std::set<long>::iterator itEnd = container.end();
+	if(isEmpty())	return livector1D(0);
+	getPatch()->buildAdjacencies();
+	
+	std::unordered_set<long> container;
+	std::unordered_set<long>::iterator it;
+	std::unordered_set<long>::iterator itEnd;
 	
 	for (const auto & cell : m_patch->getCells()){
 		const long * conn = cell.getConnect();
 		int size = cell.getFaceCount();
+
 		for(int face=0; face<size; ++face){
 			
 			if(cell.isFaceBorder(face)){
@@ -866,6 +867,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 		conn=NULL;
 	}
 	
+	itEnd = container.end();
 	livector1D result(container.size());
 	int counter = 0;
 	for(it = container.begin(); it !=itEnd; ++it){

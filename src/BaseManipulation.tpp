@@ -363,6 +363,7 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, std::function<void(T*)>
 template<typename T>
 void
 BaseManipulation::setInput(T* data){
+	clearInput();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
 	m_input = std::move(dummy);
 }
@@ -373,6 +374,7 @@ BaseManipulation::setInput(T* data){
 template<typename T>
 void
 BaseManipulation::setInput(T& data){
+	clearInput();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_input = std::move(dummy);
 }
@@ -396,6 +398,7 @@ BaseManipulation::getInput(){
 template<typename T>
 void
 BaseManipulation::setResult(T* data){
+	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
 	m_result = std::move(dummy);
 }
@@ -406,6 +409,7 @@ BaseManipulation::setResult(T* data){
 template<typename T>
 void
 BaseManipulation::setResult(T& data){
+	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_result = std::move(dummy);
 }
