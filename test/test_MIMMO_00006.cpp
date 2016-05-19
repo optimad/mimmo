@@ -149,8 +149,8 @@ void test0006() {
 	//createRBF
 	MRBF* mrbf = new MRBF();
 	mrbf->setMode(MRBFSol::NONE);
-	mrbf->setGeometry(&mimmoPlane);
-	mrbf->addNode(&mimmoDisk);
+	mrbf->setGeometry(objectPlane);
+	mrbf->addNode(objectDisk);
 
 	//create applier
 	Apply* applier2 = new Apply();
