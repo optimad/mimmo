@@ -77,6 +77,7 @@ public:
 	void 		returnKnotsStructure( int, dvector1D &, ivector1D &);
 	dvecarr3E* 	getDisplacements();
 	dvector1D   getFilter();
+	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	bool 		isDisplGlobal();
 	iarray3E	getDegrees();
 

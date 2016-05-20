@@ -170,6 +170,7 @@ iarray3E		FFDLattice::getDegrees(){
  * \return Displacements of control points.
  */
 dvecarr3E*	FFDLattice::getDisplacements(){
+	if(m_displ.empty())	return NULL;
 	return(&m_displ);
 };
 
@@ -178,6 +179,19 @@ dvecarr3E*	FFDLattice::getDisplacements(){
  */
 dvector1D	FFDLattice::getFilter(){
 	return(m_filter);
+};
+
+/*!
+ * Return actual computed deformation field (if any) for the geometry linked.
+ * If no field is actually present, return null pointers;
+ * @return 	std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ */
+std::pair<MimmoObject * , dvecarr3E * >	FFDLattice::getDeformedField(){
+	
+	std::pair<MimmoObject *, dvecarr3E * > pairField;
+	pairField.first = getGeometry();
+	pairField.second = getDisplacements();
+	return pairField;
 };
 
 

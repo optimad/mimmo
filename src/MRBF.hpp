@@ -88,6 +88,8 @@ public:
 	void			setMode(int);
 	dvector1D		getFilter();
 	
+	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
+	
 	int 			addNode(darray3E);
 	ivector1D		addNode(dvecarr3E);
 	ivector1D	 	addNode(MimmoObject* geometry);

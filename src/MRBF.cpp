@@ -121,6 +121,19 @@ dvector1D	MRBF::getFilter(){
 	return(m_filter);
 };
 
+/*!
+ * Return actual computed deformation field (if any) for the geometry linked.
+ * If no field is actually present, return null pointers;
+ * @return 	std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ */
+std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
+
+	std::pair<MimmoObject *, dvecarr3E * > pairField;
+	pairField.first = getGeometry();
+	pairField.second = getResult<dvecarr3E>();
+	return pairField;
+};
+
 
 /*!Adds a RBF point to the total control node list and activate it.
  * Reimplemented from RBF::addNode of bitpit;
