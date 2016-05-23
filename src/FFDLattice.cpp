@@ -190,7 +190,7 @@ std::pair<MimmoObject * , dvecarr3E * >	FFDLattice::getDeformedField(){
 	
 	std::pair<MimmoObject *, dvecarr3E * > pairField;
 	pairField.first = getGeometry();
-	pairField.second = getDisplacements();
+	pairField.second = getResult<dvecarr3E>();
 	return pairField;
 };
 
