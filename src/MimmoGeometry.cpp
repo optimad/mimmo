@@ -24,6 +24,7 @@
 
 #include "MimmoGeometry.hpp"
 #include "customOperators.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace bitpit;
@@ -256,6 +257,9 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
  */
 void
 MimmoGeometry::setGeometry(MimmoObject * external){
+	
+	if(getGeometry() == external) return;
+	
 	m_intgeo.reset(nullptr);
 	m_geometry = external;
 	m_isInternal = false;
@@ -379,7 +383,7 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
 bool
 MimmoGeometry::write(){
 	if (isEmpty()) return false;
-
+	
 	switch(m_wtype){
 		
 		case FileType::STL :
