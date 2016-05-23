@@ -251,7 +251,6 @@ MimmoGeometry::setGeometry(int type){
 	int type_ = std::max(std::min(2,type),1);
 	m_geometry = NULL;
 	m_intgeo.reset(nullptr);
-	
 	std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
 	m_intgeo = std::move(dum);
 	m_isInternal = true;
@@ -275,7 +274,6 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
 	return	&(getGeometry()->getCells());
 	
 };
-
 
 /*!
  * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
@@ -311,6 +309,14 @@ MimmoGeometry::setPID(shivector1D pids){
 	getGeometry()->setPID(pids);
 };
 
+/*!It sets if the BvTree of the patch has to be built during execution.
+ * \param[in] build If true the BvTree is built in execution and stored in
+ * the related MimmoObject member.
+ */
+void
+MimmoGeometry::setBuildTree(bool build){
+	m_buildTree = build;
+}
 
 /*!
  * Check if geometry is not linked or not locally instantiated in your class.
@@ -743,7 +749,6 @@ MimmoGeometry::execute(){
 		std::cout << " " << std::endl;
 		exit(10);
 	}
-	
 	check = true;
 	if (m_write) check = write();
 	if (!check){
@@ -751,6 +756,8 @@ MimmoGeometry::execute(){
 		std::cout << " " << std::endl;
 		exit(11);
 	}
+	if (m_buildTree) m_geometry->buildBvTree();
+	return;
 }
 
 

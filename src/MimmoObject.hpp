@@ -25,6 +25,7 @@
 #define __MIMMOOBJECT_HPP__
 
 #include "bitpit.hpp"
+#include "BvTree.hpp"
 #include "MiMMO_TypeDef.hpp"
 
 namespace mimmo{
@@ -57,6 +58,9 @@ protected:
 	//TODO to be updated w/ new PID feature of PatchKernel
 	shivector1D				m_pids;				/**<pid data associated to each tessellation cell, in local compact indexing */
 	shivector1D				m_pidsType;			/**<pid type available for your geometry */
+
+	BvTree					m_bvTree;
+	bool					m_bvTreeBuilt;
 	
 public:
 	MimmoObject(int type = 1);
@@ -103,6 +107,9 @@ public:
 	shivector1D &	getPidTypeList();
 	shivector1D	&	getPid();
 	
+	bool			isBvTreeBuilt();
+	BvTree*			getBvTree();
+
 	const MimmoObject * getCopy();
 	
 	bool	setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
@@ -134,6 +141,10 @@ public:
 	livector1D	extractPIDCells(short);
 	livector1D	extractPIDCells(shivector1D);
 	
+	void		buildBvTree();
+
+
+
 private:
 	int checkCellType(bitpit::ElementInfo::Type type);
 };

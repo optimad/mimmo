@@ -73,6 +73,8 @@ private:
 	bool		m_codex;					/**< Set codex format for writing true binary, false ascii */
 	WFORMAT		m_wformat;					/**<Format for .nas import/export. (Short/Long).*/
 
+	bool		m_buildTree;				/**<If true the BvTree of the geometry is built in execution. */
+
 public:
 	MimmoGeometry();
 	virtual ~MimmoGeometry();
@@ -111,6 +113,8 @@ public:
 	void		setPID(shivector1D pids);
 	void		setFormatNAS(WFORMAT wform);
 	
+	void		setBuildTree(bool build);
+
 	bool 		isEmpty();
 	bool		isInternal();
 	void 		clear();

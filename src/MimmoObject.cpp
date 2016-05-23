@@ -46,6 +46,8 @@ MimmoObject::MimmoObject(int type){
 		dynamic_cast<SurfUnstructured*>(m_patch)->setExpert(true);
 	}
 	m_internalPatch = true;
+	m_bvTree.setPatch(m_patch);
+	m_bvTreeBuilt = false;
 }
 
 /*!Custom constructor of MimmoObject. This constructor builds a generic patch from given vertex list and its related
@@ -114,7 +116,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 			std::cout<<"Not supported connectivity found for MimmoObject"<<std::endl;
 			std::cout<<"Proceeding as Point Cloud geometry"<<std::endl;
 		}	
-	}	
+	}
+	m_bvTree.setPatch(m_patch);
+	m_bvTreeBuilt = false;
 };
 
 /*!Custom constructor of MimmoObject.
@@ -155,6 +159,8 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_mapCellInv	= other.m_mapCellInv;
 	m_pids			= other.m_pids;
 	m_pidsType		= other.m_pidsType;
+	m_bvTree		= other.m_bvTree;
+	m_bvTreeBuilt	= other.m_bvTreeBuilt;
 	return *this;
 };
 
@@ -442,6 +448,17 @@ MimmoObject::getPid() {
 	return m_pids;
 };
 
+bool
+MimmoObject::isBvTreeBuilt(){
+	return m_bvTreeBuilt;
+}
+
+BvTree*
+MimmoObject::getBvTree(){
+	return &m_bvTree;
+}
+
+
 /*!
  * Return the pointer to the actual class, as constant one. 
  */
@@ -475,6 +492,8 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 		check =  addVertex(coords, id);
 		checkTot = checkTot && check;
 	}	
+
+	m_bvTreeBuilt = false;
 	
 	return checkTot;
 };
@@ -504,6 +523,7 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 	
 	m_mapData.push_back(checkedID);
 	m_mapDataInv[checkedID] = m_mapData.size()-1;
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -519,6 +539,7 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 	if(!(getVertices().exists(id)))	return false;
 	bitpit::Vertex &vert = m_patch->getVertex(id);
 	vert.setCoords(vertex);
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -552,6 +573,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	}
 	//create inverse map of cells
 	setMapCell();
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -590,6 +612,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 	//create inverse map of cells
 	m_mapCell.push_back(checkedID);
 	m_mapCellInv[checkedID] = m_mapCell.size()-1;
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -610,6 +633,8 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
 	
 	setMapData();
 	if(m_patch->getCellCount() != 0)	setMapCell();
+	m_bvTree.setPatch(m_patch);
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -721,6 +746,9 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	setVertices(pvert);
 	setCells(pcell);
 	//it's all copied(maps are update in the loops)
+	m_bvTree.setPatch(m_patch);
+	m_bvTreeBuilt = false;
+
 };
 
 //TODO enrich cleaning of geometry with other useful utilities as double cells removal,
@@ -734,6 +762,7 @@ MimmoObject::cleanGeometry(){
 	m_patch->deleteCoincidentVertices();
 	setMapData();
 	setMapCell();
+	m_bvTreeBuilt = false;
 	return true;
 };
 
@@ -942,3 +971,14 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 	}
 	return check;
 };
+
+
+void MimmoObject::buildBvTree(){
+	if (m_bvTreeBuilt == false){
+		m_bvTree.clean();
+		m_bvTree.setup();
+		m_bvTree.buildTree();
+		m_bvTreeBuilt = true;
+	}
+	return;
+}
