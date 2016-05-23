@@ -64,6 +64,7 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_wdir = other.m_wdir;
 	m_wformat = other.m_wformat;
 	m_codex = other.m_codex;
+	m_buildTree = other.m_buildTree;
 	
 	if(other.m_isInternal){
 		m_geometry = other.m_intgeo.get();
@@ -94,6 +95,25 @@ MimmoObject * MimmoGeometry::getGeometry(){
 const MimmoObject * MimmoGeometry::getGeometry() const{
 	if(m_isInternal)	return m_intgeo.get();
 	else				return m_geometry;
+}
+
+/*!
+ * Set proper member of the class to defaults
+ */
+void
+MimmoGeometry::setDefaults(){
+	m_rtype		= STL;
+	m_read		= false;
+	m_rfilename	= "mimmoGeometry";
+	m_wtype		= STL;
+	m_write		= false;
+	m_wfilename	= "mimmoGeometry";
+	m_rdir		= "./";
+	m_wdir		= "./";
+	m_wformat	= Short;
+	m_isInternal  = true;
+	m_codex = true;
+	m_buildTree = false;
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -227,6 +247,7 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 	m_wdir = other->m_wdir;
 	m_wformat = other->m_wformat;
 	m_codex = other->m_codex;
+	m_buildTree = other->m_buildTree;
 }
 
 /*!
@@ -756,7 +777,7 @@ MimmoGeometry::execute(){
 		std::cout << " " << std::endl;
 		exit(11);
 	}
-	if (m_buildTree) m_geometry->buildBvTree();
+	if (m_buildTree) getGeometry()->buildBvTree();
 	return;
 }
 
@@ -872,24 +893,6 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
 	os.close();
 	return;
 
-}
-
-/*!
- * Set proper member of the class to defaults
- */
-void
-MimmoGeometry::setDefaults(){
-	m_rtype		= STL;
-	m_read		= false;
-	m_rfilename	= "mimmoGeometry";
-	m_wtype		= STL;
-	m_write		= false;
-	m_wfilename	= "mimmoGeometry";
-	m_rdir		= "./";
-	m_wdir		= "./";
-	m_wformat	= Short;
-	m_isInternal  = true;
-	m_codex = true;
 }
 
 
