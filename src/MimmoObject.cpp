@@ -450,7 +450,8 @@ MimmoObject::getPid() {
 
 bool
 MimmoObject::isBvTreeBuilt(){
-	return m_bvTreeBuilt;
+	if (!m_bvTreeBuilt) return(false);
+	return (m_bvTree.m_nelements == getNCells());
 }
 
 BvTree*

@@ -31,7 +31,6 @@ Mask::Mask(){
 	m_name = "MiMMO.Mask";
 	m_thres.fill({{0,0}});
 	m_inside = {{true, true, true}};
-
 };
 
 /*!Default destructor of Mask
@@ -71,6 +70,22 @@ Mask::setCoords(dvecarr3E coords){
 void
 Mask::setThresholds(dmatrix32E thres){
 	m_thres = thres;
+};
+
+/*!It sets the lower limits of the three coordinates to apply the masking.
+ * \param[in] thres Minimum limits of coordinates to apply the masking.
+ */
+void
+Mask::setMinThresholds(darray3E thres){
+	for (int dir = 0; dir < 3; ++dir) m_thres[dir][0] = thres[dir];
+};
+
+/*!It sets the greater limits of the three coordinates to apply the masking.
+ * \param[in] thres Maximum limits of coordinates to apply the masking.
+ */
+void
+Mask::setMaxThresholds(darray3E thres){
+	for (int dir = 0; dir < 3; ++dir) m_thres[dir][1] = thres[dir];
 };
 
 /*!It sets the limits of one coordinate to apply the masking.
@@ -114,6 +129,17 @@ void
 Mask::setInside(bool inside){
 	for (int i=0; i<3; i++){
 		m_inside[i] = inside;
+	}
+};
+
+/*!It sets the condition to apply the masking
+ * (true/false to set to zero the displacements inside/outside the thresholds).
+ * \param[in] inside Condition to apply the mask for the three components.
+ */
+void
+Mask::setInside(std::array<bool,3> inside){
+	for (int i=0; i<3; i++){
+		m_inside[i] = inside[i];
 	}
 };
 

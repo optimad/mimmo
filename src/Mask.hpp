@@ -59,10 +59,14 @@ public:
 	void	setCoords(dvecarr3E coords);
 	void	setThresholds(dmatrix32E thres);
 	void	setThresholds(darray2E thres, int dir);
+	void	setMinThresholds(darray3E thres);
+	void	setMaxThresholds(darray3E thres);
 	void	setThresholdx(darray2E thres);
 	void	setThresholdy(darray2E thres);
 	void	setThresholdz(darray2E thres);
 	void	setInside(bool inside);
+	void	setInside(std::array<bool,3> inside);
+
 	void	setInside(int i, bool inside);
 
 	void 	execute();
