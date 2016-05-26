@@ -82,6 +82,17 @@ GenericInput::setFilename(std::string filename){
 	m_filename = filename;
 };
 
+
+void
+GenericInput::setPins(){
+	m_pinOut.resize(1);
+	PinOutT<dvecarr3E>* port0 = new PinOutT<dvecarr3E>(getResult<dvecarr3E>());
+	m_pinOut[0] = port0;
+
+	m_isPinSet 	= true;
+}
+
+
 /*!Execution command. It does nothing, the real execution of the object
  * happens in setInput/getResult.
  */

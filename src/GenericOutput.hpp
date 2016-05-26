@@ -43,8 +43,11 @@ namespace mimmo{
 class GenericOutput: public BaseManipulation{
 private:
 	//members
-	std::string	m_filename;		/**<Name of the output file.
-								The file will be an ascii text file.*/
+	std::string				m_filename;		/**<Name of the output file.
+											The file will be an ascii text file.*/
+
+	std::unique_ptr<IOData>	m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+	std::unique_ptr<IOData>	m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
 public:
 	GenericOutput(std::string filename = "output.txt");
@@ -53,13 +56,25 @@ public:
 	GenericOutput(const GenericOutput & other);
 	GenericOutput & operator=(const GenericOutput & other);
 
-	void setFilename(std::string filename);
+
+	template<typename T>
+	T*					getInput();
+
+	template<typename T>
+	T* 					getResult();
 
 	template<typename T>
 	void 	setInput(T* data);
 
 	template<typename T>
 	void 	setInput(T& data);
+
+	template<typename T>
+	void 				setResult(T* data);
+	template<typename T>
+	void 				setResult(T& data);
+
+	void setFilename(std::string filename);
 
 	void 	execute();
 

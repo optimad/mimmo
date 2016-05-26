@@ -48,5 +48,37 @@ mimmo::GenericInput::getResult(){
 }
 
 
+// OLD BASEMANIPULATION CLASS TEMPLATED INPUT/RESULT METHODS	//
 
+
+/*!It gets the input member of the object.
+ * \return Pointer to data stored in the input member.
+ */
+template<typename T>
+T*
+mimmo::GenericInput::getInput(){
+	return(static_cast<IODataT<T>*>(m_input.get())->getData());
+}
+
+/*!It sets the result member of the object.
+ * \param[in] data Pointer to data to be stored in the result member.
+ */
+template<typename T>
+void
+mimmo::GenericInput::setResult(T* data){
+	clearResult();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+	m_result = std::move(dummy);
+}
+
+/*!It sets the result member of the object.
+ * \param[in] data Data to be stored in the result member.
+ */
+template<typename T>
+void
+mimmo::GenericInput::setResult(T& data){
+	clearResult();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+	m_result = std::move(dummy);
+}
 

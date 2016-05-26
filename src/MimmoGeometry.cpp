@@ -75,6 +75,12 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	return *this;
 };
 
+void
+MimmoGeometry::setPins(){
+	//temporary
+	m_isPinSet = true;
+}
+
 /*!
  * Return a const pointer to your current class.
  */

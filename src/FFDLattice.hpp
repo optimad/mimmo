@@ -51,6 +51,7 @@ protected:
 	dvector1D	m_weights;		/**< Weights of each control node*/
 	dvecarr3E	m_displ;		/**< Displacements of control nodes.*/
 	ivector2D 	m_mapNodes;		/**< Internal map to access node index w/ knots structure theoretical indexing */
+	dvecarr3E	m_gdispl;		/**< Displacements of geometry vertex.*/
 private:
 	iarray3E	m_mapdeg;		/**< Map of curves degrees. Increasing order of curves degrees. */
 	bool		m_globalDispl; 	/**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
@@ -66,6 +67,8 @@ public:
 	FFDLattice(const FFDLattice & other);
 	FFDLattice & operator=(const FFDLattice & other);
 	
+	void setPins();
+
 	//clean structure
 	void 		clearLattice();
 	void 		clearFilter();

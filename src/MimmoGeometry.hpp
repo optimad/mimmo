@@ -83,6 +83,8 @@ public:
 	MimmoGeometry(const MimmoGeometry & other);
 	MimmoGeometry & operator=(const MimmoGeometry & other);
 
+	void setPins();
+
 	const MimmoGeometry *	getCopy();
 	MimmoObject * 	getGeometry();
 	const MimmoObject * 	getGeometry()const ;

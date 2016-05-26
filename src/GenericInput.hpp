@@ -50,6 +50,9 @@ private:
 	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
 	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
 	
+	std::unique_ptr<IOData>				m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+	std::unique_ptr<IOData>				m_result;		/**<Pointer to a base class object Result (derived class is template).*/
+
 public:
 	GenericInput(bool readFromFile = false);
 	GenericInput(std::string filename);
@@ -67,6 +70,14 @@ public:
 	GenericInput(const GenericInput & other);
 	GenericInput & operator=(const GenericInput & other);
 
+	void setPins();
+
+	template<typename T>
+	T*					getInput();
+
+	template<typename T>
+	T* 					getResult();
+
 	void setReadFromFile(bool readFromFile);
 	void setFilename(std::string filename);
 
@@ -74,6 +85,13 @@ public:
 	void 				setInput(T* data);
 	template<typename T>
 	void 				setInput(T& data);
+
+
+	template<typename T>
+	void 				setResult(T* data);
+	template<typename T>
+	void 				setResult(T& data);
+
 
 	template<typename T>
 	T*					getResult();

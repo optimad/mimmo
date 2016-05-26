@@ -36,6 +36,7 @@ BaseManipulation::BaseManipulation(){
 	m_pinType		= PinsType::BOTH;
 	m_name			= "MiMMO";
 	m_active		= true;
+	m_isPinSet 		= false;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -57,8 +58,14 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_geometry 		= other.m_geometry;
 	m_pinType		= other.m_pinType;
 	m_name 			= other.m_name;
+	m_isPinSet 		= false;
 	return (*this);
 };
+
+bool
+BaseManipulation::isPinSet(){
+	return(m_isPinSet);
+}
 
 /*!It gets the name of the manipulator object.
  * \return Name of the manipulator object.
@@ -213,39 +220,47 @@ BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
 
-/*!It removes all the pins of the object and the related pins of the linked objects.
- */
+///*!It removes all the pins of the object and the related pins of the linked objects.
+// */
+//void
+//BaseManipulation::removePins(){
+//	removePinsIn();
+//	removePinsOut();
+//}
+//
+///*!It removes all the input pins of the object and the related
+// * output pins of the linked objects.
+// */
+//void
+//BaseManipulation::removePinsIn(){
+//	unordered_map<BaseManipulation*, int>::iterator it;
+//	//Warning!! If infinite while unset parent wrong
+//	while(m_parent.size()){
+//		it = m_parent.begin();
+//		mimmo::pin::removeAllPins(it->first, this);
+//	}
+//}
+//
+///*!It removes all the output pins of the object and the related
+// * input pins of the linked objects.
+// */
+//void
+//BaseManipulation::removePinsOut(){
+//	unordered_map<BaseManipulation*, int>::iterator it;
+//	//Warning!! If infinite while unset parent wrong
+//	while(m_child.size()){
+//		it = m_child.begin();
+//		mimmo::pin::removeAllPins(this, it->first);
+//	}
+//}
+//
+
 void
-BaseManipulation::removePins(){
-	removePinsIn();
-	removePinsOut();
+BaseManipulation::readBuffer(int port){
+	m_pinIn[port]->readBuffer();
 }
 
-/*!It removes all the input pins of the object and the related
- * output pins of the linked objects.
- */
-void
-BaseManipulation::removePinsIn(){
-	unordered_map<BaseManipulation*, int>::iterator it;
-	//Warning!! If infinite while unset parent wrong
-	while(m_parent.size()){
-		it = m_parent.begin();
-		mimmo::pin::removeAllPins(it->first, this);
-	}
-}
 
-/*!It removes all the output pins of the object and the related
- * input pins of the linked objects.
- */
-void
-BaseManipulation::removePinsOut(){
-	unordered_map<BaseManipulation*, int>::iterator it;
-	//Warning!! If infinite while unset parent wrong
-	while(m_child.size()){
-		it = m_child.begin();
-		mimmo::pin::removeAllPins(this, it->first);
-	}
-}
 
 /*!It clear the input member of the object
  */
@@ -266,7 +281,7 @@ BaseManipulation::clearResult(){
 void
 BaseManipulation::clear(){
 	unsetGeometry();
-	removePins();
+//	removePins();
 	clearInput();
 	clearResult();
 };
@@ -279,7 +294,8 @@ void
 BaseManipulation::exec(){
 	if (m_active) execute();
 	for (int i=0; i<m_pinOut.size(); i++){
-		if (m_pinOut[i]->getLink() != NULL && m_pinOut[i]->getLink()->isActive()){
+		std::vector<BaseManipulation*>	linked = m_pinOut[i]->getLink();
+		if (linked.size() > 0){
 			m_pinOut[i]->exec();
 		}
 	}
@@ -343,7 +359,7 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 /*!It gets all the input pins of the object
  * \return Vector of pointer to input pins.
  */
-vector<InOut*>
+vector<PinIn*>
 BaseManipulation::getPinsIn(){
 	return (m_pinIn);
 }
@@ -351,7 +367,7 @@ BaseManipulation::getPinsIn(){
 /*!It gets all the output pins of the object
  * \return Vector of pointer to output pins.
  */
-std::vector<InOut*>
+std::vector<PinOut*>
 BaseManipulation::getPinsOut(){
 	return (m_pinOut);
 }
@@ -361,7 +377,7 @@ BaseManipulation::getPinsOut(){
  * \return Index of target pin in the input pins structure. Return -1 if pin not found.
  */
 int
-BaseManipulation::findPinIn(InOut& pin){
+BaseManipulation::findPinIn(PinIn& pin){
 	for (int i=0; i<m_pinIn.size(); i++){
 		if (pin == *(m_pinIn[i])) return(i);
 	}
@@ -373,10 +389,11 @@ BaseManipulation::findPinIn(InOut& pin){
  * \return Index of target pin in the output pins structure. Return -1 if pin not found.
  */
 int
-BaseManipulation::findPinOut(InOut& pin){
+BaseManipulation::findPinOut(PinOut& pin){
 	for (int i=0; i<m_pinOut.size(); i++){
 		if (pin == *(m_pinOut[i])) return(i);
 	}
+
 	return(-1);
 }
 
@@ -400,7 +417,25 @@ BaseManipulation::removePinOut(int i){
 	if (i<m_pinOut.size() && i != -1){
 		delete m_pinOut[i];
 		m_pinOut[i] = NULL;
-		m_pinOut.erase(m_pinOut.begin()+i);
 	}
 }
+
+
+
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, int portR){
+	if (objIn != NULL && portR < m_pinIn.size()){
+		m_pinIn[portR]->m_objLink = objIn;
+	}
+};
+
+
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, int portS, int portR){
+	if (objOut != NULL && portS < m_pinOut.size()){
+		m_pinOut[portS]->m_objLink.push_back(objOut);
+		m_pinOut[portS]->m_portLink.push_back(portR);
+	}
+};
+
 

@@ -4,249 +4,103 @@
 
 #include <iostream>
 
-/*!Default constructor of InOutT
+/*!Default constructor of PinOutT
  */
 template<typename T>
-mimmo::InOutT<T>::InOutT(){
-	m_getVal 	= NULL;
-	m_getValR 	= NULL;
-	m_getValP 	= NULL;
-	m_setVal 	= NULL;
-	m_setValP 	= NULL;
+mimmo::PinOutT<T>::PinOutT(){
+	m_var_ = NULL;
+};
+
+template<typename T>
+mimmo::PinOutT<T>::PinOutT(T *var_){
+	m_var_ = var_;
 };
 
 
-/*!Default destructor of InOutT
+/*!Default destructor of PinOutT
  */
 template<typename T>
-mimmo::InOutT<T>::~InOutT(){
-	m_getVal 	= NULL;
-	m_getValR 	= NULL;
-	m_getValP 	= NULL;
-	m_setVal 	= NULL;
-	m_setValP 	= NULL;
+mimmo::PinOutT<T>::~PinOutT(){
+	m_var_ = NULL;
 };
 
-/*!Copy constructor of InOutT.
+/*!Copy constructor of PinOutT.
  */
 template<typename T>
-mimmo::InOutT<T>::InOutT(const InOutT<T> & other){
+mimmo::PinOutT<T>::PinOutT(const PinOutT<T> & other){
 	*this = other;
 };
 
-/*!Assignement operator of InOutT.
+/*!Assignement operator of PinOutT.
  */
 template<typename T>
-mimmo::InOutT<T> & mimmo::InOutT<T>::operator=(const InOutT<T> & other){
-	//inherited members
-	this->m_objLink 	= other.m_objLink;
-	//its own members
-	this->m_getVal 	= other.m_getVal;
-	this->m_getValR 	= other.m_getValR;
-	this->m_getValP 	= other.m_getValP;
-	this->m_setVal 	= other.m_setVal;
-	this->m_setValP 	= other.m_setValP;
+mimmo::PinOutT<T> & mimmo::PinOutT<T>::operator=(const PinOutT<T> & other){
+	m_var_ = other.m_var_;
 	return (*this);
 };
 
-/*!Compare operator of InOutT.
+/*!Compare operator of PinOutT.
  */
 template<typename T>
-bool mimmo::InOutT<T>::operator==(const InOutT<T> & other){
+bool mimmo::PinOutT<T>::operator==(const PinOutT<T> & other){
 	bool equal = true;
-	equal &= (m_objLink == other.m_objLink);
-	equal &= (m_getVal == other.m_getVal);
-	equal &= (m_getValR == other.m_getValR);
-	equal &= (m_getValP == other.m_getValP);
-	equal &= (m_setVal == other.m_setVal);
-	equal &= (m_setValP == other.m_setValP);
+	equal &= (m_var_ == other.m_var_);
 	return (equal);
 };
 
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (copy return).
- * \param[in] setVal Bound set function of the pin owner object (copy argument).
- */
 template<typename T>
 void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal){
-	m_objLink 	= objIn;
-	m_getVal	= getVal;
-	m_setVal	= setVal;
+mimmo::PinOutT<T>::writeBuffer(){
+	m_obuffer << (*m_var_);
+}
+
+/*!Default constructor of PinInT
+ */
+template<typename T>
+mimmo::PinInT<T>::PinInT(){
+	m_var_ = NULL;
 };
 
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setVal Bound set function of the child object (copy argument).
- * \param[in] getVal Bound get function of the pin owner object (copy return).
- */
 template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal){
-	m_objLink	= objOut;
-	m_getVal	= getVal;
-	m_setVal	= setVal;
+mimmo::PinInT<T>::PinInT(T *var_){
+	m_var_ = var_;
 };
 
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getValR Bound get function of the parent object (reference return).
- * \param[in] setVal Bound set function of the pin owner object (copy argument).
+
+/*!Default destructor of PinInT
  */
 template<typename T>
-void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal){
-	m_objLink 	= objIn;
-	m_getValR	= getValR;
-	m_setVal	= setVal;
+mimmo::PinInT<T>::~PinInT(){
+	m_var_ = NULL;
 };
 
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setVal Bound set function of the child object (copy argument).
- * \param[in] getValR Bound get function of the pin owner object (reference return).
+/*!Copy constructor of PinInT.
  */
 template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR){
-	m_objLink	= objOut;
-	m_getValR	= getValR;
-	m_setVal	= setVal;
+mimmo::PinInT<T>::PinInT(const PinInT<T> & other){
+	*this = other;
 };
 
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getValP Bound get function of the parent object (pointer return).
- * \param[in] setVal Bound set function of the pin owner object (copy argument).
+/*!Assignement operator of PinInT.
  */
 template<typename T>
-void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal){
-	m_objLink 	= objIn;
-	m_getValP	= getValP;
-	m_setVal	= setVal;
+mimmo::PinInT<T> & mimmo::PinInT<T>::operator=(const PinInT<T> & other){
+	m_var_ = other.m_var_;
+	return (*this);
 };
 
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setVal Bound get function of the pin owner object (copy argument).
- * \param[in] getValP Bound set function of the child object (pointer return).
+/*!Compare operator of PinInT.
  */
 template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP){
-	m_objLink	= objOut;
-	m_getValP	= getValP;
-	m_setVal	= setVal;
+bool mimmo::PinInT<T>::operator==(const PinInT<T> & other){
+	bool equal = true;
+	equal &= (m_var_ == other.m_var_);
+	return (equal);
 };
 
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getVal Bound get function of the parent object (copy return).
- * \param[in] setValP Bound set function of the pin owner object (pointer argument).
- */
 template<typename T>
 void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP){
-	m_objLink 	= objIn;
-	m_getVal	= getVal;
-	m_setValP	= setValP;
-};
+mimmo::PinInT<T>::readBuffer(){
+	m_ibuffer >> (*m_var_);
+}
 
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setValP Bound set function of the child object (pointer argument).
- * \param[in] getVal Bound get function of the pin owner object (copy return).
- */
-template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal){
-	m_objLink	= objOut;
-	m_getVal	= getVal;
-	m_setValP	= setValP;
-};
-
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getValR Bound get function of the parent object (reference return).
- * \param[in] setValP Bound set function of the pin owner object (pointer argument).
- */
-template<typename T>
-void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP){
-	m_objLink 	= objIn;
-	m_getValR	= getValR;
-	m_setValP	= setValP;
-};
-
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setValP Bound set function of the child object (pointer argument).
- * \param[in] getValR Bound get function of the pin owner object (reference return).
- */
-template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR){
-	m_objLink	= objOut;
-	m_getValR	= getValR;
-	m_setValP	= setValP;
-};
-
-/*!It sets an input pin for the owner of this pin.
- * \param[in] objIn Pointer to BaseManipulation parent object to be linked.
- * \param[in] getValP Bound get function of the parent object (pointer return).
- * \param[in] setValP Bound set function of the pin owner object (pointer argument).
- */
-template<typename T>
-void
-mimmo::InOutT<T>::setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP){
-	m_objLink 	= objIn;
-	m_getValP	= getValP;
-	m_setValP	= setValP;
-};
-
-/*!It sets an output pin for the owner of this pin.
- * \param[in] objOut Pointer to BaseManipulation child object to be linked.
- * \param[in] setValP Bound set function of the child object (pointer argument).
- * \param[in] getValP Bound get function of the pin owner object (pointer return).
- */
-template<typename T>
-void
-mimmo::InOutT<T>::setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP){
-	m_objLink	= objOut;
-	m_getValP	= getValP;
-	m_setValP	= setValP;
-};
-
-/*! Execution of the pin.
- * During the execution the get/set function of the parent/child objects are called.
- * All the pins of an object are called in execute of the owner after its own execution.
- *
- */
-template<typename T>
-void
-mimmo::InOutT<T>::exec(){
-	if (m_getVal != NULL){
-		T val = m_getVal();
-		if (m_setVal != NULL){
-			m_setVal(val);
-		}else if (m_setValP != NULL){
-			m_setValP(&val);
-		}
-	}else if (m_getValR != NULL){
-		T& val = m_getValR();
-		if (m_setVal != NULL){
-			m_setVal(val);
-		}else if (m_setValP != NULL){
-			m_setValP(&val);
-		}
-	}else if (m_getValP != NULL){
-		T* val = m_getValP();
-		if (m_setVal != NULL){
-			m_setVal(*val);
-		}else if (m_setValP != NULL){
-			m_setValP(val);
-		}
-	}
-};

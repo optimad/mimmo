@@ -24,18 +24,20 @@
 #ifndef __MIMMONAMESPACE_HPP__
 #define __MIMMONAMESPACE_HPP__
 
-#include <functional>
-#include <map>
-
-#include "MimmoObject.hpp"
-
 namespace mimmo{
+
+class BaseManipulation;
 
 namespace pin{
 
 enum PinsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidirectional,
 												only input or only output.*/
 
+bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+
+//bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+
+/*
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 bool addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL));
 
@@ -93,11 +95,12 @@ void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL
 template<typename OO, typename G, typename OI, typename S, typename VAL>
 void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*));
 
+*/
+
 };
 
 };//end namespace mimmo
 
-#include "MimmoNamespace.tpp"
-
+//#include "MimmoNamespace.tpp"
 
 #endif

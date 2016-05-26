@@ -29,6 +29,7 @@ using namespace mimmo;
  */
 Apply::Apply():BaseManipulation(){
 	m_name = "MiMMO.Apply";
+	setPins();
 };
 
 /*!Default destructor of Apply
@@ -46,6 +47,18 @@ Apply::Apply(const Apply & other){
 Apply & Apply::operator=(const Apply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	return(*this);
+};
+
+
+void
+Apply::setPins(){
+
+	m_pinIn.resize(1);
+	PinInT<dvecarr3E>* portIn0 = new PinInT<dvecarr3E>(&m_input);
+	m_pinIn[0] = portIn0;
+
+	m_isPinSet 	= true;
+
 };
 
 /*!
@@ -66,7 +79,8 @@ void
 Apply::execute(){
 	if (getGeometry() == NULL) return;
 	dvecarr3E vertex = getGeometry()->getVertexCoords();
-	dvecarr3E* displ = getInput<dvecarr3E>();
+//	dvecarr3E* displ = getInput<dvecarr3E>();
+	dvecarr3E* displ = &m_input;
 	long nv = getGeometry()->getNVertex();
 	nv = long(std::min(int(nv), int((*displ).size()) ));
 	livector1D & idmap = getGeometry()->getMapData();

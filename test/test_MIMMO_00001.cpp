@@ -98,10 +98,12 @@ void test0001() {
 	Apply* applier = new Apply();
 	applier->setGeometry(object);
 
-
 	//Create PINS
-	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
-	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	addPin(input, lattice, 0, 0);
+	addPin(lattice, applier, 0, 0);
+
+//	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
+//	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
 
 	//Create chain
 	Chain ch0;

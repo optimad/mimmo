@@ -60,7 +60,9 @@ class IOData;
  */
 class BaseManipulation{
 
-	//friendship declaration of mimmo::pin methods
+	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+
+/*	//friendship declaration of mimmo::pin methods
 	template<typename OO, typename G, typename OI, typename S, typename VAL>
 	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
 	
@@ -98,7 +100,7 @@ class BaseManipulation{
 	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
 	
 	template<typename OO, typename OI>
-	friend void mimmo::pin::removeAllPins(OO* objSend, OI* objRec);
+	friend void mimmo::pin::removeAllPins(OO* objSend, OI* objRec); */
 	
 public:
 	//type definitions
@@ -106,19 +108,18 @@ public:
 	typedef mimmo::pin::PinsType 						PinsType;	/**<Pin type specification.*/
 
 protected:
-	std::string					m_name;			/**<Name of the manipulation object.*/
-	MimmoObject*				m_geometry;		/**<Pointer to manipulated geometry. */
-	bmumap						m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+	std::string							m_name;			/**<Name of the manipulation object.*/
+	MimmoObject*						m_geometry;		/**<Pointer to manipulated geometry. */
+	bmumap								m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
 													pointer a counter. When this counter is 0, pointer is released*/
-	bmumap						m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
-													pointer a counter. When this counter is 0, pointer is released*/
-	PinsType					m_pinType;		/**<Type of pins of the object: BOTH (bidirectional),
-												BACKWARD (only input) or FORWARD (only output).*/
-	std::vector<InOut*>			m_pinIn;		/**<Input pins vector. */
-	std::vector<InOut*>			m_pinOut;		/**<Output pins vector. */
-	std::unique_ptr<IOData>		m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
-	std::unique_ptr<IOData>		m_result;		/**<Pointer to a base class object Result (derived class is template).*/
-	bool						m_active;		/**<True/false to activate/disable the object.*/
+	bmumap								m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
+														pointer a counter. When this counter is 0, pointer is released*/
+	PinsType							m_pinType;		/**<Type of pins of the object: BOTH (bidirectional),
+														BACKWARD (only input) or FORWARD (only output).*/
+	std::vector<PinIn*>					m_pinIn;		/**<Input pins vector. */
+	std::vector<PinOut*>				m_pinOut;		/**<Output pins vector. */
+	bool								m_isPinSet;
+	bool								m_active;		/**<True/false to activate/disable the object.*/
 
 public:
 	BaseManipulation();
@@ -126,6 +127,9 @@ public:
 
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
+
+	virtual void 	setPins() = 0;
+	bool			isPinSet();
 
 	//get methods
 	std::string			getName();
@@ -139,23 +143,15 @@ public:
 	PinsType 			getPinType();
 	int 				getNPinsIn();
 	int 				getNPinsOut();
+	std::vector<PinIn*> getPinsIn();
+	std::vector<PinOut*>getPinsOut();
+
 	bool				isActive();
 
-
-	template<typename T>	
-	T*					getInput();
-
-	template<typename T>
-	T* 					getResult();
-	
 	//set methods
 	void				setName(std::string name);
 	void 				setGeometry(MimmoObject* geometry);
 	
-	template<typename T>
-	void 				setInput(T* data);
-	template<typename T>
-	void 				setInput(T& data);
 
 	void				activate();
 	void				disable();
@@ -163,10 +159,12 @@ public:
 	//cleaning/unset
 	void 	unsetGeometry();
 
-	void 	removePins();
-	void 	removePinsIn();
-	void 	removePinsOut();
+//	void 	removePins();
+//	void 	removePinsIn();
+//	void 	removePinsOut();
 	
+	void	readBuffer(int port);
+
 	void	clearInput();
 	void	clearResult();
 	void	clear();
@@ -176,26 +174,22 @@ public:
 	
 protected:
 
-	template<typename T>
-	void 				setResult(T* data);
-	template<typename T>
-	void 				setResult(T& data);
-
 	void		addParent(BaseManipulation* parent);
 	void		addChild(BaseManipulation* child);
 	void 		unsetParent(BaseManipulation * parent);
 	void 		unsetChild(BaseManipulation * child);
 	
-	std::vector<InOut*> getPinsIn();
-	std::vector<InOut*> getPinsOut();
+	int			findPinIn(PinIn& pin);
+	int			findPinOut(PinOut& pin);
 
-	int			findPinIn(InOut& pin);
-	int			findPinOut(InOut& pin);
+	void	addPinIn(BaseManipulation* objIn, int portR);
+	void	addPinOut(BaseManipulation* objOut, int portS, int portR);
 
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
+
+	/*	template<typename T>
+		void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
+		template<typename T>
+		void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
 	template<typename T>
 	void				addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
 	template<typename T>
@@ -243,7 +237,9 @@ protected:
 	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
 	template<typename T>
 	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
+	*/
 	
+
 	void 	removePinIn(int i);
 	void 	removePinOut(int i);
 
@@ -374,8 +370,6 @@ public:
 	}
 
 };
-
-#include "BaseManipulation.tpp"
 
 }
 

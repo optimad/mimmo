@@ -25,6 +25,7 @@
 #define __INOUT_HPP__
 
 #include "MiMMO_TypeDef.hpp"
+#include "binary_stream.hpp"
 #include <functional>
 
 namespace mimmo{
@@ -36,7 +37,7 @@ class BaseManipulation;
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief InOut is the input-output PIN base class.
+ *	\brief PinOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -44,28 +45,34 @@ class BaseManipulation;
  *	this value as input. Therefore a pin can be OR input OR output pin for an object.
  *
  */
-class InOut{
+class PinOut{
 public:
 	//members
-	BaseManipulation*	m_objLink;	/**<Input/Output object from/to which
+	bitpit::OBinaryStream				m_obuffer;
+	std::vector<BaseManipulation*>		m_objLink;	/**<Input/Output object from/to which
 										recover/give the target variable. */
+	std::vector<int>					m_portLink;
+
 
 public:
-	InOut();
-	virtual ~InOut();
+	PinOut();
+	virtual ~PinOut();
 
-	InOut(const InOut & other);
-	InOut & operator=(const InOut & other);
-	bool operator==(const InOut & other);
+	PinOut(const PinOut & other);
+	PinOut & operator=(const PinOut & other);
+	bool operator==(const PinOut & other);
 
-	BaseManipulation*	getLink();
+	std::vector<BaseManipulation*>	getLink();
+	std::vector<int>				getPortLink();
+
+	virtual void	writeBuffer() = 0;
 
 	/*!Execution method.
-	 * Pure virtual method, it has to be implemented in derived classes.
 	 */
-	virtual void exec() = 0;
+	void exec();
 
 };
+
 
 //==============================================================//
 // TEMPLATE DERIVED INOUT CLASS									//
@@ -76,7 +83,7 @@ public:
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief InOutT is the input-output templated PIN class derived from base InOut pin class.
+ *	\brief PinOutT is the input-output templated PIN class derived from base PinOut pin class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -96,38 +103,109 @@ public:
  *
  */
 template<typename T>
-class InOutT: public InOut {
+class PinOutT: public PinOut {
 
 public:
-	std::function<T(void)>	m_getVal;	/**<Pointer to get function with copy return.*/
-	std::function<T&(void)>	m_getValR;	/**<Pointer to get function with reference return.*/
-	std::function<T*(void)>	m_getValP;	/**<Pointer to get function with pointer return.*/
-	std::function<void(T)>	m_setVal;	/**<Pointer to set function with copy argument.*/
-	std::function<void(T*)>	m_setValP;	/**<Pointer to set function with pointer argument.*/
+
+	T		*m_var_;
 
 public:
-	InOutT();
-	virtual ~InOutT();
+	PinOutT();
+	PinOutT(T *var_);
+	virtual ~PinOutT();
 
-	InOutT(const InOutT & other);
-	InOutT & operator=(const InOutT & other);
-	bool operator==(const InOutT & other);
+	PinOutT(const PinOutT & other);
+	PinOutT & operator=(const PinOutT & other);
+	bool operator==(const PinOutT & other);
 
-	void setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
-	void setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
-	void setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T)> setVal);
-	void setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getValR);
-	void setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T)> setVal);
-	void setOutput(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getValP);
+	void writeBuffer();
+	void readBuffer();
 
-	void setInput(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setValP);
-	void setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T(void)> getVal);
-	void setInput(BaseManipulation* objIn, std::function<T&(void)> getValR, std::function<void(T*)> setValP);
-	void setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T&(void)> getValR);
-	void setInput(BaseManipulation* objIn, std::function<T*(void)> getValP, std::function<void(T*)> setValP);
-	void setOutput(BaseManipulation* objOut, std::function<void(T*)> setValP, std::function<T*(void)> getValP);
+};
 
-	void exec();
+
+
+/*!
+ *	\date			14/mar/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief PinOut is the input-output PIN base class.
+ *
+ *	A pin is an object member of BaseManipulation object.
+ *	Through a pin two base manipulation objects are linked together. One of these two
+ *	objects is the parent object that gives an output to the other one that takes
+ *	this value as input. Therefore a pin can be OR input OR output pin for an object.
+ *
+ */
+class PinIn{
+public:
+	//members
+	bitpit::IBinaryStream				m_ibuffer;
+	BaseManipulation*					m_objLink;	/**<Input/Output object from/to which
+										recover/give the target variable. */
+
+public:
+	PinIn();
+	virtual ~PinIn();
+
+	PinIn(const PinIn & other);
+	PinIn & operator=(const PinIn & other);
+	bool operator==(const PinIn & other);
+
+	BaseManipulation*	getLink();
+
+	virtual void	readBuffer() = 0;
+
+};
+
+
+//==============================================================//
+// TEMPLATE DERIVED INOUT CLASS									//
+//==============================================================//
+
+/*!
+ *	\date			14/mar/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief PinInT is the input-output templated PIN class derived from base PinIn pin class.
+ *
+ *	A pin is an object member of BaseManipulation object.
+ *	Through a pin two base manipulation objects are linked together. One of these two
+ *	objects is the parent object that gives an output to the other one that takes
+ *	this value as input. Therefore a pin can be OR input OR output pin for an object.
+ *
+ *	The parent object gives the output value by a function set by the user
+ *	during the creation of the pin (getVal functions), while the child object
+ *	use this value by a set function (setVal function).
+ *	The functions are given to the pin by get/set function objects with any
+ *	type of value (the same for the two functions of the linked object) by using
+ *	the template formulation. The functions have to be function objects of the standard library
+ *	(functional include) created by the bind method.
+ *	The input/output value can be returned by copy, reference or pointer by the get function
+ *	of the parent and it can be passed by copy or pointer to the set value of the child object.
+ *	The output pins of an object are executed after its own execution.
+ *
+ */
+template<typename T>
+class PinInT: public PinIn {
+
+public:
+
+	T		*m_var_;
+
+public:
+	PinInT();
+	PinInT(T *var_);
+	virtual ~PinInT();
+
+	PinInT(const PinInT & other);
+	PinInT & operator=(const PinInT & other);
+	bool operator==(const PinInT & other);
+
+	void writeBuffer();
+	void readBuffer();
 
 };
 

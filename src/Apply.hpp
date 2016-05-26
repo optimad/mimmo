@@ -44,13 +44,18 @@ namespace mimmo{
 class Apply: public BaseManipulation{
 public:
 
+	dvecarr3E	m_input;
+
 	Apply();
 	~Apply();
 
 	Apply(const Apply & other);
 	Apply & operator=(const Apply & other);
 
+	void setPins();
+
 	void 	setRefreshGeometryTrees(bool force);
+
 	void 	execute();
 
 };
