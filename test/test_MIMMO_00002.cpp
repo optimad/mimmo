@@ -51,7 +51,7 @@ void test0002() {
 	
 	mimmo0->execute();
 	MimmoObject * object = mimmo0->getGeometry();
-
+	object->getBvTree()->setMaxLeafSize(1);
 
 	//********************************************************************************************
 	// 	//CREATING LOCAL DISPLACEMENTS LATTICE
@@ -194,6 +194,8 @@ void test0002() {
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
+	
+	cout<<object->getBvTree()->m_nnodes<<endl;
 	//********************************************************************************************
 	//PLOT RESULTS
 

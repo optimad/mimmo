@@ -520,16 +520,15 @@ dvecarr3E 	FFDLattice::apply(livector1D & list){
 	MimmoObject * container = getGeometry();
 	if(container == NULL || !isBuilt()) return dvecarr3E(0);
 
-	bitpit::PatchKernel * tri = container->getPatch();
 	list.clear();
 
 	//check simplex included and extract their vertex in global IDs;
-	list= container->getVertexFromCellList(getShape()->includeGeometry(tri));
+	list= container->getVertexFromCellList(getShape()->includeGeometry(container));
 	//return deformation
 	dvecarr3E result = nurbsEvaluator(list);
 	if(m_bfilter){
 		
-		m_filter.resize(tri->getVertexCount(),0.0);
+		m_filter.resize(container->getNVertex(),0.0);
 		
 		dvecarr3E::iterator itL= result.begin();
 		liimap & vMap = container->getMapDataInv();

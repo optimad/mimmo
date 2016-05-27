@@ -23,9 +23,11 @@
  \ *---------------------------------------------------------------------------*/
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
+#include <chrono>
 
 using namespace bitpit;
 using namespace mimmo;
+using namespace std::chrono;
 
 /*
  *	\date			03/01/2015
@@ -226,26 +228,85 @@ darray3E BasicShape::getLocalSpan(){
 	return(m_span);
 }
 
+/*! Given a geometry by MimmoObject class, return cell identifiers of those simplex inside the volume of
+ * the BasicShape object
+ * \param[in] tri target tessellation
+ * \return list-by-ids of simplicies included in the volumetric patch
+ */
+livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
+	if(geo == NULL)	return livector1D(0);
+
+	livector1D result; 
+	//create BvTree and fill it w/ cell list
+	cout << "creating BvTree" << endl;
+	steady_clock::time_point t1 = steady_clock::now();
+	
+	std::cout<<"Tree is built?  "<<geo->isBvTreeBuilt()<<std::endl;
+	
+	if(!(geo->isBvTreeBuilt()))	
+	{
+		geo->buildBvTree();
+	}	
+	steady_clock::time_point t2 = steady_clock::now();
+	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+	std::cout << "BvTree done in " << time_span.count() << " seconds."<<std::endl;
+	//get recursively all the list element in the shape
+	
+	steady_clock::time_point t3 = steady_clock::now();
+	
+	std::set<long> elements;
+	searchBvTreeMatches(*(geo->getBvTree()), 0, elements);
+	
+	time_span = duration_cast<duration<double>>(t3 - t2);
+	std::cout << "BvTree search done in " << time_span.count() << " seconds."<<std::endl;
+	
+	result.insert(result.end(), elements.begin(), elements.end());
+	return(result);
+};
+
+/*! Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
+ * the BasicShape object 
+ * \param[in] tri target tesselation
+ * \return list-by-ids of simplicies outside the volumetric patch
+ */
+livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
+	
+	if(geo == NULL)	return livector1D(0);
+	livector1D interiors, result;
+	interiors = includeGeometry(geo);
+	result = geo->getCells().getIds();
+	
+	std::set<long> map;
+	map.insert(result.begin(), result.end());
+	result.clear();
+	
+	for(auto && val: interiors)	map.erase(val);
+	
+	result.insert(result.end(), map.begin(), map.end());
+	return result;
+};
+
+
+
 /*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex inside the volume of
  * the BasicShape object
  * \param[in] tri target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
  */
 livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
-  
-  int nCells = tri->getCellCount();	
-  livector1D result(nCells); 
-  int counter=0;
-  
-  for(auto &cell : tri->getCells()){
-   
-    if(isSimplexIncluded(tri, cell.getId())){
-      result[counter] = cell.getId();
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
+	if(tri == NULL)	return livector1D(0);
+	livector1D result; 
+	//create BvTree and fill it w/ cell list
+	mimmo::BvTree tree(tri);
+	tree.buildTree();
+	
+	//get recursively all the list element in the shape
+	std::set<long> elements;
+	searchBvTreeMatches(tree, 0, elements);
+	
+	result.insert(result.end(), elements.begin(), elements.end());
+	return(result);
+ 
 };
 
 /*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex outside the volume of
@@ -254,42 +315,45 @@ livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
  * \return list-by-ids of simplicies outside the volumetric patch
  */
 livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
-  
-	int nCells = tri->getCellCount();	
-	livector1D result(nCells); 
-	int counter=0;
 	
-	for(auto &cell : tri->getCells()){
-		
-		if(!isSimplexIncluded(tri, cell.getId())){
-			result[counter] = cell.getId();
-			++counter;
-		}
-	}
-	result.resize(counter);
-	return(result);
+	if(tri == NULL)	return livector1D(0);
+	livector1D interiors, result;
+	interiors = includeGeometry(tri);
+	result = tri->getCells().getIds();
+	
+	std::set<long> map;
+	map.insert(result.begin(), result.end());
+	result.clear();
+	
+	for(auto && val: interiors)	map.erase(val);
+	
+	result.insert(result.end(), map.begin(), map.end());
+	return result;
+	
 };
 
 /*! Given a list of vertices of a point cloud, return indices of those vertices included into 
- * the volume of BaseSelPatch object 
+ * the volume of the object 
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
+	if(list.empty())	return livector1D(0);
+	livector1D result; 
+	//create kdTree and fill it w/ vertex list
+	bitpit::KdTree<3,darray3E,long> tree;
+	long counter=0;
+	for(auto & val : list){
+		tree.insert(&val,counter);
+		++counter;
+	}
 
-  int size = list.size();
-  livector1D result(size); 
-  int counter=0;
-  
-  for(int i=0; i<size; ++i){
-   
-    if(isPointIncluded(list[i])){
-      result[counter] = i;
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
+	//get recursively all the list element in the shape
+	std::set<long> elements;
+	searchKdTreeMatches(tree, 0, 0, elements);
+	
+	result.insert(result.end(), elements.begin(), elements.end());
+	return(result);
 };
 
 /*! Given a list of vertices of a point cloud, return indices of those vertices outside 
@@ -298,20 +362,17 @@ livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
  * \return list-by-indices of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
+  if(list.empty())	return livector1D(0);
+  livector1D interiors, result;
+  interiors = includeCloudPoints(list);
   
-  int size = list.size();
-  livector1D result(size); 
-  int counter=0;
+  std::set<long> map;
+  long size = list.size();
+  for (long i=0; i<size; ++i)	map.insert(i);
+  for(auto && val: interiors)	map.erase(val);
   
-  for(int i=0; i<size; ++i){
-   
-    if(!isPointIncluded(list[i])){
-      result[counter] = i;
-      ++counter;
-    }
-  }
-  result.resize(counter);
-  return(result);
+  result.insert(result.end(), map.begin(), map.end());
+  return result;
   
 };
 
@@ -321,19 +382,26 @@ livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
  * \return list-by-indices of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
-	
-	int nVert = tri->getVertexCount();	
-	livector1D result(nVert); 
+	if(tri == NULL)		return livector1D(0);
+	livector1D result; 
+	//create kdTree and fill it w/ vertex list
+	bitpit::KdTree<3,darray3E,long> tree;
 	int counter=0;
+	long label;
+	dvecarr3E vert(tri->getVertexCount());
 	
-	for(auto &vertex : tri->getVertices()){
-		
-		if(isPointIncluded(tri, vertex.getId())){
-			result[counter] = vertex.getId();
-			++counter;
-		}
+	for(auto & val : tri->getVertices()){
+		vert[counter] = val.getCoords();
+		label = val.getId();
+		tree.insert(&vert[counter], label);
+		++counter;
 	}
-	result.resize(counter);
+	
+	//get recursively all the list element in the shape
+	std::set<long> elements;
+	searchKdTreeMatches(tree, 0, 0, elements);
+	
+	result.insert(result.end(), elements.begin(), elements.end());
 	return(result);
 };
 
@@ -343,20 +411,19 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
  * \return list-by-indices of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
+
+	if(tri == NULL)		return livector1D(0);
 	
-	int nVert = tri->getVertexCount();	
-	livector1D result(nVert); 
-	int counter=0;
+	livector1D interiors, result;
+	interiors = includeCloudPoints(tri);
 	
-	for(auto &vertex : tri->getVertices()){
-		
-		if(!isPointIncluded(tri, vertex.getId())){
-			result[counter] = vertex.getId();
-			++counter;
-		}
-	}
-	result.resize(counter);
-	return(result);	
+	std::set<long> map;
+	long size = tri->getVertexCount();
+	for (long i=0; i<size; ++i)	map.insert(i);
+	for(auto && val: interiors)	map.erase(val);
+	
+	result.insert(result.end(), map.begin(), map.end());
+	return result;
 };
 
 /*! Return True if all vertices of a given simplex are included in the volume of the shape
@@ -366,8 +433,8 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   
   bool check = true;
-  for(int i=0; i<simplexVert.size(); ++i){
-   check = check && isPointIncluded(simplexVert[i]); 
+  for(auto && val : simplexVert){
+   check = check && isPointIncluded(val); 
   }
   return(check);
 };
@@ -379,13 +446,12 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
  */ 
 bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
 
-  Cell cell = tri->getCell(indexT);
-  long * conn = cell.getConnect();
+  Cell & cell = tri->getCell(indexT);
   int nVertices = cell.getVertexCount();
   bool check = true;
   for(int i=0; i<nVertices; ++i){ 
 	//recover vertex index
-	check = check && isPointIncluded(tri, conn[i]); 
+	check = check && isPointIncluded(tri, cell.getVertex(i)); 
   }
   return(check);
 };
@@ -420,6 +486,150 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 	return(isPointIncluded(coords));  
 };
 
+/*!
+ * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB	
+ * \return true if intersects, false otherwise
+ */
+bool BasicShape::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+	return isPointIncluded(checkNearestPointToAABBox(m_origin, bMin, bMax));
+};
+
+/*!
+ * Check if current shape totally contains the given Axis Aligned Bounding Box
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB	
+ * \return true if completely contains AABB, false otherwise
+ */
+bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
+	bool check = true;
+	dvecarr3E vect(8);
+	
+	vect[0] = bMin;
+	vect[1] = bMin; vect[1][0] = bMax[0];
+	vect[2] = bMax; vect[2][2] = bMin[2];
+	vect[3] = bMin; vect[3][1] = bMax[1];
+	vect[4] = vect[0]; vect[4][2] = bMax[2];
+	vect[5] = vect[1]; vect[5][2] = bMax[2];
+	vect[6] = vect[2]; vect[6][2] = bMax[2];
+	vect[7] = vect[3]; vect[7][2] = bMax[2];
+	
+	int counter = 0;
+	while (check && counter<8)   {
+		check = check && isPointIncluded(vect[counter]);
+		++counter;
+	}	
+	
+	return check;
+};
+
+
+/*!
+ * Return the nearest point belonging to an Axis Aligned Bounding Box, given a target vertex.
+ * If the target is internal to or on surface of the AABB, return the target itself.
+ * \param[in]	point	target vertex
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB
+ * \return		the nearest point of AABB wrt to target vertex
+ */
+darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax){
+	
+	darray3E result;
+	int counter=0;
+	for (auto && val: point){
+		result[counter] = std::fmin(bMax[counter], std::fmax(val,bMin[counter]));
+		++counter;
+	}
+	return result;
+};
+
+/*!
+ * Visit recursively KdTree relative to a cloud points and extract possible vertex candidates included in the current shape.
+ * Identifiers of extracted matches are collected in result structure
+ *\param[in] tree			KdTree of cloud points
+ *\param[in] indexKdNode	KdNode index of tree, which start seaching from  
+ *\param[in] level 			leaf level of indexKdNode in the tree
+ *\param[in,out] result		list of KdNode labels, which are included in the shape.
+ * 
+ */
+void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,darray3E,long> & tree, int indexKdNode, int level, std::set<long> & result ){
+	
+	//check indexKdNode admissible.
+	if(indexKdNode <0 || indexKdNode > tree.n_nodes)	return;
+	
+	//1st step get data
+	bitpit::KdNode<darray3E, long> & target = tree.nodes[indexKdNode];
+	//check target point is in the shape
+	if(isPointIncluded(*(target.object_)))	result.insert(target.label);
+	
+	//choose where to go next. Check intersection with level plane.
+	
+	if(intersectShapePlane(getKdPlane(level, *(target.object_)))) {
+		searchKdTreeMatches(tree, target.lchild_, level+1, result);
+		searchKdTreeMatches(tree, target.rchild_, level+1, result);
+	}else{
+	   //need to know if shape is left or right w.r.t plane.
+		darray4E plane = getKdPlane(level, *(target.object_));
+		double dist = plane[3];
+		for(int i=0; i<3; ++i)	dist += plane[i]*m_origin[i];
+	    int candidate = int(dist <=0)*target.lchild_ + int(dist > 0)*target.rchild_;
+		searchKdTreeMatches(tree, candidate, level+1, result);
+	};
+	
+	return;
+};
+
+/*!
+ * Visit recursively BvTree relative to a PatchKernel structure and extract possible simplex candidates included in the current shape.
+ * Identifiers of extracted matches are collected in result structure
+ *\param[in] tree			BvTree of PatchKernel simplicies
+ *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
+ *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
+ * 
+ */
+void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree, int indexBvNode, std::set<long> & result ){
+	
+	//check indexBvNode admissible.
+	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
+	   
+	//1st step get data and control if it's leaf or if shape contain bounding box
+	bool checkInto = containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint);
+	if(tree.m_nodes[indexBvNode].m_leaf || checkInto ){
+		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
+			result.insert(tree.m_elements[i].m_label);		
+		}
+		return;
+	}
+	
+	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
+		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
+			searchBvTreeMatches(tree, tree.m_nodes[indexBvNode].m_lchild, result);
+	}
+	
+	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
+		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
+			searchBvTreeMatches(tree, tree.m_nodes[indexBvNode].m_rchild, result);
+	}
+	
+	return;
+};
+
+
+/*!
+ * Return x,y,z planes passing by a given point
+ * \param[in]	level int counter. level%3 select x-plane(0), yplane(1), zplane(2)
+ * \param[in]	point point belonging to request plane.
+ * \return		plane  
+ */
+darray4E 	BasicShape::getKdPlane(int level, darray3E point){
+	darray4E plane({{0.0,0.0,0.0,0.0}});
+	
+	int type = level%3;
+	plane[type] = 1.0;
+	plane[3] = -1.0*point[type];
+	return plane;
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Cube IMPLEMENTATION 
@@ -484,7 +694,7 @@ Cube & Cube::operator=(const Cube & other){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::toWorldCoord(darray3E & point){
+darray3E	Cube::toWorldCoord(darray3E  point){
 	
 	darray3E work, work2;
 	//unscale your local point
@@ -507,7 +717,7 @@ darray3E	Cube::toWorldCoord(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::toLocalCoord(darray3E & point){
+darray3E	Cube::toLocalCoord(darray3E  point){
 
 	darray3E work, work2;
 
@@ -540,7 +750,7 @@ darray3E	Cube::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::basicToLocal(darray3E & point){
+darray3E	Cube::basicToLocal(darray3E point){
 	return(point + getLocalOrigin());
 };
 
@@ -549,7 +759,7 @@ darray3E	Cube::basicToLocal(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::localToBasic(darray3E & point){
+darray3E	Cube::localToBasic(darray3E point){
 	return(point - getLocalOrigin());
 };
 
@@ -578,6 +788,43 @@ void 		Cube::setScaling( double &s0, double &s1, double &s2){
 			m_scaling[1] = s1;
 			m_scaling[2] = s2;
 };
+
+/*!
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * \param[in] plane coefficient of plane
+ */
+bool		Cube::intersectShapePlane(darray4E plane) {
+	//get eight vertex of the cube.
+	dvecarr3E points(8);
+	{
+		std::vector<darray3E> locPoints(8,{{0.0,0.0,0.0}});
+		locPoints[2][0] = 1.0; 
+		locPoints[4][0] = locPoints[4][1] = 1.0;
+		locPoints[6][1] = 1.0;
+		for(int i=1; i<8; i=i+2){
+			locPoints[i] = locPoints[i-1];
+			locPoints[i][2] = 1.0;
+		}
+		
+		int cc = 0;	
+		for(auto &val : locPoints){
+			 points[cc] = toWorldCoord(basicToLocal(points[0])) ;
+			 ++cc;
+		}
+	}
+	
+	double distToCheck,  dist = plane[3];
+	for(int i=0; i<3; ++i)	dist +=  plane[i]*points[0][i];
+	if(std::abs(dist) < 1.e-12)	return true;
+	int counter = 1;
+	for(counter=1; counter<8; ++counter){
+		distToCheck = plane[3];
+		for(int i=0; i<3; ++i)	dist +=  plane[i]*points[counter][i];
+		if(dist*distToCheck <= 0.0 || std::abs(distToCheck) < 1.E-12 )	return true;
+	}
+	
+	return false;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -643,7 +890,7 @@ Cylinder & Cylinder::operator=(const Cylinder & other){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::toWorldCoord(darray3E & point){
+darray3E	Cylinder::toWorldCoord(darray3E  point){
 	
 	darray3E work, work2;
 	//unscale your local point
@@ -670,7 +917,7 @@ darray3E	Cylinder::toWorldCoord(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::toLocalCoord(darray3E & point){
+darray3E	Cylinder::toLocalCoord(darray3E  point){
 	darray3E work, work2;
 	
 	//unapply origin translation
@@ -712,7 +959,7 @@ darray3E	Cylinder::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::basicToLocal(darray3E & point){
+darray3E	Cylinder::basicToLocal(darray3E  point){
 	point[1] = point[1]*m_span[1];
 	point[2] = point[2]-0.5;
 	return(point);
@@ -723,7 +970,7 @@ darray3E	Cylinder::basicToLocal(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::localToBasic(darray3E & point){
+darray3E	Cylinder::localToBasic(darray3E  point){
 	point[1] = point[1]/m_span[1];
 	point[2] = point[2]+0.5;
 	return(point);
@@ -768,6 +1015,33 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 		m_scaling[0] = s0;
 		m_scaling[2] = s2;
 };
+
+/*!
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * \param[in] plane coefficient of plane
+ */
+bool		Cylinder::intersectShapePlane(darray4E plane) {
+	//get center of circular basis
+	dvecarr3E p(2);
+	int pcand = 0;
+	p[0] = toWorldCoord(basicToLocal({{0.0,0.0,0.0}}));
+	p[1] = toWorldCoord(basicToLocal({{0.0,0.0,1.0}}));
+	
+	std::array<double,2> dist;
+	dist.fill(plane[3]);
+	for(int j=0; j<2; ++j){
+		for(int i=0; i<3; ++i)	dist += plane[i]*p[j][i];
+	}	
+	
+	if(std::abs(dist[0]) < 1.e-12 || std::abs(dist[1]) < 1.e-12 || dist[0]*dist[1] < 0 )	return true;
+	
+	if(std::abs(dist[1]) < std::abs(dist[0]))	pcand = 1;
+	darray3E pointOnPlane;
+	for(int i=0; i<3; ++i)	pointOnPlane[i] = p[pcand][i] + plane[i] * dist[pcand]; 
+
+	return isPointIncluded(pointOnPlane);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Sphere IMPLEMENTATION 
@@ -832,7 +1106,7 @@ Sphere & Sphere::operator=(const Sphere & other){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::toWorldCoord(darray3E & point){
+darray3E	Sphere::toWorldCoord(darray3E  point){
 	
 	darray3E work, work2;
 	//unscale your local point
@@ -858,7 +1132,7 @@ darray3E	Sphere::toWorldCoord(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::toLocalCoord(darray3E & point){
+darray3E	Sphere::toLocalCoord(darray3E  point){
 	
 	darray3E work, work2;
 	//unapply origin translation
@@ -905,7 +1179,7 @@ darray3E	Sphere::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::basicToLocal(darray3E & point){
+darray3E	Sphere::basicToLocal(darray3E  point){
 	point[1] = point[1]*m_span[1];
 	point[2] = point[2]*m_span[2];
 	return(point);
@@ -916,7 +1190,7 @@ darray3E	Sphere::basicToLocal(darray3E & point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::localToBasic(darray3E & point){
+darray3E	Sphere::localToBasic(darray3E  point){
 	point[1] = point[1]/m_span[1];
 	point[2] = point[2]/m_span[2];
 	return(point);
@@ -973,3 +1247,17 @@ void 		Sphere::setScaling(double &s0, double &s1, double &s2){
 	m_span[1] = s1;
 	m_span[2] = s2;
 };
+
+/*!
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * \param[in] plane coefficient of plane
+ */
+bool		Sphere::intersectShapePlane(darray4E plane) {
+	//get center of circular basis
+	
+	darray3E p = toWorldCoord(basicToLocal({{0.0,0.0,0.0}}));
+	double dist = plane[3];
+	for(int i=0; i<3; ++i)	dist += plane[i]*p[i];
+	for(int i=0; i<3; ++i)	p[i] += plane[i] * dist; 
+	return isPointIncluded(p);
+}

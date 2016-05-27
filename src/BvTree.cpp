@@ -188,7 +188,9 @@ BvTree::BvTree(const BvTree & other)
  */
 BvTree & BvTree::operator=(const BvTree & other)
 {
+	clean();
 	m_patch_		= other.m_patch_;
+	setup();
 	m_dim 			= other.m_dim;
 	m_MAXSTK		= other.m_MAXSTK;
 	m_nodes			= other.m_nodes;
