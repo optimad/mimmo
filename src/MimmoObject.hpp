@@ -59,14 +59,15 @@ protected:
 	shivector1D				m_pids;				/**<pid data associated to each tessellation cell, in local compact indexing */
 	shivector1D				m_pidsType;			/**<pid type available for your geometry */
 
-	BvTree							m_bvTree;			/**< ordered tree of geometry simplicies for fast searching purposes */
-	bool							m_bvTreeBuilt; 		/**< track correct building of bvtree along with geometry modifications */
-	bitpit::KdTree<3,darray3E,long>	m_kdTree;			/**< ordered tree of geometry vertices for fast searching purposes */
-	bool							m_kdTreeBuilt;		/**< track correct building of kdtree along eith geometry modifications */
-	bool							m_BvTreeSupported; /**< Flag for geometries not supporting bvTree building*/
+	BvTree									m_bvTree;			/**< ordered tree of geometry simplicies for fast searching purposes */
+	bool									m_bvTreeBuilt; 		/**< track correct building of bvtree along with geometry modifications */
+	bitpit::KdTree<3,bitpit::Vertex,long>	m_kdTree;			/**< ordered tree of geometry vertices for fast searching purposes */
+	bool									m_kdTreeBuilt;		/**< track correct building of kdtree along eith geometry modifications */
+	bool									m_bvTreeSupported; /**< Flag for geometries not supporting bvTree building*/
+
 	//TODO temporary flag for modifying vertices -> ambigous effect on bvTree, kdTree
-	bool							m_retrackTrees;    /**< set true if trees are still usable but non sync'd with geometry modifications */
-	
+	bool							m_retrackBvTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
+	bool							m_retrackKdTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
 	
 public:
 	MimmoObject(int type = 1); 
@@ -114,11 +115,11 @@ public:
 	shivector1D &	getPidTypeList();
 	shivector1D	&	getPid();
 	
-	bool								isBvTreeBuilt();
-	BvTree*								getBvTree();
-	bool								isKdTreeBuilt();
-	bitpit::KdTree<3, darray3E, long> *	getKdTree();
-	bool								retrackTrees();
+	bool										isBvTreeBuilt();
+	BvTree*										getBvTree();
+	bool										isKdTreeBuilt();
+	bitpit::KdTree<3, bitpit::Vertex, long> *	getKdTree();
+	bool										retrackTrees();
 	
 	const MimmoObject * getCopy();
 	
@@ -126,18 +127,18 @@ public:
 	bool	addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
 	bool	modifyVertex(const darray3E & vertex, long id);
 
-?	bool	setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
-?	bool	addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
+	bool	setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
+	bool	addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
 	
-?	bool	setPatch(int type, bitpit::PatchKernel* geometry);
+	bool	setPatch(int type, bitpit::PatchKernel* geometry);
 	bool	setMapData();
-?	bool	setMapCell();
+	bool	setMapCell();
 
 	void 	setPID(shivector1D ); //TODO to be updated w/ new PID feature of PatchKernel
-?	void	setSOFTCopy(const MimmoObject * other);
-?	void	setHARDCopy(const MimmoObject * other);
+	void	setSOFTCopy(const MimmoObject * other);
+	void	setHARDCopy(const MimmoObject * other);
 	
-?	bool	cleanGeometry();
+	bool	cleanGeometry();
 
 	livector1D 	getVertexFromCellList(livector1D cellList);
 
@@ -150,13 +151,13 @@ public:
 	livector1D	extractPIDCells(short);
 	livector1D	extractPIDCells(shivector1D);
 	
-?	void		buildBvTree();
-?	void		buildKdTree();	
+	void		buildBvTree();
+	void		buildKdTree();	
 
 
 private:
-?	int checkCellType(bitpit::ElementInfo::Type type);
-?	void 	cleanKdTree();
+	int checkCellType(bitpit::ElementInfo::Type type);
+	void 	cleanKdTree();
 };
 
 }

@@ -125,7 +125,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 	}
 	m_bvTree.setPatch(m_patch);
 	m_bvTreeBuilt = false;
-	m_bvTreeKdTree= false;
 	m_kdTreeBuilt = false;
 	m_bvTreeSupported = (m_type != 3);
 	m_retrackBvTree = false;
@@ -507,14 +506,14 @@ MimmoObject::getBvTree(){
 bool
 MimmoObject::isKdTreeBuilt(){
 	if (!m_kdTreeBuilt ) return(false);
-	return (m_kdTree.m_nnodes == getNvertex());
+	return (m_kdTree.n_nodes == getNVertex());
 }
 
 /*!
  * Return pointer to your kdTree internal structure
  */
-bitpit::KdTree<3, darray3E, long >*
-MimmoObject::getBvTree(){
+bitpit::KdTree<3, bitpit::Vertex, long >*
+MimmoObject::getKdTree(){
 	return &m_kdTree;
 }
 
@@ -609,8 +608,8 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 	if(!(getVertices().exists(id)))	return false;
 	bitpit::Vertex &vert = m_patch->getVertex(id);
 	vert.setCoords(vertex);
-	if(m_bvTreeBuilt)  m_retrackBvTrees = true;
-	if(m_kdTreeBuilt)  m_retrackKdTrees = true;
+	if(m_bvTreeBuilt)  m_retrackBvTree = true;
+	if(m_kdTreeBuilt)  m_retrackKdTree = true;
 	return true;
 };
 
@@ -749,7 +748,7 @@ MimmoObject::setMapData(){
 bool
 MimmoObject::setMapCell(){
 	
-	if (isEmpty() || !m_BvTreeSupported) return false;
+	if (isEmpty() || !m_bvTreeSupported) return false;
 	
 	m_mapCell.clear();
 	m_mapCell.resize(getNCells());
@@ -823,9 +822,9 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
 	setVertices(pvert);
 	
-	m_bvTreeSupported = other.m_bvTreeSupported;
-	m_bvTreeBuilt	= other.m_bvTreeBuilt;
-	m_kdTreeBuilt   = other.m_kdTreeBuilt;
+	m_bvTreeSupported = other->m_bvTreeSupported;
+	m_bvTreeBuilt	= other->m_bvTreeBuilt;
+	m_kdTreeBuilt   = other->m_kdTreeBuilt;
 	
 	if(m_bvTreeSupported){
 		const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
@@ -1086,17 +1085,28 @@ void MimmoObject::buildBvTree(){
  */
 void MimmoObject::buildKdTree(){
 	if( m_patch == NULL)	return;
+	long label;
 	
 	if (!m_kdTreeBuilt || m_retrackKdTree){
 		cleanKdTree();
+		m_kdTree.nodes.resize(getNVertex() + m_kdTree.MAXSTK);
+		
 		for(auto & val : getVertices()){
-			darray3E & vert = val.getCoords();
 			label = val.getId();
-			m_kdTree.insert(&vert, label);
+			m_kdTree.insert(&val, label);
 		}
 		m_kdTreeBuilt = true;
 	}
 	m_retrackKdTree = false;
 	return;
+}
+
+/*!
+ * Clean the KdTree of the class
+ */
+void	MimmoObject::cleanKdTree(){
+	m_kdTree.n_nodes = 0;
+	m_kdTree.nodes.clear();
+	//stack of tree does not change from built value of 10 
 }
 
