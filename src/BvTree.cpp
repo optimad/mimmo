@@ -517,7 +517,7 @@ void BvTree::clean(){
 	m_nodes.clear();
 	m_elements.clear();
 	m_nleaf		= 0;
-	m_maxsize	= 1;
+//	m_maxsize	= 1;
 	return;
 
 }
