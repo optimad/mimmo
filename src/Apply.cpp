@@ -48,6 +48,15 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
+/*!
+ * If set true, forces rebuilding of search trees of your target geometry of class MimmoObject
+ */
+void	Apply::setRefreshGeometryTrees(bool force){
+	if(getGeometry() == NULL) return;
+	getGeometry()->buildBvTree();
+	getGeometry()->buildKdTree();
+}
+
 /*!Execution command.
  * It applies the deformation stored in the input of base class (casting the input
  * for apply object to dvecarr3E) to the linked geometry.

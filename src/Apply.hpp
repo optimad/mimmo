@@ -50,6 +50,7 @@ public:
 	Apply(const Apply & other);
 	Apply & operator=(const Apply & other);
 
+	void 	setRefreshGeometryTrees(bool force);
 	void 	execute();
 
 };
