@@ -65,7 +65,8 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	m_wdir = other.m_wdir;
 	m_wformat = other.m_wformat;
 	m_codex = other.m_codex;
-	m_buildTree = other.m_buildTree;
+	m_buildBvTree = other.m_buildBvTree;
+	m_buildKdTree = other.m_buildKdTree;
 	
 	if(other.m_isInternal){
 		m_geometry = other.m_intgeo.get();
@@ -114,7 +115,8 @@ MimmoGeometry::setDefaults(){
 	m_wformat	= Short;
 	m_isInternal  = true;
 	m_codex = true;
-	m_buildTree = false;
+	m_buildBvTree = false;
+	m_buildKdTree = false;
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -248,7 +250,8 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 	m_wdir = other->m_wdir;
 	m_wformat = other->m_wformat;
 	m_codex = other->m_codex;
-	m_buildTree = other->m_buildTree;
+	m_buildBvTree = other->m_buildBvTree;
+	m_buildKdTree = other->m_buildKdTree;
 }
 
 /*!
@@ -339,8 +342,17 @@ MimmoGeometry::setPID(shivector1D pids){
  * the related MimmoObject member.
  */
 void
-MimmoGeometry::setBuildTree(bool build){
-	m_buildTree = build;
+MimmoGeometry::setBuildBvTree(bool build){
+	m_buildBvTree = build;
+}
+
+/*!It sets if the KdTree of the patch has to be built during execution.
+* \param[in] build If true the KdTree is built in execution and stored in
+* the related MimmoObject member.
+*/
+void
+MimmoGeometry::setBuildKdTree(bool build){
+	m_buildKdTree = build;
 }
 
 /*!
@@ -743,7 +755,7 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints;
 		readOFP(m_rdir, m_rfilename, Ipoints);
 
-		setGeometry(1);
+		setGeometry(3);
 
 		int sizeV = Ipoints.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
@@ -781,7 +793,8 @@ MimmoGeometry::execute(){
 		std::cout << " " << std::endl;
 		exit(11);
 	}
-	if (m_buildTree) getGeometry()->buildBvTree();
+	if (m_buildBvTree) getGeometry()->buildBvTree();
+	if (m_buildKdTree) getGeometry()->buildKdTree();
 	return;
 }
 
