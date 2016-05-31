@@ -85,18 +85,12 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	return(*this);
 };
 
-void FFDLattice::setPins(){
+void FFDLattice::buildPorts(){
 
-	m_pinOut.resize(1);
-
-	PinOutT<dvecarr3E>* portOut0 = new PinOutT<dvecarr3E>(&m_gdispl);
-	m_pinOut[0] = portOut0;
-
-	m_pinIn.resize(1);
-	PinInT<dvecarr3E>* portIn0 = new PinInT<dvecarr3E>(&m_displ);
-	m_pinIn[0] = portIn0;
-
-	m_isPinSet 	= true;
+	bool built;
+	built = createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, GDISPLS, 0);
+	built = createPortIn<dvecarr3E>(&m_displ, DISPLS, 0, {GDISPLS});
+	m_arePortsBuilt = built;
 
 };
 
@@ -206,8 +200,15 @@ std::pair<MimmoObject * , dvecarr3E * >	FFDLattice::getDeformedField(){
 
 	std::pair<MimmoObject *, dvecarr3E * > pairField;
 	pairField.first = getGeometry();
-	pairField.second = getResult<dvecarr3E>();
+	pairField.second = &m_gdispl;
 	return pairField;
+};
+
+/*!
+ * Return actual computed deformation field (if any) for the geometry linked.
+ */
+dvecarr3E	FFDLattice::getDeformation(){
+	return m_gdispl;
 };
 
 
@@ -823,7 +824,6 @@ dvecarr3E 	FFDLattice::nurbsEvaluator(livector1D & list){
 	}//next list id
 
 	itout = outres.end();
-
 
 	return(outres);
 

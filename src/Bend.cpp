@@ -132,20 +132,18 @@ Bend::setCoeffs(int i, int j, dvector1D coeffs){
  */
 void
 Bend::execute(){
-	dvecarr3E displ = *(getInput<dvecarr3E>());
-	int	ndispl = displ.size();
+	int	ndispl = m_displ.size();
 	ndispl = std::min(ndispl, int(m_coords.size()));
 	for (int j=0; j<3; j++){
 		for (int i=0; i<ndispl; i++){
 			for (int z=0; z<3; z++){
 				if (m_degree[j][z] > 0){
 					for (int k=0; k<m_degree[j][z]+1; k++){
-						displ[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
+						m_displ[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
 					}
 				}
 			}
 		}
 	}
-	setResult(displ);
 	return;
 };

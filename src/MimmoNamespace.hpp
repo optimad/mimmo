@@ -30,72 +30,49 @@ class BaseManipulation;
 
 namespace pin{
 
-enum PinsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidirectional,
+enum PortsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidirectional,
 												only input or only output.*/
 
-bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+enum PortType{
+	COORDS	/*! Port dedicated to communicates coordinates of points.*/,
+	DISPLS	/*! Port dedicated to communicates displacements of points.*/,
+	GDISPLS	/*! Port dedicated to communicates displacements of geometry vertex.*/,
+	FILTER	/*! Port dedicated to communicates a scalar field used as filter function.*/
 
-//bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+};
+/**< Port type specification.
+ *
+ * A type of data is related to each label. Same type of data can be related to
+ * multiple type of ports but with different meaning.
+ *
+ * mimmo::pin::PortType::COORDS -
+ * Port dedicated to communicates coordinates of points.
+ * A port COORDS communicates a std::vector<std::array<double, 3> >.
+ *
+ * mimmo::pin::PortType::DISPLS -
+ * Port dedicated to communicates displacements of points.
+ * A port DISPLS communicates a std::vector<std::array<double, 3> >.
+ *
+ *  mimmo::pin::PortType::FILTER -
+ *  Port dedicated to communicates a scalar field used as filter function.
+ *  A port FILTER communicates a std::vector<double>.
+ */
 
-/*
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL));
+typedef	short int	PortID;
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL));
+bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced = false);
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL));
+bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR, bool forced = false);
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*));
+void removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*));
+void removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
 
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-bool addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*));
+void removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
 
-template<typename T, typename U, typename VAL>
-std::function<VAL(void)> pinGet(VAL (T::*fget) (), U* obj);
+bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
 
-template<typename T, typename U, typename VAL>
-std::function<VAL&(void)> pinGetR(VAL& (T::*fget) (), U* obj);
-
-template<typename T, typename U, typename VAL>
-std::function<VAL*(void)> pinGetP(VAL* (T::*fget) (), U* obj);
-
-template<typename T, typename U, typename VAL>
-std::function<void(VAL)> pinSet(void (T::*fset) (VAL), U* obj);
-
-template<typename T, typename U, typename VAL>
-std::function<void(VAL*)> pinSetP(void (T::*fset) (VAL*), U* obj);
-
-template<typename OO, typename OI>
-void removeAllPins(OO* objSend, OI* objRec);
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void findPin(OO* objSend, OI* objRec);
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL));
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL));
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL));
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*));
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*));
-
-template<typename OO, typename G, typename OI, typename S, typename VAL>
-void removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*));
-
-*/
+bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
 
 };
 

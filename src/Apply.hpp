@@ -52,7 +52,7 @@ public:
 	Apply(const Apply & other);
 	Apply & operator=(const Apply & other);
 
-	void setPins();
+	void buildPorts();
 
 	void 	setRefreshGeometryTrees(bool force);
 

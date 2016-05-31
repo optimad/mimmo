@@ -32,7 +32,7 @@ using namespace mimmo;
  */
 GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
-	m_pinType	= PinsType::BACKWARD;
+	m_portsType	= PortsType::BACKWARD;
 	m_name 		= "MiMMO.GenericOutput";
 
 };
@@ -40,7 +40,7 @@ GenericOutput::GenericOutput(std::string filename){
 /*!Default destructor of GenericOutput.
  */
 GenericOutput::~GenericOutput(){
-	m_pinType 	= PinsType::BACKWARD;
+	m_portsType = PortsType::BACKWARD;
 };
 
 /*!Copy constructor of GenericOutput.
@@ -64,6 +64,20 @@ void
 GenericOutput::setFilename(std::string filename){
 	m_filename = filename;
 };
+
+/*!It clear the input member of the object
+ */
+void
+GenericOutput::clearInput(){
+	m_input.reset(nullptr);
+}
+
+/*!It clear the result member of the object
+ */
+void
+GenericOutput::clearResult(){
+	m_result.reset(nullptr);
+}
 
 /*!Execution command. It does nothing, the real execution of the object
  * happens in setInput.

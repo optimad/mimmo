@@ -76,9 +76,9 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 };
 
 void
-MimmoGeometry::setPins(){
+MimmoGeometry::buildPorts(){
 	//temporary
-	m_isPinSet = true;
+	m_arePortsBuilt = true;
 }
 
 /*!

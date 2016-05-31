@@ -34,7 +34,7 @@ using namespace mimmo;
  */
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
-	m_pinType 		= BaseManipulation::PinsType::FORWARD;
+	m_portsType 		= BaseManipulation::PortsType::FORWARD;
 	m_name 			= "MiMMO.GenericInput";
 };
 
@@ -45,7 +45,7 @@ GenericInput::GenericInput(bool readFromFile){
 GenericInput::GenericInput(string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
-	m_pinType 		= BaseManipulation::PinsType::FORWARD;
+	m_portsType 		= BaseManipulation::PortsType::FORWARD;
 };
 
 GenericInput::~GenericInput(){};
@@ -84,14 +84,27 @@ GenericInput::setFilename(std::string filename){
 
 
 void
-GenericInput::setPins(){
-	m_pinOut.resize(1);
-	PinOutT<dvecarr3E>* port0 = new PinOutT<dvecarr3E>(getResult<dvecarr3E>());
-	m_pinOut[0] = port0;
+GenericInput::buildPorts(){
 
-	m_isPinSet 	= true;
+	bool built;
+	built = createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 0);
+	m_arePortsBuilt = built;
+
 }
 
+/*!It clear the input member of the object
+ */
+void
+GenericInput::clearInput(){
+	m_input.reset(nullptr);
+}
+
+/*!It clear the result member of the object
+ */
+void
+GenericInput::clearResult(){
+	m_result.reset(nullptr);
+}
 
 /*!Execution command. It does nothing, the real execution of the object
  * happens in setInput/getResult.

@@ -87,7 +87,7 @@ RotationBox::setDirection(darray3E direction){
  */
 void
 RotationBox::setRotation(double alpha){
-	setInput(alpha);
+	m_alpha = alpha;
 }
 
 /*!It sets the reference system to be rotated.
@@ -132,11 +132,10 @@ RotationBox::execute(){
 	//Rotation of origin
 	m_rotax_origin = {{0,0,0}};
 	m_axes_origin -= m_origin;
-	double alpha = *getInput<double>();
 	//rodrigues formula
-	m_rotax_origin = m_axes_origin * cos(alpha) +
-			dotProduct(m_direction, m_axes_origin) * (1 - cos(alpha)) * m_direction +
-			crossProduct(m_direction, m_axes_origin) * sin(alpha);
+	m_rotax_origin = m_axes_origin * cos(m_alpha) +
+			dotProduct(m_direction, m_axes_origin) * (1 - cos(m_alpha)) * m_direction +
+			crossProduct(m_direction, m_axes_origin) * sin(m_alpha);
 
 	m_rotax_origin += m_origin;
 	m_axes_origin += m_origin;
@@ -145,9 +144,9 @@ RotationBox::execute(){
 	m_rotax.fill(darray3E{{0,0,0}});
 	//rodrigues formula
 	for (int i=0; i<3; i++){
-		m_rotax[i] = m_axes[i] * cos(alpha) +
-				dotProduct(m_direction, m_axes[i]) * (1 - cos(alpha)) * m_direction +
-				crossProduct(m_direction, m_axes[i]) * sin(alpha);
+		m_rotax[i] = m_axes[i] * cos(m_alpha) +
+				dotProduct(m_direction, m_axes[i]) * (1 - cos(m_alpha)) * m_direction +
+				crossProduct(m_direction, m_axes[i]) * sin(m_alpha);
 	}
 
 	return;

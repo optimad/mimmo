@@ -162,6 +162,7 @@ BvTree::BvTree(bitpit::PatchKernel *patch_)
 	increaseStack();
 
 	m_tol 			= 1.0e-08;
+	m_maxsize	= 1;
 	return;
 }
 
@@ -241,6 +242,7 @@ void BvTree::buildTree()
 	if (m_patch_ == NULL) return;
 
 	if (m_nelements == 0 || m_nodes.size() == 0) setup();
+	if (m_nelements == 0) return;
 
 	int iel = 0;
 	long id;
@@ -547,7 +549,6 @@ void BvTree::clean(){
 	m_nodes.clear();
 	m_elements.clear();
 	m_nleaf		= 0;
-//	m_maxsize	= 1;
 	return;
 
 }

@@ -32,6 +32,7 @@ using namespace bitpit;
 
 using namespace std::chrono;
 using namespace mimmo;
+using namespace mimmo::pin;
 
 // =================================================================================== //
 
@@ -79,17 +80,6 @@ void test0001() {
 	lattice->setLattice(origin,span,ShapeType::CUBE,dim, deg);
 	lattice->setGeometry(object);
 
-	//Set Input with Init Displacements
-	int np = lattice->getNNodes();
-	dvecarr3E displ(np);
-	time_t Time = time(NULL);
-	srand(Time);
-	for (int i=0; i<np; i++){
-		for (int j=0; j<3; j++){
-			displ[i][j] = 0.15*( (double) (rand()) / RAND_MAX );
-		}
-	}
-	
 	GenericInput* input = new GenericInput();
 	input->setReadFromFile(true);
 	input->setFilename("input/input_MIMMO_00001.txt");
@@ -99,11 +89,10 @@ void test0001() {
 	applier->setGeometry(object);
 
 	//Create PINS
-	addPin(input, lattice, 0, 0);
-	addPin(lattice, applier, 0, 0);
-
-//	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
-//	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	//Add pin with port ID
+	cout << "add pin info : " << boolalpha << addPin(input, lattice, 0, 0) << endl;
+	//Add pin with port TAG
+	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 
 	//Create chain
 	Chain ch0;

@@ -46,6 +46,7 @@ private:
 	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
 	dmatrix32E			m_thres;	/**<Limit of coordinates (min,max for each coordinate) to apply the masking.*/
 	std::array<bool,3>	m_inside;	/**<Condition to apply the mask (true/false to set to zero the displacements inside/outside the thresholds).*/
+	dvecarr3E			m_displ;
 
 public:
 	Mask();

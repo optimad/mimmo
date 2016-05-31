@@ -49,6 +49,7 @@ private:
 	darray3E	m_axes_origin;	/**<Origin of the axes to be rotated. */
 	dmatrix33E	m_rotax;		/**<Axes of box deformed.*/
 	darray3E	m_rotax_origin;	/**<Origin of the axes rotated. */
+	double		m_alpha;
 
 public:
 	RotationBox(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });

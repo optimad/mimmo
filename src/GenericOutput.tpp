@@ -8,8 +8,8 @@
 template<typename T>
 void
 mimmo::GenericOutput::setInput(T* data){
-	BaseManipulation::setInput(data);
-	BaseManipulation::setResult(data);
+	_setInput(data);
+	_setResult(data);
 	std::ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){
@@ -25,8 +25,8 @@ mimmo::GenericOutput::setInput(T* data){
 template<typename T>
 void
 mimmo::GenericOutput::setInput(T& data){
-	BaseManipulation::setInput(data);
-	BaseManipulation::setResult(data);
+	_setInput(data);
+	_setResult(data);
 	std::ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){
@@ -77,4 +77,74 @@ mimmo::GenericOutput::getResult(){
 	return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
 
+
+//==================================================   //
+// OLD BASEMANIPULATION CLASS TEMPLATED INPUT METHODS  //
+//==================================================   //
+
+/*!It sets the input member of the object.
+ * \param[in] data Pointer to data to be stored in the input member.
+ */
+template<typename T>
+void
+mimmo::GenericOutput::_setInput(T* data){
+	clearInput();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+	m_input = std::move(dummy);
+}
+
+/*!It sets the input member of the object.
+ * \param[in] data Data to be stored in the input member.
+ */
+template<typename T>
+void
+mimmo::GenericOutput::_setInput(T& data){
+	clearInput();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+	m_input = std::move(dummy);
+}
+
+/*!It gets the input member of the object.
+ * \return Pointer to data stored in the input member.
+ */
+template<typename T>
+T*
+mimmo::GenericOutput::_getInput(){
+	return(static_cast<IODataT<T>*>(m_input.get())->getData());
+}
+
+//==================================================   //
+// OLD BASEMANIPULATION CLASS TEMPLATED RESULT METHODS //
+//==================================================   //
+
+/*!It sets the result member of the object.
+ * \param[in] data Pointer to data to be stored in the result member.
+ */
+template<typename T>
+void
+mimmo::GenericOutput::_setResult(T* data){
+	clearResult();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+	m_result = std::move(dummy);
+}
+
+/*!It sets the result member of the object.
+ * \param[in] data Data to be stored in the result member.
+ */
+template<typename T>
+void
+mimmo::GenericOutput::_setResult(T& data){
+	clearResult();
+	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+	m_result = std::move(dummy);
+}
+
+/*!It gets the result member of the object.
+ * \return Pointer to data stored in the result member.
+ */
+template<typename T>
+T*
+mimmo::GenericOutput::_getResult(){
+	return(static_cast<IODataT<T>*>(m_result.get())->getData());
+}
 

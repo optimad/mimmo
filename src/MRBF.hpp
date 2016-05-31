@@ -64,12 +64,14 @@ enum class MRBFSol{
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
-	double 	m_tol;		/**< Tolerance for greedy algorithm.*/
-	MRBFSol m_solver; 	/**<Type of solver specified for the class as default in execution*/
-	dvector1D m_filter;	/**<Filter field for displacements modulation */
-	bool m_bfilter;		/**<boolean to recognize if a filter field is applied */
+	double 		m_tol;		/**< Tolerance for greedy algorithm.*/
+	MRBFSol		m_solver; 	/**<Type of solver specified for the class as default in execution*/
+	dvector1D	m_filter;	/**<Filter field for displacements modulation */
+	bool		m_bfilter;		/**<boolean to recognize if a filter field is applied */
 	
-	bool	m_srset;	/**<True if the support radius is set by the user.*/
+	bool		m_srset;	/**<True if the support radius is set by the user.*/
+
+	dvecarr3E	m_displ;
 
 public:
 	MRBF();

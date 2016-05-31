@@ -130,7 +130,7 @@ std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
 
 	std::pair<MimmoObject *, dvecarr3E * > pairField;
 	pairField.first = getGeometry();
-	pairField.second = getResult<dvecarr3E>();
+	pairField.second = &m_displ;
 	return pairField;
 };
 
@@ -377,24 +377,24 @@ void MRBF::execute(){
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertexCoords();
 
-	dvecarr3E result(nv, darray3E{0,0,0});
+	m_displ.resize(nv, darray3E{0,0,0});
 	dvector1D displ;
 	for(int i=0; i<nv; ++i){
 		displ = RBF::evalRBF(vertex[i]);
-		for (int j=0; j<3; j++) result[i][j] = displ[j];
+		for (int j=0; j<3; j++) m_displ[i][j] = displ[j];
 	}
 	
 	//if m_filter is active;
 	if(m_bfilter){
 		m_filter.resize(nv,0.0);
 		int counter = 0;
-		for (auto && vec : result){
+		for (auto && vec : m_displ){
 			vec = vec * m_filter[counter];
 			++counter;
 		}
 	}
 
-	setResult(result);
+	return;
 };
 
 

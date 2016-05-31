@@ -162,23 +162,21 @@ Mask::setInside(int i, bool inside){
  */
 void
 Mask::execute(){
-	dvecarr3E displ = *(getInput<dvecarr3E>());
-	int	ndispl = displ.size();
+	int	ndispl = m_displ.size();
 	ndispl = std::min(ndispl, int(m_coords.size()));
 	for (int i=0; i<ndispl; i++){
 		if (m_coords[i][0]>m_thres[0][0] && m_coords[i][0]<m_thres[0][1] &&
 				m_coords[i][1]>m_thres[1][0] && m_coords[i][1]<m_thres[1][1] &&
 				m_coords[i][2]>m_thres[2][0] && m_coords[i][2]<m_thres[2][1]){
 			for (int j=0; j<3; j++){
-				displ[i][j] = (1-m_inside[j])*displ[i][j];
+				m_displ[i][j] = (1-m_inside[j])*m_displ[i][j];
 			}
 		}
 		else{
 			for (int j=0; j<3; j++){
-				displ[i][j] = (m_inside[j])*displ[i][j];
+				m_displ[i][j] = (m_inside[j])*m_displ[i][j];
 			}
 		}
 	}
-	setResult(displ);
 	return;
 };

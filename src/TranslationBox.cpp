@@ -110,6 +110,5 @@ TranslationBox::execute(){
 	for (int i=0; i<3; i++){
 			m_origin[i] += m_alpha * m_direction[i];
 	}
-	setResult(m_origin);
 	return;
 };

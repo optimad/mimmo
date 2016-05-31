@@ -27,39 +27,82 @@
 using namespace std;
 using namespace mimmo;
 
+
+/*!
+	Output stream operator for dvecarr3E
+
+	\param[in] buffer is the output stream
+	\param[in] var is the element to be streamed
+	\result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr3E &var)
+{
+	int nP = var.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			buffer << var[i][j];
+		}
+	}
+
+	return buffer;
+}
+
+
+/*!
+	Input stream operator for dvecarr3E
+
+	\param[in] buffer is the input stream
+	\param[in] var is the element to be streamed
+	\result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr3E &var)
+{
+	int nP;
+	buffer >> nP;
+	var.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			buffer >> var[i][j];
+		}
+	}
+
+	return buffer;
+}
+
 //==============================================================//
 // BASE INOUT CLASS	IMPLEMENTATION								//
 //==============================================================//
 
-/*!Default constructor of PinOut
+/*!Default constructor of PortOut
 */
-PinOut::PinOut(){};
+PortOut::PortOut(){};
 
-/*!Default destructor of PinOut
+/*!Default destructor of PortOut
 */
-PinOut::~PinOut(){};
+PortOut::~PortOut(){};
 
-/*!Copy constructor of PinOut.
+/*!Copy constructor of PortOut.
 */
-PinOut::PinOut(const PinOut & other){
+PortOut::PortOut(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
 	return;
 };
 
-/*!Assignement operator of PinOut.
+/*!Assignement operator of PortOut.
  */
-PinOut & PinOut::operator=(const PinOut & other){
+PortOut & PortOut::operator=(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
 	return (*this);
 };
 
-/*!Compare operator of PinOut.
+/*!Compare operator of PortOut.
  */
-bool PinOut::operator==(const PinOut & other){
+bool PortOut::operator==(const PortOut & other){
 	bool check = true;
 	check = check && (m_portLink == other.m_portLink);
 	check = check && (m_objLink == other.m_objLink);
@@ -70,70 +113,115 @@ bool PinOut::operator==(const PinOut & other){
  * \return Pointer to linked object.
  */
 std::vector<mimmo::BaseManipulation*>
-PinOut::getLink(){
+PortOut::getLink(){
 	return(m_objLink);
 }
 
 std::vector<int>
-PinOut::getPortLink(){
+PortOut::getPortLink(){
 	return(m_portLink);
+}
+
+void
+mimmo::PortOut::cleanBuffer(){
+	m_obuffer.setCapacity(0);
+	m_obuffer.eof();
+}
+
+void
+mimmo::PortOut::clear(){
+	m_objLink.clear();
+	m_portLink.clear();
+}
+
+void
+mimmo::PortOut::clear(int j){
+	if (j < m_objLink.size() && j >= 0){
+		m_objLink.erase(m_objLink.begin() + j);
+		m_portLink.erase(m_portLink.begin() + j);
+	}
 }
 
 /*! Execution of the pin.
  * All the pins of an object are called in execute of the owner after its own execution.
  */
 void
-mimmo::PinOut::exec(){
+mimmo::PortOut::exec(){
 	if (m_objLink.size() > 0){
 		writeBuffer();
 		bitpit::IBinaryStream input(m_obuffer.data());
+		cleanBuffer();
 		for (int j=0; j<m_objLink.size(); j++){
 			if (m_objLink[j] != NULL){
-				m_objLink[j]->getPinsIn()[m_portLink[j]]->m_ibuffer = input;
-				m_objLink[j]->readBuffer(m_portLink[j]);
+				m_objLink[j]->setBufferIn(m_portLink[j], input);
+				m_objLink[j]->readBufferIn(m_portLink[j]);
+				m_objLink[j]->cleanBufferIn(m_portLink[j]);
 			}
 		}
 	}
 };
 
-/*!Default constructor of PinIn
+/*!Default constructor of PortIn
 */
-PinIn::PinIn(){};
+PortIn::PortIn(){};
 
-/*!Default destructor of PinIn
+/*!Default destructor of PortIn
 */
-PinIn::~PinIn(){
+PortIn::~PortIn(){
 	m_objLink	= NULL;
 };
 
-/*!Copy constructor of PinIn.
+/*!Copy constructor of PortIn.
 */
-PinIn::PinIn(const PinIn & other){
+PortIn::PortIn(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
 	return;
 };
 
-/*!Assignement operator of PinIn.
+/*!Assignement operator of PortIn.
  */
-PinIn & PinIn::operator=(const PinIn & other){
+PortIn & PortIn::operator=(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
 	return (*this);
 };
 
-/*!Compare operator of PinIn.
+/*!Compare operator of PortIn.
  */
-bool PinIn::operator==(const PinIn & other){
+bool PortIn::operator==(const PortIn & other){
 	bool check = true;
 	check = check && (m_objLink == other.m_objLink);
 	return(check);
 };
 
+void
+PortIn::addCompatibility(PortType label){
+	m_labelOK.push_back(label);
+}
+
+const std::vector<PortType>&
+PortIn::getCompatibility(){
+	return m_labelOK;
+}
+
+
 /*!It gets the linked object by this pin.
  * \return Pointer to linked object.
  */
 BaseManipulation*
-PinIn::getLink(){
+PortIn::getLink(){
 	return(m_objLink);
 }
+
+void
+mimmo::PortIn::clear(){
+	m_objLink = NULL;
+}
+
+void
+mimmo::PortIn::cleanBuffer(){
+	m_ibuffer.setCapacity(0);
+	m_ibuffer.eof();
+}
+

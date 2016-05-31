@@ -51,6 +51,7 @@ private:
 										(each componentns of displacement is
 										f(x,y,z) with no mixed terms)*/
 	dmat33Evec			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
+	dvecarr3E			m_displ;
 
 public:
 	Bend();

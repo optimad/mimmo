@@ -56,7 +56,6 @@ public:
 	GenericOutput(const GenericOutput & other);
 	GenericOutput & operator=(const GenericOutput & other);
 
-
 	template<typename T>
 	T*					getInput();
 
@@ -73,6 +72,25 @@ public:
 	void 				setResult(T* data);
 	template<typename T>
 	void 				setResult(T& data);
+
+	template<typename T>
+	void 				_setInput(T* data);
+	template<typename T>
+	void 				_setInput(T& data);
+
+	template<typename T>
+	void 				_setResult(T* data);
+	template<typename T>
+	void 				_setResult(T& data);
+
+	template<typename T>
+	T*					_getInput();
+
+	template<typename T>
+	T*					_getResult();
+
+	void	clearInput();
+	void	clearResult();
 
 	void setFilename(std::string filename);
 

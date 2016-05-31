@@ -57,55 +57,42 @@ class IOData;
  *  input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
  *  only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Pins. 
  *
+ *
+ * PortType specification :
+ *
+ * A type of data is related to each label. Same type of data can be related to
+ * multiple type of ports but with different meaning.
+ *
+ * mimmo::pin::PortType COORDS -
+ * Port dedicated to communicates coordinates of points.
+ * A port COORDS communicates a std::vector<std::array<double, 3> >.
+ *
+ * mimmo::pin::PortType::DISPLS -
+ * Port dedicated to communicates displacements of points.
+ * A port DISPLS communicates a std::vector<std::array<double, 3> >.
+ *
+ *  mimmo::pin::PortType::FILTER -
+ *  Port dedicated to communicates a scalar field used as filter function.
+ *  A port FILTER communicates a std::vector<double>.
+ *
  */
 class BaseManipulation{
 
-	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, int portS, int portR);
+	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced);
+	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR, bool forced);
+	friend void mimmo::pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
+	friend void mimmo::pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
+	friend void mimmo::pin::removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
+	friend bool mimmo::pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
+	friend bool mimmo::pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
+	friend mimmo::PortOut;
 
-/*	//friendship declaration of mimmo::pin methods
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
-
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
-
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
-
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
-
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend bool mimmo::pin::addPin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
-
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL (G::*fget) (), void (S::*fset) (VAL*)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL* (G::*fget) (), void (S::*fset) (VAL*)) ;
-	
-	template<typename OO, typename G, typename OI, typename S, typename VAL>
-	friend void mimmo::pin::removePin(OO* objSend, OI* objRec, VAL& (G::*fget) (), void (S::*fset) (VAL*)) ;
-	
-	template<typename OO, typename OI>
-	friend void mimmo::pin::removeAllPins(OO* objSend, OI* objRec); */
-	
 public:
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int>	bmumap;		/**<Unordered map type used for parent/child storing.*/
-	typedef mimmo::pin::PinsType 						PinsType;	/**<Pin type specification.*/
+	typedef mimmo::pin::PortsType 						PortsType;	/**<Ports type specification for Manipulation object.*/
+	typedef mimmo::pin::PortType 						PortType;	/**<Type of a single port specification.*/
+	typedef	short int									PortID;		/**<Port ID (position of slot).*/
 
 protected:
 	std::string							m_name;			/**<Name of the manipulation object.*/
@@ -114,11 +101,15 @@ protected:
 													pointer a counter. When this counter is 0, pointer is released*/
 	bmumap								m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
 														pointer a counter. When this counter is 0, pointer is released*/
-	PinsType							m_pinType;		/**<Type of pins of the object: BOTH (bidirectional),
+
+	PortsType							m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
 														BACKWARD (only input) or FORWARD (only output).*/
-	std::vector<PinIn*>					m_pinIn;		/**<Input pins vector. */
-	std::vector<PinOut*>				m_pinOut;		/**<Output pins vector. */
-	bool								m_isPinSet;
+	std::vector<PortIn*>				m_portIn;		/**<Input ports vector. */
+	std::map<PortType, PortID>			m_mapPortIn;	/**<Input ports Map type. */
+	std::vector<PortOut*>				m_portOut;		/**<Output ports vector. */
+	std::map<PortType, PortID>			m_mapPortOut;	/**<Output ports Map type. */
+	bool								m_arePortsBuilt;/**<True or false is the ports are already set or not.*/
+
 	bool								m_active;		/**<True/false to activate/disable the object.*/
 
 public:
@@ -128,8 +119,9 @@ public:
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
 
-	virtual void 	setPins() = 0;
-	bool			isPinSet();
+	virtual void 	buildPorts() = 0;
+
+	bool			arePortsBuilt();
 
 	//get methods
 	std::string			getName();
@@ -140,11 +132,12 @@ public:
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
 	bool				isChild(BaseManipulation *, int);
-	PinsType 			getPinType();
-	int 				getNPinsIn();
-	int 				getNPinsOut();
-	std::vector<PinIn*> getPinsIn();
-	std::vector<PinOut*>getPinsOut();
+	PortsType 			getPortsType();
+	int 				getNPortsIn();
+	int 				getNPortsOut();
+	std::vector<PortIn*> getPortsIn();
+	std::vector<PortOut*>getPortsOut();
+	PortType 			getPortType(PortID port);
 
 	bool				isActive();
 
@@ -159,14 +152,10 @@ public:
 	//cleaning/unset
 	void 	unsetGeometry();
 
-//	void 	removePins();
-//	void 	removePinsIn();
-//	void 	removePinsOut();
+	void 	removePins();
+	void 	removePinsIn();
+	void 	removePinsOut();
 	
-	void	readBuffer(int port);
-
-	void	clearInput();
-	void	clearResult();
 	void	clear();
 	
 	//execution utils
@@ -174,74 +163,36 @@ public:
 	
 protected:
 
-	void		addParent(BaseManipulation* parent);
-	void		addChild(BaseManipulation* child);
-	void 		unsetParent(BaseManipulation * parent);
-	void 		unsetChild(BaseManipulation * child);
+	template<typename T, typename O>
+	bool	createPortOut(O* obj, T (O::*getVar_)(), PortType label, PortID portS);
+
+	template<typename T>
+	bool	createPortIn(T* var_, PortType label, PortID portR, std::vector<PortType> compatibilities = std::vector<PortType>(0));
+
+	void	setBufferIn(PortID port, bitpit::IBinaryStream& input);
+	void	readBufferIn(PortID port);
+	void	cleanBufferIn(PortID port);
+
+	void	addParent(BaseManipulation* parent);
+	void	addChild(BaseManipulation* child);
+	void 	unsetParent(BaseManipulation * parent);
+	void 	unsetChild(BaseManipulation * child);
 	
-	int			findPinIn(PinIn& pin);
-	int			findPinOut(PinOut& pin);
+	int		findPinIn(PortIn& pin);
+	int		findPinOut(PortOut& pin);
 
-	void	addPinIn(BaseManipulation* objIn, int portR);
-	void	addPinOut(BaseManipulation* objOut, int portS, int portR);
+	void	addPinIn(BaseManipulation* objIn, PortID portR);
+	void	addPinOut(BaseManipulation* objOut, PortID portS, PortID portR);
+	void	addPinIn(BaseManipulation* objIn, PortType portR);
+	void	addPinOut(BaseManipulation* objOut, PortType portS, PortType portR);
 
+	void	removePinIn(BaseManipulation* objIn, PortID portR);
+	void	removePinOut(BaseManipulation* objOut, PortID portS);
+	void	removePinIn(BaseManipulation* objIn, PortType portR);
+	void	removePinOut(BaseManipulation* objOut, PortType portS);
 
-	/*	template<typename T>
-		void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
-		template<typename T>
-		void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
-	
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void				addPinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				addPinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
-
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T)> setVal, std::function<T*(void)> getVal);
-
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T(void)> getVal);
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T&(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T&(void)> getVal);
-	template<typename T>
-	void				removePinIn(BaseManipulation* objIn, std::function<T*(void)> getVal, std::function<void(T*)> setVal);
-	template<typename T>
-	void				removePinOut(BaseManipulation* objOut, std::function<void(T*)> setVal, std::function<T*(void)> getVal);
-	*/
-	
-
-	void 	removePinIn(int i);
-	void 	removePinOut(int i);
+	void 	removePinIn(PortID portR);
+	void 	removePinOut(PortID portS, int j);
 
 	/*!Execution method.
 	 * Pure virtual method, it has to be implemented in derived classes.
@@ -250,6 +201,8 @@ protected:
 	
 	
 };
+
+#include "BaseManipulation.tpp"
 
 
 //==============================//

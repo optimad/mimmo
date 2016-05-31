@@ -67,7 +67,7 @@ public:
 	FFDLattice(const FFDLattice & other);
 	FFDLattice & operator=(const FFDLattice & other);
 	
-	void setPins();
+	void buildPorts();
 
 	//clean structure
 	void 		clearLattice();
@@ -81,6 +81,7 @@ public:
 	dvecarr3E* 	getDisplacements();
 	dvector1D   getFilter();
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
+	dvecarr3E 	getDeformation();
 	bool 		isDisplGlobal();
 	iarray3E	getDegrees();
 

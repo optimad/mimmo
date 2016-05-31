@@ -4,95 +4,109 @@
 
 #include <iostream>
 
-/*!Default constructor of PinOutT
+/*!Default constructor of PortOutT
  */
-template<typename T>
-mimmo::PinOutT<T>::PinOutT(){
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(){
 	m_var_ = NULL;
 };
 
-template<typename T>
-mimmo::PinOutT<T>::PinOutT(T *var_){
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(T *var_){
 	m_var_ = var_;
 };
 
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
+	m_obj_ = obj_;
+	m_getVar_ = getVar_;
+};
 
-/*!Default destructor of PinOutT
+
+/*!Default destructor of PortOutT
  */
-template<typename T>
-mimmo::PinOutT<T>::~PinOutT(){
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::~PortOutT(){
 	m_var_ = NULL;
 };
 
-/*!Copy constructor of PinOutT.
+/*!Copy constructor of PortOutT.
  */
-template<typename T>
-mimmo::PinOutT<T>::PinOutT(const PinOutT<T> & other){
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(const PortOutT<T,O> & other){
 	*this = other;
 };
 
-/*!Assignement operator of PinOutT.
+/*!Assignement operator of PortOutT.
  */
-template<typename T>
-mimmo::PinOutT<T> & mimmo::PinOutT<T>::operator=(const PinOutT<T> & other){
+template<typename T, typename O>
+mimmo::PortOutT<T,O> & mimmo::PortOutT<T,O>::operator=(const PortOutT<T,O> & other){
 	m_var_ = other.m_var_;
 	return (*this);
 };
 
-/*!Compare operator of PinOutT.
+/*!Compare operator of PortOutT.
  */
-template<typename T>
-bool mimmo::PinOutT<T>::operator==(const PinOutT<T> & other){
+template<typename T, typename O>
+bool mimmo::PortOutT<T,O>::operator==(const PortOutT<T,O> & other){
 	bool equal = true;
 	equal &= (m_var_ == other.m_var_);
 	return (equal);
 };
 
-template<typename T>
+
+template<typename T, typename O>
 void
-mimmo::PinOutT<T>::writeBuffer(){
+mimmo::PortOutT<T,O>::writeBuffer(){
+	if (m_getVar_ != NULL){
+		T temp = ((m_obj_->*m_getVar_)());
+		m_obuffer << temp;
+		return;
+	}
 	m_obuffer << (*m_var_);
+	return;
+
 }
 
-/*!Default constructor of PinInT
+/*!Default constructor of PortInT
  */
 template<typename T>
-mimmo::PinInT<T>::PinInT(){
+mimmo::PortInT<T>::PortInT(){
 	m_var_ = NULL;
 };
 
 template<typename T>
-mimmo::PinInT<T>::PinInT(T *var_){
+mimmo::PortInT<T>::PortInT(T *var_){
 	m_var_ = var_;
 };
 
 
-/*!Default destructor of PinInT
+/*!Default destructor of PortInT
  */
 template<typename T>
-mimmo::PinInT<T>::~PinInT(){
+mimmo::PortInT<T>::~PortInT(){
 	m_var_ = NULL;
 };
 
-/*!Copy constructor of PinInT.
+/*!Copy constructor of PortInT.
  */
 template<typename T>
-mimmo::PinInT<T>::PinInT(const PinInT<T> & other){
+mimmo::PortInT<T>::PortInT(const PortInT<T> & other){
 	*this = other;
 };
 
-/*!Assignement operator of PinInT.
+/*!Assignement operator of PortInT.
  */
 template<typename T>
-mimmo::PinInT<T> & mimmo::PinInT<T>::operator=(const PinInT<T> & other){
+mimmo::PortInT<T> & mimmo::PortInT<T>::operator=(const PortInT<T> & other){
 	m_var_ = other.m_var_;
 	return (*this);
 };
 
-/*!Compare operator of PinInT.
+/*!Compare operator of PortInT.
  */
 template<typename T>
-bool mimmo::PinInT<T>::operator==(const PinInT<T> & other){
+bool mimmo::PortInT<T>::operator==(const PortInT<T> & other){
 	bool equal = true;
 	equal &= (m_var_ == other.m_var_);
 	return (equal);
@@ -100,7 +114,9 @@ bool mimmo::PinInT<T>::operator==(const PinInT<T> & other){
 
 template<typename T>
 void
-mimmo::PinInT<T>::readBuffer(){
-	m_ibuffer >> (*m_var_);
+mimmo::PortInT<T>::readBuffer(){
+	T temp;
+	m_ibuffer >> temp;
+	(*m_var_) = temp;
 }
 

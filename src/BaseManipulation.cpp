@@ -33,10 +33,10 @@ using namespace mimmo;
  */
 BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
-	m_pinType		= PinsType::BOTH;
+	m_portsType		= PortsType::BOTH;
 	m_name			= "MiMMO";
 	m_active		= true;
-	m_isPinSet 		= false;
+	m_arePortsBuilt = false;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -51,20 +51,24 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	*this = other;
 };
 
-/*! //TODO NOW
+/*!
  * Assignement operator of BaseManipulation.
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_geometry 		= other.m_geometry;
-	m_pinType		= other.m_pinType;
+	m_portsType		= other.m_portsType;
 	m_name 			= other.m_name;
-	m_isPinSet 		= false;
+	m_active		= other.m_active;
+	m_arePortsBuilt = false;
 	return (*this);
 };
 
+/*!It gets if the ports of this object are already built.
+ * \return True/false if ports are set.
+ */
 bool
-BaseManipulation::isPinSet(){
-	return(m_isPinSet);
+BaseManipulation::arePortsBuilt(){
+	return(m_arePortsBuilt);
 }
 
 /*!It gets the name of the manipulator object.
@@ -112,7 +116,7 @@ BaseManipulation::isParent(BaseManipulation * target, int index){
 	it = m_parent.find(target);
 	index = -1;
 	if(it == m_parent.end()) return false;
-	
+
 	index = distance(m_parent.begin(), it);
 	return true;
 };
@@ -146,33 +150,33 @@ BaseManipulation::isChild(BaseManipulation * target, int index){
 	it = m_child.find(target);
 	index = -1;
 	if(it == m_child.end()) return false;
-	
+
 	index = distance(m_child.begin(), it);
 	return true;
 };
 
-/*!It gets the pin-type of the manipulation object.
- * \return PinsType of manipulation object (bi-directional, only backward, only forward).
+/*!It gets the ports-type of the manipulation object.
+ * \return PortsType of manipulation object (bi-directional, only backward, only forward).
  */
-PinsType
-BaseManipulation::getPinType(){
-	return (m_pinType);
+BaseManipulation::PortsType
+BaseManipulation::getPortsType(){
+	return (m_portsType);
 }
 
-/*! It gets the number of input pins of the object.
- * \return Number of input pins of the object.
+/*! It gets the number of input ports of the object.
+ * \return Number of input ports of the object.
  */
 int
-BaseManipulation::getNPinsIn(){
-	return (m_pinIn.size());
+BaseManipulation::getNPortsIn(){
+	return (m_portIn.size());
 }
 
-/*! It gets the number of output pins of the object.
- * \return Number of output pins of the object.
+/*! It gets the number of output ports of the object.
+ * \return Number of output ports of the object.
  */
 int
-BaseManipulation::getNPinsOut(){
-	return (m_pinOut.size());
+BaseManipulation::getNPortsOut(){
+	return (m_portOut.size());
 }
 
 /*!It gets if the object is activates or disable during the execution.
@@ -220,86 +224,85 @@ BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
 
-///*!It removes all the pins of the object and the related pins of the linked objects.
-// */
-//void
-//BaseManipulation::removePins(){
-//	removePinsIn();
-//	removePinsOut();
-//}
-//
-///*!It removes all the input pins of the object and the related
-// * output pins of the linked objects.
-// */
-//void
-//BaseManipulation::removePinsIn(){
-//	unordered_map<BaseManipulation*, int>::iterator it;
-//	//Warning!! If infinite while unset parent wrong
-//	while(m_parent.size()){
-//		it = m_parent.begin();
-//		mimmo::pin::removeAllPins(it->first, this);
-//	}
-//}
-//
-///*!It removes all the output pins of the object and the related
-// * input pins of the linked objects.
-// */
-//void
-//BaseManipulation::removePinsOut(){
-//	unordered_map<BaseManipulation*, int>::iterator it;
-//	//Warning!! If infinite while unset parent wrong
-//	while(m_child.size()){
-//		it = m_child.begin();
-//		mimmo::pin::removeAllPins(this, it->first);
-//	}
-//}
-//
-
-void
-BaseManipulation::readBuffer(int port){
-	m_pinIn[port]->readBuffer();
-}
-
-
-
-/*!It clear the input member of the object
+/*!It removes all the pins (connections) of the object and the related pins of the linked objects.
  */
 void
-BaseManipulation::clearInput(){
-	m_input.reset(nullptr);
+BaseManipulation::removePins(){
+	removePinsIn();
+	removePinsOut();
 }
 
-/*!It clear the result member of the object
+/*!It removes all the input pins (connections) of the object and the related
+ * output pins (connections) of the linked objects.
  */
 void
-BaseManipulation::clearResult(){
-	m_result.reset(nullptr);
+BaseManipulation::removePinsIn(){
+	unordered_map<BaseManipulation*, int>::iterator it;
+	//Warning!! If infinite while unset parent wrong
+	while(m_parent.size()){
+		it = m_parent.begin();
+		mimmo::pin::removeAllPins(it->first, this);
+	}
 }
+
+/*!It removes all the output (connections) pins of the object and the related
+ * input pins (connections) of the linked objects.
+ */
+void
+BaseManipulation::removePinsOut(){
+	unordered_map<BaseManipulation*, int>::iterator it;
+	//Warning!! If infinite while unset parent wrong
+	while(m_child.size()){
+		it = m_child.begin();
+		mimmo::pin::removeAllPins(this, it->first);
+	}
+}
+
+/*!It reads the buffer stored in an input port of the object.
+ * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
+ */
+void
+BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
+	m_portIn[port]->m_ibuffer = input;
+}
+
+/*!It reads the buffer stored in an input port of the object.
+ * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
+ */
+void
+BaseManipulation::readBufferIn(PortID port){
+	m_portIn[port]->readBuffer();
+}
+
+/*!It reads the buffer stored in an input port of the object.
+ * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
+ */
+void
+BaseManipulation::cleanBufferIn(PortID port){
+	m_portIn[port]->cleanBuffer();
+}
+
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
 void
 BaseManipulation::clear(){
 	unsetGeometry();
-//	removePins();
-	clearInput();
-	clearResult();
+	removePins();
 };
 
-/*!Execution command. exec() runs the execution of output pins at the end of the execution.
+/*!Execution command. exec() runs the execution of output pins (connections) at the end of the execution.
  * execute is pure virtual and it has to be implemented in a derived class.
- * Temporary Inputs are cleared from the object.
  */
 void
 BaseManipulation::exec(){
 	if (m_active) execute();
-	for (int i=0; i<m_pinOut.size(); i++){
-		std::vector<BaseManipulation*>	linked = m_pinOut[i]->getLink();
+	for (int i=0; i<m_portOut.size(); i++){
+		std::vector<BaseManipulation*>	linked = m_portOut[i]->getLink();
 		if (linked.size() > 0){
-			m_pinOut[i]->exec();
+			m_portOut[i]->exec();
 		}
 	}
-	clearInput();
 }
 
 /*!It adds a manipulator object linked by this object.
@@ -307,7 +310,7 @@ BaseManipulation::exec(){
  */
 void
 BaseManipulation::addParent(BaseManipulation* parent){
-	
+
 	if(!m_parent.count(parent)){
 		m_parent.insert(pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
 	}else{
@@ -334,7 +337,7 @@ BaseManipulation::addChild(BaseManipulation* child){
  */
 void
 BaseManipulation::unsetParent(BaseManipulation * parent){
-	
+
 	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
 	if(got != m_parent.end()){
 		m_parent[parent]--;
@@ -356,86 +359,161 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 	}
 };
 
-/*!It gets all the input pins of the object
- * \return Vector of pointer to input pins.
+/*!It gets all the input ports of the object
+ * \return Vector of pointer to input ports.
  */
-vector<PinIn*>
-BaseManipulation::getPinsIn(){
-	return (m_pinIn);
+vector<PortIn*>
+BaseManipulation::getPortsIn(){
+	return (m_portIn);
 }
 
-/*!It gets all the output pins of the object
- * \return Vector of pointer to output pins.
+/*!It gets all the output ports of the object
+ * \return Vector of pointer to output ports.
  */
-std::vector<PinOut*>
-BaseManipulation::getPinsOut(){
-	return (m_pinOut);
+std::vector<PortOut*>
+BaseManipulation::getPortsOut(){
+	return (m_portOut);
 }
 
-/*!It finds an input pin of the object
- * \param[in] pin Target pin.
- * \return Index of target pin in the input pins structure. Return -1 if pin not found.
+
+/*!It gets the type of an output port of the object
+ * \param[in] port ID of the target ouput port
+ * \return Type of the port (label).
+ */
+PortType
+BaseManipulation::getPortType(PortID port){
+	return(m_portOut[port]->m_label);
+}
+
+/*!It finds an input pin (connection) of the object
+ * \param[in] pin Target pin (connection).
+ * \return Index of target pin in the input pins structure. Return -1 if pin (connection) not found.
  */
 int
-BaseManipulation::findPinIn(PinIn& pin){
-	for (int i=0; i<m_pinIn.size(); i++){
-		if (pin == *(m_pinIn[i])) return(i);
+BaseManipulation::findPinIn(PortIn& pin){
+	for (int i=0; i<m_portIn.size(); i++){
+		if (pin == *(m_portIn[i])) return(i);
 	}
 	return(-1);
 }
 
-/*!It finds an output pin of the object
- * \param[in] pin Target pin.
- * \return Index of target pin in the output pins structure. Return -1 if pin not found.
+/*!It finds an output pin (connection)  of the object
+ * \param[in] pin Target pin (connection).
+ * \return Index of target pin in the output pins structure. Return -1 if pin (connection) not found.
  */
 int
-BaseManipulation::findPinOut(PinOut& pin){
-	for (int i=0; i<m_pinOut.size(); i++){
-		if (pin == *(m_pinOut[i])) return(i);
+BaseManipulation::findPinOut(PortOut& pin){
+	for (int i=0; i<m_portOut.size(); i++){
+		if (pin == *(m_portOut[i])) return(i);
 	}
 
 	return(-1);
 }
 
-/*!It removes an input pin of the object and the related output pin of the linked object.
- * \param[in] i Index of target input pin.
+/*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
+ * \param[in] i Index of target input pin (connection).
  */
 void
-BaseManipulation::removePinIn(int i){
-	if (i<m_pinIn.size() && i != -1){
-		delete m_pinIn[i];
-		m_pinIn[i] = NULL;
-		m_pinIn.erase(m_pinIn.begin()+i);
+BaseManipulation::removePinIn(PortID i){
+	if (i<m_portIn.size() && i >= 0){
+		m_portIn[i]->clear();
 	}
 }
 
-/*!It removes an output pin of the object and the related input pin of the linked object.
- * \param[in] i Index of target output pin.
+/*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
+ * \param[in] portS Port of target output pin (connection).
+ * \param[in] j Index of target output pin (connection) of the i-th output port.
  */
 void
-BaseManipulation::removePinOut(int i){
-	if (i<m_pinOut.size() && i != -1){
-		delete m_pinOut[i];
-		m_pinOut[i] = NULL;
+BaseManipulation::removePinOut(PortID portS, int j){
+	if (portS<m_portOut.size() && portS >= 0){
+		if (j<m_portOut[portS]->getLink().size() && j >= 0){
+			m_portOut[portS]->clear(j);
+		}
 	}
 }
 
-
-
+/*!It adds an input pin (connection) of the object.
+ * \param[in] objIn Pointer to sender BaseManipulation object.
+ * \param[in] portR ID of target input port.
+ */
 void
-BaseManipulation::addPinIn(BaseManipulation* objIn, int portR){
-	if (objIn != NULL && portR < m_pinIn.size()){
-		m_pinIn[portR]->m_objLink = objIn;
+BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
+	if (objIn != NULL && portR < m_portIn.size() && portR >=0){
+		m_portIn[portR]->m_objLink = objIn;
+	}
+};
+
+/*!It adds an output pin (connection) of the object.
+ * \param[in] objOut Pointer to receiver BaseManipulation object.
+ * \param[in] portS ID of target output port of sender.
+ * \param[in] portR ID of target input port of receiver.
+ */
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR){
+	if (objOut != NULL && portS < m_portOut.size() && portS >= 0 && portR >= 0){
+		if (portR < objOut->m_portIn.size()){
+			m_portOut[portS]->m_objLink.push_back(objOut);
+			m_portOut[portS]->m_portLink.push_back(portR);
+		}
+	}
+};
+
+/*!It adds an input pin (connection) of the object.
+ * \param[in] objIn Pointer to sender BaseManipulation object.
+ * \param[in] portR Label (type) of target input port of receiver.
+ */
+void
+BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
+	addPinIn(objIn, m_mapPortIn[portR]-1);
+};
+
+
+/*!It adds an output pin (connection) of the object.
+ * \param[in] objOut Pointer to receiver BaseManipulation object.
+ * \param[in] portS Label (type) of target output port of sender.
+ * \param[in] portR Label (type) of target input port of receiver.
+ */
+void
+BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType portR){
+	if (objOut != NULL){
+		addPinOut(objOut, m_mapPortOut[portS]-1, objOut->m_mapPortIn[portR]-1);
 	}
 };
 
 
 void
-BaseManipulation::addPinOut(BaseManipulation* objOut, int portS, int portR){
-	if (objOut != NULL && portS < m_pinOut.size()){
-		m_pinOut[portS]->m_objLink.push_back(objOut);
-		m_pinOut[portS]->m_portLink.push_back(portR);
+BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
+	if (objIn != NULL && portR < m_portIn.size()){
+		m_portIn[portR]->m_objLink = NULL;
 	}
 };
 
+
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
+	if (objOut != NULL && portS < m_portOut.size()){
+		std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
+		for (int i=0; i<linked.size(); i++){
+			if (linked[i] == objOut){
+				m_portOut[portS]->clear(i);
+			}
+		}
+	};
+}
+
+void
+BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
+	if (objIn != NULL){
+		removePinIn(objIn, m_mapPortIn[portR]-1);
+	}
+};
+
+
+void
+BaseManipulation::removePinOut(BaseManipulation* objOut, PortType portS){
+	if (objOut != NULL){
+		removePinOut(objOut, m_mapPortOut[portS]-1);
+	}
+}
 

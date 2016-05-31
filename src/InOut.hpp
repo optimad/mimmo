@@ -26,18 +26,47 @@
 
 #include "MiMMO_TypeDef.hpp"
 #include "binary_stream.hpp"
+#include "MimmoNamespace.hpp"
 #include <functional>
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
 
 namespace mimmo{
 
 class BaseManipulation;
+
+/**< @namespace mimmo
+ * mimmo namespace
+ */
+
+/**
+ * Port type specification.
+ *
+ * A type of data is related to each label. Same type of data can be related to
+ * multiple type of ports but with different meaning.
+ *
+ * mimmo::pin::PortType::COORDS -
+ * Port dedicated to communicates coordinates of points.
+ * A port COORDS communicates a std::vector<std::array<double, 3> >.
+ *
+ * mimmo::pin::PortType::DISPLS -
+ * Port dedicated to communicates displacements of points.
+ * A port DISPLS communicates a std::vector<std::array<double, 3> >.
+ *
+ *  mimmo::pin::PortType::FILTER -
+ *  Port dedicated to communicates a scalar field used as filter function.
+ *  A port FILTER communicates a std::vector<double>.
+ */
+typedef mimmo::pin::PortType PortType;
+
 
 /*!
  *	\date			14/mar/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief PinOut is the input-output PIN base class.
+ *	\brief PortOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -45,27 +74,35 @@ class BaseManipulation;
  *	this value as input. Therefore a pin can be OR input OR output pin for an object.
  *
  */
-class PinOut{
+class PortOut{
 public:
+
+
+
 	//members
 	bitpit::OBinaryStream				m_obuffer;
 	std::vector<BaseManipulation*>		m_objLink;	/**<Input/Output object from/to which
-										recover/give the target variable. */
+													recover/give the target variable. */
 	std::vector<int>					m_portLink;
 
+	PortType							m_label;
 
 public:
-	PinOut();
-	virtual ~PinOut();
+	PortOut();
+	virtual ~PortOut();
 
-	PinOut(const PinOut & other);
-	PinOut & operator=(const PinOut & other);
-	bool operator==(const PinOut & other);
+	PortOut(const PortOut & other);
+	PortOut & operator=(const PortOut & other);
+	bool operator==(const PortOut & other);
 
 	std::vector<BaseManipulation*>	getLink();
 	std::vector<int>				getPortLink();
 
 	virtual void	writeBuffer() = 0;
+	void 			cleanBuffer();
+
+	void clear();
+	void clear(int j);
 
 	/*!Execution method.
 	 */
@@ -83,7 +120,7 @@ public:
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief PinOutT is the input-output templated PIN class derived from base PinOut pin class.
+ *	\brief PortOutT is the input-output templated PIN class derived from base PortOut pin class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -102,21 +139,24 @@ public:
  *	The output pins of an object are executed after its own execution.
  *
  */
-template<typename T>
-class PinOutT: public PinOut {
+template<typename T, typename O>
+class PortOutT: public PortOut {
 
 public:
 
+	O*		m_obj_;
 	T		*m_var_;
+	T		(O::*m_getVar_)();
 
 public:
-	PinOutT();
-	PinOutT(T *var_);
-	virtual ~PinOutT();
+	PortOutT();
+	PortOutT(T *var_);
+	PortOutT(O* obj_, T (O::*getVar_)());
+	virtual ~PortOutT();
 
-	PinOutT(const PinOutT & other);
-	PinOutT & operator=(const PinOutT & other);
-	bool operator==(const PinOutT & other);
+	PortOutT(const PortOutT & other);
+	PortOutT & operator=(const PortOutT & other);
+	bool operator==(const PortOutT & other);
 
 	void writeBuffer();
 	void readBuffer();
@@ -130,7 +170,7 @@ public:
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief PinOut is the input-output PIN base class.
+ *	\brief PortOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -138,24 +178,33 @@ public:
  *	this value as input. Therefore a pin can be OR input OR output pin for an object.
  *
  */
-class PinIn{
+class PortIn{
 public:
 	//members
 	bitpit::IBinaryStream				m_ibuffer;
 	BaseManipulation*					m_objLink;	/**<Input/Output object from/to which
-										recover/give the target variable. */
+													recover/give the target variable. */
+
+	std::vector<PortType>				m_labelOK;	/**<Compatibility output port labels. */
 
 public:
-	PinIn();
-	virtual ~PinIn();
+	PortIn();
+	virtual ~PortIn();
 
-	PinIn(const PinIn & other);
-	PinIn & operator=(const PinIn & other);
-	bool operator==(const PinIn & other);
+	PortIn(const PortIn & other);
+	PortIn & operator=(const PortIn & other);
+	bool operator==(const PortIn & other);
+
+	void addCompatibility(PortType label);
+
+	const std::vector<PortType>&	getCompatibility();
 
 	BaseManipulation*	getLink();
 
+	void clear();
+
 	virtual void	readBuffer() = 0;
+	void 			cleanBuffer();
 
 };
 
@@ -169,7 +218,7 @@ public:
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief PinInT is the input-output templated PIN class derived from base PinIn pin class.
+ *	\brief PortInT is the input-output templated PIN class derived from base PortIn pin class.
  *
  *	A pin is an object member of BaseManipulation object.
  *	Through a pin two base manipulation objects are linked together. One of these two
@@ -189,20 +238,20 @@ public:
  *
  */
 template<typename T>
-class PinInT: public PinIn {
+class PortInT: public PortIn {
 
 public:
 
 	T		*m_var_;
 
 public:
-	PinInT();
-	PinInT(T *var_);
-	virtual ~PinInT();
+	PortInT();
+	PortInT(T *var_);
+	virtual ~PortInT();
 
-	PinInT(const PinInT & other);
-	PinInT & operator=(const PinInT & other);
-	bool operator==(const PinInT & other);
+	PortInT(const PortInT & other);
+	PortInT & operator=(const PortInT & other);
+	bool operator==(const PortInT & other);
 
 	void writeBuffer();
 	void readBuffer();
