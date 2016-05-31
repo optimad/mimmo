@@ -258,30 +258,6 @@ BaseManipulation::removePinsOut(){
 	}
 }
 
-/*!It reads the buffer stored in an input port of the object.
- * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
- */
-void
-BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
-	m_portIn[port]->m_ibuffer = input;
-}
-
-/*!It reads the buffer stored in an input port of the object.
- * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
- */
-void
-BaseManipulation::readBufferIn(PortID port){
-	m_portIn[port]->readBuffer();
-}
-
-/*!It reads the buffer stored in an input port of the object.
- * \param[in] port ID of the port that reads the buffer and stores the value in the related variable.
- */
-void
-BaseManipulation::cleanBufferIn(PortID port){
-	m_portIn[port]->cleanBuffer();
-}
-
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
@@ -303,6 +279,32 @@ BaseManipulation::exec(){
 			m_portOut[i]->exec();
 		}
 	}
+}
+
+/*!It sets the buffer stored in an input port of the object.
+ * \param[in] port ID of the input port.
+ * \param[in] input Reference to bitpit::IBinaryStream to store in m_ibuffer member of the port.
+ */
+void
+BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
+	m_portIn[port]->m_ibuffer = input;
+}
+
+/*!It reads the buffer stored in an input port of the object.
+ * \param[in] port ID of the port that reads the buffer and stores the
+ * value in the related variable.
+ */
+void
+BaseManipulation::readBufferIn(PortID port){
+	m_portIn[port]->readBuffer();
+}
+
+/*!It cleans the buffer stored in an input port of the object.
+ * \param[in] port ID of the port.
+ */
+void
+BaseManipulation::cleanBufferIn(PortID port){
+	m_portIn[port]->cleanBuffer();
 }
 
 /*!It adds a manipulator object linked by this object.
@@ -481,7 +483,10 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType p
 	}
 };
 
-
+/*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
+ * \param[in] objIn Pointer to sender BaseManipulation object.
+ * \param[in] portR ID of target input port of receiver.
+ */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
 	if (objIn != NULL && portR < m_portIn.size()){
@@ -489,7 +494,10 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
 	}
 };
 
-
+/*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
+ * \param[in] objOut Pointer to receiver BaseManipulation object.
+ * \param[in] portS ID of target output port of sender.
+ */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 	if (objOut != NULL && portS < m_portOut.size()){
@@ -502,6 +510,10 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 	};
 }
 
+/*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
+ * \param[in] objIn Pointer to sender BaseManipulation object.
+ * \param[in] portR Label (type) of target input port of receiver.
+ */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
 	if (objIn != NULL){
@@ -509,7 +521,10 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
 	}
 };
 
-
+/*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
+ * \param[in] objOut Pointer to receiver BaseManipulation object.
+ * \param[in] portS Label (type) of target output port of sender.
+ */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortType portS){
 	if (objOut != NULL){

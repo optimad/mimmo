@@ -30,7 +30,6 @@ using namespace mimmo;
 
 /*!
 	Output stream operator for dvecarr3E
-
 	\param[in] buffer is the output stream
 	\param[in] var is the element to be streamed
 	\result Returns the same output stream received in input.
@@ -51,7 +50,6 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr3
 
 /*!
 	Input stream operator for dvecarr3E
-
 	\param[in] buffer is the input stream
 	\param[in] var is the element to be streamed
 	\result Returns the same input stream received in input.
@@ -88,6 +86,7 @@ PortOut::PortOut(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
+	m_label		= other.m_label;
 	return;
 };
 
@@ -97,6 +96,7 @@ PortOut & PortOut::operator=(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
+	m_label		= other.m_label;
 	return (*this);
 };
 
@@ -106,34 +106,53 @@ bool PortOut::operator==(const PortOut & other){
 	bool check = true;
 	check = check && (m_portLink == other.m_portLink);
 	check = check && (m_objLink == other.m_objLink);
+	check = check && (m_label == other.m_label);
 	return(check);
 };
 
-/*!It gets the linked object by this pin.
- * \return Pointer to linked object.
+/*!It gets the label of the port.
+ * \return Label (tag) of the port.
+ */
+PortType
+PortOut::getLabel(){
+	return(m_label);
+}
+
+/*!It gets the objects linked by this port.
+ * \return Vector of pointer to linked objects.
  */
 std::vector<mimmo::BaseManipulation*>
 PortOut::getLink(){
 	return(m_objLink);
 }
 
-std::vector<int>
+/*!It gets the input port ID of the objects linked by this port.
+ * \return Vector of PortID.
+ */
+std::vector<PortID>
 PortOut::getPortLink(){
 	return(m_portLink);
 }
 
+/*!It release the memory occupied by the output buffer.
+ */
 void
 mimmo::PortOut::cleanBuffer(){
 	m_obuffer.setCapacity(0);
 	m_obuffer.eof();
 }
 
+/*!It cleans the links to objects and the related port ID vector.
+ */
 void
 mimmo::PortOut::clear(){
 	m_objLink.clear();
 	m_portLink.clear();
 }
 
+/*!It removes the link to an object and the related port ID.
+ * \param[in] j Index of the linked object in the links vector of this port.
+ */
 void
 mimmo::PortOut::clear(int j){
 	if (j < m_objLink.size() && j >= 0){
@@ -176,6 +195,7 @@ PortIn::~PortIn(){
 PortIn::PortIn(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
+	m_labelOK	= other.m_labelOK;
 	return;
 };
 
@@ -184,6 +204,7 @@ PortIn::PortIn(const PortIn & other){
 PortIn & PortIn::operator=(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
+	m_labelOK	= other.m_labelOK;
 	return (*this);
 };
 
@@ -192,21 +213,27 @@ PortIn & PortIn::operator=(const PortIn & other){
 bool PortIn::operator==(const PortIn & other){
 	bool check = true;
 	check = check && (m_objLink == other.m_objLink);
+	check = check && (m_labelOK == other.m_labelOK);
 	return(check);
 };
 
+/*!It adds a compatibility with a type of port.
+ * \param[in] label Label (TAG) of PortType to set the compatibility with.
+ */
 void
 PortIn::addCompatibility(PortType label){
-	m_labelOK.push_back(label);
+	if (std::find(m_labelOK.begin(), m_labelOK.end(), label) == m_labelOK.end()) m_labelOK.push_back(label);
 }
 
+/*!It gets all the compatibilities of the port.
+ * \param[out] Vector of labels (TAGS) of PortType compatible with the port..
+ */
 const std::vector<PortType>&
 PortIn::getCompatibility(){
 	return m_labelOK;
 }
 
-
-/*!It gets the linked object by this pin.
+/*!It gets the linked object by this port.
  * \return Pointer to linked object.
  */
 BaseManipulation*
@@ -214,11 +241,15 @@ PortIn::getLink(){
 	return(m_objLink);
 }
 
+/*!It clears the linked object by this port.
+ */
 void
 mimmo::PortIn::clear(){
 	m_objLink = NULL;
 }
 
+/*!It release the memory occupied by the input buffer.
+ */
 void
 mimmo::PortIn::cleanBuffer(){
 	m_ibuffer.setCapacity(0);

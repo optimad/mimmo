@@ -58,7 +58,8 @@ class BaseManipulation;
  *  Port dedicated to communicates a scalar field used as filter function.
  *  A port FILTER communicates a std::vector<double>.
  */
-typedef mimmo::pin::PortType PortType;
+typedef mimmo::pin::PortType	PortType;
+typedef short int 				PortID;
 
 
 /*!
@@ -80,12 +81,11 @@ public:
 
 
 	//members
-	bitpit::OBinaryStream				m_obuffer;
-	std::vector<BaseManipulation*>		m_objLink;	/**<Input/Output object from/to which
-													recover/give the target variable. */
-	std::vector<int>					m_portLink;
+	bitpit::OBinaryStream				m_obuffer;	/**<Output buffer to communicate data.*/
+	std::vector<BaseManipulation*>		m_objLink;	/**<Outputs object to which communicate the data.*/
+	std::vector<PortID>					m_portLink;	/**<ID of the input ports of the linked objects.*/
 
-	PortType							m_label;
+	PortType							m_label;	/**<Label (tag) of the type of the port.*/
 
 public:
 	PortOut();
@@ -95,8 +95,9 @@ public:
 	PortOut & operator=(const PortOut & other);
 	bool operator==(const PortOut & other);
 
+	PortType						getLabel();
 	std::vector<BaseManipulation*>	getLink();
-	std::vector<int>				getPortLink();
+	std::vector<PortID>				getPortLink();
 
 	virtual void	writeBuffer() = 0;
 	void 			cleanBuffer();
@@ -144,13 +145,13 @@ class PortOutT: public PortOut {
 
 public:
 
-	O*		m_obj_;
-	T		*m_var_;
-	T		(O::*m_getVar_)();
+	O*		m_obj_;				/**<Object owner of the port.*/
+	T		*m_var_;			/**<Linked variable to communicate.*/
+	T		(O::*m_getVar_)();	/**<Pointer to function that recovers the data to communicate (alternative to linked variable).*/
 
 public:
 	PortOutT();
-	PortOutT(T *var_);
+	PortOutT(O* obj_, T *var_);
 	PortOutT(O* obj_, T (O::*getVar_)());
 	virtual ~PortOutT();
 
@@ -181,10 +182,8 @@ public:
 class PortIn{
 public:
 	//members
-	bitpit::IBinaryStream				m_ibuffer;
-	BaseManipulation*					m_objLink;	/**<Input/Output object from/to which
-													recover/give the target variable. */
-
+	bitpit::IBinaryStream				m_ibuffer;	/**<input buffer to recover data.*/
+	BaseManipulation*					m_objLink;	/**<Input object from which	recover the data. */
 	std::vector<PortType>				m_labelOK;	/**<Compatibility output port labels. */
 
 public:
@@ -242,7 +241,7 @@ class PortInT: public PortIn {
 
 public:
 
-	T		*m_var_;
+	T		*m_var_;	/**<Linked variable to fill with communicated data.*/
 
 public:
 	PortInT();
