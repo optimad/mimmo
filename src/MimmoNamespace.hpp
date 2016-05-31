@@ -41,7 +41,9 @@ enum PortType{
 	BMATRIX	/*! Port dedicated to communicates an array of array 3x3 of double (Bending).*/,
 	BCOEFFS	/*! Port dedicated to communicates an array of array 3x3 of vector of double (Bending).*/,
 	GLOBAL,
-	DEG
+	DEG,
+	RANGE,
+	BOOLS3
 
 };
 /**< Port type specification.

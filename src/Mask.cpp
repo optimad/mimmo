@@ -48,12 +48,37 @@ Mask & Mask::operator=(const Mask & other){
 	return(*this);
 };
 
+/*! It builds the input/output ports of the object
+ */
+void
+Mask::buildPorts(){
+	bool built = true;
+
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, DISPLS, 0, {GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, COORDS, 1, {DISPLS, GDISPLS}));
+	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, RANGE, 2));
+	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, BOOLS3, 3));
+
+	built = (built && createPortOut<dvecarr3E, Mask>(this,
+			&mimmo::Mask::getDisplacements, DISPLS, 0));
+
+	m_arePortsBuilt = built;
+};
+
 /*!It gets the coordinates of points stored in the object.
  * \return Coordinates of points stored in the object.
  */
 dvecarr3E*
 Mask::getCoords(){
 	return(&m_coords);
+};
+
+/*!It gets the displacements of points stored in the object.
+ * \return Displacements of points stored in the object.
+ */
+dvecarr3E
+Mask::getDisplacements(){
+	return(m_displ);
 };
 
 /*!It sets the coordinates of points used by the masking.
@@ -153,12 +178,8 @@ Mask::setInside(int i, bool inside){
 	if (i >= 0 && i < 3) m_inside[i] = inside;
 };
 
-/*!Execution command. It modifies the values given by the input manipulation object
- * with the masking conditions.
- * The input has to be set with a dvecarr3E variable
- * (mask it casts the template method getInput to this type) and the result
- * will be of the same type.
- * After exec() the modified values are stored in the result member of base class.
+/*!Execution command. It modifies the initial values of m_displ with the masking conditions.
+ * After exec() the modified values are stored in the m_displ member.
  */
 void
 Mask::execute(){

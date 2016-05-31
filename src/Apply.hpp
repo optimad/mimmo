@@ -42,15 +42,22 @@ namespace mimmo{
  *	After the execution of an object Apply, the original geometry will be modified.
  *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|--------------------------------------------------------|
+ *	|                 Port Input                             |
+ *	|-------|----------|-------------------|-----------------|
+ *	|PortID | PortType | variable/function | compatibilities |
+ *	|-------|----------|-------------------|-----------------|
+ *	| 0     | DISPL    | m_input           | DISPLS          |
+ *	|-------|----------|-------------------|-----------------|
  *
- *	- Port Input -
- *	PortID	PortType	variable/function	compatibilities
- *	0 		DISPL		m_input				DISPLS
  *
- *	- Port Output -
- *	PortID	PortType	variable/function
- *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ * ~~~
  *	=========================================================
  *
  */
