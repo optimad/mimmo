@@ -112,8 +112,7 @@ void test0001() {
 	//Plot results
 	lattice->plotGrid("./", "lattice_0001", 0, false, false);
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
-	
-	
+
 	mimmo0 = new MimmoGeometry();
 	
 	mimmo0->setWrite(true);

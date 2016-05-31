@@ -85,15 +85,18 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
 	return(*this);
 };
 
+/*! It builds the input/output ports of the object
+ */
 void FFDLattice::buildPorts(){
-
-	bool built;
-	built = createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, GDISPLS, 0);
-	built = createPortIn<dvecarr3E>(&m_displ, DISPLS, 0, {GDISPLS});
+	//TODO complete ports
+	bool built= true;
+	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, DISPLS, 0, {GDISPLS}));
+	built = (built && createPortIn<bool, FFDLattice>(&m_globalDispl, GLOBAL, 1));
+	built = (built && createPortIn<dvector1D, FFDLattice>(&m_filter, FILTER, 2));
+	built = (built && createPortIn<iarray3E, FFDLattice>(&m_deg, DEG, 3));
+	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, GDISPLS, 0));
 	m_arePortsBuilt = built;
-
 };
-
 
 /*!Clean all stuffs in your lattice */
 void FFDLattice::clearLattice(){

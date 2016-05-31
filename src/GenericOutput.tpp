@@ -24,7 +24,7 @@ mimmo::GenericOutput::setInput(T* data){
  */
 template<typename T>
 void
-mimmo::GenericOutput::setInput(T& data){
+mimmo::GenericOutput::setInput(T data){
 	_setInput(data);
 	_setResult(data);
 	std::ofstream file;
@@ -62,7 +62,7 @@ mimmo::GenericOutput::setResult(T* data){
  */
 template<typename T>
 void
-mimmo::GenericOutput::setResult(T& data){
+mimmo::GenericOutput::setResult(T data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_result = std::move(dummy);
@@ -98,7 +98,7 @@ mimmo::GenericOutput::_setInput(T* data){
  */
 template<typename T>
 void
-mimmo::GenericOutput::_setInput(T& data){
+mimmo::GenericOutput::_setInput(T data){
 	clearInput();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_input = std::move(dummy);
@@ -133,7 +133,7 @@ mimmo::GenericOutput::_setResult(T* data){
  */
 template<typename T>
 void
-mimmo::GenericOutput::_setResult(T& data){
+mimmo::GenericOutput::_setResult(T data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_result = std::move(dummy);

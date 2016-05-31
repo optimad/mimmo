@@ -42,6 +42,27 @@ namespace mimmo{
  *	where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  *	applied to the i-th displacements.
  *
+ *	=========================================================
+ *	PORT TABLE
+ *
+ *	- Input  Ports-
+ *
+ *	PortID	PortType	variable/function	compatibilities
+ *
+ *	0 		DISPLS		m_displ					GDISPLS
+ *	1 		COORDS		m_coords				DISPLS GDISPLS
+ *	2 		BMATRIX		m_degree				-
+ *	3 		BCOEFFS		m_coeffs				-
+ *
+ *
+ *	- Output Ports -
+ *
+ *	PortID	PortType	variable/function
+ *
+ *	0		DISPLS		getDisplacements
+ *
+ *	=========================================================
+ *
  * TODO implementation of user interface seems not ROBUST. Please recheck set*** methods.
  */
 class Bend: public BaseManipulation{
@@ -51,7 +72,7 @@ private:
 										(each componentns of displacement is
 										f(x,y,z) with no mixed terms)*/
 	dmat33Evec			m_coeffs;	/**<Coeffs of polynomial law for each coordinate.*/
-	dvecarr3E			m_displ;
+	dvecarr3E			m_displ;	/**<Displacements of degrees of freedom of manipulator.*/
 
 public:
 	Bend();
@@ -60,10 +81,14 @@ public:
 	Bend(const Bend & other);
 	Bend & operator=(const Bend & other);
 
+	void buildPorts();
+
 	dvecarr3E*	getCoords();
 	umatrix33E	getDegree();
 	dmat33Evec	getCoeffs();
+	dvecarr3E	getDisplacements();
 
+	void	setDisplacements(dvecarr3E displ);
 	void	setCoords(dvecarr3E coords);
 	void	setDegree(umatrix33E degree);
 	void	setDegree(int i, int j, uint32_t degree);

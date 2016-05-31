@@ -73,6 +73,18 @@ Lattice & Lattice::operator=(const Lattice & other){
 	return(*this);
 };
 
+/*! It builds the input/output ports of the object
+ */
+void Lattice::buildPorts(){
+
+	//TODO Build port
+	bool built= true;
+//	built = (built && createPortIn<darray3E>(&m_origin, POINT, 0));
+//	built = (built && createPortIn<darray3E>(&m_span, RANGE, 1));
+//	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, GDISPLS, 0));
+	m_arePortsBuilt = built;
+};
+
 /*!Clean all stuffs in your lattice */
 void Lattice::clearLattice(){
 	clear(); //base manipulation stuff clear

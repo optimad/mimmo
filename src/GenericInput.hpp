@@ -43,6 +43,24 @@ namespace mimmo{
  *  GenericInput can be read the input from a file or
  *   it can be set by using setInput methods.
  *
+ *	=========================================================
+ *	PORT TABLE
+ *
+ *	- Input  Ports-
+ *
+ *	PortID	PortType	variable/function	compatibilities
+ *
+ *
+ *	- Output Ports -
+ *
+ *	PortID	PortType	variable/function
+ *
+ *	0 		DISPLS		getResult
+ *	1 		COORDS		getResult
+ *	2 		FILTER		getResult
+ *
+ *	=========================================================
+ *
  */
 class GenericInput: public BaseManipulation{
 private:

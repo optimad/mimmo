@@ -37,7 +37,11 @@ enum PortType{
 	COORDS	/*! Port dedicated to communicates coordinates of points.*/,
 	DISPLS	/*! Port dedicated to communicates displacements of points.*/,
 	GDISPLS	/*! Port dedicated to communicates displacements of geometry vertex.*/,
-	FILTER	/*! Port dedicated to communicates a scalar field used as filter function.*/
+	FILTER	/*! Port dedicated to communicates a scalar field used as filter function.*/,
+	BMATRIX	/*! Port dedicated to communicates an array of array 3x3 of double (Bending).*/,
+	BCOEFFS	/*! Port dedicated to communicates an array of array 3x3 of vector of double (Bending).*/,
+	GLOBAL,
+	DEG
 
 };
 /**< Port type specification.

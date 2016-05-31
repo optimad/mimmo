@@ -82,14 +82,18 @@ GenericInput::setFilename(std::string filename){
 	m_filename = filename;
 };
 
-
+/*! It builds the input/output ports of the object
+ */
 void
 GenericInput::buildPorts(){
-
-	bool built;
-	built = createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 0);
+	bool built = true;
+	built = (built && createPortOut<dvecarr3E, GenericInput>(this,
+			&mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 0));
+	built = (built && createPortOut<dvecarr3E, GenericInput>(this,
+			&mimmo::GenericInput::getResult<dvecarr3E>, COORDS, 1));
+	built = (built && createPortOut<dvector1D, GenericInput>(this,
+			&mimmo::GenericInput::getResult<dvector1D>, FILTER, 2));
 	m_arePortsBuilt = built;
-
 }
 
 /*!It clear the input member of the object

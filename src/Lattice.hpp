@@ -45,7 +45,7 @@ namespace mimmo{
 class Lattice: public BaseManipulation, public UStructMesh {
 
 protected:
-	double		m_np;			/**< Number of control nodes.*/
+	int			m_np;			/**< Number of control nodes.*/
 	ivector1D   m_intMapDOF;    /**< Map of grid nodes -> degrees of freedom of lattice */
 	
 public:
@@ -55,6 +55,8 @@ public:
 	//copy operators/constructors
 	Lattice(const Lattice & other);
 	Lattice & operator=(const Lattice & other);
+
+	void buildPorts();
 
 	//clean structure;
 	void 		clearLattice();

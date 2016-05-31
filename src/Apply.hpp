@@ -40,6 +40,19 @@ namespace mimmo{
  *	a pin linking or set by the user, i.e. one has to use setInput method to set
  *	the displacements to be applied to the geometry.
  *	After the execution of an object Apply, the original geometry will be modified.
+ *
+ *	=========================================================
+ *	PORT TABLE
+ *
+ *	- Port Input -
+ *	PortID	PortType	variable/function	compatibilities
+ *	0 		DISPL		m_input				DISPLS
+ *
+ *	- Port Output -
+ *	PortID	PortType	variable/function
+ *
+ *	=========================================================
+ *
  */
 class Apply: public BaseManipulation{
 public:

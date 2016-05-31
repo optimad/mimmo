@@ -49,14 +49,13 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
-
+/*! It builds the input/output ports of the object
+ */
 void
 Apply::buildPorts(){
-
-	bool built;
-	built = createPortIn<dvecarr3E>(&m_input, GDISPLS, 0, {DISPLS});
+	bool built = true;
+	built = (built && createPortIn<dvecarr3E, Apply>(&m_input, GDISPLS, 0, {DISPLS}));
 	m_arePortsBuilt = built;
-
 };
 
 /*!
@@ -76,17 +75,14 @@ void	Apply::setRefreshGeometryTrees(bool force){
 void
 Apply::execute(){
 	if (getGeometry() == NULL) return;
-	dvecarr3E vertex = getGeometry()->getVertexCoords();
-//	dvecarr3E* displ = getInput<dvecarr3E>();
-	dvecarr3E* displ = &m_input;
 
+	dvecarr3E vertex = getGeometry()->getVertexCoords();
 	long nv = getGeometry()->getNVertex();
-	nv = long(std::min(int(nv), int((*displ).size()) ));
+	nv = long(std::min(int(nv), int(m_input.size())));
 	livector1D & idmap = getGeometry()->getMapData();
 	for (long i=0; i<nv; i++){
-		vertex[i] += (*displ)[i];
+		vertex[i] += m_input[i];
 		getGeometry()->modifyVertex(vertex[i], idmap[i]);
 	}
-	displ = NULL;
 	return;
 };

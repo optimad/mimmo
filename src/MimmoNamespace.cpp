@@ -19,8 +19,20 @@ namespace pin{
 bool
 addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced){
 	bool done = false;
-	if (!objSend->arePortsBuilt()) objSend->buildPorts();
-	if (!objRec->arePortsBuilt()) objRec->buildPorts();
+	if (!objSend->arePortsBuilt()){
+		objSend->buildPorts();
+		if (!objSend->arePortsBuilt()){
+			std::cout << "MiMMO : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
+			exit(11);
+		}
+	}
+	if (!objRec->arePortsBuilt()){
+		objRec->buildPorts();
+			if (!objRec->arePortsBuilt()){
+			std::cout << "MiMMO : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
+			exit(11);
+		}
+	}
 	if (!(objSend->getPortsType() == PortsType::BACKWARD) && !(objRec->getPortsType() == PortsType::FORWARD) ){
 		if (forced || checkCompatibility(objSend, objRec, portS, portR)){
 			objSend->addPinOut(objRec, portS, portR);
@@ -45,8 +57,20 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 bool
 addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR, bool forced){
 	bool done = false;
-	if (!objSend->arePortsBuilt()) objSend->buildPorts();
-	if (!objRec->arePortsBuilt()) objRec->buildPorts();
+	if (!objSend->arePortsBuilt()){
+		objSend->buildPorts();
+		if (!objSend->arePortsBuilt()){
+			std::cout << "MiMMO : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
+			exit(11);
+		}
+	}
+	if (!objRec->arePortsBuilt()){
+		objRec->buildPorts();
+			if (!objRec->arePortsBuilt()){
+			std::cout << "MiMMO : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
+			exit(11);
+		}
+	}
 	if (!(objSend->getPortsType() == PortsType::BACKWARD) && !(objRec->getPortsType() == PortsType::FORWARD) ){
 		if (forced || checkCompatibility(objSend, objRec, portS, portR)){
 			objSend->addPinOut(objRec, portS, portR);

@@ -16,15 +16,15 @@ mimmo::PortOutT<T,O>::PortOutT(){
  * \param[in] var_ Pointer to variable to be streamed.
  */
 template<typename T, typename O>
-mimmo::PortOutT<T,O>::PortOutT(O* obj_, T *var_){
-	m_obj_ 		= obj_;
+mimmo::PortOutT<T,O>::PortOutT(T *var_){
+	m_obj_ 		= NULL;
 	m_var_ 		= var_;
 	m_getVar_ 	= NULL;
 };
 
 /*!Custom constructor of PortOutT
  * \param[in] obj_ Pointer to object owner of the port.
- * \param[in] var_ Pointer to function that gets the data to be streamed.
+ * \param[in] getVar_ Pointer to function that gets the data to be streamed.
  */
 template<typename T, typename O>
 mimmo::PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
@@ -87,64 +87,92 @@ mimmo::PortOutT<T,O>::writeBuffer(){
 		m_obuffer << (*m_var_);
 	}
 	return;
-
 }
+
+
 
 /*!Default constructor of PortInT
  */
-template<typename T>
-mimmo::PortInT<T>::PortInT(){
-	m_var_ = NULL;
+template<typename T, typename O>
+mimmo::PortInT<T, O>::PortInT(){
+	m_obj_ 		= NULL;
+	m_var_ 		= NULL;
+	m_setVar_ 	= NULL;
 };
 
 /*!Custom constructor of PortInT
  * \param[in] var_ Pointer to variable to be streamed.
  */
-template<typename T>
-mimmo::PortInT<T>::PortInT(T *var_){
-	m_var_ = var_;
+template<typename T, typename O>
+mimmo::PortInT<T, O>::PortInT(T *var_){
+	m_obj_ 		= NULL;
+	m_var_ 		= var_;
+	m_setVar_ 	= NULL;
 };
 
+/*!Custom constructor of PortInT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
+ */
+template<typename T, typename O>
+mimmo::PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
+	m_obj_ 		= obj_;
+	m_setVar_ 	= setVar_;
+	m_var_ 		= NULL;
+};
 
 /*!Default destructor of PortInT
  */
-template<typename T>
-mimmo::PortInT<T>::~PortInT(){
-	m_var_ = NULL;
+template<typename T, typename O>
+mimmo::PortInT<T, O>::~PortInT(){
+	m_obj_ 		= NULL;
+	m_var_ 		= NULL;
+	m_setVar_ 	= NULL;
 };
 
 /*!Copy constructor of PortInT.
  */
-template<typename T>
-mimmo::PortInT<T>::PortInT(const PortInT<T> & other){
+template<typename T, typename O>
+mimmo::PortInT<T, O>::PortInT(const PortInT<T, O> & other){
 	*this = other;
 };
 
 /*!Assignement operator of PortInT.
  */
-template<typename T>
-mimmo::PortInT<T> & mimmo::PortInT<T>::operator=(const PortInT<T> & other){
-	m_var_ = other.m_var_;
+template<typename T, typename O>
+mimmo::PortInT<T, O> & mimmo::PortInT<T, O>::operator=(const PortInT<T, O> & other){
+	m_obj_ 		= other.m_obj_;
+	m_var_ 		= other.m_var_;
+	m_setVar_	= other.m_setVar_;
 	return (*this);
 };
 
 /*!Compare operator of PortInT.
  */
-template<typename T>
-bool mimmo::PortInT<T>::operator==(const PortInT<T> & other){
+template<typename T, typename O>
+bool mimmo::PortInT<T, O>::operator==(const PortInT<T, O> & other){
 	bool equal = true;
+	equal &= (m_obj_ == other.m_obj_);
 	equal &= (m_var_ == other.m_var_);
+	equal &= (m_setVar_ == other.m_setVar_);
 	return (equal);
 };
 
 /*!It reads the buffer of the output port with the data to be communicated.
  * It stores the read values in the linked m_var_ by casting in the stream operator.
  */
-template<typename T>
+template<typename T, typename O>
 void
-mimmo::PortInT<T>::readBuffer(){
+mimmo::PortInT<T, O>::readBuffer(){
 	T temp;
 	m_ibuffer >> temp;
-	(*m_var_) = temp;
+	if (m_setVar_ != NULL){
+		(m_obj_->*m_setVar_)(temp);
+		return;
+	}
+	if (m_var_ != NULL){
+		(*m_var_) = temp;
+	}
+	return;
 }
 

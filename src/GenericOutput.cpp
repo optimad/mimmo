@@ -57,6 +57,20 @@ GenericOutput & GenericOutput::operator=(const GenericOutput & other){
 	return *this;
 };
 
+/*! It builds the input/output ports of the object
+ */
+void
+GenericOutput::buildPorts(){
+	bool built = true;
+	built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>,
+			DISPLS, 0, {GDISPLS, COORDS}));
+	built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>,
+			COORDS, 1, {GDISPLS, DISPLS}));
+	built = (built && createPortIn<dvector1D, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvector1D>,
+			FILTER, 2));
+	m_arePortsBuilt = built;
+}
+
 /*!It sets the name of the output file.
  * \param[in] filename Name of the output file.
  */

@@ -163,8 +163,11 @@ protected:
 	template<typename T, typename O>
 	bool	createPortOut(O* obj, T (O::*getVar_)(), PortType label, PortID portS);
 
-	template<typename T>
+	template<typename T, typename O>
 	bool	createPortIn(T* var_, PortType label, PortID portR, std::vector<PortType> compatibilities = std::vector<PortType>(0));
+
+	template<typename T, typename O>
+	bool	createPortIn(O* obj, void (O::*setVar_)(T), PortType label, PortID portR, std::vector<PortType> compatibilities = std::vector<PortType>(0));
 
 	void	setBufferIn(PortID port, bitpit::IBinaryStream& input);
 	void	readBufferIn(PortID port);

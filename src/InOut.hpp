@@ -151,7 +151,7 @@ public:
 
 public:
 	PortOutT();
-	PortOutT(O* obj_, T *var_);
+	PortOutT(T *var_);
 	PortOutT(O* obj_, T (O::*getVar_)());
 	virtual ~PortOutT();
 
@@ -160,7 +160,6 @@ public:
 	bool operator==(const PortOutT & other);
 
 	void writeBuffer();
-	void readBuffer();
 
 };
 
@@ -236,16 +235,19 @@ public:
  *	The output pins of an object are executed after its own execution.
  *
  */
-template<typename T>
+template<typename T, typename O>
 class PortInT: public PortIn {
 
 public:
 
-	T		*m_var_;	/**<Linked variable to fill with communicated data.*/
+	O*		m_obj_;				/**<Object owner of the port.*/
+	T		*m_var_;			/**<Linked variable to fill with communicated data.*/
+	void	(O::*m_setVar_)(T);	/**<Pointer to function that fills members with the communicated (alternative to linked variable).*/
 
 public:
 	PortInT();
 	PortInT(T *var_);
+	PortInT(O* obj_, void (O::*getVar_)(T));
 	virtual ~PortInT();
 
 	PortInT(const PortInT & other);

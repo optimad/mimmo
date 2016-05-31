@@ -41,6 +41,27 @@ namespace mimmo{
  *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
  *  those portion of geometry encased into the 3D shape.
  *
+ *	=========================================================
+ *	PORT TABLE
+ *
+ *	- Input  Ports-
+ *
+ *	PortID	PortType	variable/function	compatibilities
+ *
+ *	0 		DISPLS		m_displ					GDISPLS
+ *	1 		COORDS		m_coords				DISPLS GDISPLS
+ *	2 		BMATRIX		m_degree				-
+ *	3 		BCOEFFS		m_coeffs				-
+ *
+ *
+ *	- Output Ports -
+ *
+ *	PortID	PortType	variable/function
+ *
+ *	0		DISPLS		getDisplacements
+ *
+ *	=========================================================
+ *
  */
 class FFDLattice: public Lattice {
 

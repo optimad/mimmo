@@ -39,6 +39,24 @@ namespace mimmo{
  *	GenericOutput is derived from BaseManipulation class.
  *	It uses and it writes the base members input.
  *
+ *	=========================================================
+ *	PORT TABLE
+ *
+ *	- Input  Ports-
+ *
+ *	PortID	PortType	variable/function	compatibilities
+ *
+ *	0 		DISPLS		getResult			GDISPLS COORDS
+ *	1 		COORDS		getResult			GDISPLS DISPLS
+ *	2 		FILTER		getResult			-
+ *
+ *
+ *	- Output Ports -
+ *
+ *	PortID	PortType	variable/function
+ *
+ *	=========================================================
+ *
  */
 class GenericOutput: public BaseManipulation{
 private:
@@ -56,6 +74,8 @@ public:
 	GenericOutput(const GenericOutput & other);
 	GenericOutput & operator=(const GenericOutput & other);
 
+	void buildPorts();
+
 	template<typename T>
 	T*					getInput();
 
@@ -66,22 +86,22 @@ public:
 	void 	setInput(T* data);
 
 	template<typename T>
-	void 	setInput(T& data);
+	void 	setInput(T data);
 
 	template<typename T>
 	void 				setResult(T* data);
 	template<typename T>
-	void 				setResult(T& data);
+	void 				setResult(T data);
 
 	template<typename T>
 	void 				_setInput(T* data);
 	template<typename T>
-	void 				_setInput(T& data);
+	void 				_setInput(T data);
 
 	template<typename T>
 	void 				_setResult(T* data);
 	template<typename T>
-	void 				_setResult(T& data);
+	void 				_setResult(T data);
 
 	template<typename T>
 	T*					_getInput();
