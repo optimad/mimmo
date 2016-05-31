@@ -151,7 +151,7 @@ public:
 	livector1D	extractPIDCells(short);
 	livector1D	extractPIDCells(shivector1D);
 	
-	void		buildBvTree();
+	void		buildBvTree(int value = 1);
 	void		buildKdTree();	
 
 

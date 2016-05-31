@@ -29,6 +29,7 @@
 #include "MiMMO_TypeDef.hpp"
 #include "MimmoObject.hpp"
 #include "SortAlgorithms.hpp"
+#include <unordered_set>
 
 namespace mimmo{
 
@@ -63,7 +64,8 @@ protected:
 	darray3E 	m_scaling; 		/**< scaling vector of dimensional coordinates */
 
 	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
-	
+
+	dvecarr3E m_tempPoints;
 	
 public:
 	
@@ -101,9 +103,13 @@ public:
 	
 	livector1D	includeCloudPoints(dvecarr3E &); 
 	livector1D	excludeCloudPoints(dvecarr3E &); 
+	
 	livector1D	includeCloudPoints(bitpit::PatchKernel * ); 
 	livector1D	excludeCloudPoints(bitpit::PatchKernel * ); 
 
+	livector1D	includeCloudPoints(mimmo::MimmoObject * ); 
+	livector1D	excludeCloudPoints(mimmo::MimmoObject * ); 
+	
 	bool		isSimplexIncluded(dvecarr3E &);
 	bool		isSimplexIncluded(bitpit::PatchKernel * , long int indexT);
     bool		isPointIncluded(darray3E);
@@ -112,7 +118,7 @@ public:
 	bool 		intersectShapeAABBox(darray3E bMin, darray3E bMax);
 	bool		containShapeAABBox(darray3E bMin, darray3E bMax);
 	
-	virtual bool 		intersectShapePlane(darray4E plane)=0; 
+	virtual uint32_t 	intersectShapePlane(darray4E plane)=0; 
 	
 	/*! pure virtual method to convert from Local to World Coordinates*/
 	virtual	darray3E	toWorldCoord(darray3E  point)=0;
@@ -129,9 +135,10 @@ private:
 	virtual bool 		checkInfLimits(double &, int &dir)=0;
 	virtual void		setScaling(double &, double &, double &)=0;
 	darray3E			checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
-	void				searchKdTreeMatches(bitpit::KdTree<3,darray3E,long> & tree, int indexKdNode, int level, std::set<long> & result );
-	void				searchBvTreeMatches(mimmo::BvTree & tree, int indexBvNode, std::set<long> & result);
+	void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result );
+	void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result);
 	darray4E 			getKdPlane(int level, darray3E point);
+	virtual void		getShapeTempPoints()=0;
 };
 
 /*!
@@ -162,7 +169,7 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 	
-	bool 		intersectShapePlane(darray4E plane);
+	uint32_t	intersectShapePlane(darray4E plane);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -170,7 +177,7 @@ private:
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int & dir);
 	void 		setScaling(double &, double &, double &);
-	
+	void		getShapeTempPoints();
 };
 
 /*!
@@ -200,7 +207,7 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 	
-	bool 		intersectShapePlane(darray4E plane);
+	uint32_t	intersectShapePlane(darray4E plane);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -208,6 +215,7 @@ private:
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int &);
 	void 		setScaling(double &, double &, double &);
+	void		getShapeTempPoints();
 };
 
 
@@ -238,7 +246,7 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 
-	bool 		intersectShapePlane(darray4E plane);
+	uint32_t	intersectShapePlane(darray4E plane);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -246,6 +254,7 @@ private:
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int &);
 	void 		setScaling(double &, double &, double &);
+	void		getShapeTempPoints();
 };
 
 }

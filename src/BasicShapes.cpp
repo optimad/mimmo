@@ -229,54 +229,40 @@ darray3E BasicShape::getLocalSpan(){
 }
 
 /*! Given a geometry by MimmoObject class, return cell identifiers of those simplex inside the volume of
- * the BasicShape object
- * \param[in] tri target tessellation
+ * the BasicShape object. The methods implicitly use search algorithms based on the bvTree 
+ * of the class MimmoObject.  
+ * \param[in] geo target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
  */
 livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 	if(geo == NULL)	return livector1D(0);
-
-	livector1D result; 
+	if(!(geo->isBvTreeSupported()))	return livector1D(0);
+	
 	//create BvTree and fill it w/ cell list
-	cout << "creating BvTree" << endl;
-	steady_clock::time_point t1 = steady_clock::now();
-	
-	std::cout<<"Tree is built?  "<<geo->isBvTreeBuilt()<<std::endl;
-	
-	if(!(geo->isBvTreeBuilt()))	
-	{
-		geo->buildBvTree();
-	}	
-	steady_clock::time_point t2 = steady_clock::now();
-	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "BvTree done in " << time_span.count() << " seconds."<<std::endl;
+	if(!(geo->isBvTreeBuilt()))	geo->buildBvTree();
 	//get recursively all the list element in the shape
+	livector1D elements;
+	searchBvTreeMatches(*(geo->getBvTree()), geo->getPatch(), 0, elements);
 	
-	steady_clock::time_point t3 = steady_clock::now();
-	
-	std::set<long> elements;
-	searchBvTreeMatches(*(geo->getBvTree()), 0, elements);
-	
-	time_span = duration_cast<duration<double>>(t3 - t2);
-	std::cout << "BvTree search done in " << time_span.count() << " seconds."<<std::endl;
-	
-	result.insert(result.end(), elements.begin(), elements.end());
-	return(result);
+	return(elements);
 };
 
 /*! Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
- * the BasicShape object 
- * \param[in] tri target tesselation
+ * the BasicShape object. The methods implicitly use search algorithms based on the bvTree 
+ * of the class MimmoObject.
+ * \param[in] geo target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
  */
 livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 	
 	if(geo == NULL)	return livector1D(0);
+	if(!(geo->isBvTreeSupported()))	return livector1D(0);
+
 	livector1D interiors, result;
 	interiors = includeGeometry(geo);
 	result = geo->getCells().getIds();
 	
-	std::set<long> map;
+	std::unordered_set<long> map;
 	map.insert(result.begin(), result.end());
 	result.clear();
 	
@@ -289,70 +275,69 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 
 
 /*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex inside the volume of
- * the BasicShape object
+ * the BasicShape object. The method searches simplex one-by-one on the whole tesselation.
  * \param[in] tri target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
  */
 livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
 	if(tri == NULL)	return livector1D(0);
-	livector1D result; 
-	//create BvTree and fill it w/ cell list
-	mimmo::BvTree tree(tri);
-	tree.buildTree();
-	
-	//get recursively all the list element in the shape
-	std::set<long> elements;
-	searchBvTreeMatches(tree, 0, elements);
-	
-	result.insert(result.end(), elements.begin(), elements.end());
+	livector1D result(tri->getCellCount());
+	long id;
+	int counter = 0;
+	for(auto & cell : tri->getCells()){
+		id = cell.getId();
+		if(isSimplexIncluded(tri,id)){
+			result[counter] = id;
+			++counter;
+		}
+	}	
+	result.resize(counter);
 	return(result);
  
 };
 
 /*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex outside the volume of
- * the BasicShape object 
+ * the BasicShape object.The method searches simplex one-by-one on the whole tesselation. 
  * \param[in] tri target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
  */
 livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
 	
 	if(tri == NULL)	return livector1D(0);
-	livector1D interiors, result;
-	interiors = includeGeometry(tri);
-	result = tri->getCells().getIds();
-	
-	std::set<long> map;
-	map.insert(result.begin(), result.end());
-	result.clear();
-	
-	for(auto && val: interiors)	map.erase(val);
-	
-	result.insert(result.end(), map.begin(), map.end());
-	return result;
+	livector1D result(tri->getCellCount());
+	long id;
+	int counter = 0;
+	for(auto & cell : tri->getCells()){
+		id = cell.getId();
+		if(!isSimplexIncluded(tri,id)){
+			result[counter] = id;
+			++counter;
+		}
+	}	
+	result.resize(counter);
+	return(result);
 	
 };
 
 /*! Given a list of vertices of a point cloud, return indices of those vertices included into 
- * the volume of the object 
+ * the volume of the object. The method searches vertex one-by-one on the whole point cloud.  
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
-	if(list.empty())	return livector1D(0);
-	livector1D result; 
-	//create kdTree and fill it w/ vertex list
-	bitpit::KdTree<3,darray3E,long> tree;
-	long counter=0;
-	for(auto & val : list){
-		tree.insert(&val,counter);
-		++counter;
-	}
 
-	//get recursively all the list element in the shape
-	std::set<long> elements;
-	searchKdTreeMatches(tree, 0, 0, elements);
-	
-	result.insert(result.end(), elements.begin(), elements.end());
+	if(list.empty())	return livector1D(0);
+	livector1D result(list.size());
+	int counter = 0;
+	long real = 0;
+	for(auto & vert : list){
+		if(isPointIncluded(vert)){
+			result[counter] = real;
+			++counter;
+		}
+		++real;	
+	}	
+	result.resize(counter);
 	return(result);
 };
 
@@ -362,53 +347,51 @@ livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
  * \return list-by-indices of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
-  if(list.empty())	return livector1D(0);
-  livector1D interiors, result;
-  interiors = includeCloudPoints(list);
-  
-  std::set<long> map;
-  long size = list.size();
-  for (long i=0; i<size; ++i)	map.insert(i);
-  for(auto && val: interiors)	map.erase(val);
-  
-  result.insert(result.end(), map.begin(), map.end());
-  return result;
-  
+	if(list.empty())	return livector1D(0);
+	livector1D result(list.size());
+	long real = 0;
+	int counter = 0;
+	for(auto & vert : list){
+		if(!isPointIncluded(vert)){
+			result[counter] = real;
+			++counter;
+		}
+		++real;	
+	}	
+	result.resize(counter);
+	return(result);
+	
 };
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points inside the volume of
- * the BasicShape object  
+ * the BasicShape object. The method force a build up of kdTree on point cloud, and use it to refine search.   
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
- * \return list-by-indices of vertices included in the volumetric patch
+ * \return list-by-ids of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
+	
 	if(tri == NULL)		return livector1D(0);
-	livector1D result; 
+	livector1D elements; 
 	//create kdTree and fill it w/ vertex list
-	bitpit::KdTree<3,darray3E,long> tree;
+	bitpit::KdTree<3,bitpit::Vertex,long> tree;
 	int counter=0;
 	long label;
-	dvecarr3E vert(tri->getVertexCount());
 	
 	for(auto & val : tri->getVertices()){
-		vert[counter] = val.getCoords();
 		label = val.getId();
-		tree.insert(&vert[counter], label);
+		tree.insert(&val, label);
 		++counter;
 	}
-	
+	getShapeTempPoints();
 	//get recursively all the list element in the shape
-	std::set<long> elements;
 	searchKdTreeMatches(tree, 0, 0, elements);
-	
-	result.insert(result.end(), elements.begin(), elements.end());
-	return(result);
+	return(elements);
 };
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points outside the volume of
- * the BasicShape object  
+ * the BasicShape object.The method force a build up of kdTree on point cloud, and use it to refine search.  
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
- * \return list-by-indices of vertices outside the volumetric patch
+ * \return list-by-ids of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 
@@ -425,6 +408,50 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 	result.insert(result.end(), map.begin(), map.end());
 	return result;
 };
+
+/*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
+ * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
+ * of the class MimmoObject.  
+ * \param[in] geo target geometry
+ * \return list-by-ids of vertices included in the volumetric patch
+ */
+livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
+	if(geo == NULL)	return livector1D(0);
+	
+	livector1D elements; 
+	//create BvTree and fill it w/ cell list
+	if(!(geo->isKdTreeBuilt()))	geo->buildKdTree();
+	
+	getShapeTempPoints();
+	//get recursively all the list element in the shape
+	searchKdTreeMatches(*(geo->getKdTree()), 0, 0, elements);
+	return(elements);
+};
+
+/*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices outside the volume of
+ * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
+ * of the class MimmoObject.
+ * \param[in] geo target geometry
+ * \return list-by-ids of vertices outside the volumetric patch
+ */
+livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
+	
+	if(geo == NULL)	return livector1D(0);
+	livector1D interiors, result;
+	interiors = includeCloudPoints(geo);
+	result = geo->getVertices().getIds();
+	
+	std::unordered_set<long> map;
+	map.insert(result.begin(), result.end());
+	result.clear();
+	
+	for(auto && val: interiors)	map.erase(val);
+	
+	result.insert(result.end(), map.begin(), map.end());
+	return result;
+};
+
+
 
 /*! Return True if all vertices of a given simplex are included in the volume of the shape
  * \param[in] simplexVert 3 vertices of the given Triangle
@@ -504,23 +531,21 @@ bool BasicShape::intersectShapeAABBox(darray3E bMin,darray3E bMax){
  */
 bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
 	bool check = true;
-	dvecarr3E vect(8);
+	dvecarr3E points(8);
+	points[0] = bMin;
+	points[1] = bMax;
+	points[2] = bMax; points[2][2] = bMin[2];
+	points[3] = bMin; points[3][2] = bMax[2];
+	points[4] = bMin; points[4][0] = bMax[0];
+	points[5] = bMax; points[5][0] = bMin[0];
+	points[6] = bMin; points[6][1] = bMax[1];
+	points[7] = bMax; points[7][1] = bMin[1];
 	
-	vect[0] = bMin;
-	vect[1] = bMin; vect[1][0] = bMax[0];
-	vect[2] = bMax; vect[2][2] = bMin[2];
-	vect[3] = bMin; vect[3][1] = bMax[1];
-	vect[4] = vect[0]; vect[4][2] = bMax[2];
-	vect[5] = vect[1]; vect[5][2] = bMax[2];
-	vect[6] = vect[2]; vect[6][2] = bMax[2];
-	vect[7] = vect[3]; vect[7][2] = bMax[2];
-	
-	int counter = 0;
-	while (check && counter<8)   {
-		check = check && isPointIncluded(vect[counter]);
+	int counter=0;
+	while (check && counter<8)	{
+		check = check && isPointIncluded(points[counter]);	
 		++counter;
 	}	
-	
 	return check;
 };
 
@@ -553,30 +578,30 @@ darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, da
  *\param[in,out] result		list of KdNode labels, which are included in the shape.
  * 
  */
-void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,darray3E,long> & tree, int indexKdNode, int level, std::set<long> & result ){
+void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, int indexKdNode, int level, livector1D & result ){
 	
 	//check indexKdNode admissible.
 	if(indexKdNode <0 || indexKdNode > tree.n_nodes)	return;
 	
 	//1st step get data
-	bitpit::KdNode<darray3E, long> & target = tree.nodes[indexKdNode];
+	bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[indexKdNode];
 	//check target point is in the shape
-	if(isPointIncluded(*(target.object_)))	result.insert(target.label);
+	if(isPointIncluded(target.object_->getCoords())){
+		result.push_back(target.label);
+	}
 	
-	//choose where to go next. Check intersection with level plane.
-	
-	if(intersectShapePlane(getKdPlane(level, *(target.object_)))) {
-		searchKdTreeMatches(tree, target.lchild_, level+1, result);
-		searchKdTreeMatches(tree, target.rchild_, level+1, result);
-	}else{
-	   //need to know if shape is left or right w.r.t plane.
-		darray4E plane = getKdPlane(level, *(target.object_));
-		double dist = plane[3];
-		for(int i=0; i<3; ++i)	dist += plane[i]*m_origin[i];
-	    int candidate = int(dist <=0)*target.lchild_ + int(dist > 0)*target.rchild_;
-		searchKdTreeMatches(tree, candidate, level+1, result);
-	};
-	
+	switch(intersectShapePlane(getKdPlane(level, target.object_->getCoords()))){
+		case 0: 
+			searchKdTreeMatches(tree, target.lchild_, level+1, result);
+			break;
+		case 1: 		
+			searchKdTreeMatches(tree, target.rchild_, level+1, result);
+			break;
+		default:
+			searchKdTreeMatches(tree, target.lchild_, level+1, result);
+			searchKdTreeMatches(tree, target.rchild_, level+1, result);
+			break;
+	}		
 	return;
 };
 
@@ -584,32 +609,41 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,darray3E,long> & tree, int
  * Visit recursively BvTree relative to a PatchKernel structure and extract possible simplex candidates included in the current shape.
  * Identifiers of extracted matches are collected in result structure
  *\param[in] tree			BvTree of PatchKernel simplicies
+ *\param[in] geo            pointer to tessellation the tree refers to. 
  *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
  *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
  * 
  */
-void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree, int indexBvNode, std::set<long> & result ){
+void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result ){
 	
 	//check indexBvNode admissible.
 	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
 	   
 	//1st step get data and control if it's leaf or if shape contain bounding box
-	bool checkInto = containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint);
-	if(tree.m_nodes[indexBvNode].m_leaf || checkInto ){
+	if(containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint)){
+	
 		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			result.insert(tree.m_elements[i].m_label);		
+			result.push_back(tree.m_elements[i].m_label);		
+		}	
+		return;
+	};
+	
+	if(tree.m_nodes[indexBvNode].m_leaf){
+		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
+			if(isSimplexIncluded(geo, tree.m_elements[i].m_label))
+								result.push_back(tree.m_elements[i].m_label);		
 		}
 		return;
 	}
 	
 	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
 		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
-			searchBvTreeMatches(tree, tree.m_nodes[indexBvNode].m_lchild, result);
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result);
 	}
 	
 	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
 		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
-			searchBvTreeMatches(tree, tree.m_nodes[indexBvNode].m_rchild, result);
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result);
 	}
 	
 	return;
@@ -790,40 +824,58 @@ void 		Cube::setScaling( double &s0, double &s1, double &s2){
 };
 
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
+ * Return unsigned integer 0,1,2 with the following meaning:
+ * 	- 0 : no intersection , shape on the left/bottom/before the plane
+ * 	- 1 : no intersection , shape on the right/top/after the plane
+ * 	- 2 : intersection occurs
  * \param[in] plane coefficient of plane
+ * \return	 unsigned integer flag between 0 and 2
  */
-bool		Cube::intersectShapePlane(darray4E plane) {
+uint32_t		Cube::intersectShapePlane(darray4E plane) {
 	//get eight vertex of the cube.
-	dvecarr3E points(8);
-	{
-		std::vector<darray3E> locPoints(8,{{0.0,0.0,0.0}});
-		locPoints[2][0] = 1.0; 
-		locPoints[4][0] = locPoints[4][1] = 1.0;
-		locPoints[6][1] = 1.0;
-		for(int i=1; i<8; i=i+2){
-			locPoints[i] = locPoints[i-1];
-			locPoints[i][2] = 1.0;
-		}
-		
-		int cc = 0;	
-		for(auto &val : locPoints){
-			 points[cc] = toWorldCoord(basicToLocal(points[0])) ;
-			 ++cc;
-		}
-	}
-	
+	bool check = false;
 	double distToCheck,  dist = plane[3];
-	for(int i=0; i<3; ++i)	dist +=  plane[i]*points[0][i];
-	if(std::abs(dist) < 1.e-12)	return true;
+
 	int counter = 1;
-	for(counter=1; counter<8; ++counter){
+	for(int i=0; i<3; ++i)	dist +=  plane[i]*m_tempPoints[0][i];
+	if(std::abs(dist) < 1.e-12)	return 2;
+
+	while(!check && counter<8){
 		distToCheck = plane[3];
-		for(int i=0; i<3; ++i)	dist +=  plane[i]*points[counter][i];
-		if(dist*distToCheck <= 0.0 || std::abs(distToCheck) < 1.E-12 )	return true;
+		for(int i=0; i<3; ++i)	distToCheck +=  plane[i]*m_tempPoints[counter][i];
+		check = (dist*distToCheck <= 0.0 || std::abs(distToCheck) < 1.E-12 );
+		++counter;
 	}
 	
-	return false;
+	if(check) 	return 2;
+	else{
+		dist = plane[3];
+		for(int i=0; i<3; ++i)	dist += m_origin[i]*plane[i];
+		if(dist > 0)	return 1;
+		return 0;
+	}
+}
+
+void Cube::getShapeTempPoints(){
+	
+	m_tempPoints.clear();
+	m_tempPoints.resize(8);
+	
+	dvecarr3E locals(8,darray3E{{0.0,0.0,0.0}});
+	locals[1].fill(1.0);
+	locals[2][0]= locals[2][1]=1.0;
+	locals[3][2]=1.0;
+	locals[4][0]= 1.0;
+	locals[5][1]= locals[5][2] = 1.0;
+	locals[6][1] = 1.0;
+	locals[7][0] = locals[7][2] = 1.0;
+	
+	int counter = 0;
+	for(auto &vv : locals){
+		m_tempPoints[counter] = toWorldCoord(basicToLocal(vv));
+		++counter;
+	}
 }
 
 
@@ -1017,29 +1069,54 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 };
 
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
+ * Return unsigned integer 0,1,2 with the following meaning:
+ * 	- 0 : no intersection , shape on the left/bottom/before the plane
+ * 	- 1 : no intersection , shape on the right/top/after the plane
+ * 	- 2 : intersection occurs
  * \param[in] plane coefficient of plane
+ * \return	 unsigned integer flag between 0 and 2
  */
-bool		Cylinder::intersectShapePlane(darray4E plane) {
+uint32_t	Cylinder::intersectShapePlane(darray4E plane) {
 	//get center of circular basis
-	dvecarr3E p(2);
 	int pcand = 0;
-	p[0] = toWorldCoord(basicToLocal({{0.0,0.0,0.0}}));
-	p[1] = toWorldCoord(basicToLocal({{0.0,0.0,1.0}}));
-	
 	std::array<double,2> dist;
 	dist.fill(plane[3]);
-	for(int j=0; j<2; ++j){
-		for(int i=0; i<3; ++i)	dist += plane[i]*p[j][i];
+	
+	for(int i=0; i<3; ++i){
+		dist[0] += plane[i]*m_tempPoints[0][i];
+		dist[1] += plane[i]*m_tempPoints[1][i];
 	}	
 	
-	if(std::abs(dist[0]) < 1.e-12 || std::abs(dist[1]) < 1.e-12 || dist[0]*dist[1] < 0 )	return true;
+	if(std::abs(dist[0]) < 1.e-12 || std::abs(dist[1]) < 1.e-12 || dist[0]*dist[1] < 0 )	return 2;
 	
 	if(std::abs(dist[1]) < std::abs(dist[0]))	pcand = 1;
 	darray3E pointOnPlane;
-	for(int i=0; i<3; ++i)	pointOnPlane[i] = p[pcand][i] + plane[i] * dist[pcand]; 
+	for(int i=0; i<3; ++i)	pointOnPlane[i] = m_tempPoints[pcand][i] - plane[i] * dist[pcand]; 
 
-	return isPointIncluded(pointOnPlane);
+	if(isPointIncluded(pointOnPlane))	return 2;
+	else{
+		dist[0] = plane[3];
+		for(int i=0; i<3; ++i)	dist[0] +=m_origin[i]*plane[i];
+		if(dist[0]> 0)	return 1;
+		return 0;
+	}
+}
+
+void Cylinder::getShapeTempPoints(){
+	
+	m_tempPoints.clear();
+	m_tempPoints.resize(2);
+	
+	dvecarr3E locals(2,darray3E{{0.0,0.0,0.0}});
+	locals[1][2]=1.0;
+	
+	int counter = 0;
+	for(auto &vv : locals){
+		m_tempPoints[counter] = toWorldCoord(basicToLocal(vv));
+		++counter;
+	}
+	
 }
 
 
@@ -1249,15 +1326,27 @@ void 		Sphere::setScaling(double &s0, double &s1, double &s2){
 };
 
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0
+ * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
+ * Return unsigned integer 0,1,2 with the following meaning:
+ * 	- 0 : no intersection , shape on the left/bottom/before the plane
+ * 	- 1 : no intersection , shape on the right/top/after the plane
+ * 	- 2 : intersection occurs
  * \param[in] plane coefficient of plane
+ * \return	 unsigned integer flag between 0 and 2
  */
-bool		Sphere::intersectShapePlane(darray4E plane) {
-	//get center of circular basis
+uint32_t	Sphere::intersectShapePlane(darray4E plane) {
+	//get center of sphere
 	
 	darray3E p = toWorldCoord(basicToLocal({{0.0,0.0,0.0}}));
 	double dist = plane[3];
 	for(int i=0; i<3; ++i)	dist += plane[i]*p[i];
-	for(int i=0; i<3; ++i)	p[i] += plane[i] * dist; 
-	return isPointIncluded(p);
+	if(dist <= getSpan()[0])	return 2;
+	else if(dist> 0)	return 1;
+	else return 0;
 }
+
+void Sphere::getShapeTempPoints(){
+	
+	m_tempPoints.clear();
+}
+

@@ -34,7 +34,9 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00004")
 list(APPEND TESTS_SERIAL "test_MIMMO_00005")
 list(APPEND TESTS_SERIAL "test_MIMMO_00006")
 list(APPEND TESTS_SERIAL "test_MIMMO_00007")
-#list(APPEND TESTS_SERIAL "test_MIMMO_00008")
+list(APPEND TESTS_SERIAL "test_MIMMO_00008")
+
+include_directories("opt/valgrind/3.11.0/include/valgrind")
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 
@@ -97,5 +99,11 @@ add_custom_command(
     TARGET "test_MIMMO_00007" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/points" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/points"
     )
+add_custom_command(
+    TARGET "test_MIMMO_00007" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere2.stl"
+    )
+
+
     
 

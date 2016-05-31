@@ -837,8 +837,6 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	//it's all copied(maps are update in the loops), trees are rebuilt and sync'ed is they must be
 };
 
-//TODO enrich cleaning of geometry with other useful utilities as double cells removal,
-//		zero area/volume cells removal, isolated cells/vertices.
 /*!It cleans the geometry Patch.
  * \return False if the geometry member pointer is NULL.
  */
@@ -847,7 +845,7 @@ MimmoObject::cleanGeometry(){
 	if (isEmpty()) return false;
 	m_patch->deleteCoincidentVertices();
 	if(m_bvTreeSupported)	m_patch->deleteOrphanVertices();
-
+	
 	setMapData();
 	setMapCell();
 	m_bvTreeBuilt = false;
@@ -1065,13 +1063,15 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 
 /*!
  * Reset and build again simplex bvTree of your geometry (if supports connectivity elements).
+ *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
  */
-void MimmoObject::buildBvTree(){
+void MimmoObject::buildBvTree(int value){
 	if(!m_bvTreeSupported || m_patch == NULL)	return;
 	
 	if (!m_bvTreeBuilt || m_retrackBvTree){
 		m_bvTree.clean();
 		m_bvTree.setup();
+		m_bvTree.setMaxLeafSize(value);
 		m_bvTree.buildTree();
 		m_bvTreeBuilt = true;
 	}

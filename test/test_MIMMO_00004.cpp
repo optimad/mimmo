@@ -206,7 +206,15 @@ void test0004() {
 	mimmo0->execute();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input, inputorig, inputspan, inputshapet, inputdim, inputdeg, mimmo0;
+	delete lattice;
+	delete applier;
+	delete input;
+	delete inputorig;
+	delete inputspan;
+	delete inputshapet;
+	delete inputdim;
+	delete inputdeg;
+	delete mimmo0;
 
 	lattice 	= NULL;
 	applier 	= NULL;
