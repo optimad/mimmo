@@ -115,10 +115,10 @@ void test0008() {
 
 	
 	t1 = steady_clock::now();
-	CALLGRIND_START_INSTRUMENTATION;
+	//CALLGRIND_START_INSTRUMENTATION;
 	livector1D testNode1 = cube->includeCloudPoints(geometry->getGeometry());
-	CALLGRIND_STOP_INSTRUMENTATION;
-	CALLGRIND_DUMP_STATS;
+	//CALLGRIND_STOP_INSTRUMENTATION;
+	//CALLGRIND_DUMP_STATS;
 	
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
@@ -132,7 +132,11 @@ void test0008() {
 
 	t1 = steady_clock::now();	
 	dvecarr3E temp = geometry->getGeometry()->getVertexCoords();
+	CALLGRIND_START_INSTRUMENTATION;
 	livector1D testNode3 = cube->includeCloudPoints(temp);
+	CALLGRIND_STOP_INSTRUMENTATION;
+	CALLGRIND_DUMP_STATS;
+	
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout<<"done vertex w one-by-one search in  "<<time_span.count() << " seconds."<<std::endl;

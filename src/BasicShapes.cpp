@@ -241,8 +241,10 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 	//create BvTree and fill it w/ cell list
 	if(!(geo->isBvTreeBuilt()))	geo->buildBvTree();
 	//get recursively all the list element in the shape
-	livector1D elements;
-	searchBvTreeMatches(*(geo->getBvTree()), geo->getPatch(), 0, elements);
+	livector1D elements(geo->getNCells());
+	int countElements = 0;
+	searchBvTreeMatches(*(geo->getBvTree()), geo->getPatch(), 0, elements, countElements);
+	elements.resize(countElements);
 	
 	return(elements);
 };
@@ -371,7 +373,7 @@ livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	
 	if(tri == NULL)		return livector1D(0);
-	livector1D elements; 
+	livector1D elements(tri->getVertexCount()); 
 	//create kdTree and fill it w/ vertex list
 	bitpit::KdTree<3,bitpit::Vertex,long> tree;
 	int counter=0;
@@ -383,8 +385,10 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 		++counter;
 	}
 	getShapeTempPoints();
+	int countVertex = 0;
 	//get recursively all the list element in the shape
-	searchKdTreeMatches(tree, 0, 0, elements);
+	searchKdTreeMatches(tree, 0, 0, elements, countVertex);
+	elements.resize(countVertex);
 	return(elements);
 };
 
@@ -418,13 +422,16 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 	if(geo == NULL)	return livector1D(0);
 	
-	livector1D elements; 
+	livector1D elements(geo->getNVertex()); 
 	//create BvTree and fill it w/ cell list
 	if(!(geo->isKdTreeBuilt()))	geo->buildKdTree();
 	
 	getShapeTempPoints();
+	int countVertex = 0;
 	//get recursively all the list element in the shape
-	searchKdTreeMatches(*(geo->getKdTree()), 0, 0, elements);
+	searchKdTreeMatches(*(geo->getKdTree()), 0, 0, elements, countVertex);
+	elements.resize(countVertex);
+	
 	return(elements);
 };
 
@@ -576,9 +583,10 @@ darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, da
  *\param[in] indexKdNode	KdNode index of tree, which start seaching from  
  *\param[in] level 			leaf level of indexKdNode in the tree
  *\param[in,out] result		list of KdNode labels, which are included in the shape.
+ *\param[in,out] counter	last filled position of result vector. 
  * 
  */
-void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, int indexKdNode, int level, livector1D & result ){
+void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, int indexKdNode, int level, livector1D & result, int &counter ){
 	
 	//check indexKdNode admissible.
 	if(indexKdNode <0 || indexKdNode > tree.n_nodes)	return;
@@ -587,21 +595,26 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
 	bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[indexKdNode];
 	//check target point is in the shape
 	if(isPointIncluded(target.object_->getCoords())){
-		result.push_back(target.label);
-	}
+		result[counter] = target.label;
+		++counter;
+
+		searchKdTreeMatches(tree, target.lchild_, level+1, result,counter);
+		searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
+	}else{
 	
-	switch(intersectShapePlane(getKdPlane(level, target.object_->getCoords()))){
-		case 0: 
-			searchKdTreeMatches(tree, target.lchild_, level+1, result);
+		switch(intersectShapePlane(getKdPlane(level, target.object_->getCoords()))){
+			case 0: 
+				searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
+				break;
+			case 1: 		
+				searchKdTreeMatches(tree, target.rchild_, level+1, result,counter);
+				break;
+			default:
+				searchKdTreeMatches(tree, target.lchild_, level+1, result,counter);
+				searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
 			break;
-		case 1: 		
-			searchKdTreeMatches(tree, target.rchild_, level+1, result);
-			break;
-		default:
-			searchKdTreeMatches(tree, target.lchild_, level+1, result);
-			searchKdTreeMatches(tree, target.rchild_, level+1, result);
-			break;
-	}		
+		}
+	}	
 	return;
 };
 
@@ -612,9 +625,10 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
  *\param[in] geo            pointer to tessellation the tree refers to. 
  *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
  *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
+ *\param[in,out] counter	last filled position of result vector.
  * 
  */
-void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result ){
+void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
 	
 	//check indexBvNode admissible.
 	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
@@ -623,27 +637,30 @@ void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel 
 	if(containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint)){
 	
 		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			result.push_back(tree.m_elements[i].m_label);		
+			result[counter] = tree.m_elements[i].m_label;
+			++counter;
 		}	
 		return;
 	};
 	
 	if(tree.m_nodes[indexBvNode].m_leaf){
 		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			if(isSimplexIncluded(geo, tree.m_elements[i].m_label))
-								result.push_back(tree.m_elements[i].m_label);		
+			if(isSimplexIncluded(geo, tree.m_elements[i].m_label)){
+				result[counter] = tree.m_elements[i].m_label;		
+				++counter;
+			}					
 		}
 		return;
 	}
 	
 	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
 		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result);
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result, counter);
 	}
 	
 	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
 		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result);
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result,counter);
 	}
 	
 	return;
