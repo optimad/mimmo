@@ -138,6 +138,7 @@ private:
 	darray3E			checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 	void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
 	void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
+	void				searchBvTreeNotMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);	
 	virtual void		getTempBBox()=0;
 };
 

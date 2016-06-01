@@ -103,7 +103,6 @@ public:
 	
 	liimap&			getMapDataInv();
 	const liimap&	getMapDataInv()const;
-	
 	int				getMapDataInv(long id);
 	
 	livector1D&		getMapCell();

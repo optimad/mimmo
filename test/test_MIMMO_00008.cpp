@@ -55,21 +55,21 @@ void test0008() {
 	geometry->getGeometry()->buildBvTree(1);
  	geometry->getGeometry()->buildKdTree();
 	
-	Cube * cube = new Cube();
-	cube->setOrigin({{0.5,0.5,0}});
-	cube->setSpan(1,1,1);
+	Cylinder * cyl = new Cylinder();
+	cyl->setOrigin({{0.5,0.5,0}});
+	cyl->setSpan(0.6,2*M_PI,2);
 	
 	steady_clock::time_point t1,t2;
 	duration<double> time_span;
 	
 	t1 = steady_clock::now();
-	livector1D testSimplex1 = cube->includeGeometry(geometry->getGeometry());
+	livector1D testSimplex1 = cyl->excludeGeometry(geometry->getGeometry());
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout<<"done simplex w bvtree "<<time_span.count() << " seconds."<<std::endl;
 	
 	t1 = steady_clock::now();
-	livector1D testSimplex2 = cube->includeGeometry(geometry->getGeometry()->getPatch());
+	livector1D testSimplex2 = cyl->excludeGeometry(geometry->getGeometry()->getPatch());
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout<<"done simplex w one-by-one search in  "<<time_span.count() << " seconds."<<std::endl;
@@ -116,7 +116,7 @@ void test0008() {
 	
 	t1 = steady_clock::now();
 	//CALLGRIND_START_INSTRUMENTATION;
-	livector1D testNode1 = cube->includeCloudPoints(geometry->getGeometry());
+	livector1D testNode1 = cyl->includeCloudPoints(geometry->getGeometry());
 	//CALLGRIND_STOP_INSTRUMENTATION;
 	//CALLGRIND_DUMP_STATS;
 	
@@ -125,27 +125,16 @@ void test0008() {
 	std::cout<<"done vertex w kdtree search in  "<<time_span.count() << " seconds."<<std::endl;
 	
 	t1 = steady_clock::now();
-	livector1D testNode2 = cube->includeCloudPoints(geometry->getGeometry()->getPatch());
-	t2 = steady_clock::now();
-	time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout<<"done vertex w kdtree exnovo search in  "<<time_span.count() << " seconds."<<std::endl;
-
-	t1 = steady_clock::now();	
-	dvecarr3E temp = geometry->getGeometry()->getVertexCoords();
-	CALLGRIND_START_INSTRUMENTATION;
-	livector1D testNode3 = cube->includeCloudPoints(temp);
-	CALLGRIND_STOP_INSTRUMENTATION;
-	CALLGRIND_DUMP_STATS;
-	
+	livector1D testNode2 = cyl->includeCloudPoints(geometry->getGeometry()->getPatch());
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout<<"done vertex w one-by-one search in  "<<time_span.count() << " seconds."<<std::endl;
+
 	
 	
 	
 	std::cout<<testNode1.size()<<std::endl;
 	std::cout<<testNode2.size()<<std::endl;
-	std::cout<<testNode3.size()<<std::endl;
 	
 	//check if they are the same and return 
 	check = testNode1.size() == testNode2.size();
@@ -156,10 +145,7 @@ void test0008() {
 		}
 	}
 	
-	bool check2 = testNode2.size() == testNode3.size();
-	
 	std::cout<<"point cloud 1/2 matching "<<check<<std::endl;
-	std::cout<<"point cloud 2/3 matching "<<check2<<std::endl;
 	
 	
 	{
@@ -177,28 +163,12 @@ void test0008() {
 		
 	}
 	
-	{
-		dvecarr3E points(testNode3.size());
-		ivector1D conn(testNode3.size());
-		int counter = 0;
-		for(auto & i : testNode3){
-			points[counter] = temp[i];
-			conn[counter] = counter;
-			++counter;
-		}
-		
-		bitpit::VTKUnstructuredGrid   output( "./", "Cloud2", bitpit::VTKElementType::VERTEX, points, conn);
-		output.write() ;
-		
-	}
-	
-	
 	//Delete and nullify pointer
 	delete geometry;
-	delete cube;
+	delete cyl;
 	
 	geometry 	= NULL;
-	cube = NULL;
+	cyl = NULL;
 	
 	return;
 

@@ -23,11 +23,12 @@
  \ *---------------------------------------------------------------------------*/
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
-#include <chrono>
+#include <algorithm>
+#include <callgrind.h>
 
 using namespace bitpit;
 using namespace mimmo;
-using namespace std::chrono;
+
 
 /*
  *	\date			03/01/2015
@@ -258,19 +259,26 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 	
 	if(geo == NULL)	return livector1D(0);
-	if(!(geo->isBvTreeSupported()))	return livector1D(0);
-
-	livector1D interiors, result;
-	interiors = includeGeometry(geo);
-	result = geo->getCells().getIds();
+	livector1D internals = includeGeometry(geo);
+	std::sort(internals.begin(), internals.end());
 	
-	std::unordered_set<long> map;
-	map.insert(result.begin(), result.end());
-	result.clear();
+	livector1D originals = geo->getMapCell();
+	std::sort(originals.begin(), originals.end());
 	
-	for(auto && val: interiors)	map.erase(val);
-	
-	result.insert(result.end(), map.begin(), map.end());
+	livector1D result(originals.size() - internals.size());
+	int counter = 0;
+	auto internal_itr = internals.begin();
+	auto original_itr = originals.begin();
+	while (original_itr != originals.end()) {
+		long origval = *original_itr;
+		if (internal_itr == internals.end() || origval != *internal_itr) {
+			result[counter] = origval;
+			++counter;
+		} else {
+			++internal_itr;
+		}
+		++original_itr;
+	}
 	return result;
 };
 
@@ -406,7 +414,9 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 		}
 	}	
 	result.resize(counter);
-	return(result);};
+	return(result);
+	
+};
 
 /*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
  * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
@@ -439,17 +449,26 @@ livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
 	
 	if(geo == NULL)	return livector1D(0);
-	livector1D interiors, result;
-	interiors = includeCloudPoints(geo);
-	result = geo->getVertices().getIds();
+	livector1D internals = includeCloudPoints(geo);
+	std::sort(internals.begin(), internals.end());
 	
-	std::unordered_set<long> map;
-	map.insert(result.begin(), result.end());
-	result.clear();
+	livector1D originals = geo->getMapData();
+	std::sort(originals.begin(), originals.end());
 	
-	for(auto && val: interiors)	map.erase(val);
-	
-	result.insert(result.end(), map.begin(), map.end());
+	livector1D result(originals.size() - internals.size());
+	int counter = 0;
+	auto internal_itr = internals.begin();
+	auto original_itr = originals.begin();
+	while (original_itr != originals.end()) {
+		long origval = *original_itr;
+		if (internal_itr == internals.end() || origval != *internal_itr) {
+ 			result[counter] = origval;
+			++counter;
+		} else {
+			++internal_itr;
+		}
+		++original_itr;
+	}
 	return result;
 };
 
@@ -589,27 +608,26 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
 	//1st step get data
 	bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[indexKdNode];
 	//check target point is in the shape
-	if(isPointIncluded(target.object_->getCoords())){
-		result[counter] = target.label;
-		++counter;
-
-		searchKdTreeMatches(tree, target.lchild_, level+1, result,counter);
+	if (bitpit::CGElem::intersectPointBox(target.object_->getCoords(), m_bbox[0], m_bbox[1], 3)){
+		if(isPointIncluded(target.object_->getCoords())){
+			result[counter] = target.label;
+			++counter;
+		}
+		searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
 		searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
 	}else{
-	
-		switch(intersectShapePlane(level, target.object_->getCoords())){
-			case 0: 
-				searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
-				break;
-			case 1: 		
-				searchKdTreeMatches(tree, target.rchild_, level+1, result,counter);
-				break;
-			default:
-				searchKdTreeMatches(tree, target.lchild_, level+1, result,counter);
-				searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
-			break;
+		
+		uint32_t check = intersectShapePlane(level%3, target.object_->getCoords());
+		bool right = (check > 0);
+		bool left = (check%2 == 0);
+		if (left && target.lchild_ >= 0){
+			searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
+		}
+		if (right && target.rchild_ >= 0){
+			searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
 		}
 	}	
+	
 	return;
 };
 
@@ -660,6 +678,57 @@ void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel 
 	
 	return;
 };
+
+
+/*!
+ * Visit recursively BvTree relative to a PatchKernel structure and extract possible simplex candidates NOT included in the current shape.
+ * Identifiers of extracted matches are collected in result structure
+ *\param[in] tree			BvTree of PatchKernel simplicies
+ *\param[in] geo            pointer to tessellation the tree refers to. 
+ *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
+ *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
+ *\param[in,out] counter	last filled position of result vector.
+ * 
+ */
+void	BasicShape::searchBvTreeNotMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
+	
+	//check indexBvNode admissible.
+	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
+	
+	//1st step get data and control if it's leaf or if shape contain bounding box
+	if(containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint)){
+		
+		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
+			result[counter] = tree.m_elements[i].m_label;
+			++counter;
+		}	
+		return;
+	};
+	
+	if(tree.m_nodes[indexBvNode].m_leaf){
+		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
+			if(isSimplexIncluded(geo, tree.m_elements[i].m_label)){
+				result[counter] = tree.m_elements[i].m_label;		
+				++counter;
+			}					
+		}
+		return;
+	}
+	
+	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
+		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result, counter);
+	}
+	
+	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
+		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
+			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result,counter);
+	}
+	
+	return;
+};
+
+
 
 /*!
  * Given a 3D point, Check if the Axis Aligned Bounding box of your current shape intersects 
@@ -1075,13 +1144,13 @@ void Cylinder::getTempBBox(){
 	for(int i=0; i<2; ++i){
 		for(int j=0; j<5; ++j){
 			for(int k=0; k<2; ++k){
-				locals[counter][0] = double(i);
+				locals[counter][0] = double(i)*1.0;
 				locals[counter][1] = double(j)*0.25;
-				locals[counter][0] = double(k);
+				locals[counter][2] = double(k)*1.0;
+				++counter;
 			}
 		}
 	}
-	counter = 0;
 	for(auto &vv : locals){
 		temp = toWorldCoord(basicToLocal(vv));
 		for(int i=0; i<3; ++i)	{
@@ -1314,13 +1383,14 @@ void Sphere::getTempBBox(){
 	for(int i=0; i<2; ++i){
 		for(int j=0; j<5; ++j){
 			for(int k=0; k<3; ++k){
-				locals[counter][0] = double(i);
+				locals[counter][0] = double(i)*1.0;
 				locals[counter][1] = double(j)*0.25;
-				locals[counter][0] = double(k)*0.5;
+				locals[counter][2] = double(k)*0.5;
+				++counter;
 			}
 		}
 	}
-	counter = 0;
+	
 	for(auto &vv : locals){
 		temp = toWorldCoord(basicToLocal(vv));
 		for(int i=0; i<3; ++i)	{
