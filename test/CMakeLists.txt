@@ -36,7 +36,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00006")
 list(APPEND TESTS_SERIAL "test_MIMMO_00007")
 list(APPEND TESTS_SERIAL "test_MIMMO_00008")
 
-include_directories("opt/valgrind/3.11.0/include/valgrind")
+##include_directories("opt/valgrind/3.11.0/include/valgrind")
 
 set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
 

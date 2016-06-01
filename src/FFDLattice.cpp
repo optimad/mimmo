@@ -481,6 +481,10 @@ void 		FFDLattice::execute(){
 			MimmoObject * container = getGeometry();
 			if(container == NULL ) return;
 			
+			//build trees
+			if(container->isBvTreeSupported() && !container->isBvTreeBuilt())	container->buildBvTree();
+			else if(!container->isKdTreeBuilt())								container->buildKdTree();	
+			
 			livector1D map;
 			dvecarr3E localdef = apply(map);
 			
@@ -523,7 +527,8 @@ dvecarr3E 	FFDLattice::apply(livector1D & list){
 	list.clear();
 
 	//check simplex included and extract their vertex in global IDs;
-	list= container->getVertexFromCellList(getShape()->includeGeometry(container));
+	if(container->isBvTreeSupported()) list= container->getVertexFromCellList(getShape()->includeGeometry(container));
+	else							   list= getShape()->includeCloudPoints(container);
 	//return deformation
 	dvecarr3E result = nurbsEvaluator(list);
 	if(m_bfilter){
