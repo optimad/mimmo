@@ -65,7 +65,7 @@ protected:
 
 	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 
-	dvecarr3E m_tempPoints;
+	dvecarr3E m_bbox;	//point of bounding box of the shape, temporary not copied build with get bounding box !!!
 	
 public:
 	
@@ -118,8 +118,7 @@ public:
 	bool 		intersectShapeAABBox(darray3E bMin, darray3E bMax);
 	bool		containShapeAABBox(darray3E bMin, darray3E bMax);
 	
-	virtual uint32_t 	intersectShapePlane(darray4E plane)=0; 
-	
+
 	/*! pure virtual method to convert from Local to World Coordinates*/
 	virtual	darray3E	toWorldCoord(darray3E  point)=0;
 	/*! pure virtual method to convert from World to Local Coordinates*/
@@ -127,6 +126,8 @@ public:
 	/*! pure virtual method to get local Coordinate inferior limits of primitive shape*/
 	virtual darray3E	getLocalOrigin()=0;  
 
+protected:
+	uint32_t 	intersectShapePlane(int level, darray3E target); 
 
 private:	
 	virtual	darray3E	basicToLocal(darray3E  point)=0;
@@ -137,8 +138,7 @@ private:
 	darray3E			checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 	void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
 	void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
-	darray4E 			getKdPlane(int level, darray3E point);
-	virtual void		getShapeTempPoints()=0;
+	virtual void		getTempBBox()=0;
 };
 
 /*!
@@ -169,15 +169,13 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 	
-	uint32_t	intersectShapePlane(darray4E plane);
-	
 private:	
 	darray3E	basicToLocal(darray3E  point);
 	darray3E	localToBasic(darray3E  point);
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int & dir);
 	void 		setScaling(double &, double &, double &);
-	void		getShapeTempPoints();
+	void		getTempBBox();
 };
 
 /*!
@@ -207,7 +205,6 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 	
-	uint32_t	intersectShapePlane(darray4E plane);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -215,7 +212,7 @@ private:
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int &);
 	void 		setScaling(double &, double &, double &);
-	void		getShapeTempPoints();
+	void		getTempBBox();
 };
 
 
@@ -246,15 +243,14 @@ public:
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
 
-	uint32_t	intersectShapePlane(darray4E plane);
-	
+
 private:	
 	darray3E	basicToLocal(darray3E  point);
 	darray3E	localToBasic(darray3E  point);
 	void 		checkSpan(double &, double &, double &);
 	bool 		checkInfLimits(double &, int &);
 	void 		setScaling(double &, double &, double &);
-	void		getShapeTempPoints();
+	void		getTempBBox();
 };
 
 }

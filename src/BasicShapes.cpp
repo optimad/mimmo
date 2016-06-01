@@ -366,52 +366,47 @@ livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
 };
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points inside the volume of
- * the BasicShape object. The method force a build up of kdTree on point cloud, and use it to refine search.   
+ * the BasicShape object. The method force a one-by-one vertex search.   
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-ids of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	
 	if(tri == NULL)		return livector1D(0);
-	livector1D elements(tri->getVertexCount()); 
-	//create kdTree and fill it w/ vertex list
-	bitpit::KdTree<3,bitpit::Vertex,long> tree;
-	int counter=0;
-	long label;
-	
-	for(auto & val : tri->getVertices()){
-		label = val.getId();
-		tree.insert(&val, label);
-		++counter;
-	}
-	getShapeTempPoints();
-	int countVertex = 0;
-	//get recursively all the list element in the shape
-	searchKdTreeMatches(tree, 0, 0, elements, countVertex);
-	elements.resize(countVertex);
-	return(elements);
+	livector1D result(tri->getVertexCount());
+	int counter = 0;
+	long id;
+	for(auto & vert : tri->getVertices()){
+		id = vert.getId();
+		if(isPointIncluded(tri, id)){
+			result[counter] = id;
+			++counter;
+		}	
+	}	
+	result.resize(counter);
+	return(result);
 };
 
 /*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points outside the volume of
- * the BasicShape object.The method force a build up of kdTree on point cloud, and use it to refine search.  
+ * the BasicShape object.The method force a one-by-one vertex search.     
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-ids of vertices outside the volumetric patch
  */
 livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 
 	if(tri == NULL)		return livector1D(0);
-	
-	livector1D interiors, result;
-	interiors = includeCloudPoints(tri);
-	
-	std::set<long> map;
-	long size = tri->getVertexCount();
-	for (long i=0; i<size; ++i)	map.insert(i);
-	for(auto && val: interiors)	map.erase(val);
-	
-	result.insert(result.end(), map.begin(), map.end());
-	return result;
-};
+	livector1D result(tri->getVertexCount());
+	int counter = 0;
+	long id;
+	for(auto & vert : tri->getVertices()){
+		id = vert.getId();
+		if(!isPointIncluded(tri, id)){
+			result[counter] = id;
+		++counter;
+		}
+	}	
+	result.resize(counter);
+	return(result);};
 
 /*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
  * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
@@ -426,7 +421,7 @@ livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 	//create BvTree and fill it w/ cell list
 	if(!(geo->isKdTreeBuilt()))	geo->buildKdTree();
 	
-	getShapeTempPoints();
+	getTempBBox();
 	int countVertex = 0;
 	//get recursively all the list element in the shape
 	searchKdTreeMatches(*(geo->getKdTree()), 0, 0, elements, countVertex);
@@ -602,7 +597,7 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
 		searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
 	}else{
 	
-		switch(intersectShapePlane(getKdPlane(level, target.object_->getCoords()))){
+		switch(intersectShapePlane(level, target.object_->getCoords())){
 			case 0: 
 				searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
 				break;
@@ -666,21 +661,24 @@ void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel 
 	return;
 };
 
-
 /*!
- * Return x,y,z planes passing by a given point
- * \param[in]	level int counter. level%3 select x-plane(0), yplane(1), zplane(2)
- * \param[in]	point point belonging to request plane.
- * \return		plane  
+ * Given a 3D point, Check if the Axis Aligned Bounding box of your current shape intersects 
+ * a given fundamental plane, x=a, y=b, z=c passing from such point. 
+ * Return unsigned integer 0,1,2 with the following meaning:
+ * 	- 0 : no intersection , shape on the left/bottom/before the plane
+ * 	- 1 : no intersection , shape on the right/top/after the plane
+ * 	- 2 : intersection occurs
+ * \param[in] level current level of kdTree. 0-> xplane, 1-> yplane, 2->zplane, no other value are allowed.
+ * \return	 unsigned integer flag between 0 and 2
  */
-darray4E 	BasicShape::getKdPlane(int level, darray3E point){
-	darray4E plane({{0.0,0.0,0.0,0.0}});
+uint32_t		BasicShape::intersectShapePlane(int level, darray3E target) {
 	
-	int type = level%3;
-	plane[type] = 1.0;
-	plane[3] = -1.0*point[type];
-	return plane;
-};
+	if(target[level] < m_bbox[0][level])	return 1; //shape is on the right
+	if(target[level] > m_bbox[1][level])	return 0; //shape is on the left
+	return 2;	// in the middle of something
+	
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Cube IMPLEMENTATION 
@@ -841,45 +839,17 @@ void 		Cube::setScaling( double &s0, double &s1, double &s2){
 };
 
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
- * Return unsigned integer 0,1,2 with the following meaning:
- * 	- 0 : no intersection , shape on the left/bottom/before the plane
- * 	- 1 : no intersection , shape on the right/top/after the plane
- * 	- 2 : intersection occurs
- * \param[in] plane coefficient of plane
- * \return	 unsigned integer flag between 0 and 2
+ * evaluate temporary AABBox of the shape and store value in m_bbox protected member
  */
-uint32_t		Cube::intersectShapePlane(darray4E plane) {
-	//get eight vertex of the cube.
-	bool check = false;
-	double distToCheck,  dist = plane[3];
-
-	int counter = 1;
-	for(int i=0; i<3; ++i)	dist +=  plane[i]*m_tempPoints[0][i];
-	if(std::abs(dist) < 1.e-12)	return 2;
-
-	while(!check && counter<8){
-		distToCheck = plane[3];
-		for(int i=0; i<3; ++i)	distToCheck +=  plane[i]*m_tempPoints[counter][i];
-		check = (dist*distToCheck <= 0.0 || std::abs(distToCheck) < 1.E-12 );
-		++counter;
-	}
+void Cube::getTempBBox(){
 	
-	if(check) 	return 2;
-	else{
-		dist = plane[3];
-		for(int i=0; i<3; ++i)	dist += m_origin[i]*plane[i];
-		if(dist > 0)	return 1;
-		return 0;
-	}
-}
-
-void Cube::getShapeTempPoints(){
-	
-	m_tempPoints.clear();
-	m_tempPoints.resize(8);
+	m_bbox.clear();
+	m_bbox.resize(2);
+	m_bbox[0].fill(1.e18);
+	m_bbox[1].fill(-1.e18);
 	
 	dvecarr3E locals(8,darray3E{{0.0,0.0,0.0}});
+	darray3E temp;
 	locals[1].fill(1.0);
 	locals[2][0]= locals[2][1]=1.0;
 	locals[3][2]=1.0;
@@ -890,8 +860,11 @@ void Cube::getShapeTempPoints(){
 	
 	int counter = 0;
 	for(auto &vv : locals){
-		m_tempPoints[counter] = toWorldCoord(basicToLocal(vv));
-		++counter;
+		temp = toWorldCoord(basicToLocal(vv));
+		for(int i=0; i<3; ++i)	{
+			m_bbox[0][i] = std::fmin(m_bbox[0][i], temp[i]);
+			m_bbox[1][i] = std::fmax(m_bbox[1][i], temp[i]);
+		}	
 	}
 }
 
@@ -1085,56 +1058,39 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 		m_scaling[2] = s2;
 };
 
+
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
- * Return unsigned integer 0,1,2 with the following meaning:
- * 	- 0 : no intersection , shape on the left/bottom/before the plane
- * 	- 1 : no intersection , shape on the right/top/after the plane
- * 	- 2 : intersection occurs
- * \param[in] plane coefficient of plane
- * \return	 unsigned integer flag between 0 and 2
+ * evaluate temporary AABBox of the shape and store value in m_bbox protected member
  */
-uint32_t	Cylinder::intersectShapePlane(darray4E plane) {
-	//get center of circular basis
-	int pcand = 0;
-	std::array<double,2> dist;
-	dist.fill(plane[3]);
+void Cylinder::getTempBBox(){
 	
-	for(int i=0; i<3; ++i){
-		dist[0] += plane[i]*m_tempPoints[0][i];
-		dist[1] += plane[i]*m_tempPoints[1][i];
-	}	
+	m_bbox.clear();
+	m_bbox.resize(2);
+	m_bbox[0].fill(1.e18);
+	m_bbox[1].fill(-1.e18);
 	
-	if(std::abs(dist[0]) < 1.e-12 || std::abs(dist[1]) < 1.e-12 || dist[0]*dist[1] < 0 )	return 2;
-	
-	if(std::abs(dist[1]) < std::abs(dist[0]))	pcand = 1;
-	darray3E pointOnPlane;
-	for(int i=0; i<3; ++i)	pointOnPlane[i] = m_tempPoints[pcand][i] - plane[i] * dist[pcand]; 
-
-	if(isPointIncluded(pointOnPlane))	return 2;
-	else{
-		dist[0] = plane[3];
-		for(int i=0; i<3; ++i)	dist[0] +=m_origin[i]*plane[i];
-		if(dist[0]> 0)	return 1;
-		return 0;
-	}
-}
-
-void Cylinder::getShapeTempPoints(){
-	
-	m_tempPoints.clear();
-	m_tempPoints.resize(2);
-	
-	dvecarr3E locals(2,darray3E{{0.0,0.0,0.0}});
-	locals[1][2]=1.0;
-	
+	dvecarr3E locals(20,darray3E{{0.0,0.0,0.0}});
+	darray3E temp;
 	int counter = 0;
-	for(auto &vv : locals){
-		m_tempPoints[counter] = toWorldCoord(basicToLocal(vv));
-		++counter;
+	for(int i=0; i<2; ++i){
+		for(int j=0; j<5; ++j){
+			for(int k=0; k<2; ++k){
+				locals[counter][0] = double(i);
+				locals[counter][1] = double(j)*0.25;
+				locals[counter][0] = double(k);
+			}
+		}
 	}
-	
+	counter = 0;
+	for(auto &vv : locals){
+		temp = toWorldCoord(basicToLocal(vv));
+		for(int i=0; i<3; ++i)	{
+			m_bbox[0][i] = std::fmin(m_bbox[0][i], temp[i]);
+			m_bbox[1][i] = std::fmax(m_bbox[1][i], temp[i]);
+		}	
+	}
 }
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1343,27 +1299,33 @@ void 		Sphere::setScaling(double &s0, double &s1, double &s2){
 };
 
 /*!
- * Check if you current shape intersects a given plane, in its implicit form implicit plane a*x + b*y + c*z + d = 0.
- * Return unsigned integer 0,1,2 with the following meaning:
- * 	- 0 : no intersection , shape on the left/bottom/before the plane
- * 	- 1 : no intersection , shape on the right/top/after the plane
- * 	- 2 : intersection occurs
- * \param[in] plane coefficient of plane
- * \return	 unsigned integer flag between 0 and 2
+ * evaluate temporary AABBox of the shape and store value in m_bbox protected member
  */
-uint32_t	Sphere::intersectShapePlane(darray4E plane) {
-	//get center of sphere
+void Sphere::getTempBBox(){
 	
-	darray3E p = toWorldCoord(basicToLocal({{0.0,0.0,0.0}}));
-	double dist = plane[3];
-	for(int i=0; i<3; ++i)	dist += plane[i]*p[i];
-	if(dist <= getSpan()[0])	return 2;
-	else if(dist> 0)	return 1;
-	else return 0;
-}
-
-void Sphere::getShapeTempPoints(){
+	m_bbox.clear();
+	m_bbox.resize(2);
+	m_bbox[0].fill(1.e18);
+	m_bbox[1].fill(-1.e18);
 	
-	m_tempPoints.clear();
+	dvecarr3E locals(30,darray3E{{0.0,0.0,0.0}});
+	darray3E temp;
+	int counter = 0;
+	for(int i=0; i<2; ++i){
+		for(int j=0; j<5; ++j){
+			for(int k=0; k<3; ++k){
+				locals[counter][0] = double(i);
+				locals[counter][1] = double(j)*0.25;
+				locals[counter][0] = double(k)*0.5;
+			}
+		}
+	}
+	counter = 0;
+	for(auto &vv : locals){
+		temp = toWorldCoord(basicToLocal(vv));
+		for(int i=0; i<3; ++i)	{
+			m_bbox[0][i] = std::fmin(m_bbox[0][i], temp[i]);
+			m_bbox[1][i] = std::fmax(m_bbox[1][i], temp[i]);
+		}	
+	}
 }
-
