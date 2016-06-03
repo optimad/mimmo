@@ -567,6 +567,7 @@ void BvTree::decreaseStack()
 	return;
 };
 
+namespace bvTreeUtils{
 /*!It computes the signed distance of a point to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
@@ -1054,5 +1055,7 @@ void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vect
 	}
 	return;
 }
+
+} // end namespace bvTreeUtils
 
 } // end namespace mimmo

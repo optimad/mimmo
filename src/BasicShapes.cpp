@@ -24,7 +24,7 @@
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
 #include <algorithm>
-#include <callgrind.h>
+//#include <callgrind.h>
 
 using namespace bitpit;
 using namespace mimmo;
