@@ -129,6 +129,8 @@ private:
 	void fillTree(int iparent);
 	std::array<double,3> computeMeanPoint(int istart, int iend);
 	int findFirstGreater(int inode, std::array<double,3> meanC, int dir);
+	int pseudoSort(std::vector<BvElement>::iterator itstart,
+			std::vector<BvElement>::iterator itend, std::array<double,3> meanC, int dir);
 	void computeBoundingBox(int inode);
 	void increaseStack();
 	void decreaseStack();

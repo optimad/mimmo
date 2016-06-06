@@ -321,10 +321,13 @@ void BvTree::fillTree(int iparent)
 		std::vector<BvElement>::iterator itstart = m_elements.begin()+m_nodes[iparent].m_element[0];
 		std::vector<BvElement>::iterator itend = m_elements.begin()+(m_nodes[iparent].m_element[1]);
 
-		sort( itstart, itend, compareElements(dir) );
+		//Old algorithm
+		//		sort( itstart, itend, compareElements(dir) );
+		//		//find first element with coords[dir] > of meanC[dir]
+		//		int firstRight = findFirstGreater(iparent, meanC, dir);
 
-		//find first element with coords[dir] > of meanC[dir]
-		int firstRight = findFirstGreater(iparent, meanC, dir);
+
+		int firstRight = pseudoSort( itstart, itend, meanC, dir );
 
 		//insert lchild
 		if ( firstRight > m_nodes[iparent].m_element[0]  )
@@ -404,6 +407,33 @@ darray3E BvTree::computeMeanPoint(int istart, int iend)
 	meanC /= double(iend-istart);
 	return(meanC);
 }
+
+
+int	BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
+		std::vector<BvElement>::iterator itend, darray3E meanC, int dir){
+
+	double thres = meanC[dir];
+
+	itend--;
+	while(itstart != itend){
+
+		while (itstart->m_centroid[dir] <= thres && itstart != itend){
+			itstart++;
+		}
+		while (itend->m_centroid[dir] > thres && itend != itstart){
+			itend--;
+		}
+
+		if (itstart != itend){
+			std::iter_swap(itstart, itend);
+		}
+	}
+
+	return (std::max(0, int(distance(m_elements.begin(), itend))));
+
+
+}
+
 
 /*!It finds the first element, contained din a target node, with a coordinate
  * of its centroid greater than a reference point (the mean centroid in the
