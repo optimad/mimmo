@@ -163,8 +163,8 @@ void test0005() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	addPin(geometry, lattice, GEOM, GEOM);
-	addPin(geometry, applier, GEOM, GEOM);
+	cout << "add pin info : " << boolalpha << addPin(geometry, lattice, GEOM, GEOM) << endl;
+	cout << "add pin info : " << boolalpha << addPin(geometry, applier, GEOM, GEOM) << endl;
 
 	//TODO Ports for generic input
 //	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
@@ -172,20 +172,20 @@ void test0005() {
 //	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
 //	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
 
-	addPin(mesh, mask, GLOBAL, COORDS);
-	addPin(input, mask, DISPLS, DISPLS);
+	cout << "add pin info : " << boolalpha << addPin(mesh, mask, GLOBAL, COORDS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(input, mask, DISPLS, DISPLS) << endl;
 
-	addPin(mask, bend, COORDS, COORDS);
-	addPin(mask, bend, DISPLS, DISPLS);
+	cout << "add pin info : " << boolalpha << addPin(mask, bend, COORDS, COORDS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(mask, bend, DISPLS, DISPLS) << endl;
 
-	addPin(mesh, translation, POINT, POINT);
-	addPin(translation, rotation, POINT, POINT);
-	addPin(mesh, rotation, AXES, AXES);
+	cout << "add pin info : " << boolalpha << addPin(mesh, translation, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(translation, rotation, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(mesh, rotation, AXES, AXES) << endl;
 
 	//TODO Ports to generic input
 //	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
-	addPin(rotation, lattice, POINT, POINT);
-	addPin(rotation, lattice, AXES, AXES);
+	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, AXES, AXES) << endl;
 //	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
 //	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
 //	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
@@ -194,30 +194,30 @@ void test0005() {
 //	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
 //	addPin(bend, output, &Bend::getResult<dvecarr3E>, &GenericOutput::setInput<dvecarr3E>);
 
-	addPin(bend, lattice, DISPLS, DISPLS);
-	addPin(lattice, applier, GDISPLS, GDISPLS);
+	cout << "add pin info : " << boolalpha << addPin(bend, lattice, DISPLS, DISPLS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 
 	cout << "set pins done" << endl;
 
 	//Create chain
 	Chain ch0;
 	cout << "add inputs and objects to the chain" << endl;
-	ch0.addObject(inputname);
-	ch0.addObject(inputorig);
+//	ch0.addObject(inputname);
+//	ch0.addObject(inputorig);
 	ch0.addObject(geometry);
 	ch0.addObject(lattice);
-	ch0.addObject(inputshapet);
+//	ch0.addObject(inputshapet);
 	ch0.addObject(bend);
-	ch0.addObject(inputspan);
+//	ch0.addObject(inputspan);
 	ch0.addObject(applier);
-	ch0.addObject(inputdim);
+//	ch0.addObject(inputdim);
 	ch0.addObject(mesh);
-	ch0.addObject(inputdeg);
+//	ch0.addObject(inputdeg);
 	ch0.addObject(rotation);
 	ch0.addObject(input);
 	ch0.addObject(mask);
 	ch0.addObject(translation);
-	ch0.addObject(output);
+//	ch0.addObject(output);
 
 	//Execution of chain
 	cout << "execution start" << endl;

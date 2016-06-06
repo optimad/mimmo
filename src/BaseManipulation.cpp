@@ -274,9 +274,11 @@ void
 BaseManipulation::exec(){
 	if (m_active) execute();
 	for (int i=0; i<m_portOut.size(); i++){
-		std::vector<BaseManipulation*>	linked = m_portOut[i]->getLink();
-		if (linked.size() > 0){
-			m_portOut[i]->exec();
+		if (m_portOut[i] != NULL){
+			std::vector<BaseManipulation*>	linked = m_portOut[i]->getLink();
+			if (linked.size() > 0){
+				m_portOut[i]->exec();
+			}
 		}
 	}
 }

@@ -59,14 +59,11 @@ Bend & Bend::operator=(const Bend & other){
 void
 Bend::buildPorts(){
 	bool built = true;
-
 	built = (built && createPortIn<dvecarr3E, Bend>(&m_displ, DISPLS, 0, {GDISPLS}));
-	built = (built && createPortIn<dvecarr3E, Bend>(&m_coords, COORDS, 1, {DISPLS, GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, Bend>(&m_coords, COORDS, 1, {GLOBAL, DISPLS, GDISPLS}));
 	built = (built && createPortIn<umatrix33E, Bend>(&m_degree, BMATRIX, 2));
 	built = (built && createPortIn<dmat33Evec, Bend>(&m_coeffs, BCOEFFS, 3));
-
 	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getDisplacements, DISPLS, 0));
-
 	m_arePortsBuilt = built;
 };
 

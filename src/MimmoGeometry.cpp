@@ -77,8 +77,10 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 
 void
 MimmoGeometry::buildPorts(){
-	//temporary
-	m_arePortsBuilt = true;
+	bool built = true;
+	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(&m_geometry, GEOM, 99));
+	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, GEOM, 99));
+	m_arePortsBuilt = built;
 }
 
 /*!

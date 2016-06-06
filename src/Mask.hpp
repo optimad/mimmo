@@ -79,7 +79,7 @@ public:
 
 	void	buildPorts();
 
-	dvecarr3E*	getCoords();
+	dvecarr3E	getCoords();
 	dvecarr3E	getDisplacements();
 
 	void	setCoords(dvecarr3E coords);

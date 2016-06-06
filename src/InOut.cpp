@@ -74,7 +74,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr3E &var)
 
 /*!Default constructor of PortOut
 */
-PortOut::PortOut(){};
+PortOut::PortOut(){
+	m_objLink.clear();
+};
 
 /*!Default destructor of PortOut
 */

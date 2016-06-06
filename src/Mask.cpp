@@ -55,12 +55,11 @@ Mask::buildPorts(){
 	bool built = true;
 
 	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, DISPLS, 0, {GDISPLS}));
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, COORDS, 1, {DISPLS, GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, COORDS, 1, {DISPLS, GDISPLS, GLOBAL}));
 	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, RANGE, 2));
 	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, BOOLS3, 3));
-
-	built = (built && createPortOut<dvecarr3E, Mask>(this,
-			&mimmo::Mask::getDisplacements, DISPLS, 0));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, DISPLS, 0));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, COORDS, 1));
 
 	m_arePortsBuilt = built;
 };
@@ -68,9 +67,9 @@ Mask::buildPorts(){
 /*!It gets the coordinates of points stored in the object.
  * \return Coordinates of points stored in the object.
  */
-dvecarr3E*
+dvecarr3E
 Mask::getCoords(){
-	return(&m_coords);
+	return(m_coords);
 };
 
 /*!It gets the displacements of points stored in the object.

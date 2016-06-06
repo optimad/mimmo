@@ -172,10 +172,10 @@ void test0006() {
 //	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
 //	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
 
-	addPin(input, bend, DISPLS, DISPLS);
-	addPin(mesh, bend, GLOBAL, COORDS);
+	cout << "add pin info : " << boolalpha << addPin(input, bend, DISPLS, DISPLS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(mesh, bend, GLOBAL, COORDS) << endl;
 
-	addPin(bend, lattice, DISPLS, DISPLS);
+	cout << "add pin info : " << boolalpha << addPin(bend, lattice, DISPLS, DISPLS) << endl;
 
 	//TODO Ports for generic input
 //	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
@@ -184,21 +184,21 @@ void test0006() {
 //	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
 //	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
 
-	addPin(lattice, applier, GDISPLS, GDISPLS);
+	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 
-	addPin(lattice, mrbf, GDISPLS, DISPLS);
-	addPin(mrbf, applier2, GDISPLS, GDISPLS);
+	cout << "add pin info : " << boolalpha << addPin(lattice, mrbf, GDISPLS, DISPLS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(mrbf, applier2, GDISPLS, GDISPLS) << endl;
 
 	cout << "set pins done" << endl;
 
 	//Create chain
 	Chain ch0;
 	cout << "add inputs and objects to the chain" << endl;
-	ch0.addObject(inputorig);
-	ch0.addObject(inputshapet);
-	ch0.addObject(inputspan);
-	ch0.addObject(inputdim);
-	ch0.addObject(inputdeg);
+//	ch0.addObject(inputorig);
+//	ch0.addObject(inputshapet);
+//	ch0.addObject(inputspan);
+//	ch0.addObject(inputdim);
+//	ch0.addObject(inputdeg);
 	ch0.addObject(input);
 	ch0.addObject(mesh);
 	ch0.addObject(bend);
@@ -226,6 +226,8 @@ void test0006() {
 
 	//Delete and nullify pointer
 	delete lattice;
+	delete mesh;
+	delete bend;
 	delete applier;
 	delete mrbf;
 	delete applier2;
@@ -235,9 +237,12 @@ void test0006() {
 	delete inputshapet;
 	delete inputdim;
 	delete inputdeg;
-	delete	mimmoP, mimmoD;
+	delete mimmoP;
+	delete mimmoD;
 	
 	lattice 	= NULL;
+	mesh 		= NULL;
+	bend	 	= NULL;
 	applier 	= NULL;
 	mrbf 		= NULL;
 	applier2 	= NULL;
@@ -247,10 +252,10 @@ void test0006() {
 	inputdim 	= NULL;
 	inputdeg 	= NULL;
 	input 		= NULL;
-	mimmoP = NULL;
-	mimmoD = NULL;
+	mimmoP 		= NULL;
+	mimmoD 		= NULL;
 	objectPlane = NULL;
-	objectDisk = NULL;
+	objectDisk 	= NULL;
 	
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

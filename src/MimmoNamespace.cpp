@@ -90,20 +90,24 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
 	std::vector<PortOut*> pinsOut = objSend->getPortsOut();
 	for (int i=0; i<objSend->getNPortsOut(); i++){
-		std::vector<BaseManipulation*> linked = pinsOut[i]->getLink();
-		for (int j=0; j<linked.size(); j++){
-			if (linked[j] == objRec){
-				objSend->removePinOut(i,j);
-				objSend->unsetChild(objRec);
+		if (pinsOut[i] != NULL){
+			std::vector<BaseManipulation*> linked = pinsOut[i]->getLink();
+			for (int j=0; j<linked.size(); j++){
+				if (linked[j] == objRec){
+					objSend->removePinOut(i,j);
+					objSend->unsetChild(objRec);
+				}
 			}
 		}
 	}
 
 	std::vector<PortIn*> pinsIn = objRec->getPortsIn();
 	for (int i=0; i<objRec->getNPortsIn(); i++){
-		if (pinsIn[i]->getLink() == objSend){
-			objRec->removePinIn(i);
-			objRec->unsetParent(objSend);
+		if (pinsIn[i] != NULL){
+			if (pinsIn[i]->getLink() == objSend){
+				objRec->removePinIn(i);
+				objRec->unsetParent(objSend);
+			}
 		}
 	}
 

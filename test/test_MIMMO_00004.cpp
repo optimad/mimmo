@@ -83,32 +83,39 @@ void test0004() {
 
 	//TODO Ports for generic input
 	int t = 0;
-	GenericInput* inputshapet = new GenericInput();
-	inputshapet->setInput(t);
+//	GenericInput* inputshapet = new GenericInput();
+//	inputshapet->setInput(t);
+
+//	GenericInput* inputorig = new GenericInput();
+//	inputorig->setInput(origin);
+
+//	GenericInput* inputspan = new GenericInput();
+//	inputspan->setInput(span);
+
+//	GenericInput* inputdim = new GenericInput();
+//	inputdim->setInput(dim);
+
+//	GenericInput* inputdeg = new GenericInput();
+//	inputdeg->setInput(deg);
+
+//	GenericInput* inputname = new GenericInput();
+//	string name = "test_MIMMO_0004.out";
+//	inputname->setInput(name);
+
+//	GenericOutput* output = new GenericOutput();
+//	output->setFilename(name);
+
+
 	mesh->setShape(t);
-
-	GenericInput* inputorig = new GenericInput();
-	inputorig->setInput(origin);
-	mesh->setOrigin(origin);
-
-	GenericInput* inputspan = new GenericInput();
-	inputspan->setInput(span);
 	mesh->setSpan(span);
-
-	GenericInput* inputdim = new GenericInput();
-	inputdim->setInput(dim);
+	mesh->setOrigin(origin);
 	mesh->setDimension(dim);
 
-	GenericInput* inputdeg = new GenericInput();
-	inputdeg->setInput(deg);
+	lattice->setShape(t);
+	lattice->setSpan(span);
+	lattice->setOrigin(origin);
+	lattice->setDimension(dim);
 	lattice->setDegrees(deg);
-
-	GenericInput* inputname = new GenericInput();
-	string name = "test_MIMMO_0004.out";
-	inputname->setInput(name);
-
-	GenericOutput* output = new GenericOutput();
-	output->setFilename(name);
 
 	//Set Input with Init Displacements
 	int ndeg = (dim[0])*(dim[1])*(dim[2]);
@@ -170,7 +177,7 @@ void test0004() {
 
 //	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
 
-	addPin(bend, output, DISPLS, DISPLS);
+//	addPin(bend, output, DISPLS, DISPLS);
 
 	addPin(bend, lattice, DISPLS, DISPLS);
 	addPin(lattice, applier, GDISPLS, GDISPLS);
@@ -180,12 +187,12 @@ void test0004() {
 	//Create chain
 	Chain ch0;
 	cout << "add inputs " << endl;
-	ch0.addObject(inputorig);
-	ch0.addObject(inputshapet);
-	ch0.addObject(inputspan);
-	ch0.addObject(inputdim);
-	ch0.addObject(inputdeg);
-	ch0.addObject(inputname);
+//	ch0.addObject(inputorig);
+//	ch0.addObject(inputshapet);
+//	ch0.addObject(inputspan);
+//	ch0.addObject(inputdim);
+//	ch0.addObject(inputdeg);
+//	ch0.addObject(inputname);
 	ch0.addObject(input);
 	cout << "add mesh" << endl;
 	ch0.addObject(mesh);
@@ -196,7 +203,7 @@ void test0004() {
 	cout << "add lattice" << endl;
 	ch0.addObject(lattice);
 	cout << "add output" << endl;
-	ch0.addObject(output);
+//	ch0.addObject(output);
 	cout << "add applier" << endl;
 	ch0.addObject(applier);
 
@@ -219,20 +226,20 @@ void test0004() {
 	delete lattice;
 	delete applier;
 	delete input;
-	delete inputorig;
-	delete inputspan;
-	delete inputshapet;
-	delete inputdim;
-	delete inputdeg;
+//	delete inputorig;
+//	delete inputspan;
+//	delete inputshapet;
+//	delete inputdim;
+//	delete inputdeg;
 	delete mimmo0;
 
 	lattice 	= NULL;
 	applier 	= NULL;
-	inputorig 	= NULL;
-	inputspan 	= NULL;
-	inputshapet	= NULL;
-	inputdim 	= NULL;
-	inputdeg 	= NULL;
+//	inputorig 	= NULL;
+//	inputspan 	= NULL;
+//	inputshapet	= NULL;
+//	inputdim 	= NULL;
+//	inputdeg 	= NULL;
 	input 		= NULL;
 	mimmo0 = NULL;
 	object = NULL;
