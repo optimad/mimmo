@@ -118,6 +118,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 				
 				addConnectedCell(temp, eltype);
 			}
+			
+			m_pidsType.insert(0);
+			
 		}else{
 			std::cout<<"Not supported connectivity found for MimmoObject"<<std::endl;
 			std::cout<<"Proceeding as Point Cloud geometry"<<std::endl;
@@ -167,7 +170,6 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 	m_mapCell		= other.m_mapCell;
 	m_mapDataInv	= other.m_mapDataInv;
 	m_mapCellInv	= other.m_mapCellInv;
-	m_pids			= other.m_pids;
 	m_pidsType		= other.m_pidsType;
 	
 	m_bvTreeSupported = other.m_bvTreeSupported;
@@ -194,7 +196,6 @@ MimmoObject::clear(){
 	m_mapCell.clear();
 	m_mapDataInv.clear();
 	m_mapCellInv.clear();
-	m_pids.clear();
 	m_pidsType.clear();
 	m_bvTree.clean();
 	cleanKdTree();
@@ -468,18 +469,37 @@ MimmoObject::getMapCellInv(long id){
 /*!Return the list of pid types actually present in your geometry
  * If empty list is provided, pidding is actually not supported
  */
-shivector1D 	&
-MimmoObject::getPidTypeList(){
+std::unordered_set<short> 	&
+MimmoObject::getPIDTypeList(){
 	return m_pidsType;
 };
 
-/*!Return the list of pid associated to each cell of tessellation in compact 
+/*!Return the list of PID associated to each cell of tessellation in compact 
  * sequential ordering
  * If empty list is provided, pidding is not supported for this geometry
  */
-shivector1D 	&
-MimmoObject::getPid() {
-	return m_pids;
+shivector1D 	
+MimmoObject::getCompactPID() {
+	if(!m_bvTreeSupported || m_pidsType.empty())	return shivector1D(0);
+	shivector1D result(getNCells());
+	int counter=0;
+	for(auto & cell : getCells()){
+		result[counter] = (short)cell.getPID();
+		++counter;
+	}
+};
+
+/*!Return the list of PID associated to each cell of tessellation as an unordered map
+ * reporting as first index(key) the cell ID and as argument(value) the PID of the cell.
+ * If empty list is provided, pidding is not supported for this geometry
+ */
+std::unordered_map<long,short> 	
+MimmoObject::getPID() {
+	if(!m_bvTreeSupported || m_pidsType.empty())	return std::unordered_map<long,short>();
+	std::unordered_map<long,short> 	result;
+	for(auto & cell : getCells()){
+		result[cell.getId()] = (short) cell.getPID();
+	}
 };
 
 /*!
@@ -624,6 +644,8 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	
 	m_mapCell.clear();
 	m_mapCellInv.clear();
+	m_pidsType.clear();
+	
 	getPatch()->resetCells();
 	
 	int sizeCell = cells.size();
@@ -632,7 +654,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	long idc;
 	int nVert;
 	ElementInfo::Type eltype;
-
+	
 	for (const auto & cell : cells){
 		
 		// get ID
@@ -641,7 +663,12 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 		nVert = checkCellType(cell.getType());
 		//pass info to my local cell
 		if(nVert > 0)	m_patch->addCell(cell, idc);
+		
+		short pid = (short)	cell.getPID();
+		m_pidsType.insert(pid);
+		m_patch->getCell(idc).setPID((int)pid);	
 	}
+	
 	//create inverse map of cells
 	setMapCell();
 	m_bvTreeBuilt = false;
@@ -652,7 +679,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
  * be added and its own unique ID on the geometry Patch. If no ID is specified, assign it automatically.
  * The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
  * mismatches with the type of PatchKernel internally defined into the class, return false. 
- * Does not do anything if class type is a pointcloud one (type 3);
+ * Does nothing if class type is a pointcloud one (type 3);
  * \param[in] connectivity	Connectivity of target cell of geometry mesh.
  * \param[in] type          type of element to be added, according to bitpit ElementInfo enum.
  * \param[in] idtag			id of the cell
@@ -681,6 +708,8 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 		checkedID = idtag;
 	}
 	
+	m_pidsType.insert(0);		
+	
 	//create inverse map of cells
 	m_mapCell.push_back(checkedID);
 	m_mapCellInv[checkedID] = m_mapCell.size()-1;
@@ -688,6 +717,49 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 	return true;
 };
 
+/*!It adds one cell with its connectivity by vertex PatchKernel unique IDs, the type of cell to
+ * be added and its own unique ID on the geometry Patch. If no ID is specified, assign it automatically.
+ * Overloading give chance to assign directly a geometry Part IDentifier (PID) to the cell.
+ * The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
+ * mismatches with the type of PatchKernel internally defined into the class, return false. 
+ * Does nothing if class type is a pointcloud one (type 3);
+ * \param[in] connectivity	Connectivity of target cell of geometry mesh.
+ * \param[in] type          type of element to be added, according to bitpit ElementInfo enum.
+ * \param[in] PID           Part Identifier
+ * \param[in] idtag			id of the cell
+ * \return False if no geometry is linked, idtag already assigned, mismatched connectivity 
+ */
+bool
+MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type type, short PID, long idtag){
+	
+	if (isEmpty() || conn.empty() || !m_bvTreeSupported) return false;
+	if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
+	
+	int sizeElement = checkCellType(type); 
+	if(sizeElement < 0)  return false;
+	
+	bitpit::PatchKernel::CellIterator it;
+	
+	livector1D conn_dum = conn;
+	conn_dum.resize(sizeElement, 0);
+	
+	long checkedID;
+	if(idtag == bitpit::Cell::NULL_ID){
+		it = m_patch->addCell(type, true, conn_dum);
+		checkedID = it->getId();
+	}else{
+		it = m_patch->addCell(type, true,conn_dum, idtag);
+		checkedID = idtag;
+	}
+	
+	m_pidsType.insert(PID);
+	
+	//create inverse map of cells
+	m_mapCell.push_back(checkedID);
+	m_mapCellInv[checkedID] = m_mapCell.size()-1;
+	m_bvTreeBuilt = false;
+	return true;
+};
 
 
 /*!It sets the geometry Patch.
@@ -704,15 +776,21 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
 	m_internalPatch = false;
 	
 	setMapData();
+
+	m_pidsType.clear();
+
 	if(m_patch->getCellCount() != 0){
 		m_bvTreeSupported = true;
 		m_bvTree.setPatch(m_patch);
+		
+		for(auto & cell : geometry->getCells()){
+			m_pidsType.insert(cell.getPID());
+		}
 	}	
 	m_bvTreeBuilt = false;
 	m_kdTreeBuilt = false;
 	m_retrackKdTree = false;
 	m_retrackBvTree = false;
-	
 	return true;
 };
 
@@ -767,20 +845,50 @@ MimmoObject::setMapCell(){
 };
 
 
-/*!It sets the PIDs of all the cells of the geometry Patch.
- * \param[in] pids PIDs of the cells of geometry mesh.
+/*!It sets the PIDs of all the cells of the geometry Patch. 
+ * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential form. Vector lenght must be coherent with cells number in the object. 
  */
 void
 MimmoObject::setPID(shivector1D pids){
-	if((int)pids.size() != getNCells())	return;
-	m_pids.clear();
-	m_pids = pids;
-	
-	//find different type of pids.
-	std::unordered_set<short> map;
-	map.insert(pids.begin(),pids.end());
+	if((int)pids.size() != getNCells() || !m_bvTreeSupported)	return;
+
 	m_pidsType.clear();
-	m_pidsType.insert(m_pidsType.end(), map.begin(), map.end());
+	int counter = 0;
+	for(auto & cell: getCells()){
+		m_pidsType.insert(pids[counter]);
+		cell.setPID(pids[counter]);
+		++counter;
+	}	
+};
+
+/*!It sets the PIDs of part of/all the cells in the geometry Patch. 
+ * \param[in] pidsMap PIDs of the cells of geometry mesh, in map form. First argument is the cell  PatchKernel::ID, second argument is the PID. 
+ */
+void
+MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
+	if(getNCells() == 0 || !m_bvTreeSupported)	return;
+	
+	m_pidsType.clear();
+	auto & cells = getCells();
+	for(auto & val: pidsMap){
+		if(cells.exists(val.first)){
+			cells[val.first].setPID(val.second);
+			m_pidsType.insert(val.second);
+		}	
+	}	
+};
+
+/*!Sets the PID of single cell in the geometry Patch. 
+ * \param[in] id id of the Cell
+ * \param[in] pid pid to assign on cell
+ */
+void
+MimmoObject::setPIDCell(long id, short pid){
+	auto & cells = getCells();
+	if(cells.exists(id)){
+		cells[id].setPID((int)pid);
+		m_pidsType.insert(pid);
+	}	
 };
 
 /*!
@@ -805,8 +913,6 @@ void MimmoObject::setSOFTCopy(const MimmoObject * other){
 void MimmoObject::setHARDCopy(const MimmoObject * other){
 	clear();
 	m_type 			= other->m_type;
-	m_pids			= other->m_pids;
-	m_pidsType		= other->m_pidsType;
 	
 	m_internalPatch = true;
 	const int id = 0;
@@ -834,7 +940,7 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	if(m_kdTreeBuilt)	buildKdTree();
 	m_retrackKdTree = false;
 	m_retrackBvTree = false;
-	//it's all copied(maps are update in the loops), trees are rebuilt and sync'ed is they must be
+	//it's all copied(maps are update in the loops, pids if exists), trees are rebuilt and sync'ed is they must be
 };
 
 /*!It cleans the geometry Patch.
@@ -1003,12 +1109,13 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
  */
 livector1D	MimmoObject::extractPIDCells(short flag){
 	
-	int size = m_pids.size();
-	livector1D result(size);
+	if(m_pidsType.count(flag) < 1)	return livector1D(0);
+	
+	livector1D result(getNCells());
 	int counter = 0;
-	for(int i=0; i<size; ++i){
-		if (m_pids[i] == flag)	{
-			result[counter] = getMapCell(i);	 
+	for(auto & cell : getCells()){
+		if ( cell.getPID() == flag)	{
+			result[counter] = cell.getId();	 
 			++counter;
 		}	
 	}
@@ -1024,12 +1131,11 @@ livector1D	MimmoObject::extractPIDCells(short flag){
  */
 livector1D	MimmoObject::extractPIDCells(shivector1D flag){
 	livector1D result;
-	std::unordered_set<long> map;
+	result.reserve(getNCells());
 	for(auto && id : flag){
 		livector1D partial = extractPIDCells(id);
-		map.insert(partial.begin(), partial.end());
+		result.insert(result.end(),partial.begin(), partial.end());
 	}
-	result.insert(result.end(), map.begin(), map.end());
 	return(result);
 };
 

@@ -38,7 +38,7 @@ namespace mimmo{
  *	\brief MimmoObject is the base container of geometry for MiMMo library
  *
  *	MiMMO container has the information about the geometry mesh:
- *	- the type of the linked mesh of class bitpit::Patch (generic patch, surface patch or volume patch);
+ *	- the type of the linked mesh of class bitpit::Patch (surface patch , volume patch or pointCloud);
  *	- the pointer to the mesh of class bitpit::Patch;
  *	- the boolean indicator of the nature of the patch (true if the patch is created within the MiMMo container).
  *
@@ -47,7 +47,7 @@ class MimmoObject{
 	
 protected:
 	//members
-	int						m_type;				/**<Type of geometry (0 = pointCloud, 1 = surface mesh, 2 = volume mesh). */
+	int						m_type;				/**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-mesh). */
 	bitpit::PatchKernel*	m_patch;			/**<Reference to bitpit patch handling geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
 	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
@@ -55,9 +55,7 @@ protected:
 	liimap					m_mapDataInv;		/**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	liimap					m_mapCellInv;		/**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 	
-	//TODO to be updated w/ new PID feature of PatchKernel
-	shivector1D				m_pids;				/**<pid data associated to each tessellation cell, in local compact indexing */
-	shivector1D				m_pidsType;			/**<pid type available for your geometry */
+ 	std::unordered_set<short>				m_pidsType;			/**<pid type available for your geometry */
 
 	BvTree									m_bvTree;			/**< ordered tree of geometry simplicies for fast searching purposes */
 	bool									m_bvTreeBuilt; 		/**< track correct building of bvtree along with geometry modifications */
@@ -110,9 +108,10 @@ public:
 	liimap&			getMapCellInv();
 	int				getMapCellInv(long id);
 	
-	//TODO to be updated w/ new PID feature of PatchKernel
-	shivector1D &	getPidTypeList();
-	shivector1D	&	getPid();
+	std::unordered_set<short> &		getPIDTypeList();
+	shivector1D						getCompactPID();
+	std::unordered_map<long, short>	getPID();
+
 	
 	bool										isBvTreeBuilt();
 	BvTree*										getBvTree();
@@ -128,12 +127,16 @@ public:
 
 	bool	setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
 	bool	addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
+	bool	addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, short PID, long idtag = bitpit::Cell::NULL_ID);
 	
 	bool	setPatch(int type, bitpit::PatchKernel* geometry);
 	bool	setMapData();
 	bool	setMapCell();
 
-	void 	setPID(shivector1D ); //TODO to be updated w/ new PID feature of PatchKernel
+	void 	setPID(shivector1D ); 
+	void 	setPID(std::unordered_map<long, short>  ); 
+	void	setPIDCell(long, short);
+	
 	void	setSOFTCopy(const MimmoObject * other);
 	void	setHARDCopy(const MimmoObject * other);
 	
@@ -147,6 +150,7 @@ public:
 	ivector1D 	convertCellIDToLocal(livector1D);
 	
 	livector1D  extractBoundaryVertexID();
+
 	livector1D	extractPIDCells(short);
 	livector1D	extractPIDCells(shivector1D);
 	

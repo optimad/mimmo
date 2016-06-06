@@ -114,6 +114,8 @@ public:
 	void		setCells(bitpit::PiercedVector<bitpit::Cell> * cells);
 	
 	void		setPID(shivector1D pids);
+	void		setPID(std::unordered_map<long,short> pidsMap);
+	
 	void		setFormatNAS(WFORMAT wform);
 	
 	void		setBuildBvTree(bool build);

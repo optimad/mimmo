@@ -338,12 +338,22 @@ MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
 };
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
- * \param[in] pids PIDs of the cells of geometry mesh.
+ * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential order. If pids size does not match number of current cell does nothing
  */
 void
 MimmoGeometry::setPID(shivector1D pids){
 	getGeometry()->setPID(pids);
 };
+
+/*!It sets the PIDs of part of/all the cells of the geometry Patch.
+ * \param[in] pids PIDs map list w/ id of the cell as first value, and pid as second value.
+ */
+void
+MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
+	getGeometry()->setPID(pidsMap);
+};
+
+
 
 /*!It sets if the BvTree of the patch has to be built during execution.
  * \param[in] build If true the BvTree is built in execution and stored in
@@ -474,7 +484,7 @@ MimmoGeometry::write(){
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
 			NastranInterface nastran;
 			nastran.setWFormat(m_wformat);
-			shivector1D & pids = getGeometry()->getPid();
+			shivector1D pids = getGeometry()->getCompactPID();
 			if (pids.size() == connectivity.size()){
 				nastran.write(m_wdir,m_wfilename,points,connectivity, &pids);
 			}else{
@@ -538,6 +548,12 @@ MimmoGeometry::read(){
 
 		dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
 		getGeometry()->cleanGeometry();
+		
+		//count PID if multi-solid
+		auto & map = getGeometry()->getPIDTypeList();
+		for(auto & cell : getGeometry()->getCells() ){
+			map.insert(cell.getPID());
+		}
 	}
 	break;
 	
@@ -616,7 +632,6 @@ MimmoGeometry::read(){
 			m_intgeo->addConnectedCell(temp, eltype);
 			
 		}	
-		
 		
 		m_intgeo->cleanGeometry();
 	}
@@ -745,7 +760,7 @@ MimmoGeometry::read(){
 			m_intgeo->addConnectedCell(temp, eltype);
 			
 		}	
-		
+		m_intgeo->setPID(pids);
 		m_intgeo->cleanGeometry();
 	}
 	
