@@ -128,17 +128,24 @@ void test0006() {
 	//create aux lattice for mesh and nodes coordinates
 	Lattice* mesh = new Lattice();
 
+	mesh->setShape(t);
+	mesh->setSpan(span);
+	mesh->setOrigin(origin);
+	mesh->setDimension(dim);
+
+	lattice->setShape(t);
+	lattice->setSpan(span);
+	lattice->setOrigin(origin);
+	lattice->setDimension(dim);
+	lattice->setDegrees(deg);
+
 	//create Bend
 	Bend* bend = new Bend();
 	uint32_t	degree = 2;
 	dvector1D	coeffs(degree+1);
 	coeffs[0] = -0.0625;
-//	coeffs[1] = -1;
-//	coeffs[2] = 15;
 	coeffs[1] = 0;
 	coeffs[2] = 0;
-//	bend->setDegree(0,1,degree);
-//	bend->setCoeffs(0,1,coeffs);
 	bend->setDegree(2,1,degree);
 	bend->setCoeffs(2,1,coeffs);
 
@@ -159,26 +166,28 @@ void test0006() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
-	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
-	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
-	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
+	//TODO Ports for generic input
+//	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
+//	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
+//	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
+//	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
 
-	addPin(input, bend, &GenericInput::getResult<dvecarr3E>, &Bend::setInput<dvecarr3E>);
-	addPin(mesh, bend, &Lattice::getGlobalCoords, &Bend::setCoords);
+	addPin(input, bend, DISPLS, DISPLS);
+	addPin(mesh, bend, GLOBAL, COORDS);
 
-	addPin(bend, lattice, &Bend::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
+	addPin(bend, lattice, DISPLS, DISPLS);
 
-	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
-	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
-	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
-	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
-	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+	//TODO Ports for generic input
+//	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
+//	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
+//	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
+//	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
+//	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
 
-	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	addPin(lattice, applier, GDISPLS, GDISPLS);
 
-	addPin(lattice, mrbf, &FFDLattice::getResult<dvecarr3E>, &MRBF::setDisplacements);
-	addPin(mrbf, applier2, &MRBF::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	addPin(lattice, mrbf, GDISPLS, DISPLS);
+	addPin(mrbf, applier2, GDISPLS, GDISPLS);
 
 	cout << "set pins done" << endl;
 

@@ -56,6 +56,8 @@ public:
 	TranslationBox(const TranslationBox & other);
 	TranslationBox & operator=(const TranslationBox & other);
 
+	void		buildPorts();
+
 	darray3E 	getDirection();
 	darray3E 	getOrigin();
 	double 		getTranslation();

@@ -34,6 +34,7 @@ enum PortsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidir
 												only input or only output.*/
 
 enum PortType{
+	GEOM,
 	COORDS	/*! Port dedicated to communicates coordinates of points.*/,
 	DISPLS	/*! Port dedicated to communicates displacements of points.*/,
 	GDISPLS	/*! Port dedicated to communicates displacements of geometry vertex.*/,
@@ -41,8 +42,13 @@ enum PortType{
 	BMATRIX	/*! Port dedicated to communicates an array of array 3x3 of double (Bending).*/,
 	BCOEFFS	/*! Port dedicated to communicates an array of array 3x3 of vector of double (Bending).*/,
 	GLOBAL,
+	LOCAL,
 	DEG,
 	RANGE,
+	POINT,
+	VALUE,
+	AXIS,
+	AXES,
 	BOOLS3
 
 };

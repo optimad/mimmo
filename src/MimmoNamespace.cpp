@@ -45,8 +45,6 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 	return done;
 }
 
-
-
 /*!It adds a pin between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
@@ -82,9 +80,6 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, Port
 	}
 	return done;
 }
-
-
-
 
 /*!It remove all pins between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.

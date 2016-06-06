@@ -67,7 +67,7 @@ private:
 	double 		m_tol;		/**< Tolerance for greedy algorithm.*/
 	MRBFSol		m_solver; 	/**<Type of solver specified for the class as default in execution*/
 	dvector1D	m_filter;	/**<Filter field for displacements modulation */
-	bool		m_bfilter;		/**<boolean to recognize if a filter field is applied */
+	bool		m_bfilter;	/**<boolean to recognize if a filter field is applied */
 	
 	bool		m_srset;	/**<True if the support radius is set by the user.*/
 
@@ -81,6 +81,8 @@ public:
 	MRBF(const MRBF & other);
 	MRBF & operator=(const MRBF & other);
 
+	void buildPorts();
+
 	void 			setGeometry(MimmoObject* geometry);
 	
 	dvecarr3E*		getNodes();
@@ -91,6 +93,7 @@ public:
 	dvector1D		getFilter();
 	
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
+	dvecarr3E		getDisplacements();
 	
 	int 			addNode(darray3E);
 	ivector1D		addNode(dvecarr3E);

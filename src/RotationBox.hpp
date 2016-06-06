@@ -58,6 +58,8 @@ public:
 	RotationBox(const RotationBox & other);
 	RotationBox & operator=(const RotationBox & other);
 
+	void buildPorts();
+
 	void setAxis(darray3E origin, darray3E direction);
 	void setOrigin(darray3E origin);
 	void setDirection(darray3E direction);

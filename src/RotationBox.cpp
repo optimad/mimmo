@@ -53,6 +53,21 @@ RotationBox & RotationBox::operator=(const RotationBox & other){
 	return(*this);
 };
 
+
+/*! It builds the input/output ports of the object
+ */
+void RotationBox::buildPorts(){
+	bool built = true;
+	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, POINT, 0 ));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, AXIS, 1 ));
+	built = (built && createPortIn<double, RotationBox>(&m_alpha, VALUE, 2 ));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, POINT, 3 ));
+	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, AXES, 4 ));
+	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, POINT, 0));
+	built = (built && createPortOut<dmatrix33E, RotationBox>(this, &mimmo::RotationBox::getRotatedAxes, AXES, 1));
+	m_arePortsBuilt = built;
+};
+
 /*!It sets the origin and direction of the rotation axis.
  * \param[in] origin Origin of rotation axis.
  * \param[in] direction Direction of rotation axis.

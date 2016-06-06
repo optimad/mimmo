@@ -49,6 +49,20 @@ MRBF::MRBF(const MRBF & other){
 	*this = other;
 };
 
+/*! It builds the input/output ports of the object
+ */
+void MRBF::buildPorts(){
+
+	//TODO Build port
+	bool built = true;
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, DISPLS, 0, {GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, COORDS, 1, {DISPLS, GDISPLS}));
+	built = (built && createPortIn<dvector1D, MRBF>(&m_filter, FILTER, 2));
+	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, GEOM, 99));
+	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, GDISPLS, 0));
+	m_arePortsBuilt = built;
+};
+
 /*! Copy Operator
  * @param[in] other MRBF where copy from
  */
@@ -132,6 +146,15 @@ std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
 	pairField.first = getGeometry();
 	pairField.second = &m_displ;
 	return pairField;
+};
+
+/*!
+ * Return actual computed displacements field (if any) for the geometry linked.
+ * @return 	The computed deformation field on the vertices of the linked geometry
+ */
+dvecarr3E
+MRBF::getDisplacements(){
+	return m_displ;
 };
 
 

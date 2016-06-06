@@ -50,6 +50,19 @@ TranslationBox & TranslationBox::operator=(const TranslationBox & other){
 	return(*this);
 };
 
+/*! It builds the input/output ports of the object
+ */
+void TranslationBox::buildPorts(){
+	bool built = true;
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_origin, POINT, 0 ));
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_direction, AXIS, 1 ));
+	built = (built && createPortIn<double, TranslationBox>(&m_alpha, VALUE, 2 ));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getOrigin, POINT, 0));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getDirection, AXIS, 1));
+	built = (built && createPortOut<double, TranslationBox>(this, &mimmo::TranslationBox::getTranslation, VALUE, 2));
+	m_arePortsBuilt = built;
+};
+
 /*!It gets the direction of the translation.
  * \return Direction of translation.
  */

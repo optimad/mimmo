@@ -170,8 +170,8 @@ void test0002() {
 
 	//********************************************************************************************
 	//Creating PINS
-	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
-	addPin(lattice2, applier2, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	addPin(lattice, applier, GDISPLS, GDISPLS);
+	addPin(lattice2, applier2, GDISPLS, GDISPLS);
 
 
 	//********************************************************************************************

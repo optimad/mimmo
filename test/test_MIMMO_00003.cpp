@@ -121,8 +121,8 @@ void test0003() {
 
 	//********************************************************************************************
 	//SETUP PINS
-	addPin(input, lattice, &GenericInput::getResult<dvecarr3E>, &FFDLattice::setDisplacements);
-	addPin(lattice, applier, &FFDLattice::getResult<dvecarr3E>, &Apply::setInput<dvecarr3E>);
+	addPin(input, lattice, DISPLS, DISPLS);
+	addPin(lattice, applier, GDISPLS, GDISPLS);
 
 	//********************************************************************************************
 	//Creating ELEMENT chain
