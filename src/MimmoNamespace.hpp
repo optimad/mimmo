@@ -34,40 +34,31 @@ enum PortsType{BOTH, BACKWARD, FORWARD}; 	/**< Type of pins of the object: bidir
 												only input or only output.*/
 
 enum PortType{
-	GEOM,
-	COORDS	/*! Port dedicated to communicates coordinates of points.*/,
-	DISPLS	/*! Port dedicated to communicates displacements of points.*/,
-	GDISPLS	/*! Port dedicated to communicates displacements of geometry vertex.*/,
-	FILTER	/*! Port dedicated to communicates a scalar field used as filter function.*/,
-	BMATRIX	/*! Port dedicated to communicates an array of array 3x3 of double (Bending).*/,
-	BCOEFFS	/*! Port dedicated to communicates an array of array 3x3 of vector of double (Bending).*/,
-	GLOBAL,
-	LOCAL,
-	DEG,
-	RANGE,
-	POINT,
-	VALUE,
-	AXIS,
-	AXES,
-	BOOLS3
+	COORDS 	= 0		/*! Port dedicated to communicate coordinates of points [vector<array<double,3>>].*/,
+	GLOBAL 	= 1		/*! Port dedicated to communicate coordinates of points in a global reference system [vector<array<double,3>>].*/,
+	LOCAL 	= 2		/*! Port dedicated to communicate coordinates of points in a local reference system. [vector<array<double,3>>].*/,
+	DISPLS 	= 10	/*! Port dedicated to communicate displacements of points [vector<array<double,3>>].*/,
+	GDISPLS = 11	/*! Port dedicated to communicate displacements of geometry vertex [vector<array<double,3>>].*/,
+	FILTER	= 12	/*! Port dedicated to communicate a scalar field used as filter function [vector<double>].*/,
+	POINT	= 20	/*! Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
+	AXIS	= 21	/*! Port dedicated to communicate the direction of an axis [array<double,3>].*/,
+	AXES	= 22	/*! Port dedicated to communicate a reference system [array<array<double,3>,3>].*/,
+	VALUE	= 30	/*! Port dedicated to communicate a scalar value [double].*/,
+	BMATRIX	= 31	/*! Port dedicated to communicate a matrix of values [array<array<double,3>,3>].*/,
+	BCOEFFS	= 32	/*! Port dedicated to communicate a matrix of vector of values [array<array<vector<double>,3>,3>].*/,
+	DEG		= 40	/*! Port dedicated to communicate a set of number of degrees of freedom [array<double,3>] .*/,
+	RANGE	= 41	/*! Port dedicated to communicate a set of span interval [array<double,3>] .*/,
+	BOOLS3	= 42	/*! Port dedicated to communicate a set of conditions [array<boolean,3>].*/,
+	GEOM 	= 99	/*! Port dedicated to communicate a pointer to a geometry [MimmoObject*].*/,
 
 };
-/**< Port type specification.
+/**< Port TAG specification.
  *
- * A type of data is related to each label. Same type of data can be related to
- * multiple type of ports but with different meaning.
+ * A type of data is related to each TAG. Same type of data can be related to
+ * multiple TAG of ports but with different meaning.
+ * A port with a TAG can communicate with other TAG in function of its pre-coded
+ * compatibility.
  *
- * mimmo::pin::PortType::COORDS -
- * Port dedicated to communicates coordinates of points.
- * A port COORDS communicates a std::vector<std::array<double, 3> >.
- *
- * mimmo::pin::PortType::DISPLS -
- * Port dedicated to communicates displacements of points.
- * A port DISPLS communicates a std::vector<std::array<double, 3> >.
- *
- *  mimmo::pin::PortType::FILTER -
- *  Port dedicated to communicates a scalar field used as filter function.
- *  A port FILTER communicates a std::vector<double>.
  */
 
 typedef	short int	PortID;

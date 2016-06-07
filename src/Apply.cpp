@@ -54,7 +54,7 @@ Apply & Apply::operator=(const Apply & other){
 void
 Apply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Apply>(&m_input, GDISPLS, 0, {DISPLS}));
+	built = (built && createPortIn<dvecarr3E, Apply>(&m_input, GDISPLS, 11, {DISPLS}));
 	built = (built && createPortIn<MimmoObject*, Apply>(&m_geometry, GEOM, 99));
 	m_arePortsBuilt = built;
 };

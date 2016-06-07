@@ -42,24 +42,28 @@ namespace mimmo{
  *  those portion of geometry encased into the 3D shape.
  *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 10    | DISPLS   | m_displ           | GDISPLS               |
+ *	| 12    | FILTER   | m_filter          | 		               |
+ *	| 20    | POINT    | setOrigin         | 					   |
+ *	| 22    | AXES     | setRefSystem      | 					   |
+ *	| 99    | GEOM     | m_geometry        | 			           |
+ *	|-------|----------|-------------------|-----------------------|
  *
- *	- Input  Ports-
  *
- *	PortID	PortType	variable/function	compatibilities
- *
- *	0 		DISPLS		m_displ					GDISPLS
- *	1 		COORDS		m_coords				DISPLS GDISPLS
- *	2 		BMATRIX		m_degree				-
- *	3 		BCOEFFS		m_coeffs				-
- *
- *
- *	- Output Ports -
- *
- *	PortID	PortType	variable/function
- *
- *	0		DISPLS		getDisplacements
- *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 11    | GDISPLS  | getDeformation    |
+ *	|-------|----------|-------------------|
+ * ~~~
  *	=========================================================
  *
  */

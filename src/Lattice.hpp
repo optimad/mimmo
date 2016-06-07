@@ -41,6 +41,31 @@ namespace mimmo{
  *  points on it (lattice). NO displacements for control points and NO NURBS parameters for FFD are present
  *  in this structure, only geometrical information are stored in the object.
  *
+ *	=========================================================
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 99    | GEOM     | m_geometry        | 			           |
+ *	|-------|----------|-------------------|-----------------------|
+ *
+ *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 1     | GLOBAL   | getGlobalCoords   |
+ *	| 2     | LOCAL    | getLocalCoords    |
+ *	| 20    | POINT    | getOrigin         |
+ *	| 22    | AXES     | getRefSystem      |
+ *	| 99    | GEOM     | getGeometry       |
+ *	|-------|----------|-------------------|
+ * ~~~
+ *	=========================================================
+ *
  */
 class Lattice: public BaseManipulation, public UStructMesh {
 

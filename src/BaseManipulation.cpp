@@ -224,7 +224,8 @@ BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
 
-/*!It removes all the pins (connections) of the object and the related pins of the linked objects.
+/*!It removes all the pins (connections) of the object and the
+ * related pins of the linked objects.
  */
 void
 BaseManipulation::removePins(){
@@ -238,7 +239,6 @@ BaseManipulation::removePins(){
 void
 BaseManipulation::removePinsIn(){
 	unordered_map<BaseManipulation*, int>::iterator it;
-	//Warning!! If infinite while unset parent wrong
 	while(m_parent.size()){
 		it = m_parent.begin();
 		mimmo::pin::removeAllPins(it->first, this);
@@ -251,7 +251,6 @@ BaseManipulation::removePinsIn(){
 void
 BaseManipulation::removePinsOut(){
 	unordered_map<BaseManipulation*, int>::iterator it;
-	//Warning!! If infinite while unset parent wrong
 	while(m_child.size()){
 		it = m_child.begin();
 		mimmo::pin::removeAllPins(this, it->first);
@@ -362,7 +361,7 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 };
 
 /*!It gets all the input ports of the object
- * \return Map with pointer to input ports.
+ * \return Map with PortID as key and pointer to input ports as value.
  */
 map<PortID, PortIn*>
 BaseManipulation::getPortsIn(){
@@ -370,7 +369,7 @@ BaseManipulation::getPortsIn(){
 }
 
 /*!It gets all the output ports of the object
- * \return Map with pointer to output ports.
+ * \return Map with PortID as key and pointer to output ports as value.
  */
 map<PortID, PortOut*>
 BaseManipulation::getPortsOut(){
@@ -380,7 +379,7 @@ BaseManipulation::getPortsOut(){
 
 /*!It gets the type of an output port of the object
  * \param[in] port ID of the target ouput port
- * \return Type of the port (label).
+ * \return Type of the port (TAG).
  */
 PortType
 BaseManipulation::getPortType(PortID port){
@@ -389,7 +388,8 @@ BaseManipulation::getPortType(PortID port){
 
 /*!It finds an input pin (connection) of the object
  * \param[in] pin Target pin (connection).
- * \return Index of target pin in the input pins structure. Return -1 if pin (connection) not found.
+ * \return Index of target pin in the input pins structure.
+ * Return -1 if pin (connection) not found.
  */
 PortID
 BaseManipulation::findPinIn(PortIn& pin){
@@ -401,7 +401,8 @@ BaseManipulation::findPinIn(PortIn& pin){
 
 /*!It finds an output pin (connection)  of the object
  * \param[in] pin Target pin (connection).
- * \return Index of target pin in the output pins structure. Return -1 if pin (connection) not found.
+ * \return Index of target pin in the output pins structure.
+ * Return -1 if pin (connection) not found.
  */
 PortID
 BaseManipulation::findPinOut(PortOut& pin){
@@ -411,7 +412,8 @@ BaseManipulation::findPinOut(PortOut& pin){
 	return(-1);
 }
 
-/*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
+/*!It removes an input pin (connection) of the object and the
+ * related output pin (connection) of the linked object.
  * \param[in] i Index of target input pin (connection).
  */
 void
@@ -421,9 +423,10 @@ BaseManipulation::removePinIn(PortID i){
 	}
 }
 
-/*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
- * \param[in] portS Port of target output pin (connection).
- * \param[in] j Index of target output pin (connection) of the i-th output port.
+/*!It removes an output pin (connection) of the object and the
+ * related input pin (connection) of the linked object.
+ * \param[in] portS Port ID of target output pin (connection).
+ * \param[in] j Index of target output pin (connection) of the portS output port.
  */
 void
 BaseManipulation::removePinOut(PortID portS, int j){
@@ -462,7 +465,7 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
 
 /*!It adds an input pin (connection) of the object.
  * \param[in] objIn Pointer to sender BaseManipulation object.
- * \param[in] portR Label (type) of target input port of receiver.
+ * \param[in] portR Label (TAG) of target input port of receiver.
  */
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
@@ -472,8 +475,8 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
 
 /*!It adds an output pin (connection) of the object.
  * \param[in] objOut Pointer to receiver BaseManipulation object.
- * \param[in] portS Label (type) of target output port of sender.
- * \param[in] portR Label (type) of target input port of receiver.
+ * \param[in] portS Label (TAG) of target output port of sender.
+ * \param[in] portR Label (TAG) of target input port of receiver.
  */
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType portR){
@@ -511,7 +514,7 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 
 /*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
  * \param[in] objIn Pointer to sender BaseManipulation object.
- * \param[in] portR Label (type) of target input port of receiver.
+ * \param[in] portR Label (TAG) of target input port of receiver.
  */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
@@ -520,7 +523,7 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
 
 /*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
  * \param[in] objOut Pointer to receiver BaseManipulation object.
- * \param[in] portS Label (type) of target output port of sender.
+ * \param[in] portS Label (TAG) of target output port of sender.
  */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortType portS){

@@ -80,10 +80,10 @@ void Lattice::buildPorts(){
 	//TODO Build port
 	bool built = true;
 	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, GEOM, 99));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, GLOBAL, 0));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, LOCAL, 1));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, POINT, 2));
-	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, AXES, 3));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, GLOBAL, 1));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, LOCAL, 2));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, POINT, 20));
+	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, AXES, 22));
 	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, GEOM, 99));
 	m_arePortsBuilt = built;
 };

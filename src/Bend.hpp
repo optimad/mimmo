@@ -43,24 +43,27 @@ namespace mimmo{
  *	applied to the i-th displacements.
  *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 0     | COORDS   | m_coords          | GLOBAL DISPLS GDISPLS |
+ *	| 10    | DISPLS   | m_displ           | GDISPLS               |
+ *	| 31    | BMATRIX  | m_degree          | 			           |
+ *	| 32    | BCOEFFS  | m_coeffs          | 			           |
+ *	|-------|----------|-------------------|-----------------------|
  *
- *	- Input  Ports-
  *
- *	PortID	PortType	variable/function	compatibilities
- *
- *	0 		DISPLS		m_displ					GDISPLS
- *	1 		COORDS		m_coords				DISPLS GDISPLS
- *	2 		BMATRIX		m_degree				-
- *	3 		BCOEFFS		m_coeffs				-
- *
- *
- *	- Output Ports -
- *
- *	PortID	PortType	variable/function
- *
- *	0		DISPLS		getDisplacements
- *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 10    | DISPLS   | getDisplacements  |
+ *	|-------|----------|-------------------|
+ * ~~~
  *	=========================================================
  *
  * TODO implementation of user interface seems not ROBUST. Please recheck set*** methods.

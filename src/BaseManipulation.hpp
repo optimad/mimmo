@@ -71,9 +71,9 @@ class IOData;
  * Port dedicated to communicates displacements of points.
  * A port DISPLS communicates a std::vector<std::array<double, 3> >.
  *
- *  mimmo::pin::PortType::FILTER -
- *  Port dedicated to communicates a scalar field used as filter function.
- *  A port FILTER communicates a std::vector<double>.
+ * mimmo::pin::PortType::FILTER -
+ * Port dedicated to communicates a scalar field used as filter function.
+ * A port FILTER communicates a std::vector<double>.
  *
  */
 class BaseManipulation{
@@ -104,10 +104,8 @@ protected:
 
 	PortsType							m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
 															BACKWARD (only input) or FORWARD (only output).*/
-//	std::vector<PortIn*>				m_portIn;			/**<Input ports vector. */
 	std::map<PortID, PortIn*>			m_portIn;			/**<Input ports map. */
 	std::map<PortType, PortID>			m_mapPortIn;		/**<Input ports Map type. */
-//	std::vector<PortOut*>				m_portOut;			/**<Output ports vector. */
 	std::map<PortID, PortOut*>			m_portOut;			/**<Output ports map. */
 	std::map<PortType, PortID>			m_mapPortOut;		/**<Output ports Map type. */
 	bool								m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
