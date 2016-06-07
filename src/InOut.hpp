@@ -40,24 +40,6 @@ class BaseManipulation;
  * mimmo namespace
  */
 
-/**
- * Port type specification.
- *
- * A type of data is related to each label. Same type of data can be related to
- * multiple type of ports but with different meaning.
- *
- * mimmo::pin::PortType::COORDS -
- * Port dedicated to communicates coordinates of points.
- * A port COORDS communicates a std::vector<std::array<double, 3> >.
- *
- * mimmo::pin::PortType::DISPLS -
- * Port dedicated to communicates displacements of points.
- * A port DISPLS communicates a std::vector<std::array<double, 3> >.
- *
- *  mimmo::pin::PortType::FILTER -
- *  Port dedicated to communicates a scalar field used as filter function.
- *  A port FILTER communicates a std::vector<double>.
- */
 typedef mimmo::pin::PortType	PortType;
 typedef short int 				PortID;
 
@@ -77,15 +59,12 @@ typedef short int 				PortID;
  */
 class PortOut{
 public:
-
-
-
 	//members
 	bitpit::OBinaryStream				m_obuffer;	/**<Output buffer to communicate data.*/
 	std::vector<BaseManipulation*>		m_objLink;	/**<Outputs object to which communicate the data.*/
 	std::vector<PortID>					m_portLink;	/**<ID of the input ports of the linked objects.*/
 
-	PortType							m_label;	/**<Label (tag) of the type of the port.*/
+	PortType							m_label;	/**<Label (TAG) of the type of the port.*/
 
 public:
 	PortOut();
