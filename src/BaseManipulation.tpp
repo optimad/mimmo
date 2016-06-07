@@ -12,11 +12,12 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortType label, PortID portS){
 	bool check = false;
-	if (getNPortsOut() < portS+1) m_portOut.resize(portS+1);
-	if (m_portOut[portS] != NULL ) return (check);
+//	if (getNPortsOut() < portS+1) m_portOut.resize(portS+1);
+//	if (m_portOut[portS] != NULL ) return (check);
+	if (m_portOut.count(portS) != 0 ) return (check);
 	PortOutT<T, O>* portOut = new PortOutT<T, O>(obj_, getVar_);
 	portOut->m_label = label;
-	m_mapPortOut[label] = portS+1;
+	m_mapPortOut[label] = portS;
 	m_portOut[portS] = portOut;
 	check = true;
 	return(check);
@@ -35,10 +36,11 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortIn(T* var_, PortType label, PortID portR, std::vector<PortType> compatibilities){
 	bool check = false;
-	if (getNPortsIn() < portR+1) m_portIn.resize(portR+1);
-	if (m_portIn[portR] != NULL ) return (check);
+//	if (getNPortsIn() < portR+1) m_portIn.resize(portR+1);
+//	if (m_portIn[portR] != NULL ) return (check);
+	if (m_portIn.count(portR) != 0 ) return (check);
 	PortInT<T, O>* portIn = new PortInT<T, O>(var_);
-	m_mapPortIn[label] = portR+1;
+	m_mapPortIn[label] = portR;
 	portIn->addCompatibility(label);
 	for(int i = 0; i < compatibilities.size(); i++) {
 		portIn->addCompatibility(compatibilities[i]);
@@ -62,10 +64,11 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortType label, PortID portR, std::vector<PortType> compatibilities){
 	bool check = false;
-	if (getNPortsIn() < portR+1) m_portIn.resize(portR+1);
-	if (m_portIn[portR] != NULL ) return (check);
+//	if (getNPortsIn() < portR+1) m_portIn.resize(portR+1);
+//	if (m_portIn[portR] != NULL ) return (check);
+	if (m_portIn.count(portR) != 0 ) return (check);
 	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_);
-	m_mapPortIn[label] = portR+1;
+	m_mapPortIn[label] = portR;
 	portIn->addCompatibility(label);
 	for(int i = 0; i < compatibilities.size(); i++) {
 		portIn->addCompatibility(compatibilities[i]);

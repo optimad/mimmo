@@ -273,12 +273,10 @@ BaseManipulation::clear(){
 void
 BaseManipulation::exec(){
 	if (m_active) execute();
-	for (int i=0; i<m_portOut.size(); i++){
-		if (m_portOut[i] != NULL){
-			std::vector<BaseManipulation*>	linked = m_portOut[i]->getLink();
-			if (linked.size() > 0){
-				m_portOut[i]->exec();
-			}
+	for (map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+		std::vector<BaseManipulation*>	linked = i->second->getLink();
+		if (linked.size() > 0){
+			i->second->exec();
 		}
 	}
 }
@@ -364,17 +362,17 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 };
 
 /*!It gets all the input ports of the object
- * \return Vector of pointer to input ports.
+ * \return Map with pointer to input ports.
  */
-vector<PortIn*>
+map<PortID, PortIn*>
 BaseManipulation::getPortsIn(){
 	return (m_portIn);
 }
 
 /*!It gets all the output ports of the object
- * \return Vector of pointer to output ports.
+ * \return Map with pointer to output ports.
  */
-std::vector<PortOut*>
+map<PortID, PortOut*>
 BaseManipulation::getPortsOut(){
 	return (m_portOut);
 }
@@ -393,10 +391,10 @@ BaseManipulation::getPortType(PortID port){
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the input pins structure. Return -1 if pin (connection) not found.
  */
-int
+PortID
 BaseManipulation::findPinIn(PortIn& pin){
-	for (int i=0; i<m_portIn.size(); i++){
-		if (pin == *(m_portIn[i])) return(i);
+	for (std::map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+		if (pin == *(i->second)) return(i->first);
 	}
 	return(-1);
 }
@@ -405,12 +403,11 @@ BaseManipulation::findPinIn(PortIn& pin){
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the output pins structure. Return -1 if pin (connection) not found.
  */
-int
+PortID
 BaseManipulation::findPinOut(PortOut& pin){
-	for (int i=0; i<m_portOut.size(); i++){
-		if (pin == *(m_portOut[i])) return(i);
+	for (std::map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+		if (pin == *(i->second)) return(i->first);
 	}
-
 	return(-1);
 }
 
@@ -419,7 +416,7 @@ BaseManipulation::findPinOut(PortOut& pin){
  */
 void
 BaseManipulation::removePinIn(PortID i){
-	if (i<m_portIn.size() && i >= 0){
+	if ( m_portIn.count(i) != 0 ){
 		m_portIn[i]->clear();
 	}
 }
@@ -430,7 +427,7 @@ BaseManipulation::removePinIn(PortID i){
  */
 void
 BaseManipulation::removePinOut(PortID portS, int j){
-	if (portS<m_portOut.size() && portS >= 0){
+	if ( m_portOut.count(portS) != 0 ){
 		if (j<m_portOut[portS]->getLink().size() && j >= 0){
 			m_portOut[portS]->clear(j);
 		}
@@ -443,7 +440,7 @@ BaseManipulation::removePinOut(PortID portS, int j){
  */
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
-	if (objIn != NULL && portR < m_portIn.size() && portR >=0){
+	if (objIn != NULL && m_portIn.count(portR) !=0 ){
 		m_portIn[portR]->m_objLink = objIn;
 	}
 };
@@ -455,8 +452,8 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR){
-	if (objOut != NULL && portS < m_portOut.size() && portS >= 0 && portR >= 0){
-		if (portR < objOut->m_portIn.size()){
+	if (objOut != NULL && m_portOut.count(portS) != 0 ){
+		if (objOut->m_portIn.count(portR) != 0){
 			m_portOut[portS]->m_objLink.push_back(objOut);
 			m_portOut[portS]->m_portLink.push_back(portR);
 		}
@@ -469,7 +466,7 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
  */
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
-	addPinIn(objIn, m_mapPortIn[portR]-1);
+	addPinIn(objIn, m_mapPortIn[portR]);
 };
 
 
@@ -481,7 +478,7 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType portR){
 	if (objOut != NULL){
-		addPinOut(objOut, m_mapPortOut[portS]-1, objOut->m_mapPortIn[portR]-1);
+		addPinOut(objOut, m_mapPortOut[portS], objOut->m_mapPortIn[portR]);
 	}
 };
 
@@ -491,7 +488,7 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType p
  */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
-	if (objIn != NULL && portR < m_portIn.size()){
+	if (objIn != NULL && m_portIn.count(portR) != 0){
 		m_portIn[portR]->m_objLink = NULL;
 	}
 };
@@ -502,7 +499,7 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
-	if (objOut != NULL && portS < m_portOut.size()){
+	if (objOut != NULL && m_portOut.count(portS) != 0){
 		std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
 		for (int i=0; i<linked.size(); i++){
 			if (linked[i] == objOut){
@@ -518,9 +515,7 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
  */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
-	if (objIn != NULL){
-		removePinIn(objIn, m_mapPortIn[portR]-1);
-	}
+	removePinIn(objIn, m_mapPortIn[portR]);
 };
 
 /*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
@@ -529,8 +524,6 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
  */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortType portS){
-	if (objOut != NULL){
-		removePinOut(objOut, m_mapPortOut[portS]-1);
-	}
+	removePinOut(objOut, m_mapPortOut[portS]);
 }
 

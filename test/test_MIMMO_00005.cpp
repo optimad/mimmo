@@ -235,9 +235,13 @@ void test0005() {
 	geometry->write();
 
 	//Delete and nullify pointer
+	cout << "delete geom" << endl;
 	delete geometry;
+	cout << "delete lattice" << endl;
 	delete lattice;
+	cout << "delete applier" << endl;
 	delete applier;
+	cout << "delete input" << endl;
 	delete input;
 	delete inputorig;
 	delete inputspan;

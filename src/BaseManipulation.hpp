@@ -95,22 +95,24 @@ public:
 	typedef	short int									PortID;		/**<Port ID (position of slot).*/
 
 protected:
-	std::string							m_name;			/**<Name of the manipulation object.*/
-	MimmoObject*						m_geometry;		/**<Pointer to manipulated geometry. */
-	bmumap								m_parent;		/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
-													pointer a counter. When this counter is 0, pointer is released*/
-	bmumap								m_child;		/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
-														pointer a counter. When this counter is 0, pointer is released*/
+	std::string							m_name;				/**<Name of the manipulation object.*/
+	MimmoObject*						m_geometry;			/**<Pointer to manipulated geometry. */
+	bmumap								m_parent;			/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+															pointer a counter. When this counter is 0, pointer is released*/
+	bmumap								m_child;			/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
+															pointer a counter. When this counter is 0, pointer is released*/
 
 	PortsType							m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
-														BACKWARD (only input) or FORWARD (only output).*/
-	std::vector<PortIn*>				m_portIn;		/**<Input ports vector. */
-	std::map<PortType, PortID>			m_mapPortIn;	/**<Input ports Map type. */
-	std::vector<PortOut*>				m_portOut;		/**<Output ports vector. */
-	std::map<PortType, PortID>			m_mapPortOut;	/**<Output ports Map type. */
-	bool								m_arePortsBuilt;/**<True or false is the ports are already set or not.*/
+															BACKWARD (only input) or FORWARD (only output).*/
+//	std::vector<PortIn*>				m_portIn;			/**<Input ports vector. */
+	std::map<PortID, PortIn*>			m_portIn;			/**<Input ports map. */
+	std::map<PortType, PortID>			m_mapPortIn;		/**<Input ports Map type. */
+//	std::vector<PortOut*>				m_portOut;			/**<Output ports vector. */
+	std::map<PortID, PortOut*>			m_portOut;			/**<Output ports map. */
+	std::map<PortType, PortID>			m_mapPortOut;		/**<Output ports Map type. */
+	bool								m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
 
-	bool								m_active;		/**<True/false to activate/disable the object.*/
+	bool								m_active;			/**<True/false to activate/disable the object.*/
 
 public:
 	BaseManipulation();
@@ -133,18 +135,18 @@ public:
 	PortsType 			getPortsType();
 	int 				getNPortsIn();
 	int 				getNPortsOut();
-	std::vector<PortIn*> getPortsIn();
-	std::vector<PortOut*>getPortsOut();
+	std::map<PortID, PortIn*> getPortsIn();
+	std::map<PortID, PortOut*>getPortsOut();
 	PortType 			getPortType(PortID port);
 
-	bool				isActive();
+	bool	isActive();
 
 	//set methods
-	void				setName(std::string name);
-	void 				setGeometry(MimmoObject* geometry);
+	void	setName(std::string name);
+	void 	setGeometry(MimmoObject* geometry);
 
-	void				activate();
-	void				disable();
+	void	activate();
+	void	disable();
 
 	//cleaning/unset
 	void 	unsetGeometry();
@@ -178,8 +180,8 @@ protected:
 	void 	unsetParent(BaseManipulation * parent);
 	void 	unsetChild(BaseManipulation * child);
 	
-	int		findPinIn(PortIn& pin);
-	int		findPinOut(PortOut& pin);
+	PortID	findPinIn(PortIn& pin);
+	PortID	findPinOut(PortOut& pin);
 
 	void	addPinIn(BaseManipulation* objIn, PortID portR);
 	void	addPinOut(BaseManipulation* objOut, PortID portS, PortID portR);
@@ -198,7 +200,6 @@ protected:
 	 * Pure virtual method, it has to be implemented in derived classes.
 	 */
 	virtual void 	execute() = 0;
-	
 	
 };
 

@@ -49,6 +49,7 @@ namespace mimmo{
  *	|PortID | PortType | variable/function | compatibilities |
  *	|-------|----------|-------------------|-----------------|
  *	| 0     | DISPL    | m_input           | DISPLS          |
+ *	| 99    | GEOM     | m_geometry        |                 |
  *	|-------|----------|-------------------|-----------------|
  *
  *

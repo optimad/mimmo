@@ -88,26 +88,22 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, Port
 void
 removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
-	std::vector<PortOut*> pinsOut = objSend->getPortsOut();
-	for (int i=0; i<objSend->getNPortsOut(); i++){
-		if (pinsOut[i] != NULL){
-			std::vector<BaseManipulation*> linked = pinsOut[i]->getLink();
-			for (int j=0; j<linked.size(); j++){
-				if (linked[j] == objRec){
-					objSend->removePinOut(i,j);
-					objSend->unsetChild(objRec);
-				}
+	std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
+	for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
+		std::vector<BaseManipulation*> linked = i->second->getLink();
+		for (int j=0; j<linked.size(); j++){
+			if (linked[j] == objRec){
+				objSend->removePinOut(i->first,j);
+				objSend->unsetChild(objRec);
 			}
 		}
 	}
 
-	std::vector<PortIn*> pinsIn = objRec->getPortsIn();
-	for (int i=0; i<objRec->getNPortsIn(); i++){
-		if (pinsIn[i] != NULL){
-			if (pinsIn[i]->getLink() == objSend){
-				objRec->removePinIn(i);
-				objRec->unsetParent(objSend);
-			}
+	std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
+	for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
+		if (i->second->getLink() == objSend){
+			objRec->removePinIn(i->first);
+			objRec->unsetParent(objSend);
 		}
 	}
 
@@ -162,8 +158,8 @@ checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID p
 bool
 checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR){
 	bool check = false;
-	if (objSend->m_mapPortOut[portS] > 0 && objRec->m_mapPortIn[portR] > 0){
-		PortIn*	pinin = objRec->getPortsIn()[objRec->m_mapPortIn[portR]-1];
+	if (objSend->m_mapPortOut.count(portS) != 0 && objRec->m_mapPortIn.count(portR) != 0){
+		PortIn*	pinin = objRec->getPortsIn()[objRec->m_mapPortIn[portR]];
 		std::vector<PortType> comp = pinin->getCompatibility();
 		check = (find(comp.begin(), comp.end(), portS ) != comp.end());
 	}
