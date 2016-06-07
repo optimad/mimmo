@@ -88,9 +88,10 @@ void test0001() {
 	Apply* applier = new Apply();
 	applier->setGeometry(object);
 
+	cout << "create pin " << endl;
 	//Create PINS
 	//Add pin with port ID
-	cout << "add pin info : " << boolalpha << addPin(input, lattice, 0, 0) << endl;
+	cout << "add pin info : " << boolalpha << addPin(input, lattice, 10, 10) << endl;
 	//Add pin with port TAG
 	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 

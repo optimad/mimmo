@@ -34,12 +34,14 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 		}
 	}
 	if (!(objSend->getPortsType() == PortsType::BACKWARD) && !(objRec->getPortsType() == PortsType::FORWARD) ){
-		if (forced || checkCompatibility(objSend, objRec, portS, portR)){
-			objSend->addPinOut(objRec, portS, portR);
-			objRec->addPinIn(objSend, portR);
-			objSend->addChild(objRec);
-			objRec->addParent(objSend);
-			done = true;
+		if (objSend->m_portOut.count(portS) != 0 && objRec->m_portIn.count(portR) != 0){
+			if (forced || checkCompatibility(objSend, objRec, portS, portR)){
+				objSend->addPinOut(objRec, portS, portR);
+				objRec->addPinIn(objSend, portR);
+				objSend->addChild(objRec);
+				objRec->addParent(objSend);
+				done = true;
+			}
 		}
 	}
 	return done;

@@ -88,11 +88,11 @@ void
 GenericInput::buildPorts(){
 	bool built = true;
 	built = (built && createPortOut<dvecarr3E, GenericInput>(this,
-			&mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 0));
+			&mimmo::GenericInput::getResult<dvecarr3E>, COORDS, 0));
 	built = (built && createPortOut<dvecarr3E, GenericInput>(this,
-			&mimmo::GenericInput::getResult<dvecarr3E>, COORDS, 1));
+			&mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 10));
 	built = (built && createPortOut<dvector1D, GenericInput>(this,
-			&mimmo::GenericInput::getResult<dvector1D>, FILTER, 2));
+			&mimmo::GenericInput::getResult<dvector1D>, FILTER, 12));
 	m_arePortsBuilt = built;
 }
 

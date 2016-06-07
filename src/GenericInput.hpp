@@ -44,21 +44,25 @@ namespace mimmo{
  *   it can be set by using setInput methods.
  *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|-------|----------|-------------------|-----------------------|
  *
- *	- Input  Ports-
  *
- *	PortID	PortType	variable/function	compatibilities
- *
- *
- *	- Output Ports -
- *
- *	PortID	PortType	variable/function
- *
- *	0 		DISPLS		getResult
- *	1 		COORDS		getResult
- *	2 		FILTER		getResult
- *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 0     | COORDS   | getResult         |
+ *	| 10    | DISPLS   | getResult		   |
+ *	| 12    | FILTER   | getResult    	   |
+ *	|-------|----------|-------------------|
+ * ~~~
  *	=========================================================
  *
  */
