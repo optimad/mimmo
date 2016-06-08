@@ -97,6 +97,12 @@ GenericInput::buildPorts(){
 			&mimmo::GenericInput::getResult<darray3E>, POINT, 20));
 	built = (built && createPortOut<iarray3E, GenericInput>(this,
 			&mimmo::GenericInput::getResult<iarray3E>, DIMENSION, 24));
+	built = (built && createPortOut<iarray3E, GenericInput>(this,
+			&mimmo::GenericInput::getResult<iarray3E>, DEG, 40));
+	built = (built && createPortOut<string, GenericInput>(this,
+			&mimmo::GenericInput::getResult<string>, FILENAME, 50));
+	built = (built && createPortOut<string, GenericInput>(this,
+			&mimmo::GenericInput::getResult<string>, DIR, 50));
 	m_arePortsBuilt = built;
 }
 
