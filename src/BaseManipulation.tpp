@@ -4,6 +4,26 @@
 
 /*!It adds an output port to the object.
  * \param[in] obj_ Pointer to BaseManipulation object.
+ * \param[in] var_ Pointer to member to communicate.
+ * \param[in] label Label (TAG) of the port. The plurality of the same tag is not allowed.
+ * \param[in] portS ID of the port; the port will be created at portS-th slot of the output ports of the object.
+ */
+template<typename T, typename O>
+bool
+BaseManipulation::createPortOut(O* obj_, T* var_, PortType label, PortID portS){
+	bool check = false;
+	if (m_portOut.count(portS) != 0 ) return (check);
+	PortOutT<T, O>* portOut = new PortOutT<T, O>(var_);
+	portOut->m_label = label;
+	m_mapPortOut[label] = portS;
+	m_portOut[portS] = portOut;
+	check = true;
+	return(check);
+}
+
+
+/*!It adds an output port to the object.
+ * \param[in] obj_ Pointer to BaseManipulation object.
  * \param[in] getVar_ Get function of the object (copy return) linked by the sender port.
  * \param[in] label Label (TAG) of the port. The plurality of the same tag is not allowed.
  * \param[in] portS ID of the port; the port will be created at portS-th slot of the output ports of the object.

@@ -76,9 +76,9 @@ public:
 
 	void buildPorts();
 
-	void 	setRefreshGeometryTrees(bool force);
+	void setRefreshGeometryTrees(bool force);
 
-	void 	execute();
+	void execute();
 
 };
 

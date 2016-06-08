@@ -241,7 +241,7 @@ public:
 public:
 	PortInT();
 	PortInT(T *var_);
-	PortInT(O* obj_, void (O::*getVar_)(T));
+	PortInT(O* obj_, void (O::*setVar_)(T));
 	virtual ~PortInT();
 
 	PortInT(const PortInT & other);
