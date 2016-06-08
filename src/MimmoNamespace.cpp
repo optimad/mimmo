@@ -33,7 +33,7 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 			exit(11);
 		}
 	}
-	if (!(objSend->getPortsType() == PortsType::BACKWARD) && !(objRec->getPortsType() == PortsType::FORWARD) ){
+	if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){
 		if (objSend->m_portOut.count(portS) != 0 && objRec->m_portIn.count(portR) != 0){
 			if (forced || checkCompatibility(objSend, objRec, portS, portR)){
 				objSend->addPinOut(objRec, portS, portR);
@@ -71,7 +71,7 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, Port
 			exit(11);
 		}
 	}
-	if (!(objSend->getPortsType() == PortsType::BACKWARD) && !(objRec->getPortsType() == PortsType::FORWARD) ){
+	if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){
 		if (forced || checkCompatibility(objSend, objRec, portS, portR)){
 			objSend->addPinOut(objRec, portS, portR);
 			objRec->addPinIn(objSend, portR);

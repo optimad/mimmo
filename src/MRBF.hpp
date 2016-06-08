@@ -128,7 +128,7 @@ public:
 	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
 	
-	void 			setSupportRadius(const double & suppR);
+	void 			setSupportRadius(double suppR_);
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E displ);
 

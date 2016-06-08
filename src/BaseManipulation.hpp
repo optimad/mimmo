@@ -58,22 +58,7 @@ class IOData;
  *  only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Ports.
  *
  *
- * PortType specification :
- *
- * A type of data is related to each label. Same type of data can be related to
- * multiple type of ports but with different meaning.
- *
- * mimmo::pin::PortType COORDS -
- * Port dedicated to communicates coordinates of points.
- * A port COORDS communicates a std::vector<std::array<double, 3> >.
- *
- * mimmo::pin::PortType::DISPLS -
- * Port dedicated to communicates displacements of points.
- * A port DISPLS communicates a std::vector<std::array<double, 3> >.
- *
- * mimmo::pin::PortType::FILTER -
- * Port dedicated to communicates a scalar field used as filter function.
- * A port FILTER communicates a std::vector<double>.
+ * PortType specification : please refer to PortType enum documentation.
  *
  */
 class BaseManipulation{
@@ -89,28 +74,28 @@ class BaseManipulation{
 
 public:
 	//type definitions
-	typedef std::unordered_map<BaseManipulation*, int>	bmumap;		/**<Unordered map type used for parent/child storing.*/
-	typedef mimmo::pin::PortsType 						PortsType;	/**<Ports type specification for Manipulation object.*/
-	typedef mimmo::pin::PortType 						PortType;	/**<Type of a single port specification.*/
-	typedef	short int									PortID;		/**<Port ID (position of slot).*/
+	typedef std::unordered_map<BaseManipulation*, int>	bmumap;			/**<Unordered map type used for parent/child storing.*/
+	typedef mimmo::pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
+	typedef mimmo::pin::PortType 						PortType;		/**<Type of a single port specification.*/
+	typedef	short int									PortID;			/**<Port ID (position of slot).*/
 
 protected:
-	std::string							m_name;				/**<Name of the manipulation object.*/
-	MimmoObject*						m_geometry;			/**<Pointer to manipulated geometry. */
-	bmumap								m_parent;			/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
-															pointer a counter. When this counter is 0, pointer is released*/
-	bmumap								m_child;			/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
-															pointer a counter. When this counter is 0, pointer is released*/
+	std::string					m_name;				/**<Name of the manipulation object.*/
+	MimmoObject*				m_geometry;			/**<Pointer to manipulated geometry. */
+	bmumap						m_parent;			/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+														pointer a counter. When this counter is 0, pointer is released*/
+	bmumap						m_child;			/**<Pointers list to manipulation objects CHILD of the current class.List retains for each
+														pointer a counter. When this counter is 0, pointer is released*/
 
-	PortsType							m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
-															BACKWARD (only input) or FORWARD (only output).*/
-	std::map<PortID, PortIn*>			m_portIn;			/**<Input ports map. */
-	std::map<PortType, PortID>			m_mapPortIn;		/**<Input ports Map type. */
-	std::map<PortID, PortOut*>			m_portOut;			/**<Output ports map. */
-	std::map<PortType, PortID>			m_mapPortOut;		/**<Output ports Map type. */
-	bool								m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
+	ConnectionType				m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
+														BACKWARD (only input) or FORWARD (only output).*/
+	std::map<PortID, PortIn*>	m_portIn;			/**<Input ports map. */
+	std::map<PortType, PortID>	m_mapPortIn;		/**<Input ports Map type. */
+	std::map<PortID, PortOut*>	m_portOut;			/**<Output ports map. */
+	std::map<PortType, PortID>	m_mapPortOut;		/**<Output ports Map type. */
+	bool						m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
 
-	bool								m_active;			/**<True/false to activate/disable the object.*/
+	bool						m_active;			/**<True/false to activate/disable the object.*/
 
 public:
 	BaseManipulation();
@@ -130,7 +115,7 @@ public:
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
 	bool				isChild(BaseManipulation *, int);
-	PortsType 			getPortsType();
+	ConnectionType		getConnectionType();
 	int 				getNPortsIn();
 	int 				getNPortsOut();
 	std::map<PortID, PortIn*> getPortsIn();

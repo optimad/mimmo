@@ -273,7 +273,8 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
  * @param[in] suppR new value of suppR
  */
 void
-MRBF::setSupportRadius(const double & suppR){
+MRBF::setSupportRadius(double suppR_){
+	const double suppR(suppR_);
 	m_srset = true;
 	RBF::setSupportRadius(suppR);
 }

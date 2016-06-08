@@ -32,7 +32,7 @@ using namespace mimmo;
  */
 GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
-	m_portsType	= PortsType::BACKWARD;
+	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "MiMMO.GenericOutput";
 
 };
@@ -40,7 +40,7 @@ GenericOutput::GenericOutput(std::string filename){
 /*!Default destructor of GenericOutput.
  */
 GenericOutput::~GenericOutput(){
-	m_portsType = PortsType::BACKWARD;
+	m_portsType = ConnectionType::BACKWARD;
 };
 
 /*!Copy constructor of GenericOutput.

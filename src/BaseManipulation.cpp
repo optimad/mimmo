@@ -33,7 +33,7 @@ using namespace mimmo;
  */
 BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
-	m_portsType		= PortsType::BOTH;
+	m_portsType		= ConnectionType::BOTH;
 	m_name			= "MiMMO";
 	m_active		= true;
 	m_arePortsBuilt = false;
@@ -157,10 +157,10 @@ BaseManipulation::isChild(BaseManipulation * target, int index){
 };
 
 /*!It gets the ports-type of the manipulation object.
- * \return PortsType of manipulation object (bi-directional, only backward, only forward).
+ * \return ConnectionType of manipulation object (bi-directional, only backward, only forward).
  */
-BaseManipulation::PortsType
-BaseManipulation::getPortsType(){
+BaseManipulation::ConnectionType
+BaseManipulation::getConnectionType(){
 	return (m_portsType);
 }
 

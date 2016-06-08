@@ -34,7 +34,7 @@ using namespace mimmo;
  */
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
-	m_portsType 		= BaseManipulation::PortsType::FORWARD;
+	m_portsType 		= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "MiMMO.GenericInput";
 };
 
@@ -45,7 +45,7 @@ GenericInput::GenericInput(bool readFromFile){
 GenericInput::GenericInput(string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
-	m_portsType 		= BaseManipulation::PortsType::FORWARD;
+	m_portsType 		= BaseManipulation::ConnectionType::FORWARD;
 };
 
 GenericInput::~GenericInput(){};

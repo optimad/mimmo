@@ -30,9 +30,12 @@ class BaseManipulation;
 
 namespace pin{
 
-/*! Type of pins of the object: bidirectional,
- * only input or only output.*/
-enum PortsType{BOTH, BACKWARD, FORWARD};
+/*! Type of allowed conections of the object: bidirectional, only input or only output.*/
+enum ConnectionType{
+	BOTH 		/**<Bidirectional object. It allows both input and output connections.*/,
+	BACKWARD 	/**<Uni-directional backward object. It allows only input connections.*/,
+	FORWARD 	/**<Uni-directional forwadr object. It allows only output connections.*/
+};
 
 /*! Port TAG specification.
 *
