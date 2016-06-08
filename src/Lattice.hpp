@@ -43,14 +43,21 @@ namespace mimmo{
  *
  *	=========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | compatibilities       |
- *	|-------|----------|-------------------|-----------------------|
- *	| 99    | GEOM     | m_geometry        | 			           |
- *	|-------|----------|-------------------|-----------------------|
- *
+ *	|----------------------------------------------------------------------------------|
+ *	|                 Port Input                                                       |
+ *	|-------|----------|---------------------------------------|-----------------------|
+ *	|PortID | PortType | variable/function                     | compatibilities       |
+ *	|-------|----------|---------------------------------------|-----------------------|
+ *	| 99    | GEOM     | m_geometry                            | 			           |
+ *	| 24    | DIMENSION| setDimension                          | 			           |
+ *	| 25    | INFLIMITS| setInfLimits                          | 			           |
+ *	| 22    | AXES     | setRefSystem                          | 			           |
+ *	| 23    | SPAN     | setSpan                               | 			           |
+ *	| 20    | POINT    | setOrigin                             | 			           |
+ *	| 26    | SHAPE    | setShape(mimmo::ShapeType)            | 			           |
+ *	| 27    | COPYSHAPE| setShape(const BasicShape * )         | 			           | 
+ *	|-------|----------|---------------------------------------|-----------------------| 
+ * 
  *
  *	|--------------------------------------|
  *	|            Port Output               |
@@ -61,7 +68,11 @@ namespace mimmo{
  *	| 2     | LOCAL    | getLocalCoords    |
  *	| 20    | POINT    | getOrigin         |
  *	| 22    | AXES     | getRefSystem      |
- *	| 99    | GEOM     | getGeometry       |
+ *	| 25    | INFLIMITS| getInfLimits      |
+ *	| 23    | SPAN     | getSpan           |
+ *	| 24    | DIMENSION| getDimension      |
+ *	| 27    | COPYSHAPE| getShape          |
+ *  | 99    | GEOM     | getGeometry       |
  *	|-------|----------|-------------------|
  * ~~~
  *	=========================================================
@@ -93,7 +104,10 @@ public:
 
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
-
+	
+	ivector1D	accessDOFFromGrid(ivector1D gNindex);
+	ivector1D 	accessGridFromDOF(ivector1D dofIndex);
+	
 	//plotting wrappers
 	void		plotGrid(std::string directory, std::string filename, int counter, bool binary);
 	void		plotCloud(std::string directory, std::string filename, int counter, bool binary);

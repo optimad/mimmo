@@ -27,10 +27,25 @@
 #include "MiMMO_TypeDef.hpp"
 #include "binary_stream.hpp"
 #include "MimmoNamespace.hpp"
+#include "BasicShapes.hpp"
+#include "MimmoObject.hpp"
 #include <functional>
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::array<mimmo::CoordType,3>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::array<mimmo::CoordType,3>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::ShapeType& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::ShapeType& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvector1D *>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvector1D *>& element);
+
 
 namespace mimmo{
 

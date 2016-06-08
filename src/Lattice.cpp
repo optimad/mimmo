@@ -77,14 +77,26 @@ Lattice & Lattice::operator=(const Lattice & other){
  */
 void Lattice::buildPorts(){
 
-	//TODO Build port
 	bool built = true;
 	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, GEOM, 99));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, GLOBAL, 1));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, LOCAL, 2));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, POINT, 20));
-	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, AXES, 22));
+	built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, DIMENSION, 24));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, INFLIMITS, 25));
+	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, AXES, 22));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, SPAN, 23));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, POINT, 20));
+	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, SHAPE, 26));
+	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, COPYSHAPE, 27));
+
+// creating output ports
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, PortType::GLOBAL, 1));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, PortType::LOCAL, 2));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, PortType::POINT, 20));
+	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, PortType::AXES, 22));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, PortType::SPAN, 23));	
+	built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, PortType::DIMENSION, 24));
+	built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, PortType::COPYSHAPE, 27));
 	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, GEOM, 99));
+	
 	m_arePortsBuilt = built;
 };
 
@@ -137,6 +149,7 @@ Lattice::getLocalCoords(){
 };
 
 /*! Find a corrispondent degree of freedom index of a lattice grid node
+ * Not found indices are marked as -1
  * \param[in] index lattice grid global index
  * \return corrispondent DOF global index
  */
@@ -145,12 +158,43 @@ int Lattice::accessDOFFromGrid(int index){
 }
 
 /*! Find a corrispondent lattice grid index of a degree of freedom node
+ * Not found indices are marked as -1
  * \param[in] index DOF global index
  * \return corrispondent lattice grid global index
  */
 int Lattice::accessGridFromDOF(int index){
 	return(posVectorFind(m_intMapDOF, index));
 }
+
+/*! Find a corrispondent degree of freedom index list of a lattice grid node list.
+ * Not found indices are marked as -1;
+ * \param[in] index lattice grid global index list
+ * \return corrispondent DOF global index list
+ */
+ivector1D	Lattice::accessDOFFromGrid(ivector1D gNindex) {
+	ivector1D result(gNindex.size());
+	int counter = 0;
+	for(auto &val : gNindex){
+		result[counter] = accessDOFFromGrid(val);
+		++counter;
+	}
+	return(result);
+};
+
+/*! Find a corrispondent lattice grid index list of a degree of freedom node list
+ * Not found indices are marked as -1;
+ * \param[in] index DOF global index list
+ * \return corrispondent lattice grid global index
+ */
+ivector1D 	Lattice::accessGridFromDOF(ivector1D dofIndex){
+	ivector1D result(dofIndex.size());
+	int counter = 0;
+	for(auto &val : dofIndex){
+		result[counter] = accessGridFromDOF(val);
+		++counter;
+	}
+	return(result);
+};
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory

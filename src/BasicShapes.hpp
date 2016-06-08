@@ -33,9 +33,27 @@
 
 namespace mimmo{
 
+/*!
+ * @enum ShapeType
+ * @brief Identifies the type of elemental shape supported by BasicShape class
+ */
+enum class ShapeType{
+	CUBE /**< cubic or generic voxel-shaped objects */,
+	CYLINDER /**< cylindric objects */, 
+	SPHERE /**< spherical objects */
+	
+};	
 
-enum class ShapeType{CUBE, CYLINDER, SPHERE};	 /**< type of possible shape available */
-enum class CoordType{UNCLAMPED, CLAMPED, PERIODIC, SYMMETRIC}; /**< type of possible coordinate treatment available */
+/*!
+ * @enum CoordType
+ * @brief Specify type of conditions to distribute NURBS node in a given coordinate of the shape
+ */
+enum class CoordType{
+	UNCLAMPED /**< free clamping conditions */, 
+	CLAMPED /**< force nurbs to pass on the extremal point of the interval (clamping) */, 
+	PERIODIC /**< provide periodic condition on the interval extrema */, 
+	SYMMETRIC /**< provide simmetry condition on the interval extrema */
+}; 
 
 /*!
  *	\date			03/01/2015

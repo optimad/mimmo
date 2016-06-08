@@ -43,26 +43,56 @@ namespace mimmo{
  *
  *	=========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | compatibilities       |
- *	|-------|----------|-------------------|-----------------------|
- *	| 10    | DISPLS   | m_displ           | GDISPLS               |
- *	| 12    | FILTER   | m_filter          | 		               |
- *	| 20    | POINT    | setOrigin         | 					   |
- *	| 22    | AXES     | setRefSystem      | 					   |
- *	| 99    | GEOM     | m_geometry        | 			           |
- *	|-------|----------|-------------------|-----------------------|
+ *	|--------------------------------------------------------------------------------------|
+ *	|                 Port Input                                                           |
+ *	|-------|--------------|---------------------------------------|-----------------------|
+ *	|PortID | PortType     | variable/function                     | compatibilities       |
+ *	|-------|--------------|---------------------------------------|-----------------------|
+ *	| 10    | DISPLS       | m_displ                               | GDISPLS               |
+ *	| 12    | FILTER       | m_filter                              | 		               |
+ *  | 40	| DEG	       | setDegrees							   | DIMENSION			   |
+ *  | 44	| NURBSWEIGHTS | setNodalWeight  					   | 					   |
+ *  | 43	| NURBSCOORDTYPE| setCoordType  					   | 					   |  
+ *	|--------------------------------------------------------------------------------------|
+ *	|                INHERITED FROM LATTICE                                                |
+ *  |--------------------------------------------------------------------------------------| 
+ *	| 99    | GEOM     | m_geometry                                | 			           |
+ *	| 24    | DIMENSION| setDimension                              | 			           |
+ *	| 25    | INFLIMITS| setInfLimits                              | 			           |
+ *	| 22    | AXES     | setRefSystem                              | 			           |
+ *	| 23    | SPAN     | setSpan                                   | 			           |
+ *	| 20    | POINT    | setOrigin                                 | 			           |
+ *	| 26    | SHAPE    | setShape(mimmo::ShapeType)                | 			           |
+ *	| 27    | COPYSHAPE| setShape(const BasicShape * )             | 			           | 
+ *	|-------|----------|-------------------------------------------|-----------------------|   
+ * 
  *
  *
- *	|--------------------------------------|
- *	|            Port Output               |
- *	|-------|----------|-------------------|
- *	|PortID | PortType | variable/function |
- *	|-------|----------|-------------------|
- *	| 11    | GDISPLS  | getDeformation    |
- *	|-------|----------|-------------------|
+ *	|-------------------------------------------|
+ *	|            Port Output                    |
+ *	|-------|---------------|-------------------|
+ *	|PortID | PortType      | variable/function |
+ *	|-------|---------------|-------------------|
+ *	| 11    | GDISPLS       | getDeformation    |
+ *	| 80    | PAIRVECFIELD  | getDeformedField  |
+ *	| 40    | DEG  			| getDegrees        |
+  *	| 12    | FILTER        | getFilter         |
+ *  | 44	| NURBSWEIGHTS  | getWeights        |
+ *  | 43	| NURBSCOORDTYPE| getCoordType  	|  
+ *	|-------------------------------------------|
+ *	|      INHERITED FROM LATTICE               |
+ *	|-------|---------------|-------------------|
+ *	| 1     | GLOBAL        | getGlobalCoords   |
+ *	| 2     | LOCAL         | getLocalCoords    |
+ *	| 20    | POINT         | getOrigin         |
+ *	| 22    | AXES          | getRefSystem      |
+ *	| 25    | INFLIMITS     | getInfLimits      |
+ *	| 23    | SPAN          | getSpan           |
+ *	| 24    | DIMENSION     | getDimension      |
+ *	| 27    | COPYSHAPE     | getShape          |
+ *  | 99    | GEOM          | getGeometry       |
+ *	|-------|---------------|-------------------| 
+ * 
  * ~~~
  *	=========================================================
  *

@@ -68,6 +68,114 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr3E &var)
 	return buffer;
 }
 
+/*!
+ *	Output stream operator for mimmo::ShapeType enum
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::ShapeType &var)
+{
+	buffer << static_cast<int> (var);
+	return buffer;
+}
+
+
+/*!
+ *	Input stream operator for mimmo::ShapeType enum
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::ShapeType &var)
+{
+	int val;
+	buffer >> val;
+	var = static_cast<mimmo::ShapeType>	(val);
+	return buffer;
+}
+
+/*!
+ *	Output stream operator for std::array<mimmo::CoordType,3> enum
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::array<mimmo::CoordType,3> &var)
+{
+	std::array<int,3> dum;
+	for(int i=0; i<3; ++i) dum[i] = static_cast<int> (var[i]);
+	buffer << dum;
+	return buffer;
+}
+
+
+/*!
+ *	Input stream operator for std::array<mimmo::CoordType,3> enum
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<mimmo::CoordType,3> &var)
+{
+	std::array<int,3> val;
+	buffer >> val;
+	for(int i=0; i<3; ++i)	var[i] = static_cast<mimmo::CoordType>(val[i]);
+	return buffer;
+}
+
+/*!
+ *	Input stream operator for std::pair<MimmoObject*, dvecarr3E *> 
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<MimmoObject*, dvecarr3E *>& element){
+	
+	MimmoObject * geo;
+	dvecarr3E * data;
+	buffer >> geo >> data ;
+	element = std::make_pair(geo, data);
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::pair<MimmoObject*, dvecarr3E *>
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<MimmoObject*, dvecarr3E *>& element){
+		buffer<<element.first<<element.second;
+		return buffer;
+};
+
+/*!
+ *	Input stream operator for std::pair<MimmoObject*, dvector1D *> 
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<MimmoObject*, dvector1D *>& element){
+	MimmoObject * geo;
+	dvector1D * data;
+	buffer >> geo >> data ;
+	element = std::make_pair(geo, data);
+	return buffer;
+};
+
+/*!
+ *	Input stream operator for std::pair<MimmoObject*, dvector1D *> 
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<MimmoObject*, dvector1D *>& element){
+	buffer<<element.first<<element.second;
+	return buffer;
+};
+
+
 //==============================================================//
 // BASE INOUT CLASS	IMPLEMENTATION								//
 //==============================================================//

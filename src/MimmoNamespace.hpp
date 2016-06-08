@@ -40,6 +40,14 @@ enum PortsType{BOTH, BACKWARD, FORWARD};
 * multiple TAG of ports but with different meaning.
 * A port with a TAG can communicate with other TAG in function of its pre-coded
 * compatibility.
+* 0-9 coordinates of 3D points
+* 10-19 structures for objects handling deformation
+* 20-29 structures for objects building structured lattice
+* 30-39	matrix structures
+* 40-49 FFDlattice setting parameters
+* 
+* 80-89 fields & geoemtries which refers to passed as std::pair
+* 99	MimmoObject pointer structures;
 *
 */
 enum PortType{
@@ -52,14 +60,22 @@ enum PortType{
 	POINT	= 20	/**< Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
 	AXIS	= 21	/**< Port dedicated to communicate the direction of an axis [array<double,3>].*/,
 	AXES	= 22	/**< Port dedicated to communicate a reference system [array<array<double,3>,3>].*/,
-	VALUE	= 30	/**< Port dedicated to communicate a scalar value [double].*/,
+	SPAN	= 23	/**< Port dedicated to communicate the span of elemental object [array<double,3>].*/,
+	DIMENSION = 24	/**< Port dedicated to communicate the dimension of lattice mesh [array<int,3>].*/,
+	INFLIMITS = 25	/**< Port dedicated to communicate a inferior limits for building elemental shape [array<double,3>].*/,
+	SHAPE	  = 26  /**< Port dedicated to communicate a type of an elemental shape itself [mimmo::ShapeType].*/,
+	COPYSHAPE = 27  /**< Port dedicated to communicate a an elemental shape itself, passed by pointer, instantiated elsewhere [BasicShape *].*/,
+ 	VALUE	= 30	/**< Port dedicated to communicate a scalar value [double].*/,
 	BMATRIX	= 31	/**< Port dedicated to communicate a matrix of values [array<array<double,3>,3>].*/,
 	BCOEFFS	= 32	/**< Port dedicated to communicate a matrix of vector of values [array<array<vector<double>,3>,3>].*/,
-	DEG		= 40	/**< Port dedicated to communicate a set of number of degrees of freedom [array<double,3>] .*/,
-	RANGE	= 41	/**< Port dedicated to communicate a set of span interval [array<double,3>] .*/,
+	DEG		= 40	/**< Port dedicated to communicate a set of number of degrees of freedom [array<int,3>] .*/,
+	RANGE   = 41    /**< Port dedicated to communicate a range interval of values for each direction in space [array<array<double,2>,3] .*/,
 	BOOLS3	= 42	/**< Port dedicated to communicate a set of conditions [array<boolean,3>].*/,
-	GEOM 	= 99	/**< Port dedicated to communicate a pointer to a geometry [MimmoObject*].*/,
-
+	NURBSCOORDTYPE	= 43	/**< Port dedicated to communicate condition to design NURBS on FFDLattice [array<mimmo::CoordType,3>] .*/,
+	NURBSWEIGHTS = 44 /**< Port edicated to communicate condition to exchange NURBS weights on FFDLattice [vector<double>]*/,
+	PAIRVECFIELD= 80 /**< Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair<MimmoObject *, vector<array<double,3>>> */,
+	PAIRSCAFIELD= 81 /**< Port dedicated to communicate a scalar field on a MimmoObject geometry as std::pair<MimmoObject *, vector<double>> */,
+	GEOM 	= 99	/**< Port dedicated to communicate a pointer to a geometry [MimmoObject*].*/
 };
 
 typedef	short int	PortID;
