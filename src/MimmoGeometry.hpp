@@ -30,15 +30,20 @@ namespace mimmo{
 
 class NastranInterface;
 
-enum FileType{/*!Ascii/Binary triangulation stl.*/ STL = 0,
-				/*!Surface triangulation vtu.*/ STVTU = 1,
-				/*!Surface quadrilateral vtu.*/ SQVTU = 2,
-				/*!Volume tetrahedral VTU.*/ VTVTU = 3,
-				/*!Volume hexahedral VTU.*/ VHVTU = 4,
-				/*!Nastran triangulation nas.*/ NAS = 5,
-				/*!Ascii OpenFoam point cloud.*/ OFP = 6};		/**Type of file to read/write
-																	the geometry.*/
-enum WFORMAT{Short, Long};
+/*!Type of file to read/write the geometry.*/
+enum FileType{	/*!Ascii/Binary triangulation stl.*/	STL 	= 0,
+				/*!Surface triangulation vtu.*/			STVTU 	= 1,
+				/*!Surface quadrilateral vtu.*/			SQVTU 	= 2,
+				/*!Volume tetrahedral VTU.*/			VTVTU 	= 3,
+				/*!Volume hexahedral VTU.*/				VHVTU 	= 4,
+				/*!Nastran triangulation nas.*/			NAS 	= 5,
+				/*!Ascii OpenFoam point cloud.*/		OFP 	= 6
+};
+
+/*!Format of data to read/write the geometry.*/
+enum WFORMAT{	/*!Single precision data.*/		Short,
+				/*!Double precision data.*/		Long
+};
 
 /*!
  *	\date			30/mar/2016
@@ -54,6 +59,28 @@ enum WFORMAT{Short, Long};
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *	for volume mesh.
+ *
+ *
+ *	=========================================================
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 99    | GEOM     | m_geometry        | 		 			   |
+ *	|-------|----------|-------------------|-----------------------|
+ *
+ *
+ *	|---------------------------------------|
+ *	|            Port Output                |
+ *	|-------|-----------|-------------------|
+ *	|PortID | PortType  | variable/function |
+ *	|-------|-----------|-------------------|
+ *	| 99    | GEOM      | getGeometry       |
+ *	|-------|-----------|-------------------|
+ * ~~~
+ *	=========================================================
  *
  */
 class MimmoGeometry: public BaseManipulation{

@@ -42,24 +42,28 @@ namespace mimmo{
  *	if the object applies the masking inside or outside the thersholds.
  *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|--------------------------------------------------------------------|
+ *	|                 Port Input                                   		 |
+ *	|-------|----------|-------------------|-----------------------------|
+ *	|PortID | PortType | variable/function | compatibilities       		 |
+ *	|-------|----------|-------------------|-----------------------------|
+ *	| 0     | COORDS   | m_coords          | GLOBAL LOCAL DISPLS GDISPLS |
+ *	| 10    | DISPLS   | m_displ           | GDISPLS           		     |
+ *	| 41    | RANGE    | m_thres           | 			  		         |
+ *	| 42    | BOOLS3   | m_inside          | 			           		 |
+ *	|-------|----------|-------------------|-----------------------------|
  *
- *	- Input  Ports-
  *
- *	PortID	PortType	variable/function	compatibilities
- *
- *	0 		DISPLS		m_displ					GDISPLS
- *	1 		COORDS		m_coords				DISPLS GDISPLS
- *	2 		RANGE		m_thres					-
- *	3 		BOOLS3		m_inside				-
- *
- *
- *	- Output Ports -
- *
- *	PortID	PortType	variable/function
- *
- *	0		DISPLS		getDisplacements
- *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 0     | COORDS   | getCoords         |
+ *	| 10    | DISPLS   | getDisplacements  |
+ *	|-------|----------|-------------------|
+ * ~~~
  *	=========================================================
  *
  */

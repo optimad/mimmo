@@ -53,14 +53,12 @@ Mask & Mask::operator=(const Mask & other){
 void
 Mask::buildPorts(){
 	bool built = true;
-
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, DISPLS, 0, {GDISPLS}));
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, COORDS, 1, {DISPLS, GDISPLS, GLOBAL}));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, COORDS, 0, {DISPLS, GDISPLS, GLOBAL, LOCAL}));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, DISPLS, 10, {GDISPLS}));
 	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, RANGE, 41));
-	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, BOOLS3, 3));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, DISPLS, 0));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, COORDS, 1));
-
+	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, BOOLS3, 42));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, COORDS, 0));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, DISPLS, 10));
 	m_arePortsBuilt = built;
 };
 

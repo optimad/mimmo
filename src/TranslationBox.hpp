@@ -41,6 +41,32 @@ namespace mimmo{
  *	an external input.
  *	Result of the translation are saved in result of base class and
  *	in the modified member m_origin.
+ *
+ *	=========================================================
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 20    | POINT    | m_origin          | POINT2 			   |
+ *	| 21    | AXIS     | m_direction       | 					   |
+ *	| 30    | VALUED   | m_alpha           | 					   |
+ *	|-------|----------|-------------------|-----------------------|
+ *
+ *
+ *	|---------------------------------------|
+ *	|            Port Output                |
+ *	|-------|-----------|-------------------|
+ *	|PortID | PortType  | variable/function |
+ *	|-------|-----------|-------------------|
+ *	| 20    | POINT     | getOrigin         |
+ *	| 22    | AXES      | getDirection      |
+ *	| 30    | VALUED    | getTranslation    |
+ *	|-------|-----------|-------------------|
+ * ~~~
+ *	=========================================================
+ *
  */
 class TranslationBox: public BaseManipulation{
 private:

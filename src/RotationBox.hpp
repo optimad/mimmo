@@ -39,6 +39,32 @@ namespace mimmo{
  *	The used parameters are the rotation value and the direction and the origin
  *	of the rotation axis.
  *
+ *	=========================================================
+ * ~~~
+ *	|--------------------------------------------------------------|
+ *	|                 Port Input                                   |
+ *	|-------|----------|-------------------|-----------------------|
+ *	|PortID | PortType | variable/function | compatibilities       |
+ *	|-------|----------|-------------------|-----------------------|
+ *	| 20    | POINT    | m_origin          | POINT2 			   |
+ *	| 21    | AXIS     | m_direction       | 					   |
+ *	| 30    | VALUED   | m_alpha           | 					   |
+ *	| 120   | POINT2   | m_axes_origin     | POINT				   |
+ *	| 22    | AXES     | m_axes            | 					   |
+ *	|-------|----------|-------------------|-----------------------|
+ *
+ *
+ *	|---------------------------------------|
+ *	|            Port Output                |
+ *	|-------|-----------|-------------------|
+ *	|PortID | PortType  | variable/function |
+ *	|-------|-----------|-------------------|
+ *	| 20    | POINT     | getRotatedOrigin  |
+ *	| 22    | AXES      | getRotatedAxes    |
+ *	|-------|-----------|-------------------|
+ * ~~~
+ *	=========================================================
+ *
  */
 class RotationBox: public BaseManipulation{
 private:

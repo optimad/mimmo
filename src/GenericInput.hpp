@@ -55,13 +55,15 @@ namespace mimmo{
  *
  *	|--------------------------------------|
  *	|            Port Output               |
- *	|-------|----------|-------------------|
- *	|PortID | PortType | variable/function |
- *	|-------|----------|-------------------|
- *	| 0     | COORDS   | getResult         |
- *	| 10    | DISPLS   | getResult		   |
- *	| 12    | FILTER   | getResult    	   |
- *	|-------|----------|-------------------|
+ *	|-------|-----------|-------------------|
+ *	|PortID | PortType  | variable/function |
+ *	|-------|-----------|-------------------|
+ *	| 0     | COORDS    | getResult         |
+ *	| 10    | DISPLS    | getResult		    |
+ *	| 12    | FILTER    | getResult    	    |
+ *	| 20    | POINT     | getResult    	    |
+ *	| 24    | DIMENSION | getResult    	    |
+ *	|-------|-----------|-------------------|
  * ~~~
  *	=========================================================
  *

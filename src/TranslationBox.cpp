@@ -54,12 +54,12 @@ TranslationBox & TranslationBox::operator=(const TranslationBox & other){
  */
 void TranslationBox::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<darray3E, TranslationBox>(&m_origin, POINT, 0 ));
-	built = (built && createPortIn<darray3E, TranslationBox>(&m_direction, AXIS, 1 ));
-	built = (built && createPortIn<double, TranslationBox>(&m_alpha, VALUE, 2 ));
-	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getOrigin, POINT, 0));
-	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getDirection, AXIS, 1));
-	built = (built && createPortOut<double, TranslationBox>(this, &mimmo::TranslationBox::getTranslation, VALUE, 2));
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_origin, POINT, 20 , {POINT2}));
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_direction, AXIS, 21));
+	built = (built && createPortIn<double, TranslationBox>(&m_alpha, VALUED, 30));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getOrigin, POINT, 20));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getDirection, AXIS, 21));
+	built = (built && createPortOut<double, TranslationBox>(this, &mimmo::TranslationBox::getTranslation, VALUED, 30));
 	m_arePortsBuilt = built;
 };
 
