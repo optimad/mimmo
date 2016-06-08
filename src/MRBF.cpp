@@ -52,14 +52,14 @@ MRBF::MRBF(const MRBF & other){
 /*! It builds the input/output ports of the object
  */
 void MRBF::buildPorts(){
-
-	//TODO Build port
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, DISPLS, 0, {GDISPLS}));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, COORDS, 1, {DISPLS, GDISPLS}));
-	built = (built && createPortIn<dvector1D, MRBF>(&m_filter, FILTER, 2));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, DISPLS, 10, {GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, COORDS, 0, {DISPLS, GDISPLS, LOCAL, GLOBAL}));
+	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, FILTER, 12));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, VALUED, 30, {VALUED2}));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, VALUED2, 130, {VALUED}));
 	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, GEOM, 99));
-	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, GDISPLS, 0));
+	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, GDISPLS, 11));
 	m_arePortsBuilt = built;
 };
 
@@ -75,7 +75,6 @@ MRBF & MRBF::operator=(const MRBF & other){
 	return(*this);
 };
 
-
 /*!It sets the geometry linked by the manipulator object (overloading of base class method).
  * @param[in] geometry Pointer to geometry to be deformed by the manipulator object.
  */
@@ -84,12 +83,12 @@ MRBF::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
-
+/*!It returns a pointer to the RBF node stored in the object.
+ */
 dvecarr3E*
 MRBF::getNodes(){
 	return(&m_node);
 }
-
 
 /*! 
  * Return actual solver set for RBF data fields interpolation in MRBF::execute
@@ -374,7 +373,7 @@ MRBF::setWeight(dvector2D value){
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
  * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
- * The result is stored in the result member of BaseManipulation base class.
+ * The result is stored in the m_displ member.
  *
  */
 void MRBF::execute(){
@@ -394,8 +393,8 @@ void MRBF::execute(){
 		}
 	}
 
-   if (m_solver == MRBFSol::WHOLE)		solve();
-   if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);								
+   if (m_solver == MRBFSol::WHOLE)	solve();
+   if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
 
 	int nv = container->getNVertex();
 	dvecarr3E vertex = container->getVertexCoords();

@@ -73,7 +73,7 @@ enum PortType{
 	BCOEFFS			= 34	/**< Port dedicated to communicate a matrix of vector of values [array<array<vector<double>,3>,3>].*/,
 	DEG				= 40	/**< Port dedicated to communicate a set of number of degrees of freedom [array<int,3>] .*/,
 	RANGE			= 41	/**< Port dedicated to communicate a set of span interval [array<array<double,2>,3>] .*/,
-	BOOLS3			= 42	/**< Port dedicated to communicate a set of conditions [array<boolean,3>].*/,
+	BOOLS3			= 42	/**< Port dedicated to communicate a set of conditions [array<bool,3>].*/,
 	NURBSCOORDTYPE	= 43	/**< Port dedicated to communicate condition to design NURBS on FFDLattice [array<mimmo::CoordType,3>] .*/,
 	NURBSWEIGHTS 	= 44 	/**< Port edicated to communicate condition to exchange NURBS weights on FFDLattice [vector<double>]*/,
 	PAIRVECFIELD 	= 80 	/**< Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair<MimmoObject *, vector<array<double,3>>> */,
@@ -81,6 +81,7 @@ enum PortType{
 	GEOM 			= 99	/**< Port dedicated to communicate a pointer to a geometry [MimmoObject*].*/,
 
 	POINT2			= 120	/**< Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
+	VALUED2			= 130	/**< Port dedicated to communicate a scalar value [double].*/,
 
 };
 

@@ -55,12 +55,33 @@ enum class MRBFSol{
  *  interpolation features.
  *  See bitpit::RBF docs for further information.
  *
- * 
+ *	=========================================================
+ * ~~~
+ *	|--------------------------------------------------------------------|
+ *	|                 Port Input                                   		 |
+ *	|-------|----------|-------------------|-----------------------------|
+ *	|PortID | PortType | variable/function | compatibilities       		 |
+ *	|-------|----------|-------------------|-----------------------------|
+ *	| 0     | COORDS   | setNode           | GLOBAL LOCAL DISPLS GDISPLS |
+ *	| 10    | DISPLS   | setDisplacements  | GDISPLS           		     |
+ *	| 12    | FILTER   | setFilter         | 	            		     |
+ *	| 30    | VALUED   | setSupportRadius  | VALUED2	  		         |
+ *	| 130   | VALUED2  | setTol            | VALUED		           		 |
+ *	|-------|----------|-------------------|-----------------------------|
+ *
+ *
+ *	|--------------------------------------|
+ *	|            Port Output               |
+ *	|-------|----------|-------------------|
+ *	|PortID | PortType | variable/function |
+ *	|-------|----------|-------------------|
+ *	| 11    | GDISPLS  | getDisplacements  |
+ *	|-------|----------|-------------------|
+ * ~~~
+ *	=========================================================
+ *
  */
-
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
-//TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
-
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
@@ -71,7 +92,7 @@ private:
 	
 	bool		m_srset;	/**<True if the support radius is set by the user.*/
 
-	dvecarr3E	m_displ;
+	dvecarr3E	m_displ;	/**<Rsulting displacements of geometry vertex.*/
 
 public:
 	MRBF();
