@@ -54,8 +54,9 @@ namespace mimmo{
  *	| 22    | AXES      | setRefSystem                          | 			           	|
  *	| 23    | SPAN      | setSpan                               | 			           	|
  *	| 20    | POINT     | setOrigin                             | POINT2				|
- *	| 26    | SHAPE     | setShape(mimmo::ShapeType)            | 			           	|
+ *	| 26    | SHAPE     | setShape(mimmo::ShapeType)            | VALUEI	           	|
  *	| 27    | COPYSHAPE | setShape(const BasicShape * )         | 			           	|
+ *	| 28    | SHAPEI    | setShape(int)           			    | VALUEI	           	|
  *	|-------|-----------|---------------------------------------|-----------------------|
  * 
  *

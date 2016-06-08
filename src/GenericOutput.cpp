@@ -72,9 +72,7 @@ GenericOutput::buildPorts(){
 	built = (built && createPortIn<bool, GenericOutput>(this, &mimmo::GenericOutput::setInput<bool>, VALUEB, 32));
 	built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, DEG, 40));
 	built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, FILENAME, 50));
-	built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, DIR, 50));
-
-
+	built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, DIR, 51));
 	m_arePortsBuilt = built;
 }
 

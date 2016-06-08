@@ -84,8 +84,9 @@ void Lattice::buildPorts(){
 	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, AXES, 22));
 	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, SPAN, 23));
 	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, POINT, 20, {POINT2}));
-	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, SHAPE, 26));
+	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, SHAPE, 26, {VALUEI}));
 	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, COPYSHAPE, 27));
+	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, SHAPEI, 28, {VALUEI}));
 
 // creating output ports
 	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, PortType::GLOBAL, 1));

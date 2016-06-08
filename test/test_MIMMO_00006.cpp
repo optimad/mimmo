@@ -128,17 +128,6 @@ void test0006() {
 	//create aux lattice for mesh and nodes coordinates
 	Lattice* mesh = new Lattice();
 
-	mesh->setShape(t);
-	mesh->setSpan(span);
-	mesh->setOrigin(origin);
-	mesh->setDimension(dim);
-
-	lattice->setShape(t);
-	lattice->setSpan(span);
-	lattice->setOrigin(origin);
-	lattice->setDimension(dim);
-	lattice->setDegrees(deg);
-
 	//create Bend
 	Bend* bend = new Bend();
 	uint32_t	degree = 2;
@@ -166,23 +155,21 @@ void test0006() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	//TODO Ports for generic input
-//	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
-//	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
-//	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
-//	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, mesh, VALUEI, SHAPE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputorig, mesh, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputspan, mesh, SPAN, SPAN) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdim, mesh, DIMENSION, DIMENSION) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(input, bend, DISPLS, DISPLS) << endl;
 	cout << "add pin info : " << boolalpha << addPin(mesh, bend, GLOBAL, COORDS) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(bend, lattice, DISPLS, DISPLS) << endl;
 
-	//TODO Ports for generic input
-//	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
-//	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
-//	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
-//	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
-//	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, lattice, VALUEI, SHAPE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputorig, lattice, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputspan, lattice, SPAN, SPAN) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdim, lattice, DIMENSION, DIMENSION) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdeg, lattice, DEG, DEG) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 
@@ -194,11 +181,11 @@ void test0006() {
 	//Create chain
 	Chain ch0;
 	cout << "add inputs and objects to the chain" << endl;
-//	ch0.addObject(inputorig);
-//	ch0.addObject(inputshapet);
-//	ch0.addObject(inputspan);
-//	ch0.addObject(inputdim);
-//	ch0.addObject(inputdeg);
+	ch0.addObject(inputorig);
+	ch0.addObject(inputshapet);
+	ch0.addObject(inputspan);
+	ch0.addObject(inputdim);
+	ch0.addObject(inputdeg);
 	ch0.addObject(input);
 	ch0.addObject(mesh);
 	ch0.addObject(bend);

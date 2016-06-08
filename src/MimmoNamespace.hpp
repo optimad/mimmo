@@ -69,6 +69,7 @@ enum PortType{
 	INFLIMITS		= 25	/**< Port dedicated to communicate a inferior limits for building elemental shape [array<double,3>].*/,
 	SHAPE	 		= 26 	/**< Port dedicated to communicate a type of an elemental shape itself [mimmo::ShapeType].*/,
 	COPYSHAPE		= 27 	/**< Port dedicated to communicate a an elemental shape itself, passed by pointer, instantiated elsewhere [BasicShape *].*/,
+	SHAPEI	 		= 28 	/**< Port dedicated to communicate a type of an elemental shape itself [int].*/,
 	VALUED			= 30	/**< Port dedicated to communicate a scalar value [double].*/,
 	VALUEI			= 31	/**< Port dedicated to communicate a scalar value [int].*/,
 	VALUEB			= 32	/**< Port dedicated to communicate a condition value [bool].*/,

@@ -81,41 +81,28 @@ void test0004() {
 	deg[2] = 2;
 
 
-	//TODO Ports for generic input
 	int t = 0;
-//	GenericInput* inputshapet = new GenericInput();
-//	inputshapet->setInput(t);
+	GenericInput* inputshapet = new GenericInput();
+	inputshapet->setInput(t);
 
-//	GenericInput* inputorig = new GenericInput();
-//	inputorig->setInput(origin);
+	GenericInput* inputorig = new GenericInput();
+	inputorig->setInput(origin);
 
-//	GenericInput* inputspan = new GenericInput();
-//	inputspan->setInput(span);
+	GenericInput* inputspan = new GenericInput();
+	inputspan->setInput(span);
 
-//	GenericInput* inputdim = new GenericInput();
-//	inputdim->setInput(dim);
+	GenericInput* inputdim = new GenericInput();
+	inputdim->setInput(dim);
 
-//	GenericInput* inputdeg = new GenericInput();
-//	inputdeg->setInput(deg);
+	GenericInput* inputdeg = new GenericInput();
+	inputdeg->setInput(deg);
 
-//	GenericInput* inputname = new GenericInput();
-//	string name = "test_MIMMO_0004.out";
-//	inputname->setInput(name);
+	GenericInput* inputname = new GenericInput();
+	string name = "test_MIMMO_0004.out";
+	inputname->setInput(name);
 
-//	GenericOutput* output = new GenericOutput();
-//	output->setFilename(name);
-
-
-	mesh->setShape(t);
-	mesh->setSpan(span);
-	mesh->setOrigin(origin);
-	mesh->setDimension(dim);
-
-	lattice->setShape(t);
-	lattice->setSpan(span);
-	lattice->setOrigin(origin);
-	lattice->setDimension(dim);
-	lattice->setDegrees(deg);
+	GenericOutput* output = new GenericOutput();
+	output->setFilename(name);
 
 	//Set Input with Init Displacements
 	int ndeg = (dim[0])*(dim[1])*(dim[2]);
@@ -156,43 +143,41 @@ void test0004() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	//TODO Ports for generic input
-//	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
-//	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
-//	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
-//	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
+	cout << "add pin info 1 : " << boolalpha << addPin(inputshapet, mesh, VALUEI, SHAPE) << endl;
+	cout << "add pin info 2 : " << boolalpha << addPin(inputorig, mesh, POINT, POINT) << endl;
+	cout << "add pin info 3 : " << boolalpha << addPin(inputspan, mesh, SPAN, SPAN) << endl;
+	cout << "add pin info 4 : " << boolalpha << addPin(inputdim, mesh, DIMENSION, DIMENSION) << endl;
 
-	addPin(mesh, mask, GLOBAL, COORDS);
-	addPin(input, mask, DISPLS, DISPLS);
+	cout << "add pin info 5 : " << boolalpha << addPin(mesh, mask, GLOBAL, COORDS) << endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(input, mask, DISPLS, DISPLS) << endl;
 
-	addPin(mask, bend, COORDS, COORDS);
-	addPin(mask, bend, DISPLS, DISPLS);
+	cout << "add pin info 7 : " << boolalpha << addPin(mask, bend, COORDS, COORDS) << endl;
+	cout << "add pin info 8 : " << boolalpha << addPin(mask, bend, DISPLS, DISPLS) << endl;
 
-	//TODO Ports for generic input
-//	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
-//	addPin(inputorig, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setOrigin);
-//	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
-//	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
-//	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+	cout << "add pin info 9 : " << boolalpha << addPin(inputshapet, lattice, VALUEI, SHAPE) << endl;
+	cout << "add pin info 10 : " << boolalpha << addPin(inputorig, lattice, POINT, POINT) << endl;
+	cout << "add pin info 11 : " << boolalpha << addPin(inputspan, lattice, SPAN, SPAN) << endl;
+	cout << "add pin info 12 : " << boolalpha << addPin(inputdim, lattice, DIMENSION, DIMENSION) << endl;
+	cout << "add pin info 13 : " << boolalpha << addPin(inputdeg, lattice, DEG, DEG) << endl;
 
-//	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
+	cout << "add pin info 14 : " << boolalpha << addPin(inputname, output, FILENAME, FILENAME) << endl;
 
-//	addPin(bend, output, DISPLS, DISPLS);
+	cout << "add pin info 15 : " << boolalpha << addPin(bend, output, DISPLS, DISPLS) << endl;
 
-	addPin(bend, lattice, DISPLS, DISPLS);
-	addPin(lattice, applier, GDISPLS, GDISPLS);
+	cout << "add pin info 16 : " << boolalpha << addPin(bend, lattice, DISPLS, DISPLS) << endl;
+	cout << "add pin info 17 : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
 
 	cout << "set pins done" << endl;
 
 	//Create chain
 	Chain ch0;
 	cout << "add inputs " << endl;
-//	ch0.addObject(inputorig);
-//	ch0.addObject(inputshapet);
-//	ch0.addObject(inputspan);
-//	ch0.addObject(inputdim);
-//	ch0.addObject(inputdeg);
-//	ch0.addObject(inputname);
+	ch0.addObject(inputorig);
+	ch0.addObject(inputshapet);
+	ch0.addObject(inputspan);
+	ch0.addObject(inputdim);
+	ch0.addObject(inputdeg);
+	ch0.addObject(inputname);
 	ch0.addObject(input);
 	cout << "add mesh" << endl;
 	ch0.addObject(mesh);
@@ -203,7 +188,7 @@ void test0004() {
 	cout << "add lattice" << endl;
 	ch0.addObject(lattice);
 	cout << "add output" << endl;
-//	ch0.addObject(output);
+	ch0.addObject(output);
 	cout << "add applier" << endl;
 	ch0.addObject(applier);
 
@@ -226,23 +211,31 @@ void test0004() {
 	delete lattice;
 	delete applier;
 	delete input;
-//	delete inputorig;
-//	delete inputspan;
-//	delete inputshapet;
-//	delete inputdim;
-//	delete inputdeg;
+	delete output;
+	delete inputorig;
+	delete inputspan;
+	delete inputshapet;
+	delete inputdim;
+	delete inputdeg;
+	delete mesh;
+	delete mask;
+	delete bend;
 	delete mimmo0;
 
 	lattice 	= NULL;
 	applier 	= NULL;
-//	inputorig 	= NULL;
-//	inputspan 	= NULL;
-//	inputshapet	= NULL;
-//	inputdim 	= NULL;
-//	inputdeg 	= NULL;
+	inputorig 	= NULL;
+	inputspan 	= NULL;
+	inputshapet	= NULL;
+	inputdim 	= NULL;
+	inputdeg 	= NULL;
 	input 		= NULL;
-	mimmo0 = NULL;
-	object = NULL;
+	output 		= NULL;
+	mesh 		= NULL;
+	mask 		= NULL;
+	bend 		= NULL;
+	mimmo0 		= NULL;
+	object 		= NULL;
 
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

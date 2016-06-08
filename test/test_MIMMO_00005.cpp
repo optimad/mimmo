@@ -166,9 +166,9 @@ void test0005() {
 	cout << "add pin info : " << boolalpha << addPin(geometry, lattice, GEOM, GEOM) << endl;
 	cout << "add pin info : " << boolalpha << addPin(geometry, applier, GEOM, GEOM) << endl;
 
-	cout << "add pin info : " << boolalpha << addPin(inputshapet, mesh, VALUEI, VALUEI) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, mesh, VALUEI, SHAPE) << endl;
 	cout << "add pin info : " << boolalpha << addPin(inputorig, mesh, POINT, POINT) << endl;
-	cout << "add pin info : " << boolalpha << addPin(inputspan, mesh, RANGE, RANGE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputspan, mesh, SPAN, SPAN) << endl;
 	cout << "add pin info : " << boolalpha << addPin(inputdim, mesh, DIMENSION, DIMENSION) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(mesh, mask, GLOBAL, COORDS) << endl;
@@ -181,10 +181,10 @@ void test0005() {
 	cout << "add pin info : " << boolalpha << addPin(translation, rotation, POINT, POINT) << endl;
 	cout << "add pin info : " << boolalpha << addPin(mesh, rotation, AXES, AXES) << endl;
 
-	cout << "add pin info : " << boolalpha << addPin(inputshapet, lattice, VALUEI, VALUEI) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, lattice, VALUEI, SHAPE) << endl;
 	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, POINT, POINT) << endl;
 	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, AXES, AXES) << endl;
-	cout << "add pin info : " << boolalpha << addPin(inputspan, lattice, RANGE, RANGE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputspan, lattice, SPAN, SPAN) << endl;
 	cout << "add pin info : " << boolalpha << addPin(inputdim, lattice, DIMENSION, DIMENSION) << endl;
 	cout << "add pin info : " << boolalpha << addPin(inputdeg, lattice, DEG, DEG) << endl;
 
