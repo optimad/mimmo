@@ -63,6 +63,10 @@ namespace mimmo{
  *	| 12    | FILTER    | getResult    	    |
  *	| 20    | POINT     | getResult    	    |
  *	| 24    | DIMENSION | getResult    	    |
+ *	| 30    | VALUED  	| getResult    	    |
+ *	| 31    | VALUEI  	| getResult    	    |
+ *	| 32    | VALUEB  	| getResult    	    |
+ *	| 40    | DEG		| getResult    	    |
  *	| 50    | FILENAME  | getResult    	    |
  *	| 51    | DIR	    | getResult    	    |
  *	|-------|-----------|-------------------|

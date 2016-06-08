@@ -166,11 +166,10 @@ void test0005() {
 	cout << "add pin info : " << boolalpha << addPin(geometry, lattice, GEOM, GEOM) << endl;
 	cout << "add pin info : " << boolalpha << addPin(geometry, applier, GEOM, GEOM) << endl;
 
-	//TODO Ports for generic input
-//	addPin(inputshapet, mesh, &GenericInput::getResult<int>, &Lattice::setShape);
-//	addPin(inputorig, mesh, &GenericInput::getResult<darray3E>, &Lattice::setOrigin);
-//	addPin(inputspan, mesh, &GenericInput::getResult<darray3E>, &Lattice::setSpan);
-//	addPin(inputdim, mesh, &GenericInput::getResult<iarray3E>, &Lattice::setDimension);
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, mesh, VALUEI, VALUEI) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputorig, mesh, POINT, POINT) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputspan, mesh, RANGE, RANGE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdim, mesh, DIMENSION, DIMENSION) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(mesh, mask, GLOBAL, COORDS) << endl;
 	cout << "add pin info : " << boolalpha << addPin(input, mask, DISPLS, DISPLS) << endl;
@@ -182,17 +181,15 @@ void test0005() {
 	cout << "add pin info : " << boolalpha << addPin(translation, rotation, POINT, POINT) << endl;
 	cout << "add pin info : " << boolalpha << addPin(mesh, rotation, AXES, AXES) << endl;
 
-	//TODO Ports to generic input
-//	addPin(inputshapet, lattice, &GenericInput::getResult<int>, &FFDLattice::setShape);
+	cout << "add pin info : " << boolalpha << addPin(inputshapet, lattice, VALUEI, VALUEI) << endl;
 	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, POINT, POINT) << endl;
 	cout << "add pin info : " << boolalpha << addPin(rotation, lattice, AXES, AXES) << endl;
-//	addPin(inputspan, lattice, &GenericInput::getResult<darray3E>, &FFDLattice::setSpan);
-//	addPin(inputdim, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDimension);
-//	addPin(inputdeg, lattice, &GenericInput::getResult<iarray3E>, &FFDLattice::setDegrees);
+	cout << "add pin info : " << boolalpha << addPin(inputspan, lattice, RANGE, RANGE) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdim, lattice, DIMENSION, DIMENSION) << endl;
+	cout << "add pin info : " << boolalpha << addPin(inputdeg, lattice, DEG, DEG) << endl;
 
-	//TODO Ports to generic output
-//	addPin(inputname, output, &GenericInput::getResult<string>, &GenericOutput::setFilename);
-//	addPin(bend, output, &Bend::getResult<dvecarr3E>, &GenericOutput::setInput<dvecarr3E>);
+	cout << "add pin info : " << boolalpha << addPin(inputname, output, FILENAME, FILENAME) << endl;
+	cout << "add pin info : " << boolalpha << addPin(bend, output, DISPLS, DISPLS) << endl;
 
 	cout << "add pin info : " << boolalpha << addPin(bend, lattice, DISPLS, DISPLS) << endl;
 	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
