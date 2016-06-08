@@ -78,7 +78,7 @@ enum PortType{
 	RANGE			= 41	/**< Port dedicated to communicate a set of span interval [array<array<double,2>,3>] .*/,
 	BOOLS3			= 42	/**< Port dedicated to communicate a set of conditions [array<bool,3>].*/,
 	NURBSCOORDTYPE	= 43	/**< Port dedicated to communicate condition to design NURBS on FFDLattice [array<mimmo::CoordType,3>] .*/,
-	NURBSWEIGHTS 	= 44 	/**< Port edicated to communicate condition to exchange NURBS weights on FFDLattice [vector<double>]*/,
+	NURBSWEIGHTS 	= 44 	/**< Port dedicated to communicate condition to exchange NURBS weights on FFDLattice [vector<double>]*/,
 	FILENAME		= 50	/**< Port dedicated to communicate a filename [string].*/,
 	DIR				= 51	/**< Port dedicated to communicate a directory path [string].*/,
 	PAIRVECFIELD 	= 80 	/**< Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair<MimmoObject *, vector<array<double,3>>> */,

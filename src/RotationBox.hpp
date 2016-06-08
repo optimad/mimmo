@@ -48,7 +48,7 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------------|
  *	| 20    | POINT    | m_origin          | POINT2 			   |
  *	| 21    | AXIS     | m_direction       | 					   |
- *	| 30    | VALUED   | m_alpha           | 					   |
+ *	| 30    | VALUED   | m_alpha           | VALUED2			   |
  *	| 120   | POINT2   | m_axes_origin     | POINT				   |
  *	| 22    | AXES     | m_axes            | 					   |
  *	|-------|----------|-------------------|-----------------------|

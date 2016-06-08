@@ -60,7 +60,7 @@ void RotationBox::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, POINT, 20, {POINT2}));
 	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, AXIS, 21));
-	built = (built && createPortIn<double, RotationBox>(&m_alpha, VALUED, 30));
+	built = (built && createPortIn<double, RotationBox>(&m_alpha, VALUED, 30, {VALUED2}));
 	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, POINT2, 120, {POINT}));
 	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, AXES, 22));
 	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, POINT, 20));
