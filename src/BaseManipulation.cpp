@@ -43,6 +43,7 @@ BaseManipulation::BaseManipulation(){
  */
 BaseManipulation::~BaseManipulation(){
 	clear();
+	deletePorts();
 };
 
 /*!Copy constructor of BaseManipulation.
@@ -278,6 +279,20 @@ BaseManipulation::exec(){
 			i->second->exec();
 		}
 	}
+}
+
+
+void
+BaseManipulation::deletePorts(){
+	for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
+		delete i->second;
+		i->second = NULL;
+	}
+	for (map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
+		delete i->second;
+		i->second = NULL;
+	}
+	return;
 }
 
 /*!It sets the buffer stored in an input port of the object.

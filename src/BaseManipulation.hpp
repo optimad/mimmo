@@ -159,6 +159,7 @@ public:
 protected:
 
 	virtual void 	buildPorts() = 0;
+	void			deletePorts();
 
 	template<typename T, typename O>
 	bool	createPortOut(O* obj, T (O::*getVar_)(), PortType label, PortID portS);
