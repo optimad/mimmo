@@ -144,7 +144,7 @@ protected:
 	bool	createPortOut(O* obj, T (O::*getVar_)(), PortID portS);
 
 	template<typename T, typename O>
-	bool	createPortOut(O* obj, T* var_, PortID portS);
+	bool	createPortOut(T* var_, PortID portS);
 
 	template<typename T, typename O>
 	bool	createPortIn(T* var_, PortID portR, std::vector<PortID> compatibilities = std::vector<PortID>(0));

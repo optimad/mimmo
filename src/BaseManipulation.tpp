@@ -9,7 +9,7 @@
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortOut(O* obj_, T* var_, PortID portS){
+BaseManipulation::createPortOut(T* var_, PortID portS){
 	bool check = false;
 	if (m_portOut.count(portS) != 0 ) return (check);
 	PortOutT<T, O>* portOut = new PortOutT<T, O>(var_);
