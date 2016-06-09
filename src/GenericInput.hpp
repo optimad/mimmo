@@ -53,23 +53,23 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------------|
  *
  *
- *	|---------------------------------------|
- *	|            Port Output                |
- *	|-------|-----------|-------------------|
- *	|PortID | PortType  | variable/function |
- *	|-------|-----------|-------------------|
- *	| 0     | COORDS    | getResult         |
- *	| 10    | DISPLS    | getResult		    |
- *	| 12    | FILTER    | getResult    	    |
- *	| 20    | POINT     | getResult    	    |
- *	| 24    | DIMENSION | getResult    	    |
- *	| 30    | VALUED  	| getResult    	    |
- *	| 31    | VALUEI  	| getResult    	    |
- *	| 32    | VALUEB  	| getResult    	    |
- *	| 40    | DEG		| getResult    	    |
- *	| 50    | FILENAME  | getResult    	    |
- *	| 51    | DIR	    | getResult    	    |
- *	|-------|-----------|-------------------|
+ *	|-----------------------------------------|
+ *	|              Port Output                |
+ *	|-------|-------------|-------------------|
+ *	|PortID | PortType    | variable/function |
+ *	|-------|-------------|-------------------|
+ *	| 0     | M_COORDS    | getResult         |
+ *	| 10    | M_DISPLS    | getResult	      |
+ *	| 12    | M_FILTER    | getResult         |
+ *	| 20    | M_POINT     | getResult         |
+ *	| 24    | M_DIMENSION | getResult         |
+ *	| 30    | M_VALUED    | getResult         |
+ *	| 31    | M_VALUEI    | getResult         |
+ *	| 32    | M_VALUEB    | getResult         |
+ *	| 40    | M_DEG		  | getResult         |
+ *	| 50    | M_FILENAME  | getResult         |
+ *	| 51    | M_DIR	      | getResult         |
+ *	|-------|-------------|-------------------|
  * ~~~
  *	=========================================================
  *

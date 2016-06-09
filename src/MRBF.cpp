@@ -53,13 +53,13 @@ MRBF::MRBF(const MRBF & other){
  */
 void MRBF::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, DISPLS, 10, {GDISPLS}));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, COORDS, 0, {DISPLS, GDISPLS, LOCAL, GLOBAL}));
-	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, FILTER, 12));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, VALUED, 30, {VALUED2}));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, VALUED2, 130, {VALUED}));
-	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, GEOM, 99));
-	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, GDISPLS, 11));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS, {M_GDISPLS}));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS, {M_DISPLS, M_GDISPLS, M_LOCAL, M_GLOBAL}));
+	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, M_VALUED, {M_VALUED2}));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, M_VALUED2, {M_VALUED}));
+	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM));
+	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
 	m_arePortsBuilt = built;
 };
 

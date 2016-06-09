@@ -170,8 +170,8 @@ void test0002() {
 
 	//********************************************************************************************
 	//Creating PINS
-	addPin(lattice, applier, GDISPLS, GDISPLS);
-	addPin(lattice2, applier2, GDISPLS, GDISPLS);
+	addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+	addPin(lattice2, applier2, M_GDISPLS, M_GDISPLS);
 
 
 	//********************************************************************************************

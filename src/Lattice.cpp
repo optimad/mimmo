@@ -78,25 +78,25 @@ Lattice & Lattice::operator=(const Lattice & other){
 void Lattice::buildPorts(){
 
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, GEOM, 99));
-	built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, DIMENSION, 24));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, INFLIMITS, 25));
-	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, AXES, 22));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, SPAN, 23));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, POINT, 20, {POINT2}));
-	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, SHAPE, 26, {VALUEI}));
-	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, COPYSHAPE, 27));
-	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, SHAPEI, 28, {VALUEI}));
+	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, M_GEOM));
+	built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, M_DIMENSION));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, M_INFLIMITS));
+	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, M_AXES));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, M_SPAN));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, M_POINT, {M_POINT2}));
+	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPE, {M_VALUEI}));
+	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, M_COPYSHAPE));
+	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPEI, {M_VALUEI}));
 
 // creating output ports
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, PortType::GLOBAL, 1));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, PortType::LOCAL, 2));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, PortType::POINT, 20));
-	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, PortType::AXES, 22));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, PortType::SPAN, 23));	
-	built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, PortType::DIMENSION, 24));
-	built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, PortType::COPYSHAPE, 27));
-	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, GEOM, 99));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, M_GLOBAL));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, M_LOCAL));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, M_POINT));
+	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, M_AXES));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, M_SPAN));
+	built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, M_DIMENSION));
+	built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, M_COPYSHAPE));
+	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, M_GEOM));
 	
 	m_arePortsBuilt = built;
 };

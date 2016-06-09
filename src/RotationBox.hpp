@@ -46,11 +46,11 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------------|
  *	|PortID | PortType | variable/function | compatibilities       |
  *	|-------|----------|-------------------|-----------------------|
- *	| 20    | POINT    | m_origin          | POINT2 			   |
- *	| 21    | AXIS     | m_direction       | 					   |
- *	| 30    | VALUED   | m_alpha           | VALUED2			   |
- *	| 120   | POINT2   | m_axes_origin     | POINT				   |
- *	| 22    | AXES     | m_axes            | 					   |
+ *	| 20    | M_POINT  | m_origin          | POINT2 			   |
+ *	| 21    | M_AXIS   | m_direction       | 					   |
+ *	| 30    | M_VALUED | m_alpha           | VALUED2			   |
+ *	| 120   | M_POINT2 | m_axes_origin     | POINT				   |
+ *	| 22    | M_AXES   | m_axes            | 					   |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
@@ -59,8 +59,8 @@ namespace mimmo{
  *	|-------|-----------|-------------------|
  *	|PortID | PortType  | variable/function |
  *	|-------|-----------|-------------------|
- *	| 20    | POINT     | getRotatedOrigin  |
- *	| 22    | AXES      | getRotatedAxes    |
+ *	| 20    | M_POINT   | getRotatedOrigin  |
+ *	| 22    | M_AXES    | getRotatedAxes    |
  *	|-------|-----------|-------------------|
  * ~~~
  *	=========================================================

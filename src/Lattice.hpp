@@ -43,38 +43,38 @@ namespace mimmo{
  *
  *	=========================================================
  * ~~~
- *	|-----------------------------------------------------------------------------------|
- *	|                  Port Input                                                       |
- *	|-------|-----------|---------------------------------------|-----------------------|
- *	|PortID | PortType  | variable/function                     | compatibilities       |
- *	|-------|-----------|---------------------------------------|-----------------------|
- *	| 99    | GEOM      | m_geometry                            | 			           	|
- *	| 24    | DIMENSION | setDimension                          | 			           	|
- *	| 25    | INFLIMITS | setInfLimits                          | 			           	|
- *	| 22    | AXES      | setRefSystem                          | 			           	|
- *	| 23    | SPAN      | setSpan                               | 			           	|
- *	| 20    | POINT     | setOrigin                             | POINT2				|
- *	| 26    | SHAPE     | setShape(mimmo::ShapeType)            | VALUEI	           	|
- *	| 27    | COPYSHAPE | setShape(const BasicShape * )         | 			           	|
- *	| 28    | SHAPEI    | setShape(int)           			    | VALUEI	           	|
- *	|-------|-----------|---------------------------------------|-----------------------|
+ *	|-------------------------------------------------------------------------------------|
+ *	|                    Port Input                                                       |
+ *	|-------|-------------|---------------------------------------|-----------------------|
+ *	|PortID | PortType    | variable/function                     | compatibilities       |
+ *	|-------|-------------|---------------------------------------|-----------------------|
+ *	| 99    | M_GEOM      | m_geometry                            | 			          |
+ *	| 24    | M_DIMENSION | setDimension                          | 			          |
+ *	| 25    | M_INFLIMITS | setInfLimits                          | 			          |
+ *	| 22    | M_AXES      | setRefSystem                          | 			          |
+ *	| 23    | M_SPAN      | setSpan                               | 			          |
+ *	| 20    | M_POINT     | setOrigin                             | M_POINT2			  |
+ *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | M_VALUEI	          |
+ *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )         | 			          |
+ *	| 28    | M_SHAPEI    | setShape(int)           		      | M_VALUEI	          |
+ *	|-------|-------------|---------------------------------------|-----------------------|
  * 
  *
- *	|---------------------------------------|
- *	|             Port Output               |
- *	|-------|-----------|-------------------|
- *	|PortID | PortType  | variable/function |
- *	|-------|-----------|-------------------|
- *	| 1     | GLOBAL    | getGlobalCoords   |
- *	| 2     | LOCAL     | getLocalCoords    |
- *	| 20    | POINT     | getOrigin         |
- *	| 22    | AXES      | getRefSystem      |
- *	| 25    | INFLIMITS | getInfLimits      |
- *	| 23    | SPAN      | getSpan           |
- *	| 24    | DIMENSION | getDimension      |
- *	| 27    | COPYSHAPE | getShape          |
- *  | 99    | GEOM      | getGeometry       |
- *	|-------|-----------|-------------------|
+ *	|-----------------------------------------|
+ *	|               Port Output               |
+ *	|-------|-------------|-------------------|
+ *	|PortID | PortType    | variable/function |
+ *	|-------|-------------|-------------------|
+ *	| 1     | M_GLOBAL    | getGlobalCoords   |
+ *	| 2     | M_LOCAL     | getLocalCoords    |
+ *	| 20    | M_POINT     | getOrigin         |
+ *	| 22    | M_AXES      | getRefSystem      |
+ *	| 25    | M_INFLIMITS | getInfLimits      |
+ *	| 23    | M_SPAN      | getSpan           |
+ *	| 24    | M_DIMENSION | getDimension      |
+ *	| 27    | M_COPYSHAPE | getShape          |
+ *  | 99    | M_GEOM      | getGeometry       |
+ *	|-------|-------------|-------------------|
  * ~~~
  *	=========================================================
  *

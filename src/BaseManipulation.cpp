@@ -392,15 +392,6 @@ BaseManipulation::getPortsOut(){
 }
 
 
-/*!It gets the type of an output port of the object
- * \param[in] port ID of the target ouput port
- * \return Type of the port (TAG).
- */
-PortType
-BaseManipulation::getPortType(PortID port){
-	return(m_portOut[port]->m_label);
-}
-
 /*!It finds an input pin (connection) of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the input pins structure.
@@ -478,28 +469,6 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
 	}
 };
 
-/*!It adds an input pin (connection) of the object.
- * \param[in] objIn Pointer to sender BaseManipulation object.
- * \param[in] portR Label (TAG) of target input port of receiver.
- */
-void
-BaseManipulation::addPinIn(BaseManipulation* objIn, PortType portR){
-	addPinIn(objIn, m_mapPortIn[portR]);
-};
-
-
-/*!It adds an output pin (connection) of the object.
- * \param[in] objOut Pointer to receiver BaseManipulation object.
- * \param[in] portS Label (TAG) of target output port of sender.
- * \param[in] portR Label (TAG) of target input port of receiver.
- */
-void
-BaseManipulation::addPinOut(BaseManipulation* objOut, PortType portS, PortType portR){
-	if (objOut != NULL){
-		addPinOut(objOut, m_mapPortOut[portS], objOut->m_mapPortIn[portR]);
-	}
-};
-
 /*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
  * \param[in] objIn Pointer to sender BaseManipulation object.
  * \param[in] portR ID of target input port of receiver.
@@ -526,22 +495,3 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 		}
 	};
 }
-
-/*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
- * \param[in] objIn Pointer to sender BaseManipulation object.
- * \param[in] portR Label (TAG) of target input port of receiver.
- */
-void
-BaseManipulation::removePinIn(BaseManipulation* objIn, PortType portR){
-	removePinIn(objIn, m_mapPortIn[portR]);
-};
-
-/*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
- * \param[in] objOut Pointer to receiver BaseManipulation object.
- * \param[in] portS Label (TAG) of target output port of sender.
- */
-void
-BaseManipulation::removePinOut(BaseManipulation* objOut, PortType portS){
-	removePinOut(objOut, m_mapPortOut[portS]);
-}
-

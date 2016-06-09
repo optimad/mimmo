@@ -196,7 +196,6 @@ PortOut::PortOut(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
-	m_label		= other.m_label;
 	return;
 };
 
@@ -206,7 +205,6 @@ PortOut & PortOut::operator=(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
-	m_label		= other.m_label;
 	return (*this);
 };
 
@@ -216,17 +214,8 @@ bool PortOut::operator==(const PortOut & other){
 	bool check = true;
 	check = check && (m_portLink == other.m_portLink);
 	check = check && (m_objLink == other.m_objLink);
-	check = check && (m_label == other.m_label);
 	return(check);
 };
-
-/*!It gets the label of the port.
- * \return Label (tag) of the port.
- */
-PortType
-PortOut::getLabel(){
-	return(m_label);
-}
 
 /*!It gets the objects linked by this port.
  * \return Vector of pointer to linked objects.
@@ -328,17 +317,17 @@ bool PortIn::operator==(const PortIn & other){
 };
 
 /*!It adds a compatibility with a type of port.
- * \param[in] label Label (TAG) of PortType to set the compatibility with.
+ * \param[in] ID ID of PortID to set the compatibility with.
  */
 void
-PortIn::addCompatibility(PortType label){
-	if (std::find(m_labelOK.begin(), m_labelOK.end(), label) == m_labelOK.end()) m_labelOK.push_back(label);
+PortIn::addCompatibility(PortID ID){
+	if (std::find(m_labelOK.begin(), m_labelOK.end(), ID) == m_labelOK.end()) m_labelOK.push_back(ID);
 }
 
 /*!It gets all the compatibilities of the port.
  * \param[out] Vector of labels (TAGS) of PortType compatible with the port..
  */
-const std::vector<PortType>&
+const std::vector<PortID>&
 PortIn::getCompatibility(){
 	return m_labelOK;
 }

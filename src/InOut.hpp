@@ -79,8 +79,6 @@ public:
 	std::vector<BaseManipulation*>		m_objLink;	/**<Outputs object to which communicate the data.*/
 	std::vector<PortID>					m_portLink;	/**<ID of the input ports of the linked objects.*/
 
-	PortType							m_label;	/**<Label (TAG) of the type of the port.*/
-
 public:
 	PortOut();
 	virtual ~PortOut();
@@ -89,7 +87,6 @@ public:
 	PortOut & operator=(const PortOut & other);
 	bool operator==(const PortOut & other);
 
-	PortType						getLabel();
 	std::vector<BaseManipulation*>	getLink();
 	std::vector<PortID>				getPortLink();
 
@@ -177,7 +174,7 @@ public:
 	//members
 	bitpit::IBinaryStream				m_ibuffer;	/**<input buffer to recover data.*/
 	BaseManipulation*					m_objLink;	/**<Input object from which	recover the data. */
-	std::vector<PortType>				m_labelOK;	/**<Compatibility output port labels. */
+	std::vector<PortID>					m_labelOK;	/**<Compatibility output port labels. */
 
 public:
 	PortIn();
@@ -187,9 +184,9 @@ public:
 	PortIn & operator=(const PortIn & other);
 	bool operator==(const PortIn & other);
 
-	void addCompatibility(PortType label);
+	void addCompatibility(PortID label);
 
-	const std::vector<PortType>&	getCompatibility();
+	const std::vector<PortID>&	getCompatibility();
 
 	BaseManipulation*	getLink();
 

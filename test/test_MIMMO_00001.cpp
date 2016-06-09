@@ -93,7 +93,7 @@ void test0001() {
 	//Add pin with port ID
 	cout << "add pin info : " << boolalpha << addPin(input, lattice, 10, 10) << endl;
 	//Add pin with port TAG
-	cout << "add pin info : " << boolalpha << addPin(lattice, applier, GDISPLS, GDISPLS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
 
 	//Create chain
 	Chain ch0;

@@ -94,19 +94,19 @@ void FFDLattice::buildPorts(){
 	bool built = true;
 	
 	//input
-	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, DISPLS, 10, {GDISPLS}));
-	built = (built && createPortIn<dvector1D, FFDLattice>(&m_filter, FILTER, 12));
-	built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, DEG, 40, {DIMENSION}));
-	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, NURBSWEIGHTS, 44));
-	built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, NURBSCOORDTYPE, 43));
+	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, M_DISPLS, {M_GDISPLS}));
+	built = (built && createPortIn<dvector1D, FFDLattice>(&m_filter, M_FILTER));
+	built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, M_DEG, {M_DIMENSION}));
+	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, M_NURBSWEIGHTS));
+	built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, M_NURBSCOORDTYPE));
 	
 	//output
-	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, GDISPLS, 11));
-	built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>, FFDLattice>(this, &mimmo::FFDLattice::getDeformedField,PAIRVECFIELD, 80));
-	built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, DEG, 40));
-	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, FILTER, 12));
-	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights, NURBSWEIGHTS, 44));
-	built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, NURBSCOORDTYPE, 43));
+	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, M_GDISPLS));
+	built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>, FFDLattice>(this, &mimmo::FFDLattice::getDeformedField, M_PAIRVECFIELD));
+	built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, M_DEG));
+	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, M_FILTER));
+	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights, M_NURBSWEIGHTS));
+	built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, M_NURBSCOORDTYPE));
 	m_arePortsBuilt = built;
 };
 

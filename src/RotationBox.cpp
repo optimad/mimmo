@@ -58,13 +58,13 @@ RotationBox & RotationBox::operator=(const RotationBox & other){
  */
 void RotationBox::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, POINT, 20, {POINT2}));
-	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, AXIS, 21));
-	built = (built && createPortIn<double, RotationBox>(&m_alpha, VALUED, 30, {VALUED2}));
-	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, POINT2, 120, {POINT}));
-	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, AXES, 22));
-	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, POINT, 20));
-	built = (built && createPortOut<dmatrix33E, RotationBox>(this, &mimmo::RotationBox::getRotatedAxes, AXES, 22));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, M_POINT, {M_POINT2}));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, M_AXIS));
+	built = (built && createPortIn<double, RotationBox>(&m_alpha, M_VALUED, {M_VALUED2}));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, M_POINT2, {M_POINT}));
+	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, M_AXES));
+	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, M_POINT));
+	built = (built && createPortOut<dmatrix33E, RotationBox>(this, &mimmo::RotationBox::getRotatedAxes, M_AXES));
 	m_arePortsBuilt = built;
 };
 

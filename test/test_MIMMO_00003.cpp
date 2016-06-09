@@ -121,8 +121,8 @@ void test0003() {
 
 	//********************************************************************************************
 	//SETUP PINS
-	addPin(input, lattice, DISPLS, DISPLS);
-	addPin(lattice, applier, GDISPLS, GDISPLS);
+	addPin(input, lattice, M_DISPLS, M_DISPLS);
+	addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
 
 	//********************************************************************************************
 	//Creating ELEMENT chain

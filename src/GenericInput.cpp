@@ -87,18 +87,18 @@ GenericInput::setFilename(std::string filename){
 void
 GenericInput::buildPorts(){
 	bool built = true;
-	built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, COORDS, 0));
-	built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, DISPLS, 10));
-	built = (built && createPortOut<dvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dvector1D>, FILTER, 12));
-	built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, POINT, 20));
-	built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, SPAN, 23));
-	built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, DIMENSION, 24));
-	built = (built && createPortOut<double, GenericInput>(this, &mimmo::GenericInput::getResult<double>, VALUED, 30));
-	built = (built && createPortOut<int, GenericInput>(this, &mimmo::GenericInput::getResult<int>, VALUEI, 31));
-	built = (built && createPortOut<bool, GenericInput>(this, &mimmo::GenericInput::getResult<bool>, VALUEB, 32));
-	built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, DEG, 40));
-	built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, FILENAME, 50));
-	built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, DIR, 51));
+	built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, M_COORDS));
+	built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, M_DISPLS));
+	built = (built && createPortOut<dvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dvector1D>, M_FILTER));
+	built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, M_POINT));
+	built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, M_SPAN));
+	built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, M_DIMENSION));
+	built = (built && createPortOut<double, GenericInput>(this, &mimmo::GenericInput::getResult<double>, M_VALUED));
+	built = (built && createPortOut<int, GenericInput>(this, &mimmo::GenericInput::getResult<int>, M_VALUEI));
+	built = (built && createPortOut<bool, GenericInput>(this, &mimmo::GenericInput::getResult<bool>, M_VALUEB));
+	built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, M_DEG));
+	built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, M_FILENAME));
+	built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, M_DIR));
 	m_arePortsBuilt = built;
 }
 

@@ -44,53 +44,53 @@ namespace mimmo{
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------------------------------|
- *	|                   Port Input                                                           |
- *	|-------|----------------|---------------------------------------|-----------------------|
- *	|PortID | PortType       | variable/function                     | compatibilities       |
- *	|-------|----------------|---------------------------------------|-----------------------|
- *	| 10    | DISPLS         | m_displ                               | GDISPLS               |
- *	| 12    | FILTER         | m_filter                              | 		               	 |
- *  | 40	| DEG	         | setDegrees							 | DIMENSION		   	 |
- *  | 44	| NURBSWEIGHTS   | setNodalWeight  					   	 | 				     	 |
- *  | 43	| NURBSCOORDTYPE | setCoordType  					   	 | 					     |
+ *	|                     Port Input                                                         |
+ *	|-------|------------------|---------------------------------------|---------------------|
+ *	|PortID | PortType         | variable/function                     | compatibilities     |
+ *	|-------|------------------|---------------------------------------|---------------------|
+ *	| 10    | M_DISPLS         | m_displ                               | M_GDISPLS           |
+ *	| 12    | M_FILTER         | m_filter                              | 		             |
+ *  | 40	| M_DEG	           | setDegrees							   | M_DIMENSION		 |
+ *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  					   | 				     |
+ *  | 43	| M_NURBSCOORDTYPE | setCoordType  					   	   | 					 |
  *	|----------------------------------------------------------------------------------------|
  *	|                INHERITED FROM LATTICE                                                  |
  *  |----------------------------------------------------------------------------------------|
- *	| 99    | GEOM           | m_geometry                                | 			         |
- *	| 24    | DIMENSION		 | setDimension                              | 			         |
- *	| 25    | INFLIMITS		 | setInfLimits                              | 			         |
- *	| 22    | AXES     		 | setRefSystem                              | 			         |
- *	| 23    | SPAN     		 | setSpan                                   | 			         |
- *	| 20    | POINT    		 | setOrigin                                 | POINT2			 |
- *	| 26    | SHAPE    		 | setShape(mimmo::ShapeType)                | 			         |
- *	| 27    | COPYSHAPE		 | setShape(const BasicShape * )             | 			         |
+ *	| 99    | M_GEOM         | m_geometry                                | 			         |
+ *	| 24    | M_DIMENSION	 | setDimension                              | 			         |
+ *	| 25    | M_INFLIMITS	 | setInfLimits                              | 			         |
+ *	| 22    | M_AXES     	 | setRefSystem                              | 			         |
+ *	| 23    | M_SPAN     	 | setSpan                                   | 			         |
+ *	| 20    | M_POINT    	 | setOrigin                                 | M_POINT2			 |
+ *	| 26    | M_SHAPE    	 | setShape(mimmo::ShapeType)                | 			         |
+ *	| 27    | M_COPYSHAPE	 | setShape(const BasicShape * )             | 			         |
  *	|-------|----------------|-------------------------------------------|-------------------|
  * 
  *
  *
- *	|--------------------------------------------|
- *	|             Port Output                    |
- *	|-------|----------------|-------------------|
- *	|PortID | PortType       | variable/function |
- *	|-------|----------------|-------------------|
- *	| 11    | GDISPLS        | getDeformation    |
- *	| 80    | PAIRVECFIELD   | getDeformedField  |
- *	| 40    | DEG  			 | getDegrees        |
-  *	| 12    | FILTER         | getFilter         |
- *  | 44	| NURBSWEIGHTS   | getWeights        |
- *  | 43	| NURBSCOORDTYPE | getCoordType  	 |
- *	|--------------------------------------------|
+ *	|----------------------------------------------|
+ *	|               Port Output                    |
+ *	|-------|------------------|-------------------|
+ *	|PortID | PortType         | variable/function |
+ *	|-------|------------------|-------------------|
+ *	| 11    | M_GDISPLS        | getDeformation    |
+ *	| 80    | M_PAIRVECFIELD   | getDeformedField  |
+ *	| 40    | M_DEG  		   | getDegrees        |
+  *	| 12    | M_FILTER         | getFilter         |
+ *  | 44	| M_NURBSWEIGHTS   | getWeights        |
+ *  | 43	| M_NURBSCOORDTYPE | getCoordType  	   |
+ *	|----------------------------------------------|
  *	|       INHERITED FROM LATTICE               |
  *	|-------|----------------|-------------------|
- *	| 1     | GLOBAL         | getGlobalCoords   |
- *	| 2     | LOCAL          | getLocalCoords    |
- *	| 20    | POINT          | getOrigin         |
- *	| 22    | AXES           | getRefSystem      |
- *	| 25    | INFLIMITS      | getInfLimits      |
- *	| 23    | SPAN           | getSpan           |
- *	| 24    | DIMENSION      | getDimension      |
- *	| 27    | COPYSHAPE      | getShape          |
- *  | 99    | GEOM           | getGeometry       |
+ *	| 1     | M_GLOBAL       | getGlobalCoords   |
+ *	| 2     | M_LOCAL        | getLocalCoords    |
+ *	| 20    | M_POINT        | getOrigin         |
+ *	| 22    | M_AXES         | getRefSystem      |
+ *	| 25    | M_INFLIMITS    | getInfLimits      |
+ *	| 23    | M_SPAN         | getSpan           |
+ *	| 24    | M_DIMENSION    | getDimension      |
+ *	| 27    | M_COPYSHAPE    | getShape          |
+ *  | 99    | M_GEOM         | getGeometry       |
  *	|-------|----------------|-------------------|
  * 
  * ~~~

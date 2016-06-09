@@ -47,42 +47,6 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 	return done;
 }
 
-/*!It adds a pin between two objects.
- * \param[in] objSend Pointer to BaseManipulation sender object.
- * \param[in] objRec Pointer to BaseManipulation receiver object.
- * \param[in] fget Get function of the sender object (copy return).
- * \param[in] fset Set function of the receiver object (copy argument).
- * \return True if the pin is added.
- */
-bool
-addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR, bool forced){
-	bool done = false;
-	if (!objSend->arePortsBuilt()){
-		objSend->buildPorts();
-		if (!objSend->arePortsBuilt()){
-			std::cout << "MiMMO : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
-			exit(11);
-		}
-	}
-	if (!objRec->arePortsBuilt()){
-		objRec->buildPorts();
-			if (!objRec->arePortsBuilt()){
-			std::cout << "MiMMO : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
-			exit(11);
-		}
-	}
-	if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){
-		if (forced || checkCompatibility(objSend, objRec, portS, portR)){
-			objSend->addPinOut(objRec, portS, portR);
-			objRec->addPinIn(objSend, portR);
-			objSend->addChild(objRec);
-			objRec->addParent(objSend);
-			done = true;
-		}
-	}
-	return done;
-}
-
 /*!It remove all pins between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
@@ -128,48 +92,15 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
 
 }
 
-
-/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
- * nothing is done.
- * \param[in] objSend Pointer to BaseManipulation sender object.
- * \param[in] objRec Pointer to BaseManipulation receiver object.
- * \param[in] fget Get function of the sender object (copy return).
- * \param[in] fset Set function of the receiver object (copy argument).
- */
-void
-removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR){
-
-	objSend->removePinOut(objRec, portS);
-	objRec->removePinIn(objSend, portR);
-	objSend->unsetChild(objRec);
-	objRec->unsetParent(objSend);
-
-}
-
-
 bool
 checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
 	bool check = false;
 	PortIn*	pinin = objRec->getPortsIn()[portR];
-	std::vector<PortType> comp = pinin->getCompatibility();
-	check = (find(comp.begin(), comp.end(), objSend->getPortType(portS)) != comp.end());
+	std::vector<PortID> comp = pinin->getCompatibility();
+	check = (find(comp.begin(), comp.end(), portS) != comp.end());
 	return(check);
 }
-
-
-bool
-checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR){
-	bool check = false;
-	if (objSend->m_mapPortOut.count(portS) != 0 && objRec->m_mapPortIn.count(portR) != 0){
-		PortIn*	pinin = objRec->getPortsIn()[objRec->m_mapPortIn[portR]];
-		std::vector<PortType> comp = pinin->getCompatibility();
-		check = (find(comp.begin(), comp.end(), portS ) != comp.end());
-	}
-	return(check);
-}
-
 
 }//end pin namespace
-
 
 }//end mimmo namespace

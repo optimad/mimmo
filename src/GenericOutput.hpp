@@ -39,22 +39,35 @@ namespace mimmo{
  *	GenericOutput is derived from BaseManipulation class.
  *	It uses and it writes the base members input.
  *
+ *
  *	=========================================================
- *	PORT TABLE
+ * ~~~
+ *	|-------------------------------------------------------------------------------|
+ *	|                    Port Input                                   				|
+ *	|-------|-------------|-------------------|-------------------------------------|
+ *	|PortID | PortType    | variable/function | compatibilities       				|
+ *	|-------|-------------|-------------------|-------------------------------------|
+ *	| 0     | M_COORDS    | setResult         | M_GDISPLS M_DISPLS M_GLOBAL M_LOCAL |
+ *	| 10    | M_DISPLS    | setResult	      | M_GDISPLS M_COORDS					|
+ *	| 12    | M_FILTER    | setResult         |										|
+ *	| 20    | M_POINT     | setResult         | M_POINT2							|
+ *	| 24    | M_DIMENSION | setResult         |										|
+ *	| 30    | M_VALUED    | setResult         | M_VALUED2							|
+ *	| 31    | M_VALUEI    | setResult         |										|
+ *	| 32    | M_VALUEB    | setResult         |										|
+ *	| 40    | M_DEG		  | setResult         |										|
+ *	| 50    | M_FILENAME  | setResult         |										|
+ *	| 51    | M_DIR	      | setResult         |										|
+ *	|-------|-------------|-------------------|-------------------------------------|
  *
- *	- Input  Ports-
  *
- *	PortID	PortType	variable/function	compatibilities
- *
- *	0 		DISPLS		getResult			GDISPLS COORDS
- *	1 		COORDS		getResult			GDISPLS DISPLS
- *	2 		FILTER		getResult			-
- *
- *
- *	- Output Ports -
- *
- *	PortID	PortType	variable/function
- *
+ *	|-----------------------------------------|
+ *	|              Port Output                |
+ *	|-------|-------------|-------------------|
+ *	|PortID | PortType    | variable/function |
+ *	|-------|-------------|-------------------|
+ *	|-------|-------------|-------------------|
+ * ~~~
  *	=========================================================
  *
  */

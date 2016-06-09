@@ -49,9 +49,9 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------------|
  *	|PortID | PortType | variable/function | compatibilities       |
  *	|-------|----------|-------------------|-----------------------|
- *	| 20    | POINT    | m_origin          | POINT2 			   |
- *	| 21    | AXIS     | m_direction       | 					   |
- *	| 30    | VALUED   | m_alpha           | VALUED2			   |
+ *	| 20    | M_POINT  | m_origin          | M_POINT2 			   |
+ *	| 21    | M_AXIS   | m_direction       | 					   |
+ *	| 30    | M_VALUED | m_alpha           | M_VALUED2			   |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
@@ -60,9 +60,9 @@ namespace mimmo{
  *	|-------|-----------|-------------------|
  *	|PortID | PortType  | variable/function |
  *	|-------|-----------|-------------------|
- *	| 20    | POINT     | getOrigin         |
- *	| 22    | AXES      | getDirection      |
- *	| 30    | VALUED    | getTranslation    |
+ *	| 20    | M_POINT   | getOrigin         |
+ *	| 22    | M_AXES    | getDirection      |
+ *	| 30    | M_VALUED  | getTranslation    |
  *	|-------|-----------|-------------------|
  * ~~~
  *	=========================================================

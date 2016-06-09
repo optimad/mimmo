@@ -64,12 +64,9 @@ class IOData;
 class BaseManipulation{
 
 	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced);
-	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR, bool forced);
 	friend void mimmo::pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
-	friend void mimmo::pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
 	friend void mimmo::pin::removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
 	friend bool mimmo::pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
-	friend bool mimmo::pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortType portS, PortType portR);
 	friend mimmo::PortOut;
 
 public:
@@ -90,9 +87,7 @@ protected:
 	ConnectionType				m_portsType;		/**<Type of ports of the object: BOTH (bidirectional),
 														BACKWARD (only input) or FORWARD (only output).*/
 	std::map<PortID, PortIn*>	m_portIn;			/**<Input ports map. */
-	std::map<PortType, PortID>	m_mapPortIn;		/**<Input ports Map type. */
 	std::map<PortID, PortOut*>	m_portOut;			/**<Output ports map. */
-	std::map<PortType, PortID>	m_mapPortOut;		/**<Output ports Map type. */
 	bool						m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
 
 	bool						m_active;			/**<True/false to activate/disable the object.*/
@@ -120,7 +115,6 @@ public:
 	int 				getNPortsOut();
 	std::map<PortID, PortIn*> getPortsIn();
 	std::map<PortID, PortOut*>getPortsOut();
-	PortType 			getPortType(PortID port);
 
 	bool	isActive();
 
@@ -147,16 +141,16 @@ protected:
 	void			deletePorts();
 
 	template<typename T, typename O>
-	bool	createPortOut(O* obj, T (O::*getVar_)(), PortType label, PortID portS);
+	bool	createPortOut(O* obj, T (O::*getVar_)(), PortID portS);
 
 	template<typename T, typename O>
-	bool	createPortOut(O* obj, T* var_, PortType label, PortID portS);
+	bool	createPortOut(O* obj, T* var_, PortID portS);
 
 	template<typename T, typename O>
-	bool	createPortIn(T* var_, PortType label, PortID portR, std::vector<PortType> compatibilities = std::vector<PortType>(0));
+	bool	createPortIn(T* var_, PortID portR, std::vector<PortID> compatibilities = std::vector<PortID>(0));
 
 	template<typename T, typename O>
-	bool	createPortIn(O* obj, void (O::*setVar_)(T), PortType label, PortID portR, std::vector<PortType> compatibilities = std::vector<PortType>(0));
+	bool	createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, std::vector<PortID> compatibilities = std::vector<PortID>(0));
 
 	void	setBufferIn(PortID port, bitpit::IBinaryStream& input);
 	void	readBufferIn(PortID port);
@@ -172,13 +166,9 @@ protected:
 
 	void	addPinIn(BaseManipulation* objIn, PortID portR);
 	void	addPinOut(BaseManipulation* objOut, PortID portS, PortID portR);
-	void	addPinIn(BaseManipulation* objIn, PortType portR);
-	void	addPinOut(BaseManipulation* objOut, PortType portS, PortType portR);
 
 	void	removePinIn(BaseManipulation* objIn, PortID portR);
 	void	removePinOut(BaseManipulation* objOut, PortID portS);
-	void	removePinIn(BaseManipulation* objIn, PortType portR);
-	void	removePinOut(BaseManipulation* objOut, PortType portS);
 
 	void 	removePinIn(PortID portR);
 	void 	removePinOut(PortID portS, int j);
