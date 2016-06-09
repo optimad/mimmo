@@ -62,6 +62,7 @@ enum PortType{
 	M_DISPLS 			= 10	/**< Port dedicated to communicate displacements of points [vector<array<double,3>>].*/,
 	M_GDISPLS 			= 11	/**< Port dedicated to communicate displacements of geometry vertex [vector<array<double,3>>].*/,
 	M_FILTER			= 12	/**< Port dedicated to communicate a scalar field used as filter function [vector<double>].*/,
+	M_SCALARFIELD		= 19	/**< Port dedicated to communicate a generic scalar field [vector<double>].*/,
 	M_POINT				= 20	/**< Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
 	M_AXIS				= 21	/**< Port dedicated to communicate the direction of an axis [array<double,3>].*/,
 	M_AXES				= 22	/**< Port dedicated to communicate a reference system [array<array<double,3>,3>].*/,
@@ -85,7 +86,7 @@ enum PortType{
 	M_DIR				= 51	/**< Port dedicated to communicate a directory path [string].*/,
 	M_PAIRVECFIELD 		= 80 	/**< Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair<MimmoObject *, vector<array<double,3>>> */,
 	M_PAIRSCAFIELD 		= 81 	/**< Port dedicated to communicate a scalar field on a MimmoObject geometry as std::pair<MimmoObject *, vector<double>> */,
-	M_GEOM 				= 99	/**< Port dedicated to communicate a pointer to a geometry [MimmoObject*].*/,
+	M_GEOM 				= 99	/**< Port dedicated to communicate a pointer to a geometry [MimmoObject *].*/,
 
 	M_POINT2			= 120	/**< Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
 	M_VALUED2			= 130	/**< Port dedicated to communicate a scalar value [double].*/,
