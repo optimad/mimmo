@@ -111,6 +111,12 @@ void BasicShape::setInfLimits(double orig, int dir){
 	}
 }
 
+void BasicShape::setInfLimits(darray3E val){
+	for (int dir=0; dir<3; dir++){
+		setInfLimits(val[dir], dir);
+	}
+}
+
 /*! Set new axis orientation of the local reference system
  * \param[in] axis0 first axis
  * \param[in] axis1 second axis

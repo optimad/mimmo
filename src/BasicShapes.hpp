@@ -96,6 +96,7 @@ public:
 	void		setSpan(double, double, double);
 	void		setSpan(darray3E);
 	void		setInfLimits(double val, int dir);
+	void		setInfLimits(darray3E val);
 	void		setRefSystem(darray3E, darray3E, darray3E);
 	void		setRefSystem(int, darray3E);
 	void		setRefSystem(dmatrix33E axes);
