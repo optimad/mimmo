@@ -1183,8 +1183,6 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	iarray3E dim = getDimension();
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	
-	VTK_BASICCLOUD handle_vtk_output(folder, outfile, codex, sizeTot);
-	
 	dvecarr3E activeP;
 	if(extPoints != NULL && extPoints->size() == sizeTot){activeP = *extPoints; }
 	else{
@@ -1194,9 +1192,20 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 		}
 	}
 	
-	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.linkData(activeP);
-	handle_vtk_output.write();
+	ivector1D conn(activeP.size());
+	for(int i=0; i<activeP.size(); i++){
+		conn[i] = i;
+	}
+
+	bitpit::VTKUnstructuredGrid vtk(folder, outfile, bitpit::VTKElementType::VERTEX);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+	vtk.setDimensions(conn.size(), activeP.size());
+
+	if(counterFile>=0){vtk.setCounter(counterFile);}
+
+	vtk.write();
+
 };
 
 /*! Write your grid as a point cloud in a *.vtu file. 
@@ -1217,8 +1226,6 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	int sizeMap = std::min((int)vertexList.size(), sizeTot);
 	
-	VTK_BASICCLOUD handle_vtk_output(folder, outfile, codex, sizeMap);
-	
 	dvecarr3E activeP(sizeMap);
 	if(extPoints != NULL && extPoints->size() == sizeTot){
 		for(int i=0; i<sizeMap; i++){
@@ -1230,10 +1237,19 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 			activeP[i] = getGlobalPoint(vertexList[i]);
 		}
 	}
-	
-	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.linkData(activeP);
-	handle_vtk_output.write();
+	ivector1D conn(activeP.size());
+	for(int i=0; i<activeP.size(); i++){
+		conn[i] = i;
+	}
+
+	bitpit::VTKUnstructuredGrid vtk(folder, outfile, bitpit::VTKElementType::VERTEX);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+	vtk.setDimensions(conn.size(), activeP.size());
+
+	if(counterFile>=0){vtk.setCounter(counterFile);}
+
+	vtk.write();
 	
 };
 
@@ -1253,7 +1269,6 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 	iarray3E dim = getDimension();
 	int sizePt = dim[0]*dim[1]*dim[2];
 	int sizeCl = (dim[0]-1)*(dim[1]-1)*(dim[2]-1);
-	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, sizePt, sizeCl, 8*sizeCl);
 	
 	dvecarr3E activeP(sizePt);
 	ivector2D activeConn(sizeCl, ivector1D(8,0));
@@ -1269,9 +1284,32 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 		activeConn[i] = getCellNeighs(i); 
 	}
 	
-	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.linkData(activeP,activeConn);
-	handle_vtk_output.write();
+	bitpit::VTKElementType  elDM;
+	switch(activeConn[0].size()){
+		case 3:
+			elDM = bitpit::VTKElementType::TRIANGLE;
+			break;
+		case 4:
+			elDM = bitpit::VTKElementType::QUAD;
+			break;
+		case 8:
+			elDM = bitpit::VTKElementType::HEXAHEDRON;
+			break;
+		default:
+			elDM = bitpit::VTKElementType::UNDEFINED;
+			break;
+	}
+
+
+	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
+	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
+
+	if(counterFile>=0){vtk.setCounter(counterFile);}
+
+	vtk.write();
+
 };
 
 /*! Write your grid as a hexahedrical one in a *.vtu file. 
@@ -1335,10 +1373,30 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 		}
 	}
 	
-	VTK_BASICMESH handle_vtk_output(folder, outfile, codex, counter, sizeCl, 8*sizeCl);
-	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
-	handle_vtk_output.linkData(activeP,activeConn);
-	handle_vtk_output.write();
+	bitpit::VTKElementType  elDM;
+	switch(activeConn[0].size()){
+		case 3:
+			elDM = bitpit::VTKElementType::TRIANGLE;
+			break;
+		case 4:
+			elDM = bitpit::VTKElementType::QUAD;
+			break;
+		case 8:
+			elDM = bitpit::VTKElementType::HEXAHEDRON;
+			break;
+		default:
+			elDM = bitpit::VTKElementType::UNDEFINED;
+			break;
+	}
+	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
+	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
+
+	if(counterFile>=0){vtk.setCounter(counterFile);}
+
+	vtk.write();
+
 };
 
 /*! Write your grid as a hexahedrical one in a *.vtu file.
@@ -1368,16 +1426,34 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
 		activeConn[i] = getCellNeighs(i);
 	}
 
-	VTK_DATAMESH handle_vtk_output(&activeP, &activeConn,folder, outfile, codex);
+	bitpit::VTKElementType  elDM;
+	switch(activeConn[0].size()){
+		case 3:
+			elDM = bitpit::VTKElementType::TRIANGLE;
+			break;
+		case 4:
+			elDM = bitpit::VTKElementType::QUAD;
+			break;
+		case 8:
+			elDM = bitpit::VTKElementType::HEXAHEDRON;
+			break;
+		default:
+			elDM = bitpit::VTKElementType::UNDEFINED;
+			break;
+	}
+	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
+	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
 
-	if(counterFile>=0){handle_vtk_output.setCounter(counterFile);}
+	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 	if (data.size() == sizeCl) loc = bitpit::VTKLocation::CELL;
 
-	std::string namefield = "field";
-	handle_vtk_output.addScalarField(namefield, data, loc );
-	handle_vtk_output.write();
+	vtk.addData("field",bitpit::VTKFieldType::SCALAR, loc, data) ;
+	vtk.write();
+
 };
 
 

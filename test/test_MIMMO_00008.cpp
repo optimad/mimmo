@@ -164,7 +164,10 @@ void test0008() {
 			++counter;
 		}
 		
-		bitpit::VTKUnstructuredGrid   output( "./", "Cloud1", bitpit::VTKElementType::VERTEX, points, conn);
+		bitpit::VTKUnstructuredGrid   output( "./", "Cloud1", bitpit::VTKElementType::VERTEX);
+		output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+		output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn);
+		output.setDimensions( conn.size(), points.size());
 		output.write() ;
 		
 	}

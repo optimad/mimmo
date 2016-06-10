@@ -84,6 +84,14 @@ void BasicShape::setSpan(double s0, double s1, double s2){
 	setScaling(s0,s1,s2);
 }
 
+/*! Set span of your shape, according to its local reference system
+ * \param[in] span coordinate span
+ */
+void BasicShape::setSpan(darray3E span){
+	checkSpan(span[0],span[1],span[2]);
+	setScaling(span[0],span[1],span[2]);
+}
+
 /*! Set inferior limits your shape, in its local reference system.
  *  The method is useful when drawing part of your original shape, as in the 
  *  case of cylinders or sphere portions, by manipulating the adimensional 

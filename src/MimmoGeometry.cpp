@@ -430,7 +430,9 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE, points , connectivity );
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE);
+			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 				vtk.write() ;
@@ -443,7 +445,9 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD, points , connectivity );
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD);
+		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 			vtk.write() ;
@@ -456,7 +460,9 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA, points , connectivity );
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA);
+			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);		
 				vtk.write() ;
@@ -469,7 +475,9 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON, points , connectivity );
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON);
+		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 			vtk.write() ;
@@ -567,9 +575,11 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 		
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
-		
+
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 		
 		setGeometry(1);
@@ -607,7 +617,9 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
@@ -648,7 +660,9 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
@@ -690,7 +704,9 @@ MimmoGeometry::read(){
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON, Ipoints, Iconnectivity );
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;

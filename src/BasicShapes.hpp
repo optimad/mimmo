@@ -94,6 +94,7 @@ public:
 	//set-get methods
 	void		setOrigin(darray3E);
 	void		setSpan(double, double, double);
+	void		setSpan(darray3E);
 	void		setInfLimits(double val, int dir);
 	void		setRefSystem(darray3E, darray3E, darray3E);
 	void		setRefSystem(int, darray3E);
