@@ -60,6 +60,7 @@ void MRBF::buildPorts(){
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, M_VALUED2, {M_VALUED}));
 	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM));
 	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
+	built = (built && createPortOut<std::<MimmoObject*, dvecarr3E,> MRBF>(this, &mimmo::MRBF::getDeformedField, M_PAIRVECFIELD));
 	m_arePortsBuilt = built;
 };
 
