@@ -230,7 +230,9 @@ BaseManipulation::unsetGeometry(){
  */
 void
 BaseManipulation::removePins(){
+	std::cout << "remove pins in" << std::endl;
 	removePinsIn();
+	std::cout << "remove pins out" << std::endl;
 	removePinsOut();
 }
 
@@ -241,6 +243,7 @@ void
 BaseManipulation::removePinsIn(){
 	unordered_map<BaseManipulation*, int>::iterator it;
 	while(m_parent.size()){
+		std::cout << "remove pins in m_parent size" << m_parent.size() << std::endl;
 		it = m_parent.begin();
 		mimmo::pin::removeAllPins(it->first, this);
 	}
@@ -423,9 +426,11 @@ BaseManipulation::findPinOut(PortOut& pin){
  * \param[in] i Index of target input pin (connection).
  */
 void
-BaseManipulation::removePinIn(PortID i){
-	if ( m_portIn.count(i) != 0 ){
-		m_portIn[i]->clear();
+BaseManipulation::removePinIn(PortID portR, int j){
+	if ( m_portIn.count(portR) != 0 ){
+		if (j<m_portIn[portR]->getLink().size() && j >= 0){
+			m_portIn[portR]->clear(j);
+		}
 	}
 }
 
@@ -450,7 +455,7 @@ BaseManipulation::removePinOut(PortID portS, int j){
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
 	if (objIn != NULL && m_portIn.count(portR) !=0 ){
-		m_portIn[portR]->m_objLink = objIn;
+		m_portIn[portR]->m_objLink.push_back(objIn);
 	}
 };
 
@@ -476,7 +481,12 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
 	if (objIn != NULL && m_portIn.count(portR) != 0){
-		m_portIn[portR]->m_objLink = NULL;
+		std::vector<BaseManipulation*>	linked = m_portIn[portR]->getLink();
+		for (int i=0; i<linked.size(); i++){
+			if (linked[i] == objIn){
+				m_portIn[portR]->clear(i);
+			}
+		}
 	}
 };
 

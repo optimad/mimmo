@@ -28,7 +28,7 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 	}
 	if (!objRec->arePortsBuilt()){
 		objRec->buildPorts();
-			if (!objRec->arePortsBuilt()){
+		if (!objRec->arePortsBuilt()){
 			std::cout << "MiMMO : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
 			exit(11);
 		}
@@ -54,22 +54,33 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 void
 removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
+	std::cout << "remove all pins  - pins out " << std::endl;
+
 	std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
 	for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
-		std::vector<BaseManipulation*> linked = i->second->getLink();
-		for (int j=0; j<linked.size(); j++){
-			if (linked[j] == objRec){
-				objSend->removePinOut(i->first,j);
-				objSend->unsetChild(objRec);
+		if (i->second != NULL){
+			std::vector<BaseManipulation*> linked = i->second->getLink();
+			for (int j=0; j<linked.size(); j++){
+				if (linked[j] == objRec){
+					objSend->removePinOut(i->first,j);
+					objSend->unsetChild(objRec);
+				}
 			}
 		}
 	}
 
+	std::cout << "remove all pins  - pins in " << std::endl;
+
 	std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
 	for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
-		if (i->second->getLink() == objSend){
-			objRec->removePinIn(i->first);
-			objRec->unsetParent(objSend);
+		std::vector<BaseManipulation*> linked = i->second->getLink();
+		if (i->second != NULL){
+			for (int j=0; j<linked.size(); j++){
+				if (linked[j] == objSend){
+					objRec->removePinIn(i->first,j);
+					objRec->unsetParent(objSend);
+				}
+			}
 		}
 	}
 
