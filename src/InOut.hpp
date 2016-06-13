@@ -31,6 +31,9 @@
 #include "MimmoObject.hpp"
 #include <functional>
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvector1D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvector1D& element);
+
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
 
