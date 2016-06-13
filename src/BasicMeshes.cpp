@@ -1200,7 +1200,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
 	vtk.setDimensions(conn.size(), activeP.size());
-
+	//vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	vtk.write();
@@ -1245,7 +1245,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
 	vtk.setDimensions(conn.size(), activeP.size());
-
+	//vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	vtk.write();
@@ -1288,7 +1288,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
 	vtk.setDimensions(sizeCl, sizePt);
-
+	//vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	vtk.write();
@@ -1361,7 +1361,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
 	vtk.setDimensions(sizeCl, sizePt);
-
+	//vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	vtk.write();
@@ -1401,6 +1401,7 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
 	vtk.setDimensions(sizeCl, sizePt);
 
+	//vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;

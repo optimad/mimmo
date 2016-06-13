@@ -179,6 +179,7 @@ public:
 	darray3E	interpolatePointData(darray3E & point, dvecarr3E & pointdata);
 
 	//plotting
+	//TODO whenever VTK are ready, release ASCII writing in their cpp implementation
 	void 		plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
 	void 		plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
 	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
