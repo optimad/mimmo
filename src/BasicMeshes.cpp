@@ -25,7 +25,6 @@
 #include "BasicMeshes.hpp"
 #include "Operators.hpp"
 #include "customOperators.hpp"
-#include "MiMMO_VTKInterfaces.hpp"
 
 using namespace std;
 using namespace mimmo;

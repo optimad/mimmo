@@ -111,7 +111,7 @@ void test0001() {
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 	//Plot results
-	lattice->plotGrid("./", "lattice_0001", 0, false, false);
+	lattice->plotGrid("./", "lattice_0001", 0, true, false);
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
 
 	mimmo0 = new MimmoGeometry();

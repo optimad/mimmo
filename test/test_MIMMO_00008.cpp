@@ -55,13 +55,19 @@ void test0008() {
 	steady_clock::time_point t1,t2;
 	duration<double> time_span;
 
-	std::cout<<"simplex w bvtree."<<std::endl;
+	std::cout<<"building  bvtree."<<std::endl;
 	t1 = steady_clock::now();
 	geometry->getGeometry()->buildBvTree(1);
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout<<"done simplex w bvtree "<<time_span.count() << " seconds."<<std::endl;
- 	geometry->getGeometry()->buildKdTree();
+	std::cout<<"done building bvtree "<<time_span.count() << " seconds."<<std::endl;
+
+	std::cout<<"building  kdtree."<<std::endl;
+	t1 = steady_clock::now();
+	geometry->getGeometry()->buildKdTree();
+	t2 = steady_clock::now();
+	time_span = duration_cast<duration<double>>(t2 - t1);
+	std::cout<<"done building kdtree "<<time_span.count() << " seconds."<<std::endl;
 	
 	Cylinder * cyl = new Cylinder();
 	cyl->setOrigin({{0.5,0.5,0}});
