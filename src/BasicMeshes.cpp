@@ -1284,27 +1284,11 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 		activeConn[i] = getCellNeighs(i); 
 	}
 	
-	bitpit::VTKElementType  elDM;
-	switch(activeConn[0].size()){
-		case 3:
-			elDM = bitpit::VTKElementType::TRIANGLE;
-			break;
-		case 4:
-			elDM = bitpit::VTKElementType::QUAD;
-			break;
-		case 8:
-			elDM = bitpit::VTKElementType::HEXAHEDRON;
-			break;
-		default:
-			elDM = bitpit::VTKElementType::UNDEFINED;
-			break;
-	}
-
-
+	bitpit::VTKElementType elDM = bitpit::VTKElementType::HEXAHEDRON;
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
-	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
+	vtk.setDimensions(sizeCl, sizePt);
 
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
@@ -1373,25 +1357,11 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 		}
 	}
 	
-	bitpit::VTKElementType  elDM;
-	switch(activeConn[0].size()){
-		case 3:
-			elDM = bitpit::VTKElementType::TRIANGLE;
-			break;
-		case 4:
-			elDM = bitpit::VTKElementType::QUAD;
-			break;
-		case 8:
-			elDM = bitpit::VTKElementType::HEXAHEDRON;
-			break;
-		default:
-			elDM = bitpit::VTKElementType::UNDEFINED;
-			break;
-	}
+	bitpit::VTKElementType elDM = bitpit::VTKElementType::HEXAHEDRON;
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
-	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
+	vtk.setDimensions(sizeCl, sizePt);
 
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
@@ -1426,25 +1396,11 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
 		activeConn[i] = getCellNeighs(i);
 	}
 
-	bitpit::VTKElementType  elDM;
-	switch(activeConn[0].size()){
-		case 3:
-			elDM = bitpit::VTKElementType::TRIANGLE;
-			break;
-		case 4:
-			elDM = bitpit::VTKElementType::QUAD;
-			break;
-		case 8:
-			elDM = bitpit::VTKElementType::HEXAHEDRON;
-			break;
-		default:
-			elDM = bitpit::VTKElementType::UNDEFINED;
-			break;
-	}
+	bitpit::VTKElementType  elDM = bitpit::VTKElementType::HEXAHEDRON;
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
-	vtk.setDimensions(sizeCl, sizePt, activeConn[0].size());
+	vtk.setDimensions(sizeCl, sizePt);
 
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
