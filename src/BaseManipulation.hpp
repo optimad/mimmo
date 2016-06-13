@@ -170,7 +170,7 @@ protected:
 	void	removePinIn(BaseManipulation* objIn, PortID portR);
 	void	removePinOut(BaseManipulation* objOut, PortID portS);
 
-	void 	removePinIn(PortID portR);
+	void 	removePinIn(PortID portR, int j);
 	void 	removePinOut(PortID portS, int j);
 
 	/*!Execution method.

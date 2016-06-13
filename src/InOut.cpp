@@ -320,9 +320,7 @@ PortIn::PortIn(){};
 
 /*!Default destructor of PortIn
 */
-PortIn::~PortIn(){
-	m_objLink	= NULL;
-};
+PortIn::~PortIn(){};
 
 /*!Copy constructor of PortIn.
 */
@@ -370,7 +368,7 @@ PortIn::getCompatibility(){
 /*!It gets the linked object by this port.
  * \return Pointer to linked object.
  */
-BaseManipulation*
+std::vector<mimmo::BaseManipulation*>
 PortIn::getLink(){
 	return(m_objLink);
 }
@@ -379,8 +377,19 @@ PortIn::getLink(){
  */
 void
 mimmo::PortIn::clear(){
-	m_objLink = NULL;
+	m_objLink.clear();
 }
+
+/*!It removes the link to an object and the related port ID.
+ * \param[in] j Index of the linked object in the links vector of this port.
+ */
+void
+mimmo::PortIn::clear(int j){
+	if (j < m_objLink.size() && j >= 0){
+		m_objLink.erase(m_objLink.begin() + j);
+	}
+}
+
 
 /*!It release the memory occupied by the input buffer.
  */

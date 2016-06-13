@@ -176,7 +176,7 @@ class PortIn{
 public:
 	//members
 	bitpit::IBinaryStream				m_ibuffer;	/**<input buffer to recover data.*/
-	BaseManipulation*					m_objLink;	/**<Input object from which	recover the data. */
+	std::vector<BaseManipulation*>		m_objLink;	/**<Input objects from which	recover the data. */
 	std::vector<PortID>					m_labelOK;	/**<Compatibility output port labels. */
 
 public:
@@ -191,9 +191,11 @@ public:
 
 	const std::vector<PortID>&	getCompatibility();
 
-	BaseManipulation*	getLink();
+	std::vector<mimmo::BaseManipulation*>	getLink();
 
 	void clear();
+	void clear(int j);
+
 
 	virtual void	readBuffer() = 0;
 	void 			cleanBuffer();
