@@ -71,9 +71,9 @@ Bend::buildPorts(){
 /*!It gets the coordinates of the degrees of freedom.
  * \return Coordinates of the degrees of freedom.
  */
-dvecarr3E*
+dvecarr3E
 Bend::getCoords(){
-	return(&m_coords);
+	return(m_coords);
 };
 
 /*!It gets the degrees of polynomial law for each component of displacements of degrees of freedom.
