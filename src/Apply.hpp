@@ -48,8 +48,8 @@ namespace mimmo{
  *	|-------|-----------|-------------------|-----------------|
  *	|PortID | PortType  | variable/function | compatibilities |
  *	|-------|-----------|-------------------|-----------------|
- *	| 11    | M_GDISPLS | m_input           | M_DISPLS        |
- *	| 99    | M_GEOM    | m_geometry        |                 |
+ *	| 11    | M_GDISPLS | setInput          | M_DISPLS        |
+ *	| 99    | M_GEOM    | setGeometry       |                 |
  *	|-------|-----------|-------------------|-----------------|
  *
  *
@@ -77,6 +77,8 @@ public:
 	void buildPorts();
 
 	void setRefreshGeometryTrees(bool force);
+
+	void setInput(dvecarr3E input);
 
 	void execute();
 

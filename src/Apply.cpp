@@ -54,8 +54,8 @@ Apply & Apply::operator=(const Apply & other){
 void
 Apply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Apply>(&m_input, M_GDISPLS, {M_DISPLS}));
-	built = (built && createPortIn<MimmoObject*, Apply>(&m_geometry, M_GEOM));
+	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, {M_DISPLS}));
+	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 };
 
@@ -66,6 +66,14 @@ void	Apply::setRefreshGeometryTrees(bool force){
 	if(getGeometry() == NULL) return;
 	getGeometry()->buildBvTree();
 	getGeometry()->buildKdTree();
+}
+
+/*!It sets the displacements input.
+ * \param[in] input Input displacements of the geometry vertices.
+ */
+void
+Apply::setInput(dvecarr3E input){
+	m_input = input;
 }
 
 /*!Execution command.
