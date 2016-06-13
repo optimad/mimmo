@@ -61,6 +61,7 @@ namespace mimmo{
  *	|-------|----------|-------------------|
  *	|PortID | PortType | variable/function |
  *	|-------|----------|-------------------|
+ *	| 0     | M_COORDS | getCoords         |
  *	| 10    | M_DISPLS | getDisplacements  |
  *	|-------|----------|-------------------|
  * ~~~
@@ -86,7 +87,7 @@ public:
 
 	void buildPorts();
 
-	dvecarr3E*	getCoords();
+	dvecarr3E	getCoords();
 	umatrix33E	getDegree();
 	dmat33Evec	getCoeffs();
 	dvecarr3E	getDisplacements();

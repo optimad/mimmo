@@ -64,6 +64,7 @@ Bend::buildPorts(){
 	built = (built && createPortIn<umatrix33E, Bend>(&m_degree, M_BMATRIX));
 	built = (built && createPortIn<dmat33Evec, Bend>(&m_coeffs, M_BCOEFFS));
 	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getDisplacements, M_DISPLS));
+	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getCoords, M_COORDS));
 	m_arePortsBuilt = built;
 };
 
