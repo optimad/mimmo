@@ -77,7 +77,7 @@ enum class MRBFSol{
  *	|PortID | PortType  	 | variable/function |
  *	|-------|----------------|-------------------|
  *	| 11    | M_GDISPLS 	 | getDisplacements  |
- *	| 80    | M_PAIRVECFIELD | getDisplacements  |
+ *	| 80    | M_PAIRVECFIELD | getDeformedField  |
  *	|-------|----------------|-------------------|
  * ~~~
  *	=========================================================
