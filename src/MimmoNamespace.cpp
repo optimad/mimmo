@@ -54,8 +54,6 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 void
 removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
-	std::cout << "remove all pins  - pins out " << std::endl;
-
 	std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
 	for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
 		if (i->second != NULL){
@@ -68,8 +66,6 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 			}
 		}
 	}
-
-	std::cout << "remove all pins  - pins in " << std::endl;
 
 	std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
 	for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){

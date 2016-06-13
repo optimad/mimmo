@@ -230,9 +230,7 @@ BaseManipulation::unsetGeometry(){
  */
 void
 BaseManipulation::removePins(){
-	std::cout << "remove pins in" << std::endl;
 	removePinsIn();
-	std::cout << "remove pins out" << std::endl;
 	removePinsOut();
 }
 
@@ -243,7 +241,6 @@ void
 BaseManipulation::removePinsIn(){
 	unordered_map<BaseManipulation*, int>::iterator it;
 	while(m_parent.size()){
-		std::cout << "remove pins in m_parent size" << m_parent.size() << std::endl;
 		it = m_parent.begin();
 		mimmo::pin::removeAllPins(it->first, this);
 	}
