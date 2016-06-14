@@ -433,6 +433,7 @@ MimmoGeometry::write(){
 				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE);
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+				vtk.setDimensions(connectivity.size(), points.size());
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 				vtk.write() ;
@@ -450,6 +451,7 @@ MimmoGeometry::write(){
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.setDimensions(connectivity.size(), points.size());
 			vtk.write() ;
 			return true;
 		}
@@ -464,7 +466,8 @@ MimmoGeometry::write(){
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);		
+				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+				vtk.setDimensions(connectivity.size(), points.size());
 				vtk.write() ;
 				return true;
 			}
@@ -480,6 +483,7 @@ MimmoGeometry::write(){
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.setDimensions(connectivity.size(), points.size());
 			vtk.write() ;
 			return true;
 		}
