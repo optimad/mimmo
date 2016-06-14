@@ -95,7 +95,7 @@ void FFDLattice::buildPorts(){
 	
 	//input
 	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, M_DISPLS, {M_GDISPLS}));
-	built = (built && createPortIn<dvector1D, FFDLattice>(&m_filter, M_FILTER));
+	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter, M_FILTER));
 	built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, M_DEG, {M_DIMENSION}));
 	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, M_NURBSWEIGHTS));
 	built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, M_NURBSCOORDTYPE));
