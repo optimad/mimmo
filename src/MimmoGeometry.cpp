@@ -284,7 +284,7 @@ MimmoGeometry::setGeometry(MimmoObject * external){
  */
 void
 MimmoGeometry::setGeometry(int type){
-	int type_ = std::max(std::min(2,type),1);
+	int type_ = std::max(std::min(3,type),1);
 	m_geometry = NULL;
 	m_intgeo.reset(nullptr);
 	std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
