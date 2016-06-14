@@ -64,7 +64,7 @@ enum class MRBFSol{
  *	|-------|-----------|-------------------|-------------------------------------|
  *	| 0     | M_COORDS  | setNode           | M_GLOBAL M_LOCAL M_DISPLS M_GDISPLS |
  *	| 10    | M_DISPLS  | setDisplacements  | M_GDISPLS           		    	  |
- *	| 12    | M_FILTER  | setFilter         | 	            		     		  |
+ *	| 12    | M_FILTER  | setFilter         | M_SCALARFIELD   		     		  |
  *	| 30    | M_VALUED  | setSupportRadius  | M_VALUED2	  		         		  |
  *	| 99    | M_GEOM    | m_geometry        |   	  			         		  |
  *	| 130   | M_VALUED2 | setTol            | M_VALUED		          			  |
