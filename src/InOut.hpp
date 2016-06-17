@@ -64,9 +64,35 @@ class BaseManipulation;
  * mimmo namespace
  */
 
-typedef mimmo::pin::PortType	PortType;
-typedef short int 				PortID;
+typedef mimmo::pin::PortType		PortType;
+typedef short int 					PortID;
+typedef mimmo::pin::containerTAG	containerTAG;
+typedef mimmo::pin::dataTAG			dataTAG;
 
+
+/*!
+ *	\date			17/jun/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief Class DataType defines the container and the type of data communicated by ports.
+ *
+ */
+class DataType{
+public:
+	containerTAG	m_conType;
+	dataTAG			m_dataType;
+
+public:
+	DataType();
+	DataType(containerTAG conType, dataTAG dataType);
+	virtual ~DataType();
+
+	DataType(const DataType & other);
+	DataType & operator=(const DataType & other);
+	bool operator==(const DataType & other);
+
+};
 
 /*!
  *	\date			14/mar/2016
@@ -87,6 +113,7 @@ public:
 	bitpit::OBinaryStream				m_obuffer;	/**<Output buffer to communicate data.*/
 	std::vector<BaseManipulation*>		m_objLink;	/**<Outputs object to which communicate the data.*/
 	std::vector<PortID>					m_portLink;	/**<ID of the input ports of the linked objects.*/
+	DataType							m_datatype;	/**<TAG of type of data communicated.*/
 
 public:
 	PortOut();
@@ -98,6 +125,7 @@ public:
 
 	std::vector<BaseManipulation*>	getLink();
 	std::vector<PortID>				getPortLink();
+	DataType						getDataType();
 
 	virtual void	writeBuffer() = 0;
 	void 			cleanBuffer();
@@ -152,7 +180,9 @@ public:
 public:
 	PortOutT();
 	PortOutT(T *var_);
+	PortOutT(T *var_, DataType datatype);
 	PortOutT(O* obj_, T (O::*getVar_)());
+	PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype);
 	virtual ~PortOutT();
 
 	PortOutT(const PortOutT & other);
@@ -183,7 +213,7 @@ public:
 	//members
 	bitpit::IBinaryStream				m_ibuffer;	/**<input buffer to recover data.*/
 	std::vector<BaseManipulation*>		m_objLink;	/**<Input objects from which	recover the data. */
-	std::vector<PortID>					m_labelOK;	/**<Compatibility output port labels. */
+	DataType							m_datatype;	/**<TAG of type of data communicated.*/
 
 public:
 	PortIn();
@@ -193,11 +223,8 @@ public:
 	PortIn & operator=(const PortIn & other);
 	bool operator==(const PortIn & other);
 
-	void addCompatibility(PortID label);
-
-	const std::vector<PortID>&	getCompatibility();
-
 	std::vector<mimmo::BaseManipulation*>	getLink();
+	DataType						getDataType();
 
 	void clear();
 	void clear(int j);
@@ -249,7 +276,9 @@ public:
 public:
 	PortInT();
 	PortInT(T *var_);
+	PortInT(T *var_, DataType datatype);
 	PortInT(O* obj_, void (O::*setVar_)(T));
+	PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype);
 	virtual ~PortInT();
 
 	PortInT(const PortInT & other);
@@ -262,8 +291,12 @@ public:
 };
 
 
+
+
 }
 
 #include "InOut.tpp"
+
+
 
 #endif /* __INOUT_HPP__ */

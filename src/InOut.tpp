@@ -24,6 +24,19 @@ mimmo::PortOutT<T,O>::PortOutT(T *var_){
 
 /*!Custom constructor of PortOutT
  * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] var_ Pointer to variable to be streamed.
+ * \param[in] datatype TAG of datat type communicated.
+ */
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(T *var_, DataType datatype){
+	m_obj_ 		= NULL;
+	m_var_ 		= var_;
+	m_getVar_ 	= NULL;
+	m_datatype	= datatype;
+};
+
+/*!Custom constructor of PortOutT
+ * \param[in] obj_ Pointer to object owner of the port.
  * \param[in] getVar_ Pointer to function that gets the data to be streamed.
  */
 template<typename T, typename O>
@@ -31,6 +44,19 @@ mimmo::PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
 	m_obj_ 		= obj_;
 	m_getVar_ 	= getVar_;
 	m_var_ 		= NULL;
+};
+
+/*!Custom constructor of PortOutT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] getVar_ Pointer to function that gets the data to be streamed.
+ * \param[in] datatype TAG of datat type communicated.
+ */
+template<typename T, typename O>
+mimmo::PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype){
+	m_obj_ 		= obj_;
+	m_getVar_ 	= getVar_;
+	m_var_ 		= NULL;
+	m_datatype	= datatype;
 };
 
 
@@ -111,6 +137,18 @@ mimmo::PortInT<T, O>::PortInT(T *var_){
 };
 
 /*!Custom constructor of PortInT
+ * \param[in] var_ Pointer to variable to be streamed.
+ * \param[in] datatype TAG of datat type communicated.
+ */
+template<typename T, typename O>
+mimmo::PortInT<T, O>::PortInT(T *var_, DataType datatype){
+	m_obj_ 		= NULL;
+	m_var_ 		= var_;
+	m_setVar_ 	= NULL;
+	m_datatype	= datatype;
+};
+
+/*!Custom constructor of PortInT
  * \param[in] obj_ Pointer to object owner of the port.
  * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
  */
@@ -119,6 +157,19 @@ mimmo::PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
 	m_obj_ 		= obj_;
 	m_setVar_ 	= setVar_;
 	m_var_ 		= NULL;
+};
+
+/*!Custom constructor of PortInT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
+ * \param[in] datatype TAG of datat type communicated.
+ */
+template<typename T, typename O>
+mimmo::PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype){
+	m_obj_ 		= obj_;
+	m_setVar_ 	= setVar_;
+	m_var_ 		= NULL;
+	m_datatype	= datatype;
 };
 
 /*!Default destructor of PortInT

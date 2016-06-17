@@ -9,15 +9,15 @@
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortOut(T* var_, PortID portS){
+BaseManipulation::createPortOut(T* var_, PortID portS, containerTAG conType, dataTAG dataType ){
 	bool check = false;
 	if (m_portOut.count(portS) != 0 ) return (check);
-	PortOutT<T, O>* portOut = new PortOutT<T, O>(var_);
+	DataType datat(conType, dataType);
+	PortOutT<T, O>* portOut = new PortOutT<T, O>(var_, datat);
 	m_portOut[portS] = portOut;
 	check = true;
 	return(check);
 }
-
 
 /*!It adds an output port to the object.
  * \param[in] obj_ Pointer to BaseManipulation object.
@@ -26,15 +26,15 @@ BaseManipulation::createPortOut(T* var_, PortID portS){
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS){
+BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS, containerTAG conType, dataTAG dataType ){
 	bool check = false;
 	if (m_portOut.count(portS) != 0 ) return (check);
-	PortOutT<T, O>* portOut = new PortOutT<T, O>(obj_, getVar_);
+	DataType datat(conType, dataType);
+	PortOutT<T, O>* portOut = new PortOutT<T, O>(obj_, getVar_, datat);
 	m_portOut[portS] = portOut;
 	check = true;
 	return(check);
 }
-
 
 /*!It adds an input port to the object.
  * \param[in] var_ Pointer to member to fill.
@@ -45,19 +45,15 @@ BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS){
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortIn(T* var_, PortID portR, std::vector<PortID> compatibilities){
+BaseManipulation::createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType ){
 	bool check = false;
 	if (m_portIn.count(portR) != 0 ) return (check);
-	PortInT<T, O>* portIn = new PortInT<T, O>(var_);
-	portIn->addCompatibility(portR);
-	for(int i = 0; i < compatibilities.size(); i++) {
-		portIn->addCompatibility(compatibilities[i]);
-	}
+	DataType datat(conType, dataType);
+	PortInT<T, O>* portIn = new PortInT<T, O>(var_, datat);
 	m_portIn[portR] = portIn;
 	check = true;
 	return(check);
 }
-
 
 /*!It adds an input port to the object.
  * \param[in] obj_ Pointer to BaseManipulation object.
@@ -69,14 +65,11 @@ BaseManipulation::createPortIn(T* var_, PortID portR, std::vector<PortID> compat
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, std::vector<PortID> compatibilities){
+BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType ){
 	bool check = false;
 	if (m_portIn.count(portR) != 0 ) return (check);
-	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_);
-	portIn->addCompatibility(portR);
-	for(int i = 0; i < compatibilities.size(); i++) {
-		portIn->addCompatibility(compatibilities[i]);
-	}
+	DataType datat(conType, dataType);
+	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_, datat);
 	m_portIn[portR] = portIn;
 	check = true;
 	return(check);

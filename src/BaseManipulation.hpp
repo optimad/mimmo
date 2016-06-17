@@ -141,16 +141,16 @@ protected:
 	void			deletePorts();
 
 	template<typename T, typename O>
-	bool	createPortOut(O* obj, T (O::*getVar_)(), PortID portS);
+	bool	createPortOut(O* obj, T (O::*getVar_)(), PortID portS, containerTAG conType, dataTAG dataType);
 
 	template<typename T, typename O>
-	bool	createPortOut(T* var_, PortID portS);
+	bool	createPortOut(T* var_, PortID portS, containerTAG conType, dataTAG dataType);
 
 	template<typename T, typename O>
-	bool	createPortIn(T* var_, PortID portR, std::vector<PortID> compatibilities = std::vector<PortID>(0));
+	bool	createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType);
 
 	template<typename T, typename O>
-	bool	createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, std::vector<PortID> compatibilities = std::vector<PortID>(0));
+	bool	createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType);
 
 	void	setBufferIn(PortID port, bitpit::IBinaryStream& input);
 	void	readBufferIn(PortID port);

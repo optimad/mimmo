@@ -98,6 +98,37 @@ enum PortType{
 
 typedef	short int	PortID;
 
+
+enum class containerTAG{
+
+	SCALAR,
+	VECTOR,
+	ARRAY3,
+	VECVEC,
+	VECARR3,
+	ARR3ARR3,
+	ARR3ARR3VEC,
+	MAP,
+	PAIR
+
+};
+
+enum class dataTAG{
+
+	MIMMO_,
+	INT,
+	LONG,
+	FLOAT,
+	BOOL,
+	STRING,
+	MIMMO_VECFLOAT_,
+	MIMMO_VECARR3FLOAT_,
+	SHAPET,
+	SHAPE_
+
+};
+
+
 bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced = false);
 
 void removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);

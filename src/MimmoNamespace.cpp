@@ -102,9 +102,11 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
 bool
 checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
 	bool check = false;
-	PortIn*	pinin = objRec->getPortsIn()[portR];
-	std::vector<PortID> comp = pinin->getCompatibility();
-	check = (find(comp.begin(), comp.end(), portS) != comp.end());
+	PortIn*		pinin 	= objRec->getPortsIn()[portR];
+	PortOut*	pinout 	= objSend->getPortsOut()[portS];
+	DataType typeR = pinin->getDataType();
+	DataType typeS = pinout->getDataType();
+	check = (typeS == typeR);
 	return(check);
 }
 

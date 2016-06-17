@@ -46,10 +46,10 @@ namespace mimmo{
  *	|---------------------------------------------------------|
  *	|                  Port Input                             |
  *	|-------|-----------|-------------------|-----------------|
- *	|PortID | PortType  | variable/function | compatibilities |
+ *	|PortID | PortType  | variable/function | dataType        |
  *	|-------|-----------|-------------------|-----------------|
- *	| 11    | M_GDISPLS | setInput          | M_DISPLS        |
- *	| 99    | M_GEOM    | setGeometry       |                 |
+ *	| 11    | M_GDISPLS | setInput          | (VECARR3,FLOAT) |
+ *	| 99    | M_GEOM    | setGeometry       | (SCALAR,MIMMO_) |
  *	|-------|-----------|-------------------|-----------------|
  *
  *

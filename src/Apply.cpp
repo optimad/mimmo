@@ -54,8 +54,8 @@ Apply & Apply::operator=(const Apply & other){
 void
 Apply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, {M_DISPLS}));
-	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM));
+	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 };
 

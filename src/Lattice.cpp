@@ -78,25 +78,25 @@ Lattice & Lattice::operator=(const Lattice & other){
 void Lattice::buildPorts(){
 
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, M_GEOM));
-	built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, M_DIMENSION));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, M_INFLIMITS));
-	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, M_AXES));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, M_SPAN));
-	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, M_POINT, {M_POINT2}));
-	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPE, {M_VALUEI}));
-	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, M_COPYSHAPE));
-	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPEI, {M_VALUEI}));
+	built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, M_INFLIMITS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPET));
+	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
+	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
 
 // creating output ports
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, M_GLOBAL));
-	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, M_LOCAL));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, M_POINT));
-	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, M_AXES));
-	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, M_SPAN));
-	built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, M_DIMENSION));
-	built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, M_COPYSHAPE));
-	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, M_GEOM));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, M_GLOBAL, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, M_LOCAL, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dmatrix33E, Lattice>(this, &mimmo::Lattice::getRefSystem, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+	built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, M_COPYSHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
+	built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, M_GEOM, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::MIMMO_));
 	
 	m_arePortsBuilt = built;
 };

@@ -46,20 +46,20 @@ namespace mimmo{
  *	|----------------------------------------------------------------------------------------|
  *	|                     Port Input                                                         |
  *	|-------|------------------|---------------------------------------|---------------------|
- *	|PortID | PortType         | variable/function                     | compatibilities     |
+ *	|PortID | PortType         | variable/function                     | DataType            |
  *	|-------|------------------|---------------------------------------|---------------------|
- *	| 10    | M_DISPLS         | m_displ                               | M_GDISPLS           |
- *	| 12    | M_FILTER         | m_filter                              | 		             |
- *  | 40	| M_DEG	           | setDegrees							   | M_DIMENSION		 |
- *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  					   | 				     |
- *  | 43	| M_NURBSCOORDTYPE | setCoordType  					   	   | 					 |
+ *	| 10    | M_DISPLS         | m_displ                               | (VECARR3, FLOAT)    |
+ *	| 12    | M_FILTER         | m_filter                              | (VEC, FLOAT) 	     |
+ *  | 40	| M_DEG	           | setDegrees							   | (ARR3, INT) 		 |
+ *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  					   | (VEC, FLOAT) 	     |
+ *  | 43	| M_NURBSCOORDTYPE | setCoordType  					   	   | (ARR3, COORDT)		 |
  *	|----------------------------------------------------------------------------------------|
  *	|                INHERITED FROM LATTICE                                                  |
  *  |----------------------------------------------------------------------------------------|
- *	| 99    | M_GEOM         | m_geometry                                | 			         |
- *	| 24    | M_DIMENSION	 | setDimension                              | 			         |
- *	| 25    | M_INFLIMITS	 | setInfLimits                              | 			         |
- *	| 22    | M_AXES     	 | setRefSystem                              | 			         |
+ *	| 99    | M_GEOM         | m_geometry                                | (SCALAR, MIMMO_) 			         |
+ *	| 24    | M_DIMENSION	 | setDimension                              | (ARR3, INT) 		         |
+ *	| 25    | M_INFLIMITS	 | setInfLimits                              | (ARR3, FLOAT)			         |
+ *	| 22    | M_AXES     	 | setRefSystem                              | (ARR3, INT)			         |
  *	| 23    | M_SPAN     	 | setSpan                                   | 			         |
  *	| 20    | M_POINT    	 | setOrigin                                 | M_POINT2			 |
  *	| 26    | M_SHAPE    	 | setShape(mimmo::ShapeType)                | 			         |

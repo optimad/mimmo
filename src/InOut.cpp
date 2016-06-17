@@ -279,6 +279,55 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 };
 
 
+
+//==============================================================//
+// DATA TYPE  CLASS	IMPLEMENTATION								//
+//==============================================================//
+
+/*!Default constructor of DataType
+*/
+DataType::DataType(){};
+
+/*!Custom constructor of DataType.
+ * \param[in] conType TAG of type of container.
+ * \param[in] dataType TAG of type of data.
+*/
+DataType::DataType(containerTAG conType, dataTAG dataType){
+	m_conType 	= conType;
+	m_dataType	= dataType;
+	return;
+};
+
+/*!Default destructor of DataType
+*/
+DataType::~DataType(){};
+
+/*!Copy constructor of DataType.
+*/
+DataType::DataType(const DataType & other){
+	m_conType 	= other.m_conType;
+	m_dataType	= other.m_dataType;
+	return;
+};
+
+/*!Assignement operator of DataType.
+ */
+DataType & DataType::operator=(const DataType & other){
+	m_conType 	= other.m_conType;
+	m_dataType	= other.m_dataType;
+	return (*this);
+};
+
+/*!Compare operator of DataType.
+ */
+bool DataType::operator==(const DataType & other){
+	bool check = true;
+	check = check && (m_conType == other.m_conType);
+	check = check && (m_dataType == other.m_dataType);
+	return(check);
+};
+
+
 //==============================================================//
 // BASE INOUT CLASS	IMPLEMENTATION								//
 //==============================================================//
@@ -299,6 +348,7 @@ PortOut::PortOut(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
+	m_datatype	= other.m_datatype;
 	return;
 };
 
@@ -308,6 +358,7 @@ PortOut & PortOut::operator=(const PortOut & other){
 	m_objLink 	= other.m_objLink;
 	m_obuffer	= other.m_obuffer;
 	m_portLink	= other.m_portLink;
+	m_datatype	= other.m_datatype;
 	return (*this);
 };
 
@@ -317,6 +368,7 @@ bool PortOut::operator==(const PortOut & other){
 	bool check = true;
 	check = check && (m_portLink == other.m_portLink);
 	check = check && (m_objLink == other.m_objLink);
+	check = check && (m_datatype == other.m_datatype);
 	return(check);
 };
 
@@ -334,6 +386,14 @@ PortOut::getLink(){
 std::vector<PortID>
 PortOut::getPortLink(){
 	return(m_portLink);
+}
+
+/*!It gets the TAG of data type communicated by this port.
+ * \return TAG of datat type communicated.
+ */
+DataType
+PortOut::getDataType(){
+	return(m_datatype);
 }
 
 /*!It release the memory occupied by the output buffer.
@@ -395,7 +455,7 @@ PortIn::~PortIn(){};
 PortIn::PortIn(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
-	m_labelOK	= other.m_labelOK;
+	m_datatype	= other.m_datatype;
 	return;
 };
 
@@ -404,7 +464,7 @@ PortIn::PortIn(const PortIn & other){
 PortIn & PortIn::operator=(const PortIn & other){
 	m_objLink 	= other.m_objLink;
 	m_ibuffer	= other.m_ibuffer;
-	m_labelOK	= other.m_labelOK;
+	m_datatype	= other.m_datatype;
 	return (*this);
 };
 
@@ -413,25 +473,9 @@ PortIn & PortIn::operator=(const PortIn & other){
 bool PortIn::operator==(const PortIn & other){
 	bool check = true;
 	check = check && (m_objLink == other.m_objLink);
-	check = check && (m_labelOK == other.m_labelOK);
+	check = check && (m_datatype == other.m_datatype);
 	return(check);
 };
-
-/*!It adds a compatibility with a type of port.
- * \param[in] ID ID of PortID to set the compatibility with.
- */
-void
-PortIn::addCompatibility(PortID ID){
-	if (std::find(m_labelOK.begin(), m_labelOK.end(), ID) == m_labelOK.end()) m_labelOK.push_back(ID);
-}
-
-/*!It gets all the compatibilities of the port.
- * \param[out] Vector of labels (TAGS) of PortType compatible with the port..
- */
-const std::vector<PortID>&
-PortIn::getCompatibility(){
-	return m_labelOK;
-}
 
 /*!It gets the linked object by this port.
  * \return Pointer to linked object.
@@ -439,6 +483,14 @@ PortIn::getCompatibility(){
 std::vector<mimmo::BaseManipulation*>
 PortIn::getLink(){
 	return(m_objLink);
+}
+
+/*!It gets the TAG of data type communicated by this port.
+ * \return TAG of datat type communicated.
+ */
+DataType
+PortIn::getDataType(){
+	return(m_datatype);
 }
 
 /*!It clears the linked object by this port.

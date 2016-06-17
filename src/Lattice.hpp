@@ -46,35 +46,35 @@ namespace mimmo{
  *	|-------------------------------------------------------------------------------------|
  *	|                    Port Input                                                       |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	|PortID | PortType    | variable/function                     | compatibilities       |
+ *	|PortID | PortType    | variable/function                     | DataType		      |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	| 99    | M_GEOM      | m_geometry                            | 			          |
- *	| 24    | M_DIMENSION | setDimension                          | 			          |
- *	| 25    | M_INFLIMITS | setInfLimits                          | 			          |
- *	| 22    | M_AXES      | setRefSystem                          | 			          |
- *	| 23    | M_SPAN      | setSpan                               | 			          |
- *	| 20    | M_POINT     | setOrigin                             | M_POINT2			  |
- *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | M_VALUEI	          |
- *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )         | 			          |
- *	| 28    | M_SHAPEI    | setShape(int)           		      | M_VALUEI	          |
+ *	| 99    | M_GEOM      | m_geometry                            | (SCALAR, MIMMO_)      |
+ *	| 24    | M_DIMENSION | setDimension                          | (ARRAY3, INT) 		  |
+ *	| 25    | M_INFLIMITS | setInfLimits                          | (ARRAY3, FLOAT)		  |
+ *	| 22    | M_AXES      | setRefSystem                          | (ARR3ARR3, FLOAT)	  |
+ *	| 23    | M_SPAN      | setSpan                               | (ARRAY3, FLOAT)		  |
+ *	| 20    | M_POINT     | setOrigin                             | (ARRAY3, FLOAT)		  |
+ *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | (SCALAR, SHAPET)	  |
+ *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )         | (SCALAR, SHAPE_)	  |
+ *	| 28    | M_SHAPEI    | setShape(int)           		      | (SCALAR, INT)	      |
  *	|-------|-------------|---------------------------------------|-----------------------|
  * 
  *
- *	|-----------------------------------------|
- *	|               Port Output               |
- *	|-------|-------------|-------------------|
- *	|PortID | PortType    | variable/function |
- *	|-------|-------------|-------------------|
- *	| 1     | M_GLOBAL    | getGlobalCoords   |
- *	| 2     | M_LOCAL     | getLocalCoords    |
- *	| 20    | M_POINT     | getOrigin         |
- *	| 22    | M_AXES      | getRefSystem      |
- *	| 25    | M_INFLIMITS | getInfLimits      |
- *	| 23    | M_SPAN      | getSpan           |
- *	| 24    | M_DIMENSION | getDimension      |
- *	| 27    | M_COPYSHAPE | getShape          |
- *  | 99    | M_GEOM      | getGeometry       |
- *	|-------|-------------|-------------------|
+ *	|-----------------------------------------|---------------------|
+ *	|               Port Output               |						|
+ *	|-------|-------------|-------------------|---------------------|
+ *	|PortID | PortType    | variable/function | DataType		  	|
+ *	|-------|-------------|-------------------|---------------------|
+ *	| 1     | M_GLOBAL    | getGlobalCoords   |	(VECARR3, FLOAT)	|
+ *	| 2     | M_LOCAL     | getLocalCoords    |	(VECARR3, FLOAT)	|
+ *	| 20    | M_POINT     | getOrigin         |	(ARRAY3, FLOAT)		|
+ *	| 22    | M_AXES      | getRefSystem      |	(ARR3ARR3, FLOAT)	|
+ *	| 25    | M_INFLIMITS | getInfLimits      |	(ARRAY3, FLOAT)		|
+ *	| 23    | M_SPAN      | getSpan           |	(ARRAY3, FLOAT)		|
+ *	| 24    | M_DIMENSION | getDimension      |	(ARRAY3, INT)		|
+ *	| 27    | M_COPYSHAPE | getShape          |	(SCALAR, SHAPE_)	|
+ *  | 99    | M_GEOM      | getGeometry       |	(SCALAR, MIMMO_)	|
+ *	|-------|-------------|-------------------|---------------------|
  * ~~~
  *	=========================================================
  *

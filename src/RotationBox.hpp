@@ -44,24 +44,24 @@ namespace mimmo{
  *	|--------------------------------------------------------------|
  *	|                 Port Input                                   |
  *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | compatibilities       |
+ *	|PortID | PortType | variable/function | DataType		       |
  *	|-------|----------|-------------------|-----------------------|
- *	| 20    | M_POINT  | m_origin          | POINT2 			   |
- *	| 21    | M_AXIS   | m_direction       | 					   |
- *	| 30    | M_VALUED | m_alpha           | VALUED2			   |
- *	| 120   | M_POINT2 | m_axes_origin     | POINT				   |
- *	| 22    | M_AXES   | m_axes            | 					   |
+ *	| 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)	   |
+ *	| 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)	   |
+ *	| 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)	   |
+ *	| 120   | M_POINT2 | m_axes_origin     | (ARRAY3, FLOAT)	   |
+ *	| 22    | M_AXES   | m_axes            | (ARR3ARR3, FLOAT)	   |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
- *	|---------------------------------------|
- *	|            Port Output                |
- *	|-------|-----------|-------------------|
- *	|PortID | PortType  | variable/function |
- *	|-------|-----------|-------------------|
- *	| 20    | M_POINT   | getRotatedOrigin  |
- *	| 22    | M_AXES    | getRotatedAxes    |
- *	|-------|-----------|-------------------|
+ *	|---------------------------------------|-----------------------|
+ *	|            Port Output                |                       |
+ *	|-------|-----------|-------------------|-----------------------|
+ *	|PortID | PortType  | variable/function | DataType		 		|
+ *	|-------|-----------|-------------------|-----------------------|
+ *	| 20    | M_POINT   | getRotatedOrigin  | (ARRAY3, FLOAT)	  	|
+ *	| 22    | M_AXES    | getRotatedAxes    | (ARR3ARR3, FLOAT)	  	|
+ *	|-------|-----------|-------------------|-----------------------|
  * ~~~
  *	=========================================================
  *

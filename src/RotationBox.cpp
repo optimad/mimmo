@@ -58,13 +58,13 @@ RotationBox & RotationBox::operator=(const RotationBox & other){
  */
 void RotationBox::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, M_POINT, {M_POINT2}));
-	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, M_AXIS));
-	built = (built && createPortIn<double, RotationBox>(&m_alpha, M_VALUED, {M_VALUED2}));
-	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, M_POINT2, {M_POINT}));
-	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, M_AXES));
-	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, M_POINT));
-	built = (built && createPortOut<dmatrix33E, RotationBox>(this, &mimmo::RotationBox::getRotatedAxes, M_AXES));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_origin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_direction, M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, RotationBox>(&m_alpha, M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray3E, RotationBox>(&m_axes_origin, M_POINT2, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dmatrix33E, RotationBox>(&m_axes, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, RotationBox>(this, &mimmo::RotationBox::getRotatedOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dmatrix33E, RotationBox>(this, &mimmo::RotationBox::getRotatedAxes, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
 	m_arePortsBuilt = built;
 };
 

@@ -53,12 +53,12 @@ Mask & Mask::operator=(const Mask & other){
 void
 Mask::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, M_COORDS, {M_DISPLS, M_GDISPLS, M_GLOBAL, M_LOCAL}));
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, M_DISPLS, {M_GDISPLS}));
-	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, M_RANGE));
-	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, M_BOOLS3));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, M_COORDS));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, M_DISPLS));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, M_RANGE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, M_BOOLS3, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::BOOL));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	m_arePortsBuilt = built;
 };
 
