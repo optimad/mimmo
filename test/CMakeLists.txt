@@ -35,6 +35,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00005")
 list(APPEND TESTS_SERIAL "test_MIMMO_00006")
 list(APPEND TESTS_SERIAL "test_MIMMO_00007")
 list(APPEND TESTS_SERIAL "test_MIMMO_00008")
+list(APPEND TESTS_SERIAL "test_MIMMO_00009")
 
 ##include_directories("opt/valgrind/3.11.0/include/valgrind")
 
@@ -100,8 +101,12 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/points" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/points"
     )
 add_custom_command(
-    TARGET "test_MIMMO_00007" PRE_BUILD
+    TARGET "test_MIMMO_00008" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere2.stl"
+    )
+add_custom_command(
+    TARGET "test_MIMMO_00009" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/stanfordBunny.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/stanfordBunny.stl"
     )
 
 

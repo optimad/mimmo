@@ -26,21 +26,25 @@
 #define __MIMMO_HPP__
 
 //#include "MiMMO_version.hpp"
-
-#include "MimmoObject.hpp"
+#include "Apply.hpp"
 #include "BaseManipulation.hpp"
-#include "MimmoGeometry.hpp"
-#include "Lattice.hpp"
+#include "BasicShapes.hpp"
+#include "BasicMeshes.hpp"
+#include "Bend.hpp"
+#include "BvTree.hpp"
+#include "Chain.hpp"
 #include "FFDLattice.hpp"
-#include "MRBF.hpp"
 #include "GenericOutput.hpp"
 #include "GenericInput.hpp"
-#include "Apply.hpp"
+#include "Lattice.hpp"
 #include "Mask.hpp"
-#include "Bend.hpp"
+#include "MimmoObject.hpp"
+#include "MimmoGeometry.hpp"
+#include "MimmoNamespace.hpp"
+#include "MRBF.hpp"
 #include "TranslationBox.hpp"
 #include "RotationBox.hpp"
-#include "Chain.hpp"
+#include "OBBox.hpp"
 #include "InOut.hpp"
 
 #endif
