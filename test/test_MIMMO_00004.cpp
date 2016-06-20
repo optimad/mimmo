@@ -143,7 +143,7 @@ void test0004() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	cout << "add pin info 1 : " << boolalpha << addPin(inputshapet, mesh, M_VALUEI, M_SHAPE) << endl;
+	cout << "add pin info 1 : " << boolalpha << addPin(inputshapet, mesh, M_VALUEI, M_SHAPEI) << endl;
 	cout << "add pin info 2 : " << boolalpha << addPin(inputorig, mesh, M_POINT, M_POINT) << endl;
 	cout << "add pin info 3 : " << boolalpha << addPin(inputspan, mesh, M_SPAN, M_SPAN) << endl;
 	cout << "add pin info 4 : " << boolalpha << addPin(inputdim, mesh, M_DIMENSION, M_DIMENSION) << endl;
@@ -154,7 +154,7 @@ void test0004() {
 	cout << "add pin info 7 : " << boolalpha << addPin(mask, bend, M_COORDS, M_COORDS) << endl;
 	cout << "add pin info 8 : " << boolalpha << addPin(mask, bend, M_DISPLS, M_DISPLS) << endl;
 
-	cout << "add pin info 9 : " << boolalpha << addPin(inputshapet, lattice, M_VALUEI, M_SHAPE) << endl;
+	cout << "add pin info 9 : " << boolalpha << addPin(inputshapet, lattice, M_VALUEI, M_SHAPEI) << endl;
 	cout << "add pin info 10 : " << boolalpha << addPin(inputorig, lattice, M_POINT, M_POINT) << endl;
 	cout << "add pin info 11 : " << boolalpha << addPin(inputspan, lattice, M_SPAN, M_SPAN) << endl;
 	cout << "add pin info 12 : " << boolalpha << addPin(inputdim, lattice, M_DIMENSION, M_DIMENSION) << endl;
