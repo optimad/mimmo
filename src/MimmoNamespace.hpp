@@ -124,7 +124,8 @@ enum class dataTAG{
 	MIMMO_VECFLOAT_,
 	MIMMO_VECARR3FLOAT_,
 	SHAPET,
-	SHAPE_
+	SHAPE_,
+	COORDT
 
 };
 

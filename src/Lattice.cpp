@@ -85,7 +85,7 @@ void Lattice::buildPorts(){
 	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setSpan, M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<mimmo::ShapeType, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPET));
-	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
+	built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, M_COPYSHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
 	built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, M_SHAPEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
 
 // creating output ports

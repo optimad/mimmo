@@ -12,8 +12,9 @@ namespace pin{
 /*!It adds a pin between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
- * \param[in] fget Get function of the sender object (copy return).
- * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] portS Port ID of the output port of sender object.
+ * \param[in] portR Port ID of the input port of receiver object.
+ * \param[in] forced If true it forces to build the connection without checking the compatibility between ports.
  * \return True if the pin is added.
  */
 bool
@@ -86,8 +87,8 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
  * nothing is done.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
- * \param[in] fget Get function of the sender object (copy return).
- * \param[in] fset Set function of the receiver object (copy argument).
+ * \param[in] portS Port ID of the output port of sender object.
+ * \param[in] portR Port ID of the input port of receiver object.
  */
 void
 removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
@@ -99,6 +100,14 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
 
 }
 
+/*!It checks the compatibility between input and output ports of two objects.
+ * \param[in] objSend Pointer to BaseManipulation sender object.
+ * \param[in] objRec Pointer to BaseManipulation receiver object.
+ * \param[in] portS Port ID of the output port of sender object.
+ * \param[in] portR Port ID of the input port of receiver object.
+ * \param[in] forced If true it forces to build the connection without checking the compatibility between ports.
+ * \return True if the pin is added.
+ */
 bool
 checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
 	bool check = false;

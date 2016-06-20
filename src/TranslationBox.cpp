@@ -54,12 +54,12 @@ TranslationBox & TranslationBox::operator=(const TranslationBox & other){
  */
 void TranslationBox::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<darray3E, TranslationBox>(&m_origin, M_POINT, {M_POINT2}));
-	built = (built && createPortIn<darray3E, TranslationBox>(&m_direction, M_AXIS));
-	built = (built && createPortIn<double, TranslationBox>(&m_alpha, M_VALUED, {M_VALUED2}));
-	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getOrigin, M_POINT));
-	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getDirection, M_AXIS));
-	built = (built && createPortOut<double, TranslationBox>(this, &mimmo::TranslationBox::getTranslation, M_VALUED));
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_origin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray3E, TranslationBox>(&m_direction, M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, TranslationBox>(&m_alpha, M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, TranslationBox>(this, &mimmo::TranslationBox::getDirection, M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<double, TranslationBox>(this, &mimmo::TranslationBox::getTranslation, M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
 	m_arePortsBuilt = built;
 };
 

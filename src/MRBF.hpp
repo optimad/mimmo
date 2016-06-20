@@ -57,28 +57,28 @@ enum class MRBFSol{
  *
  *	=========================================================
  * ~~~
- *	|-----------------------------------------------------------------------------|
- *	|                  Port Input                                   		 	  |
- *	|-------|-----------|-------------------|-------------------------------------|
- *	|PortID | PortType  | variable/function | compatibilities       		 	  |
- *	|-------|-----------|-------------------|-------------------------------------|
- *	| 0     | M_COORDS  | setNode           | M_GLOBAL M_LOCAL M_DISPLS M_GDISPLS |
- *	| 10    | M_DISPLS  | setDisplacements  | M_GDISPLS           		    	  |
- *	| 12    | M_FILTER  | setFilter         | M_SCALARFIELD   		     		  |
- *	| 30    | M_VALUED  | setSupportRadius  | M_VALUED2	  		         		  |
- *	| 99    | M_GEOM    | m_geometry        |   	  			         		  |
- *	| 130   | M_VALUED2 | setTol            | M_VALUED		          			  |
- *	|-------|-----------|-------------------|-------------------------------------|
+ *	|---------------------------------------------------------------|
+ *	|                  Port Input                                   |
+ *	|-------|-----------|-------------------|-----------------------|
+ *	|PortID | PortType  | variable/function | DataType       		|
+ *	|-------|-----------|-------------------|-----------------------|
+ *	| 0     | M_COORDS  | setNode           | (VECARR3, FLOAT)		|
+ *	| 10    | M_DISPLS  | setDisplacements  | (VECARR3, FLOAT)		|
+ *	| 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT) 		|
+ *	| 30    | M_VALUED  | setSupportRadius  | (SCALAR, FLOAT)	  	|
+ *	| 99    | M_GEOM    | m_geometry        | (SCALAR, FLOAT)  		|
+ *	| 130   | M_VALUED2 | setTol            | (SCALAR, FLOAT)		|
+ *	|-------|-----------|-------------------|-----------------------|
  *
  *
- *	|--------------------------------------------|
- *	|             Port Output	                 |
- *	|-------|----------------|-------------------|
- *	|PortID | PortType  	 | variable/function |
- *	|-------|----------------|-------------------|
- *	| 11    | M_GDISPLS 	 | getDisplacements  |
- *	| 80    | M_PAIRVECFIELD | getDeformedField  |
- *	|-------|----------------|-------------------|
+ *	|--------------------------------------------|------------------------------|
+ *	|             Port Output	                 |                      		|
+ *	|-------|----------------|-------------------|------------------------------|
+ *	|PortID | PortType  	 | variable/function | DataType    		   			|
+ *	|-------|----------------|-------------------|------------------------------|
+ *	| 11    | M_GDISPLS 	 | getDisplacements  | (VECARR3, FLOAT)				|
+ *	| 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)	|
+ *	|-------|----------------|-------------------|------------------------------|
  * ~~~
  *	=========================================================
  *

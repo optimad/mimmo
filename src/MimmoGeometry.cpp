@@ -78,8 +78,8 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 void
 MimmoGeometry::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(&m_geometry, M_GEOM));
-	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, M_GEOM));
+	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(&m_geometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 }
 

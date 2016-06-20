@@ -43,55 +43,56 @@ namespace mimmo{
  *
  *	=========================================================
  * ~~~
- *	|----------------------------------------------------------------------------------------|
- *	|                     Port Input                                                         |
- *	|-------|------------------|---------------------------------------|---------------------|
- *	|PortID | PortType         | variable/function                     | DataType            |
- *	|-------|------------------|---------------------------------------|---------------------|
- *	| 10    | M_DISPLS         | m_displ                               | (VECARR3, FLOAT)    |
- *	| 12    | M_FILTER         | m_filter                              | (VEC, FLOAT) 	     |
- *  | 40	| M_DEG	           | setDegrees							   | (ARR3, INT) 		 |
- *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  					   | (VEC, FLOAT) 	     |
- *  | 43	| M_NURBSCOORDTYPE | setCoordType  					   	   | (ARR3, COORDT)		 |
- *	|----------------------------------------------------------------------------------------|
- *	|                INHERITED FROM LATTICE                                                  |
- *  |----------------------------------------------------------------------------------------|
- *	| 99    | M_GEOM         | m_geometry                                | (SCALAR, MIMMO_) 			         |
- *	| 24    | M_DIMENSION	 | setDimension                              | (ARR3, INT) 		         |
- *	| 25    | M_INFLIMITS	 | setInfLimits                              | (ARR3, FLOAT)			         |
- *	| 22    | M_AXES     	 | setRefSystem                              | (ARR3, INT)			         |
- *	| 23    | M_SPAN     	 | setSpan                                   | 			         |
- *	| 20    | M_POINT    	 | setOrigin                                 | M_POINT2			 |
- *	| 26    | M_SHAPE    	 | setShape(mimmo::ShapeType)                | 			         |
- *	| 27    | M_COPYSHAPE	 | setShape(const BasicShape * )             | 			         |
- *	|-------|----------------|-------------------------------------------|-------------------|
+ *	|--------------------------------------------------------------------------------|
+ *	|                 			    Port Input                                       |
+ *	|-------|------------------|-----------------------------------------------------|
+ *	|PortID | PortType         | variable/function             | DataType            |
+ *	|-------|------------------|-------------------------------|---------------------|
+ *	| 10    | M_DISPLS         | m_displ                       | (VECARR3, FLOAT)    |
+ *	| 12    | M_FILTER         | m_filter                      | (VECTOR, FLOAT)     |
+ *  | 40	| M_DEG	           | setDegrees					   | (ARRAY3, INT) 		 |
+ *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  			   | (VECTOR, FLOAT)     |
+ *  | 43	| M_NURBSCOORDTYPE | setCoordType  			   	   | (ARRAY3, COORDT)	 |
+ *	|--------------------------------------------------------------------------------|
+ *	|              			  Inherited from lattice                                 |
+ *  |--------------------------------------------------------------------------------|
+ *	| 99    | M_GEOM      | m_geometry                         | (SCALAR, MIMMO_)  	 |
+ *	| 24    | M_DIMENSION | setDimension                       | (ARRAY3, INT) 		 |
+ *	| 25    | M_INFLIMITS | setInfLimits                       | (ARRAY3, FLOAT)	 |
+ *	| 22    | M_AXES      | setRefSystem                       | (ARR3ARR3, FLOAT)	 |
+ *	| 23    | M_SPAN      | setSpan                            | (ARRAY3, FLOAT)	 |
+ *	| 20    | M_POINT     | setOrigin                          | (ARRAY3, FLOAT)	 |
+ *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)         | (SCALAR, SHAPET)	 |
+ *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )      | (SCALAR, SHAPE_)	 |
+ *	| 28    | M_SHAPEI    | setShape(int)           		   | (SCALAR, INT)	     |
+ *	|-------|-------------|------------------------------------|---------------------|
  * 
  *
  *
- *	|----------------------------------------------|
- *	|               Port Output                    |
- *	|-------|------------------|-------------------|
- *	|PortID | PortType         | variable/function |
- *	|-------|------------------|-------------------|
- *	| 11    | M_GDISPLS        | getDeformation    |
- *	| 80    | M_PAIRVECFIELD   | getDeformedField  |
- *	| 40    | M_DEG  		   | getDegrees        |
-  *	| 12    | M_FILTER         | getFilter         |
- *  | 44	| M_NURBSWEIGHTS   | getWeights        |
- *  | 43	| M_NURBSCOORDTYPE | getCoordType  	   |
- *	|----------------------------------------------|
- *	|       INHERITED FROM LATTICE               |
- *	|-------|----------------|-------------------|
- *	| 1     | M_GLOBAL       | getGlobalCoords   |
- *	| 2     | M_LOCAL        | getLocalCoords    |
- *	| 20    | M_POINT        | getOrigin         |
- *	| 22    | M_AXES         | getRefSystem      |
- *	| 25    | M_INFLIMITS    | getInfLimits      |
- *	| 23    | M_SPAN         | getSpan           |
- *	| 24    | M_DIMENSION    | getDimension      |
- *	| 27    | M_COPYSHAPE    | getShape          |
- *  | 99    | M_GEOM         | getGeometry       |
- *	|-------|----------------|-------------------|
+ *	|-------------------------------------------------------------------------------|
+ *	|           			    Port Output                							|
+ *	|-------|-------------------|-------------------|-------------------------------|
+ *	|PortID | PortType        	| variable/function | DataType            			|
+ *	|-------|-------------------|-------------------|-------------------------------|
+ *	| 11    | M_GDISPLS        	| getDeformation    | (VECARR3, FLOAT)    			|
+ *	| 80    | M_PAIRVECFIELD   	| getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)	|
+ *	| 40    | M_DEG  		   	| getDegrees        | (ARRAY3, INT)        			|
+  *	| 12    | M_FILTER         	| getFilter         | (VECTOR, FLOAT)      			|
+ *  | 44	| M_NURBSWEIGHTS   	| getWeights        | (VECTOR, FLOAT)      			|
+ *  | 43	| M_NURBSCOORDTYPE 	| getCoordType  	| (ARRAY3, COORDT)     			|
+ *	|-------------------------------------------------------------------------------|
+ *	| 					      Inherited from lattice               					|
+ *	|-------------------------------------------------------------------------------|
+ *	| 1     | M_GLOBAL    		| getGlobalCoords   | (VECARR3, FLOAT)				|
+ *	| 2     | M_LOCAL     		| getLocalCoords    | (VECARR3, FLOAT)				|
+ *	| 20    | M_POINT     		| getOrigin         | (ARRAY3, FLOAT)				|
+ *	| 22    | M_AXES      		| getRefSystem      | (ARR3ARR3, FLOAT)				|
+ *	| 25    | M_INFLIMITS 		| getInfLimits      | (ARRAY3, FLOAT)				|
+ *	| 23    | M_SPAN      		| getSpan           | (ARRAY3, FLOAT)				|
+ *	| 24    | M_DIMENSION 		| getDimension      | (ARRAY3, INT)					|
+ *	| 27    | M_COPYSHAPE 		| getShape          | (SCALAR, SHAPE_)				|
+ *  | 99    | M_GEOM      		| getGeometry       | (SCALAR, MIMMO_)				|
+ *	|-------|-------------------|-------------------|-------------------------------|
  * 
  * ~~~
  *	=========================================================
