@@ -107,6 +107,7 @@ add_custom_command(
 add_custom_command(
     TARGET "test_MIMMO_00009" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/stanfordBunny.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/stanfordBunny.stl"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/helmet.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/helmet.stl"
     )
 
 

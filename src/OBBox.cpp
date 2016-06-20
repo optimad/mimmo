@@ -230,21 +230,9 @@ void 		OBBox::execute(){
 	std::cout<<"----------------"<<std::endl;
     m_axes = eigenVectors(covariance);	
 	
-// 	dmatrix33E trasp2 = bitpit::linearalgebra::transpose(m_axes);
-// 	
-// 	dmatrix33E result, result2;
-// 	
-// 	bitpit::linearalgebra::matmul(covariance, trasp2, result);
-// 	bitpit::linearalgebra::matmul(m_axes, result, result2);
-// 	
-// 	for(auto & val : result2)	std::cout<<val<<std::endl;
-	
-	
-	
-	
 	darray3E pmin, pmax;
 	pmin.fill(1.e18);
-	pmax.fill(1.e-18);
+	pmax.fill(-1.e18);
 	double val;
 	
 	for(auto & vert: getGeometry()->getVertices()){
@@ -293,10 +281,10 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix){
 	
 	
 		double * a = new double [9];
-		double * vr = new double [9];
-		double * vl = new double [9];
-		double * wr = new double[3];
-		double * wi = new double[3];
+		double * u = new double [9];
+		double * vt = new double [9];
+		double * s = new double[3];
+		double * superb = new double[3];
 		int info;
 		
 		int k=0;
@@ -309,25 +297,30 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix){
 		}
 
 		
-		info = LAPACKE_dgeev( LAPACK_COL_MAJOR, 'N','V', 3, a, 3, wr, wi, vl, 3, vr, 3);
+		info = LAPACKE_dgesvd( LAPACK_COL_MAJOR, 'N','S', 3, 3, a, 3, s, u, 3, vt, 3, superb);
 		
 		//solution norm
 		for (int i=0; i<9; i++){		
-			result[i/3][i%3] = vr[i];
+			result[i/3][i%3] = vt[i];
 		}	
 		for(int i=0; i<3; ++i)	result[i] /= norm2(result[i]);
 
-		result[2] = crossProduct(result[0],result[1]);
+		//result[2] = crossProduct(result[0],result[1]);
 		std::cout<<"lapack result"<<std::endl;
-		std::cout<<result[0]<<std::endl;
-		std::cout<<result[1]<<std::endl;
-		std::cout<<result[2]<<std::endl;
+		
+		std::cout<< "verify normal 0 1 "<< dotProduct(result[0],result[1]) <<std::endl;
+		std::cout<< "verify normal 1 2 "<< dotProduct(result[1],result[2]) <<std::endl;
+		std::cout<< "verify normal 2 0 "<< dotProduct(result[2],result[0]) <<std::endl;
+	
+		std::cout<<s[0] <<'\t' << result[0]<<std::endl;
+		std::cout<<s[1] << '\t'<< result[1]<<std::endl;
+		std::cout<<s[2] << '\t'<< result[2]<<std::endl;
 		
 		delete [] a; a = NULL;
-		delete [] vr; vr = NULL;
-		delete [] vl; vl = NULL;
-		delete [] wr; wr = NULL;
-		delete [] wi; wi = NULL;
+		delete [] u; u = NULL;
+		delete [] vt; vt = NULL;
+		delete [] s; s = NULL;
+		delete [] superb; superb = NULL;
 
 // 	Eigen::Matrix<double,3,3> A;
 // 	for(int i=0; i<3; i++){
@@ -369,7 +362,6 @@ void 		OBBox::evaluateCovarianceMatrix( dmatrix33E & covariance, darray3E & eta)
 	dvector1D area;
 	darray3E temp;
 	double areaTot = 0.0;
-	dvecarr3E centroids;
 	double maxVal= 1.e-18; 
 	
 	if(getGeometry()->getType() == 3){
@@ -404,7 +396,6 @@ void 		OBBox::evaluateCovarianceMatrix( dmatrix33E & covariance, darray3E & eta)
 		
 		bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
 		area.resize(size);
-		centroids.resize(size);
 		counter = 0;
 		for(auto &cell : tri->getCells()){
 			area[counter] = tri->evalCellArea(cell.getId());
@@ -419,7 +410,7 @@ void 		OBBox::evaluateCovarianceMatrix( dmatrix33E & covariance, darray3E & eta)
 		long vCount;
 		for(auto & cell: tri->getCells()){
 			vCount = cell.getVertexCount();
-			
+			pp.fill(0.0);
 			for(int kk=0; kk<vCount; ++kk){
 				pp += tri->getVertexCoords(cell.getVertex(kk)); 
 			}
@@ -428,7 +419,7 @@ void 		OBBox::evaluateCovarianceMatrix( dmatrix33E & covariance, darray3E & eta)
 			++counter;		
 		}
 		
-		eta /= (3.0*size);
+		eta /= (3.0);
 		
 		
 		counter = 0;
@@ -488,9 +479,9 @@ dmatrix33E OBBox::evalCovTriangle(dvecarr3E & vv){
 		for(int j=0; j<3; ++j){
 			dmatrix33E temp  = createMatrix(vv[i],vv[j]);
 			
-			for(int ki=0; i<3; ++i){
-				for(int kj=0; j<3; ++j){
-					result[i][j] += temp[i][j];
+			for(int ki=0; ki<3; ++ki){
+				for(int kj=0; kj<3; ++kj){
+					result[ki][kj] += temp[ki][kj];
 				}
 			}
 			

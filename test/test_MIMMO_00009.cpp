@@ -36,10 +36,11 @@ using namespace std::placeholders;
 
 // =================================================================================== //
 
-void test0009( int input) {
+void test0009() {
 
 
-	std::string file = "box_r" + std::to_string(input);
+	std::string file = "box_r4"; 
+	
 	//Instantiation of geometry geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
@@ -54,7 +55,7 @@ void test0009( int input) {
 	obb->setGeometry(geometry->getGeometry());
 		
 	obb->execute();
-	obb->plot(".", "obboxTriangulation", input, true);
+	obb->plot(".", "obboxTriangulation", 0, true);
 	
 // 	MimmoGeometry* geometry2 = new MimmoGeometry();
 // 	geometry2->setRead(true);
@@ -131,9 +132,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-		for(int i=0; i<5; ++i){
-			test0009(i) ;
-		}
+			test0009() ;
 
 #if ENABLE_MPI==1
 	}
