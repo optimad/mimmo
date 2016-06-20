@@ -497,8 +497,9 @@ MimmoGeometry::write(){
 			NastranInterface nastran;
 			nastran.setWFormat(m_wformat);
 			shivector1D pids = getGeometry()->getCompactPID();
+			std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
 			if (pids.size() == connectivity.size()){
-				nastran.write(m_wdir,m_wfilename,points,connectivity, &pids);
+				nastran.write(m_wdir,m_wfilename,points,connectivity, &pids, &pidsset);
 			}else{
 				nastran.write(m_wdir,m_wfilename,points,connectivity);
 			}
@@ -566,6 +567,7 @@ MimmoGeometry::read(){
 		for(auto & cell : getGeometry()->getCells() ){
 			map.insert(cell.getPID());
 		}
+
 	}
 	break;
 	
@@ -1105,18 +1107,18 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 
 void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
 	// Write points
-	os << "$" << nl
-			<< "$ Points" << nl
-			<< "$" << nl;
+//	os << "$" << nl
+//			<< "$ Points" << nl
+//			<< "$" << nl;
 
 	for (int pointI=0; pointI< points.size(); pointI++)
 	{
 		writeCoord(points[pointI], pointI, os);
 	}
 	// Write faces
-	os << "$" << nl
-			<< "$ Faces" << nl
-			<< "$" << nl;
+//	os << "$" << nl
+//			<< "$ Faces" << nl
+//			<< "$" << nl;
 	int nFace = 0;
 	bool flagpid = (PIDS != NULL);
 	for (int faceI=0; faceI< faces.size(); faceI++)
@@ -1140,23 +1142,41 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 	}
 }
 
-//TODO we have PIDs, we need to write them here in the footer also. CHECK IT OUT. You can access only
-// pidType through the MimmoGeometry member m_pidsType
-
-void NastranInterface::writeFooter(ofstream& os){
-	int PID = 1;
+void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDSSET){
 	string separator_("");
-	writeKeyword("PSHELL", os);
-	os << separator_;
-	writeValue(PID, os);
-	for (int i = 0; i < 7; i++)
-	{
-		// Dummy values
+	if (PIDSSET == NULL){
+		int PID = 1;
+		writeKeyword("PSHELL", os);
 		os << separator_;
-		int uno = 1;
-		writeValue(uno, os);
+		writeValue(PID, os);
+		for (int i = 0; i < 6; i++)
+		{
+			// Dummy values
+			double uno = 1.0;
+			os << separator_;
+			writeValue(uno, os);
+		}
+		os << nl;
 	}
-	os << nl;
+	else{
+		for (std::unordered_set<short>::iterator it = PIDSSET->begin(); it != PIDSSET->end(); it++)
+		{
+		writeKeyword("PSHELL", os);
+		int PID = (*it);
+		os << separator_;
+		writeValue(PID, os);
+			for (int i = 0; i < 6; i++)
+			{
+				// Dummy values
+				double uno = 1.0;
+				os << separator_;
+				writeValue(uno, os);
+			}
+			os << nl;
+
+		}
+	}
+
 	writeKeyword("MAT1", os);
 	os << separator_;
 	int MID = 1;
@@ -1170,14 +1190,14 @@ void NastranInterface::writeFooter(ofstream& os){
 	os << nl;
 }
 
-void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS){
+void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
 
 	ofstream os(outputDir +"/"+surfaceName + ".nas");
 	os << "TITLE=MiMMO " << surfaceName << " mesh" << nl
 			<< "$" << nl
 			<< "BEGIN BULK" << nl;
 	writeGeometry(points, faces, os, PIDS);
-	writeFooter(os);
+	writeFooter(os, PIDSSET);
 	os << "ENDDATA" << endl;
 	return;
 }

@@ -487,6 +487,7 @@ MimmoObject::getCompactPID() {
 		result[counter] = (short)cell.getPID();
 		++counter;
 	}
+	return(result);
 };
 
 /*!Return the list of PID associated to each cell of tessellation as an unordered map
@@ -500,6 +501,7 @@ MimmoObject::getPID() {
 	for(auto & cell : getCells()){
 		result[cell.getId()] = (short) cell.getPID();
 	}
+	return(result);
 };
 
 /*!

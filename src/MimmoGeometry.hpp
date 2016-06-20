@@ -176,8 +176,8 @@ public:
 	void writeCoord(darray3E & p, int& pointI, std::ofstream& os);
 	void writeFace(std::string faceType, ivector1D& facePts, int& nFace, std::ofstream& os, int PID);
 	void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, shivector1D* PIDS = NULL);
-	void writeFooter(std::ofstream& os);
-	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS = NULL);
+	void writeFooter(std::ofstream& os, std::unordered_set<short>* PIDSSET = NULL);
+	void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS = NULL, std::unordered_set<short>* PIDSSET = NULL);
 	void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS);
 
 	std::string trim(std::string in);
