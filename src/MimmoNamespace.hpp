@@ -99,33 +99,49 @@ enum PortType{
 typedef	short int	PortID;
 
 
+/*! Container TAG specification.
+*	Container TAG are used to define wich kind of data a port is able to
+*	communicate/receive. A data type is formed by a containerTAG and a dataTAG.
+*	The data type is used to check the compatibility between ports.
+*
+*/
 enum class containerTAG{
 
-	SCALAR,
-	VECTOR,
-	ARRAY3,
-	VECVEC,
-	VECARR3,
-	ARR3ARR3,
-	ARR3ARR3VEC,
-	MAP,
-	PAIR
+	SCALAR,			/**< TAG related to single value container.*/
+	VECTOR,			/**< TAG related to std::vector< . > container.*/
+	ARRAY3,			/**< TAG related to std::array< . , 3 > container.*/
+	VECVEC,			/**< TAG related to std::vector< std::vector< . > > container.*/
+	VECARR3,		/**< TAG related to std::vector< std::array< . , 3 > > container.*/
+	ARR3ARR3,		/**< TAG related to std::array< std::array< . , 3 > , 3 > container.*/
+	ARR3ARR3VEC,	/**< TAG related to std::array< std::array< std::array< . , 3 > , 3 > , 3 > container.*/
+	MAP,			/**< TAG related to std::map< . , . > container.*/
+	PAIR			/**< TAG related to std::pair< . , . > container.*/
 
 };
 
+/*! Data TAG specification.
+*	Data TAG are used to define wich kind of data a port is able to
+*	communicate/receive. A data type is formed by a containerTAG and a dataTAG.
+*	The data type is used to check the compatibility between ports.
+*
+*/
 enum class dataTAG{
 
-	MIMMO_,
-	INT,
-	LONG,
-	FLOAT,
-	BOOL,
-	STRING,
-	MIMMO_VECFLOAT_,
-	MIMMO_VECARR3FLOAT_,
-	SHAPET,
-	SHAPE_,
-	COORDT
+	MIMMO_,						/**< TAG related to a mimmo::MimmoObject* data.*/
+	INT,						/**< TAG related to a int data.*/
+	SHORT,						/**< TAG related to a short (int) data.*/
+	LONG,						/**< TAG related to a long (int) data.*/
+	FLOAT,						/**< TAG related to a double data.*/
+	BOOL,						/**< TAG related to a bool data.*/
+	STRING,						/**< TAG related to a string data.*/
+	MIMMO_VECFLOAT_,			/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/
+	MIMMO_VECARR3FLOAT_,		/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/
+	PAIRMIMMO_VECFLOAT_,		/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<double>* > data.*/
+	PAIRMIMMO_VECARR3FLOAT_,	/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<std::array<double,3> >* > data.*/
+	SHAPET,						/**< TAG related to a mimmo::ShapeType data.*/
+	SHAPE_,						/**< TAG related to a mimmo::BasicShape* data.*/
+	COORDT,						/**< TAG related to a mimmo::CoordType data.*/
+	POLYDATA_					/**< TAG related to a VTK::vtkPolyData* data.*/
 
 };
 
