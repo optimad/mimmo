@@ -24,8 +24,11 @@
 
 #include "OBBox.hpp"
 #include "LinearAlgebra.hpp"
-// #include <Eigen/Eigenvalues>
 #include "lapacke.h"
+
+#include <chrono>
+
+using namespace std::chrono;
 
 using namespace std;
 using namespace mimmo;
@@ -219,14 +222,25 @@ void 		OBBox::execute(){
 	if(m_geometry == NULL)	return;
 	
 	dmatrix33E covariance;
+	darray3E spectrum;
 	darray3E etaPoint;
 	
-	evaluateCovarianceMatrix(covariance, etaPoint);
+// 	steady_clock::time_point t1,t2,t3,t4,t5;
+// 	duration<double> time_span;
 	
-	std::cout<<"mass center"<<std::endl;
-	std::cout<<etaPoint<<std::endl;
-	std::cout<<"----------------"<<std::endl;
-    m_axes = eigenVectors(covariance);	
+// 	t1 = steady_clock::now();
+
+	evaluateCovarianceMatrix(covariance, etaPoint);
+
+// 	t2 = steady_clock::now();
+	
+    m_axes = eigenVectors(covariance, spectrum);	
+	
+// 	t3 = steady_clock::now();
+	
+	adjustBasis(m_axes, spectrum);
+	
+// 	t4 = steady_clock::now();
 	
 	darray3E pmin, pmax;
 	pmin.fill(1.e18);
@@ -249,42 +263,37 @@ void 		OBBox::execute(){
 	for(int i=0; i<3; ++i){
 		m_origin[i] = dotProduct(originLoc, m_axes[i]);
 	}
-	std::cout<<"origin"<<std::endl;
-	std::cout<<m_origin<<std::endl;
-	std::cout<<"----------------"<<std::endl;
-	std::cout<<"span"<<std::endl;
-	std::cout<<m_span<<std::endl;
-	std::cout<<"----------------"<<std::endl;
-	
+
+
+//	t5 = steady_clock::now();
+/*
+	time_span = duration_cast<duration<double>>(t2 - t1);
+	std::cout << "eval covariance execution took me " << time_span.count() << " seconds."<<std::endl;
+	time_span = duration_cast<duration<double>>(t3 - t2);
+	std::cout << "eigenvectors execution took me " << time_span.count() << " seconds."<<std::endl;
+	time_span = duration_cast<duration<double>>(t4 - t3);
+	std::cout << "adjust basis execution took me " << time_span.count() << " seconds."<<std::endl;
+	time_span = duration_cast<duration<double>>(t5 - t4);
+	std::cout << "compute bbox execution took me " << time_span.count() << " seconds."<<std::endl;
+	*/
 	
 };
 
 /*! 
- * Calculates and returns the eigenVectors of a 3x3 matrix.
+ * Calculates and returns the eigenVectors and eigenvalues of a 3x3 matrix.
  * \param[in] matrix	target matrix
+ * \param[out]	eigenvalues eigenvalues of the matrix
  * \return	matrix of eigenvectors by column
  */
-dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix){
+dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
 	
 	dmatrix33E result;
-
-// 	matrix[0][0] = 4.0;
-// 	matrix[1][0]  = -3.0;
-// 	matrix[2][0]  = -3.0;
-// 	matrix[0][1]  = 6.0;
-// 	matrix[1][1]  = -5.0;
-// 	matrix[2][1]  = -6.0;
-// 	matrix[0][2]  = 0.0;
-// 	matrix[1][2]  = 0.0;
-// 	matrix[2][2]  = -5.0;
-	
-	
-		double * a = new double [9];
-		double * u = new double [9];
-		double * vt = new double [9];
-		double * s = new double[3];
-		double * superb = new double[3];
-		int info;
+	double * a = new double [9];
+	double * u = new double [9];
+	double * vt = new double [9];
+	double * s = new double[3];
+	double * superb = new double[3];
+	int info;
 		
 		int k=0;
 		for(int i=0; i<3; i++){
@@ -300,46 +309,20 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix){
 		
 		//solution norm
 		for (int i=0; i<9; i++){		
-			result[i/3][i%3] = vt[i];
+			result[i%3][i/3] = vt[i];
 		}	
-		for(int i=0; i<2; ++i)	result[i] /= norm2(result[i]);
+		for(int i=0; i<2; ++i)	{
+			result[i] /= norm2(result[i]);
+			eigenvalues[i] = s[i];
+		}	
 		result[2] = crossProduct(result[0],result[1]);
-		
-		//result[2] = crossProduct(result[0],result[1]);
-		std::cout<<"lapack result"<<std::endl;
-		
-		std::cout<< "verify normal 0 1 "<< dotProduct(result[0],result[1]) <<std::endl;
-		std::cout<< "verify normal 1 2 "<< dotProduct(result[1],result[2]) <<std::endl;
-		std::cout<< "verify normal 2 0 "<< dotProduct(result[2],result[0]) <<std::endl;
-	
-		std::cout<<s[0] <<'\t' << result[0]<<std::endl;
-		std::cout<<s[1] << '\t'<< result[1]<<std::endl;
-		std::cout<<s[2] << '\t'<< result[2]<<std::endl;
+		eigenvalues[2] = s[2];
 		
 		delete [] a; a = NULL;
 		delete [] u; u = NULL;
 		delete [] vt; vt = NULL;
 		delete [] s; s = NULL;
 		delete [] superb; superb = NULL;
-
-// 	Eigen::Matrix<double,3,3> A;
-// 	for(int i=0; i<3; i++){
-// 		for(int j=0; j<3; j++){
-// 			A(i,j) = matrix[i][j];
-// 		}
-// 	}
-	
-// 	Eigen::EigenSolver<Eigen::Matrix<double,3,3> > sol(A);
-// 	
-// 	auto v0 = sol.eigenvectors().col(0);
-// 	auto v1 = sol.eigenvectors().col(1);
-// 	auto v2 = sol.eigenvectors().col(2);
-// 	
-// 	std::cout<<"eigen result"<<std::endl;
-// 	std::cout<<v0<<std::endl;
-// 	std::cout<<v1<<std::endl;
-// 	std::cout<<v2<<std::endl;
-// 	
 
 		return result;
 }
@@ -506,4 +489,158 @@ dmatrix33E OBBox::createMatrix(darray3E v1, darray3E v2){
 	}
 	
 	return result;
+};
+
+/*!
+ * Adjust basis of eigenvectors, given is eigenvalues spectrum. In order to best fit the 
+ * 3D shape.  The rules are the following
+ * 1) three real coincident eigenvalues, return fundamental axis as eigenvectors
+ * 2) three real different eigenvalues, do nothing
+ * 3) two coincident eigenvalues, one not, find best fit to shape for eigVec associated to coincident eigenvalues.
+ * \param[in,out]	eigVec basis of eigenvectors by rows
+ * \param[in]	eigVal eigenvalues associated to eigVec
+ */
+void 	OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
+	
+	darray3E diff;
+	double tol = 1.0E-3;
+	
+	diff[0] = std::abs(eigVal[1]-eigVal[0]);
+	diff[1] = std::abs(eigVal[2]-eigVal[1]);
+	diff[2] = std::abs(eigVal[0]-eigVal[2]);
+	
+	if(diff[0]>tol && diff[1]>tol && diff[2]>tol)	return;
+	if(diff[0]<=tol && diff[1]<=tol && diff[2]<= tol){
+		int counter=0;
+		for(auto & val : eigVec){
+			val.fill(0.0);
+			val[counter] = 1.0;
+			++counter;
+			}
+		return;
+	}
+	
+	int guess = 0, third =1, stable=2;
+	
+	if(diff[1] <= tol)	{
+		guess = 1;
+		third = 2;
+		stable= 0;
+	}
+	
+	if(diff[2] <= tol)	{
+		guess = 2;
+		third = 0;
+		stable= 1;
+	}
+		
+	dmatrix33E axes, trasp;
+	int counter=0;
+	for(auto & val: eigVec){
+		axes[counter] = val;
+		++counter;
+	}	
+	
+	darray3E	guessVec = axes[guess];
+	darray3E	refVec   = axes[stable];
+	
+	int nstage = 15;
+	int niterations = 8;
+	
+	double distance = M_PI/(2.0*(nstage));
+	double volume, theta, val;
+	std::map<double, double>	mapval;
+	darray3E pmin, pmax, temp;
+	
+	for(int i=0; i<nstage; ++i){
+		
+		theta = i*distance;
+		
+		axes[guess] = guessVec*std::cos(theta) + std::sin(theta)*crossProduct(refVec, guessVec);
+		axes[third] = crossProduct(axes[stable],axes[guess]);
+		
+		pmin.fill(1.e18);
+		pmax.fill(-1.e18);
+		
+		trasp = bitpit::linearalgebra::transpose(axes);
+		
+		for(auto & vert: getGeometry()->getVertices()){
+			darray3E coord = vert.getCoords(); 
+			for(int i=0;i<3; ++i){
+				val = dotProduct(coord, trasp[i]);
+				pmin[i] = std::fmin(pmin[i], val);
+				pmax[i] = std::fmax(pmax[i], val);
+			}
+		}
+		
+		temp = pmax - pmin;
+		volume = temp[0]*temp[1]*temp[2];
+		
+		mapval[volume] = theta;
+	}
+	
+	int it =0;
+	while (it < niterations){
+		
+		
+		distance /= 2.0;
+		
+		double thetadx = mapval.begin()->second + distance;
+		if(thetadx >= M_PI/2.0)	thetadx += -1.0*M_PI/2.0;
+		
+		double thetasx = mapval.begin()->second - distance;
+		if(thetasx <= 0.0)	thetasx += M_PI/2.0;
+		
+		//evaluate on the right
+		axes[guess] = guessVec*std::cos(thetadx) + std::sin(thetadx)*crossProduct(refVec, guessVec);
+		axes[third] = crossProduct(axes[stable],axes[guess]);
+		
+		
+		trasp = bitpit::linearalgebra::transpose(axes);
+		pmin.fill(1.e18);
+		pmax.fill(-1.e18);
+		for(auto & vert: getGeometry()->getVertices()){
+			darray3E coord = vert.getCoords(); 
+			for(int i=0;i<3; ++i){
+				val = dotProduct(coord, trasp[i]);
+				pmin[i] = std::fmin(pmin[i], val);
+				pmax[i] = std::fmax(pmax[i], val);
+			}
+		}
+		
+		temp = pmax - pmin;
+		volume = temp[0]*temp[1]*temp[2];
+		
+		mapval[volume] = thetadx;
+
+		//evaluate on the left
+		axes[guess] = guessVec*std::cos(thetasx) + std::sin(thetasx)*crossProduct(refVec, guessVec);
+		axes[third] = crossProduct(axes[stable],axes[guess]);
+		
+		trasp = bitpit::linearalgebra::transpose(axes);
+		pmin.fill(1.e18);
+		pmax.fill(-1.e18);
+		for(auto & vert: getGeometry()->getVertices()){
+			darray3E coord = vert.getCoords(); 
+			for(int i=0;i<3; ++i){
+				val = dotProduct(coord, trasp[i]);
+				pmin[i] = std::fmin(pmin[i], val);
+				pmax[i] = std::fmax(pmax[i], val);
+			}
+		}
+		
+		temp = pmax - pmin;
+		volume = temp[0]*temp[1]*temp[2];
+		
+		mapval[volume] = thetasx;
+		++it;
+	}
+	
+	theta = mapval.begin()->second;
+	eigVec[guess] = guessVec*std::cos(theta) + std::sin(theta)*crossProduct(refVec, guessVec);
+	eigVec[third] = crossProduct(eigVec[stable],eigVec[guess]);
+
+	
+	
+	return;
 };

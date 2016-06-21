@@ -93,10 +93,11 @@ public:
 	void execute();
 	
 private:
-	dmatrix33E 		eigenVectors( dmatrix33E &);
+	dmatrix33E 		eigenVectors( dmatrix33E &, darray3E & eigenValues);
 	void			evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
 	dmatrix33E		evalCovTriangle(dvecarr3E & vv);
 	dmatrix33E 		createMatrix(darray3E v1, darray3E v2);
+	void 			adjustBasis( dmatrix33E &, darray3E & eigenValues);
 };
 
 }
