@@ -39,7 +39,7 @@ using namespace std::placeholders;
 void test0009() {
 
 
-	std::string file = "box_r4"; 
+	std::string file = "bar"; 
 	
 	//Instantiation of geometry geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();

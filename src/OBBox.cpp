@@ -188,12 +188,10 @@ void		OBBox::plot(std::string directory, std::string filename,int counter, bool 
 	activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
 	
 	darray3E temp;
-	dmatrix33E trasp = bitpit::linearalgebra::transpose(m_axes);
-	
 	for(auto &val : activeP){
 		
 		for(int i=0; i<3; ++i){
-			temp[i] = dotProduct(val, trasp[i]);
+			temp[i] = dotProduct(val, m_axes[i]);
 		}
 		val = temp + m_origin;
 	}
@@ -235,10 +233,12 @@ void 		OBBox::execute(){
 	pmax.fill(-1.e18);
 	double val;
 	
+	dmatrix33E trasp = bitpit::linearalgebra::transpose(m_axes);
+	
 	for(auto & vert: getGeometry()->getVertices()){
 		darray3E coord = vert.getCoords(); 
 		for(int i=0;i<3; ++i){
-			val = dotProduct(coord, m_axes[i]);
+			val = dotProduct(coord, trasp[i]);
 			pmin[i] = std::fmin(pmin[i], val);
 			pmax[i] = std::fmax(pmax[i], val);
 		}
@@ -246,9 +246,8 @@ void 		OBBox::execute(){
 	
 	m_span = pmax - pmin;
 	darray3E originLoc = 0.5*(pmin+pmax);
-	dmatrix33E trasp = bitpit::linearalgebra::transpose(m_axes);
 	for(int i=0; i<3; ++i){
-		m_origin[i] = dotProduct(originLoc, trasp[i]);
+		m_origin[i] = dotProduct(originLoc, m_axes[i]);
 	}
 	std::cout<<"origin"<<std::endl;
 	std::cout<<m_origin<<std::endl;
@@ -303,8 +302,9 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix){
 		for (int i=0; i<9; i++){		
 			result[i/3][i%3] = vt[i];
 		}	
-		for(int i=0; i<3; ++i)	result[i] /= norm2(result[i]);
-
+		for(int i=0; i<2; ++i)	result[i] /= norm2(result[i]);
+		result[2] = crossProduct(result[0],result[1]);
+		
 		//result[2] = crossProduct(result[0],result[1]);
 		std::cout<<"lapack result"<<std::endl;
 		
