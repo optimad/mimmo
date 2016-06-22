@@ -66,7 +66,7 @@ enum class MRBFSol{
  *	| 10    | M_DISPLS  | setDisplacements  | (VECARR3, FLOAT)		|
  *	| 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT) 		|
  *	| 30    | M_VALUED  | setSupportRadius  | (SCALAR, FLOAT)	  	|
- *	| 99    | M_GEOM    | m_geometry        | (SCALAR, FLOAT)  		|
+ *	| 99    | M_GEOM    | m_geometry        | (SCALAR, MIMMO_)  		|
  *	| 130   | M_VALUED2 | setTol            | (SCALAR, FLOAT)		|
  *	|-------|-----------|-------------------|-----------------------|
  *

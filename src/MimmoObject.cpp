@@ -1215,6 +1215,5 @@ void MimmoObject::buildKdTree(){
 void	MimmoObject::cleanKdTree(){
 	m_kdTree.n_nodes = 0;
 	m_kdTree.nodes.clear();
-	//stack of tree does not change from built value of 10 
 }
 

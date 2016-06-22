@@ -47,21 +47,22 @@ using namespace mimmo;
  *	|-------------------------------------------------------------------------------------|
  *	|                    Port Input                                                       |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	|PortID | PortType    | variable/function                     | compatibilities       |
+ *	|PortID | PortType    | variable/function                     | DataType		      |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	| 99    | M_GEOM      | m_geometry                            | 			          |
+ *	| 99    | M_GEOM      | m_geometry                            |(SCALAR, MIMMO_)       |
  *	|-------|-------------|---------------------------------------|-----------------------|
  * 
  *
- *	|-----------------------------------------|
- *	|               Port Output               |
- *	|-------|-------------|-------------------|
- *	|PortID | PortType    | variable/function |
- *	|-------|-------------|-------------------|
- *	| 1     | M_POINT     | getOrigin         |
- *	| 22    | M_AXES      | getRefSystem      |
- *	| 23    | M_SPAN      | getSpan           |
- *	|-------|-------------|-------------------|
+ *  |---------------------------------------------------------------|
+ *	|               Port Output               						|
+ *	|-------|-------------|-------------------|---------------------|
+ *	|PortID | PortType    | variable/function | DataType		  	|
+ *	|-------|-------------|-------------------|---------------------|
+ *	| 20    | M_POINT     | getOrigin         |	(ARRAY3, FLOAT)		|
+ *	| 22    | M_AXES      | getAxes 	      |	(ARR3ARR3, FLOAT)	|
+ *	| 23    | M_SPAN      | getSpan           |	(ARRAY3, FLOAT)		|
+ *  | 99    | M_GEOM      | getGeometry       |	(SCALAR, MIMMO_)	|
+ *	|-------|-------------|-------------------|---------------------|
  * ~~~
  *	=========================================================
  *
@@ -108,12 +109,12 @@ void OBBox::buildPorts(){
 
 	bool built = true;
 //creating input ports	
-	built = (built && createPortIn<MimmoObject*, OBBox>(&m_geometry, M_GEOM));
+	built = (built && createPortIn<MimmoObject*, OBBox>(&m_geometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 // creating output ports
-	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, M_POINT));
-	built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, M_AXES));
-	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, M_SPAN));
-
+	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	
 	m_arePortsBuilt = built;
 };
 
