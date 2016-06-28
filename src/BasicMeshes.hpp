@@ -120,7 +120,8 @@ public:
 
 	dvecarr3E				getLocalCoords();
 	dvecarr3E				getGlobalCoords();
-
+	dvecarr3E 				getGlobalCellCentroids();
+	dvecarr3E 				getLocalCellCentroids();
 
 	void	setOrigin(darray3E origin);
 	void	setSpan(double, double, double);

@@ -386,6 +386,30 @@ dvecarr3E UStructMesh::getGlobalCoords(){
 	return coords;
 };
 
+
+/*! Return complete list of mesh cell centers, in local shape ref system */
+dvecarr3E UStructMesh::getLocalCellCentroids(){
+	
+	int np = (m_nx)*(m_ny)*(m_nz);
+	dvecarr3E coords(np);
+	for (int i=0; i<np; i++){
+		coords[i] = getLocalCCell(i);
+	}
+	return coords;
+};
+
+/*! Return complete list of mesh cell centers, in global absolute ref system */
+dvecarr3E UStructMesh::getGlobalCellCentroids(){
+	int np = (m_nx)*(m_ny)*(m_nz);
+	dvecarr3E coords(np);
+	for (int i=0; i<np; i++){
+		coords[i] = getGlobalCCell(i);
+	}
+	return coords;
+};
+
+
+
 /*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method. 

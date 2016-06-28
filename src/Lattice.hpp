@@ -102,7 +102,7 @@ public:
 	int			getNNodes();
 	dvecarr3E 	getGlobalCoords();
 	dvecarr3E 	getLocalCoords();
-
+	
 	int 		accessDOFFromGrid(int index);
 	int 		accessGridFromDOF(int index);
 	
