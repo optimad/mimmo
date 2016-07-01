@@ -192,10 +192,12 @@ void		OBBox::plot(std::string directory, std::string filename,int counter, bool 
 	activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
 	
 	darray3E temp;
+	dmatrix33E	trasp = bitpit::linearalgebra::transpose(m_axes);
 	for(auto &val : activeP){
 		
+		
 		for(int i=0; i<3; ++i){
-			temp[i] = dotProduct(val, m_axes[i]);
+			temp[i] = dotProduct(val, trasp[i]);
 		}
 		val = temp + m_origin;
 	}
@@ -253,7 +255,7 @@ void 		OBBox::execute(){
 	for(auto & vert: getGeometry()->getVertices()){
 		darray3E coord = vert.getCoords(); 
 		for(int i=0;i<3; ++i){
-			val = dotProduct(coord, trasp[i]);
+			val = dotProduct(coord, m_axes[i]);
 			pmin[i] = std::fmin(pmin[i], val);
 			pmax[i] = std::fmax(pmax[i], val);
 		}
@@ -262,9 +264,40 @@ void 		OBBox::execute(){
 	m_span = pmax - pmin;
 	darray3E originLoc = 0.5*(pmin+pmax);
 	for(int i=0; i<3; ++i){
-		m_origin[i] = dotProduct(originLoc, m_axes[i]);
+		m_origin[i] = dotProduct(originLoc, trasp[i]);
 	}
 
+	double volOBB = m_span[0]*m_span[1]*m_span[2];	
+	
+	
+	//check the axis aligned bounding box if volume is lesser then obb
+	//take it instead of the oriented.
+	
+	pmin.fill(1.e18);
+	pmax.fill(-1.e18);
+	for(int i=0; i<3; ++i){
+		trasp[i].fill(0.0);
+		trasp[i][i] = 1.0;
+	}
+	
+	for(auto & vert: getGeometry()->getVertices()){
+		darray3E coord = vert.getCoords(); 
+		for(int i=0;i<3; ++i){
+			val = dotProduct(coord, trasp[i]);
+			pmin[i] = std::fmin(pmin[i], val);
+			pmax[i] = std::fmax(pmax[i], val);
+		}
+	}
+	
+	darray3E span2 = pmax - pmin;
+	double volAAA =span2[0]*span2[1]*span2[2];
+	darray3E orig = 0.5*(pmin+pmax);
+	
+	if(volAAA <= volOBB){
+		for(int i=0; i<3; ++i)	m_axes[i] = trasp[i];
+		m_span = span2;
+		m_origin = orig;
+	}
 
 //	t5 = steady_clock::now();
 /*
@@ -310,7 +343,7 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
 		
 		//solution norm
 		for (int i=0; i<9; i++){		
-			result[i%3][i/3] = vt[i];
+			result[i/3][i%3] = vt[i];
 		}	
 		for(int i=0; i<2; ++i)	{
 			result[i] /= norm2(result[i]);
@@ -563,12 +596,12 @@ void 	OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 		pmin.fill(1.e18);
 		pmax.fill(-1.e18);
 		
-		trasp = bitpit::linearalgebra::transpose(axes);
+		//trasp = bitpit::linearalgebra::transpose(axes);
 		
 		for(auto & vert: getGeometry()->getVertices()){
 			darray3E coord = vert.getCoords(); 
 			for(int i=0;i<3; ++i){
-				val = dotProduct(coord, trasp[i]);
+				val = dotProduct(coord, axes[i]); //trasp[i]);
 				pmin[i] = std::fmin(pmin[i], val);
 				pmax[i] = std::fmax(pmax[i], val);
 			}
@@ -597,13 +630,13 @@ void 	OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 		axes[third] = crossProduct(axes[stable],axes[guess]);
 		
 		
-		trasp = bitpit::linearalgebra::transpose(axes);
+		//trasp = bitpit::linearalgebra::transpose(axes);
 		pmin.fill(1.e18);
 		pmax.fill(-1.e18);
 		for(auto & vert: getGeometry()->getVertices()){
 			darray3E coord = vert.getCoords(); 
 			for(int i=0;i<3; ++i){
-				val = dotProduct(coord, trasp[i]);
+				val = dotProduct(coord,axes[i]); // trasp[i]);
 				pmin[i] = std::fmin(pmin[i], val);
 				pmax[i] = std::fmax(pmax[i], val);
 			}
@@ -624,7 +657,7 @@ void 	OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 		for(auto & vert: getGeometry()->getVertices()){
 			darray3E coord = vert.getCoords(); 
 			for(int i=0;i<3; ++i){
-				val = dotProduct(coord, trasp[i]);
+				val = dotProduct(coord,axes[i]); // trasp[i]);
 				pmin[i] = std::fmin(pmin[i], val);
 				pmax[i] = std::fmax(pmax[i], val);
 			}
