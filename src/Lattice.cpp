@@ -340,7 +340,7 @@ void 		Lattice::resizeMapDof(){
  */
 void 	Lattice::plotOptionalResults(){
 	
-	std::string dir = "./";
+	std::string dir = m_outputPlot+"/";
 	std::string nameGrid  = m_name+"GRID";
 	std::string nameCloud = m_name+"CLOUD";
 	

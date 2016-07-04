@@ -38,6 +38,7 @@ BaseManipulation::BaseManipulation(){
 	m_active		= true;
 	m_arePortsBuilt = false;
 	m_execPlot      = false;
+	m_outputPlot	= ".";
 	m_counter		= 0;
 };
 
@@ -235,6 +236,18 @@ BaseManipulation::setPlotInExecution( bool flag){
 }
 
 /*!
+ * Set path to directory where the optional results will be stored, 
+ * if plotInExecution feature is set active.
+ * \param[in] path absolute path to specified directory, if empty use the default value "."
+ */
+void
+BaseManipulation::setOutputPlot(std::string path){
+	if(path.empty())	path = ".";
+	m_outputPlot = path;
+}
+
+
+/*!
  * Set integer identifier of the class
  * \param[in] id integer identifier
  */
@@ -304,6 +317,7 @@ BaseManipulation::clear(){
 	unsetGeometry();
 	removePins();
 	m_execPlot = false;
+	m_outputPlot = ".";
 };
 
 /*!Execution command. exec() runs the execution of output pins (connections) at the end of the execution.

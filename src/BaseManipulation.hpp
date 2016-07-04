@@ -93,6 +93,7 @@ protected:
 
 	bool						m_active;			/**<True/false to activate/disable the object.*/
 	bool						m_execPlot; 		/**<Activate plotting of optional result directly in execution*/
+	std::string					m_outputPlot;		/**<Define path for plotting optional results in execution*/
 	
 public:
 	BaseManipulation();
@@ -126,6 +127,7 @@ public:
 	void	setName(std::string name);
 	void 	setGeometry(MimmoObject* geometry);
 	void	setPlotInExecution(bool);
+	void	setOutputPlot(std::string path);
 	void	setClassCounter(int );
 	
 	void	activate();

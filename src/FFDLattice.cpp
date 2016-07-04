@@ -1273,7 +1273,7 @@ void 		FFDLattice::resizeMapDof(){
  */
 void 	FFDLattice::plotOptionalResults(){
 	
-	std::string dir = "./";
+	std::string dir = m_outputPlot + "/";
 	std::string nameGrid  = m_name+"GRID";
 	std::string nameCloud = m_name+"CLOUD";
 	std::string nameGridD  = m_name+"GRID_deformed";
