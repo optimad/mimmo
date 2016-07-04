@@ -262,6 +262,16 @@ void 		OBBox::execute(){
 	}
 	
 	m_span = pmax - pmin;
+	darray3E span2 = pmax - pmin;
+	//check if one of the span goes to 0;
+	double avg_span = 0.0;
+	for(auto & val: span)	avg_span+=val;
+	avg_span /= 3.0;
+	
+	for(auto &val : span)	{
+		val = std::fmax(val, 1.E-04*avg_span);
+	}
+	
 	darray3E originLoc = 0.5*(pmin+pmax);
 	for(int i=0; i<3; ++i){
 		m_origin[i] = dotProduct(originLoc, trasp[i]);
@@ -290,6 +300,15 @@ void 		OBBox::execute(){
 	}
 	
 	darray3E span2 = pmax - pmin;
+	//check if one of the span goes to 0;
+	avg_span = 0.0;
+	for(auto & val: span2)	avg_span+=val;
+	avg_span /= 3.0;
+	
+	for(auto &val : span2)	{
+		val = std::fmax(val, 1.E-04*avg_span);
+	}
+	
 	double volAAA =span2[0]*span2[1]*span2[2];
 	darray3E orig = 0.5*(pmin+pmax);
 	
@@ -310,8 +329,22 @@ void 		OBBox::execute(){
 	time_span = duration_cast<duration<double>>(t5 - t4);
 	std::cout << "compute bbox execution took me " << time_span.count() << " seconds."<<std::endl;
 	*/
-	
+
+	if(isPlotInExecution())		plotOptionalResults();
+
 };
+
+/*!
+* Plot Optional results of the class, that is the oriented bounding box as *.vtu mesh
+*/
+void 	OBBox::plotOptionalResults(){
+	
+	std::string dir = "./";
+	std::string nameGrid  = m_name;
+	plot(dir, nameGrid, getClassCounter(), true );
+}
+
+
 
 /*! 
  * Calculates and returns the eigenVectors and eigenvalues of a 3x3 matrix.

@@ -37,6 +37,8 @@ BaseManipulation::BaseManipulation(){
 	m_name			= "MiMMO";
 	m_active		= true;
 	m_arePortsBuilt = false;
+	m_plotExec      = false;
+	m_counter		= 0;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -61,6 +63,8 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_name 			= other.m_name;
 	m_active		= other.m_active;
 	m_arePortsBuilt = false;
+	m_plotExec 		= other.m_plotExec;
+	m_counter       = other.m_counter;
 	return (*this);
 };
 
@@ -188,6 +192,22 @@ BaseManipulation::isActive(){
 	return (m_active);
 }
 
+/*!
+ * Returns true if the feature to plot optional results of the block is active.
+ * False otherwise.
+ */
+bool
+BaseManipulation::isPlotInExecution(){
+	return (m_plotExec);
+}
+
+/*!
+ * Return integer identifier of the class
+ */
+int 	BaseManipulation::getClassCounter(){
+	return m_counter;
+}
+
 /*!It sets the name of the manipulator object.
  * \param[in] name Name of the manipulator object.
  */
@@ -203,6 +223,24 @@ void
 BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
+
+
+/*!
+ * Activates the feature to plot optional results of the block.
+ * \param[in] flag true/false to activate/deactivate the feature
+ */
+void
+BaseManipulation::setPlotInExecution( bool flag){
+	m_plotExec = flag;
+}
+
+/*!
+ * Set integer identifier of the class
+ * \param[in] id integer identifier
+ */
+void 	BaseManipulation::setClassCounter(int id){
+	m_counter = id;
+}
 
 /*!It activates the object during the execution.
  */
@@ -502,3 +540,15 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 		}
 	};
 }
+
+
+/*!
+ * Plot optional data related to your blocks. The current method for the BaseManipulation class
+ * do nothing. For Programmers only: to customize your optional results plotting create your own reimplementation 
+ * of this method in each BaseManipulation derived block.
+ */
+void 	BaseManipulation::plotOptionalResults(){
+	//do nothing
+	return;
+}
+

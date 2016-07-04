@@ -119,7 +119,9 @@ public:
 	
 	//nodal displacement utility	
 protected:
-	void 		resizeMapDof();
+	void 			resizeMapDof();
+	virtual void	plotOptionalResults();
+	
 private:
 	int			reduceDimToDOF(int,int,int, bvector1D &info);
 

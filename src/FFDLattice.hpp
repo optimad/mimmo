@@ -171,7 +171,7 @@ protected:
 	darray3E	convertDisplToXYZ(darray3E &, int i);
 	dvecarr3E	convertDisplToXYZ();
 	void 		resizeMapDof();
-	
+	virtual void	plotOptionalResults();
 private:
 	//Nurbs Evaluators
 	darray3E	nurbsEvaluator(darray3E &);

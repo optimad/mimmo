@@ -91,6 +91,9 @@ public:
 
 	//building method
 	void execute();
+
+protected:
+	virtual void plotOptionalResults();
 	
 private:
 	dmatrix33E 		eigenVectors( dmatrix33E &, darray3E & eigenValues);

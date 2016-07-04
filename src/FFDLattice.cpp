@@ -527,7 +527,7 @@ void 		FFDLattice::execute(){
 		m_gdispl[container->getMapDataInv(map[i])] = localdef[i];
 	}
 
-//	setResult(result);
+	if(isPlotInExecution())	plotOptionalResults();
 
 };
 
@@ -1265,6 +1265,25 @@ void 		FFDLattice::resizeMapDof(){
 	Lattice::resizeMapDof();
 	m_displ.clear();
 	m_displ.resize(m_np, darray3E{{0.0,0.0,0.0}});
+}
+
+/*!
+ * Plot Optional results of the class, that is the lattice grid as a hexahedron mesh and as a point cloud
+ * in *.vtu format, for both undeformed/ deformed lattice mesh.
+ */
+void 	FFDLattice::plotOptionalResults(){
+	
+	std::string dir = "./";
+	std::string nameGrid  = m_name+"GRID";
+	std::string nameCloud = m_name+"CLOUD";
+	std::string nameGridD  = m_name+"GRID_deformed";
+	std::string nameCloudD = m_name+"CLOUD_deformed";
+	
+	
+	plotGrid(dir, nameGrid, getClassCounter(), true, false );
+	plotCloud(dir, nameCloud, getClassCounter(), true, false );
+	plotGrid(dir, nameGridD, getClassCounter(), true, true );
+	plotCloud(dir, nameCloudD, getClassCounter(), true, true );
 }
 
 /*! Recover full displacements vector from DOF */

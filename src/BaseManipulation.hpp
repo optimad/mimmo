@@ -75,9 +75,10 @@ public:
 	typedef mimmo::pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
 	typedef mimmo::pin::PortType 						PortType;		/**<Type of a single port specification.*/
 	typedef	short int									PortID;			/**<Port ID (position of slot).*/
-
+	
 protected:
 	std::string					m_name;				/**<Name of the manipulation object.*/
+	int 						m_counter;			/**<Counter associated to the object */
 	MimmoObject*				m_geometry;			/**<Pointer to manipulated geometry. */
 	bmumap						m_parent;			/**<Pointers list to manipulation objects FATHER of the current class. List retains for each
 														pointer a counter. When this counter is 0, pointer is released*/
@@ -91,7 +92,8 @@ protected:
 	bool						m_arePortsBuilt;	/**<True or false is the ports are already set or not.*/
 
 	bool						m_active;			/**<True/false to activate/disable the object.*/
-
+	bool						m_execPlot; 		/**<Activate plotting of optional result directly in execution*/
+	
 public:
 	BaseManipulation();
 	~BaseManipulation();
@@ -115,13 +117,17 @@ public:
 	int 				getNPortsOut();
 	std::map<PortID, PortIn*> getPortsIn();
 	std::map<PortID, PortOut*>getPortsOut();
-
+	
+	bool	isPlotInExecution();
 	bool	isActive();
+	int 	getClassCounter();
 
 	//set methods
 	void	setName(std::string name);
 	void 	setGeometry(MimmoObject* geometry);
-
+	void	setPlotInExecution(bool);
+	void	setClassCounter(int );
+	
 	void	activate();
 	void	disable();
 
@@ -178,6 +184,7 @@ protected:
 	 */
 	virtual void 	execute() = 0;
 	
+	virtual void 	plotOptionalResults();
 };
 
 #include "BaseManipulation.tpp"

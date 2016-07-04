@@ -231,6 +231,7 @@ void 		Lattice::build(){
  */
 void 		Lattice::execute(){
 	build();
+	if(isPlotInExecution())	plotOptionalResults();
 };
 
 /*! Resize map of effective nodes of the lattice grid to fit a total number od degree of freedom nx*ny*nz.
@@ -330,6 +331,21 @@ void 		Lattice::resizeMapDof(){
 			break;
 	}//end switch
 
+}
+
+
+/*!
+ * Plot Optional results of the class, that is the lattice grid as a hexahedron mesh and as a point cloud
+ * in *.vtu format.
+ */
+void 	Lattice::plotOptionalResults(){
+	
+	std::string dir = "./";
+	std::string nameGrid  = m_name+"GRID";
+	std::string nameCloud = m_name+"CLOUD";
+	
+	plotGrid(dir, nameGrid, getClassCounter(), true );
+	plotCloud(dir, nameCloud, getClassCounter(), true );
 }
 
 /*!Get the effective dof size of the lattice according to its shape. Return info
