@@ -262,13 +262,12 @@ void 		OBBox::execute(){
 	}
 	
 	m_span = pmax - pmin;
-	darray3E span2 = pmax - pmin;
 	//check if one of the span goes to 0;
 	double avg_span = 0.0;
-	for(auto & val: span)	avg_span+=val;
+	for(auto & val: m_span)	avg_span+=val;
 	avg_span /= 3.0;
 	
-	for(auto &val : span)	{
+	for(auto &val : m_span)	{
 		val = std::fmax(val, 1.E-04*avg_span);
 	}
 	
@@ -300,6 +299,7 @@ void 		OBBox::execute(){
 	}
 	
 	darray3E span2 = pmax - pmin;
+	darray3E orig = 0.5*(pmin+pmax);
 	//check if one of the span goes to 0;
 	avg_span = 0.0;
 	for(auto & val: span2)	avg_span+=val;
@@ -310,7 +310,7 @@ void 		OBBox::execute(){
 	}
 	
 	double volAAA =span2[0]*span2[1]*span2[2];
-	darray3E orig = 0.5*(pmin+pmax);
+
 	
 	if(volAAA <= volOBB){
 		for(int i=0; i<3; ++i)	m_axes[i] = trasp[i];

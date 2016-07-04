@@ -37,7 +37,7 @@ BaseManipulation::BaseManipulation(){
 	m_name			= "MiMMO";
 	m_active		= true;
 	m_arePortsBuilt = false;
-	m_plotExec      = false;
+	m_execPlot      = false;
 	m_counter		= 0;
 };
 
@@ -63,7 +63,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_name 			= other.m_name;
 	m_active		= other.m_active;
 	m_arePortsBuilt = false;
-	m_plotExec 		= other.m_plotExec;
+	m_execPlot 		= other.m_execPlot;
 	m_counter       = other.m_counter;
 	return (*this);
 };
@@ -198,7 +198,7 @@ BaseManipulation::isActive(){
  */
 bool
 BaseManipulation::isPlotInExecution(){
-	return (m_plotExec);
+	return (m_execPlot);
 }
 
 /*!
@@ -231,7 +231,7 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
  */
 void
 BaseManipulation::setPlotInExecution( bool flag){
-	m_plotExec = flag;
+	m_execPlot = flag;
 }
 
 /*!
@@ -303,6 +303,7 @@ void
 BaseManipulation::clear(){
 	unsetGeometry();
 	removePins();
+	m_execPlot = false;
 };
 
 /*!Execution command. exec() runs the execution of output pins (connections) at the end of the execution.
