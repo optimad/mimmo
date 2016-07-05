@@ -383,6 +383,13 @@ void MRBF::execute(){
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
 
+	//checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
+	if(getSupportRadius() <=1.E-18){
+		darray3E pmin, pmax;
+		container->getPatch()->getBoundingBox(pmin, pmax);
+		setSupportRadius(0.5*norm2(pmax - pmin));
+	}
+	
 	int size;
 	for (int i=0; i<getDataCount(); i++){
 		
