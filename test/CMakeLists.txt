@@ -57,8 +57,7 @@ foreach(TEST_NAME IN LISTS MIMMO_TEST_LIST_SERIAL MIMMO_TEST_LIST_PARALLEL)
 
     add_executable(${TEST_NAME} "${TEST_SOURCES}")
     target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY} ${BITPIT_LIBRARY})
-    target_link_libraries(${TEST_NAME} "lapack")
-    target_link_libraries(${TEST_NAME} "lapacke")
+    target_link_libraries(${TEST_NAME} ${MIMMO_EXTERNAL_LIBRARIES})
 
 endforeach()
 

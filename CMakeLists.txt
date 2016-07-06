@@ -58,6 +58,34 @@ endif()
 find_package(BITPIT REQUIRED)
 include(${BITPIT_USE_FILE})
 
+set(MIMMO_EXTERNAL_LIBRARIES "")
+set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
+
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+
+	foreach (LAPACK_LIBRARY_PATH IN LISTS LAPACK_LIBRARIES)
+		get_filename_component(FILE_NAME "${LAPACK_LIBRARY_PATH}" NAME_WE)
+		if ("${FILE_NAME}" STREQUAL "liblapack")
+			get_filename_component(FILE_DIR "${LAPACK_LIBRARY_PATH}" PATH)
+			get_filename_component(FILE_EXT "${LAPACK_LIBRARY_PATH}" EXT)
+
+			file(TO_NATIVE_PATH "${FILE_DIR}/liblapacke${FILE_EXT}" LAPACKE_LIB_PATH)
+			list (APPEND LAPACK_LIBRARIES "${LAPACKE_LIB_PATH}")
+		endif ()
+	endforeach ()
+
+	list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACK_LIBRARIES}")
+
+
+find_package(LibXml2 REQUIRED)
+
+    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIR}")
+
+
+    include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
+ 
 #------------------------------------------------------------------------------------#
 # Compiler settings
 #------------------------------------------------------------------------------------#
