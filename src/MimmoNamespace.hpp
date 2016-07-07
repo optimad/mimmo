@@ -93,7 +93,10 @@ enum PortType{
 
 	M_POINT2			= 120	/**< Port dedicated to communicate the coordinate of a point field [array<double,3>].*/,
 	M_VALUED2			= 130	/**< Port dedicated to communicate a scalar value [double].*/,
-
+	M_VALUEB2			= 140	/**< Port dedicated to communicate a scalar value [bool].*/,
+	M_VALUEB3			= 141	/**< Port dedicated to communicate a scalar value [bool].*/,
+	M_VALUEB4			= 142	/**< Port dedicated to communicate a scalar value [bool].*/,
+	M_VALUEB5			= 143	/**< Port dedicated to communicate a scalar value [bool].*/
 };
 
 typedef	short int	PortID;
