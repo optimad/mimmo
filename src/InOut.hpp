@@ -29,6 +29,7 @@
 #include "MimmoNamespace.hpp"
 #include "BasicShapes.hpp"
 #include "MimmoObject.hpp"
+#include "TrackingPointer.hpp"
 #include <functional>
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvector1D& element);
@@ -54,6 +55,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mi
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvector1D *>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvector1D *>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::TrackingPointer * >& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::TrackingPointer * >& element);
 
 
 namespace mimmo{

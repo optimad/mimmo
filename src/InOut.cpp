@@ -279,6 +279,40 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 };
 
 
+/*!
+ * Input stream operator for std::vector<mimmo::TrackingPointer * >
+ * \param[in] buffer is the input stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::TrackingPointer * > & var)
+{
+	int nP;
+	buffer >> nP;
+	var.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		buffer >> var[i];
+	}
+	return buffer;
+}
+
+/*!
+ * Output stream operator for std::vector<mimmo::TrackingPointer * >
+ * \param[in] buffer is the output stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<mimmo::TrackingPointer * > &var)
+{
+	int nP = var.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) {
+		buffer << var[i];
+	}
+	return buffer;
+}
+
+
 
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//

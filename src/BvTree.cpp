@@ -745,8 +745,12 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 				h = s * h;
 				//pseudo-normal (direction P and xP closest point on triangle)
 				n = s * ((*P_) - xP);
-				n /= norm2(n);
-
+				double normX = norm2(n);
+				if(normX < 1.E-15){
+					n = normal/norm2(normal);
+				}else{
+					n /= norm2(n);
+				}
 			}
 			else if ( nV == 2 )
 			{
@@ -758,8 +762,15 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 				h = s * h;
 				//pseudo-normal (direction P and xP closest point on triangle)
 				n = s * ((*P_) - xP);
-				n /= norm2(n);
-
+				
+				double normX = norm2(n);
+				if(normX < 1.E-15){
+					n = normal/norm2(normal);
+				}else{
+					n /= norm2(n);
+				}
+				
+				
 			}
 		}
 		else

@@ -137,6 +137,12 @@ private:
 
 };
 
+/*!
+ *	\date			20/may/2016
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief Utilities employing bvTree.
+ */
 namespace bvTreeUtils{
 	double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
 	double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int next = 0, double h = 1.0e+18);
