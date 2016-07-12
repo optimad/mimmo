@@ -33,8 +33,8 @@ namespace mimmo{
  */
 class TrackingPointer{
 public:
-	TrackingPointer();
-	virtual ~TrackingPointer();
+	TrackingPointer(){};
+	virtual ~TrackingPointer(){};
 
 	virtual std::string whichClass() = 0;
 };
