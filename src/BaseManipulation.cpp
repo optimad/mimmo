@@ -38,7 +38,7 @@ BaseManipulation::BaseManipulation(){
 	m_active		= true;
 	m_arePortsBuilt = false;
 	m_execPlot      = false;
-	m_outputPlot	= ".";
+	m_outputPlot	= "./";
 	m_counter		= 0;
 };
 
@@ -332,6 +332,8 @@ BaseManipulation::exec(){
 			i->second->exec();
 		}
 	}
+	
+	if(isPlotInExecution())	plotOptionalResults();
 }
 
 

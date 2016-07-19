@@ -330,8 +330,6 @@ void 		OBBox::execute(){
 	std::cout << "compute bbox execution took me " << time_span.count() << " seconds."<<std::endl;
 	*/
 
-	if(isPlotInExecution())		plotOptionalResults();
-
 };
 
 /*!
@@ -339,7 +337,7 @@ void 		OBBox::execute(){
 */
 void 	OBBox::plotOptionalResults(){
 	
-	std::string dir = m_outputPlot + "/";
+	std::string dir = m_outputPlot ;
 	std::string nameGrid  = m_name;
 	plot(dir, nameGrid, getClassCounter(), true );
 }

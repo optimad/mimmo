@@ -231,7 +231,6 @@ void 		Lattice::build(){
  */
 void 		Lattice::execute(){
 	build();
-	if(isPlotInExecution())	plotOptionalResults();
 };
 
 /*! Resize map of effective nodes of the lattice grid to fit a total number od degree of freedom nx*ny*nz.
@@ -340,7 +339,7 @@ void 		Lattice::resizeMapDof(){
  */
 void 	Lattice::plotOptionalResults(){
 	
-	std::string dir = m_outputPlot+"/";
+	std::string dir = m_outputPlot;
 	std::string nameGrid  = m_name+"GRID";
 	std::string nameCloud = m_name+"CLOUD";
 	

@@ -527,8 +527,6 @@ void 		FFDLattice::execute(){
 		m_gdispl[container->getMapDataInv(map[i])] = localdef[i];
 	}
 
-	if(isPlotInExecution())	plotOptionalResults();
-
 };
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero.
@@ -1273,7 +1271,7 @@ void 		FFDLattice::resizeMapDof(){
  */
 void 	FFDLattice::plotOptionalResults(){
 	
-	std::string dir = m_outputPlot + "/";
+	std::string dir = m_outputPlot;
 	std::string nameGrid  = m_name+"GRID";
 	std::string nameCloud = m_name+"CLOUD";
 	std::string nameGridD  = m_name+"GRID_deformed";
