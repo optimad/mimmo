@@ -24,7 +24,7 @@
 #ifndef __MIMMONAMESPACE_HPP__
 #define __MIMMONAMESPACE_HPP__
 
-#include "enum.h"
+#include "enum.hpp"
 
 BETTER_ENUM(PortType, int,	
 			M_COORDS 			= 0, 
