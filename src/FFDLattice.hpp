@@ -41,6 +41,8 @@ namespace mimmo{
  *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
  *  those portion of geometry encased into the 3D shape.
  *
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
+ * 
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------------------------|

@@ -42,12 +42,12 @@ void test0003() {
 	
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
-	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("ball");
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir(".");
-	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0003.0000");
 	
 	mimmo0->execute();
@@ -121,8 +121,8 @@ void test0003() {
 
 	//********************************************************************************************
 	//SETUP PINS
-	addPin(input, lattice, M_DISPLS, M_DISPLS);
-	addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+	addPin(input, lattice, PortType::M_DISPLS, PortType::M_DISPLS);
+	addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
 
 	//********************************************************************************************
 	//Creating ELEMENT chain

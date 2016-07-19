@@ -109,11 +109,11 @@ void OBBox::buildPorts(){
 
 	bool built = true;
 //creating input ports	
-	built = (built && createPortIn<MimmoObject*, OBBox>(&m_geometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<MimmoObject*, OBBox>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 // creating output ports
-	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
 	
 	m_arePortsBuilt = built;
 };

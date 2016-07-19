@@ -335,6 +335,30 @@ BaseManipulation::exec(){
 }
 
 
+/*!
+ * Base method to absorb parameter infos from an XML parser class of bitpit. Need to be coded for each
+ * class derived from BaseManipulation. At this level, do nothing.
+ * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ */
+void  BaseManipulation::absorbSectionXML(bitpit::Config::Section & slotXML){
+	BITPIT_UNUSED(slotXML);
+	return;
+}
+
+/*!
+ * Base method to flush parameter infos to an XML parser class of bitpit. Need to be coded for each
+ * class derived from BaseManipulation. At this level, do nothing.
+ * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ */
+void  BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML){
+	BITPIT_UNUSED(slotXML);
+	return;
+}
+
+/*!
+ * Protected utility to delete all port of a class BaseManipulation
+ */
+
 void
 BaseManipulation::deletePorts(){
 	for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){

@@ -59,12 +59,12 @@ Bend & Bend::operator=(const Bend & other){
 void
 Bend::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Bend>(&m_displ, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, Bend>(&m_coords, M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<umatrix33E, Bend>(&m_degree, M_BMATRIX, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<dmat33Evec, Bend>(&m_coeffs, M_BCOEFFS, mimmo::pin::containerTAG::ARR3ARR3VEC, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getDisplacements, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getCoords, M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvecarr3E, Bend>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvecarr3E, Bend>(&m_coords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<umatrix33E, Bend>(&m_degree, PortType::M_BMATRIX, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<dmat33Evec, Bend>(&m_coeffs, PortType::M_BCOEFFS, mimmo::pin::containerTAG::ARR3ARR3VEC, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, Bend>(this, &mimmo::Bend::getCoords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	m_arePortsBuilt = built;
 };
 

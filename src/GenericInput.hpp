@@ -42,6 +42,8 @@ namespace mimmo{
  *  in BaseManipulation::Result member.
  *  GenericInput can be read the input from a file or
  *   it can be set by using setInput methods.
+ * 
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~

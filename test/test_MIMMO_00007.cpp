@@ -44,11 +44,11 @@ void test0007() {
 	//Instantiation of mimmo geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
-	geometry->setReadFileType(OFP);
+	geometry->setReadFileType(FileType::OFP);
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename("points");
 	geometry->setWrite(true);
-	geometry->setWriteFileType(OFP);
+	geometry->setWriteFileType(FileType::OFP);
 	geometry->setWriteDir(".");
 	string filename = "points";
 	geometry->setWriteFilename(filename);

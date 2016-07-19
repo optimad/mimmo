@@ -41,6 +41,8 @@ namespace mimmo{
  *	For each component i the bending function of the displacement is Si = sum_jk( aijk * xj^k );
  *	where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  *	applied to the i-th displacements.
+ * 
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default;
  *
  *	=========================================================
  * ~~~

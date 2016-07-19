@@ -40,6 +40,8 @@ namespace mimmo{
  *	fixed by the user for each coordinate.
  *	The flags into m_inside define, for each coordinate,
  *	if the object applies the masking inside or outside the thersholds.
+ * 
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~

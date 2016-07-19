@@ -94,19 +94,19 @@ void FFDLattice::buildPorts(){
 	bool built = true;
 	
 	//input
-	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter, M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
+	built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
 	
 	//output
-	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>, FFDLattice>(this, &mimmo::FFDLattice::getDeformedField, M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights, M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
+	built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>, FFDLattice>(this, &mimmo::FFDLattice::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights,PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
 	m_arePortsBuilt = built;
 };
 

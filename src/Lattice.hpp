@@ -41,6 +41,8 @@ namespace mimmo{
  *  points on it (lattice). NO displacements for control points and NO NURBS parameters for FFD are present
  *  in this structure, only geometrical information are stored in the object.
  *
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
+ * 
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------------------------|

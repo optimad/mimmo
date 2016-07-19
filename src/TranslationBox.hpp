@@ -41,6 +41,8 @@ namespace mimmo{
  *	an external input.
  *	Result of the translation are saved in result of base class and
  *	in the modified member m_origin.
+ * 
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~

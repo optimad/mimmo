@@ -41,12 +41,12 @@ void test0002() {
 	
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
-	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("catpipe");
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir(".");
-	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0002.0000");
 	
 	mimmo0->execute();
@@ -170,8 +170,8 @@ void test0002() {
 
 	//********************************************************************************************
 	//Creating PINS
-	addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
-	addPin(lattice2, applier2, M_GDISPLS, M_GDISPLS);
+	addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
+	addPin(lattice2, applier2, PortType::M_GDISPLS, PortType::M_GDISPLS);
 
 
 	//********************************************************************************************

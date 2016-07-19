@@ -67,6 +67,7 @@ class Apply: public BaseManipulation{
 public:
 
 	dvecarr3E	m_input;
+	bool m_force;
 
 	Apply();
 	~Apply();
@@ -76,12 +77,16 @@ public:
 
 	void buildPorts();
 
+	bool getRefreshGeometryTrees();
 	void setRefreshGeometryTrees(bool force);
 
 	void setInput(dvecarr3E input);
 
 	void execute();
 
+	//XML utilities from reading writing settings to file
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML);
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML);	
 };
 
 }

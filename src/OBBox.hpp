@@ -37,6 +37,7 @@ namespace mimmo{
  *
  *	Builds the oriented bounding box of a 3D object (Point Clouds or superficial tessellations), passed as MimmoObject. 
  *
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------------------------|

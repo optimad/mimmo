@@ -26,12 +26,15 @@
 
 #include "MimmoObject.hpp"
 #include "MimmoNamespace.hpp"
+#include "configuration.hpp"
 #include "InOut.hpp"
+
 
 #include <string>
 #include <functional>
 #include <unordered_map>
 #include <typeinfo>
+
 
 using namespace mimmo::pin;
 
@@ -73,7 +76,6 @@ public:
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int>	bmumap;			/**<Unordered map type used for parent/child storing.*/
 	typedef mimmo::pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
-	typedef mimmo::pin::PortType 						PortType;		/**<Type of a single port specification.*/
 	typedef	short int									PortID;			/**<Port ID (position of slot).*/
 	
 protected:
@@ -142,6 +144,12 @@ public:
 	
 	//execution utils
 	void 	exec();
+	
+	//XML utilities from reading writing settings to file
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML);
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML);
+	
+	
 	
 protected:
 

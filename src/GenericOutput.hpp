@@ -39,7 +39,7 @@ namespace mimmo{
  *	GenericOutput is derived from BaseManipulation class.
  *	It uses and it writes the base members input.
  *
- *
+ * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default;
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------|

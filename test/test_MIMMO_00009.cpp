@@ -44,7 +44,7 @@ void test0009() {
 	//Instantiation of geometry geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
-	geometry->setReadFileType(STL);
+	geometry->setReadFileType(FileType::STL);
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename(file);
 	geometry->setWrite(false);

@@ -26,21 +26,14 @@
 
 #include "BaseManipulation.hpp"
 
+BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6);
+
+
 namespace mimmo{
 
 class NastranInterface;
 
-/*!Type of file to read/write the geometry.*/
-enum FileType{	/*!Ascii/Binary triangulation stl.*/	STL 	= 0,
-				/*!Surface triangulation vtu.*/			STVTU 	= 1,
-				/*!Surface quadrilateral vtu.*/			SQVTU 	= 2,
-				/*!Volume tetrahedral VTU.*/			VTVTU 	= 3,
-				/*!Volume hexahedral VTU.*/				VHVTU 	= 4,
-				/*!Nastran triangulation nas.*/			NAS 	= 5,
-				/*!Ascii OpenFoam point cloud.*/		OFP 	= 6
-};
-
-/*!Format of data to read/write the geometry.*/
+	/*!Format of data to read/write the geometry.*/
 enum WFORMAT{	/*!Single precision data.*/		Short,
 				/*!Double precision data.*/		Long
 };
@@ -59,8 +52,20 @@ enum WFORMAT{	/*!Single precision data.*/		Short,
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *	for volume mesh.
+ * 
+ * It uses smart enums FileType list of available geometry formats, which are:
+ * 
+ *	1)	Ascii/Binary triangulation stl.	STL 	= 0,
+ *  2)	Surface triangulation vtu.		STVTU 	= 1,
+ *	3)	Surface quadrilateral vtu.		SQVTU 	= 2,
+ *	4)	Volume tetrahedral VTU.			VTVTU 	= 3,
+ *	5)	Volume hexahedral VTU.			VHVTU 	= 4,
+ *	6)	Nastran triangulation nas.		NAS 	= 5,
+ *	7)	Ascii OpenFoam point cloud.		OFP 	= 6
  *
- *
+ * Outside this list of options, the class cannot hold any other type of formats for now.
+ * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.
+ * and including MimmoGeometry header. 
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------|
@@ -84,13 +89,14 @@ enum WFORMAT{	/*!Single precision data.*/		Short,
  *
  */
 class MimmoGeometry: public BaseManipulation{
+	
 private:
-	FileType	m_rtype;		/**<Extension of file to read the geometry.*/
+	int  		m_rtype;		/**<Extension of file to read the geometry.*/
 	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
 	std::string	m_rdir;			/**<Name of directory to read the geometry (without final "/").*/
 	std::string	m_rfilename;	/**<Name of file to read the geometry (without extension).*/
 
-	FileType	m_wtype;		/**<Extension of file to write the geometry.*/
+	int 		m_wtype;		/**<Extension of file to write the geometry.*/
 	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
 	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
 	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
@@ -158,6 +164,9 @@ public:
 
 	void 		readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points); 
 	void 		writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points); 
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML);
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML);
 	
 private:
 	void 	setDefaults();

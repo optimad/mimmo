@@ -68,7 +68,6 @@ class BaseManipulation;
  * mimmo namespace
  */
 
-typedef mimmo::pin::PortType		PortType;
 typedef short int 					PortID;
 typedef mimmo::pin::containerTAG	containerTAG;
 typedef mimmo::pin::dataTAG			dataTAG;

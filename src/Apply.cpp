@@ -29,6 +29,7 @@ using namespace mimmo;
  */
 Apply::Apply():BaseManipulation(){
 	m_name = "MiMMO.Apply";
+	m_force = false;
 	buildPorts();
 };
 
@@ -46,6 +47,7 @@ Apply::Apply(const Apply & other){
  */
 Apply & Apply::operator=(const Apply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+	m_force = other.m_force;
 	return(*this);
 };
 
@@ -54,18 +56,25 @@ Apply & Apply::operator=(const Apply & other){
 void
 Apply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 };
+
+/*!
+ * Return true, if rebuilding of search trees of your target geometry of class MimmoObject is forced by the User
+ */
+bool	Apply::getRefreshGeometryTrees(){
+	return m_force;
+}
+
+
 
 /*!
  * If set true, forces rebuilding of search trees of your target geometry of class MimmoObject
  */
 void	Apply::setRefreshGeometryTrees(bool force){
 	if(getGeometry() == NULL) return;
-	getGeometry()->buildBvTree();
-	getGeometry()->buildKdTree();
 }
 
 /*!It sets the displacements input.
@@ -85,6 +94,11 @@ void
 Apply::execute(){
 	if (getGeometry() == NULL) return;
 
+	if(m_force){
+		getGeometry()->buildBvTree();
+		getGeometry()->buildKdTree();
+	}
+	
 	dvecarr3E vertex = getGeometry()->getVertexCoords();
 	long nv = getGeometry()->getNVertex();
 	nv = long(std::min(int(nv), int(m_input.size())));
@@ -95,3 +109,49 @@ Apply::execute(){
 	}
 	return;
 };
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
+ * while Input and Geometry parameters are meant to be passed only through Port linking.
+ * 
+ * \param[in]	slotXML bitpit::Config::Section which reads from
+ */
+ void Apply::absorbSectionXML(bitpit::Config::Section & slotXML){
+	 
+	std::string input; 
+	if(slotXML.hasOption("RefreshGeometryTrees")){
+		std::string input = slotXML.get("RefreshGeometryTrees");
+	}; 
+	
+	bool value = false;
+	if(!input.empty()){
+		std::stringstream ss(bitpit::utils::trim(input));
+		ss >> value;
+	}
+	
+	setRefreshGeometryTrees(value);
+};
+
+/*!
+ * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::flushSectionXML;
+ * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
+ * while Input and Geometry parameters are meant to be passed only through Port linking.
+ * 
+ * \param[in]	slotXML bitpit::Config::Section which writes to
+ */
+void Apply::flushSectionXML(bitpit::Config::Section & slotXML){
+	
+	bool value = getRefreshGeometryTrees();
+	
+	std::string towrite = std::to_string(value);
+	
+	slotXML.set("RefreshGeometryTrees", towrite);
+};	
+
+
+
+
+

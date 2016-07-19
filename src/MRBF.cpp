@@ -53,14 +53,14 @@ MRBF::MRBF(const MRBF & other){
  */
 void MRBF::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
 };
 
@@ -294,8 +294,6 @@ void MRBF::setTol(double tol){
  * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
  * Displacements size may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
- * The method temporary set your RBF supportRadius to 3*max norm value of vector field displ, if no other
- * input from the user are provided.
  * 
  * @param[in] displ list of nodal displacements
  */
@@ -306,13 +304,6 @@ void MRBF::setDisplacements(dvecarr3E displ){
 	}
 	
 	removeAllData();
-
-	double maxdispl = 0.0;
-	for(int i=0; i<size; ++i){
-		maxdispl = std::max(maxdispl, norm2(displ[i]));
-	}
-
-	if (!m_srset) setSupportRadius(3*maxdispl);
 	
 	dvector1D temp(size);
 	for(int loc=0; loc<3; ++loc){
@@ -339,8 +330,6 @@ void MRBF::clearFilter(){
  * Set a field  of n-Dim weights on your RBF Nodes. Supported only in MRBFSol::NONE mode.
  * Weights total number may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
- * The method temporary set your RBF supportRadius to 3*max norm value of vector value weights, if no other
- * input from the user are provided.
  * 
  * @param[in] displ list of nodal weights
  */
@@ -355,13 +344,6 @@ MRBF::setWeight(dvector2D value){
 	
 	removeAllData();
 	
-	double maxvalue = 0.0;
-	for(int i=0; i<size; ++i){
-		maxvalue = std::max(maxvalue, norm2(value[i]));
-	}
-	
-	if (!m_srset) setSupportRadius(3*maxvalue);
-		   
 	dvector1D temp(size);
 	int sizeLoc = 0;
 	if(!(value.empty()))	sizeLoc = value[0].size();
@@ -383,15 +365,8 @@ void MRBF::execute(){
 	MimmoObject * container = getGeometry();
 	if(container == NULL ) return;
 
-	//checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
-	if(getSupportRadius() <=1.E-18){
-		darray3E pmin, pmax;
-		container->getPatch()->getBoundingBox(pmin, pmax);
-		setSupportRadius(0.5*norm2(pmax - pmin));
-	}
-	
-	int size;
-	for (int i=0; i<getDataCount(); i++){
+	int size, sizeF = getDataCount();
+	for (int i=0; i<sizeF; i++){
 		
 		if(m_solver == MRBFSol::NONE)	size = m_weight[i].size();
 		else							size = m_value[i].size();
@@ -402,6 +377,34 @@ void MRBF::execute(){
 		}
 	}
 
+	//Checking supportRadius.
+	
+	if(!m_srset){ //get maximum weight/value displ and assign support radius a 3 times this value.
+
+		double maxvalue = 0.0;
+		for(int i=0; i<size; ++i){
+			
+			dvector1D data(sizeF);
+
+			for(int j=0; j<sizeF; ++j){
+				if(m_solver == MRBFSol::NONE)	data[j] = m_weight[j][i];
+				else							data[j] = m_value[j][i];
+			}	
+
+			maxvalue = std::max(maxvalue, norm2(data));
+		}
+	
+		setSupportRadius(3*maxvalue);
+		
+		
+	}else if(getSupportRadius() <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
+		
+		darray3E pmin, pmax;
+		container->getPatch()->getBoundingBox(pmin, pmax);
+		setSupportRadius(0.5*norm2(pmax - pmin));
+	}
+	
+	
    if (m_solver == MRBFSol::WHOLE)	solve();
    if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
 
@@ -428,4 +431,99 @@ void MRBF::execute(){
 	return;
 };
 
+
+/*!
+ * Method to absorb parameter infos from an XML parser class of bitpit. 
+ * The sensible parameters are:
+ * 
+ * 1)	Mode - mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * 2)	SupportRadius	- local radius of RBF function for each nodes
+ * 3)	Tolerance - greedy engine tolerance (meant for mode 2);
+ * 
+ * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
+ * Sometimes 2) and 3) are not parameters and can be passed through respective port.
+ * 
+ * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ */
+void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML){
+	
+	std::string input; 
+	
+	if(slotXML.hasOption("Mode")){
+		input = slotXML.get("Mode");
+		int value = 0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+			value = std::max(value, 0);
+			if(value > 2) value = 0;
+		}
+		setMode(value);
+	}; 
+	
+	m_srset = false;
+	if(slotXML.hasOption("SupportRadius")){
+		input = slotXML.get("SupportRadius");
+		double value;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+			setSupportRadius(value);
+		}
+	}; 
+	
+	m_tol = 1.0E-6;
+	if(slotXML.hasOption("Tolerance")){
+		input = slotXML.get("Tolerance");
+		input = bitpit::utils::trim(input);
+		double value = m_tol;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+			if(value > 0.0)	setTol(value);
+		}
+	}; 
+	
+	return;
+}
+
+/*!
+ * Method to flush parameter infos to an XML parser class of bitpit. 
+ * The sensible parameters are:
+ * 
+ * 1)	Mode - mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * 2)	SupportRadius	- local radius of RBF function for each nodes
+ * 3)	Tolerance - greedy engine tolerance (meant for mode 2);
+ * 
+ * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
+ * Sometimes 2) and 3) are not parameters and can be passed through respective port.
+ * In any case, if different by default, such parameters are always written, even.
+ * 
+ * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ */
+void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
+	
+	std::string input;
+	std::map<short int, mimmo::PortIn*> mapp = getPortsIn();
+	
+	
+	if(m_solver != MRBFSol::NONE){
+		input = std::to_string(static_cast<int>(m_solver));
+		slotXML.set("Mode", input);
+	}
+	
+	//checking if not default and if not connected to a port
+	if(m_srset && mapp[30]->getLink().empty()){
+		input = std::to_string(getSupportRadius());
+		slotXML.set("SupportRadius", input);
+	}
+	
+	//checking if not default and if not connected to a port
+	if(m_tol != 1.0E-6 && mapp[130]->getLink().empty()){
+		input = std::to_string(m_tol);
+		slotXML.set("Tolerance", input);
+	}
+
+	return;
+}
 

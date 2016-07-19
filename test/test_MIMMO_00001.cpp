@@ -45,12 +45,12 @@ void test0001() {
 	
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
-	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("sphere2");
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
-	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0001.0000");
 	
 	mimmo0->execute();
@@ -93,7 +93,7 @@ void test0001() {
 	//Add pin with port ID
 	cout << "add pin info : " << boolalpha << addPin(input, lattice, 10, 10) << endl;
 	//Add pin with port TAG
-	cout << "add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
+	cout << "add pin info : " << boolalpha << addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
 
 	//Create chain
 	Chain ch0;
@@ -118,7 +118,7 @@ void test0001() {
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
-	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0001.0001");
 	mimmo0->setGeometry(object);
 	mimmo0->execute();

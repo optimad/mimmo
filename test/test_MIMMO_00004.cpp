@@ -45,12 +45,12 @@ void test0004() {
 	
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
-	mimmo0->setReadFileType(mimmo::FileType::STL);
+	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("sphere2");
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir(".");
-	mimmo0->setWriteFileType(mimmo::FileType::STL);
+	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0004.0000");
 	
 	mimmo0->execute();
@@ -143,29 +143,29 @@ void test0004() {
 	//Set PINS
 	cout << "set pins" << endl;
 
-	cout << "add pin info 1 : " << boolalpha << addPin(inputshapet, mesh, M_VALUEI, M_SHAPEI) << endl;
-	cout << "add pin info 2 : " << boolalpha << addPin(inputorig, mesh, M_POINT, M_POINT) << endl;
-	cout << "add pin info 3 : " << boolalpha << addPin(inputspan, mesh, M_SPAN, M_SPAN) << endl;
-	cout << "add pin info 4 : " << boolalpha << addPin(inputdim, mesh, M_DIMENSION, M_DIMENSION) << endl;
+	cout << "add pin info 1 : " << boolalpha << addPin(inputshapet, mesh, PortType::M_VALUEI, PortType::M_SHAPEI) << endl;
+	cout << "add pin info 2 : " << boolalpha << addPin(inputorig, mesh, PortType::M_POINT, PortType::M_POINT) << endl;
+	cout << "add pin info 3 : " << boolalpha << addPin(inputspan, mesh, PortType::M_SPAN, PortType::M_SPAN) << endl;
+	cout << "add pin info 4 : " << boolalpha << addPin(inputdim, mesh, PortType::M_DIMENSION, PortType::M_DIMENSION) << endl;
 
-	cout << "add pin info 5 : " << boolalpha << addPin(mesh, mask, M_GLOBAL, M_COORDS) << endl;
-	cout << "add pin info 6 : " << boolalpha << addPin(input, mask, M_DISPLS, M_DISPLS) << endl;
+	cout << "add pin info 5 : " << boolalpha << addPin(mesh, mask, PortType::M_GLOBAL, PortType::M_COORDS) << endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(input, mask, PortType::M_DISPLS, PortType::M_DISPLS) << endl;
 
-	cout << "add pin info 7 : " << boolalpha << addPin(mask, bend, M_COORDS, M_COORDS) << endl;
-	cout << "add pin info 8 : " << boolalpha << addPin(mask, bend, M_DISPLS, M_DISPLS) << endl;
+	cout << "add pin info 7 : " << boolalpha << addPin(mask, bend, PortType::M_COORDS, PortType::M_COORDS) << endl;
+	cout << "add pin info 8 : " << boolalpha << addPin(mask, bend, PortType::M_DISPLS, PortType::M_DISPLS) << endl;
 
-	cout << "add pin info 9 : " << boolalpha << addPin(inputshapet, lattice, M_VALUEI, M_SHAPEI) << endl;
-	cout << "add pin info 10 : " << boolalpha << addPin(inputorig, lattice, M_POINT, M_POINT) << endl;
-	cout << "add pin info 11 : " << boolalpha << addPin(inputspan, lattice, M_SPAN, M_SPAN) << endl;
-	cout << "add pin info 12 : " << boolalpha << addPin(inputdim, lattice, M_DIMENSION, M_DIMENSION) << endl;
-	cout << "add pin info 13 : " << boolalpha << addPin(inputdeg, lattice, M_DEG, M_DEG) << endl;
+	cout << "add pin info 9 : " << boolalpha << addPin(inputshapet, lattice, PortType::M_VALUEI, PortType::M_SHAPEI) << endl;
+	cout << "add pin info 10 : " << boolalpha << addPin(inputorig, lattice, PortType::M_POINT, PortType::M_POINT) << endl;
+	cout << "add pin info 11 : " << boolalpha << addPin(inputspan, lattice, PortType::M_SPAN, PortType::M_SPAN) << endl;
+	cout << "add pin info 12 : " << boolalpha << addPin(inputdim, lattice, PortType::M_DIMENSION, PortType::M_DIMENSION) << endl;
+	cout << "add pin info 13 : " << boolalpha << addPin(inputdeg, lattice, PortType::M_DEG, PortType::M_DEG) << endl;
 
-	cout << "add pin info 14 : " << boolalpha << addPin(inputname, output, M_FILENAME, M_FILENAME) << endl;
+	cout << "add pin info 14 : " << boolalpha << addPin(inputname, output, PortType::M_FILENAME, PortType::M_FILENAME) << endl;
 
-	cout << "add pin info 15 : " << boolalpha << addPin(bend, output, M_DISPLS, M_DISPLS) << endl;
+	cout << "add pin info 15 : " << boolalpha << addPin(bend, output, PortType::M_DISPLS, PortType::M_DISPLS) << endl;
 
-	cout << "add pin info 16 : " << boolalpha << addPin(bend, lattice, M_DISPLS, M_DISPLS) << endl;
-	cout << "add pin info 17 : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
+	cout << "add pin info 16 : " << boolalpha << addPin(bend, lattice, PortType::M_DISPLS, PortType::M_DISPLS) << endl;
+	cout << "add pin info 17 : " << boolalpha << addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
 
 	cout << "set pins done" << endl;
 

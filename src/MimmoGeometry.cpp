@@ -78,8 +78,8 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 void
 MimmoGeometry::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 }
 
@@ -112,10 +112,10 @@ const MimmoObject * MimmoGeometry::getGeometry() const{
  */
 void
 MimmoGeometry::setDefaults(){
-	m_rtype		= STL;
+	m_rtype		= static_cast<int>(FileType::STL);
 	m_read		= false;
 	m_rfilename	= "mimmoGeometry";
-	m_wtype		= STL;
+	m_wtype		= static_cast<int>(FileType::STL);
 	m_write		= false;
 	m_wfilename	= "mimmoGeometry";
 	m_rdir		= "./";
@@ -132,7 +132,7 @@ MimmoGeometry::setDefaults(){
  */
 void
 MimmoGeometry::setReadFileType(FileType type){
-	m_rtype = type;
+	m_rtype = type._to_integral();
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -140,7 +140,9 @@ MimmoGeometry::setReadFileType(FileType type){
  */
 void
 MimmoGeometry::setReadFileType(int type){
-	m_rtype = static_cast<FileType>(type);
+	type = std::max(0, type);
+	if(type > 6)	type = 0;
+	m_rtype = type;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -173,7 +175,7 @@ MimmoGeometry::setReadFilename(string filename){
  */
 void
 MimmoGeometry::setWriteFileType(FileType type){
-	m_wtype = type;
+	m_wtype = type._to_integral();
 }
 
 /*!It sets the type of file to write the geometry during the execution.
@@ -181,7 +183,9 @@ MimmoGeometry::setWriteFileType(FileType type){
  */
 void
 MimmoGeometry::setWriteFileType(int type){
-	m_wtype = static_cast<FileType>(type);
+	type = std::max(0, type);
+	if(type > 6)	type = 0;
+	m_wtype = type;
 }
 
 /*!It sets the condition to write the geometry on file during the execution.
@@ -414,7 +418,7 @@ bool
 MimmoGeometry::write(){
 	if (isEmpty()) return false;
 	
-	switch(m_wtype){
+	switch(FileType::_from_integral(m_wtype)){
 		
 		case FileType::STL :
 			//Export STL
@@ -529,7 +533,7 @@ bool
 MimmoGeometry::read(){
 	if(!m_isInternal) return false;
 	
-	switch(m_rtype){
+	switch(FileType::_from_integral(m_rtype)){
 
 	//Import STL
 	case FileType::STL :
@@ -843,7 +847,6 @@ MimmoGeometry::execute(){
 	return;
 }
 
-
 //===============================//
 //====== OFOAM INTERFACE ========//
 //===============================//
@@ -956,6 +959,217 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
 	return;
 
 }
+
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class reads the following parameters:
+ * 
+ * 1) ReadFlag - activate reading mode boolean
+ * 2) ReadDir - reading directory path
+ * 3) ReadFileType - file type identifier
+ * 4) ReadFilename - name of file for reading
+ * 5) WriteFlag - activate writing mode boolean
+ * 6) WriteDir - writing directory path
+ * 7) WriteFileType - file type identifier
+ * 8) WriteFilename - name of file for writing
+ * 9) Codex - boolean to write ascii/binary
+ * 10) BvTree - evaluate bvTree true/false
+ * 11) KdTree - evaluate kdTree ture/false
+ * 
+ * \param[in]	slotXML bitpit::Config::Section which reads from
+ */
+void MimmoGeometry::absorbSectionXML(bitpit::Config::Section & slotXML){
+
+	std::string input; 
+
+	if(slotXML.hasOption("ReadFlag")){
+		input = slotXML.get("ReadFlag");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setRead(value);
+	}; 
+	
+	if(slotXML.hasOption("ReadDir")){
+		input = slotXML.get("ReadDir");
+		input = bitpit::utils::trim(input);
+		if(input.empty())	input = "./";
+		setReadDir(input);
+	}; 
+	
+	if(slotXML.hasOption("ReadFileType")){
+		input = slotXML.get("ReadFileType");
+		input = bitpit::utils::trim(input);
+		if(!input.empty()){
+			for(auto c: FileType::_values()){
+				if(input == c._to_string()){
+					setReadFileType(c);
+				}
+			}
+		}else{
+			setReadFileType(0);
+		}
+	}; 
+
+	if(slotXML.hasOption("ReadFilename")){
+		input = slotXML.get("ReadFilename");
+		input = bitpit::utils::trim(input);
+		if(input.empty())	input = "mimmoGeometry";
+		setReadFilename(input);
+	}; 
+	
+	if(slotXML.hasOption("WriteFlag")){
+		input = slotXML.get("WriteFlag");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setWrite(value);
+	}; 
+	
+	if(slotXML.hasOption("WriteDir")){
+		input = slotXML.get("WriteDir");
+		input = bitpit::utils::trim(input);
+		if(input.empty())	input = "./";
+	   setWriteDir(input);
+	}; 
+	
+	if(slotXML.hasOption("WriteFileType")){
+		input = slotXML.get("WriteFileType");
+		input = bitpit::utils::trim(input);
+		if(!input.empty()){
+			for(auto c: FileType::_values()){
+				if(input == c._to_string()){
+					setWriteFileType(c);
+				}
+			}
+		}else{
+			setWriteFileType(0);
+		}
+	}; 
+	
+	if(slotXML.hasOption("WriteFilename")){
+		input = slotXML.get("WriteFilename");
+		input = bitpit::utils::trim(input);
+		if(input.empty())	input = "mimmoGeometry";
+	   setWriteFilename(input);
+	}; 
+	
+	if(slotXML.hasOption("Codex")){
+		input = slotXML.get("Codex");
+		bool value = true;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setCodex(value);
+	}; 
+	
+	
+	if(slotXML.hasOption("BvTree")){
+		input = slotXML.get("BvTree");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setBuildBvTree(value);
+	}; 
+	
+	if(slotXML.hasOption("KdTree")){
+		input = slotXML.get("KdTree");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setBuildKdTree(value);
+	}; 
+
+return;	
+};
+
+/*!
+ * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class writes the following parameters(if different from default):
+ * 
+ * 1) ReadFlag - activate reading mode boolean
+ * 2) ReadDir - reading directory path
+ * 3) ReadFileType - file type identifier
+ * 4) ReadFilename - name of file for reading
+ * 5) WriteFlag - activate writing mode boolean
+ * 6) WriteDir - writing directory path
+ * 7) WriteFileType - file type identifier
+ * 8) WriteFilename - name of file for writing
+ * 9) Codex - boolean to write ascii/binary
+ * 10) BvTree - evaluate bvTree true/false
+ * 11) KdTree - evaluate kdTree ture/false
+ * 
+ * \param[in]	slotXML bitpit::Config::Section which writes to
+ */
+void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML){
+	
+	std::string output;
+	
+	if(m_read){
+		output = std::to_string(m_read);
+		slotXML.set("ReadFlag", output);
+	}	
+	if(m_rdir != "./"){
+		slotXML.set("ReadDir", m_rdir);
+	}	
+	
+	if(m_rfilename != "mimmoGeometry"){
+		slotXML.set("ReadFilename", m_rfilename);
+	}	
+	
+	if(m_rtype != 0){
+		std::string temp = (FileType::_from_integral(m_rtype))._to_string();
+		slotXML.set("ReadFileType", temp);
+	}
+	
+	if(m_write){
+		output = std::to_string(m_write);
+		slotXML.set("WriteFlag", output);
+	}	
+	
+	if(m_wdir != "./"){
+		slotXML.set("WriteDir", m_wdir);
+	}	
+	
+	if(m_wfilename != "mimmoGeometry"){
+		slotXML.set("WriteFilename", m_wfilename);
+	}	
+	
+	if(m_wtype != FileType::STL){
+		std::string temp = (FileType::_from_integral(m_wtype))._to_string();
+		slotXML.set("WriteFileType", temp);
+	}
+	
+	if(!m_codex){
+		output = std::to_string(m_codex);
+		slotXML.set("Codex", output);
+	}
+	
+	if(m_buildBvTree){
+		output = std::to_string(m_buildBvTree);
+		slotXML.set("BvTree", output);
+	}
+	
+	if(m_buildKdTree){
+		output = std::to_string(m_buildKdTree);
+		slotXML.set("KdTree", output);
+	}
+	
+return;	
+};	
 
 
 
