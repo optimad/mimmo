@@ -504,22 +504,19 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML){
 void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
 	
 	std::string input;
-	std::map<short int, mimmo::PortIn*> mapp = getPortsIn();
-	
-	
 	if(m_solver != MRBFSol::NONE){
 		input = std::to_string(static_cast<int>(m_solver));
 		slotXML.set("Mode", input);
 	}
 	
 	//checking if not default and if not connected to a port
-	if(m_srset && mapp[30]->getLink().empty()){
+	if(m_srset){
 		input = std::to_string(getSupportRadius());
 		slotXML.set("SupportRadius", input);
 	}
 	
 	//checking if not default and if not connected to a port
-	if(m_tol != 1.0E-6 && mapp[130]->getLink().empty()){
+	if(m_tol != 1.0E-6 ){
 		input = std::to_string(m_tol);
 		slotXML.set("Tolerance", input);
 	}
