@@ -508,10 +508,8 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
 	
 	
 	std::string input;
-	if(m_solver != MRBFSol::NONE){
-		input = std::to_string(static_cast<int>(m_solver));
-		slotXML.set("Mode", input);
-	}
+	input = std::to_string(static_cast<int>(m_solver));
+	slotXML.set("Mode", input);
 	
 	//checking if not default and if not connected to a port
 	if(m_srset){
