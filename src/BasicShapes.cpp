@@ -191,7 +191,7 @@ darray3E BasicShape::getOrigin(){
 darray3E BasicShape::getSpan(){
 	darray3E result = getLocalSpan();
 	darray3E scale = getScaling();
-	for(int i; i<3; ++i){
+	for(int i=0; i<3; ++i){
 		result[i] = scale[i]*result[i];
 	}
 	return(result);
