@@ -519,8 +519,9 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
 	
 	//checking if not default and if not connected to a port
 	if(m_tol != 1.0E-6 ){
-		input = std::to_string(m_tol);
-		slotXML.set("Tolerance", input);
+		std::stringstream ss;
+		ss<<std::scientific<<m_tol;
+		slotXML.set("Tolerance", ss.str());
 	}
 
 	return;
