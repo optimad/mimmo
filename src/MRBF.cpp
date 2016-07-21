@@ -503,6 +503,10 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML){
  */
 void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
 	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
 	std::string input;
 	if(m_solver != MRBFSol::NONE){
 		input = std::to_string(static_cast<int>(m_solver));

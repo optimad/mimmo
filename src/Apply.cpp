@@ -144,6 +144,9 @@ Apply::execute(){
  */
 void Apply::flushSectionXML(bitpit::Config::Section & slotXML){
 	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
 	bool value = getRefreshGeometryTrees();
 	
 	std::string towrite = std::to_string(value);

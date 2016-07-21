@@ -1116,6 +1116,10 @@ return;
  */
 void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML){
 	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
 	std::string output;
 	
 	if(m_read){
