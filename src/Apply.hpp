@@ -85,8 +85,8 @@ public:
 	void execute();
 
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML);
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML);	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
 };
 
 }

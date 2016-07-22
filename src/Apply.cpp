@@ -117,8 +117,9 @@ Apply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
  */
- void Apply::absorbSectionXML(bitpit::Config::Section & slotXML){
+ void Apply::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	 
 	std::string input; 
 	if(slotXML.hasOption("RefreshGeometryTrees")){
@@ -141,8 +142,9 @@ Apply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
+ * * \param[in] name   name associated to the slot
  */
-void Apply::flushSectionXML(bitpit::Config::Section & slotXML){
+void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));

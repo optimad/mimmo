@@ -444,8 +444,9 @@ void MRBF::execute(){
  * Sometimes 2) and 3) are not parameters and can be passed through respective port.
  * 
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ * \param[in] name   name associated to the slot
  */
-void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML){
+void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
 	
@@ -500,8 +501,9 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML){
  * In any case, if different by default, such parameters are always written, even.
  * 
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ * \param[in] name   name associated to the slot
  */
-void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
+void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));

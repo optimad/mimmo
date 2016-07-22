@@ -980,8 +980,9 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  * 11) KdTree - evaluate kdTree ture/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
  */
-void MimmoGeometry::absorbSectionXML(bitpit::Config::Section & slotXML){
+void MimmoGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
 
@@ -1113,8 +1114,9 @@ return;
  * 11) KdTree - evaluate kdTree ture/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot 
  */
-void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML){
+void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));
