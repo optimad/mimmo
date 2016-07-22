@@ -513,8 +513,9 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML){
 	
 	//checking if not default and if not connected to a port
 	if(m_srset){
-		input = std::to_string(getSupportRadius());
-		slotXML.set("SupportRadius", input);
+		std::stringstream ss;
+		ss<<std::scientific<<getSupportRadius();
+		slotXML.set("SupportRadius", ss.str());
 	}
 	
 	//checking if not default and if not connected to a port
