@@ -31,12 +31,9 @@ using namespace mimmo;
  * Such strings identifies the object in the XML section from/to which reading/writing also.
  * When builds itself, the class evaluates the inverse map of executable objects and compile the maps of 
  * PortType-s actually available in the API.
- * \param[in]  mapConn map of instantiated objects with their XML names as keys.
- * \param[in] iomode   optional, set mode of the class, read connections(false), write connections(true). Default is false.
+ * \param[in]  mapConn map of instantiated connectable objects with their XML names as keys.
  */
-IOConnections_MIMMO::IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn, bool iomode){
-
-	m_iomode = iomode;
+IOConnections_MIMMO::IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn) {
 
 	for(auto &val: mapConn){
 		if(val.second == NULL) continue;
@@ -64,19 +61,11 @@ IOConnections_MIMMO::IOConnections_MIMMO(const IOConnections_MIMMO & other){
  * Assignement operator of IOConnections_MIMMO.
  */
 IOConnections_MIMMO & IOConnections_MIMMO::operator=(const IOConnections_MIMMO & other){
-	m_iomode 		= other.m_iomode;
 	m_mapConn		= other.m_mapConn;
 	m_mapPorts 		= other.m_mapPorts;
 	m_invMapConn	= other.m_invMapConn;
 	m_invMapPorts 	= other.m_invMapPorts;
 	return (*this);
-};
-
-/*!It gets if the class is in input (false) or output(true)
- */
-bool
-IOConnections_MIMMO::getIOMode(){
-	return m_iomode;
 };
 
 /*!Returns map of all ports available in the mimmo API as string key (name of the ports)

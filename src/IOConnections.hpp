@@ -36,27 +36,25 @@ namespace mimmo{
  *
  * Read and write declared connections from/to an external input/output XML configuration file. Needs to be constructed
  * with an external map reporting a string with "name of the object in XML file" as key, and a "BaseManipulation pointer" 
- * of the object instantiated as argument. Search the right couple of object to connect and connects them, in input mode, or write 
+ * of all the object instantiated and connectable as argument. Search the right couple of object to connect and connects them, in input mode, or write 
  * existing connections in output mode.
  */
 class IOConnections_MIMMO{
 
 protected:	
-	std::unordered_map<std::string, BaseManipulation * > m_mapConn; /**< direct map of instantiated object */
-	std::unordered_map<BaseManipulation *, std::string > m_invMapConn; /**< inverse map of instantiated object */
+	std::unordered_map<std::string, BaseManipulation * > m_mapConn; /**< direct map of connectable object */
+	std::unordered_map<BaseManipulation *, std::string > m_invMapConn; /**< inverse map of connectable object */
 	std::unordered_map<std::string, short int> m_mapPorts;	/**< map of ports available in mimmo */
 	std::unordered_map<short int, std::string> m_invMapPorts;	/**< inverse map of ports available in mimmo */
-	bool	m_iomode;	/**< identify class working as input or output (false/true)*/
 
 public:
-	IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn, bool iomode = false);
+	IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn);
 	virtual ~IOConnections_MIMMO();
 
 	IOConnections_MIMMO(const IOConnections_MIMMO & other);
 	IOConnections_MIMMO & operator=(const IOConnections_MIMMO & other);
 
 	//get methods
-	bool											 getIOMode();
 	std::unordered_map<std::string, short int> getMapPorts();
 	std::unordered_map<short int, std::string> getInvMapPorts();
 	
