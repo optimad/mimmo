@@ -218,25 +218,30 @@ Chain::addObject(BaseManipulation* obj, int id_){
  * contained in the chain following the correct order.
  * In the case that a loop exists in the chain the execution doesn't start and
  * the process ends with an error.
+ * \param[in]	debug boolean to activate verbose execution mode.
  */
 void
-Chain::exec(){
+Chain::exec(bool debug){
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
 	vector<BaseManipulation*>::iterator itend = m_objects.end();
-	std::cout << " " << std::endl;
-	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-	std::cout << "MiMMO : execution of chain - "<< m_objcounter << " objects" << std::endl;
-	std::cout << " " << std::endl;
+	if(debug){
+		std::cout << " " << std::endl;
+		std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
+		std::cout << "MiMMO : execution of chain - "<< m_objcounter << " objects" << std::endl;
+		std::cout << " " << std::endl;
+	}	
 	checkLoops();
 	int i = 1;
 	for (it = itb; it != itend; ++it){
-		std::cout << "MiMMO : execution object " << i << "	: " << (*it)->getName() << std::endl;
+		if(debug)	std::cout << "MiMMO : execution object " << i << "	: " << (*it)->getName() << std::endl;
 		(*it)->exec();
 		i++;
 	}
-	std::cout << " " << std::endl;
-	std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-	std::cout << " " << std::endl;
+	if(debug){
+		std::cout << " " << std::endl;
+		std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
+		std::cout << " " << std::endl;
+	}	
 }
 
 /*!It executes one manipulator object contained in the chain singularly.

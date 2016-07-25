@@ -75,7 +75,7 @@ public:
 	void		clear();
 
 	//relationship methods
-	void 		exec();
+	void 		exec(bool debug = false);
 	void 		exec(int idobj);
 
 private:
