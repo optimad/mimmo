@@ -1124,10 +1124,9 @@ void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	
 	std::string output;
 	
-	if(m_read){
-		output = std::to_string(m_read);
-		slotXML.set("ReadFlag", output);
-	}	
+	output = std::to_string(m_read);
+	slotXML.set("ReadFlag", output);
+
 	if(m_rdir != "./"){
 		slotXML.set("ReadDir", m_rdir);
 	}	
@@ -1141,10 +1140,8 @@ void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 		slotXML.set("ReadFileType", temp);
 	}
 	
-	if(m_write){
-		output = std::to_string(m_write);
-		slotXML.set("WriteFlag", output);
-	}	
+	output = std::to_string(m_write);
+	slotXML.set("WriteFlag", output);
 	
 	if(m_wdir != "./"){
 		slotXML.set("WriteDir", m_wdir);
