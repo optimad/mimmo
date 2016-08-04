@@ -496,7 +496,7 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   
   bool check = true;
   for(auto && val : simplexVert){
-   check = check && isPointIncluded(val); 
+   check = check || isPointIncluded(val); 
   }
   return(check);
 };
@@ -513,7 +513,7 @@ bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
   bool check = true;
   for(int i=0; i<nVertices; ++i){ 
 	//recover vertex index
-	check = check && isPointIncluded(tri, cell.getVertex(i)); 
+	check = check || isPointIncluded(tri, cell.getVertex(i)); 
   }
   return(check);
 };
