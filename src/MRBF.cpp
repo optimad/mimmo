@@ -395,9 +395,9 @@ void MRBF::execute(){
 		}
 	
 		setSupportRadius(3*maxvalue);
-		
-		
-	}else if(getSupportRadius() <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
+	}
+	
+	if(getSupportRadius() <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
 		
 		darray3E pmin, pmax;
 		container->getPatch()->getBoundingBox(pmin, pmax);
