@@ -21,11 +21,10 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __CLIPGEOMETRY_HPP__
-#define __CLIPGEOMETRY_HPP__
+#ifndef __PROJECTCLOUD_HPP__
+#define __PROJECTCLOUD_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
 
 namespace mimmo{
 
@@ -34,14 +33,8 @@ namespace mimmo{
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it.
+ *	\brief ProjectCloud is the class that project a 3D cloud of points on a target geometry
  *
- *	ClipGeometry is derived from BaseManipulation class.
- *	It needs a target MimmoObject geometry, alongside a clipping plane definition [a,b,c,d], in its
- *  implicit form a*x + b*y + c*z + d =0; 
- *	Returns geometry clipped in an independent MimmoObject. Controls clipping direction with an "insideout" boolean.
- *  Class plot as optional result the clipped portion of geoemetry, and absorb/flush its parameters from xml 
- *  dictionaries
  *
  *	=========================================================
  * ~~~
@@ -50,9 +43,8 @@ namespace mimmo{
  *	|-------|----------|-------------------|-------------------------|
  *	|PortID | PortType | variable/function | DataType 		 		 |
  *	|-------|----------|-------------------|-------------------------|
- *	| 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)		 |
- *	| 32    | M_VALUEB | setInsideOut      | (SCALAR, BOOL)			 |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)		 |
+ *	| 0     | M_COORDS | setPoints         | (VECARR3, FLOAT)		 |
+ *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_) 	     |
  *	|-------|----------|-------------------|-------------------------|
  *
  *
@@ -61,47 +53,45 @@ namespace mimmo{
  *	|-------|----------|-------------------|-------------------------|
  *	|PortID | PortType | variable/function | DataType 		 		 |
  *	|-------|----------|-------------------|-------------------------|
- *	| 99    | M_GEOM   | getClippedPatch   | (SCALAR, MIMMO_)		 |
+ *	| 0     | M_COORDS | getCloudResult	   | (VECARR3, FLOAT) 	     |
  *	|-------|----------|-------------------|-------------------------|
  * ~~~
  *	=========================================================
  *
  */
-class ClipGeometry: public BaseManipulation{
-private:
-	darray4E						m_plane;		/**<Coefficients of implicit plane a*x +b*y+c*z + d =0.*/
-	bool						m_insideout;	/**<set direction of clipping, false along current plane normal, true the opposite*/
-	std::unique_ptr<MimmoObject>	m_patch;		/**<Resulting Clipped Patch.*/
-	
-public:
-	ClipGeometry();
-	~ClipGeometry();
 
-	ClipGeometry(const ClipGeometry & other);
-	ClipGeometry & operator=(const ClipGeometry & other);
+#include "BaseManipulation.hpp"
+
+class ProjectCloud: public BaseManipulation{
+protected:
+	dvecarr3E			m_points;	/**<Coordinates of 3D points in the cloud.*/
+	dvecarr3E			m_proj;	 /**<Projected points coordinates.*/
+
+public:
+	ProjectCloud();
+	~ProjectCloud();
+
+	ProjectCloud(const ProjectCloud & other);
+	ProjectCloud & operator=(const ProjectCloud & other);
 
 	void	buildPorts();
 
-	bool 			isInsideOut();
-	MimmoObject * 	getClippedPatch();
-	darray4E 		getClipPlane();	
+	dvecarr3E	getCoords();
+	dvecarr3E	getCloudResult();
 
-	void	setClipPlane(darray4E plane);
-	void	setInsideOut(bool flag);
-
+	void	setCoords(dvecarr3E coords);
 	void 	execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	void clear();
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 protected:
 	virtual void plotOptionalResults();
-	
-private:	
-	livector1D	clipPlane();
 
 };
 
 }
 
-#endif /* __CLIPGEOMETRY_HPP__ */
+#endif /* __PROJECTCLOUD_HPP__ */

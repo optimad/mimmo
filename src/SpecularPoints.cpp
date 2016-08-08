@@ -21,180 +21,347 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include "Mask.hpp"
+#include "SpecularPoints.hpp"
 
 using namespace mimmo;
 
-/*!Default constructor of Mask
+/*!Default constructor of SpecularPoints
 */
-Mask::Mask(){
-	m_name = "MiMMO.Mask";
-	m_thres.fill({{0,0}});
-	m_inside = {{true, true, true}};
+SpecularPoints::SpecularPoints(){
+	m_name = "MiMMO.SpecularPoints";
+	m_plane.fill(0.0);
+	m_insideout = false;
 };
 
-/*!Default destructor of Mask
+/*!Default destructor of SpecularPoints
  */
-Mask::~Mask(){};
+SpecularPoints::~SpecularPoints(){};
 
-/*!Copy constructor of Mask.
+/*!Copy constructor of SpecularPoints.
  */
-Mask::Mask(const Mask & other):BaseManipulation(other){};
+SpecularPoints::SpecularPoints(const SpecularPoints & other){
+	*this = other;
+};
 
-/*!Assignement operator of Mask.
+/*!Assignement operator of SpecularPoints.
  */
-Mask & Mask::operator=(const Mask & other){
-	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+SpecularPoints & SpecularPoints::operator=(const SpecularPoints & other){
+	*(static_cast<ProjectCloud*> (this)) = *(static_cast<const ProjectCloud*> (&other));
+	m_plane = other.m_plane;
+	m_scalar = other.m_scalar;
+	m_vector = other.m_vector;
+	m_insideout = other.m_insideout;
 	return(*this);
 };
 
 /*! It builds the input/output ports of the object
  */
 void
-Mask::buildPorts(){
+SpecularPoints::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_coords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, Mask>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dmatrix32E, Mask>(&m_thres, PortType::M_RANGE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<std::array<bool,3>, Mask>(&m_inside, PortType::M_BOOLS3, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::BOOL));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getCoords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<dvecarr3E, Mask>(this, &mimmo::Mask::getDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+
+	built = (built && createPortIn<dvecarr3E, SpecularPoints>(this,&mimmo::SpecularPoints::setCoords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::setVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+	
+	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudResult, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudScalarData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 	m_arePortsBuilt = built;
 };
 
-/*!It gets the coordinates of points stored in the object.
- * \return Coordinates of points stored in the object.
+/*!
+ * Returns the original scalar data field attached to cloud points
+ */
+dvector1D
+SpecularPoints::getOriginalScalarData(){
+	return(m_scalar);
+};
+
+/*!
+ * Returns the original vector data field attached to cloud points
  */
 dvecarr3E
-Mask::getCoords(){
-	return(m_coords);
+SpecularPoints::getOriginalVectorData(){
+	return(m_vector);
 };
 
-/*!It gets the displacements of points stored in the object.
- * \return Displacements of points stored in the object.
+/*!
+ * Returns the resulting scalar data field attached to mirrored cloud points
+ */
+dvector1D
+SpecularPoints::getCloudScalarData(){
+	return(m_scalarMirrored);
+};
+
+/*!
+ * Returns the resulting vector data field attached to mirrored cloud points
  */
 dvecarr3E
-Mask::getDisplacements(){
-	return(m_displ);
+SpecularPoints::getCloudVectorData(){
+	return(m_vectorMirrored);
 };
 
-/*!It sets the coordinates of points used by the masking.
- * \param[in] coords Coordinates of points used by the masking.
+
+/*!
+ * Returns plane set up in the class, for mirroring 
  */
-void
-Mask::setCoords(dvecarr3E coords){
-	m_coords = coords;
+darray4E
+SpecularPoints::getPlane(){
+	return(m_plane);
 };
 
-/*!It sets the limits of coordinates to apply the masking.
- * \param[in] thres Limits of coordinates to apply the masking.
+/*!
+ * Returns which half-space intercepeted by the plane is interested by mirroring. 
+ * False represents the half-space where plane normal is directed, true the other one.
+ */
+bool 	
+SpecularPoints::isInsideOut(){
+	return m_insideout;
+}
+
+/*!
+ * Set the original scalar data field attached to points that needs to be mirrored
+ * \param[in] data scalar field;
  */
 void
-Mask::setThresholds(dmatrix32E thres){
-	m_thres = thres;
+SpecularPoints::setScalarData(dvector1D data){
+	m_scalar = data;
 };
 
-/*!It sets the lower limits of the three coordinates to apply the masking.
- * \param[in] thres Minimum limits of coordinates to apply the masking.
+/*!
+ * Set the original field data field attached to points that needs to be mirrored
+ * \param[in] data scalar field;
  */
-void
-Mask::setMinThresholds(darray3E thres){
-	for (int dir = 0; dir < 3; ++dir) m_thres[dir][0] = thres[dir];
+
+void 
+SpecularPoints::setVectorData(dvecarr3E data){
+	m_vector = data;
 };
 
-/*!It sets the greater limits of the three coordinates to apply the masking.
- * \param[in] thres Maximum limits of coordinates to apply the masking.
+
+/*!
+ * Set Plane for mirroring cloud points. All points not belonging to plane will be mirrored
+ * \param[in] plane coefficients a,b,c,d of plane in its implicit form a*x+b*y+c*z+d = 0
  */
 void
-Mask::setMaxThresholds(darray3E thres){
-	for (int dir = 0; dir < 3; ++dir) m_thres[dir][1] = thres[dir];
+SpecularPoints::setPlane(darray4E plane){
+	m_plane = plane;
 };
 
-/*!It sets the limits of one coordinate to apply the masking.
- * \param[in] thres Limits of coordinate to apply the masking.
- * \param[in] dir Index of component.
+/*!
+ * Returns which half-space intercepeted by the plane is interested by mirroring. 
+ * \param[in] flag false to select the half-space where plane normal is directed, true to select the other one.
  */
 void
-Mask::setThresholds(darray2E thres, int dir){
-	m_thres[dir] = thres;
+SpecularPoints::setInsideOut(bool flag){
+	m_insideout = flag;
 };
 
-/*!It sets the limits of x-coordinate to apply the masking.
- * \param[in] thres Limits of x-coordinate to apply the masking.
- */
-void
-Mask::setThresholdx(darray2E thres){
-	m_thres[0] = thres;
-};
 
-/*!It sets the limits of y-coordinate to apply the masking.
- * \param[in] thres Limits of y-coordinate to apply the masking.
+/*!Execution command.Mirror the list of points linked, with data attached if any.
+ * If a geometry is linked, project all resulting points on it.
  */
 void
-Mask::setThresholdy(darray2E thres){
-	m_thres[1] = thres;
-};
-
-/*!It sets the limits of z-coordinate to apply the masking.
- * \param[in] thres Limits of z-coordinate to apply the masking.
- */
-void
-Mask::setThresholdz(darray2E thres){
-	m_thres[2] = thres;
-};
-
-/*!It sets the condition to apply the masking
- * (true/false to set to zero the displacements inside/outside the thresholds).
- * \param[in] inside Condition to apply the mask for all the components.
- */
-void
-Mask::setInside(bool inside){
-	for (int i=0; i<3; i++){
-		m_inside[i] = inside;
-	}
-};
-
-/*!It sets the condition to apply the masking
- * (true/false to set to zero the displacements inside/outside the thresholds).
- * \param[in] inside Condition to apply the mask for the three components.
- */
-void
-Mask::setInside(std::array<bool,3> inside){
-	for (int i=0; i<3; i++){
-		m_inside[i] = inside[i];
-	}
-};
-
-/*!It sets the condition to apply the mask
- * (true/false to set to zero the displacements inside/outside the thresholds).
- * \param[in] i Index of component.
- * \param[in] inside Condition to apply the mask for i-th component.
- */
-void
-Mask::setInside(int i, bool inside){
-	if (i >= 0 && i < 3) m_inside[i] = inside;
-};
-
-/*!Execution command. It modifies the initial values of m_displ with the masking conditions.
- * After exec() the modified values are stored in the m_displ member.
- */
-void
-Mask::execute(){
-	int	ndispl = m_displ.size();
-	ndispl = std::min(ndispl, int(m_coords.size()));
-	for (int i=0; i<ndispl; i++){
-		if (m_coords[i][0]>m_thres[0][0] && m_coords[i][0]<m_thres[0][1] &&
-				m_coords[i][1]>m_thres[1][0] && m_coords[i][1]<m_thres[1][1] &&
-				m_coords[i][2]>m_thres[2][0] && m_coords[i][2]<m_thres[2][1]){
-			for (int j=0; j<3; j++){
-				m_displ[i][j] = (1-m_inside[j])*m_displ[i][j];
-			}
+SpecularPoints::execute(){
+	
+	darray3E norm;
+	double offset;
+	for(int i=0; i<3; ++i)	norm[i] = m_plane[i];
+	offset = m_plane[3];
+	
+	double normPlane = norm2(norm);
+	if(normPlane < 1.E-18 || m_points.empty())	return;
+	norm /= normPlane;
+	bool project =!(getGeometry() == NULL || getGeometry()->isEmpty());
+	
+	double sig = (1.0  - 2.0*((int)m_insideout));
+	double distance;		
+	//mirroring.
+	m_scalar.resize(m_points.size());
+	m_vector.resize(m_points.size());
+	
+	int counterProj = m_points.size();
+	int counterData = 0;
+	
+	m_proj = m_points;
+	m_scalarMirrored = m_scalar;
+	m_vectorMirrored = m_vector;
+	
+	m_proj.resize(2*counterProj);
+	m_scalarMirrored.resize(2*counterProj);
+	m_vectorMirrored.resize(2*counterProj);
+	
+	for(auto &val: m_points){
+		distance = sig*(dotProduct(norm, val) + offset);
+		if(distance > 0.0){
+			m_proj[counterProj] = val - 2.0*distance*sig*norm;
+			m_scalarMirrored[counterProj] = m_scalar[counterData];
+			m_vectorMirrored[counterProj] = m_vector[counterData];
+			counterProj++;
 		}
-		else{
-			for (int j=0; j<3; j++){
-				m_displ[i][j] = (m_inside[j])*m_displ[i][j];
-			}
+		counterData++;
+	}	
+	
+	m_proj.resize(counterProj);
+	m_scalarMirrored.resize(counterProj);
+	m_vectorMirrored.resize(counterProj);
+	
+	if(project){
+		if(!getGeometry()->isBvTreeBuilt())	getGeometry()->buildBvTree();
+	
+		//project points on surface.
+		int counter = 0;
+		for(auto &val : m_proj){
+			m_proj[counter]= bvTreeUtils::projectPoint(&val, getGeometry()->getBvTree()); 
+			++counter;
 		}
-	}
+	}	
 	return;
 };
+
+/*!
+ * Clear all content of the class
+ */
+void SpecularPoints::clear(){
+	ProjectCloud::clear();
+	m_scalar.clear();
+	m_vector.clear();
+	m_scalarMirrored.clear();
+	m_vectorMirrored.clear();
+	m_plane.fill(0.0);
+	m_insideout = false;
+};
+
+/*!
+ * Get infos from a XML bitpit::Config::section. The parameters available are
+ * 
+ *  
+ * 1) Plane -> give mirror plane coefficients in inplicit form
+ * 2) InsideOut-> half-space direction for mirroring
+ * 
+ * Coordinates and data attached are mandatorely passed through ports
+ * 
+ * \param[in] slotXML 	bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+	//start absorbing
+	if(slotXML.hasOption("InsideOut")){
+		std::string input = slotXML.get("InsideOut");
+		input = bitpit::utils::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setInsideOut(value);
+	}
+	
+	if(slotXML.hasOption("Plane")){
+		std::string input = slotXML.get("Plane");
+		input = bitpit::utils::trim(input);
+		darray4E temp = {{0.0,0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp[0]>>temp[1]>>temp[2]>>temp[3];
+			setPlane(temp);
+		}else{
+			setPlane(temp);
+		}	
+	}
+	
+	if(slotXML.hasOption("PlotInExecution")){
+		std::string input = slotXML.get("PlotInExecution");
+		input = bitpit::utils::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setPlotInExecution(value);
+	}
+	
+	if(slotXML.hasOption("OutputPlot")){
+		std::string input = slotXML.get("OutputPlot");
+		input = bitpit::utils::trim(input);
+		std::string temp = ".";
+		if(!input.empty())	setOutputPlot(input);
+		else			  	setOutputPlot(temp);
+	}
+	
+	return;	
+	
+};
+
+/*!
+ * Plot infos to a XML bitpit::Config::section. The parameters available are
+ * 
+ *  
+ * 1) Plane -> give mirror plane coefficients in inplicit form
+ * 2) InsideOut-> half-space direction for mirroring
+ * 
+ * Coordinates and data attached are mandatorely passed through ports
+ * 
+ * \param[in] slotXML 	bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	int value = m_insideout;
+	slotXML.set("InsideOut", std::to_string(value));
+	
+	{
+		darray4E org = getPlane();
+		std::stringstream ss;
+		ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2]<<'\t'<<org[3];
+		slotXML.set("Plane",ss.str());
+	}
+	
+	if(isPlotInExecution()){
+		slotXML.set("PlotInExecution", std::to_string(1));
+	}
+	
+	if(m_outputPlot != "."){
+		slotXML.set("OutputPlot", m_outputPlot);
+	}
+};
+
+/*!
+ * Plot as optional results the mirrored list of points with the updated 
+ * data field associated to it
+ */
+void SpecularPoints::plotOptionalResults(){
+		bitpit::VTKFormat codex = bitpit::VTKFormat::APPENDED;
+		
+		int size = m_proj.size();
+		ivector1D conn(size);
+		for(int i=0; i<size; i++){
+			conn[i] = i;
+		}
+		std::string dir = "./";
+		std::string file = m_name + "_" + std::to_string(getClassCounter());
+		
+		bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_proj) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+		vtk.setDimensions(size, size);
+		vtk.setCodex(codex);
+	
+		std::string scalarfield = "ScalarData";
+		std::string vectorfield = "VectorData";
+	
+		vtk.addData( scalarfield, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_scalarMirrored ) ;
+		vtk.addData( vectorfield, bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, m_vectorMirrored ) ;
+
+		vtk.write();
+};
+
+
+

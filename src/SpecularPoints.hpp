@@ -21,10 +21,10 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __MASK_HPP__
-#define __MASK_HPP__
+#ifndef __SPECULARPOINTS_HPP__
+#define __SPECULARPOINTS_HPP__
 
-#include "BaseManipulation.hpp"
+#include "ProjectCloud.hpp"
 
 namespace mimmo{
 
@@ -33,78 +33,84 @@ namespace mimmo{
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief Mask is the class that applies a geometrical masking filter to a set of data.
+ *	\brief SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target geometry if any
  *
- *	Mask is derived from BaseManipulation class.
- *	It uses the members m_coords as values to be compared with the thresholds
- *	fixed by the user for each coordinate.
- *	The flags into m_inside define, for each coordinate,
- *	if the object applies the masking inside or outside the thersholds.
- * 
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
+ *	SpecularPoints is derived from ProjectCloud class. Given a certain number of points and a reference plane,
+ *  the class mirrors such points with respect to this plane. If a geometry is linked, project mirrored points on 
+ *  this target geometry. Any data attached, as scalar/vector float data format, are mirrored as well. 
  *
  *	=========================================================
  * ~~~
- *	|----------------------------------------------------------------|
- *	|                 Port Input                       		 		 |
- *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
- *	|-------|----------|-------------------|-------------------------|
- *	| 0     | M_COORDS | m_coords          | (VECARR3, FLOAT)		 |
- *	| 10    | M_DISPLS | m_displ           | (VECARR3, FLOAT) 	     |
- *	| 41    | M_RANGE  | m_thres           | (ARRAY3, FLOAT)		 |
- *	| 42    | M_BOOLS3 | m_inside          | (ARRAY3, BOOL)			 |
- *	|-------|----------|-------------------|-------------------------|
+ *	|-----------------------------------------------------------------------|
+ *	|                 Port Input                       		 		 		|
+ *	|-------|---------------|-------------------|---------------------------|
+ *	|PortID | PortType 		| variable/function | DataType 		 		 	|
+ *	|-------|---------------|-------------------|---------------------------|
+ *	| 0     | M_COORDS 		| setPoints         | (VECARR3, FLOAT)		 	|
+ *	| 10    | M_DISPLS 		| setVectorData     | (VECARR3, FLOAT) 	     	|
+ *	| 19    | M_SCALARFIELD | setScalarData     | (VECTOR, FLOAT)		 	|
+ *	| 29    | M_PLANE		| setPlane	     	| (ARRAY4, FLOAT)		 	|
+ *  | 32    | M_VALUEB		| setInsideOut     	| (SCALAR, BOOL)		 	|
+ *	| 99    | M_GEOM 		| m_inside          | (SCALAR, MIMMO_)			|
+ *	|-------|---------------|-------------------|---------------------------|
  *
  *
- *	|----------------------------------------------------------------|
- *	|            Port Output                          		 		 |
- *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
- *	|-------|----------|-------------------|-------------------------|
- *	| 0     | M_COORDS | getCoords         | (VECARR3, FLOAT)		 |
- *	| 10    | M_DISPLS | getDisplacements  | (VECARR3, FLOAT) 	     |
- *	|-------|----------|-------------------|-------------------------|
+ *	|--------------------------------------------------------------------|
+ *	|            Port Output     	                     		 		 |
+ *	|-------|---------------|-------------------|------------------------|
+ *	|PortID | PortType 		| variable/function | DataType 		 		 |
+ *	|-------|---------------|-------------------|------------------------|
+ *	| 0     | M_COORDS 		| getCloudResult	| (VECARR3, FLOAT)		 |
+ *	| 10    | M_DISPLS 		| getCloudVectorData| (VECARR3, FLOAT) 	     |
+ *	| 19    | M_SCALARFIELD | getCloudScalarData| (VECTOR, FLOAT)		 |
+ *	|-------|---------------|-------------------|------------------------|
  * ~~~
  *	=========================================================
  *
  */
-class Mask: public BaseManipulation{
+class SpecularPoints: public ProjectCloud{
 private:
-	dvecarr3E			m_coords;	/**<Coordinates of degrees of freedom of manipulator.*/
-	dmatrix32E			m_thres;	/**<Limit of coordinates (min,max for each coordinate) to apply the masking.*/
-	std::array<bool,3>	m_inside;	/**<Condition to apply the mask (true/false to set to zero the displacements inside/outside the thresholds).*/
-	dvecarr3E			m_displ;	/**<Dispalcements of degree of freedom of manipulator.*/
-
+	bool		m_insideout; /**< plane direction for mirroring */
+	darray4E 	m_plane;  /**< reference plane */
+	dvector1D	m_scalar; /**< float scalar data attached to original points*/
+	dvecarr3E   m_vector; /**< float vector data attached to original points*/
+	dvector1D	m_scalarMirrored; /**< resulting float scalar data after mirroring*/
+	dvecarr3E   m_vectorMirrored; /**< resulting float scalar data after mirroring*/
+	
 public:
-	Mask();
-	~Mask();
+	SpecularPoints();
+	~SpecularPoints();
 
-	Mask(const Mask & other);
-	Mask & operator=(const Mask & other);
+	SpecularPoints(const SpecularPoints & other);
+	SpecularPoints & operator=(const SpecularPoints & other);
 
 	void	buildPorts();
 
-	dvecarr3E	getCoords();
-	dvecarr3E	getDisplacements();
+	dvector1D getOriginalScalarData();
+	dvecarr3E getOriginalVectorData();
 
-	void	setCoords(dvecarr3E coords);
-	void	setThresholds(dmatrix32E thres);
-	void	setThresholds(darray2E thres, int dir);
-	void	setMinThresholds(darray3E thres);
-	void	setMaxThresholds(darray3E thres);
-	void	setThresholdx(darray2E thres);
-	void	setThresholdy(darray2E thres);
-	void	setThresholdz(darray2E thres);
-	void	setInside(bool inside);
-	void	setInside(std::array<bool,3> inside);
-
-	void	setInside(int i, bool inside);
-
+	dvector1D getCloudScalarData();
+	dvecarr3E getCloudVectorData();
+	
+	darray4E  getPlane();
+	bool	  isInsideOut();
+	
+	void	setVectorData(dvecarr3E data);
+	void	setScalarData(dvector1D data);
+	void	setPlane(darray4E plane);
+	void 	setInsideOut(bool flag);
+	
 	void 	execute();
-
+	
+	void clear();
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	
+protected:
+	virtual void plotOptionalResults();
 };
 
 }
 
-#endif /* __MASK_HPP__ */
+#endif /* __SPECULARPOINTS_HPP__ */

@@ -211,6 +211,7 @@ MimmoObject::clear(){
  */
 bool
 MimmoObject::isEmpty(){
+	if(this == NULL)	return true;
 	return (m_patch == NULL);
 };
 
