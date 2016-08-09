@@ -36,7 +36,7 @@ MRBF::MRBF(){
 	m_tol = 0.00001;
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
-	m_srset = false;
+	m_SRRatio = -1.0;
 };
 
 /*! Default Destructor */
@@ -72,7 +72,7 @@ MRBF & MRBF::operator=(const MRBF & other){
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
 	m_solver = other.m_solver;
-	m_srset  = other.m_srset;
+	m_SRRatio  = other.m_SRRatio;
 	return(*this);
 };
 
@@ -133,6 +133,23 @@ MRBF::setMode(int type){
  */
 dvector1D	MRBF::getFilter(){
 	return(m_filter);
+};
+
+/*! 
+ * It gets current support radius ratio a set up in the class. See MRBF::setSupportRadius method documentation.
+ * Reimplemented from bitpit::RBF::getSupportRadius.
+ * @return support radius ratio
+ */
+double	MRBF::getSupportRadius(){
+	return(m_SRRatio);
+};
+
+/*! 
+ * It gets the current real value of support radius for RBF kernels set up in the class. 
+ * @return support radius value
+ */
+double	MRBF::getSupportRadiusValue(){
+	return(RBF::getSupportRadius());
 };
 
 /*!
@@ -269,15 +286,20 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
 }
 
 
-/*! Set support radius of RBF kernel functions. 
- * Reimplemented from RBF::setSupportRadius of bitpit;
+/*! Set ratio a of support radius R of RBF kernel functions, according to the formula
+ * R = 0.5*a*D, where D is the diagonal of the Axis Aligned Bounding Box referred to the target
+ * geometry. During the execution the correct value of R is applied.
+ * The ratio a can have value between 0 and 1 (with 0 excluded), which corresponding to minimum locally narrowed
+ * function, and almost flat functions (as sphere of infinite radius), respectively. Positive values greater then 1,
+ * are reset to the maximum value 1 automatically.
+ * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is 
+ * R is set proportional to the maximum displacement value.
  * @param[in] suppR new value of suppR
  */
 void
 MRBF::setSupportRadius(double suppR_){
-	const double suppR(suppR_);
-	m_srset = true;
-	RBF::setSupportRadius(suppR);
+	suppR_ = std::fmax(-1.0, std::fmin(1, suppR_));
+	m_SRRatio = suppR_;
 }
 
 /*!It sets the tolerance for greedy - interpolation algorithm.
@@ -318,6 +340,8 @@ void MRBF::setDisplacements(dvecarr3E displ){
 void MRBF::clear(){
 	BaseManipulation::clear();
 	clearFilter();
+	m_tol = 0.00001;
+	m_SRRatio = -1;
 };
 
 /*!Clean filter field */
@@ -363,7 +387,7 @@ MRBF::setWeight(dvector2D value){
 void MRBF::execute(){
 
 	MimmoObject * container = getGeometry();
-	if(container == NULL ) return;
+	if(container->isEmpty() ) return;
 
 	int size, sizeF = getDataCount();
 	for (int i=0; i<sizeF; i++){
@@ -377,11 +401,17 @@ void MRBF::execute(){
 		}
 	}
 
-	//Checking supportRadius.
+	double halfDiag;
+	{
+		darray3E pmin, pmax;
+		container->getPatch()->getBoundingBox(pmin, pmax);
+		halfDiag= 0.5*norm2(pmax - pmin);
+	}
 	
-	if(!m_srset){ //get maximum weight/value displ and assign support radius a 3 times this value.
+	//Checking supportRadius.
+	double distance = 0.0;
+	if(m_SRRatio <=0.0){ //get maximum weight/value displ and assign support radius a 3 times this value.
 
-		double maxvalue = 0.0;
 		for(int i=0; i<size; ++i){
 			
 			dvector1D data(sizeF);
@@ -391,19 +421,21 @@ void MRBF::execute(){
 				else							data[j] = m_value[j][i];
 			}	
 
-			maxvalue = std::max(maxvalue, norm2(data));
+			distance = std::max(distance, norm2(data));
 		}
-	
-		setSupportRadius(3*maxvalue);
-	}
-	
-	if(getSupportRadius() <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
 		
-		darray3E pmin, pmax;
-		container->getPatch()->getBoundingBox(pmin, pmax);
-		setSupportRadius(0.5*norm2(pmax - pmin));
+		distance *=3.0;
+	
+	}else{
+		distance = halfDiag * (std::exp(m_SRRatio*m_SRRatio*std::log(1.01E+02)) -1.0);
 	}
 	
+	if(distance <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
+		distance = halfDiag;
+	}
+	
+	const double radius = distance;
+	RBF::setSupportRadius(radius);
 	
    if (m_solver == MRBFSol::WHOLE)	solve();
    if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
@@ -462,10 +494,9 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name
 		setMode(value);
 	}; 
 	
-	m_srset = false;
 	if(slotXML.hasOption("SupportRadius")){
 		input = slotXML.get("SupportRadius");
-		double value;
+		double value = -1.0;
 		if(!input.empty()){
 			std::stringstream ss(bitpit::utils::trim(input));
 			ss >> value;
@@ -513,13 +544,11 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 	input = std::to_string(static_cast<int>(m_solver));
 	slotXML.set("Mode", input);
 	
-	//checking if not default and if not connected to a port
-	if(m_srset){
+	{
 		std::stringstream ss;
 		ss<<std::scientific<<getSupportRadius();
 		slotXML.set("SupportRadius", ss.str());
 	}
-	
 	//checking if not default and if not connected to a port
 	if(m_tol != 1.0E-6 ){
 		std::stringstream ss;

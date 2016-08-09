@@ -39,16 +39,19 @@ using namespace std::placeholders;
 void test0009() {
 
 	
-	//std::string file = "helmet"; 
-	std::string file = "drivAerBin2"; 
+	std::string file = "helmet"; 
+	//std::string file = "drivAerBin2"; 
 	//Instantiation of geometry geometry Object.
 	MimmoGeometry* geometry = new MimmoGeometry();
 	geometry->setRead(true);
 	geometry->setReadFileType(FileType::STL);
 	geometry->setReadDir("./geo_data");
 	geometry->setReadFilename(file);
-	geometry->setWrite(false);
-
+	geometry->setWrite(true);
+	geometry->setWriteFileType(FileType::STL);
+	geometry->setWriteDir(".");
+	geometry->setWriteFilename("testGeom");
+	
 	geometry->exec();
 	OBBox * obb = new OBBox();
 		

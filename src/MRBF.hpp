@@ -91,8 +91,7 @@ private:
 	MRBFSol		m_solver; 	/**<Type of solver specified for the class as default in execution*/
 	dvector1D	m_filter;	/**<Filter field for displacements modulation */
 	bool		m_bfilter;	/**<boolean to recognize if a filter field is applied */
-	
-	bool		m_srset;	/**<True if the support radius is set by the user.*/
+	double		m_SRRatio;	/**<support Radius ratio */
 
 	dvecarr3E	m_displ;	/**<Rsulting displacements of geometry vertex.*/
 
@@ -114,6 +113,8 @@ public:
 	void			setMode(MRBFSol);
 	void			setMode(int);
 	dvector1D		getFilter();
+	double			getSupportRadius();
+	double			getSupportRadiusValue();
 	
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	dvecarr3E		getDisplacements();

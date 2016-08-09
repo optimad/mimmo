@@ -146,6 +146,7 @@ void test0006() {
 	MRBF* mrbf = new MRBF();
 	mrbf->setMode(MRBFSol::NONE);
 	mrbf->setGeometry(objectPlane);
+	mrbf->setSupportRadius(-1.0);
 	mrbf->addNode(objectDisk);
 
 	//create applier
@@ -197,7 +198,7 @@ void test0006() {
 	//Execution of chain
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
-	ch0.exec();
+	ch0.exec(true);
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
