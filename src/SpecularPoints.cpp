@@ -172,11 +172,35 @@ SpecularPoints::execute(){
 	double offset;
 	for(int i=0; i<3; ++i)	norm[i] = m_plane[i];
 	offset = m_plane[3];
-	
 	double normPlane = norm2(norm);
 	if(normPlane < 1.E-18 || m_points.empty())	return;
 	norm /= normPlane;
 	bool project =!(getGeometry() == NULL || getGeometry()->isEmpty());
+
+	
+	//choosing margin for plane offset
+	double margin = 1.e-12;
+	if(project && getGeometry()->getType() == 1){
+		double aTot = 0.0;
+		int cellSize = getGeometry()->getNCells();
+		bitpit::SurfaceKernel * tri = static_cast<bitpit::SurfaceKernel * >(getGeometry()->getPatch());
+		for(auto &cell: tri->getCells()){
+			aTot += tri->evalCellArea(cell.getId());
+		}
+		
+		if(aTot > 0.0) {margin =  1.2*pow(aTot/((double)cellSize),0.5);}
+		
+	}else if(project && getGeometry()->getType() == 2){
+		double vTot = 0.0;
+		int cellSize = getGeometry()->getNCells();
+		bitpit::VolumeKernel * tetra = static_cast<bitpit::VolumeKernel * >(getGeometry()->getPatch());
+		for(auto &cell: tetra->getCells()){
+			vTot += tetra->evalCellVolume(cell.getId());
+		}
+		
+		if(vTot > 0.0) {margin =  1.2*pow(vTot/((double)cellSize),0.5);}
+	}
+
 	
 	double sig = (1.0  - 2.0*((int)m_insideout));
 	double distance;		
@@ -197,10 +221,10 @@ SpecularPoints::execute(){
 	
 	for(auto &val: m_points){
 		distance = sig*(dotProduct(norm, val) + offset);
-		if(distance > 0.0){
+		if(distance > margin){
 			m_proj[counterProj] = val - 2.0*distance*sig*norm;
 			m_scalarMirrored[counterProj] = m_scalar[counterData];
-			m_vectorMirrored[counterProj] = m_vector[counterData];
+			m_vectorMirrored[counterProj] = m_vector[counterData] -2.0*dotProduct(m_vector[counterData], sig*norm)*sig*norm;
 			counterProj++;
 		}
 		counterData++;
