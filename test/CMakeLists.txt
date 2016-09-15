@@ -37,6 +37,7 @@ list(APPEND TESTS_SERIAL "test_MIMMO_00007")
 list(APPEND TESTS_SERIAL "test_MIMMO_00008")
 list(APPEND TESTS_SERIAL "test_MIMMO_00009")
 list(APPEND TESTS_SERIAL "test_MIMMO_00010")
+list(APPEND TESTS_SERIAL "test_MIMMO_00011")
 
 ##include_directories("opt/valgrind/3.11.0/include/valgrind")
 
@@ -112,5 +113,9 @@ add_custom_command(
 add_custom_command(
     TARGET "test_MIMMO_00010" PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/helmet.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/helmet.stl"
+    )
+add_custom_command(
+    TARGET "test_MIMMO_00011" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/plane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/plane.stl"
     )
 

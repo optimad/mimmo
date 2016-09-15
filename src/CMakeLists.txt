@@ -35,6 +35,7 @@ else()
     set(LIBRARY_TYPE "SHARED")
 endif()
 
+
 # Add library to targets
 file(GLOB SOURCE_FILES "*.cpp")
 set(MIMMO_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of MIMMO Library" FORCE)
