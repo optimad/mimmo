@@ -22,7 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformMaxDistance.hpp"
-#include <valgrind/callgrind.h>
+//#include <valgrind/callgrind.h>
 
 using namespace mimmo;
 
@@ -115,41 +115,59 @@ ControlDeformMaxDistance::execute(){
 	violationField.reserve(m_defField.size());
 	
 	if(!(geo->isBvTreeBuilt()))	geo->buildBvTree();
+
+	//	CALLGRIND_START_INSTRUMENTATION;
+
 	
-	CALLGRIND_START_INSTRUMENTATION;
+	
+	
 	dvecarr3E points = geo->getVertexCoords();
 	points+= m_defField;
+	dvector1D normDef(m_defField.size());
 	
-	double radius = m_maxDist;
-	double rate = 0.1;
-	int kmax = 150;
-	int kiter;
 	int count=0;
-	long id;
+	for(auto & def : m_defField){
+		normDef[count] = norm2(def);
+		++count;
+	}
+	
 	double dist;
+	double radius ;
+	double rate = 0.05;
+	int kmax = 200;
+	int kiter;
+	bool flag;
+	long id;
+	count = 0; int count2 = 0;
+	
 	for(auto &p : points){
 		dist =1.0E+18;
 		kiter = 0;
-		while(dist == 1.0E+18 && kiter < kmax){
-			radius *=(1.0 + rate);
+		flag = true;
+		radius = normDef[count];
+		while(flag && kiter < kmax){
 			dist = bvTreeUtils::distance(&p, geo->getBvTree(), id, radius);
+			flag = (dist == 1.0E+18);
+			if(flag)	radius *= (1.0+ rate*((double)flag));
 			kiter++;
-			count++;
+			count2++;
 		}
-		
+		count++;
 		if(kiter == kmax)	dist = m_maxDist - dist;
 		violationField.push_back(dist);
 	}
 	
-	std::cout<<"called bvTreeUtils::distance "<<count<<" times"<<std::endl;
-	
+	std::cout<<"called bvTreeUtils::distance "<<count2<<" times"<<std::endl;
+	double ciccio;
+	maxval(violationField, ciccio);
+	std::cout<<"maximumViolationDistance"<<ciccio<<std::endl;
 	m_violation = -1.E+18;
 	for(auto & val : violationField){
-		m_violation = std::fmax(m_violation, (val-m_maxDist));
+		m_violation = std::fmax(m_violation, (val - m_maxDist));
 	}
 	
-	CALLGRIND_STOP_INSTRUMENTATION;
-	CALLGRIND_DUMP_STATS;
+// 	CALLGRIND_STOP_INSTRUMENTATION;
+// 	CALLGRIND_DUMP_STATS;
 	return;
 };
 

@@ -47,10 +47,11 @@ double test00011() {
 	mimmoP->setReadDir("geo_data");
 	mimmoP->setReadFileType(FileType::STL);
 	mimmoP->setReadFilename("plane");
+	mimmoP->setBuildBvTree(true);
 
 	dvecarr3E displ(1, darray3E{{0.0,0.0,0.0}}), nodes(1,darray3E{{0.0,0.0,0.0}});
 
-	displ[0][2] = 1.0;	
+	displ[0][2] = 0.8;	
 	
 	//createRBF
 	MRBF* mrbf = new MRBF();
@@ -60,7 +61,19 @@ double test00011() {
 	mrbf->setNode(nodes);
 
 	ControlDeformMaxDistance * volconstr = new ControlDeformMaxDistance();
-	volconstr->setLimitDistance(0.8);
+	volconstr->setLimitDistance(0.6);
+	
+	Apply * applier = new Apply();
+	
+	MimmoGeometry * mimmoW = new MimmoGeometry();
+	
+	mimmoW->setRead(false);
+	mimmoW->setWrite(true);
+	mimmoW->setWriteDir(".");
+	mimmoW->setWriteFileType(FileType::STL);
+	mimmoW->setWriteFilename("plane_deformed");
+	
+	
 	
 	
 	//Set PINS
@@ -69,19 +82,25 @@ double test00011() {
 	cout << "add pin info 1 : " << boolalpha << addPin(mimmoP, mrbf, PortType::M_GEOM, PortType::M_GEOM) << endl;
 	cout << "add pin info 2 : " << boolalpha << addPin(mimmoP, volconstr, PortType::M_GEOM, PortType::M_GEOM) << endl;
 	cout << "add pin info 3 : " << boolalpha << addPin(mrbf, volconstr, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
+	cout << "add pin info 4 : " << boolalpha << addPin(mimmoP, applier, PortType::M_GEOM, PortType::M_GEOM) << endl;
+	cout << "add pin info 5 : " << boolalpha << addPin(mrbf, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
+	cout << "add pin info 4 : " << boolalpha << addPin(mimmoP, mimmoW, PortType::M_GEOM, PortType::M_GEOM) << endl;
 	cout << "set pins done" << endl;
 
 	//Create chain
-	Chain ch0;
+	Chain ch0,ch1;
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(mimmoP);
 	ch0.addObject(mrbf);
 	ch0.addObject(volconstr);
+	ch0.addObject(applier);
+	ch1.addObject(mimmoW);
 	
 	//Execution of chain
 	cout << "execution start" << endl;
 	steady_clock::time_point t1 = steady_clock::now();
 	ch0.exec(true);
+	ch1.exec(true);
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 
@@ -91,10 +110,14 @@ double test00011() {
 	delete mimmoP;
 	delete mrbf;
 	delete volconstr;
+	delete mimmoW;
+	delete applier;
 	
 	mrbf 		= NULL;
 	mimmoP 		= NULL;
 	volconstr 	= NULL;
+	applier = NULL;
+	mimmoW = NULL;
 	
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
