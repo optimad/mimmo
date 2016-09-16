@@ -118,7 +118,8 @@ public:
 
 	void setPatch(bitpit::PatchKernel *patch_);
 	void setMaxLeafSize(int maxsize);
-	bool inBoundingBox(std::array<double,3> *P_, BvNode *nod_, double r = 0.0);
+    bool inBoundingBox(std::array<double,3> *P_, BvNode *nod_, double r = 0.0);
+    bool SphereBoundingBox(std::array<double,3> *P_, BvNode *nod_, double r = 0.0);
 
 	void clean();
 	void setup();
@@ -144,12 +145,12 @@ private:
  *	\brief Utilities employing bvTree.
  */
 namespace bvTreeUtils{
-	double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
-	double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int next = 0, double h = 1.0e+18);
+    double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, int method = 1, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
+    double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method = 1, int next = 0, double h = 1.0e+18);
 	std::array<double,3> projectPoint(std::array<double,3> *P_, BvTree *bvtree_, double r_ = 1.0e+18);
 
-	std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::array<double,3>  &n, double r_ = 1.0e+18 );
-	std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18 );
+	std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::array<double,3>  &n, double r_ = 1.0e+18, int method = 1 );
+	std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18, int method = 1 );
 	std::vector<std::array<double,3> > projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_ = 1.0e+18);
 
 	std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol = 1.0e-04);

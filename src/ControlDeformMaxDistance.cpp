@@ -22,7 +22,6 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformMaxDistance.hpp"
-//#include <valgrind/callgrind.h>
 
 using namespace mimmo;
 
@@ -102,6 +101,7 @@ ControlDeformMaxDistance::setLimitDistance(double dist){
 	m_maxDist = std::fmax(0.0,dist);
 };
 
+
 /*!Execution command. Calculate violation value and store it in the class member m_violation
  */
 void
@@ -116,11 +116,6 @@ ControlDeformMaxDistance::execute(){
 	
 	if(!(geo->isBvTreeBuilt()))	geo->buildBvTree();
 
-	//	CALLGRIND_START_INSTRUMENTATION;
-
-	
-	
-	
 	dvecarr3E points = geo->getVertexCoords();
 	points+= m_defField;
 	dvector1D normDef(m_defField.size());
@@ -161,13 +156,12 @@ ControlDeformMaxDistance::execute(){
 	double ciccio;
 	maxval(violationField, ciccio);
 	std::cout<<"maximumViolationDistance"<<ciccio<<std::endl;
+
 	m_violation = -1.E+18;
 	for(auto & val : violationField){
 		m_violation = std::fmax(m_violation, (val - m_maxDist));
 	}
 	
-// 	CALLGRIND_STOP_INSTRUMENTATION;
-// 	CALLGRIND_DUMP_STATS;
 	return;
 };
 

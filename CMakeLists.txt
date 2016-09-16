@@ -85,7 +85,6 @@ find_package(LibXml2 REQUIRED)
 
 
     include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
-	include_directories("/opt/valgrind/3.11.0/include")
  
 
 #------------------------------------------------------------------------------------#

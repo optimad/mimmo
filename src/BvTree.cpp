@@ -538,6 +538,28 @@ bool BvTree::inBoundingBox(darray3E *P_, BvNode *node_, double r)
 	return(in);
 }
 
+/*!It evluates if a sphere centered in a point intersects the bounding box
+ * of a node broaden by a given quantity.
+ * \param[in] P_ Pointer to the input point coordinates.
+ * \param[in] node_ Pointer to the target node.
+ * \param[in] r Radius of the sphere.
+ * \return True if there is intersection between sphere and bounding box (or
+ * the sphere is completely inside the bounding box).
+ *
+ */
+bool BvTree::SphereBoundingBox(darray3E *P_, BvNode *node_, double r)
+{
+
+    darray3E closestP;
+    for ( int i=0; i<m_dim; i++ )
+    {
+        closestP[i] = std::min(std::max((*P_)[i], node_->m_minPoint[i]), node_->m_maxPoint[i]);
+    }
+    double dist = dotProduct(closestP-(*P_), closestP-(*P_));
+
+    return(dist < r*r);
+}
+
 /*!It cleans the bv-tree and release memory.
  */
 void BvTree::clean(){
@@ -613,15 +635,16 @@ namespace bvTreeUtils{
  * \param[out] n Pseudo-normal of the element (i.e. unit vector with direction (P-xP),
  * where P is the input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
- * \param[in] r Length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
+ * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+ * every element encountered inside the box/sphere).
+ * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \param[in] spatch_ Pointer to bitpit::SurfUnstructured patch related to the bv-tree (optional).
  * \param[in] next Index of the starting node to perform the searching (optional).
  * \param[in] h Initial minimum distance (if no value find below the initial value, this
  * it returns this value as result) (optional).
  * \return Signed distance of the input point from the patch in the bv-tree.
  */
-double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, double &r, bitpit::SurfUnstructured *spatch_, int next, double h)
+double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, double &r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)
 {
 
 	if ( spatch_ == NULL ) spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
@@ -629,7 +652,7 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 	// Local variables
 	double		hr = 1.0e+18,	hl = 1.0e+18;
 	double		rstart = r;
-	long		idr,			idl;
+	long		idr = -1,			idl = -1;
 	int			index_l = -1,	index_r = -1;
 	int			nextl = -1, 	nextr = -1;
 
@@ -643,10 +666,19 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 		index_r = bvtree_->m_nodes[next].m_rchild;
 		if ( index_l >= 0 )
 		{
-			if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-			{
-				hl = signedDistance(P_, bvtree_, idl, n, r, spatch_, index_l, h);
-			}
+		    if (method == 0){
+		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+		        {
+		            hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
+		        }
+		    }
+		    else if (method == 1){
+		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+		        {
+		            hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
+		        }
+		    }
+
 		}
 		if ( hl < h )
 		{
@@ -657,10 +689,18 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 
 		if ( index_r >= 0 )
 		{
-			if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
-			{
-				hr = signedDistance(P_, bvtree_, idr, n, r, spatch_, index_r, h);
-			}
+		    if (method == 0){
+		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+		        {
+		            hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
+		        }
+		    }
+		    else if (method == 1){
+		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+		        {
+		            hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
+		        }
+		    }
 		}
 		if ( hr < h )
 		{
@@ -794,20 +834,23 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
  * \param[out] id Label of the element found as minimum distance element in the bv-tree.
  * \param[in] r Length of the side of the box used to search. (The algorithm checks
  * every element encountered inside the box).
+ * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+ * every element encountered inside the box/sphere).
+ * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \param[in] next Index of the starting node to perform the searching (optional).
  * \param[in] h Initial minimum distance (if no value find below the initial value, this
  * it returns this value as result) (optional).
  * \return Unsigned distance of the input point from the patch in the bv-tree.
  */
-double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int next, double h)
+double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int method, int next, double h)
 {
 
 	// Local variables
 	int		index_l = -1,	index_r = -1;
 	int		nextl = -1, 	nextr = -1;
 	double 	hr = 1.0e+18,	hl = 1.0e+18;
-	long	idr,			idl;
-	double rstart = r;
+	long	idr = -1,		idl = -1;
+	double  rstart = r;
 
 	if ( bvtree_->m_nnodes == 0 ) return(1.0e+18);
 
@@ -818,10 +861,18 @@ double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int next, do
 		index_r = bvtree_->m_nodes[next].m_rchild;
 		if ( index_l >= 0 )
 		{
-			if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-			{
-				hl = distance(P_, bvtree_, idl, r, index_l, h);
-			}
+		    if (method == 0){
+		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+		        {
+		            hl = distance(P_, bvtree_, idl, r, method, index_l, h);
+		        }
+		    }
+		    else if (method == 1){
+		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+		        {
+		            hl = distance(P_, bvtree_, idl, r, method, index_l, h);
+		        }
+		    }
 		}
 		if ( hl < h )
 		{
@@ -831,10 +882,18 @@ double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int next, do
 		}
 		if ( index_r >= 0 )
 		{
-			if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
-			{
-				hr = distance(P_, bvtree_, idr, r, index_r, h);
-			}
+            if (method == 0){
+                if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+                {
+                    hr = distance(P_, bvtree_, idr, r, method, index_r, h);
+                }
+            }
+            else if (method == 1){
+                if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+                {
+                    hr = distance(P_, bvtree_, idr, r, method, index_r, h);
+                }
+            }
 		}
 		if ( hr < h )
 		{
@@ -913,7 +972,8 @@ darray3E projectPoint( darray3E *P_, BvTree *bvtree_, double r )
 
 	double 		dist = 1.0e+18;
 	while (std::abs(dist) >= 1.0e+18){
-		dist = signedDistance(P_, bvtree_, id, normal, r, spatch_);
+	    //use method sphere by default
+		dist = signedDistance(P_, bvtree_, id, normal, r, 1, spatch_);
 		r *= 1.5;
 	}
 
@@ -937,11 +997,12 @@ darray3E projectPoint( darray3E *P_, BvTree *bvtree_, double r )
  * \param[out] n Vector of pseudo-normals of the elements (i.e. unit vectors with direction (P-xP),
  * where P is an input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
- * \param[in] r_ Length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
+ * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+ * every element encountered inside the box/sphere).
+ * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \return Vector with signed distances of the input points from the patch in the bv-tree.
  */
-dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, dvecarr3E &n, double r_)
+dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, dvecarr3E &n, double r_, int method)
 {
 	bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
 
@@ -951,7 +1012,7 @@ dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, 
 
 	int i;
 	for ( i = 0; i < nP; ++i){
-		dist[i] = signedDistance(&((*P_)[i]), bvtree_, id[i], n[i], r, spatch_);
+		dist[i] = signedDistance(&((*P_)[i]), bvtree_, id[i], n[i], r, method, spatch_);
 	}
 	return(dist);
 }
@@ -964,11 +1025,12 @@ dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, 
  * \param[in] P_ Pointer to vector with the coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
  * \param[out] id Vector with labels of the elements found as minimum distance elements in the bv-tree.
- * \param[in] r Length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
+  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+ * every element encountered inside the box/sphere).
+ * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \return Vector with unsigned distances of the input points from the patch in the bv-tree.
  */
-dvector1D distance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, double r_)
+dvector1D distance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, double r_, int method)
 {
 
 	double 		r = r_;
@@ -977,7 +1039,7 @@ dvector1D distance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, double
 
 	int i;
 	for ( i = 0; i < nP; ++i){
-		dist[i] = distance(&((*P_)[i]), bvtree_, id[i], r);
+		dist[i] = distance(&((*P_)[i]), bvtree_, id[i], r, method);
 	}
 	return(dist);
 }

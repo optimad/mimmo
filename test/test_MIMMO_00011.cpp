@@ -73,9 +73,6 @@ double test00011() {
 	mimmoW->setWriteFileType(FileType::STL);
 	mimmoW->setWriteFilename("plane_deformed");
 	
-	
-	
-	
 	//Set PINS
 	cout << "set pins" << endl;
 
