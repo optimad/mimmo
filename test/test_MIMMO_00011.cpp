@@ -26,6 +26,7 @@
 #include <functional>
 #include "customOperators.hpp"
 #include "ControlDeformMaxDistance.hpp"
+#include "ControlDeformExtSurface.hpp"
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -38,7 +39,7 @@ using namespace std::placeholders;
 
 // =================================================================================== //
 
-double test00011() {
+dvector1D test00011() {
 
 	//Creation of MiMMO container.
 	MimmoGeometry * mimmoP = new MimmoGeometry();
@@ -49,9 +50,9 @@ double test00011() {
 	mimmoP->setReadFilename("plane");
 	mimmoP->setBuildBvTree(true);
 
-	dvecarr3E displ(1, darray3E{{0.0,0.0,0.0}}), nodes(1,darray3E{{0.0,0.0,0.0}});
+	dvecarr3E displ(1, darray3E{{0.0,0.0,0.0}}), nodes(1,darray3E{{-0.23,0.0,0.0}});
 
-	displ[0][2] = 0.8;	
+	displ[0][2] = 0.3;	
 	
 	//createRBF
 	MRBF* mrbf = new MRBF();
@@ -61,7 +62,22 @@ double test00011() {
 	mrbf->setNode(nodes);
 
 	ControlDeformMaxDistance * volconstr = new ControlDeformMaxDistance();
-	volconstr->setLimitDistance(0.6);
+	volconstr->setLimitDistance(0.2);
+	volconstr->setPlotInExecution(true);
+	
+	ControlDeformExtSurface * extconstr1 = new ControlDeformExtSurface();
+	extconstr1->addFile(std::make_pair("geo_data/box4plane.stl", 0));
+	extconstr1->setBackgroundDetails(20);
+	extconstr1->setToleranceWithinViolation(1.0E-8);
+	extconstr1->setClassCounter(1);
+	extconstr1->setPlotInExecution(true);
+	
+	ControlDeformExtSurface * extconstr2 = new ControlDeformExtSurface();
+	extconstr2->addFile(std::make_pair("geo_data/P4plane1.stl", 0));
+	extconstr2->addFile(std::make_pair("geo_data/P4plane2.stl", 0));
+	extconstr2->setBackgroundDetails(20);
+	extconstr2->setPlotInExecution(true);
+	extconstr2->setClassCounter(2);
 	
 	Apply * applier = new Apply();
 	
@@ -81,47 +97,63 @@ double test00011() {
 	cout << "add pin info 3 : " << boolalpha << addPin(mrbf, volconstr, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
 	cout << "add pin info 4 : " << boolalpha << addPin(mimmoP, applier, PortType::M_GEOM, PortType::M_GEOM) << endl;
 	cout << "add pin info 5 : " << boolalpha << addPin(mrbf, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
-	cout << "add pin info 4 : " << boolalpha << addPin(mimmoP, mimmoW, PortType::M_GEOM, PortType::M_GEOM) << endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(mimmoP, mimmoW, PortType::M_GEOM, PortType::M_GEOM) << endl;
+	cout << "add pin info 7 : " << boolalpha << addPin(mimmoP, extconstr1, PortType::M_GEOM, PortType::M_GEOM) << endl;
+	cout << "add pin info 8 : " << boolalpha << addPin(mrbf, extconstr1, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
+	cout << "add pin info 9 : " << boolalpha << addPin(mimmoP, extconstr2, PortType::M_GEOM, PortType::M_GEOM) << endl;
+	cout << "add pin info 10 : " << boolalpha << addPin(mrbf, extconstr2, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
 	cout << "set pins done" << endl;
 
 	//Create chain
-	Chain ch0,ch1;
+	Chain ch0,ch1,ch2, ch3;
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(mimmoP);
 	ch0.addObject(mrbf);
 	ch0.addObject(volconstr);
-	ch0.addObject(applier);
+	ch0.addObject(extconstr1);
+	ch0.addObject(extconstr2);
+	ch1.addObject(applier);
 	ch1.addObject(mimmoW);
 	
+	duration<double> time_span;
+	steady_clock::time_point t1,t2;
 	//Execution of chain
 	cout << "execution start" << endl;
-	steady_clock::time_point t1 = steady_clock::now();
-	ch0.exec(true);
-	ch1.exec(true);
-	steady_clock::time_point t2 = steady_clock::now();
+	t1 = steady_clock::now();
+		ch0.exec(true);
+// 		ch2.exec(true);
+// 		ch3.exec(true);
+		ch1.exec(true);
+	t2 = steady_clock::now();
+	time_span = duration_cast<duration<double>>(t2 - t1);
+	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
+	std::cout << std::endl;
+	
 	cout << "execution done" << endl;
 
-	double result = volconstr->getViolation();	
-	
+	dvector1D resultVol(3);
+	resultVol[0] = volconstr->getViolation();	
+	resultVol[1] = extconstr1->getViolation();
+	resultVol[2] = extconstr2->getViolation();
+
 	//Delete and nullify pointer
 	delete mimmoP;
 	delete mrbf;
 	delete volconstr;
+	delete extconstr1;
+	delete extconstr2;
 	delete mimmoW;
 	delete applier;
 	
 	mrbf 		= NULL;
 	mimmoP 		= NULL;
 	volconstr 	= NULL;
+	extconstr1  = NULL;
+	extconstr2  = NULL; 
 	applier = NULL;
 	mimmoW = NULL;
 	
-	//Print execution time
-	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
-	std::cout << std::endl;
-
-	return result;
+	return resultVol;
 
 }
 
@@ -136,9 +168,14 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-		double checkViolation = test00011() ;
+		dvector1D checkViolation = test00011() ;
 
-		std::cout<<"Constraint violation is : "<< checkViolation<<std::endl;
+		std::cout<<"++++Constraint violation report ++++"<<std::endl;
+		std::cout<<""<<std::endl;
+		std::cout<<"MaxDistance Control gets              : "<< checkViolation[0]<<std::endl;
+		std::cout<<"ExtSurface  Control w/ box gets       : "<< checkViolation[1]<<std::endl;
+		std::cout<<"ExtSurface  Control w/ planes gets    : "<< checkViolation[2]<<std::endl;
+		
 #if ENABLE_MPI==1
 	}
 

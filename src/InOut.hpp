@@ -59,6 +59,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mi
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::TrackingPointer * >& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::TrackingPointer * >& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<std::string, double>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<std::string, double>& element);
+
 
 namespace mimmo{
 

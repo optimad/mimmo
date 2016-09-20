@@ -117,5 +117,8 @@ add_custom_command(
 add_custom_command(
     TARGET "test_MIMMO_00011" PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/plane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/plane.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/box4plane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/box4plane.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/P4plane1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/P4plane1.stl" 
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/P4plane2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/P4plane2.stl" 
     )
 

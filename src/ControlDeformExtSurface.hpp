@@ -21,26 +21,25 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __CONTROLDEFORMMAXDISTANCE_HPP__
-#define __CONTROLDEFORMMAXDISTANCE_HPP__
+#ifndef __CONTROLDEFORMEXTSURFACE_HPP__
+#define __CONTROLDEFORMEXTSURFACE_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
+#include "MimmoGeometry.hpp"
 
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
+ *	\date			16/set/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *	\brief ControlDeformationMaxDistance is a class that check a deformation field associated to a MimmoObject geometry,
- * 		once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
+ *	\brief ControlDeformationExtSurface is a class that check a deformation field associated to a MimmoObject geometry,
+ * 		  for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
  *
- *	ControlDeformationMaxDistance is derived from BaseManipulation class.
- *	It needs a maximum, isotropic limit distance d w.r.t. geometry undeformed state, which is used to evaluate the isolevel d
- *  of the target geometry. 
- *	Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points, 
+ *	ControlDeformationExtSurface is derived from BaseManipulation class.
+ *	Needs one or more external surface meshes, representing the constraint of your deformed object. 
+ *	Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points, 
  *  reporting how much the current deformation field violate the constraint itself.
  *  if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
  *  No optional result are plot. 
@@ -54,7 +53,6 @@ namespace mimmo{
  *	|PortID | PortType | variable/function | DataType 		 		 |
  *	|-------|----------|-------------------|-------------------------|
  *  | 11    | M_GDISPLS| setDefField	   | (VECARR3E, FLOAT)		 |
- *  | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)		 |
  *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)		 |
  *	|-------|----------|-------------------|-------------------------|
  *
@@ -72,40 +70,56 @@ namespace mimmo{
  *	=========================================================
  *
  */
-class ControlDeformMaxDistance: public BaseManipulation{
+class ControlDeformExtSurface: public BaseManipulation{
 private:
-	double						m_maxDist;		/**<Limit Distance*/
-	dvector1D					m_violationField;	/**<Violation Distance Field */
+	std::unordered_map<std::string, int> m_geolist; /**< list of file for geometrical proximity check*/
+	std::vector<std::set< int > > m_allowedType; /**< list of FileType actually allowed for the target geometry type*/
+	dvector1D					m_violationField;	/**<Violation Field as distance from constraint */
 	dvecarr3E					m_defField; 	/**<Deformation field*/
+	double 						m_tolerance;    /**<Fixed tolerance to consider a body not violating constraints*/
+	int 						m_cellBackground; /**< Number of cells N to determine background grid spacing */ 						
 	
 public:
-	ControlDeformMaxDistance();
-	~ControlDeformMaxDistance();
+	ControlDeformExtSurface();
+	~ControlDeformExtSurface();
 
-	ControlDeformMaxDistance(const ControlDeformMaxDistance & other);
-	ControlDeformMaxDistance & operator=(const ControlDeformMaxDistance & other);
+	ControlDeformExtSurface(const ControlDeformExtSurface & other);
+	ControlDeformExtSurface & operator=(const ControlDeformExtSurface & other);
 
 	void	buildPorts();
 
-	double 								getViolation();
-	dvector1D							getViolationField();
-	std::pair<std::string, double>		getViolationPair();
+	double 							getViolation();
+	std::pair<std::string, double>	getViolationPair();
+	dvector1D						getViolationField();
+	double 							getToleranceWithinViolation();
+	int 							getBackgroundDetails();
 	
 	void	setDefField(dvecarr3E field);
-	void	setLimitDistance(double dist);
-
+	void 	setGeometry(MimmoObject * geo);
+	void    setToleranceWithinViolation(double tol=1.E-8);
+	void 	setBackgroundDetails(int nCell=20);
+	const 	std::unordered_map<std::string, int> & 	getFiles() const;
+	void	setFiles(std::unordered_map<std::string,int> );
+	void 	addFile(std::pair<std::string,int> );
+	void 	removeFile(std::string);
+	void 	removeFiles();
+	
+	void clear();
+	
 	void 	execute();
 	
 	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
-protected:
-    void plotOptionalResults();	
-
-
+protected:	
+	void plotOptionalResults();
 	
+private:
+	void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo);
+	svector1D extractInfo(std::string file);
+	double evaluateSignedDistance(darray3E &point, mimmo::BvTree * tree, long & id, darray3E & normal, double &initRadius);
 };
 
 }
 
-#endif /* __CONTROLDEFORMMAXDISTANCE_HPP__ */
+#endif /* __CONTROLDEFORMEXTSURFACE_HPP__ */
