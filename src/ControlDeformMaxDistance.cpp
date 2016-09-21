@@ -65,7 +65,7 @@ ControlDeformMaxDistance::buildPorts(){
 	
 	built = (built && createPortOut<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolation, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<dvector1D, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::pair<std::string, double>, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_STRINGFLOAT_));
+	built = (built && createPortOut<std::pair<BaseManipulation*, double>, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_OBJFLOAT_));
 	m_arePortsBuilt = built;
 };
 
@@ -90,13 +90,13 @@ ControlDeformMaxDistance::getViolation(){
 
 /*! 
  *  Return the value of violation of deformed geometry, after class execution. 
- *  A string  etiquette, reporting original geometry class name to which it's referred, is attached to violation 
+ *  A BaseManipulation object pointer, representing the sender of geometry to which violation is referred, 
+ *  is attached to violation value; 
  *  See getViolation method doc for further details. 
- * \return std::pair structure reporting etiquette e violation value.
+ * \return std::pair structure reporting geometry sender pointer and violation value.
  */
-std::pair<std::string, double> 
+std::pair<BaseManipulation*, double> 
 ControlDeformMaxDistance::getViolationPair(){
-	
 	
 	//get map of Input ports of the class.
 	std::map<short int, mimmo::PortIn*> mapPorts = getPortsIn();
@@ -107,13 +107,13 @@ ControlDeformMaxDistance::getViolationPair(){
 	
 	std::string etiq;
 	if(senders.size() == 0){
-		etiq = getName()+std::to_string(getClassCounter());
+		return	std::make_pair(this, getViolation());	
 	}else{
-		etiq = senders[0]->getName()+std::to_string(senders[0]->getClassCounter());
+		return	std::make_pair(senders[0], getViolation());
 	}	
-	return	std::make_pair(etiq, getViolation());
 	
 };
+
 
 /*! 
  * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution. 

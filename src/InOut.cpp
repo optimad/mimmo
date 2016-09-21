@@ -313,26 +313,26 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
 }
 
 /*!
- *	Input stream operator for std::pair<std::string, double> 
+ *	Input stream operator for std::pair<BaseManipulation*, double> 
  *	\param[in] buffer is the input stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same input stream received in input.
  */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<std::string, double>& element){
-	std::string str;
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<BaseManipulation*, double>& element){
+	BaseManipulation * obj;
 	double data;
-	buffer >> str >> data ;
-	element = std::make_pair(str, data);
+	buffer >> obj >> data ;
+	element = std::make_pair(obj, data);
 	return buffer;
 };
 
 /*!
- *	Input stream operator for std::pair<std::string, double>
+ *	Input stream operator for std::pair<BaseManipulation*, double>
  *	\param[in] buffer is the input stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same input stream received in input.
  */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<std::string, double>& element){
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<BaseManipulation*, double>& element){
 	buffer<<element.first<<element.second;
 	return buffer;
 };

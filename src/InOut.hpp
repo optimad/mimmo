@@ -32,37 +32,6 @@
 #include "TrackingPointer.hpp"
 #include <functional>
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,shivector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const shivector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::array<mimmo::CoordType,3>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::array<mimmo::CoordType,3>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::ShapeType& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::ShapeType& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvector1D *>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvector1D *>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::TrackingPointer * >& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::TrackingPointer * >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<std::string, double>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<std::string, double>& element);
-
-
 namespace mimmo{
 
 class BaseManipulation;
@@ -300,6 +269,36 @@ public:
 
 
 }
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvector1D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvector1D& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector1D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector1D& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,shivector1D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const shivector1D& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::array<mimmo::CoordType,3>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::array<mimmo::CoordType,3>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::ShapeType& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::ShapeType& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvector1D *>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvector1D *>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::TrackingPointer * >& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::TrackingPointer * >& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::BaseManipulation*, double>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::BaseManipulation *, double>& element);
 
 #include "InOut.tpp"
 

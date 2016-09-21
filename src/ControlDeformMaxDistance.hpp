@@ -66,7 +66,7 @@ namespace mimmo{
  *	|-------|---------------|-------------------|-----------------------------|
  *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)			  | 
  *	| 30    | M_VALUED 		| getViolation      | (SCALAR, FLOAT)			  |
- *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_STRINGFLOAT)|
+ *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
  *	|-------|---------------|-------------------|-----------------------------|
  * ~~~
  *	=========================================================
@@ -87,9 +87,9 @@ public:
 
 	void	buildPorts();
 
-	double 								getViolation();
-	dvector1D							getViolationField();
-	std::pair<std::string, double>		getViolationPair();
+	double 									getViolation();
+	dvector1D								getViolationField();
+	std::pair<BaseManipulation*, double>	getViolationPair();
 	
 	void	setDefField(dvecarr3E field);
 	void	setLimitDistance(double dist);

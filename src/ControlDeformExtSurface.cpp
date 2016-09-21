@@ -77,7 +77,7 @@ ControlDeformExtSurface::buildPorts(){
 	
 	built = (built && createPortOut<double, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolation, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<dvector1D, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));	
-	built = (built && createPortOut<std::pair<std::string, double>, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_STRINGFLOAT_));	
+	built = (built && createPortOut<std::pair<BaseManipulation*, double>, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_OBJFLOAT_));	
 	m_arePortsBuilt = built;
 };
 
@@ -102,11 +102,12 @@ ControlDeformExtSurface::getViolation(){
 
 /*! 
  *  Return the value of violation of deformed geometry, after class execution. 
- *  A string  etiquette, reporting original geometry class name to which it's referred, is attached to violation 
+ *  A BaseManipulation object pointer, representing the sender of geometry to which violation is referred, 
+ *  is attached to violation value; 
  *  See getViolation method doc for further details. 
- * \return std::pair structure reporting etiquette e violation value.
+ * \return std::pair structure reporting geometry sender pointer and violation value.
  */
-std::pair<std::string, double> 
+std::pair<BaseManipulation*, double> 
 ControlDeformExtSurface::getViolationPair(){
 	
 	//get map of Input ports of the class.
@@ -118,11 +119,11 @@ ControlDeformExtSurface::getViolationPair(){
 	
 	std::string etiq;
 	if(senders.size() == 0){
-		etiq = getName()+std::to_string(getClassCounter());
+		return	std::make_pair(this, getViolation());	
 	}else{
-		etiq = senders[0]->getName()+std::to_string(senders[0]->getClassCounter());
+		return	std::make_pair(senders[0], getViolation());
 	}	
-	return	std::make_pair(etiq, getViolation());
+	
 };
 
 

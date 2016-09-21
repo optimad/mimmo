@@ -64,7 +64,7 @@ namespace mimmo{
  *	|-------|---------------|-------------------|-----------------------------|
  *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)			  | 
  *	| 30    | M_VALUED 		| getViolation      | (SCALAR, FLOAT)			  |
- *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_STRINGFLOAT)|
+ *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
  *	|-------|---------------|-------------------|-----------------------------|
  * ~~~
  *	=========================================================
@@ -88,11 +88,11 @@ public:
 
 	void	buildPorts();
 
-	double 							getViolation();
-	std::pair<std::string, double>	getViolationPair();
-	dvector1D						getViolationField();
-	double 							getToleranceWithinViolation();
-	int 							getBackgroundDetails();
+	double 									getViolation();
+	std::pair<BaseManipulation*, double>	getViolationPair();
+	dvector1D								getViolationField();
+	double 									getToleranceWithinViolation();
+	int 									getBackgroundDetails();
 	
 	void	setDefField(dvecarr3E field);
 	void 	setGeometry(MimmoObject * geo);
