@@ -338,6 +338,135 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 };
 
 
+/*!
+ *	Output stream operator for dvecarr2E
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr2E &var)
+{
+	int nP = var.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 2; ++j) {
+			buffer << var[i][j];
+		}
+	}
+	
+	return buffer;
+}
+
+
+/*!
+ *	Input stream operator for dvecarr2E
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr2E &var)
+{
+	int nP;
+	buffer >> nP;
+	var.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 2; ++j) {
+			buffer >> var[i][j];
+		}
+	}
+	
+	return buffer;
+}
+
+/*!
+ *	Output stream operator for ivecarr2E
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivecarr2E &var)
+{
+	int nP = var.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 2; ++j) {
+			buffer << var[i][j];
+		}
+	}
+	
+	return buffer;
+}
+
+
+/*!
+ *	Input stream operator for ivecarr2E
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivecarr2E &var)
+{
+	int nP;
+	buffer >> nP;
+	var.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < 2; ++j) {
+			buffer >> var[i][j];
+		}
+	}
+	return buffer;
+}
+
+/*!
+ *	Output stream operator for std::vector<dvecarr2E>
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<dvecarr2E> &var)
+{
+	int nP = var.size();
+	int nP2;
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) {
+		for (int j = 0; j < nP2; ++j) {
+			nP2 = var[i].size();
+			buffer << nP2;
+			for(int k=0; k<2; ++k){
+				buffer << var[i][j][k];
+			}
+		}
+	}
+	
+	return buffer;
+}
+
+
+/*!
+ *	Input stream operator for std::vector<dvecarr2E>
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dvecarr2E> &var)
+{
+	int nP, nP2;
+	buffer >> nP;
+	var.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		buffer >> nP2;
+		var[i].resize(nP2);
+		for (int j=0; j<nP2; ++j){
+			for (int k = 0; k < 2; ++k) {
+				buffer >> var[i][j][k];
+			}
+		}	
+	}
+	return buffer;
+}
+
+
+
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 //==============================================================//

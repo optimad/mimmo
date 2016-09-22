@@ -300,6 +300,16 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::BaseManipulation*, double>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::BaseManipulation *, double>& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr2E& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr2E& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,ivecarr2E& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const ivecarr2E& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::vector< dvecarr2E >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< dvecarr2E >& element);
+
+
 #include "InOut.tpp"
 
 
