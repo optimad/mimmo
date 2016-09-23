@@ -79,7 +79,7 @@ ControlDeformMaxDistance::buildPorts(){
 double 
 ControlDeformMaxDistance::getViolation(){
 	
-	double result = -1.0E-18;
+	double result = -1.0E+18;
 	for(auto & val : m_violationField){
 		result = std::fmax(result, val);
 	}
