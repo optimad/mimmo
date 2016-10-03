@@ -25,7 +25,7 @@
 #ifndef __MIMMO_HPP__
 #define __MIMMO_HPP__
 
-//#include "MiMMO_version.hpp"
+#include "MiMMO_version.hpp"
 #include "Apply.hpp"
 #include "BaseManipulation.hpp"
 #include "BasicShapes.hpp"
@@ -33,9 +33,14 @@
 #include "Bend.hpp"
 #include "BvTree.hpp"
 #include "Chain.hpp"
+#include "ClipGeometry.hpp"
+#include "ControlDeformExtSurface.hpp"
+#include "ControlDeformMaxDistance.hpp"
 #include "FFDLattice.hpp"
 #include "GenericOutput.hpp"
 #include "GenericInput.hpp"
+#include "IOConnections.hpp"
+#include "IOViolationFile.hpp"
 #include "Lattice.hpp"
 #include "Mask.hpp"
 #include "MimmoObject.hpp"
@@ -46,5 +51,7 @@
 #include "RotationBox.hpp"
 #include "OBBox.hpp"
 #include "InOut.hpp"
+#include "ProjectCloud.hpp"
+#include "SpecularPoints.hpp"
 
 #endif

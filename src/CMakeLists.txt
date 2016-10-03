@@ -25,16 +25,17 @@
 # Specify the version being used as well as the language
 cmake_minimum_required(VERSION 2.8)
 
-# Name your project here
-set(MIMMO_LIBRARY "MiMMO" CACHE INTERNAL "MIMMO Library" FORCE)
-
 # Library type
-if (STATIC)
-    set(LIBRARY_TYPE "STATIC")
+if (BUILD_SHARED_LIBS)
+	set(LIBRARY_TYPE "SHARED")
+	set(PIC_FLAG TRUE)
 else()
-    set(LIBRARY_TYPE "SHARED")
+	set(LIBRARY_TYPE "STATIC")
+	set(PIC_FLAG FALSE)
 endif()
 
+# Name your project here
+set(MIMMO_LIBRARY "MiMMO" CACHE INTERNAL "MIMMO Library" FORCE)
 
 # Add library to targets
 file(GLOB SOURCE_FILES "*.cpp")
@@ -46,16 +47,20 @@ set(MIMMO_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of MIMMO Library" FO
 unset(BASE_HEADERS)
 
 add_library(${MIMMO_LIBRARY} ${LIBRARY_TYPE} ${MIMMO_SOURCES})
-if (NOT ENABLE_MPI)
-    set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_D")
+
+if (ENABLE_MPI)
+	set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_MPI_D")
+	set_target_properties(${MIMMO_LIBRARY} PROPERTIES RELWITHDEBINFO_POSTFIX "_MPI_D")
+	set_target_properties(${MIMMO_LIBRARY} PROPERTIES RELEASE_POSTFIX "_MPI")
 else()
-    set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_MPI_D")
-    set_target_properties(${MIMMO_LIBRARY} PROPERTIES RELEASE_POSTFIX "_MPI")
+	set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_D")
+	set_target_properties(${MIMMO_LIBRARY} PROPERTIES RELWITHDEBINFO_POSTFIX "_D")
 endif()
 
+set_target_properties(${MIMMO_LIBRARY} PROPERTIES POSITION_INDEPENDENT_CODE ${PIC_FLAG})
 set_target_properties(${MIMMO_LIBRARY} PROPERTIES VERSION "${MIMMO_VERSION}"
-                                                     SOVERSION  "${MIMMO_MAJOR_VERSION}")
-
+                                                 SOVERSION  "${MIMMO_MAJOR_VERSION}")
+                                                 
 add_custom_target(library DEPENDS ${MIMMO_LIBRARY})
 add_custom_target(clean-library COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 

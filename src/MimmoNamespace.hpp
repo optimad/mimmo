@@ -63,6 +63,7 @@ BETTER_ENUM(PortType, int,
 			M_PAIRSCAFIELD 		= 81,
 			M_VIOLATION			= 82,
 			M_GEOM 				= 99,
+			M_VECGEOM			= 100,
 			M_POINT2			= 120,
 			M_VALUED2			= 130,
 			M_VALUEB2			= 140,
@@ -99,7 +100,7 @@ class BaseManipulation;
  * 30-39	matrix structures
  * 40-49 FFDlattice setting parameters
  * 80-89 fields & geoemtries which refers to passed as std::pair
- * 99	MimmoObject pointer structures;
+ * 99-100	MimmoObject pointer structures;
  * > 100 miscellaneous data
  * 
  * 	All contents are:
@@ -140,6 +141,7 @@ class BaseManipulation;
  *	M_PAIRSCAFIELD 		= 81 	 Port dedicated to communicate a scalar field on a MimmoObject geometry as std::pair<MimmoObject *, vector<double>> ,
  *	M_VIOLATION			= 82	 Port dedicated to communicate a double value, with a BaseManipulation object which refers to as std::pair<BaseManipulation *, double>,
  *  M_GEOM 				= 99	 Port dedicated to communicate a pointer to a geometry [MimmoObject *].,
+ *  M_VECGEOM 			= 100	 Port dedicated to communicate a list of pointers to geometries std::vector<MimmoObject *>.,
  *	M_POINT2			= 120	 Port dedicated to communicate the coordinate of a point field [array<double,3>].,
  *	M_VALUED2			= 130	 Port dedicated to communicate a scalar value [double].,
  *	M_VALUEB2			= 140	 Port dedicated to communicate a scalar value [bool].,

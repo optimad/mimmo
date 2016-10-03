@@ -27,19 +27,14 @@
 cmake_minimum_required(VERSION 2.8)
 
 #Name your project here
-project(MiMMO)
+project("MiMMO")
 
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
 #------------------------------------------------------------------------------------#
-#set(BITPIT_FIND_MODULE_DIR "/opt/bitpit/bitpit/cmake/Modules" CACHE PATH "Directory where the CMake find module of bitpit is located")
-SET(ENABLE_PROFILING 0 CACHE BOOL "Set appropriate compiler flags to enable profiling fo GLORIA")
-SET(STATIC 1 CACHE BOOL "If set, the program is linked using static libraries")
-
-#------------------------------------------------------------------------------------#
-# Internal variables
-#------------------------------------------------------------------------------------#
-set(ENABLE_MPI ON CACHE BOOL "If set, the program is compiled without MPI support")
+set(ENABLE_MPI 0 CACHE BOOL "If set, the program is compiled with MPI support")
+set(VERBOSE_MAKE 0 CACHE BOOL "Set appropriate compiler and cmake flags to enable verbose output from compilation")
+set(BUILD_SHARED_LIBS 0 CACHE BOOL "Build Shared Libraries")
 
 #------------------------------------------------------------------------------------#
 # Internal dependencies
@@ -49,11 +44,185 @@ include_directories("src")
 #------------------------------------------------------------------------------------#
 # External dependencies
 #------------------------------------------------------------------------------------#
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${BITPIT_FIND_MODULE_DIR}")
+if (ENABLE_MPI)
+	find_package(MPI)
+endif()
+
+#------------------------------------------------------------------------------------#
+# Customized build types
+#------------------------------------------------------------------------------------#
+
+# GNU Profiling
+SET(CMAKE_CXX_FLAGS_GNUPROFILING "-pg" CACHE STRING
+    "Flags used by the C++ compiler during GNU profiling builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_CXX_FLAGS_GNUPROFILING)
+
+SET(CMAKE_C_FLAGS_GNUPROFILING "-pg" CACHE STRING
+    "Flags used by the C compiler during GNU profiling builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_C_FLAGS_GNUPROFILING)
+
+SET(CMAKE_EXE_LINKER_FLAGS_GNUPROFILING "-pg" CACHE STRING
+    "Flags used for linking binaries during GNU profiling builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_EXE_LINKER_FLAGS_GNUPROFILING)
+
+SET(CMAKE_SHARED_LINKER_FLAGS_GNUPROFILING "-pg" CACHE STRING
+    "Flags used by the shared libraries linker during GNU profiling builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_SHARED_LINKER_FLAGS_GNUPROFILING)
+
+# Scalasca Profiling
+SET(CMAKE_CXX_FLAGS_SCALASCAPROFILING "-O2" CACHE STRING
+    "Flags used by the C++ compiler during Scalasca profiling builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_CXX_FLAGS_SCALASCAPROFILING)
+
+SET(CMAKE_C_FLAGS_SCALASCAPROFILING "-O2" CACHE STRING
+    "Flags used by the C compiler during Scalasca builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_C_FLAGS_SCALASCAPROFILING)
+
+SET(CMAKE_EXE_LINKER_FLAGS_SCALASCAPROFILING "" CACHE STRING
+    "Flags used for linking binaries during Scalasca builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_EXE_LINKER_FLAGS_SCALASCAPROFILING)
+
+SET(CMAKE_SHARED_LINKER_FLAGS_SCALASCAPROFILING "" CACHE STRING
+    "Flags used by the shared libraries linker during Scalasca builds." FORCE)
+MARK_AS_ADVANCED(CMAKE_SHARED_LINKER_FLAGS_SCALASCAPROFILING)
+
+# Set build type variable
+if(NOT CMAKE_BUILD_TYPE)
+	# Set default build type to Debug
+	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
+		"Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel GNUProfiling ScalascaProfiling."
+		FORCE)
+
+	# Set the possible values of build type for the GUI
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+	"MinSizeRel" "RelWithDebInfo" "GNUProfiling" "ScalascaProfiling")
+endif()
+
+#------------------------------------------------------------------------------------#
+# Compilation settings
+#------------------------------------------------------------------------------------#
+set (MIMMO_DEFINITIONS_PRIVATE "")
+set (MIMMO_DEFINITIONS_PUBLIC "")
+
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+
+set (ENABLE_WARNINGS ${VERBOSE_MAKE})
+if (VERBOSE_MAKE)
+	set(CMAKE_VERBOSE_MAKEFILE ON)
+endif()
 
 if (ENABLE_MPI)
-    find_package(MPI)
+	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=1")
+
+	if (MPI_C_FOUND)
+		set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+	else()
+		set(CMAKE_C_COMPILER mpicc)
+	endif()
+
+	if (MPI_CXX_FOUND)
+		set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+	else()
+		set(CMAKE_CXX_COMPILER mpic++)
+	endif()
+else ()
+	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=0")
 endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+
+if (ENABLE_WARNINGS)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") 
+endif()
+
+if (NOT ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.12"))
+	add_compile_options("-std=c++11")
+else ()
+	add_definitions("-std=c++11")
+endif ()
+
+# Define a preprocessor macro to recognize debug builds
+IF(CMAKE_BUILD_TYPE_LOWER MATCHES "debug" OR CMAKE_BUILD_TYPE_LOWER MATCHES "debinfo")
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
+else ()
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
+endif ()
+
+IF(NOT CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "NDEBUG")
+endif ()
+
+# Define an alias for building with scalasca
+if (ENABLE_MPI)
+	SET(C_FLAGS_INSTRUMENT   "-instrument mpicxx")
+	SET(CXX_FLAGS_INSTRUMENT "-instrument mpic")
+else ()
+	SET(C_FLAGS_INSTRUMENT   "")
+	SET(CXX_FLAGS_INSTRUMENT "")
+endif ()
+
+if (CMAKE_BUILD_TYPE_LOWER MATCHES "scalasca")
+	file(WRITE scalasca_c_compiler
+"#!/bin/bash
+scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
+"
+	)
+
+	file(WRITE scalasca_cxx_compiler
+"#!/bin/bash
+scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
+"
+	)
+
+	file(INSTALL scalasca_cxx_compiler DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
+	file(INSTALL scalasca_c_compiler   DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
+	file(REMOVE  scalasca_cxx_compiler)
+	file(REMOVE  scalasca_c_compiler)
+
+	set(CMAKE_CXX_COMPILER "${PROJECT_BINARY_DIR}/scalasca_cxx_compiler")
+	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
+endif ()
+
+# Add the definitions
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
+
+#------------------------------------------------------------------------------------#
+# Library version
+#------------------------------------------------------------------------------------#
+set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}_version.hpp")
+string(TOUPPER "${CMAKE_PROJECT_NAME}_VERSION" VERSION_DEFINE_NAME)
+
+file(READ "${VERSION_HEADER_FILENAME}" header)
+
+string(REGEX REPLACE ".*#[ \t]*define[ \t]*${VERSION_DEFINE_NAME}[ \t]*\"([^\n]*)\".*" "\\1" match "${header}")
+set(MIMMO_VERSION "${match}")
+
+STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_MAJOR_VERSION "${match}")
+
+STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_MINOR_VERSION "${match}")
+
+STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
+set(MIMMO_PATCH_VERSION "${match}")
+
+STRING(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" match "${MIMMO_VERSION}")
+if (NOT match STREQUAL "")
+	STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" "\\1" match "${MIMMO_VERSION}")
+	set(MIMMO_TAG_VERSION "${match}")
+else ()
+	set(MIMMO_TAG_VERSION "")
+endif ()
 
 find_package(BITPIT REQUIRED)
 include(${BITPIT_USE_FILE})
@@ -86,83 +255,6 @@ find_package(LibXml2 REQUIRED)
 
     include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
  
-
-#------------------------------------------------------------------------------------#
-# Compiler settings
-#------------------------------------------------------------------------------------#
-set (ENABLE_WARNINGS ${VERBOSE_MAKE})
-if (VERBOSE_MAKE)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-
-if (ENABLE_MPI)
-    add_definitions(-DENABLE_MPI=1)
-
-    if (MPI_C_FOUND)
-        set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-    else()
-        set(CMAKE_C_COMPILER mpicc)
-    endif()
-
-    if (MPI_CXX_FOUND)
-        set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-    else()
-        set(CMAKE_CXX_COMPILER mpic++)
-    endif()
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "-O2")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
-if (ENABLE_WARNINGS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-endif()
-
-if (ENABLE_PROFILING)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
-endif (ENABLE_PROFILING)
-
-add_compile_options("-std=c++11")
-
-
-#------------------------------------------------------------------------------------#
-# Library version
-#------------------------------------------------------------------------------------#
-set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}_version.hpp")
-string(TOUPPER "${CMAKE_PROJECT_NAME}_VERSION" VERSION_DEFINE_NAME)
-
-file(READ "${VERSION_HEADER_FILENAME}" header)
-
-string(REGEX REPLACE ".*#[ \t]*define[ \t]*${VERSION_DEFINE_NAME}[ \t]*\"([^\n]*)\".*" "\\1" match "${header}")
-set(MIMMO_VERSION "${match}")
-
-STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_MAJOR_VERSION "${match}")
-
-STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_MINOR_VERSION "${match}")
-
-STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_PATCH_VERSION "${match}")
-
-STRING(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" match "${MIMMO_VERSION}")
-if (NOT match STREQUAL "")
-    STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" "\\1" match "${MIMMO_VERSION}")
-    set(MIMMO_TAG_VERSION "${match}")
-else ()
-    set(MIMMO_TAG_VERSION "")
-endif ()
 
 #------------------------------------------------------------------------------------#
 # Subdirectories
