@@ -549,16 +549,6 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 };
 
 /*!
- * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
- * \param[in]	bMin	inferior extremal point of the AABB	
- * \param[in]	bMax	superior extremal point of the AABB	
- * \return true if intersects, false otherwise
- */
-bool BasicShape::intersectShapeAABBox(darray3E bMin,darray3E bMax){
-	return isPointIncluded(checkNearestPointToAABBox(m_origin, bMin, bMax));
-};
-
-/*!
  * Check if current shape totally contains the given Axis Aligned Bounding Box
  * \param[in]	bMin	inferior extremal point of the AABB	
  * \param[in]	bMax	superior extremal point of the AABB	
@@ -951,6 +941,48 @@ void Cube::getTempBBox(){
 	}
 }
 
+/*!
+ * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB	
+ * \return true if intersects, false otherwise
+ * 
+ * WARNING NEED TO BE OPTIMIZED!
+ */
+bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+	
+	dvecarr3E points(8, bMin);
+	double mindist;
+	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
+	points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
+	points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
+	
+	for(auto &val:points)	val += -1.0*m_origin;
+	
+	for(int j=0; j<3; ++j){
+		double ref1 = -0.5*m_scaling[j];
+		double ref2 =  0.5*m_scaling[j];
+	
+		double tmin, tmax, t, md;
+		t= dotProduct(points[0],m_sdr[j]);
+		tmax=tmin=t;
+		
+		for(int i=1; i<8; ++i){
+			t= dotProduct(points[i],m_sdr[2]);
+			if(t<tmin){
+				tmin=t;
+			}else if(t>tmax){
+				tmax=t;
+			}
+		}
+	
+	//check height dimension if overlaps;
+	if(tmin>ref1 || tmax<ref2)	return false;
+	}
+	
+	return true;
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Cylinder IMPLEMENTATION 
@@ -1173,6 +1205,52 @@ void Cylinder::getTempBBox(){
 		}	
 	}
 }
+
+/*!
+ * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB	
+ * \return true if intersects, false otherwise
+ * 
+ * WARNING NEED TO BE OPTIMIZED!
+ */
+bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+	
+	dvecarr3E points(8, bMin);
+	double mindist;
+	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
+	points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
+	points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
+	
+	for(auto &val:points)	val += -1.0*m_origin;
+	
+	double ref1, ref2;
+	ref1 = -0.5*m_scaling[2];
+	ref2 =  0.5*m_scaling[2];
+	
+	double tmin, tmax, t, md;
+	t= dotProduct(points[0],m_sdr[2]);
+	tmax=tmin=t;
+	mindist = norm2(points[0]-t*m_sdr[2]);
+	
+	for(int i=1; i<8; ++i){
+		t= dotProduct(points[i],m_sdr[2]);
+		md = norm2(points[0]-t*m_sdr[2]);
+		if(t<tmin){
+			tmin=t;
+		}else if(t>tmax){
+			tmax=t;
+		}
+		if(md < mindist){
+			mindist=md;
+		}
+	}
+	
+	//check height dimension if overlaps;
+	if(tmin>ref1 || tmax<ref2)	return false;
+	if(mindist > m_scaling[0])	return false;
+	return true;
+};
 
 
 
@@ -1413,3 +1491,15 @@ void Sphere::getTempBBox(){
 		}	
 	}
 }
+
+/*!
+ * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
+ * \param[in]	bMin	inferior extremal point of the AABB	
+ * \param[in]	bMax	superior extremal point of the AABB	
+ * \return true if intersects, false otherwise
+ */
+bool Sphere::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+	return isPointIncluded(checkNearestPointToAABBox(m_origin, bMin, bMax));
+};
+
+

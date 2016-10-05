@@ -135,7 +135,7 @@ public:
     bool		isPointIncluded(darray3E);
 	bool		isPointIncluded(bitpit::PatchKernel * , long int indexV);
 
-	bool 		intersectShapeAABBox(darray3E bMin, darray3E bMax);
+	virtual bool	intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
 	bool		containShapeAABBox(darray3E bMin, darray3E bMax);
 	
 
@@ -148,14 +148,13 @@ public:
 
 protected:
 	uint32_t 	intersectShapePlane(int level, darray3E target); 
-
+	darray3E	checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 private:	
 	virtual	darray3E	basicToLocal(darray3E  point)=0;
 	virtual	darray3E	localToBasic(darray3E  point)=0;
 	virtual void 		checkSpan(double &, double &, double &)=0;
 	virtual bool 		checkInfLimits(double &, int &dir)=0;
 	virtual void		setScaling(double &, double &, double &)=0;
-	darray3E			checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 	void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
 	void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
 	void				searchBvTreeNotMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);	
@@ -189,6 +188,7 @@ public:
 	darray3E	toWorldCoord(darray3E  point);
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
+	bool	intersectShapeAABBox(darray3E bMin, darray3E bMax);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -225,7 +225,7 @@ public:
 	darray3E	toWorldCoord(darray3E  point);
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
-	
+	bool		intersectShapeAABBox(darray3E bMin, darray3E bMax);
 	
 private:	
 	darray3E	basicToLocal(darray3E  point);
@@ -263,7 +263,7 @@ public:
 	darray3E	toWorldCoord(darray3E  point);
 	darray3E	toLocalCoord(darray3E  point);
 	darray3E	getLocalOrigin();
-
+	bool		intersectShapeAABBox(darray3E bMin, darray3E bMax);
 
 private:	
 	darray3E	basicToLocal(darray3E  point);
