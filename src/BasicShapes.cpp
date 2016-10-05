@@ -1228,28 +1228,35 @@ bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	ref1 = -0.5*m_scaling[2];
 	ref2 =  0.5*m_scaling[2];
 	
-	double tmin, tmax, t, md;
+	double tmin, tmax, t;
 	t= dotProduct(points[0],m_sdr[2]);
 	tmax=tmin=t;
-	mindist = norm2(points[0]-t*m_sdr[2]);
+	points[0] += -1.0*t*m_sdr[2]; //project point on plane
 	
 	for(int i=1; i<8; ++i){
 		t= dotProduct(points[i],m_sdr[2]);
-		md = norm2(points[0]-t*m_sdr[2]);
+		points[i] += -1.0*t*m_sdr[2];
+		
 		if(t<tmin){
 			tmin=t;
 		}else if(t>tmax){
 			tmax=t;
 		}
-		if(md < mindist){
-			mindist=md;
-		}
+		
 	}
 	
 	//check height dimension if overlaps;
 	if(tmin>ref2 || tmax<ref1)	return false;
-	if(mindist > m_scaling[0])	return false;
-	return true;
+	darray3E bMin2, bMax2;
+	bMin2 = points[0]; bMax2=points[0];
+	for(int i=1; i<8; ++i){
+		for(int j=0; j<3; ++j){
+			bMin2[j] = std::fmin(bMin2[j], points[i][j]);
+			bMax2[j] = std::fmax(bMax2[j], points[i][j]);
+		}
+	}
+	
+	return(isPointIncluded(checkNearestPointToAABBox({{0.0,0.0,0.0}},bMin2,bMax2)));
 };
 
 
