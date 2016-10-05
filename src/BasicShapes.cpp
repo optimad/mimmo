@@ -963,12 +963,12 @@ bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 		double ref1 = -0.5*m_scaling[j];
 		double ref2 =  0.5*m_scaling[j];
 	
-		double tmin, tmax, t, md;
+		double tmin, tmax, t;
 		t= dotProduct(points[0],m_sdr[j]);
 		tmax=tmin=t;
 		
 		for(int i=1; i<8; ++i){
-			t= dotProduct(points[i],m_sdr[2]);
+			t= dotProduct(points[i],m_sdr[j]);
 			if(t<tmin){
 				tmin=t;
 			}else if(t>tmax){
@@ -977,7 +977,7 @@ bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 		}
 	
 	//check height dimension if overlaps;
-	if(tmin>ref1 || tmax<ref2)	return false;
+	if(tmin>ref2 || tmax<ref1)	return false;
 	}
 	
 	return true;
@@ -1247,7 +1247,7 @@ bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	}
 	
 	//check height dimension if overlaps;
-	if(tmin>ref1 || tmax<ref2)	return false;
+	if(tmin>ref2 || tmax<ref1)	return false;
 	if(mindist > m_scaling[0])	return false;
 	return true;
 };
