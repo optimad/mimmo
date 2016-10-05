@@ -149,6 +149,7 @@ public:
 protected:
 	uint32_t 	intersectShapePlane(int level, darray3E target); 
 	darray3E	checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
+	
 private:	
 	virtual	darray3E	basicToLocal(darray3E  point)=0;
 	virtual	darray3E	localToBasic(darray3E  point)=0;

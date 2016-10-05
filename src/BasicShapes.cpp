@@ -1256,7 +1256,7 @@ bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 		}
 	}
 	
-	return(isPointIncluded(checkNearestPointToAABBox({{0.0,0.0,0.0}},bMin2,bMax2)));
+	return(isPointIncluded(checkNearestPointToAABBox({{0.0,0.0,0.0}},bMin2,bMax2) + m_origin));
 };
 
 
