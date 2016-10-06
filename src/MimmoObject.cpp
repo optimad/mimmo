@@ -1162,6 +1162,8 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 			break;
 		case 2:
 			if	(type == bitpit::ElementInfo::TETRA) 		check = 4;
+			if	(type == bitpit::ElementInfo::PYRAMID) 		check = 5;
+			if	(type == bitpit::ElementInfo::WEDGE) 		check = 6;
 			if  (type == bitpit::ElementInfo::HEXAHEDRON)	check = 8;
 			break;
 		default:	//do nothing
