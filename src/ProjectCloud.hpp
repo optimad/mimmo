@@ -43,7 +43,7 @@ namespace mimmo{
  *	|-------|----------|-------------------|-------------------------|
  *	|PortID | PortType | variable/function | DataType 		 		 |
  *	|-------|----------|-------------------|-------------------------|
- *	| 0     | M_COORDS | setPoints         | (VECARR3, FLOAT)		 |
+ *	| 0     | M_COORDS | setCoords         | (VECARR3, FLOAT)		 |
  *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_) 	     |
  *	|-------|----------|-------------------|-------------------------|
  *
