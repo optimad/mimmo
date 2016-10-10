@@ -53,5 +53,6 @@
 #include "InOut.hpp"
 #include "ProjectCloud.hpp"
 #include "SpecularPoints.hpp"
+#include "RotationGeometry.hpp"
 
 #endif

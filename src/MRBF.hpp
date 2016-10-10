@@ -66,7 +66,7 @@ enum class MRBFSol{
  *	| 10    | M_DISPLS  | setDisplacements  | (VECARR3, FLOAT)		|
  *	| 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT) 		|
  *	| 30    | M_VALUED  | setSupportRadius  | (SCALAR, FLOAT)	  	|
- *	| 99    | M_GEOM    | m_geometry        | (SCALAR, MIMMO_)  		|
+ *	| 99    | M_GEOM    | m_geometry        | (SCALAR, MIMMO_)  	|
  *	| 130   | M_VALUED2 | setTol            | (SCALAR, FLOAT)		|
  *	|-------|-----------|-------------------|-----------------------|
  *
@@ -92,8 +92,7 @@ private:
 	dvector1D	m_filter;	/**<Filter field for displacements modulation */
 	bool		m_bfilter;	/**<boolean to recognize if a filter field is applied */
 	double		m_SRRatio;	/**<support Radius ratio */
-
-	dvecarr3E	m_displ;	/**<Rsulting displacements of geometry vertex.*/
+	dvecarr3E	m_displ;	/**<Resulting displacements of geometry vertex.*/
 
 public:
 	MRBF();
