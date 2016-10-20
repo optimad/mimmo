@@ -156,7 +156,11 @@ public:
 	
 	void		buildBvTree(int value = 1);
 	void		buildKdTree();	
-
+	
+	bool areAdjacenciesBuilt();
+	bool isClosedLoop();
+	
+	void buildAdjacencies();
 
 private:
 	int checkCellType(bitpit::ElementInfo::Type type);

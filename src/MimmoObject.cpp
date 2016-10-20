@@ -1220,3 +1220,57 @@ void	MimmoObject::cleanKdTree(){
 	m_kdTree.nodes.clear();
 }
 
+/*!
+ * Check if Adjacency is built for your current mesh
+ */
+bool MimmoObject::areAdjacenciesBuilt(){
+	
+	bool check = true;
+	
+	auto itp = getCells().begin();
+	
+	int cAdj = itp->getAdjacencyCount();
+	const long * adj = itp->getAdjacencies();
+	
+	for(int i=0; i<cAdj; ++i){
+		check = check && (adj[i] == -1);
+	}
+	
+	return !check;
+};
+
+/*!
+ * Check if your mesh has open edges/faces 
+ */
+bool MimmoObject::isClosedLoop(){
+	
+	if(!areAdjacenciesBuilt())	buildAdjacencies();
+	bool check = true;
+	
+	auto itp = getCells().begin();
+	auto itend = getCells().end();
+	
+	while(itp != itend && !check){
+		
+		int cAdj = itp->getAdjacencyCount();
+		const long * adj = itp->getAdjacencies();
+		
+		for(int i=0; i<cAdj; ++i){
+			check = check && (adj[i] != -1);
+		}
+		
+		itp++;
+	}
+	
+	return check;
+};
+
+/*!
+ * Forcing to build your adjacency.
+ */
+void MimmoObject::buildAdjacencies(){
+	getPatch()->buildAdjacencies();
+};
+
+
+
