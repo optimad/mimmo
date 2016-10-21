@@ -97,7 +97,7 @@ public:
 	void	setDefField(dvecarr3E field);
 	void 	setGeometry(MimmoObject * geo);
 	void    setToleranceWithinViolation(double tol=1.E-8);
-	void 	setBackgroundDetails(int nCell=20);
+	void 	setBackgroundDetails(int nCell=50);
 	const 	std::unordered_map<std::string, int> & 	getFiles() const;
 	void	setFiles(std::unordered_map<std::string,int> );
 	void 	addFile(std::pair<std::string,int> );
@@ -117,7 +117,7 @@ protected:
 private:
 	void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo);
 	svector1D extractInfo(std::string file);
-	double evaluateSignedDistance(darray3E &point, mimmo::BvTree * tree, long & id, darray3E & normal, double &initRadius);
+	double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
 };
 
 }

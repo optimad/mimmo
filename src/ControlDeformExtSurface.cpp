@@ -33,7 +33,7 @@ using namespace mimmo;
 ControlDeformExtSurface::ControlDeformExtSurface(){
 	m_name = "MiMMO.ControlDeformExtSurface";
 	m_tolerance = 1.E-8;
-	m_cellBackground = 20;
+	m_cellBackground = 50;
 	m_allowedType.resize(2);
 	m_allowedType[1].insert(FileType::STL);
 	m_allowedType[1].insert(FileType::STVTU);
@@ -279,7 +279,9 @@ ControlDeformExtSurface::execute(){
 	violationField.resize(nDFS);
 
 	dvecarr3E points = geo->getVertexCoords();
-	//evaluate deformable geometry barycenter
+	dvecarr3E pointsOR = points;
+	
+	//evaluate deformable geometry barycenter************************
 	darray3E geoBary = {{0.0,0.0,0.0}};
 	double distBary = 0.0;
 	
@@ -289,17 +291,21 @@ ControlDeformExtSurface::execute(){
 	
 	for(auto & p: points){
 		distBary= std::fmax(distBary,norm2(p-geoBary));
-	}	
-	//adding deformation to points.
+	}
+	//***************************************************************
+	
+	//adding deformation to points **********************************
 	points+= m_defField;
-
-	//read external surfaces.
+	//***************************************************************
+	
+	//read external surfaces*****************************************
 	std::vector<std::unique_ptr<MimmoGeometry> > extgeo;
 	readGeometries(extgeo);
+	//***************************************************************
 	
 	if(extgeo.size() < 1)	return;
 
-	//evaluating bounding box of deformation;
+	//evaluating bounding box of deformation*************************
 	darray3E bbMinDef, bbMaxDef, bbMin, bbMax;
 	{
 		int count2 = 0;
@@ -315,23 +321,33 @@ ControlDeformExtSurface::execute(){
 			}
 			count2++;
 		}
+		count2=0;
+		for(auto & p : pointsOR){
+			for(int i=0; i<3; ++i ){
+				bbMinDef[i] = std::fmin(bbMinDef[i], p[i]);
+				bbMaxDef[i] = std::fmax(bbMaxDef[i], p[i]);
+			}	
+			count2++;
+		}
 	}
-
+	//***************************************************************
 	
+	// start examining all external geometries***********************	
 	for(auto &gg : extgeo){
 
+		//check constraints properties ******************************
 		MimmoObject * local = gg->getGeometry();
 		if(!(local->isBvTreeBuilt()))	local->buildBvTree();
+		bool checkOpen = local->isClosedLoop();
 		
 		double dist;
 		double radius, radius_old;
 		long id;
 		darray3E normal;
 		int count;
+		//************************************************************
 		
-		double psign = 1.0;
-		
-		//get the whole bounding box of deformation + constraints
+		//add local constraints to the bounding box compute **********
 		bbMin = bbMinDef;
 		bbMax = bbMaxDef;
 		
@@ -341,7 +357,10 @@ ControlDeformExtSurface::execute(){
 				bbMax[i] = std::fmax(bbMax[i], p[i]);
 			}	
 		}
-		//calculate dh as a tot part of bb diagonal	
+		//*************************************************************
+		
+		//Evaluate background grid dimension for Level set ************
+		//calculate dh as a tot part of bb diagonal	*******************
 		
 		darray3E span = bbMax - bbMin;
 		bbMin += -1.0*(0.05*span);
@@ -352,27 +371,50 @@ ControlDeformExtSurface::execute(){
 			dim[i] = (int)(span[i]/dh + 0.5);
 			dim[i] = std::max(2, dim[i]);
 		}
+		//*************************************************************
+		
+		//check if its more convenient evaluate distances with a direct BvTree
+		//evaluation of distance on target deformation points or using a background grid + 
+		//interpolation.
 		
 		if((dim[0]+1)*(dim[1]+1)*(dim[2]+1) > 0.8*nDFS){
 			
-			radius = distBary;
+			//going to use direct evaluation.
+			
+ 			radius = distBary;
 			radius_old = radius;
+			dvector1D refsigns(nDFS, 1.0);
+			
+			//get the actual sign of distance of the undeformed cloud w.r.t constraints
+			if(checkOpen){
+				count = 0; 
+				for(auto &p : pointsOR){
+					dist = evaluateSignedDistance(pointsOR[count], local, id, normal, radius);
+					if(radius < 1.0E-12)	radius = radius_old;
+					else 					radius_old = radius;
+					if(dist < 0.0)	refsigns[count] = -1.0;
+					count++;
+				}	
+			}else{
+				dist = evaluateSignedDistance(geoBary, local, id, normal, radius);	
 				
-			dist = evaluateSignedDistance(geoBary, local->getBvTree(), id, normal, radius);	
+				if(dist < 0.0) refsigns *= -1.0;	
+				if(radius <1.0E-12)	radius = radius_old;
+			}
 			
-			if(dist > 0)	psign = -1.0;
-			if(radius <1.0E-12)	radius = 1.0;
-			
+			//evaluate distance of the deformation cloud w.r.t. constraints
 			count = 0; 
 			for(auto &p : points){
-				
-				dist = evaluateSignedDistance(p, local->getBvTree(), id, normal, radius);
+				dist = evaluateSignedDistance(p, local, id, normal, radius);
 				if(radius < 1.0E-12)	radius = radius_old;
 				else 					radius_old = radius;
-				violationField[count] = psign*(dist);
+				violationField[count] = -1.0*refsigns[count]*dist;
 				count++;
 			}	
+			
 		}else{
+			
+			//going to use background grid to evaluate distances
 			
 			//instantiate a VolCartesian;
 			bitpit::VolCartesian * mesh = new bitpit::VolCartesian(0,3,bbMin,span, dim);
@@ -389,44 +431,63 @@ ControlDeformExtSurface::execute(){
 			
 			radius = 0.5*norm2(span);
 			radius_old = radius;
-			
-			dist = evaluateSignedDistance(geoBary, local->getBvTree(), id, normal, radius);	
-			
-			if(dist > 0)	psign = -1.0;
-			if(radius < 1.0E-12)	radius = radius_old;
-			
 			count = 0; 
 			for(auto &p : background_points){
-				
-				dist = evaluateSignedDistance(p, local->getBvTree(), id, normal, radius);
+				dist = evaluateSignedDistance(p, local, id, normal, radius);
 				if(radius < 1.0E-12)	radius = radius_old;
 				else 					radius_old = radius;
-				background_LS[count] = psign*(dist);
+				background_LS[count] = dist;
 				count++;
 			}	
 			
-			//interpolate on background to obtain distance extimated for deformed points	
+			//interpolate on background to obtain distances 
 			
+			//evaluate sign of distances of the undeformed cloud w.r.t to constraints.
+			dvector1D refsigns(nDFS, 1.0);
+			if(checkOpen){
+				count=  0;
+				for(auto & p : pointsOR){
+					ivector1D stencil;
+					dvector1D weights;
+					int res = mesh->linearVertexInterpolation(p, stencil,weights);
+					
+					dist = 0.0;
+					for(int j=0; j<res; ++j){
+						dist += background_LS[stencil[j]]*weights[j]; 
+					}
+					
+					if(dist < 0.0)	refsigns[count] = -1.0;
+				++count;
+				}
+			}else{
+				dist = evaluateSignedDistance(geoBary, local, id, normal, radius);	
+				if(dist< 0)	refsigns *= -1.0;
+				if(radius < 1.0E-12)	radius = radius_old;
+			}
+			
+			//evaluate violation field
 			count = 0;
 			for(auto & p : points){
 				ivector1D stencil;
 				dvector1D weights;
 				
 				int res = mesh->linearVertexInterpolation(p, stencil,weights);
-				
+
 				violationField[count] = 0.0;
 				for(int j=0; j<res; ++j){
 					violationField[count] += background_LS[stencil[j]]*weights[j]; 
 				}
-			++count;
+				
+				violationField[count] *= -1.0*refsigns[count]; 
+				++count;
+
 			}
-			
 			delete mesh;
 			mesh = NULL;
-		}
+		}//end if else
 		
 		for(int i=0; i< nDFS; ++i){
-			m_violationField[i] = std::fmax(m_violationField[i], (violationField[i]-m_tolerance));
+			m_violationField[i] = std::fmax(m_violationField[i], (violationField[i] + m_tolerance));
 		}
 	}
 	return;
@@ -631,14 +692,14 @@ svector1D ControlDeformExtSurface::extractInfo(std::string file){
  * Wrapper to bvTreeUtils::signedDistance
  *
  * \param[in] point 3D target point
- * \param[in] tree	BvTree of target geometry
+ * \param[in] geo	target geometry w/ bvTree in it
  * \param[in,out] id returns id of support geometry simplex from which distance is evaluated 
  * \param[in,out] normal returns normal of support geometry simplex from which distance is evaluated 
  * \param[in,out] initRadius guess initial distance.
  * 
  * \return signed distance from target surface.  
  */
-double ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::BvTree * tree, long & id, darray3E & normal, double &initRadius){
+double ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius){
 	
 	double dist = 1.0E+18;
 	double rate = 0.02;
@@ -646,12 +707,17 @@ double ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::B
 	int kiter = 0;
 	bool flag = true;
 	
+	if(!geo->isBvTreeBuilt())	geo->buildBvTree();
+	
 	while(flag && kiter < kmax){
-		dist = bvTreeUtils::signedDistance(&point, tree, id, normal, initRadius);
+		dist = bvTreeUtils::signedDistance(&point, geo->getBvTree(), id, normal, initRadius);
 		flag = (dist == 1.0E+18);
 		if(flag)	initRadius *= (1.0+ rate*((double)flag));
 		kiter++;
 	}
+	
+	darray3E fnormal = static_cast<bitpit::SurfaceKernel * > (geo->getPatch())->evalFacetNormal(id);
+	dist = std::abs(dist) *(1.0 -  2.0*double(dotProduct(normal, fnormal) < 0.0));
 	
 	return dist;
 }
