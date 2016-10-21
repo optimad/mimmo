@@ -733,12 +733,14 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 			if ( nV == 3 )
 			{
 				darray3E lambda ;
-				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda);
+				int flag;
+				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
 			}
 			else if ( nV == 2 )
 			{
 				darray2E lambda ;
-				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda);
+				int flag;
+				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
 
 			}
 			else{
@@ -777,7 +779,8 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 			if ( nV == 3 )
 			{
 				darray3E lambda ;
-				h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda);
+				int flag;
+				h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
 				normal  = lambda[0] * spatch_->evalEdgeNormal(id,0) ;
 				normal += lambda[1] * spatch_->evalEdgeNormal(id,1) ;
 				normal += lambda[2] * spatch_->evalEdgeNormal(id,2) ;
@@ -795,7 +798,8 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 			else if ( nV == 2 )
 			{
 				darray2E lambda ;
-				h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda);
+				int flag;
+				h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
 				normal  = lambda[0] * spatch_->evalEdgeNormal(id,0) ;
 				normal += lambda[1] * spatch_->evalEdgeNormal(id,1) ;
 				s = sign( dotProduct(normal, (*P_) - xP) );
@@ -924,12 +928,14 @@ double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int method, 
 			if ( nV == 3 )
 			{
 				darray3E lambda ;
-				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda);
+				int flag;
+				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
 			}
 			else if ( nV == 2 )
 			{
 				darray2E lambda ;
-				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda);
+				int flag;
+				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
 			}
 			else{
 				int flag;
