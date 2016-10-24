@@ -287,18 +287,17 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
 
 
 /*! Set ratio a of support radius R of RBF kernel functions, according to the formula
- * R = 0.5*a*D, where D is the diagonal of the Axis Aligned Bounding Box referred to the target
+ * R = a*D, where D is the diagonal of the Axis Aligned Bounding Box referred to the target
  * geometry. During the execution the correct value of R is applied.
- * The ratio a can have value between 0 and 1 (with 0 excluded), which corresponding to minimum locally narrowed
- * function, and almost flat functions (as sphere of infinite radius), respectively. Positive values greater then 1,
- * are reset to the maximum value 1 automatically.
+ * The ratio a can have value between 0 and +inf (with 0 excluded), which corresponding to minimum locally narrowed
+ * function, and almost flat functions (as sphere of infinite radius), respectively. 
  * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is 
  * R is set proportional to the maximum displacement value.
  * @param[in] suppR new value of suppR
  */
 void
 MRBF::setSupportRadius(double suppR_){
-	suppR_ = std::fmax(-1.0, std::fmin(1, suppR_));
+	suppR_ = std::fmax(-1.0,suppR_);
 	m_SRRatio = suppR_;
 }
 
@@ -401,11 +400,11 @@ void MRBF::execute(){
 		}
 	}
 
-	double halfDiag;
+	double bboxDiag;
 	{
 		darray3E pmin, pmax;
 		container->getPatch()->getBoundingBox(pmin, pmax);
-		halfDiag= 0.5*norm2(pmax - pmin);
+		bboxDiag= norm2(pmax - pmin);
 	}
 	
 	//Checking supportRadius.
@@ -427,11 +426,11 @@ void MRBF::execute(){
 		distance *=3.0;
 	
 	}else{
-		distance = halfDiag * (std::exp(m_SRRatio*m_SRRatio*std::log(1.01E+02)) -1.0);
+		distance = m_SRRatio * bboxDiag;
 	}
 	
 	if(distance <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
-		distance = halfDiag;
+		distance = 0.5*bboxDiag;
 	}
 	
 	const double radius = distance;
