@@ -179,7 +179,7 @@ SpecularPoints::execute(){
 
 	
 	//choosing margin for plane offset
-	double margin = 1.e-12;
+    double margin = 1.e-12;
 	if(project && getGeometry()->getType() == 1){
 		double aTot = 0.0;
 		int cellSize = getGeometry()->getNCells();
@@ -203,7 +203,8 @@ SpecularPoints::execute(){
 
 	
 	double sig = (1.0  - 2.0*((int)m_insideout));
-	double distance;		
+	double distance;
+	bool force = true;
 	//mirroring.
 	m_scalar.resize(m_points.size());
 	m_vector.resize(m_points.size());
@@ -221,7 +222,7 @@ SpecularPoints::execute(){
 	
 	for(auto &val: m_points){
 		distance = sig*(dotProduct(norm, val) + offset);
-		if(distance > margin){
+		if(distance > margin || force){
 			m_proj[counterProj] = val - 2.0*distance*sig*norm;
 			m_scalarMirrored[counterProj] = m_scalar[counterData];
 			m_vectorMirrored[counterProj] = m_vector[counterData] -2.0*dotProduct(m_vector[counterData], sig*norm)*sig*norm;
