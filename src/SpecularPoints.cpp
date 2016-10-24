@@ -153,6 +153,24 @@ SpecularPoints::setPlane(darray4E plane){
 };
 
 /*!
+ * Set Plane for mirroring cloud points. All points not belonging to plane will be mirrored
+ * \param[in] origin points belonging to plane	
+ * \param[in] normal plane normal
+ *  
+ */
+void
+SpecularPoints::setPlane(darray3E origin, darray3E normal){
+	
+	normal /= norm2(normal);
+	double b = -1.0*dotProduct(origin, normal);
+		
+	m_plane[0] = normal[0];
+	m_plane[1] = normal[1];
+	m_plane[2] = normal[2];
+	m_plane[3] = b;
+};
+
+/*!
  * Returns which half-space intercepeted by the plane is interested by mirroring. 
  * \param[in] flag false to select the half-space where plane normal is directed, true to select the other one.
  */

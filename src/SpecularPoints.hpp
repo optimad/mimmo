@@ -98,6 +98,7 @@ public:
 	void	setVectorData(dvecarr3E data);
 	void	setScalarData(dvector1D data);
 	void	setPlane(darray4E plane);
+	void	setPlane(darray3E origin, darray3E normal);
 	void 	setInsideOut(bool flag);
 	
 	void 	execute();
