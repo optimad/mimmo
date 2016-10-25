@@ -50,7 +50,8 @@ SpecularPoints & SpecularPoints::operator=(const SpecularPoints & other){
 	m_plane = other.m_plane;
 	m_scalar = other.m_scalar;
 	m_vector = other.m_vector;
-	m_insideout = other.m_insideout;
+    m_insideout = other.m_insideout;
+    m_force = other.m_force;
 	return(*this);
 };
 
@@ -65,7 +66,8 @@ SpecularPoints::buildPorts(){
 	built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setForce, PortType::M_VALUEB2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
 	
 	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudResult, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
@@ -118,9 +120,18 @@ SpecularPoints::getPlane(){
  * Returns which half-space intercepeted by the plane is interested by mirroring. 
  * False represents the half-space where plane normal is directed, true the other one.
  */
-bool 	
+bool
 SpecularPoints::isInsideOut(){
-	return m_insideout;
+    return m_insideout;
+}
+
+/*!
+ * Returns if even the points belonging to the symmetry
+ * plane are mirrored (i.e. duplicated).
+ */
+bool
+SpecularPoints::isForce(){
+    return m_force;
 }
 
 /*!
@@ -179,6 +190,16 @@ SpecularPoints::setInsideOut(bool flag){
 	m_insideout = flag;
 };
 
+/*!
+ * Set if even the points belonging to the symmetry
+ * plane have to be mirrored (i.e. duplicated).
+ * \param[in] flag true if the points on the symmetry plane have to be duplicated during mirroring.
+ */
+void
+SpecularPoints::setForce(bool flag){
+    m_force = flag;
+}
+
 
 /*!Execution command.Mirror the list of points linked, with data attached if any.
  * If a geometry is linked, project all resulting points on it.
@@ -222,7 +243,7 @@ SpecularPoints::execute(){
 	
 	double sig = (1.0  - 2.0*((int)m_insideout));
 	double distance;
-	bool force = true;
+
 	//mirroring.
 	m_scalar.resize(m_points.size());
 	m_vector.resize(m_points.size());
@@ -240,7 +261,7 @@ SpecularPoints::execute(){
 	
 	for(auto &val: m_points){
 		distance = sig*(dotProduct(norm, val) + offset);
-		if(distance > margin || force){
+		if(distance > margin || m_force){
 			m_proj[counterProj] = val - 2.0*distance*sig*norm;
 			m_scalarMirrored[counterProj] = m_scalar[counterData];
 			m_vectorMirrored[counterProj] = m_vector[counterData] -2.0*dotProduct(m_vector[counterData], sig*norm)*sig*norm;
