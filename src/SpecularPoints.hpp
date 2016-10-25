@@ -50,7 +50,8 @@ namespace mimmo{
  *	| 10    | M_DISPLS 		| setVectorData     | (VECARR3, FLOAT) 	     	|
  *	| 19    | M_SCALARFIELD | setScalarData     | (VECTOR, FLOAT)		 	|
  *	| 29    | M_PLANE		| setPlane	     	| (ARRAY4, FLOAT)		 	|
- *  | 32    | M_VALUEB		| setInsideOut     	| (SCALAR, BOOL)		 	|
+ *  | 32    | M_VALUEB      | setInsideOut      | (SCALAR, BOOL)            |
+ *  | 140   | M_VALUEB      | setForce          | (SCALAR, BOOL)            |
  *	| 99    | M_GEOM 		| m_inside          | (SCALAR, MIMMO_)			|
  *	|-------|---------------|-------------------|---------------------------|
  *
@@ -70,7 +71,8 @@ namespace mimmo{
  */
 class SpecularPoints: public ProjectCloud{
 private:
-	bool		m_insideout; /**< plane direction for mirroring */
+    bool        m_insideout; /**< plane direction for mirroring */
+    bool        m_force;    /**< if true force the mirroring of points that belong to the symmetry plane. */
 	darray4E 	m_plane;  /**< reference plane */
 	dvector1D	m_scalar; /**< float scalar data attached to original points*/
 	dvecarr3E   m_vector; /**< float vector data attached to original points*/
@@ -93,13 +95,15 @@ public:
 	dvecarr3E getCloudVectorData();
 	
 	darray4E  getPlane();
-	bool	  isInsideOut();
+    bool      isInsideOut();
+    bool      isForce();
 	
 	void	setVectorData(dvecarr3E data);
 	void	setScalarData(dvector1D data);
 	void	setPlane(darray4E plane);
 	void	setPlane(darray3E origin, darray3E normal);
-	void 	setInsideOut(bool flag);
+    void    setInsideOut(bool flag);
+    void    setForce(bool flag);
 	
 	void 	execute();
 	
