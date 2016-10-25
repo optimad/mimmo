@@ -276,6 +276,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvector1D& e
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector1D& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector1D& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector2D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector2D& element);
+
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,shivector1D& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const shivector1D& element);
 

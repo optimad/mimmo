@@ -98,6 +98,49 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector1D &var
 }
 
 /*!
+ * Output stream operator for livector2D
+ * \param[in] buffer is the output stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const livector2D &var)
+{
+    int nQ;
+    int nP = var.size();
+    buffer << nP;
+    for (int i = 0; i < nP; ++i) {
+        nQ = var[i].size();
+        buffer << nQ;
+        for (int j = 0; j < nQ; ++j) {
+            buffer << var[i][j];
+        }
+    }
+    return buffer;
+}
+
+
+/*!
+ * Input stream operator for livector2D
+ * \param[in] buffer is the input stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector2D &var)
+{
+    int nP, nQ;
+    buffer >> nP;
+    var.resize(nP);
+    for (int i = 0; i < nP; ++i) {
+        buffer >> nQ;
+        var[i].resize(nQ);
+        for (int j = 0; j < nQ; ++j) {
+            buffer >> var[i][j];
+        }
+    }
+    return buffer;
+}
+
+/*!
  * Output stream operator for shivector1D
  * \param[in] buffer is the output stream
  * \param[in] var is the element to be streamed

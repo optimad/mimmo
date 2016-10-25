@@ -28,6 +28,8 @@
 using namespace std;
 using namespace mimmo;
 
+int BaseManipulation::sm_baseManipulationCounter(1);
+
 /*!Default constructor of BaseManipulation.
  * It sets to zero/null each member/pointer.
  */
@@ -39,7 +41,8 @@ BaseManipulation::BaseManipulation(){
 	m_arePortsBuilt = false;
 	m_execPlot      = false;
 	m_outputPlot	= "./";
-	m_counter		= 0;
+	m_counter		= sm_baseManipulationCounter;
+	sm_baseManipulationCounter++;
 };
 
 /*!Default destructor of BaseManipulation.
@@ -251,8 +254,9 @@ BaseManipulation::setOutputPlot(std::string path){
  * Set integer identifier of the class
  * \param[in] id integer identifier
  */
+//TODO Temporary. To be erased in future versions.
 void 	BaseManipulation::setClassCounter(int id){
-	m_counter = id;
+//	m_counter = id;
 }
 
 /*!It activates the object during the execution.
