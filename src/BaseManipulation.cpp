@@ -206,10 +206,17 @@ BaseManipulation::isPlotInExecution(){
 }
 
 /*!
- * Return integer identifier of the class
+ * Return integer identifier of the object (deprecated : use getId())
  */
-int 	BaseManipulation::getClassCounter(){
-	return m_counter;
+int     BaseManipulation::getClassCounter(){
+    return getId();
+}
+
+/*!
+ * Return integer identifier of the object
+ */
+int     BaseManipulation::getId(){
+    return m_counter;
 }
 
 /*!It sets the name of the manipulator object.
@@ -251,12 +258,19 @@ BaseManipulation::setOutputPlot(std::string path){
 
 
 /*!
- * Set integer identifier of the class
+ * Set (force) integer identifier of the object (deprecated : use setId())
  * \param[in] id integer identifier
  */
-//TODO Temporary. To be erased in future versions.
 void 	BaseManipulation::setClassCounter(int id){
-//	m_counter = id;
+	setId(id);
+}
+
+/*!
+ * Set (force) integer identifier of the object
+ * \param[in] id integer identifier
+ */
+void    BaseManipulation::setId(int id){
+    m_counter = id;
 }
 
 /*!It activates the object during the execution.

@@ -128,14 +128,16 @@ public:
 	
 	bool	isPlotInExecution();
 	bool	isActive();
-	int 	getClassCounter();
+    int     getClassCounter();
+    int     getId();
 
 	//set methods
 	void	setName(std::string name);
 	void 	setGeometry(MimmoObject* geometry);
 	void	setPlotInExecution(bool);
 	void	setOutputPlot(std::string path);
-	void	setClassCounter(int );
+    void    setClassCounter(int );
+    void    setId(int );
 	
 	void	activate();
 	void	disable();
