@@ -1,0 +1,51 @@
+name: bitpit
+markdown: redcarpet
+highlighter: rouge
+baseurl: /bitpit-private
+
+exclude: [_manual]
+
+collections:
+  modules:
+    output: true
+
+sections:
+    modules:
+        name: Modules
+
+        subsections:
+            overview:
+                name: Overview
+                url: overview.html
+            PABLO:
+                name: PABLO
+                url: PABLO.html
+            RBF:
+                name: RBF
+                url: RBF.html
+
+    examples:
+        name: Examples
+        url:
+
+    documentation:
+        name: Documentation
+
+        subsections:
+            installation:
+                name: Installation guide
+                url: installation.html
+            manual:
+                name: Programmer's manual
+                url: manual/1.2.0/index.xhtml
+
+    downloads:
+        name: Downloads
+        url:
+
+gems:
+   - jekyll-mentions
+   - jemoji
+   - jekyll-redirect-from
+   - jekyll-sitemap
+   - jekyll-feed

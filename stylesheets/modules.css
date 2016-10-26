@@ -1,0 +1,16 @@
+
+#banner.module .background {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: auto;
+    height: auto;
+    max-height: 300px;
+}
+
+#banner.module .title p {
+    font-size: 14px;
+
+    color: #f8f8f8;
+}
