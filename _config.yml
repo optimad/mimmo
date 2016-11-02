@@ -6,7 +6,7 @@ baseurl: /MIMMO
 exclude: [_manual]
 
 collections:
-  modules:
+  about:
     output: true
 
 sections:
