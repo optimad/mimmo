@@ -1,4 +1,4 @@
-name: mimmo
+name: MiMMO
 markdown: redcarpet
 highlighter: rouge
 baseurl: /MIMMO
@@ -6,23 +6,29 @@ baseurl: /MIMMO
 exclude: [_manual]
 
 collections:
-  about:
+  overview:
     output: true
 
 sections:
-    about:
-        name: About
+    overview:
+        name: Overview
 
         subsections:
-            overview:
-                name: Overview
-                url: overview.html
-            objects:
-                name: Manipulation Objects
-                url: manipulation.html
-            chain:
-                name: Execution Chain
-                url: chain.html
+            basics:
+                name: Basics
+                url: basics.html
+            morphing:
+                name: Morphing
+                url: morphing.html
+            wrappers:
+                name: Wrappers
+                url: wrappers.html
+            inout:
+                name: Inout/Output
+                url: inout.html
+            tools:
+                name: Tools
+                url: tools.html
 
     examples:
         name: Examples
