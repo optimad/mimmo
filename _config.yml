@@ -19,10 +19,10 @@ sections:
                 url: overview.html
             objects:
                 name: Manipulation Objects
-                url: Manipulation.html
+                url: manipulation.html
             chain:
                 name: Execution Chain
-                url: Chain.html
+                url: chain.html
 
     examples:
         name: Examples
