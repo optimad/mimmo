@@ -1,7 +1,7 @@
-name: bitpit
+name: mimmo
 markdown: redcarpet
 highlighter: rouge
-baseurl: /bitpit-private
+baseurl: /MIMMO
 
 exclude: [_manual]
 
@@ -10,19 +10,19 @@ collections:
     output: true
 
 sections:
-    modules:
-        name: Modules
+    about:
+        name: About
 
         subsections:
             overview:
                 name: Overview
                 url: overview.html
-            PABLO:
-                name: PABLO
-                url: PABLO.html
-            RBF:
-                name: RBF
-                url: RBF.html
+            objects:
+                name: Manipulation Objects
+                url: Manipulation.html
+            chain:
+                name: Execution Chain
+                url: Chain.html
 
     examples:
         name: Examples
@@ -37,7 +37,7 @@ sections:
                 url: installation.html
             manual:
                 name: Programmer's manual
-                url: manual/1.2.0/index.xhtml
+                url: manual/1.0.0/index.xhtml
 
     downloads:
         name: Downloads
