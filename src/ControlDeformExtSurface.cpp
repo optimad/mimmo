@@ -260,7 +260,7 @@ void ControlDeformExtSurface::clear(){
 	m_violationField.clear();
 	BaseManipulation::clear();
 	m_tolerance = 1.E-12;
-	m_cellBackground = 20;
+	m_cellBackground = 50;
 };
 
 /*!Execution command. Calculate violation value and store it in the class member m_violation
@@ -552,7 +552,7 @@ void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML
 	if(slotXML.hasOption("BGDetails")){
 		std::string input = slotXML.get("BGDetails");
 		input = bitpit::utils::trim(input);
-		int value = 20;
+		int value = 50;
 		if(!input.empty()){
 			std::stringstream ss(input);
 			ss >> value;
