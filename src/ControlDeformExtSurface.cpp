@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformExtSurface.hpp"
+#include <cmath>
 // #include <chrono>
 // 
 // using namespace std::chrono;
@@ -376,8 +377,10 @@ ControlDeformExtSurface::execute(){
 		//check if its more convenient evaluate distances with a direct BvTree
 		//evaluation of distance on target deformation points or using a background grid + 
 		//interpolation.
+		double nReq = double(dim[0]+1)*double(dim[1]+1)*double(dim[2]+1);
+		double nAva = 0.8*nDFS;
 		
-		if((dim[0]+1)*(dim[1]+1)*(dim[2]+1) > 0.8*nDFS){
+		if( nReq > nAva){
 			
 			//going to use direct evaluation.
 			
@@ -652,6 +655,7 @@ void ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGe
 		if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isBvTreeSupported()){ 
 			std::cout<<"failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
 		}else{
+			geo->getGeometry()->getPatch()->buildAdjacencies();
 			extGeo[counter] = std::move(geo);
 			++counter;
 		}
@@ -703,7 +707,7 @@ double ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::M
 	
 	double dist = 1.0E+18;
 	double rate = 0.02;
-	int kmax = 500;
+	int kmax = 1000;
 	int kiter = 0;
 	bool flag = true;
 	
@@ -715,9 +719,6 @@ double ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::M
 		if(flag)	initRadius *= (1.0+ rate*((double)flag));
 		kiter++;
 	}
-	
-	darray3E fnormal = static_cast<bitpit::SurfaceKernel * > (geo->getPatch())->evalFacetNormal(id);
-	dist = std::abs(dist) *(1.0 -  2.0*double(dotProduct(normal, fnormal) < 0.0));
 	
 	return dist;
 }

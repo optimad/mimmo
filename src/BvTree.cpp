@@ -781,9 +781,9 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 				darray3E lambda ;
 				int flag;
 				h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
-				normal  = lambda[0] * spatch_->evalEdgeNormal(id,0) ;
-				normal += lambda[1] * spatch_->evalEdgeNormal(id,1) ;
-				normal += lambda[2] * spatch_->evalEdgeNormal(id,2) ;
+				normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
+				normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
+				normal += lambda[2] * spatch_->evalVertexNormal(id,2) ;
 				s =  sign( dotProduct(normal, (*P_) - xP) );
 				h = s * h;
 				//pseudo-normal (direction P and xP closest point on triangle)
@@ -800,8 +800,8 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 				darray2E lambda ;
 				int flag;
 				h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
-				normal  = lambda[0] * spatch_->evalEdgeNormal(id,0) ;
-				normal += lambda[1] * spatch_->evalEdgeNormal(id,1) ;
+				normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
+				normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
 				s = sign( dotProduct(normal, (*P_) - xP) );
 				h = s * h;
 				//pseudo-normal (direction P and xP closest point on triangle)
@@ -827,6 +827,7 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
 	return(h);
 
 };
+
 
 /*!It computes the unsigned distance of a point to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
