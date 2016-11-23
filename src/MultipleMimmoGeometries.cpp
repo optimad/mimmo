@@ -30,33 +30,6 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-/*!
- * Default constructor od FileDataInfo
- */
-FileDataInfo::FileDataInfo(){};
-
-/*!Default destructor of FileDataInfo.
- */
-FileDataInfo::~FileDataInfo(){};
-
-/*!
- * Copy constructor of FileDataInfo;
- */
-FileDataInfo::FileDataInfo(const FileDataInfo & other){
-	*this = other;
-};
-
-/*!
- * Assignement operator of FileDataInfo.
- */
-FileDataInfo & FileDataInfo::operator=(const FileDataInfo & other){
-	ftype = other.ftype;
-	fname = other.fname;
-	fdir = other.fdir;
-	return *this;
-};
-
-
 /*!Default constructor of MimmoGeometry.
  */
 MimmoGeometry::MimmoGeometry(){
@@ -82,10 +55,14 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	clear();
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-	m_rinfo = other.m_rinfo;
-	m_winfo = other.m_winfo;
+	m_rtype = other.m_rtype;
+	m_wtype = other.m_wtype;
 	m_read = other.m_read;
+	m_rfilename = other.m_rfilename;
 	m_write = other.m_write;
+	m_wfilename = other.m_wfilename;
+	m_rdir = other.m_rdir;
+	m_wdir = other.m_wdir;
 	m_wformat = other.m_wformat;
 	m_codex = other.m_codex;
 	m_buildBvTree = other.m_buildBvTree;
@@ -135,22 +112,19 @@ const MimmoObject * MimmoGeometry::getGeometry() const{
  */
 void
 MimmoGeometry::setDefaults(){
-	
-	m_read			= false;
-	m_rinfo.fname	= "mimmoGeometry";
-	m_rinfo.ftype	= static_cast<int>(FileType::STL);
-	m_rinfo.fdir	= "./";
-	
-	m_write			= false;
-	m_winfo.fname	= "mimmoGeometry";
-	m_winfo.ftype	= static_cast<int>(FileType::STL);
-	m_winfo.fdir	= "./";
-
-	m_wformat		= Short;
-	m_isInternal  	= true;
-	m_codex			= true;
-	m_buildBvTree	= false;
-	m_buildKdTree	= false;
+	m_rtype		= static_cast<int>(FileType::STL);
+	m_read		= false;
+	m_rfilename	= "mimmoGeometry";
+	m_wtype		= static_cast<int>(FileType::STL);
+	m_write		= false;
+	m_wfilename	= "mimmoGeometry";
+	m_rdir		= "./";
+	m_wdir		= "./";
+	m_wformat	= Short;
+	m_isInternal  = true;
+	m_codex = true;
+	m_buildBvTree = false;
+	m_buildKdTree = false;
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -158,7 +132,7 @@ MimmoGeometry::setDefaults(){
  */
 void
 MimmoGeometry::setReadFileType(FileType type){
-	m_rinfo.ftype = type._to_integral();
+	m_rtype = type._to_integral();
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -168,7 +142,7 @@ void
 MimmoGeometry::setReadFileType(int type){
 	type = std::max(0, type);
 	if(type > 6)	type = 0;
-	m_rinfo.ftype = type;
+	m_rtype = type;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -184,7 +158,7 @@ MimmoGeometry::setRead(bool read){
  */
 void
 MimmoGeometry::setReadDir(string dir){
-	m_rinfo.fdir = dir;
+	m_rdir = dir;
 }
 
 /*!It sets the name of file to read the geometry.
@@ -192,7 +166,7 @@ MimmoGeometry::setReadDir(string dir){
  */
 void
 MimmoGeometry::setReadFilename(string filename){
-	m_rinfo.fname = filename;
+	m_rfilename = filename;
 }
 
 
@@ -201,7 +175,7 @@ MimmoGeometry::setReadFilename(string filename){
  */
 void
 MimmoGeometry::setWriteFileType(FileType type){
-	m_winfo.ftype = type._to_integral();
+	m_wtype = type._to_integral();
 }
 
 /*!It sets the type of file to write the geometry during the execution.
@@ -211,7 +185,7 @@ void
 MimmoGeometry::setWriteFileType(int type){
 	type = std::max(0, type);
 	if(type > 6)	type = 0;
-	m_winfo.ftype = type;
+	m_wtype = type;
 }
 
 /*!It sets the condition to write the geometry on file during the execution.
@@ -227,7 +201,7 @@ MimmoGeometry::setWrite(bool write){
  */
 void
 MimmoGeometry::setWriteDir(string dir){
-	m_winfo.fdir = dir;
+	m_wdir = dir;
 }
 
 /*!It sets the name of file to write the geometry.
@@ -235,7 +209,7 @@ MimmoGeometry::setWriteDir(string dir){
  */
 void
 MimmoGeometry::setWriteFilename(string filename){
-	m_winfo.fname = filename;
+	m_wfilename = filename;
 }
 
 /*!
@@ -278,10 +252,14 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 	m_isInternal = true;
 	m_intgeo = std::move(dum);
 	
-	m_rinfo = other->m_rinfo;
-	m_winfo = other->m_winfo;
+	m_rtype = other->m_rtype;
+	m_wtype = other->m_wtype;
 	m_read = other->m_read;
+	m_rfilename = other->m_rfilename;
 	m_write = other->m_write;
+	m_wfilename = other->m_wfilename;
+	m_rdir = other->m_rdir;
+	m_wdir = other->m_wdir;
 	m_wformat = other->m_wformat;
 	m_codex = other->m_codex;
 	m_buildBvTree = other->m_buildBvTree;
@@ -440,12 +418,12 @@ bool
 MimmoGeometry::write(){
 	if (isEmpty()) return false;
 	
-	switch(FileType::_from_integral(m_winfo.ftype)){
+	switch(FileType::_from_integral(m_wtype)){
 		
 		case FileType::STL :
 			//Export STL
 			{
-			string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+			string name = (m_wdir+"/"+m_wfilename+".stl");
 			dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex);
 			return true;
 			}
@@ -456,7 +434,7 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TRIANGLE);
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				vtk.setDimensions(connectivity.size(), points.size());
@@ -472,7 +450,7 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::QUAD);
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
@@ -488,7 +466,7 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
+				bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::TETRA);
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
@@ -504,7 +482,7 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
+			bitpit::VTKUnstructuredGrid  vtk(m_wdir, m_wfilename, bitpit::VTKElementType::HEXAHEDRON);
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
@@ -525,9 +503,9 @@ MimmoGeometry::write(){
 			shivector1D pids = getGeometry()->getCompactPID();
 			std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
 			if (pids.size() == connectivity.size()){
-				nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity, &pids, &pidsset);
+				nastran.write(m_wdir,m_wfilename,points,connectivity, &pids, &pidsset);
 			}else{
-				nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity);
+				nastran.write(m_wdir,m_wfilename,points,connectivity);
 			}
 			return true;
 		}
@@ -537,7 +515,7 @@ MimmoGeometry::write(){
 		{
 
 			dvecarr3E points = getGeometry()->getVertexCoords();
-			writeOFP(m_winfo.fdir, m_winfo.fname, points);
+			writeOFP(m_wdir, m_wfilename, points);
 			return true;
 		}
 		break;
@@ -555,7 +533,7 @@ bool
 MimmoGeometry::read(){
 	if(!m_isInternal) return false;
 	
-	switch(FileType::_from_integral(m_rinfo.ftype)){
+	switch(FileType::_from_integral(m_rtype)){
 
 	//Import STL
 	case FileType::STL :
@@ -564,13 +542,13 @@ MimmoGeometry::read(){
 		string name;
 
 		{
-			std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
+			std::ifstream infile(m_rdir+"/"+m_rfilename+".stl");
 			bool check = infile.good();
-			name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
+			name = m_rdir+"/"+m_rfilename+".stl";
 			if (!check){
-				infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
+				infile.open(m_rdir+m_rfilename+".STL");
 				check = infile.good();
-				name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
+				name = m_rdir+"/"+m_rfilename+".STL";
 				if (!check) return false;
 			}
 		}
@@ -600,14 +578,14 @@ MimmoGeometry::read(){
 	case FileType::STVTU :
 		//Import Triangulation Surface VTU
 	{
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TRIANGLE);
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
@@ -642,14 +620,14 @@ MimmoGeometry::read(){
 		//Import Quadrilateral Surface VTU
 	{
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 	
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::QUAD);
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
@@ -685,14 +663,14 @@ MimmoGeometry::read(){
 		//Import Tetra Volume VTU
 	{
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TETRA);
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
@@ -729,14 +707,14 @@ MimmoGeometry::read(){
 		//Import Hexa Volume VTU
 	{
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
 		bool check = infile.good();
 		if (!check) return false;
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
 
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::HEXAHEDRON);
+		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
@@ -772,7 +750,7 @@ MimmoGeometry::read(){
 		//Import Surface NAS
 	{
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
+		std::ifstream infile(m_rdir+"/"+m_rfilename+".nas");
 		bool check = infile.good();
 		if (!check) return false;
 		infile.close();
@@ -784,7 +762,7 @@ MimmoGeometry::read(){
 		nastran.setWFormat(m_wformat);
 
 		shivector1D pids;
-		nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, Iconnectivity, pids );
+		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, pids );
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 		
@@ -818,13 +796,13 @@ MimmoGeometry::read(){
 	case FileType::OFP :
 	{
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname);
+		std::ifstream infile(m_rdir+"/"+m_rfilename);
 		bool check = infile.good();
 		if (!check) return false;
 		infile.close();
 
 		dvecarr3E	Ipoints;
-		readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
+		readOFP(m_rdir, m_rfilename, Ipoints);
 
 		setGeometry(3);
 
@@ -853,7 +831,7 @@ MimmoGeometry::execute(){
 	bool check = true;
 	if (m_read) check = read();
 	if (!check){
-		std::cout << "MiMMO : ERROR : file not found : "<< m_rinfo.fname << std::endl;
+		std::cout << "MiMMO : ERROR : file not found : "<< m_rfilename << std::endl;
 		std::cout << " " << std::endl;
 		exit(10);
 	}
@@ -1149,32 +1127,32 @@ void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	output = std::to_string(m_read);
 	slotXML.set("ReadFlag", output);
 
-	if(m_rinfo.fdir != "./"){
-		slotXML.set("ReadDir", m_rinfo.fdir);
+	if(m_rdir != "./"){
+		slotXML.set("ReadDir", m_rdir);
 	}	
 	
-	if(m_rinfo.fname != "mimmoGeometry"){
-		slotXML.set("ReadFilename", m_rinfo.fname);
+	if(m_rfilename != "mimmoGeometry"){
+		slotXML.set("ReadFilename", m_rfilename);
 	}	
 	
-	if(m_rinfo.ftype != 0){
-		std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
+	if(m_rtype != 0){
+		std::string temp = (FileType::_from_integral(m_rtype))._to_string();
 		slotXML.set("ReadFileType", temp);
 	}
 	
 	output = std::to_string(m_write);
 	slotXML.set("WriteFlag", output);
 	
-	if(m_winfo.fdir != "./"){
-		slotXML.set("WriteDir", m_winfo.fdir);
+	if(m_wdir != "./"){
+		slotXML.set("WriteDir", m_wdir);
 	}	
 	
-	if(m_winfo.fname != "mimmoGeometry"){
-		slotXML.set("WriteFilename", m_winfo.fname);
+	if(m_wfilename != "mimmoGeometry"){
+		slotXML.set("WriteFilename", m_wfilename);
 	}	
 	
-	if(m_winfo.ftype != FileType::STL){
-		std::string temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
+	if(m_wtype != FileType::STL){
+		std::string temp = (FileType::_from_integral(m_wtype))._to_string();
 		slotXML.set("WriteFileType", temp);
 	}
 	

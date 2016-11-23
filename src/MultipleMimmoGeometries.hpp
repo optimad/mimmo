@@ -21,58 +21,26 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __MIMMOGEOMETRY_HPP__
-#define __MIMMOGEOMETRY_HPP__
+#ifndef __MULTIPLEMIMMOGEOMETRY_HPP__
+#define __MULTIPLEMIMMOGEOMETRY_HPP__
 
-#include "BaseManipulation.hpp"
-
-BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6);
-
+#include "MimmoGeometry.hpp"
 
 namespace mimmo{
-
-class NastranInterface;
-
-	/*!Format of data to read/write the geometry.*/
-enum WFORMAT{	/*!Single precision data.*/		Short,
-				/*!Double precision data.*/		Long
-};
 
 /*!
  *	\date			30/nov/2016
  *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ *	\authors		
  *
- *	\brief FileDataInfo is a struct to stock data relative to names of external files.
+ *	\brief MultipleMimmoGeometries is an executable block class capable of  
+ *         handling multiple geometries files of the same topology into a 
+ *         unique MimmoObject container
  *
- *	FileDataInfo has three fields:
- *	an integer relative to the type of file stored (FileType enum)
- *  a string reporting the path of the file
- *  a string reporting the name of the file
- * 
- */
-struct FileDataInfo{
-	int ftype;
-	std::string fname;
-	std::string fdir;
-	
-	FileDataInfo();
-	virtual ~FileDataInfo();
-	FileDataInfo(const FileDataInfo & other);
-	FileDataInfo & operator=(const FileDataInfo & other);
-};
-
-/*!
- *	\date			30/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief MimmoGeometry is an executable block class wrapping(linking or internally instantiating)
- *           a Mimmo Object, handling geometry.
- *
- *	MimmoGeometry is the object to manage the import/export/substantial modifications of geometries. It returns a 
- *  standard MimmoObject class as product of its execution;
- *	The mesh to import/export has to be a mesh with constant type elements.
+ *	MultipleMimmoGeometry is the object to manage the import/export/substantial modifications 
+ *  of one or more geometry files of the same topology in a unique, standard MimmoObject structure as 
+ *  product of its execution. It works as a  MimmoGeometry class, and retains almost the same features.
+ *	The meshes to import/export have to be meshes with constant type elements.
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *	for volume mesh.
@@ -89,7 +57,7 @@ struct FileDataInfo{
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.
- * and including MimmoGeometry header. 
+ * and including MultipleMimmoGeometries header. 
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------|
@@ -112,15 +80,19 @@ struct FileDataInfo{
  *	=========================================================
  *
  */
-class MimmoGeometry: public BaseManipulation{
+class MultipleMimmoGeometries: public BaseManipulation{
 	
 private:
-	bool		 m_read; 		/**<If true it reads the geometry from file during the execution.*/
-	FileDataInfo m_rinfo;       /**< Info on the external file to read */
-	
-	bool		 m_write; 		/**<If true it writes the geometry on file during the execution.*/
-	FileDataInfo m_winfo;       /**< Info on the external file to write */
-	
+	int  		m_rtype;		/**<Extension of file to read the geometry.*/
+	bool		m_read; 		/**<If true it reads the geometry from file during the execution.*/
+	std::string	m_rdir;			/**<Name of directory to read the geometry (without final "/").*/
+	std::string	m_rfilename;	/**<Name of file to read the geometry (without extension).*/
+
+	int 		m_wtype;		/**<Extension of file to write the geometry.*/
+	bool		m_write; 		/**<If true it writes the geometry on file during the execution.*/
+	std::string	m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
+	std::string	m_wfilename;	/**<Name of file to write the geometry.*/
+
 	bool		m_isInternal;				/**< flag for internal instantiated MimmoObject */
 	std::unique_ptr<MimmoObject> m_intgeo;	/**< pointer to internal allocated geometry, if any */
 	bool		m_codex;					/**< Set codex format for writing true binary, false ascii */
