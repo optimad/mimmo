@@ -515,6 +515,23 @@ MimmoGeometry::write(){
 			return true;
 		}
 		break;
+
+		case FileType::PCVTU :
+			//Export Triangulation Surface VTU
+		{
+			dvecarr3E	points = getGeometry()->getVertexCoords();
+			ivector2D	connectivity(points.size(), ivector1D(1)); 
+			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
+			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+			vtk.setDimensions(connectivity.size(), points.size());
+			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.write() ;
+			return true;
+		}
+		break;
+		
 		default: //never been reached
 			break;
 	}
@@ -809,6 +826,36 @@ MimmoGeometry::read(){
 		
 	}
 	break;
+
+	//Import point cloud from vtu
+	case FileType::PCVTU :
+	{
+		
+		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+		
+		dvecarr3E	Ipoints ;
+		ivector2D	Iconnectivity ;
+		
+		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::VERTEX);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.read() ;
+		
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::VERTEX;
+		
+		setGeometry(3);
+		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+	
+		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+	}
+	break;
+	
 	
 	default: //never been reached
 		break;
