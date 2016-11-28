@@ -64,6 +64,9 @@ BETTER_ENUM(PortType, int,
 			M_VIOLATION			= 82,
 			M_GEOM 				= 99,
 			M_VECGEOM			= 100,
+			M_MAPGEOM           = 101,
+			M_FINFO				= 102,
+			M_FINFO2			= 103,
 			M_POINT2			= 120,
 			M_VALUED2			= 130,
 			M_VALUEB2			= 140,
@@ -77,6 +80,33 @@ BETTER_ENUM(PortType, int,
 namespace mimmo{
 
 class BaseManipulation;
+
+/*!
+ *	\date			30/nov/2016
+ *	\authors		Rocco Arpa
+ *	\authors		Edoardo Lombardi
+ *
+ *	\brief FileDataInfo is a struct to stock data relative to names of external files.
+ *
+ *	FileDataInfo has three fields:
+ *	an integer relative to the type of file stored 
+ *  a string reporting the path of the file
+ *  a string reporting the name of the file
+ * 
+ */
+struct FileDataInfo{
+	int ftype;
+	std::string fname;
+	std::string fdir;
+	
+	FileDataInfo();
+	virtual ~FileDataInfo();
+	FileDataInfo(const FileDataInfo & other);
+	FileDataInfo & operator=(const FileDataInfo & other);
+};
+
+
+
 
 /*!
  * 
@@ -142,7 +172,10 @@ class BaseManipulation;
  *	M_VIOLATION			= 82	 Port dedicated to communicate a double value, with a BaseManipulation object which refers to as std::pair<BaseManipulation *, double>,
  *  M_GEOM 				= 99	 Port dedicated to communicate a pointer to a geometry [MimmoObject *].,
  *  M_VECGEOM 			= 100	 Port dedicated to communicate a list of pointers to geometries std::vector<MimmoObject *>.,
- *	M_POINT2			= 120	 Port dedicated to communicate the coordinate of a point field [array<double,3>].,
+ *  M_MAPGEOM           = 101    Port dedicated to communicate a cells map list of the type std::unordered_map<long, short>.,
+ *  M_FINFO				= 102    Port dedicated to communicate a list of FileInfoData classes std::vector<FileInfoData>.,
+ *  M_FINFO2			= 103    Port dedicated to communicate a list of FileInfoData classes std::vector<FileInfoData>.,	 
+ *  M_POINT2			= 120	 Port dedicated to communicate the coordinate of a point field [array<double,3>].,
  *	M_VALUED2			= 130	 Port dedicated to communicate a scalar value [double].,
  *	M_VALUEB2			= 140	 Port dedicated to communicate a scalar value [bool].,
  *	M_VALUEB3			= 141	 Port dedicated to communicate a scalar value [bool].,
@@ -181,6 +214,7 @@ enum class containerTAG{
 	ARR3ARR3		/**< TAG related to std::array< std::array< . , 3 > , 3 > container.*/,
 	ARR3ARR3VEC		/**< TAG related to std::array< std::array< std::array< . , 3 > , 3 > , 3 > container.*/,
 	MAP				/**< TAG related to std::map< . , . > container.*/,
+	UN_MAP			/**< TAG related to std::unordered_map< . , . > container.*/,
 	PAIR			/**< TAG related to std::pair< . , . > container.*/
 
 };
@@ -194,6 +228,7 @@ enum class containerTAG{
 enum class dataTAG{
 
 	MIMMO_						/**< TAG related to a mimmo::MimmoObject* data.*/,
+	FILEINFODATA    			/**< TAG related to mimmo::FileInfoData data.*/,
 	INT							/**< TAG related to a int data.*/,
 	SHORT						/**< TAG related to a short (int) data.*/,
 	LONG						/**< TAG related to a long (int) data.*/,
@@ -202,6 +237,7 @@ enum class dataTAG{
 	STRING						/**< TAG related to a string data.*/,
 	MIMMO_VECFLOAT_				/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/,
 	MIMMO_VECARR3FLOAT_			/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
+	LONGSHORT					/**< TAG related to a couple (normally used in pair or map containers) of a long and a short element data*/,
 	PAIRMIMMO_VECFLOAT_			/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<double>* > data.*/,
 	PAIRMIMMO_VECARR3FLOAT_		/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<std::array<double,3> >* > data.*/,
 	PAIRMIMMO_OBJFLOAT_     	/**< TAG related to a std::pair<mimmo::BaseManipulation *, double> data.*/,

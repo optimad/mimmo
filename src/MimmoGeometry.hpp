@@ -25,6 +25,7 @@
 #define __MIMMOGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
+#include "MimmoNamespace.hpp"
 
 BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6);
 
@@ -38,29 +39,6 @@ enum WFORMAT{	/*!Single precision data.*/		Short,
 				/*!Double precision data.*/		Long
 };
 
-/*!
- *	\date			30/nov/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief FileDataInfo is a struct to stock data relative to names of external files.
- *
- *	FileDataInfo has three fields:
- *	an integer relative to the type of file stored (FileType enum)
- *  a string reporting the path of the file
- *  a string reporting the name of the file
- * 
- */
-struct FileDataInfo{
-	int ftype;
-	std::string fname;
-	std::string fdir;
-	
-	FileDataInfo();
-	virtual ~FileDataInfo();
-	FileDataInfo(const FileDataInfo & other);
-	FileDataInfo & operator=(const FileDataInfo & other);
-};
 
 /*!
  *	\date			30/mar/2016

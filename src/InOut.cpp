@@ -509,6 +509,123 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
 }
 
 
+/*!
+ *	Input stream operator for std::unordered_map<long, short>
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< long, short >&  var){
+	
+	long key;
+	short value;
+	int nP;
+	buffer >> nP;
+	for (int i = 0; i < nP; ++i) {
+		buffer >> key>>value;
+		var[key] = value;
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::unordered_map<long, short>
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< long, short >& var){
+	
+	int nP = var.size();
+	buffer << nP;
+	for (auto & ee : var) {
+		buffer << ee.first<<ee.second;
+	}
+	return buffer;
+};
+
+
+/*!
+ *	Input stream operator for mimmo::FileDataInfo
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileDataInfo&  var){
+	int type;
+	int nname, ndir;
+	char dum;
+	buffer >> var.ftype;
+	
+	buffer >>ndir;
+	char str_dir[ndir];
+	for(int i=0; i<ndir; ++i){
+		buffer >> dum;
+		str_dir[i]=dum;
+	}
+
+	buffer >>nname;
+	char str_name[nname];
+	for(int i=0; i<nname; ++i){
+		buffer >> dum;
+		str_name[i]=dum;
+	}
+	
+	var.fdir = str_dir;
+	var.fname = str_name;
+	
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for mimmo::FileDataInfo
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
+	
+	int nP = var.ftype();
+	int nname, ndir;
+	ndir  = var.fdir.size();
+	nname = var.fname.size();
+	buffer << nP << ndir<< var.fdir.c_str()<<nname<<var.fname.c_str();
+	return buffer;
+	
+	
+};
+
+/*!
+ *	Input stream operator for std::vector<mimmo::FileDataInfo>
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::FileDataInfo>&  var){
+	
+	int nP;
+	buffer>>nP;
+	var.resize(nP);
+	for(int i=0; i<nP; ++i){
+		buffer>>var[i];
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::vector<mimmo::FileDataInfo>
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::FileDataInfo>& var){
+	int nP = var.size();
+	buffer<<nP;
+	for(int i=0; i<nP; ++i){
+		buffer<<var[i];
+	}
+	return buffer;
+};
 
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
