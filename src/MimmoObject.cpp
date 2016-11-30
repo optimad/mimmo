@@ -1227,7 +1227,7 @@ bool MimmoObject::areAdjacenciesBuilt(){
 	
 	bool check = true;
 	
-	auto itp = getCells().begin();
+	auto itp = getCells().cbegin();
 	
 	int cAdj = itp->getAdjacencyCount();
 	const long * adj = itp->getAdjacencies();
@@ -1247,8 +1247,8 @@ bool MimmoObject::isClosedLoop(){
 	if(!areAdjacenciesBuilt())	buildAdjacencies();
 	bool check = true;
 	
-	auto itp = getCells().begin();
-	auto itend = getCells().end();
+	auto itp = getCells().cbegin();
+	auto itend = getCells().cend();
 	
 	while(itp != itend && !check){
 		
