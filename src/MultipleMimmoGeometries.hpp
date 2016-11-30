@@ -93,10 +93,10 @@ private:
 	int 						m_topo;			/**<Mark topology of your multi-file I/O geometry 1-surface, 2-volume, 3-pointcloud*/
 	int 						m_tagtype; 		/**<Mark type of tag format admissible. See FileType enum */
 	bool						m_read;			/**<If true it reads the geometry from file during the execution.*/
-	std::vector<FileInfoData>	m_rinfo;		/**<List of filenames data given to the reader */
+	std::vector<FileDataInfo>	m_rinfo;		/**<List of filenames data given to the reader */
 	
 	bool						m_write;		/**<If true it writes the geometry from file during the execution.*/
-	std::vector<FileInfoData>	m_winfo;		/**<List of filenames data where the geometry must be written */
+	std::vector<FileDataInfo>	m_winfo;		/**<List of filenames data where the geometry must be written */
 	
 	std::unordered_map<long, short>	m_mapMGeo;	/**<mapping cells ids of the MimmoObject with short ids linking to each sub-geometry filename il m_rinfo, m_winfo lists. 
 													The map is compiled automatically in reading mode.It is required in writing mode to divide geometry
@@ -128,16 +128,16 @@ public:
 	
 	std::unordered_map<long, short> getDivisionMap();
 	std::unordered_set<short>		getHowManySubDivisions();
-	std::vector<FileInfoData> 		getReadListAbsolutePathFiles();
-	std::vector<FileInfoData> 		getWriteListAbsolutePathFiles();
+	std::vector<FileDataInfo> 		getReadListAbsolutePathFiles();
+	std::vector<FileDataInfo> 		getWriteListAbsolutePathFiles();
 	
 	std::unordered_set<short> &	 getPIDList();
 	
 	void		setAddReadAbsolutePathFile(std::string dir, std::string name);
 	void		setAddWriteAbsolutePathFile(std::string dir, std::string name);
 	
-	void 		setReadListAbsolutePathFiles(std::vector<FileInfoData> data);
-	void 		setWriteListAbsolutePathFiles(std::vector<FileInfoData> data);
+	void 		setReadListAbsolutePathFiles(std::vector<FileDataInfo> data);
+	void 		setWriteListAbsolutePathFiles(std::vector<FileDataInfo> data);
 	
 	void		setRead(bool read);
 	void		setWrite(bool write);
@@ -184,7 +184,7 @@ private:
 	livector1D    cellExtractor(short id);
 	void		  fillSubStructure(livector1D &cellList, MimmoObject* subG);
 	bool checkCoherentFormat(MimmoObject *);
-	bool checkReadingFiles(FileInfoData & filedata);
+	bool checkReadingFiles(FileDataInfo & filedata);
 	
 	
 };

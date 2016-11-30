@@ -43,7 +43,7 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, int formattype){
  * \param[in] formattype set tag format type of your geometries for I/O. See FileType enum
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, FileType formattype){
-	initializeClass(topo, formattype._to_integer());
+	initializeClass(topo, formattype._to_integral());
 }
 
 /*!Default destructor of MultipleMimmoGeometries.
@@ -88,13 +88,13 @@ MultipleMimmoGeometries::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<MimmoObject*, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	built = (built && createPortIn<std::unordered_map<long,short>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setDivisionMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGSHORT));
-	built = (built && createPortIn<std::vector<FileInfoData>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
-	built = (built && createPortIn<std::vector<FileInfoData>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
 	built = (built && createPortOut<MimmoObject*, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	built = (built && createPortOut<std::unordered_map<long,short>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getDivisionMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGSHORT));
-	built = (built && createPortOut<std::vector<FileInfoData>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
-	built = (built && createPortOut<std::vector<FileInfoData>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
 	m_arePortsBuilt = built;
 }
@@ -137,7 +137,7 @@ const MimmoObject * MultipleMimmoGeometries::getGeometry() const{
  * (division map is a map which associates for each cell of MimmoObject a tag id
  * of the origin/destination file).
  */
-std::unordered_map<long short>	MultipleMimmoGeometries::getDivisionMap(){
+std::unordered_map<long,short>	MultipleMimmoGeometries::getDivisionMap(){
 	return m_mapMGeo;
 }
 
@@ -159,14 +159,14 @@ MultipleMimmoGeometries::getHowManySubDivisions(){
 /*!
  * Get list of external filenames the class must READ from to get the final MimmoObject.
  */
-std::vector<FileInfoData>	MultipleMimmoGeometries::getReadListAbsolutePathFiles(){
+std::vector<FileDataInfo>	MultipleMimmoGeometries::getReadListAbsolutePathFiles(){
 	return m_rinfo;
 }
 
 /*!
  * Get list of external filenames the class must WRITE to the final MimmoObject.
  */
-std::vector<FileInfoData>	MultipleMimmoGeometries::getReadListAbsolutePathFiles(){
+std::vector<FileDataInfo>	MultipleMimmoGeometries::getWriteListAbsolutePathFiles(){
 	return m_winfo;
 }
 
@@ -218,9 +218,9 @@ MultipleMimmoGeometries::setAddWriteAbsolutePathFile(std::string dir, std::strin
  * Set the whole list of external files data which the geometry is read from.
  */
 void
-MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileInfoData> data){
+MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileDataInfo> data){
 	m_rinfo.clear();
-	m_rinfo.resize(data.size);
+	m_rinfo.resize(data.size());
 	
 	int counter = 0;
 	for(auto & ele : data){
@@ -236,9 +236,9 @@ MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileInfoData> 
  * Set the whole list of external files data which the geometry is written to.
  */
 void
-MultipleMimmoGeometries::setWriteListAbsolutePathFiles(std::vector<FileInfoData> data){
+MultipleMimmoGeometries::setWriteListAbsolutePathFiles(std::vector<FileDataInfo> data){
 	m_winfo.clear();
-	m_winfo.resize(data.size);
+	m_winfo.resize(data.size());
 	
 	int counter = 0;
 	for(auto & ele : data){
@@ -314,8 +314,8 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 	m_wformat = other->m_wformat;
 	m_codex = other->m_codex;
 	
-	m_topo = other.m_topo;
-	m_tagtype = other.m_tagtype;
+	m_topo = other->m_topo;
+	m_tagtype = other->m_tagtype;
 	
 	m_mapMGeo = other->m_mapMGeo;
 	
@@ -330,8 +330,8 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 void
 MultipleMimmoGeometries::setGeometry(MimmoObject * external){
 	
-	if(getGeometry() == external || external.isEmpty()) return;
-	if(external.getType() != m_topo)	return;	
+	if(getGeometry() == external || external->isEmpty()) return;
+	if(external->getType() != m_topo)	return;	
 	
 	m_intgeo.reset(nullptr);
 	m_geometry = external;
@@ -565,7 +565,7 @@ MultipleMimmoGeometries::read(){
 			counter++;
 		}
 	}
-	
+	if(counter ==0) return false;
 	listRObjects.resize(counter);
 	
 	//put all read geometries in the internal unique MimmoObject of the class.
@@ -575,7 +575,7 @@ MultipleMimmoGeometries::read(){
 	long sizeCells=0;
 	long sizeVerts=0;
 	for(auto & obj: listRObjects){
-		sizeVerts += obj->getNVerts();
+		sizeVerts += obj->getNVertex();
 		if(m_topo !=3)	sizeCells += obj->getNCells();
 	}
 
@@ -603,13 +603,15 @@ MultipleMimmoGeometries::read(){
 		//get a map for eventual renumbering of PIDs
 		std::unordered_map<short,short> renumPIDfromlocal;
 		
-		for(auto & ee: obj->getPIDTypeList()){
+		std::unordered_set<short>::iterator it, itP= obj->getPIDTypeList().begin(), itE = obj->getPIDTypeList().end();
+		
+		for(it=itP; it!=itE; ++it){
 			short checker = 0;
-			if(pidMotherList.count(*ee) > 0){
+			if(pidMotherList.count(*it) > 0){
 				while(pidMotherList.count(checker)> 0 && checker < 32000){checker++;}
-				renumPIDfromlocal[*ee] = checker;
+				renumPIDfromlocal[*it] = checker;
 			}else{
-				renumPIDfromlocal[*ee] = *ee;
+				renumPIDfromlocal[*it] = *it;
 			}
 		}
 		
@@ -617,7 +619,7 @@ MultipleMimmoGeometries::read(){
 		for(auto & vv : obj->getVertices()){
 			id = vv.getId();
 			tempV = vv.getCoords();
-			m_intgeo->addVertex(temp,id);
+			m_intgeo->addVertex(tempV,id);
 		}
 		
 		//copy connected cells
@@ -627,7 +629,7 @@ MultipleMimmoGeometries::read(){
 			type = cc.getType();
 			tempPID = cc.getPID();
 			
-			m_intgeo->addConnectedCell(tempC,type, renumPIDfromlocal[PID], id);
+			m_intgeo->addConnectedCell(tempC,type, renumPIDfromlocal[tempPID], id);
 		}
 		
 		//update renumbering thresholds
@@ -648,14 +650,14 @@ MultipleMimmoGeometries::execute(){
 	bool check = true;
 	if (m_read) check = read();
 	if (!check){
-		std::cout << "MiMMO : ERROR : file not found : "<< m_rfilename << std::endl;
+		std::cout << "MiMMO : ERROR : no files to read found : "<< std::endl;
 		std::cout << " " << std::endl;
 		exit(10);
 	}
 	check = true;
 	if (m_write) check = write();
 	if (!check){
-		std::cout << "MiMMO : ERROR : write not done : geometry not linked " << std::endl;
+		std::cout << "MiMMO : ERROR : write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
 		std::cout << " " << std::endl;
 		exit(11);
 	}
@@ -683,19 +685,19 @@ MultipleMimmoGeometries::execute(){
 void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
-	std::vector<FileInfoData> temp;
+	std::vector<FileDataInfo> temp;
 	int counter;
 	
 	//checking topology
 	if(slotXML.hasOption("Topology")){
 		std::string input = slotXML.get("Topology");
 		input = bitpit::utils::trim(input);
-		int temp = -1;
+		int temptop = -1;
 		if(!input.empty()){
 			std::stringstream ss(input);
-			ss>>temp;
+			ss>>temptop;
 		}
-		if(m_topo != temp)	return;
+		if(m_topo != temptop)	return;
 	}	
 
 	//checking format type
@@ -706,11 +708,11 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		if(!input.empty()){
 			for(auto c: FileType::_values()){
 				if(input == c._to_string()){
-					tempformat = FileType::_to_integer(c);
+					tempformat = c._to_integral();
 				}
 			}
 		}
-		if(m_tagtype != temp)	return;
+		if(m_tagtype != tempformat)	return;
 	}	
 	
 	if(slotXML.hasOption("ReadFlag")){
@@ -752,7 +754,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 			}
 		}
 		temp.resize(counter);
-		setReadListAbsolutePathFiles();
+		setReadListAbsolutePathFiles(temp);
 	}
 
 	
@@ -768,7 +770,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 	
 	if(slotXML.hasSection("WriteFiles")){
 		bitpit::Config::Section & writing = slotXML.getSection("WriteFiles");
-		int nfile = reading.getSectionCount();
+		int nfile = writing.getSectionCount();
 		temp.resize(nfile);
 		
 		std::string strdum, root="File";
@@ -796,7 +798,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 			}
 		}
 		temp.resize(counter);
-		setWriteListAbsolutePathFiles();
+		setWriteListAbsolutePathFiles(temp);
 	};
 	
 	
@@ -874,8 +876,8 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
-			file.set("Dir", m_rinfo.fdir);
-			file.set("Name", m_rinfo.fname);
+			file.set("Dir", m_rinfo[i].fdir);
+			file.set("Name", m_rinfo[i].fname);
 		}
 	}
 	
@@ -891,8 +893,8 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
-			file.set("Dir", m_winfo.fdir);
-			file.set("Name", m_winfo.fname);
+			file.set("Dir", m_winfo[i].fdir);
+			file.set("Name", m_winfo[i].fname);
 		}
 	}	
 	
@@ -921,14 +923,10 @@ return;
  */
 void
 MultipleMimmoGeometries::setDefaults(){
-	m_rtype		= static_cast<int>(FileType::STL);
 	m_read		= false;
-	m_rfilename	= "mimmoGeometry";
-	m_wtype		= static_cast<int>(FileType::STL);
+	clearReadPaths();
 	m_write		= false;
-	m_wfilename	= "mimmoGeometry";
-	m_rdir		= "./";
-	m_wdir		= "./";
+	clearWritePaths();
 	m_wformat	= Short;
 	m_isInternal  = true;
 	m_codex = true;
@@ -981,7 +979,6 @@ MultipleMimmoGeometries::initializeClass(int topo, int formattype){
 livector1D
 MultipleMimmoGeometries::cellExtractor(short id){
 	livector1D result;
-	flag = true;
 	result.resize(m_mapMGeo.size());
 	int counter = 0;
 	
@@ -1077,7 +1074,7 @@ MultipleMimmoGeometries::checkCoherentFormat(MimmoObject*){
 	
 	if(elesize > 0){
 		//check if all elements are triangles
-		conns = getGeometry()->getConnectivity();
+		auto conns = getGeometry()->getConnectivity();
 		for(auto &ele : conns){
 			check = check && ((int)ele.size() == elesize);
 		}	
@@ -1093,7 +1090,7 @@ MultipleMimmoGeometries::checkCoherentFormat(MimmoObject*){
  * \return boolean true/false for valid file check or not.
  */
 bool 
-MultipleMimmoGeometries::checkReadingFiles(mimmo::FileInfoData & filedata){
+MultipleMimmoGeometries::checkReadingFiles(mimmo::FileDataInfo & filedata){
 	
 	switch(FileType::_from_integral(filedata.ftype)){
 		case FileType::STL :
