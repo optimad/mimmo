@@ -55,5 +55,6 @@
 #include "ProjectCloud.hpp"
 #include "SpecularPoints.hpp"
 #include "RotationGeometry.hpp"
+#include "MultipleMimmoGeometries.hpp"
 
 #endif

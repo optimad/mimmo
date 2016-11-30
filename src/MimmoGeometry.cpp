@@ -141,7 +141,7 @@ MimmoGeometry::setReadFileType(FileType type){
 void
 MimmoGeometry::setReadFileType(int type){
 	type = std::max(0, type);
-	if(type > 6)	type = 0;
+	if(type > 7)	type = 0;
 	m_rinfo.ftype = type;
 }
 
@@ -184,7 +184,7 @@ MimmoGeometry::setWriteFileType(FileType type){
 void
 MimmoGeometry::setWriteFileType(int type){
 	type = std::max(0, type);
-	if(type > 6)	type = 0;
+	if(type > 7)	type = 0;
 	m_winfo.ftype = type;
 }
 
@@ -520,7 +520,12 @@ MimmoGeometry::write(){
 			//Export Triangulation Surface VTU
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector2D	connectivity(points.size(), ivector1D(1)); 
+			ivector1D	connectivity(points.size()); 
+			int counter = 0;
+			for(auto & c:connectivity){
+				c = counter;
+				counter++;
+			}
 			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
 			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
@@ -836,7 +841,7 @@ MimmoGeometry::read(){
 		if (!check) return false;
 		
 		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
+		ivector1D	Iconnectivity ;
 		
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::VERTEX);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
