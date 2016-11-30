@@ -585,7 +585,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileData
  */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
 	
-	int nP = var.ftype();
+	int nP = var.ftype;
 	int nname, ndir;
 	ndir  = var.fdir.size();
 	nname = var.fname.size();
