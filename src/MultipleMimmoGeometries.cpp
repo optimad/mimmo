@@ -29,14 +29,18 @@ using namespace bitpit;
 using namespace mimmo;
 
 /*!Default constructor of MultipleMimmoGeometries.
+ * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
+ * \param[in] formattype set tag format type of your geometries for I/O. See FileType enum
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, int formattype){
 	initializeClass(topo, formattype);
 }
 
 /*!Custom constructor of MultipleMimmoGeometries.
+ * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
+ * \param[in] formattype set tag format type of your geometries for I/O. See FileType enum
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, FileType formattype){
 	initializeClass(topo, formattype._to_integer());
@@ -138,17 +142,18 @@ std::unordered_map<long short>	MultipleMimmoGeometries::getDivisionMap(){
 }
 
 /*!
- * Get how many sub-files are available for writing, once division map is set. 
+ * Get how many sub-parts are available for writing, once division map is set. 
+ * Return each short id identifying the sub-parts in an unordered_set container
  * Meant only for WRITING mode of the class.
  */
-int
-MultipleMimmoGeometries::getHowManySubFiles(){
-	std::unordered_set subtypes;
+std::unordered_set<short> 
+MultipleMimmoGeometries::getHowManySubDivisions(){
+	std::unordered_set<short> subtypes;
 	for(auto & element: m_mapMGeo){
 		subtypes.insert(element.second);
 	}
 	
-	return subtypes.size();
+	return subtypes;
 }
 
 /*!
@@ -325,7 +330,8 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 void
 MultipleMimmoGeometries::setGeometry(MimmoObject * external){
 	
-	if(getGeometry() == external) return;
+	if(getGeometry() == external || external.isEmpty()) return;
+	if(external.getType() != m_topo)	return;	
 	
 	m_intgeo.reset(nullptr);
 	m_geometry = external;
@@ -485,8 +491,46 @@ bool
 MultipleMimmoGeometries::write(){
 	if (isEmpty()) return false;
 	
+	//check format;
+	if(!checkCoherentFormat(getGeometry())){
+		std::cout<<"Currently linked geometry is not compatible with file format set for writing"<<std::endl;
+		return false;
+	}
+	if((int)m_winfo.size() < 1){
+		std::cout<<"Not filenames found for writing"<<std::endl;
+		return false;
+	}
 	
 	
+	int nFiles = m_winfo.size();
+	std::unordered_set<short>  subIds = getHowManySubDivisions();
+	std::unordered_set<short>::iterator itS = subIds.begin();
+	int nWriters = subIds.size();
+	nWriters = std::min(nWriters, nFiles);
+
+	int counter = 0;
+	while(counter< nWriters && itS != subIds.end()){
+		
+		livector1D cells = cellExtractor(*itS);
+		if(!cells.empty()){
+			
+			std::unique_ptr<MimmoObject> geo(new MimmoObject(m_topo));
+			std::unique_ptr<MimmoGeometry> writer(new MimmoGeometry());
+			fillSubStructure(cells, geo.get());
+			
+			writer->setWrite(true);
+			writer->setWriteDir(m_winfo[counter].fdir);
+			writer->setWriteFilename(m_winfo[counter].fname);
+			writer->setWriteFileType(m_winfo[counter].ftype);
+			writer->setCodex(m_codex);
+			writer->setFormatNAS(m_wformat);
+			writer->setGeometry(geo.get());
+			
+			writer->exec();
+			counter++;		
+		}
+		itS++;
+	}
 	
 };
 
@@ -498,292 +542,100 @@ bool
 MultipleMimmoGeometries::read(){
 	if(!m_isInternal) return false;
 	
-	switch(FileType::_from_integral(m_rtype)){
+	setGeometry();
+	std::unordered_set<short> & pidMotherList = getGeometry()->getPIDTypeList();
+	std::vector<std::unique_ptr<MimmoObject> > listRObjects(m_rinfo.size());
 
-	//Import STL
-	case FileType::STL :
-	{
-		setGeometry(1);
-		string name;
+	//absorbing Geometries.
+	int counter = 0;
+	for(auto & data: m_rinfo){
+		if(checkReadingFiles(data)){
+			
+			std::unique_ptr<MimmoGeometry> geo(new MimmoGeometry());
+			std::unique_ptr<MimmoObject> subData(new MimmoObject());	
+			geo->setRead(true);
+			geo->setReadDir(data.fdir);
+			geo->setReadFilename(data.fname);
+			geo->setReadFileType(data.ftype);
+			
+			geo->exec();
+			
+			subData->setHARDCopy(geo->getGeometry());
+			listRObjects[counter] = std::move(subData);
+			counter++;
+		}
+	}
+	
+	listRObjects.resize(counter);
+	
+	//put all read geometries in the internal unique MimmoObject of the class.
+	// eventual PIDding conflicts are solved.
+	
+	//find cell and vertex sizes for the unique objects
+	long sizeCells=0;
+	long sizeVerts=0;
+	for(auto & obj: listRObjects){
+		sizeVerts += obj->getNVerts();
+		if(m_topo !=3)	sizeCells += obj->getNCells();
+	}
 
-		{
-			std::ifstream infile(m_rdir+"/"+m_rfilename+".stl");
-			bool check = infile.good();
-			name = m_rdir+"/"+m_rfilename+".stl";
-			if (!check){
-				infile.open(m_rdir+m_rfilename+".STL");
-				check = infile.good();
-				name = m_rdir+"/"+m_rfilename+".STL";
-				if (!check) return false;
+	//reserving space for internal patch structures
+	m_intgeo->getPatch()->reserveVertices(sizeVerts);
+	m_intgeo->getPatch()->reserveCells(sizeCells);
+	
+	//let's roll
+	
+	long offV = 0;
+	long offC = 0;
+	long offI = 0;
+	
+	long id = 0;
+	darray3E tempV;
+	livector1D tempC;
+	short tempPID;
+	bitpit::ElementInfo::Type type;
+	
+	for(auto & obj: listRObjects){
+		
+		//renumbering vertices and cells of the local patch
+		obj->getPatch()->consecutiveRenumber(offV, offC, offI);;
+		
+		//get a map for eventual renumbering of PIDs
+		std::unordered_map<short,short> renumPIDfromlocal;
+		
+		for(auto & ee: obj->getPIDTypeList()){
+			short checker = 0;
+			if(pidMotherList.count(*ee) > 0){
+				while(pidMotherList.count(checker)> 0 && checker < 32000){checker++;}
+				renumPIDfromlocal[*ee] = checker;
+			}else{
+				renumPIDfromlocal[*ee] = *ee;
 			}
 		}
-
-		ifstream in(name);
-		string	ss, sstype;
-		getline(in,ss);
-		stringstream ins;
-		ins << ss;
-		ins >> sstype;
-		bool binary = true;
-		if (sstype == "solid" || sstype == "SOLID") binary = false;
-		in.close();
-
-		dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
-		getGeometry()->cleanGeometry();
 		
-		//count PID if multi-solid
-		auto & map = getGeometry()->getPIDTypeList();
-		for(auto & cell : getGeometry()->getCells() ){
-			map.insert(cell.getPID());
+		//copy vertices
+		for(auto & vv : obj->getVertices()){
+			id = vv.getId();
+			tempV = vv.getCoords();
+			m_intgeo->addVertex(temp,id);
 		}
-
-	}
-	break;
-	
-	case FileType::STVTU :
-		//Import Triangulation Surface VTU
-	{
-		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
 		
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TRIANGLE);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.read() ;
-
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
-		
-		setGeometry(1);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
+		//copy connected cells
+		for(auto & cc : obj->getCells()){
+			id = cc.getId();
+			tempC = obj->getCellConnectivity(id);
+			type = cc.getType();
+			tempPID = cc.getPID();
 			
-		}	
-				
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::SQVTU :
-		//Import Quadrilateral Surface VTU
-	{
-
-		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-	
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::QUAD);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.read() ;
-
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
+			m_intgeo->addConnectedCell(tempC,type, renumPIDfromlocal[PID], id);
+		}
 		
-		setGeometry(1);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::VTVTU :
-		//Import Tetra Volume VTU
-	{
-
-		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::TETRA);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.read() ;
-
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
-		
-		setGeometry(2);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::VHVTU :
-		//Import Hexa Volume VTU
-	{
-
-		std::ifstream infile(m_rdir+"/"+m_rfilename+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-
-		bitpit::VTKUnstructuredGrid  vtk(m_rdir, m_rfilename, bitpit::VTKElementType::HEXAHEDRON);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.read() ;
-
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
-		
-		setGeometry(2);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::NAS :
-		//Import Surface NAS
-	{
-
-		std::ifstream infile(m_rdir+"/"+m_rfilename+".nas");
-		bool check = infile.good();
-		if (!check) return false;
-		infile.close();
-
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-
-		NastranInterface nastran;
-		nastran.setWFormat(m_wformat);
-
-		shivector1D pids;
-		nastran.read(m_rdir, m_rfilename, Ipoints, Iconnectivity, pids );
-
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
-		
-		setGeometry(1);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		m_intgeo->setPID(pids);
-		m_intgeo->cleanGeometry();
+		//update renumbering thresholds
+		offV += obj->getPatch()->getVertexCount();
+		offC += obj->getPatch()->getCellCount();
 	}
 	
-	break;
-	
-	//Import ascii OpenFOAM point cloud
-	case FileType::OFP :
-	{
-
-		std::ifstream infile(m_rdir+"/"+m_rfilename);
-		bool check = infile.good();
-		if (!check) return false;
-		infile.close();
-
-		dvecarr3E	Ipoints;
-		readOFP(m_rdir, m_rfilename, Ipoints);
-
-		setGeometry(3);
-
-		int sizeV = Ipoints.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		
-	}
-	break;
-	
-	default: //never been reached
-		break;
-	
-	}
-	
+	m_intgeo->cleanGeometry();
 	return true;
 };
 
@@ -812,137 +664,18 @@ MultipleMimmoGeometries::execute(){
 	return;
 }
 
-//===============================//
-//====== OFOAM INTERFACE ========//
-//===============================//
-
-/*!
- *	Read openFoam format geometry file and absorb it as a point cloud ONLY.
- *\param[in]	inputDir	folder of file
- *\param[in]	surfaceName	name of file
- *\param[out]	points		list of points in the cloud  
- * 
- */
-void MultipleMimmoGeometries::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
-
-	ifstream is(inputDir +"/"+surfaceName);
-
-	points.clear();
-	int ip = 0;
-	int np;
-	darray3E point;
-	string sread;
-	char par;
-
-	for (int i=0; i<18; i++){
-		getline(is,sread);
-	}
-	is >> np;
-	getline(is,sread);
-	getline(is,sread);
-
-	points.resize(np);
-	while(!is.eof() && ip<np){
-		is.get(par);
-		for (int i=0; i<3; i++) is >> point[i];
-		is.get(par);
-		getline(is,sread);
-		points[ip] = point;
-		ip++;
-	}
-	is.close();
-	return;
-
-}
-/*!
- *	Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]	inputDir	folder of file
- *\param[in]	surfaceName	name of file
- *\param[out]	points		list of points in the cloud  
- * 
- */
-void MultipleMimmoGeometries::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
-
-	ofstream os(outputDir +"/"+surfaceName);
-	char nl = '\n';
-
-	string separator(" ");
-	string parl("("), parr(")");
-	string hline;
-
-	hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
-	os << hline << nl;
-	hline = "| =========                 |                                                 |";
-	os << hline << nl;
-	hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-	os << hline << nl;
-	hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
-	os << hline << nl;
-	hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-	os << hline << nl;
-	hline = "|    \\\\/     M anipulation  |                                                 |";
-	os << hline << nl;
-	hline = "\\*---------------------------------------------------------------------------*/";
-	os << hline << nl;
-	hline = "FoamFile";
-	os << hline << nl;
-	hline = "{";
-	os << hline << nl;
-	hline = "    version     2.0;";
-	os << hline << nl;
-	hline = "    format      ascii;";
-	os << hline << nl;
-	hline = "    class       vectorField;";
-	os << hline << nl;
-	hline = "    location    \"constant/polyMesh\";";
-	os << hline << nl;
-	hline = "    object      points;";
-	os << hline << nl;
-	hline = "}";
-	os << hline << nl;
-	hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-	os << hline << nl;
-	os << nl;
-	os << nl;
-	int np = points.size();
-	os << np << nl;
-	os << parl << nl;
-	for (int i=0; i<np; i++){
-		os << parl;
-		for (int j=0; j<2; j++){
-			os << setprecision(16) << points[i][j] << separator;
-		}
-		os << setprecision(16) << points[i][2] << parr << nl;
-	}
-	os << parr << nl;
-	os << nl;
-	os << nl;
-	hline = "// ************************************************************************* //";
-	os << hline << nl;
-
-	os.close();
-	return;
-
-}
-
-
-
 /*!
  * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
  * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class reads the following parameters:
  * 
  * 1) ReadFlag - activate reading mode boolean
- * 2) ReadDir - reading directory path
- * 3) ReadFileType - file type identifier
- * 4) ReadFilename - name of file for reading
- * 5) WriteFlag - activate writing mode boolean
- * 6) WriteDir - writing directory path
- * 7) WriteFileType - file type identifier
- * 8) WriteFilename - name of file for writing
- * 9) Codex - boolean to write ascii/binary
- * 10) BvTree - evaluate bvTree true/false
- * 11) KdTree - evaluate kdTree ture/false
+ * 2) Read Info data - reading files data
+ * 3) WriteFlag - activate writing mode boolean
+ * 4) Write Info data - writing files data * 
+ * 5) Codex - boolean to write ascii/binary
+ * 6) BvTree - evaluate bvTree true/false
+ * 7) KdTree - evaluate kdTree ture/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -950,7 +683,36 @@ void MultipleMimmoGeometries::writeOFP(string& outputDir, string& surfaceName, d
 void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
+	std::vector<FileInfoData> temp;
+	int counter;
+	
+	//checking topology
+	if(slotXML.hasOption("Topology")){
+		std::string input = slotXML.get("Topology");
+		input = bitpit::utils::trim(input);
+		int temp = -1;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		if(m_topo != temp)	return;
+	}	
 
+	//checking format type
+	if(slotXML.hasOption("Format")){
+		std::string input = slotXML.get("Format");
+		input = bitpit::utils::trim(input);
+		int tempformat = -1;
+		if(!input.empty()){
+			for(auto c: FileType::_values()){
+				if(input == c._to_string()){
+					tempformat = FileType::_to_integer(c);
+				}
+			}
+		}
+		if(m_tagtype != temp)	return;
+	}	
+	
 	if(slotXML.hasOption("ReadFlag")){
 		input = slotXML.get("ReadFlag");
 		bool value = false;
@@ -961,33 +723,38 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		setRead(value);
 	}; 
 	
-	if(slotXML.hasOption("ReadDir")){
-		input = slotXML.get("ReadDir");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "./";
-		setReadDir(input);
-	}; 
-	
-	if(slotXML.hasOption("ReadFileType")){
-		input = slotXML.get("ReadFileType");
-		input = bitpit::utils::trim(input);
-		if(!input.empty()){
-			for(auto c: FileType::_values()){
-				if(input == c._to_string()){
-					setReadFileType(c);
-				}
-			}
-		}else{
-			setReadFileType(0);
-		}
-	}; 
+	if(slotXML.hasSection("ReadFiles")){
+		bitpit::Config::Section &reading = slotXML.getSection("ReadFiles");
+		int nfile = reading.getSectionCount();
+		temp.resize(nfile);
+		
+		std::string strdum, root="File";
+		
+		counter=0;
+		
+		for(int i=0; i<nfile; ++i){
+			strdum = root+std::to_string(i);
+			if(reading.hasSection(strdum)){
+				bitpit::Config::Section &file = reading.getSection(strdum);
+			
+				temp[counter].ftype =m_tagtype;
 
-	if(slotXML.hasOption("ReadFilename")){
-		input = slotXML.get("ReadFilename");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "mimmoGeometry";
-		setReadFilename(input);
-	}; 
+				input = file.get("Dir");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "./";
+				temp[counter].fdir = input;
+
+				input = file.get("Name");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "MultipleMimmoGeometries";
+				temp[counter].fname = input;
+				counter++;
+			}
+		}
+		temp.resize(counter);
+		setReadListAbsolutePathFiles();
+	}
+
 	
 	if(slotXML.hasOption("WriteFlag")){
 		input = slotXML.get("WriteFlag");
@@ -999,33 +766,39 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		setWrite(value);
 	}; 
 	
-	if(slotXML.hasOption("WriteDir")){
-		input = slotXML.get("WriteDir");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "./";
-	   setWriteDir(input);
-	}; 
-	
-	if(slotXML.hasOption("WriteFileType")){
-		input = slotXML.get("WriteFileType");
-		input = bitpit::utils::trim(input);
-		if(!input.empty()){
-			for(auto c: FileType::_values()){
-				if(input == c._to_string()){
-					setWriteFileType(c);
-				}
+	if(slotXML.hasSection("WriteFiles")){
+		bitpit::Config::Section & writing = slotXML.getSection("WriteFiles");
+		int nfile = reading.getSectionCount();
+		temp.resize(nfile);
+		
+		std::string strdum, root="File";
+		
+		counter = 0;
+		
+		for(int i=0; i<nfile; ++i){
+			strdum = root+std::to_string(i);
+			
+			if(writing.hasSection(strdum)){
+				bitpit::Config::Section & file = writing.getSection(strdum);
+			
+				temp[counter].ftype =m_tagtype;
+			
+				input = file.get("Dir");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "./";
+				temp[counter].fdir = input;
+	   
+				input = file.get("Name");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "MultipleMimmoGeometries";
+				temp[counter].fname = input;
+				counter++;
 			}
-		}else{
-			setWriteFileType(0);
 		}
-	}; 
+		temp.resize(counter);
+		setWriteListAbsolutePathFiles();
+	};
 	
-	if(slotXML.hasOption("WriteFilename")){
-		input = slotXML.get("WriteFilename");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "mimmoGeometry";
-	   setWriteFilename(input);
-	}; 
 	
 	if(slotXML.hasOption("Codex")){
 		input = slotXML.get("Codex");
@@ -1067,16 +840,12 @@ return;
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
  * 1) ReadFlag - activate reading mode boolean
- * 2) ReadDir - reading directory path
- * 3) ReadFileType - file type identifier
- * 4) ReadFilename - name of file for reading
- * 5) WriteFlag - activate writing mode boolean
- * 6) WriteDir - writing directory path
- * 7) WriteFileType - file type identifier
- * 8) WriteFilename - name of file for writing
- * 9) Codex - boolean to write ascii/binary
- * 10) BvTree - evaluate bvTree true/false
- * 11) KdTree - evaluate kdTree ture/false
+ * 2) Read Info data - reading files data
+ * 3) WriteFlag - activate writing mode boolean
+ * 4) Write Info data - writing files data * 
+ * 5) Codex - boolean to write ascii/binary
+ * 6) BvTree - evaluate bvTree true/false
+ * 7) KdTree - evaluate kdTree ture/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 
@@ -1085,6 +854,10 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Topology", m_topo);
+	
+	std::string typetag = (FileType::_from_integral(m_tagtype))._to_string();
+	slotXML.set("Format", typetag);
 	
 	
 	std::string output;
@@ -1092,34 +865,36 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 	output = std::to_string(m_read);
 	slotXML.set("ReadFlag", output);
 
-	if(m_rdir != "./"){
-		slotXML.set("ReadDir", m_rdir);
-	}	
-	
-	if(m_rfilename != "mimmoGeometry"){
-		slotXML.set("ReadFilename", m_rfilename);
-	}	
-	
-	if(m_rtype != 0){
-		std::string temp = (FileType::_from_integral(m_rtype))._to_string();
-		slotXML.set("ReadFileType", temp);
+	if (!m_rinfo.empty()){
+		
+		bitpit::Config::Section & local = slotXML.addSection("ReadFiles");
+		int size = m_rinfo.size();
+		std::string strdum, root="File";
+		
+		for(int i=0; i<size; ++i){
+			strdum = root+std::to_string(i);
+			bitpit::Config::Section & file = slotXML.addSection(strdum);
+			file.set("Dir", m_rinfo.fdir);
+			file.set("Name", m_rinfo.fname);
+		}
 	}
 	
 	output = std::to_string(m_write);
 	slotXML.set("WriteFlag", output);
 	
-	if(m_wdir != "./"){
-		slotXML.set("WriteDir", m_wdir);
+	if (!m_winfo.empty()){
+		
+		bitpit::Config::Section & local = slotXML.addSection("WriteFiles");
+		int size = m_winfo.size();
+		std::string strdum, root="File";
+		
+		for(int i=0; i<size; ++i){
+			strdum = root+std::to_string(i);
+			bitpit::Config::Section & file = slotXML.addSection(strdum);
+			file.set("Dir", m_winfo.fdir);
+			file.set("Name", m_winfo.fname);
+		}
 	}	
-	
-	if(m_wfilename != "mimmoGeometry"){
-		slotXML.set("WriteFilename", m_wfilename);
-	}	
-	
-	if(m_wtype != FileType::STL){
-		std::string temp = (FileType::_from_integral(m_wtype))._to_string();
-		slotXML.set("WriteFileType", temp);
-	}
 	
 	if(!m_codex){
 		output = std::to_string(m_codex);
@@ -1163,7 +938,7 @@ MultipleMimmoGeometries::setDefaults(){
 
 
 /*!
- * Class initializer, meant to be used in cosntruction.
+ * Class initializer, meant to be used in construction.
  */
 void
 MultipleMimmoGeometries::initializeClass(int topo, int formattype){
@@ -1185,8 +960,8 @@ MultipleMimmoGeometries::initializeClass(int topo, int formattype){
 			}
 			break;
 		default:
-			if (formattype <0 || formattype > 6){
-				formattype= 0;
+			if (formattype !=6 || formattype !=7){
+				formattype= 7;
 			}
 			break;
 	}
@@ -1197,17 +972,23 @@ MultipleMimmoGeometries::initializeClass(int topo, int formattype){
 };
 
 /*!
- * Extract MimmoObject cell list from m_mapMGeo, given the id part identifier
+ * Extract MimmoObject cell list from m_mapMGeo, given the id sub-part identifier.
+ * If m_mapGeo retains cell ids which do not exist in MimmoObject, stash them from
+ * the extracted list.
+ * \param[in] id  identifier of sub-part in m_mapMGeo
+ * \result	list of extracted cells
  */
 livector1D
 MultipleMimmoGeometries::cellExtractor(short id){
 	livector1D result;
-	
+	flag = true;
 	result.resize(m_mapMGeo.size());
 	int counter = 0;
 	
+	auto & check = getGeometry()->getCells();
+	
 	for(auto & elem : m_mapMGeo){
-		if(elem.second==id){
+		if(elem.second==id && check.exists(elem.first)){
 			result[counter] = elem.first;
 			++counter;
 		}
@@ -1258,9 +1039,137 @@ MultipleMimmoGeometries::fillSubStructure(livector1D & cellList, MimmoObject * s
 };
 
 
+/*!
+ * Check if current linked MimmoObject has a topology/element type coherent with class tag format m_tagtype
+ * \param[in]	geo linked MimmoObject geometry
+ * \result		boolean true, if requirements are met.
+ */
+bool 
+MultipleMimmoGeometries::checkCoherentFormat(MimmoObject*){
+	
+	bool check = true;
+	
+	//point cloud has no restriction, everything can be written in pointcloud file formats OFP and PCVTU
+	int   elesize;
+	switch(m_tagtype){
+		
+		case 0:		elesize = 3;
+			break;
+			
+		case 2:		elesize = 4;
+			break;
+			
+		case 3:		elesize = 5;			
+			break;
+			
+		case 4:		elesize = 8;
+			break;
+		
+		case 1:		elesize = 3;
+			break;
+		
+		case 5:		elesize = 3;
+			break;
+		
+		default: 	elesize = -1;
+			break;
+	}
+	
+	if(elesize > 0){
+		//check if all elements are triangles
+		conns = getGeometry()->getConnectivity();
+		for(auto &ele : conns){
+			check = check && ((int)ele.size() == elesize);
+		}	
+	}
+	
+	return check;
+}
 
 
-
-
+/*!
+ * Check if filenames for READING, stocked in m_rinfo list are available or not on your system.
+ * \param[in] filedata 	data of external files to read from
+ * \return boolean true/false for valid file check or not.
+ */
+bool 
+MultipleMimmoGeometries::checkReadingFiles(mimmo::FileInfoData & filedata){
+	
+	switch(FileType::_from_integral(filedata.ftype)){
+		case FileType::STL :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".stl");
+			bool check = infile.good();
+			if (!check){
+				infile.open(filedata.fdir+filedata.fname+".STL");
+				check = infile.good();
+				if (!check) return false;
+			}
+		}
+		break;
+		
+		case FileType::STVTU :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::SQVTU :
+		{
+			
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::VTVTU :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::VHVTU :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::NAS :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".nas");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::OFP :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname);
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		break;
+		
+		case FileType::PCVTU :
+		{
+			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
+			bool check = infile.good();
+			if (!check) return false;
+		}
+		
+		default: //never been reached
+			break;
+			
+	}
+	
+	return true;
+};
 
 

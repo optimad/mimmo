@@ -53,7 +53,8 @@ namespace mimmo{
  *	4)	Volume tetrahedral VTU.			VTVTU 	= 3,
  *	5)	Volume hexahedral VTU.			VHVTU 	= 4,
  *	6)	Nastran triangulation nas.		NAS 	= 5,
- *	7)	Ascii OpenFoam point cloud.		OFP 	= 6
+ *	7)	Ascii OpenFoam point cloud.		OFP 	= 6,
+ *  8)	VTU point cloud.				PCVTU 	= 7,
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.
@@ -120,22 +121,20 @@ public:
 
 	void buildPorts();
 
+	int 	getFormatTypeAllowed();
 	const MultipleMimmoGeometries *	getCopy();
 	MimmoObject * 	getGeometry();
 	const MimmoObject * 	getGeometry()const ;
 	
 	std::unordered_map<long, short> getDivisionMap();
-	int 							getHowManySubFiles();
+	std::unordered_set<short>		getHowManySubDivisions();
 	std::vector<FileInfoData> 		getReadListAbsolutePathFiles();
 	std::vector<FileInfoData> 		getWriteListAbsolutePathFiles();
 	
 	std::unordered_set<short> &	 getPIDList();
 	
-	void		setAddReadAbsolutePathFile(int type, std::string dir, std::string name);
-	void		setAddReadAbsolutePathFile(FileType type, std::string dir, std::string name);
-
-	void		setAddWriteAbsolutePathFile(int type, std::string dir, std::string name);
-	void		setAddWriteAbsolutePathFile(FileType type, std::string dir, std::string name);
+	void		setAddReadAbsolutePathFile(std::string dir, std::string name);
+	void		setAddWriteAbsolutePathFile(std::string dir, std::string name);
 	
 	void 		setReadListAbsolutePathFiles(std::vector<FileInfoData> data);
 	void 		setWriteListAbsolutePathFiles(std::vector<FileInfoData> data);
@@ -184,6 +183,10 @@ private:
 	void 	initializeClass(int topo, int formattype);
 	livector1D    cellExtractor(short id);
 	void		  fillSubStructure(livector1D &cellList, MimmoObject* subG);
+	bool checkCoherentFormat(MimmoObject *);
+	bool checkReadingFiles(FileInfoData & filedata);
+	
+	
 };
 
 
