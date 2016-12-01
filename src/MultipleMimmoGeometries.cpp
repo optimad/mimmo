@@ -221,15 +221,13 @@ void
 MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileDataInfo> data){
 	m_rinfo.clear();
 	m_rinfo.resize(data.size());
-	
+
 	int counter = 0;
 	for(auto & ele : data){
-		if(ele.ftype == m_tagtype){
-			m_rinfo[counter] = ele;
-			++counter;
-		}
+		m_rinfo[counter] = ele;
+		m_rinfo[counter].ftype = m_tagtype;
+		counter++;
 	}
-	m_rinfo.resize(counter);
 };
 
 /*!
@@ -242,12 +240,10 @@ MultipleMimmoGeometries::setWriteListAbsolutePathFiles(std::vector<FileDataInfo>
 	
 	int counter = 0;
 	for(auto & ele : data){
-		if(ele.ftype == m_tagtype){
-			m_winfo[counter] = ele;
-			++counter;
-		}
+		m_winfo[counter] = ele;
+		m_winfo[counter].ftype = m_tagtype;
+		counter++;
 	}
-	m_winfo.resize(counter);
 	
 };
 
@@ -352,6 +348,19 @@ MultipleMimmoGeometries::setGeometry(){
 	m_intgeo = std::move(dum);
 	m_isInternal = true;
 };
+
+/*!
+ * Setting map which assigns to each cell id of reference geometry a short id for 
+ * the part which it belongs to. Method active only in WRITE mode.
+ * \param[in] mapM cell Ids - subpart Ids unordered_map
+ */
+void
+MultipleMimmoGeometries::setDivisionMap(std::unordered_map<long,short>  mapM){
+	if(m_read)	return;
+	m_mapMGeo = mapM;
+	return;
+}
+
 
 /*!
  * Return a pointer to the Vertex structure of the MimmoObject geometry actually pointed or allocated by
@@ -501,6 +510,7 @@ MultipleMimmoGeometries::write(){
 		return false;
 	}
 	
+	checkAndFixDivisionMap();
 	
 	int nFiles = m_winfo.size();
 	std::unordered_set<short>  subIds = getHowManySubDivisions();
@@ -526,12 +536,13 @@ MultipleMimmoGeometries::write(){
 			writer->setFormatNAS(m_wformat);
 			writer->setGeometry(geo.get());
 			
-			writer->exec();
+			writer->execute();
 			counter++;		
 		}
 		itS++;
 	}
 	
+	return true;
 };
 
 /*!It reads the mesh geometry from an input file and reverse it in the internal 
@@ -558,7 +569,7 @@ MultipleMimmoGeometries::read(){
 			geo->setReadFilename(data.fname);
 			geo->setReadFileType(data.ftype);
 			
-			geo->exec();
+			geo->execute();
 			
 			subData->setHARDCopy(geo->getGeometry());
 			listRObjects[counter] = std::move(subData);
@@ -587,7 +598,6 @@ MultipleMimmoGeometries::read(){
 	
 	long offV = 0;
 	long offC = 0;
-	long offI = 0;
 	
 	long id = 0;
 	darray3E tempV;
@@ -595,10 +605,14 @@ MultipleMimmoGeometries::read(){
 	short tempPID;
 	bitpit::ElementInfo::Type type;
 	
+	m_mapMGeo.clear();
+	short id_part = 0;
+	
 	for(auto & obj: listRObjects){
 		
 		//renumbering vertices and cells of the local patch
-		obj->getPatch()->consecutiveRenumber(offV, offC, offI);;
+		obj->getPatch()->consecutiveRenumberVertices(offV);
+		obj->getPatch()->consecutiveRenumberCells(offC); 
 		
 		//get a map for eventual renumbering of PIDs
 		std::unordered_map<short,short> renumPIDfromlocal;
@@ -625,6 +639,7 @@ MultipleMimmoGeometries::read(){
 		//copy connected cells
 		for(auto & cc : obj->getCells()){
 			id = cc.getId();
+			m_mapMGeo.insert(std::make_pair(id,id_part));
 			tempC = obj->getCellConnectivity(id);
 			type = cc.getType();
 			tempPID = cc.getPID();
@@ -635,6 +650,7 @@ MultipleMimmoGeometries::read(){
 		//update renumbering thresholds
 		offV += obj->getPatch()->getVertexCount();
 		offC += obj->getPatch()->getCellCount();
+		id_part++;
 	}
 	
 	m_intgeo->cleanGeometry();
@@ -948,17 +964,17 @@ MultipleMimmoGeometries::initializeClass(int topo, int formattype){
 	//checking admissible format
 	switch(m_topo){
 		case 1:
-			if(formattype !=0 || formattype !=1 || formattype !=2 ||formattype !=5){
+			if(formattype !=0 && formattype !=1 && formattype !=2 && formattype !=5){
 				formattype = 0;
 			}
 			break;
 		case 2:
-			if(formattype !=3 || formattype !=4){
+			if(formattype !=3 && formattype !=4){
 				formattype = 3;
 			}
 			break;
 		default:
-			if (formattype !=6 || formattype !=7){
+			if (formattype !=6 && formattype !=7){
 				formattype= 7;
 			}
 			break;
@@ -1169,4 +1185,44 @@ MultipleMimmoGeometries::checkReadingFiles(mimmo::FileDataInfo & filedata){
 	return true;
 };
 
+
+/*!
+ * Check and fixed currently linked division map against linked or internal MimmoObject. 
+ * Search for unexistent cells in the current MimmoObject and stash them
+ * Every not id-ded cell will be assigned to a sub-part automatically
+ */
+void
+MultipleMimmoGeometries::checkAndFixDivisionMap(){
+	
+	MimmoObject * geo = getGeometry();
+	
+    std::unordered_map<long, short>	rightMap;
+	short id_part = 0;
+	
+	for(auto &cc: geo->getCells()){
+		rightMap[cc.getId()] = id_part;
+	}
+	id_part++;
+	
+	std::unordered_set<short>  subIds = getHowManySubDivisions();
+	std::unordered_set<short>::iterator itS = subIds.begin();
+	
+	while(itS != subIds.end()){
+		
+		livector1D extr = cellExtractor(*itS);
+		
+		for(auto & ele : extr){
+			if(rightMap.count(ele) > 0){
+				rightMap[ele] = id_part;
+			}
+		}
+			
+		id_part++;		
+		itS++;
+	}
+	
+	m_mapMGeo.clear();
+	m_mapMGeo = rightMap;
+	return;
+}
 

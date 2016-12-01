@@ -185,6 +185,7 @@ private:
 	void		  fillSubStructure(livector1D &cellList, MimmoObject* subG);
 	bool checkCoherentFormat(MimmoObject *);
 	bool checkReadingFiles(FileDataInfo & filedata);
+	void   checkAndFixDivisionMap();
 	
 	
 };

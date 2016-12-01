@@ -552,27 +552,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
  *	\result Returns the same input stream received in input.
  */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileDataInfo&  var){
-	int type;
-	int nname, ndir;
-	char dum;
-	buffer >> var.ftype;
-	
-	buffer >>ndir;
-	char str_dir[ndir];
-	for(int i=0; i<ndir; ++i){
-		buffer >> dum;
-		str_dir[i]=dum;
-	}
 
-	buffer >>nname;
-	char str_name[nname];
-	for(int i=0; i<nname; ++i){
-		buffer >> dum;
-		str_name[i]=dum;
-	}
-	
-	var.fdir = str_dir;
-	var.fname = str_name;
+	buffer >> var.ftype;
+	buffer >> var.fdir;
+	buffer >> var.fname;
 	
 	return buffer;
 };
@@ -585,11 +568,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileData
  */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
 	
-	int nP = var.ftype;
-	int nname, ndir;
-	ndir  = var.fdir.size();
-	nname = var.fname.size();
-	buffer << nP << ndir<< var.fdir.c_str()<<nname<<var.fname.c_str();
+	buffer<<var.ftype<<var.fdir<<var.fname;
 	return buffer;
 	
 	
