@@ -57,18 +57,19 @@ enum class MRBFSol{
  *
  *	=========================================================
  * ~~~
- *	|---------------------------------------------------------------|
- *	|                  Port Input                                   |
- *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType       		|
- *	|-------|-----------|-------------------|-----------------------|
- *	| 0     | M_COORDS  | setNode           | (VECARR3, FLOAT)		|
- *	| 10    | M_DISPLS  | setDisplacements  | (VECARR3, FLOAT)		|
- *	| 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT) 		|
- *	| 30    | M_VALUED  | setSupportRadius  | (SCALAR, FLOAT)	  	|
- *	| 99    | M_GEOM    | m_geometry        | (SCALAR, MIMMO_)  	|
- *	| 130   | M_VALUED2 | setTol            | (SCALAR, FLOAT)		|
- *	|-------|-----------|-------------------|-----------------------|
+ *	|-------------------------------------------------------------------|
+ *	|                  Port Input                                       |
+ *	|-------|-----------|-----------------------|-----------------------|
+ *	|PortID | PortType  | variable/function     | DataType       		|
+ *	|-------|-----------|-----------------------|-----------------------|
+ *	| 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)		|
+ *	| 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)		|
+ *	| 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT) 		|
+ *  | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
+ *  | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
+ *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)  	|
+ *	| 130   | M_VALUED2 | setTol                | (SCALAR, FLOAT)		|
+ *	|-------|-----------|-----------------------|-----------------------|
  *
  *
  *	|--------------------------------------------|------------------------------|
@@ -87,12 +88,13 @@ enum class MRBFSol{
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
-	double 		m_tol;		/**< Tolerance for greedy algorithm.*/
-	MRBFSol		m_solver; 	/**<Type of solver specified for the class as default in execution*/
-	dvector1D	m_filter;	/**<Filter field for displacements modulation */
-	bool		m_bfilter;	/**<boolean to recognize if a filter field is applied */
-	double		m_SRRatio;	/**<support Radius ratio */
-	dvecarr3E	m_displ;	/**<Resulting displacements of geometry vertex.*/
+	double 		m_tol;	    	/**< Tolerance for greedy algorithm.*/
+	MRBFSol		m_solver;   	/**<Type of solver specified for the class as default in execution*/
+	dvector1D	m_filter;   	/**<Filter field for displacements modulation */
+	bool		m_bfilter;  	/**<boolean to recognize if a filter field is applied */
+	double		m_SRRatio;	    /**<support Radius ratio */
+	dvecarr3E	m_displ;	    /**<Resulting displacements of geometry vertex.*/
+	bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
 
 public:
 	MRBF();
@@ -114,6 +116,7 @@ public:
 	dvector1D		getFilter();
 	double			getSupportRadius();
 	double			getSupportRadiusValue();
+    bool            getIsSupportRadiusValue();
 	
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	dvecarr3E		getDisplacements();
@@ -130,7 +133,8 @@ public:
 	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
 	
-	void 			setSupportRadius(double suppR_);
+    void            setSupportRadius(double suppR_);
+    void            setSupportRadiusValue(double suppR_);
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E displ);
 

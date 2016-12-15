@@ -136,12 +136,17 @@ dvector1D	MRBF::getFilter(){
 };
 
 /*! 
- * It gets current support radius ratio a set up in the class. See MRBF::setSupportRadius method documentation.
+ * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
+ * See MRBF::setSupportRadius and MRBF::setSupportRadiusValue method documentation.
  * Reimplemented from bitpit::RBF::getSupportRadius.
  * @return support radius ratio
  */
 double	MRBF::getSupportRadius(){
-	return(m_SRRatio);
+    if (m_supRIsValue)
+    {
+        return(getSupportRadiusValue());
+    }
+    return(m_SRRatio);
 };
 
 /*! 
@@ -151,6 +156,16 @@ double	MRBF::getSupportRadius(){
 double	MRBF::getSupportRadiusValue(){
 	return(RBF::getSupportRadius());
 };
+
+/*!
+ * It gets if the support radius for RBF kernels is set up as absolute value (true) or
+ * ratio of diagonal of bounding box of the geometry (false).
+ * @return support radius is set as value?
+ */
+
+bool    MRBF::getIsSupportRadiusValue(){
+    return(m_supRIsValue);
+}
 
 /*!
  * Return actual computed deformation field (if any) for the geometry linked.
@@ -297,8 +312,25 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
  */
 void
 MRBF::setSupportRadius(double suppR_){
-	suppR_ = std::fmax(-1.0,suppR_);
-	m_SRRatio = suppR_;
+    suppR_ = std::fmax(-1.0,suppR_);
+    m_SRRatio = suppR_;
+    m_supRIsValue = false;
+}
+
+
+/*! Set the value of the support radius R of RBF kernel functions.
+ * During the execution the correct value of R is applied.
+ * The support radius a can have value between 0 and +inf (with 0 excluded), which corresponding to minimum locally narrowed
+ * function, and almost flat functions (as sphere of infinite radius), respectively.
+ * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is
+ * R is set proportional to the maximum displacement value.
+ * @param[in] suppR_ new value of support radius.
+ */
+void
+MRBF::setSupportRadiusValue(double suppR_){
+    suppR_ = std::fmax(-1.0,suppR_);
+    m_SRRatio = suppR_;
+    m_supRIsValue = true;
 }
 
 /*!It sets the tolerance for greedy - interpolation algorithm.
@@ -426,9 +458,15 @@ void MRBF::execute(){
 		distance *=3.0;
 	
 	}else{
-		distance = m_SRRatio * bboxDiag;
+	    if (m_supRIsValue){
+	        distance = m_SRRatio;
+	    }
+	    else{
+	        distance = m_SRRatio * bboxDiag;
+	    }
 	}
 	
+	//TODO remove it (I can't use a support radius 0....why?)
 	if(distance <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
 		distance = 0.5*bboxDiag;
 	}
