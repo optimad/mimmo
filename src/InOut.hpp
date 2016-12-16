@@ -312,8 +312,11 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const ivecarr2E& e
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::vector< dvecarr2E >&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< dvecarr2E >& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::unordered_map< long, short >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< long, short >& element);
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::unordered_map< std::string, MimmoObject* >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< std::string, MimmoObject* >& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::vector< MimmoObject* >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< MimmoObject* >& element);
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::FileDataInfo&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::FileDataInfo& element);

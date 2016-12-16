@@ -66,10 +66,10 @@ namespace mimmo{
  *	|-------|----------|------------------------------------|-----------------------|
  *	|PortID | PortType | variable/function 					| DataType		        |
  *	|-------|----------|------------------------------------|-----------------------|
- *	| 99    | M_GEOM   | setGeometry      					| (SCALAR, MIMMO_)	    |
- *  | 101   | M_MAPGEOM| setDivisionMap        				| (UN_MAP, LONGSHORT)   |
- *  | 102   | M_FINFO  | setReadListAbsolutePathFiles       | (VECTOR, FILEINFODATA)|
- *  | 103   | M_FINFO2 | setWriteListAbsolutePathFiles      | (VECTOR, FILEINFODATA)| 
+ *	| 100   | M_VECGEOM| setGeometry      					| (VECTOR, MIMMO_)	    |
+ *  | 101   | M_MAPGEOM| setObjMap  	      				| (UN_MAP, STRINGMIMMO_)|
+ *  | 102   | M_FINFO  | setReadListFDI 			        | (VECTOR, FILEINFODATA)|
+ *  | 103   | M_FINFO2 | setWriteListFDI     			    | (VECTOR, FILEINFODATA)| 
  *	|-------|----------|------------------------------------|-----------------------|
  *
  *
@@ -78,10 +78,10 @@ namespace mimmo{
  *	|-------|-----------|------------------------------------|-----------------------|
  *	|PortID | PortType  | variable/function 				 | DataType		      	 | 
  *	|-------|-----------|------------------------------------|-----------------------|
- *	| 99    | M_GEOM    | getGeometry      					 | (SCALAR, MIMMO_)	     |
- *  | 101   | M_MAPGEOM | getDivisionMap       				 | (UN_MAP, LONGSHORT)   |
- *  | 102   | M_FINFO   | getReadListAbsolutePathFiles       | (VECTOR, FILEINFODATA)|
- *  | 103   | M_FINFO2  | getWriteListAbsolutePathFiles      | (VECTOR, FILEINFODATA)| 
+ *	| 100   | M_VECGEOM | getGeometry      					 | (VECTOR, MIMMO_)	     |
+ *  | 101   | M_MAPGEOM | getObjMap		       				 | (UN_MAP, STRINGMIMMO_)|
+ *  | 102   | M_FINFO   | getReadListFDI			         | (VECTOR, FILEINFODATA)|
+ *  | 103   | M_FINFO2  | getWriteListFDI			         | (VECTOR, FILEINFODATA)| 
  *	|-------|-----------|------------------------------------|-----------------------|
  * ~~~
  *	=========================================================
@@ -91,19 +91,15 @@ class MultipleMimmoGeometries: public BaseManipulation{
 	
 private:
 	int 						m_topo;			/**<Mark topology of your multi-file I/O geometry 1-surface, 2-volume, 3-pointcloud*/
-	int 						m_tagtype; 		/**<Mark type of tag format admissible. See FileType enum */
 	bool						m_read;			/**<If true it reads the geometry from file during the execution.*/
 	std::vector<FileDataInfo>	m_rinfo;		/**<List of filenames data given to the reader */
 	
 	bool						m_write;		/**<If true it writes the geometry from file during the execution.*/
 	std::vector<FileDataInfo>	m_winfo;		/**<List of filenames data where the geometry must be written */
 	
-	std::unordered_map<long, short>	m_mapMGeo;	/**<mapping cells ids of the MimmoObject with short ids linking to each sub-geometry filename il m_rinfo, m_winfo lists. 
-													The map is compiled automatically in reading mode.It is required in writing mode to divide geometry
-													in the various sub-files*/	
-			
-	bool		m_isInternal;				/**< flag for internal instantiated MimmoObject */
-	std::unique_ptr<MimmoObject> m_intgeo;	/**< pointer to internal allocated geometry, if any */
+	bool		m_isInternal;								/**< flag for internal instantiated MimmoObjects */
+	std::vector< std::unique_ptr<MimmoObject>> m_intgeo;	/**< pointers to internal allocated geometries, if any */
+
 	bool		m_codex;					/**< Set codex format for writing true binary, false ascii */
 	WFORMAT		m_wformat;					/**<Format for .nas import/export. (Short/Long).*/
 
@@ -112,8 +108,8 @@ private:
 
 	
 public:
-	MultipleMimmoGeometries(int topo, int formattype);
-	MultipleMimmoGeometries(int topo, FileType formattype);
+	MultipleMimmoGeometries(int topo);
+	MultipleMimmoGeometries(int topo, bool IOMode);
 	virtual ~MultipleMimmoGeometries();
 
 	MultipleMimmoGeometries(const MultipleMimmoGeometries & other);
@@ -121,23 +117,28 @@ public:
 
 	void buildPorts();
 
-	int 	getFormatTypeAllowed();
-	const MultipleMimmoGeometries *	getCopy();
-	MimmoObject * 	getGeometry();
-	const MimmoObject * 	getGeometry()const ;
+	ivector1D 				getFileTypeAllowed();
+	std::vector<FileType>	getENUMFileTypeAllowed();
 	
-	std::unordered_map<long, short> getDivisionMap();
-	std::unordered_set<short>		getHowManySubDivisions();
-	std::vector<FileDataInfo> 		getReadListAbsolutePathFiles();
-	std::vector<FileDataInfo> 		getWriteListAbsolutePathFiles();
+	const MultipleMimmoGeometries *				getCopy();
+	std::vector< MimmoObject *> 				getGeometry();
+	const std::vector< const MimmoObject *> 	getGeometry()const ;
 	
-	std::unordered_set<short> &	 getPIDList();
+	std::vector<FileDataInfo> 		getReadListFDI();
+	std::vector<FileDataInfo> 		getWriteListFDI();
+
+	std::unordered_map<std::string, MimmoObject*>	getObjMAP();
 	
-	void		setAddReadAbsolutePathFile(std::string dir, std::string name);
-	void		setAddWriteAbsolutePathFile(std::string dir, std::string name);
+	void		setAddReadFile(std::string fullpath);
+	void		setAddWriteFile(std::string fullpath);
 	
-	void 		setReadListAbsolutePathFiles(std::vector<FileDataInfo> data);
-	void 		setWriteListAbsolutePathFiles(std::vector<FileDataInfo> data);
+	void 		setReadListOfFiles(std::vector<std::string> data);
+	void 		setWriteListOfFiles(std::vector<std::string> data);
+
+	void 		setReadListFDI(std::vector<FileDataInfo> data);
+	void 		setWriteListFDI(std::vector<FileDataInfo> data);
+		
+	void 		setObjMAP(std::unordered_map<std::string, MimmoObject*> map);
 	
 	void		setRead(bool read);
 	void		setWrite(bool write);
@@ -146,24 +147,14 @@ public:
 	void		setHARDCopy( const MultipleMimmoGeometries * other);		
 	void		setSOFTCopy( const MultipleMimmoGeometries * other);
 	
-	void		setGeometry( MimmoObject * external);
+	void		setGeometry( std::vector<MimmoObject *> * external);
 	void		setGeometry();
-	
-	void 		setDivisionMap(std::unordered_map<long,short> mapMG);
-
-	bitpit::PiercedVector<bitpit::Vertex> * 	getVertices();
-	bitpit::PiercedVector<bitpit::Cell> * 		getCells();
-	
-	void		setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices);
-	void		setCells(bitpit::PiercedVector<bitpit::Cell> * cells);
-	
-	void		setPID(shivector1D pids);
-	void		setPID(std::unordered_map<long,short> pidsMap);
 	
 	void		setFormatNAS(WFORMAT wform);
 	
 	void		setBuildBvTree(bool build);
 	void		setBuildKdTree(bool build);
+	
 	
 	bool 		isEmpty();
 	bool		isInternal();
@@ -180,13 +171,7 @@ public:
 	
 private:
 	void 	setDefaults();
-	void 	initializeClass(int topo, int formattype);
-	livector1D    cellExtractor(short id);
-	void		  fillSubStructure(livector1D &cellList, MimmoObject* subG);
-	bool checkCoherentFormat(MimmoObject *);
-	bool checkReadingFiles(FileDataInfo & filedata);
-	void   checkAndFixDivisionMap();
-	
+	void 	initializeClass(int topo, bool IOMode);
 	
 };
 

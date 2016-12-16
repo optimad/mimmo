@@ -510,15 +510,15 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
 
 
 /*!
- *	Input stream operator for std::unordered_map<long, short>
+ *	Input stream operator for std::unordered_map<std::string, MimmoObject *>
  *	\param[in] buffer is the input stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same input stream received in input.
  */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< long, short >&  var){
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<std::string, MimmoObject *>&  var){
 	
-	long key;
-	short value;
+	std::string key;
+	MimmoObject * value;
 	int nP;
 	buffer >> nP;
 	for (int i = 0; i < nP; ++i) {
@@ -529,12 +529,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 };
 
 /*!
- *	Output stream operator for std::unordered_map<long, short>
+ *	Output stream operator for std::unordered_map<std::string, MimmoObject *>
  *	\param[in] buffer is the output stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same output stream received in input.
  */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< long, short >& var){
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<std::string, MimmoObject *>& var){
 	
 	int nP = var.size();
 	buffer << nP;
@@ -543,6 +543,41 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 	}
 	return buffer;
 };
+
+
+/*!
+ *	Input stream operator for std::vector<MimmoObject *>
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<MimmoObject *>&  var){
+	
+	int nP;
+	buffer >> nP;
+	var.resize(nP);
+	for (auto & ee : var) {
+		buffer >> ee;
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::vector<MimmoObject *>
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<MimmoObject *>& var){
+	
+	int nP = var.size();
+	buffer << nP;
+	for (auto & ee : var) {
+		buffer << ee;
+	}
+	return buffer;
+};
+
 
 
 /*!
