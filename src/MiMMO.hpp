@@ -50,6 +50,7 @@
 #include "TranslationBox.hpp"
 #include "RotationBox.hpp"
 #include "OBBox.hpp"
+#include "RBFBox.hpp"
 #include "InOut.hpp"
 #include "ProjectCloud.hpp"
 #include "SpecularPoints.hpp"
