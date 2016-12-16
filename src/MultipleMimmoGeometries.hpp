@@ -34,16 +34,15 @@ namespace mimmo{
  *	\authors		
  *
  *	\brief MultipleMimmoGeometries is an executable block class capable of  
- *         handling multiple geometries files of the same topology into a 
- *         unique MimmoObject container
+ *         I/O hanfling of multiple geometries files of the same topology 
  *
- *	MultipleMultipleMimmoGeometries is the object to manage the import/export/substantial modifications 
- *  of one or more geometry files of the same topology in a unique, standard MimmoObject structure as 
- *  product of its execution. It works as a  MultipleMimmoGeometries class, and retains almost the same features.
+ *	MultipleMultipleMimmoGeometries is the object to manage the reading/writing
+ *  of one or more geometry files of the same topology to/from a list of standard MimmoObjects. 
+ *  It works as a MimmoGeometry class, and retains almost the same features.
  *	The meshes to import/export have to be meshes with constant type elements.
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
- *	for volume mesh.
+ *	for volume mesh. ofp or pcvtu point cloud formats for generic point cloud structures.
  * 
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
@@ -99,12 +98,13 @@ private:
 	
 	bool		m_isInternal;								/**< flag for internal instantiated MimmoObjects */
 	std::vector< std::unique_ptr<MimmoObject>> m_intgeo;	/**< pointers to internal allocated geometries, if any */
+	std::vector<MimmoObject*>	m_extgeo;					/**< pointers to external allocated geometries, if any */
 
 	bool		m_codex;					/**< Set codex format for writing true binary, false ascii */
 	WFORMAT		m_wformat;					/**<Format for .nas import/export. (Short/Long).*/
 
-	bool		m_buildBvTree;				/**<If true the simplex ordered BvTree of the geometry is built in execution, whenever geometry support simplicies. */
-	bool		m_buildKdTree;				/**<If true the vertex ordered KdTree of the geometry is built in execution*/
+	bool		m_buildBvTree;				/**<If true the simplex ordered BvTree of every geometries is built in execution, whenever geometry support simplicies. */
+	bool		m_buildKdTree;				/**<If true the vertex ordered KdTree of every geometries is built in execution*/
 
 	
 public:
