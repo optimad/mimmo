@@ -24,7 +24,7 @@
 
 #include "MiMMO.hpp"
 #include <functional>
-
+// #include <valgrind/callgrind.h>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -69,7 +69,11 @@ void test00013() {
 	//Execution of chain
 	cout << "execution start" << endl;
 	t1 = steady_clock::now();
+		
+//		CALLGRIND_START_INSTRUMENTATION;
 		ch0.exec(true);
+// 		CALLGRIND_STOP_INSTRUMENTATION;
+// 		CALLGRIND_DUMP_STATS;
 	t2 = steady_clock::now();
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
