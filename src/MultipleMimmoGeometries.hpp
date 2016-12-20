@@ -121,19 +121,18 @@ public:
 	void buildPorts();
 
 	std::vector<int>		getFileTypeAllowed();
-	std::vector<FileType>	getENUMFileTypeAllowed();
 	
 	const MultipleMimmoGeometries *				getCopy();
 	std::vector< MimmoObject *> 				getGeometry();
-	const std::vector< const MimmoObject *> 	getGeometry()const ;
+	const std::vector< MimmoObject *> 			getGeometry()const ;
 	
 	std::vector<FileDataInfo> 		getReadListFDI();
 	std::vector<FileDataInfo> 		getWriteListFDI();
 
 	std::unordered_map<std::string, std::pair<int, MimmoObject*> >	getObjMAP();
 	
-	void		setAddReadFile(std::string dir, std::string name, FileType::ftype);
-	void		setAddWriteFile(std::string dir, std::string name, FileType::ftype);
+	void		setAddReadFile(std::string dir, std::string name, FileType ftype);
+	void		setAddWriteFile(std::string dir, std::string name, FileType ftype);
 	
 	void 		setReadListFDI(std::vector<FileDataInfo> data);
 	void 		setWriteListFDI(std::vector<FileDataInfo> data);
@@ -147,7 +146,7 @@ public:
 	void		setHARDCopy( const MultipleMimmoGeometries * other);		
 	void		setSOFTCopy( const MultipleMimmoGeometries * other);
 	
-	void		setGeometry( std::vector<MimmoObject *> * external);
+	void		setGeometry( std::vector<MimmoObject *> external);
 	
 	
 	void		setFormatNAS(WFORMAT wform);

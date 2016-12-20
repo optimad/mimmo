@@ -85,12 +85,12 @@ void
 MultipleMimmoGeometries::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<std::vector<MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setGeometry, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<std::unordered_map<std::string,MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setObjMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGMIMMO_));
+	built = (built && createPortIn<std::unordered_map<std::string,std::pair<int, MimmoObject*> >, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setObjMAP, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGPAIRINTMIMMO_));
 	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setReadListFDI, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setWriteListFDI, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
 	built = (built && createPortOut<std::vector<MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getGeometry, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<std::unordered_map<std::string,MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getObjMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGMIMMO_));
+	built = (built && createPortOut<std::unordered_map<std::string,std::pair<int, MimmoObject*> >, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getObjMAP, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGPAIRINTMIMMO_));
 	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getReadListFDI, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getWriteListFDI, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
@@ -111,21 +111,6 @@ MultipleMimmoGeometries::getFileTypeAllowed(){
 		++counter;
 	}
 	
-	return results;
-}
-
-/*!
- * Return current format files allowed in your class. enum FileType version
- */
-std::vector<FileType>
-MultipleMimmoGeometries::getENUMFileTypeAllowed(){
-	std::vector<FileType> results(m_ftype_allow.size());
-	
-	int counter=0;
-	for( auto &ee : m_ftype_allow){
-		results[counter] = FileType::_from_integral(ee);
-		++counter
-	}
 	return results;
 }
 
@@ -159,7 +144,8 @@ MultipleMimmoGeometries::getGeometry(){
  * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry,
  * const overloading
  */
-const MimmoObject * MultipleMimmoGeometries::getGeometry() const{
+const std::vector<MimmoObject *>
+MultipleMimmoGeometries::getGeometry() const{
 	if(m_isInternal)	{
 		std::vector<MimmoObject*> results(m_intgeo.size());
 		int counter = 0;
@@ -198,7 +184,7 @@ MultipleMimmoGeometries::getWriteListFDI(){
 std::unordered_map<std::string, std::pair<int,MimmoObject*> >
 MultipleMimmoGeometries::getObjMAP(){
 	
-	std::unordered_map<std::string, <int, MimmoObject*> > objMap;
+	std::unordered_map<std::string, std::pair<int, MimmoObject*> > objMap;
 	
 	std::string fullpath;
 	std::vector<FileDataInfo> info;
@@ -224,10 +210,10 @@ MultipleMimmoGeometries::getObjMAP(){
 			default:	break;
 		}
 		
-		fullpath = info.fdir+"/"+info.fname+"."+tag;
+		fullpath = info[i].fdir+"/"+info[i].fname+"."+tag;
 		
-		if(m_isInternal)	objMap[fullpath] = std::make_pair(info.ftype, m_intgeo[i].get());
-		else				objMap[fullpath] = std::make_pair(info.ftype, m_extgeo[i]);
+		if(m_isInternal)	objMap[fullpath] = std::make_pair(info[i].ftype, m_intgeo[i].get());
+		else				objMap[fullpath] = std::make_pair(info[i].ftype, m_extgeo[i]);
 	}
 	return objMap;
 }
@@ -242,7 +228,7 @@ MultipleMimmoGeometries::getObjMAP(){
  * \param[in] ftype enum FileType, extension tag of your geometry file
  */
 void
-MultipleMimmoGeometries::setAddReadFile(std::string dir, std::string name, Filetype ftype){
+MultipleMimmoGeometries::setAddReadFile(std::string dir, std::string name, FileType ftype){
 	
 	int fty = ftype._to_integral();
 	if(m_ftype_allow.count(fty)== 0) return;
@@ -264,14 +250,14 @@ MultipleMimmoGeometries::setAddReadFile(std::string dir, std::string name, Filet
  * \param[in] ftype enum FileType, extension tag of your geometry file
  */
 void
-MultipleMimmoGeometries::setAddWriteFile(std::string dir, std::string name, Filetype ftype){
+MultipleMimmoGeometries::setAddWriteFile(std::string dir, std::string name, FileType ftype){
 
 	int fty = ftype._to_integral();
 	if(m_ftype_allow.count(fty)== 0) return;
 	
 	FileDataInfo temp;
 
-	temp.ftype	= m_tagtype;
+	temp.ftype	= fty;
 	temp.fdir	= dir;
 	temp.fname	= name;
 	
@@ -322,16 +308,16 @@ MultipleMimmoGeometries::setWriteListFDI(std::vector<FileDataInfo> data){
  * this method do nothing. 
  */
 void
-MultipleMimmoGeometries::setObjMap(std::unordered_map<std::string, MimmoObject*> map){
+MultipleMimmoGeometries::setObjMAP(std::unordered_map<std::string, std::pair<int, MimmoObject*> > map){
 	
 	if(m_read)	return;
 	
 	m_winfo.resize(map.size());
-	m_extgeo.size(map.size());
+	m_extgeo.resize(map.size());
 	
 	int counter = 0;
 	std::string key1="/\\", key2=".";
-	std string name, tag;
+	std::string name, tag;
 	std::size_t found;
 	
 	for(auto & val : map){
@@ -422,7 +408,7 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 	m_buildKdTree = other->m_buildKdTree;
 	m_extgeo = other->m_extgeo;
 
-	m_isInternal = other.m_isInternal;
+	m_isInternal = other->m_isInternal;
 	
 	if(m_isInternal){
 		int size = other->m_intgeo.size();
@@ -430,7 +416,7 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 		
 		for(int i=0; i<size; ++i){
 			std::unique_ptr<MimmoObject> dum (new MimmoObject());
-			dum->setHARDCopy(other->m_intgeo[i]);
+			dum->setHARDCopy(other->m_intgeo[i].get());
 			m_intgeo[i] = std::move(dum);
 		}
 	}
@@ -615,9 +601,8 @@ MultipleMimmoGeometries::read(){
 		subData->setHARDCopy(geo->getGeometry());
 		m_intgeo[counter] = std::move(subData);
 		counter++;
-		}
 	}
-	if(counter ==0) return false;
+	if(counter == 0) return false;
 	m_intgeo.resize(counter);
 	
 	for(auto & val: m_intgeo){
@@ -711,7 +696,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 
 				input = file.get("tag");
 				input = bitpit::utils::trim(input);
-				auto maybe_tag = FileType::_from_string_nothrow(input);
+				auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
 				
 				if(!maybe_tag)	continue;
 				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
@@ -764,7 +749,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 				
 				input = file.get("tag");
 				input = bitpit::utils::trim(input);
-				auto maybe_tag = FileType::_from_string_nothrow(input);
+				auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
 				
 				if(!maybe_tag)	continue;
 				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
@@ -860,7 +845,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
 			file.set("dir", m_rinfo[i].fdir);
 			file.set("name", m_rinfo[i].fname);
-			file.set("tag", (FileType::_from_integral(m_rinfo[i].ftype)._to_string())
+			file.set("tag", (FileType::_from_integral(m_rinfo[i].ftype))._to_string());
 		}
 	}
 	
@@ -878,7 +863,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
 			file.set("dir", m_winfo[i].fdir);
 			file.set("name", m_winfo[i].fname);
-			file.set("tag", (FileType::_from_integral(m_winfo[i].ftype)._to_string())
+			file.set("tag", (FileType::_from_integral(m_winfo[i].ftype))._to_string());
 		}
 	}	
 	
