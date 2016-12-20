@@ -40,22 +40,22 @@ using namespace std::placeholders;
 void test00013() {
 
 	//Creation of MiMMO container.
-	MultipleMimmoGeometries * g1 = new MultipleMimmoGeometries(1,FileType::STL);
+	MultipleMimmoGeometries * g1 = new MultipleMimmoGeometries(1,false);
 	
 	g1->setRead(true);
-	g1->setAddReadAbsolutePathFile("geo_data", "sphere");
-	g1->setAddReadAbsolutePathFile("geo_data", "stanfordBunny_red");
+	g1->setAddReadFile("geo_data", "sphere", FileType::STL);
+	g1->setAddReadFile("geo_data", "stanfordBunny_red", FileType::STL);
 	
-	MultipleMimmoGeometries * g2 = new MultipleMimmoGeometries(1,FileType::STVTU);
+	MultipleMimmoGeometries * g2 = new MultipleMimmoGeometries(1,true);
 	
 	g2->setWrite(true);
+	g2->setAddWriteFile(".", "sphere", FileType::STVTU);
+	g2->setAddWriteFile(".", "stanfordBunny_red", FileType::STVTU);
 	
 	//Set PINS
 	cout << "set pins" << endl;
 
-	cout << "add pin info 1 : " << boolalpha << addPin(g1, g2, PortType::M_GEOM, PortType::M_GEOM) << endl;
-	cout << "add pin info 2 : " << boolalpha << addPin(g1, g2, PortType::M_MAPGEOM, PortType::M_MAPGEOM) << endl;
-	cout << "add pin info 2 : " << boolalpha << addPin(g1, g2, PortType::M_FINFO, PortType::M_FINFO2) << endl;
+	cout << "add pin info 1 : " << boolalpha << addPin(g1, g2, PortType::M_VECGEOM, PortType::M_VECGEOM) << endl;
 	cout << "set pins done" << endl;
 
 	//Create chain
