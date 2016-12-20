@@ -43,6 +43,8 @@ namespace mimmo{
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *	for volume mesh. ofp or pcvtu point cloud formats for generic point cloud structures.
+ *  WARNING The current class can be used in Reading or Writing modes once, not both at the same time 
+ * 
  * 
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
@@ -66,7 +68,7 @@ namespace mimmo{
  *	|PortID | PortType | variable/function 					| DataType		        |
  *	|-------|----------|------------------------------------|-----------------------|
  *	| 100   | M_VECGEOM| setGeometry      					| (VECTOR, MIMMO_)	    |
- *  | 101   | M_MAPGEOM| setObjMap  	      				| (UN_MAP, STRINGMIMMO_)|
+ *  | 101   | M_MAPGEOM| setObjMap  	      				| (UN_MAP, STRINGPAIRINTMIMMO_)|
  *  | 102   | M_FINFO  | setReadListFDI 			        | (VECTOR, FILEINFODATA)|
  *  | 103   | M_FINFO2 | setWriteListFDI     			    | (VECTOR, FILEINFODATA)| 
  *	|-------|----------|------------------------------------|-----------------------|
@@ -78,7 +80,7 @@ namespace mimmo{
  *	|PortID | PortType  | variable/function 				 | DataType		      	 | 
  *	|-------|-----------|------------------------------------|-----------------------|
  *	| 100   | M_VECGEOM | getGeometry      					 | (VECTOR, MIMMO_)	     |
- *  | 101   | M_MAPGEOM | getObjMap		       				 | (UN_MAP, STRINGMIMMO_)|
+ *  | 101   | M_MAPGEOM | getObjMap		       				 | (UN_MAP, STRINGPAIRINTMIMMO_)|
  *  | 102   | M_FINFO   | getReadListFDI			         | (VECTOR, FILEINFODATA)|
  *  | 103   | M_FINFO2  | getWriteListFDI			         | (VECTOR, FILEINFODATA)| 
  *	|-------|-----------|------------------------------------|-----------------------|
@@ -90,6 +92,7 @@ class MultipleMimmoGeometries: public BaseManipulation{
 	
 private:
 	int 						m_topo;			/**<Mark topology of your multi-file I/O geometry 1-surface, 2-volume, 3-pointcloud*/
+	std::set<int>				m_ftype_allow;  /**< list of file type currnetly allowed for the class, according to its topology */
 	bool						m_read;			/**<If true it reads the geometry from file during the execution.*/
 	std::vector<FileDataInfo>	m_rinfo;		/**<List of filenames data given to the reader */
 	
@@ -117,7 +120,7 @@ public:
 
 	void buildPorts();
 
-	ivector1D 				getFileTypeAllowed();
+	std::vector<int>		getFileTypeAllowed();
 	std::vector<FileType>	getENUMFileTypeAllowed();
 	
 	const MultipleMimmoGeometries *				getCopy();
@@ -127,18 +130,15 @@ public:
 	std::vector<FileDataInfo> 		getReadListFDI();
 	std::vector<FileDataInfo> 		getWriteListFDI();
 
-	std::unordered_map<std::string, MimmoObject*>	getObjMAP();
+	std::unordered_map<std::string, std::pair<int, MimmoObject*> >	getObjMAP();
 	
-	void		setAddReadFile(std::string fullpath);
-	void		setAddWriteFile(std::string fullpath);
+	void		setAddReadFile(std::string dir, std::string name, FileType::ftype);
+	void		setAddWriteFile(std::string dir, std::string name, FileType::ftype);
 	
-	void 		setReadListOfFiles(std::vector<std::string> data);
-	void 		setWriteListOfFiles(std::vector<std::string> data);
-
 	void 		setReadListFDI(std::vector<FileDataInfo> data);
 	void 		setWriteListFDI(std::vector<FileDataInfo> data);
 		
-	void 		setObjMAP(std::unordered_map<std::string, MimmoObject*> map);
+	void 		setObjMAP(std::unordered_map<std::string,std::pair<int, MimmoObject*> > map);
 	
 	void		setRead(bool read);
 	void		setWrite(bool write);
@@ -148,7 +148,7 @@ public:
 	void		setSOFTCopy( const MultipleMimmoGeometries * other);
 	
 	void		setGeometry( std::vector<MimmoObject *> * external);
-	void		setGeometry();
+	
 	
 	void		setFormatNAS(WFORMAT wform);
 	
@@ -158,6 +158,8 @@ public:
 	
 	bool 		isEmpty();
 	bool		isInternal();
+	bool 		whichMode();
+	
 	void 		clear();
 	void 		clearReadPaths();
 	void 		clearWritePaths();
@@ -172,7 +174,7 @@ public:
 private:
 	void 	setDefaults();
 	void 	initializeClass(int topo, bool IOMode);
-	
+	void	setGeometry();
 };
 
 

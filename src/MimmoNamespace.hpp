@@ -238,7 +238,7 @@ enum class dataTAG{
 	MIMMO_VECFLOAT_				/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/,
 	MIMMO_VECARR3FLOAT_			/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
 	LONGSHORT					/**< TAG related to a couple (normally used in pair or map containers) of a long and a short element data*/,
-	STRINGMIMMO_				/**< TAG related to a couple (normally used in pair or map containers) of a std::string and a mimmo::MimmoObject* */,
+	STRINGPAIRINTMIMMO_			/**< TAG related to a couple (normally used in pair or map containers) of a std::string and a pair of int and mimmo::MimmoObject* */,
 	PAIRMIMMO_VECFLOAT_			/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<double>* > data.*/,
 	PAIRMIMMO_VECARR3FLOAT_		/**< TAG related to a std::pair<mimmo::MimmoObject*, std::vector<std::array<double,3> >* > data.*/,
 	PAIRMIMMO_OBJFLOAT_     	/**< TAG related to a std::pair<mimmo::BaseManipulation *, double> data.*/,

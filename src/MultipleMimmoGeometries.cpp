@@ -31,19 +31,18 @@ using namespace mimmo;
 /*!Default constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
- * \param[in] formattype set tag format type of your geometries for I/O. See FileType enum
  */
-MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, int formattype){
-	initializeClass(topo, formattype);
+MultipleMimmoGeometries::MultipleMimmoGeometries(int topo){
+	initializeClass(topo, false);
 }
 
 /*!Custom constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
- * \param[in] formattype set tag format type of your geometries for I/O. See FileType enum
+ * \param[in] IOMode set boolean to activate reading(false) and writing(true) mode of the class
  */
-MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, FileType formattype){
-	initializeClass(topo, formattype._to_integral());
+MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, bool IOMode){
+	initializeClass(topo, IOMode);
 }
 
 /*!Default destructor of MultipleMimmoGeometries.
@@ -70,42 +69,64 @@ MultipleMimmoGeometries & MultipleMimmoGeometries::operator=(const MultipleMimmo
 	m_write = other.m_write;
 	m_wformat = other.m_wformat;
 	m_codex = other.m_codex;
-	m_mapMGeo = other.m_mapMGeo;
 	m_buildBvTree = other.m_buildBvTree;
 	m_buildKdTree = other.m_buildKdTree;
 	m_topo = other.m_topo;
-	m_tagtype = other.m_tagtype;
+	m_ftype_allow = other.m_ftype_allow;
 	
-	if(other.m_isInternal){
-		m_geometry = other.m_intgeo.get();
-	}	
-	m_isInternal = false;
+	m_isInternal = other.m_isInternal;
+	m_extgeo = other.m_extgeo;
+	
+	//warning the internal data structure is not copied. Relaunch the execution eventually to fill it.
 	return *this;
 };
 
 void
 MultipleMimmoGeometries::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<std::unordered_map<long,short>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setDivisionMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGSHORT));
-	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
-	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortIn<std::vector<MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setGeometry, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<std::unordered_map<std::string,MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setObjMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGMIMMO_));
+	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setReadListFDI, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortIn<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::setWriteListFDI, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
-	built = (built && createPortOut<MimmoObject*, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<std::unordered_map<long,short>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getDivisionMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGSHORT));
-	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getReadListAbsolutePathFiles, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
-	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getWriteListAbsolutePathFiles, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortOut<std::vector<MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getGeometry, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortOut<std::unordered_map<std::string,MimmoObject*>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getObjMap, PortType::M_MAPGEOM, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::STRINGMIMMO_));
+	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getReadListFDI, PortType::M_FINFO, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
+	built = (built && createPortOut<std::vector<FileDataInfo>, MultipleMimmoGeometries>(this, &mimmo::MultipleMimmoGeometries::getWriteListFDI, PortType::M_FINFO2, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FILEINFODATA));
 	
 	m_arePortsBuilt = built;
 }
 
 
 /*!
- * Return current format file allowed in your class. Refers to enum FileType
+ * Return current format files allowed in your class. Refers to enum FileType
  */
-int
-MultipleMimmoGeometries::getFormatTypeAllowed(){
-	return m_tagtype;
+std::vector<int>
+MultipleMimmoGeometries::getFileTypeAllowed(){
+	ivector1D results(m_ftype_allow.size());
+	
+	int counter=0;
+	for( auto &ee : m_ftype_allow){
+		results[counter] = ee;
+		++counter;
+	}
+	
+	return results;
+}
+
+/*!
+ * Return current format files allowed in your class. enum FileType version
+ */
+std::vector<FileType>
+MultipleMimmoGeometries::getENUMFileTypeAllowed(){
+	std::vector<FileType> results(m_ftype_allow.size());
+	
+	int counter=0;
+	for( auto &ee : m_ftype_allow){
+		results[counter] = FileType::_from_integral(ee);
+		++counter
+	}
+	return results;
 }
 
 /*!
@@ -116,11 +137,22 @@ const MultipleMimmoGeometries * MultipleMimmoGeometries::getCopy(){
 }
 
 /*!
- * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry
+ * Get current list of geometry pointers. Reimplementation of BaseManipulation::getGeometry
  */
-MimmoObject * MultipleMimmoGeometries::getGeometry(){
-	if(m_isInternal)	return m_intgeo.get();
-	else				return m_geometry;
+std::vector<MimmoObject *> 
+MultipleMimmoGeometries::getGeometry(){
+	
+	if(m_isInternal)	{
+		std::vector<MimmoObject*> results(m_intgeo.size());
+		int counter = 0;
+		for(auto & val : m_intgeo){
+			results[counter] = val.get();
+			++counter;
+		}
+		return results;
+	}
+	
+	else				return m_extgeo;
 }
 
 /*!
@@ -128,56 +160,78 @@ MimmoObject * MultipleMimmoGeometries::getGeometry(){
  * const overloading
  */
 const MimmoObject * MultipleMimmoGeometries::getGeometry() const{
-	if(m_isInternal)	return m_intgeo.get();
-	else				return m_geometry;
-}
-
-/*!
- * Get current division map associated to your MimmoObject geometry.
- * (division map is a map which associates for each cell of MimmoObject a tag id
- * of the origin/destination file).
- */
-std::unordered_map<long,short>	MultipleMimmoGeometries::getDivisionMap(){
-	return m_mapMGeo;
-}
-
-/*!
- * Get how many sub-parts are available for writing, once division map is set. 
- * Return each short id identifying the sub-parts in an unordered_set container
- * Meant only for WRITING mode of the class.
- */
-std::unordered_set<short> 
-MultipleMimmoGeometries::getHowManySubDivisions(){
-	std::unordered_set<short> subtypes;
-	for(auto & element: m_mapMGeo){
-		subtypes.insert(element.second);
+	if(m_isInternal)	{
+		std::vector<MimmoObject*> results(m_intgeo.size());
+		int counter = 0;
+		for(auto & val : m_intgeo){
+			results[counter] = val.get();
+			++counter;
+		}
+		const std::vector<MimmoObject *> temp(results);
+		return temp;
 	}
-	
-	return subtypes;
+	else return m_extgeo;
 }
-
 /*!
  * Get list of external filenames the class must READ from to get the final MimmoObject.
  */
-std::vector<FileDataInfo>	MultipleMimmoGeometries::getReadListAbsolutePathFiles(){
+std::vector<FileDataInfo>	
+MultipleMimmoGeometries::getReadListFDI(){
 	return m_rinfo;
 }
 
 /*!
  * Get list of external filenames the class must WRITE to the final MimmoObject.
  */
-std::vector<FileDataInfo>	MultipleMimmoGeometries::getWriteListAbsolutePathFiles(){
+std::vector<FileDataInfo>	
+MultipleMimmoGeometries::getWriteListFDI(){
 	return m_winfo;
 }
 
+
 /*!
- * Get list of PID type actually stored in your MimmoObjects. While reading, PIDs from different source files
- * are all stored in the unique MimmoObject data structure, owned by the class. PIDs are automatically
- * reassigned in case of conflict between PIDs of same value coming from different files. 
+ * Get the complete map of the name of external file vs relative geometry object. 
+ * If the class is in reading mode, return reading pathfiles and geometries
+ * (these are usually available after the class execution). In writing mode, return writing pathfiles
+ * and geometry pointers, that usually are linked by the User as inputs.
  */
-std::unordered_set<short>& MultipleMimmoGeometries::getPIDList(){
-	getGeometry()->getPIDTypeList();
+std::unordered_map<std::string, std::pair<int,MimmoObject*> >
+MultipleMimmoGeometries::getObjMAP(){
+	
+	std::unordered_map<std::string, <int, MimmoObject*> > objMap;
+	
+	std::string fullpath;
+	std::vector<FileDataInfo> info;
+	if(m_read){
+		info = m_rinfo;
+	}else{
+		info = m_winfo;
+	}	
+	
+	int totVal = info.size();
+	int totGeo = m_extgeo.size();
+	if(m_isInternal)	totGeo = m_intgeo.size();
+
+	totVal = std::min(totVal,totGeo);
+	
+	for(int i=0; i<totVal; ++i){
+		
+		std:string tag = "vtu";
+		switch(info[i].ftype){
+			case 0: tag="stl"; break;
+			case 5: tag="nas"; break;
+			case 6: tag="";	   break;
+			default:	break;
+		}
+		
+		fullpath = info.fdir+"/"+info.fname+"."+tag;
+		
+		if(m_isInternal)	objMap[fullpath] = std::make_pair(info.ftype, m_intgeo[i].get());
+		else				objMap[fullpath] = std::make_pair(info.ftype, m_extgeo[i]);
+	}
+	return objMap;
 }
+
 
 /*!
  * Add an external file path to the list of geometries to read from.
@@ -185,11 +239,16 @@ std::unordered_set<short>& MultipleMimmoGeometries::getPIDList(){
  * set for your class and the format fixed for your class also. See FileType enum.
  * \param[in] dir  string, absolute path directory
  * \param[in] name string, name of your file, without tag extension
+ * \param[in] ftype enum FileType, extension tag of your geometry file
  */
 void
-MultipleMimmoGeometries::setAddReadAbsolutePathFile(std::string dir, std::string name){
+MultipleMimmoGeometries::setAddReadFile(std::string dir, std::string name, Filetype ftype){
+	
+	int fty = ftype._to_integral();
+	if(m_ftype_allow.count(fty)== 0) return;
+	
 	FileDataInfo temp;
-	temp.ftype	= m_tagtype;
+	temp.ftype	= fty;
 	temp.fdir	= dir;
 	temp.fname	= name;
 
@@ -202,31 +261,38 @@ MultipleMimmoGeometries::setAddReadAbsolutePathFile(std::string dir, std::string
  * set for your class and the format fixed for your class also. See FileType enum.
  * \param[in] dir  string, absolute path directory
  * \param[in] name string, name of your file, without tag extension
+ * \param[in] ftype enum FileType, extension tag of your geometry file
  */
 void
-MultipleMimmoGeometries::setAddWriteAbsolutePathFile(std::string dir, std::string name){
+MultipleMimmoGeometries::setAddWriteFile(std::string dir, std::string name, Filetype ftype){
+
+	int fty = ftype._to_integral();
+	if(m_ftype_allow.count(fty)== 0) return;
+	
 	FileDataInfo temp;
+
 	temp.ftype	= m_tagtype;
 	temp.fdir	= dir;
 	temp.fname	= name;
 	
 	m_winfo.push_back(temp);
-	
 };
 
 /*!
  * Set the whole list of external files data which the geometry is read from.
  */
 void
-MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileDataInfo> data){
+MultipleMimmoGeometries::setReadListFDI(std::vector<FileDataInfo> data){
 	m_rinfo.clear();
 	m_rinfo.resize(data.size());
 
 	int counter = 0;
 	for(auto & ele : data){
-		m_rinfo[counter] = ele;
-		m_rinfo[counter].ftype = m_tagtype;
-		counter++;
+		
+		if(m_ftype_allow.count(ele.ftype) > 0){
+			m_rinfo[counter] = ele;
+			counter++;
+		}	
 	}
 };
 
@@ -234,18 +300,62 @@ MultipleMimmoGeometries::setReadListAbsolutePathFiles(std::vector<FileDataInfo> 
  * Set the whole list of external files data which the geometry is written to.
  */
 void
-MultipleMimmoGeometries::setWriteListAbsolutePathFiles(std::vector<FileDataInfo> data){
+MultipleMimmoGeometries::setWriteListFDI(std::vector<FileDataInfo> data){
 	m_winfo.clear();
 	m_winfo.resize(data.size());
 	
 	int counter = 0;
 	for(auto & ele : data){
-		m_winfo[counter] = ele;
-		m_winfo[counter].ftype = m_tagtype;
-		counter++;
+		if(m_ftype_allow.count(ele.ftype) > 0){
+			m_winfo[counter] = ele;
+			counter++;
+		}	
 	}
 	
 };
+
+/*!
+ * Set directly the object map of path to external files and pointers of geometry.
+ * Whenever you have ready a list of external files and a list of pointers to MimmoObject 
+ * which contains geometrical data of these files, you can use uniquely the current method instead of 
+ * setWriteListFDI() and setGeometry(). This method is meant for writing mode only. In reading mode
+ * this method do nothing. 
+ */
+void
+MultipleMimmoGeometries::setObjMap(std::unordered_map<std::string, MimmoObject*> map){
+	
+	if(m_read)	return;
+	
+	m_winfo.resize(map.size());
+	m_extgeo.size(map.size());
+	
+	int counter = 0;
+	std::string key1="/\\", key2=".";
+	std string name, tag;
+	std::size_t found;
+	
+	for(auto & val : map){
+	
+		if(m_ftype_allow.count(val.second.first) > 0){
+		
+			m_winfo[counter].ftype = val.second.first;
+			
+			found = val.first.find_last_of(key1);
+			m_winfo[counter].fdir = val.first.substr(0,found);
+
+			name = val.first.substr(found+1);
+			found = name.find_last_of(key2);
+			m_winfo[counter].fname = name.substr(0, found);
+			
+			m_extgeo[counter] = val.second.second;
+			++counter;
+		}
+	}
+	
+	m_winfo.resize(counter);
+	m_extgeo.resize(counter);
+};
+
 
 /*!It sets the condition to read the geometry on file during the execution.
  * \param[in] read Does it read the geometry in execution?
@@ -253,6 +363,7 @@ MultipleMimmoGeometries::setWriteListAbsolutePathFiles(std::vector<FileDataInfo>
 void
 MultipleMimmoGeometries::setRead(bool read){
 	m_read = read;
+	m_write = !read;
 }
 
 /*!It sets the condition to write the geometry on file during the execution.
@@ -261,6 +372,7 @@ MultipleMimmoGeometries::setRead(bool read){
 void
 MultipleMimmoGeometries::setWrite(bool write){
 	m_write = write;
+	m_read = !write;
 }
 
 /*!
@@ -273,9 +385,9 @@ void MultipleMimmoGeometries::setCodex(bool binary){
 }
 
 /*!Sets your current class as a "soft" copy of the argument.
- * Soft copy means that only your current geometric object MimmoObject is
- * copied only through its pointer and stored in the internal member m_geometry
- * Other members are exactly copied
+ * Soft copy means that the internal member m_intgeo is not copied, but to get it
+ * you need to relaunch the class execution at a certain point.
+ * On the contrary, other members are exactly copied
  * \param[in] other pointer to MultipleMimmoGeometries class.
  */
 void
@@ -285,8 +397,8 @@ MultipleMimmoGeometries::setSOFTCopy(const MultipleMimmoGeometries * other){
 }
 
 /*!Sets your current class as a "HARD" copy of the argument.
- * Hard copy means that only your current geometric object MimmoObject is
- * copied as a stand alone internal member and stored in the unique pointer member m_intgeo. 
+ * Hard copy means that the current geometric object MimmoObject is
+ * copied as a stand alonelist of  internal members and stored in the unique pointer list m_intgeo. 
  * Other members are exactly copied
  * \param[in] other pointer to MultipleMimmoGeometries class.
  */
@@ -295,14 +407,7 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 
 	clear();
 	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
-	
-	std::unique_ptr<MimmoObject> dum (new MimmoObject());
-	dum->setHARDCopy(other->getGeometry());
 
-	m_geometry = NULL;
-	m_isInternal = true;
-	m_intgeo = std::move(dum);
-	
 	m_rinfo = other->m_rinfo;
 	m_winfo = other->m_winfo;
 	m_read = other->m_read;
@@ -311,12 +416,24 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
 	m_codex = other->m_codex;
 	
 	m_topo = other->m_topo;
-	m_tagtype = other->m_tagtype;
-	
-	m_mapMGeo = other->m_mapMGeo;
+	m_ftype_allow = other->m_ftype_allow;
 	
 	m_buildBvTree = other->m_buildBvTree;
 	m_buildKdTree = other->m_buildKdTree;
+	m_extgeo = other->m_extgeo;
+
+	m_isInternal = other.m_isInternal;
+	
+	if(m_isInternal){
+		int size = other->m_intgeo.size();
+		m_intgeo.resize(size);
+		
+		for(int i=0; i<size; ++i){
+			std::unique_ptr<MimmoObject> dum (new MimmoObject());
+			dum->setHARDCopy(other->m_intgeo[i]);
+			m_intgeo[i] = std::move(dum);
+		}
+	}
 }
 
 /*!
@@ -324,106 +441,46 @@ MultipleMimmoGeometries::setHARDCopy(const MultipleMimmoGeometries * other){
  * Reimplementation of BaseManipulation::setGeometry
  */
 void
-MultipleMimmoGeometries::setGeometry(MimmoObject * external){
+MultipleMimmoGeometries::setGeometry(std::vector<MimmoObject *> external){
 	
-	if(getGeometry() == external || external->isEmpty()) return;
-	if(external->getType() != m_topo)	return;	
+	if(external.empty()) return;
 	
-	m_intgeo.reset(nullptr);
-	m_geometry = external;
+	m_extgeo.resize(external.size());
+	int counter = 0;
+	for(auto & obj: external){
+		if(!obj->isEmpty()){
+			m_extgeo[counter]= obj;
+			++counter;
+		}
+	}
+	m_extgeo.resize(counter);	
+	m_intgeo.clear();
 	m_isInternal = false;
 };
 
 /*!
- * Force your class to allocate an internal MimmoObject of m_topo type. 
+ * Force your class to allocate a list of internal MimmoObject of m_topo type. 
  * Other internal object allocated or externally linked geometries
- * will be destroyed/unlinked.
+ * will be destroyed/unlinked. This option is meant for reading mode of the class only
  * 
  */
 void
 MultipleMimmoGeometries::setGeometry(){
-	m_geometry = NULL;
-	m_intgeo.reset(nullptr);
-	std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
-	m_intgeo = std::move(dum);
+	if(m_write)	return;
+	
+	m_extgeo.clear();
+	m_intgeo.clear();
+	int size = m_rinfo.size();
+	m_intgeo.resize(size);
+	
+	for(int i=0; i<size; ++i){
+		std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
+		m_intgeo[i] = std::move(dum);
+	}	
 	m_isInternal = true;
 };
 
-/*!
- * Setting map which assigns to each cell id of reference geometry a short id for 
- * the part which it belongs to. Method active only in WRITE mode.
- * \param[in] mapM cell Ids - subpart Ids unordered_map
- */
-void
-MultipleMimmoGeometries::setDivisionMap(std::unordered_map<long,short>  mapM){
-	if(m_read)	return;
-	m_mapMGeo = mapM;
-	return;
-}
-
-
-/*!
- * Return a pointer to the Vertex structure of the MimmoObject geometry actually pointed or allocated by
- * the class. If no geometry is actually available return a nullptr
- */
-bitpit::PiercedVector<bitpit::Vertex> * MultipleMimmoGeometries::getVertices(){
-	if(isEmpty())	return NULL;
-	return &(getGeometry()->getVertices());
-};
-
-/*!
- * Return a pointer to the Cell structure of the MimmoObject geometry actually pointed or allocated by
- * the class. If no geometry is actually available return a nullptr 
- */
-bitpit::PiercedVector<bitpit::Cell> * MultipleMimmoGeometries::getCells(){
-	if(isEmpty())	return NULL;
-	return	&(getGeometry()->getCells());
-	
-};
-
-/*!
- * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
- * structure will be erased and substituted by the new ones. If an internal object is not 
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
- * doing anything even in case of argument pointing to nullptr; 
- * \param[in] vertices pointer to a vertex PiercedVector structure 
- */
-void
-MultipleMimmoGeometries::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
-	if(m_intgeo.get() == NULL || vertices == NULL) return ;
-	m_intgeo->setVertices(*vertices);
-};
-
-/*!
- * Wrapping to set cells to your internal MimmoObject structure ONLY. Cells in the internal
- * structure will be erased and substituted by the new ones. If an internal object is not 
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
- * doing anything even in case of argument pointing to nullptr; 
- * \param[in] vertices pointer to a cell PiercedVector structure 
- */
-void
-MultipleMimmoGeometries::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
-	if(m_intgeo.get() == NULL || cells == NULL) return;
-	m_intgeo->setCells(*cells);
-};
-
-/*!It sets the PIDs of all the cells of the geometry Patch currently linked or internal to the class.
- * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential order. If pids size does not match number of current cell does nothing
- */
-void
-MultipleMimmoGeometries::setPID(shivector1D pids){
-	getGeometry()->setPID(pids);
-};
-
-/*!It sets the PIDs of part of/all the cells of the geometry Patch currently linked or internal to the class.
- * \param[in] pids PIDs map list w/ id of the cell as first value, and pid as second value.
- */
-void
-MultipleMimmoGeometries::setPID(std::unordered_map<long, short> pidsMap){
-	getGeometry()->setPID(pidsMap);
-};
-
-/*!It sets the format to export .nas file.
+/*!It sets the format to export .nas files if any in WRITING mode.
  * \param[in] wform Format of .nas file (Short/Long).
  */
 void
@@ -431,7 +488,7 @@ MultipleMimmoGeometries::setFormatNAS(WFORMAT wform){
 	m_wformat = wform;
 }
 
-/*!It sets if the BvTree of the patch has to be built during execution.
+/*!It sets if the BvTree of all the patch geometries has to be built during execution.
  * \param[in] build If true the BvTree is built in execution and stored in
  * the related MimmoObject member.
  */
@@ -440,7 +497,7 @@ MultipleMimmoGeometries::setBuildBvTree(bool build){
 	m_buildBvTree = build;
 }
 
-/*!It sets if the KdTree of the patch has to be built during execution.
+/*!It sets if the KdTree of all the patch geometries has to be built during execution.
 * \param[in] build If true the KdTree is built in execution and stored in
 * the related MimmoObject member.
 */
@@ -450,19 +507,27 @@ MultipleMimmoGeometries::setBuildKdTree(bool build){
 }
 
 /*!
- * Check if geometry is not linked or not locally instantiated in your class.
- * True - no geometry present, False otherwise.
+ * Check if geometries are not linked or not locally instantiated in your class.
+ * True - no geometries present, False otherwise.
  */
 bool MultipleMimmoGeometries::isEmpty(){
-	return (m_geometry == NULL && (m_intgeo.get() == NULL));
+	return (m_extgeo.empty() && m_intgeo.empty());
 }
 
 /*!
- * Check if geometry is internally instantiated (true) or externally linked(false).
+ * Check if geometries are internally instantiated (true) or externally linked(false).
  * Return false if no geometry is checked. Please verify it with isEmpty method first
  */
 bool MultipleMimmoGeometries::isInternal(){
 	return (m_isInternal);
+}
+
+/*!
+ * Check which current mode of the class is active, Reading-False, Writing-True 
+ */
+bool
+MultipleMimmoGeometries::whichMode(){
+	return m_write;
 }
 
 /*!
@@ -473,7 +538,8 @@ MultipleMimmoGeometries::clear(){
 	clearReadPaths();
 	clearWritePaths();
 	setDefaults();
-	m_intgeo.reset(nullptr);
+	m_intgeo.clear();
+	m_extgeo.clear();
 	BaseManipulation::clear();
 };
 
@@ -493,167 +559,72 @@ MultipleMimmoGeometries::clearWritePaths(){
 	m_winfo.clear();
 }
 
-/*!It writes the geometry on multiple output files.
- *\return False if geometry is not linked.
+/*!It writes the listed geometries on multiple output files.
+ *\return False if no geometries or relative output info are set.
  */
 bool
 MultipleMimmoGeometries::write(){
-	if (isEmpty()) return false;
+	if (m_extgeo.empty() || m_winfo.empty()) return false;
 	
-	//check format;
-	if(!checkCoherentFormat(getGeometry())){
-		std::cout<<"Currently linked geometry is not compatible with file format set for writing"<<std::endl;
-		return false;
-	}
-	if((int)m_winfo.size() < 1){
-		std::cout<<"Not filenames found for writing"<<std::endl;
-		return false;
+	int totGeo = m_extgeo.size();
+	int totInfo = m_winfo.size();
+	
+	if(totGeo != totInfo)	{
+		std::cout<<"WARNING:Not enough output info or some invalid geoemetries found writing in class "<<m_name<<std::endl;
 	}
 	
-	checkAndFixDivisionMap();
+	totGeo = std::min(totGeo, totInfo);
 	
-	int nFiles = m_winfo.size();
-	std::unordered_set<short>  subIds = getHowManySubDivisions();
-	std::unordered_set<short>::iterator itS = subIds.begin();
-	int nWriters = subIds.size();
-	nWriters = std::min(nWriters, nFiles);
-
-	int counter = 0;
-	while(counter< nWriters && itS != subIds.end()){
+	for(int k=0; k<totGeo; ++k){
 		
-		livector1D cells = cellExtractor(*itS);
-		if(!cells.empty()){
-			
-			std::unique_ptr<MimmoObject> geo(new MimmoObject(m_topo));
-			std::unique_ptr<MimmoGeometry> writer(new MimmoGeometry());
-			fillSubStructure(cells, geo.get());
-			
-			writer->setWrite(true);
-			writer->setWriteDir(m_winfo[counter].fdir);
-			writer->setWriteFilename(m_winfo[counter].fname);
-			writer->setWriteFileType(m_winfo[counter].ftype);
-			writer->setCodex(m_codex);
-			writer->setFormatNAS(m_wformat);
-			writer->setGeometry(geo.get());
-			
-			writer->execute();
-			counter++;		
-		}
-		itS++;
+		std::unique_ptr<MimmoGeometry> writer(new MimmoGeometry());
+		writer->setWrite(true);
+		writer->setWriteDir(m_winfo[k].fdir);
+		writer->setWriteFilename(m_winfo[k].fname);
+		writer->setWriteFileType(m_winfo[k].ftype);
+		writer->setCodex(m_codex);
+		writer->setFormatNAS(m_wformat);
+		writer->setGeometry(m_extgeo[k]);
+		writer->execute();
 	}
-	
 	return true;
 };
 
-/*!It reads the mesh geometry from an input file and reverse it in the internal 
- * MimmoObject container. If an external container is linked skip reading and doing nothing.
- * \return False if file doesn't exists or not found geometry container address.
+/*!It reads the mesh geometries from a list of input files and put them in the internal 
+ * MimmoObject list container. If an external container is linked, skip reading and do nothing.
+ * \return False if files do not exist or not found geometry container to address to.
  */
 bool
 MultipleMimmoGeometries::read(){
-	if(!m_isInternal) return false;
+	if(!m_isInternal || m_rinfo.empty()) return false;
 	
 	setGeometry();
-	std::unordered_set<short> & pidMotherList = getGeometry()->getPIDTypeList();
-	std::vector<std::unique_ptr<MimmoObject> > listRObjects(m_rinfo.size());
 
 	//absorbing Geometries.
 	int counter = 0;
+	m_intgeo.resize(m_rinfo.size());
 	for(auto & data: m_rinfo){
-		if(checkReadingFiles(data)){
+		std::unique_ptr<MimmoGeometry> geo(new MimmoGeometry());
+		std::unique_ptr<MimmoObject> subData(new MimmoObject());	
+		geo->setRead(true);
+		geo->setReadDir(data.fdir);
+		geo->setReadFilename(data.fname);
+		geo->setReadFileType(data.ftype);
+		geo->execute();
 			
-			std::unique_ptr<MimmoGeometry> geo(new MimmoGeometry());
-			std::unique_ptr<MimmoObject> subData(new MimmoObject());	
-			geo->setRead(true);
-			geo->setReadDir(data.fdir);
-			geo->setReadFilename(data.fname);
-			geo->setReadFileType(data.ftype);
-			
-			geo->execute();
-			
-			subData->setHARDCopy(geo->getGeometry());
-			listRObjects[counter] = std::move(subData);
-			counter++;
+		subData->setHARDCopy(geo->getGeometry());
+		m_intgeo[counter] = std::move(subData);
+		counter++;
 		}
 	}
 	if(counter ==0) return false;
-	listRObjects.resize(counter);
+	m_intgeo.resize(counter);
 	
-	//put all read geometries in the internal unique MimmoObject of the class.
-	// eventual PIDding conflicts are solved.
-	
-	//find cell and vertex sizes for the unique objects
-	long sizeCells=0;
-	long sizeVerts=0;
-	for(auto & obj: listRObjects){
-		sizeVerts += obj->getNVertex();
-		if(m_topo !=3)	sizeCells += obj->getNCells();
-	}
-
-	//reserving space for internal patch structures
-	m_intgeo->getPatch()->reserveVertices(sizeVerts);
-	m_intgeo->getPatch()->reserveCells(sizeCells);
-	
-	//let's roll
-	
-	long offV = 0;
-	long offC = 0;
-	
-	long id = 0;
-	darray3E tempV;
-	livector1D tempC;
-	short tempPID;
-	bitpit::ElementInfo::Type type;
-	
-	m_mapMGeo.clear();
-	short id_part = 0;
-	
-	for(auto & obj: listRObjects){
-		
-		//renumbering vertices and cells of the local patch
-		obj->getPatch()->consecutiveRenumberVertices(offV);
-		obj->getPatch()->consecutiveRenumberCells(offC); 
-		
-		//get a map for eventual renumbering of PIDs
-		std::unordered_map<short,short> renumPIDfromlocal;
-		
-		std::unordered_set<short>::iterator it, itP= obj->getPIDTypeList().begin(), itE = obj->getPIDTypeList().end();
-		
-		for(it=itP; it!=itE; ++it){
-			short checker = 0;
-			if(pidMotherList.count(*it) > 0){
-				while(pidMotherList.count(checker)> 0 && checker < 32000){checker++;}
-				renumPIDfromlocal[*it] = checker;
-			}else{
-				renumPIDfromlocal[*it] = *it;
-			}
-		}
-		
-		//copy vertices
-		for(auto & vv : obj->getVertices()){
-			id = vv.getId();
-			tempV = vv.getCoords();
-			m_intgeo->addVertex(tempV,id);
-		}
-		
-		//copy connected cells
-		for(auto & cc : obj->getCells()){
-			id = cc.getId();
-			m_mapMGeo.insert(std::make_pair(id,id_part));
-			tempC = obj->getCellConnectivity(id);
-			type = cc.getType();
-			tempPID = cc.getPID();
-			
-			m_intgeo->addConnectedCell(tempC,type, renumPIDfromlocal[tempPID], id);
-		}
-		
-		//update renumbering thresholds
-		offV += obj->getPatch()->getVertexCount();
-		offC += obj->getPatch()->getCellCount();
-		id_part++;
-	}
-	
-	m_intgeo->cleanGeometry();
+	for(auto & val: m_intgeo){
+		val->cleanGeometry();
+		if(m_buildBvTree)	val->buildBvTree();
+		if(m_buildKdTree)	val->buildKdTree();
+	}	
 	return true;
 };
 
@@ -677,8 +648,6 @@ MultipleMimmoGeometries::execute(){
 		std::cout << " " << std::endl;
 		exit(11);
 	}
-	if (m_buildBvTree) getGeometry()->buildBvTree();
-	if (m_buildKdTree) getGeometry()->buildKdTree();
 	return;
 }
 
@@ -716,21 +685,6 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		if(m_topo != temptop)	return;
 	}	
 
-	//checking format type
-	if(slotXML.hasOption("Format")){
-		std::string input = slotXML.get("Format");
-		input = bitpit::utils::trim(input);
-		int tempformat = -1;
-		if(!input.empty()){
-			for(auto c: FileType::_values()){
-				if(input == c._to_string()){
-					tempformat = c._to_integral();
-				}
-			}
-		}
-		if(m_tagtype != tempformat)	return;
-	}	
-	
 	if(slotXML.hasOption("ReadFlag")){
 		input = slotXML.get("ReadFlag");
 		bool value = false;
@@ -754,23 +708,32 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 			strdum = root+std::to_string(i);
 			if(reading.hasSection(strdum)){
 				bitpit::Config::Section &file = reading.getSection(strdum);
-			
-				temp[counter].ftype =m_tagtype;
 
-				input = file.get("Dir");
+				input = file.get("tag");
 				input = bitpit::utils::trim(input);
-				if(input.empty())	input = "./";
-				temp[counter].fdir = input;
+				auto maybe_tag = FileType::_from_string_nothrow(input);
+				
+				if(!maybe_tag)	continue;
+				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
+					
+					temp[counter].ftype = maybe_tag->_to_integral();
+				
+					input = file.get("dir");
+					input = bitpit::utils::trim(input);
+					if(input.empty())	input = "./";
+					temp[counter].fdir = input;
 
-				input = file.get("Name");
-				input = bitpit::utils::trim(input);
-				if(input.empty())	input = "MultipleMimmoGeometries";
-				temp[counter].fname = input;
-				counter++;
+					input = file.get("name");
+					input = bitpit::utils::trim(input);
+					if(input.empty())	input = "MultipleMimmoGeometries";
+					temp[counter].fname = input;
+				
+					counter++;
+				}	
 			}
 		}
 		temp.resize(counter);
-		setReadListAbsolutePathFiles(temp);
+		setReadListFDI(temp);
 	}
 
 	
@@ -798,25 +761,32 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 			
 			if(writing.hasSection(strdum)){
 				bitpit::Config::Section & file = writing.getSection(strdum);
-			
-				temp[counter].ftype =m_tagtype;
-			
-				input = file.get("Dir");
+				
+				input = file.get("tag");
 				input = bitpit::utils::trim(input);
-				if(input.empty())	input = "./";
-				temp[counter].fdir = input;
+				auto maybe_tag = FileType::_from_string_nothrow(input);
+				
+				if(!maybe_tag)	continue;
+				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
+					
+					temp[counter].ftype = maybe_tag->_to_integral();
+					
+					input = file.get("dir");
+					input = bitpit::utils::trim(input);
+					if(input.empty())	input = "./";
+					temp[counter].fdir = input;
 	   
-				input = file.get("Name");
-				input = bitpit::utils::trim(input);
-				if(input.empty())	input = "MultipleMimmoGeometries";
-				temp[counter].fname = input;
-				counter++;
-			}
+					input = file.get("name");
+					input = bitpit::utils::trim(input);
+					if(input.empty())	input = "MultipleMimmoGeometries";
+					temp[counter].fname = input;
+					counter++;
+				}
+			}	
 		}
 		temp.resize(counter);
-		setWriteListAbsolutePathFiles(temp);
+		setWriteListFDI(temp);
 	};
-	
 	
 	if(slotXML.hasOption("Codex")){
 		input = slotXML.get("Codex");
@@ -874,10 +844,6 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 	slotXML.set("ClassID", std::to_string(getClassCounter()));
 	slotXML.set("Topology", m_topo);
 	
-	std::string typetag = (FileType::_from_integral(m_tagtype))._to_string();
-	slotXML.set("Format", typetag);
-	
-	
 	std::string output;
 	
 	output = std::to_string(m_read);
@@ -892,8 +858,9 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
-			file.set("Dir", m_rinfo[i].fdir);
-			file.set("Name", m_rinfo[i].fname);
+			file.set("dir", m_rinfo[i].fdir);
+			file.set("name", m_rinfo[i].fname);
+			file.set("tag", (FileType::_from_integral(m_rinfo[i].ftype)._to_string())
 		}
 	}
 	
@@ -909,8 +876,9 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
 			bitpit::Config::Section & file = slotXML.addSection(strdum);
-			file.set("Dir", m_winfo[i].fdir);
-			file.set("Name", m_winfo[i].fname);
+			file.set("dir", m_winfo[i].fdir);
+			file.set("name", m_winfo[i].fname);
+			file.set("tag", (FileType::_from_integral(m_winfo[i].ftype)._to_string())
 		}
 	}	
 	
@@ -939,7 +907,7 @@ return;
  */
 void
 MultipleMimmoGeometries::setDefaults(){
-	m_read		= false;
+	m_read		= true;
 	clearReadPaths();
 	m_write		= false;
 	clearWritePaths();
@@ -955,274 +923,35 @@ MultipleMimmoGeometries::setDefaults(){
  * Class initializer, meant to be used in construction.
  */
 void
-MultipleMimmoGeometries::initializeClass(int topo, int formattype){
+MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 	
 	m_name 		= "MiMMO.MultipleGeometries";
+	m_read = IOMode; m_write = !IOMode;
+	
 	m_topo     = std::min(1, topo);
 	if(m_topo > 3)	m_topo = 1;
 	
 	//checking admissible format
+	m_ftype_allow.clear();
 	switch(m_topo){
 		case 1:
-			if(formattype !=0 && formattype !=1 && formattype !=2 && formattype !=5){
-				formattype = 0;
-			}
+			m_ftype_allow.insert(0);
+			m_ftype_allow.insert(1);
+			m_ftype_allow.insert(2);
+			m_ftype_allow.insert(5);
 			break;
 		case 2:
-			if(formattype !=3 && formattype !=4){
-				formattype = 3;
-			}
+			m_ftype_allow.insert(3);
+			m_ftype_allow.insert(4);
 			break;
 		default:
-			if (formattype !=6 && formattype !=7){
-				formattype= 7;
-			}
+			m_ftype_allow.insert(6);
+			m_ftype_allow.insert(7);
 			break;
 	}
-	
-	m_tagtype = formattype;
 	
 	setDefaults();
 };
 
-/*!
- * Extract MimmoObject cell list from m_mapMGeo, given the id sub-part identifier.
- * If m_mapGeo retains cell ids which do not exist in MimmoObject, stash them from
- * the extracted list.
- * \param[in] id  identifier of sub-part in m_mapMGeo
- * \result	list of extracted cells
- */
-livector1D
-MultipleMimmoGeometries::cellExtractor(short id){
-	livector1D result;
-	result.resize(m_mapMGeo.size());
-	int counter = 0;
-	
-	auto & check = getGeometry()->getCells();
-	
-	for(auto & elem : m_mapMGeo){
-		if(elem.second==id && check.exists(elem.first)){
-			result[counter] = elem.first;
-			++counter;
-		}
-	}
-	
-	result.resize(counter);
-	return result;
-};
 
-/*!
- * Given a certain sub-group of cells of class linked/internal MimmoObject, fill a stand-alone
- * MimmoObject sub-extraction
- * \param[in] cellList list of cells id of original MimmoObject
- * \param[in,out] subG target extraction, allocated externally and here passed as a pointer.
- */
-void
-MultipleMimmoGeometries::fillSubStructure(livector1D & cellList, MimmoObject * subG){
-	
-	if (cellList.empty() || isEmpty() || subG == NULL) return;
-
-	bitpit::PatchKernel * tri = getGeometry()->getPatch();
-	bitpit::PiercedVector<bitpit::Vertex> & mapV = subG->getPatch()->getVertices();
-	livector1D TT;
-	
-	long idV;
-	short int PID;
-	int sizeCC;
-	bitpit::ElementInfo::Type eltype;
-	
-	for(auto & idCell: cellList){
-		
-		bitpit::Cell & cell = tri->getCell(idCell);
-		eltype = cell.getType();
-		sizeCC = cell.getVertexCount();
-		PID = (short int )cell.getPID();
-		TT.resize(sizeCC);
-			
-			for(int i=0; i<sizeCC; ++i){
-				idV = cell.getVertex(i);
-				TT[i] = idV;
-				
-				if(!mapV.exists(idV))	subG->addVertex(tri->getVertexCoords(idV),idV);
-			}
-		
-		subG->addConnectedCell(TT,eltype,PID,idCell);
-		TT.clear();
-	}
-};
-
-
-/*!
- * Check if current linked MimmoObject has a topology/element type coherent with class tag format m_tagtype
- * \param[in]	geo linked MimmoObject geometry
- * \result		boolean true, if requirements are met.
- */
-bool 
-MultipleMimmoGeometries::checkCoherentFormat(MimmoObject*){
-	
-	bool check = true;
-	
-	//point cloud has no restriction, everything can be written in pointcloud file formats OFP and PCVTU
-	int   elesize;
-	switch(m_tagtype){
-		
-		case 0:		elesize = 3;
-			break;
-			
-		case 2:		elesize = 4;
-			break;
-			
-		case 3:		elesize = 5;			
-			break;
-			
-		case 4:		elesize = 8;
-			break;
-		
-		case 1:		elesize = 3;
-			break;
-		
-		case 5:		elesize = 3;
-			break;
-		
-		default: 	elesize = -1;
-			break;
-	}
-	
-	if(elesize > 0){
-		//check if all elements are triangles
-		auto conns = getGeometry()->getConnectivity();
-		for(auto &ele : conns){
-			check = check && ((int)ele.size() == elesize);
-		}	
-	}
-	
-	return check;
-}
-
-
-/*!
- * Check if filenames for READING, stocked in m_rinfo list are available or not on your system.
- * \param[in] filedata 	data of external files to read from
- * \return boolean true/false for valid file check or not.
- */
-bool 
-MultipleMimmoGeometries::checkReadingFiles(mimmo::FileDataInfo & filedata){
-	
-	switch(FileType::_from_integral(filedata.ftype)){
-		case FileType::STL :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".stl");
-			bool check = infile.good();
-			if (!check){
-				infile.open(filedata.fdir+filedata.fname+".STL");
-				check = infile.good();
-				if (!check) return false;
-			}
-		}
-		break;
-		
-		case FileType::STVTU :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::SQVTU :
-		{
-			
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::VTVTU :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::VHVTU :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::NAS :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".nas");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::OFP :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname);
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		break;
-		
-		case FileType::PCVTU :
-		{
-			std::ifstream infile(filedata.fdir+"/"+filedata.fname+".vtu");
-			bool check = infile.good();
-			if (!check) return false;
-		}
-		
-		default: //never been reached
-			break;
-			
-	}
-	
-	return true;
-};
-
-
-/*!
- * Check and fixed currently linked division map against linked or internal MimmoObject. 
- * Search for unexistent cells in the current MimmoObject and stash them
- * Every not id-ded cell will be assigned to a sub-part automatically
- */
-void
-MultipleMimmoGeometries::checkAndFixDivisionMap(){
-	
-	MimmoObject * geo = getGeometry();
-	
-    std::unordered_map<long, short>	rightMap;
-	short id_part = 0;
-	
-	for(auto &cc: geo->getCells()){
-		rightMap[cc.getId()] = id_part;
-	}
-	id_part++;
-	
-	std::unordered_set<short>  subIds = getHowManySubDivisions();
-	std::unordered_set<short>::iterator itS = subIds.begin();
-	
-	while(itS != subIds.end()){
-		
-		livector1D extr = cellExtractor(*itS);
-		
-		for(auto & ele : extr){
-			if(rightMap.count(ele) > 0){
-				rightMap[ele] = id_part;
-			}
-		}
-			
-		id_part++;		
-		itS++;
-	}
-	
-	m_mapMGeo.clear();
-	m_mapMGeo = rightMap;
-	return;
-}
 

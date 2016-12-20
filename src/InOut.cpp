@@ -510,36 +510,37 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
 
 
 /*!
- *	Input stream operator for std::unordered_map<std::string, MimmoObject *>
+ *	Input stream operator for std::unordered_map<std::string,std::pair<int, MimmoObject*> >
  *	\param[in] buffer is the input stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same input stream received in input.
  */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<std::string, MimmoObject *>&  var){
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<std::string, std::pair<int, MimmoObject*> >&  var){
 	
 	std::string key;
 	MimmoObject * value;
+	int ftype;
 	int nP;
 	buffer >> nP;
 	for (int i = 0; i < nP; ++i) {
-		buffer >> key>>value;
-		var[key] = value;
+		buffer >> key>>ftype>>value;
+		var[key] = std::make_pair(ftype,value);
 	}
 	return buffer;
 };
 
 /*!
- *	Output stream operator for std::unordered_map<std::string, MimmoObject *>
+ *	Output stream operator for std::unordered_map<std::string, std::pair<int, MimmoObject*>>
  *	\param[in] buffer is the output stream
  *	\param[in] var is the element to be streamed
  *	\result Returns the same output stream received in input.
  */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<std::string, MimmoObject *>& var){
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<std::string, std::pair<int, MimmoObject*> >& var){
 	
 	int nP = var.size();
 	buffer << nP;
 	for (auto & ee : var) {
-		buffer << ee.first<<ee.second;
+		buffer << ee.first<<ee.second.first<<ee.second.second;
 	}
 	return buffer;
 };
