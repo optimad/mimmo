@@ -56,5 +56,6 @@
 #include "SpecularPoints.hpp"
 #include "RotationGeometry.hpp"
 #include "MultipleMimmoGeometries.hpp"
+#include "StitchGeometry.hpp"
 
 #endif

@@ -52,10 +52,16 @@ void test00013() {
 	g2->setAddWriteFile(".", "sphere", FileType::STVTU);
 	g2->setAddWriteFile(".", "stanfordBunny_red", FileType::STVTU);
 	
+	StitchGeometry * stitcher = new StitchGeometry(1);
+	stitcher->setPlotInExecution(true);
+	stitcher->setOutputPlot(".");
+	
+	
 	//Set PINS
 	cout << "set pins" << endl;
 
 	cout << "add pin info 1 : " << boolalpha << addPin(g1, g2, PortType::M_VECGEOM, PortType::M_VECGEOM) << endl;
+	cout << "add pin info 2 : " << boolalpha << addPin(g1, stitcher, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
 	cout << "set pins done" << endl;
 
 	//Create chain
@@ -63,6 +69,7 @@ void test00013() {
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(g1);
 	ch0.addObject(g2);
+	ch0.addObject(stitcher);
 	
 	duration<double> time_span;
 	steady_clock::time_point t1,t2;
@@ -81,12 +88,28 @@ void test00013() {
 	
 	cout << "execution done" << endl;
 
+	auto map1 = stitcher->getCellDivisionMap();
+	auto map2 = stitcher->getVertDivisionMap();
+	
+	std::cout<<"=========MAPCELL======================="<<endl;
+	for(auto & v: map1){
+		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
+	}
+	
+	std::cout<<"=========MAPVERT======================="<<endl;
+	for(auto & v: map2){
+		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
+	}
+	
+	
 	//Delete and nullify pointer
 	delete g1;
 	delete g2;
+	delete stitcher;
 	
 	g1		= NULL;
 	g2 		= NULL;
+	stitcher = NULL;
 }
 
 // =================================================================================== //

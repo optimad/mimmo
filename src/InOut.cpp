@@ -545,6 +545,43 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 	return buffer;
 };
 
+/*!
+ *	Input stream operator for std::unordered_map<long,std::pair<int,long> >
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<long,std::pair<int,long> >&  var){
+	
+	long key;
+	int val1;
+	long val2;
+	int nP;
+	buffer >> nP;
+	for (int i = 0; i < nP; ++i) {
+		buffer >> key>>val1>>val2;
+		var[key] = std::make_pair(val1,val2);
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::unordered_map<long,std::pair<int,long> >
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<long,std::pair<int,long> >& var){
+	
+	int nP = var.size();
+	buffer << nP;
+	for (auto & ee : var) {
+		buffer << ee.first<<ee.second.first<<ee.second.second;
+	}
+	return buffer;
+};
+
+
 
 /*!
  *	Input stream operator for std::vector<MimmoObject *>

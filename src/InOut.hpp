@@ -315,6 +315,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< std::string, std::pair<int, mimmo::MimmoObject* > >&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< std::string, std::pair<int, mimmo::MimmoObject* > >& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< long, std::pair<int, long> >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< long, std::pair<int, long > >& element);
+
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector< mimmo::MimmoObject* >&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< mimmo::MimmoObject* >& element);
 
