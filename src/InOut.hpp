@@ -327,6 +327,13 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::FileD
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::FileDataInfo>&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::FileDataInfo>& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< mimmo::MimmoObject*, dvector1D* >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< mimmo::MimmoObject*, dvector1D* >& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >&  element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >& element);
+
+
 
 #include "InOut.tpp"
 

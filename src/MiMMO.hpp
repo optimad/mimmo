@@ -57,5 +57,6 @@
 #include "RotationGeometry.hpp"
 #include "MultipleMimmoGeometries.hpp"
 #include "StitchGeometry.hpp"
+#include "SplitFields.hpp"
 
 #endif

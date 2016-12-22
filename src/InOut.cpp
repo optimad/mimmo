@@ -679,6 +679,69 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 	return buffer;
 };
 
+/*!
+ *	Input stream operator for std::unordered_map< MimmoObject*, dvector1D* >
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< MimmoObject*, dvector1D* >&  var){
+	
+	MimmoObject * key;
+	dvector1D * val;
+	for (auto & vv: var) {
+		buffer >> key >> val;
+		var[key] = val;
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::unordered_map< MimmoObject*, dvector1D* >
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< MimmoObject*, dvector1D* >& var){
+	
+	for (auto & ee : var) {
+		buffer << ee.first<<ee.second;
+	}
+	return buffer;
+};
+
+/*!
+ *	Input stream operator for std::unordered_map< MimmoObject*, dvecarr3E* >
+ *	\param[in] buffer is the input stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same input stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< MimmoObject*, dvecarr3E* >&  var){
+	
+	MimmoObject * key;
+	dvecarr3E * val;
+	for (auto & vv: var) {
+		buffer >> key >> val;
+		var[key] = val;
+	}
+	return buffer;
+};
+
+/*!
+ *	Output stream operator for std::unordered_map< MimmoObject*, dvecarr3E* >
+ *	\param[in] buffer is the output stream
+ *	\param[in] var is the element to be streamed
+ *	\result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< MimmoObject*, dvecarr3E* >& var){
+	
+	for (auto & ee : var) {
+		buffer << ee.first<<ee.second;
+	}
+	return buffer;
+};
+
+
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 //==============================================================//
