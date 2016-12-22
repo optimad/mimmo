@@ -429,7 +429,7 @@ SplitScalarField::split(){
 	}
 	else	{
 		m_field.resize(getGeometry()->getNVertex(), 0.0);
-		mapp = &m_mapCellDivision;	
+		mapp = &m_mapVertDivision;	
 		mapIdTarget = &(getGeometry()->getMapData());
 		for(int i=0; i<nGeo; ++i){
 			invIdLoc[i] = &(m_originals[i]->getMapDataInv());
@@ -610,7 +610,7 @@ SplitVectorField::split(){
 	}
 	else	{
 		m_field.resize(getGeometry()->getNVertex(), {{0.0,0.0,0.0}});
-		mapp = &m_mapCellDivision;	
+		mapp = &m_mapVertDivision;	
 		mapIdTarget = &(getGeometry()->getMapData());
 		for(int i=0; i<nGeo; ++i){
 			invIdLoc[i] = &(m_originals[i]->getMapDataInv());

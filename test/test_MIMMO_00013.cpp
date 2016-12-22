@@ -56,12 +56,34 @@ void test00013() {
 	stitcher->setPlotInExecution(true);
 	stitcher->setOutputPlot(".");
 	
+	SplitVectorField* sfv = new SplitVectorField(1);
+	sfv->setPlotInExecution(true);
+	sfv->setOutputPlot(".");
+	dvecarr3E f1(300000, {{1,2,3}});
+	sfv->setField(f1);
+	
+	SplitScalarField* sfs = new SplitScalarField(1);
+	sfs->setPlotInExecution(true);
+	sfs->setOutputPlot(".");
+
+	dvector1D f2(700000, 3.5);
+	sfs->setField(f2);
+	
+	
+	
 	
 	//Set PINS
 	cout << "set pins" << endl;
 
 	cout << "add pin info 1 : " << boolalpha << addPin(g1, g2, PortType::M_VECGEOM, PortType::M_VECGEOM) << endl;
 	cout << "add pin info 2 : " << boolalpha << addPin(g1, stitcher, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 3 : " << boolalpha << addPin(stitcher, sfv, PortType::M_GEOM, PortType::M_GEOM)<<endl;
+	cout << "add pin info 4 : " << boolalpha << addPin(stitcher, sfs, PortType::M_GEOM, PortType::M_GEOM)<<endl;
+	cout << "add pin info 5 : " << boolalpha << addPin(g1, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(g1, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 7 : " << boolalpha << addPin(stitcher, sfv, PortType::M_MAPDVERT, PortType::M_MAPDVERT)<<endl;
+	cout << "add pin info 8 : " << boolalpha << addPin(stitcher, sfs, PortType::M_MAPDCELL, PortType::M_MAPDCELL)<<endl;
+	
 	cout << "set pins done" << endl;
 
 	//Create chain
@@ -70,6 +92,8 @@ void test00013() {
 	ch0.addObject(g1);
 	ch0.addObject(g2);
 	ch0.addObject(stitcher);
+	ch0.addObject(sfv);
+	ch0.addObject(sfs);
 	
 	duration<double> time_span;
 	steady_clock::time_point t1,t2;
@@ -88,28 +112,32 @@ void test00013() {
 	
 	cout << "execution done" << endl;
 
-	auto map1 = stitcher->getCellDivisionMap();
-	auto map2 = stitcher->getVertDivisionMap();
-	
-	std::cout<<"=========MAPCELL======================="<<endl;
-	for(auto & v: map1){
-		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
-	}
-	
-	std::cout<<"=========MAPVERT======================="<<endl;
-	for(auto & v: map2){
-		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
-	}
-	
+// 	auto map1 = stitcher->getCellDivisionMap();
+// 	auto map2 = stitcher->getVertDivisionMap();
+// 	
+// 	std::cout<<"=========MAPCELL======================="<<endl;
+// 	for(auto & v: map1){
+// 		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
+// 	}
+// 	
+// 	std::cout<<"=========MAPVERT======================="<<endl;
+// 	for(auto & v: map2){
+// 		std::cout<<v.first<<'\t'<<v.second.first<<'\t'<<v.second.second<<std::endl;
+// 	}
+// 	
 	
 	//Delete and nullify pointer
 	delete g1;
 	delete g2;
 	delete stitcher;
+	delete sfs;
+	delete sfv;
 	
 	g1		= NULL;
 	g2 		= NULL;
 	stitcher = NULL;
+	sfs = NULL;
+	sfv = NULL;
 }
 
 // =================================================================================== //
