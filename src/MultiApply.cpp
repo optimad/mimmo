@@ -21,94 +21,118 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include "Apply.hpp"
+#include "MultiApply.hpp"
 
 using namespace mimmo;
 
 /*!Default constructor of Apply
  */
-Apply::Apply():BaseManipulation(){
-	m_name = "MiMMO.Apply";
+MultiApply::MultiApply():BaseManipulation(){
+	m_name = "MiMMO.MultiApply";
 	m_force = false;
 	buildPorts();
 };
 
 /*!Default destructor of Apply
  */
-Apply::~Apply(){};
+MultiApply::~MultiApply(){};
 
 /*!Copy constructor of Apply.
  */
-Apply::Apply(const Apply & other){
+MultiApply::MultiApply(const MultiApply & other){
 	*this = other;
 };
 
 /*!Assignement operator of Apply.
  */
-Apply & Apply::operator=(const Apply & other){
+MultiApply & MultiApply::operator=(const MultiApply & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_force = other.m_force;
+	m_input = other.m_input;
 	return(*this);
 };
 
 /*! It builds the input/output ports of the object
  */
 void
-Apply::buildPorts(){
+MultiApply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<std::unordered_map<MimmoObject*, dvecarr3E*>, MultiApply>(this, &MultiApply::setInputList, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
 };
 
 /*!
- * Return true, if rebuilding of search trees of your target geometry of class MimmoObject is forced by the User
+ * Return true, if rebuilding of search trees of your target geometries of class MimmoObject are forced by the User
  */
-bool	Apply::getRefreshGeometryTrees(){
+bool	MultiApply::getRefreshGeometryTrees(){
 	return m_force;
 }
 
 
 
 /*!
- * If set true, forces rebuilding of search trees of your target geometry of class MimmoObject
+ * If set true, forces rebuilding of search trees of your target geometries of class MimmoObject
  */
-void	Apply::setRefreshGeometryTrees(bool force){
+void	MultiApply::setRefreshGeometryTrees(bool force){
 	m_force = force;
+
 }
 
-/*!It sets the displacements input.
- * \param[in] input Input displacements of the geometry vertices.
+/*! Set the input of the class as std::pair of target MimmoObject * and
+ * relative displacement field dvecarr3E *. If target geometry already exist or it is NULL
+ * no input is added to the class.
  */
 void
-Apply::setInput(dvecarr3E input){
-	m_input = input;
+MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
+	if (input.first == NULL || m_input.count(input.first)) return;
+	m_input[input.first] = input.second;
+}
+
+
+/*! Set a whole list of inputs of the class as an unorderd map of target MimmoObject * as key and
+ * relative displacement field dvecarr3E * as argument. If a target geometry already exists in the member list or it is NULL
+ * no input is added to the class. Multiple insertion of list of inputs are appended in the unique member list.
+ */
+void
+MultiApply::setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input){
+	for(auto & val : input){
+		addInput(val);
+	}
+}
+
+/*!
+ * Clear the input list stored into the class
+ */
+void
+MultiApply::clearList(){
+	m_input.clear();
 }
 
 /*!Execution command.
- * It applies the deformation stored in the input of base class (casting the input
- * for apply object to dvecarr3E) to the linked geometry.
- * After exec() the original geometry will be permanently modified.
+ * It applies the deformations stored in the class  to their relative linked geometry.
+ * After exec() the original geometries will be permanently modified.
  */
 void
-Apply::execute(){
-	if (getGeometry() == NULL) return;
+MultiApply::execute(){
+	if (m_input.empty()) return;
+
+
+	for(auto val: m_input){	
 	
-	dvecarr3E vertex = getGeometry()->getVertexCoords();
-	long nv = getGeometry()->getNVertex();
-	nv = long(std::min(int(nv), int(m_input.size())));
-	livector1D & idmap = getGeometry()->getMapData();
-	for (long i=0; i<nv; i++){
-		vertex[i] += m_input[i];
-		getGeometry()->modifyVertex(vertex[i], idmap[i]);
+		dvecarr3E vertex = val.first->getVertexCoords();
+		long nv = val.first->getNVertex();
+		nv = long(std::min(int(nv), int(val.second->size())));
+		livector1D & idmap = val.first->getMapData();
+		for (long i=0; i<nv; i++){
+			vertex[i] += (*val.second)[i];
+			val.first->modifyVertex(vertex[i], idmap[i]);
+		}	
+
+		if(m_force){
+			val.first->buildBvTree();
+			val.first->buildKdTree();
+		}
 	}
-	
-	if(m_force){
-		getGeometry()->buildBvTree();
-		getGeometry()->buildKdTree();
-	}
-	
 	return;
 };
 
@@ -121,7 +145,7 @@ Apply::execute(){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
- void Apply::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+ void MultiApply::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	 
 	std::string input; 
 	if(slotXML.hasOption("RefreshGeometryTrees")){
@@ -146,7 +170,7 @@ Apply::execute(){
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * * \param[in] name   name associated to the slot
  */
-void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));

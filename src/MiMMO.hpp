@@ -58,5 +58,6 @@
 #include "MultipleMimmoGeometries.hpp"
 #include "StitchGeometry.hpp"
 #include "SplitFields.hpp"
+#include "MultiApply.hpp"
 
 #endif
