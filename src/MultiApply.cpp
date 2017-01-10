@@ -84,7 +84,8 @@ void	MultiApply::setRefreshGeometryTrees(bool force){
  */
 void
 MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
-	if (input.first == NULL || m_input.count(input.first)) return;
+
+	if (input.first == NULL || m_input.count(input.first) > 0 ) return;
 	m_input[input.first] = input.second;
 }
 
@@ -95,7 +96,9 @@ MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
  */
 void
 MultiApply::setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input){
+	
 	for(auto & val : input){
+		
 		addInput(val);
 	}
 }
@@ -114,17 +117,23 @@ MultiApply::clearList(){
  */
 void
 MultiApply::execute(){
+	
+
 	if (m_input.empty()) return;
 
 
 	for(auto val: m_input){	
-	
+		
+
+		
 		dvecarr3E vertex = val.first->getVertexCoords();
 		long nv = val.first->getNVertex();
 		nv = long(std::min(int(nv), int(val.second->size())));
+
 		livector1D & idmap = val.first->getMapData();
 		for (long i=0; i<nv; i++){
-			vertex[i] += (*val.second)[i];
+
+			vertex[i] += (*(val.second))[i];
 			val.first->modifyVertex(vertex[i], idmap[i]);
 		}	
 

@@ -59,7 +59,7 @@ void test00013() {
 	SplitVectorField* sfv = new SplitVectorField(1);
 	sfv->setPlotInExecution(true);
 	sfv->setOutputPlot(".");
-	dvecarr3E f1(300000, {{1,2,3}});
+	dvecarr3E f1(300000, {{10,0,0}});
 	sfv->setField(f1);
 	
 	SplitScalarField* sfs = new SplitScalarField(1);
@@ -70,7 +70,14 @@ void test00013() {
 	sfs->setField(f2);
 	
 	
+	MultipleMimmoGeometries * g3 = new MultipleMimmoGeometries(1,true);
 	
+	g3->setWrite(true);
+	g3->setAddWriteFile(".", "sphere_deformed", FileType::STL);
+	g3->setAddWriteFile(".", "stanfordBunny_red_deformed", FileType::STL);
+	
+	MultiApply * applier = new MultiApply();
+
 	
 	//Set PINS
 	cout << "set pins" << endl;
@@ -84,17 +91,24 @@ void test00013() {
 	cout << "add pin info 7 : " << boolalpha << addPin(stitcher, sfv, PortType::M_MAPDVERT, PortType::M_MAPDVERT)<<endl;
 	cout << "add pin info 8 : " << boolalpha << addPin(stitcher, sfs, PortType::M_MAPDCELL, PortType::M_MAPDCELL)<<endl;
 	
+	cout << "add pin info 9 : " << boolalpha << addPin(g1, g3, PortType::M_VECGEOM, PortType::M_VECGEOM) << endl;
+	cout << "add pin info 10 : " << boolalpha << addPin(sfv, applier, PortType::M_UMGEOVFD, PortType::M_UMGEOVFD) << endl;
+	
+
 	cout << "set pins done" << endl;
 
 	//Create chain
-	Chain ch0;
+	Chain ch0,ch1;
 	cout << "add inputs and objects to the chain" << endl;
 	ch0.addObject(g1);
 	ch0.addObject(g2);
 	ch0.addObject(stitcher);
 	ch0.addObject(sfv);
 	ch0.addObject(sfs);
-	
+	ch0.addObject(applier);
+
+	ch1.addObject(g3);
+
 	duration<double> time_span;
 	steady_clock::time_point t1,t2;
 	//Execution of chain
@@ -103,6 +117,7 @@ void test00013() {
 		
 //		CALLGRIND_START_INSTRUMENTATION;
 		ch0.exec(true);
+		ch1.exec(true);
 // 		CALLGRIND_STOP_INSTRUMENTATION;
 // 		CALLGRIND_DUMP_STATS;
 	t2 = steady_clock::now();
@@ -129,15 +144,20 @@ void test00013() {
 	//Delete and nullify pointer
 	delete g1;
 	delete g2;
+	delete g3;
 	delete stitcher;
 	delete sfs;
 	delete sfv;
+	delete applier;
 	
 	g1		= NULL;
 	g2 		= NULL;
 	stitcher = NULL;
 	sfs = NULL;
 	sfv = NULL;
+	g3=NULL;
+	applier = NULL;
+
 }
 
 // =================================================================================== //

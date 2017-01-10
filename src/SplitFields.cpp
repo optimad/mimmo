@@ -505,13 +505,13 @@ SplitVectorField::getSplittedData(){
 	std::unordered_map<MimmoObject*, dvecarr3E *> map;
 	if(m_originals.empty() || m_geometry==NULL) return map;
 	if(m_result.size() != m_originals.size())	return map;
-	
+
 	int counter = 0;
 	for(auto & val : m_originals){
 		map[val] = &(m_result[counter]);
 		++counter;
 	}
-	
+
 	return map;
 }
 

@@ -689,7 +689,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 	
 	MimmoObject * key;
 	dvector1D * val;
-	for (auto & vv: var) {
+	int size;
+	buffer>>size;
+	for (int i=0; i<size; ++i) {
 		buffer >> key >> val;
 		var[key] = val;
 	}
@@ -703,7 +705,8 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
  *	\result Returns the same output stream received in input.
  */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< MimmoObject*, dvector1D* >& var){
-	
+	int size = var.size();
+	buffer<<size;
 	for (auto & ee : var) {
 		buffer << ee.first<<ee.second;
 	}
@@ -720,7 +723,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 	
 	MimmoObject * key;
 	dvecarr3E * val;
-	for (auto & vv: var) {
+	int size;
+	buffer>>size;
+	for (int i=0; i<size; i++) {
 		buffer >> key >> val;
 		var[key] = val;
 	}
@@ -734,7 +739,8 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
  *	\result Returns the same output stream received in input.
  */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< MimmoObject*, dvecarr3E* >& var){
-	
+	int size = var.size();
+	buffer<<size;
 	for (auto & ee : var) {
 		buffer << ee.first<<ee.second;
 	}
