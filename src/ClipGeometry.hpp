@@ -87,6 +87,7 @@ public:
 	darray4E 		getClipPlane();	
 
 	void	setClipPlane(darray4E plane);
+	void	setClipPlane(darray3E origin, darray3E normal);
 	void	setInsideOut(bool flag);
 
 	void 	execute();

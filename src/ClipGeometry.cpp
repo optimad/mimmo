@@ -101,6 +101,24 @@ ClipGeometry::setClipPlane(darray4E plane){
 	m_plane = plane;
 };
 
+/*!
+ * Set Plane for clipping by point and normal 
+ * \param[in] origin point belonging to plane	
+ * \param[in] normal plane normal
+ *  
+ */
+void
+ClipGeometry::setClipPlane(darray3E origin, darray3E normal){
+	
+	normal /= norm2(normal);
+	double b = -1.0*dotProduct(origin, normal);
+	
+	m_plane[0] = normal[0];
+	m_plane[1] = normal[1];
+	m_plane[2] = normal[2];
+	m_plane[3] = b;
+};
+
 /*! Set direction for clipping. If false take all parts of target geometry lying on the half positive space 
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \param[in] flag boolean
