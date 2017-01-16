@@ -33,14 +33,11 @@ using namespace mimmo;
 */
 ControlDeformExtSurface::ControlDeformExtSurface(){
 	m_name = "MiMMO.ControlDeformExtSurface";
-	m_tolerance = 1.E-8;
 	m_cellBackground = 50;
-	m_allowedType.resize(2);
-	m_allowedType[1].insert(FileType::STL);
-	m_allowedType[1].insert(FileType::STVTU);
-	m_allowedType[1].insert(FileType::SQVTU);
-	m_allowedType[1].insert(FileType::NAS);
-	
+	m_allowed.insert((FileType::_from_string("STL"))._to_integral());
+	m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
+	m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
+	m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
 };
 
 /*!Default destructor of ControlDeformExtSurface
@@ -59,10 +56,9 @@ ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface &
  */
 ControlDeformExtSurface & ControlDeformExtSurface::operator=(const ControlDeformExtSurface & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+	m_allowed = other.m_allowed;
 	m_geolist = other.m_geolist;
-	m_allowedType = other.m_allowedType;
 	m_cellBackground = other.m_cellBackground;
-	m_tolerance = other.m_tolerance;
 	//deformation and violation field are not copied
 	return(*this);
 };
@@ -143,13 +139,15 @@ ControlDeformExtSurface::getViolationField(){
 
 
 /*!
- * Get Tolerance fixed in the class to consider a deformed body close 
- * to target constraints not touching/penetrating them.
- * \return 	fixed tolerance. Default is 1.E-12
+ * Get Tolerance fixed for each external files listed into the class. Tolerance is needed
+ * to consider a deformed body close to target constraints not touching/penetrating them.
+ * \param[in] file target external file listed into the class
+ * \return 	fixed tolerance.If file is not listed return 0.0; 
  */
 double
-ControlDeformExtSurface::getToleranceWithinViolation(){
-	return m_tolerance;
+ControlDeformExtSurface::getToleranceWithinViolation(std::string file){
+	if(m_geolist.count(file) > 0)	return m_geolist[file].first;
+	else							return 0.0;
 }
 
 /*!
@@ -191,14 +189,6 @@ void	ControlDeformExtSurface::setGeometry( MimmoObject * target){
 
 
 /*!
- * Set the tolerance to consider a deformed body penetrating target constraints
- * still within the non-violation regime.
- */
-void 	ControlDeformExtSurface::setToleranceWithinViolation(double tol){
-	m_tolerance = std::fmax(1.0E-18, tol);
-}
-
-/*!
  * Set the number of Cells NC necessary to determine the spacing of a background grids.
  * A background axis-aligned cartesian volume grid wrapping each constraint + deformed body is created to evaluate 
  * distances of each deformed point from constraint surface. Spacing of such grid is
@@ -210,31 +200,46 @@ void 	ControlDeformExtSurface::setBackgroundDetails(int nCell){
 
 
 /*!
- * Return the actual list of external geometry files selected as constraint to check your deformation
+ * Return the actual list of external geometry files selected as constraint to check your deformation.
+ * Fixed tolerance for each file are reported as first argument of the map, integer identifying format 
+ * type of the file (as FileType enum) as second argument of the map.
  */
-const std::unordered_map<std::string, int> & ControlDeformExtSurface::getFiles() const{
+const std::unordered_map<std::string, std::pair<double, int>> & ControlDeformExtSurface::getFiles() const{
 	return	m_geolist;
 }
 
 /*!
- * Set a list of external geometry files as constraint to check your deformation violation
+ * Set a list of external geometry files w/ their relative offset tolerance as constraint 
+ * to check your deformation violation. The int format of the file (see FileType enum) must be 
+ * present as second argument
  * \param[in] files list external geometries to be read
  */
-void	ControlDeformExtSurface::setFiles(std::unordered_map<std::string, int>  files){
+void	ControlDeformExtSurface::setFiles(std::unordered_map<std::string, std::pair<double, int> >  files){
 	for(auto && val : files){
-		addFile(val);
+		addFile(val.first, val.second.first, val.second.second);
 	}	
 };
 
 /*!
- * Add a new file to a list of external constraint geometry files 
+ * Add a new file with its offset tolerance to a list of external constraint geometry files 
  *\param[in] file of external geometry to be read
+ *\param[in] tol  offset tolerance, negative or positive, to consider a deformed body close to target constraints already not touching or penetrating them
+ *\param[in] format  type of file as integer (see Filetype enum). only nas, stl, stvtu and sqvtu are supported. 
  */
-void 	ControlDeformExtSurface::addFile(std::pair<std::string, int> file){
-	int type = 1;
-	if(m_allowedType[type].find(file.second) != m_allowedType[type].end()){									
-		m_geolist.insert(file);
-	}	
+void 	ControlDeformExtSurface::addFile(std::string file, double tol, int format){
+		if(m_allowed.count(format)>0){
+			m_geolist[file] = std::make_pair(tol, format);
+		}
+};
+
+/*!
+ * Add a new file with its offset tolerance to a list of external constraint geometry files 
+ *\param[in] file of external geometry to be read
+ *\param[in] tol  offset tolerance, negative or positive, to consider a deformed body close to target constraints already not touching or penetrating them
+ *\param[in] format  type of file as  Filetype enum. only nas, stl, stvtu and sqvtu are supported. 
+ */
+void 	ControlDeformExtSurface::addFile(std::string file, double tol, FileType format){
+	addFile(file,tol,format._to_integral());
 };
 
 /*!
@@ -242,7 +247,7 @@ void 	ControlDeformExtSurface::addFile(std::pair<std::string, int> file){
  * \param[in] file to be removed from the list 
  */
 void 	ControlDeformExtSurface::removeFile(std::string file){
-	if(m_geolist.find(file) != m_geolist.end())	m_geolist.erase(file);
+	if(m_geolist.count(file) >0)	m_geolist.erase(file);
 };
 
 /*!
@@ -260,7 +265,6 @@ void ControlDeformExtSurface::clear(){
 	m_defField.clear();
 	m_violationField.clear();
 	BaseManipulation::clear();
-	m_tolerance = 1.E-12;
 	m_cellBackground = 50;
 };
 
@@ -301,7 +305,8 @@ ControlDeformExtSurface::execute(){
 	
 	//read external surfaces*****************************************
 	std::vector<std::unique_ptr<MimmoGeometry> > extgeo;
-	readGeometries(extgeo);
+	dvector1D tols;
+	readGeometries(extgeo, tols);
 	//***************************************************************
 	
 	if(extgeo.size() < 1)	return;
@@ -332,7 +337,7 @@ ControlDeformExtSurface::execute(){
 		}
 	}
 	//***************************************************************
-	
+	int counterExtGeo =0;
 	// start examining all external geometries***********************	
 	for(auto &gg : extgeo){
 
@@ -490,8 +495,9 @@ ControlDeformExtSurface::execute(){
 		}//end if else
 		
 		for(int i=0; i< nDFS; ++i){
-			m_violationField[i] = std::fmax(m_violationField[i], (violationField[i] + m_tolerance));
+			m_violationField[i] = std::fmax(m_violationField[i], (violationField[i] + tols[counterExtGeo]));
 		}
+		++counterExtGeo;
 	}
 	return;
 };
@@ -510,14 +516,15 @@ ControlDeformExtSurface::execute(){
  */
 void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
-	std::unordered_map<std::string, int> mapp;
+	std::unordered_map<std::string, std::pair<double, int> > mapp;
 	if(slotXML.hasSection("Files")){
 		
 		bitpit::Config::Section & filesXML = slotXML.getSection("Files");
 		
 		for(auto & subfile : filesXML.getSections()){
 			std::string path;
-			std::string tag;
+			std::string tag, tolstring;
+			double value = 1.E-8;
 			
 			if(subfile.second->hasOption("fullpath"))	{
 				path = subfile.second->get("fullpath");
@@ -531,25 +538,23 @@ void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML
 				if(!maybe_tag)	tag.clear();
 										 else	tag = maybe_tag->_to_string();
 			}	
-		
+			
+			if(subfile.second->hasOption("tolerance"))	{
+				tolstring = subfile.second->get("tolerance");
+				tolstring = bitpit::utils::trim(tolstring);
+				if(!tolstring.empty()){
+					std::stringstream ss(tolstring);
+					ss >> value;
+				}
+			}
+			
 		if(!path.empty() && !tag.empty()){
-			mapp[path] = (int) FileType::_from_string(tag.c_str());
+			mapp[path] = std::make_pair(value,(int) FileType::_from_string(tag.c_str()));
 			}	
 		}
 	
 		setFiles(mapp);
 	
-	}
-	
-	if(slotXML.hasOption("Tolerance")){
-		std::string input = slotXML.get("Tolerance");
-		input = bitpit::utils::trim(input);
-		double value = 1.E-8;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setToleranceWithinViolation(value);
 	}
 	
 	if(slotXML.hasOption("BGDetails")){
@@ -610,14 +615,18 @@ void ControlDeformExtSurface::flushSectionXML(bitpit::Config::Section & slotXML,
 		std::string name = "file"+std::to_string(counter);
 		bitpit::Config::Section & local = filesXML.addSection(name);
 		local.set("fullpath", file.first);
-		std::string typetag = (FileType::_from_integral(file.second))._to_string(); 
+		std::string typetag = (FileType::_from_integral(file.second.second))._to_string(); 
 		local.set("tag", typetag);
+		std::string tolerance;
+		{
+			std::stringstream ss;
+			ss<<std::scientific<<file.second.first;
+			tolerance = ss.str();
+		}
+		local.set("tolerance", tolerance);
+		
 		++counter;
 	}
-	
-	std::stringstream ss;
-	ss<<std::scientific<<m_tolerance;
-	slotXML.set("Tolerance", ss.str());
 	
 	slotXML.set("BGDetails", std::to_string(m_cellBackground));
 	
@@ -634,11 +643,14 @@ void ControlDeformExtSurface::flushSectionXML(bitpit::Config::Section & slotXML,
 /*!
  * Read all external geoemetries from files (whose name is stored in m_geolist) and return it 
  * in a list of unique pointers pointing to MimmoGeometry objects.
- * \param[out] extGeo list of read external constraint geoemetries.
+ * \param[in,out] extGeo list of read external constraint geoemetries.
+ * \param[in,out] tols   tolerance for each effective geometry read
  */
-void ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo){
+void ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double>& tols){
 	
 	extGeo.resize(m_geolist.size());
+	tols.resize(m_geolist.size());
+	
 	int counter = 0;
 	for(auto & geoinfo : m_geolist){
 		
@@ -648,7 +660,7 @@ void ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGe
 		geo->setWrite(false);
 		geo->setReadDir(info[0]);
 		geo->setReadFilename(info[1]);
-		geo->setReadFileType(geoinfo.second);
+		geo->setReadFileType(geoinfo.second.second);
 		geo->setBuildBvTree(true);
 		geo->execute();
 		
@@ -657,11 +669,13 @@ void ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGe
 		}else{
 			geo->getGeometry()->getPatch()->buildAdjacencies();
 			extGeo[counter] = std::move(geo);
+			tols[counter] = geoinfo.second.first;
 			++counter;
 		}
 	}	
 	
 	extGeo.resize(counter);
+	tols.resize(counter);
 	return;
 };
 

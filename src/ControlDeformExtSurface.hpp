@@ -72,13 +72,11 @@ namespace mimmo{
  */
 class ControlDeformExtSurface: public BaseManipulation{
 private:
-	std::unordered_map<std::string, int> m_geolist; /**< list of file for geometrical proximity check*/
-	std::vector<std::set< int > > m_allowedType; /**< list of FileType actually allowed for the target geometry type*/
+	std::unordered_map<std::string, std::pair<double, int> > m_geolist; /**< list of file for geometrical proximity check*/
 	dvector1D					m_violationField;	/**<Violation Field as distance from constraint */
 	dvecarr3E					m_defField; 	/**<Deformation field*/
-	double 						m_tolerance;    /**<Fixed tolerance to consider a body not violating constraints*/
 	int 						m_cellBackground; /**< Number of cells N to determine background grid spacing */ 						
-	
+	std::unordered_set<int>		m_allowed; /**< list of currently file format supported by the class*/
 public:
 	ControlDeformExtSurface();
 	~ControlDeformExtSurface();
@@ -91,16 +89,16 @@ public:
 	double 									getViolation();
 	std::pair<BaseManipulation*, double>	getViolationPair();
 	dvector1D								getViolationField();
-	double 									getToleranceWithinViolation();
+	double 									getToleranceWithinViolation(std::string);
 	int 									getBackgroundDetails();
 	
 	void	setDefField(dvecarr3E field);
 	void 	setGeometry(MimmoObject * geo);
-	void    setToleranceWithinViolation(double tol=1.E-8);
 	void 	setBackgroundDetails(int nCell=50);
-	const 	std::unordered_map<std::string, int> & 	getFiles() const;
-	void	setFiles(std::unordered_map<std::string,int> );
-	void 	addFile(std::pair<std::string,int> );
+	const 	std::unordered_map<std::string, std::pair<double, int> > & 	getFiles() const;
+	void	setFiles(std::unordered_map<std::string,std::pair<double, int> > list );
+	void 	addFile(std::string file, double tol, int format);
+	void 	addFile(std::string file, double tol, FileType format);
 	void 	removeFile(std::string);
 	void 	removeFiles();
 	
@@ -115,7 +113,7 @@ protected:
 	void plotOptionalResults();
 	
 private:
-	void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo);
+	void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
 	svector1D extractInfo(std::string file);
 	double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
 };

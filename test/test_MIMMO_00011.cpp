@@ -68,15 +68,14 @@ dvector1D test00011() {
 	volconstr->setPlotInExecution(true);
 	
 	ControlDeformExtSurface * extconstr1 = new ControlDeformExtSurface();
-	extconstr1->addFile(std::make_pair("geo_data/box4plane.stl", 0));
+	extconstr1->addFile("geo_data/box4plane.stl",-1.0E-8, 0);
 	extconstr1->setBackgroundDetails(20);
-	extconstr1->setToleranceWithinViolation(1.0E-8);
 	extconstr1->setClassCounter(1);
 	extconstr1->setPlotInExecution(true);
 	
 	ControlDeformExtSurface * extconstr2 = new ControlDeformExtSurface();
-	extconstr2->addFile(std::make_pair("geo_data/P4plane1.stl", 0));
-	extconstr2->addFile(std::make_pair("geo_data/P4plane2.stl", 0));
+	extconstr2->addFile("geo_data/P4plane1.stl",1.0E-8, 0);
+	extconstr2->addFile("geo_data/P4plane2.stl",1.0E-8, 0);
 	extconstr2->setBackgroundDetails(20);
 	extconstr2->setPlotInExecution(true);
 	extconstr2->setClassCounter(2);
