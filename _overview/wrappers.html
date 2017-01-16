@@ -1,15 +1,27 @@
 ---
-layout: default
+
+layout: module
 title: Wrappers
 name: wrappers
-highlights: false
 section: overview
+
+highlights: true
 
 description: "The wrapper objects are implemented to perform simple manipulation operations by using morphing objects with
 a few of parameters as input."
 
 extra-css:
     - modules.css
----
+    - colorbox.css
 
-RBF
+extra-scripts:
+    - jquery.colorbox-min.js
+
+document-ready-script: "
+    $('.figure_1').colorbox({rel:'figure_1', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_2').colorbox({rel:'figure_2', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_3').colorbox({rel:'figure_3', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_4').colorbox({rel:'figure_4', maxHeight:'85%', maxWidth:'85%'});
+"
+
+---
