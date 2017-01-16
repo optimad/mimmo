@@ -229,7 +229,7 @@ a {
     margin: 0;
     box-sizing: border-box;
 
-    height: 300px;
+    height: 200px;
     width: 100%;
 }
 
@@ -307,8 +307,8 @@ a {
 #banner .cycle-slideshow {
     position: absolute;
 
-    width: 80%;
-    height: 80%;
+    width: 100%;
+    height: 100%;
 
     top: 0;
     right: 0;
@@ -320,7 +320,7 @@ a {
 
 #banner .cycle-slideshow img {
     width: auto;
-    height: 80%;
+    height: 100%;
 
     /*
      * Hack to add hardware acceleration to the animation and guarantee a
