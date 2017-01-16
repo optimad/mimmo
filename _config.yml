@@ -23,9 +23,6 @@ sections:
             wrappers:
                 name: Wrappers
                 url: wrappers.html
-            inout:
-                name: Inout/Output
-                url: inout.html
             tools:
                 name: Tools
                 url: tools.html
