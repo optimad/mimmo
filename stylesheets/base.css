@@ -320,7 +320,7 @@ a {
 
 #banner .cycle-slideshow img {
     width: auto;
-    height: 100%;
+    height: 80%;
 
     /*
      * Hack to add hardware acceleration to the animation and guarantee a
