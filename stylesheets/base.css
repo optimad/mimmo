@@ -222,7 +222,7 @@ a {
 
 #banner {
     position: relative;
-
+    
     background: #000000;
 
     padding: 0 75px 0 75px;
@@ -306,9 +306,9 @@ a {
 
 #banner .cycle-slideshow {
     position: absolute;
-
-    width: 100%;
-    height: 100%;
+    
+    width: auto;
+    height: auto;
 
     top: 0;
     right: 0;
@@ -319,9 +319,15 @@ a {
 }
 
 #banner .cycle-slideshow img {
-    width: auto;
-    height: 100%;
+    
+    position: relative;
+    top: 0;
+    right: 0;
 
+    width: auto;
+    height: auto;
+    max-height: 260px;
+    
     /*
      * Hack to add hardware acceleration to the animation and guarantee a
      * high quality rescale
