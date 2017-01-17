@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BITPIT_SOURCE_DIR="$1"
+MIMMO_SOURCE_DIR="$1"
 LOCAL_BUILD="$2"
 
 MANUAL_ROOT_DIR="${PWD}"
@@ -44,18 +44,19 @@ JEKYLL_CONFIG_LIST="${JEKYLL_CONFIG_LIST},${JEKYLL_CONFIG_MANUAL}"
 # Generate templates needed by doxygen
 cd ${JEKYLL_ROOT_DIR}
 
-jekyll build \
+bundle exec jekyll build \
     --config "${JEKYLL_CONFIG_LIST}" \
     --source ${MANUAL_BUILD_DIR} \
     --destination ${MANUAL_BUILD_DIR}/templates
 
 # Generate doxygen files
 cd ${MANUAL_BUILD_DIR}
-mkdir bitpit
-cd bitpit
+mkdir mimmo
+cd mimmo
 
-cmake ${BITPIT_SOURCE_DIR} \
+cmake ${MIMMO_SOURCE_DIR} \
     -DCMAKE_INSTALL_PREFIX:PATH="" \
+    -DBITPIT_DIR="/home/edoardo/opt/bitpit/lib/cmake/bitpit-1.3" \
     -DBUILD_DOCUMENTATION=ON \
     -DENABLE_MPI=ON \
     -DDOXY_HTML_HEADER="${MANUAL_BUILD_DIR}/templates/doxygen_header.html" \
@@ -73,12 +74,12 @@ make DESTDIR=${MANUAL_BUILD_DIR} install/local
 # Copy the generated manual into the website
 cd ${MANUAL_BUILD_DIR}
 
-BITPIT_VERSION=`ls doc`
-BITPIT_VERSION=${BITPIT_VERSION/bitpit-/}
-BITPIT_VERSION=${BITPIT_VERSION/\//}
+MIMMO_VERSION=`ls doc`
+MIMMO_VERSION=${MIMMO_VERSION/MiMMO-/}
+MIMMO_VERSION=${MIMMO_VERSION/\//}
 
-MANUAL_INSTALL_DIR="${JEKYLL_ROOT_DIR}/documentation/manual/${BITPIT_VERSION}"
+MANUAL_INSTALL_DIR="${JEKYLL_ROOT_DIR}/documentation/manual/${MIMMO_VERSION}"
 
 rm -rf "${MANUAL_INSTALL_DIR}"
 mkdir -p "${MANUAL_INSTALL_DIR}"
-cp -r "doc/bitpit-${BITPIT_VERSION}/html/"* "${MANUAL_INSTALL_DIR}"
+cp -r "doc/MiMMO-${MIMMO_VERSION}/html/"* "${MANUAL_INSTALL_DIR}"
