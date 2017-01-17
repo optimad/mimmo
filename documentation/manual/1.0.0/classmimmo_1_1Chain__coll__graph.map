@@ -1,0 +1,18 @@
+<map id="mimmo::Chain" name="mimmo::Chain">
+<area shape="rect" id="node3" href="$classmimmo_1_1mimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="2253,364,2480,391"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1mimmo_1_1PortIn.html" title="PortOut is the input&#45;output PIN base class. " alt="" coords="2929,597,3087,624"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1mimmo_1_1DataType.html" title="Class DataType defines the container and the type of data communicated by ports. " alt="" coords="2599,484,2780,511"/>
+<area shape="rect" id="node16" href="$classmimmo_1_1mimmo_1_1PortOut.html" title="PortOut is the input&#45;output PIN base class. " alt="" coords="2923,407,3093,433"/>
+<area shape="rect" id="node8" title="STL class. " alt="" coords="706,259,822,285"/>
+<area shape="rect" id="node10" title="STL class. " alt="" coords="1121,625,1244,652"/>
+<area shape="rect" id="node28" title="STL class. " alt="" coords="152,497,261,524"/>
+<area shape="rect" id="node33" title="STL class. " alt="" coords="1114,707,1251,749"/>
+<area shape="rect" id="node22" title="STL class. " alt="" coords="1101,539,1264,565"/>
+<area shape="rect" id="node13" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="3491,564,3667,591"/>
+<area shape="rect" id="node18" title="STL class. " alt="" coords="1980,177,2060,204"/>
+<area shape="rect" id="node19" title="STL class. " alt="" coords="1479,170,1606,211"/>
+<area shape="rect" id="node20" href="$classmimmo_1_1mimmo_1_1MimmoObject.html" title="MimmoObject is the base container of geometry for MiMMo library. " alt="" coords="1917,364,2123,391"/>
+<area shape="rect" id="node24" href="$classmimmo_1_1mimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="1459,364,1626,391"/>
+<area shape="rect" id="node26" href="$classmimmo_1_1mimmo_1_1BvNode.html" title="Bv&#45;Node is the class of a node of a Bv&#45;Tree. " alt="" coords="679,452,849,479"/>
+<area shape="rect" id="node31" href="$classmimmo_1_1mimmo_1_1BvElement.html" title="Bv&#45;Element is the class to manage the elements linked by a Bv&#45;Tree. " alt="" coords="670,375,858,401"/>
+</map>

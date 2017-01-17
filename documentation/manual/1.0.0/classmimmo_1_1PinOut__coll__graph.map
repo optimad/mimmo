@@ -1,0 +1,14 @@
+<map id="mimmo::PinOut" name="mimmo::PinOut">
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="2064,285,2240,312"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1PinIn.html" title="PinOut is the input&#45;output PIN base class. " alt="" coords="2378,213,2481,240"/>
+<area shape="rect" id="node6" title="STL class. " alt="" coords="777,220,893,247"/>
+<area shape="rect" id="node9" title="STL class. " alt="" coords="153,578,290,619"/>
+<area shape="rect" id="node16" title="STL class. " alt="" coords="160,497,283,524"/>
+<area shape="rect" id="node22" title="STL class. " alt="" coords="167,404,276,431"/>
+<area shape="rect" id="node12" title="STL class. " alt="" coords="1821,444,1901,471"/>
+<area shape="rect" id="node13" title="STL class. " alt="" coords="1417,521,1543,562"/>
+<area shape="rect" id="node14" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the base container of geometry for MiMMo library. " alt="" coords="1784,311,1939,337"/>
+<area shape="rect" id="node18" href="$classmimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="1423,311,1537,337"/>
+<area shape="rect" id="node20" href="$classmimmo_1_1BvNode.html" title="Bv&#45;Node is the class of a node of a Bv&#45;Tree. " alt="" coords="775,440,895,467"/>
+<area shape="rect" id="node25" href="$classmimmo_1_1BvElement.html" title="Bv&#45;Element is the class to manage the elements linked by a Bv&#45;Tree. " alt="" coords="766,345,903,372"/>
+</map>

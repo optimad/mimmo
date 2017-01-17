@@ -1,0 +1,26 @@
+var classmimmo_1_1SpecularPoints =
+[
+    [ "SpecularPoints", "classmimmo_1_1SpecularPoints.html#afefbb807a98125abb9f9ca58ec95e25d", null ],
+    [ "~SpecularPoints", "classmimmo_1_1SpecularPoints.html#afdef662e2cb59a901d4d20d012597c5a", null ],
+    [ "SpecularPoints", "classmimmo_1_1SpecularPoints.html#a3a4f87ad910ef48e795c5347c884325f", null ],
+    [ "absorbSectionXML", "classmimmo_1_1SpecularPoints.html#a92e7767d96f9c2195ae43dbb221c51fc", null ],
+    [ "buildPorts", "classmimmo_1_1SpecularPoints.html#a0e40e3830b61cf4481d05dfb94297c5b", null ],
+    [ "clear", "classmimmo_1_1SpecularPoints.html#a1872ad4d40dcab2bbaebbdcdd5339f3a", null ],
+    [ "execute", "classmimmo_1_1SpecularPoints.html#a253e05b8ee6d52b89ccbe90a2310f879", null ],
+    [ "flushSectionXML", "classmimmo_1_1SpecularPoints.html#a05b33bdd9219f865fa314eaff9c8ff98", null ],
+    [ "getCloudScalarData", "classmimmo_1_1SpecularPoints.html#a4ebf53338b47a0d380952ef0213a32fb", null ],
+    [ "getCloudVectorData", "classmimmo_1_1SpecularPoints.html#a079464da250af2cd7104d61f9c81defa", null ],
+    [ "getOriginalScalarData", "classmimmo_1_1SpecularPoints.html#ad845be7f4590a9c158ce51e7988ef739", null ],
+    [ "getOriginalVectorData", "classmimmo_1_1SpecularPoints.html#a43b9a505021d260f1b2f08e1b29ce693", null ],
+    [ "getPlane", "classmimmo_1_1SpecularPoints.html#a7bf71d08ef429a0bf1e8c3a57a73ebe8", null ],
+    [ "isForce", "classmimmo_1_1SpecularPoints.html#a9948ce69d73df14d6fc9cdc35cb962b2", null ],
+    [ "isInsideOut", "classmimmo_1_1SpecularPoints.html#a1a677c35ba20cc92b52d59457c34176b", null ],
+    [ "operator=", "classmimmo_1_1SpecularPoints.html#a86e7cc38324dd9ca3a0293289ae4fdee", null ],
+    [ "plotOptionalResults", "classmimmo_1_1SpecularPoints.html#a7a071498ee80e0da02c93d7e7a6755fb", null ],
+    [ "setForce", "classmimmo_1_1SpecularPoints.html#ad612ebc8e3dd88561b107bcf31396c9b", null ],
+    [ "setInsideOut", "classmimmo_1_1SpecularPoints.html#aeb960ee8c77ea0913562ac402ae3af62", null ],
+    [ "setPlane", "classmimmo_1_1SpecularPoints.html#ab4bea2cf163a2d3203d15ecc746beba4", null ],
+    [ "setPlane", "classmimmo_1_1SpecularPoints.html#a5e42057c4bb111be90c6820cf15cbf60", null ],
+    [ "setScalarData", "classmimmo_1_1SpecularPoints.html#a9cd904cf2b700b782fb04a16e3314fa0", null ],
+    [ "setVectorData", "classmimmo_1_1SpecularPoints.html#a258f3e70a4b8f314a54edb5ceff5f215", null ]
+];

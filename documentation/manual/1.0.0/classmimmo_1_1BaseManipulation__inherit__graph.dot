@@ -1,0 +1,31 @@
+digraph "mimmo::BaseManipulation"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="mimmo::BaseManipulation",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="mimmo::Apply",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1Apply.html",tooltip="Apply is the class that applies the deformation resulting from a manipulation object to the geometry..."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="mimmo::Bend",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1Bend.html",tooltip="Bend is the class that applies the a polynomial bending function of coordinates to the displacements ..."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="mimmo::GenericInput",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1GenericInput.html",tooltip="GenericInput is the class that set the initialization of a generic input data. "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="mimmo::GenericOutput",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1GenericOutput.html",tooltip="GenericOutput is the class that write the an output on file. "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="mimmo::Lattice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1Lattice.html",tooltip="Structured lattice. "];
+  Node6 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="mimmo::FFDLattice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1FFDLattice.html",tooltip="Free Form Deformation of a 3D surface and point clouds, with structured lattice. "];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="mimmo::Mask",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1Mask.html",tooltip="Mask is the class that applies a geometrical masking filter to a set of data. "];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="mimmo::MimmoGeometry",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1MimmoGeometry.html",tooltip="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje..."];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="mimmo::MRBF",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1MRBF.html",tooltip="Radial Basis Function evaluation from clouds of control points. "];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="mimmo::OBBox",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1OBBox.html",tooltip="Oriented Bounding Box calculator. "];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="mimmo::RotationBox",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1RotationBox.html",tooltip="RotationBox is the class that applies a rotation to a given reference system. "];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="mimmo::TranslationBox",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classmimmo_1_1TranslationBox.html",tooltip="TranslationBox is the class that applies the a translation to a point. "];
+}

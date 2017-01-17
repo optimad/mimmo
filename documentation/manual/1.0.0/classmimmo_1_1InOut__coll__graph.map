@@ -1,0 +1,15 @@
+<map id="mimmo::InOut" name="mimmo::InOut">
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="1976,180,2152,207"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1IOData.html" title="IOData is the base class of generic data stored as input or result in a manipulation object..." alt="" coords="165,93,280,120"/>
+<area shape="rect" id="node5" title="STL class. " alt="" coords="153,144,293,171"/>
+<area shape="rect" id="node8" title="STL class. " alt="" coords="154,21,291,62"/>
+<area shape="rect" id="node11" title="STL class. " alt="" coords="817,392,933,419"/>
+<area shape="rect" id="node16" title="STL class. " alt="" coords="161,195,284,221"/>
+<area shape="rect" id="node22" title="STL class. " alt="" coords="168,268,277,295"/>
+<area shape="rect" id="node12" title="STL class. " alt="" coords="1733,84,1813,111"/>
+<area shape="rect" id="node13" title="STL class. " alt="" coords="1457,73,1583,114"/>
+<area shape="rect" id="node14" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the base container of geometry for MiMMo library. " alt="" coords="1696,271,1851,297"/>
+<area shape="rect" id="node18" href="$classmimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="1463,271,1577,297"/>
+<area shape="rect" id="node20" href="$classmimmo_1_1BvNode.html" title="Bv&#45;Node is the class of a node of a Bv&#45;Tree. " alt="" coords="815,284,935,311"/>
+<area shape="rect" id="node25" href="$classmimmo_1_1BvElement.html" title="Bv&#45;Element is the class to manage the elements linked by a Bv&#45;Tree. " alt="" coords="806,232,943,259"/>
+</map>
