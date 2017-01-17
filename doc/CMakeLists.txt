@@ -58,11 +58,27 @@ IF(BUILD_DOCUMENTATION)
   SET(DOXY_HTML_INDEX_FILE ${CMAKE_CURRENT_BINARY_DIR}/html/index.html)
   SET(DOXY_OUTPUT_ROOT     ${CMAKE_CURRENT_BINARY_DIR})
   SET(DOXY_PREDEFINED      "ENABLE_MPI=${DOXY_ENABLE_MPI}")
+  
+  SET(DOXY_HTML_HEADER           "" CACHE INTERNAL "Header file for Doxygen documentation")
+  SET(DOXY_HTML_FOOTER           "" CACHE INTERNAL "Footer file for Doxygen documentation")
+  SET(DOXY_HTML_EXTRA_STYLESHEET "${CMAKE_SOURCE_DIR}/doc/MiMMOStyleSheet.css" CACHE INTERNAL "Stylesheet file for Doxygen documentation")
+  SET(DOXY_DISABLE_INDEX         "YES" CACHE INTERNAL "Controls if the index should be disbaled")
+  SET(DOXY_GENERATE_TREEVIEW     "YES" CACHE INTERNAL "Controls if a tree-like index structure should be generated")
 
   SET(DOXY_INPUT_DIRECTORIES "${CMAKE_SOURCE_DIR}/src \\\n      ${CMAKE_SOURCE_DIR}/examples \\\n      ${CMAKE_SOURCE_DIR}/doc/extra")
   SET(DOXY_INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/extra/MiMMO.hpp;${CMAKE_CURRENT_SOURCE_DIR}/extra/MiMMOStyleGuide.hpp;${EXAMPLES_SOURCES}")
-  set(DOXY_INPUT_DIRECTORIES "${DOXY_INPUT_DIRECTORIES} \\\n      ${CMAKE_SOURCE_DIR}/src/${MODULE_NAME}")
+  foreach (MODULE_NAME IN LISTS BITPIT_MODULE_LIST)
+    isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+    if (MODULE_ENABLED)
+       string(TOUPPER ${MODULE_NAME} UPPERCASE_MODULE_NAME)
 
+       set(DOXY_INPUT_DIRECTORIES "${DOXY_INPUT_DIRECTORIES} \\\n      ${CMAKE_SOURCE_DIR}/src/${MODULE_NAME}")
+       list(APPEND DOXY_INPUT_FILES ${${UPPERCASE_MODULE_NAME}_SOURCES} ${${UPPERCASE_MODULE_NAME}_HEADERS})
+    endif ()
+  endforeach ()
+
+
+  
   # Create Doxygen input file
   if (NOT "${DOC_EXTRACT_PRIVATE_INTERNAL}" STREQUAL "${DOC_EXTRACT_PRIVATE}")
     if (EXISTS ${DOXY_HTML_INDEX_FILE})

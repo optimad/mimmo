@@ -38,3 +38,7 @@ build/
 #kwrite swap files
 *-swp
 
+#jekyll
+_site/
+_config_local.yml
+
