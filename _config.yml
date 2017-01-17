@@ -12,6 +12,7 @@ collections:
 sections:
     overview:
         name: Overview
+        url: overview.html
 
         subsections:
             basics:
