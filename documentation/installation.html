@@ -6,17 +6,16 @@ section: documentation
 
 <h1>Installation</h1>
 
-This page describes how to build and install bitpit. It covers both the
+This page describes how to build and install MiMMO. It covers both the
 released and the development versions.
 
-bitpit depends on several open source tools and libraries such as cmake,
-libxml2, lapack, etc. These are expected to be present on the machine on
-which bitpit is being built.
+MiMMO depends mainly on two open source tools/libraries : cmake and <a href="www.optimad.it/products/bitpit.html">butpit</a>.
+These are expected to be present on the machine on which MiMMO is being built.
 
 <h2>Dependencies</h2>
 
 <p>
-In order to build bitpit you need at least the following software:
+In order to build MiMMO and bitpit library you need at least the following software:
 </p>
 <ul>
 <li>
@@ -27,44 +26,42 @@ In order to build bitpit you need at least the following software:
 <li>
     CMake (>= 2.8.6, preferably>= 2.8.12)
 </li>
+<li>
+    bitpit (>= 1.2.0)
+</li>
 </ul>
 
 <p>
-Some modules may have additional dependencies, the following software is
-needed only if the modules that depend on it are compiled:
+Bitpit modules have additional dependencies, in order to have a list of the required
+libraries and softwares, please refer to <a href="http://optimad.github.io/bitpit/documentation/installation.html">bitpit documentation<a>.
 </p>
-<ul>
-<li>
-    libxml2 (required by the IO module)
-</li>
-<li>
-    lapack and lapacke (required by CG and levelset modules)
-</li>
-</ul>
 
+<!-- 
 <p>
-To take advangate of multi-processor systems, bitpit can be compiled, optionally,
-with parallel support. The parallel implementation of bitpit uses the
+To take advangate of multi-processor systems, MiMMO can be compiled, optionally,
+with parallel support. The parallel implementation of MiMMO uses the
 Message-Passing Interface (MPI). Any MPI implemetation, either OpenMPI, LAM,
 or MPICH suffice.
 </p>
+-->
 
-<h2>Download bipit source code</h2>
 
-If you are trying to build a bitpit release, download it from the
+<h2>Download MiMMO source code</h2>
+
+If you are trying to build a MiMMO release, download it from the
 <a href="{{ site.baseurl }}/downloads/index.html#stable">download page</a>.
 For the development version, please follow the
 <a href="{{ site.baseurl }}/downloads/index.html#development">instructions</a>
 for checking it out from git.
 
-<h2>Configure bitpit with CMake</h2>
+<h2>Configure MiMMO with CMake</h2>
 
-<p>Create a build directory where bitpit will be compiled. It is important
-to point out the bitpit needs to be always build in a separate build directory.
+<p>Create a build directory where MiMMO will be compiled. It is important
+to point out the MiMMO needs to be always build in a separate build directory.
 Do not build in the source directory.
 <span class="codebox">
-mkdir $HOME/projects/bitpit-build
-cd $HOME/projects/bitpit-build
+mkdir $HOME/projects/MiMMO-build
+cd $HOME/projects/MiMMO-build
 </span>
 </p>
 
@@ -93,7 +90,7 @@ allow editing of the string. For file and directories, the &lt;tab&gt; key can
 be used to complete.
 </p>
 
-<h3>bitpit settings</h3>
+<h3>MiMMO settings</h3>
 
 <dl>
     <dt><strong>CMAKE_BUILD_TYPE</strong></dt>
@@ -101,22 +98,28 @@ be used to complete.
     Sets the build type
     </dd>
 
-    <dt><strong>ENABLE_MPI</strong></dt>
+    <dt><strong>BITPIT_DIR</strong></dt>
     <dd>
-    Controls if bitpit will be compiled with parallel support
+    Sets the installation directory of bitpit library (<i>i.e.</i> the directory where the files for findPackage utility reside)
     </dd>
 
-   <dt><strong>ENABLE_MPI</strong></dt>
+   <dt><strong>BUILD_EXAMPLES</strong></dt>
    <dd>
    Controls the examples will be build (examples can be build built if all
-   bitpit are compiled)
+   MiMMO are compiled)
    </dd>
+
+   <dt><strong>ENABLE_MPI</strong></dt>
+    <dd>
+    Controls if MiMMO will be compiled with parallel support (not yet supported)
+    </dd>
+
 </dl>
 
-<h2>Build bitpit</h2>
+<h2>Build MiMMO</h2>
 
 <p>
-After the configuration step, bitpit can be build using the command:
+After the configuration step, MiMMO can be build using the command:
 <span class="codebox">
 make
 </span>
@@ -127,13 +130,13 @@ make -j 2
 </span>
 </p>
 
-<h2>Install bitpit</h2>
+<h2>Install MiMMO</h2>
 
-<p>bitpit can be installed typing:
+<p>MiMMO can be installed typing:
 <span class="codebox">
 make install
 </span>
 This will install all the relevant files in directories under the
 CMAKE_INSTALL_PREFIX. The executables are installed in ${CMAKE_INSTALL_PREFIX}/bin
-and the libraries are installed in ${CMAKE_INSTALL_PREFIX}/lib/bitpit-${major}.${minor}.
+and the libraries are installed in ${CMAKE_INSTALL_PREFIX}/lib/MiMMO-${major}.${minor}.${revision}.
 </p>
