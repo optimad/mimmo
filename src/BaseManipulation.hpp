@@ -104,7 +104,7 @@ protected:
 	
 public:
 	BaseManipulation();
-	~BaseManipulation();
+	virtual ~BaseManipulation();
 
 	BaseManipulation(const BaseManipulation & other);
 	BaseManipulation & operator=(const BaseManipulation & other);
