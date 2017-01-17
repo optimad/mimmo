@@ -1,5 +1,0 @@
-<map id="mimmo::Lattice" name="mimmo::Lattice">
-<area shape="rect" id="node4" href="$classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice. " alt="" coords="156,155,295,181"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1mimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="5,5,232,32"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1UStructMesh.html" title="Class for 3D uniform structured mesh –&gt; based on ucartmesh scheme of Bitpit. " alt="" coords="257,5,407,32"/>
-</map>
