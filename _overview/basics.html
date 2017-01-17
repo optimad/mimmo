@@ -6,7 +6,7 @@ section: overview
 
 highlights: true
 
-description: "The objects of MiMMO library are."
+description: "The core of MiMMO library."
 
 extra-css:
     - modules.css
@@ -29,7 +29,7 @@ document-ready-script: "
         <div class="title">
             <h1>Basics</h1>
             
-            <h2>base objects and execution</h2>
+            <h2>Base objects and execution chain</h2>
             
             <p>{{ page.description }}</p>
         </div>
@@ -39,16 +39,49 @@ document-ready-script: "
         <h1>Introduction</h1>
         
         <p>
-        MiMMO is a MPI/C++ library for performing morphing of survace and volume meshes.
-        The aim of the project is to provide users with a ready-to-use tool for ....
+        <b>MiMMO</b> is a MPI/C++ library for performing morphing of survace and volume meshes.
+        The aim of the project is to provide users with a ready-to-use tool for build his own 
+        application code embedding objects of <b>MiMMO</b> library.
+        </br>
+        The package is organized as a library of blocks that can be linked and organized in an execution chain as
+        in a block diagram workflow.
+        </br> 
+        The library provides a large set of blocks aimed to perform basic or advanced morphing of surface or volume meshes.
+        An user can be develop his own blocks by easily coding new customized classes.
+        </br>
+        All the manipulation blocks derive by a common base class, the fundamental brick of the library : BaseManipulaiton class.
+        
         </p>
         
         <h1>Features</h1>
-        
+
+         <p>
+        The main features of <b>MiMMO</b> are the base class and the execution chain.
+        </br>
+        The first one is the core of the library, all the manipulation objects must derive from this base class.
+        The properties and members of the base class are described in the following section.
+        </br>
+        The objects instantiated in a code can be insert in a container, the execution chain. This container
+        allows tha automatic ordering of the objects and the managing of their relationship. This permits a straighforward
+        setup and execution of the block diagram flow.
+         </p>
+
         <h2>Base Class</h2>
         
         <p>
-        bla bla.
+        BaseManipulation is the base class used to build each generic or particular manipulation object. 
+        This base class has some common interface methods, as the base get/set methods. 
+        The only method to be called to execute the manipulation object is the method exec() that calls 
+        the pure virtual execute(). 
+        Each manipulation base object has a linked geometry (a target <b>MiMMO</b> object) and 
+        one or more linked manipulation objects from wich recovering/distributing relevant data 
+        (as number of degrees of freedom, initial displacements or other). The exchange of such data is realized 
+        through Ports (input/output link to same class objects). 
+        See mimmo::pin namespace for further information about the linking procedure of BaseManipulation objects. 
+        Please note, when you get a copy by deputed operators/constructors of the class, pins, parental linking as well as 
+        custom input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
+        only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Ports.
+        
         </p>
         
         <div class="figure">
