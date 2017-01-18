@@ -245,7 +245,8 @@ a {
 }
 
 #banner .title h1,
-#banner .title h2 {
+#banner .title h2,
+#banner .title h3 {
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -262,6 +263,13 @@ a {
 
 #banner .title h2 {
     font-size: 24px;
+    text-shadow: none;
+
+    margin: 5px 0 5px 0;
+}
+
+#banner .title h3 {
+    font-size: 12px;
     text-shadow: none;
 
     margin: 5px 0 5px 0;
