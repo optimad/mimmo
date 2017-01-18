@@ -9,11 +9,13 @@ highlights: true
 description: "Introduction to MiMMO library."
 
 extra-css:
+    - home.css
     - modules.css
     - colorbox.css
 
 extra-scripts:
     - jquery.colorbox-min.js
+    - jquery.cycle2.min.js
 
 document-ready-script: "
     $('.figure_1').colorbox({rel:'figure_1', maxHeight:'85%', maxWidth:'85%'});
@@ -23,17 +25,19 @@ document-ready-script: "
 "
 ---
 
-    <div id="banner" class="module">
-        <img class="background" src="{{ site.baseurl }}/images/overview/background2.png" alt="Background" />
-        
+    <div id="banner">
         <div class="title">
-            <h1>Overview</h1>
-            
-            <h2>Main features and enabling tools</h2>
-            
+            <h1>Overview</h1>            
+            <h2>Main features and enabling tools</h2>            
             <p>{{ page.description }}</p>
         </div>
+
+        <div class="cycle-slideshow">
+            <img alt="background" src="{{ site.baseurl }}/images/overview/background.png" />
+            <img alt="background2" src="{{ site.baseurl }}/images/overview/background2.png" />
+        </div>
     </div>
+
 
     <div id="main">
         <h1>Introduction</h1>
@@ -51,9 +55,12 @@ document-ready-script: "
         
         </p>
         
-        <h2>Features</h2>
+        <h2>Features and tools</h2>
 
          <p>
+         The core of <b>MiMMO</b> are the objects that allow to manage surface and volume meshes. This elements are hidden
+         to the user and integrated in the base classes of the library. The majority of the utilities are powered by the grid 
+         manager utilities of <a class"bitpit" href="http://www.optimad.it/products/bitpit">bitpit</a> library.
         The main features of <b>MiMMO</b> are:
         <ul>
 </br>
@@ -136,6 +143,9 @@ document-ready-script: "
       <div id="banner" class="module">
         <img class="background" src="{{ site.baseurl }}/images/overview/background.png" alt="Background" />        
      </div>
+     
+     
+    
 
 
     </div>

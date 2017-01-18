@@ -14,34 +14,3 @@
 
     color: #f8f8f8;
 }
-
-#banner .module .cycle-slideshow {
-position: absolute;
-
-width: auto;
-height: auto;
-
-top: 0;
-right: 0;
-
-text-align: right;
-
-overflow: hidden;
-}
-
-#banner .module .cycle-slideshow img {
-
-position: relative;
-top: 0;
-right: 0;
-
-width: auto;
-height: auto;
-max-height: 260px;
-
-/*
- * Hack to add hardware acceleration to the animation and guarantee a
- * high quality rescale
- */
-transform: translateZ(0);
-}
