@@ -748,6 +748,30 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 };
 
 
+///*!
+// *	Input stream operator for std::string
+// *	\param[in] buffer is the input stream
+// *	\param[in] var is the element to be streamed
+// *	\result Returns the same input stream received in input.
+// */
+//bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::string *  var){
+	
+//	buffer>>var;
+//	return buffer;
+//};
+
+///*!
+// *	Output stream operator for std::string
+// *	\param[in] buffer is the output stream
+// *	\param[in] var is the element to be streamed
+// *	\result Returns the same output stream received in input.
+// */
+//bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::string * var){
+//	buffer<<var;
+//	return buffer;
+//};
+
+
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 //==============================================================//

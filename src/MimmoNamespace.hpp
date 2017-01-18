@@ -59,6 +59,8 @@ BETTER_ENUM(PortType, int,
 			M_NURBSWEIGHTS 		= 44,
 			M_FILENAME			= 50,
 			M_DIR				= 51,
+			M_FILENAMEPTR		= 52,
+			M_DIRPTR			= 53,
 			M_PAIRVECFIELD 		= 80,
 			M_PAIRSCAFIELD 		= 81,
 			M_VIOLATION			= 82,
@@ -77,7 +79,8 @@ BETTER_ENUM(PortType, int,
 			M_VALUEB3			= 141,
 			M_VALUEB4			= 142,
 			M_VALUEB5			= 143,
-			M_VALUEI2			= 150		);
+			M_VALUEI2			= 150
+   		);
 
 
 
@@ -243,6 +246,7 @@ enum class dataTAG{
 	FLOAT						/**< TAG related to a double data.*/,
 	BOOL						/**< TAG related to a bool data.*/,
 	STRING						/**< TAG related to a string data.*/,
+	STRING_						/**< TAG related to a string pointer data.*/,
 	MIMMO_VECFLOAT_				/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/,
 	MIMMO_VECARR3FLOAT_			/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
 	LONGSHORT					/**< TAG related to a couple (normally used in pair or map containers) of a long and a short element data*/,
