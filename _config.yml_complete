@@ -14,6 +14,24 @@ sections:
         name: Overview
         url: 
 
+        subsections:
+            basics:
+                name: Basics
+                url: basics.html
+            morphing:
+                name: Morphing
+                url: morphing.html
+            wrappers:
+                name: Wrappers
+                url: wrappers.html
+            tools:
+                name: Tools
+                url: tools.html
+
+    examples:
+        name: Examples
+        url:
+
     documentation:
         name: Documentation
 

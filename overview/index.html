@@ -1,7 +1,141 @@
 ---
-layout: default
+layout: module
 title: Overview
+name: overview
 section: overview
+
+highlights: true
+
+description: "Introduction to MiMMO library."
+
+extra-css:
+    - modules.css
+    - colorbox.css
+
+extra-scripts:
+    - jquery.colorbox-min.js
+
+document-ready-script: "
+    $('.figure_1').colorbox({rel:'figure_1', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_2').colorbox({rel:'figure_2', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_3').colorbox({rel:'figure_3', maxHeight:'85%', maxWidth:'85%'});
+    $('.figure_4').colorbox({rel:'figure_4', maxHeight:'85%', maxWidth:'85%'});
+"
 ---
 
-<h1>MiMMO overview</h1>
+    <div id="banner" class="module">
+        <img class="background" src="{{ site.baseurl }}/images/overview/background2.png" alt="Background" />
+        
+        <div class="title">
+            <h1>Overview</h1>
+            
+            <h2>Main features and enabling tools</h2>
+            
+            <p>{{ page.description }}</p>
+        </div>
+    </div>
+
+    <div id="main">
+        <h1>Introduction</h1>
+        
+        <p>
+        <b>MiMMO</b> is an open source C++ library for manipulation and morphing of surface and volume meshes.
+        The aim of the project is to provide users with a ready-to-use tool for build his own 
+        application code embedding objects of <b>MiMMO</b> library.
+        </br>
+        The package is organized as a library of blocks that can be linked and organized in an execution chain as
+        in a block diagram workflow.
+        </br> 
+        The library provides a large set of blocks aimed to perform basic or advanced morphing of surface or volume meshes.
+        An user can be develop his own blocks by easily coding new customized classes.
+        
+        </p>
+        
+        <h2>Features</h2>
+
+         <p>
+        The main features of <b>MiMMO</b> are:
+        <ul>
+</br>
+        <li>
+            Input/Output of various surface mesh formats:
+                <ul>
+</br>
+                <li>
+                    <b>STL, VTU, NAS</b>
+                </li>
+                </ul>
+        </li>
+</br>
+         <li>
+            Input/Output of volume point cloud:
+        </li>
+</br>
+                <ul>
+                <li>
+                    <b>OpenFOAM</b> points format, <b>VTU</b> points cloud
+                </li>
+                </ul>
+</br>
+         <li>
+            Geometry parametrization and deformation:
+        </li>
+</br>
+                <ul>
+                <li>
+                    <b>Free form deformation (FFD)</b> based on <b>lattice</b> parametrization of volume with different base shapes (cube, sphere, cylinder)
+                </li>
+                <li>
+                    Space parametrization and geometry deformation based on <b>Radial Basis Function (RBF)</b>
+                 </li>
+                </ul>
+</br>
+         <li>
+            <b>Basic deformations</b>:
+        </li>
+</br>
+                <ul>
+                <li>
+                    Rigid rotation, rigid translation, polynomial based bending, symmetric deformation
+                </li>
+                </ul>
+</br>
+         <li>
+            Basic tools for mesh <b>managing, deformation check and repair</b> :
+        </li>
+</br>
+                <ul>
+                <li>
+                    multiple bodies manager, stitching, clipping, penetration control, bounded deformation
+                </li>
+                </ul>
+                
+    </ul>
+        
+</p>
+
+         
+        <h2>Execution Chain</h2>
+        
+        <p>
+        By the use of <b>MiMMO</b> library the objects instantiated in a code can be insert in a container, the execution chain. This container
+        allows tha <b>automatic</b> ordering of the objects and the managing of their relationship. This permits a straighforward
+        setup and execution of the block diagram flow.
+        </p>
+        
+<!--        <div class="figure">
+            <a class="figure_2" href="{{ site.baseurl }}/images/overview/background.png" title="Sail morphing" >
+                <img src="{{ site.baseurl }}/images/overview/background.png" alt="Sail morphing"/>
+            </a>
+        </div> -->
+
+        </br>
+        </br>
+        </br>
+        
+      <div id="banner" class="module">
+        <img class="background" src="{{ site.baseurl }}/images/overview/background.png" alt="Background" />        
+     </div>
+
+
+    </div>
