@@ -244,6 +244,7 @@ public:
 		return (*this);
 	}
 
+	
 	/*!It gets the data stored in the object.
 	 * Even if not declared as pure virtual its behavior is
 	 * like a pure virtual method, i.e. an analogous method
