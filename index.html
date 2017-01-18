@@ -89,17 +89,27 @@ extra-scripts:
 
         <div class="content-box module-list">
             <div class="content">
-                {% for module in site.overview %}
+<!--                {% for module in site.overview %}
                     {% if module.highlights %}
                     <div class="module-info">
-                        <h1><a href="{{ site.baseurl }}/{{ module.url }}" >{{ module.name }}</a></h1>
+                        <h1><a href="{{ site.baseurl }}/{{ module.url }}" >{{ module.name }}</a></h1> 
                         <p>
-<!--                        {{ module.description }} -->
-                        </p>
+                        {{ module.description }} 
+                        </p> 
                     </div>
                     {% endif %}
-                {% endfor %}
+                {% endfor %} -->
 
+                <div class="module-info">
+                <h1><a href="{{ site.baseurl }}/overview">overview </a></h1>
+                </div>
+                <div class="module-info">
+                <h1><a href="{{ site.baseurl }}/documentation/manual">documentation </a></h1>
+                </div>
+                <div class="module-info">
+                <h1><a href="{{ site.baseurl }}/downloads">downloads </a></h1>
+                </div>
+                
                 <div style='clear:both'></div>
             </div>
         </div>
