@@ -375,7 +375,7 @@ SplitScalarField::plotOptionalResults(){
 		if(getTopo() != 3){
 			ivector2D connectivity = geo->getCompactConnectivity();
 			bitpit::VTKElementType cellType = desumeElement(connectivity);
-			bitpit::VTKUnstructuredGrid output(".",m_name,cellType);
+			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
 			output.setDimensions(connectivity.size(), points.size());
@@ -387,7 +387,7 @@ SplitScalarField::plotOptionalResults(){
 			int size = points.size();
 			ivector1D connectivity(size);
 			for(int i=0; i<size; ++i)	connectivity[i]=i;
-			bitpit::VTKUnstructuredGrid output(".",m_name,	bitpit::VTKElementType::VERTEX);
+			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	bitpit::VTKElementType::VERTEX);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
 			output.setDimensions(connectivity.size(), points.size());
@@ -556,7 +556,7 @@ SplitVectorField::plotOptionalResults(){
 		if(getTopo() != 3){
 			ivector2D connectivity = geo->getCompactConnectivity();
 			bitpit::VTKElementType cellType = desumeElement(connectivity);
-			bitpit::VTKUnstructuredGrid output(".",m_name,cellType);
+			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
 			output.setDimensions(connectivity.size(), points.size());
@@ -568,7 +568,7 @@ SplitVectorField::plotOptionalResults(){
 			int size = points.size();
 			ivector1D connectivity(size);
 			for(int i=0; i<size; ++i)	connectivity[i]=i;
-			bitpit::VTKUnstructuredGrid output(".",m_name,	bitpit::VTKElementType::VERTEX);
+			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	bitpit::VTKElementType::VERTEX);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
 			output.setDimensions(connectivity.size(), points.size());
