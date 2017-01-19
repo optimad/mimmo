@@ -47,6 +47,7 @@ namespace mimmo{
  *	|-------|----------|------------------------------------|-----------------------|
  *	|PortID | PortType | variable/function 					| DataType		        |
  *	|-------|----------|------------------------------------|-----------------------|
+ *  | 99    | M_GEOM   | setAddGeometry						| (SCALAR, MIMMO_)      |  
  *	| 100   | M_VECGEOM| setGeometry      					| (VECTOR, MIMMO_)	    |
  *	|-------|----------|------------------------------------|-----------------------|
  *
@@ -69,8 +70,8 @@ namespace mimmo{
 class StitchGeometry: public BaseManipulation{
 	
 private:
-	int 						m_topo;		/**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud*/
-	std::vector<MimmoObject*>	m_extgeo;	/**< pointers to external geometries*/
+	int 								m_topo;		/**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud*/
+	std::unordered_set<MimmoObject*>	m_extgeo;	/**< pointers to external geometries*/
 
 	std::unique_ptr<MimmoObject> m_patch;	/**< resulting patch geometry */	
 	

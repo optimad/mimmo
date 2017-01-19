@@ -74,6 +74,7 @@ void
 StitchGeometry::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<std::vector<MimmoObject*>, StitchGeometry>(this, &mimmo::StitchGeometry::setGeometry, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::setAddGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	
 	built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	built = (built && createPortOut<std::vector<MimmoObject*>, StitchGeometry>(this, &mimmo::StitchGeometry::getOriginalGeometries, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
@@ -97,7 +98,9 @@ StitchGeometry::getTopology(){
  */
 std::vector<MimmoObject *> 
 StitchGeometry::getOriginalGeometries(){
-	return m_extgeo;
+	std::vector<MimmoObject * > res;
+	res.insert(res.end(), m_extgeo.begin(), m_extgeo.end());
+	return res;
 }
 
 /*!
@@ -141,7 +144,7 @@ StitchGeometry::setAddGeometry(MimmoObject* geo){
 		if(geo->isEmpty()) return;
 		if(geo->getType() != m_topo)	return;
 		
-		m_extgeo.push_back(geo);
+		m_extgeo.insert(geo);
 };
 
 /*!
@@ -151,17 +154,9 @@ StitchGeometry::setAddGeometry(MimmoObject* geo){
 void
 StitchGeometry::setGeometry(std::vector<MimmoObject *> external){
 	
-	if(external.empty()) return;
-	m_extgeo.resize(external.size());
-	
-	int counter = 0;
 	for(auto & obj: external){
-		if(!obj->isEmpty()){
-			m_extgeo[counter]= obj;
-			++counter;
-		}
+		setAddGeometry(obj);
 	}
-	m_extgeo.resize(counter);	
 };
 
 /*!It sets if the BvTree of stitched geometry has to be built during execution.
