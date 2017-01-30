@@ -47,6 +47,7 @@ void test0001() {
 	mimmo0->setReadDir("geo_data");
 	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("sphere2");
+	mimmo0->setBuildBvTree(true);
 	
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
