@@ -283,6 +283,7 @@ void ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML
  * Reimeplemented from BaseManipulation::plotOptionalResults;
  */
 void ControlDeformMaxDistance::plotOptionalResults(){
+	if(getGeometry()->isEmpty())	return;
 	
 	dvecarr3E  points = getGeometry()->getVertexCoords();
 	m_defField.resize(points.size());
@@ -299,6 +300,7 @@ void ControlDeformMaxDistance::plotOptionalResults(){
 	output.setDimensions(connectivity.size(), points.size());
 	//output.setCodex(codex);
 	
+	m_violationField.resize(points.size(), -1.e+18);
 	std::string sdfstr = "Violation Distance Field";
 	output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_violationField);
 	output.write();
