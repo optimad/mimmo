@@ -158,7 +158,8 @@ void
 ControlDeformMaxDistance::execute(){
 
 	MimmoObject * geo = getGeometry();
-	if(geo == NULL || geo->isEmpty() || !(geo->isBvTreeSupported())) return;
+	if(geo->isEmpty()) return;
+	if(!(geo->isBvTreeSupported())) return;
 	
 	m_defField.resize(getGeometry()->getNVertex(),darray3E{{0.0,0.0,0.0}});
 	m_violationField.resize(m_defField.size());

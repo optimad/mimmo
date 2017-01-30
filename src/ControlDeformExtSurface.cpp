@@ -178,6 +178,7 @@ ControlDeformExtSurface::setDefField(dvecarr3E field){
  * GenericSelection::setGeometry();
  */
 void	ControlDeformExtSurface::setGeometry( MimmoObject * target){
+	if(target->isEmpty())	return;
 	
 	if(target->getType() != 1){
 		std::cout<<"ControlDeformExtSurface cannot support current geometry. It works only w/ 3D surface."<<std::endl;
@@ -274,7 +275,7 @@ void
 ControlDeformExtSurface::execute(){
 	
 	MimmoObject * geo = getGeometry();
-	if(geo == NULL || geo->isEmpty()) return;
+	if(geo->isEmpty()) return;
 
 	int nDFS = m_defField.size();
 	m_defField.resize(geo->getNVertex(),darray3E{{0.0,0.0,0.0}});

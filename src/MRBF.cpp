@@ -489,7 +489,7 @@ void MRBF::execute(){
 	
 	//if m_filter is active;
 	if(m_bfilter){
-		m_filter.resize(nv,0.0);
+		m_filter.resize(nv,1.0);
 		int counter = 0;
 		for (auto && vec : m_displ){
 			vec = vec * m_filter[counter];
