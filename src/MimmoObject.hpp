@@ -47,7 +47,7 @@ class MimmoObject{
 	
 protected:
 	//members
-	int						m_type;				/**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-mesh). */
+	int						m_type;				/**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
 	bitpit::PatchKernel*	m_patch;			/**<Reference to bitpit patch handling geometry. */
 	bool					m_internalPatch;	/**<If the geometry is internally created. */
 	livector1D				m_mapData;			/**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
@@ -80,9 +80,9 @@ public:
 	bool				isEmpty();
 	bool				isBvTreeSupported();
 	int					getType();
-	long				getNVertex()const ;
+	long				getNVertex()const;
 	long				getNCells()const;
-	
+		
 	dvecarr3E									getVertexCoords();
 	darray3E									getVertexCoords(long i);
 	bitpit::PiercedVector<bitpit::Vertex> &				getVertices();

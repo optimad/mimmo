@@ -33,7 +33,7 @@ using namespace mimmo;
 
 /*!Default constructor of MimmoObject.
  * It sets to zero/null each member/pointer.
- * \param[in] type Type of linked Patch 1 = surface (default value), 2 = volume, 3= pointCloud).
+ * \param[in] type Type of linked Patch 1 = surface (default value), 2 = volume, 3= pointCloud, 4 - 3DCurve).
  */
 MimmoObject::MimmoObject(int type){
 	
@@ -59,9 +59,9 @@ MimmoObject::MimmoObject(int type){
  * local connectivity. Connectivities supported must be homogeneus w/ a single element type. Element available area
  * triangles or quads for surface geometries of tetrahedrons or hexahedrons for volume ones. 
  * Cloud points are always supported (providing null connectivity)
- * \param[in] type Type of linked Patch (0 = pointCloud, 1 = surface (default value), 2 = volume).
+ * \param[in] type Type of linked Patch ( 1 = surface (default value), 2 = volume, 3 = pointcloud, 4= 3DCurve ).
  * \param[in] vertex Coordinates of vertices of the geometry.
- * \param[in] connectivity Pointer to connectivity structure of the surface/volume mesh.
+ * \param[in] connectivity Pointer to connectivity structure of the 3Dcurve/surface/volume mesh.
  */
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
 	m_type = max(1,type);
@@ -96,6 +96,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 			case 2: 
 				if(sizeConn == 4)	eltype = bitpit::ElementInfo::TETRA;
 				if(sizeConn == 8)	eltype = bitpit::ElementInfo::HEXAHEDRON;	
+				break;
+			case 4: 
+				if(sizeConn == 2)	eltype = bitpit::ElementInfo::LINE;	
 				break;
 			default: 
 				 // never been reached
@@ -136,7 +139,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 
 /*!Custom constructor of MimmoObject.
  * This constructor links a given patch of given type.
- * \param[in] type Type of linked Patch (0 = point cloud, 1 = surface, 2 = volume).
+ * \param[in] type Type of linked Patch (1 = surface, 2 = volume, 3 = pointcloud, 4 = 3D curve).
  * \param[in] geometry Pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
@@ -224,7 +227,7 @@ MimmoObject::isBvTreeSupported(){
 };
 
 /*!It gets the type of the geometry Patch.
- * \return Type of geometry mesh (1 = surface, 2 = volume).
+ * \return Type of geometry mesh (0 = undefined, 1 = surface, 2 = volume, 3=pointcloud, 4=3D curve).
  */
 int
 MimmoObject::getType(){
@@ -766,14 +769,14 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 
 
 /*!It sets the geometry Patch.
- * \param[in] type Type of linked Patch (1 = surface, 2 = volume, 3 = pointCloud).
+ * \param[in] type Type of linked Patch (1 = surface, 2 = volume, 3 = pointCloud, 4=3DCurve).
  * \param[in] geometry Pointer to a geometry of class Patch to be linked.
  * \return False if the argument pointer is NULL or not correct type.
  */
 bool
 MimmoObject::setPatch(int type, PatchKernel* geometry){
 	if (geometry == NULL ) return false;
-	if (type<1 || type >3 ) return false;
+	if (type<1 || type >4 ) return false;
 	m_type 			= type;
 	m_patch 		= geometry;
 	m_internalPatch = false;
@@ -946,7 +949,7 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	//it's all copied(maps are update in the loops, pids if exists), trees are rebuilt and sync'ed is they must be
 };
 
-/*!It cleans the geometry Patch.
+/*!It cleans the geometry Patch defiances, id any.
  * \return False if the geometry member pointer is NULL.
  */
 bool
@@ -1147,8 +1150,8 @@ livector1D	MimmoObject::extractPIDCells(shivector1D flag){
  * Check if specified ElementType for a given cell is supported by the current PatchKernel mesh
  * internally allocated in the current class. Supported types are for superficial mesh 
  * bitpit::ElementInfo::TRIANGLE and bitpit::ElementInfo::QUAD, for volumetric mesh bitpit::ElementInfo::TETRA
- * and bitpit::ElementInfo::HEXAHEDRON
- * \param[in] type	element tyoe ti check, from bitpit::ElementInfo enum
+ * and bitpit::ElementInfo::HEXAHEDRON, and 3DCurve mesh bitpit::ElementInfo::LINE
+ * \param[in] type	element type to check, from bitpit::ElementInfo enum
  * \return integer with the dimension of the element supported. -1 flag the unsupported element;
  */
 int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
@@ -1165,6 +1168,9 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 			if	(type == bitpit::ElementInfo::PYRAMID) 		check = 5;
 			if	(type == bitpit::ElementInfo::WEDGE) 		check = 6;
 			if  (type == bitpit::ElementInfo::HEXAHEDRON)	check = 8;
+			break;
+		case 4:
+			if	(type == bitpit::ElementInfo::LINE) 		check = 2;
 			break;
 		default:	//do nothing
 			break;
