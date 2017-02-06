@@ -59,5 +59,5 @@
 #include "StitchGeometry.hpp"
 #include "SplitFields.hpp"
 #include "MultiApply.hpp"
-
+#include "ProjPrimitivesOnSurfaces.hpp"
 #endif
