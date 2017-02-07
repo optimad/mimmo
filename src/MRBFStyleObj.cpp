@@ -660,14 +660,14 @@ void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	//search first set of points against second figure
 	for(auto & val : m_node[i]->getVertexCoords()){
 		 workRadius= initRadius;
-		 dist = bvTreeUtils::distance(&val, m_node[j]->getBvTree(), id, initRadius);
+		 dist = bvTreeUtils::distance(&val, m_node[j]->getBvTree(), id, workRadius);
 		 if(dist < distMin)	distMin = dist;	
 	}
 	
 	//search second set of points against first figure
 	for(auto & val : m_node[j]->getVertexCoords()){
 		workRadius= initRadius;
-		dist = bvTreeUtils::distance(&val, m_node[i]->getBvTree(), id, initRadius);
+		dist = bvTreeUtils::distance(&val, m_node[i]->getBvTree(), id, workRadius);
 		if(dist < distMin)	distMin = dist;	
 	}
 	
