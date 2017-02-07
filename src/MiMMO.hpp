@@ -60,4 +60,5 @@
 #include "SplitFields.hpp"
 #include "MultiApply.hpp"
 #include "ProjPrimitivesOnSurfaces.hpp"
+#include "MRBFStyleObj.hpp"
 #endif
