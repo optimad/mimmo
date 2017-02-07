@@ -59,6 +59,7 @@ void MRBF::buildPorts(){
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	
 	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
@@ -73,6 +74,10 @@ MRBF & MRBF::operator=(const MRBF & other){
 	m_tol = other.m_tol;
 	m_solver = other.m_solver;
 	m_SRRatio  = other.m_SRRatio;
+	m_supRIsValue = other.m_supRIsValue;
+	m_bfilter = other.m_bfilter;
+	if(m_bfilter)	m_filter = other.m_filter;
+	
 	return(*this);
 };
 

@@ -22,7 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-#include "MRBF.hpp"
+#include "MRBFStyleObj.hpp"
 
 using namespace std;
 using namespace bitpit;
@@ -30,8 +30,8 @@ using namespace mimmo;
 
 
 /*! Default Constructor.*/
-MRBF::MRBF(){
-	m_name = "MiMMO.MRBF";
+MRBFStyleObj::MRBFStyleObj(){
+	m_name = "MiMMO.MRBFStyleObj";
 	m_maxFields=-1;
 	m_tol = 0.00001;
 	setMode(MRBFSol::NONE);
@@ -40,39 +40,45 @@ MRBF::MRBF(){
 };
 
 /*! Default Destructor */
-MRBF::~MRBF(){};
+MRBFStyleObj::~MRBFStyleObj(){};
 
 /*! Copy Constructor
- *@param[in] other MRBF where copy from
+ *@param[in] other MRBFStyleObj where copy from
  */
-MRBF::MRBF(const MRBF & other){
+MRBFStyleObj::MRBFStyleObj(const MRBFStyleObj & other){
 	*this = other;
 };
 
 /*! It builds the input/output ports of the object
  */
-void MRBF::buildPorts(){
+void MRBFStyleObj::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setTol, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<dvecarr3E, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setAddNode, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<std::vector<MimmoObject*>, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setAddNode, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<dvector1D, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<double, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::setSupportRadiusValue, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<MimmoObject*, MRBFStyleObj>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	
+	built = (built && createPortOut<dvecarr3E, MRBFStyleObj>(this, &mimmo::MRBFStyleObj::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBFStyleObj>(this, &mimmo::MRBFStyleObj::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
 };
 
 /*! Copy Operator
- * @param[in] other MRBF where copy from
+ * @param[in] other MRBFStyleObj where copy from
  */
-MRBF & MRBF::operator=(const MRBF & other){
-	*(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
+MRBFStyleObj & MRBFStyleObj::operator=(const MRBFStyleObj & other){
+	*(static_cast<RBFAbstract * > (this)) = *(static_cast <const RBFAbstract*>(&other));
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
 	m_solver = other.m_solver;
 	m_SRRatio  = other.m_SRRatio;
+	m_node = other.m_node;
+	m_supRIsValue = other.m_supRIsValue;
+	m_bfilter = other.m_bfilter;
+	if(m_bfilter)	m_filter = other.m_filter;
 	return(*this);
 };
 
@@ -80,23 +86,23 @@ MRBF & MRBF::operator=(const MRBF & other){
  * @param[in] geometry Pointer to geometry to be deformed by the manipulator object.
  */
 void
-MRBF::setGeometry(MimmoObject* geometry){
+MRBFStyleObj::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
 /*!It returns a pointer to the RBF node stored in the object.
  */
 dvecarr3E*
-MRBF::getNodes(){
+MRBFStyleObj::getNodes(){
 	return(&m_node);
 }
 
 /*! 
- * Return actual solver set for RBF data fields interpolation in MRBF::execute
+ * Return actual solver set for RBF data fields interpolation in MRBFStyleObj::execute
  * Reimplemented from RBF::getMode() of bitpit;
  */
 MRBFSol
-MRBF::getMode(){
+MRBFStyleObj::getMode(){
 	return m_solver;
 };
 
@@ -106,18 +112,18 @@ MRBF::getMode(){
  * @param[in] solver type of MRBFSol enum; 
  */
 void
-MRBF::setMode(MRBFSol solver){
+MRBFStyleObj::setMode(MRBFSol solver){
 	m_solver = solver;
 	if (m_solver == MRBFSol::NONE)	RBF::setMode(RBFMode::PARAM);
 	else							RBF::setMode(RBFMode::INTERP);
 };
 /*!
- * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
+ * Overloading of MRBFStyleObj::setSolver(MRBFSol solver) with int input parameter
  * Reimplemented from RBF::setMode() of bitpit;
  * @param[in] int type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
  */
 void 
-MRBF::setMode(int type){
+MRBFStyleObj::setMode(int type){
 	switch(type){
 		case 1 : setMode(MRBFSol::WHOLE);
 		   break;
@@ -128,20 +134,20 @@ MRBF::setMode(int type){
 	}
 };
 
-/*! It gets current set filter field. See MRBF::setFilter
+/*! It gets current set filter field. See MRBFStyleObj::setFilter
  * @return filter field.
  */
-dvector1D	MRBF::getFilter(){
+dvector1D	MRBFStyleObj::getFilter(){
 	return(m_filter);
 };
 
 /*! 
  * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
- * See MRBF::setSupportRadius and MRBF::setSupportRadiusValue method documentation.
+ * See MRBFStyleObj::setSupportRadius and MRBFStyleObj::setSupportRadiusValue method documentation.
  * Reimplemented from bitpit::RBF::getSupportRadius.
  * @return support radius ratio
  */
-double	MRBF::getSupportRadius(){
+double	MRBFStyleObj::getSupportRadius(){
     if (m_supRIsValue)
     {
         return(getSupportRadiusValue());
@@ -153,7 +159,7 @@ double	MRBF::getSupportRadius(){
  * It gets the current real value of support radius for RBF kernels set up in the class. 
  * @return support radius value
  */
-double	MRBF::getSupportRadiusValue(){
+double	MRBFStyleObj::getSupportRadiusValue(){
 	return(RBF::getSupportRadius());
 };
 
@@ -163,7 +169,7 @@ double	MRBF::getSupportRadiusValue(){
  * @return support radius is set as value?
  */
 
-bool    MRBF::getIsSupportRadiusValue(){
+bool    MRBFStyleObj::getIsSupportRadiusValue(){
     return(m_supRIsValue);
 }
 
@@ -172,7 +178,7 @@ bool    MRBF::getIsSupportRadiusValue(){
  * If no field is actually present, return null pointers;
  * @return 	std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
  */
-std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
+std::pair<MimmoObject * , dvecarr3E * >	MRBFStyleObj::getDeformedField(){
 
 	std::pair<MimmoObject *, dvecarr3E * > pairField;
 	pairField.first = getGeometry();
@@ -185,7 +191,7 @@ std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
  * @return 	The computed deformation field on the vertices of the linked geometry
  */
 dvecarr3E
-MRBF::getDisplacements(){
+MRBFStyleObj::getDisplacements(){
 	return m_displ;
 };
 
@@ -195,7 +201,7 @@ MRBF::getDisplacements(){
  * @param[in] node coordinates of control point.
  * @return RBF id.
  */
-int MRBF::addNode(darray3E node){
+int MRBFStyleObj::addNode(darray3E node){
 	return(RBF::addNode(node));
 };
 
@@ -204,7 +210,7 @@ int MRBF::addNode(darray3E node){
  * @param[in] nodes coordinates of control points.
  * @return Vector of RBF ids.
  */
-std::vector<int> MRBF::addNode(dvecarr3E nodes){
+std::vector<int> MRBFStyleObj::addNode(dvecarr3E nodes){
 	return(RBF::addNode(nodes));
 };
 
@@ -215,7 +221,7 @@ std::vector<int> MRBF::addNode(dvecarr3E nodes){
  * @param[in] geometry Pointer to MimmoObject that contains the geometry.
  * @return Vector of RBF ids.
  */
-ivector1D MRBF::addNode(MimmoObject* geometry){
+ivector1D MRBFStyleObj::addNode(MimmoObject* geometry){
 	if(geometry == NULL)	return	ivector1D(0);
 	dvecarr3E vertex = geometry->getVertexCoords();
 	return(RBF::addNode(vertex));
@@ -225,7 +231,7 @@ ivector1D MRBF::addNode(MimmoObject* geometry){
 /*!Set a RBF point as unique control node and activate it.
  * @param[in] node coordinates of control point.
  */
-void MRBF::setNode(darray3E node){
+void MRBFStyleObj::setNode(darray3E node){
 	removeAllNodes();
 	RBF::addNode(node);
 	return;
@@ -234,7 +240,7 @@ void MRBF::setNode(darray3E node){
 /*!Set a list of RBF points as control nodes and activate it.
  * @param[in] node coordinates of control points.
  */
-void MRBF::setNode(dvecarr3E nodes){
+void MRBFStyleObj::setNode(dvecarr3E nodes){
 	removeAllNodes();
 	RBF::addNode(nodes);
 	return;
@@ -244,7 +250,7 @@ void MRBF::setNode(dvecarr3E nodes){
  * the vertices stored in a MimmoObject container.
  * @param[in] geometry Pointer to MimmoObject that contains the geometry.
  */
-void MRBF::setNode(MimmoObject* geometry){
+void MRBFStyleObj::setNode(MimmoObject* geometry){
 	if(geometry == NULL)	return ;
 	removeAllNodes();
 	dvecarr3E vertex = geometry->getVertexCoords();
@@ -256,7 +262,7 @@ void MRBF::setNode(MimmoObject* geometry){
  * coherent size between field size and number of geometry vertices is expected.
  * @param[in] filter fields.
  */
-void	MRBF::setFilter(dvector1D filter){
+void	MRBFStyleObj::setFilter(dvector1D filter){
 	m_filter.clear();
 	m_bfilter = !(filter.empty());
 	m_filter = filter;
@@ -268,7 +274,7 @@ void	MRBF::setFilter(dvector1D filter){
  * @param[in] tol distance tolerance
  * @return	list of duplicated nodes.
  */
-ivector1D MRBF::checkDuplicatedNodes(double tol){
+ivector1D MRBFStyleObj::checkDuplicatedNodes(double tol){
 	ivector1D marked;
 	int sizeEff = getTotalNodesCount();
 	if( sizeEff == 0 ) return marked;
@@ -291,7 +297,7 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
  * @param[in] list pointer to a list of id's of RBF candidate nodes
  * @return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
-bool MRBF::removeDuplicatedNodes(ivector1D * list){
+bool MRBFStyleObj::removeDuplicatedNodes(ivector1D * list){
 	ivector1D marked;
 	if(list==NULL){
 		marked = checkDuplicatedNodes();
@@ -311,7 +317,7 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
  * @param[in] suppR new value of suppR
  */
 void
-MRBF::setSupportRadius(double suppR_){
+MRBFStyleObj::setSupportRadius(double suppR_){
     suppR_ = std::fmax(-1.0,suppR_);
     m_SRRatio = suppR_;
     m_supRIsValue = false;
@@ -327,7 +333,7 @@ MRBF::setSupportRadius(double suppR_){
  * @param[in] suppR_ new value of support radius.
  */
 void
-MRBF::setSupportRadiusValue(double suppR_){
+MRBFStyleObj::setSupportRadiusValue(double suppR_){
     suppR_ = std::fmax(-1.0,suppR_);
     m_SRRatio = suppR_;
     m_supRIsValue = true;
@@ -337,7 +343,7 @@ MRBF::setSupportRadiusValue(double suppR_){
  * Tolerance infos are not used in MRBFSol::NONE mode. 
  * @param[in] tol Target tolerance.
  */
-void MRBF::setTol(double tol){
+void MRBFStyleObj::setTol(double tol){
 	m_tol = tol;
 }
 
@@ -350,7 +356,7 @@ void MRBF::setTol(double tol){
  * 
  * @param[in] displ list of nodal displacements
  */
-void MRBF::setDisplacements(dvecarr3E displ){
+void MRBFStyleObj::setDisplacements(dvecarr3E displ){
 	int size = displ.size();
 	if(size != getTotalNodesCount()){
 		std::cout << "MiMMO : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
@@ -368,7 +374,7 @@ void MRBF::setDisplacements(dvecarr3E displ){
 }
 
 /*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
-void MRBF::clear(){
+void MRBFStyleObj::clear(){
 	BaseManipulation::clear();
 	clearFilter();
 	m_tol = 0.00001;
@@ -376,7 +382,7 @@ void MRBF::clear(){
 };
 
 /*!Clean filter field */
-void MRBF::clearFilter(){
+void MRBFStyleObj::clearFilter(){
 	m_filter.clear();
 	m_bfilter = false;
 };
@@ -389,7 +395,7 @@ void MRBF::clearFilter(){
  * @param[in] displ list of nodal weights
  */
 void
-MRBF::setWeight(dvector2D value){
+MRBFStyleObj::setWeight(dvector2D value){
 	if(m_solver != MRBFSol::NONE)	return;
 		   
 	int size = value.size();
@@ -415,7 +421,7 @@ MRBF::setWeight(dvector2D value){
  * The result is stored in the m_displ member.
  *
  */
-void MRBF::execute(){
+void MRBFStyleObj::execute(){
 
 	MimmoObject * container = getGeometry();
 	if(container->isEmpty() ) return;
@@ -515,7 +521,7 @@ void MRBF::execute(){
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name   name associated to the slot
  */
-void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void  MRBFStyleObj::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
 	
@@ -571,7 +577,7 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name   name associated to the slot
  */
-void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));
