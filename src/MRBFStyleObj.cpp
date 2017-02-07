@@ -90,16 +90,25 @@ MRBFStyleObj::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
-/*!It returns a pointer to the RBF node stored in the object.
+/*!
+ * It returns a pointer to the RBF nodes stored in the object.
  */
-dvecarr3E*
+std::vector<MimmoObject*>
 MRBFStyleObj::getNodes(){
-	return(&m_node);
+	return(m_node);
+}
+
+/*!
+ * Return the number of nodes set for your class
+ */
+int
+MRBFStyleObj::getTotalNodesCount(){
+	return m_node.size();
 }
 
 /*! 
  * Return actual solver set for RBF data fields interpolation in MRBFStyleObj::execute
- * Reimplemented from RBF::getMode() of bitpit;
+ * Reimplemented from RBFAbstract::getMode() of bitpit;
  */
 MRBFSol
 MRBFStyleObj::getMode(){
@@ -107,19 +116,19 @@ MRBFStyleObj::getMode(){
 };
 
 /*!
- * Set type of solver set for RBF data fields interpolation/parameterization in MRBF::execute.
- * Reimplemented from RBF::setMode() of bitpit;
+ * Set type of solver set for RBF data fields interpolation/parameterization in MRBFStyleObj::execute.
+ * Reimplemented from RBFAbstract::setMode() of bitpit;
  * @param[in] solver type of MRBFSol enum; 
  */
 void
 MRBFStyleObj::setMode(MRBFSol solver){
 	m_solver = solver;
-	if (m_solver == MRBFSol::NONE)	RBF::setMode(RBFMode::PARAM);
-	else							RBF::setMode(RBFMode::INTERP);
+	if (m_solver == MRBFSol::NONE)	RBFAbstract::setMode(RBFMode::PARAM);
+	else							RBFAbStract::setMode(RBFMode::INTERP);
 };
 /*!
  * Overloading of MRBFStyleObj::setSolver(MRBFSol solver) with int input parameter
- * Reimplemented from RBF::setMode() of bitpit;
+ * Reimplemented from RBFAbstract::setMode() of bitpit;
  * @param[in] int type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
  */
 void 
@@ -144,12 +153,11 @@ dvector1D	MRBFStyleObj::getFilter(){
 /*! 
  * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
  * See MRBFStyleObj::setSupportRadius and MRBFStyleObj::setSupportRadiusValue method documentation.
- * Reimplemented from bitpit::RBF::getSupportRadius.
+ * Reimplemented from bitpit::RBFAbstract::getSupportRadius.
  * @return support radius ratio
  */
 double	MRBFStyleObj::getSupportRadius(){
-    if (m_supRIsValue)
-    {
+    if (m_supRIsValue){
         return(getSupportRadiusValue());
     }
     return(m_SRRatio);
@@ -160,7 +168,7 @@ double	MRBFStyleObj::getSupportRadius(){
  * @return support radius value
  */
 double	MRBFStyleObj::getSupportRadiusValue(){
-	return(RBF::getSupportRadius());
+	return(RBFAbstract::getSupportRadius());
 };
 
 /*!
@@ -196,65 +204,34 @@ MRBFStyleObj::getDisplacements(){
 };
 
 
-/*!Adds a RBF point to the total control node list and activate it.
- * Reimplemented from RBF::addNode of bitpit;
- * @param[in] node coordinates of control point.
- * @return RBF id.
+/*!Adds a RBF node to the total control node list and activate it. Appending mode.
+ * @param[in] node pointer to a MimmoObject container holding the mesh/node  
  */
-int MRBFStyleObj::addNode(darray3E node){
-	return(RBF::addNode(node));
-};
-
-/*!Adds a list of RBF points to the total control node list and activate them.
- * Reimplemented from RBF::addNode of bitpit;
- * @param[in] nodes coordinates of control points.
- * @return Vector of RBF ids.
- */
-std::vector<int> MRBFStyleObj::addNode(dvecarr3E nodes){
-	return(RBF::addNode(nodes));
-};
-
-/*!Adds a set of RBF points to the total control node list extracting
- * the vertices stored in a MimmoObject container. Return a vector containing 
- * the RBF node int id.
- * Reimplemented from RBF::addNode of bitpit;
- * @param[in] geometry Pointer to MimmoObject that contains the geometry.
- * @return Vector of RBF ids.
- */
-ivector1D MRBFStyleObj::addNode(MimmoObject* geometry){
-	if(geometry == NULL)	return	ivector1D(0);
-	dvecarr3E vertex = geometry->getVertexCoords();
-	return(RBF::addNode(vertex));
-};
-
-
-/*!Set a RBF point as unique control node and activate it.
- * @param[in] node coordinates of control point.
- */
-void MRBFStyleObj::setNode(darray3E node){
-	removeAllNodes();
-	RBF::addNode(node);
+void MRBFStyleObj::setAddNode(MimmoObject * node){
+	if(node->isEmpty())	return;
+	m_node.push_back(node);
+	m_active.push_back(true);
+	m_nodes++;
 	return;
 };
 
-/*!Set a list of RBF points as control nodes and activate it.
- * @param[in] node coordinates of control points.
+/*!Adds a list of RBF nodes to the total control node list and activate them. Appending mode.
+ * @param[in] nodes list of pointers to MimmoObject containers holding the meshes/nodes
  */
-void MRBFStyleObj::setNode(dvecarr3E nodes){
-	removeAllNodes();
-	RBF::addNode(nodes);
+void MRBFStyleObj::setAddNode(std::vector<MimmoObject*> nodelist){
+	for(auto & val: nodelist){
+		setAddNode(val);
+	}
 	return;
 };
 
-/*!Set the RBF points as control nodes extracting
- * the vertices stored in a MimmoObject container.
- * @param[in] geometry Pointer to MimmoObject that contains the geometry.
+/*!Set a list of mesh objects as RBF control nodes and activate it. Any previous list will
+ * be thrown away and substituted by the current list.
+ * @param[in] node list of pointers to MimmoObject containers holding the meshes/nodes
  */
-void MRBFStyleObj::setNode(MimmoObject* geometry){
-	if(geometry == NULL)	return ;
+void MRBFStyleObj::setNode(std::vector<MimmoObject*> nodelist){
 	removeAllNodes();
-	dvecarr3E vertex = geometry->getVertexCoords();
-	RBF::addNode(vertex);
+	setAddNode(nodelist);
 	return;
 };
 
@@ -269,26 +246,73 @@ void	MRBFStyleObj::setFilter(dvector1D filter){
 };
 
 
-/*! Find all possible duplicated nodes within a prescribed distance tolerance.
- * Default tolerance value is 1.0E-12;
- * @param[in] tol distance tolerance
+
+/*! Remove pre-existent node. MRBFStyleObj Node list is resized and renumbered after extraction.
+ * Supported in both modes.
+ * @param[in] id id of node
+ * @return boolean, true if successfully extracted, false otherwise
+ */
+bool MRBFStyleObj::removeNode(int id){
+	
+	if(id < 0 || id >=m_nodes) return false;
+	
+	m_nodes--;
+	m_node.erase(m_node.begin()+id);
+	m_active.erase(m_active.begin()+id);
+	return(true);
+}
+
+/*! Remove pre-existent set of nodes. MRBFStyleObj nodal list is resized and renumbered after extraction.
+ *  Supported in both modes.
+ * @param[in] list id list of candidates to extraction
+ * @return boolean, true if all nodes are successfully extracted, false if any of them or none are extracted
+ */
+bool MRBFStyleObj::removeNode(std::vector<int> & list){
+	
+	std::set<int> setList;
+	for(auto && id : list) setList.insert(id);
+	
+	int extracted = 0;
+	for(auto && id : setList){
+		if(id>=0 && id <m_nodes){;
+			m_nodes--;
+			int index = id-extracted;
+			m_node.erase(m_node.begin() + index);
+			m_active.erase(m_active.begin() + index);
+			extracted++;
+		}
+	}
+	return(extracted == (int)(list.size()));
+}
+
+/*!
+ * Remove all nodes in MRBFStyleObj nodal list. Supported in both modes.
+ */
+void MRBFStyleObj::removeAllNodes(){
+	m_nodes = 0;
+	m_node.clear();
+	m_active.clear();
+}
+
+
+/*! Find all possible duplicated nodes checking their address signature
  * @return	list of duplicated nodes.
  */
-ivector1D MRBFStyleObj::checkDuplicatedNodes(double tol){
+ivector1D MRBFStyleObj::checkDuplicatedNodes(){
 	ivector1D marked;
 	int sizeEff = getTotalNodesCount();
 	if( sizeEff == 0 ) return marked;
 	
 	bvector1D check(sizeEff, false);
 	
-	darray3E target = m_node[0];
-	for(int i=1; i<sizeEff; ++i){
-		double dist = norm2(m_node[i] - target);
-		if(!check[i] && dist <= tol){
-			marked.push_back(i);
-			check[i] = true;
+	for(int i=0; i<sizeEff; ++i){
+		for(int j=i+1; j<sizeEff; ++j){
+			if(!check[j] && m_node[j] == m_node[i]){
+				marked.push_back(j);
+				check[j] = true;
+			}
 		}
-	}
+	}	
 	return(marked);	
 }
 

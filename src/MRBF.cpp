@@ -280,14 +280,15 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
 	
 	bvector1D check(sizeEff, false);
 	
-	darray3E target = m_node[0];
-	for(int i=1; i<sizeEff; ++i){
-		double dist = norm2(m_node[i] - target);
-		if(!check[i] && dist <= tol){
-			marked.push_back(i);
-			check[i] = true;
+	for(int i=0; i<sizeEff; ++i){
+		for(int j=i+1; j<sizeEff; ++j){
+			double dist = norm2(m_node[j] - m_node[i]);
+			if(!check[j] && dist <= tol){
+				marked.push_back(i);
+				check[j] = true;
+			}
 		}
-	}
+	}	
 	return(marked);	
 }
 

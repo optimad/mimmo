@@ -112,17 +112,15 @@ public:
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	dvecarr3E		getDisplacements();
 	
-	int 			setAddNode(MimmoObject*);
-	ivector1D		setAddNode(std::vector<MimmoObject*>);
+	void 			setAddNode(MimmoObject*);
+	void			setAddNode(std::vector<MimmoObject*>);
 
 	void			setNode(std::vector<MimmoObject*>)
 	void			setFilter(dvector1D );
 	
 	ivector1D		checkDuplicatedNodes();
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
-	bool			removeNode(int id);
-	bool			removeNode(ivector1D & list);
-	bool			removeAllNodes();
+	void			removeAllNodes();
 	
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
