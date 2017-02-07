@@ -76,6 +76,7 @@ MRBFStyleObj & MRBFStyleObj::operator=(const MRBFStyleObj & other){
 	m_solver = other.m_solver;
 	m_SRRatio  = other.m_SRRatio;
 	m_node = other.m_node;
+	m_bboxes = other.m_bboxes;
 	m_supRIsValue = other.m_supRIsValue;
 	m_bfilter = other.m_bfilter;
 	if(m_bfilter)	m_filter = other.m_filter;
@@ -209,6 +210,13 @@ MRBFStyleObj::getDisplacements(){
  */
 void MRBFStyleObj::setAddNode(MimmoObject * node){
 	if(node->isEmpty())	return;
+	//save bounding boxes adding nodes
+	darray3E minP, maxP
+	node->getPatch()->getBoundingBox(minP, maxP);
+	m_bboxes[node].resize(2);
+	m_bboxes[node][0] = minP;
+	m_bboxes[node][1] = maxP;
+	//store node
 	m_node.push_back(node);
 	m_active.push_back(true);
 	m_nodes++;
@@ -257,8 +265,10 @@ bool MRBFStyleObj::removeNode(int id){
 	if(id < 0 || id >=m_nodes) return false;
 	
 	m_nodes--;
+	auto key = *(m_node.begin()+id);
 	m_node.erase(m_node.begin()+id);
 	m_active.erase(m_active.begin()+id);
+	m_bboxes.erase(key);
 	return(true);
 }
 
@@ -277,8 +287,10 @@ bool MRBFStyleObj::removeNode(std::vector<int> & list){
 		if(id>=0 && id <m_nodes){;
 			m_nodes--;
 			int index = id-extracted;
+			auto key = *(m_node.begin() + index);
 			m_node.erase(m_node.begin() + index);
 			m_active.erase(m_active.begin() + index);
+			m_bboxes.erase(key);
 			extracted++;
 		}
 	}
@@ -292,6 +304,7 @@ void MRBFStyleObj::removeAllNodes(){
 	m_nodes = 0;
 	m_node.clear();
 	m_active.clear();
+	m_bboxes.clear();
 }
 
 
@@ -317,7 +330,7 @@ ivector1D MRBFStyleObj::checkDuplicatedNodes(){
 }
 
 /*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all 
- * possible duplicated nodes within a default tolerance of 1.0E-12 and erase them, if any.
+ * possible duplicated nodes and erase them, if any.
  * @param[in] list pointer to a list of id's of RBF candidate nodes
  * @return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
@@ -441,7 +454,7 @@ MRBFStyleObj::setWeight(dvector2D value){
 }
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
- * linked geometry, given as result of RBF technique implemented in bitpit::RBF base class.
+ * linked geometry, given as result of RBF technique implemented in bitpit::RBFAbstract base class.
  * The result is stored in the m_displ member.
  *
  */
@@ -513,7 +526,7 @@ void MRBFStyleObj::execute(){
 	m_displ.resize(nv, darray3E{0,0,0});
 	dvector1D displ;
 	for(int i=0; i<nv; ++i){
-		displ = RBF::evalRBF(vertex[i]);
+		displ = evalRBF(vertex[i]);
 		for (int j=0; j<3; j++) m_displ[i][j] = displ[j];
 	}
 	
@@ -561,13 +574,13 @@ void  MRBFStyleObj::absorbSectionXML(bitpit::Config::Section & slotXML, std::str
 		setMode(value);
 	}; 
 	
-	if(slotXML.hasOption("SupportRadius")){
-		input = slotXML.get("SupportRadius");
+	if(slotXML.hasOption("SupportRadiusValue")){
+		input = slotXML.get("SupportRadiusValue");
 		double value = -1.0;
 		if(!input.empty()){
 			std::stringstream ss(bitpit::utils::trim(input));
 			ss >> value;
-			setSupportRadius(value);
+			setSupportRadiusValue(value);
 		}
 	}; 
 	
@@ -613,8 +626,8 @@ void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	
 	{
 		std::stringstream ss;
-		ss<<std::scientific<<getSupportRadius();
-		slotXML.set("SupportRadius", ss.str());
+		ss<<std::scientific<<getSupportRadiusValue();
+		slotXML.set("SupportRadiusValue", ss.str());
 	}
 	//checking if not default and if not connected to a port
 	if(m_tol != 1.0E-6 ){
@@ -626,3 +639,62 @@ void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	return;
 }
 
+/*!
+ * Evaluate the distance between two RBF nodes of the class  
+ */
+ double MRBFStyleObj::calcDist(int i, int j){
+	 
+	 double distMin = 1.0E+18;
+	 if(!m_node[i]->isBvTreeBuilt())	m_node[i]->buildBvTree();
+	 if(!m_node[j]->isBvTreeBuilt())	m_node[j]->buildBvTree();
+	 
+	 //find an indicative distance of search between geometries
+	 {
+		 darray3E cA,cB;
+		 cA = 0.5*(m_bboxes[m_node[i]][0]+m_bboxes[m_node[i]][1]);
+		 cB = 0.5*(m_bboxes[m_node[j]][0]+m_bboxes[m_node[j]][1]);
+		 initRadius = norm2(cB - cA);
+	 }
+	
+	double workRadius;
+	//search first set of points against second figure
+	for(auto & val : m_node[i]->getVertexCoords()){
+		 workRadius= initRadius;
+		 dist = bvTreeUtils::distance(&val, m_node[j]->getBvTree(), id, initRadius);
+		 if(dist < distMin)	distMin = dist;	
+	}
+	
+	//search second set of points against first figure
+	for(auto & val : m_node[j]->getVertexCoords()){
+		workRadius= initRadius;
+		dist = bvTreeUtils::distance(&val, m_node[i]->getBvTree(), id, initRadius);
+		if(dist < distMin)	distMin = dist;	
+	}
+	
+	return distMin;
+	 
+} 
+
+/*!
+ * Evaluate the distance between a 3D point and a RBF node of the class  
+ */
+double MRBFStyleObj::calcDist(darray3E point, int j){
+	
+	double dist = 1.0E+18;
+	double rate = 0.02;
+	int kmax = 1000;
+	int kiter = 0;
+	bool flag = true;
+	
+	if(!m_node[j]->isBvTreeBuilt())	m_node[j]->buildBvTree();
+	initRadius = norm2(m_bboxes[m_node[j]][1] - m_bboxes[m_node[j]][0]);
+	
+	while(flag && kiter < kmax){
+		dist = bvTreeUtils::distance(&point, m_node[j]->getBvTree(), id, initRadius);
+		flag = (dist == 1.0E+18);
+		if(flag)	initRadius *= (1.0+ rate*((double)flag));
+		kiter++;
+	}
+	
+	return dist;
+} 

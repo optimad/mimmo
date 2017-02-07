@@ -86,6 +86,9 @@ private:
 	bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
 
 	std::vector<MimmoObject * > m_node; /**< list of nodes for your RBF parameterization */
+	
+	std::unordered_map<MimmoObject*, dvecarr3E> bboxes; /**< service structure to accelerate calcDist*/
+	
 public:
 	MRBFStyleObj();
 	virtual ~MRBFStyleObj();
@@ -118,9 +121,12 @@ public:
 	void			setNode(std::vector<MimmoObject*>)
 	void			setFilter(dvector1D );
 	
+	void			removeNode(int i);
+	void			removeNode((std::vector<int> & list);
+	void			removeAllNodes();
+	
 	ivector1D		checkDuplicatedNodes();
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
-	void			removeAllNodes();
 	
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
