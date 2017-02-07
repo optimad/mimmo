@@ -68,7 +68,6 @@ enum class MRBFSol{
  *  | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
  *  | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
  *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)  	|
- *	| 130   | M_VALUED2 | setTol                | (SCALAR, FLOAT)		|
  *	|-------|-----------|-----------------------|-----------------------|
  *
  *

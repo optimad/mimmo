@@ -21,39 +21,28 @@
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __MRBF_HPP__
-#define __MRBF_HPP__
+#ifndef __MRBFSTYLEOBJ_HPP__
+#define __MRBFSTYLEOBJ_HPP__
 
-#include "BaseManipulation.hpp"
-#include "rbf.hpp"
+#include "MRBF.hpp"
 
 namespace mimmo{
-	
-/*!
- * @enum MRBFSol
- * @brief Solver enum for your RBF data fields interpolation/ direct parameterization
- */
-enum class MRBFSol{
-	NONE = 0, 	/**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
-	WHOLE = 1,	/**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/ 
-	GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
-};
 	
 /*!
  *	\date			25/mar/2016
  *	\authors		Rocco Arpa
  *	\authors		Edoardo Lombardi
  *
- *  @class MRBF
- *	\brief Radial Basis Function evaluation from clouds of control points.
+ *  @class MRBFStyleObj
+ *	\brief Radial Basis Function evaluation from discrete meshes as control nodes .
  *
- *	This class is derived from BaseManipulation class of MiMMO and from RBF class
+ *	This class is derived from BaseManipulation class of MiMMO and from RBFAbstract class
  *	of bitpit library.
- *	It evaluates the result of RBF built over a set of control point given by the user
- *	or stored in a MimmoObject (geometry container). Default solver in execution is
+ *	It evaluates the result of RBF built over a set of control node geometries (3D curves or surfaces) given by the User
+ *	stored in a MimmoObject (geometry container). Default solver in execution is
  *	MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
  *  interpolation features.
- *  See bitpit::RBF docs for further information.
+ *  See bitpit::RBFAbstract docs for further information.
  *
  *	=========================================================
  * ~~~
@@ -62,13 +51,13 @@ enum class MRBFSol{
  *	|-------|-----------|-----------------------|-----------------------|
  *	|PortID | PortType  | variable/function     | DataType       		|
  *	|-------|-----------|-----------------------|-----------------------|
- *	| 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)		|
+ *  | 98    | M_GEOM2   | setAddNode            | (SCALAR, MIMMO_)		|
+ *	| 100   | M_VECGEOM | setAddNode            | (VECTOR, MIMMO_)		|
  *	| 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)		|
  *	| 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT) 		|
  *  | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
  *  | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
  *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)  	|
- *	| 130   | M_VALUED2 | setTol                | (SCALAR, FLOAT)		|
  *	|-------|-----------|-----------------------|-----------------------|
  *
  *
@@ -85,7 +74,7 @@ enum class MRBFSol{
  *
  */
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
-class MRBF: public BaseManipulation, public bitpit::RBF {
+class MRBFStyleObj: public BaseManipulation, public bitpit::RBFAbstract {
 
 private:
 	double 		m_tol;	    	/**< Tolerance for greedy algorithm.*/
@@ -96,20 +85,22 @@ private:
 	dvecarr3E	m_displ;	    /**<Resulting displacements of geometry vertex.*/
 	bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
 
+	std::vector<MimmoObject * > m_node; /**< list of nodes for your RBF parameterization */
 public:
-	MRBF();
-	virtual ~MRBF();
+	MRBFStyleObj();
+	virtual ~MRBFStyleObj();
 
 	//copy operators/constructors
-	MRBF(const MRBF & other);
-	MRBF & operator=(const MRBF & other);
+	MRBFStyleObj(const MRBFStyleObj & other);
+	MRBFStyleObj & operator=(const MRBFStyleObj & other);
 
 	void buildPorts();
 
 	void 			setGeometry(MimmoObject* geometry);
 	
-	dvecarr3E*		getNodes();
-
+	std::vector<MimmoObject*>		getNodes();
+	int 							getTotalNodesCount();
+	
 	MRBFSol			getMode();
 	void			setMode(MRBFSol);
 	void			setMode(int);
@@ -121,25 +112,25 @@ public:
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	dvecarr3E		getDisplacements();
 	
-	int 			addNode(darray3E);
-	ivector1D		addNode(dvecarr3E);
-	ivector1D	 	addNode(MimmoObject* geometry);
+	int 			setAddNode(MimmoObject*);
+	ivector1D		setAddNode(std::vector<MimmoObject*>);
 
-	void 			setNode(darray3E);
-	void			setNode(dvecarr3E);
-	void		 	setNode(MimmoObject* geometry);
+	void			setNode(std::vector<MimmoObject*>)
 	void			setFilter(dvector1D );
 	
-	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
+	ivector1D		checkDuplicatedNodes();
 	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
+	bool			removeNode(int id);
+	bool			removeNode(ivector1D & list);
+	bool			removeAllNodes();
 	
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E displ);
 
-	void 		clear();
-	void 		clearFilter();
+	void 			clear();
+	void 			clearFilter();
 	
 	//execute deformation methods
 	void 			execute();
@@ -150,9 +141,11 @@ public:
 	
 protected:
 	void			setWeight(dvector2D value);
+	double			calcDist(int i,int j);
+	double			calcDist(darray3E & point, int j)
 
 };
 
 }
 
-#endif /* __MRBF_HPP__ */
+#endif /* __MRBFSTYLEOBJ_HPP__ */
