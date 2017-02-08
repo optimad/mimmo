@@ -70,7 +70,7 @@ void MRBFStyleObj::buildPorts(){
  * @param[in] other MRBFStyleObj where copy from
  */
 MRBFStyleObj & MRBFStyleObj::operator=(const MRBFStyleObj & other){
-	*(static_cast<RBFAbstract * > (this)) = *(static_cast <const RBFAbstract*>(&other));
+	*(static_cast<RBFKernel * > (this)) = *(static_cast <const RBFKernel*>(&other));
 	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
 	m_tol = other.m_tol;
 	m_solver = other.m_solver;
@@ -109,7 +109,7 @@ MRBFStyleObj::getTotalNodesCount(){
 
 /*! 
  * Return actual solver set for RBF data fields interpolation in MRBFStyleObj::execute
- * Reimplemented from RBFAbstract::getMode() of bitpit;
+ * Reimplemented from RBFKernel::getMode() of bitpit;
  */
 MRBFSol
 MRBFStyleObj::getMode(){
@@ -118,18 +118,18 @@ MRBFStyleObj::getMode(){
 
 /*!
  * Set type of solver set for RBF data fields interpolation/parameterization in MRBFStyleObj::execute.
- * Reimplemented from RBFAbstract::setMode() of bitpit;
+ * Reimplemented from RBFKernel::setMode() of bitpit;
  * @param[in] solver type of MRBFSol enum; 
  */
 void
 MRBFStyleObj::setMode(MRBFSol solver){
 	m_solver = solver;
-	if (m_solver == MRBFSol::NONE)	RBFAbstract::setMode(RBFMode::PARAM);
-	else							RBFAbStract::setMode(RBFMode::INTERP);
+	if (m_solver == MRBFSol::NONE)	RBFKernel::setMode(RBFMode::PARAM);
+	else							RBFKernel::setMode(RBFMode::INTERP);
 };
 /*!
  * Overloading of MRBFStyleObj::setSolver(MRBFSol solver) with int input parameter
- * Reimplemented from RBFAbstract::setMode() of bitpit;
+ * Reimplemented from RBFKernel::setMode() of bitpit;
  * @param[in] int type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
  */
 void 
@@ -154,7 +154,7 @@ dvector1D	MRBFStyleObj::getFilter(){
 /*! 
  * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
  * See MRBFStyleObj::setSupportRadius and MRBFStyleObj::setSupportRadiusValue method documentation.
- * Reimplemented from bitpit::RBFAbstract::getSupportRadius.
+ * Reimplemented from bitpit::RBFKernel::getSupportRadius.
  * @return support radius ratio
  */
 double	MRBFStyleObj::getSupportRadius(){
@@ -169,7 +169,7 @@ double	MRBFStyleObj::getSupportRadius(){
  * @return support radius value
  */
 double	MRBFStyleObj::getSupportRadiusValue(){
-	return(RBFAbstract::getSupportRadius());
+	return(RBFKernel::getSupportRadius());
 };
 
 /*!
@@ -211,14 +211,14 @@ MRBFStyleObj::getDisplacements(){
 void MRBFStyleObj::setAddNode(MimmoObject * node){
 	if(node->isEmpty())	return;
 	//save bounding boxes adding nodes
-	darray3E minP, maxP
+	darray3E minP, maxP;
 	node->getPatch()->getBoundingBox(minP, maxP);
 	m_bboxes[node].resize(2);
 	m_bboxes[node][0] = minP;
 	m_bboxes[node][1] = maxP;
 	//store node
 	m_node.push_back(node);
-	m_active.push_back(true);
+	m_activeNodes.push_back(true);
 	m_nodes++;
 	return;
 };
@@ -267,7 +267,7 @@ bool MRBFStyleObj::removeNode(int id){
 	m_nodes--;
 	auto key = *(m_node.begin()+id);
 	m_node.erase(m_node.begin()+id);
-	m_active.erase(m_active.begin()+id);
+	m_activeNodes.erase(m_activeNodes.begin()+id);
 	m_bboxes.erase(key);
 	return(true);
 }
@@ -289,7 +289,7 @@ bool MRBFStyleObj::removeNode(std::vector<int> & list){
 			int index = id-extracted;
 			auto key = *(m_node.begin() + index);
 			m_node.erase(m_node.begin() + index);
-			m_active.erase(m_active.begin() + index);
+			m_activeNodes.erase(m_activeNodes.begin() + index);
 			m_bboxes.erase(key);
 			extracted++;
 		}
@@ -303,7 +303,7 @@ bool MRBFStyleObj::removeNode(std::vector<int> & list){
 void MRBFStyleObj::removeAllNodes(){
 	m_nodes = 0;
 	m_node.clear();
-	m_active.clear();
+	m_activeNodes.clear();
 	m_bboxes.clear();
 }
 
@@ -454,7 +454,7 @@ MRBFStyleObj::setWeight(dvector2D value){
 }
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
- * linked geometry, given as result of RBF technique implemented in bitpit::RBFAbstract base class.
+ * linked geometry, given as result of RBF technique implemented in bitpit::RBFKernel base class.
  * The result is stored in the m_displ member.
  *
  */
@@ -515,7 +515,7 @@ void MRBFStyleObj::execute(){
 	}
 	
 	const double radius = distance;
-	RBF::setSupportRadius(radius);
+	RBFKernel::setSupportRadius(radius);
 	
    if (m_solver == MRBFSol::WHOLE)	solve();
    if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
@@ -649,14 +649,17 @@ void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	 if(!m_node[j]->isBvTreeBuilt())	m_node[j]->buildBvTree();
 	 
 	 //find an indicative distance of search between geometries
-	 {
+	 double initRadius, workRadius;
+	 double dist = 1.E+18;
+	 long id;
+	 
+	{
 		 darray3E cA,cB;
 		 cA = 0.5*(m_bboxes[m_node[i]][0]+m_bboxes[m_node[i]][1]);
 		 cB = 0.5*(m_bboxes[m_node[j]][0]+m_bboxes[m_node[j]][1]);
 		 initRadius = norm2(cB - cA);
-	 }
+	}
 	
-	double workRadius;
 	//search first set of points against second figure
 	for(auto & val : m_node[i]->getVertexCoords()){
 		 workRadius= initRadius;
@@ -678,19 +681,21 @@ void  MRBFStyleObj::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 /*!
  * Evaluate the distance between a 3D point and a RBF node of the class  
  */
-double MRBFStyleObj::calcDist(darray3E point, int j){
+double MRBFStyleObj::calcDist(const darray3E & point, int j){
 	
 	double dist = 1.0E+18;
 	double rate = 0.02;
 	int kmax = 1000;
 	int kiter = 0;
 	bool flag = true;
+	long id;
+	auto pp = point;
 	
 	if(!m_node[j]->isBvTreeBuilt())	m_node[j]->buildBvTree();
-	initRadius = norm2(m_bboxes[m_node[j]][1] - m_bboxes[m_node[j]][0]);
+	double initRadius = norm2(m_bboxes[m_node[j]][1] - m_bboxes[m_node[j]][0]);
 	
 	while(flag && kiter < kmax){
-		dist = bvTreeUtils::distance(&point, m_node[j]->getBvTree(), id, initRadius);
+		dist = bvTreeUtils::distance(&pp, m_node[j]->getBvTree(), id, initRadius);
 		flag = (dist == 1.0E+18);
 		if(flag)	initRadius *= (1.0+ rate*((double)flag));
 		kiter++;

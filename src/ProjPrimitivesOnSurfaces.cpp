@@ -424,10 +424,11 @@ ProjSegmentOnSurface::projection(){
 	dvecarr3E verts((m_nC + 1)), projs;
 	{
 		//create the vertices array, ordered from pointA to pointB
-		double dx = norm2(m_pointB - m_pointA)/m_nC;
+		auto dx = (m_pointB - m_pointA);
+		dx /= double(m_nC);
 		counter = 0;
 		for( auto && ele : verts){
-			ele  = m_pointA + counter*dx;
+			ele  = m_pointA + double(counter)*dx;
 			++counter;
 		}
 	}
@@ -443,7 +444,7 @@ ProjSegmentOnSurface::projection(){
 	
 	//storing the projected points in the MImmoObject:
 	long idS = 0;
-	for(auto vv : verts){
+	for(auto vv : projs){
 		dum->addVertex(vv, idS);
 		++idS;
 	} 

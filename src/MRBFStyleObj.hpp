@@ -36,13 +36,13 @@ namespace mimmo{
  *  @class MRBFStyleObj
  *	\brief Radial Basis Function evaluation from discrete meshes as control nodes .
  *
- *	This class is derived from BaseManipulation class of MiMMO and from RBFAbstract class
+ *	This class is derived from BaseManipulation class of MiMMO and from RBFKernel class
  *	of bitpit library.
  *	It evaluates the result of RBF built over a set of control node geometries (3D curves or surfaces) given by the User
  *	stored in a MimmoObject (geometry container). Default solver in execution is
  *	MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
  *  interpolation features.
- *  See bitpit::RBFAbstract docs for further information.
+ *  See bitpit::RBFKernel docs for further information.
  *
  *	=========================================================
  * ~~~
@@ -74,7 +74,7 @@ namespace mimmo{
  *
  */
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
-class MRBFStyleObj: public BaseManipulation, public bitpit::RBFAbstract {
+class MRBFStyleObj: public BaseManipulation, public bitpit::RBFKernel {
 
 private:
 	double 		m_tol;	    	/**< Tolerance for greedy algorithm.*/
@@ -87,7 +87,7 @@ private:
 
 	std::vector<MimmoObject * > m_node; /**< list of nodes for your RBF parameterization */
 	
-	std::unordered_map<MimmoObject*, dvecarr3E> bboxes; /**< service structure to accelerate calcDist*/
+	std::unordered_map<MimmoObject*, dvecarr3E> m_bboxes; /**< service structure to accelerate calcDist*/
 	
 public:
 	MRBFStyleObj();
@@ -115,14 +115,14 @@ public:
 	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
 	dvecarr3E		getDisplacements();
 	
-	void 			setAddNode(MimmoObject*);
-	void			setAddNode(std::vector<MimmoObject*>);
+	void 			setAddNode(MimmoObject* node);
+	void			setAddNode(std::vector<MimmoObject*> nodelist);
 
-	void			setNode(std::vector<MimmoObject*>)
-	void			setFilter(dvector1D );
+	void			setNode(std::vector<MimmoObject*> nodelist);
+	void			setFilter(dvector1D filter);
 	
-	void			removeNode(int i);
-	void			removeNode((std::vector<int> & list);
+	bool			removeNode(int i);
+	bool			removeNode(std::vector<int> & list);
 	void			removeAllNodes();
 	
 	ivector1D		checkDuplicatedNodes();
@@ -146,7 +146,7 @@ public:
 protected:
 	void			setWeight(dvector2D value);
 	double			calcDist(int i,int j);
-	double			calcDist(darray3E & point, int j)
+	double			calcDist(const darray3E & point, int j);
 
 };
 
