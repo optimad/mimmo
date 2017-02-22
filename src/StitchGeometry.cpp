@@ -146,6 +146,8 @@ void
 StitchGeometry::setAddGeometry(MimmoObject* geo){
 		if(geo->isEmpty()) return;
 		if(geo->getType() != m_topo)	return;
+		if(m_extgeo.count(geo)	> 0)	return;
+		
 		m_extgeo.insert(std::make_pair(geo,m_geocount) );
 		m_geocount++;
 };
