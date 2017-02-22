@@ -59,5 +59,11 @@
 #include "SplitFields.hpp"
 #include "MultiApply.hpp"
 #include "ProjPrimitivesOnSurfaces.hpp"
+#include "MeshSelection.hpp"
+#include "CrateSeedsOnSurface.hpp"
+#include "OverlappingFields.hpp"
+#include "ReconstructScalar.hpp"
+
+
 
 #endif
