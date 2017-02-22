@@ -59,14 +59,14 @@ void test00013() {
 	SplitVectorField* sfv = new SplitVectorField(1);
 	sfv->setPlotInExecution(true);
 	sfv->setOutputPlot(".");
-	dvecarr3E f1(300000, {{10,0,0}});
+	dvecarr3E f1(138000, {{10,0,0}});
 	sfv->setField(f1);
 	
 	SplitScalarField* sfs = new SplitScalarField(1);
 	sfs->setPlotInExecution(true);
 	sfs->setOutputPlot(".");
 
-	dvector1D f2(700000, 3.5);
+	dvector1D f2(274000, 3.5);
 	sfs->setField(f2);
 	
 	
@@ -86,8 +86,8 @@ void test00013() {
 	cout << "add pin info 2 : " << boolalpha << addPin(g1, stitcher, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
 	cout << "add pin info 3 : " << boolalpha << addPin(stitcher, sfv, PortType::M_GEOM, PortType::M_GEOM)<<endl;
 	cout << "add pin info 4 : " << boolalpha << addPin(stitcher, sfs, PortType::M_GEOM, PortType::M_GEOM)<<endl;
-	cout << "add pin info 5 : " << boolalpha << addPin(g1, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
-	cout << "add pin info 6 : " << boolalpha << addPin(g1, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 5 : " << boolalpha << addPin(stitcher, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(stitcher, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
 	cout << "add pin info 7 : " << boolalpha << addPin(stitcher, sfv, PortType::M_MAPDVERT, PortType::M_MAPDVERT)<<endl;
 	cout << "add pin info 8 : " << boolalpha << addPin(stitcher, sfs, PortType::M_MAPDCELL, PortType::M_MAPDCELL)<<endl;
 	
