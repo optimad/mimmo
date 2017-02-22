@@ -323,7 +323,7 @@ void GenericSelection::plotOptionalResults(){
  * Basic Constructor
  */
 SelectionByBox::SelectionByBox(){
-	m_name = "MiMMiNO.SelectionByBox";
+	m_name = "MiMMO.SelectionByBox";
 	m_type = SelectionType::BOX;
 };
 
@@ -334,7 +334,7 @@ SelectionByBox::SelectionByBox(){
  * \param[in] target	pointer to a target geometry
  */
 SelectionByBox::SelectionByBox(darray3E origin, darray3E span, MimmoObject * target){
-	m_name = "MiMMiNO.SelectionByBox";
+	m_name = "MiMMO.SelectionByBox";
 	m_type = SelectionType::BOX;
 	setGeometry(target);
 	setOrigin(origin);
@@ -593,7 +593,7 @@ void SelectionByBox::flushSectionXML(bitpit::Config::Section & slotXML, std::str
  * Basic Constructor
  */
 SelectionByCylinder::SelectionByCylinder(){
-	m_name = "MiMMiNO.SelectionByCylinder";
+	m_name = "MiMMO.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
 };
 
@@ -606,7 +606,7 @@ SelectionByCylinder::SelectionByCylinder(){
  * \param[in] target	pointer to a target geometry 
  */
 SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target){
-	m_name = "MiMMiNO.SelectionByCylinder";
+	m_name = "MiMMO.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
 	setGeometry(target);
 	setOrigin(origin);
@@ -889,7 +889,7 @@ void SelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std
  * Basic Constructor
  */
 SelectionBySphere::SelectionBySphere(){
-	m_name = "MiMMiNO.SelectionBySphere";
+	m_name = "MiMMO.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
 };
 
@@ -903,7 +903,7 @@ SelectionBySphere::SelectionBySphere(){
  * \param[in] target	pointer to a target geometry 
  */
 SelectionBySphere::SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target){
-	m_name = "MiMMiNO.SelectionBySphere";
+	m_name = "MiMMO.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
 	setGeometry(target);
 	setOrigin(origin);
@@ -1185,7 +1185,7 @@ void SelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::
  * . Other options are not available, if forced trigger default value of 1.
  */
 SelectionByMapping::SelectionByMapping(int topo){
-	m_name = "MiMMiNO.SelectionByMapping";
+	m_name = "MiMMO.SelectionByMapping";
 	m_type = SelectionType::MAPPING;
 	m_tolerance = 1.E-08;
 	
@@ -1211,7 +1211,7 @@ SelectionByMapping::SelectionByMapping(int topo){
  * \param[in]	tolerance	proximity criterium tolerance 
  */
 SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance){
-	m_name = "MiMMiNO.SelectionByMapping";
+	m_name = "MiMMO.SelectionByMapping";
 	m_type = SelectionType::MAPPING;
 	m_tolerance = 1.E-08;
 	
@@ -1615,7 +1615,7 @@ void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std:
  * Basic Constructor
  */
 SelectionByPID::SelectionByPID(){
-	m_name = "MiMMiNO.SelectionByPID";
+	m_name = "MiMMO.SelectionByPID";
 };
 
 /*!
@@ -1624,7 +1624,7 @@ SelectionByPID::SelectionByPID(){
  * \param[in] target	pointer to taret geometry
  */
 SelectionByPID::SelectionByPID(shivector1D & pidlist, MimmoObject * target){
-	m_name = "MiMMiNO.SelectionByPID";
+	m_name = "MiMMO.SelectionByPID";
 	setGeometry(target);
 	setPID(pidlist);
 };
@@ -1973,7 +1973,7 @@ void SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::str
  * Basic Constructor
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(){
-    m_name = "MiMMiNO.SelectionByBoxWithScalar";
+    m_name = "MiMMO.SelectionByBoxWithScalar";
 };
 
 /*!
@@ -1983,7 +1983,7 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(){
  * \param[in] target    pointer to a target geometry
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target){
-    m_name = "MiMMiNO.SelectionByBoxWithScalar";
+    m_name = "MiMMO.SelectionByBoxWithScalar";
     SelectionByBox(origin, span, target);
 };
 

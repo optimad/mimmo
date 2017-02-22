@@ -40,7 +40,7 @@ using namespace mimmo;
  * Constructor
  */
 CreateSeedsOnSurface::CreateSeedsOnSurface(){
-	m_name = "MiMMiNO.CreateSeedsOnSurface";
+	m_name = "MiMMO.CreateSeedsOnSurface";
 	m_nPoints = 0;
 	m_minDist = 0.0;
 	m_seed = {{0.0,0.0,0.0}};

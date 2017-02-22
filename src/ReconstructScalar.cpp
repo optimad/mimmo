@@ -29,7 +29,7 @@
   * Constructor
   */
 ReconstructScalar::ReconstructScalar(){
-	m_name = "MiMMiNO.ReconstructScalar";
+	m_name = "MiMMO.ReconstructScalar";
 	m_overlapCriterium = OverlapMethod::MAX;
 }
 
@@ -468,7 +468,7 @@ void ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::
  */
 
 ReconstructVector::ReconstructVector(){
-	m_name = "MiMMiNO.ReconstructVector";
+	m_name = "MiMMO.ReconstructVector";
 	m_overlapCriterium = OverlapMethod::SUM;
 }
 

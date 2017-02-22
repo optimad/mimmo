@@ -28,7 +28,7 @@
   * Constructor
   */
 OverlapScalarFields::OverlapScalarFields(){
-	m_name = "MiMMiNO.OverlapScalarFields";
+	m_name = "MiMMO.OverlapScalarFields";
 	m_overlapCriterium = OverlapMethod::SUM;
 }
 
@@ -534,7 +534,7 @@ void OverlapScalarFields::flushSectionXML(bitpit::Config::Section & slotXML, std
  * Constructor
  */
 OverlapVectorFields::OverlapVectorFields(){
-	m_name = "MiMMiNO.OverlapVectorFields";
+	m_name = "MiMMO.OverlapVectorFields";
 	m_overlapCriterium = OverlapMethod::SUM;
 }
 
