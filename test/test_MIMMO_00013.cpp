@@ -86,8 +86,13 @@ void test00013() {
 	cout << "add pin info 2 : " << boolalpha << addPin(g1, stitcher, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
 	cout << "add pin info 3 : " << boolalpha << addPin(stitcher, sfv, PortType::M_GEOM, PortType::M_GEOM)<<endl;
 	cout << "add pin info 4 : " << boolalpha << addPin(stitcher, sfs, PortType::M_GEOM, PortType::M_GEOM)<<endl;
-	cout << "add pin info 5 : " << boolalpha << addPin(stitcher, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
-	cout << "add pin info 6 : " << boolalpha << addPin(stitcher, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	
+// 	cout << "add pin info 5 : " << boolalpha << addPin(stitcher, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+// 	cout << "add pin info 6 : " << boolalpha << addPin(stitcher, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	
+	cout << "add pin info 5 : " << boolalpha << addPin(g1, sfv, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	cout << "add pin info 6 : " << boolalpha << addPin(g1, sfs, PortType::M_VECGEOM, PortType::M_VECGEOM)<<endl;
+	
 	cout << "add pin info 7 : " << boolalpha << addPin(stitcher, sfv, PortType::M_MAPDVERT, PortType::M_MAPDVERT)<<endl;
 	cout << "add pin info 8 : " << boolalpha << addPin(stitcher, sfs, PortType::M_MAPDCELL, PortType::M_MAPDCELL)<<endl;
 	

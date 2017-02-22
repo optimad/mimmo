@@ -70,9 +70,9 @@ namespace mimmo{
 class StitchGeometry: public BaseManipulation{
 	
 private:
-	int 								m_topo;		/**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud*/
-	std::unordered_set<MimmoObject*>	m_extgeo;	/**< pointers to external geometries*/
-
+	int 									m_topo;		/**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud*/
+	std::unordered_map<MimmoObject*,int>	m_extgeo;	/**< pointers to external geometries*/
+	
 	std::unique_ptr<MimmoObject> m_patch;	/**< resulting patch geometry */	
 	
 	std::unordered_map<long, std::pair<int, long> > m_mapCellDivision; /**< division map of actual ID-cell, part Id, original ID-cell*/
@@ -81,6 +81,7 @@ private:
 	bool		m_buildBvTree;				/**<If true build BvTree of stitched geometry. */
 	bool		m_buildKdTree;				/**<If true build KdTree of stitched geometry. */
 
+	int m_geocount;							/**<Internal geometry counter */
 	
 public:
 	StitchGeometry(int topo);

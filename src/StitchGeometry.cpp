@@ -34,7 +34,7 @@ using namespace mimmo;
  */
 StitchGeometry::StitchGeometry(int topo){
 	m_name 		= "MiMMO.StitchGeometry";
-	
+	m_geocount = 0;
 	m_topo     = std::min(1, topo);
 	if(m_topo > 3)	m_topo = 1;
 	
@@ -65,6 +65,7 @@ StitchGeometry & StitchGeometry::operator=(const StitchGeometry & other){
 	
 	m_buildBvTree = other.m_buildBvTree;
 	m_buildKdTree = other.m_buildKdTree;
+	m_geocount = other.m_geocount;
 	
 	//warning the internal data structure and its division map is not copied. Relaunch the execution eventually to fill it.
 	return *this;
@@ -98,8 +99,10 @@ StitchGeometry::getTopology(){
  */
 std::vector<MimmoObject *> 
 StitchGeometry::getOriginalGeometries(){
-	std::vector<MimmoObject * > res;
-	res.insert(res.end(), m_extgeo.begin(), m_extgeo.end());
+	std::vector<MimmoObject * > res(m_extgeo.size());
+	for(auto & val: m_extgeo){
+		res[val.second] = val.first;
+	}
 	return res;
 }
 
@@ -143,8 +146,8 @@ void
 StitchGeometry::setAddGeometry(MimmoObject* geo){
 		if(geo->isEmpty()) return;
 		if(geo->getType() != m_topo)	return;
-		
-		m_extgeo.insert(geo);
+		m_extgeo.insert(std::make_pair(geo,m_geocount) );
+		m_geocount++;
 };
 
 /*!
@@ -192,6 +195,7 @@ StitchGeometry::isEmpty(){
 void
 StitchGeometry::clear(){
 	m_extgeo.clear();
+	m_geocount = 0;
 	m_patch.reset(nullptr);
 	m_mapCellDivision.clear();
 	m_mapVertDivision.clear();
@@ -209,9 +213,10 @@ StitchGeometry::execute(){
 	long nCells = 0;
 	long nVerts = 0;
 	
-	for(auto &obj: m_extgeo){
-		nCells += obj->getNCells();
-		nVerts += obj->getNVertex();
+	
+	for(auto &obj:m_extgeo){
+		nCells += obj.first->getNCells();
+		nVerts += obj.first->getNVertex();
 	}
 	
 	//reserving memory
@@ -223,7 +228,6 @@ StitchGeometry::execute(){
 	m_mapVertDivision.clear();
 	
 	long cV = 0, cC = 0;
-	int objId = 0;
 	
 	//start filling your stitched object.
 	//divion maps will be filled coherently
@@ -239,30 +243,29 @@ StitchGeometry::execute(){
 		//start extracting/reversing vertices of the current obj
 		std::unordered_map<long,long> mapVloc;
 		
-		for(auto & vv : obj->getVertices()){
+		for(auto & vv : obj.first->getVertices()){
 			vId = vv.getId();
-			dum->addVertex(obj->getVertexCoords(vId), cV);
+			dum->addVertex(obj.first->getVertexCoords(vId), cV);
 			//update map;
-			m_mapVertDivision[cV] = std::make_pair(objId, vId);
+			m_mapVertDivision[cV] = std::make_pair(obj.second, vId);
 			mapVloc[vId] = cV;
 			cV++;
 		}
 		
 		//start extracting/reversing cells of the current obj
-		for(auto & cc : obj->getCells()){
+		for(auto & cc : obj.first->getCells()){
 			cId = cc.getId();
 			PID = cc.getPID();
 			eltype = cc.getType();
 			//get the local connectivity and update with new vertex numbering;
-			livector1D conn = obj->getCellConnectivity(cId);
+			livector1D conn = obj.first->getCellConnectivity(cId);
 			for(auto && ee: conn)	ee = mapVloc[ee];
 			
 			dum->addConnectedCell(conn, eltype, PID, cC);
 			//update map;
-			m_mapCellDivision[cC] = std::make_pair(objId, cId);
+			m_mapCellDivision[cC] = std::make_pair(obj.second, cId);
 			cC++;
 		}
-		objId++;
 	}
 	}//scope for optional vars;
 	
