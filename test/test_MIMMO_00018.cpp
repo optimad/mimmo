@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- *
+ * 
  *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
@@ -20,10 +20,9 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
-\*---------------------------------------------------------------------------*/
+ \ *---------------------------------------------------------------------------*/
 
 #include "MiMMO.hpp"
-#include "OverlappingFields.hpp"
 #include <functional>
 // #include <valgrind/callgrind.h>
 using namespace std;
@@ -38,7 +37,7 @@ using namespace std::placeholders;
 
 // =================================================================================== //
 
-void test00020() {
+void test00018() {
 
 	//Creation of MiMMO container.
 	MimmoGeometry * g1 = new MimmoGeometry();
@@ -75,7 +74,7 @@ void test00020() {
 	dvecarr3E f2(300000, {{-5.0,0,0}});
 	sfv2->setField(f2);
 	
-	mimmino::OverlapVectorFields * ovr = new mimmino::OverlapVectorFields();
+	mimmo::OverlapVectorFields * ovr = new mimmo::OverlapVectorFields();
 	
 	MimmoGeometry * g3 = new MimmoGeometry();
 	MimmoGeometry * g4 = new MimmoGeometry();
@@ -214,7 +213,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-		test00020() ;
+		test00018() ;
 		
 #if ENABLE_MPI==1
 	}

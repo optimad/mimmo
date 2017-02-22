@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
- *
- *  mimmino
+ * 
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
@@ -8,30 +8,26 @@
  *  License
  *  This file is part of bitbit.
  *
- *  mimmino is free software: you can redistribute it and/or modify it
+ *  MiMMO is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  mimmino is distributed in the hope that it will be useful, but WITHOUT
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with mimmino. If not, see <http://www.gnu.org/licenses/>.
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
-\*---------------------------------------------------------------------------*/
+ \ *---------------------------------------------------------------------------*/
 
 #include "bitpit.hpp"
-#include "IOPointListFF.hpp"
-#include "RCPoints.hpp"
-#include "MimmoGeometry.hpp"
-#include "Chain.hpp"
+#include "MiMMO.hpp"
 
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
-using namespace mimmino;
 
 
 #include <chrono>
@@ -51,23 +47,6 @@ public:
 	Checker(int c){
 		m_c = c;
 
-// 		std::cout<<"class "<<m_c<<" m_name "<<&m_name<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_counter "<<&m_counter<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_geometry "<<&m_geometry<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_parent "<<&m_parent<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_child "<<&m_child<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_portsType "<<&m_portsType<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_portIn"<<&m_portIn<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_portOut "<<&m_portOut<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_arePortsBuilt "<<&m_arePortsBuilt<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_active "<<&m_active<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_execPlot "<<&m_execPlot<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_outputPlot "<<&m_outputPlot<<std::endl;
-// 		std::cout<<"class "<<m_c<<" sm_baseManipulationCounter "<<&sm_baseManipulationCounter<<std::endl;
-// 		
-// 		std::cout<<"class "<<m_c<<" m_dir "<<&m_dir<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_file "<<&m_file<<std::endl;
-// 		std::cout<<"class "<<m_c<<" m_c "<<&m_c<<std::endl;
 	};
 	virtual ~Checker(){
 		
@@ -130,8 +109,8 @@ void testBinStrings() {
 	reader->setDir("./geo_data");
 	reader->setFile("provaPoints2");
 	
-	writer->setDir("./franco");
-	writer->setFile("carni");
+	writer->setDir(".");
+	writer->setFile("outputCheck");
 	
 
 	//Set PINS
@@ -189,7 +168,7 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
-		/**<Calling mimmino Test routines*/
+		/**<Calling mimmo Test routines*/
 
 		testBinStrings();
 		

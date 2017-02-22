@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
- *
- *  mimmino
+ * 
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
@@ -8,19 +8,19 @@
  *  License
  *  This file is part of bitbit.
  *
- *  mimmino is free software: you can redistribute it and/or modify it
+ *  MiMMO is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  mimmino is distributed in the hope that it will be useful, but WITHOUT
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with mimmino. If not, see <http://www.gnu.org/licenses/>.
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
-\*---------------------------------------------------------------------------*/
+ \ *---------------------------------------------------------------------------*/
 
 #include "bitpit.hpp"
 #include "CreateSeedsOnSurface.hpp"
@@ -29,7 +29,6 @@
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
-using namespace mimmino;
 
 
 #include <chrono>
@@ -39,7 +38,7 @@ using namespace std::placeholders;
 
 // =================================================================================== //
 
-void test0009(MimmoObject * geo) {
+void test00016(MimmoObject * geo) {
 
 	steady_clock::time_point t1,t2;
 	duration<double> time_span;
@@ -108,26 +107,26 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
-		/**<Calling mimmino Test routines*/
+		/**<Calling mimmo Test routines*/
 
 
-		MimmoGeometry * mimmino0 = new MimmoGeometry();
-		mimmino0->setRead(true);
-		mimmino0->setReadDir("geo_data");
-		mimmino0->setReadFileType(FileType::STL);
-		mimmino0->setReadFilename("drivAerBin2");
-		mimmino0->setWrite(true);
-		mimmino0->setWriteDir("./");
-		mimmino0->setWriteFileType(FileType::STL);
-		mimmino0->setWriteFilename("root1");
-		mimmino0->setBuildBvTree(true);
-		mimmino0->execute();
+		MimmoGeometry * mimmo0 = new MimmoGeometry();
+		mimmo0->setRead(true);
+		mimmo0->setReadDir("geo_data");
+		mimmo0->setReadFileType(FileType::STL);
+		mimmo0->setReadFilename("drivAerBin2");
+		mimmo0->setWrite(true);
+		mimmo0->setWriteDir("./");
+		mimmo0->setWriteFileType(FileType::STL);
+		mimmo0->setWriteFilename("root1");
+		mimmo0->setBuildBvTree(true);
+		mimmo0->execute();
 
 		
-		test0009(mimmino0->getGeometry());
+		test00016(mimmo0->getGeometry());
 		
-		delete mimmino0;
-		mimmino0 = NULL;
+		delete mimmo0;
+		mimmo0 = NULL;
 
 		
 #if ENABLE_MPI==1

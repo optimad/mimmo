@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
- *
- *  mimmino
+ * 
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
@@ -8,19 +8,19 @@
  *  License
  *  This file is part of bitbit.
  *
- *  mimmino is free software: you can redistribute it and/or modify it
+ *  MiMMO is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  mimmino is distributed in the hope that it will be useful, but WITHOUT
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with mimmino. If not, see <http://www.gnu.org/licenses/>.
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
-\*---------------------------------------------------------------------------*/
+ \ *---------------------------------------------------------------------------*/
 
 #include "bitpit.hpp"
 #include "MiMMO.hpp"
@@ -40,10 +40,10 @@ using namespace std::placeholders;
 
 // =================================================================================== //
 
-void test0006(MimmoGeometry * mimmino0, MimmoGeometry * mimmino1 ) {
+void test00014(MimmoGeometry * mimmo0, MimmoGeometry * mimmo1 ) {
 
-	//Creation of mimmino container.
-	MimmoObject * object_ = mimmino0->getGeometry();
+	//Creation of mimmo container.
+	MimmoObject * object_ = mimmo0->getGeometry();
 
 
 	//Initialize points
@@ -85,7 +85,7 @@ void test0006(MimmoGeometry * mimmino0, MimmoGeometry * mimmino1 ) {
 	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "mimmino build of bv-tree took me " << time_span.count() << " seconds.";
+	std::cout << "mimmo build of bv-tree took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;
 
 	cout << "bv-tree nodes		: " << tree.m_nnodes << endl;
@@ -114,7 +114,7 @@ void test0006(MimmoGeometry * mimmino0, MimmoGeometry * mimmino1 ) {
 	cout << "execution done" << endl;
 	//Print execution time
 	time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "mimmino distance and projection took me " << time_span.count() << " seconds.";
+	std::cout << "mimmo distance and projection took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;
 
 
@@ -148,7 +148,7 @@ void test0006(MimmoGeometry * mimmino0, MimmoGeometry * mimmino1 ) {
 
 
 	//Selection by patch
-	MimmoObject * objectsel_ = mimmino1->getGeometry();
+	MimmoObject * objectsel_ = mimmo1->getGeometry();
 	bitpit::PatchKernel *patchsel_ = objectsel_->getPatch();
 	BvTree treesel(patchsel_);
 	treesel.buildTree();
@@ -163,7 +163,7 @@ void test0006(MimmoGeometry * mimmino0, MimmoGeometry * mimmino1 ) {
 	cout << "execution done" << endl;
 	//Print execution time
 	time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "mimmino selection took me " << time_span.count() << " seconds.";
+	std::cout << "mimmo selection took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;
 
 
@@ -222,36 +222,36 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
-		/**<Calling mimmino Test routines*/
+		/**<Calling mimmo Test routines*/
 
-		MimmoGeometry * mimmino0 = new MimmoGeometry();
-		mimmino0->setRead(true);
-		mimmino0->setReadDir("geo_data");
-		mimmino0->setReadFileType(FileType::STL);
-//		mimmino0->setReadFilename("sphere2");
-//		mimmino0->setReadFilename("cube");
-//		mimmino0->setReadFilename("spoiler2");
-//		mimmino0->setReadFilename("ahmed");
-		mimmino0->setReadFilename("drivAerBin2");
-		mimmino0->exec();
+		MimmoGeometry * mimmo0 = new MimmoGeometry();
+		mimmo0->setRead(true);
+		mimmo0->setReadDir("geo_data");
+		mimmo0->setReadFileType(FileType::STL);
+//		mimmo0->setReadFilename("sphere2");
+//		mimmo0->setReadFilename("cube");
+//		mimmo0->setReadFilename("spoiler2");
+//		mimmo0->setReadFilename("ahmed");
+		mimmo0->setReadFilename("drivAerBin2");
+		mimmo0->exec();
 
-		MimmoGeometry * mimmino1 = new MimmoGeometry();
-		mimmino1->setRead(true);
-		mimmino1->setReadDir("geo_data");
-		mimmino1->setReadFileType(FileType::STL);
-//		mimmino1->setReadFilename("sphere");
-//		mimmino1->setReadFilename("cube");
-//		mimmino1->setReadFilename("spoiler2");
-//		mimmino1->setReadFilename("ahmed");
-		mimmino1->setReadFilename("prese");
-		mimmino1->exec();
+		MimmoGeometry * mimmo1 = new MimmoGeometry();
+		mimmo1->setRead(true);
+		mimmo1->setReadDir("geo_data");
+		mimmo1->setReadFileType(FileType::STL);
+//		mimmo1->setReadFilename("sphere");
+//		mimmo1->setReadFilename("cube");
+//		mimmo1->setReadFilename("spoiler2");
+//		mimmo1->setReadFilename("ahmed");
+		mimmo1->setReadFilename("prese");
+		mimmo1->exec();
 
-		test0006(mimmino0, mimmino1);
+		test00014(mimmo0, mimmo1);
 
-		delete mimmino0;
-		mimmino0 = NULL;
-		delete mimmino1;
-		mimmino1 = NULL;
+		delete mimmo0;
+		mimmo0 = NULL;
+		delete mimmo1;
+		mimmo1 = NULL;
 
 #if ENABLE_MPI==1
 	}
