@@ -25,47 +25,57 @@
 # Specify the version being used as well as the language
 cmake_minimum_required(VERSION 2.8)
 
-# List serial of tests
-set(TESTS_SERIAL "")
-list(APPEND TESTS_SERIAL "test_MIMMO_00001")
-list(APPEND TESTS_SERIAL "test_MIMMO_00002")
-list(APPEND TESTS_SERIAL "test_MIMMO_00003")
-list(APPEND TESTS_SERIAL "test_MIMMO_00004")
-list(APPEND TESTS_SERIAL "test_MIMMO_00005")
-list(APPEND TESTS_SERIAL "test_MIMMO_00006")
-list(APPEND TESTS_SERIAL "test_MIMMO_00007")
-list(APPEND TESTS_SERIAL "test_MIMMO_00008")
-list(APPEND TESTS_SERIAL "test_MIMMO_00009")
-list(APPEND TESTS_SERIAL "test_MIMMO_00010")
-list(APPEND TESTS_SERIAL "test_MIMMO_00011")
-list(APPEND TESTS_SERIAL "test_MIMMO_00012")
-list(APPEND TESTS_SERIAL "test_MIMMO_00013")
-
-#include_directories("/opt/valgrind/3.11.0/include/")
-
-set(MIMMO_TEST_LIST_SERIAL "${TESTS_SERIAL}" CACHE INTERNAL "List of serial tests for the MIMMO module" FORCE)
-
-# List of parallel tests
-if (ENABLE_MPI)
-#    set(TESTS_PARALLEL "")
-#    list(APPEND TESTS_PARALLEL "test_MIMMO_parallel_00001")
-
-#    set(MIMMO_TEST_LIST_PARALLEL "${TESTS_PARALLEL}" CACHE INTERNAL "List of parallel tests for the MIMMO module" FORCE)
-endif()
-
 # Rules to build the tests
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
-foreach(TEST_NAME IN LISTS MIMMO_TEST_LIST_SERIAL MIMMO_TEST_LIST_PARALLEL)
+
+# List serial of tests
+set(TESTS "")
+list(APPEND TESTS "test_MIMMO_00001")
+list(APPEND TESTS "test_MIMMO_00002")
+list(APPEND TESTS "test_MIMMO_00003")
+list(APPEND TESTS "test_MIMMO_00004")
+list(APPEND TESTS "test_MIMMO_00005")
+list(APPEND TESTS "test_MIMMO_00006")
+list(APPEND TESTS "test_MIMMO_00007")
+list(APPEND TESTS "test_MIMMO_00008")
+list(APPEND TESTS "test_MIMMO_00009")
+list(APPEND TESTS "test_MIMMO_00010")
+list(APPEND TESTS "test_MIMMO_00011")
+list(APPEND TESTS "test_MIMMO_00012")
+list(APPEND TESTS "test_MIMMO_00013")
+list(APPEND TESTS "test_MIMMO_00014")
+list(APPEND TESTS "test_MIMMO_00015")
+list(APPEND TESTS "test_MIMMO_00016")
+list(APPEND TESTS "test_MIMMO_00017")
+list(APPEND TESTS "test_MIMMO_00018")
+list(APPEND TESTS "test_MIMMO_binaryStringPorts")
+#include_directories("/opt/valgrind/3.11.0/include/")
+
+
+# List of parallel tests
+#if (ENABLE_MPI)
+#    list(APPEND TESTS"test_MIMMO_parallel_00001")
+#endif()
+
+
+set(MIMMO_TEST_ENTRIES "${TESTS}" CACHE INTERNAL "List of tests for the MIMMO library" FORCE)
+
+set(TEST_TARGETS "")
+foreach(TEST_ENTRY IN LISTS MIMMO_TEST_ENTRIES)
+	getTestName("${TEST_ENTRY}" TEST_NAME)
     set(TEST_SOURCES "${TEST_NAME}.cpp")
+    list(APPEND TEST_TARGETS "${TEST_NAME}")
 
     add_executable(${TEST_NAME} "${TEST_SOURCES}")
-    target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY} ${BITPIT_LIBRARY})
+    target_link_libraries(${TEST_NAME} ${MIMMO_LIBRARY})
+    target_link_libraries(${TEST_NAME} ${BITPIT_LIBRARY})
     target_link_libraries(${TEST_NAME} ${MIMMO_EXTERNAL_LIBRARIES})
 
 endforeach()
+set(MIMMO_TEST_TARGETS "${TEST_TARGETS}" CACHE INTERNAL "List of test targets of MIMMO library")
 
-add_custom_target(tests-MIMMO DEPENDS ${MIMMO_TEST_LIST_SERIAL})
+add_custom_target(tests-MIMMO DEPENDS ${TEST_TARGETS})
 add_custom_target(clean-tests-MIMMO COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 
@@ -132,4 +142,31 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/stanfordBunny_red.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/stanfordBunny_red.stl"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere.stl"
     )
+add_custom_command(
+    TARGET "test_MIMMO_00014" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/drivAerBin2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/drivAerBin2.stl"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/prese.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/prese.stl"
+    )
+add_custom_command(
+    TARGET "test_MIMMO_00015" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/drivAerBin2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/drivAerBin2.stl"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/ahmed.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/ahmed.stl"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/presa1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/presa1.stl"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/presa2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/presa2.stl"
+	)
+add_custom_command(
+    TARGET "test_MIMMO_00016" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/drivAerBin2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/drivAerBin2.stl"
+	)
+add_custom_command(
+    TARGET "test_MIMMO_00017" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/helmet.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/helmet.stl"
+	)  
+add_custom_command(
+    TARGET "test_MIMMO_00018" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/stanfordBunny_red.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/stanfordBunny_red.stl"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere.stl"
+    )	
+
+unset(TEST_TARGETS)    
     
