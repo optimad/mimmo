@@ -40,7 +40,6 @@
 #include "GenericOutput.hpp"
 #include "GenericInput.hpp"
 #include "IOConnections.hpp"
-#include "IOViolationFile.hpp"
 #include "Lattice.hpp"
 #include "Mask.hpp"
 #include "MimmoObject.hpp"
@@ -60,5 +59,5 @@
 #include "SplitFields.hpp"
 #include "MultiApply.hpp"
 #include "ProjPrimitivesOnSurfaces.hpp"
-#include "MRBFStyleObj.hpp"
+
 #endif

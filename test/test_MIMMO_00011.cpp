@@ -27,7 +27,6 @@
 #include "customOperators.hpp"
 #include "ControlDeformMaxDistance.hpp"
 #include "ControlDeformExtSurface.hpp"
-#include "IOViolationFile.hpp"
 
 using namespace std;
 using namespace bitpit;
@@ -90,10 +89,6 @@ dvector1D test00011() {
 	mimmoW->setWriteFileType(FileType::STL);
 	mimmoW->setWriteFilename("plane_deformed");
 
-	IOViolationFile * fileViolation = new IOViolationFile();
-	fileViolation->setDir(".");
-	fileViolation->setFileName("violationReport");
-
 	
 	//Set PINS
 	cout << "set pins" << endl;
@@ -108,9 +103,6 @@ dvector1D test00011() {
 	cout << "add pin info 8 : " << boolalpha << addPin(mrbf, extconstr1, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
 	cout << "add pin info 9 : " << boolalpha << addPin(mimmoP, extconstr2, PortType::M_GEOM, PortType::M_GEOM) << endl;
 	cout << "add pin info 10 : " << boolalpha << addPin(mrbf, extconstr2, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
-	cout << "add pin info 11 : " << boolalpha << addPin(volconstr, fileViolation, PortType::M_VIOLATION, PortType::M_VIOLATION) << endl;
-	cout << "add pin info 12 : " << boolalpha << addPin(extconstr1, fileViolation, PortType::M_VIOLATION, PortType::M_VIOLATION) << endl;
-	cout << "add pin info 13 : " << boolalpha << addPin(extconstr2, fileViolation, PortType::M_VIOLATION, PortType::M_VIOLATION) << endl;
 	cout << "set pins done" << endl;
 
 	//Create chain
@@ -123,7 +115,6 @@ dvector1D test00011() {
 	ch0.addObject(extconstr2);
 	ch1.addObject(applier);
 	ch1.addObject(mimmoW);
-	ch1.addObject(fileViolation);
 	
 	duration<double> time_span;
 	steady_clock::time_point t1,t2;
@@ -152,7 +143,6 @@ dvector1D test00011() {
 	delete extconstr2;
 	delete mimmoW;
 	delete applier;
-	delete fileViolation;
 	
 	mrbf 		= NULL;
 	mimmoP 		= NULL;
@@ -161,7 +151,6 @@ dvector1D test00011() {
 	extconstr2  = NULL; 
 	applier = NULL;
 	mimmoW = NULL;
-	fileViolation = NULL;
 	
 	return resultVol;
 
