@@ -60,7 +60,7 @@
 #include "MultiApply.hpp"
 #include "ProjPrimitivesOnSurfaces.hpp"
 #include "MeshSelection.hpp"
-#include "CrateSeedsOnSurface.hpp"
+#include "CreateSeedsOnSurface.hpp"
 #include "OverlappingFields.hpp"
 #include "ReconstructScalar.hpp"
 

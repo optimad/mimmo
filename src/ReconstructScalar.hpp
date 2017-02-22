@@ -1,31 +1,35 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \*----------------*-----------------------------------------------------------*/
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
 
 #ifndef __RECONSTRUCTSCALAR_HPP__
 #define __RECONSTRUCTSCALAR_HPP__
 
 #include "BaseManipulation.hpp"
-#include "CAMILO_Ports.hpp"
 #include <unordered_map>
 #include <utility>
 
-namespace mimmino{
+namespace mimmo{
 
 /*!
  * @enum OverlapMethod
@@ -47,7 +51,7 @@ enum class OverlapMethod{
  * scalar fields defined on sub-patch of the target mesh. Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
- * PORTS AVAILABLE IN ReconstructScalar Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN ReconstructScalar Class 
  * 
  *	=========================================================
  * ~~~
@@ -58,8 +62,7 @@ enum class OverlapMethod{
  *	|-------|----------------|---------------------------------------|----------------------------------|
  *	| 81    | M_PAIRSCAFIELD | setData                               | (PAIR, MIMMO_VECFLOAT_)			|
  *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)					|
- *	| 1001  | C_OVERLAPMTH   | setOverlapCriterium                   | (SCALAR, INT)					|
- *  | 1002	| C_VECPAIRSF    | setData	    						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
+ *  | 200	| M_VECPAIRSF    | setData	    						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
  *	|-------|----------------|---------------------------------------|----------------------------------|
  * 
  *
@@ -71,7 +74,6 @@ enum class OverlapMethod{
  *	|-------|----------------|--------------------|---------------------|
  *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)		|
  *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	|
- *	| 1001  | C_OVERLAPMTH   | getOverlapCriterium| (SCALAR, INT)		|
  *	|-------|----------------|--------------------|---------------------|
  *
  * ~~~
@@ -136,7 +138,7 @@ private:
  * vector fields defined on sub-patch of the target mesh. Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
- * PORTS AVAILABLE IN ReconstructScalar Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN ReconstructVector Class 
  * 
  *	=========================================================
  * ~~~
@@ -147,8 +149,7 @@ private:
  *	|-------|----------------|---------------------------------------|--------------------------------------|
  *	| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)			|
  *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)						|
- *	| 1001  | C_OVERLAPMTH   | setOverlapCriterium                   | (SCALAR, INT)						|
- *  | 1003	| C_VECPAIRVF    | setData	    						 | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)	|
+ *  | 201	| M_VECPAIRVF    | setData	    						 | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)	|
  *	|-------|----------------|---------------------------------------|--------------------------------------|
  * 
  *
@@ -160,7 +161,6 @@ private:
  *	|-------|----------------|--------------------|---------------------|
  *	| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)	|
  *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	|
- *	| 1001  | C_OVERLAPMTH   | getOverlapCriterium| (SCALAR, INT)		|
  *	|-------|----------------|--------------------|---------------------|
  * 
  * ~~~

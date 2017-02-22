@@ -1,25 +1,29 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \ *----------------*-----------------------------------------------------------*/
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
 
  #include "ReconstructScalar.hpp"
  using namespace mimmo;
- using namespace mimmino;
 
  /*!
   * Constructor
@@ -363,13 +367,11 @@ void ReconstructScalar::buildPorts(){
 
 	//input
 	built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<std::pair<MimmoObject *, dvector1D *>,ReconstructScalar>(this, &mimmino::ReconstructScalar::setData, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
-	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvector1D *>>,ReconstructScalar>(this, &mimmino::ReconstructScalar::setData, CAMILOPortType::C_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
-	built = (built && createPortIn<int, ReconstructScalar>(this, &ReconstructScalar::setOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<std::pair<MimmoObject *, dvector1D *>,ReconstructScalar>(this, &mimmo::ReconstructScalar::setData, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
+	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvector1D *>>,ReconstructScalar>(this, &mimmo::ReconstructScalar::setData, PortType::M_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
 
 	//output
 	built = (built && createPortOut<dvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<int, ReconstructScalar>(this,  &ReconstructScalar::getOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
 	built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 };
@@ -825,13 +827,11 @@ void ReconstructVector::buildPorts(){
 
 	//input
 	built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<std::pair<MimmoObject *, dvecarr3E *>,ReconstructVector>(this, &mimmino::ReconstructVector::setData, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvecarr3E *> >,ReconstructVector>(this, &mimmino::ReconstructVector::setData, CAMILOPortType::C_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
-	built = (built && createPortIn<int, ReconstructVector>(this, &ReconstructVector::setOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<std::pair<MimmoObject *, dvecarr3E *>,ReconstructVector>(this, &mimmo::ReconstructVector::setData, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvecarr3E *> >,ReconstructVector>(this, &mimmo::ReconstructVector::setData, PortType::M_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
 
 	//output
 	built = (built && createPortOut<dvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<int, ReconstructVector>(this,  &ReconstructVector::getOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
 	built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	m_arePortsBuilt = built;
 };

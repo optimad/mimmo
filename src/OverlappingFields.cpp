@@ -1,26 +1,29 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \ *----------------*-----------------------------------------------------------*/
-
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
  #include "OverlappingFields.hpp"
  using namespace mimmo;
- using namespace mimmino;
-
+ 
  /*!
   * Constructor
   */
@@ -240,15 +243,13 @@ void OverlapScalarFields::buildPorts(){
 	bool built = true;
 	
 	//input
-	built = (built && createPortIn<std::pair<MimmoObject *, dvector1D *>, OverlapScalarFields>(this, &mimmino::OverlapScalarFields::setAddDataField, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
-	built = (built && createPortIn<std::unordered_map<MimmoObject *, dvector1D *>,OverlapScalarFields>(this, &mimmino::OverlapScalarFields::setDataFieldMap, PortType::M_UMGEOSFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
-	built = (built && createPortIn<int, OverlapScalarFields>(this, &OverlapScalarFields::setOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvector1D *>>,OverlapScalarFields>(this, &mimmino::OverlapScalarFields::setDataFieldList, CAMILOPortType::C_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
+	built = (built && createPortIn<std::pair<MimmoObject *, dvector1D *>, OverlapScalarFields>(this, &mimmo::OverlapScalarFields::setAddDataField, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
+	built = (built && createPortIn<std::unordered_map<MimmoObject *, dvector1D *>,OverlapScalarFields>(this, &mimmo::OverlapScalarFields::setDataFieldMap, PortType::M_UMGEOSFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
+	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvector1D *>>,OverlapScalarFields>(this, &mimmo::OverlapScalarFields::setDataFieldList, PortType::M_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
 	
 	//output
-	built = (built && createPortOut<std::unordered_map<MimmoObject *, dvector1D *>,OverlapScalarFields>(this, &mimmino::OverlapScalarFields::getDataFieldMap, PortType::M_UMGEOSFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
-	built = (built && createPortOut<int, OverlapScalarFields>(this,  &OverlapScalarFields::getOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortOut<std::vector<std::pair<MimmoObject *, dvector1D *>>,OverlapScalarFields>(this, &mimmino::OverlapScalarFields::getDataFieldList, CAMILOPortType::C_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
+	built = (built && createPortOut<std::unordered_map<MimmoObject *, dvector1D *>,OverlapScalarFields>(this, &mimmo::OverlapScalarFields::getDataFieldMap, PortType::M_UMGEOSFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
+	built = (built && createPortOut<std::vector<std::pair<MimmoObject *, dvector1D *>>,OverlapScalarFields>(this, &mimmo::OverlapScalarFields::getDataFieldList, PortType::M_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
 	m_arePortsBuilt = built;
 };
 
@@ -748,15 +749,13 @@ void OverlapVectorFields::buildPorts(){
 	bool built = true;
 	
 	//input
-	built = (built && createPortIn<std::pair<MimmoObject *, dvecarr3E *>, OverlapVectorFields>(this, &mimmino::OverlapVectorFields::setAddDataField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	built = (built && createPortIn<std::unordered_map<MimmoObject *, dvecarr3E *>,OverlapVectorFields>(this, &mimmino::OverlapVectorFields::setDataFieldMap, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	built = (built && createPortIn<int, OverlapVectorFields>(this, &OverlapVectorFields::setOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvecarr3E *>>,OverlapVectorFields>(this, &mimmino::OverlapVectorFields::setDataFieldList, CAMILOPortType::C_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<std::pair<MimmoObject *, dvecarr3E *>, OverlapVectorFields>(this, &mimmo::OverlapVectorFields::setAddDataField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<std::unordered_map<MimmoObject *, dvecarr3E *>,OverlapVectorFields>(this, &mimmo::OverlapVectorFields::setDataFieldMap, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvecarr3E *>>,OverlapVectorFields>(this, &mimmo::OverlapVectorFields::setDataFieldList, PortType::M_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
 	
 	//output
-	built = (built && createPortOut<std::unordered_map<MimmoObject *, dvecarr3E *>,OverlapVectorFields>(this, &mimmino::OverlapVectorFields::getDataFieldMap, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	built = (built && createPortOut<int, OverlapVectorFields>(this,  &OverlapVectorFields::getOverlapCriterium, CAMILOPortType::C_OVERLAPMTH, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortOut<std::vector<std::pair<MimmoObject *, dvecarr3E *>>,OverlapVectorFields>(this, &mimmino::OverlapVectorFields::getDataFieldList, CAMILOPortType::C_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
+	built = (built && createPortOut<std::unordered_map<MimmoObject *, dvecarr3E *>,OverlapVectorFields>(this, &mimmo::OverlapVectorFields::getDataFieldMap, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+	built = (built && createPortOut<std::vector<std::pair<MimmoObject *, dvecarr3E *>>,OverlapVectorFields>(this, &mimmo::OverlapVectorFields::getDataFieldList, PortType::M_VECPAIRVF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
 };
 

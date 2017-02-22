@@ -1,25 +1,31 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \ *----------------*-----------------------------------------------------------*/
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
+
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmino;
+using namespace mimmo;
 
 //------------------------------------------------------------------------
 //GENERIC	SELECTION class **********************************************

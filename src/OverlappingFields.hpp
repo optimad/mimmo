@@ -45,7 +45,7 @@ namespace mimmo{
  *	|-------|----------------|---------------------------------------|----------------------------------|
  *	| 81    | M_PAIRSCAFIELD | setAddDataField                       | (PAIR, MIMMO_VECFLOAT_)			|
  *	| 106   | M_UMGEOSFD     | setDataFieldMap                       | (UMAP, MIMMO_VECFLOAT_)			|
- *  | 1002	| C_VECPAIRSF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
+ *  | 200	| M_VECPAIRSF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
  *	|-------|----------------|---------------------------------------|----------------------------------|
  * 
  *
@@ -56,7 +56,7 @@ namespace mimmo{
  *	|PortID | PortType       | variable/function  | DataTypes			         |
  *	|-------|----------------|--------------------|------------------------------|
  *	| 106   | M_UMGEOSFD     | getDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)      |
- *  | 1002  | C_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
+ *  | 200   | M_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
  *	|-------|----------------|--------------------|------------------------------|
  *
  * ~~~
@@ -126,7 +126,7 @@ private:
  * The class handles more possible overlapping referring to different geoemtries at the same time. Returns a list of
  * overlapped fields associated to theri geometry. 
  * 
- * PORTS AVAILABLE IN OverlapVectorFields Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN OverlapVectorFields Class 
  * 
  *	=========================================================
  * ~~~
@@ -137,8 +137,7 @@ private:
  *	|-------|----------------|---------------------------------------|-----------------------------------|
  *	| 80    | M_PAIRVECFIELD | setAddDataField                       | (PAIR, MIMMO_VECARR3FLOAT_)		 |
  *	| 107   | M_UMGEOSVD     | setDataFieldMap                       | (UMAP, MIMMO_VECARR3FLOAT_)		 |
- *	| 1001  | C_OVERLAPMTH   | setOverlapCriterium                   | (SCALAR, INT)					 |
- *  | 1003	| C_VECPAIRVF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+ *  | 201	| M_VECPAIRVF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
  *	|-------|----------------|---------------------------------------|-----------------------------------|
  * 
  *
@@ -149,8 +148,7 @@ private:
  *	|PortID | PortType       | variable/function  | DataTypes			              |
  *	|-------|----------------|--------------------|-----------------------------------|
  *	| 107   | M_UMGEOVFD     | getDataFieldMap    | (UMAP, MIMMO_VECARR3EFLOAT_)      |
- *	| 1001  | C_OVERLAPMTH   | getOverlapCriterium| (SCALAR, INT)		              |
- *  | 1003  | C_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+ *  | 201   | M_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
  *	|-------|----------------|--------------------|-----------------------------------|
  *
  * ~~~
