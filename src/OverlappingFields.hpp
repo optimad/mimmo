@@ -1,36 +1,40 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \*----------------*-----------------------------------------------------------*/
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
 
 #ifndef __OVERLAPPINGFIELDS_HPP__
 #define __OVERLAPPINGFIELDS_HPP__
 
 #include "ReconstructScalar.hpp"
 
-using namespace mimmo;
-namespace mimmino{
+namespace mimmo{
 
 /*!
- * Class/BaseManipulation Object overlapping one or more double scalar fields associated to a MimmoObjec geometry.
+ * Class/BaseManipulation Object overlapping one or more double scalar fields associated to a MimmoObject geometry.
  * The class handles more possible overlapping referring to different geoemtries at the same time. Returns a list of
- * overlapped fields associated to theri geometry. 
+ * overlapped fields associated to their geometry. 
  * 
- * PORTS AVAILABLE IN OverlapScalarFields Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN OverlapScalarFields Class 
  * 
  *	=========================================================
  * ~~~
@@ -41,7 +45,6 @@ namespace mimmino{
  *	|-------|----------------|---------------------------------------|----------------------------------|
  *	| 81    | M_PAIRSCAFIELD | setAddDataField                       | (PAIR, MIMMO_VECFLOAT_)			|
  *	| 106   | M_UMGEOSFD     | setDataFieldMap                       | (UMAP, MIMMO_VECFLOAT_)			|
- *	| 1001  | C_OVERLAPMTH   | setOverlapCriterium                   | (SCALAR, INT)					|
  *  | 1002	| C_VECPAIRSF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
  *	|-------|----------------|---------------------------------------|----------------------------------|
  * 
@@ -53,7 +56,6 @@ namespace mimmino{
  *	|PortID | PortType       | variable/function  | DataTypes			         |
  *	|-------|----------------|--------------------|------------------------------|
  *	| 106   | M_UMGEOSFD     | getDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)      |
- *	| 1001  | C_OVERLAPMTH   | getOverlapCriterium| (SCALAR, INT)		         |
  *  | 1002  | C_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
  *	|-------|----------------|--------------------|------------------------------|
  *

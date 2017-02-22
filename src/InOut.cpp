@@ -747,6 +747,68 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 	return buffer;
 };
 
+/*!
+ * Input stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >
+ * \param[in] buffer is the input stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
+	
+	int nP;
+	buffer >> nP;
+	element.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		buffer >> element[i];
+	}
+	return buffer;
+};
+
+/*!
+ * Output stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >
+ * \param[in] buffer is the output stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
+	
+	int nP = element.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) buffer << element[i];
+	return buffer;
+};
+
+/*!
+ * Input stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >
+ * \param[in] buffer is the input stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
+	
+	int nP;
+	buffer >> nP;
+	element.resize(nP);
+	for (int i = 0; i < nP; ++i) {
+		buffer >> element[i];
+	}
+	return buffer;
+};
+
+/*!
+ * Output stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >
+ * \param[in] buffer is the output stream
+ * \param[in] var is the element to be streamed
+ * \result Returns the same output stream received in input.
+ */
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
+	
+	int nP = element.size();
+	buffer << nP;
+	for (int i = 0; i < nP; ++i) buffer << element[i];
+	return buffer;
+};
+
 
 ///*!
 // *	Input stream operator for std::string

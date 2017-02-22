@@ -82,6 +82,8 @@ BETTER_ENUM(PortType, int,
 			M_VALUEB4			= 142,
 			M_VALUEB5			= 143,
 			M_VALUEI2			= 150
+			M_VECPAIRSF			= 200,
+			M_VECPAIRVF			= 201
    		);
 
 
