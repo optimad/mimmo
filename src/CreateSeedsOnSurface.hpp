@@ -1,29 +1,34 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
  *
- \ *----------------*-----------------------------------------------------------*/
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *
+ \ *---------------------------------------------------------------------------*/
+
 #ifndef __CREATESEEDSONSURFACE_HPP__
 #define __CREATESEEDSONSURFACE_HPP__
 
 #include "BaseManipulation.hpp"
 #include "OBBox.hpp"
 
-using namespace mimmo;
-namespace mimmino{
+namespace mimmo{
 
 /*!
  * Enum class for engine  choiche to set up initial points on a 3D surface.
@@ -47,7 +52,7 @@ enum class CSeedSurf{
  * 		trying to displace them at maximum euclidean distance possible on the surface
  * 
  * Default engine is CARTESIANGRID
- * PORTS AVAILABLE IN CreateSeedsOnSurface Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN CreateSeedsOnSurface Class 
  *
  *	=========================================================
  * ~~~
@@ -60,8 +65,7 @@ enum class CSeedSurf{
  *	| 31    | M_VALUEI       | setNPoints	                         | (SCALAR, INT)	     | 
  *	| 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)	     | 
  *	| 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      | 
- *	| 1004  | C_SEEDSURFENG  | setEngine	                         | (SCALAR, INT)	     | 
- *	| 1900  | C_VALUEI       | setRandomFixed                        | (SCALAR, INT)	     |
+ *	| 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)	     |
  *	|-------|----------------|---------------------------------------|-----------------------|
  *
  *

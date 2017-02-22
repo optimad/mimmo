@@ -1,24 +1,28 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  CAMILO
+ *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
- *  License Commercial (//TODO Temporary header of license)
- *  This file is part of CAMILO.
+ *  License
+ *  This file is part of MiMMO.
  *
- *  CAMILO is a commercial software: you do not own rights to redistribute it 
- * 	and/or modify it both in source or pre-build formats
- *  Please contact Optimad offices for any further informations				
+ *  MiMMO is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
  *
- *  You should have received a copy of the Camilo Commercial License
- *  along with CAMILO, as well as the key to unlock the software.
+ *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
 #include "CreateSeedsOnSurface.hpp"
-#include "RCPoints.hpp"
 #include "Lattice.hpp"
 
 #include <stdlib.h>
@@ -28,9 +32,8 @@
 #include <set>
 #include <iostream>
 #include <fstream>
-#include "CAMILO_Ports.hpp"
 
-using namespace mimmino;
+using namespace mimmo;
 
 //PUBLIC METHODS
 /*!
@@ -88,15 +91,14 @@ void CreateSeedsOnSurface::buildPorts(){
 	bool built = true;
 
 	//input
-	built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setSeed, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setNPoints, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setRandomFixed, CAMILOPortType::C_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setMassCenterAsSeed, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-	built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::setEngine, CAMILOPortType::C_SEEDSURFENG, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSeed, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setNPoints, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, PortType::M_VALUEI2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+	built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setMassCenterAsSeed, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
 
 	//output
-	built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmino::CreateSeedsOnSurface::getPoints, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+	built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	
 	m_arePortsBuilt = built;
 };
@@ -1262,7 +1264,7 @@ void CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, st
 	}	
 	
 	int signat = getRandomSignature();
-	if( signat != -1 && m_engine == mimmino::CSeedSurf::RANDOM){
+	if( signat != -1 && m_engine == mimmo::CSeedSurf::RANDOM){
 		slotXML.set("RandomFixed", std::to_string(signat));
 	}
 	
