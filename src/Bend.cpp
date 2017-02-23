@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.Bend", "bend");
+
 /*!Default constructor of Bend
  */
 Bend::Bend(){
@@ -122,7 +124,11 @@ Bend::setCoords(dvecarr3E coords){
  */
 void
 Bend::setDegree(umatrix33E degree){
-	m_degree = degree;
+	for(int i=0; i<3; ++i){
+		for(int j=0; j<3; ++j){
+			setDegree(i,j, degree[i][j]);
+		}
+	}
 };
 
 /*!It sets the degrees of a term of a polynomial law for a component of displacements of degrees of freedom.
@@ -133,7 +139,7 @@ Bend::setDegree(umatrix33E degree){
 void
 Bend::setDegree(int i, int j, uint32_t degree){
 	m_degree[i][j] = degree;
-	m_coeffs[i][j].resize(degree);
+	m_coeffs[i][j].resize(degree+1, 0.0);
 };
 
 /*!It sets the coefficients of the polynomial laws.
@@ -162,6 +168,14 @@ Bend::setCoeffs(int i, int j, dvector1D coeffs){
  */
 void
 Bend::execute(){
+	
+	//check coherence of degrees and coeffs;
+	for(int i=0; i<3; ++i){
+		for(int j=0; j<3; ++j){
+			m_coeffs[i][j].resize(m_degree[i][j]+1, 0.0);
+		}
+	}
+	
 	int	ndispl = m_displ.size();
 	ndispl = std::min(ndispl, int(m_coords.size()));
 	for (int j=0; j<3; j++){
@@ -177,3 +191,141 @@ Bend::execute(){
 	}
 	return;
 };
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
+ * while Input and Geometry parameters are meant to be passed only through Port linking.
+ * 
+ * Assuming that x,y,z are the reference directions in space, as well as the preference directions
+ * for nodal displacements, we can assume that:
+ * 
+ * --> Absorbing data:
+ * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
+ * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
+ * 						    marks a constant function 
+ * 		PolyCoefficients: coefficients of each 9 bending polynomial functions.
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void Bend::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+	if(slotXML.hasSection("DegreesMatrix")){
+		auto & subslot = slotXML.getSection("DegreesMatrix");
+		umatrix33E temp;
+		temp.fill({{0,0,0}});
+		
+		if(subslot.hasOption("xDispl")){
+			input = subslot.get("xDispl");
+			std::stringstream ss(bitpit::utils::trim(input));
+			for(int i=0; i<3; ++i)	ss>>temp[0][i];
+		}
+		
+		if(subslot.hasOption("yDispl")){
+			input = subslot.get("yDispl");
+			std::stringstream ss(bitpit::utils::trim(input));
+			for(int i=0; i<3; ++i)	ss>>temp[1][i];
+		}
+		
+		if(subslot.hasOption("yDispl")){
+			input = subslot.get("yDispl");
+			std::stringstream ss(bitpit::utils::trim(input));
+			for(int i=0; i<3; ++i)	ss>>temp[2][i];
+		}
+		
+		setDegree(temp);
+	}; 
+	
+	if(slotXML.hasSection("PolyCoefficients")){
+		auto & subslot = slotXML.getSection("PolyCoefficients");
+		dmat33Evec temp = getCoeffs();
+		std::string rootPoly = "Poly";
+		std::string locPoly;
+		double dummyval;
+		int ik,jk;
+		for (int k=0; k<9; ++k){
+			locPoly = rootPoly + std::to_string(k);
+			if(subslot.hasOption(locPoly)){
+				input = subslot.get(locPoly);
+				std::stringstream ss(bitpit::utils::trim(input));
+				ik = (int)(k/3);
+				jk = k%3;
+				for(auto & val: temp[ik][jk])	ss>>val;
+			}
+		}
+		setCoeffs(temp);
+	}; 
+};
+
+/*!
+ * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::flushSectionXML;
+ * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
+ * while Input and Geometry parameters are meant to be passed only through Port linking.
+ * 
+ *    --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Bend"
+ *		ClassID	  : integer identifier of the class	
+ *
+ * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
+ * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
+ * 						    marks a constant function.
+ *							Written in XML as:
+ * 							<DegreesMatrix>
+ *								<xDispl> 1 0 0 </xDispl> (linear x-displacement distribution in x bending direction)
+ *								<yDispl> 2 0 0 </yDispl> (quadratic y-displacement distribution in x bending direction)
+ *								<zDispl> 0 3 0  </zDispl> (cubic z-displacement in y bending direction)
+ *							</DegreesMatrix>
+ *
+ * 		PolyCoefficients: coefficients of each 9 bending polynomial functions. Writing following 
+ * 						  the enumeration n = i*3 + j, where i is the displacement direction and j the bending direction.
+ * 						  For example n=7 corresponds to i=2, j=1, reflecting in a z displacement distribution in y-bending direction. 
+ * 						  Please note the number of coefficients for a ij-bending function is equal to the degree
+ * 						  of freedom DegreesMatrix(i,j), ordered as c0 + c1*x +c2*x^2+...
+ * 						  Written in xml as :
+ * 						  <PolyCoefficients>
+ * 							<Poly0> 1.0 1.5 </Poly0>
+ * 							<Poly3> -0.1 0.2 -0.01 </Poly3>
+ * 							<Poly7> 1.5 0.0 0.1 0.2 </Poly7>
+ * 						  </PolyCoefficients>
+ * 
+ * \param[in]	slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void Bend::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	bitpit::Config::Section & degXML = slotXML.addSection("DegreesMatrix");
+	
+	svector1D d_str(3);
+	int counter = 0;
+	for(auto & val: m_degree){
+		std::stringstream ss;
+		for(auto & loc: val)	ss<<loc<<'\t';
+		d_str[counter] = ss.str();
+		++counter;
+	}
+	
+	degXML.set("xDispl", d_str[0]);
+	degXML.set("yDispl", d_str[1]);
+	degXML.set("zDispl", d_str[2]);
+	
+	bitpit::Config::Section & polyXML = slotXML.addSection("PolyCoefficients");
+	std::string rootPoly = "Poly";
+	std::string locPoly;
+	for(int i=0; i<3; i++){
+		for(int j =0; j<3; j++){
+			if(m_coeffs[i][j].empty()) continue;
+			locPoly = rootPoly + std::to_string(int(i*3+j));
+			std::stringstream ss;
+			for(auto & loc: m_coeffs[i][j])	ss<<loc<<'\t';
+			polyXML.set(locPoly, ss.str());
+		}
+	}
+	
+};	
+

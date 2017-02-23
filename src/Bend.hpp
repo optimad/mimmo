@@ -42,8 +42,6 @@ namespace mimmo{
  *	where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  *	applied to the i-th displacements.
  * 
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default;
- *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------|
@@ -103,6 +101,10 @@ public:
 
 	void 	execute();
 
+	//XML utilities from reading writing settings to file
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
+	
 };
 
 }
