@@ -38,31 +38,26 @@ using namespace mimmo::pin;
 
 void test0001() {
 
-	std::cout<<"global map size "<<mimmo::_manipulatorList.size()<<std::endl;
-	for(auto val : mimmo::_manipulatorList){
-		std::cout<<"global map element "<<val.first<<'\t'<<val.second<<std::endl;
-	}
-	
 	//Creation of MiMMO container.
 	MimmoGeometry * mimmo0 = new MimmoGeometry();
-	
+
 	mimmo0->setRead(true);
 	mimmo0->setReadDir("geo_data");
 	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("sphere2");
 	mimmo0->setBuildBvTree(true);
-	
+
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
 	mimmo0->setWriteFileType(FileType::STL);
 	mimmo0->setWriteFilename("mimmo_0001.0000");
-	
+
 	mimmo0->execute();
 	MimmoObject * object = new MimmoObject();
 	object->setHARDCopy(mimmo0->getGeometry());
-	
+
 	delete mimmo0; mimmo0=NULL;
-	
+
 	//Instantiation of a FFDobject (and Input object).
 	FFDLattice* lattice = new FFDLattice();
 	//Set lattice
@@ -119,7 +114,7 @@ void test0001() {
 	lattice->plotGrid("./", "lattice_0001", 1, false, true);
 
 	mimmo0 = new MimmoGeometry();
-	
+
 	mimmo0->setWrite(true);
 	mimmo0->setWriteDir("./");
 	mimmo0->setWriteFileType(FileType::STL);

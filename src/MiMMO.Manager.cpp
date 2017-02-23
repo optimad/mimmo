@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
@@ -23,23 +23,30 @@
  * \*---------------------------------------------------------------------------*/
 
 #include "MiMMO.Manager.hpp"
+
 using namespace mimmo;
 
-
 namespace mimmo {
+
+// Initial instantiation of the manipulators' list
+//std::unordered_map<std::string, int> *_manipulatorList = nullptr;
+std::unique_ptr< std::unordered_map<std::string, int> >_manipulatorList(nullptr);
 	
-//instantiation map
-std::unordered_map<std::string, int> _manipulatorList;
-	
-	
-int registerManipulator(const std::string & name){
- 	 int id = (int)_manipulatorList.size();
- 	_manipulatorList.insert(std::make_pair(name,id));
-	return id;
+int registerManipulator(const std::string & name)
+{
+    if (!_manipulatorList) {
+		std::unique_ptr< std::unordered_map<std::string, int> > temp(new std::unordered_map<std::string, int>());
+        _manipulatorList = std::move(temp);
+    }
+
+    int id = (int)_manipulatorList->size();
+    _manipulatorList->insert(std::make_pair(name,id));
+    return id;
 }
 
+const std::unordered_map<std::string, int> & getManipulatorList()
+{
+    return *(_manipulatorList.get());
+}
 
 };
-// std::unordered_map<std::string, int> getManipulatorList(){
-// 	
-// }

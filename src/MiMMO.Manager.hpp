@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  MiMMO
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
@@ -26,21 +26,17 @@
 
 #include "bitpit_common.hpp"
 #include <unordered_map>
-#include <string>
+#include <memory>
 
 #define REGISTER_MANIPULATOR(name, type) \
-static int manipulator_type = mimmo::registerManipulator(name); 
-
-// \
-
-// BITPIT_UNUSED(manipulator_type);
-
+static int manipulator_type = mimmo::registerManipulator(name);
 
 namespace mimmo{
 
-extern std::unordered_map<std::string, int> _manipulatorList;
-	
+extern std::unique_ptr<std::unordered_map<std::string, int> > _manipulatorList;
+
 int registerManipulator(const std::string & name);
+const std::unordered_map<std::string, int> & getManipulatorList();
 
 };
 
