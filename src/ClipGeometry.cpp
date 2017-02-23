@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.ClipGeometry", "clipgeometry");
+
 /*!Default constructor of ClipGeometry
 */
 ClipGeometry::ClipGeometry(){
@@ -239,8 +241,11 @@ void ClipGeometry::plotOptionalResults(){
 /*!
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
- * 1) InsideOut	- boolean to get direction of clipping according to given plane
- * 2) ClipPlane	- array of 4 doubles identifying coefficients of implicit plane equation a*x+b*y+c*z+d=0
+ *  --> Absorbing data:
+ *  InsideOut	: boolean to get direction of clipping according to given plane
+ *  ClipPlane	: section defining the plane's normal and a point belonging to it
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports. 
  * 
@@ -261,18 +266,28 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 		setInsideOut(value);
 	}
 	
-	if(slotXML.hasOption("ClipPlane")){
-		std::string input = slotXML.get("ClipPlane");
-		input = bitpit::utils::trim(input);
-		darray4E temp = {{0.0,0.0,0.0,0.0}};
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>temp[0]>>temp[1]>>temp[2]>>temp[3];
-			setClipPlane(temp);
-		}else{
-			setClipPlane(temp);
-		}	
-	}
+	if(slotXML.hasSection("ClipPlane")){
+		bitpit::Config::Section & planeXML = slotXML.getSection("ClipPlane");
+		
+		std::string input1 = planeXML.get("Point");
+		std::string input2 = planeXML.get("Normal");
+		input1 = bitpit::utils::trim(input1);
+		input2 = bitpit::utils::trim(input2);
+		
+		darray3E temp1 = {{0.0,0.0,0.0}};
+		darray3E temp2 = {{0.0,0.0,0.0}};
+		
+		if(!input1.empty()){
+			std::stringstream ss(input1);
+			ss>>temp1[0]>>temp1[1]>>temp1[2];
+		}
+		if(!input2.empty()){
+			std::stringstream ss(input2);
+			ss>>temp2[0]>>temp2[1]>>temp2[2];
+		}
+		
+		setClipPlane(temp1, temp2);
+	};	
 	
 	if(slotXML.hasOption("PlotInExecution")){
 		std::string input = slotXML.get("PlotInExecution");
@@ -299,8 +314,17 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 /*!
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
- * 1) InsideOut	- boolean to get direction of clipping according to given plane
- * 2) ClipPlane	- array of 4 doubles identifying coefficients of implicit plane equation a*x+b*y+c*z+d=0
+ * * --> Flushing data// how to write it on XML:
+ *  ClassName : name of the class as "MiMMO.Apply"
+ *	ClassID	  : integer identifier of the class	
+ *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
+ *  ClipPlane	: section defining the plane's normal and a point belonging to it
+ * 				<ClipPlane>
+ * 					<Point>	0.0 0.0 0.0 </Point>
+ * 					<Normal> 0.0 1.0 0.0 </Normal>
+ * 				</ClipPlane>
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports.  
  *  
@@ -317,9 +341,25 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	
 	{
 		darray4E org = getClipPlane();
-		std::stringstream ss;
-		ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2]<<'\t'<<org[3];
-		slotXML.set("ClipPlane",ss.str());
+		darray3E normal;
+		darray3E point.fill(0.0);
+		int imax = -1;
+		double dum = 0.0;
+		for(int i=0; i<3; ++i)	{
+			normal[i] =org[i];
+			if(abs(normal[i]) > dum) {
+				imax = i;
+			}
+		}	
+		if(imax != -1)	point[imax] = -1.0*org[3]/normal[imax];
+		
+		std::stringstream ss1, ss2;
+		ss1<<std::scientific<<point[0]<<'\t'<<point[1]<<'\t'<<point[2];
+		ss2<<std::scientific<<normal[0]<<'\t'<<normal[1]<<'\t'<<normal[2];
+		
+		bitpit::Config::Section & planeXML = slotXML.addSection("ClipPlane")
+		planeXML.set("Point",ss1.str());
+		planeXML.set("Normal",ss2.str());
 	}
 	
 	if(isPlotInExecution()){

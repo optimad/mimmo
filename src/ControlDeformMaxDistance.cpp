@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.ControlDeformMaxDistance", "controldeformmaxdistance");
+
 /*!Default constructor of ControlDeformMaxDistance
 */
 ControlDeformMaxDistance::ControlDeformMaxDistance(){
@@ -208,7 +210,11 @@ ControlDeformMaxDistance::execute(){
 /*!
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
- * 1) LimitDistance	- contraint surface distance from target geometry
+ *  * --> Absorbing data:
+ * 1) LimitDistance	- constraint surface distance from target geometry
+ * 3) PlotInExecution - boolean 0/1 print optional results of the class.
+ * 4) OutputPlot - target directory for optional results writing.
+
  * 
  * Geometry and its deformation fiels are mandatorily passed through ports. 
  * 
@@ -254,7 +260,12 @@ void ControlDeformMaxDistance::absorbSectionXML(bitpit::Config::Section & slotXM
 /*!
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
- * 1) LimitDistance	- contraint surface distance from target geometry
+ *  * --> Flushing data// how to write it on XML:
+ *  ClassName : name of the class as "MiMMO.ControlDeformMaxDistance"
+ *	ClassID	  : integer identifier of the class	
+ *	LimitDistance	: constraint surface distance from target geometry
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Geometry and its deformation fiels are mandatorily passed through ports. 
  *  

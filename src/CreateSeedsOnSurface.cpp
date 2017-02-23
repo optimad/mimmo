@@ -35,6 +35,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.CreateSeedsOnSurface", "createseedsonsurface");
+
 //PUBLIC METHODS
 /*!
  * Constructor
@@ -1128,13 +1130,14 @@ std::set<long> CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId
 /*!
  * Get infos from a XML bitpit::Config::section. The parameters that can absorb are
  * 
- * 1) NPoints - total points to distribute 
- * 2) Engine  - type of distribution engine 0-Random,2-CartesianGrid,1-Levelset;
- * 3) Seed    - initial seed point;
- * 4) MassCenterAsSeed - boolean, if true use geometry mass center sa seed
- * 5) RandomFixed- get signature to fix distribution pattern when 0-RANDOM engine is selected
- * 6) PlotInExecution - plot optional result during object execution
- * 7) OutputPlot  - set path to store optional result at 6) 
+ * --> Absorbing data:
+ *  NPoints : total points to distribute 
+ *  Engine  : type of distribution engine 0-Random,2-CartesianGrid,1-Levelset;
+ *  Seed    : initial seed point;
+ *  MassCenterAsSeed : boolean 0/1, if true use geometry mass center as seed
+ *  RandomFixed: get signature to fix distribution pattern when 0:RANDOM engine is selected
+ *  PlotInExecution : plot optional result during object execution
+ *  OutputPlot  : set path to store optional result at 6) 
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
@@ -1225,13 +1228,16 @@ return;
 /*!
  * Plot class infos to a XML bitpit::Config::section. The parameters that can be flushed are
  * 
- * 1) NPoints - total points to distribute 
- * 2) Engine  - type of distribution engine 0-Random,1-CartesianGrid,2-Levelset;
- * 3) Seed    - initial seed point;
- * 4) MassCenterAsSeed - boolean, if true use geometry mass center sa seed
- * 5) RandomFixedSeed - get signature to fix distribution pattern when 0-RANDOM engine is selected
- * 6) PlotInExecution - plot optional result during object execution
- * 7) OutputPlot  - set path to store optional result at 6) 
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.Apply"
+ * ClassID	  : integer identifier of the class
+ * NPoints : total points to distribute 
+ * Engine  : type of distribution engine 0:Random,1:CartesianGrid,2:Levelset;
+ * Seed    : initial seed point;
+ * MassCenterAsSeed : boolean, if true use geometry mass center sa seed
+ * RandomFixedSeed : get signature to fix distribution pattern when 0:RANDOM engine is selected
+ * PlotInExecution : plot optional result during object execution
+ * OutputPlot  : set path to store optional result at 6) 
  *
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file

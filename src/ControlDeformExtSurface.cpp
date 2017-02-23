@@ -29,6 +29,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.ControlDeformExtSurface", "controldeformextsurface");
+
 /*!Default constructor of ControlDeformExtSurface
 */
 ControlDeformExtSurface::ControlDeformExtSurface(){
@@ -506,9 +508,11 @@ ControlDeformExtSurface::execute(){
 /*!
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
+ * --> Absorbing data:
  * 1) Files	- external constraint surfaces list of file 
- * 2) Tolerance - within violation tolerance
- * 3) BGDetails - define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * 2) BGDetails - OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * 3) PlotInExecution - boolean 0/1 print optional results of the class.
+ * 4) OutputPlot - target directory for optional results writing.
  * 
  * Geometry and its deformation fields are mandatorily passed through ports. 
  * 
@@ -595,9 +599,27 @@ void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML
 /*!
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
- * 1) Files	- external constraint surfaces list of file 
- * 2) Tolerance - within violation tolerance
- * 3) BGDetails - define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * * --> Flushing data// how to write it on XML:
+ *  ClassName : name of the class as "MiMMO.ControlDeformExtSurface"
+ *	ClassID	  : integer identifier of the class	
+ *  Files	- external constraint surfaces list of file 
+ * 			 <Files>
+ * 				<file0>	
+ * 					<fullpath> full path to your file </fullpath>
+ * 					<tag> tag extension of your file </tag>
+ * 					<tolerance> double offset to control violation </tolerance> (to consider a deformed body close to target constraints already not touching or penetrating them)
+ * 				</file0>
+ * 				<file1>	
+ * 					<fullpath> full path to your file </fullpath>
+ * 					<tag> tag extension of your file </tag>
+ * 					<tolerance> double offset to control violation </tolerance> (to consider a deformed body close to target constraints already not touching or penetrating them)
+ * 				</file1>
+ * 				...
+ *				...		
+ * 			 </Files>
+ * BGDetails - OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * PlotInExecution - boolean 0/1 print optional results of the class.
+ * OutputPlot - target directory for optional results writing.
  * 
  * Geometry and its deformation fields are mandatorily passed through ports. 
  *  
