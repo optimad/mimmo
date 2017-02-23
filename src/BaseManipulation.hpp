@@ -24,6 +24,7 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
+#include "MiMMO.Manager.hpp"
 #include "MimmoObject.hpp"
 #include "MimmoNamespace.hpp"
 #include "configuration.hpp"

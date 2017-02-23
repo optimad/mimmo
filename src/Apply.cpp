@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.Apply", "apply");
+
 /*!Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){
@@ -118,6 +120,10 @@ Apply::execute(){
  * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
+ * --> Absorbing data:
+ * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
+ * 		
+ * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
@@ -143,8 +149,13 @@ Apply::execute(){
  * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
+ *  * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Apply"
+ *		ClassID	  : integer identifier of the class	
+ * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
+ * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
- * * \param[in] name   name associated to the slot
+ * \param[in] name   name associated to the slot
  */
 void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
