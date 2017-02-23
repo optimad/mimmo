@@ -29,12 +29,14 @@ using namespace mimmo;
 namespace mimmo {
 
 // Initial instantiation of the manipulators' list
-std::unordered_map<std::string, int> *_manipulatorList = nullptr;
-
+//std::unordered_map<std::string, int> *_manipulatorList = nullptr;
+std::unique_ptr< std::unordered_map<std::string, int> >_manipulatorList(nullptr);
+	
 int registerManipulator(const std::string & name)
 {
     if (!_manipulatorList) {
-        _manipulatorList = new std::unordered_map<std::string, int>();
+		std::unique_ptr< std::unordered_map<std::string, int> > temp(new std::unordered_map<std::string, int>());
+        _manipulatorList = std::move(temp);
     }
 
     int id = (int)_manipulatorList->size();
@@ -44,7 +46,7 @@ int registerManipulator(const std::string & name)
 
 const std::unordered_map<std::string, int> & getManipulatorList()
 {
-    return *_manipulatorList;
+    return *(_manipulatorList.get());
 }
 
 };

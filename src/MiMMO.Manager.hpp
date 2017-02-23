@@ -26,13 +26,14 @@
 
 #include "bitpit_common.hpp"
 #include <unordered_map>
+#include <memory>
 
 #define REGISTER_MANIPULATOR(name, type) \
 static int manipulator_type = mimmo::registerManipulator(name);
 
 namespace mimmo{
 
-extern std::unordered_map<std::string, int> *_manipulatorList;
+extern std::unique_ptr<std::unordered_map<std::string, int> > _manipulatorList;
 
 int registerManipulator(const std::string & name);
 const std::unordered_map<std::string, int> & getManipulatorList();

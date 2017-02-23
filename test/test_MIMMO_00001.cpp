@@ -38,11 +38,6 @@ using namespace mimmo::pin;
 
 void test0001() {
 
-	const std::unordered_map<std::string, int> &manipulatorList = getManipulatorList();
-	std::cout<<"global map size"<<manipulatorList.size()<<std::endl;
-	for(auto val : manipulatorList){
-		std::cout<<"global map element "<<val.first<<'\t'<<val.second<<std::endl;
-	}
 
 	//Creation of MiMMO container.
 	MimmoGeometry * mimmo0 = new MimmoGeometry();
