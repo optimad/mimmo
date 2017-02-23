@@ -26,6 +26,7 @@
 
 #include "bitpit_common.hpp"
 #include <unordered_map>
+#include <string>
 
 #define REGISTER_MANIPULATOR(name, type) \
 static int manipulator_type = mimmo::registerManipulator(name); 

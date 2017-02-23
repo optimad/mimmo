@@ -38,7 +38,7 @@ using namespace mimmo::pin;
 
 void test0001() {
 
-	std::cout<<"global map size"<<mimmo::_manipulatorList.size()<<std::endl;
+	std::cout<<"global map size "<<mimmo::_manipulatorList.size()<<std::endl;
 	for(auto val : mimmo::_manipulatorList){
 		std::cout<<"global map element "<<val.first<<'\t'<<val.second<<std::endl;
 	}
