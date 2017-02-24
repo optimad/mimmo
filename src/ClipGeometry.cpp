@@ -342,7 +342,7 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	{
 		darray4E org = getClipPlane();
 		darray3E normal;
-		darray3E point.fill(0.0);
+		darray3E point = {{0.0,0.0,0.0}};
 		int imax = -1;
 		double dum = 0.0;
 		for(int i=0; i<3; ++i)	{
@@ -357,7 +357,7 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 		ss1<<std::scientific<<point[0]<<'\t'<<point[1]<<'\t'<<point[2];
 		ss2<<std::scientific<<normal[0]<<'\t'<<normal[1]<<'\t'<<normal[2];
 		
-		bitpit::Config::Section & planeXML = slotXML.addSection("ClipPlane")
+		bitpit::Config::Section & planeXML = slotXML.addSection("ClipPlane");
 		planeXML.set("Point",ss1.str());
 		planeXML.set("Normal",ss2.str());
 	}
