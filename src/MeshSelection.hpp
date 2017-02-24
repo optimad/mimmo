@@ -499,6 +499,7 @@ protected:
  *  | 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)       |
  *  | 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)     |
  *  | 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)       |
+ *  |-------|----------------|---------------------------------------|-----------------------|
  *  |PortID | PortType       | variable/function                     | DataTypes             |
  *  |-------|----------------|---------------------------------------|-----------------------|
  *  | 32    | M_VALUEB       | setDual                               | (SCALAR, BOOL)        |
@@ -547,6 +548,10 @@ public:
 
     void execute();
 
+	//XML utilities from reading writing settings to file
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	
     void plotOptionalResults();
 
 };
