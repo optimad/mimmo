@@ -315,7 +315,7 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.Apply"
+ *  ClassName : name of the class as "MiMMO.ClipGeometry"
  *	ClassID	  : integer identifier of the class	
  *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
  *  ClipPlane	: section defining the plane's normal and a point belonging to it

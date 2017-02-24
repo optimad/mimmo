@@ -457,7 +457,7 @@ void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string na
  * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		ClassName : name of the class as "MiMMO.Lattice"
  * 		ClassID	  : integer identifier of the class	
  * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
  * 		Origin: 3D point marking the shape barycenter

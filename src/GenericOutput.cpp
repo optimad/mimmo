@@ -140,7 +140,7 @@ void GenericOutput::absorbSectionXML(bitpit::Config::Section & slotXML, std::str
  * on a given file (all values in a row).
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		ClassName : name of the class as "MiMMO.GenericOutput"
  * 		ClassID	  : integer identifier of the class	
  * 		Filename: name of file to write data
  * 

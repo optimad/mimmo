@@ -1229,7 +1229,7 @@ return;
  * Plot class infos to a XML bitpit::Config::section. The parameters that can be flushed are
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.Apply"
+ * ClassName : name of the class as "MiMMO.CreateSeedsOnSurface"
  * ClassID	  : integer identifier of the class
  * NPoints : total points to distribute 
  * Engine  : type of distribution engine 0:Random,1:CartesianGrid,2:Levelset;

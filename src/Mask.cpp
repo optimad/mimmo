@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.Mask", "mask");
+
 /*!Default constructor of Mask
 */
 Mask::Mask(){
@@ -198,3 +200,97 @@ Mask::execute(){
 	}
 	return;
 };
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to mask a point cloud 
+ * with a vector field attached. Point coordinates and fields are meant to be passed through ports.
+ * 
+ * --> Absorbing data:
+ * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
+ * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
+ * 		Inside : array of 3 booleans, each for space coordinate, to perform mask inside the threshold(0) or not (0) 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void Mask::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+	if(slotXML.hasOption("LowerThreshold")){
+		std::string input = slotXML.get("LowerThreshold");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{-1.E18,-1.E18,-1.E18}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setMinThresholds(temp);
+	}; 
+	
+	if(slotXML.hasOption("UpperThreshold")){
+		std::string input = slotXML.get("UpperThreshold");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{1.E18,1.E18,1.E18}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setMaxThresholds(temp);
+	}; 
+	
+	
+	if(slotXML.hasOption("Inside")){
+		std::string input = slotXML.get("Dimension");
+		input = bitpit::utils::trim(input);
+		std::array<bool,3> temp = {{false,false,false}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setInside(temp);
+	};
+}
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Mask"
+ * 		ClassID	  : integer identifier of the class	
+ * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
+ * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
+ * 		Inside : array of 3 booleans (0/1), each for space coordinate, to perform mask inside the threshold(0) or not (0) 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void Mask::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_thres[0][0]<<'\t'<<m_thres[1][0]<<'\t'<<m_thres[2][0];
+		slotXML.set("LowerThreshold", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_thres[0][1]<<'\t'<<m_thres[1][1]<<'\t'<<m_thres[2][1];
+		slotXML.set("UpperThreshold", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_inside[0]<<'\t'<<m_inside[1]<<'\t'<<m_inside[2];
+		slotXML.set("Inside", ss.str());
+	}
+	
+};	
+
+
+

@@ -26,6 +26,7 @@
 
 #include "BaseManipulation.hpp"
 
+
 namespace mimmo{
 
 /*!
@@ -41,7 +42,6 @@ namespace mimmo{
  *	The flags into m_inside define, for each coordinate,
  *	if the object applies the masking inside or outside the thersholds.
  * 
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~
@@ -103,6 +103,9 @@ public:
 
 	void 	execute();
 
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	
 };
 
 }
