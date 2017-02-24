@@ -39,7 +39,6 @@ namespace mimmo{
  *	GenericOutput is derived from BaseManipulation class.
  *	It uses and it writes the base members input.
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default;
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------|
@@ -128,7 +127,9 @@ public:
 	void setFilename(std::string filename);
 
 	void 	execute();
-
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
 }

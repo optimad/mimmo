@@ -145,6 +145,9 @@ public:
 	void	clearResult();
 
 	void execute();
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 };
 

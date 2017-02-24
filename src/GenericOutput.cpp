@@ -27,6 +27,8 @@
 using namespace std;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.GenericOutput", "genericoutput");
+
 /*!Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
@@ -108,4 +110,47 @@ void
 GenericOutput::execute(){
 	rename("output.txt", m_filename.c_str());
 };
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class write only data in admissible format (see ports)
+ * on a given file (all values in a row).
+ * 
+ * --> Absorbing data:
+ * 		Filename: name of file to write data  
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void GenericOutput::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+	
+	if(slotXML.hasOption("Filename")){
+		std::string input = slotXML.get("Filename");
+		input = bitpit::utils::trim(input);
+		setFilename(input);
+	}; 
+	
+}
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class write only data in admissible format (see ports)
+ * on a given file (all values in a row).
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Filename: name of file to write data
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Filename", m_filename);
+};	
 

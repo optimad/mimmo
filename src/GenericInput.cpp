@@ -29,6 +29,8 @@
 using namespace std;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.GenericInput", "genericinput");
+
 /*!Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
  */
@@ -126,6 +128,64 @@ GenericInput::clearResult(){
 void
 GenericInput::execute(){};
 
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read only data in admissible format (see ports)
+ * from a given file (all values in a row).
+ * 
+ * --> Absorbing data:
+ * 		ReadFromFile: 0/1 set class to read from a file	
+ * 		Filename: path to your current file data
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void GenericInput::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+
+	if(slotXML.hasOption("ReadFromFile")){
+		std::string input = slotXML.get("ReadFromFile");
+		input = bitpit::utils::trim(input);
+		bool temp = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		setReadFromFile(temp);
+	}; 
+	
+	if(slotXML.hasOption("Filename") && m_readFromFile){
+		std::string input = slotXML.get("Filename");
+		input = bitpit::utils::trim(input);
+		setFilename(input);
+	}; 
+	
+}
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read only data in admissible format (see ports)
+ * from a given file (all values in a row).
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		ClassID	  : integer identifier of the class	
+ * 		ReadFromFile: 0/1 set class to read from a file	
+ * 		Filename: path to your current file data
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	slotXML.set("ReadFromFile", std::to_string((int)m_readFromFile));
+	slotXML.set("Filename", m_filename);
+};	
 
 
 

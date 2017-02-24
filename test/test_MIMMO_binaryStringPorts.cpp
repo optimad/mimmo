@@ -154,6 +154,14 @@ void testBinStrings() {
 	
 // 	delete reader;
 // 	reader = NULL;
+	
+	dvecarr3E temp(12,{{0,1,2}});
+	
+	std::cout<<temp<<std::endl;
+	
+	
+	
+	
 	delete writer;
 	writer = NULL;
 	
