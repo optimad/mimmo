@@ -41,7 +41,6 @@ namespace mimmo{
  *  points on it (lattice). NO displacements for control points and NO NURBS parameters for FFD are present
  *  in this structure, only geometrical information are stored in the object.
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  * 
  *	=========================================================
  * ~~~
@@ -118,6 +117,9 @@ public:
 	//building method
 	virtual void build();
 	void execute();
+
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 	//nodal displacement utility	
 protected:

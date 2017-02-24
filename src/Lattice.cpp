@@ -30,6 +30,8 @@
 using namespace std;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.Lattice", "lattice");
+
 /*
  *	\date			24/mar/2016
  *	\authors		Rocco Arpa
@@ -331,6 +333,213 @@ void 		Lattice::resizeMapDof(){
 	}//end switch
 
 }
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
+ * 
+ * --> Absorbing data:
+ * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * 		Origin: 3D point marking the shape barycenter
+ * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
+ * 		RefSystem: axes of current shape reference system
+ * 		InfLimits: inferior limits for shape coordinates (meaningful only for CYLNDER AND SPHERE curvilinear coordinates)
+ * 		Dimension: number of nodes in each coordinate direction to get the structured lattice mesh 
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+	if(slotXML.hasOption("Shape")){
+		std::string input = slotXML.get("Shape");
+		input = bitpit::utils::trim(input);
+		
+		if(input == "CYLINDER"){
+			setShape(ShapeType::CYLINDER);
+		}else if(input =="SPHERE"){
+			setShape(ShapeType::SPHERE);
+		}else{
+			setShape(ShapeType::CUBE);
+		}
+	}; 
+	
+	if(slotXML.hasOption("Origin")){
+		std::string input = slotXML.get("Origin");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setOrigin(temp);
+	}; 
+		
+	if(slotXML.hasOption("Span")){
+		std::string input = slotXML.get("Span");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setSpan(temp);
+	}; 
+	
+	if(slotXML.hasSection("RefSystem")){
+		bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
+		std::string rootAxis = "axis";
+		std::string axis;
+		dmatrix33E temp;
+		temp[0].fill(0.0); temp[0][0] = 1.0;
+		temp[1].fill(0.0); temp[1][1] = 1.0;
+		temp[2].fill(0.0); temp[2][2] = 1.0;
+		for(int i=0; i<3; ++i){			
+			axis = rootAxis + std::to_string(i);
+			std::string input = rfXML.get(axis);
+			input = bitpit::utils::trim(input);
+			if(!input.empty()){
+				std::stringstream ss(input);
+				for(auto &val : temp[i]) ss>>val;
+			}
+		}
+		setRefSystem(temp);
+	}; 
+
+	if(slotXML.hasOption("InfLimits")){
+		std::string input = slotXML.get("InfLimits");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setSpan(temp);
+	}; 
+
+	if(slotXML.hasOption("Dimension")){
+		std::string input = slotXML.get("Dimension");
+		input = bitpit::utils::trim(input);
+		iarray3E temp = {{2,2,2}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setDimension(temp);
+	};
+	
+	if(slotXML.hasOption("PlotInExecution")){
+		std::string input = slotXML.get("PlotInExecution");
+		input = bitpit::utils::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setPlotInExecution(value);
+	}
+	
+	if(slotXML.hasOption("OutputPlot")){
+		std::string input = slotXML.get("OutputPlot");
+		input = bitpit::utils::trim(input);
+		std::string temp = ".";
+		if(!input.empty())	setOutputPlot(input);
+	   else			  	setOutputPlot(temp);
+	}
+	
+}
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * 		Origin: 3D point marking the shape barycenter
+ * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
+ * 		RefSystem: axes of current shape reference system. written in XML as:
+ * 					<RefSystem>
+ * 						<axis0>	1.0 0.0 0.0 </axis0>
+ * 						<axis1>	0.0 1.0 0.0 </axis1>
+ * 						<axis2>	0.0 0.0 1.0 </axis2>
+ * 					</RefSystem>
+ * 		InfLimits: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
+ * 		Dimension: number of nodes in each coordinate direction to get the structured lattice mesh 
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
+	std::string towrite = "CUBE";
+	
+	if(getShapeType() == ShapeType::CYLINDER){
+		towrite = "CYLINDER";
+	} else if(getShapeType() == ShapeType::SPHERE){
+		towrite = "SPHERE";
+	}	
+	slotXML.set("Shape", towrite);
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<getOrigin()[0]<<'\t'<<getOrigin()[1]<<'\t'<<getOrigin()[2];
+		slotXML.set("Origin", ss.str());
+	}
+
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<getSpan()[0]<<'\t'<<getSpan()[1]<<'\t'<<getSpan()[2];
+		slotXML.set("Span", ss.str());
+	}
+	
+	{
+		auto rs = getRefSystem();
+		bitpit::Config::Section & rsXML = slotXML.addSection("RefSystem");
+		std::string rootAxis = "axis";
+		std::string localAxis;
+		int counter;
+		for(auto &axis : rs){
+			localAxis = rootAxis+std::to_string(counter);
+			std::stringstream ss;
+			ss<<std::scientific<<axis[0]<<'\t'<<axis[1]<<'\t'<<axis[2];
+			rsXML.set(localAxis, ss.str());
+			++counter;
+		}
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<getInfLimits()[0]<<'\t'<<getInfLimits()[1]<<'\t'<<getInfLimits()[2];
+		slotXML.set("InfLimits", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<getDimension()[0]<<'\t'<<getDimension()[1]<<'\t'<<getDimension()[2];
+		slotXML.set("Dimension", ss.str());
+	}
+	
+	if(isPlotInExecution()){
+		slotXML.set("PlotInExecution", std::to_string(1));
+	}
+	
+	if(m_outputPlot != "."){
+		slotXML.set("OutputPlot", m_outputPlot);
+	}
+	
+};	
+
 
 
 /*!

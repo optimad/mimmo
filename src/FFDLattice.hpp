@@ -41,7 +41,6 @@ namespace mimmo{
  *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
  *  those portion of geometry encased into the 3D shape.
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  * 
  *	=========================================================
  * ~~~
@@ -168,6 +167,9 @@ public:
 	dvecarr3E 	apply(dvecarr3E * point);
 	dvecarr3E 	apply(livector1D & map);
 	virtual void 		build();
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 protected:
 	darray3E	convertDisplToXYZ(darray3E &, int i);

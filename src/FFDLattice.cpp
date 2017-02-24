@@ -30,6 +30,8 @@
 using namespace std;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.FFDLattice", "FFDlattice");
+
 /*
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -1415,3 +1417,113 @@ void FFDLattice::build(){
 	orderDimension();
 
 };
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
+ * Geometry, nodal weights, nodal displacements and filters are mandatorily passed through ports.
+ * 
+ * --> Absorbing data:
+ * 		CoordType: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
+ * 		Degrees: degrees for NURBS interpolant in each spatial direction
+ * 		DisplGlobal :0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
+ * 		Lattice: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void FFDLattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+std::string input; 
+		
+Lattice::absorbSectionXML(slotXML, name);
+	
+	if(slotXML.hasOption("CoordType")){
+		std::string input = slotXML.get("CoordType");
+		std::stringstream ss(bitpit::utils::trim(input));
+		std::string temp;
+		for(int i=0; i<3; ++i){
+			ss>>temp;
+			temp = bitpit::utils::trim(temp);
+			if(temp == "SYMMETRIC"){
+				setCoordType(CoordType::SYMMETRIC,i);
+			}else if(temp =="UNCLAMPED"){
+				setCoordType(CoordType::UNCLAMPED,i);
+			}else if(temp =="PERIODIC"){
+				setCoordType(CoordType::PERIODIC,i);
+			}else{
+				setCoordType(CoordType::CLAMPED,i);
+			}
+		}	
+	}; 
+		
+	if(slotXML.hasOption("Degrees")){
+		std::string input = slotXML.get("Degrees");
+		input = bitpit::utils::trim(input);
+		iarray3E temp = {{1,1,1}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setDegrees(temp);
+	}; 
+		
+	if(slotXML.hasOption("DisplGlobal")){
+		std::string input = slotXML.get("DisplGlobal");
+		input = bitpit::utils::trim(input);
+		bool temp = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		setDisplGlobal(temp);
+	};
+
+};
+	
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
+ * Geometry, nodal weights, nodal displacements and filters are mandatorily passed through ports.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		Lattice: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information
+ * 		CoordType: Set Boundary condition for NURBS extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
+ * 		Degrees: degrees for NURBS interpolant in each spatial direction
+ * 		DisplGlobal :0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
+ *
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void FFDLattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+		
+	Lattice::flushSectionXML(slotXML, name);
+		
+	{std::stringstream ss;
+		
+		for(int i=0; i<3; ++i){
+			std::string towrite = "CLAMPED";
+			if(getCoordType()[i] == CoordType::SYMMETRIC){
+				towrite = "SYMMETRIC";
+			} else if(getCoordType()[i] == CoordType::UNCLAMPED){
+				towrite = "UNCLAMPED";
+			} else if(getCoordType()[i] == CoordType::PERIODIC){	
+				towrite = "PERIODIC";
+			}
+			ss<<towrite<<'\t';
+		}	
+		slotXML.set("CoordType", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<getDegrees()[0]<<'\t'<<getDegrees()[1]<<'\t'<<getDegrees()[2];
+		slotXML.set("Degrees", ss.str());
+	}
+		
+	{
+		slotXML.set("DisplGlobal", std::to_string(int(isDisplGlobal())));
+	}
+};
+
