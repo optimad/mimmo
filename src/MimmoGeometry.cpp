@@ -30,6 +30,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.Geometry", "mimmogeometry");
 
 /*!Default constructor of MimmoGeometry.
  */
@@ -1015,17 +1016,18 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class reads the following parameters:
  * 
- * 1) ReadFlag - activate reading mode boolean
- * 2) ReadDir - reading directory path
- * 3) ReadFileType - file type identifier
- * 4) ReadFilename - name of file for reading
- * 5) WriteFlag - activate writing mode boolean
- * 6) WriteDir - writing directory path
- * 7) WriteFileType - file type identifier
- * 8) WriteFilename - name of file for writing
- * 9) Codex - boolean to write ascii/binary
- * 10) BvTree - evaluate bvTree true/false
- * 11) KdTree - evaluate kdTree ture/false
+ *  --> Absorbing data:
+ * ReadFlag : activate reading mode boolean
+ * ReadDir : reading directory path
+ * ReadFileType : file type identifier
+ * ReadFilename : name of file for reading
+ * WriteFlag : activate writing mode boolean
+ * WriteDir : writing directory path
+ * WriteFileType : file type identifier
+ * WriteFilename : name of file for writing
+ * Codex : boolean to write ascii/binary
+ * BvTree : evaluate bvTree true/false
+ * KdTree : evaluate kdTree true/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -1149,17 +1151,20 @@ return;
  * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
- * 1) ReadFlag - activate reading mode boolean
- * 2) ReadDir - reading directory path
- * 3) ReadFileType - file type identifier
- * 4) ReadFilename - name of file for reading
- * 5) WriteFlag - activate writing mode boolean
- * 6) WriteDir - writing directory path
- * 7) WriteFileType - file type identifier
- * 8) WriteFilename - name of file for writing
- * 9) Codex - boolean to write ascii/binary
- * 10) BvTree - evaluate bvTree true/false
- * 11) KdTree - evaluate kdTree ture/false
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.Geometry"
+ * ClassID  : integer identifier of the class	
+ * ReadFlag : activate reading mode boolean
+ * ReadDir  : reading directory path
+ * ReadFileType : file type identifier
+ * ReadFilename : name of file for reading
+ * WriteFlag : activate writing mode boolean
+ * WriteDir  : writing directory path
+ * WriteFileType : file type identifier
+ * WriteFilename : name of file for writing
+ * Codex  : boolean to write ascii/binary
+ * BvTree : evaluate bvTree true 1/false 0
+ * KdTree : evaluate kdTree true 1/false 0
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 

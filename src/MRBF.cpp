@@ -28,6 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.MRBF", "mrbf");
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
@@ -511,12 +512,12 @@ void MRBF::execute(){
  * Method to absorb parameter infos from an XML parser class of bitpit. 
  * The sensible parameters are:
  * 
- * 1)	Mode - mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * 2)	SupportRadius	- local radius of RBF function for each nodes
- * 3)	Tolerance - greedy engine tolerance (meant for mode 2);
+ * --> Absorbing data:
+ * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * SupportRadius : local radius of RBF function for each nodes
+ * Tolerance : greedy engine tolerance (meant for mode 2);
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
- * Sometimes 2) and 3) are not parameters and can be passed through respective port.
  * 
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name   name associated to the slot
@@ -566,12 +567,14 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name
  * Method to flush parameter infos to an XML parser class of bitpit. 
  * The sensible parameters are:
  * 
- * 1)	Mode - mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * 2)	SupportRadius	- local radius of RBF function for each nodes
- * 3)	Tolerance - greedy engine tolerance (meant for mode 2);
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.MRBF"
+ * ClassID	  : integer identifier of the class	
+ * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * SupportRadius : local radius of RBF function for each nodes
+ * Tolerance : greedy engine tolerance (meant for mode 2);
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
- * Sometimes 2) and 3) are not parameters and can be passed through respective port.
  * In any case, if different by default, such parameters are always written, even.
  * 
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
