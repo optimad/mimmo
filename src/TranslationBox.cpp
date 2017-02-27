@@ -25,6 +25,7 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.TranslationBox", "translationbox");
 /*!Default constructor of TranslationBox
  */
 TranslationBox::TranslationBox(darray3E direction){
@@ -125,3 +126,91 @@ TranslationBox::execute(){
 	}
 	return;
 };
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of 3D point
+ * 
+ * --> Absorbing data:
+ * 		Origin: point tha need to be translated
+ * 		Direction: translation direction
+ * 		Translation : entity of translation
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void TranslationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	if(slotXML.hasOption("Origin")){
+		std::string input = slotXML.get("Origin");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setOrigin(temp);
+	} 
+	
+	if(slotXML.hasOption("Direction")){
+		std::string input = slotXML.get("Direction");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setDirection(temp);
+	} 
+	
+	if(slotXML.hasOption("Translation")){
+		std::string input = slotXML.get("Translation");
+		input = bitpit::utils::trim(input);
+		double temp = 0.0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		setTranslation(temp);
+	} 
+	
+};	
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of a 3D point.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.RotationBox"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Origin: point tha need to be translated
+ * 		Direction: translation direction
+ * 		Translation : entity of translation
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void TranslationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_origin[0]<<'\t'<<m_origin[1]<<'\t'<<m_origin[2];
+		slotXML.set("Origin", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_direction[0]<<'\t'<<m_direction[1]<<'\t'<<m_direction[2];
+		slotXML.set("Direction", ss.str());
+	}
+	
+	slotXML.set("Translation", std::to_string(m_alpha));	
+	
+};	
+
+
+
+

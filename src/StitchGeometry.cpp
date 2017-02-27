@@ -28,6 +28,8 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.StitchGeometry", "stitchgeometry");
+
 /*!Default constructor of StitchGeometry.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
@@ -282,8 +284,12 @@ StitchGeometry::execute(){
  * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class reads the following parameters:
  * 
- * 1) BvTree - evaluate bvTree true/false
- * 2) KdTree - evaluate kdTree ture/false
+ * --> Absorbing data:
+ * Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * BvTree : evaluate bvTree true 1/false 0
+ * KdTree : evaluate kdTree true 1/false 0
+ * PlotInExecution : boolean 0/1 print optional results of the class.
+ * OutputPlot : target directory for optional results writing.
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -352,8 +358,14 @@ return;
  * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
- * 1) BvTree - evaluate bvTree true/false
- * 2) KdTree - evaluate kdTree ture/false
+ *  * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.StitchGeometry"
+ * ClassID   : integer identifier of the class	
+ * Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * BvTree : evaluate bvTree true 1/false 0
+ * KdTree : evaluate kdTree true 1/false 0
+ * PlotInExecution : boolean 0/1 print optional results of the class.
+ * OutputPlot : target directory for optional results writing.
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 

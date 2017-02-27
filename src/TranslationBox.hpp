@@ -42,7 +42,6 @@ namespace mimmo{
  *	Result of the translation are saved in result of base class and
  *	in the modified member m_origin.
  * 
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~
@@ -95,6 +94,9 @@ public:
 
 	void 	execute();
 
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	
 };
 
 }
