@@ -94,7 +94,7 @@ void SelectionByPID::buildPorts(){
  */
 shivector1D 	SelectionByPID::getPID(){
 	shivector1D result(m_activePID.size());
-	int counter;
+	int counter = 0;
 	for(auto && val : m_activePID){
 		result[counter] = val.first;
 		++counter;

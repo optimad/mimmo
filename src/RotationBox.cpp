@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.RotationBox", "rotationbox");
+
 /*!Default constructor of RotationBox
  */
 RotationBox::RotationBox(darray3E origin, darray3E direction){
@@ -166,4 +168,150 @@ RotationBox::execute(){
 
 	return;
 };
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system
+ * 
+ * --> Absorbing data:
+ * 		Origin: rotation axis origin
+ * 		Direction: axis direction coordinates
+ * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * 		RefSystem: current reference system to be rotated
+ * 		OriginRS: origin of the target reference system to be rotated
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	if(slotXML.hasOption("Origin")){
+		std::string input = slotXML.get("Origin");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setOrigin(temp);
+	} 
+	
+	if(slotXML.hasOption("Direction")){
+		std::string input = slotXML.get("Direction");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setDirection(temp);
+	} 
+	
+	if(slotXML.hasOption("Rotation")){
+		std::string input = slotXML.get("Rotation");
+		input = bitpit::utils::trim(input);
+		double temp = 0.0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		setRotation(temp);
+	} 
+	
+	if(slotXML.hasSection("RefSystem")){
+		bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
+		std::string rootAxis = "axis";
+		std::string axis;
+		dmatrix33E temp;
+		temp[0].fill(0.0); temp[0][0] = 1.0;
+		temp[1].fill(0.0); temp[1][1] = 1.0;
+		temp[2].fill(0.0); temp[2][2] = 1.0;
+		for(int i=0; i<3; ++i){			
+			axis = rootAxis + std::to_string(i);
+			std::string input = rfXML.get(axis);
+			input = bitpit::utils::trim(input);
+			if(!input.empty()){
+				std::stringstream ss(input);
+				for(auto &val : temp[i]) ss>>val;
+			}
+		}
+		setAxes(temp);
+	} 
+	
+	if(slotXML.hasOption("OriginRS")){
+		std::string input = slotXML.get("OriginRS");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setAxesOrigin(temp);
+	} 
+};	
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.RotationBOx"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Origin: rotation axis origin
+ * 		Direction: axis direction coordinates
+ * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * 		RefSystem: axes of current shape reference system. written in XML as:
+ * 					<RefSystem>
+ * 						<axis0>	1.0 0.0 0.0 </axis0>
+ * 						<axis1>	0.0 1.0 0.0 </axis1>
+ * 						<axis2>	0.0 0.0 1.0 </axis2>
+ * 					</RefSystem>
+ * 		OriginRS: origin of the target reference system to be rotated
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void RotationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_origin[0]<<'\t'<<m_origin[1]<<'\t'<<m_origin[2];
+		slotXML.set("Origin", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_direction[0]<<'\t'<<m_direction[1]<<'\t'<<m_direction[2];
+		slotXML.set("Direction", ss.str());
+	}
+	
+	slotXML.set("Rotation", std::to_string(m_alpha));	
+	
+	{
+		bitpit::Config::Section & rsXML = slotXML.addSection("RefSystem");
+		std::string rootAxis = "axis";
+		std::string localAxis;
+		int counter=0;
+		for(auto &axis : m_axes){
+			localAxis = rootAxis+std::to_string(counter);
+			std::stringstream ss;
+			ss<<std::scientific<<axis[0]<<'\t'<<axis[1]<<'\t'<<axis[2];
+			rsXML.set(localAxis, ss.str());
+			++counter;
+		}
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_axes_origin[0]<<'\t'<<m_axes_origin[1]<<'\t'<<m_axes_origin[2];
+		slotXML.set("OriginRS", ss.str());
+	}
+
+};	
+
+
 

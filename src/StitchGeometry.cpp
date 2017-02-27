@@ -291,7 +291,6 @@ StitchGeometry::execute(){
 void StitchGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
-	int counter;
 	
 	//checking topology
 	if(slotXML.hasOption("Topology")){

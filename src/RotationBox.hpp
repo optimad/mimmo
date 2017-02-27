@@ -39,7 +39,6 @@ namespace mimmo{
  *	The used parameters are the rotation value and the direction and the origin
  *	of the rotation axis.
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default;
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------|
@@ -98,6 +97,10 @@ public:
 	darray3E getRotatedOrigin();
 
 	void 	execute();
+	
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	
 
 };
 

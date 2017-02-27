@@ -508,7 +508,7 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 		bitpit::Config::Section & rsXML = slotXML.addSection("RefSystem");
 		std::string rootAxis = "axis";
 		std::string localAxis;
-		int counter;
+		int counter=0;
 		for(auto &axis : rs){
 			localAxis = rootAxis+std::to_string(counter);
 			std::stringstream ss;

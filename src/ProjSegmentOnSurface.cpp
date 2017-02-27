@@ -124,7 +124,6 @@ ProjSegmentOnSurface::setSegment(darray3E origin, darray3E dir, double length){
 void ProjSegmentOnSurface::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
-	int counter;
 	
 	if(slotXML.hasOption("Segment")){
 		input = slotXML.get("Segment");
