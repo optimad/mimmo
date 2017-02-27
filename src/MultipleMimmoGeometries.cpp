@@ -28,6 +28,8 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.MultipleGeometries", "multiplegeometries");
+
 /*!Default constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
@@ -641,13 +643,14 @@ MultipleMimmoGeometries::execute(){
  * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class reads the following parameters:
  * 
- * 1) ReadFlag - activate reading mode boolean
- * 2) Read Info data - reading files data
- * 3) WriteFlag - activate writing mode boolean
- * 4) Write Info data - writing files data * 
- * 5) Codex - boolean to write ascii/binary
- * 6) BvTree - evaluate bvTree true/false
- * 7) KdTree - evaluate kdTree ture/false
+ * --> Absorbing data:
+ * ReadFlag : activate reading mode boolean
+ * Read Info data : reading files data
+ * WriteFlag : activate writing mode boolean
+ * Write Info data : writing files data  
+ * Codex : boolean to write ascii/binary
+ * BvTree : evaluate bvTree true/false
+ * KdTree : evaluate kdTree true/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -680,42 +683,36 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		setRead(value);
 	}; 
 	
-	if(slotXML.hasSection("ReadFiles")){
-		bitpit::Config::Section &reading = slotXML.getSection("ReadFiles");
+	if(slotXML.hasSection("ReadInfoData")){
+		bitpit::Config::Section &reading = slotXML.getSection("ReadInfoData");
 		int nfile = reading.getSectionCount();
 		temp.resize(nfile);
-		
-		std::string strdum, root="File";
-		
 		counter=0;
 		
-		for(int i=0; i<nfile; ++i){
-			strdum = root+std::to_string(i);
-			if(reading.hasSection(strdum)){
-				bitpit::Config::Section &file = reading.getSection(strdum);
-
-				input = file.get("tag");
-				input = bitpit::utils::trim(input);
-				auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
+		for(auto & file : reading.getSections()){
+			
+			if(!file.second->hasOption("tag") || !file.second->hasOption("dir") || !file.second->hasOption("name")) continue;
+			input = file.second->get("tag");
+			input = bitpit::utils::trim(input);
+			auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
 				
-				if(!maybe_tag)	continue;
-				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
+			if(!maybe_tag)	continue;
+			if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
 					
-					temp[counter].ftype = maybe_tag->_to_integral();
+				temp[counter].ftype = maybe_tag->_to_integral();
 				
-					input = file.get("dir");
-					input = bitpit::utils::trim(input);
-					if(input.empty())	input = "./";
-					temp[counter].fdir = input;
+				input = file.second->get("dir");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "./";
+				temp[counter].fdir = input;
 
-					input = file.get("name");
-					input = bitpit::utils::trim(input);
-					if(input.empty())	input = "MultipleMimmoGeometries";
-					temp[counter].fname = input;
+				input = file.second->get("name");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "MultipleMimmoGeometries";
+				temp[counter].fname = input;
 				
-					counter++;
-				}	
-			}
+				counter++;
+			}	
 		}
 		temp.resize(counter);
 		setReadListFDI(temp);
@@ -732,42 +729,36 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 		setWrite(value);
 	}; 
 	
-	if(slotXML.hasSection("WriteFiles")){
-		bitpit::Config::Section & writing = slotXML.getSection("WriteFiles");
+	if(slotXML.hasSection("WriteInfoData")){
+		bitpit::Config::Section & writing = slotXML.getSection("WriteInfoData");
 		int nfile = writing.getSectionCount();
 		temp.resize(nfile);
-		
-		std::string strdum, root="File";
-		
 		counter = 0;
 		
-		for(int i=0; i<nfile; ++i){
-			strdum = root+std::to_string(i);
+		for(auto & file : writing.getSections()){
 			
-			if(writing.hasSection(strdum)){
-				bitpit::Config::Section & file = writing.getSection(strdum);
+			if(!file.second->hasOption("tag") || !file.second->hasOption("dir") || !file.second->hasOption("name")) continue;
 				
-				input = file.get("tag");
+			input = file.second->get("tag");
+			input = bitpit::utils::trim(input);
+			auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
+				
+			if(!maybe_tag)	continue;
+			if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
+					
+				temp[counter].ftype = maybe_tag->_to_integral();
+					
+				input = file.second->get("dir");
 				input = bitpit::utils::trim(input);
-				auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
-				
-				if(!maybe_tag)	continue;
-				if(m_ftype_allow.count(maybe_tag->_to_integral()) > 0){
-					
-					temp[counter].ftype = maybe_tag->_to_integral();
-					
-					input = file.get("dir");
-					input = bitpit::utils::trim(input);
-					if(input.empty())	input = "./";
-					temp[counter].fdir = input;
+				if(input.empty())	input = "./";
+				temp[counter].fdir = input;
 	   
-					input = file.get("name");
-					input = bitpit::utils::trim(input);
-					if(input.empty())	input = "MultipleMimmoGeometries";
-					temp[counter].fname = input;
-					counter++;
-				}
-			}	
+				input = file.second->get("name");
+				input = bitpit::utils::trim(input);
+				if(input.empty())	input = "MultipleMimmoGeometries";
+				temp[counter].fname = input;
+				counter++;
+			}
 		}
 		temp.resize(counter);
 		setWriteListFDI(temp);
@@ -812,13 +803,45 @@ return;
  * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
- * 1) ReadFlag - activate reading mode boolean
- * 2) Read Info data - reading files data
- * 3) WriteFlag - activate writing mode boolean
- * 4) Write Info data - writing files data * 
- * 5) Codex - boolean to write ascii/binary
- * 6) BvTree - evaluate bvTree true/false
- * 7) KdTree - evaluate kdTree ture/false
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.MultipleGeometries"
+ * ClassID	  : integer identifier of the class	
+ * ReadFlag : activate reading mode boolean
+ * ReadInfodata : reading files data
+ * 		<ReadInfoData>
+ * 			<File0>
+ * 				<tag> format tag extension </tag>
+ * 				<dir> path to work directory </dir>
+ * 				<name> name of file to read </name>
+ * 			</File0>
+ * 			<File1>
+ * 				<tag> format tag extension </tag>
+ * 				<dir> path to work directory </dir>
+ * 				<name> name of file to read </name>
+ * 			</File1>
+ * 			...
+ * 			...
+ * 		</ReadInfoData>
+ * WriteFlag : activate writing mode boolean
+ * WriteInfodata : writing files data  
+ * 		<WriteInfoData>
+ * 			<File0>
+ * 				<tag> format tag extension </tag>
+ * 				<dir> path to work directory </dir>
+ * 				<name> name of file to write </name>
+ * 			</File0>
+ * 			<File1>
+ * 				<tag> format tag extension </tag>
+ * 				<dir> path to work directory </dir>
+ * 				<name> name of file to write </name>
+ * 			</File1>
+ * 			...
+ * 			...
+ * 		</WriteInfoData>
+ * 
+ * Codex : boolean to write ascii/binary
+ * BvTree : evaluate bvTree true/false
+ * KdTree : evaluate kdTree true/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 
@@ -836,7 +859,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 
 	if (!m_rinfo.empty()){
 		
-		bitpit::Config::Section & local = slotXML.addSection("ReadFiles");
+		bitpit::Config::Section & local = slotXML.addSection("ReadInfoData");
 		int size = m_rinfo.size();
 		std::string strdum, root="File";
 		
@@ -854,7 +877,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 	
 	if (!m_winfo.empty()){
 		
-		bitpit::Config::Section & local = slotXML.addSection("WriteFiles");
+		bitpit::Config::Section & local = slotXML.addSection("WriteInfoData");
 		int size = m_winfo.size();
 		std::string strdum, root="File";
 		
