@@ -36,7 +36,6 @@ namespace mimmo{
  *
  *	Builds the axes aligned bounding box of a set of RBF points.
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------------------------|
@@ -92,10 +91,19 @@ public:
     void        setNode(dvecarr3E);
     void        setSupportRadius(double suppR_);
 
-
+	//plotting wrappers
+	void		plot(std::string directory, std::string filename, int counter, bool binary);
+	
 	//building method
 	void execute();
 
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	
+	
+protected:
+	virtual void plotOptionalResults();
+	
 };
 
 }
