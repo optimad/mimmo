@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.SpecularPoints", "specularpoints");
+
 /*!Default constructor of SpecularPoints
 */
 SpecularPoints::SpecularPoints(){
@@ -305,8 +307,12 @@ void SpecularPoints::clear(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  
- * 1) Plane -> give mirror plane coefficients in inplicit form
- * 2) InsideOut-> half-space direction for mirroring
+ *  --> Absorbing data:
+ *  InsideOut	: boolean to get direction of clipping according to given plane
+ *  Plane	: section defining the plane's normal and a point belonging to it
+ *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Coordinates and data attached are mandatorely passed through ports
  * 
@@ -316,6 +322,17 @@ void SpecularPoints::clear(){
 void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	//start absorbing
+	if(slotXML.hasOption("Force")){
+		std::string input = slotXML.get("Force");
+		input = bitpit::utils::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setForce(value);
+	}
+
 	if(slotXML.hasOption("InsideOut")){
 		std::string input = slotXML.get("InsideOut");
 		input = bitpit::utils::trim(input);
@@ -327,18 +344,28 @@ void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
 		setInsideOut(value);
 	}
 	
-	if(slotXML.hasOption("Plane")){
-		std::string input = slotXML.get("Plane");
-		input = bitpit::utils::trim(input);
-		darray4E temp = {{0.0,0.0,0.0,0.0}};
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>temp[0]>>temp[1]>>temp[2]>>temp[3];
-			setPlane(temp);
-		}else{
-			setPlane(temp);
-		}	
-	}
+	if(slotXML.hasSection("Plane")){
+		bitpit::Config::Section & planeXML = slotXML.getSection("Plane");
+		
+		std::string input1 = planeXML.get("Point");
+		std::string input2 = planeXML.get("Normal");
+		input1 = bitpit::utils::trim(input1);
+		input2 = bitpit::utils::trim(input2);
+		
+		darray3E temp1 = {{0.0,0.0,0.0}};
+		darray3E temp2 = {{0.0,0.0,0.0}};
+		
+		if(!input1.empty()){
+			std::stringstream ss(input1);
+			ss>>temp1[0]>>temp1[1]>>temp1[2];
+		}
+		if(!input2.empty()){
+			std::stringstream ss(input2);
+			ss>>temp2[0]>>temp2[1]>>temp2[2];
+		}
+		
+		setPlane(temp1, temp2);
+	};	
 	
 	if(slotXML.hasOption("PlotInExecution")){
 		std::string input = slotXML.get("PlotInExecution");
@@ -367,8 +394,18 @@ void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
  * Plot infos to a XML bitpit::Config::section. The parameters available are
  * 
  *  
- * 1) Plane -> give mirror plane coefficients in inplicit form
- * 2) InsideOut-> half-space direction for mirroring
+ * * --> Flushing data// how to write it on XML:
+ *  ClassName : name of the class as "MiMMO.ClipGeometry"
+ *	ClassID	  : integer identifier of the class	
+ *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
+ *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
+ *  Plane	: section defining the plane's normal and a point belonging to it
+ * 				<Plane>
+ * 					<Point>	0.0 0.0 0.0 </Point>
+ * 					<Normal> 0.0 1.0 0.0 </Normal>
+ * 				</Plane>
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Coordinates and data attached are mandatorely passed through ports
  * 
@@ -379,14 +416,34 @@ void SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 	slotXML.set("ClassName", m_name);
 	slotXML.set("ClassID", std::to_string(getClassCounter()));
 	
-	int value = m_insideout;
+	int value = m_force;
+	slotXML.set("Force", std::to_string(value));
+
+	value = m_insideout;
 	slotXML.set("InsideOut", std::to_string(value));
+
 	
 	{
 		darray4E org = getPlane();
-		std::stringstream ss;
-		ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2]<<'\t'<<org[3];
-		slotXML.set("Plane",ss.str());
+		darray3E normal;
+		darray3E point = {{0.0,0.0,0.0}};
+		int imax = -1;
+		double dum = 0.0;
+		for(int i=0; i<3; ++i)	{
+			normal[i] =org[i];
+			if(abs(normal[i]) > dum) {
+				imax = i;
+			}
+		}	
+		if(imax != -1)	point[imax] = -1.0*org[3]/normal[imax];
+		
+		std::stringstream ss1, ss2;
+		ss1<<std::scientific<<point[0]<<'\t'<<point[1]<<'\t'<<point[2];
+		ss2<<std::scientific<<normal[0]<<'\t'<<normal[1]<<'\t'<<normal[2];
+		
+		bitpit::Config::Section & planeXML = slotXML.addSection("Plane");
+		planeXML.set("Point",ss1.str());
+		planeXML.set("Normal",ss2.str());
 	}
 	
 	if(isPlotInExecution()){

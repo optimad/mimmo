@@ -28,6 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+
 /*!Default constructor of SplitField.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
@@ -181,8 +182,14 @@ SplitField::execute(){
 
 /*!
  * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameters and filed (which is instantiated internally
+ * BaseManipulation::absorbSectionXML. Except of geometry parameters and field (which is instantiated internally
  * or passed by port linking), the class reads no other siginificant parameters.
+ * 
+ * * --> Absorbing data:
+ * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
+ * 
  *  
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -230,6 +237,13 @@ return;
  * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
  * BaseManipulation::flushSectionXML. Except of geometry parameters and fields (which are instantiated internally
  * or passed by port linking), the class writes no siginificant parameters:
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.Split<Scalar/Vector>Fields"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 
@@ -281,367 +295,3 @@ SplitField::desumeElement(ivector2D & conn){
 };
 
 
-
-//SPLITSCALARFIELD IMPLEMENTATION//
-
-/*!
- * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
- */
-SplitScalarField::SplitScalarField(int topo):SplitField(topo){
-	m_name = "MiMMO.SplitScalarField";
-}
-
-
-/*!
- * Default destructor
- */
-SplitScalarField::~SplitScalarField(){
-	m_field.clear();
-	m_result.clear();
-}
-
-/*!
- * Build the ports of the class;
- */
-void
-SplitScalarField::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<dvector1D, SplitScalarField>(this, &mimmo::SplitScalarField::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::unordered_map<MimmoObject*, dvector1D* >, SplitScalarField>(this, &mimmo::SplitScalarField::getSplittedData, PortType::M_UMGEOSFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));	
-	
-	SplitField::buildPorts();
-	m_arePortsBuilt = built;
-}
-
-/*!
- * Get splitted field as a map having pointers to splitted original geometries 
- * and the portions of field relative to them. 
- */
-std::unordered_map<MimmoObject*, dvector1D *> 
-SplitScalarField::getSplittedData(){
-	
-	std::unordered_map<MimmoObject*, dvector1D *> map;
-	if(m_originals.empty() || m_geometry==NULL) return map;
-	if(m_result.size() != m_originals.size())	return map;
-		
-	int counter = 0;
-	for(auto & val : m_originals){
-		map[val] = &(m_result[counter]);
-		++counter;
-	}
-	
-	return map;
-}
-
-/*!
- * Set Field associated to the target geometry and that need to splitted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or 
- * setVertDivisionMap methods.  
- * \param[in]	field scalar field fo doubles 
- */
-void
-SplitScalarField::setField(dvector1D field){
-	m_field = field;
-}
-
-/*!
- * Clear content of the class
- */
-void
-SplitScalarField::clear(){
-	m_field.clear();
-	m_result.clear();
-	SplitField::clear();
-}
-
-/*!
- * Plot splitted field alongside its geometries ;
- */
-
-void 
-SplitScalarField::plotOptionalResults(){
-	if(isEmpty()) return;
-	if(m_originals.size() != m_result.size())	return;
-	
-	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-	if(m_mapVertDivision.empty())	loc = bitpit::VTKLocation::CELL;
-	
-	int counter=0;
-	for(auto & geo : m_originals){
-		dvecarr3E points = geo->getVertexCoords();
-		
-		if(getTopo() != 3){
-			ivector2D connectivity = geo->getCompactConnectivity();
-			bitpit::VTKElementType cellType = desumeElement(connectivity);
-			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
-			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-			output.setDimensions(connectivity.size(), points.size());
-			output.addData("field", bitpit::VTKFieldType::SCALAR, loc, m_result[counter]);
-			output.setCounter(counter);
-			output.setCodex(bitpit::VTKFormat::APPENDED);
-			output.write();
-		}else{
-			int size = points.size();
-			ivector1D connectivity(size);
-			for(int i=0; i<size; ++i)	connectivity[i]=i;
-			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	bitpit::VTKElementType::VERTEX);
-			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-			output.setDimensions(connectivity.size(), points.size());
-			output.addData("field", bitpit::VTKFieldType::SCALAR, loc, m_result[counter]);
-			output.setCounter(counter);
-			output.setCodex(bitpit::VTKFormat::APPENDED);
-			output.write();
-		}
-
-		++counter;
-	}
-}
-
-/*!
- * Split your original field along the splitted original geometries provided
- */
-bool
-SplitScalarField::split(){
-	if(m_mapCellDivision.empty() && m_mapVertDivision.empty())	return false;
-	if(isEmpty())	return false;
-	
-	//check original field;
-	bool loc = m_mapVertDivision.empty(); //true by cells, false by vert.
-	
-	int nGeo = m_originals.size();
-	m_result.resize(nGeo);
-	
-	std::unordered_map<long, std::pair<int, long>> * mapp;
-	livector1D * mapIdTarget;
-	std::vector< std::map<long, int> * > invIdLoc(nGeo);
-	
-	if(loc)	{
-		m_field.resize(getGeometry()->getNCells(), 0.0);
-		mapp = &m_mapCellDivision;	
-		mapIdTarget = &(getGeometry()->getMapCell());
-		for(int i=0; i<nGeo; ++i){
-			invIdLoc[i] = &(m_originals[i]->getMapCellInv());
-		}
-	}
-	else	{
-		m_field.resize(getGeometry()->getNVertex(), 0.0);
-		mapp = &m_mapVertDivision;	
-		mapIdTarget = &(getGeometry()->getMapData());
-		for(int i=0; i<nGeo; ++i){
-			invIdLoc[i] = &(m_originals[i]->getMapDataInv());
-		}
-	}	
-	
-	if(m_field.size() != mapp->size())	return false;
-	
-	//allocate memory for results;	
-	for(int i=0; i<nGeo; ++i){
-		
-		if(loc)	m_result[i].resize(m_originals[i]->getNCells(),0.0);
-		else	m_result[i].resize(m_originals[i]->getNVertex(),0.0);
-	}
-	
-	int counter = 0;
-	long IDtarget;
-	std::pair<int,long> douple;
-	int locali;
-	for(auto & val: m_field){
-		
-		IDtarget = (*mapIdTarget)[counter];
-		if(mapp->count(IDtarget)> 0 ){
-			douple = (*mapp)[IDtarget]; 
-			if(douple.first > nGeo)	continue;
-			if((invIdLoc[douple.first])->count(douple.second) > 0){
-				locali = (*invIdLoc[douple.first])[douple.second];
-				m_result[douple.first][locali] = val;
-			}	
-		}
-		++counter;
-	}
-	return true;
-}
-
-//SPLITVECTORFIELD IMPLEMENTATION//
-
-/*!
- * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
- */
-SplitVectorField::SplitVectorField(int topo):SplitField(topo){
-	m_name = "MiMMO.SplitVectorField";
-}
-
-
-/*!
- * Default destructor
- */
-SplitVectorField::~SplitVectorField(){
-	m_field.clear();
-	m_result.clear();
-}
-
-/*!
- * Build the ports of the class;
- */
-void
-SplitVectorField::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<dvecarr3E, SplitVectorField>(this, &mimmo::SplitVectorField::setField, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::unordered_map<MimmoObject*, dvecarr3E* >, SplitVectorField>(this, &mimmo::SplitVectorField::getSplittedData, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));	
-	SplitField::buildPorts();
-	m_arePortsBuilt = built;
-}
-
-/*!
- * Get splitted field as a map having pointers to splitted original geometries 
- * and the portions of field relative to them. 
- */
-std::unordered_map<MimmoObject*, dvecarr3E *> 
-SplitVectorField::getSplittedData(){
-	
-	std::unordered_map<MimmoObject*, dvecarr3E *> map;
-	if(m_originals.empty() || m_geometry==NULL) return map;
-	if(m_result.size() != m_originals.size())	return map;
-
-	int counter = 0;
-	for(auto & val : m_originals){
-		map[val] = &(m_result[counter]);
-		++counter;
-	}
-
-	return map;
-}
-
-/*!
- * Set Field associated to the target geometry and that need to splitted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or 
- * setVertDivisionMap methods.  
- * \param[in]	field vector field of array at 3 double elements 
- */
-void
-SplitVectorField::setField(dvecarr3E field){
-	m_field = field;
-}
-
-/*!
- * Clear content of the class
- */
-void
-SplitVectorField::clear(){
-	m_field.clear();
-	m_result.clear();
-	SplitField::clear();
-}
-
-/*!
- * Plot splitted field alongside its geometries ;
- */
-
-void 
-SplitVectorField::plotOptionalResults(){
-	if(isEmpty()) return;
-	if(m_originals.size() != m_result.size())	return;
-	
-	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-	if(m_mapVertDivision.empty())	loc = bitpit::VTKLocation::CELL;
-	
-	int counter=0;
-	for(auto & geo : m_originals){
-		dvecarr3E points = geo->getVertexCoords();
-		
-		if(getTopo() != 3){
-			ivector2D connectivity = geo->getCompactConnectivity();
-			bitpit::VTKElementType cellType = desumeElement(connectivity);
-			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
-			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-			output.setDimensions(connectivity.size(), points.size());
-			output.addData("field", bitpit::VTKFieldType::VECTOR, loc, m_result[counter]);
-			output.setCounter(counter);
-			output.setCodex(bitpit::VTKFormat::APPENDED);
-			output.write();
-		}else{
-			int size = points.size();
-			ivector1D connectivity(size);
-			for(int i=0; i<size; ++i)	connectivity[i]=i;
-			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	bitpit::VTKElementType::VERTEX);
-			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-			output.setDimensions(connectivity.size(), points.size());
-			output.addData("field", bitpit::VTKFieldType::VECTOR, loc, m_result[counter]);
-			output.setCounter(counter);
-			output.setCodex(bitpit::VTKFormat::APPENDED);
-			output.write();
-		}
-		
-		++counter;
-	}
-}
-
-/*!
- * Split your original field along the splitted original geometries provided
- */
-bool
-SplitVectorField::split(){
-	if(m_mapCellDivision.empty() && m_mapVertDivision.empty())	return false;
-	if(isEmpty())	return false;
-	
-	//check original field;
-	bool loc = m_mapVertDivision.empty(); //true by cells, false by vert.
-	
-	int nGeo = m_originals.size();
-	m_result.resize(nGeo);
-	
-	std::unordered_map<long, std::pair<int, long>> * mapp;
-	livector1D * mapIdTarget;
-	std::vector< std::map<long, int> * > invIdLoc(nGeo);
-	
-	if(loc)	{
-		m_field.resize(getGeometry()->getNCells(), {{0.0,0.0,0.0}});
-		mapp = &m_mapCellDivision;	
-		mapIdTarget = &(getGeometry()->getMapCell());
-		for(int i=0; i<nGeo; ++i){
-			invIdLoc[i] = &(m_originals[i]->getMapCellInv());
-		}
-	}
-	else	{
-		m_field.resize(getGeometry()->getNVertex(), {{0.0,0.0,0.0}});
-		mapp = &m_mapVertDivision;	
-		mapIdTarget = &(getGeometry()->getMapData());
-		for(int i=0; i<nGeo; ++i){
-			invIdLoc[i] = &(m_originals[i]->getMapDataInv());
-		}
-	}	
-	
-	if(m_field.size() != mapp->size())	return false;
-	
-	//allocate memory for results;	
-	for(int i=0; i<nGeo; ++i){
-		
-		if(loc)	m_result[i].resize(m_originals[i]->getNCells(),{{0.0,0.0,0.0}});
-		else	m_result[i].resize(m_originals[i]->getNVertex(),{{0.0,0.0,0.0}});
-	}
-	
-	int counter = 0;
-	long IDtarget;
-	std::pair<int,long> douple;
-	int locali;
-	for(auto & val: m_field){
-		
-		IDtarget = (*mapIdTarget)[counter];
-		if(mapp->count(IDtarget)> 0 ){
-			douple = (*mapp)[IDtarget]; 
-			if(douple.first > nGeo)	continue;
-			if((invIdLoc[douple.first])->count(douple.second) > 0){
-				locali = (*invIdLoc[douple.first])[douple.second];
-				m_result[douple.first][locali] = val;
-			}	
-		}
-		++counter;
-	}
-	
-	return true;
-}

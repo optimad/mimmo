@@ -255,7 +255,7 @@ void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::strin
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.RotationBOx"
+ * 		ClassName : name of the class as "MiMMO.RotationBox"
  * 		ClassID	  : integer identifier of the class	
  * 		Origin: rotation axis origin
  * 		Direction: axis direction coordinates

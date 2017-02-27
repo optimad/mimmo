@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.RotationGeometry", "rotationgeometry");
+
 /*!Default constructor of RotationGeometry
  */
 RotationGeometry::RotationGeometry(darray3E origin, darray3E direction){
@@ -161,4 +163,90 @@ RotationGeometry::execute(){
 
     return;
 };
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation 
+ * a geometry. Filter field, geometry and resulting displacements are passed mandatorily through ports
+ * 
+ * --> Absorbing data:
+ * 		Origin: rotation axis origin
+ * 		Direction: axis direction coordinates
+ * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void RotationGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	if(slotXML.hasOption("Origin")){
+		std::string input = slotXML.get("Origin");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setOrigin(temp);
+	} 
+	
+	if(slotXML.hasOption("Direction")){
+		std::string input = slotXML.get("Direction");
+		input = bitpit::utils::trim(input);
+		darray3E temp = {{0.0,0.0,0.0}};
+		if(!input.empty()){
+			std::stringstream ss(input);
+			for(auto &val : temp) ss>>val;
+		}
+		setDirection(temp);
+	} 
+	
+	if(slotXML.hasOption("Rotation")){
+		std::string input = slotXML.get("Rotation");
+		input = bitpit::utils::trim(input);
+		double temp = 0.0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss>>temp;
+		}
+		setRotation(temp);
+	} 
+	
+};	
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of a
+ * geometry.Filter field, geometry and resulting displacements are passed mandatorily through ports
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.RotationGeometry"
+ * 		ClassID	  : integer identifier of the class	
+ * 		Origin: rotation axis origin
+ * 		Direction: axis direction coordinates
+ * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void RotationGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_origin[0]<<'\t'<<m_origin[1]<<'\t'<<m_origin[2];
+		slotXML.set("Origin", ss.str());
+	}
+	
+	{
+		std::stringstream ss;
+		ss<<std::scientific<<m_direction[0]<<'\t'<<m_direction[1]<<'\t'<<m_direction[2];
+		slotXML.set("Direction", ss.str());
+	}
+	
+	slotXML.set("Rotation", std::to_string(m_alpha));	
+	
+};	
 
