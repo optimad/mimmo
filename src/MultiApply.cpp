@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.MultiApply", "multiapply");
+
 /*!Default constructor of Apply
  */
 MultiApply::MultiApply():BaseManipulation(){
@@ -151,6 +153,9 @@ MultiApply::execute(){
  * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
+ * --> Absorbing data:
+ * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
+ * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
@@ -175,6 +180,11 @@ MultiApply::execute(){
  * BaseManipulation::flushSectionXML;
  * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
+ * 
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.MultiApply"
+ * ClassID	  : integer identifier of the class	
+ * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * * \param[in] name   name associated to the slot
