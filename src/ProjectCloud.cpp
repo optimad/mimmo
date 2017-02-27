@@ -25,6 +25,8 @@
 
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.ProjectCloud", "projectcloud");
+
 /*!Default constructor of ProjectCloud
 */
 ProjectCloud::ProjectCloud(){
@@ -143,7 +145,11 @@ void ProjectCloud::plotOptionalResults(){
 
 /*!
 * Get infos from a XML bitpit::Config::section. 
-* Coordinates are mandatorely passed through ports
+* Cloud points coordinates are mandatorily passed through ports
+* 
+* --> Absorbing data:
+* PlotInExecution : boolean 0/1 print optional results of the class.
+* OutputPlot : target directory for optional results writing. 
 * 
 * \param[in] slotXML 	bitpit::Config::Section of XML file
 * \param[in] name   name associated to the slot
@@ -179,7 +185,14 @@ void ProjectCloud::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 
 /*!
  * Plot infos from a XML bitpit::Config::section.
- * Coordinates are mandatorely passed through ports
+ * Cloud points coordinates are mandatorily passed through ports
+ * 
+ * --> Flushing data// how to write it on XML:
+ * ClassName : name of the class as "MiMMO.ProjectCloud"
+ * ClassID	  : integer identifier of the class	
+ * PlotInExecution : boolean 0/1 print optional results of the class.
+ * OutputPlot : target directory for optional results writing. 
+ * 
  *  
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
