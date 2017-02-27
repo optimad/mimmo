@@ -33,6 +33,8 @@ using namespace std::chrono;
 using namespace std;
 using namespace mimmo;
 
+REGISTER_MANIPULATOR("MiMMO.OBBox", "obbox");
+
 /*
  *	\date			24/mar/2016
  *	\authors		Rocco Arpa
@@ -341,6 +343,74 @@ void 	OBBox::plotOptionalResults(){
 	std::string nameGrid  = m_name;
 	plot(dir, nameGrid, getClassCounter(), true );
 }
+
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to initialize itself.
+ * Target geometry is mandatorily passed trough ports.
+ * 
+ * --> Absorbing data:
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void OBBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	std::string input; 
+	
+	if(slotXML.hasOption("PlotInExecution")){
+		std::string input = slotXML.get("PlotInExecution");
+		input = bitpit::utils::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setPlotInExecution(value);
+	}
+	
+	if(slotXML.hasOption("OutputPlot")){
+		std::string input = slotXML.get("OutputPlot");
+		input = bitpit::utils::trim(input);
+		std::string temp = ".";
+		if(!input.empty())	setOutputPlot(input);
+		else			  	setOutputPlot(temp);
+	}
+	
+}
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML.The class read essential parameters to initialize itself.
+ * Target geometry is mandatorily passed trough ports.
+ * 
+ * 
+ * --> Flushing data// how to write it on XML:
+ * 		ClassName : name of the class as "MiMMO.OBBox"
+ * 		ClassID	  : integer identifier of the class	
+ * 		PlotInExecution : boolean 0/1 print optional results of the class.
+ * 		OutputPlot : target directory for optional results writing. 
+ * 
+ * \param[in] slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	slotXML.set("ClassName", m_name);
+	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	if(isPlotInExecution()){
+		slotXML.set("PlotInExecution", std::to_string(1));
+	}
+	if(m_outputPlot != "."){
+		slotXML.set("OutputPlot", m_outputPlot);
+	}
+	
+};	
+
 
 
 

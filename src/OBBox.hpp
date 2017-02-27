@@ -37,7 +37,6 @@ namespace mimmo{
  *
  *	Builds the oriented bounding box of a 3D object (Point Clouds or superficial tessellations), passed as MimmoObject. 
  *
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------------------------|
@@ -93,6 +92,10 @@ public:
 	//building method
 	void execute();
 
+	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	
+	
 protected:
 	virtual void plotOptionalResults();
 	
