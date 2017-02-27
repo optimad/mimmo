@@ -25,7 +25,7 @@
 #ifndef __OVERLAPPINGFIELDS_HPP__
 #define __OVERLAPPINGFIELDS_HPP__
 
-#include "ReconstructScalar.hpp"
+#include "ReconstructFields.hpp"
 
 namespace mimmo{
 
