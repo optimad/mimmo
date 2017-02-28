@@ -25,6 +25,7 @@
 
 using namespace mimmo;
 
+
 REGISTER_MANIPULATOR("MiMMO.Apply", "apply");
 
 /*!Default constructor of Apply
