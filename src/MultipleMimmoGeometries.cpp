@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.MultipleGeometries", "multiplegeometries");
+// REGISTER_MANIPULATOR("MiMMO.MultipleGeometries", "multiplegeometries");
 
 /*!Default constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum

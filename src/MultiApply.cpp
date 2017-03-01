@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.MultiApply", "multiapply");
+// REGISTER_MANIPULATOR("MiMMO.MultiApply", "multiapply");
 
 /*!Default constructor of Apply
  */

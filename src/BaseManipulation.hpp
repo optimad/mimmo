@@ -24,10 +24,9 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
-#include "MiMMO.Manager.hpp"
-#include "MimmoObject.hpp"
 #include "MimmoNamespace.hpp"
 #include "configuration.hpp"
+#include "MimmoObject.hpp"
 #include "InOut.hpp"
 
 
@@ -155,6 +154,7 @@ public:
 	
 	//XML utilities from reading writing settings to file
 	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 	
@@ -163,7 +163,7 @@ protected:
 
 	virtual void 	buildPorts() = 0;
 	void			deletePorts();
-
+	
 	template<typename T, typename O>
 	bool	createPortOut(O* obj, T (O::*getVar_)(), PortID portS, containerTAG conType, dataTAG dataType);
 

@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.RotationGeometry", "rotationgeometry");
+// REGISTER_MANIPULATOR("MiMMO.RotationGeometry", "rotationgeometry");
 
 /*!Default constructor of RotationGeometry
  */

@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.Mask", "mask");
+// REGISTER_MANIPULATOR("MiMMO.Mask", "mask");
 
 /*!Default constructor of Mask
 */

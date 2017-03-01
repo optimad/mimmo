@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.MRBF", "mrbf");
+// REGISTER_MANIPULATOR("MiMMO.MRBF", "mrbf");
 
 /*! Default Constructor.*/
 MRBF::MRBF(){

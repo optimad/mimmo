@@ -30,7 +30,7 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.FFDLattice", "FFDlattice");
+// REGISTER_MANIPULATOR("MiMMO.FFDLattice", "FFDlattice");
 
 /*
  *	\date			09/feb/2016

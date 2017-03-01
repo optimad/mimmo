@@ -25,19 +25,25 @@
 #define __MIMMOMANAGER_HPP__
 
 #include "bitpit_common.hpp"
+#include "BaseManipulation.hpp"
 #include <unordered_map>
 #include <memory>
 
-#define REGISTER_MANIPULATOR(name, type) \
-static int manipulator_type = mimmo::registerManipulator(name);
+
+typedef std::unique_ptr<mimmo::BaseManipulation> ( *xmlBuilder)(const bitpit::Config::Section & xmlslot);	
+
+#define REGISTER_MANIPULATOR(name, type, functXmlBuilder) \
+static int manipulator_type = mimmo::registerManipulator(name, functXmlBuilder);
 
 namespace mimmo{
 
-extern std::unique_ptr<std::unordered_map<std::string, int> > _manipulatorList;
+extern std::unique_ptr<std::unordered_map<std::string, xmlBuilder> > _manipulatorList;
 
-int registerManipulator(const std::string & name);
-const std::unordered_map<std::string, int> & getManipulatorList();
+int registerManipulator(const std::string & name, xmlBuilder funct);
+const std::unordered_map<std::string, xmlBuilder> & getManipulatorList();
+std::unique_ptr<BaseManipulation> factoryManipulator(const std::string & name, const bitpit::Config::Section & xmlslot);
 
+	
 };
 
 #endif /*! __MIMMOMANAGER_HPP__*/

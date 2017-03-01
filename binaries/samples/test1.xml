@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MiMMOXML version="-1">
+	<Applier>
+		<ClassName> MiMMO.Apply </ClassName>
+		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+	</Applier>	
+</MiMMOXML>	

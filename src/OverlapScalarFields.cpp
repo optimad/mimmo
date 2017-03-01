@@ -24,7 +24,7 @@
  #include "OverlappingFields.hpp"
  using namespace mimmo;
  
- REGISTER_MANIPULATOR("MiMMO.OverlapScalarFields", "overlapscalarfields");
+//  REGISTER_MANIPULATOR("MiMMO.OverlapScalarFields", "overlapscalarfields");
  /*!
   * Constructor
   */

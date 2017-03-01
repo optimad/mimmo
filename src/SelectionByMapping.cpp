@@ -32,7 +32,7 @@ using namespace mimmo;
 //SELECTION	BY MAPPING class 	******************************************
 //------------------------------------------------------------------------
 
-REGISTER_MANIPULATOR("MiMMO.SelectionByMapping", "selectionbymapping");
+// REGISTER_MANIPULATOR("MiMMO.SelectionByMapping", "selectionbymapping");
 
 /*!
  * Basic Constructor. Need to know kind of topology chosen 1-3D surface, 2-VolumeMesh

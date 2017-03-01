@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.ClipGeometry", "clipgeometry");
+// REGISTER_MANIPULATOR("MiMMO.ClipGeometry", "clipgeometry");
 
 /*!Default constructor of ClipGeometry
 */

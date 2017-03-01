@@ -29,7 +29,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.ControlDeformExtSurface", "controldeformextsurface");
+// REGISTER_MANIPULATOR("MiMMO.ControlDeformExtSurface", "controldeformextsurface");
 
 /*!Default constructor of ControlDeformExtSurface
 */

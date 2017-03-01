@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.SplitVectorField", "splitvectorfield");
+// REGISTER_MANIPULATOR("MiMMO.SplitVectorField", "splitvectorfield");
 
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.

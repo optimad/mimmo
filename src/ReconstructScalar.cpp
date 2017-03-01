@@ -25,7 +25,7 @@
  #include "ReconstructFields.hpp"
  using namespace mimmo;
  
- REGISTER_MANIPULATOR("MiMMO.ReconstructScalar", "reconstructscalar");
+//  REGISTER_MANIPULATOR("MiMMO.ReconstructScalar", "reconstructscalar");
 
  /*!
   * Constructor

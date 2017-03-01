@@ -30,7 +30,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.Geometry", "mimmogeometry");
+// REGISTER_MANIPULATOR("MiMMO.Geometry", "mimmogeometry");
 
 /*!Default constructor of MimmoGeometry.
  */

@@ -30,7 +30,7 @@ using namespace mimmo;
 //------------------------------------------------------------------------
 //SELECTION	BY PID class 	******************************************
 //------------------------------------------------------------------------
-REGISTER_MANIPULATOR("MiMMO.SelectionByPID", "selectionbypid");
+// REGISTER_MANIPULATOR("MiMMO.SelectionByPID", "selectionbypid");
 
 /*!
  * Basic Constructor

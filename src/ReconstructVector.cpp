@@ -25,7 +25,7 @@
  #include "ReconstructFields.hpp"
  using namespace mimmo;
 
- REGISTER_MANIPULATOR("MiMMO.ReconstructVector", "reconstructvector");
+//  REGISTER_MANIPULATOR("MiMMO.ReconstructVector", "reconstructvector");
 
 /*!
  * Constructor

@@ -31,7 +31,7 @@ using namespace mimmo;
 //SELECTION	BY SPHERE class 	******************************************
 //------------------------------------------------------------------------
 
-REGISTER_MANIPULATOR("MiMMO.SelectionBySphere", "selectionbysphere");
+// REGISTER_MANIPULATOR("MiMMO.SelectionBySphere", "selectionbysphere");
 
 /*!
  * Basic Constructor

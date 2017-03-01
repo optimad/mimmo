@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.GenericOutput", "genericoutput");
+// REGISTER_MANIPULATOR("MiMMO.GenericOutput", "genericoutput");
 
 /*!Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").

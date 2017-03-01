@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.ControlDeformMaxDistance", "controldeformmaxdistance");
+// REGISTER_MANIPULATOR("MiMMO.ControlDeformMaxDistance", "controldeformmaxdistance");
 
 /*!Default constructor of ControlDeformMaxDistance
 */

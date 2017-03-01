@@ -31,7 +31,7 @@ using namespace mimmo;
 //SELECTION BY BOX WITH SCALAR class    **********************************
 //------------------------------------------------------------------------
 
-REGISTER_MANIPULATOR("MiMMO.SelectionByBoxWithScalar", "selectionbyboxwithscalar");
+// REGISTER_MANIPULATOR("MiMMO.SelectionByBoxWithScalar", "selectionbyboxwithscalar");
 /*!
  * Basic Constructor
  */

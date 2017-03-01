@@ -33,7 +33,7 @@ using namespace std::chrono;
 using namespace std;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.RBFBox", "rbfbox");
+// REGISTER_MANIPULATOR("MiMMO.RBFBox", "rbfbox");
 
 /*! Basic Constructor. Doing nothing.*/
 RBFBox::RBFBox(){

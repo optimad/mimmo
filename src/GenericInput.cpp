@@ -29,7 +29,7 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.GenericInput", "genericinput");
+// REGISTER_MANIPULATOR("MiMMO.GenericInput", "genericinput");
 
 /*!Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).

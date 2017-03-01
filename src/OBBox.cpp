@@ -33,7 +33,7 @@ using namespace std::chrono;
 using namespace std;
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.OBBox", "obbox");
+// REGISTER_MANIPULATOR("MiMMO.OBBox", "obbox");
 
 /*
  *	\date			24/mar/2016

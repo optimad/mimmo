@@ -32,7 +32,7 @@ using namespace mimmo;
 // ProjSegmentOnSurface IMPLEMENTATION **********************//
 //***********************************************************//
 
-REGISTER_MANIPULATOR("MiMMO.ProjSegmentOnSurface", "projsegmentonsurface");
+// REGISTER_MANIPULATOR("MiMMO.ProjSegmentOnSurface", "projsegmentonsurface");
 /*!
  * Default constructor of ProjPrimitivesOnSurfaces.
  */

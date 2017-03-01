@@ -30,7 +30,7 @@ using namespace mimmo;
 //------------------------------------------------------------------------
 //SELECTION	BY BOX class 	**********************************************
 //------------------------------------------------------------------------
-REGISTER_MANIPULATOR("MiMMO.SelectionByBox", "selectionbybox");
+// REGISTER_MANIPULATOR("MiMMO.SelectionByBox", "selectionbybox");
 
 /*!
  * Basic Constructor

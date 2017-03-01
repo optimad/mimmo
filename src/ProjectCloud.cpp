@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.ProjectCloud", "projectcloud");
+// REGISTER_MANIPULATOR("MiMMO.ProjectCloud", "projectcloud");
 
 /*!Default constructor of ProjectCloud
 */

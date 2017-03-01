@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.SpecularPoints", "specularpoints");
+// REGISTER_MANIPULATOR("MiMMO.SpecularPoints", "specularpoints");
 
 /*!Default constructor of SpecularPoints
 */

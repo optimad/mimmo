@@ -29,29 +29,47 @@ using namespace mimmo;
 namespace mimmo {
 
 // Initial instantiation of the manipulators' list
-std::unique_ptr< std::unordered_map<std::string, int> >_manipulatorList(nullptr);
+std::unique_ptr< std::unordered_map<std::string, xmlBuilder> >_manipulatorList(nullptr);
 
 /*!
- * Registering a manipulator class with a target name 
+ * Registering map with class name and their xmlBuilder
  */
-int registerManipulator(const std::string & name)
+int registerManipulator(const std::string & name, xmlBuilder funct)
 {
     if (!_manipulatorList) {
-		std::unique_ptr< std::unordered_map<std::string, int> > temp(new std::unordered_map<std::string, int>());
+		std::unique_ptr< std::unordered_map<std::string, xmlBuilder> > temp(new std::unordered_map<std::string, xmlBuilder>());
         _manipulatorList = std::move(temp);
     }
 
     int id = (int)_manipulatorList->size();
-    _manipulatorList->insert(std::make_pair(name, id));
+    _manipulatorList->insert(std::make_pair(name, funct));
     return id;
 }
 
 /*!
- * Return the map of available objects
+ * Return the name-xmlBuilder map
  */
-const std::unordered_map<std::string, int> & getManipulatorList()
+const std::unordered_map<std::string, xmlBuilder> & getManipulatorList()
 {
     return *(_manipulatorList.get());
 }
+
+/*!
+ * Return a instantiated Manipulator as unique pointer. Require name of the class and its xml slot where read its parameters
+ */
+std::unique_ptr<BaseManipulation> factoryManipulator(const std::string & name, const bitpit::Config::Section & xmlslot)
+{
+	std::unique_ptr<BaseManipulation> temp(nullptr);
+	
+	if(_manipulatorList->count(name)>0){
+		auto fptr = (*(_manipulatorList.get()))[name];
+		temp = std::move(fptr(xmlslot));
+	}
+	return std::move(temp);
+};
+
+
+
+
 
 };

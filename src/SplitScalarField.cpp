@@ -29,7 +29,7 @@ using namespace bitpit;
 using namespace mimmo;
 
 
-REGISTER_MANIPULATOR("MiMMO.SplitScalarField", "splitscalarfield");
+// REGISTER_MANIPULATOR("MiMMO.SplitScalarField", "splitscalarfield");
 
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.

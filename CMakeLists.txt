@@ -272,6 +272,9 @@ find_package(LibXml2 REQUIRED)
 # Main library
 add_subdirectory(src)
 
+# Binaries
+add_subdirectory(binaries)
+
 # CMake
 add_subdirectory(cmake)
 

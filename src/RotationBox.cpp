@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.RotationBox", "rotationbox");
+// REGISTER_MANIPULATOR("MiMMO.RotationBox", "rotationbox");
 
 /*!Default constructor of RotationBox
  */

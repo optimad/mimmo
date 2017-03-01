@@ -25,8 +25,10 @@
 
 using namespace mimmo;
 
+//std::unique_ptr<BaseManipulation> Apply::xmlFactory(bitpit::Config::Section & rootXML);
 
-REGISTER_MANIPULATOR("MiMMO.Apply", "apply");
+
+REGISTER_MANIPULATOR("MiMMO.Apply", "apply", &Apply::xmlFactory);
 
 /*!Default constructor of Apply
  */
@@ -53,6 +55,24 @@ Apply & Apply::operator=(const Apply & other){
 	m_force = other.m_force;
 	return(*this);
 };
+
+/*!
+ * Build a BaseManipulation object using the Apply constructor and setting is parameters directly from 
+ * rootXML info.
+ */
+std::unique_ptr<BaseManipulation> Apply::xmlFactory(const bitpit::Config::Section & rootXML){
+	
+	std::unique_ptr<BaseManipulation> temp(nullptr);
+ 	if(!rootXML.hasOption("ClassName")) return std::move(temp);
+	
+	std::string input = rootXML.get("ClassName");
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Apply"){
+		temp = std::move(std::unique_ptr<BaseManipulation>(new Apply()));
+		temp->absorbSectionXML(rootXML);
+	}
+	return std::move(temp);
+}
 
 /*! It builds the input/output ports of the object
  */
@@ -128,11 +148,11 @@ Apply::execute(){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
- void Apply::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+ void Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	 
 	std::string input; 
 	if(slotXML.hasOption("RefreshGeometryTrees")){
-		std::string input = slotXML.get("RefreshGeometryTrees");
+		input = slotXML.get("RefreshGeometryTrees");
 	}; 
 	
 	bool value = false;
@@ -140,7 +160,6 @@ Apply::execute(){
 		std::stringstream ss(bitpit::utils::trim(input));
 		ss >> value;
 	}
-	
 	setRefreshGeometryTrees(value);
 };
 
@@ -152,7 +171,6 @@ Apply::execute(){
  * 
  *  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Apply"
- *		ClassID	  : integer identifier of the class	
  * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
@@ -161,7 +179,7 @@ Apply::execute(){
 void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+// 	slotXML.set("ClassID", std::to_string(getClassCounter()));
 	
 	bool value = getRefreshGeometryTrees();
 	

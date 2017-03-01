@@ -32,7 +32,7 @@ using namespace mimmo;
 //SELECTION	BY CYLINDER class 	**********************************************
 //------------------------------------------------------------------------
 
-REGISTER_MANIPULATOR("MiMMO.SelectionByCylinder", "selectionbycylinder");
+// REGISTER_MANIPULATOR("MiMMO.SelectionByCylinder", "selectionbycylinder");
 
 /*!
  * Basic Constructor

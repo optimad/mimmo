@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.Bend", "bend");
+// REGISTER_MANIPULATOR("MiMMO.Bend", "bend");
 
 /*!Default constructor of Bend
  */

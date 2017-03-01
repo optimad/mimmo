@@ -35,7 +35,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.CreateSeedsOnSurface", "createseedsonsurface");
+// REGISTER_MANIPULATOR("MiMMO.CreateSeedsOnSurface", "createseedsonsurface");
 
 //PUBLIC METHODS
 /*!

@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.TranslationBox", "translationbox");
+// REGISTER_MANIPULATOR("MiMMO.TranslationBox", "translationbox");
 /*!Default constructor of TranslationBox
  */
 TranslationBox::TranslationBox(darray3E direction){
