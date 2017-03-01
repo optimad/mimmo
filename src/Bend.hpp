@@ -24,7 +24,7 @@
 #ifndef __BEND_HPP__
 #define __BEND_HPP__
 
-#include "BaseManipulation.hpp"
+#include "MiMMO.Manager.hpp"
 
 namespace mimmo{
 
@@ -85,6 +85,8 @@ public:
 	Bend(const Bend & other);
 	Bend & operator=(const Bend & other);
 
+	static std::unique_ptr<BaseManipulation> xmlFactory(const bitpit::Config::Section & rootXML);
+	
 	void buildPorts();
 
 	dvecarr3E	getCoords();

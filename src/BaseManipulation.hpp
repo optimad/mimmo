@@ -79,6 +79,7 @@ public:
 	typedef	short int									PortID;			/**<Port ID (position of slot).*/
 	
 protected:
+	uint                        m_priority;         /**<Flag marking priority of execution of class for multichain exec >*/
 	std::string					m_name;				/**<Name of the manipulation object.*/
 	int 						m_counter;			/**<Counter associated to the object */
 	MimmoObject*				m_geometry;			/**<Pointer to manipulated geometry. */
@@ -112,6 +113,7 @@ public:
 	bool				arePortsBuilt();
 
 	//get methods
+	uint 				getPriority();
 	std::string			getName();
 	MimmoObject*		getGeometry();
 	int					getNParent();
@@ -132,6 +134,7 @@ public:
     int     getId();
 
 	//set methods
+	void 	setPriority(uint priority);
 	void	setName(std::string name);
 	void 	setGeometry(MimmoObject* geometry);
 	void	setPlotInExecution(bool);

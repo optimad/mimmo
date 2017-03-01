@@ -25,9 +25,6 @@
 
 using namespace mimmo;
 
-//std::unique_ptr<BaseManipulation> Apply::xmlFactory(bitpit::Config::Section & rootXML);
-
-
 REGISTER_MANIPULATOR("MiMMO.Apply", "apply", &Apply::xmlFactory);
 
 /*!Default constructor of Apply
@@ -57,8 +54,8 @@ Apply & Apply::operator=(const Apply & other){
 };
 
 /*!
- * Build a BaseManipulation object using the Apply constructor and setting is parameters directly from 
- * rootXML info.
+ * Build a BaseManipulation object using the Apply constructor and setting its parameters
+ * directly from rootXML info.
  */
 std::unique_ptr<BaseManipulation> Apply::xmlFactory(const bitpit::Config::Section & rootXML){
 	
@@ -142,6 +139,7 @@ Apply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
  * 		
  * 
@@ -151,16 +149,28 @@ Apply::execute(){
  void Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	 
 	std::string input; 
-	if(slotXML.hasOption("RefreshGeometryTrees")){
-		input = slotXML.get("RefreshGeometryTrees");
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
 	}; 
 	
-	bool value = false;
-	if(!input.empty()){
-		std::stringstream ss(bitpit::utils::trim(input));
-		ss >> value;
-	}
-	setRefreshGeometryTrees(value);
+
+	if(slotXML.hasOption("RefreshGeometryTrees")){
+		input = slotXML.get("RefreshGeometryTrees");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+		}
+		setRefreshGeometryTrees(value);
+	}; 
+	
 };
 
 /*!
@@ -171,6 +181,7 @@ Apply::execute(){
  * 
  *  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Apply"
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
@@ -179,7 +190,7 @@ Apply::execute(){
 void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-// 	slotXML.set("ClassID", std::to_string(getClassCounter()));
+ 	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	bool value = getRefreshGeometryTrees();
 	

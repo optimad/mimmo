@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.Bend", "bend");
+REGISTER_MANIPULATOR("MiMMO.Bend", "bend", &Bend::xmlFactory);
 
 /*!Default constructor of Bend
  */
@@ -55,6 +55,25 @@ Bend & Bend::operator=(const Bend & other){
 	m_coeffs = other.m_coeffs;
 	return	*this;
 };
+
+/*!
+ * Build a BaseManipulation object using the Bend constructor and setting its parameters 
+ * directly from rootXML info.
+ */
+std::unique_ptr<BaseManipulation> Bend::xmlFactory(const bitpit::Config::Section & rootXML){
+	
+	std::unique_ptr<BaseManipulation> temp(nullptr);
+	if(!rootXML.hasOption("ClassName")) return std::move(temp);
+	   
+	   std::string input = rootXML.get("ClassName");
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Bend"){
+		temp = std::move(std::unique_ptr<BaseManipulation>(new Bend()));
+		temp->absorbSectionXML(rootXML);
+	}
+	return std::move(temp);
+}
+
 
 /*! It builds the input/output ports of the object
  */
@@ -201,6 +220,7 @@ Bend::execute(){
  * for nodal displacements, we can assume that:
  * 
  * --> Absorbing data:
+ *		Priority  : uint marking priority of class execution in multichain frame	
  * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
  * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
  * 						    marks a constant function 
@@ -212,6 +232,17 @@ Bend::execute(){
 void Bend::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+
 	if(slotXML.hasSection("DegreesMatrix")){
 		auto & subslot = slotXML.getSection("DegreesMatrix");
 		umatrix33E temp;
@@ -267,7 +298,7 @@ void Bend::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name)
  * 
  *    --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Bend"
- *		ClassID	  : integer identifier of the class	
+ *		Priority  : uint marking priority of class execution in multichain frame	
  *
  * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
  * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
@@ -297,7 +328,7 @@ void Bend::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name)
 void Bend::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	bitpit::Config::Section & degXML = slotXML.addSection("DegreesMatrix");
 	

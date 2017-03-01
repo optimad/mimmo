@@ -42,6 +42,7 @@ BaseManipulation::BaseManipulation(){
 	m_execPlot      = false;
 	m_outputPlot	= "./";
 	m_counter		= sm_baseManipulationCounter;
+	m_priority      = 0;
 	sm_baseManipulationCounter++;
 };
 
@@ -69,6 +70,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_arePortsBuilt = false;
 	m_execPlot 		= other.m_execPlot;
 	m_counter       = other.m_counter;
+	m_priority      = other.m_priority; 
 	return (*this);
 };
 
@@ -78,6 +80,15 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 bool
 BaseManipulation::arePortsBuilt(){
 	return(m_arePortsBuilt);
+}
+
+/*!
+ * Get current unsigned int marking priority of execution of class in a multi-chain
+ * frame.
+ */
+uint
+BaseManipulation::getPriority(){
+	return m_priority;
 }
 
 /*!It gets the name of the manipulator object.
@@ -218,6 +229,15 @@ int     BaseManipulation::getClassCounter(){
 int     BaseManipulation::getId(){
     return m_counter;
 }
+
+/*!
+ * Set unsigned int priority of execution of class in a multi-chain
+ * frame. value must be > 0;
+ */
+void
+BaseManipulation::setPriority(uint priority){
+	m_priority = priority;
+};
 
 /*!It sets the name of the manipulator object.
  * \param[in] name Name of the manipulator object.
