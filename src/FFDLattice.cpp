@@ -30,7 +30,7 @@
 using namespace std;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.FFDLattice", "FFDlattice");
+REGISTER(BaseManipulation, FFDLattice, "MiMMO.FFDLattice");
 
 /*
  *	\date			09/feb/2016
@@ -56,7 +56,33 @@ FFDLattice::FFDLattice(){
 	m_globalDispl = false;
 	m_bfilter = false;
 	m_name = "MiMMO.FFDlattice";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+FFDLattice::FFDLattice(const bitpit::Config::Section & rootXML){
+	
+	m_knots.resize(3);
+	m_mapEff.resize(3);
+	m_deg.fill(1);
+	m_mapNodes.resize(3);
+	m_globalDispl = false;
+	m_bfilter = false;
+	m_name = "MiMMO.FFDlattice";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.FFDLattice"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::FFDLattice constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*! Destructor */
 FFDLattice::~FFDLattice(){};
@@ -1433,12 +1459,12 @@ void FFDLattice::build(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void FFDLattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
-std::string input; 
 		
 Lattice::absorbSectionXML(slotXML, name);
 	
+
 	if(slotXML.hasOption("CoordType")){
 		std::string input = slotXML.get("CoordType");
 		std::stringstream ss(bitpit::utils::trim(input));

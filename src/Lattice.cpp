@@ -30,7 +30,7 @@
 using namespace std;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.Lattice", "lattice");
+REGISTER(BaseManipulation, Lattice, "MiMMO.Lattice");
 
 /*
  *	\date			24/mar/2016
@@ -52,7 +52,30 @@ Lattice::Lattice(){
 	m_np = 0;
 	m_intMapDOF.clear();
 	m_name = "MiMMO.Lattice";
+	buildPorts();
+	
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+Lattice::Lattice(const bitpit::Config::Section & rootXML){
+	
+	m_np = 0;
+	m_intMapDOF.clear();
+	m_name = "MiMMO.Lattice";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Lattice"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::Lattice constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*! Destructor */
 Lattice::~Lattice(){};
@@ -339,6 +362,7 @@ void 		Lattice::resizeMapDof(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
  * 		Origin: 3D point marking the shape barycenter
  * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
@@ -351,9 +375,19 @@ void 		Lattice::resizeMapDof(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("Shape")){
 		std::string input = slotXML.get("Shape");
 		input = bitpit::utils::trim(input);
@@ -390,7 +424,7 @@ void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string na
 	}; 
 	
 	if(slotXML.hasSection("RefSystem")){
-		bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
+		const bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
 		std::string rootAxis = "axis";
 		std::string axis;
 		dmatrix33E temp;
@@ -458,7 +492,7 @@ void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string na
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Lattice"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution; 	
  * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
  * 		Origin: 3D point marking the shape barycenter
  * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
@@ -479,7 +513,7 @@ void Lattice::absorbSectionXML(bitpit::Config::Section & slotXML, std::string na
 void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	std::string towrite = "CUBE";

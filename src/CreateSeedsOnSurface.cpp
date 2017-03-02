@@ -35,7 +35,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.CreateSeedsOnSurface", "createseedsonsurface");
+REGISTER(BaseManipulation, CreateSeedsOnSurface, "MiMMO.CreateSeedsOnSurface");
 
 //PUBLIC METHODS
 /*!
@@ -51,7 +51,36 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(){
 	m_randomFixed = -1;
 	std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
 	bbox = std::move(box);
+	buildPorts();
+	
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootXML){
+
+	m_name = "MiMMO.CreateSeedsOnSurface";
+	m_nPoints = 0;
+	m_minDist = 0.0;
+	m_seed = {{0.0,0.0,0.0}};
+	m_engine = CSeedSurf::CARTESIANGRID;
+	m_seedbaricenter = false;
+	m_randomFixed = -1;
+	std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
+	bbox = std::move(box);
+	buildPorts();
+
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.CreateSeedsOnSurface"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::CreateSeedsOnSurface constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Destructor;
@@ -1131,6 +1160,7 @@ std::set<long> CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId
  * Get infos from a XML bitpit::Config::section. The parameters that can absorb are
  * 
  * --> Absorbing data:
+ *  Priority  : uint marking priority in multi-chain execution;
  *  NPoints : total points to distribute 
  *  Engine  : type of distribution engine 0-Random,2-CartesianGrid,1-Levelset;
  *  Seed    : initial seed point;
@@ -1142,7 +1172,7 @@ std::set<long> CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void CreateSeedsOnSurface::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name ){
+void CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
 	
 	if(slotXML.hasOption("NPoints")){
 		std::string input = slotXML.get("NPoints");
@@ -1230,7 +1260,7 @@ return;
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.CreateSeedsOnSurface"
- * ClassID	  : integer identifier of the class
+ * Priority  : uint marking priority in multi-chain execution;
  * NPoints : total points to distribute 
  * Engine  : type of distribution engine 0:Random,1:CartesianGrid,2:Levelset;
  * Seed    : initial seed point;
@@ -1246,7 +1276,7 @@ return;
 void CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	if(m_nPoints != 0 ){
 		slotXML.set("NPoints", std::to_string(m_nPoints));

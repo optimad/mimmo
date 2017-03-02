@@ -100,6 +100,7 @@ private:
 public:
 	
 	CreateSeedsOnSurface();
+	CreateSeedsOnSurface(const bitpit::Config::Section & rootXML);
 	virtual ~CreateSeedsOnSurface();
 	CreateSeedsOnSurface(const CreateSeedsOnSurface & other);
 	CreateSeedsOnSurface & operator=(const CreateSeedsOnSurface & other);
@@ -136,7 +137,7 @@ public:
 	void		execute();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 	
 protected:

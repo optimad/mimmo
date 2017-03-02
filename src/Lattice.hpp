@@ -88,6 +88,7 @@ protected:
 	
 public:
 	Lattice();
+	Lattice(const bitpit::Config::Section & rootXML);
 	virtual ~Lattice();
 
 	//copy operators/constructors
@@ -118,7 +119,7 @@ public:
 	virtual void build();
 	void execute();
 
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 	//nodal displacement utility	

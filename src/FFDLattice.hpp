@@ -118,6 +118,7 @@ private:
 	
 public:
 	FFDLattice();
+	FFDLattice(const bitpit::Config::Section & rootXML);
 	virtual ~FFDLattice();
 
 	//copy operators/constructors
@@ -168,7 +169,7 @@ public:
 	dvecarr3E 	apply(livector1D & map);
 	virtual void 		build();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 protected:
