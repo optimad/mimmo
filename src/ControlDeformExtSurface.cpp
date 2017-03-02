@@ -23,13 +23,10 @@
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformExtSurface.hpp"
 #include <cmath>
-// #include <chrono>
-// 
-// using namespace std::chrono;
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.ControlDeformExtSurface", "controldeformextsurface");
+REGISTER(BaseManipulation, ControlDeformExtSurface,"MiMMO.ControlDeformExtSurface");
 
 /*!Default constructor of ControlDeformExtSurface
 */
@@ -40,7 +37,33 @@ ControlDeformExtSurface::ControlDeformExtSurface(){
 	m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
+	buildPorts();
+	
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.ControlDeformExtSurface";
+	m_cellBackground = 50;
+	m_allowed.insert((FileType::_from_string("STL"))._to_integral());
+	m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
+	m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
+	m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.ControlDeformExtSurface"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::ControlDeformExtSurface constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of ControlDeformExtSurface
  */
@@ -509,22 +532,33 @@ ControlDeformExtSurface::execute(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Absorbing data:
- * 1) Files	- external constraint surfaces list of file 
- * 2) BGDetails - OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
- * 3) PlotInExecution - boolean 0/1 print optional results of the class.
- * 4) OutputPlot - target directory for optional results writing.
+ *  Priority  : uint marking priority in multi-chain execution;
+ *  Files	: external constraint surfaces list of file 
+ *  BGDetails : OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ *  PlotInExecution : boolean 0/1 print optional results of the class.
+ *  OutputPlot : target directory for optional results writing.
  * 
  * Geometry and its deformation fields are mandatorily passed through ports. 
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
 	
 	std::unordered_map<std::string, std::pair<double, int> > mapp;
 	if(slotXML.hasSection("Files")){
 		
-		bitpit::Config::Section & filesXML = slotXML.getSection("Files");
+		const bitpit::Config::Section & filesXML = slotXML.getSection("Files");
 		
 		for(auto & subfile : filesXML.getSections()){
 			std::string path;
@@ -601,7 +635,7 @@ void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML
  * 
  * * --> Flushing data// how to write it on XML:
  *  ClassName : name of the class as "MiMMO.ControlDeformExtSurface"
- *	ClassID	  : integer identifier of the class	
+ *	Priority  : uint marking priority in multi-chain execution;
  *  Files	- external constraint surfaces list of file 
  * 			 <Files>
  * 				<file0>	
@@ -629,7 +663,7 @@ void ControlDeformExtSurface::absorbSectionXML(bitpit::Config::Section & slotXML
 void ControlDeformExtSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	bitpit::Config::Section & filesXML = slotXML.addSection("Files");
 	

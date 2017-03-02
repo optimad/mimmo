@@ -79,6 +79,7 @@ private:
 	std::unordered_set<int>		m_allowed; /**< list of currently file format supported by the class*/
 public:
 	ControlDeformExtSurface();
+	ControlDeformExtSurface(const bitpit::Config::Section & rootXML);
 	~ControlDeformExtSurface();
 
 	ControlDeformExtSurface(const ControlDeformExtSurface & other);
@@ -106,7 +107,7 @@ public:
 	
 	void 	execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 protected:	

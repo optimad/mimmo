@@ -22,7 +22,6 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "Bend.hpp"
-#include "factory.hpp"
 
 using namespace mimmo;
 

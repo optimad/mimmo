@@ -22,7 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "Apply.hpp"
-#include "factory.hpp"
+
 
 using namespace mimmo;
 

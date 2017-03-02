@@ -25,14 +25,36 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.ControlDeformMaxDistance", "controldeformmaxdistance");
+REGISTER(BaseManipulation, ControlDeformMaxDistance, "MiMMO.ControlDeformMaxDistance");
 
 /*!Default constructor of ControlDeformMaxDistance
 */
 ControlDeformMaxDistance::ControlDeformMaxDistance(){
 	m_name = "MiMMO.ControlDeformMaxDistance";
 	m_maxDist= 0.0 ;
+	buildPorts();
+	
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.ControlDeformMaxDistance";
+	m_maxDist= 0.0 ;
+	buildPorts();
+
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.ControlDeformMaxDistance"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::ControlDeformMaxDistance constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of ControlDeformMaxDistance
  */
@@ -211,19 +233,29 @@ ControlDeformMaxDistance::execute(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  * --> Absorbing data:
- * 1) LimitDistance	- constraint surface distance from target geometry
- * 3) PlotInExecution - boolean 0/1 print optional results of the class.
- * 4) OutputPlot - target directory for optional results writing.
-
+ * Priority  : uint marking priority in multi-chain execution; 
+ * LimitDistance : constraint surface distance from target geometry
+ * PlotInExecution : boolean 0/1 print optional results of the class.
+ * OutputPlot : target directory for optional results writing.
  * 
  * Geometry and its deformation fiels are mandatorily passed through ports. 
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ControlDeformMaxDistance::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("LimitDistance")){
 		std::string input = slotXML.get("LimitDistance");
 		input = bitpit::utils::trim(input);
@@ -262,7 +294,7 @@ void ControlDeformMaxDistance::absorbSectionXML(bitpit::Config::Section & slotXM
  * 
  *  * --> Flushing data// how to write it on XML:
  *  ClassName : name of the class as "MiMMO.ControlDeformMaxDistance"
- *	ClassID	  : integer identifier of the class	
+ *	Priority  : uint marking priority in multi-chain execution;
  *	LimitDistance	: constraint surface distance from target geometry
  *  PlotInExecution : boolean 0/1 print optional results of the class.
  *  OutputPlot : target directory for optional results writing.
@@ -275,7 +307,7 @@ void ControlDeformMaxDistance::absorbSectionXML(bitpit::Config::Section & slotXM
 void ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	slotXML.set("LimitDistance", std::to_string(m_maxDist));
 

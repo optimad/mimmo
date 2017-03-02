@@ -28,7 +28,7 @@
 #include "configuration.hpp"
 #include "MimmoObject.hpp"
 #include "InOut.hpp"
-
+#include "factory.hpp"
 
 #include <string>
 #include <functional>

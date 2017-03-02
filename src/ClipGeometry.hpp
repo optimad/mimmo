@@ -75,6 +75,7 @@ private:
 	
 public:
 	ClipGeometry();
+	ClipGeometry(const bitpit::Config::Section & rootXML);
 	~ClipGeometry();
 
 	ClipGeometry(const ClipGeometry & other);
@@ -92,7 +93,7 @@ public:
 
 	void 	execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 protected:

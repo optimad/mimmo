@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.ClipGeometry", "clipgeometry");
+REGISTER(BaseManipulation, ClipGeometry, "MiMMO.ClipGeometry");
 
 /*!Default constructor of ClipGeometry
 */
@@ -34,7 +34,30 @@ ClipGeometry::ClipGeometry(){
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.ClipGeometry";
+	m_plane.fill(0.0);
+	m_insideout = false;
+	m_patch.reset(nullptr);
+	buildPorts();
+
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.ClipGeometry"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::ClipGeometry constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of ClipGeometry
  */
@@ -242,6 +265,7 @@ void ClipGeometry::plotOptionalResults(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  --> Absorbing data:
+ *  Priority  : uint marking priority in multi-chain execution; 
  *  InsideOut	: boolean to get direction of clipping according to given plane
  *  ClipPlane	: section defining the plane's normal and a point belonging to it
  *  PlotInExecution : boolean 0/1 print optional results of the class.
@@ -252,9 +276,20 @@ void ClipGeometry::plotOptionalResults(){
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("InsideOut")){
 		std::string input = slotXML.get("InsideOut");
 		input = bitpit::utils::trim(input);
@@ -267,7 +302,7 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 	}
 	
 	if(slotXML.hasSection("ClipPlane")){
-		bitpit::Config::Section & planeXML = slotXML.getSection("ClipPlane");
+		const bitpit::Config::Section & planeXML = slotXML.getSection("ClipPlane");
 		
 		std::string input1 = planeXML.get("Point");
 		std::string input2 = planeXML.get("Normal");
@@ -316,7 +351,7 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
  * 
  * * --> Flushing data// how to write it on XML:
  *  ClassName : name of the class as "MiMMO.ClipGeometry"
- *	ClassID	  : integer identifier of the class	
+ *	Priority  : uint marking priority in multi-chain execution; 
  *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
  *  ClipPlane	: section defining the plane's normal and a point belonging to it
  * 				<ClipPlane>
@@ -334,7 +369,7 @@ void ClipGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	int value = m_insideout;
 	slotXML.set("InsideOut", std::to_string(value));

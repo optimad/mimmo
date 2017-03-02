@@ -80,6 +80,7 @@ private:
 	
 public:
 	ControlDeformMaxDistance();
+	ControlDeformMaxDistance(const bitpit::Config::Section & rootXML);
 	~ControlDeformMaxDistance();
 
 	ControlDeformMaxDistance(const ControlDeformMaxDistance & other);
@@ -96,7 +97,7 @@ public:
 
 	void 	execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 protected:
