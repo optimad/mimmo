@@ -377,8 +377,8 @@ int main( int argc, char *argv[] ) {
 		
 		bitpit::config::reset("MiMMOXML");
 		bitpit::config::read(dictName);
-		auto globMap = getManipulatorList();
-
+		
+		
 		std::unordered_map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
 		
 		for(auto & sect: config::root.getSections()){
@@ -388,9 +388,9 @@ int main( int argc, char *argv[] ) {
 			std::string className = sect.second->get("ClassName", fallback_name);
 			className = bitpit::utils::trim(className);
 			
-			if(globMap.count(className) > 0){
-				auto fptr = globMap[className];
-				mapInst[sect.first] = std::move(fptr(*(sect.second.get())));
+			if(Factory<BaseManipulation>::instance().containsCreator(className)){
+				std::unique_ptr<BaseManipulation >temp (Factory<BaseManipulation>::create(className, *(sect.second.get())));
+				mapInst[sect.first] = std::move(temp);
 			}
 			
 			std::cout<<"name "<<mapInst[sect.first]->getName()<<std::endl;

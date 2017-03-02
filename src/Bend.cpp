@@ -22,16 +22,18 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "Bend.hpp"
+#include "factory.hpp"
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.Bend", "bend", &Bend::xmlFactory);
+REGISTER(BaseManipulation, Bend, "MiMMO.Bend");
 
 /*!Default constructor of Bend
  */
 Bend::Bend(){
 	m_name = "MiMMO.Bend";
 	m_degree.fill({{0,0,0}});
+	buildPorts();
 };
 
 /*!Default destructor of Bend
@@ -57,23 +59,24 @@ Bend & Bend::operator=(const Bend & other){
 };
 
 /*!
- * Build a BaseManipulation object using the Bend constructor and setting its parameters 
- * directly from rootXML info.
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
  */
-std::unique_ptr<BaseManipulation> Bend::xmlFactory(const bitpit::Config::Section & rootXML){
+Bend::Bend(const bitpit::Config::Section & rootXML){
 	
-	std::unique_ptr<BaseManipulation> temp(nullptr);
-	if(!rootXML.hasOption("ClassName")) return std::move(temp);
-	   
-	   std::string input = rootXML.get("ClassName");
+	m_name = "MiMMO.Bend";
+	m_degree.fill({{0,0,0}});
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
 	if(input == "MiMMO.Bend"){
-		temp = std::move(std::unique_ptr<BaseManipulation>(new Bend()));
-		temp->absorbSectionXML(rootXML);
-	}
-	return std::move(temp);
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::Bend constructor. No valid xml data found"<<std::endl;
+	};
 }
-
 
 /*! It builds the input/output ports of the object
  */
@@ -229,7 +232,7 @@ Bend::execute(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void Bend::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
 	

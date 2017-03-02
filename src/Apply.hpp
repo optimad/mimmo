@@ -24,7 +24,7 @@
 #ifndef __APPLYDEFORMATION_HPP__
 #define __APPLYDEFORMATION_HPP__
 
-#include "MiMMO.Manager.hpp"
+#include "BaseManipulation.hpp"
 
 namespace mimmo{
 /*!
@@ -71,13 +71,13 @@ public:
 	bool m_force;
 
 	Apply();
+	Apply(const bitpit::Config::Section & rootXML);
+	
 	~Apply();
 
 	Apply(const Apply & other);
 	Apply & operator=(const Apply & other);
 
-	static std::unique_ptr<BaseManipulation> xmlFactory(const bitpit::Config::Section & rootXML);
-	
 	void buildPorts();
 
 	bool getRefreshGeometryTrees();

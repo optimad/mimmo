@@ -22,10 +22,11 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "Apply.hpp"
+#include "factory.hpp"
 
 using namespace mimmo;
 
-REGISTER_MANIPULATOR("MiMMO.Apply", "apply", &Apply::xmlFactory);
+REGISTER(BaseManipulation, Apply, "MiMMO.Apply");
 
 /*!Default constructor of Apply
  */
@@ -34,6 +35,24 @@ Apply::Apply():BaseManipulation(){
 	m_force = false;
 	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+Apply::Apply(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.Apply";
+	buildPorts();
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Apply"){
+			absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::Apply constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of Apply
  */
@@ -53,23 +72,6 @@ Apply & Apply::operator=(const Apply & other){
 	return(*this);
 };
 
-/*!
- * Build a BaseManipulation object using the Apply constructor and setting its parameters
- * directly from rootXML info.
- */
-std::unique_ptr<BaseManipulation> Apply::xmlFactory(const bitpit::Config::Section & rootXML){
-	
-	std::unique_ptr<BaseManipulation> temp(nullptr);
- 	if(!rootXML.hasOption("ClassName")) return std::move(temp);
-	
-	std::string input = rootXML.get("ClassName");
-	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.Apply"){
-		temp = std::move(std::unique_ptr<BaseManipulation>(new Apply()));
-		temp->absorbSectionXML(rootXML);
-	}
-	return std::move(temp);
-}
 
 /*! It builds the input/output ports of the object
  */

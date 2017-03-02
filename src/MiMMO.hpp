@@ -26,6 +26,7 @@
 #define __MIMMO_HPP__
 
 #include "MiMMO_version.hpp"
+#include "factory.hpp"
 #include "Apply.hpp"
 #include "BaseManipulation.hpp"
 #include "BasicShapes.hpp"

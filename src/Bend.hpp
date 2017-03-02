@@ -24,7 +24,7 @@
 #ifndef __BEND_HPP__
 #define __BEND_HPP__
 
-#include "MiMMO.Manager.hpp"
+#include "BaseManipulation.hpp"
 
 namespace mimmo{
 
@@ -80,6 +80,7 @@ private:
 
 public:
 	Bend();
+	Bend(const bitpit::Config::Section & rootXML);
 	~Bend();
 
 	Bend(const Bend & other);
@@ -104,7 +105,7 @@ public:
 	void 	execute();
 
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
 	
 };
