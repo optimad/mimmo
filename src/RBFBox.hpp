@@ -73,6 +73,7 @@ protected:
 	
 public:
 	RBFBox();
+	RBFBox(const bitpit::Config::Section & rootXML);
 	virtual ~RBFBox();
 
 	//copy operators/constructors
@@ -97,7 +98,7 @@ public:
 	//building method
 	void execute();
 
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 	

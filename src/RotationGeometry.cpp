@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.RotationGeometry", "rotationgeometry");
+REGISTER(BaseManipulation, RotationGeometry, "MiMMO.RotationGeometry");
 
 /*!Default constructor of RotationGeometry
  */
@@ -33,7 +33,29 @@ RotationGeometry::RotationGeometry(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
 	m_name = "MiMMO.RotationGeometry";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+RotationGeometry::RotationGeometry(const bitpit::Config::Section & rootXML){
+	
+	m_origin.fill(0.0);
+	m_direction.fill(0.0);
+	m_name = "MiMMO.RotationGeometry";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.RotationGeometry"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::RotationGeometry constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of RotationGeometry
  */
@@ -170,6 +192,7 @@ RotationGeometry::execute(){
  * a geometry. Filter field, geometry and resulting displacements are passed mandatorily through ports
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		Origin: rotation axis origin
  * 		Direction: axis direction coordinates
  * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
@@ -177,7 +200,17 @@ RotationGeometry::execute(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void RotationGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void RotationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("Origin")){
 		std::string input = slotXML.get("Origin");
@@ -220,7 +253,7 @@ void RotationGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.RotationGeometry"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;	
  * 		Origin: rotation axis origin
  * 		Direction: axis direction coordinates
  * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
@@ -231,7 +264,7 @@ void RotationGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::
 void RotationGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	{

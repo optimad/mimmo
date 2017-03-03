@@ -25,15 +25,38 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.RotationBox", "rotationbox");
+REGISTER(BaseManipulation, RotationBox, "MiMMO.RotationBox");
 
-/*!Default constructor of RotationBox
+/*!
+ * Default constructor of RotationBox
  */
 RotationBox::RotationBox(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
 	m_name = "MiMMO.RotationBox";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+RotationBox::RotationBox(const bitpit::Config::Section & rootXML){
+	
+	m_origin.fill(0.0);
+	m_direction.fill(0.0);
+	m_name = "MiMMO.RotationBox";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.RotationBox"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::RotationBox constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of RotationBox
  */
@@ -175,6 +198,7 @@ RotationBox::execute(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		Origin: rotation axis origin
  * 		Direction: axis direction coordinates
  * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
@@ -184,7 +208,18 @@ RotationBox::execute(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void RotationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("Origin")){
 		std::string input = slotXML.get("Origin");
@@ -220,7 +255,7 @@ void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::strin
 	} 
 	
 	if(slotXML.hasSection("RefSystem")){
-		bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
+		const bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
 		std::string rootAxis = "axis";
 		std::string axis;
 		dmatrix33E temp;
@@ -256,7 +291,7 @@ void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::strin
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.RotationBox"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		Origin: rotation axis origin
  * 		Direction: axis direction coordinates
  * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
@@ -274,7 +309,7 @@ void RotationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::strin
 void RotationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	{

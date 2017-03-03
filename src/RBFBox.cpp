@@ -48,7 +48,38 @@ RBFBox::RBFBox(){
 	}	
     m_nodes.clear();
     m_suppR = 0.0;
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.RBFBox";
+	m_origin.fill(0.0);
+	m_span.fill(1.0);
+	int counter = 0;
+	for(auto &val : m_axes)	{
+		val.fill(0.0);
+		val[counter] = 1.0;
+		++counter;
+	}	
+	m_nodes.clear();
+	m_suppR = 0.0;
+	buildPorts();
+	
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.RBFBox"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::RBFBox constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*! Destructor */
 RBFBox::~RBFBox(){};
@@ -239,6 +270,7 @@ void 	RBFBox::plotOptionalResults(){
  * Target RBF cloud points are mandatorily passed trough ports.
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		SupportRadius : Influence Radius value for RBF cloud in input
  * 		PlotInExecution : boolean 0/1 print optional results of the class.
  * 		OutputPlot : target directory for optional results writing. 
@@ -246,9 +278,19 @@ void 	RBFBox::plotOptionalResults(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void RBFBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("SupportRadius")){
 		std::string input = slotXML.get("SupportRadius");
@@ -290,7 +332,7 @@ void RBFBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string nam
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.RBFBox"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		SupportRadius : Influence Radius value for RBF cloud in input
  * 		PlotInExecution : boolean 0/1 print optional results of the class.
  * 		OutputPlot : target directory for optional results writing. 
@@ -301,7 +343,7 @@ void RBFBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string nam
 void RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	slotXML.set("SupportRadius", std::to_string(m_suppR));
 	

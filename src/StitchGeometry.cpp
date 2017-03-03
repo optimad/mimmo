@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.StitchGeometry", "stitchgeometry");
+REGISTER(BaseManipulation, StitchGeometry, "MiMMO.StitchGeometry");
 
 /*!Default constructor of StitchGeometry.
  * Format admissible are linked to your choice of topology. See FileType enum
@@ -39,7 +39,37 @@ StitchGeometry::StitchGeometry(int topo){
 	m_geocount = 0;
 	m_topo     = std::min(1, topo);
 	if(m_topo > 3)	m_topo = 1;
+	buildPorts();
 	
+}
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string fallback_topo = "-1";	
+	std::string input_name = rootXML.get("ClassName", fallback_name);
+	std::string input_topo = rootXML.get("Topology", fallback_topo);
+	input_name = bitpit::utils::trim(input_name);
+	input_topo = bitpit::utils::trim(input_topo);
+	
+	int topo = std::stoi(input_topo);
+	m_topo = std::max(1,topo);
+	if (m_topo >3) m_topo = 1;
+	
+	m_geocount = 0;
+	m_name = "MiMMO.StitchGeometry";
+	buildPorts();
+	
+	
+	if(input_name == "MiMMO.StitchGeometry"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::StitchGeometry constructor. No valid xml data found"<<std::endl;
+	};
 }
 
 /*!
@@ -285,6 +315,7 @@ StitchGeometry::execute(){
  * or passed by port linking), the class reads the following parameters:
  * 
  * --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution; 
  * Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
  * BvTree : evaluate bvTree true 1/false 0
  * KdTree : evaluate kdTree true 1/false 0
@@ -294,7 +325,7 @@ StitchGeometry::execute(){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void StitchGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
 	
@@ -310,6 +341,16 @@ void StitchGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
 		if(m_topo != temptop)	return;
 	}	
 
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("BvTree")){
 		input = slotXML.get("BvTree");
 		bool value = false;
@@ -360,7 +401,7 @@ return;
  * 
  *  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.StitchGeometry"
- * ClassID   : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution; 	
  * Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
  * BvTree : evaluate bvTree true 1/false 0
  * KdTree : evaluate kdTree true 1/false 0
@@ -373,7 +414,7 @@ return;
 void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Topology", m_topo);
 
 	std::string output;

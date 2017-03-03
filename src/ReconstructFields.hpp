@@ -91,6 +91,7 @@ private:
 public:
 	typedef std::pair<mimmo::MimmoObject*, dvector1D *>  pField; /**< Internal definition of the class */
 	ReconstructScalar();
+	ReconstructScalar(const bitpit::Config::Section & rootXML);
 	virtual ~ReconstructScalar();
 	ReconstructScalar(const ReconstructScalar & other);
 	ReconstructScalar & operator=(const ReconstructScalar & other);
@@ -122,7 +123,7 @@ public:
 	void		execute();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 protected:
 		virtual void plotOptionalResults();
@@ -178,6 +179,7 @@ private:
 public:
 	typedef std::pair<mimmo::MimmoObject*, dvecarr3E *>  pVector; /**< Internal definition of the class */
 	ReconstructVector();
+	ReconstructVector(const bitpit::Config::Section & rootXML);
 	virtual ~ReconstructVector();
 	ReconstructVector(const ReconstructVector & other);
 	ReconstructVector & operator=(const ReconstructVector & other);
@@ -209,7 +211,7 @@ public:
 	void		execute();
 
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 	
 protected:

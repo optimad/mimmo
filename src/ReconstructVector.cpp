@@ -25,15 +25,36 @@
  #include "ReconstructFields.hpp"
  using namespace mimmo;
 
-//  REGISTER_MANIPULATOR("MiMMO.ReconstructVector", "reconstructvector");
-
-/*!
- * Constructor
- */
-ReconstructVector::ReconstructVector(){
-	m_name = "MiMMO.ReconstructVector";
-	m_overlapCriterium = OverlapMethod::SUM;
-}
+ REGISTER(BaseManipulation, ReconstructVector,"MiMMO.ReconstructVector");
+ 
+ /*!
+  * Constructor
+  */
+ ReconstructVector::ReconstructVector(){
+	 m_name = "MiMMO.ReconstructVector";
+	 m_overlapCriterium = OverlapMethod::SUM;
+	 buildPorts();
+ }
+ 
+ /*!
+  * Custom constructor reading xml data
+  * \param[in] rootXML reference to your xml tree section
+  */
+ ReconstructVector::ReconstructVector(const bitpit::Config::Section & rootXML){
+	 
+	 m_name = "MiMMO.ReconstructVector";
+	 m_overlapCriterium = OverlapMethod::MAX;
+	 buildPorts();
+	 
+	 std::string fallback_name = "ClassNONE";	
+	 std::string input = rootXML.get("ClassName", fallback_name);
+	 input = bitpit::utils::trim(input);
+	 if(input == "MiMMO.ReconstructVector"){
+		 absorbSectionXML(rootXML);
+	 }else{	
+		 std::cout<<"Warning in custom xml MiMMO::ReconstructVector constructor. No valid xml data found"<<std::endl;
+	 };
+ }
 
 /*!
  * Destructor
@@ -414,6 +435,7 @@ void 	ReconstructVector::plotOptionalResults(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution;
  * OverlapCriterium  : set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
  * PlotInExecution : plot optional results in execution
  * OutputPlot : path to optional results
@@ -425,9 +447,19 @@ void 	ReconstructVector::plotOptionalResults(){
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ReconstructVector::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void ReconstructVector::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+		
 	if(slotXML.hasOption("OverlapCriterium")){
 		std::string input = slotXML.get("OverlapCriterium");
 		input = bitpit::utils::trim(input);
@@ -468,7 +500,7 @@ void ReconstructVector::absorbSectionXML(bitpit::Config::Section & slotXML, std:
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.ReconstructScalar"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;
  * OverlapCriterium  : set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
  * PlotInExecution : plot optional results in execution
  * OutputPlot : path to optional results
@@ -483,7 +515,7 @@ void ReconstructVector::absorbSectionXML(bitpit::Config::Section & slotXML, std:
 void ReconstructVector::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	int value = static_cast<int>(m_overlapCriterium);
 	slotXML.set("OverlapCriterium", std::to_string(value));

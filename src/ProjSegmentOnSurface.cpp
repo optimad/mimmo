@@ -32,7 +32,7 @@ using namespace mimmo;
 // ProjSegmentOnSurface IMPLEMENTATION **********************//
 //***********************************************************//
 
-// REGISTER_MANIPULATOR("MiMMO.ProjSegmentOnSurface", "projsegmentonsurface");
+REGISTER(BaseManipulation, ProjSegmentOnSurface, "MiMMO.ProjSegmentOnSurface");
 /*!
  * Default constructor of ProjPrimitivesOnSurfaces.
  */
@@ -41,7 +41,30 @@ ProjSegmentOnSurface::ProjSegmentOnSurface(){
 	m_topo     = 1;
 	m_pointA.fill(0.0);
 	m_pointB.fill(1.0);
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+ProjSegmentOnSurface::ProjSegmentOnSurface(const bitpit::Config::Section & rootXML){
+	
+	m_name 		= "MiMMO.ProjSegmentOnSurface";
+	m_topo     = 1;
+	m_pointA.fill(0.0);
+	m_pointB.fill(1.0);
+	buildPorts();
+
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.ProjSegmentOnSurface"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::ProjSegmentOnSurface constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Default destructor of ProjSegmentOnSurface.
@@ -110,6 +133,7 @@ ProjSegmentOnSurface::setSegment(darray3E origin, darray3E dir, double length){
  * or passed by port linking), the class reads the following parameters:
  * 
  * ---> Absorbing parameters:
+ * Priority  : uint marking priority in multi-chain execution;
  * Segment : pass extremal points of the segmentSegmentPoints
  * nCells : number of discrete cells of projected 3D curve
  * BvTree : evaluate bvTree true 1/false 0
@@ -121,9 +145,19 @@ ProjSegmentOnSurface::setSegment(darray3E origin, darray3E dir, double length){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void ProjSegmentOnSurface::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void ProjSegmentOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("Segment")){
 		input = slotXML.get("Segment");
@@ -198,7 +232,7 @@ void ProjSegmentOnSurface::absorbSectionXML(bitpit::Config::Section & slotXML, s
  * 
  *  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.ProjSegmentOnSurface"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;
  * Segment : pass extremal points of the segmentSegmentPoints
  * nCells : number of discrete cells of projected 3D curve
  * BvTree : evaluate bvTree true 1/false 0
@@ -212,7 +246,7 @@ void ProjSegmentOnSurface::absorbSectionXML(bitpit::Config::Section & slotXML, s
 void ProjSegmentOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Topology", m_topo);
 	
 	std::string output;

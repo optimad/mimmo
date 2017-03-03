@@ -28,15 +28,43 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.SplitVectorField", "splitvectorfield");
+REGISTER(BaseManipulation, SplitVectorField, "MiMMO.SplitVectorField");
 
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
  */
 SplitVectorField::SplitVectorField(int topo):SplitField(topo){
 	m_name = "MiMMO.SplitVectorField";
+	buildPorts();
 }
 
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SplitVectorField::SplitVectorField(const bitpit::Config::Section & rootXML){
+
+	std::string fallback_name = "ClassNONE";	
+	std::string fallback_topo = "-1";	
+	std::string input_name = rootXML.get("ClassName", fallback_name);
+	std::string input_topo = rootXML.get("Topology", fallback_topo);
+	input_name = bitpit::utils::trim(input_name);
+	input_topo = bitpit::utils::trim(input_topo);
+	
+	int topo = std::stoi(input_topo);
+	m_topo = std::max(1,topo);
+	if (m_topo >3) m_topo = 1;
+
+	m_name = "MiMMO.SplitVectorField";
+	buildPorts();
+	
+	
+	if(input_name == "MiMMO.SplitVectorField"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SplitVectorField constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Default destructor

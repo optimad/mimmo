@@ -28,13 +28,14 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-
 /*!Default constructor of SplitField.
- * Format admissible are linked to your choice of topology. See FileType enum
+ * Format admissible are linked to your choice of topology. See FileType enum.
+ * No argument passed, give default topology 1.
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
  */
 SplitField::SplitField(int topo){
-	m_topo = topo;
+	m_topo = std::max(1,topo);
+	if (m_topo >3) m_topo = 1;
 }
 
 /*!
@@ -186,6 +187,7 @@ SplitField::execute(){
  * or passed by port linking), the class reads no other siginificant parameters.
  * 
  * * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
  * 		PlotInExecution : boolean 0/1 print optional results of the class.
  * 		OutputPlot : target directory for optional results writing. 
@@ -194,7 +196,7 @@ SplitField::execute(){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void SplitField::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SplitField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
 	
@@ -209,6 +211,16 @@ void SplitField::absorbSectionXML(bitpit::Config::Section & slotXML, std::string
 		}
 		if(m_topo != temptop)	return;
 	}	
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("PlotInExecution")){
 		std::string input = slotXML.get("PlotInExecution");
@@ -240,7 +252,7 @@ return;
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Split<Scalar/Vector>Fields"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;	
  * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
  * 		PlotInExecution : boolean 0/1 print optional results of the class.
  * 		OutputPlot : target directory for optional results writing. 
@@ -251,7 +263,7 @@ return;
 void SplitField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Topology", m_topo);
 
 	std::string output;

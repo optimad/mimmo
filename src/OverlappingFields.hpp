@@ -73,6 +73,7 @@ private:
 	
 public:
 	OverlapScalarFields();
+	OverlapScalarFields(const bitpit::Config::Section & rootXML);
 	virtual ~OverlapScalarFields();
 	OverlapScalarFields(const OverlapScalarFields & other);
 	OverlapScalarFields & operator=(const OverlapScalarFields & other);
@@ -109,7 +110,7 @@ public:
 	void		execute();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
@@ -165,6 +166,7 @@ private:
 	
 public:
 	OverlapVectorFields();
+	OverlapVectorFields(const bitpit::Config::Section & rootXML);
 	virtual ~OverlapVectorFields();
 	OverlapVectorFields(const OverlapVectorFields & other);
 	OverlapVectorFields & operator=(const OverlapVectorFields & other);
@@ -201,7 +203,7 @@ public:
 	void		execute();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 	
 protected:

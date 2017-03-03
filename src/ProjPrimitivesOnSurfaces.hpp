@@ -143,6 +143,7 @@ private:
 	
 public:
 	ProjSegmentOnSurface();
+	ProjSegmentOnSurface(const bitpit::Config::Section & rootXML);
 	virtual ~ProjSegmentOnSurface();
 	
 	ProjSegmentOnSurface(const ProjSegmentOnSurface & other);
@@ -153,7 +154,7 @@ public:
 	void 		setSegment(darray3E pointA, darray3E pointB);
 	void		setSegment(darray3E origin, darray3E dir, double length);
 	
-	void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 	
 protected:

@@ -91,8 +91,6 @@ bool	Apply::getRefreshGeometryTrees(){
 	return m_force;
 }
 
-
-
 /*!
  * If set true, forces rebuilding of search trees of your target geometry of class MimmoObject
  */

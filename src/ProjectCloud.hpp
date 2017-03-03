@@ -69,6 +69,7 @@ protected:
 
 public:
 	ProjectCloud();
+	ProjectCloud(const bitpit::Config::Section & rootXML);
 	~ProjectCloud();
 
 	ProjectCloud(const ProjectCloud & other);
@@ -84,7 +85,7 @@ public:
 	
 	void clear();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name= "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
 protected:

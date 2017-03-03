@@ -68,16 +68,15 @@ namespace mimmo{
 
 class SplitField: public BaseManipulation{
 	
-private:
-	int m_topo; 								/**< flag for geometrical topology control*/
 protected:	
+	int m_topo; 								/**< flag for geometrical topology control*/
 	std::vector<MimmoObject*>	m_originals;	/**< pointers to external geometries*/
 	
 	std::unordered_map<long, std::pair<int, long> > m_mapCellDivision; /**< division map of actual ID-cell, part Id, original ID-cell*/
 	std::unordered_map<long, std::pair<int, long> > m_mapVertDivision; /**< division map of actual ID-vertex, part Id, original ID-vertex*/
 	
 public:
-	SplitField(int topo);
+	SplitField(int topo = 1);
 	virtual ~SplitField();
 
 	SplitField(const SplitField & other);
@@ -95,7 +94,7 @@ public:
 	int 		getTopo();
 	void 		execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 private:
@@ -141,7 +140,8 @@ private:
 	std::vector< dvector1D > m_result;
 
 public:	
-	SplitScalarField(int topo);
+	SplitScalarField(int topo =1);
+	SplitScalarField(const bitpit::Config::Section & rootXMl);
 	virtual ~SplitScalarField();
 	
 	void buildPorts();
@@ -191,7 +191,8 @@ private:
 	std::vector< dvecarr3E > m_result;
 public:	
 	
-	SplitVectorField(int topo);
+	SplitVectorField(int topo =1);
+	SplitVectorField(const bitpit::Config::Section & rootXMl);
 	virtual ~SplitVectorField();
 	
 	void buildPorts();

@@ -25,13 +25,33 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.ProjectCloud", "projectcloud");
+REGISTER(BaseManipulation, ProjectCloud,"MiMMO.ProjectCloud");
 
 /*!Default constructor of ProjectCloud
 */
 ProjectCloud::ProjectCloud(){
 	m_name = "MiMMO.ProjectCloud";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+ProjectCloud::ProjectCloud(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.ProjectCloud";
+	buildPorts();
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.ProjectCloud"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::ProjectCloud constructor. No valid xml data found"<<std::endl;
+	};
+}
+
 
 /*!Default destructor of ProjectCloud
  */
@@ -148,16 +168,27 @@ void ProjectCloud::plotOptionalResults(){
 * Cloud points coordinates are mandatorily passed through ports
 * 
 * --> Absorbing data:
+* Priority  : uint marking priority in multi-chain execution;
 * PlotInExecution : boolean 0/1 print optional results of the class.
 * OutputPlot : target directory for optional results writing. 
 * 
 * \param[in] slotXML 	bitpit::Config::Section of XML file
 * \param[in] name   name associated to the slot
 */
-void ProjectCloud::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name ){
+void ProjectCloud::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
 	
 	//start absorbing
 
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("PlotInExecution")){
 		std::string input = slotXML.get("PlotInExecution");
 		input = bitpit::utils::trim(input);
@@ -189,7 +220,7 @@ void ProjectCloud::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.ProjectCloud"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;	
  * PlotInExecution : boolean 0/1 print optional results of the class.
  * OutputPlot : target directory for optional results writing. 
  * 
@@ -200,7 +231,7 @@ void ProjectCloud::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 void ProjectCloud::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	if(isPlotInExecution()){
 		slotXML.set("PlotInExecution", std::to_string(1));

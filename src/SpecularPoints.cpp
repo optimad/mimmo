@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.SpecularPoints", "specularpoints");
+REGISTER(BaseManipulation, SpecularPoints, "MiMMO.SpecularPoints");
 
 /*!Default constructor of SpecularPoints
 */
@@ -34,7 +34,30 @@ SpecularPoints::SpecularPoints(){
 	m_plane.fill(0.0);
     m_insideout = false;
     m_force = true;
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.SpecularPoints";
+	m_plane.fill(0.0);
+	m_insideout = false;
+	m_force = true;
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.SpecularPoints"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SpecularPoints constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of SpecularPoints
  */
@@ -308,6 +331,7 @@ void SpecularPoints::clear(){
  * 
  *  
  *  --> Absorbing data:
+ *  Priority  : uint marking priority in multi-chain execution;
  *  InsideOut	: boolean to get direction of clipping according to given plane
  *  Plane	: section defining the plane's normal and a point belonging to it
  *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
@@ -319,9 +343,19 @@ void SpecularPoints::clear(){
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	//start absorbing
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
+	
 	if(slotXML.hasOption("Force")){
 		std::string input = slotXML.get("Force");
 		input = bitpit::utils::trim(input);
@@ -345,7 +379,7 @@ void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
 	}
 	
 	if(slotXML.hasSection("Plane")){
-		bitpit::Config::Section & planeXML = slotXML.getSection("Plane");
+		const bitpit::Config::Section & planeXML = slotXML.getSection("Plane");
 		
 		std::string input1 = planeXML.get("Point");
 		std::string input2 = planeXML.get("Normal");
@@ -396,7 +430,7 @@ void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
  *  
  * * --> Flushing data// how to write it on XML:
  *  ClassName : name of the class as "MiMMO.ClipGeometry"
- *	ClassID	  : integer identifier of the class	
+ *	Priority  : uint marking priority in multi-chain execution; 
  *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
  *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
  *  Plane	: section defining the plane's normal and a point belonging to it
@@ -414,7 +448,7 @@ void SpecularPoints::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
  */
 void SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	int value = m_force;
 	slotXML.set("Force", std::to_string(value));

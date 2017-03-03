@@ -75,6 +75,7 @@ private:
 
 public:
 	RotationGeometry(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });
+	RotationGeometry(const bitpit::Config::Section & rootXML);
 	~RotationGeometry();
 
 	RotationGeometry(const RotationGeometry & other);
@@ -92,7 +93,7 @@ public:
 
 	void 	    execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 

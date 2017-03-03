@@ -29,15 +29,43 @@ using namespace bitpit;
 using namespace mimmo;
 
 
-// REGISTER_MANIPULATOR("MiMMO.SplitScalarField", "splitscalarfield");
+REGISTER(BaseManipulation, SplitScalarField, "MiMMO.SplitScalarField");
 
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
  */
 SplitScalarField::SplitScalarField(int topo):SplitField(topo){
 	m_name = "MiMMO.SplitScalarField";
+	buildPorts();
 }
 
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SplitScalarField::SplitScalarField(const bitpit::Config::Section & rootXML){
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string fallback_topo = "-1";	
+	std::string input_name = rootXML.get("ClassName", fallback_name);
+	std::string input_topo = rootXML.get("Topology", fallback_topo);
+	input_name = bitpit::utils::trim(input_name);
+	input_topo = bitpit::utils::trim(input_topo);
+	
+	int topo = std::stoi(input_topo);
+	m_topo = std::max(1,topo);
+	if (m_topo >3) m_topo = 1;
+	
+	m_name = "MiMMO.SplitScalarField";
+	buildPorts();
+	
+	
+	if(input_name == "MiMMO.SplitScalarField"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SplitScalarField constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Default destructor

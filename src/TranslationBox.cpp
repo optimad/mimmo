@@ -25,13 +25,36 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.TranslationBox", "translationbox");
-/*!Default constructor of TranslationBox
+REGISTER(BaseManipulation, TranslationBox, "MiMMO.TranslationBox");
+
+/*!
+ * Default constructor of TranslationBox
  */
 TranslationBox::TranslationBox(darray3E direction){
 	m_direction = direction;
 	m_name = "MiMMO.TranslationBox";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+TranslationBox::TranslationBox(const bitpit::Config::Section & rootXML){
+	
+	m_direction.fill(0.0);
+	m_name = "MiMMO.TranslationBox";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.TranslationBox"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::TranslationBox constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of TranslationBox
  */
@@ -132,6 +155,7 @@ TranslationBox::execute(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of 3D point
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		Origin: point tha need to be translated
  * 		Direction: translation direction
  * 		Translation : entity of translation
@@ -139,7 +163,18 @@ TranslationBox::execute(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void TranslationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void TranslationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
 	
 	if(slotXML.hasOption("Origin")){
 		std::string input = slotXML.get("Origin");
@@ -181,7 +216,7 @@ void TranslationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.RotationBox"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		Origin: point tha need to be translated
  * 		Direction: translation direction
  * 		Translation : entity of translation
@@ -192,7 +227,7 @@ void TranslationBox::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
 void TranslationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	{
