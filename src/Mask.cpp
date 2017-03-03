@@ -33,7 +33,29 @@ Mask::Mask(){
 	m_name = "MiMMO.Mask";
 	m_thres.fill({{0,0}});
 	m_inside = {{true, true, true}};
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+Mask::Mask(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.Mask";
+	m_thres.fill({{0,0}});
+	m_inside = {{true, true, true}};
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Mask"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::Mask constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of Mask
  */
@@ -207,6 +229,7 @@ Mask::execute(){
  * with a vector field attached. Point coordinates and fields are meant to be passed through ports.
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
  * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
  * 		Inside : array of 3 booleans, each for space coordinate, to perform mask inside the threshold(0) or not (0) 
@@ -214,9 +237,20 @@ Mask::execute(){
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void Mask::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void Mask::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
+	
 	if(slotXML.hasOption("LowerThreshold")){
 		std::string input = slotXML.get("LowerThreshold");
 		input = bitpit::utils::trim(input);
@@ -258,7 +292,7 @@ void Mask::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name)
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.Mask"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
  * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
  * 		Inside : array of 3 booleans (0/1), each for space coordinate, to perform mask inside the threshold(0) or not (0) 
@@ -269,7 +303,7 @@ void Mask::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name)
 void Mask::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	{

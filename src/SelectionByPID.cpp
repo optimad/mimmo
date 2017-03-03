@@ -30,14 +30,34 @@ using namespace mimmo;
 //------------------------------------------------------------------------
 //SELECTION	BY PID class 	******************************************
 //------------------------------------------------------------------------
-// REGISTER_MANIPULATOR("MiMMO.SelectionByPID", "selectionbypid");
+REGISTER(BaseManipulation, SelectionByPID, "MiMMO.SelectionByPID");
 
 /*!
  * Basic Constructor
  */
 SelectionByPID::SelectionByPID(){
 	m_name = "MiMMO.SelectionByPID";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.SelectionByPID";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.SelectionByPID"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SelectionByPID constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Custom Constructor
@@ -48,6 +68,7 @@ SelectionByPID::SelectionByPID(shivector1D & pidlist, MimmoObject * target){
 	m_name = "MiMMO.SelectionByPID";
 	setGeometry(target);
 	setPID(pidlist);
+	buildPorts();
 };
 
 /*!
@@ -265,6 +286,7 @@ void SelectionByPID::syncPIDList(){
 * Get infos from a XML bitpit::Config::section. The parameters available are
 * 
 * -->Absorbing Data
+* Priority  : uint marking priority in multi-chain execution; 
 * Dual       : boolean to get straight what given by selection method or its exact dual
 * nPID		: number of PID to be selected
 * PID   		: set PID to select, separate by blank space. -1 select all available PID
@@ -276,9 +298,19 @@ void SelectionByPID::syncPIDList(){
 * \param[in] slotXML 	bitpit::Config::Section of XML file
 * \param[in] name   name associated to the slot
 */
-void SelectionByPID::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
+	
 	if(slotXML.hasOption("Dual")){
 		std::string input = slotXML.get("Dual");
 		input = bitpit::utils::trim(input);
@@ -344,7 +376,7 @@ void SelectionByPID::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.Lattice"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;
  * Dual       : boolean to get straight what given by selection method or its exact dual
  * nPID		: number of PID to be selected
  * PID   		: set PID to select, separate by blank space. -1 select all available PID
@@ -359,7 +391,7 @@ void SelectionByPID::absorbSectionXML(bitpit::Config::Section & slotXML, std::st
 void SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	int value = m_dual;
 	slotXML.set("Dual", std::to_string(value));

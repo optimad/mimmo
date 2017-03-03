@@ -81,6 +81,7 @@ private:
 
 public:
 	GenericOutput(std::string filename = "output.txt");
+	GenericOutput(const bitpit::Config::Section & rootXML);
 	~GenericOutput();
 
 	GenericOutput(const GenericOutput & other);
@@ -128,7 +129,7 @@ public:
 
 	void 	execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 

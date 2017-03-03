@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.GenericOutput", "genericoutput");
+REGISTER(BaseManipulation, GenericOutput, "MiMMO.GenericOutput");
 
 /*!Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
@@ -36,8 +36,29 @@ GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "MiMMO.GenericOutput";
-
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
+	
+	m_filename	= "output.txt";
+	m_portsType	= ConnectionType::BACKWARD;
+	m_name 		= "MiMMO.GenericOutput";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.GenericOutput"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::GenericOutput constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of GenericOutput.
  */
@@ -117,14 +138,25 @@ GenericOutput::execute(){
  * on a given file (all values in a row).
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		Filename: name of file to write data  
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void GenericOutput::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("Filename")){
 		std::string input = slotXML.get("Filename");
@@ -141,7 +173,7 @@ void GenericOutput::absorbSectionXML(bitpit::Config::Section & slotXML, std::str
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.GenericOutput"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		Filename: name of file to write data
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
@@ -150,7 +182,7 @@ void GenericOutput::absorbSectionXML(bitpit::Config::Section & slotXML, std::str
 void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Filename", m_filename);
 };	
 

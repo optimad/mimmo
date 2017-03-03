@@ -43,7 +43,6 @@ namespace mimmo{
  *  GenericInput can be read the input from a file or
  *   it can be set by using setInput methods.
  * 
- * WARNING	AbsorbSectionXML, FlushSectionXML not coded! It's using baseManipulation default; 
  *
  *	=========================================================
  * ~~~
@@ -89,6 +88,7 @@ private:
 
 public:
 	GenericInput(bool readFromFile = false);
+	GenericInput(const bitpit::Config::Section & rootXML);
 	GenericInput(std::string filename);
 
 	/*!Custom template constructor of GenericInput.
@@ -146,7 +146,7 @@ public:
 
 	void execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 };

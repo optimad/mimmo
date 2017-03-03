@@ -29,7 +29,7 @@
 using namespace std;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.GenericInput", "genericinput");
+REGISTER(BaseManipulation, GenericInput, "MiMMO.GenericInput");
 
 /*!Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
@@ -38,7 +38,29 @@ GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "MiMMO.GenericInput";
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
+	
+	m_readFromFile  = false;
+	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
+	m_name 			= "MiMMO.GenericInput";
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.GenericInput"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::GenericInput constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Custom constructor of GenericInput.
  * \param[in] filename Name of the input file.
@@ -135,16 +157,27 @@ GenericInput::execute(){};
  * from a given file (all values in a row).
  * 
  * --> Absorbing data:
+ * 		Priority  : uint marking priority in multi-chain execution; 
  * 		ReadFromFile: 0/1 set class to read from a file	
  * 		Filename: path to your current file data
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void GenericInput::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
 
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
+	
 	if(slotXML.hasOption("ReadFromFile")){
 		std::string input = slotXML.get("ReadFromFile");
 		input = bitpit::utils::trim(input);
@@ -171,7 +204,7 @@ void GenericInput::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
  * 
  * --> Flushing data// how to write it on XML:
  * 		ClassName : name of the class as "MiMMO.GenericInput"
- * 		ClassID	  : integer identifier of the class	
+ * 		Priority  : uint marking priority in multi-chain execution;
  * 		ReadFromFile: 0/1 set class to read from a file	
  * 		Filename: path to your current file data
  * 
@@ -181,7 +214,7 @@ void GenericInput::absorbSectionXML(bitpit::Config::Section & slotXML, std::stri
 void GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	slotXML.set("ReadFromFile", std::to_string((int)m_readFromFile));
 	slotXML.set("Filename", m_filename);

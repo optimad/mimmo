@@ -32,7 +32,7 @@ using namespace mimmo;
 //SELECTION	BY MAPPING class 	******************************************
 //------------------------------------------------------------------------
 
-// REGISTER_MANIPULATOR("MiMMO.SelectionByMapping", "selectionbymapping");
+REGISTER(BaseManipulation, SelectionByMapping, "MiMMO.SelectionByMapping");
 
 /*!
  * Basic Constructor. Need to know kind of topology chosen 1-3D surface, 2-VolumeMesh
@@ -56,7 +56,48 @@ SelectionByMapping::SelectionByMapping(int topo){
 	m_allowedType[2].insert(FileType::VTVTU);
 	m_allowedType[2].insert(FileType::VHVTU);
 	
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.SelectionByMapping";
+	m_type = SelectionType::MAPPING;
+	m_tolerance = 1.E-08;
+
+	std::string fallback_name = "ClassNONE";	
+	std::string fallback_topo = "-1";	
+	std::string input_name = rootXML.get("ClassName", fallback_name);
+	input_name = bitpit::utils::trim(input_name);
+	
+	std::string input_topo = rootXML.get("Topology", fallback_topo);
+	input_topo = bitpit::utils::trim(input_topo);
+	
+	int topo = std::atoi(input_topo.c_str());
+	topo = std::min(1,topo);
+	if(topo > 2)	topo=1;
+	m_topo = topo;
+	
+	m_allowedType.resize(3);
+	m_allowedType[1].insert(FileType::STL);
+	m_allowedType[1].insert(FileType::STVTU);
+	m_allowedType[1].insert(FileType::SQVTU);
+	m_allowedType[1].insert(FileType::NAS);
+	m_allowedType[2].insert(FileType::VTVTU);
+	m_allowedType[2].insert(FileType::VHVTU);
+	
+	buildPorts();
+	
+	if(input_name == "MiMMO.SelectionByMapping"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SelectionByMapping constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Custom Constructor. Non null geometry set also the topology allowed bu the class.
@@ -85,6 +126,8 @@ SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & ge
 		setFiles(geolist);
 		m_tolerance = tolerance;
 	}
+	
+	buildPorts();
 };
 
 /*!
@@ -306,6 +349,7 @@ svector1D SelectionByMapping::extractInfo(std::string file){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution;
  * Dual       : boolean to get straight what given by selection method or its exact dual
  * Topology   : set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
  * Tolerance  : tolerance for detect proximity volume in which perform mapping 
@@ -319,7 +363,7 @@ svector1D SelectionByMapping::extractInfo(std::string file){
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectionByMapping::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	//checking topology
 	if(slotXML.hasOption("Topology")){
@@ -332,6 +376,16 @@ void SelectionByMapping::absorbSectionXML(bitpit::Config::Section & slotXML, std
 		}
 		if(m_topo != temp)	return;
 	}	
+	
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
 	
 	//start absorbing
 	if(slotXML.hasOption("Dual")){
@@ -360,7 +414,7 @@ void SelectionByMapping::absorbSectionXML(bitpit::Config::Section & slotXML, std
 	std::unordered_map<std::string, int> mapp;
 	if(slotXML.hasSection("Files")){
 		
-		bitpit::Config::Section & filesXML = slotXML.getSection("Files");
+		const bitpit::Config::Section & filesXML = slotXML.getSection("Files");
 		
 		for(auto & subfile : filesXML.getSections()){
 			std::string path;
@@ -415,7 +469,7 @@ void SelectionByMapping::absorbSectionXML(bitpit::Config::Section & slotXML, std
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.SelectionByMapping"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution; 
  * Dual       : boolean to get straight what given by selection method or its exact dual
  * Topology   : set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
  * Tolerance  : tolerance for detect proximity volume in which perform mapping 
@@ -443,7 +497,7 @@ void SelectionByMapping::absorbSectionXML(bitpit::Config::Section & slotXML, std
 void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 
 	slotXML.set("Topology", m_topo);
 	

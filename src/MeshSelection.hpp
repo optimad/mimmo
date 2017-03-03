@@ -166,6 +166,7 @@ class SelectionByBox: public GenericSelection, public mimmo::Cube {
 
 public:
 	SelectionByBox();
+	SelectionByBox(const bitpit::Config::Section & rootXML);
 	SelectionByBox(darray3E origin, darray3E span, MimmoObject * target);
 	virtual ~SelectionByBox();
 	SelectionByBox(const SelectionByBox & other);
@@ -176,7 +177,7 @@ public:
 	void clear();
 
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 	
 protected:
@@ -232,6 +233,7 @@ class SelectionByCylinder: public GenericSelection, public mimmo::Cylinder {
 	
 public:	
 	SelectionByCylinder();
+	SelectionByCylinder(const bitpit::Config::Section & rootXML);
 	SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target);
 	virtual ~SelectionByCylinder();
 	SelectionByCylinder(const SelectionByCylinder & other);
@@ -242,7 +244,7 @@ public:
 	void clear();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 	
 protected:
@@ -298,6 +300,7 @@ class SelectionBySphere: public GenericSelection, public mimmo::Sphere {
 	
 public:	
 	SelectionBySphere();
+	SelectionBySphere(const bitpit::Config::Section & rootXML);
 	SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target);
 	virtual ~SelectionBySphere();
 	SelectionBySphere(const SelectionBySphere & other);
@@ -308,7 +311,7 @@ public:
 	void clear();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
@@ -366,6 +369,7 @@ private:
 		std::vector<std::set< int > > m_allowedType; /**< list of FileType actually allowed for the target geometry type*/
 public:	
 	SelectionByMapping(int topo = 1);
+	SelectionByMapping(const bitpit::Config::Section & rootXML);
 	SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance);
 	virtual ~SelectionByMapping();
 	SelectionByMapping(const SelectionByMapping & other);
@@ -387,7 +391,7 @@ public:
 	void clear();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 	
 protected:
@@ -450,6 +454,7 @@ private:
 	
 public:	
 	SelectionByPID();
+	SelectionByPID(const bitpit::Config::Section & rootXML);
 	SelectionByPID(shivector1D & pidlist, MimmoObject * target);
 	virtual ~SelectionByPID();
 	SelectionByPID(const SelectionByPID & other);
@@ -471,7 +476,7 @@ public:
 	void 	clear();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 	
 protected:
@@ -534,6 +539,7 @@ protected:
 
 public:
     SelectionByBoxWithScalar();
+	SelectionByBoxWithScalar(const bitpit::Config::Section & rootXML);
     SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target);
     virtual ~SelectionByBoxWithScalar();
     SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other);
@@ -549,7 +555,7 @@ public:
     void execute();
 
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 	
     void plotOptionalResults();

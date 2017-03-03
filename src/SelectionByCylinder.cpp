@@ -32,7 +32,7 @@ using namespace mimmo;
 //SELECTION	BY CYLINDER class 	**********************************************
 //------------------------------------------------------------------------
 
-// REGISTER_MANIPULATOR("MiMMO.SelectionByCylinder", "selectionbycylinder");
+REGISTER(BaseManipulation, SelectionByCylinder, "MiMMO.SelectionByCylinder");
 
 /*!
  * Basic Constructor
@@ -40,7 +40,28 @@ using namespace mimmo;
 SelectionByCylinder::SelectionByCylinder(){
 	m_name = "MiMMO.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
+	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.SelectionByCylinder";
+	m_type = SelectionType::CYLINDER;
+	buildPorts();
+
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.SelectionByCylinder"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::SelectionByCylinder constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!
  * Custom Constructor. Pay attention span of angular coordinate must be at most 2*pi.
@@ -58,6 +79,7 @@ SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double 
 	setSpan(span[0],span[1],span[2]);
 	setInfLimits(infLimTheta,1);
 	setRefSystem(2, mainAxis);
+	buildPorts();
 };
 
 /*!
@@ -133,6 +155,7 @@ livector1D SelectionByCylinder::extractSelection(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  *
  *  --> Absorbing data:
+ *  Priority  : uint marking priority in multi-chain execution;
  *  Dual     : boolean to get straight what given by selection method or its exact dual
  *  Origin   : array of 3 doubles identifying origin
  *  Span	  :span of the cylinder (base radius, azimuthal span(in radians), height)
@@ -146,9 +169,19 @@ livector1D SelectionByCylinder::extractSelection(){
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectionByCylinder::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	if(slotXML.hasOption("Priority")){
+		std::string input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
+	
 	if(slotXML.hasOption("Dual")){
 		std::string input = slotXML.get("Dual");
 		input = bitpit::utils::trim(input);
@@ -188,7 +221,7 @@ void SelectionByCylinder::absorbSectionXML(bitpit::Config::Section & slotXML, st
 	
 	if(slotXML.hasSection("RefSystem")){
 		
-		bitpit::Config::Section & axesXML = slotXML.getSection("RefSystem");
+		const bitpit::Config::Section & axesXML = slotXML.getSection("RefSystem");
 		dmatrix33E axes;
 		for(int i=0; i<3; ++i){
 			axes[i].fill(0.0);
@@ -265,7 +298,7 @@ void SelectionByCylinder::absorbSectionXML(bitpit::Config::Section & slotXML, st
  * 
  *   --> Flushing data// how to write it on XML:
  *  ClassName : name of the class as "MiMMO.SelectionByCylinder"
- *  ClassID	  : integer identifier of the class	
+ *  Priority  : uint marking priority in multi-chain execution; 
  *  Dual     : boolean to get straight what given by selection method or its exact dual
  *  Origin   : array of 3 doubles identifying origin
  *  Span	  :span of the cylinder (base radius, azimuthal span(in radians), height)
@@ -287,7 +320,7 @@ void SelectionByCylinder::absorbSectionXML(bitpit::Config::Section & slotXML, st
 void SelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	int value = m_dual;
 	slotXML.set("Dual", std::to_string(value));
