@@ -25,7 +25,7 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.MultiApply", "multiapply");
+REGISTER(BaseManipulation, MultiApply, "MiMMO.MultiApply");
 
 /*!Default constructor of Apply
  */
@@ -34,6 +34,26 @@ MultiApply::MultiApply():BaseManipulation(){
 	m_force = false;
 	buildPorts();
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.MultiApply";
+	m_force = false;
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.MultiApply"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::MultiApply constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of Apply
  */
@@ -154,14 +174,26 @@ MultiApply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution; 
  * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
- void MultiApply::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+ void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	 
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
+	
 	if(slotXML.hasOption("RefreshGeometryTrees")){
 		std::string input = slotXML.get("RefreshGeometryTrees");
 	}; 
@@ -183,7 +215,7 @@ MultiApply::execute(){
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.MultiApply"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;
  * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
@@ -192,7 +224,7 @@ MultiApply::execute(){
 void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	bool value = getRefreshGeometryTrees();
 	

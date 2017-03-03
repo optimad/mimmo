@@ -30,13 +30,34 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.Geometry", "mimmogeometry");
+REGISTER(BaseManipulation, MimmoGeometry, "MiMMO.Geometry");
 
 /*!Default constructor of MimmoGeometry.
  */
 MimmoGeometry::MimmoGeometry(){
 	m_name 		= "MiMMO.Geometry";
 	setDefaults();
+	buildPorts();
+}
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.Geometry";
+	setDefaults();
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Geometry"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::MimmoGeometry constructor. No valid xml data found"<<std::endl;
+	};
 }
 
 /*!Default destructor of MimmoGeometry.
@@ -1017,6 +1038,7 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  * or passed by port linking), the class reads the following parameters:
  * 
  *  --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution;
  * ReadFlag : activate reading mode boolean
  * ReadDir : reading directory path
  * ReadFileType : file type identifier
@@ -1032,9 +1054,19 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void MimmoGeometry::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 
 	if(slotXML.hasOption("ReadFlag")){
 		input = slotXML.get("ReadFlag");
@@ -1153,7 +1185,7 @@ return;
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.Geometry"
- * ClassID  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution; 
  * ReadFlag : activate reading mode boolean
  * ReadDir  : reading directory path
  * ReadFileType : file type identifier
@@ -1172,7 +1204,7 @@ return;
 void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	
 	std::string output;

@@ -77,7 +77,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 	std::string input_topo = rootXML.get("Topology", fallback_topo);
 	input_topo = bitpit::utils::trim(input_topo);
 	
-	int topo = std::atoi(input_topo.c_str());
+	int topo = std::stoi(input_topo);
 	topo = std::min(1,topo);
 	if(topo > 2)	topo=1;
 	m_topo = topo;

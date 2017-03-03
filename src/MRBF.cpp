@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.MRBF", "mrbf");
+REGISTER(BaseManipulation, MRBF, "MiMMO.MRBF");
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
@@ -38,7 +38,33 @@ MRBF::MRBF(){
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
 	m_SRRatio = -1.0;
+	buildPorts();
+	
 };
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+MRBF::MRBF(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.MRBF";
+	m_maxFields=-1;
+	m_tol = 0.00001;
+	setMode(MRBFSol::NONE);
+	m_bfilter = false;
+	m_SRRatio = -1.0;
+	buildPorts();
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.MRBF"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::MRBF constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*! Default Destructor */
 MRBF::~MRBF(){};
@@ -513,6 +539,7 @@ void MRBF::execute(){
  * The sensible parameters are:
  * 
  * --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution;
  * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
  * SupportRadius : local radius of RBF function for each nodes
  * Tolerance : greedy engine tolerance (meant for mode 2);
@@ -522,9 +549,19 @@ void MRBF::execute(){
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name   name associated to the slot
  */
-void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	std::string input; 
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	};
 	
 	if(slotXML.hasOption("Mode")){
 		input = slotXML.get("Mode");
@@ -569,7 +606,7 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.MRBF"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution;
  * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
  * SupportRadius : local radius of RBF function for each nodes
  * Tolerance : greedy engine tolerance (meant for mode 2);
@@ -583,8 +620,7 @@ void  MRBF::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name
 void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
-	
+	slotXML.set("Priority", std::to_string(getPriority()));
 	
 	std::string input;
 	input = std::to_string(static_cast<int>(m_solver));

@@ -113,6 +113,8 @@ private:
 public:
 	MultipleMimmoGeometries(int topo);
 	MultipleMimmoGeometries(int topo, bool IOMode);
+	MultipleMimmoGeometries(const bitpit::Config::Section & rootXML);
+	
 	virtual ~MultipleMimmoGeometries();
 
 	MultipleMimmoGeometries(const MultipleMimmoGeometries & other);
@@ -167,7 +169,7 @@ public:
 
 	void 		execute();
 	
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 	
 private:

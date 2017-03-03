@@ -28,7 +28,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.MultipleGeometries", "multiplegeometries");
+REGISTER(BaseManipulation, MultipleMimmoGeometries, "MiMMO.MultipleGeometries");
 
 /*!Default constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
@@ -36,6 +36,36 @@ using namespace mimmo;
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo){
 	initializeClass(topo, false);
+	buildPorts();
+}
+
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section & rootXML){
+	
+	std::string fallback_name = "ClassNONE";
+	std::string fallback_topo = "-1";
+	std::string fallback_mode = "none";
+	
+	std::string input_name = rootXML.get("ClassName", fallback_name);
+	std::string input_topo = rootXML.get("Topology", fallback_topo);
+	
+	input_name = bitpit::utils::trim(input_name);
+	input_topo = bitpit::utils::trim(input_topo);
+	
+	int topo = std::stoi(input_topo);
+
+	initializeClass(topo, false);
+	buildPorts();
+	
+	if(input_name == "MiMMO.MultipleMimmoGeometries"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::MultipleMimmoGeometries constructor. No valid xml data found"<<std::endl;
+	};
 }
 
 /*!Custom constructor of MultipleMimmoGeometries.
@@ -45,6 +75,7 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(int topo){
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, bool IOMode){
 	initializeClass(topo, IOMode);
+	buildPorts();
 }
 
 /*!Default destructor of MultipleMimmoGeometries.
@@ -644,6 +675,7 @@ MultipleMimmoGeometries::execute(){
  * or passed by port linking), the class reads the following parameters:
  * 
  * --> Absorbing data:
+ * Priority  : uint marking priority in multi-chain execution; 
  * ReadFlag : activate reading mode boolean
  * Read Info data : reading files data
  * WriteFlag : activate writing mode boolean
@@ -655,11 +687,12 @@ MultipleMimmoGeometries::execute(){
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
  */
-void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	std::string input; 
 	std::vector<FileDataInfo> temp;
 	int counter;
+	
 	
 	//checking topology
 	if(slotXML.hasOption("Topology")){
@@ -671,7 +704,17 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 			ss>>temptop;
 		}
 		if(m_topo != temptop)	return;
-	}	
+	}
+	
+	if(slotXML.hasOption("Priority")){
+		input = slotXML.get("Priority");
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		setPriority(value);
+	}; 
 
 	if(slotXML.hasOption("ReadFlag")){
 		input = slotXML.get("ReadFlag");
@@ -684,7 +727,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 	}; 
 	
 	if(slotXML.hasSection("ReadInfoData")){
-		bitpit::Config::Section &reading = slotXML.getSection("ReadInfoData");
+		const bitpit::Config::Section &reading = slotXML.getSection("ReadInfoData");
 		int nfile = reading.getSectionCount();
 		temp.resize(nfile);
 		counter=0;
@@ -730,7 +773,7 @@ void MultipleMimmoGeometries::absorbSectionXML(bitpit::Config::Section & slotXML
 	}; 
 	
 	if(slotXML.hasSection("WriteInfoData")){
-		bitpit::Config::Section & writing = slotXML.getSection("WriteInfoData");
+		const bitpit::Config::Section & writing = slotXML.getSection("WriteInfoData");
 		int nfile = writing.getSectionCount();
 		temp.resize(nfile);
 		counter = 0;
@@ -805,7 +848,7 @@ return;
  * 
  * --> Flushing data// how to write it on XML:
  * ClassName : name of the class as "MiMMO.MultipleGeometries"
- * ClassID	  : integer identifier of the class	
+ * Priority  : uint marking priority in multi-chain execution; 	
  * ReadFlag : activate reading mode boolean
  * ReadInfodata : reading files data
  * 		<ReadInfoData>
@@ -849,7 +892,7 @@ return;
 void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	slotXML.set("ClassName", m_name);
-	slotXML.set("ClassID", std::to_string(getClassCounter()));
+	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Topology", m_topo);
 	
 	std::string output;
@@ -934,7 +977,7 @@ void
 MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 	
 	m_name 		= "MiMMO.MultipleGeometries";
-	m_read = IOMode; m_write = !IOMode;
+	m_read = !IOMode; m_write = IOMode;
 	
 	m_topo     = std::min(1, topo);
 	if(m_topo > 3)	m_topo = 1;
