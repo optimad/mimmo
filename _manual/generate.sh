@@ -1,7 +1,8 @@
 #!/bin/bash
 
 MIMMO_SOURCE_DIR="$1"
-LOCAL_BUILD="$2"
+BITPIT_DIR="$2"
+LOCAL_BUILD="$3"
 
 MANUAL_ROOT_DIR="${PWD}"
 JEKYLL_ROOT_DIR="${MANUAL_ROOT_DIR}/.."
@@ -56,7 +57,7 @@ cd mimmo
 
 cmake ${MIMMO_SOURCE_DIR} \
     -DCMAKE_INSTALL_PREFIX:PATH="" \
-    -DBITPIT_DIR="/home/edoardo/opt/bitpit/lib/cmake/bitpit-1.3" \
+    -DBITPIT_DIR="${BITPIT_DIR}" \
     -DBUILD_DOCUMENTATION=ON \
     -DENABLE_MPI=ON \
     -DDOXY_HTML_HEADER="${MANUAL_BUILD_DIR}/templates/doxygen_header.html" \
