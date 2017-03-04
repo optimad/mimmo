@@ -1,9 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classmimmo_1_1mimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="5,132,200,159"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="283,5,387,32"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="274,56,395,83"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1mimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="257,107,412,133"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1mimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="249,157,421,184"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1mimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="252,208,417,235"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="277,259,392,285"/>
+<area shape="rect" id="node1" href="$classmimmo_1_1mimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="5,132,204,159"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="287,5,393,32"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="278,56,402,83"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1mimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="261,107,419,133"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1mimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="252,157,428,184"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1mimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="255,208,425,235"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="281,259,399,285"/>
 </map>

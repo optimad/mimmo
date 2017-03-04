@@ -2,12 +2,16 @@
 
 #manual {
     position: relative;
-    margin: 0 0 150px 0;
+    margin: 10px 0 250px 0;
 }
 
 #side-nav {
     top: 0;
     bottom: 32px;
+}
+
+#main-menu {
+    z-index: 50;
 }
 
 body, table, div, p, dl {
@@ -335,7 +339,7 @@ div.center img {
 
 address.footer {
     color: #F8F8F8;
-    background-color: #363636;
+    background-color: #262626;
     text-align: right;
     padding-right: 12px;
     padding-top: 5px;
@@ -344,7 +348,7 @@ address.footer {
     box-sizing: border-box;
     position: absolute;
     width: 100%;
-    bottom: 150px;
+    bottom: 200px;
     left: 0;
 }
 

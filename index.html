@@ -13,7 +13,7 @@ extra-scripts:
 
     <div id="banner">
         <div class="title">
-            <h1 class="MiMMO"><b>MiMMO</b></h1>
+            <h1 class="MiMMO">MiMMO</h1>
 
             <h2>Manipulation and Morphing for Meshes Open Source</h2>
         </div>
@@ -27,107 +27,67 @@ extra-scripts:
 
     <div id="main" class="home">
 
-        <div class="content-box bitpit-introduction">
+        <div class="content-box left mimmo-overview">
+            <div class="image">
+                <img alt="mimmo Logo" src="{{ site.baseurl }}/images/mimmo_6.png" />
+            </div>
 
-        <div class="image">
-             <img alt="MiMMO Logo" src="{{ site.baseurl }}/images/mimmo_6.png"/>
-        <div class="logo">
-             <img alt="LGPLv3 Logo" src="{{ site.baseurl }}/images/LGPLv3_Logo.png" />
-        </div>
-        </div>
-            
-        
             <div class="content">
-                <h1>A quick look at <b>MiMMO</b></h1>
+                <h1>MiMMO overview</h1>
 
                 <p>
-                <b>MiMMO</b> is a open source C++ library for mesh manipulation and morphing. 
+                <strong>MiMMO</strong> is a open source C++ library for mesh manipulation and morphing developed by
+                <a class="optimad" href="http://www.optimad.it">Optimad Engineering Srl</a>. The goal of <strong>MiMMO</strong>
+                is to provide mesh manipulation objects, input/output interfaces and morphing wrappers.
+                The library is designed as a block diagram framework where each object can be linked with others in an execution chain.
                 </p>
 
-                <p>
-                <b>MiMMO</b> is developed and maintained by <a class="optimad" href="http://www.optimad.it">OPTIMAD Engineering Srl</a>
-                and is distributed under the <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html">GNU Lesser General Public License v3.0</a>.
+                <p class="button">
+                <a href="{{ site.baseurl }}/overview">Read more</a>
                 </p>
-
-                <p>
-                The framework consists of a number of manipulation objects, input/output interfaces, morphing wrappers and other tools.</br>
-                The library is designed as a block diagram framework where each object can be linked with others in an execution chain.                                
-                </p>
-                
-                <p>
-               Inside <b>MiMMO</b> some basic manipulation objects are provided, as well as some wrappers to fundamental deformations and other tools
-               convenient to surface and mesh morphing. </br>
-               The implementation of customized blocks is straightforward by deriving the own object class from the base class defined in <b>MiMMO</b>.
-                </p>
-                
-                <p>
-               The library allows to import/export several CAD format (stl, vtu, nas and others). The permitted formats are listed
-               in the documentation of input/output classes.                              
-                </p>
-                
-                <p>
-               <b>MiMMO</b> is based on <a class"bitpit" href="http://www.optimad.it/products/bitpit">bitpit</a>, an open source C++ library dedicated 
-               to scientific high performance computing and developed by 
-               <a class="optimad" href="http://www.optimad.it">OPTIMAD</a>.
-               bitpit supplies basic tools to manage surface and volume meshes.                          
-                </p>
-                
-                <p>
-               <b>MiMMO</b> is the base of <a class"MIMIC" href="http://www.optimad.it/products/MIMIC">MIMIC</a>, a commercial software developed and 
-               distributed by <a class="optimad" href="http://www.optimad.it">OPTIMAD</a>
-               aimed to surface and volume mesh morphing shape optimization in industrial applications.
-               <a class"MIMIC" href="http://www.optimad.it/products/MIMIC">MIMIC</a>, compared to <b>MiMMO</b>, provides advanced tools and interfaces, <i>e.g.</i> volume mesh morphing, continuity constratins definition, 
-               OpenFOAM input/output interfaces. </br>
-               </br>
-               Conversely to <b>MiMMO</b>, <a class"MIMIC" href="http://www.optimad.it/products/MIMIC">MIMIC</a> provides even a graphical user interface.
-               </br>
-               </br>
-               <b>MiMMO</b> is part of <a class"PASO" href="http://www.optimad.it/services/software-development-integration">PASO</a> the platform for 
-               automatic shape optimization developed by <a class="optimad" href="http://www.optimad.it">OPTIMAD</a>.
-                </p>
-                
             </div>
         </div>
 
-        <div class="content-box module-list">
+        <div class="content-box bitpit-overview dark">
             <div class="content">
-<!--                {% for module in site.overview %}
-                    {% if module.highlights %}
-                    <div class="module-info">
-                        <h1><a href="{{ site.baseurl }}/{{ module.url }}" >{{ module.name }}</a></h1> 
-                        <p>
-                        {{ module.description }} 
-                        </p> 
-                    </div>
-                    {% endif %}
-                {% endfor %} -->
+                <h1>MIMIC</h1>
 
-                <div class="module-info">
-                <h1><a href="{{ site.baseurl }}/overview">overview </a></h1>
-                </div>
-                <div class="module-info">
-                <h1><a href="{{ site.baseurl }}/documentation/manual">documentation </a></h1>
-                </div>
-                <div class="module-info">
-                <h1><a href="{{ site.baseurl }}/downloads">downloads </a></h1>
-                </div>
-                
+                <p>
+                    <strong>MiMMO</strong> can be used as a building block for devloping
+                    mesh morphing software.
+                </p>
+                <p>
+                    <a class="optimad" href="http://www.optimad.it">Optimad Engineering Srl</a> is
+                    using <strong>MiMMO</strong> to develop <strong>MIMIC</strong>, a mesh morphing software specifically designed for being seamlessly integrated in industrial optimization workflows. In addition to the capabilities
+                    provided by <strong>MiMMO</strong>, <strong>MIMIC</strong> implements advanced advanced
+                    features like morphing of volume meshes, continuity constratins and an OpenFOAM input/output interface.
+                </p>
+
+                <p class="button light">
+                <a href="http://www.optimad.it/products/MIMIC">Discover MIMIC</a>
+                </p>
+
                 <div style='clear:both'></div>
             </div>
         </div>
 
-        <div class="content-box">
+        <div class="content-box right mimmo-license">
             <div class="image">
-             <img alt="spoiler1" src="{{ site.baseurl }}/images/mimmo_spoiler.png" />
+                <img alt="mimmo Logo" src="{{ site.baseurl }}/images/LGPLv3_Logo.png" />
             </div>
 
             <div class="content">
-                <h1>Applications, publications & conferences</h1>
+                <h1>MiMMO license</h1>
 
                 <p>
-                <b> An example of Reduced Order Models at work: aerodynamic shape optimization through a coupled CFD-POD approach.</b>                
-                <i>Workshop: Industry and mathematics.</i> IHP, Paris, France. 2016.
+                <strong>MiMMO</strong> is free and open source, distributed<br/>under the
+                <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html">GNU Lesser General Public License v3</a>
+                </p>
+
+                <p class="button">
+                <a href="{{ site.baseurl }}/license.html">Read more</a>
                 </p>
             </div>
         </div>
+
     </div>
