@@ -32,53 +32,53 @@ using namespace mimmo;
 
 //=================================================================================== //
 
-// void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, bool debug) {
-// 	
-// 	if(debug) std::cout<< "Currently reading XML dictionary"<<std::endl;
-// 	
-// 	for(auto & sect : slot.getSections()){
-//         
-// 		int fallback_counter = 0;
-// 		std::string fallback_name = "ClassNONE";
-// 		
-// 		std::string className = sect.second->get("ClassName", fallback_name);
-// 		className = bitpit::utils::trim(className);
-// 		
-// 		if(Factory<BaseManipulation>::instance().containsCreator(className)){
-// 			std::unique_ptr<BaseManipulation >temp (Factory<BaseManipulation>::create(className, *(sect.second.get())));
-// 			mapInst[sect.first] = std::move(temp);
-// 	
-// 			if(debug) std::cout<<"...Instantiated MiMMO block: "<<sect.first<<" of type "<<className<<std::endl;
-// 		}else{
-// 			if(debug) std::cout<<"...Failed instantiation of "<<sect.first<<". MiMMO block of type "<<className<<" not registrated in the API"<<std::endl;
-// 		}
-// 	}
-// 	
-// 	if(debug)	std::cout<<" "<<std::endl;
-// 	if(debug)	std::cout<<"Instantiated objects : "<<mapInst.size()<<std::endl;
-// 		
-// 	for(auto & iM : mapInst){
-// 		mapConn[iM.first] = iM.second.get();
-// 		//need to find a way to define objects inside another object
-// 	}
-// 
-// 	if(debug)	std::cout<<" "<<std::endl;
-// 	if(debug) 	std::cout<<"Connectable objects : "<<mapConn.size()<<std::endl;
-// 	
-// 	//absorb connections from file if any
-// 	IOConnections_MIMMO * conns = new IOConnections_MIMMO (mapConn);
-// 	
-// 	if(config::root.hasSection("Connections")){
-// 		bitpit::Config::Section & connXML = config::root.getSection("Connections");
-// 		conns->absorbConnections(connXML, true);
-// 	}	
-// 	
-// 	delete conns; 
-// 	conns=NULL;
-// 	
-// 	if(debug) std::cout<< "Finished reading XML dictionary"<<std::endl;
-// 		
-// }
+void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & root,  bool debug) {
+	
+	if(debug) std::cout<< "Currently reading XML dictionary"<<std::endl;
+	
+	for(auto & sect : slot.getSections()){
+        
+		int fallback_counter = 0;
+		std::string fallback_name = "ClassNONE";
+		
+		std::string className = sect.second->get("ClassName", fallback_name);
+		className = bitpit::utils::trim(className);
+		
+		if(root.containsCreator(className)){
+			std::unique_ptr<BaseManipulation >temp (root.create(className, *(sect.second.get())));
+			mapInst[sect.first] = std::move(temp);
+	
+			if(debug) std::cout<<"...Instantiated MiMMO block: "<<sect.first<<" of type "<<className<<std::endl;
+		}else{
+			if(debug) std::cout<<"...Failed instantiation of "<<sect.first<<". MiMMO block of type "<<className<<" not registrated in the API"<<std::endl;
+		}
+	}
+	
+	if(debug)	std::cout<<" "<<std::endl;
+	if(debug)	std::cout<<"Instantiated objects : "<<mapInst.size()<<std::endl;
+		
+	for(auto & iM : mapInst){
+		mapConn[iM.first] = iM.second.get();
+		//need to find a way to define objects inside another object
+	}
+
+	if(debug)	std::cout<<" "<<std::endl;
+	if(debug) 	std::cout<<"Connectable objects : "<<mapConn.size()<<std::endl;
+	
+	//absorb connections from file if any
+	IOConnections_MIMMO * conns = new IOConnections_MIMMO (mapConn);
+	
+	if(config::root.hasSection("Connections")){
+		bitpit::Config::Section & connXML = config::root.getSection("Connections");
+		conns->absorbConnections(connXML, true);
+	}	
+	
+	delete conns; 
+	conns=NULL;
+	
+	if(debug) std::cout<< "Finished reading XML dictionary"<<std::endl;
+		
+}
 
 // =================================================================================== //
 
@@ -137,15 +137,15 @@ int main( int argc, char *argv[] ) {
 		std::unordered_map<std::string, BaseManipulation * > mapConn;
 		std::unordered_map<std::string, BaseManipulation * > mapInstPtr;
 		
-		auto registered = Factory<BaseManipulation>::instance().mapRegisteredBlocks();
+		auto &factory = Factory<BaseManipulation>::instance();
 		
 		std::cout <<"Available blocks"<<std::endl;
-		for(auto &val : registered){
+		for(auto &val : factory.mapRegisteredBlocks()){
 			std::cout<<"reg block " << val<<std::endl;
 		}
 		std::cout <<"End of Available blocks"<<std::endl;
-		exit(1);
-// 		read_Dictionary(config::root, mapInst, mapConn, debug);
+
+		read_Dictionary(config::root, mapInst, mapConn, factory, debug);
 
 		if(debug)	std::cout<<"Creating Execution chains... ";
 		
