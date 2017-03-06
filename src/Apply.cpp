@@ -26,7 +26,7 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, Apply, "MiMMO.Apply")
+REGISTER_MANIP(BaseManipulation, Apply, "MiMMO.Apply")
 
 /*!Default constructor of Apply
  */

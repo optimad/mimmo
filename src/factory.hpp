@@ -61,7 +61,7 @@ public:
 		return factory;
 	}
 
-	static Base * create(std::string name, const bitpit::Config::Section & xml_root)
+	static Base * create(const std::string name, const bitpit::Config::Section & xml_root)
 	{
 		Factory<Base>& factory = instance();
 		if (factory.creators.count(name) == 0) {
@@ -71,7 +71,7 @@ public:
 		return (factory.creators[name])->create(xml_root);
 	}
 	
-	void removeCreator(std::string name)
+	void removeCreator(const std::string name)
 	{
 		if (creators.count(name) > 0) {
 			delete creators[name];
@@ -80,14 +80,14 @@ public:
 		return;
 	}
 
-	int addCreator(std::string name, const AbstractCreator* creator)
+	int addCreator(const std::string name, const AbstractCreator* creator)
 	{
 		removeCreator(name);
 		creators[name]= creator;
 		return (int) creators.size() + 1;
 	}
 
-	bool containsCreator(std::string name)
+	bool containsCreator(const std::string name)
 	{
 		return creators.count(name) > 0;
 	}
@@ -153,9 +153,11 @@ public:
 // #define REGISTER_DEFAULT_CUSTOM(Base, customCreator) \
 // static int factory_##Base = Factory<Base>::instance().setDefaultCreator(new Creator<Base, Base>(&customCreator));
 
-
 #define REGISTER(Base, Derived, name) \
-static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>());
+static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new mimmo::Creator<Base, Derived>());
+
+#define REGISTER_MANIP(Base, Derived, name) \
+static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new mimmo::Creator<Base, Derived>());
 
 // #define REGISTER_NO_UNUSED(Base, Derived, name) \
 // static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
@@ -165,6 +167,6 @@ static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(nam
 // static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 #define IS_REGISTERED(Base, name) \
-Factory<Base>::instance().containsCreator(name);
+mimmo::Factory<Base>::instance().containsCreator(name);
 
 #endif
