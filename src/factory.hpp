@@ -26,6 +26,7 @@
 #define BLOCK_FACTORY_HPP
 
 #include <unordered_map>
+#include <vector>
 #include "configuration.hpp"
 #include "bitpit_common.hpp"
 
@@ -36,6 +37,8 @@
  *
  *	\brief Factory base template singleton for automatic factorization of manipulator classes
  */
+namespace mimmo{
+	
 template <class Base>
 class Factory {
 
@@ -58,7 +61,7 @@ public:
 		return factory;
 	}
 
-	static Base * create(std::string name, bitpit::Config::Section & xml_root)
+	static Base * create(std::string name, const bitpit::Config::Section & xml_root)
 	{
 		Factory<Base>& factory = instance();
 		if (factory.creators.count(name) == 0) {
@@ -70,25 +73,23 @@ public:
 	
 	void removeCreator(std::string name)
 	{
-		if (creators.count(name) == 0) {
-			return;
+		if (creators.count(name) > 0) {
+			delete creators[name];
+			creators.erase(name);
 		}
-
-		delete creators[name];
-		creators.erase(name);
+		return;
 	}
 
 	int addCreator(std::string name, const AbstractCreator* creator)
 	{
 		removeCreator(name);
-		creators.insert(std::make_pair(name, creator));
-
-		return 0;
+		creators[name]= creator;
+		return (int) creators.size() + 1;
 	}
 
-	int containsCreator(std::string name)
+	bool containsCreator(std::string name)
 	{
-		return (int)(creators.count(name) > 0);
+		return creators.count(name) > 0;
 	}
 
 	int setDefaultCreator(const AbstractCreator* creator)
@@ -97,9 +98,19 @@ public:
 		return 0;
 	}
 
+	std::vector<std::string> mapRegisteredBlocks(){
+		std::vector<std::string> result(creators.size());
+		int counter = 0;
+		for(auto &val : creators){
+			result[counter] = val.first;
+			++counter;
+		}
+		return result;
+	}
 private:
 	const AbstractCreator* defaultCreator;
 	std::unordered_map<std::string, const AbstractCreator*> creators;
+	
 	void deleteCreators(){
 		for(auto & val : creators){
 		    delete val.second;
@@ -129,6 +140,7 @@ public:
 	CreateFn createFn;
 };
 
+};
 /*!
  *	\date			02/March/2017
  *	\authors		Andrea Iob
@@ -137,20 +149,20 @@ public:
  */
 // #define REGISTER_DEFAULT(Base) \
 // static int factory_##Base = Factory<Base>::instance().setDefaultCreator(new Creator<Base, Base>());
-// 
+
 // #define REGISTER_DEFAULT_CUSTOM(Base, customCreator) \
 // static int factory_##Base = Factory<Base>::instance().setDefaultCreator(new Creator<Base, Base>(&customCreator));
-// 
+
 
 #define REGISTER(Base, Derived, name) \
 static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>());
 
-#define REGISTER_NO_UNUSED(Base, Derived, name) \
-static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
-BITPIT_UNUSED(factory_##Base##_##Derived);
-
-#define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
-static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
+// #define REGISTER_NO_UNUSED(Base, Derived, name) \
+// static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
+// BITPIT_UNUSED(factory_##Base##_##Derived);
+// 
+// #define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
+// static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 #define IS_REGISTERED(Base, name) \
 Factory<Base>::instance().containsCreator(name);
