@@ -429,7 +429,7 @@ void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * 
  *  
  * * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.ClipGeometry"
+ *  ClassName : name of the class as "MiMMO.SpecularPoints"
  *	Priority  : uint marking priority in multi-chain execution; 
  *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
  *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
