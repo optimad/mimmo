@@ -128,6 +128,19 @@ dvecarr3E	ReconstructVector::getResultField(){
 }; 
 
 /*!
+ * Return actual computed vector field (if any) for the geometry linked.
+ * If no field is actually present, return null pointers;
+ * @return 	std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ */
+std::pair<MimmoObject * , dvecarr3E * >	ReconstructVector::getResultFieldPair(){
+	
+	std::pair<MimmoObject *, dvecarr3E * > pairField;
+	pairField.first = getGeometry();
+	pairField.second = &m_result;
+	return pairField;
+};
+
+/*!
  * Return list of sub-patch meshes actually stored in the class as a vector of copied pointers.
  */
 std::vector<MimmoObject	*>	ReconstructVector::whichSubMeshes(){
@@ -417,6 +430,7 @@ void ReconstructVector::buildPorts(){
 	//output
 	built = (built && createPortOut<dvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+	built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>,ReconstructVector>(this, &mimmo::ReconstructVector::getResultFieldPair, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
 	m_arePortsBuilt = built;
 };
 

@@ -67,14 +67,15 @@ enum class OverlapMethod{
  * 
  *
  *
- *	|-------------------------------------------------------------------|
- *	|             Port Output                                         	|
- *	|-------|----------------|--------------------|---------------------|
- *	|PortID | PortType       | variable/function  | DataTypes			|
- *	|-------|----------------|--------------------|---------------------|
- *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)		|
- *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	|
- *	|-------|----------------|--------------------|---------------------|
+ *	|---------------------------------------------------------------------|
+ *	|             Port Output                                             |
+ *	|-------|----------------|--------------------|-----------------------|
+ *	|PortID | PortType       | variable/function  | DataTypes			  |
+ *	|-------|----------------|--------------------|-----------------------|
+ *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)		  |
+ *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	  |
+ *  | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
+ *	|-------|----------------|--------------------|-----------------------|
  *
  * ~~~
  *	=========================================================
@@ -102,6 +103,7 @@ public:
 	dvector1D 				getData(mimmo::MimmoObject * patch );
 	int 					getNData();
 	dvector1D				getResultField();
+	pField					getResultFieldPair();
 	
 	std::vector< mimmo::MimmoObject	* >	whichSubMeshes();
 	
@@ -143,26 +145,27 @@ private:
  * 
  *	=========================================================
  * ~~~
- *	|-------------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                        					|
- *	|-------|----------------|---------------------------------------|--------------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes							|
- *	|-------|----------------|---------------------------------------|--------------------------------------|
- *	| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)			|
- *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)						|
- *  | 201	| M_VECPAIRVF    | setData	    						 | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)	|
- *	|-------|----------------|---------------------------------------|--------------------------------------|
+ *|-------------------------------------------------------------------------------------------------------|
+ *|                   Port Input                                                        					|
+ *|-------|----------------|---------------------------------------|--------------------------------------|
+ *|PortID | PortType       | variable/function                     | DataTypes							|
+ *|-------|----------------|---------------------------------------|--------------------------------------|
+ *| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)			|
+ *| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)						|
+ *| 201   | M_VECPAIRVF    | setData                               | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)	|
+ *|-------|----------------|---------------------------------------|--------------------------------------|
  * 
  *
  *
- *	|-------------------------------------------------------------------|
- *	|             Port Output                                         	|
- *	|-------|----------------|--------------------|---------------------|
- *	|PortID | PortType       | variable/function  | DataTypes			|
- *	|-------|----------------|--------------------|---------------------|
- *	| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)	|
- *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	|
- *	|-------|----------------|--------------------|---------------------|
+ *|--------------------------------------------------------------------------|
+ *|             Port Output                                                  |
+ *|-------|----------------|--------------------|----------------------------|
+ *|PortID | PortType       | variable/function  | DataTypes                  |
+ *|-------|----------------|--------------------|----------------------------|
+ *| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           | 
+ *| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
+ *| 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
+ *|-------|----------------|--------------------|----------------------------|
  * 
  * ~~~
  *	=========================================================
@@ -190,6 +193,7 @@ public:
 	dvecarr3E 				getData(mimmo::MimmoObject * patch);
 	int 					getNData();
 	dvecarr3E				getResultField();
+	pVector					getResultFieldPair();
 	
 	std::vector< mimmo::MimmoObject	* >	whichSubMeshes();
 	
