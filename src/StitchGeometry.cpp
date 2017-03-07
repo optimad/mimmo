@@ -28,9 +28,8 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, StitchGeometry, "MiMMO.StitchGeometry");
-
-/*!Default constructor of StitchGeometry.
+/*!
+ * Default constructor of StitchGeometry.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
  */
@@ -39,7 +38,6 @@ StitchGeometry::StitchGeometry(int topo){
 	m_geocount = 0;
 	m_topo     = std::min(1, topo);
 	if(m_topo > 3)	m_topo = 1;
-	buildPorts();
 	
 }
 
@@ -62,7 +60,6 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
 	
 	m_geocount = 0;
 	m_name = "MiMMO.StitchGeometry";
-	buildPorts();
 	
 	
 	if(input_name == "MiMMO.StitchGeometry"){

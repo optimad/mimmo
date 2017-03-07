@@ -110,6 +110,8 @@ public:
 	
 };
 
+REGISTER(BaseManipulation, Bend, "MiMMO.Bend");
+
 }
 
 #endif /* __BEND_HPP__ */

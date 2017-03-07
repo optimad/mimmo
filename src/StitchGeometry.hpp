@@ -117,7 +117,8 @@ public:
 	void 	plotOptionalResults();	
 };
 
+REGISTER(BaseManipulation, StitchGeometry, "MiMMO.StitchGeometry")
 
-}
+};
 
 #endif /* __STITCHGEOMETRY_HPP__ */

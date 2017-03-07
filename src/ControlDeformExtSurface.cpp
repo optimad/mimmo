@@ -26,9 +26,8 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, ControlDeformExtSurface,"MiMMO.ControlDeformExtSurface");
-
-/*!Default constructor of ControlDeformExtSurface
+/*!
+ * Default constructor of ControlDeformExtSurface
 */
 ControlDeformExtSurface::ControlDeformExtSurface(){
 	m_name = "MiMMO.ControlDeformExtSurface";
@@ -37,7 +36,6 @@ ControlDeformExtSurface::ControlDeformExtSurface(){
 	m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
-	buildPorts();
 	
 };
 
@@ -53,7 +51,6 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
 	m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
 	m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

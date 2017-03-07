@@ -133,6 +133,7 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
+REGISTER(BaseManipulation, GenericOutput, "MiMMO.GenericOutput")
 }
 
 #include "GenericOutput.tpp"

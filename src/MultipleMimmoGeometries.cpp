@@ -28,15 +28,14 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, MultipleMimmoGeometries, "MiMMO.MultipleGeometries");
 
-/*!Default constructor of MultipleMimmoGeometries.
+/*!
+ * Default constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
  * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo){
 	initializeClass(topo, false);
-	buildPorts();
 }
 
 
@@ -59,7 +58,6 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
 	int topo = std::stoi(input_topo);
 
 	initializeClass(topo, false);
-	buildPorts();
 	
 	if(input_name == "MiMMO.MultipleMimmoGeometries"){
 		absorbSectionXML(rootXML);
@@ -75,7 +73,6 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, bool IOMode){
 	initializeClass(topo, IOMode);
-	buildPorts();
 }
 
 /*!Default destructor of MultipleMimmoGeometries.

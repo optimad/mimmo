@@ -33,7 +33,6 @@ using namespace std::chrono;
 using namespace std;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, OBBox, "MiMMO.OBBox");
 
 /*!
  *	\date			24/mar/2016
@@ -81,7 +80,6 @@ OBBox::OBBox(){
 		val[counter] = 1.0;
 		++counter;
 	}
-	buildPorts();
 };
 
 /*!
@@ -99,7 +97,6 @@ OBBox::OBBox(const bitpit::Config::Section & rootXML){
 		val[counter] = 1.0;
 		++counter;
 	}
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

@@ -159,7 +159,7 @@ private:
 	std::set<long>	findVertexVertexOneRing(const long &, const long & ); 
 };	
 	
-	
+REGISTER(BaseManipulation, CreateSeedsOnSurface, "MiMMO.CreateSeedsOnSurface")	
 };
 
 #endif /* __CREATESEEDSONSURFACE_HPP__ */

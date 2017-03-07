@@ -117,6 +117,7 @@ protected:
 	virtual void plotOptionalResults();
 };
 
-}
+REGISTER(BaseManipulation, SpecularPoints, "MiMMO.SpecularPoints")
+};
 
 #endif /* __SPECULARPOINTS_HPP__ */

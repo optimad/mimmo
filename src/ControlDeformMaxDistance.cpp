@@ -25,14 +25,12 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, ControlDeformMaxDistance, "MiMMO.ControlDeformMaxDistance");
 
 /*!Default constructor of ControlDeformMaxDistance
 */
 ControlDeformMaxDistance::ControlDeformMaxDistance(){
 	m_name = "MiMMO.ControlDeformMaxDistance";
 	m_maxDist= 0.0 ;
-	buildPorts();
 	
 };
 
@@ -44,7 +42,6 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section
 	
 	m_name = "MiMMO.ControlDeformMaxDistance";
 	m_maxDist= 0.0 ;
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

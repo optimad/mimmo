@@ -151,6 +151,7 @@ public:
 
 };
 
+REGISTER(BaseManipulation, GenericInput, "MiMMO.GenericInput")
 }
 
 #include "GenericInput.tpp"

@@ -25,14 +25,12 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, MultiApply, "MiMMO.MultiApply");
-
-/*!Default constructor of Apply
+/*!
+ * Default constructor of Apply
  */
 MultiApply::MultiApply():BaseManipulation(){
 	m_name = "MiMMO.MultiApply";
 	m_force = false;
-	buildPorts();
 };
 
 /*!
@@ -43,7 +41,6 @@ MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.MultiApply";
 	m_force = false;
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

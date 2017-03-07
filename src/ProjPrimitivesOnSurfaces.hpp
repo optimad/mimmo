@@ -161,6 +161,8 @@ protected:
 	void projection();
 };
 
-}
+REGISTER(BaseManipulation, ProjSegmentOnSurface, "MiMMO.ProjSegmentOnSurface")
+
+};
 
 #endif /* __PROJPRIMITIVESONSURFACES_HPP__ */

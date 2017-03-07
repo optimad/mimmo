@@ -29,16 +29,14 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, GenericInput, "MiMMO.GenericInput");
-
-/*!Default constructor of GenericInput.
+/*!
+ * Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
  */
 GenericInput::GenericInput(bool readFromFile){
 	m_readFromFile = readFromFile;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "MiMMO.GenericInput";
-	buildPorts();
 };
 
 /*!
@@ -50,7 +48,6 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
 	m_readFromFile  = false;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "MiMMO.GenericInput";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

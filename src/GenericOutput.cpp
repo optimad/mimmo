@@ -27,16 +27,14 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, GenericOutput, "MiMMO.GenericOutput");
-
-/*!Default constructor of GenericOutput
+/*!
+ * Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
 GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "MiMMO.GenericOutput";
-	buildPorts();
 };
 
 /*!
@@ -48,7 +46,6 @@ GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
 	m_filename	= "output.txt";
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "MiMMO.GenericOutput";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

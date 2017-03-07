@@ -30,7 +30,6 @@ using namespace mimmo;
 //------------------------------------------------------------------------
 //SELECTION	BY BOX class 	**********************************************
 //------------------------------------------------------------------------
-REGISTER(BaseManipulation, SelectionByBox,"MiMMO.SelectionByBox");
 
 /*!
  * Basic Constructor
@@ -38,8 +37,6 @@ REGISTER(BaseManipulation, SelectionByBox,"MiMMO.SelectionByBox");
 SelectionByBox::SelectionByBox(){
 	m_name = "MiMMO.SelectionByBox";
 	m_type = SelectionType::BOX;
-	buildPorts();
-	
 };
 
 /*!
@@ -50,7 +47,6 @@ SelectionByBox::SelectionByBox(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.SelectionByBox";
 	m_type = SelectionType::BOX;
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -74,7 +70,6 @@ SelectionByBox::SelectionByBox(darray3E origin, darray3E span, MimmoObject * tar
 	setGeometry(target);
 	setOrigin(origin);
 	setSpan(span[0],span[1],span[2]);
-	buildPorts();
 };
 
 /*!

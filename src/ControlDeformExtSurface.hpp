@@ -119,6 +119,8 @@ private:
 	double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
 };
 
+REGISTER(BaseManipulation, ControlDeformExtSurface,"MiMMO.ControlDeformExtSurface")
+
 }
 
 #endif /* __CONTROLDEFORMEXTSURFACE_HPP__ */

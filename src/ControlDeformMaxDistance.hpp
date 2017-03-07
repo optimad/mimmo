@@ -103,10 +103,10 @@ public:
 protected:
     void plotOptionalResults();	
 
-
 	
 };
 
+REGISTER(BaseManipulation, ControlDeformMaxDistance, "MiMMO.ControlDeformMaxDistance")
 }
 
 #endif /* __CONTROLDEFORMMAXDISTANCE_HPP__ */

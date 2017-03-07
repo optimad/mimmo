@@ -104,6 +104,7 @@ private:
 
 };
 
+REGISTER(BaseManipulation, ClipGeometry, "MiMMO.ClipGeometry")
 }
 
 #endif /* __CLIPGEOMETRY_HPP__ */

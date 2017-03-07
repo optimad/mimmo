@@ -25,15 +25,33 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, Bend, "MiMMO.Bend");
 
 /*!Default constructor of Bend
  */
 Bend::Bend(){
 	m_name = "MiMMO.Bend";
 	m_degree.fill({{0,0,0}});
-	buildPorts();
 };
+
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+Bend::Bend(const bitpit::Config::Section & rootXML){
+	
+	m_name = "MiMMO.Bend";
+	m_degree.fill({{0,0,0}});
+	
+	std::string fallback_name = "ClassNONE";	
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::trim(input);
+	if(input == "MiMMO.Bend"){
+		absorbSectionXML(rootXML);
+	}else{	
+		std::cout<<"Warning in custom xml MiMMO::Bend constructor. No valid xml data found"<<std::endl;
+	};
+}
 
 /*!Default destructor of Bend
  */
@@ -57,25 +75,6 @@ Bend & Bend::operator=(const Bend & other){
 	return	*this;
 };
 
-/*!
- * Custom constructor reading xml data
- * \param[in] rootXML reference to your xml tree section
- */
-Bend::Bend(const bitpit::Config::Section & rootXML){
-	
-	m_name = "MiMMO.Bend";
-	m_degree.fill({{0,0,0}});
-	buildPorts();
-	
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.Bend"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml MiMMO::Bend constructor. No valid xml data found"<<std::endl;
-	};
-}
 
 /*! It builds the input/output ports of the object
  */

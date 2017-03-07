@@ -105,7 +105,7 @@ IOConnections_MIMMO::getInvMapPorts(){
  * \param[in] debug		true, activate verbose debug mode. Default option false.	
  */
 void
-IOConnections_MIMMO::absorbConnections(bitpit::Config & slotXML, bool debug){
+IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debug){
 	
 	if(slotXML.getSectionCount() == 0)	{
 		if(debug)	std::cout<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
@@ -128,6 +128,11 @@ IOConnections_MIMMO::absorbConnections(bitpit::Config & slotXML, bool debug){
 		if(sect.second->hasOption("senderPort"))	sndP_str = sect.second->get("senderPort");
 		if(sect.second->hasOption("receiverPort"))	rcvP_str = sect.second->get("receiverPort");
 		
+		snd_str = bitpit::utils::trim(snd_str);
+		rcv_str = bitpit::utils::trim(rcv_str);
+		sndP_str = bitpit::utils::trim(sndP_str);
+		rcvP_str = bitpit::utils::trim(rcvP_str);
+		
 		
 		auto itSend = m_mapConn.find(snd_str);
 		auto itRece = m_mapConn.find(rcv_str);
@@ -135,15 +140,33 @@ IOConnections_MIMMO::absorbConnections(bitpit::Config & slotXML, bool debug){
 		auto itRPort = m_mapPorts.find(rcvP_str);
 		
 		if(itSend == m_mapConn.end() || itRece == m_mapConn.end() || itSPort == m_mapPorts.end() || itRPort == m_mapPorts.end()){
+			if(debug)	std::cout<<"---------------------------------------------"<<std::endl;
+			if(debug)	std::cout<<"sender: "<<snd_str<<std::endl;
+			if(debug)	std::cout<<"receiver: "<<rcv_str<<std::endl;
+			if(debug)	std::cout<<"senderPort: "<<sndP_str<<std::endl;
+			if(debug)	std::cout<<"receiverPort: "<<rcvP_str<<std::endl;
+			if(debug)	std::cout<<"---------------------------------------------"<<std::endl;
+			if(debug)	std::cout<<""<<std::endl;
 			if(debug)	std::cout<<"IOConnections::absorbConnections does not found any sender/receiver and/or port compatible with API."<<std::endl;
 			if(debug)	std::cout<<"Please control connection data entries in your XML file"<<std::endl;
+			if(debug)	std::cout<<""<<std::endl;
 			continue;
 		}
 		
 		bool check = addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
 		
-		if(debug && !check)	std::cout<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
-		if(debug && !check)	std::cout<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
+		if(debug && !check){
+			std::cout<<"---------------------------------------------"<<std::endl;
+			std::cout<<"sender: "<<snd_str<<std::endl;
+			std::cout<<"receiver: "<<rcv_str<<std::endl;
+			std::cout<<"senderPort: "<<sndP_str<<std::endl;
+			std::cout<<"receiverPort: "<<rcvP_str<<std::endl;
+			std::cout<<"---------------------------------------------"<<std::endl;
+			std::cout<<""<<std::endl;
+			std::cout<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
+			std::cout<<""<<std::endl;
+		}	
+		if(debug && check)	std::cout<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
 	}
 	
 	return;

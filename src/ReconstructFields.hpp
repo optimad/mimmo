@@ -227,6 +227,10 @@ private:
 	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
 };	
 
+
+REGISTER(BaseManipulation, ReconstructScalar,"MiMMO.ReconstructScalar");
+REGISTER(BaseManipulation, ReconstructVector,"MiMMO.ReconstructVector");
+
 };
 
 #endif /* __RECONSTRUCTSCALAR_HPP__ */

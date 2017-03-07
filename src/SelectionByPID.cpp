@@ -30,14 +30,12 @@ using namespace mimmo;
 //------------------------------------------------------------------------
 //SELECTION	BY PID class 	******************************************
 //------------------------------------------------------------------------
-REGISTER(BaseManipulation, SelectionByPID, "MiMMO.SelectionByPID");
 
 /*!
  * Basic Constructor
  */
 SelectionByPID::SelectionByPID(){
 	m_name = "MiMMO.SelectionByPID";
-	buildPorts();
 };
 
 /*!
@@ -47,7 +45,6 @@ SelectionByPID::SelectionByPID(){
 SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.SelectionByPID";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -68,7 +65,6 @@ SelectionByPID::SelectionByPID(shivector1D & pidlist, MimmoObject * target){
 	m_name = "MiMMO.SelectionByPID";
 	setGeometry(target);
 	setPID(pidlist);
-	buildPorts();
 };
 
 /*!

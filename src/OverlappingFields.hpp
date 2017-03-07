@@ -216,6 +216,9 @@ private:
 	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
 };	
 
+REGISTER(BaseManipulation, OverlapScalarFields, "MiMMO.OverlapScalarFields")
+REGISTER(BaseManipulation, OverlapVectorFields, "MiMMO.OverlapVectorFields")
+
 };
 
 #endif /* __OVERLAPPINGFIELDS_HPP__ */

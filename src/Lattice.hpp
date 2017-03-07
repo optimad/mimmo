@@ -132,6 +132,8 @@ private:
 
 };
 
+REGISTER(BaseManipulation, Lattice, "MiMMO.Lattice")
+
 }
 
 #endif /* __LATTICE_HPP__ */

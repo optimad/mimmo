@@ -25,15 +25,12 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, TranslationBox, "MiMMO.TranslationBox");
-
 /*!
  * Default constructor of TranslationBox
  */
 TranslationBox::TranslationBox(darray3E direction){
 	m_direction = direction;
 	m_name = "MiMMO.TranslationBox";
-	buildPorts();
 };
 
 /*!
@@ -44,7 +41,6 @@ TranslationBox::TranslationBox(const bitpit::Config::Section & rootXML){
 	
 	m_direction.fill(0.0);
 	m_name = "MiMMO.TranslationBox";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

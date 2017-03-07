@@ -93,6 +93,8 @@ protected:
 
 };
 
-}
+REGISTER(BaseManipulation, ProjectCloud,"MiMMO.ProjectCloud")
+
+};
 
 #endif /* __PROJECTCLOUD_HPP__ */

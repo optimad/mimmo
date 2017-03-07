@@ -24,14 +24,12 @@
  #include "OverlappingFields.hpp"
  using namespace mimmo;
 
-REGISTER(BaseManipulation, OverlapScalarFields, "MiMMO.OverlapScalarFields");
  /*!
   * Constructor
   */
 OverlapScalarFields::OverlapScalarFields(){
 	m_name = "MiMMO.OverlapScalarFields";
 	m_overlapCriterium = OverlapMethod::SUM;
-	buildPorts();
 }
 
 /*!
@@ -42,7 +40,6 @@ OverlapScalarFields::OverlapScalarFields(const bitpit::Config::Section & rootXML
 	
 	m_name = "MiMMO.OverlapScalarFields";
 	m_overlapCriterium = OverlapMethod::SUM;
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

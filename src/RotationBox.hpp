@@ -105,6 +105,8 @@ public:
 
 };
 
-}
+REGISTER(BaseManipulation, RotationBox, "MiMMO.RotationBox")
+
+};
 
 #endif /* __ROTATIONBOX_HPP__ */

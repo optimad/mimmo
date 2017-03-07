@@ -29,14 +29,11 @@ using namespace bitpit;
 using namespace mimmo;
 
 
-REGISTER(BaseManipulation, SplitScalarField, "MiMMO.SplitScalarField");
-
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
  */
 SplitScalarField::SplitScalarField(int topo):SplitField(topo){
 	m_name = "MiMMO.SplitScalarField";
-	buildPorts();
 }
 
 /*!
@@ -57,7 +54,6 @@ SplitScalarField::SplitScalarField(const bitpit::Config::Section & rootXML){
 	if (m_topo >3) m_topo = 1;
 	
 	m_name = "MiMMO.SplitScalarField";
-	buildPorts();
 	
 	
 	if(input_name == "MiMMO.SplitScalarField"){

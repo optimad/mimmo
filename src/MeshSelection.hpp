@@ -97,7 +97,7 @@ public:
 
 	//get-set methods
 	SelectionType	whichMethod();
-	void 			setGeometry(MimmoObject *);
+	virtual void 			setGeometry(MimmoObject *);
 	void 			setDual(bool flag=false);
 	
 	const MimmoObject*	getPatch()const;
@@ -563,6 +563,12 @@ public:
 };
 
 
+REGISTER(BaseManipulation, SelectionByBox,"MiMMO.SelectionByBox")
+REGISTER(BaseManipulation, SelectionByCylinder, "MiMMO.SelectionByCylinder")
+REGISTER(BaseManipulation, SelectionBySphere,"MiMMO.SelectionBySphere")
+REGISTER(BaseManipulation, SelectionByMapping, "MiMMO.SelectionByMapping")
+REGISTER(BaseManipulation, SelectionByPID, "MiMMO.SelectionByPID")
+REGISTER(BaseManipulation, SelectionByBoxWithScalar, "MiMMO.SelectionByBoxWithScalar")
 };
 
 #endif /* __MESHSELECTION_HPP__ */

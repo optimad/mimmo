@@ -33,7 +33,6 @@ using namespace std::chrono;
 using namespace std;
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.RBFBox", "rbfbox");
 
 /*! Basic Constructor. Doing nothing.*/
 RBFBox::RBFBox(){
@@ -48,7 +47,6 @@ RBFBox::RBFBox(){
 	}	
     m_nodes.clear();
     m_suppR = 0.0;
-	buildPorts();
 };
 
 /*!
@@ -68,7 +66,6 @@ RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
 	}	
 	m_nodes.clear();
 	m_suppR = 0.0;
-	buildPorts();
 	
 	
 	std::string fallback_name = "ClassNONE";	

@@ -30,8 +30,6 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, Lattice, "MiMMO.Lattice");
-
 /*
  *	\date			24/mar/2016
  *	\authors		Rocco Arpa
@@ -52,7 +50,6 @@ Lattice::Lattice(){
 	m_np = 0;
 	m_intMapDOF.clear();
 	m_name = "MiMMO.Lattice";
-	buildPorts();
 	
 };
 
@@ -65,7 +62,6 @@ Lattice::Lattice(const bitpit::Config::Section & rootXML){
 	m_np = 0;
 	m_intMapDOF.clear();
 	m_name = "MiMMO.Lattice";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

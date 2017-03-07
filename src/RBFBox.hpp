@@ -107,6 +107,7 @@ protected:
 	
 };
 
-}
+REGISTER(BaseManipulation,RBFBox, "MiMMO.RBFBox")
+};
 
 #endif /* __RBFBOX_HPP__ */

@@ -28,14 +28,11 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, SplitVectorField, "MiMMO.SplitVectorField");
-
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
  */
 SplitVectorField::SplitVectorField(int topo):SplitField(topo){
 	m_name = "MiMMO.SplitVectorField";
-	buildPorts();
 }
 
 /*!
@@ -56,8 +53,6 @@ SplitVectorField::SplitVectorField(const bitpit::Config::Section & rootXML){
 	if (m_topo >3) m_topo = 1;
 
 	m_name = "MiMMO.SplitVectorField";
-	buildPorts();
-	
 	
 	if(input_name == "MiMMO.SplitVectorField"){
 		absorbSectionXML(rootXML);

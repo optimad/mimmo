@@ -31,15 +31,12 @@ using namespace mimmo;
 //SELECTION	BY SPHERE class 	******************************************
 //------------------------------------------------------------------------
 
-REGISTER(BaseManipulation, SelectionBySphere,"MiMMO.SelectionBySphere");
-
 /*!
  * Basic Constructor
  */
 SelectionBySphere::SelectionBySphere(){
 	m_name = "MiMMO.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
-	buildPorts();
 };
 
 /*!
@@ -50,7 +47,6 @@ SelectionBySphere::SelectionBySphere(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -79,7 +75,6 @@ SelectionBySphere::SelectionBySphere(darray3E origin, darray3E span, double infL
 	setSpan(span[0],span[1],span[2]);
 	setInfLimits(infLimTheta,1);
 	setInfLimits(infLimPhi,2);
-	buildPorts();
 };
 
 /*!

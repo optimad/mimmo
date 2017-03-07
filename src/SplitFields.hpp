@@ -206,6 +206,8 @@ private:
 	bool split();
 };
 
-}
+REGISTER(BaseManipulation, SplitScalarField, "MiMMO.SplitScalarField")
+REGISTER(BaseManipulation, SplitVectorField, "MiMMO.SplitVectorField")
+};
 
 #endif /* __SPLITFIELDS_HPP__ */

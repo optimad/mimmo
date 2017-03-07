@@ -32,7 +32,6 @@ using namespace mimmo;
 // ProjSegmentOnSurface IMPLEMENTATION **********************//
 //***********************************************************//
 
-REGISTER(BaseManipulation, ProjSegmentOnSurface, "MiMMO.ProjSegmentOnSurface");
 /*!
  * Default constructor of ProjPrimitivesOnSurfaces.
  */
@@ -41,7 +40,6 @@ ProjSegmentOnSurface::ProjSegmentOnSurface(){
 	m_topo     = 1;
 	m_pointA.fill(0.0);
 	m_pointB.fill(1.0);
-	buildPorts();
 };
 
 /*!
@@ -54,7 +52,6 @@ ProjSegmentOnSurface::ProjSegmentOnSurface(const bitpit::Config::Section & rootX
 	m_topo     = 1;
 	m_pointA.fill(0.0);
 	m_pointB.fill(1.0);
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

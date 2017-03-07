@@ -100,6 +100,7 @@ public:
 	
 };
 
-}
+REGISTER(BaseManipulation, TranslationBox, "MiMMO.TranslationBox")
+};
 
 #endif /* __TRANSLATIONBOX_HPP__ */

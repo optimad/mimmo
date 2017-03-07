@@ -154,6 +154,9 @@ protected:
 
 };
 
-}
+REGISTER(BaseManipulation, MRBF, "MiMMO.MRBF")
+
+	
+};
 
 #endif /* __MRBF_HPP__ */

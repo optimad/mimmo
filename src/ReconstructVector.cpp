@@ -25,15 +25,13 @@
  #include "ReconstructFields.hpp"
  using namespace mimmo;
 
- REGISTER(BaseManipulation, ReconstructVector,"MiMMO.ReconstructVector");
- 
+
  /*!
   * Constructor
   */
  ReconstructVector::ReconstructVector(){
 	 m_name = "MiMMO.ReconstructVector";
 	 m_overlapCriterium = OverlapMethod::SUM;
-	 buildPorts();
  }
  
  /*!
@@ -44,7 +42,6 @@
 	 
 	 m_name = "MiMMO.ReconstructVector";
 	 m_overlapCriterium = OverlapMethod::MAX;
-	 buildPorts();
 	 
 	 std::string fallback_name = "ClassNONE";	
 	 std::string input = rootXML.get("ClassName", fallback_name);

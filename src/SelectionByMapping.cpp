@@ -32,8 +32,6 @@ using namespace mimmo;
 //SELECTION	BY MAPPING class 	******************************************
 //------------------------------------------------------------------------
 
-REGISTER(BaseManipulation, SelectionByMapping, "MiMMO.SelectionByMapping");
-
 /*!
  * Basic Constructor. Need to know kind of topology chosen 1-3D surface, 2-VolumeMesh
  * . Other options are not available, if forced trigger default value of 1.
@@ -56,7 +54,6 @@ SelectionByMapping::SelectionByMapping(int topo){
 	m_allowedType[2].insert(FileType::VTVTU);
 	m_allowedType[2].insert(FileType::VHVTU);
 	
-	buildPorts();
 };
 
 /*!
@@ -90,7 +87,6 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 	m_allowedType[2].insert(FileType::VTVTU);
 	m_allowedType[2].insert(FileType::VHVTU);
 	
-	buildPorts();
 	
 	if(input_name == "MiMMO.SelectionByMapping"){
 		absorbSectionXML(rootXML);
@@ -127,7 +123,6 @@ SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & ge
 		m_tolerance = tolerance;
 	}
 	
-	buildPorts();
 };
 
 /*!

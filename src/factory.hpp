@@ -156,15 +156,12 @@ public:
 #define REGISTER(Base, Derived, name) \
 static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new mimmo::Creator<Base, Derived>());
 
-#define REGISTER_MANIP(Base, Derived, name) \
-static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new mimmo::Creator<Base, Derived>());
+#define REGISTER_NO_UNUSED(Base, Derived, name) \
+static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
+BITPIT_UNUSED(factory_##Base##_##Derived);
 
-// #define REGISTER_NO_UNUSED(Base, Derived, name) \
-// static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
-// BITPIT_UNUSED(factory_##Base##_##Derived);
-// 
-// #define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
-// static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
+#define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
+static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 #define IS_REGISTERED(Base, name) \
 mimmo::Factory<Base>::instance().containsCreator(name);

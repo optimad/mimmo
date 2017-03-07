@@ -25,8 +25,6 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, ClipGeometry, "MiMMO.ClipGeometry");
-
 /*!Default constructor of ClipGeometry
 */
 ClipGeometry::ClipGeometry(){
@@ -34,7 +32,6 @@ ClipGeometry::ClipGeometry(){
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
-	buildPorts();
 };
 
 /*!
@@ -47,7 +44,6 @@ ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -384,6 +380,7 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 			normal[i] =org[i];
 			if(abs(normal[i]) > dum) {
 				imax = i;
+				dum = abs(normal[i]);
 			}
 		}	
 		if(imax != -1)	point[imax] = -1.0*org[3]/normal[imax];

@@ -25,16 +25,14 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, SpecularPoints, "MiMMO.SpecularPoints");
-
-/*!Default constructor of SpecularPoints
+/*!
+ * Default constructor of SpecularPoints
 */
 SpecularPoints::SpecularPoints(){
 	m_name = "MiMMO.SpecularPoints";
 	m_plane.fill(0.0);
     m_insideout = false;
     m_force = true;
-	buildPorts();
 };
 
 /*!
@@ -47,7 +45,6 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_force = true;
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -92,8 +89,8 @@ SpecularPoints::buildPorts(){
 	built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setForce, PortType::M_VALUEB2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+	built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+	built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setForce, PortType::M_VALUEB2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
 	
 	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudResult, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
@@ -467,6 +464,7 @@ void SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 			normal[i] =org[i];
 			if(abs(normal[i]) > dum) {
 				imax = i;
+				dum = abs(normal[i]);
 			}
 		}	
 		if(imax != -1)	point[imax] = -1.0*org[3]/normal[imax];

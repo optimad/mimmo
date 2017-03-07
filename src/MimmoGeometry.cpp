@@ -30,14 +30,12 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, MimmoGeometry, "MiMMO.Geometry");
 
 /*!Default constructor of MimmoGeometry.
  */
 MimmoGeometry::MimmoGeometry(){
 	m_name 		= "MiMMO.Geometry";
 	setDefaults();
-	buildPorts();
 }
 
 /*!
@@ -48,7 +46,6 @@ MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.Geometry";
 	setDefaults();
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -611,7 +608,6 @@ MimmoGeometry::read(){
 		for(auto & cell : getGeometry()->getCells() ){
 			map.insert(cell.getPID());
 		}
-
 	}
 	break;
 	
@@ -1212,15 +1208,11 @@ void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	output = std::to_string(m_read);
 	slotXML.set("ReadFlag", output);
 
-	if(m_rinfo.fdir != "./"){
-		slotXML.set("ReadDir", m_rinfo.fdir);
-	}	
+	slotXML.set("ReadDir", m_rinfo.fdir);
 	
-	if(m_rinfo.fname != "mimmoGeometry"){
-		slotXML.set("ReadFilename", m_rinfo.fname);
-	}	
+	slotXML.set("ReadFilename", m_rinfo.fname);
 	
-	if(m_rinfo.ftype != 0){
+	{
 		std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
 		slotXML.set("ReadFileType", temp);
 	}
@@ -1228,33 +1220,23 @@ void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	output = std::to_string(m_write);
 	slotXML.set("WriteFlag", output);
 	
-	if(m_winfo.fdir != "./"){
-		slotXML.set("WriteDir", m_winfo.fdir);
-	}	
+	slotXML.set("WriteDir", m_winfo.fdir);
 	
-	if(m_winfo.fname != "mimmoGeometry"){
-		slotXML.set("WriteFilename", m_winfo.fname);
-	}	
+	slotXML.set("WriteFilename", m_winfo.fname);
 	
-	if(m_winfo.ftype != FileType::STL){
+	{
 		std::string temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
 		slotXML.set("WriteFileType", temp);
 	}
 	
-	if(!m_codex){
-		output = std::to_string(m_codex);
-		slotXML.set("Codex", output);
-	}
+	output = std::to_string(m_codex);
+	slotXML.set("Codex", output);
 	
-	if(m_buildBvTree){
-		output = std::to_string(m_buildBvTree);
-		slotXML.set("BvTree", output);
-	}
+	output = std::to_string(m_buildBvTree);
+	slotXML.set("BvTree", output);
 	
-	if(m_buildKdTree){
-		output = std::to_string(m_buildKdTree);
-		slotXML.set("KdTree", output);
-	}
+	output = std::to_string(m_buildKdTree);
+	slotXML.set("KdTree", output);
 	
 return;	
 };	

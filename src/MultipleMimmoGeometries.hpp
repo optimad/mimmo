@@ -178,7 +178,8 @@ private:
 	void	setGeometry();
 };
 
+REGISTER(BaseManipulation, MultipleMimmoGeometries, "MiMMO.MultipleGeometries")
 
-}
+};
 
 #endif /* __MULTIPLEMIMMOGEOMETRIES_HPP__ */

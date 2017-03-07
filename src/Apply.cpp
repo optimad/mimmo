@@ -26,14 +26,12 @@
 
 using namespace mimmo;
 
-REGISTER_MANIP(BaseManipulation, Apply, "MiMMO.Apply")
-
-/*!Default constructor of Apply
+/*!
+ * Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){
 	m_name = "MiMMO.Apply";
 	m_force = false;
-	buildPorts();
 };
 
 /*!
@@ -43,7 +41,7 @@ Apply::Apply():BaseManipulation(){
 Apply::Apply(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.Apply";
-	buildPorts();
+
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);

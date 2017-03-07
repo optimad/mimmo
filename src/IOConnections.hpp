@@ -59,7 +59,7 @@ public:
 	std::unordered_map<short int, std::string> getInvMapPorts();
 	
 	//execution utils
-	void 	absorbConnections(bitpit::Config & slotXML, bool debug = false);
+	void 	absorbConnections(const bitpit::Config & slotXML, bool debug = false);
 	void 	flushConnections(bitpit::Config & slotXML, bool debug = false);
 };
 

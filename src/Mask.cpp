@@ -25,15 +25,12 @@
 
 using namespace mimmo;
 
-// REGISTER_MANIPULATOR("MiMMO.Mask", "mask");
-
 /*!Default constructor of Mask
 */
 Mask::Mask(){
 	m_name = "MiMMO.Mask";
 	m_thres.fill({{0,0}});
 	m_inside = {{true, true, true}};
-	buildPorts();
 };
 
 /*!
@@ -45,7 +42,6 @@ Mask::Mask(const bitpit::Config::Section & rootXML){
 	m_name = "MiMMO.Mask";
 	m_thres.fill({{0,0}});
 	m_inside = {{true, true, true}};
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

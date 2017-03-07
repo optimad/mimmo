@@ -213,6 +213,7 @@ inline int FFDLattice::accessMapNodes(int i, int j, int k){
 	return(accessPointIndex(m_mapNodes[0][i], m_mapNodes[1][j], m_mapNodes[2][k]));
 };
 
+REGISTER(BaseManipulation, FFDLattice, "MiMMO.FFDLattice")
 }
 
 #endif /* __FFDLATTICE_HPP__ */

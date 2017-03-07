@@ -232,7 +232,8 @@ public:
 	}
 };
 
+REGISTER(BaseManipulation, MimmoGeometry, "MiMMO.Geometry")
 
-}
+};
 
 #endif /* __MIMMOGEOMETRY_HPP__ */

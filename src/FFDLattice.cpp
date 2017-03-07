@@ -30,8 +30,6 @@
 using namespace std;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, FFDLattice, "MiMMO.FFDLattice");
-
 /*
  *	\date			09/feb/2016
  *	\authors		Rocco Arpa
@@ -56,7 +54,6 @@ FFDLattice::FFDLattice(){
 	m_globalDispl = false;
 	m_bfilter = false;
 	m_name = "MiMMO.FFDlattice";
-	buildPorts();
 };
 
 /*!
@@ -72,7 +69,6 @@ FFDLattice::FFDLattice(const bitpit::Config::Section & rootXML){
 	m_globalDispl = false;
 	m_bfilter = false;
 	m_name = "MiMMO.FFDlattice";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

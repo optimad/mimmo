@@ -108,6 +108,8 @@ private:
 	void 			adjustBasis( dmatrix33E &, darray3E & eigenValues);
 };
 
-}
+REGISTER(BaseManipulation, OBBox, "MiMMO.OBBox")
+
+};
 
 #endif /* __LATTICE_HPP__ */

@@ -109,6 +109,8 @@ public:
 	
 };
 
-}
+REGISTER(BaseManipulation, Mask, "MiMMO.Mask")
+
+};
 
 #endif /* __MASK_HPP__ */

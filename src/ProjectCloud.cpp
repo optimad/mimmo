@@ -25,13 +25,11 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, ProjectCloud,"MiMMO.ProjectCloud");
-
-/*!Default constructor of ProjectCloud
+/*!
+ * Default constructor of ProjectCloud
 */
 ProjectCloud::ProjectCloud(){
 	m_name = "MiMMO.ProjectCloud";
-	buildPorts();
 };
 
 /*!
@@ -41,7 +39,7 @@ ProjectCloud::ProjectCloud(){
 ProjectCloud::ProjectCloud(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.ProjectCloud";
-	buildPorts();
+
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);

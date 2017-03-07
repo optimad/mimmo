@@ -32,15 +32,12 @@ using namespace mimmo;
 //SELECTION	BY CYLINDER class 	**********************************************
 //------------------------------------------------------------------------
 
-REGISTER(BaseManipulation, SelectionByCylinder, "MiMMO.SelectionByCylinder");
-
 /*!
  * Basic Constructor
  */
 SelectionByCylinder::SelectionByCylinder(){
 	m_name = "MiMMO.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
-	buildPorts();
 };
 
 /*!
@@ -51,7 +48,6 @@ SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML
 	
 	m_name = "MiMMO.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
-	buildPorts();
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -79,7 +75,6 @@ SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double 
 	setSpan(span[0],span[1],span[2]);
 	setInfLimits(infLimTheta,1);
 	setRefSystem(2, mainAxis);
-	buildPorts();
 };
 
 /*!

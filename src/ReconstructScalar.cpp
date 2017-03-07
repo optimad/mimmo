@@ -24,8 +24,6 @@
 
  #include "ReconstructFields.hpp"
  using namespace mimmo;
- 
-REGISTER(BaseManipulation, ReconstructScalar,"MiMMO.ReconstructScalar");
 
  /*!
   * Constructor
@@ -33,7 +31,6 @@ REGISTER(BaseManipulation, ReconstructScalar,"MiMMO.ReconstructScalar");
 ReconstructScalar::ReconstructScalar(){
 	m_name = "MiMMO.ReconstructScalar";
 	m_overlapCriterium = OverlapMethod::MAX;
-	buildPorts();
 }
 
 /*!
@@ -44,7 +41,6 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.ReconstructScalar";
 	m_overlapCriterium = OverlapMethod::MAX;
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

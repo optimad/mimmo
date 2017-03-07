@@ -24,8 +24,7 @@
  #include "OverlappingFields.hpp"
  using namespace mimmo;
  
- REGISTER(BaseManipulation, OverlapVectorFields, "MiMMO.OverlapVectorFields");
-
+ 
 /*
  * ***************************************************
  * OVERLAPVECTORFIELDS CLASS IMPLEMENTATION
@@ -38,7 +37,6 @@
 OverlapVectorFields::OverlapVectorFields(){
 	m_name = "MiMMO.OverlapVectorFields";
 	m_overlapCriterium = OverlapMethod::SUM;
-	buildPorts();
 }
 
 /*!
@@ -49,7 +47,6 @@ OverlapVectorFields::OverlapVectorFields(const bitpit::Config::Section & rootXML
 	
 	m_name = "MiMMO.OverlapVectorFields";
 	m_overlapCriterium = OverlapMethod::SUM;
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

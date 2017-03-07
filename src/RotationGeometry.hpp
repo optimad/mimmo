@@ -97,6 +97,8 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
-}
+REGISTER(BaseManipulation, RotationGeometry, "MiMMO.RotationGeometry")
+
+};
 
 #endif /* __ROTATIONGEOMETRY_HPP__ */

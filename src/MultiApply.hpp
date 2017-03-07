@@ -94,6 +94,8 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
 };
 
-}
+REGISTER(BaseManipulation, MultiApply, "MiMMO.MultiApply")
+
+};
 
 #endif /* __MULTIAPPLYDEFORMATION_HPP__ */

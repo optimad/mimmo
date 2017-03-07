@@ -32,7 +32,7 @@ using namespace mimmo;
 
 //=================================================================================== //
 
-void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & root,  bool debug) {
+void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory,  bool debug) {
 	
 	if(debug) std::cout<< "Currently reading XML dictionary"<<std::endl;
 	
@@ -43,13 +43,16 @@ void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::st
 		
 		std::string className = sect.second->get("ClassName", fallback_name);
 		className = bitpit::utils::trim(className);
+		std::string idstring = sect.first;
+		idstring = bitpit::utils::trim(idstring);
 		
-		if(root.containsCreator(className)){
-			std::unique_ptr<BaseManipulation >temp (root.create(className, *(sect.second.get())));
-			mapInst[sect.first] = std::move(temp);
+		
+		if(rootFactory.containsCreator(className)){
+			std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
+			mapInst[idstring] = std::move(temp);
 	
 			if(debug) std::cout<<"...Instantiated MiMMO block: "<<sect.first<<" of type "<<className<<std::endl;
-		}else{
+		}else if(idstring != "Connections") {
 			if(debug) std::cout<<"...Failed instantiation of "<<sect.first<<". MiMMO block of type "<<className<<" not registrated in the API"<<std::endl;
 		}
 	}
@@ -65,12 +68,13 @@ void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::st
 	if(debug)	std::cout<<" "<<std::endl;
 	if(debug) 	std::cout<<"Connectable objects : "<<mapConn.size()<<std::endl;
 	
+
 	//absorb connections from file if any
 	IOConnections_MIMMO * conns = new IOConnections_MIMMO (mapConn);
 	
 	if(config::root.hasSection("Connections")){
 		bitpit::Config::Section & connXML = config::root.getSection("Connections");
-		conns->absorbConnections(connXML, true);
+		conns->absorbConnections(connXML, debug);
 	}	
 	
 	delete conns; 
@@ -139,12 +143,6 @@ int main( int argc, char *argv[] ) {
 		
 		auto &factory = Factory<BaseManipulation>::instance();
 		
-		std::cout <<"Available blocks"<<std::endl;
-		for(auto &val : factory.mapRegisteredBlocks()){
-			std::cout<<"reg block " << val<<std::endl;
-		}
-		std::cout <<"End of Available blocks"<<std::endl;
-
 		read_Dictionary(config::root, mapInst, mapConn, factory, debug);
 
 		if(debug)	std::cout<<"Creating Execution chains... ";

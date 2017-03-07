@@ -25,15 +25,14 @@
 
 using namespace mimmo;
 
-REGISTER(BaseManipulation, RotationGeometry, "MiMMO.RotationGeometry");
 
-/*!Default constructor of RotationGeometry
+/*!
+ * Default constructor of RotationGeometry
  */
 RotationGeometry::RotationGeometry(darray3E origin, darray3E direction){
 	m_origin = origin;
 	m_direction = direction;
 	m_name = "MiMMO.RotationGeometry";
-	buildPorts();
 };
 
 /*!
@@ -45,7 +44,6 @@ RotationGeometry::RotationGeometry(const bitpit::Config::Section & rootXML){
 	m_origin.fill(0.0);
 	m_direction.fill(0.0);
 	m_name = "MiMMO.RotationGeometry";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);

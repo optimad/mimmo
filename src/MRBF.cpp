@@ -28,7 +28,6 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
-REGISTER(BaseManipulation, MRBF, "MiMMO.MRBF");
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
@@ -38,8 +37,6 @@ MRBF::MRBF(){
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
 	m_SRRatio = -1.0;
-	buildPorts();
-	
 };
 
 /*!
@@ -54,8 +51,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
 	m_SRRatio = -1.0;
-	buildPorts();
-	
+
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);

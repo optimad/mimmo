@@ -31,13 +31,11 @@ using namespace mimmo;
 //SELECTION BY BOX WITH SCALAR class    **********************************
 //------------------------------------------------------------------------
 
-REGISTER(BaseManipulation, SelectionByBoxWithScalar, "MiMMO.SelectionByBoxWithScalar");
 /*!
  * Basic Constructor
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(){
     m_name = "MiMMO.SelectionByBoxWithScalar";
-	buildPorts();
 };
 
 /*!
@@ -47,7 +45,6 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(){
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(const bitpit::Config::Section & rootXML){
 	
 	m_name = "MiMMO.SelectionByBoxWithScalar";
-	buildPorts();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -71,7 +68,6 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(darray3E origin, darray3E spa
 	setGeometry(target);
 	setOrigin(origin);
 	setSpan(span[0],span[1],span[2]);
-	buildPorts();
 };
 
 /*!
