@@ -59,7 +59,6 @@
 #include "StitchGeometry.hpp"
 #include "SplitFields.hpp"
 #include "MultiApply.hpp"
-#include "ProjPrimitivesOnSurfaces.hpp"
 #include "MeshSelection.hpp"
 #include "CreateSeedsOnSurface.hpp"
 #include "OverlappingFields.hpp"
