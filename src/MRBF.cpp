@@ -569,7 +569,7 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 			ss>>value;
 		}
 		value = std::max(1, value);
-		if(value > 5)	value =1;
+		if(value > 13)	value =1;
 	   bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
 	   setFunction(shapetype);
 	}; 
