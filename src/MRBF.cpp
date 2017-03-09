@@ -535,10 +535,11 @@ void MRBF::execute(){
  * The sensible parameters are:
  * 
  * --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution;
- * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * SupportRadius : local radius of RBF function for each nodes
- * Tolerance : greedy engine tolerance (meant for mode 2);
+ * - Priority  : uint marking priority in multi-chain execution;
+ * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * - SupportRadius : local radius of RBF function for each nodes
+ * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
+ * - Tolerance : greedy engine tolerance (meant for mode 2);
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
  * 
@@ -558,6 +559,19 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 		}
 		setPriority(value);
 	};
+	
+	if(slotXML.hasOption("RBFShape")){
+		input = slotXML.get("RBFShape");
+		int value =1;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss>>value;
+		}
+		value = std::max(1, value);
+		if(value > 5)	value =1;
+	   bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
+	   setFunction(shapetype);
+	}; 
 	
 	if(slotXML.hasOption("Mode")){
 		input = slotXML.get("Mode");
@@ -601,11 +615,12 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * The sensible parameters are:
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.MRBF"
- * Priority  : uint marking priority in multi-chain execution;
- * Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * SupportRadius : local radius of RBF function for each nodes
- * Tolerance : greedy engine tolerance (meant for mode 2);
+ * - ClassName : name of the class as "MiMMO.MRBF"
+ * - Priority  : uint marking priority in multi-chain execution;
+ * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * - SupportRadius : local radius of RBF function for each nodes
+ * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
+ * - Tolerance : greedy engine tolerance (meant for mode 2);
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
  * In any case, if different by default, such parameters are always written, even.
@@ -627,6 +642,13 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 		ss<<std::scientific<<getSupportRadius();
 		slotXML.set("SupportRadius", ss.str());
 	}
+	
+	bitpit::RBFBasisFunction type = getTypeFunction();
+	if(type != RBFBasisFunction::CUSTOM){
+		int val = static_cast<int>(type);
+		slotXML.set("RBFShape", std::to_string(val));
+	}
+	
 	//checking if not default and if not connected to a port
 	if(m_tol != 1.0E-6 ){
 		std::stringstream ss;
