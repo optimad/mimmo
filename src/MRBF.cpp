@@ -537,7 +537,8 @@ void MRBF::execute(){
  * --> Absorbing data:
  * - Priority  : uint marking priority in multi-chain execution;
  * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - SupportRadius : local radius of RBF function for each nodes
+ * - SupportRadius : local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
+ * - SupportRadiusReal : local effective radius of RBF function for each nodes
  * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
  * - Tolerance : greedy engine tolerance (meant for mode 2);
  * 
@@ -595,6 +596,16 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 		}
 	}; 
 	
+	if(slotXML.hasOption("SupportRadiusReal")){
+		input = slotXML.get("SupportRadiusReal");
+		double value = -1.0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::trim(input));
+			ss >> value;
+			setSupportRadiusValue(value);
+		}
+	}; 
+	
 	m_tol = 1.0E-6;
 	if(slotXML.hasOption("Tolerance")){
 		input = slotXML.get("Tolerance");
@@ -618,7 +629,8 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * - ClassName : name of the class as "MiMMO.MRBF"
  * - Priority  : uint marking priority in multi-chain execution;
  * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - SupportRadius : local radius of RBF function for each nodes
+ * - SupportRadius : local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
+ * - SupportRadiusReal : local effective radius of RBF function for each nodes
  * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
  * - Tolerance : greedy engine tolerance (meant for mode 2);
  * 
@@ -637,10 +649,15 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 	input = std::to_string(static_cast<int>(m_solver));
 	slotXML.set("Mode", input);
 	
-	{
+	
+	if(!m_supRIsValue){
 		std::stringstream ss;
 		ss<<std::scientific<<getSupportRadius();
 		slotXML.set("SupportRadius", ss.str());
+	}else{
+		std::stringstream ss;
+		ss<<std::scientific<<getSupportRadiusValue();
+		slotXML.set("SupportRadiusReal", ss.str());
 	}
 	
 	bitpit::RBFBasisFunction type = getTypeFunction();
