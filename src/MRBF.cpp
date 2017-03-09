@@ -660,7 +660,7 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 		slotXML.set("SupportRadiusReal", ss.str());
 	}
 	
-	bitpit::RBFBasisFunction type = getTypeFunction();
+	bitpit::RBFBasisFunction type = getFunctionType();
 	if(type != RBFBasisFunction::CUSTOM){
 		int val = static_cast<int>(type);
 		slotXML.set("RBFShape", std::to_string(val));
