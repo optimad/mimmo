@@ -33,17 +33,13 @@
 namespace mimmo{
 
 /*!
- *	\date			31/12/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Rocco Arpa
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
+ * \class UStructMesh 
+ * \brief Class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
  *
- *	\brief Class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
- *
- *	Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
- *	coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
- *  The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame 
- *	retained by its core BasicShape object. 
+ * Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
+ * coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
+ * The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame 
+ * retained by its core BasicShape object. 
  */
 
 class UStructMesh{
@@ -214,6 +210,6 @@ inline int  UStructMesh::accessPointIndex(int i, int j, int k){
 	return(index);
 };
 
-}
+};
 
 #endif //__MiMMO_BASICMESHES_HH

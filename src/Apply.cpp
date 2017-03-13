@@ -137,8 +137,8 @@ Apply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
+ * - <B>Priority</B>  : uint marking priority in multi-chain execution; 
+ * - <B>RefreshGeometryTrees</B>: boolean 0,1 activate rebuilding of search trees on target geometry
  * 		
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
@@ -177,10 +177,10 @@ Apply::execute(){
  * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
- *  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Apply"
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		RefreshGeometryTrees: boolean 0,1 activate rebuilding of search trees on target geometry
+ * --> Flushing data// how to write it on XML:
+ * - <B>ClassName</B> : name of the class as "MiMMO.Apply"
+ * - <B>Priority</B>  : uint marking priority in multi-chain execution; 
+ * - <B>RefreshGeometryTrees</B>: boolean 0,1 activate rebuilding of search trees on target geometry
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

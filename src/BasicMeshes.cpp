@@ -29,22 +29,10 @@
 using namespace std;
 using namespace mimmo;
 
-/*
-*	\date			31/12/2015
-*	\authors		Edoardo Lombardi
-*	\authors		Rocco Arpa
-*	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
-*
-*	\brief Class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
-*
-*	Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
-*	coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
-*  The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame 
-*	retained by its core BasicShape object. 
-*/
 
-
-/*! Basic Constructor. Default Shape CUBE */
+/*! 
+ *Basic Constructor. Default Shape CUBE 
+ */
 UStructMesh::UStructMesh(){
 	m_nx = 0; m_ny=0; m_nz=0;
 	m_dx = 0; m_dy=0; m_dz=0;
@@ -61,7 +49,9 @@ UStructMesh::UStructMesh(){
 	m_shapetype_temp = ShapeType::CUBE;
 };
 
-/*! Basic destructor */
+/*! 
+ *Basic destructor 
+ */
 UStructMesh::~UStructMesh(){
 	m_xnode.clear(); m_ynode.clear(); m_znode.clear();
 	m_xedge.clear(); m_yedge.clear(); m_zedge.clear();

@@ -24,23 +24,23 @@
 #ifndef __MIMMOOBJECT_HPP__
 #define __MIMMOOBJECT_HPP__
 
-#include "bitpit.hpp"
+#include "bitpit_patchkernel.hpp"
+#include "bitpit_volunstructured.hpp"
+#include "bitpit_surfunstructured.hpp"
+#include "bitpit_SA.hpp"
 #include "BvTree.hpp"
 #include "MiMMO_TypeDef.hpp"
 
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class MimmoObject
+ * \brief MimmoObject is the base container of geometry for MiMMo library
  *
- *	\brief MimmoObject is the base container of geometry for MiMMo library
- *
- *	MiMMO container has the information about the geometry mesh:
- *	- the type of the linked mesh of class bitpit::Patch (surface patch , volume patch or pointCloud);
- *	- the pointer to the mesh of class bitpit::Patch;
- *	- the boolean indicator of the nature of the patch (true if the patch is created within the MiMMo container).
+ * MiMMO container has the information about the geometry mesh:
+ * - the type of the linked mesh of class bitpit::Patch (surface patch , volume patch or pointCloud);
+ * - the pointer to the mesh of class bitpit::Patch;
+ * - the boolean indicator of the nature of the patch (true if the patch is created within the MiMMo container).
  *
  */
 class MimmoObject{
@@ -167,6 +167,6 @@ private:
 	void 	cleanKdTree();
 };
 
-}
+};
 
 #endif /* __MIMMOOBJECT_HPP__ */

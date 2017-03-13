@@ -30,7 +30,8 @@ using namespace mimmo;
 
 int BaseManipulation::sm_baseManipulationCounter(1);
 
-/*!Default constructor of BaseManipulation.
+/*!
+ * Default constructor of BaseManipulation.
  * It sets to zero/null each member/pointer.
  */
 BaseManipulation::BaseManipulation(){
@@ -46,14 +47,17 @@ BaseManipulation::BaseManipulation(){
 	sm_baseManipulationCounter++;
 };
 
-/*!Default destructor of BaseManipulation.
+/*!
+ * Default destructor of BaseManipulation.
  */
 BaseManipulation::~BaseManipulation(){
 	clear();
 	deletePorts();
 };
 
-/*!Copy constructor of BaseManipulation.
+/*!
+ * Copy constructor of BaseManipulation.
+ * \param[in] other class of type BaseManipulation
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
 	*this = other;
@@ -61,6 +65,7 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 
 /*!
  * Assignement operator of BaseManipulation.
+ * \param[in] other class of type BaseManipulation
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_geometry 		= other.m_geometry;
@@ -74,7 +79,8 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	return (*this);
 };
 
-/*!It gets if the ports of this object are already built.
+/*!
+ * It gets if the ports of this object are already built.
  * \return True/false if ports are set.
  */
 bool
@@ -91,7 +97,8 @@ BaseManipulation::getPriority(){
 	return m_priority;
 }
 
-/*!It gets the name of the manipulator object.
+/*!
+ * It gets the name of the manipulator object.
  * \return Name of the manipulator object.
  */
 string
@@ -99,7 +106,8 @@ BaseManipulation::getName(){
 	return m_name;
 };
 
-/*!It gets the geometry linked by the manipulator object.
+/*!
+ * It gets the geometry linked by the manipulator object.
  * \return Pointer to geometry to be deformed by the manipulator object.
  */
 MimmoObject*
@@ -107,7 +115,8 @@ BaseManipulation::getGeometry(){
 	return m_geometry;
 };
 
-/*!It gets the number of parents linked to the manipulator object.
+/*!
+ * It gets the number of parents linked to the manipulator object.
  * \return Number of parents.
  */
 int
@@ -115,7 +124,8 @@ BaseManipulation::getNParent(){
 	return m_parent.size();
 };
 
-/*!It gets the manipulator object linked by this object.
+/*!
+ * It gets the manipulator object linked by this object.
  * \param[in] i Index of target parent.
  * \return Pointer to i-th parent manipulator object.
  */
@@ -125,7 +135,8 @@ BaseManipulation::getParent(int i){
 	return next(m_parent.begin(), i)->first;
 };
 
-/*! Return true if the target is contained in the parent list.
+/*!
+ * Return true if the target is contained in the parent list.
  * \param[in] target BaseManipulation target object
  * \param[out] index Actual position in the list (may vary if the parent list is modified).
  * \return false if not found.
@@ -141,7 +152,8 @@ BaseManipulation::isParent(BaseManipulation * target, int index){
 	return true;
 };
 
-/*!It gets the number of children linked to the manipulator object.
+/*!
+ * It gets the number of children linked to the manipulator object.
  * \return Number of children.
  */
 int
@@ -149,7 +161,8 @@ BaseManipulation::getNChild(){
 	return m_child.size();
 };
 
-/*!It gets one child object linked by this object.
+/*!
+ * It gets one child object linked by this object.
  * \param[in] i Index of target child.
  * \return Pointer to i-th child manipulator object.
  */
@@ -159,7 +172,8 @@ BaseManipulation::getChild(int i){
 	return next(m_child.begin(), i)->first;
 };
 
-/*! Return true if the target is contained in the child list.
+/*!
+ * Return true if the target is contained in the child list.
  * \param[in] target BaseManipulation target object
  * \param[out] index Actual position in the list.
  * \return False if not found.
@@ -175,7 +189,8 @@ BaseManipulation::isChild(BaseManipulation * target, int index){
 	return true;
 };
 
-/*!It gets the ports-type of the manipulation object.
+/*!
+ * It gets the ports-type of the manipulation object.
  * \return ConnectionType of manipulation object (bi-directional, only backward, only forward).
  */
 BaseManipulation::ConnectionType
@@ -183,7 +198,8 @@ BaseManipulation::getConnectionType(){
 	return (m_portsType);
 }
 
-/*! It gets the number of input ports of the object.
+/*! 
+ * It gets the number of input ports of the object.
  * \return Number of input ports of the object.
  */
 int
@@ -191,7 +207,8 @@ BaseManipulation::getNPortsIn(){
 	return (m_portIn.size());
 }
 
-/*! It gets the number of output ports of the object.
+/*! 
+ * It gets the number of output ports of the object.
  * \return Number of output ports of the object.
  */
 int
@@ -199,7 +216,8 @@ BaseManipulation::getNPortsOut(){
 	return (m_portOut.size());
 }
 
-/*!It gets if the object is activates or disable during the execution.
+/*!
+ * It gets if the object is activates or disable during the execution.
  * \return True/false if the object is activates or disable during the execution.
  */
 bool
@@ -293,28 +311,32 @@ void    BaseManipulation::setId(int id){
     m_counter = id;
 }
 
-/*!It activates the object during the execution.
+/*!
+ * It activates the object during the execution.
  */
 void
 BaseManipulation::activate(){
 	m_active = true;
 };
 
-/*!It disables the object during the execution.
+/*!
+ * It disables the object during the execution.
  */
 void
 BaseManipulation::disable(){
 	m_active = false;
 };
 
-/*!It clears the pointer to the geometry linked by the object.
+/*!
+ * It clears the pointer to the geometry linked by the object.
  */
 void
 BaseManipulation::unsetGeometry(){
 	m_geometry = NULL;
 };
 
-/*!It removes all the pins (connections) of the object and the
+/*!
+ * It removes all the pins (connections) of the object and the
  * related pins of the linked objects.
  */
 void
@@ -323,7 +345,8 @@ BaseManipulation::removePins(){
 	removePinsOut();
 }
 
-/*!It removes all the input pins (connections) of the object and the related
+/*!
+ * It removes all the input pins (connections) of the object and the related
  * output pins (connections) of the linked objects.
  */
 void
@@ -335,7 +358,8 @@ BaseManipulation::removePinsIn(){
 	}
 }
 
-/*!It removes all the output (connections) pins of the object and the related
+/*!
+ * It removes all the output (connections) pins of the object and the related
  * input pins (connections) of the linked objects.
  */
 void
@@ -348,7 +372,8 @@ BaseManipulation::removePinsOut(){
 }
 
 
-/*!It clears the object, by setting to zero/NULL each member/pointer in the object.
+/*!
+ * It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
 void
 BaseManipulation::clear(){
@@ -358,7 +383,8 @@ BaseManipulation::clear(){
 	m_outputPlot = ".";
 };
 
-/*!Execution command. exec() runs the execution of output pins (connections) at the end of the execution.
+/*!
+ * Execution command. exec() runs the execution of output pins (connections) at the end of the execution.
  * execute is pure virtual and it has to be implemented in a derived class.
  */
 void
@@ -374,18 +400,6 @@ BaseManipulation::exec(){
 	if(isPlotInExecution())	plotOptionalResults();
 }
 
-
-/*!
- * Base method to absorb parameter infos from an XML parser class of bitpit. Need to be coded for each
- * class derived from BaseManipulation. At this level, do nothing.
- * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
- * \param[in] name      string name associated to the slot. OPTIONAL
- */
-void  BaseManipulation::absorbSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	BITPIT_UNUSED(slotXML);
-	BITPIT_UNUSED(name);
-	return;
-}
 
 /*!
  * Base method to absorb parameter infos from an XML parser class of bitpit. Need to be coded for each
@@ -415,7 +429,6 @@ void  BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::
 /*!
  * Protected utility to delete all port of a class BaseManipulation
  */
-
 void
 BaseManipulation::deletePorts(){
 	for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
@@ -429,7 +442,8 @@ BaseManipulation::deletePorts(){
 	return;
 }
 
-/*!It sets the buffer stored in an input port of the object.
+/*!
+ * It sets the buffer stored in an input port of the object.
  * \param[in] port ID of the input port.
  * \param[in] input Reference to bitpit::IBinaryStream to store in m_ibuffer member of the port.
  */
@@ -438,7 +452,8 @@ BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
 	m_portIn[port]->m_ibuffer = input;
 }
 
-/*!It reads the buffer stored in an input port of the object.
+/*!
+ * It reads the buffer stored in an input port of the object.
  * \param[in] port ID of the port that reads the buffer and stores the
  * value in the related variable.
  */
@@ -447,7 +462,8 @@ BaseManipulation::readBufferIn(PortID port){
 	m_portIn[port]->readBuffer();
 }
 
-/*!It cleans the buffer stored in an input port of the object.
+/*!
+ * It cleans the buffer stored in an input port of the object.
  * \param[in] port ID of the port.
  */
 void
@@ -455,7 +471,8 @@ BaseManipulation::cleanBufferIn(PortID port){
 	m_portIn[port]->cleanBuffer();
 }
 
-/*!It adds a manipulator object linked by this object.
+/*!
+ * It adds a manipulator object linked by this object.
  * \param[in] parent Pointer to parent manipulator object.
  */
 void
@@ -468,7 +485,8 @@ BaseManipulation::addParent(BaseManipulation* parent){
 	}	
 };
 
-/*!It adds a child manipulator object to the children linked by this object.
+/*!
+ * It adds a child manipulator object to the children linked by this object.
  * \param[in] child Pointer to child manipulator object.
  */
 void
@@ -480,7 +498,8 @@ BaseManipulation::addChild(BaseManipulation* child){
 	}	
 };
 
-/*! Decrement target parent multiplicity, contained in member m_parent.
+/*!
+ * Decrement target parent multiplicity, contained in member m_parent.
  * If multiplicity is zero, erase target from list.
  * The method is meant to be used together to manual cut off of object pins.
  * \param[in] parent Pointer to BaseManipulation object
@@ -495,7 +514,8 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
 	}
 };
 
-/*! Decrement target child multiplicity, contained in member m_child.
+/*! 
+ * Decrement target child multiplicity, contained in member m_child.
  * If multiplicity is zero, erase target from list.
  * The method is meant to be used in together to manual cut off of object pins.
  * \param[in] child Pointer to BaseManipulation object
@@ -509,7 +529,8 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 	}
 };
 
-/*!It gets all the input ports of the object
+/*!
+ * It gets all the input ports of the object
  * \return Map with PortID as key and pointer to input ports as value.
  */
 map<PortID, PortIn*>
@@ -517,7 +538,8 @@ BaseManipulation::getPortsIn(){
 	return (m_portIn);
 }
 
-/*!It gets all the output ports of the object
+/*!
+ * It gets all the output ports of the object
  * \return Map with PortID as key and pointer to output ports as value.
  */
 map<PortID, PortOut*>
@@ -526,7 +548,8 @@ BaseManipulation::getPortsOut(){
 }
 
 
-/*!It finds an input pin (connection) of the object
+/*!
+ * It finds an input pin (connection) of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the input pins structure.
  * Return -1 if pin (connection) not found.
@@ -539,7 +562,8 @@ BaseManipulation::findPinIn(PortIn& pin){
 	return(-1);
 }
 
-/*!It finds an output pin (connection)  of the object
+/*!
+ * It finds an output pin (connection)  of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the output pins structure.
  * Return -1 if pin (connection) not found.
@@ -552,7 +576,8 @@ BaseManipulation::findPinOut(PortOut& pin){
 	return(-1);
 }
 
-/*!It removes an input pin (connection) of the object and the
+/*!
+ * It removes an input pin (connection) of the object and the
  * related output pin (connection) of the linked object.
  * \param[in] i Index of target input pin (connection).
  */

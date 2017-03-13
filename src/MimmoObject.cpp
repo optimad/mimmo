@@ -24,7 +24,6 @@
 
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
-#include "bitpit.hpp"
 #include <set>
 
 using namespace std;
@@ -639,13 +638,15 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 	return true;
 };
 
-/*!Sets the cell structure of the geometry Patch, clearing any previous cell list stored.
- * Does not do anything if class type is a pointcloud one (type 3);
+/*!
+ * Sets the cell structure of the geometry Patch, clearing any previous cell list stored.
+ * Does not do anything if class type is a pointcloud one (type 3).
  * \param[in] cells cell structure of geometry mesh.
  * \return False if no geometry is linked, not all cells inserted, empty argument.
  */
 bool
 MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
+	
 	if (isEmpty() || cells.size()==0 || !m_bvTreeSupported) return false;
 	
 	m_mapCell.clear();
@@ -768,7 +769,8 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 };
 
 
-/*!It sets the geometry Patch.
+/*!
+ * It sets the geometry Patch.
  * \param[in] type Type of linked Patch (1 = surface, 2 = volume, 3 = pointCloud, 4=3DCurve).
  * \param[in] geometry Pointer to a geometry of class Patch to be linked.
  * \return False if the argument pointer is NULL or not correct type.

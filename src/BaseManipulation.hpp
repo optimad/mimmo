@@ -24,11 +24,11 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
+#include "factory.hpp"
 #include "MimmoNamespace.hpp"
-#include "configuration.hpp"
 #include "MimmoObject.hpp"
 #include "InOut.hpp"
-#include "factory.hpp"
+
 
 #include <string>
 #include <functional>
@@ -43,22 +43,19 @@ namespace mimmo{
 class IOData;
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class BaseManipulation 
+ * \brief BaseManipulation is the base class of any object (derived class) for manipulation of the geometry.
  *
- *	\brief BaseManipulation is the base class of any object (derived class) for manipulation of the geometry.
- *
- *	BaseManipulation is the base class used to build each generic or particular manipulation object.
- *	This base class has some common interface methods, as the base get/set methods.
- *	The only method to be called to execute the manipulation object is the method exec() that calls the pure virtual execute().
- *	Each manipulation base object has a linked geometry (a target MiMMO object) and one or more linked manipulation
- *	objects from wich recovering/distributing relevant data (as number of degrees of freedom, initial displacements or other). 
- *  The exchange of such data is realized through Ports (input/output link to same class objects). See mimmo::pin namespace
- *  for further information about the linking procedure of BaseManipulation objects.
- *  Please note, when you get a copy by deputed operators/constructors of the class, pins, parental linking as well as custom 
- *  input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
- *  only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Ports.
+ * BaseManipulation is the base class used to build each generic or particular manipulation object.
+ * This base class has some common interface methods, as the base get/set methods.
+ * The only method to be called to execute the manipulation object is the method exec() that calls the pure virtual execute().
+ * Each manipulation base object has a linked geometry (a target MiMMO object) and one or more linked manipulation
+ * objects from wich recovering/distributing relevant data (as number of degrees of freedom, initial displacements or other). 
+ * The exchange of such data is realized through Ports (input/output link to same class objects). See mimmo::pin namespace
+ * for further information about the linking procedure of BaseManipulation objects.
+ * Please note, when you get a copy by deputed operators/constructors of the class, pins, parental linking as well as custom 
+ * input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
+ * only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Ports.
  *
  *
  * PortType specification : please refer to PortType enum documentation.
@@ -156,7 +153,6 @@ public:
 	void 	exec();
 	
 	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
@@ -208,8 +204,6 @@ protected:
 	virtual void 	plotOptionalResults();
 };
 
-#include "BaseManipulation.tpp"
-
 
 //==============================//
 //DATA CLASS
@@ -219,14 +213,12 @@ protected:
 //DATA BASE CLASS
 //==============================//
 /*!
- *	\date			26/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
  *
- *	\brief IOData is the base class of generic data stored as input or result in a manipulation object.
+ * \class IOData
+ * \brief IOData is the base class of generic data stored as input or result in a manipulation object.
  *
- *	IOData represents a generic data used in manipulation objects. Get and set methods of
- *	this class are templated methods on the type of attached data.
+ * IOData represents a generic data used in manipulation objects. Get and set methods of
+ * this class are templated methods on the type of attached data.
  *
  */
 class IOData{
@@ -273,13 +265,10 @@ public:
 //DATA DERIVED TEMPLATE CLASS
 //==============================//
 /*!
- *	\date			26/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class IODataT
+ * \brief IODataT is the templated class of generic data derived from IOData base class.
  *
- *	\brief IODataT is the templated class of generic data derived from IOData base class.
- *
- *	IODataT stores a generic data used in manipulation objects.
+ * IODataT stores a generic data used in manipulation objects.
  */
 template<typename T>
 class IODataT: public IOData{
@@ -331,6 +320,9 @@ public:
 
 };
 
-}
+};
+
+#include "BaseManipulation.tpp"
+
 
 #endif /* __BASEMANIPULATION_HPP__ */

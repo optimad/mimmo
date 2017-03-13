@@ -30,37 +30,47 @@
 #include "configuration.hpp"
 #include "bitpit_common.hpp"
 
-/*!
- *	\date			02/March/2017
- *	\authors		Andrea Iob
- *	\authors		Rocco Arpa
- *
- *	\brief Factory base template singleton for automatic factorization of manipulator classes
- */
 namespace mimmo{
-	
+
+/*!
+ * \class Factory
+ * \brief Factory base template singleton for automatic factorization of manipulator classes
+ * 
+ * Factory register a list of Base classes with their own custom creators and instance them automatically
+ */
 template <class Base>
 class Factory {
 
 private:
-	Factory() : defaultCreator(0) {}         // Private constructor
-	Factory(const Factory&);                 // Prevent copy-construction
-	Factory& operator=(const Factory&);      // Prevent assignment
-	~Factory() { deleteCreators(); } 
+	/*!Private constructor*/
+	Factory() : defaultCreator(0) {};          
+	/*!Prevent copy-construction*/
+	Factory(const Factory&);                  
+	/*!Prevent assignment*/
+	Factory& operator=(const Factory&);
+	/*! Destructor */
+	~Factory() { deleteCreators(); }; 
 
 public:
+	/*!
+	 * \class AbstractCreator
+	 * \brief Abstract class embedded in Factory to link creators of type Base* <>(const bitpit::Config::Section & xml_root)
+	 */
 	class AbstractCreator {
 		public:
+			/*! Destructor */
 			virtual ~AbstractCreator() {}
+			/*! Pre virtual create method*/
 			virtual Base* create(const bitpit::Config::Section & xml_root) const = 0;
 	};
 
+	/*! Instance the singleton */
 	static Factory& instance()
 	{
 		static Factory factory;
 		return factory;
 	}
-
+	/*! Create a Base Class with linked creator */ 
 	static Base * create(const std::string name, const bitpit::Config::Section & xml_root)
 	{
 		Factory<Base>& factory = instance();
@@ -71,6 +81,7 @@ public:
 		return (factory.creators[name])->create(xml_root);
 	}
 	
+	/*! Remove a creator from registered list */ 
 	void removeCreator(const std::string name)
 	{
 		if (creators.count(name) > 0) {
@@ -79,7 +90,8 @@ public:
 		}
 		return;
 	}
-
+	
+	/*! Add a creator of type AbstractCreator to registered list */ 
 	int addCreator(const std::string name, const AbstractCreator* creator)
 	{
 		removeCreator(name);
@@ -87,17 +99,20 @@ public:
 		return (int) creators.size() + 1;
 	}
 
+	/*! Check if a class is already registered */
 	bool containsCreator(const std::string name)
 	{
 		return creators.count(name) > 0;
 	}
 
+	/*! set the default creator for all your classes */
 	int setDefaultCreator(const AbstractCreator* creator)
 	{
 		defaultCreator = creator;
 		return 0;
 	}
 
+	/*! Return the whole map of registered classes */
 	std::vector<std::string> mapRegisteredBlocks(){
 		std::vector<std::string> result(creators.size());
 		int counter = 0;
@@ -121,30 +136,31 @@ private:
 };
 
 /*!
- *	\date			02/March/2017
- *	\authors		Andrea Iob
- *
- *	\brief Template class to create a Base * = new Derived constructor() class.
+ * \class Creator
+ * \brief Template class to create an object Base * = new Derived constructor() class,
+ * where Derived is a generic derived class of Base.
  */
 template <class Base, class Derived>
 class Creator : public Factory<Base>::AbstractCreator {
 
+/** Typedef for generic Creator function. All function must have as argument a reference to 
+ bitpit::Config::Section object */	
 typedef Derived* (*CreateFn) (const bitpit::Config::Section & );
 
 public:
+	/*! Constructor */
 	Creator(CreateFn fn = NULL) : createFn(fn) {}
+	/*! Function to create a new object of class Derived, with function fn linked to Creator */
 	virtual Derived* create(const bitpit::Config::Section & xml_root) const {
 		return (createFn ? createFn(xml_root) : new Derived(xml_root));
 	};
-
-	CreateFn createFn;
+	
+	CreateFn createFn; /**< function linked as creator */
 };
 
 };
+
 /*!
- *	\date			02/March/2017
- *	\authors		Andrea Iob
- *
  *	\brief Macro collection for automatic class registration
  */
 // #define REGISTER_DEFAULT(Base) \

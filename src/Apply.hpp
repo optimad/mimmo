@@ -28,10 +28,7 @@
 
 namespace mimmo{
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class Apply
  *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
  *
  *	Apply is derived from BaseManipulation class. It uses the base member m_geometry to apply
@@ -58,7 +55,7 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------|
  *	|PortID | PortType | variable/function | dataType        |
  *	|-------|----------|-------------------|-----------------|
- *  | 99    | M_GEOM   | getGeoemtry       | (SCALAR,MIMMO_) |
+ *	| 99    | M_GEOM   | getGeoemtry       | (SCALAR,MIMMO_) |
  *	|-------|----------|-------------------|-----------------|
  * ~~~
  *	=========================================================
@@ -94,6 +91,6 @@ public:
 
 REGISTER(BaseManipulation, Apply, "MiMMO.Apply")
 
-}
+};
 
 #endif /* __APPLYDEFORMATION_HPP__ */
