@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!
@@ -235,3 +235,4 @@ SplitScalarField::split(){
 	return true;
 }
 
+}

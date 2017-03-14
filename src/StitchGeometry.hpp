@@ -30,10 +30,7 @@
 namespace mimmo{
 
 /*!
- *	\date			30/nov/2016
- *	\authors		Rocco Arpa
- *	\authors		
- *
+ *	\class StitchGeometry
  *	\brief StitchGeometry is an executable block class capable of  
  *         stitch multiple MimmoObject geometries of the same topology 
  *
@@ -43,25 +40,25 @@ namespace mimmo{
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------------------|
- *	|                 Port Input                           					        |
+ *	|                 Port Input                                                    |
  *	|-------|----------|------------------------------------|-----------------------|
- *	|PortID | PortType | variable/function 					| DataType		        |
+ *	|PortID | PortType | variable/function                  | DataType              |
  *	|-------|----------|------------------------------------|-----------------------|
- *  | 99    | M_GEOM   | setAddGeometry						| (SCALAR, MIMMO_)      |  
- *	| 100   | M_VECGEOM| setGeometry      					| (VECTOR, MIMMO_)	    |
+ *	| 99    | M_GEOM   | setAddGeometry                     | (SCALAR, MIMMO_)      |  
+ *	| 100   | M_VECGEOM| setGeometry                        | (VECTOR, MIMMO_)      |
  *	|-------|----------|------------------------------------|-----------------------|
  *
  *
- *	|--------------------------------------------------------|-----------------------|
- *	|            Port Output                				 |                       |
- *	|-------|-----------|------------------------------------|-----------------------|
- *	|PortID | PortType  | variable/function 				 | DataType		      	 | 
- *	|-------|-----------|------------------------------------|-----------------------|
- *	| 99    | M_GEOM    | getGeometry      					 | (SCALAR, MIMMO_)	     |
- *  | 100   | M_VECGEOM | getOriginalGeometries				 | (VECTOR, MIMMO_)	     |
- *  | 104   | M_MAPDCELL| getCellDivisionMap   				 | (UN_MAP, LONGPAIRINTLONG) |
- * 	| 105	| M_MAPDVERT| getVertDivisionMap				 | (UN_MAP, LONGPAIRINTLONG) |	
- *	|-------|-----------|------------------------------------|-----------------------|
+ *	|--------------------------------------------------------|--------------------------|
+ *	|            Port Output                                 |                          |
+ *	|-------|-----------|------------------------------------|--------------------------|
+ *	|PortID | PortType  | variable/function                  | DataType                 | 
+ *	|-------|-----------|------------------------------------|--------------------------|
+ *	| 99    | M_GEOM    | getGeometry                        | (SCALAR, MIMMO_)         |
+ *	| 100   | M_VECGEOM | getOriginalGeometries              | (VECTOR, MIMMO_)         |
+ *	| 104   | M_MAPDCELL| getCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
+ *	| 105   | M_MAPDVERT| getVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
+ *	|-------|-----------|------------------------------------|--------------------------|
  * ~~~
  *	=========================================================
  *

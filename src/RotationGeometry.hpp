@@ -30,9 +30,7 @@
 namespace mimmo{
 
 /*!
- *	\date			10/oct/2016
- *	\authors		Edoardo Lombardi
- *
+ *	\class RotationGeometry
  *	\brief RotationGeometry is the class that applies a rotation to a given geometry patch.
  *
  *	The used parameters are the rotation value and the direction and the origin
@@ -43,22 +41,22 @@ namespace mimmo{
  *	|--------------------------------------------------------------|
  *	|                 Port Input                                   |
  *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType		       |
+ *	|PortID | PortType | variable/function | DataType              |
  *	|-------|----------|-------------------|-----------------------|
- *	| 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)	   |
- *	| 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)	   |
- *	| 30    | M_VALUED | setRotation       | (SCALAR, FLOAT)	   |
- *  | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
- *  | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
+ *	| 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
+ *	| 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
+ *	| 30    | M_VALUED | setRotation       | (SCALAR, FLOAT)       |
+ *	| 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+ *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
  *	|---------------------------------------|-----------------------|
  *	|            Port Output                |                       |
  *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType		 		|
+ *	|PortID | PortType  | variable/function | DataType              |
  *	|-------|-----------|-------------------|-----------------------|
- *  | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
+ *	| 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
  *	|-------|-----------|-------------------|-----------------------|
  * ~~~
  *	=========================================================

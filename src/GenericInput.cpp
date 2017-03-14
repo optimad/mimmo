@@ -27,7 +27,7 @@
 #include <fstream>
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo {
 
 /*!
  * Default constructor of GenericInput.
@@ -63,7 +63,7 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
  * \param[in] filename Name of the input file.
  * The m_readFromFile flag is set to true.
  */
-GenericInput::GenericInput(string filename){
+GenericInput::GenericInput(std::string filename){
 	m_readFromFile 	= true;
 	m_filename 		= filename;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
@@ -217,5 +217,5 @@ void GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	slotXML.set("Filename", m_filename);
 };	
 
-
+}
 

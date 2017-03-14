@@ -35,7 +35,8 @@
 namespace mimmo{
 
 /*!
- * Enum class for choiche of method to select subpatch  of a tessellated mesh
+ * \enum SelectionType
+ * \brief Enum class for choiche of method to select subpatch  of a tessellated mesh
  */	
 enum class SelectionType{
 	UNDEFINED	= 0,
@@ -48,6 +49,9 @@ enum class SelectionType{
 };
 
 /*!
+ * \class GenericSelection
+ * \brief Abstract Interface for selection classes
+ * 
  * Class/BaseManipulation Object managing selection of sub-patches of a 3D open 
  * unstructured surface/volume mesh.
  *
@@ -58,20 +62,20 @@ enum class SelectionType{
  *	|-------------------------------------------------------------------|
  *	|                   Port Input                                      |
  *	|-------|----------------|----------------------|-------------------|
- *	|PortID | PortType       | variable/function    | DataTypes	      	|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
  *	|-------|----------------|----------------------|-------------------|
- *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL) 	|
- *	| 99    | M_GEOM         | setGeometry			| (SCALAR, MIMMO_)	|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
  *	|-------|----------------|----------------------|-------------------|
  *
  *
  *	|-------------------------------------------------------------------|
- *	|             Port Output                                         	|
+ *	|             Port Output                                           |
  *	|-------|----------------|---------------------|--------------------|
- *	|PortID | PortType       | variable/function   | DataTypes	      	|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
  *	|-------|----------------|---------------------|--------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary | (VECTOR, LONG) 	|
- *  | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)	|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
  *	|-------|----------------|---------------------|--------------------|
  *
  * ~~~
@@ -119,45 +123,54 @@ protected:
 
 
 /*!
+ * \class SelectionByBox
+ * \brief Selects through volume box primitive
+ * 
  * Selection Object managing selection of sub-patches of a 3D open 
  * unstructured surface mesh. Select all simplex contained in the volume box.
- *
- * PORTS AVAILABLE IN SelectionByBox Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * 
  *
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------------------------------|
  *	|                   Port Input                                                           |
  *	|-------|----------------|---------------------------------------|-----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes      		 |
+ *	|PortID | PortType       | variable/function                     | DataTypes             |
  *	|-------|----------------|---------------------------------------|-----------------------|
- *	| 20    | M_POINT        | setOrigin                   	         | (ARRAY3, FLOAT)       |
+ *	| 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)       |
  *	| 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)     |
- *	| 23    | M_SPAN         | setSpan                           	 | (ARRAY3, FLOAT)	     |
+ *	| 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)       |
  *	|----------------------------------------------------------------------------------------|
- *	|                   Inherited from GenericSelection                                      |
- *	|-------|----------------|---------------------------------------|-----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes       		 |
- *	|-------|----------------|---------------------------------------|-----------------------|
- *	| 32    | M_VALUEB       | setDual                   	         | (SCALAR, BOOL)        |
- *	| 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      |
- *	|-------|----------------|---------------------------------------|-----------------------|
  *
  *
  *	|----------------------------------------------------------------------|
  *	|             Port Output                                              |
  *	|-------|----------------|---------------------|-----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			   |
+ *	|PortID | PortType       | variable/function   | DataTypes             |
  *	|-------|----------------|---------------------|-----------------------|
  *	|----------------------------------------------|-----------------------|
- *	|     Inherited from GenericSelection          						   |
- *	|-------|----------------|---------------------|-----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes       	   |
- *	|-------|----------------|---------------------|-----------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary | (VECTOR, LONG)		   |
- *  | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)	   |
- *	|-------|----------------|---------------------|-----------------------|
  *
+ *
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
+ *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  * ~~~
  *	===============================================================================
  *
@@ -185,45 +198,54 @@ protected:
 };
 
 /*!
+ * \class SelectionByCylinder
+ * \brief Selects through cylinder primitive
+ * 
  * Selection Object managing selection of sub-patches of a 3D open 
  * unstructured surface mesh. Select all simplex contained in the volume cylinder
  *
- * PORTS AVAILABLE IN SelectionByCylinder Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
  *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------------------------------|
  *	|                   Port Input                                                          |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes       		|
+ *	|PortID | PortType       | variable/function                     | DataTypes            |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	| 20    | M_POINT        | setOrigin                   	         | (ARRAY3, FLOAT)      |
+ *	| 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)      |
  *	| 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)    |
- *	| 23    | M_SPAN         | setSpan                           	 | (ARRAY3, FLOAT)	    |
- *	| 25    | M_INFLIMITS    | setInfLimits                        	 | (ARRAY3, FLOAT)      |
+ *	| 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)      |
+ *	| 25    | M_INFLIMITS    | setInfLimits                          | (ARRAY3, FLOAT)      |
  *	|---------------------------------------------------------------------------------------|
- *	|                   Inherited from GenericSelection                                     |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes		    |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	| 32    | M_VALUEB       | setDual                   	         |  (SCALAR, BOOL)      |
- *	| 99    | M_GEOM         | setGeometry                           |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------------------------|----------------------|
+ *
+ *	|----------------------------------------------------------------------|
+ *	|             Port Output                                              |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes             |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|----------------------------------------------|-----------------------|
  *
  *
- *	|---------------------------------------------------------------------|
- *	|             Port Output                      						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	|---------------------------------------------------------------------|
- *	|     Inherited from GenericSelection          						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary |  (VECTOR, LONG)      |
- *  | 99    | M_GEOM         | getPatch            |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------|----------------------|
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
+ *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  *
  * ~~~
  *	=========================================================
@@ -252,45 +274,53 @@ protected:
 };
 
 /*!
+ * \class SelectionBySphere
+ * \brief Selects through sphere primitive
+ * 
  * Selection Object managing selection of sub-patches of a 3D open 
  * unstructured surface mesh. Select all simplex contained in the volume sphere.
- *
- * PORTS AVAILABLE IN SelectionBySphere Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
  *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------------------------------|
  *	|                   Port Input                                                          |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes       		|
+ *	|PortID | PortType       | variable/function                     | DataTypes            |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	| 20    | M_POINT        | setOrigin                   	         | (ARRAY3, FLOAT)      |
+ *	| 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)      |
  *	| 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)    |
- *	| 23    | M_SPAN         | setSpan                           	 | (ARRAY3, FLOAT)	    |
- *	| 25    | M_INFLIMITS    | setInfLimits                        	 | (ARRAY3, FLOAT)      |
+ *	| 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)      |
+ *	| 25    | M_INFLIMITS    | setInfLimits                          | (ARRAY3, FLOAT)      |
  *	|---------------------------------------------------------------------------------------|
- *	|                   Inherited from GenericSelection                                     |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes		    |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	| 32    | M_VALUEB       | setDual                   	         |  (SCALAR, BOOL)      |
- *	| 99    | M_GEOM         | setGeometry                           |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------------------------|----------------------|
+ * 
+ *	|----------------------------------------------------------------------|
+ *	|             Port Output                                              |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes             |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|----------------------------------------------|-----------------------|
  *
  *
- *	|---------------------------------------------------------------------|
- *	|             Port Output                      						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	|----------------------------------------------|----------------------|
- *	|     Inherited from GenericSelection          						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary |  (VECTOR, LONG)      |
- *  | 99    | M_GEOM         | getPatch            |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------|----------------------|
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
+ *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  *
  * ~~~
  *	=========================================================
@@ -319,44 +349,53 @@ protected:
 };
 
 /*!
+ * 
+ * \class SelectionByMapping
+ * \brief Selects mapping external surfaces on the target mesh.
+ * 
  * Selection Object managing selection of sub-patches of a 3D open 
  * unstructured surface mesh. Extract portion of mesh in common between 
  * a target geometry and a second one, provided externally.Extraction criterium
  * is based on euclidean nearness, within a prescribed tolerance.
  *
- * PORTS AVAILABLE IN SelectionByMapping Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
  *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------------------------------|
  *	|                   Port Input                                                          |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes	        |
+ *	|PortID | PortType       | variable/function                     | DataTypes            |
  *	|-------|----------------|---------------------------------------|----------------------|
  *	|---------------------------------------------------------------------------------------|
- *	|                   Inherited from GenericSelection                                     |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes		    |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	| 32    | M_VALUEB       | setDual                   	         |  (SCALAR, BOOL)      |
- *	| 99    | M_GEOM         | setGeometry                           |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------------------------|----------------------|
+ *	
+ *	|----------------------------------------------------------------------|
+ *	|             Port Output                                              |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes             |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|----------------------------------------------|-----------------------|
  *
  *
- *	|---------------------------------------------------------------------|
- *	|             Port Output                       					  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	|----------------------------------------------|----------------------|
- *	|     Inherited from GenericSelection           					  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary |  (VECTOR, LONG)      |
- *  | 99    | M_GEOM         | getPatch            |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------|----------------------|
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
  *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  * ~~~
  *	=========================================================
  *
@@ -403,44 +442,52 @@ private:
 };
 
 /*!
+ * \class SelectionByPID
+ * \brief Selects using target mesh Part Identifiers
+ * 
  * Selection Object managing selection of sub-patches of a 3D open 
  * unstructured surface mesh. Extract portion of mesh getting its PID in 
  * target geometry.
- *
- * PORTS AVAILABLE IN SelectionByPID Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
  *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------------------------------|
  *	|                   Port Input                                                          |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes	        |
+ *	|PortID | PortType       | variable/function                     | DataTypes            |
  *	|-------|----------------|---------------------------------------|----------------------|
- *	| 17    | M_VECTORSI     | setPID                   	         | (VECTOR, SHORT)	    |
- *	| 35    | M_VALUESI      | setPID                   	         | (SCALAR, SHORT)	    |
+ *	| 17    | M_VECTORSI     | setPID                                | (VECTOR, SHORT)      |
+ *	| 35    | M_VALUESI      | setPID                                | (SCALAR, SHORT)      |
  *	|---------------------------------------------------------------------------------------|
- *	|                   Inherited from GenericSelection                                     |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes		    |
- *	|-------|----------------|---------------------------------------|----------------------|
- *	| 32    | M_VALUEB       | setDual                   	         | (SCALAR, BOOL)       |
- *	| 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)     |
- *	|-------|----------------|---------------------------------------|----------------------|
+ *	
+ *	|----------------------------------------------------------------------|
+ *	|             Port Output                                              |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes             |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|----------------------------------------------|-----------------------|
  *
  *
- *	|---------------------------------------------------------------------|
- *	|             Port Output                      						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	|----------------------------------------------|----------------------|
- *	|     Inherited from GenericSelection          						  |
- *	|-------|----------------|---------------------|----------------------|
- *	|PortID | PortType       | variable/function   | DataTypes			  |
- *	|-------|----------------|---------------------|----------------------|
- *	| 18    | M_VECTORLI	 | constrainedBoundary |  (VECTOR, LONG)      |
- *  | 99    | M_GEOM         | getPatch            |  (SCALAR, MIMMO_)    |
- *	|-------|----------------|---------------------|----------------------|
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
+ *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  *
  * ~~~
  *	=========================================================
@@ -485,31 +532,20 @@ protected:
 };
 
 /*!
+ * \class SelectionByBoxWithScalar
+ * \brief Selects through volume box primitive
+ * 
  * Selection Object managing selection of sub-patches of a 3D unstructured surface mesh.
  * Select all simplex contained in the volume box and extract a scalar field if it is present.
  *
- * PORTS AVAILABLE IN SelectionByBoxWithScalar Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
- *
+ 
  *  =========================================================
  * ~~~
- *  |----------------------------------------------------------------------------------------|
- *  |                   Port Input                                                           |
- *  |----------------------------------------------------------------------------------------|
- *  | 19    | M_SCALARFIELD  | setField                              | (VECTOR, FLOAT)       |
- *  |-------|----------------|---------------------------------------|-----------------------|
- *  |                   Inherited from SelectionByBox                                        |
- *  |-------|----------------|---------------------------------------|-----------------------|
- *  |PortID | PortType       | variable/function                     | DataTypes             |
- *  |-------|----------------|---------------------------------------|-----------------------|
- *  | 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)       |
- *  | 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)     |
- *  | 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)       |
- *  |-------|----------------|---------------------------------------|-----------------------|
- *  |PortID | PortType       | variable/function                     | DataTypes             |
- *  |-------|----------------|---------------------------------------|-----------------------|
- *  | 32    | M_VALUEB       | setDual                               | (SCALAR, BOOL)        |
- *  | 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      |
- *  |-------|----------------|---------------------------------------|-----------------------|
+ *  |----------------------------------------------------------------------|
+ *  |                   Port Input                                         |
+ *  |----------------------------------------------------------------------|
+ *  | 19    | M_SCALARFIELD  | setField            | (VECTOR, FLOAT)       |
+ *  |-------|----------------|---------------------|-----------------------|
  *
  *
  *  |----------------------------------------------------------------------|
@@ -519,13 +555,48 @@ protected:
  *  |-------|----------------|---------------------|-----------------------|
  *  | 19    | M_SCALARFIELD  | getField            | (VECTOR, FLOAT)       |
  *  |----------------------------------------------|-----------------------|
- *  |     Inherited from SelectionByBox                                    |
- *  |-------|----------------|---------------------|-----------------------|
- *  |PortID | PortType       | variable/function   | DataTypes             |
- *  |-------|----------------|---------------------|-----------------------|
- *  | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)        |
- *  | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)      |
- *  |-------|----------------|---------------------|-----------------------|
+ *
+ *  Inherited from SelectionByBox
+ *
+ *	|----------------------------------------------------------------------------------------|
+ *	|                   Port Input                                                           |
+ *	|-------|----------------|---------------------------------------|-----------------------|
+ *	|PortID | PortType       | variable/function                     | DataTypes             |
+ *	|-------|----------------|---------------------------------------|-----------------------|
+ *	| 20    | M_POINT        | setOrigin                             | (ARRAY3, FLOAT)       |
+ *	| 22    | M_AXES         | setRefSystem                          | (ARR3ARR3, FLOAT)     |
+ *	| 23    | M_SPAN         | setSpan                               | (ARRAY3, FLOAT)       |
+ *	|----------------------------------------------------------------------------------------|
+ *
+ *
+ *	|----------------------------------------------------------------------|
+ *	|             Port Output                                              |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes             |
+ *	|-------|----------------|---------------------|-----------------------|
+ *	|----------------------------------------------|-----------------------|
+ *
+ *
+ *	Inherited from GenericSelection  
+ *	 
+ *	|-------------------------------------------------------------------|
+ *	|                   Port Input                                      |
+ *	|-------|----------------|----------------------|-------------------|
+ *	|PortID | PortType       | variable/function    | DataTypes         |
+ *	|-------|----------------|----------------------|-------------------|
+ *	| 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+ *	| 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+ *	|-------|----------------|----------------------|-------------------|
+ *
+ *
+ *	|-------------------------------------------------------------------|
+ *	|             Port Output                                           |
+ *	|-------|----------------|---------------------|--------------------|
+ *	|PortID | PortType       | variable/function   | DataTypes          |
+ *	|-------|----------------|---------------------|--------------------|
+ *	| 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+ *	| 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+ *	|-------|----------------|---------------------|--------------------| 
  *
  * ~~~
  *  ===============================================================================

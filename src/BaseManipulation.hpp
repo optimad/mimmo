@@ -36,9 +36,12 @@
 #include <typeinfo>
 
 
-using namespace mimmo::pin;
+
 
 namespace mimmo{
+	
+
+using namespace pin;
 
 class IOData;
 
@@ -63,16 +66,16 @@ class IOData;
  */
 class BaseManipulation{
 
-	friend bool mimmo::pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced);
-	friend void mimmo::pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
-	friend void mimmo::pin::removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
-	friend bool mimmo::pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
-	friend mimmo::PortOut;
+	friend bool pin::addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced);
+	friend void pin::removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
+	friend void pin::removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
+	friend bool pin::checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR);
+	friend PortOut;
 
 public:
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int>	bmumap;			/**<Unordered map type used for parent/child storing.*/
-	typedef mimmo::pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
+	typedef pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
 	typedef	short int									PortID;			/**<Port ID (position of slot).*/
 	
 protected:

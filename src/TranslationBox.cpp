@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "TranslationBox.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of TranslationBox
@@ -243,5 +243,5 @@ void TranslationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 };	
 
 
-
+}
 

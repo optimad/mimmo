@@ -28,30 +28,27 @@
 
 namespace mimmo{
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class MultiApply
+ * \brief MultiApply is the class that applies one or more deformations resulting from one or more manipulation objects 
+ * to different geometries.
  *
- *	\brief MultiApply is the class that applies one or more deformations resulting from one or more manipulation objects 
- *	to different geometries.
- *
- *	MultiApply is derived from BaseManipulation class. It uses a map list to retrack each deformation field w.r.t 
- *	its associated geometry.
- *	The deformation displacements and pointers to geometry structure have to be passed to the class as a 
- *	std::pair<MimmoObject*, std::vector<std::array<double,3>>* > or a list of pair (std::unordered_map) through port linking.
- *	Different lists added as input to the class in different moments will be appended
- *	After the execution of an object MultiApply, the original geometries linked will be 
- *	modified (if pointing to non void object).
+ * MultiApply is derived from BaseManipulation class. It uses a map list to retrack each deformation field w.r.t 
+ * its associated geometry.
+ * The deformation displacements and pointers to geometry structure have to be passed to the class as a 
+ * std::pair<MimmoObject*, std::vector<std::array<double,3>>* > or a list of pair (std::unordered_map) through port linking.
+ * Different lists added as input to the class in different moments will be appended
+ * After the execution of an object MultiApply, the original geometries linked will be 
+ * modified (if pointing to non void object).
  *
  *	=========================================================
  * ~~~
- *	|---------------------------------------------------------|
- *	|                  Port Input                             |
- *	|-------|-----------|-------------------|-----------------|
- *	|PortID | PortType  | variable/function | dataType        |
- *	|-------|-----------|-------------------|-----------------|
+ *	|---------------------------------------------------------------------|
+ *	|                  Port Input                                         |
+ *	|-------|-----------|-------------------|-----------------------------|
+ *	|PortID | PortType  | variable/function | dataType                    |
+ *	|-------|-----------|-------------------|-----------------------------|
  *	| 107   | M_UMGEOVFD| setInputList      | (UMAP, MIMMO_VECARR3FLOAT_) |
- *	|-------|-----------|-------------------|-----------------|
+ *	|-------|-----------|-------------------|-----------------------------|
  *
  *
  *	|--------------------------------------------------------|
@@ -67,8 +64,8 @@ namespace mimmo{
 class MultiApply: public BaseManipulation{
 public:
 
-	std::unordered_map<MimmoObject*, dvecarr3E*> m_input;
-	bool m_force;
+	std::unordered_map<MimmoObject*, dvecarr3E*> m_input; /**< container for vector field of displacements to apply */
+	bool m_force; /**< member to force rebuilding of trees of a geometrical object*/
 
 	MultiApply();
 	MultiApply(const bitpit::Config::Section & rootXML);

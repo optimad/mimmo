@@ -27,7 +27,7 @@
 #include "customOperators.hpp"
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*! 
@@ -691,7 +691,7 @@ void UStructMesh::setCoordTypez(CoordType type){
 /*! Set coordinates type of a BasicShape mesh core. See CoordType enum.
  * \param[in] types array of CoordType enum for all the cooordinates.
  */
-void UStructMesh::setCoordType(array<CoordType, 3> types){
+void UStructMesh::setCoordType(std::array<CoordType, 3> types){
 	for (int i=0; i<3; i++){
 		getShape()->setCoordinateType(types[i],i);
 	}
@@ -1387,7 +1387,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
  * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
- * \param[in] data. Scalar field
+ * \param[in] data Scalar field
  * */
 void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int counterFile, bool codexFlag, dvector1D & data){
 
@@ -1522,7 +1522,7 @@ bool UStructMesh::isBuilt(){
 	return(m_isBuild);
 }
 
-
+};
 
 
 

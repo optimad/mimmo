@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "RotationGeometry.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!
@@ -281,3 +281,4 @@ void RotationGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::s
 	
 };	
 
+}

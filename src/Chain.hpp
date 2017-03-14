@@ -29,9 +29,7 @@
 namespace mimmo{
 
 /*!
- *	\date			22/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ *	\class Chain
  *
  *	\brief Chain is the class used to manage the execution chain of MiMMO objects.
  *

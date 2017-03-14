@@ -30,41 +30,39 @@
 namespace mimmo{
 
 /*!
- *	\date			16/set/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class ControlDeformExtSurface
  *
- *	\brief ControlDeformationExtSurface is a class that check a deformation field associated to a MimmoObject geometry,
- * 		  for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
+ * \brief ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometry,
+ *   for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
  *
- *	ControlDeformationExtSurface is derived from BaseManipulation class.
- *	Needs one or more external surface meshes, representing the constraint of your deformed object. 
- *	Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points, 
- *  reporting how much the current deformation field violate the constraint itself.
- *  if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
- *  No optional result are plot. 
- *  Class absorbs/flushes its parameters from/to xml dictionaries
+ * ControlDeformExtSurface is derived from BaseManipulation class.
+ * Needs one or more external surface meshes, representing the constraint of your deformed object. 
+ * Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points, 
+ * reporting how much the current deformation field violate the constraint itself.
+ * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
+ * No optional result are plot. 
+ * Class absorbs/flushes its parameters from/to xml dictionaries
  *
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------|
- *	|                 Port Input                       		 		 |
+ *	|                 Port Input                                     |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *  | 11    | M_GDISPLS| setDefField	   | (VECARR3E, FLOAT)		 |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)		 |
+ *	| 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
+ *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
  *	|-------|----------|-------------------|-------------------------|
  *
  *
  *	|-------------------------------------------------------------------------|
  *	|            Port Output                                                  |
  *	|-------|---------------|-------------------|-----------------------------|
- *	|PortID | PortType      | variable/function | DataType 			          |
+ *	|PortID | PortType      | variable/function | DataType                    |
  *	|-------|---------------|-------------------|-----------------------------|
- *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)			  | 
- *	| 30    | M_VALUED 		| getViolation      | (SCALAR, FLOAT)			  |
- *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
+ *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             | 
+ *	| 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+ *	| 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
  *	|-------|---------------|-------------------|-----------------------------|
  * ~~~
  *	=========================================================

@@ -36,27 +36,19 @@ namespace mimmo{
 
 class BaseManipulation;
 
-/**< @namespace mimmo
- * mimmo namespace
- */
-
 typedef short int 					PortID;
 typedef mimmo::pin::containerTAG	containerTAG;
 typedef mimmo::pin::dataTAG			dataTAG;
 
 
 /*!
- *	\date			17/jun/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class DataType
  *	\brief Class DataType defines the container and the type of data communicated by ports.
- *
  */
 class DataType{
 public:
-	containerTAG	m_conType;
-	dataTAG			m_dataType;
+	containerTAG	m_conType; /**< type of container*/
+	dataTAG			m_dataType;/**< type of data*/
 
 public:
 	DataType();
@@ -70,10 +62,7 @@ public:
 };
 
 /*!
- *	\date			14/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class PortOut
  *	\brief PortOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
@@ -120,10 +109,7 @@ public:
 //==============================================================//
 
 /*!
- *	\date			14/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class PortOutT
  *	\brief PortOutT is the input-output templated PIN class derived from base PortOut pin class.
  *
  *	A pin is an object member of BaseManipulation object.
@@ -171,10 +157,7 @@ public:
 
 
 /*!
- *	\date			14/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class PortIn
  *	\brief PortOut is the input-output PIN base class.
  *
  *	A pin is an object member of BaseManipulation object.
@@ -216,10 +199,7 @@ public:
 //==============================================================//
 
 /*!
- *	\date			14/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *  \class PortInT
  *	\brief PortInT is the input-output templated PIN class derived from base PortIn pin class.
  *
  *	A pin is an object member of BaseManipulation object.
@@ -260,13 +240,9 @@ public:
 	PortInT & operator=(const PortInT & other);
 	bool operator==(const PortInT & other);
 
-	void writeBuffer();
 	void readBuffer();
 
 };
-
-
-
 
 }
 

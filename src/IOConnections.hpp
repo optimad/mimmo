@@ -29,9 +29,7 @@
 namespace mimmo{
 
 /*!
- *	\date			18/jul/2016
- *	\authors		Rocco Arpa
- *
+ *	\class IOConnections_MIMMO
  *	\brief IOConnections_MIMMO is a class to read/write mimmo pin connections from XML IO/parser defined in bitpit::Config 
  *
  * Read and write declared connections from/to an external input/output XML configuration file. Needs to be constructed

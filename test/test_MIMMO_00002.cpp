@@ -170,8 +170,8 @@ void test0002() {
 
 	//********************************************************************************************
 	//Creating PINS
-	addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
-	addPin(lattice2, applier2, PortType::M_GDISPLS, PortType::M_GDISPLS);
+	pin::addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
+	pin::addPin(lattice2, applier2, PortType::M_GDISPLS, PortType::M_GDISPLS);
 
 
 	//********************************************************************************************

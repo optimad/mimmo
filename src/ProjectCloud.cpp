@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "ProjectCloud.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of ProjectCloud
@@ -242,3 +242,4 @@ void ProjectCloud::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	return;
 };
 
+}

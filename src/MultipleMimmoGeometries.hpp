@@ -29,61 +29,58 @@
 namespace mimmo{
 
 /*!
- *	\date			30/nov/2016
- *	\authors		Rocco Arpa
- *	\authors		
- *
- *	\brief MultipleMimmoGeometries is an executable block class capable of  
+ * \class MultipleMimmoGeometries
+ * \brief MultipleMimmoGeometries is an executable block class capable of  
  *         I/O hanfling of multiple geometries files of the same topology 
  *
- *	MultipleMultipleMimmoGeometries is the object to manage the reading/writing
- *  of one or more geometry files of the same topology to/from a list of standard MimmoObjects. 
- *  It works as a MimmoGeometry class, and retains almost the same features.
- *	The meshes to import/export have to be meshes with constant type elements.
- *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
- *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
- *	for volume mesh. ofp or pcvtu point cloud formats for generic point cloud structures.
+ * MultipleMultipleMimmoGeometries is the object to manage the reading/writing
+ * of one or more geometry files of the same topology to/from a list of standard MimmoObjects. 
+ * It works as a MimmoGeometry class, and retains almost the same features.
+ * The meshes to import/export have to be meshes with constant type elements.
+ * The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
+ * ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
+ * for volume mesh. ofp or pcvtu point cloud formats for generic point cloud structures.
  *  WARNING The current class can be used in Reading or Writing modes once, not both at the same time 
  * 
  * 
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
- *	1)	Ascii/Binary triangulation stl.	STL 	= 0,
- *  2)	Surface triangulation vtu.		STVTU 	= 1,
- *	3)	Surface quadrilateral vtu.		SQVTU 	= 2,
- *	4)	Volume tetrahedral VTU.			VTVTU 	= 3,
- *	5)	Volume hexahedral VTU.			VHVTU 	= 4,
- *	6)	Nastran triangulation nas.		NAS 	= 5,
- *	7)	Ascii OpenFoam point cloud.		OFP 	= 6,
- *  8)	VTU point cloud.				PCVTU 	= 7,
+ * - Ascii/Binary triangulation stl.	STL 	= 0,
+ * - Surface triangulation vtu.			STVTU 	= 1,
+ * - Surface quadrilateral vtu.			SQVTU 	= 2,
+ * - Volume tetrahedral VTU.			VTVTU 	= 3,
+ * - Volume hexahedral VTU.				VHVTU 	= 4,
+ * - Nastran triangulation nas.			NAS 	= 5,
+ * - Ascii OpenFoam point cloud.		OFP 	= 6,
+ * - VTU point cloud.					PCVTU 	= 7,
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.
  * and including MultipleMimmoGeometries header. 
  *	=========================================================
  * ~~~
- *	|-------------------------------------------------------------------------------|
- *	|                 Port Input                           					        |
- *	|-------|----------|------------------------------------|-----------------------|
- *	|PortID | PortType | variable/function 					| DataType		        |
- *	|-------|----------|------------------------------------|-----------------------|
- *	| 100   | M_VECGEOM| setGeometry      					| (VECTOR, MIMMO_)	    |
- *  | 101   | M_MAPGEOM| setObjMap  	      				| (UN_MAP, STRINGPAIRINTMIMMO_)|
- *  | 102   | M_FINFO  | setReadListFDI 			        | (VECTOR, FILEINFODATA)|
- *  | 103   | M_FINFO2 | setWriteListFDI     			    | (VECTOR, FILEINFODATA)| 
- *	|-------|----------|------------------------------------|-----------------------|
+ *	|---------------------------------------------------------------------|
+ *	|                 Port Input                                          |
+ *	|-------|----------|------------------|-------------------------------|
+ *	|PortID | PortType | variable/function| DataType                      |
+ *	|-------|----------|------------------|-------------------------------|
+ *	| 100   | M_VECGEOM| setGeometry      | (VECTOR, MIMMO_)              |
+ *	| 101   | M_MAPGEOM| setObjMap        | (UN_MAP, STRINGPAIRINTMIMMO_) |
+ *	| 102   | M_FINFO  | setReadListFDI   | (VECTOR, FILEINFODATA)        |
+ *	| 103   | M_FINFO2 | setWriteListFDI  | (VECTOR, FILEINFODATA)        | 
+ *	|-------|----------|------------------|-------------------------------|
  *
  *
- *	|--------------------------------------------------------|-----------------------|
- *	|            Port Output                				 |                       |
- *	|-------|-----------|------------------------------------|-----------------------|
- *	|PortID | PortType  | variable/function 				 | DataType		      	 | 
- *	|-------|-----------|------------------------------------|-----------------------|
- *	| 100   | M_VECGEOM | getGeometry      					 | (VECTOR, MIMMO_)	     |
- *  | 101   | M_MAPGEOM | getObjMap		       				 | (UN_MAP, STRINGPAIRINTMIMMO_)|
- *  | 102   | M_FINFO   | getReadListFDI			         | (VECTOR, FILEINFODATA)|
- *  | 103   | M_FINFO2  | getWriteListFDI			         | (VECTOR, FILEINFODATA)| 
- *	|-------|-----------|------------------------------------|-----------------------|
+ *	|---------------------------------------|------------------------------|
+ *	|            Port Output                |                              |
+ *	|-------|-----------|-------------------|------------------------------|
+ *	|PortID | PortType  | variable/function | DataType                     | 
+ *	|-------|-----------|-------------------|------------------------------|
+ *	| 100   | M_VECGEOM | getGeometry       | (VECTOR, MIMMO_)             |
+ *	| 101   | M_MAPGEOM | getObjMap         | (UN_MAP, STRINGPAIRINTMIMMO_)|
+ *	| 102   | M_FINFO   | getReadListFDI    | (VECTOR, FILEINFODATA)       |
+ *	| 103   | M_FINFO2  | getWriteListFDI   | (VECTOR, FILEINFODATA)       |  
+ *	|-------|-----------|-------------------|------------------------------|
  * ~~~
  *	=========================================================
  *

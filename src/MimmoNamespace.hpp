@@ -93,10 +93,7 @@ namespace mimmo{
 class BaseManipulation;
 
 /*!
- *	\date			30/nov/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *	\class FileDataInfo
  *	\brief FileDataInfo is a struct to stock data relative to names of external files.
  *
  *	FileDataInfo has three fields:
@@ -106,9 +103,9 @@ class BaseManipulation;
  * 
  */
 struct FileDataInfo{
-	int ftype;
-	std::string fname;
-	std::string fdir;
+	int ftype; /**< file type identifier*/
+	std::string fname; /**< file name*/
+	std::string fdir; /**< file directory*/
 	
 	FileDataInfo();
 	virtual ~FileDataInfo();
@@ -120,8 +117,7 @@ struct FileDataInfo{
 
 
 /*!
- * 
- *@brief	Namespace utilities to create pin connections
+ * \brief	Namespace utilities to create pin connections
  * 
  * Here are collected enums and methods to create connections between blocks throughout established ports.
  * All the available port types are collected in a special enum, istantiated through BETTER_ENUM macro, and 
@@ -132,17 +128,7 @@ struct FileDataInfo{
  * A port with a TAG can communicate with other TAG in function of its pre-coded
  * compatibility.
  * The ports defined in the base library MiMMO must have prefix M_ before their name.
- 
- * The nomenclature used at the moment says:
- * 
- * 0-9 coordinates of 3D points
- * 10-19 structures for objects handling deformation
- * 20-29 structures for objects building structured lattice
- * 30-39	matrix structures
- * 40-49 FFDlattice setting parameters
- * 80-89 fields & geoemtries which refers to passed as std::pair
- * 99-100	MimmoObject pointer structures;
- * > 100 miscellaneous data
+ *
  * 
  * 	All contents are:
  * 
@@ -203,22 +189,28 @@ struct FileDataInfo{
  */
 namespace pin{
 
-/*! Type of allowed conections of the object: bidirectional, only input or only output.*/
+/*!
+ *\enum ConnectionType
+ *\brief Type of allowed connections of the object: bidirectional, only input or only output.
+ */
 enum ConnectionType{
 	BOTH 		/**<Bidirectional object. It allows both input and output connections.*/,
 	BACKWARD 	/**<Uni-directional backward object. It allows only input connections.*/,
 	FORWARD 	/**<Uni-directional forwadr object. It allows only output connections.*/
 };
 
-typedef	short int	PortID;
+typedef	short int	PortID; /**< MiMMO custom definition */
 
 
-/*! Container TAG specification.
-*	Container TAG are used to define wich kind of data a port is able to
-*	communicate/receive. A data type is formed by a containerTAG and a dataTAG.
-*	The data type is used to check the compatibility between ports.
-*
-*/
+/*! 
+ *  \enum containerTAG
+ *  \brief Specification of possible containers.
+ * 
+ * Container TAG are used to define wich kind of data a port is able to
+ * communicate/receive. A data type is formed by a containerTAG and a dataTAG.
+ * The data type is used to check the compatibility between ports.
+ *
+ */
 enum class containerTAG{
 
 	SCALAR			/**< TAG related to single value container.*/,
@@ -237,12 +229,15 @@ enum class containerTAG{
 
 };
 
-/*! Data TAG specification.
-*	Data TAG are used to define wich kind of data a port is able to
-*	communicate/receive. A data type is formed by a containerTAG and a dataTAG.
-*	The data type is used to check the compatibility between ports.
-*
-*/
+/*! 
+ *  \enum dataTAG
+ *  \brief Specification of possible data allowed.
+ * 
+ * Data TAG are used to define wich kind of data a port is able to
+ * communicate/receive. A data type is formed by a containerTAG and a dataTAG.
+ * The data type is used to check the compatibility between ports.
+ *
+ */
 enum class dataTAG{
 
 	MIMMO_						/**< TAG related to a mimmo::MimmoObject* data.*/,
@@ -282,6 +277,6 @@ bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, Por
 
 };//end namespace mimmo
 
-//#include "MimmoNamespace.tpp"
+
 
 #endif

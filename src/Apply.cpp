@@ -24,7 +24,7 @@
 #include "Apply.hpp"
 
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of Apply
@@ -198,6 +198,6 @@ void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 };	
 
 
-
+}
 
 

@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 /*!Default constructor of SplitField.
  * Format admissible are linked to your choice of topology. See FileType enum.
@@ -307,3 +307,4 @@ SplitField::desumeElement(ivector2D & conn){
 };
 
 
+}

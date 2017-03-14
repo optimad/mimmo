@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "Bend.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!Default constructor of Bend
@@ -221,11 +221,11 @@ Bend::execute(){
  * for nodal displacements, we can assume that:
  * 
  * --> Absorbing data:
- *		Priority  : uint marking priority of class execution in multichain frame	
- * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
- * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
- * 						    marks a constant function 
- * 		PolyCoefficients: coefficients of each 9 bending polynomial functions.
+ * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
+ * - <B>DegreesMatrix(3x3)</B> : degrees of each polynomial function referred to a displacement 
+ *      in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
+ *      marks a constant function 
+ * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions.
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -298,10 +298,10 @@ void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  *    --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Bend"
- *		Priority  : uint marking priority of class execution in multichain frame	
+ * - <B>ClassName</B> : name of the class as "MiMMO.Bend"
+ * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
  *
- * 		DegreesMatrix(3x3): degrees of each polynomial function referred to a displacement 
+ * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement 
  * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
  * 						    marks a constant function.
  *							Written in XML as:
@@ -311,7 +311,7 @@ void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
  *								<zDispl> 0 3 0  </zDispl> (cubic z-displacement in y bending direction)
  *							</DegreesMatrix>
  *
- * 		PolyCoefficients: coefficients of each 9 bending polynomial functions. Writing following 
+ * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Writing following 
  * 						  the enumeration n = i*3 + j, where i is the displacement direction and j the bending direction.
  * 						  For example n=7 corresponds to i=2, j=1, reflecting in a z displacement distribution in y-bending direction. 
  * 						  Please note the number of coefficients for a ij-bending function is equal to the degree
@@ -360,4 +360,6 @@ void Bend::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	}
 	
 };	
+
+}
 

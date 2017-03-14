@@ -30,10 +30,7 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *	\class RotationBox
  *	\brief RotationBox is the class that applies a rotation to a given reference system.
  *
  *	The used parameters are the rotation value and the direction and the origin
@@ -44,23 +41,23 @@ namespace mimmo{
  *	|--------------------------------------------------------------|
  *	|                 Port Input                                   |
  *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType		       |
+ *	|PortID | PortType | variable/function | DataType              |
  *	|-------|----------|-------------------|-----------------------|
- *	| 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)	   |
- *	| 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)	   |
- *	| 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)	   |
- *	| 120   | M_POINT2 | m_axes_origin     | (ARRAY3, FLOAT)	   |
- *	| 22    | M_AXES   | m_axes            | (ARR3ARR3, FLOAT)	   |
+ *	| 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)       |
+ *	| 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)       |
+ *	| 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)       |
+ *	| 120   | M_POINT2 | m_axes_origin     | (ARRAY3, FLOAT)       |
+ *	| 22    | M_AXES   | m_axes            | (ARR3ARR3, FLOAT)     |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
  *	|---------------------------------------|-----------------------|
  *	|            Port Output                |                       |
  *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType		 		|
+ *	|PortID | PortType  | variable/function | DataType              |
  *	|-------|-----------|-------------------|-----------------------|
- *	| 20    | M_POINT   | getRotatedOrigin  | (ARRAY3, FLOAT)	  	|
- *	| 22    | M_AXES    | getRotatedAxes    | (ARR3ARR3, FLOAT)	  	|
+ *	| 20    | M_POINT   | getRotatedOrigin  | (ARRAY3, FLOAT)       |
+ *	| 22    | M_AXES    | getRotatedAxes    | (ARR3ARR3, FLOAT)     |
  *	|-------|-----------|-------------------|-----------------------|
  * ~~~
  *	=========================================================

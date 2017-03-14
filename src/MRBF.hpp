@@ -40,44 +40,40 @@ enum class MRBFSol{
 };
 	
 /*!
- *	\date			25/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * @class MRBF
+ * \brief Radial Basis Function evaluation from clouds of control points.
  *
- *  @class MRBF
- *	\brief Radial Basis Function evaluation from clouds of control points.
- *
- *	This class is derived from BaseManipulation class of MiMMO and from RBF class
- *	of bitpit library.
- *	It evaluates the result of RBF built over a set of control point given by the user
- *	or stored in a MimmoObject (geometry container). Default solver in execution is
- *	MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
- *  interpolation features.
- *  See bitpit::RBF docs for further information.
+ * This class is derived from BaseManipulation class of MiMMO and from RBF class
+ * of bitpit library.
+ * It evaluates the result of RBF built over a set of control point given by the user
+ * or stored in a MimmoObject (geometry container). Default solver in execution is
+ * MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
+ * interpolation features.
+ * See bitpit::RBF docs for further information.
  *
  *	=========================================================
  * ~~~
  *	|-------------------------------------------------------------------|
  *	|                  Port Input                                       |
  *	|-------|-----------|-----------------------|-----------------------|
- *	|PortID | PortType  | variable/function     | DataType       		|
+ *	|PortID | PortType  | variable/function     | DataType              |
  *	|-------|-----------|-----------------------|-----------------------|
- *	| 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)		|
- *	| 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)		|
- *	| 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT) 		|
- *  | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
- *  | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
- *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)  	|
+ *	| 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
+ *	| 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
+ *	| 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT)       |
+ *	| 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
+ *	| 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
+ *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
  *	|-------|-----------|-----------------------|-----------------------|
  *
  *
  *	|--------------------------------------------|------------------------------|
- *	|             Port Output	                 |                      		|
+ *	|             Port Output                                                   |
  *	|-------|----------------|-------------------|------------------------------|
- *	|PortID | PortType  	 | variable/function | DataType    		   			|
+ *	|PortID | PortType       | variable/function | DataType                     |
  *	|-------|----------------|-------------------|------------------------------|
- *	| 11    | M_GDISPLS 	 | getDisplacements  | (VECARR3, FLOAT)				|
- *	| 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)	|
+ *	| 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
+ *	| 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
  *	|-------|----------------|-------------------|------------------------------|
  * ~~~
  *	=========================================================

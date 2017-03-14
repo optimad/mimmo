@@ -140,6 +140,7 @@ private:
  * \brief Template class to create an object Base * = new Derived constructor() class,
  * where Derived is a generic derived class of Base.
  */
+
 template <class Base, class Derived>
 class Creator : public Factory<Base>::AbstractCreator {
 

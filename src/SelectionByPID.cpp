@@ -25,7 +25,7 @@
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmo;
+namespace mimmo{
 
 //------------------------------------------------------------------------
 //SELECTION	BY PID class 	******************************************
@@ -419,5 +419,5 @@ void SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 	return;
 };
 
-
+}
 

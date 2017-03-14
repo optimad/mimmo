@@ -33,7 +33,7 @@
 #include <iostream>
 #include <fstream>
 
-using namespace mimmo;
+namespace mimmo{
 
 //PUBLIC METHODS
 /*!
@@ -1311,4 +1311,4 @@ void CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, st
 	
 };
 
-
+}

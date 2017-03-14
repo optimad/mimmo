@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "Mask.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!Default constructor of Mask
 */
@@ -322,5 +322,5 @@ void Mask::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 };	
 
-
+}
 

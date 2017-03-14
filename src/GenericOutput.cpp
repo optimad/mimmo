@@ -25,7 +25,7 @@
 #include "GenericOutput.hpp"
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of GenericOutput
@@ -183,3 +183,4 @@ void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	slotXML.set("Filename", m_filename);
 };	
 
+}

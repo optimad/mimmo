@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*! Default Constructor.*/
@@ -142,7 +142,7 @@ MRBF::setMode(MRBFSol solver){
 /*!
  * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
  * Reimplemented from RBF::setMode() of bitpit;
- * @param[in] int type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
+ * @param[in] type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
  */
 void 
 MRBF::setMode(int type){
@@ -260,7 +260,7 @@ void MRBF::setNode(darray3E node){
 };
 
 /*!Set a list of RBF points as control nodes and activate it.
- * @param[in] node coordinates of control points.
+ * @param[in] nodes coordinates of control points.
  */
 void MRBF::setNode(dvecarr3E nodes){
 	removeAllNodes();
@@ -337,7 +337,7 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
  * function, and almost flat functions (as sphere of infinite radius), respectively. 
  * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is 
  * R is set proportional to the maximum displacement value.
- * @param[in] suppR new value of suppR
+ * @param[in] suppR_ new value of suppR
  */
 void
 MRBF::setSupportRadius(double suppR_){
@@ -415,7 +415,7 @@ void MRBF::clearFilter(){
  * Weights total number may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
  * 
- * @param[in] displ list of nodal weights
+ * @param[in] value list of nodal weights
  */
 void
 MRBF::setWeight(dvector2D value){
@@ -676,3 +676,4 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 	return;
 }
 
+}

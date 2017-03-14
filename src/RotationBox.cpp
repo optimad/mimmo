@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "RotationBox.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!
@@ -345,5 +345,5 @@ void RotationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
 };	
 
-
+}
 

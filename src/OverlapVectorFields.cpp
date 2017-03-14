@@ -22,7 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
  #include "OverlappingFields.hpp"
- using namespace mimmo;
+namespace mimmo{
  
  
 /*
@@ -224,7 +224,7 @@ void		OverlapVectorFields::setDataFieldMap( std::unordered_map<MimmoObject*, dve
 /*!
  * Append data fields of a geometry in a list , as a vector of pairs of
  * (pointer to the geometry, pointer to the field it refers to).
- * \param[in] fieldMap	list of fields to be inserted
+ * \param[in] fieldList	list of fields to be inserted
  */
 void		OverlapVectorFields::setDataFieldList(std::vector<std::pair<MimmoObject*, dvecarr3E*> > fieldList){
 	
@@ -593,3 +593,5 @@ void OverlapVectorFields::flushSectionXML(bitpit::Config::Section & slotXML, std
 	
 	return;
 };
+
+}

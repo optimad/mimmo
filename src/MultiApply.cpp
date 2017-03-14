@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "MultiApply.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of Apply
@@ -231,6 +231,6 @@ void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string 
 };	
 
 
-
+}
 
 

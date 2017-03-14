@@ -28,7 +28,7 @@
 
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 /*
  *	\date			09/feb/2016
@@ -1549,3 +1549,4 @@ void FFDLattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string 
 	}
 };
 
+}

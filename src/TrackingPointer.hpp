@@ -26,10 +26,8 @@
 
 namespace mimmo{
 /*!
- *	\date			07/jul/2016
- *	\authors		Rocco Arpa
- *
- *	\brief Basic virtual class to create a generic object whose pointer can return an identifying name.
+ * \class TrackingPointer
+ * \brief Basic virtual class to create a generic object whose pointer can return an identifying name.
  */
 class TrackingPointer{
 public:

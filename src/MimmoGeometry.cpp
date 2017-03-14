@@ -28,8 +28,8 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
 
+namespace mimmo {
 
 /*!Default constructor of MimmoGeometry.
  */
@@ -91,6 +91,9 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
 	return *this;
 };
 
+/*!
+ * Building the ports available in the class
+ */
 void
 MimmoGeometry::buildPorts(){
 	bool built = true;
@@ -348,7 +351,7 @@ MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
  * structure will be erased and substituted by the new ones. If an internal object is not 
  * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
  * doing anything even in case of argument pointing to nullptr; 
- * \param[in] vertices pointer to a cell PiercedVector structure 
+ * \param[in] cells pointer to a cell PiercedVector structure 
  */
 void
 MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
@@ -365,7 +368,7 @@ MimmoGeometry::setPID(shivector1D pids){
 };
 
 /*!It sets the PIDs of part of/all the cells of the geometry Patch.
- * \param[in] pids PIDs map list w/ id of the cell as first value, and pid as second value.
+ * \param[in] pidsMap PIDs map list w/ id of the cell as first value, and pid as second value.
  */
 void
 MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
@@ -957,7 +960,7 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
 }
 /*!
  *	Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]	inputDir	folder of file
+ *\param[in]	outputDir	folder of file
  *\param[in]	surfaceName	name of file
  *\param[out]	points		list of points in the cloud  
  * 
@@ -1247,10 +1250,19 @@ return;
 //====== NASTRAN INTERFACE ======//
 //===============================//
 
+/*!
+ * Set the format Short/Long of data in your nastran file
+ * \param[in] wf WFORMAT Short/Long of your nastran file
+ */
 void NastranInterface::setWFormat(WFORMAT wf){
 	wformat = wf;
 }
 
+/*!
+ * Write a keyword string according to WFORMAT chosen by the User
+ * \param[in]     key	keyword
+ * \param[in,out] os	ofstream where the keyword is written
+ */
 void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
 	os.setf(ios_base::left);
 	switch (wformat)
@@ -1269,6 +1281,12 @@ void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
 	os.unsetf(ios_base::left);
 }
 
+/*!
+ * Write a 3D point to an ofstream 
+ * \param[in]     p 		point
+ * \param[in] 	  pointI	point label
+ * \param[in,out] os		ofstream where the point is written
+ */
 void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 	// Fixed short/long formats:
 	// 1 GRID
@@ -1324,6 +1342,14 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
 	os.unsetf(ios_base::right);
 }
 
+/*!
+ * Write a face to an ofstream 
+ * \param[in]     faceType 	string reporting label fo the type of element
+ * \param[in] 	  facePts	Element Points connectivity 
+ * \param[in] 	  nFace		element label
+ * \param[in,out] os		ofstream where the face is written
+ * \param[in]     PID       part identifier associated to the element
+ */
 void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os,int PID){
 	// Only valid surface elements are CTRIA3 and CQUAD4
 
@@ -1389,6 +1415,13 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 	wformat = wformat_;
 }
 
+/*!
+ * Write a face to an ofstream 
+ * \param[in]     points 	list of vertices
+ * \param[in] 	  faces		element points connectivity 
+ * \param[in,out] os		ofstream where the geometry is written
+ * \param[in]     PIDS      list of Part Identifiers for each cells (optional)
+ */
 void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
 	// Write points
 //	os << "$" << nl
@@ -1426,6 +1459,11 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
 	}
 }
 
+/*!
+ * Write nastran footer to an ofstream 
+ * \param[in,out] os		ofstream where the footer is written
+ * \param[in]     PIDSSET   list of overall available part identifiers
+ */
 void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDSSET){
 	string separator_("");
 	if (PIDSSET == NULL){
@@ -1474,6 +1512,15 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDS
 	os << nl;
 }
 
+/*!
+ * Write a bdf nastran file
+ * \param[in] outputDir	output directory
+ * \param[in] surfaceName	output filename
+ * \param[in] points	reference of a point container that has to be written
+ * \param[in] faces     reference to element-point connectivity that has to be written 
+ * \param[in] PIDS		reference to short int vector for Part Identifiers that need to be associated to elements
+ * \param[in] PIDSSET	map of overall available Part Identifiers
+ */
 void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
 
 	ofstream os(outputDir +"/"+surfaceName + ".nas");
@@ -1487,7 +1534,14 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
 }
 
 //========READ====//
-
+/*!
+ * Read a bdf nastran file
+ * \param[in] inputDir	input directory
+ * \param[in] surfaceName	input filename
+ * \param[in,out] points	reference of a point container that has to be filled
+ * \param[in,out] faces     reference to element-point connectivity that has to be filled 
+ * \param[in,out] PIDS		reference to short int vector for Part Identifier storage
+ */
 void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS){
 
 	ifstream is(inputDir +"/"+surfaceName + ".nas");
@@ -1568,6 +1622,10 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
 
 }
 
+/*!
+ * Custom trimming of nas string 
+ * \return trimmed string
+ */
 string
 NastranInterface::trim(string in){
 
@@ -1577,7 +1635,10 @@ NastranInterface::trim(string in){
 	return in;
 }
 
-
+/*!
+ * Convert nas string of numerical floats 
+ * \return string of regular floats
+ */
 string
 NastranInterface::convertVertex(string in){
 	int pos = in.find_last_of("-");
@@ -1593,5 +1654,5 @@ NastranInterface::convertVertex(string in){
 	return in;
 }
 
-
+}
 

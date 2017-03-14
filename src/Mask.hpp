@@ -30,11 +30,8 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief Mask is the class that applies a geometrical masking filter to a set of data.
+ * \class Mask
+ * \brief Mask is the class that applies a geometrical masking filter to a set of data.
  *
  *	Mask is derived from BaseManipulation class.
  *	It uses the members m_coords as values to be compared with the thresholds
@@ -46,24 +43,24 @@ namespace mimmo{
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------|
- *	|                 Port Input                       		 		 |
+ *	|                 Port Input                                     |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *	| 0     | M_COORDS | m_coords          | (VECARR3, FLOAT)		 |
- *	| 10    | M_DISPLS | m_displ           | (VECARR3, FLOAT) 	     |
- *	| 41    | M_RANGE  | m_thres           | (ARRAY3, FLOAT)		 |
- *	| 42    | M_BOOLS3 | m_inside          | (ARRAY3, BOOL)			 |
+ *	| 0     | M_COORDS | m_coords          | (VECARR3, FLOAT)        |
+ *	| 10    | M_DISPLS | m_displ           | (VECARR3, FLOAT)        |
+ *	| 41    | M_RANGE  | m_thres           | (ARRAY3, FLOAT)         |
+ *	| 42    | M_BOOLS3 | m_inside          | (ARRAY3, BOOL)          |
  *	|-------|----------|-------------------|-------------------------|
  *
  *
  *	|----------------------------------------------------------------|
- *	|            Port Output                          		 		 |
+ *	|            Port Output                                         |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *	| 0     | M_COORDS | getCoords         | (VECARR3, FLOAT)		 |
- *	| 10    | M_DISPLS | getDisplacements  | (VECARR3, FLOAT) 	     |
+ *	| 0     | M_COORDS | getCoords         | (VECARR3, FLOAT)        |
+ *	| 10    | M_DISPLS | getDisplacements  | (VECARR3, FLOAT)        |
  *	|-------|----------|-------------------|-------------------------|
  * ~~~
  *	=========================================================

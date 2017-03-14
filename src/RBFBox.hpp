@@ -29,9 +29,7 @@
 namespace mimmo{
 
 /*!
- *	\date			16/dec/2016
- *	\authors		Edoardo Lombardi
- *
+ *	\class RBFBox
  *	\brief Radial Basis Functions Bounding Box calculator.
  *
  *	Builds the axes aligned bounding box of a set of RBF points.
@@ -41,21 +39,21 @@ namespace mimmo{
  *	|-------------------------------------------------------------------------------------|
  *	|                    Port Input                                                       |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	|PortID | PortType    | variable/function                     | DataType		      |
+ *	|PortID | PortType    | variable/function                     | DataType              |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *  | 0     | M_COORDS    | setNode                               | (VECARR3, FLOAT)      |
- *  | 30    | M_VALUED    | setSupportRadius                      | (SCALAR, FLOAT)       |
+ *	| 0     | M_COORDS    | setNode                               | (VECARR3, FLOAT)      |
+ *	| 30    | M_VALUED    | setSupportRadius                      | (SCALAR, FLOAT)       |
  *	|-------|-------------|---------------------------------------|-----------------------|
  * 
  *
  *  |---------------------------------------------------------------|
- *	|               Port Output               						|
+ *	|               Port Output                                     |
  *	|-------|-------------|-------------------|---------------------|
- *	|PortID | PortType    | variable/function | DataType		  	|
+ *	|PortID | PortType    | variable/function | DataType            |
  *	|-------|-------------|-------------------|---------------------|
- *	| 20    | M_POINT     | getOrigin         |	(ARRAY3, FLOAT)		|
- *	| 22    | M_AXES      | getAxes 	      |	(ARR3ARR3, FLOAT)	|
- *	| 23    | M_SPAN      | getSpan           |	(ARRAY3, FLOAT)		|
+ *	| 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
+ *	| 22    | M_AXES      | getAxes           | (ARR3ARR3, FLOAT)   |
+ *	| 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
  *	|-------|-------------|-------------------|---------------------|
  * ~~~
  *	=========================================================

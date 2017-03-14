@@ -23,7 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
  #include "ReconstructFields.hpp"
- using namespace mimmo;
+namespace mimmo{
 
  /*!
   * Constructor
@@ -513,3 +513,4 @@ void ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::
 };
 
 
+}

@@ -28,7 +28,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 /*!Default constructor of MimmoObject.
  * It sets to zero/null each member/pointer.
@@ -560,7 +560,7 @@ MimmoObject::getCopy(){
 }
 
 /*!Sets the vertices structure of the geometry Patch, clearing any previous vertex list stored.
- * \param[in] vertex vertex structure of geometry mesh.
+ * \param[in] vertices vertex structure of geometry mesh.
  * \return False if no geometry is linked, not all vertices inserted or empty argument .
  */
 bool
@@ -596,7 +596,7 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
  * to get a unique tag for the added vertex. The latter option is default.
  * If tag is already assigned, return with unsuccessful insertion. 
  * \param[in] vertex Coordinates of vertex to be added to geometry mesh.
- * \param[in] idTag  unique ID associated to the vertex	
+ * \param[in] idtag  unique ID associated to the vertex	
  * \return boolean true if the vertex is successful inserted.
  */
 bool
@@ -687,9 +687,9 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
  * The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
  * mismatches with the type of PatchKernel internally defined into the class, return false. 
  * Does nothing if class type is a pointcloud one (type 3);
- * \param[in] connectivity	Connectivity of target cell of geometry mesh.
- * \param[in] type          type of element to be added, according to bitpit ElementInfo enum.
- * \param[in] idtag			id of the cell
+ * \param[in] conn  connectivity of target cell of geometry mesh.
+ * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
+ * \param[in] idtag id of the cell
  * \return False if no geometry is linked, idtag already assigned, mismatched connectivity 
  */
 bool
@@ -730,10 +730,10 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
  * The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
  * mismatches with the type of PatchKernel internally defined into the class, return false. 
  * Does nothing if class type is a pointcloud one (type 3);
- * \param[in] connectivity	Connectivity of target cell of geometry mesh.
- * \param[in] type          type of element to be added, according to bitpit ElementInfo enum.
- * \param[in] PID           Part Identifier
- * \param[in] idtag			id of the cell
+ * \param[in] conn  Connectivity of target cell of geometry mesh.
+ * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
+ * \param[in] PID   Part Identifier
+ * \param[in] idtag id of the cell
  * \return False if no geometry is linked, idtag already assigned, mismatched connectivity 
  */
 bool
@@ -1280,5 +1280,5 @@ void MimmoObject::buildAdjacencies(){
 	getPatch()->buildAdjacencies();
 };
 
-
+}
 

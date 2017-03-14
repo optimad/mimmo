@@ -34,22 +34,23 @@ namespace mimmo{
 
 class NastranInterface;
 
-	/*!Format of data to read/write the geometry.*/
+
+/*!
+ * \enum WFORMAT
+ * Format of data to read/write the Nastran geometries.
+ */
 enum WFORMAT{	/*!Single precision data.*/		Short,
 				/*!Double precision data.*/		Long
 };
 
 
 /*!
- *	\date			30/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief MimmoGeometry is an executable block class wrapping(linking or internally instantiating)
+ * \class MimmoGeometry
+ * \brief MimmoGeometry is an executable block class wrapping(linking or internally instantiating)
  *           a Mimmo Object, handling geometry.
  *
  *	MimmoGeometry is the object to manage the import/export/substantial modifications of geometries. It returns a 
- *  standard MimmoObject class as product of its execution;
+ *	standard MimmoObject class as product of its execution;
  *	The mesh to import/export has to be a mesh with constant type elements.
  *	The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *	ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
@@ -57,35 +58,35 @@ enum WFORMAT{	/*!Single precision data.*/		Short,
  * 
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
- *	1)	Ascii/Binary triangulation stl.	STL 	= 0,
- *  2)	Surface triangulation vtu.		STVTU 	= 1,
- *	3)	Surface quadrilateral vtu.		SQVTU 	= 2,
- *	4)	Volume tetrahedral VTU.			VTVTU 	= 3,
- *	5)	Volume hexahedral VTU.			VHVTU 	= 4,
- *	6)	Nastran triangulation nas.		NAS 	= 5,
- *	7)	Ascii OpenFoam point cloud.		OFP 	= 6,
- *  8)  Point Cloud VTU					PCVTU   = 7
+ * - Ascii/Binary triangulation stl.	STL 	= 0
+ * - Surface triangulation vtu.			STVTU 	= 1
+ * - Surface quadrilateral vtu.			SQVTU 	= 2
+ * - Volume tetrahedral VTU.			VTVTU 	= 3
+ * - Volume hexahedral VTU.				VHVTU 	= 4
+ * - Nastran triangulation nas.			NAS 	= 5
+ * - Ascii OpenFoam point cloud.		OFP 	= 6
+ * - Point Cloud VTU					PCVTU   = 7
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
- * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.
+ * The smart enum can be recalled in every moment in your code, just using mimmo::FileType 
  * and including MimmoGeometry header. 
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------|
  *	|                 Port Input                                   |
  *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType		       |
+ *	|PortID | PortType | variable/function | DataType              |
  *	|-------|----------|-------------------|-----------------------|
- *	| 99    | M_GEOM   | m_geometry        | (SCALAR, MIMMO_)	   |
+ *	| 99    | M_GEOM   | m_geometry        | (SCALAR, MIMMO_)      |
  *	|-------|----------|-------------------|-----------------------|
  *
  *
  *	|---------------------------------------|-----------------------|
  *	|            Port Output                |                       |
  *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType		      	|
+ *	|PortID | PortType  | variable/function | DataType              |
  *	|-------|-----------|-------------------|-----------------------|
- *	| 99    | M_GEOM    | getGeometry       | (SCALAR, MIMMO_)		|
+ *	| 99    | M_GEOM    | getGeometry       | (SCALAR, MIMMO_)      |
  *	|-------|-----------|-------------------|-----------------------|
  * ~~~
  *	=========================================================
@@ -173,12 +174,15 @@ private:
 	
 };
 
-
+/*!
+ * \class NastranInterface
+ * \brief NastranInterface is an interface class for I/O handling of BDF bulk nastran format *.nas.
+ */
 class NastranInterface{
 	static const char nl = '\n';
 public:
 
-	WFORMAT	wformat;
+	WFORMAT	wformat; /**< member storing the file type format Short/Long */
 
 	void setWFormat(WFORMAT);
 	void writeKeyword(std::string key, std::ofstream& os);
@@ -192,6 +196,11 @@ public:
 	std::string trim(std::string in);
 	std::string convertVertex(std::string in);
 
+	/*!
+	 * Write a template value according to WFORMAT chosen by the User
+	 * \param[in]     value	value of class Type
+	 * \param[in,out] os	ofstream where the value is written
+	 */
 	template<class Type>
 	void writeValue (Type& value, std::ofstream& os){
 

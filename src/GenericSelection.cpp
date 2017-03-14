@@ -25,7 +25,7 @@
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmo;
+namespace mimmo {
 
 //------------------------------------------------------------------------
 //GENERIC	SELECTION class **********************************************
@@ -313,4 +313,5 @@ void GenericSelection::plotOptionalResults(){
 	if(getPatch()->isEmpty()) return;
 	std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 	getPatch()->getPatch()->write(name);
+}
 }

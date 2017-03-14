@@ -25,7 +25,7 @@
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmo;
+namespace mimmo{
 
 
 //------------------------------------------------------------------------
@@ -529,4 +529,4 @@ void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std:
 	return;
 };
 
-
+}

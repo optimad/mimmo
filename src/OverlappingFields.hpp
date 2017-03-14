@@ -30,6 +30,9 @@
 namespace mimmo{
 
 /*!
+ * \class OverlapScalarFields
+ * \brief Manipulator that overlaps multiple scalar fields defined on the same mesh objects
+ * 
  * Class/BaseManipulation Object overlapping one or more double scalar fields associated to a MimmoObject geometry.
  * The class handles more possible overlapping referring to different geoemtries at the same time. Returns a list of
  * overlapped fields associated to their geometry. 
@@ -38,25 +41,23 @@ namespace mimmo{
  * 
  *	=========================================================
  * ~~~
- *	|---------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                        				|
- *	|-------|----------------|---------------------------------------|----------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes						|
- *	|-------|----------------|---------------------------------------|----------------------------------|
- *	| 81    | M_PAIRSCAFIELD | setAddDataField                       | (PAIR, MIMMO_VECFLOAT_)			|
- *	| 106   | M_UMGEOSFD     | setDataFieldMap                       | (UMAP, MIMMO_VECFLOAT_)			|
- *  | 200	| M_VECPAIRSF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
- *	|-------|----------------|---------------------------------------|----------------------------------|
- * 
- *
+ *	|--------------------------------------------------------------------------------|
+ *	|                   Port Input                                                   |
+ *	|-------|----------------|--------------------|----------------------------------|
+ *	|PortID | PortType       | variable/function  | DataTypes                        |
+ *	|-------|----------------|--------------------|----------------------------------|
+ *	| 81    | M_PAIRSCAFIELD | setAddDataField    | (PAIR, MIMMO_VECFLOAT_)          |
+ *	| 106   | M_UMGEOSFD     | setDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)          |
+ *	| 200   | M_VECPAIRSF    | setDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
+ *	|-------|----------------|--------------------|----------------------------------|
  *
  *	|----------------------------------------------------------------------------|
- *	|             Port Output                                         	         |
+ *	|             Port Output                                                    |
  *	|-------|----------------|--------------------|------------------------------|
- *	|PortID | PortType       | variable/function  | DataTypes			         |
+ *	|PortID | PortType       | variable/function  | DataTypes                    |
  *	|-------|----------------|--------------------|------------------------------|
  *	| 106   | M_UMGEOSFD     | getDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)      |
- *  | 200   | M_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
+ *	| 200   | M_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
  *	|-------|----------------|--------------------|------------------------------|
  *
  * ~~~
@@ -123,6 +124,10 @@ private:
 };	
 	
 /*!
+ * 
+ * \class OverlapVectorFields
+ * \brief Manipulator that overlaps multiple vector fields defined on the same mesh objects
+ * 
  * Class/BaseManipulation Object overlapping one or more 3 double elements vector fields associated to a MimmoObject geometry.
  * The class handles more possible overlapping referring to different geoemtries at the same time. Returns a list of
  * overlapped fields associated to theri geometry. 
@@ -131,25 +136,23 @@ private:
  * 
  *	=========================================================
  * ~~~
- *	|----------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                        				 |
- *	|-------|----------------|---------------------------------------|-----------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes						 |
- *	|-------|----------------|---------------------------------------|-----------------------------------|
- *	| 80    | M_PAIRVECFIELD | setAddDataField                       | (PAIR, MIMMO_VECARR3FLOAT_)		 |
- *	| 107   | M_UMGEOSVD     | setDataFieldMap                       | (UMAP, MIMMO_VECARR3FLOAT_)		 |
- *  | 201	| M_VECPAIRVF    | setDataFieldList						 | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
- *	|-------|----------------|---------------------------------------|-----------------------------------|
- * 
- *
+ *	|-------------------------------------------------------------------------------|
+ *	|                   Port Input                                                  |
+ *	|-------|----------------|------------------|-----------------------------------|
+ *	|PortID | PortType       | variable/function| DataTypes                         |
+ *	|-------|----------------|------------------|-----------------------------------|
+ *	| 80    | M_PAIRVECFIELD | setAddDataField  | (PAIR, MIMMO_VECARR3FLOAT_)       |
+ *	| 107   | M_UMGEOSVD     | setDataFieldMap  | (UMAP, MIMMO_VECARR3FLOAT_)       |
+ *	| 201   | M_VECPAIRVF    | setDataFieldList | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+ *	|-------|----------------|------------------|-----------------------------------|
  *
  *	|---------------------------------------------------------------------------------|
- *	|             Port Output                                         	              |
+ *	|             Port Output                                                         |
  *	|-------|----------------|--------------------|-----------------------------------|
- *	|PortID | PortType       | variable/function  | DataTypes			              |
+ *	|PortID | PortType       | variable/function  | DataTypes                         |
  *	|-------|----------------|--------------------|-----------------------------------|
  *	| 107   | M_UMGEOVFD     | getDataFieldMap    | (UMAP, MIMMO_VECARR3EFLOAT_)      |
- *  | 201   | M_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+ *	| 201   | M_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
  *	|-------|----------------|--------------------|-----------------------------------|
  *
  * ~~~

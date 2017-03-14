@@ -31,7 +31,7 @@
 using namespace std::chrono;
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!
@@ -815,3 +815,5 @@ void 	OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 	
 	return;
 };
+
+}

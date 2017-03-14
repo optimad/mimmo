@@ -27,6 +27,7 @@
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
+using namespace mimmo::pin;
 
 
 #include <chrono>

@@ -132,7 +132,6 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
  * \param[in] objRec Pointer to BaseManipulation receiver object.
  * \param[in] portS Port ID of the output port of sender object.
  * \param[in] portR Port ID of the input port of receiver object.
- * \param[in] forced If true it forces to build the connection without checking the compatibility between ports.
  * \return True if the pin is added.
  */
 bool

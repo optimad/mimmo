@@ -31,7 +31,8 @@
 namespace mimmo{
 
 /*!
- * Enum class for engine  choiche to set up initial points on a 3D surface.
+ * \enum CSeedSurf
+ * \brief Enum class for engine choiche to set up initial points on a 3D surface.
  */	
 enum class CSeedSurf{
 	RANDOM = 0 /**< Engine type, sows randomly points on surface */,
@@ -41,15 +42,18 @@ enum class CSeedSurf{
 };
 
 /*!
+ * \class CreateSeedsOnSurface
+ * \brief Distribute points on a target 3D surface
+ * 
  * Class/BaseManipulation Object to position an initial set of points on a 3D surface.
  * Three type of engines to compute point position are available:
- * 0)	CSeedSurf::RANDOM : sows points randomly on your surface, trying to displace them
- * 		at maximum euclidean distance possible on the surface.
- * 1)	CSeedSurf::LEVELSET : starting from an initial seed, sows points around it, trying 
- * 		to displace them at maximum geodesic distance possible on the surface.
- * 2)	CSeedSurf::CARTESIANGRID	evaluate points by projection of a volumetric 
- * 		cartesian grid of surface and decimating the list up the desired value of points, 
- * 		trying to displace them at maximum euclidean distance possible on the surface
+ * - CSeedSurf::RANDOM : sows points randomly on your surface, trying to displace them
+ * at maximum euclidean distance possible on the surface.
+ * - CSeedSurf::LEVELSET : starting from an initial seed, sows points around it, trying 
+ * to displace them at maximum geodesic distance possible on the surface.
+ * - CSeedSurf::CARTESIANGRID	evaluate points by projection of a volumetric 
+ * cartesian grid of surface and decimating the list up the desired value of points, 
+ * trying to displace them at maximum euclidean distance possible on the surface
  * 
  * Default engine is CARTESIANGRID
  * PORTS AVAILABLE IN CreateSeedsOnSurface Class 
@@ -59,22 +63,22 @@ enum class CSeedSurf{
  *	|----------------------------------------------------------------------------------------|
  *	|                   Port Input                                                           |
  *	|-------|----------------|---------------------------------------|-----------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes	         |
+ *	|PortID | PortType       | variable/function                     | DataTypes             |
  *	|-------|----------------|---------------------------------------|-----------------------|
- *	| 20    | M_POINT        | setSeed		                         | (ARRAY3, FLOAT)       |
- *	| 31    | M_VALUEI       | setNPoints	                         | (SCALAR, INT)	     | 
- *	| 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)	     | 
+ *	| 20    | M_POINT        | setSeed                               | (ARRAY3, FLOAT)       |
+ *	| 31    | M_VALUEI       | setNPoints                            | (SCALAR, INT)         | 
+ *	| 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)        | 
  *	| 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      | 
- *	| 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)	     |
+ *	| 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)         |
  *	|-------|----------------|---------------------------------------|-----------------------|
  *
  *
  *	|-----------------------------------------------------------------------|
- *	|             Port Output                     							|
+ *	|             Port Output                                               |
  *	|-------|----------------|--------------------|-------------------------|
- *	|PortID | PortType       | variable/function  | DataTypes	         	|
+ *	|PortID | PortType       | variable/function  | DataTypes               |
  *	|-------|----------------|--------------------|-------------------------|
- *	| 0     | M_COORDS  	 | getPoints	      | (VECARR3E, FLOAT)     	|
+ *	| 0     | M_COORDS       | getPoints          | (VECARR3E, FLOAT)       |
  *	|-------|----------------|--------------------|-------------------------|
  *
  * ~~~

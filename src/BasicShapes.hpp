@@ -56,19 +56,16 @@ enum class CoordType{
 }; 
 
 /*!
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
+ *\class BasicShape
+ *\brief Abstract Interface class for Elementary Shape Representation
  *
- *	\brief Abstract Interface class for Elementary Shape Representation
- *
- *	Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
- *  Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class 
- *  internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
- *	Class works with three reference systems:
- * 	1) Global Absolute SDR: is the external World reference system
- *  2) Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
- *  3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
+ * Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
+ * Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class 
+ * internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
+ * Class works with three reference systems:
+ * 1) Global Absolute SDR: is the external World reference system
+ * 2) Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
+ * 3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
  *   
  */
 class BasicShape {
@@ -83,7 +80,7 @@ protected:
 
 	std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
 
-	dvecarr3E m_bbox;	//point of bounding box of the shape, temporary not copied build with get bounding box !!!
+	dvecarr3E m_bbox;	/**<points of bounding box of the shape */  //temporary not copied build with get bounding box !!!
 	
 public:
 	
@@ -163,13 +160,10 @@ private:
 };
 
 /*!
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
+ * \class Cube
+ * \brief Elementary Shape Representation of a Cube
  *
- *	\brief Elementary Shape Representation of a Cube
- *
- *	Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.   
  */
 
 class Cube: public BasicShape {
@@ -201,13 +195,11 @@ private:
 };
 
 /*!
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
  *
- *	\brief Elementary Shape Representation of a Cylinder or portion of it
+ *\class Cylinder 
+ *\brief Elementary Shape Representation of a Cylinder or portion of it
  *
- *	Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
+ *Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
  */
 
 class Cylinder: public BasicShape {
@@ -239,13 +231,10 @@ private:
 
 
 /*!
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
+ *\class Sphere
+ *\brief Elementary Shape Representation of a Sphere or portion of it
  *
- *	\brief Elementary Shape Representation of a Sphere or portion of it
- *
- *	Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
+ *Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
  */
 
 class Sphere: public BasicShape {

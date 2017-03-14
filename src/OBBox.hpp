@@ -29,10 +29,7 @@
 namespace mimmo{
 
 /*!
- *	\date			24/mar/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *	\class OBBox
  *	\brief Oriented Bounding Box calculator.
  *
  *	Builds the oriented bounding box of a 3D object (Point Clouds or superficial tessellations), passed as MimmoObject. 
@@ -42,20 +39,20 @@ namespace mimmo{
  *	|-------------------------------------------------------------------------------------|
  *	|                    Port Input                                                       |
  *	|-------|-------------|---------------------------------------|-----------------------|
- *	|PortID | PortType    | variable/function                     | DataType		      |
+ *	|PortID | PortType    | variable/function                     | DataType              |
  *	|-------|-------------|---------------------------------------|-----------------------|
  *	| 99    | M_GEOM      | m_geometry                            |(SCALAR, MIMMO_)       |
  *	|-------|-------------|---------------------------------------|-----------------------|
  * 
  *
  *  |---------------------------------------------------------------|
- *	|               Port Output               						|
+ *	|               Port Output                                     |
  *	|-------|-------------|-------------------|---------------------|
- *	|PortID | PortType    | variable/function | DataType		  	|
+ *	|PortID | PortType    | variable/function | DataType            |
  *	|-------|-------------|-------------------|---------------------|
- *	| 20    | M_POINT     | getOrigin         |	(ARRAY3, FLOAT)		|
- *	| 22    | M_AXES      | getAxes 	      |	(ARR3ARR3, FLOAT)	|
- *	| 23    | M_SPAN      | getSpan           |	(ARRAY3, FLOAT)		|
+ *	| 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
+ *	| 22    | M_AXES      | getAxes           | (ARR3ARR3, FLOAT)   |
+ *	| 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
  *	|-------|-------------|-------------------|---------------------|
  * ~~~
  *	=========================================================

@@ -47,8 +47,11 @@ enum class OverlapMethod{
 };
 
 /*!
- * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObjectmesh, from several
- * scalar fields defined on sub-patch of the target mesh. Field values are defined on nodes.
+ * \class ReconstructScalar
+ * \brief Reconstruct a scalar field from daughter mesh to mother mesh
+ * 
+ * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObject mesh, from several
+ * scalar fields defined on sub-patches of the target mesh. Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
  * PORTS AVAILABLE IN ReconstructScalar Class 
@@ -56,13 +59,13 @@ enum class OverlapMethod{
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                        				|
+ *	|                   Port Input                                                                      |
  *	|-------|----------------|---------------------------------------|----------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes						|
+ *	|PortID | PortType       | variable/function                     | DataTypes                        |
  *	|-------|----------------|---------------------------------------|----------------------------------|
- *	| 81    | M_PAIRSCAFIELD | setData                               | (PAIR, MIMMO_VECFLOAT_)			|
- *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)					|
- *  | 200	| M_VECPAIRSF    | setData	    						 | (VECTOR, PAIRMIMMO_VECFLOAT_)	|
+ *	| 81    | M_PAIRSCAFIELD | setData                               | (PAIR, MIMMO_VECFLOAT_)          |
+ *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)                 |
+ *	| 200   | M_VECPAIRSF    | setData                               | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
  *	|-------|----------------|---------------------------------------|----------------------------------|
  * 
  *
@@ -70,11 +73,11 @@ enum class OverlapMethod{
  *	|---------------------------------------------------------------------|
  *	|             Port Output                                             |
  *	|-------|----------------|--------------------|-----------------------|
- *	|PortID | PortType       | variable/function  | DataTypes			  |
+ *	|PortID | PortType       | variable/function  | DataTypes             |
  *	|-------|----------------|--------------------|-----------------------|
- *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)		  |
- *  | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)	  |
- *  | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
+ *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
+ *	| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
+ *	| 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
  *	|-------|----------------|--------------------|-----------------------|
  *
  * ~~~
@@ -137,35 +140,36 @@ private:
 };	
 	
 /*!
+ * \class ReconstructVector
+ * \brief Reconstruct a vector field from daughter mesh to mother mesh
+ * 
  * Class/BaseManipulation Object reconstructing a vector field on a mimmo::MimmoObject mesh, from several
- * vector fields defined on sub-patch of the target mesh. Field values are defined on nodes.
+ * vector fields defined on sub-patches of the target mesh. Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
  * PORTS AVAILABLE IN ReconstructVector Class 
  * 
  *	=========================================================
  * ~~~
- *|-------------------------------------------------------------------------------------------------------|
- *|                   Port Input                                                        					|
- *|-------|----------------|---------------------------------------|--------------------------------------|
- *|PortID | PortType       | variable/function                     | DataTypes							|
- *|-------|----------------|---------------------------------------|--------------------------------------|
- *| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)			|
- *| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)						|
- *| 201   | M_VECPAIRVF    | setData                               | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)	|
- *|-------|----------------|---------------------------------------|--------------------------------------|
+ *	|-----------------------------------------------------------------------------------------------------|
+ *	|                   Port Input                                                                        |
+ *	|-------|----------------|---------------------------------------|------------------------------------|
+ *	|PortID | PortType       | variable/function                     | DataTypes                          |
+ *	|-------|----------------|---------------------------------------|------------------------------------|
+ *	| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)        |
+ *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)                   |
+ *	| 201   | M_VECPAIRVF    | setData                               | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
+ *	|-------|----------------|---------------------------------------|------------------------------------|
  * 
- *
- *
- *|--------------------------------------------------------------------------|
- *|             Port Output                                                  |
- *|-------|----------------|--------------------|----------------------------|
- *|PortID | PortType       | variable/function  | DataTypes                  |
- *|-------|----------------|--------------------|----------------------------|
- *| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           | 
- *| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
- *| 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
- *|-------|----------------|--------------------|----------------------------|
+ *	|--------------------------------------------------------------------------|
+ *	|             Port Output                                                  |
+ *	|-------|----------------|--------------------|----------------------------|
+ *	|PortID | PortType       | variable/function  | DataTypes                  |
+ *	|-------|----------------|--------------------|----------------------------|
+ *	| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           | 
+ *	| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
+ *	| 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
+ *	|-------|----------------|--------------------|----------------------------|
  * 
  * ~~~
  *	=========================================================

@@ -26,7 +26,8 @@
 #include "BaseManipulation.hpp"
 
 using namespace std;
-using namespace mimmo;
+
+namespace mimmo {
 
 int BaseManipulation::sm_baseManipulationCounter(1);
 
@@ -257,11 +258,12 @@ BaseManipulation::setPriority(uint priority){
 	m_priority = priority;
 };
 
-/*!It sets the name of the manipulator object.
+/*!
+ * It sets the name of the manipulator object.
  * \param[in] name Name of the manipulator object.
  */
 void
-BaseManipulation::setName(string name){
+BaseManipulation::setName(std::string name){
 	m_name = name;
 };
 
@@ -579,7 +581,8 @@ BaseManipulation::findPinOut(PortOut& pin){
 /*!
  * It removes an input pin (connection) of the object and the
  * related output pin (connection) of the linked object.
- * \param[in] i Index of target input pin (connection).
+ * \param[in] portR Port ID of target input pin (connection).
+ * \param[in] j Index of target output pin (connection) of the portR input port.
  */
 void
 BaseManipulation::removePinIn(PortID portR, int j){
@@ -673,3 +676,4 @@ void 	BaseManipulation::plotOptionalResults(){
 	return;
 }
 
+}

@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "IOConnections.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of IOConnections_MIMMO.
@@ -153,7 +153,7 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
 			continue;
 		}
 		
-		bool check = addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
+		bool check = pin::addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
 		
 		if(debug && !check){
 			std::cout<<"---------------------------------------------"<<std::endl;
@@ -231,3 +231,5 @@ IOConnections_MIMMO::flushConnections(bitpit::Config & slotXML, bool debug ){
 	}
 	return;
 };
+
+}

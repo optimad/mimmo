@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor. Requires topo flag. 1-surface, 2-volume, 3-pointcloud.
@@ -231,4 +231,6 @@ SplitVectorField::split(){
 	}
 	
 	return true;
+}
+
 }

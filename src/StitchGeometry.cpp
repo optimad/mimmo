@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of StitchGeometry.
@@ -100,6 +100,9 @@ StitchGeometry & StitchGeometry::operator=(const StitchGeometry & other){
 	return *this;
 };
 
+/*!
+ * Building ports of the class
+ */
 void
 StitchGeometry::buildPorts(){
 	bool built = true;
@@ -446,4 +449,6 @@ StitchGeometry::plotOptionalResults(){
 	if(isEmpty()) return;
 	std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 	m_patch->getPatch()->write(name);
+}
+
 }

@@ -30,43 +30,41 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class ControlDeformMaxDistance
  *
- *	\brief ControlDeformationMaxDistance is a class that check a deformation field associated to a MimmoObject geometry,
- * 		once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
+ * \brief ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject geometry,
+ *  once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
  *
- *	ControlDeformationMaxDistance is derived from BaseManipulation class.
- *	It needs a maximum, isotropic limit distance d w.r.t. geometry undeformed state, which is used to evaluate the isolevel d
- *  of the target geometry. 
- *	Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points, 
- *  reporting how much the current deformation field violate the constraint itself.
- *  if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
- *  No optional result are plot. 
- *  Class absorbs/flushes its parameters from/to xml dictionaries
+ * ControlDeformMaxDistance is derived from BaseManipulation class.
+ * It needs a maximum, isotropic limit distance d w.r.t. geometry undeformed state, which is used to evaluate the isolevel d
+ * of the target geometry. 
+ * Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points, 
+ * reporting how much the current deformation field violate the constraint itself.
+ * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
+ * No optional result are plot. 
+ * Class absorbs/flushes its parameters from/to xml dictionaries
  *
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------|
- *	|                 Port Input                       		 		 |
+ *	|                 Port Input                                     |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *  | 11    | M_GDISPLS| setDefField	   | (VECARR3E, FLOAT)		 |
- *  | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)		 |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)		 |
+ *	| 11    | M_GDISPLS| setDefField	   | (VECARR3E, FLOAT)       |
+ *	| 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
+ *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
  *	|-------|----------|-------------------|-------------------------|
  *
  *
  *	|-------------------------------------------------------------------------|
  *	|            Port Output                                                  |
  *	|-------|---------------|-------------------|-----------------------------|
- *	|PortID | PortType      | variable/function | DataType 			          |
+ *	|PortID | PortType      | variable/function | DataType                    |
  *	|-------|---------------|-------------------|-----------------------------|
- *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)			  | 
- *	| 30    | M_VALUED 		| getViolation      | (SCALAR, FLOAT)			  |
- *  | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
+ *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             | 
+ *	| 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+ *	| 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
  *	|-------|---------------|-------------------|-----------------------------|
  * ~~~
  *	=========================================================

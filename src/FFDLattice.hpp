@@ -29,13 +29,10 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *	\class FFDLattice
  *	\brief Free Form Deformation of a 3D surface and point clouds, with structured lattice.
  *
- *	Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape 
+ * Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape 
  *  (box, sphere, cylinder or part of them) around the geometry and set a structured cartesian mesh of control 
  *  points on it (lattice). Displacements of each control point is linked to the geometry inside 
  *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
@@ -45,56 +42,63 @@ namespace mimmo{
  *	=========================================================
  * ~~~
  *	|--------------------------------------------------------------------------------|
- *	|                 			    Port Input                                       |
+ *	|                               Port Input                                       |
  *	|-------|------------------|-----------------------------------------------------|
  *	|PortID | PortType         | variable/function             | DataType            |
  *	|-------|------------------|-------------------------------|---------------------|
  *	| 10    | M_DISPLS         | m_displ                       | (VECARR3, FLOAT)    |
  *	| 12    | M_FILTER         | m_filter                      | (VECTOR, FLOAT)     |
- *  | 40	| M_DEG	           | setDegrees					   | (ARRAY3, INT) 		 |
- *  | 44	| M_NURBSWEIGHTS   | setNodalWeight  			   | (VECTOR, FLOAT)     |
- *  | 43	| M_NURBSCOORDTYPE | setCoordType  			   	   | (ARRAY3, COORDT)	 |
+ *	| 40    | M_DEG            | setDegrees                    | (ARRAY3, INT)       |
+ *	| 44    | M_NURBSWEIGHTS   | setNodalWeight                | (VECTOR, FLOAT)     |
+ *	| 43    | M_NURBSCOORDTYPE | setCoordType                  | (ARRAY3, COORDT)    |
  *	|--------------------------------------------------------------------------------|
- *	|              			  Inherited from lattice                                 |
- *  |--------------------------------------------------------------------------------|
- *	| 99    | M_GEOM      | m_geometry                         | (SCALAR, MIMMO_)  	 |
- *	| 24    | M_DIMENSION | setDimension                       | (ARRAY3, INT) 		 |
- *	| 25    | M_INFLIMITS | setInfLimits                       | (ARRAY3, FLOAT)	 |
- *	| 22    | M_AXES      | setRefSystem                       | (ARR3ARR3, FLOAT)	 |
- *	| 23    | M_SPAN      | setSpan                            | (ARRAY3, FLOAT)	 |
- *	| 20    | M_POINT     | setOrigin                          | (ARRAY3, FLOAT)	 |
- *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)         | (SCALAR, SHAPET)	 |
- *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )      | (SCALAR, SHAPE_)	 |
- *	| 28    | M_SHAPEI    | setShape(int)           		   | (SCALAR, INT)	     |
- *	|-------|-------------|------------------------------------|---------------------|
- * 
- *
  *
  *	|-------------------------------------------------------------------------------|
- *	|           			    Port Output                							|
+ *	|                        Port Output                                            |
  *	|-------|-------------------|-------------------|-------------------------------|
- *	|PortID | PortType        	| variable/function | DataType            			|
+ *	|PortID | PortType          | variable/function | DataType                      |
  *	|-------|-------------------|-------------------|-------------------------------|
- *	| 11    | M_GDISPLS        	| getDeformation    | (VECARR3, FLOAT)    			|
- *	| 80    | M_PAIRVECFIELD   	| getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)	|
- *	| 40    | M_DEG  		   	| getDegrees        | (ARRAY3, INT)        			|
-  *	| 12    | M_FILTER         	| getFilter         | (VECTOR, FLOAT)      			|
- *  | 44	| M_NURBSWEIGHTS   	| getWeights        | (VECTOR, FLOAT)      			|
- *  | 43	| M_NURBSCOORDTYPE 	| getCoordType  	| (ARRAY3, COORDT)     			|
- *	|-------------------------------------------------------------------------------|
- *	| 					      Inherited from lattice               					|
- *	|-------------------------------------------------------------------------------|
- *	| 1     | M_GLOBAL    		| getGlobalCoords   | (VECARR3, FLOAT)				|
- *	| 2     | M_LOCAL     		| getLocalCoords    | (VECARR3, FLOAT)				|
- *	| 20    | M_POINT     		| getOrigin         | (ARRAY3, FLOAT)				|
- *	| 22    | M_AXES      		| getRefSystem      | (ARR3ARR3, FLOAT)				|
- *	| 25    | M_INFLIMITS 		| getInfLimits      | (ARRAY3, FLOAT)				|
- *	| 23    | M_SPAN      		| getSpan           | (ARRAY3, FLOAT)				|
- *	| 24    | M_DIMENSION 		| getDimension      | (ARRAY3, INT)					|
- *	| 27    | M_COPYSHAPE 		| getShape          | (SCALAR, SHAPE_)				|
- *  | 99    | M_GEOM      		| getGeometry       | (SCALAR, MIMMO_)				|
+ *	| 11    | M_GDISPLS         | getDeformation    | (VECARR3, FLOAT)              |
+ *	| 80    | M_PAIRVECFIELD    | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)   |
+ *	| 40    | M_DEG             | getDegrees        | (ARRAY3, INT)                 |
+ *	| 12    | M_FILTER          | getFilter         | (VECTOR, FLOAT)               |
+ *	| 44    | M_NURBSWEIGHTS    | getWeights        | (VECTOR, FLOAT)               |
+ *	| 43    | M_NURBSCOORDTYPE  | getCoordType      | (ARRAY3, COORDT)              |
  *	|-------|-------------------|-------------------|-------------------------------|
  * 
+ *	 Inherited from lattice            
+ *	|-------------------------------------------------------------------------------------|
+ *	|                    Port Input                                                       |
+ *	|-------|-------------|---------------------------------------|-----------------------|
+ *	|PortID | PortType    | variable/function                     | DataType              |
+ *	|-------|-------------|---------------------------------------|-----------------------|
+ *	| 99    | M_GEOM      | m_geometry                            | (SCALAR, MIMMO_)      |
+ *	| 24    | M_DIMENSION | setDimension                          | (ARRAY3, INT)         |
+ *	| 25    | M_INFLIMITS | setInfLimits                          | (ARRAY3, FLOAT)       |
+ *	| 22    | M_AXES      | setRefSystem                          | (ARR3ARR3, FLOAT)     |
+ *	| 23    | M_SPAN      | setSpan                               | (ARRAY3, FLOAT)       |
+ *	| 20    | M_POINT     | setOrigin                             | (ARRAY3, FLOAT)       |
+ *	| 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | (SCALAR, SHAPET)      |
+ *	| 27    | M_COPYSHAPE | setShape(const BasicShape * )         | (SCALAR, SHAPE_       |
+ *	| 28    | M_SHAPEI    | setShape(int)                         | (SCALAR, INT)         |
+ *	|-------|-------------|---------------------------------------|-----------------------|
+ * 
+ *
+ *	|---------------------------------------------------------------|
+ *	|               Port Output                                     |
+ *	|-------|-------------|-------------------|---------------------|
+ *	|PortID | PortType    | variable/function | DataType            |
+ *	|-------|-------------|-------------------|---------------------|
+ *	| 1     | M_GLOBAL    | getGlobalCoords   | (VECARR3, FLOAT)    |
+ *	| 2     | M_LOCAL     | getLocalCoords    | (VECARR3, FLOAT)    |
+ *	| 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
+ *	| 22    | M_AXES      | getRefSystem      | (ARR3ARR3, FLOAT)   |
+ *	| 25    | M_INFLIMITS | getInfLimits      | (ARRAY3, FLOAT)     |
+ *	| 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
+ *	| 24    | M_DIMENSION | getDimension      | (ARRAY3, INT)       |
+ *	| 27    | M_COPYSHAPE | getShape          | (SCALAR, SHAPE_)    |
+ *	| 99    | M_GEOM      | getGeometry       | (SCALAR, MIMMO_)    |
+ *	|-------|-------------|-------------------|---------------------|
  * ~~~
  *	=========================================================
  *

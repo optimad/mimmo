@@ -23,7 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
  #include "ReconstructFields.hpp"
- using namespace mimmo;
+namespace mimmo{
 
 
  /*!
@@ -542,3 +542,4 @@ void ReconstructVector::flushSectionXML(bitpit::Config::Section & slotXML, std::
 	return;
 };
 
+}

@@ -29,10 +29,7 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
+ *	\class SpecularPoints
  *	\brief SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target geometry if any
  *
  *	SpecularPoints is derived from ProjectCloud class. Given a certain number of points and a reference plane,
@@ -42,28 +39,28 @@ namespace mimmo{
  *	=========================================================
  * ~~~
  *	|-----------------------------------------------------------------------|
- *	|                 Port Input                       		 		 		|
+ *	|                 Port Input                                            |
  *	|-------|---------------|-------------------|---------------------------|
- *	|PortID | PortType 		| variable/function | DataType 		 		 	|
+ *	|PortID | PortType      | variable/function | DataType                  |
  *	|-------|---------------|-------------------|---------------------------|
- *	| 0     | M_COORDS 		| setPoints         | (VECARR3, FLOAT)		 	|
- *	| 10    | M_DISPLS 		| setVectorData     | (VECARR3, FLOAT) 	     	|
- *	| 19    | M_SCALARFIELD | setScalarData     | (VECTOR, FLOAT)		 	|
- *	| 29    | M_PLANE		| setPlane	     	| (ARRAY4, FLOAT)		 	|
- *  | 32    | M_VALUEB      | setInsideOut      | (SCALAR, BOOL)            |
- *  | 140   | M_VALUEB      | setForce          | (SCALAR, BOOL)            |
- *	| 99    | M_GEOM 		| m_inside          | (SCALAR, MIMMO_)			|
+ *	| 0     | M_COORDS      | setPoints         | (VECARR3, FLOAT)          |
+ *	| 10    | M_DISPLS      | setVectorData     | (VECARR3, FLOAT)          |
+ *	| 19    | M_SCALARFIELD | setScalarData     | (VECTOR, FLOAT)           |
+ *	| 29    | M_PLANE       | setPlane          | (ARRAY4, FLOAT)           |
+ *	| 32    | M_VALUEB      | setInsideOut      | (SCALAR, BOOL)            |
+ *	| 140   | M_VALUEB      | setForce          | (SCALAR, BOOL)            |
+ *	| 99    | M_GEOM        | m_inside          | (SCALAR, MIMMO_)          |
  *	|-------|---------------|-------------------|---------------------------|
  *
  *
  *	|--------------------------------------------------------------------|
- *	|            Port Output     	                     		 		 |
+ *	|            Port Output                                             |
  *	|-------|---------------|-------------------|------------------------|
- *	|PortID | PortType 		| variable/function | DataType 		 		 |
+ *	|PortID | PortType      | variable/function | DataType               |
  *	|-------|---------------|-------------------|------------------------|
- *	| 0     | M_COORDS 		| getCloudResult	| (VECARR3, FLOAT)		 |
- *	| 10    | M_DISPLS 		| getCloudVectorData| (VECARR3, FLOAT) 	     |
- *	| 19    | M_SCALARFIELD | getCloudScalarData| (VECTOR, FLOAT)		 |
+ *	| 0     | M_COORDS      | getCloudResult    | (VECARR3, FLOAT)       |
+ *	| 10    | M_DISPLS      | getCloudVectorData| (VECARR3, FLOAT)       |
+ *	| 19    | M_SCALARFIELD | getCloudScalarData| (VECTOR, FLOAT)        |
  *	|-------|---------------|-------------------|------------------------|
  * ~~~
  *	=========================================================

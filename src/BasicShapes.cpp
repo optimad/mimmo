@@ -24,11 +24,10 @@
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
 #include <algorithm>
-//#include <callgrind.h>
 
 using namespace bitpit;
-using namespace mimmo;
 
+namespace mimmo{
 
 /*
  *	\date			03/01/2015
@@ -92,7 +91,7 @@ void BasicShape::setSpan(darray3E span){
 	setScaling(span[0],span[1],span[2]);
 }
 
-/*! Set inferior limits your shape, in its local reference system.
+/*! Set inferior limits of your shape, in its local reference system.
  *  The method is useful when drawing part of your original shape, as in the 
  *  case of cylinders or sphere portions, by manipulating the adimensional 
  *  curvilinear coordinate.
@@ -111,6 +110,13 @@ void BasicShape::setInfLimits(double orig, int dir){
 	}
 }
 
+/*! Set inferior limits your shape, in its local reference system.
+ *  The method is useful when drawing part of your original shape, as in the 
+ *  case of cylinders or sphere portions, by manipulating the adimensional 
+ *  curvilinear coordinate.
+ *     
+ * \param[in] val lower value origin for all three coordinates
+ */
 void BasicShape::setInfLimits(darray3E val){
 	for (int dir=0; dir<3; dir++){
 		setInfLimits(val[dir], dir);
@@ -742,6 +748,7 @@ void	BasicShape::searchBvTreeNotMatches(mimmo::BvTree & tree,  bitpit::PatchKern
  * 	- 1 : no intersection , shape on the right/top/after the plane
  * 	- 2 : intersection occurs
  * \param[in] level current level of kdTree. 0-> xplane, 1-> yplane, 2->zplane, no other value are allowed.
+ * \param[in] target 3D point
  * \return	 unsigned integer flag between 0 and 2
  */
 uint32_t		BasicShape::intersectShapePlane(int level, darray3E target) {
@@ -1509,4 +1516,4 @@ bool Sphere::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	return isPointIncluded(checkNearestPointToAABBox(m_origin, bMin, bMax));
 };
 
-
+}

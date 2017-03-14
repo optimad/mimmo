@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformMaxDistance.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!Default constructor of ControlDeformMaxDistance
@@ -347,3 +347,4 @@ void ControlDeformMaxDistance::plotOptionalResults(){
 }
 
 
+}

@@ -25,7 +25,7 @@
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmo;
+namespace mimmo{
 
 //------------------------------------------------------------------------
 //SELECTION	BY SPHERE class 	******************************************
@@ -364,4 +364,4 @@ void SelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::
 	return;
 };
 
-
+}

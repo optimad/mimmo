@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "ClipGeometry.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!Default constructor of ClipGeometry
 */
@@ -405,6 +405,6 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	return;
 };
 
-
+}
 
 

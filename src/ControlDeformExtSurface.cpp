@@ -24,7 +24,7 @@
 #include "ControlDeformExtSurface.hpp"
 #include <cmath>
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of ControlDeformExtSurface
@@ -818,4 +818,6 @@ void ControlDeformExtSurface::plotOptionalResults(){
 	std::string sdfstr = "Violation Distance Field";
 	output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_violationField);
 	output.write();
+}
+
 }

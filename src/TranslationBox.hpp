@@ -30,40 +30,37 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class TranslationBox
+ * \brief TranslationBox is the class that applies the a translation to a point.
  *
- *	\brief TranslationBox is the class that applies the a translation to a point.
- *
- *	Here the point is supposed to be an origin of a reference system.
- *	The point is translated over a direction and for a quantity set by the user or
- *	an external input.
- *	Result of the translation are saved in result of base class and
- *	in the modified member m_origin.
+ * Here the point is supposed to be an origin of a reference system.
+ * The point is translated over a direction and for a quantity set by the user or
+ * an external input.
+ * Result of the translation are saved in result of base class and
+ * in the modified member m_origin.
  * 
  *
  *	=========================================================
  * ~~~
  *	|---------------------------------------------------------------|
- *	|                 Port Input                                   	|
+ *	|                 Port Input                                    |
  *	|-------|----------|-------------------|------------------------|
- *	|PortID | PortType | variable/function | DataTypes		       	|
+ *	|PortID | PortType | variable/function | DataTypes              |
  *	|-------|----------|-------------------|------------------------|
- *	| 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)	   	|
- *	| 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)	   	|
- *	| 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)	  	|
+ *	| 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)        |
+ *	| 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)        |
+ *	| 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)        |
  *	|-------|----------|-------------------|------------------------|
  *
  *
  *	|---------------------------------------|-----------------------|
- *	|            Port Output                |						|
+ *	|            Port Output                |                       |
  *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataTypes		       	|
+ *	|PortID | PortType  | variable/function | DataTypes             |
  *	|-------|-----------|-------------------|-----------------------|
- *	| 20    | M_POINT   | getOrigin         | (ARRAY3, FLOAT)	   	|
- *	| 22    | M_AXIS    | getDirection      | (ARRAY3, FLOAT)	   	|
- *	| 30    | M_VALUED  | getTranslation    | (SCALAR, FLOAT)	   	|
+ *	| 20    | M_POINT   | getOrigin         | (ARRAY3, FLOAT)       |
+ *	| 22    | M_AXIS    | getDirection      | (ARRAY3, FLOAT)       |
+ *	| 30    | M_VALUED  | getTranslation    | (SCALAR, FLOAT)       |
  *	|-------|-----------|-------------------|-----------------------|
  * ~~~
  *	=========================================================

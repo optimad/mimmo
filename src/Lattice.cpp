@@ -28,7 +28,7 @@
 
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 /*
  *	\date			24/mar/2016
@@ -190,7 +190,7 @@ int Lattice::accessGridFromDOF(int index){
 
 /*! Find a corrispondent degree of freedom index list of a lattice grid node list.
  * Not found indices are marked as -1;
- * \param[in] index lattice grid global index list
+ * \param[in] gNindex lattice grid global index list
  * \return corrispondent DOF global index list
  */
 ivector1D	Lattice::accessDOFFromGrid(ivector1D gNindex) {
@@ -205,7 +205,7 @@ ivector1D	Lattice::accessDOFFromGrid(ivector1D gNindex) {
 
 /*! Find a corrispondent lattice grid index list of a degree of freedom node list
  * Not found indices are marked as -1;
- * \param[in] index DOF global index list
+ * \param[in] dofIndex DOF global index list
  * \return corrispondent lattice grid global index
  */
 ivector1D 	Lattice::accessGridFromDOF(ivector1D dofIndex){
@@ -634,3 +634,5 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
 	int result = nx*ny*nz + delta;
 	return(result);
 };
+
+}

@@ -30,38 +30,35 @@
 namespace mimmo{
 
 /*!
- *	\date			09/feb/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ * \class ClipGeometry
+ * \brief ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it.
  *
- *	\brief ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it.
- *
- *	ClipGeometry is derived from BaseManipulation class.
- *	It needs a target MimmoObject geometry, alongside a clipping plane definition [a,b,c,d], in its
- *  implicit form a*x + b*y + c*z + d =0; 
- *	Returns geometry clipped in an independent MimmoObject. Controls clipping direction with an "insideout" boolean.
- *  Class plot as optional result the clipped portion of geoemetry, and absorb/flush its parameters from xml 
- *  dictionaries
+ * ClipGeometry is derived from BaseManipulation class.
+ * It needs a target MimmoObject geometry, alongside a clipping plane definition [a,b,c,d], in its
+ * implicit form a*x + b*y + c*z + d =0; 
+ * Returns geometry clipped in an independent MimmoObject. Controls clipping direction with an "insideout" boolean.
+ * Class plot as optional result the clipped portion of geoemetry, and absorb/flush its parameters from xml 
+ * dictionaries
  *
  *	=========================================================
  * ~~~
  *	|----------------------------------------------------------------|
- *	|                 Port Input                       		 		 |
+ *	|                 Port Input                                     |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *	| 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)		 |
- *	| 32    | M_VALUEB | setInsideOut      | (SCALAR, BOOL)			 |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)		 |
+ *	| 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)         |
+ *	| 32    | M_VALUEB | setInsideOut      | (SCALAR, BOOL)          |
+ *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
  *	|-------|----------|-------------------|-------------------------|
  *
  *
  *	|----------------------------------------------------------------|
- *	|            Port Output                          		 		 |
+ *	|            Port Output                                         |
  *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType 		 		 |
+ *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *	| 99    | M_GEOM   | getClippedPatch   | (SCALAR, MIMMO_)		 |
+ *	| 99    | M_GEOM   | getClippedPatch   | (SCALAR, MIMMO_)        |
  *	|-------|----------|-------------------|-------------------------|
  * ~~~
  *	=========================================================

@@ -24,7 +24,7 @@
 #include "Chain.hpp"
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 uint8_t Chain::sm_chaincounter(0);
 
@@ -275,5 +275,7 @@ Chain::checkLoops(){
 		}
 		actualidx++;
 	}
+}
+
 }
 

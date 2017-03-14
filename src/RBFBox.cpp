@@ -31,7 +31,7 @@
 using namespace std::chrono;
 
 using namespace std;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*! Basic Constructor. Doing nothing.*/
@@ -160,7 +160,7 @@ dmatrix33E	RBFBox::getAxes(){
 }
 
 /*!Set a list of RBF points as control nodes.
- * @param[in] node coordinates of control points.
+ * @param[in] nodes coordinates of control points.
  */
 void RBFBox::setNode(dvecarr3E nodes){
     m_nodes = nodes;
@@ -353,6 +353,6 @@ void RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
 	
 };	
 
-
+}
 
 

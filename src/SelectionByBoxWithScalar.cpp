@@ -25,7 +25,7 @@
 #include "MeshSelection.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
-using namespace mimmo;
+namespace mimmo{
 
 //------------------------------------------------------------------------
 //SELECTION BY BOX WITH SCALAR class    **********************************
@@ -368,5 +368,5 @@ void SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML
 	return;
 };
 
-
+}
 

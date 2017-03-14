@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "SpecularPoints.hpp"
 
-using namespace mimmo;
+namespace mimmo{
 
 /*!
  * Default constructor of SpecularPoints
@@ -517,5 +517,5 @@ void SpecularPoints::plotOptionalResults(){
 		vtk.write();
 };
 
-
+}
 

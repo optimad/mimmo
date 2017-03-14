@@ -1,13 +1,14 @@
 #include <fstream>
 #include "Operators.hpp"
 
+namespace mimmo{
 /*!Overloaded function of base class setInput.
  * It sets the input of the object, but at the same time it sets even the result.
  * \param[in] data Pointer to data to be used to set the input/result.
  */
 template<typename T>
 void
-mimmo::GenericInput::setInput(T* data){
+GenericInput::setInput(T* data){
 	_setInput(data);
 	_setResult(data);
 }
@@ -18,7 +19,7 @@ mimmo::GenericInput::setInput(T* data){
  */
 template<typename T>
 void
-mimmo::GenericInput::setInput(T& data){
+GenericInput::setInput(T& data){
 	_setInput(data);
 	_setResult(data);
 }
@@ -30,7 +31,7 @@ mimmo::GenericInput::setInput(T& data){
  */
 template<typename T>
 T
-mimmo::GenericInput::getResult(){
+GenericInput::getResult(){
 	if (m_readFromFile){
 		T data;
 		std::ifstream file;
@@ -57,7 +58,7 @@ mimmo::GenericInput::getResult(){
  */
 template<typename T>
 T*
-mimmo::GenericInput::getInput(){
+GenericInput::getInput(){
 	return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
@@ -66,7 +67,7 @@ mimmo::GenericInput::getInput(){
  */
 template<typename T>
 void
-mimmo::GenericInput::setResult(T* data){
+GenericInput::setResult(T* data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
 	m_result = std::move(dummy);
@@ -77,7 +78,7 @@ mimmo::GenericInput::setResult(T* data){
  */
 template<typename T>
 void
-mimmo::GenericInput::setResult(T& data){
+GenericInput::setResult(T& data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_result = std::move(dummy);
@@ -92,7 +93,7 @@ mimmo::GenericInput::setResult(T& data){
  */
 template<typename T>
 void
-mimmo::GenericInput::_setInput(T* data){
+GenericInput::_setInput(T* data){
 	clearInput();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
 	m_input = std::move(dummy);
@@ -103,7 +104,7 @@ mimmo::GenericInput::_setInput(T* data){
  */
 template<typename T>
 void
-mimmo::GenericInput::_setInput(T& data){
+GenericInput::_setInput(T& data){
 	clearInput();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_input = std::move(dummy);
@@ -114,7 +115,7 @@ mimmo::GenericInput::_setInput(T& data){
  */
 template<typename T>
 T*
-mimmo::GenericInput::_getInput(){
+GenericInput::_getInput(){
 	return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
@@ -127,7 +128,7 @@ mimmo::GenericInput::_getInput(){
  */
 template<typename T>
 void
-mimmo::GenericInput::_setResult(T* data){
+GenericInput::_setResult(T* data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
 	m_result = std::move(dummy);
@@ -138,7 +139,7 @@ mimmo::GenericInput::_setResult(T* data){
  */
 template<typename T>
 void
-mimmo::GenericInput::_setResult(T& data){
+GenericInput::_setResult(T& data){
 	clearResult();
 	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
 	m_result = std::move(dummy);
@@ -149,7 +150,8 @@ mimmo::GenericInput::_setResult(T& data){
  */
 template<typename T>
 T*
-mimmo::GenericInput::_getResult(){
+GenericInput::_getResult(){
 	return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
 
+}

@@ -30,9 +30,8 @@
 
 namespace mimmo{
 
-
 /*!
- * \class Bv-Element
+ * \class BvElement
  * \brief Bv-Element is the class to manage the elements linked by a Bv-Tree.
  *
  */
@@ -49,34 +48,8 @@ public:
 };
 
 /*!
- * \class CompareElements
- * \brief compareElements is an ad-hoc class used to sort the elements of a Bv-Tree by their
- * centroid coordinates.
- *
- */
-class compareElements{
-public:
-	int dir;
-	
-	/*!Custom constructor for class compareElements.
-	 * \param[in] dir_ Direction used to compare the coordinates of the elements centroid.
-	 */
-	compareElements(int dir_) : dir(dir_){};
-	
-	/*!Custom operator () for class compareElements.
-	 * \param[in] a First element to be compared.
-	 * \param[in] b Secon element to be compared.
-	 */
-	bool operator()(BvElement a, BvElement b)
-	{
-		return (a.m_centroid[dir] < b.m_centroid[dir] );
-	}
-};
-
-
-/*!
- * \class Bv-Node
- * \brief Bv-Node is the class of a node of a Bv-Tree.
+ * \class BvNode
+ *	\brief Bv-Node is the class of a node of a Bv-Tree.
  *
  */
 class BvNode {
@@ -97,7 +70,7 @@ public:
 };
 
 /*!
- * \class Bv-Tree
+ * \class BvTree
  * \brief Bv-Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch.
  *
  * A Bv-Tree is composed by its nodes and the elements related to each node.
@@ -160,16 +133,15 @@ private:
 };
 
 /*!
- *  \namespace bvTreeUtils
  *	\brief Utilities employing bvTree.
  */
 namespace bvTreeUtils{
 	
-    double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, int method = 1, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
+	double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, int method = 1, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
 	double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method = 1, int next = 0, double h = 1.0e+18);
 	std::array<double,3> projectPoint(std::array<double,3> *P_, BvTree *bvtree_, double r_ = 1.0e+18);
-
-	std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::array<double,3>  &n, double r_ = 1.0e+18, int method = 1 );
+	
+	std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> >  &n, double r_ = 1.0e+18, int method = 1);
 	std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18, int method = 1 );
 	std::vector<std::array<double,3> > projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_ = 1.0e+18);
 
@@ -177,8 +149,8 @@ namespace bvTreeUtils{
 	void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vector<long> &extracted, double tol, int next = 0);
 	
 	
-};//end namespace bvTreeUtils
+}; //end namespace bvTreeUtils
 
-};//end namespace mimmo
+} //end namespace mimmo
 
 #endif

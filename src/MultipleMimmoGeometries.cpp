@@ -26,7 +26,7 @@
 
 using namespace std;
 using namespace bitpit;
-using namespace mimmo;
+namespace mimmo{
 
 
 /*!
@@ -111,6 +111,9 @@ MultipleMimmoGeometries & MultipleMimmoGeometries::operator=(const MultipleMimmo
 	return *this;
 };
 
+/*!
+ * Building ports of the class
+ */
 void
 MultipleMimmoGeometries::buildPorts(){
 	bool built = true;
@@ -1001,5 +1004,5 @@ MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 	setDefaults();
 };
 
-
+}
 

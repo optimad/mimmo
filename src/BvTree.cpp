@@ -6,7 +6,7 @@
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of mimmo.
+ *  This file is part of bitbit.
  *
  *  bitpit is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
@@ -29,7 +29,8 @@
 
 namespace mimmo{
 
-/*!Default constructor for class BvElement.
+/*!
+ * Default constructor for class BvElement.
  * Initialize an empty element of the bv-tree.
  */
 BvElement::BvElement(long label)
@@ -39,13 +40,14 @@ BvElement::BvElement(long label)
 	return;
 }
 
-/*!Default destructor for class BvElement.
+/*!
+ * Default destructor for class BvElement.
  * Clear BvElement content and release memory.
  */
 BvElement::~BvElement(){};
 
-/*!Copy constructor for class BvElement.
- *
+/*!
+ * Copy constructor for class BvElement.
  */
 BvElement::BvElement(const BvElement & other)
 {
@@ -53,8 +55,8 @@ BvElement::BvElement(const BvElement & other)
 	return;
 };
 
-/*!Assignement operator of BvElement.
- *
+/*!
+ * Assignement operator of BvElement.
  */
 BvElement & BvElement::operator=(const BvElement & other)
 {
@@ -63,6 +65,30 @@ BvElement & BvElement::operator=(const BvElement & other)
 	return *this;
 };
 
+/*!
+ *  \class compareElements
+ *	\brief compareElements is an ad-hoc class used to sort the elements of a Bv-Tree by their
+ *	centroid coordinates.
+ *
+ */
+class compareElements{
+public:
+	int dir;
+public:
+	/*!Custom constructor for class compareElements.
+	 * \param[in] dir_ Direction used to compare the coordinates of the elements centroid.
+	 */
+	compareElements(int dir_) : dir(dir_){};
+
+	/*!Custom operator () for class compareElements.
+	 * \param[in] a First element to be compared.
+	 * \param[in] b Secon element to be compared.
+	 */
+	bool operator()(BvElement a, BvElement b)
+	{
+		return (a.m_centroid[dir] < b.m_centroid[dir] );
+	}
+};
 
 /*! Default constructor for class BvNode.
  * Initialize an empty node in the bv-tree.
@@ -594,9 +620,7 @@ void BvTree::decreaseStack()
 	return;
 };
 
-
-namespace BvTreeUtils{
-
+namespace bvTreeUtils{
 /*!It computes the signed distance of a point to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
@@ -620,7 +644,7 @@ namespace BvTreeUtils{
  * it returns this value as result) (optional).
  * \return Signed distance of the input point from the patch in the bv-tree.
  */
-double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, double &r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)
+double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3> &n, double &r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)
 {
 
 	if ( spatch_ == NULL ) spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
@@ -823,7 +847,7 @@ double signedDistance(darray3E *P_, BvTree *bvtree_, long &id, darray3E &n, doub
  * it returns this value as result) (optional).
  * \return Unsigned distance of the input point from the patch in the bv-tree.
  */
-double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int method, int next, double h)
+double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method, int next, double h)
 {
 
 	// Local variables
@@ -946,7 +970,7 @@ double distance(darray3E *P_, BvTree* bvtree_, long &id, double &r, int method, 
  * every element encountered inside the box).
  * \return Coordinates of the projected point.
  */
-darray3E projectPoint( darray3E *P_, BvTree *bvtree_, double r )
+darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
 {
 	bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
 
@@ -980,12 +1004,12 @@ darray3E projectPoint( darray3E *P_, BvTree *bvtree_, double r )
  * \param[out] n Vector of pseudo-normals of the elements (i.e. unit vectors with direction (P-xP),
  * where P is an input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
- * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+ * \param[in] r_ Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \return Vector with signed distances of the input points from the patch in the bv-tree.
  */
-dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, dvecarr3E &n, double r_, int method)
+dvector1D signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> > &n, double r_, int method)
 {
 	bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
 
@@ -1008,12 +1032,12 @@ dvector1D signedDistance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, 
  * \param[in] P_ Pointer to vector with the coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
  * \param[out] id Vector with labels of the elements found as minimum distance elements in the bv-tree.
-  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
+  * \param[in] r_ Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \return Vector with unsigned distances of the input points from the patch in the bv-tree.
  */
-dvector1D distance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, double r_, int method)
+dvector1D distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_, int method)
 {
 
 	double 		r = r_;
@@ -1035,11 +1059,11 @@ dvector1D distance(dvecarr3E *P_, BvTree *bvtree_, std::vector<long> &id, double
  * until at least one element is found.
  * \param[in] P_ Pointer to vector with coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[in] r Initial length of the side of the box used to search. (The algorithm checks
+ * \param[in] r_ Initial length of the side of the box used to search. (The algorithm checks
  * every element encountered inside the box).
  * \return Vector with coordinates of the projected points.
  */
-dvecarr3E projectPoint(dvecarr3E *P_, BvTree *bvtree_, double r_)
+dvecarr3E projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_)
 {
 
 	int			nP = P_->size();
@@ -1095,9 +1119,9 @@ std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol){
  * by a distance criterion in respect to an other geometry stored
  * in a different bv-tree. It is a recursive method used in selectByPatch method.
  * \param[in] target Pointer to bv-tree that store the target geometry.
- * \param[in/out] leafSelection Vector of pointers to the leaf nodes currently interesting
+ * \param[in,out] leafSelection Vector of pointers to the leaf nodes currently interesting
  * for the selection procedure.
- * \param[in/out] Vector of the label of all the elements of the target bv-tree,
+ * \param[in,out] extracted of the label of all the elements of the target bv-tree,
  * currently found placed at a distance <= tol from the bounding boxes of the
  * leaf nodes in leafSelection.
  * \param[in] tol Distance threshold used to select the elements of target.
@@ -1141,7 +1165,8 @@ void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vect
 		}
 	}
 	return;
-};
+}
 
 };
-};
+
+}; // end namespace mimmo
