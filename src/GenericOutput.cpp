@@ -135,8 +135,8 @@ GenericOutput::execute(){
  * on a given file (all values in a row).
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		Filename: name of file to write data  
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Filename</B>: name of file to write data  
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -169,9 +169,10 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * on a given file (all values in a row).
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.GenericOutput"
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		Filename: name of file to write data
+ * - <B>ClassName</B>: name of the class as "MiMMO.GenericOutput"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Filename</B>: name of file to write data  
+ * 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

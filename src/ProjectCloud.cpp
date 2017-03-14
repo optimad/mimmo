@@ -166,9 +166,9 @@ void ProjectCloud::plotOptionalResults(){
 * Cloud points coordinates are mandatorily passed through ports
 * 
 * --> Absorbing data:
-* Priority  : uint marking priority in multi-chain execution;
-* PlotInExecution : boolean 0/1 print optional results of the class.
-* OutputPlot : target directory for optional results writing. 
+* - <B>Priority</B>: uint marking priority in multi-chain execution;	
+* - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+* - <B>OutputPlot</B>: target directory for optional results writing.
 * 
 * \param[in] slotXML 	bitpit::Config::Section of XML file
 * \param[in] name   name associated to the slot
@@ -217,10 +217,10 @@ void ProjectCloud::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * Cloud points coordinates are mandatorily passed through ports
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.ProjectCloud"
- * Priority  : uint marking priority in multi-chain execution;	
- * PlotInExecution : boolean 0/1 print optional results of the class.
- * OutputPlot : target directory for optional results writing. 
+ * - <B>ClassName</B>: name of the class as "MiMMO.ProjectCloud"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;	
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  *  
  * \param[in] slotXML 	bitpit::Config::Section of XML file

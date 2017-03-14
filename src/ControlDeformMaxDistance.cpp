@@ -230,10 +230,10 @@ ControlDeformMaxDistance::execute(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  * --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution; 
- * LimitDistance : constraint surface distance from target geometry
- * PlotInExecution : boolean 0/1 print optional results of the class.
- * OutputPlot : target directory for optional results writing.
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>LimitDistance</B>: constraint surface distance from target geometry
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry and its deformation fiels are mandatorily passed through ports. 
  * 
@@ -290,11 +290,11 @@ void ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & 
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.ControlDeformMaxDistance"
- *	Priority  : uint marking priority in multi-chain execution;
- *	LimitDistance	: constraint surface distance from target geometry
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>ClassName</B>: name of the class as "MiMMO.ControlDeformMaxDistance"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>LimitDistance</B>: constraint surface distance from target geometry
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry and its deformation fiels are mandatorily passed through ports. 
  *  

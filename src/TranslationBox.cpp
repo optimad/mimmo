@@ -151,10 +151,11 @@ TranslationBox::execute(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of 3D point
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		Origin: point tha need to be translated
- * 		Direction: translation direction
- * 		Translation : entity of translation
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Origin</B>: point tha need to be translated
+ * - <B>Direction</B>: translation direction
+ * - <B>Translation</B>: entity of translation
+ * 
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -211,11 +212,11 @@ void TranslationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of a 3D point.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.RotationBox"
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		Origin: point tha need to be translated
- * 		Direction: translation direction
- * 		Translation : entity of translation
+ * - <B>ClassName</B>: name of the class as "MiMMO.TranslationBox"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Origin</B>: point tha need to be translated
+ * - <B>Direction</B>: translation direction
+ * - <B>Translation</B>: entity of translation
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

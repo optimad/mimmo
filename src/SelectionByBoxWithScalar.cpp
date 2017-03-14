@@ -175,13 +175,13 @@ void SelectionByBoxWithScalar::plotOptionalResults(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  --> Absorbing data:
- *  Priority  : uint marking priority in multi-chain execution;
- *  Dual     : boolean to get straight what given by selection method or its exact dual
- *  Origin   : array of 3 doubles identifying origin
- *  Span	  : span of the box (width, height, depth)
- *  RefSystem : reference system of the box;
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+ * - <B>Origin</B>: array of 3 doubles identifying origin
+ * - <B>Span</B>: span of the box (width, height, depth)
+ * - <B>RefSystem</B>: reference system of the box;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports. 
  * 
@@ -304,19 +304,19 @@ void SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & 
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.SelectionByBoxWithScalar"
- *  Priority  : uint marking priority in multi-chain execution;
- *  Dual     : boolean to get straight what given by selection method or its exact dual
- *  Origin   : array of 3 doubles identifying origin
- *  Span	  : span of the box (width, height, depth)
- *  RefSystem : reference system of the box;
+ * - <B>ClassName</B>: name of the class as "MiMMO.SelectionByBoxWithScalar"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+ * - <B>Origin</B>: array of 3 doubles identifying origin
+ * - <B>Span</B>: span of the box (width, height, depth)
+ * - <B>RefSystem</B>: reference system of the box;
  * 					<RefSystem>
  * 						<axis0>	1.0 0.0 0.0 </axis0>
  * 						<axis1>	0.0 1.0 0.0 </axis1>
  * 						<axis2>	0.0 0.0 1.0 </axis2>
  * 					</RefSystem>
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports. 
  *  

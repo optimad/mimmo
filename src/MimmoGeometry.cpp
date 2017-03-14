@@ -1037,18 +1037,18 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  * or passed by port linking), the class reads the following parameters:
  * 
  *  --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution;
- * ReadFlag : activate reading mode boolean
- * ReadDir : reading directory path
- * ReadFileType : file type identifier
- * ReadFilename : name of file for reading
- * WriteFlag : activate writing mode boolean
- * WriteDir : writing directory path
- * WriteFileType : file type identifier
- * WriteFilename : name of file for writing
- * Codex : boolean to write ascii/binary
- * BvTree : evaluate bvTree true/false
- * KdTree : evaluate kdTree true/false
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>ReadDir</B>: reading directory path
+ * - <B>ReadFileType</B>: file type identifier
+ * - <B>ReadFilename</B>: name of file for reading
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>WriteDir</B>: writing directory path
+ * - <B>WriteFileType</B>: file type identifier
+ * - <B>WriteFilename</B>: name of file for writing
+ * - <B>Codex</B>: boolean to write ascii/binary
+ * - <B>BvTree</B>: evaluate bvTree true 1/false 0
+ * - <B>KdTree</B>: evaluate kdTree true 1/false 0
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -1183,19 +1183,19 @@ return;
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.Geometry"
- * Priority  : uint marking priority in multi-chain execution; 
- * ReadFlag : activate reading mode boolean
- * ReadDir  : reading directory path
- * ReadFileType : file type identifier
- * ReadFilename : name of file for reading
- * WriteFlag : activate writing mode boolean
- * WriteDir  : writing directory path
- * WriteFileType : file type identifier
- * WriteFilename : name of file for writing
- * Codex  : boolean to write ascii/binary
- * BvTree : evaluate bvTree true 1/false 0
- * KdTree : evaluate kdTree true 1/false 0
+ * - <B>ClassName</B>: name of the class as "MiMMO.Geometry"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>ReadDir</B>: reading directory path
+ * - <B>ReadFileType</B>: file type identifier
+ * - <B>ReadFilename</B>: name of file for reading
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>WriteDir</B>: writing directory path
+ * - <B>WriteFileType</B>: file type identifier
+ * - <B>WriteFilename</B>: name of file for writing
+ * - <B>Codex</B>: boolean to write ascii/binary
+ * - <B>BvTree</B>: evaluate bvTree true 1/false 0
+ * - <B>KdTree</B>: evaluate kdTree true 1/false 0
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 

@@ -225,10 +225,11 @@ Mask::execute(){
  * with a vector field attached. Point coordinates and fields are meant to be passed through ports.
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
- * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
- * 		Inside : array of 3 booleans, each for space coordinate, to perform mask inside the threshold(0) or not (0) 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>LowerThreshold</B>: array of 3 float elements containing the coordinates of the lower threshold point. 
+ * - <B>UpperThreshold</B>: array of 3 float elements containing the coordinates of the upper threshold point. 
+ * - <B>Inside</B>: array of 3 booleans (0/1), each for space coordinate, to perform mask inside the threshold(0) or not (0) 
+ * 
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -287,11 +288,11 @@ void Mask::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
  * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Mask"
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		LowerThreshold: array of 3 float elements containing the coordinates of the lower threshold point. 
- * 		UpperThreshold: array of 3 float elements containing the coordinates of the upper threshold point. 
- * 		Inside : array of 3 booleans (0/1), each for space coordinate, to perform mask inside the threshold(0) or not (0) 
+ * - <B>ClassName</B>: name of the class as "MiMMO.Mask"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>LowerThreshold</B>: array of 3 float elements containing the coordinates of the lower threshold point. 
+ * - <B>UpperThreshold</B>: array of 3 float elements containing the coordinates of the upper threshold point. 
+ * - <B>Inside</B>: array of 3 booleans (0/1), each for space coordinate, to perform mask inside the threshold(0) or not (0) 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

@@ -154,9 +154,9 @@ GenericInput::execute(){};
  * from a given file (all values in a row).
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		ReadFromFile: 0/1 set class to read from a file	
- * 		Filename: path to your current file data
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>ReadFromFile</B>: 0/1 set class to read from a file	
+ * - <B>Filename</B>: path to your current file data
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -200,10 +200,10 @@ void GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * from a given file (all values in a row).
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.GenericInput"
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		ReadFromFile: 0/1 set class to read from a file	
- * 		Filename: path to your current file data
+ * - <B>ClassName</B>: name of the class as "MiMMO.GenericInput"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>ReadFromFile</B>: 0/1 set class to read from a file	
+ * - <B>Filename</B>: path to your current file data
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

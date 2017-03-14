@@ -261,11 +261,12 @@ void ClipGeometry::plotOptionalResults(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  *  --> Absorbing data:
- *  Priority  : uint marking priority in multi-chain execution; 
- *  InsideOut	: boolean to get direction of clipping according to given plane
- *  ClipPlane	: section defining the plane's normal and a point belonging to it
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * 
+ *   - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ *   - <B>InsideOut</B>: boolean to get direction of clipping according to given plane
+ *   - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it
+ *   - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ *   - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports. 
  * 
@@ -346,16 +347,16 @@ void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.ClipGeometry"
- *	Priority  : uint marking priority in multi-chain execution; 
- *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
- *  ClipPlane	: section defining the plane's normal and a point belonging to it
+ * - <B>ClassName</B>: name of the class as "MiMMO.ClipGeometry"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane
+ * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it
  * 				<ClipPlane>
  * 					<Point>	0.0 0.0 0.0 </Point>
  * 					<Normal> 0.0 1.0 0.0 </Normal>
  * 				</ClipPlane>
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>PlotInExecution</B> : boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports.  
  *  

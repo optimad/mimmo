@@ -1157,14 +1157,14 @@ std::set<long> CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId
  * Get infos from a XML bitpit::Config::section. The parameters that can absorb are
  * 
  * --> Absorbing data:
- *  Priority  : uint marking priority in multi-chain execution;
- *  NPoints : total points to distribute 
- *  Engine  : type of distribution engine 0-Random,2-CartesianGrid,1-Levelset;
- *  Seed    : initial seed point;
- *  MassCenterAsSeed : boolean 0/1, if true use geometry mass center as seed
- *  RandomFixed: get signature to fix distribution pattern when 0:RANDOM engine is selected
- *  PlotInExecution : plot optional result during object execution
- *  OutputPlot  : set path to store optional result at 6) 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>NPoints</B>: total points to distribute 
+ * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
+ * - <B>Seed</B>: initial seed point;
+ * - <B>MassCenterAsSeed</B>: boolean, if true use geometry mass center sa seed
+ * - <B>RandomFixedSeed</B>: get signature to fix distribution pattern when 0:RANDOM engine is selected
+ * - <B>PlotInExecution</B>: plot optional result during object execution
+ * - <B>OutputPlot</B>: set path to store optional result  
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
@@ -1256,15 +1256,15 @@ return;
  * Plot class infos to a XML bitpit::Config::section. The parameters that can be flushed are
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.CreateSeedsOnSurface"
- * Priority  : uint marking priority in multi-chain execution;
- * NPoints : total points to distribute 
- * Engine  : type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
- * Seed    : initial seed point;
- * MassCenterAsSeed : boolean, if true use geometry mass center sa seed
- * RandomFixedSeed : get signature to fix distribution pattern when 0:RANDOM engine is selected
- * PlotInExecution : plot optional result during object execution
- * OutputPlot  : set path to store optional result at 6) 
+ * - <B>ClassName</B>: name of the class as "MiMMO.CreateSeedsOnSurface"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>NPoints</B>: total points to distribute 
+ * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
+ * - <B>Seed</B>: initial seed point;
+ * - <B>MassCenterAsSeed</B>: boolean, if true use geometry mass center sa seed
+ * - <B>RandomFixedSeed</B>: get signature to fix distribution pattern when 0:RANDOM engine is selected
+ * - <B>PlotInExecution</B>: plot optional result during object execution
+ * - <B>OutputPlot</B>: set path to store optional result  
  *
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file

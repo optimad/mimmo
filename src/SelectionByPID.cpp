@@ -282,12 +282,13 @@ void SelectionByPID::syncPIDList(){
 * Get infos from a XML bitpit::Config::section. The parameters available are
 * 
 * -->Absorbing Data
-* Priority  : uint marking priority in multi-chain execution; 
-* Dual       : boolean to get straight what given by selection method or its exact dual
-* nPID		: number of PID to be selected
-* PID   		: set PID to select, separate by blank space. -1 select all available PID
-* PlotInExecution : boolean 0/1 print optional results of the class.
-* OutputPlot : target directory for optional results writing. 
+* - <B>Priority</B>: uint marking priority in multi-chain execution;
+* - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+* - <B>nPID</B>: number of PID to be selected
+* - <B>PID</B>: set PID to select, separate by blank space. -1 select all available PID
+* - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+* - <B>OutputPlot</B>: target directory for optional results writing.
+* 
 * 
 * Geometry is mandatorily passed through ports. 
 * 
@@ -371,13 +372,13 @@ void SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.Lattice"
- * Priority  : uint marking priority in multi-chain execution;
- * Dual       : boolean to get straight what given by selection method or its exact dual
- * nPID		: number of PID to be selected
- * PID   		: set PID to select, separate by blank space. -1 select all available PID
- * PlotInExecution : boolean 0/1 print optional results of the class.
- * OutputPlot : target directory for optional results writing.
+ * - <B>ClassName</B>: name of the class as "MiMMO.SelectionByPID"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+ * - <B>nPID</B>: number of PID to be selected
+ * - <B>PID</B>: set PID to select, separate by blank space. -1 select all available PID
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry is mandatorily passed through ports. 
  *  

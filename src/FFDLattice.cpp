@@ -1447,10 +1447,10 @@ void FFDLattice::build(){
  * Geometry, nodal weights, nodal displacements and filters are mandatorily passed through ports.
  * 
  * --> Absorbing data:
- * 		CoordType: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
- * 		Degrees: degrees for NURBS interpolant in each spatial direction
- * 		DisplGlobal :0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
- * 		Lattice: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information
+ * - <B>CoordType</B>: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
+ * - <B>Degrees</B>: degrees for NURBS interpolant in each spatial direction
+ * - <B>DisplGlobal</B>:0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
+ * - <B>Lattice</B>: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -1510,10 +1510,10 @@ Lattice::absorbSectionXML(slotXML, name);
  * Geometry, nodal weights, nodal displacements and filters are mandatorily passed through ports.
  * 
  * --> Flushing data// how to write it on XML:
- * 		Lattice: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information
- * 		CoordType: Set Boundary condition for NURBS extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
- * 		Degrees: degrees for NURBS interpolant in each spatial direction
- * 		DisplGlobal :0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
+ * - <B>CoordType</B>: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC 
+ * - <B>Degrees</B>: degrees for NURBS interpolant in each spatial direction
+ * - <B>DisplGlobal</B>:0/1 use local-shape/global x,y,z reference system to define displacements of lattice node.
+ * - <B>Lattice</B>: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information on how to write Lattice parameters
  *
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

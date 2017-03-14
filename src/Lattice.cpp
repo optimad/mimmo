@@ -358,15 +358,15 @@ void 		Lattice::resizeMapDof(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
- * 		Origin: 3D point marking the shape barycenter
- * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
- * 		RefSystem: axes of current shape reference system
- * 		InfLimits: inferior limits for shape coordinates (meaningful only for CYLNDER AND SPHERE curvilinear coordinates)
- * 		Dimension: number of nodes in each coordinate direction to get the structured lattice mesh 
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * - <B>Origin</B>: 3D point marking the shape barycenter
+ * - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
+ * - <B>RefSystem</B>: axes of current shape reference system
+ * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLNDER AND SPHERE curvilinear coordinates)
+ * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -487,21 +487,21 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
  * BaseManipulation::absorbSectionXML.The class read essential parameters to build lattice.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Lattice"
- * 		Priority  : uint marking priority in multi-chain execution; 	
- * 		Shape: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
- * 		Origin: 3D point marking the shape barycenter
- * 		Span : span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
- * 		RefSystem: axes of current shape reference system. written in XML as:
+ * - <B>ClassName</B>: name of the class as "MiMMO.Lattice"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 	
+ * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * - <B>Origin</B>: 3D point marking the shape barycenter
+ * - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
+ * - <B>RefSystem</B>: axes of current shape reference system. written in XML as:
  * 					<RefSystem>
  * 						<axis0>	1.0 0.0 0.0 </axis0>
  * 						<axis1>	0.0 1.0 0.0 </axis1>
  * 						<axis2>	0.0 0.0 1.0 </axis2>
  * 					</RefSystem>
- * 		InfLimits: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
- * 		Dimension: number of nodes in each coordinate direction to get the structured lattice mesh 
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
+ * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

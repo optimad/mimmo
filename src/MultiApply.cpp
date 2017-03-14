@@ -171,8 +171,8 @@ MultiApply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution; 
- * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -211,9 +211,9 @@ MultiApply::execute(){
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.MultiApply"
- * Priority  : uint marking priority in multi-chain execution;
- * RefreshGeometryTrees: 0/1 to force update of trees for current linked geometries
+ * - <B>ClassName</B>: name of the class as "MiMMO.MultiApply"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * * \param[in] name   name associated to the slot

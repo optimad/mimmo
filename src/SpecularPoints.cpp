@@ -328,12 +328,12 @@ void SpecularPoints::clear(){
  * 
  *  
  *  --> Absorbing data:
- *  Priority  : uint marking priority in multi-chain execution;
- *  InsideOut	: boolean to get direction of clipping according to given plane
- *  Plane	: section defining the plane's normal and a point belonging to it
- *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>InsideOut</B>: boolean to get direction of clipping according to given plane
+ * - <B>Plane</B>: section defining the plane's normal and a point belonging to it
+ * - <B>Force</B>: boolean 0/1. If 1, force mirroring of points that lies on the plane.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Coordinates and data attached are mandatorely passed through ports
  * 
@@ -425,18 +425,18 @@ void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * Plot infos to a XML bitpit::Config::section. The parameters available are
  * 
  *  
- * * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.SpecularPoints"
- *	Priority  : uint marking priority in multi-chain execution; 
- *  Force   : boolean 0/1. If 1, force mirroring of points that lies on the plane.
- *  InsideOut	: boolean 0/1 to get direction of clipping according to given plane
- *  Plane	: section defining the plane's normal and a point belonging to it
+ * --> Flushing data// how to write it on XML:
+ * - <B>ClassName</B>: name of the class as "MiMMO.SpecularPoints"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Force</B>: boolean 0/1. If 1, force mirroring of points that lies on the plane.
+ * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane
+ * - <B>Plane</B>: section defining the plane's normal and a point belonging to it
  * 				<Plane>
  * 					<Point>	0.0 0.0 0.0 </Point>
  * 					<Normal> 0.0 1.0 0.0 </Normal>
  * 				</Plane>
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Coordinates and data attached are mandatorely passed through ports
  * 

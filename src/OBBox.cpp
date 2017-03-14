@@ -377,9 +377,9 @@ void 	OBBox::plotOptionalResults(){
  * Target geometry is mandatorily passed trough ports.
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.  
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -426,10 +426,10 @@ void OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * 
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.OBBox"
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>ClassName</B>: name of the class as "MiMMO.OBBox"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

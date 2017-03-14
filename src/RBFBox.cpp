@@ -267,10 +267,11 @@ void 	RBFBox::plotOptionalResults(){
  * Target RBF cloud points are mandatorily passed trough ports.
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		SupportRadius : Influence Radius value for RBF cloud in input
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>SupportRadius</B>: Influence Radius value for RBF cloud in input
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
+ * 
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -328,11 +329,11 @@ void RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
  * 
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.RBFBox"
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		SupportRadius : Influence Radius value for RBF cloud in input
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>ClassName</B>: name of the class as "MiMMO.RBFBox"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>SupportRadius</B>: Influence Radius value for RBF cloud in input
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

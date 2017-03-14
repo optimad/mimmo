@@ -195,12 +195,12 @@ RotationBox::execute(){
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		Origin: rotation axis origin
- * 		Direction: axis direction coordinates
- * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
- * 		RefSystem: current reference system to be rotated
- * 		OriginRS: origin of the target reference system to be rotated
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Origin</B>: rotation axis origin
+ * - <B>Direction</B>: axis direction coordinates
+ * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * - <B>RefSystem</B>: current reference system to be rotated
+ * - <B>OriginRS</B>: origin of the target reference system to be rotated
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -287,18 +287,18 @@ void RotationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform rotation of an axes ref system.
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.RotationBox"
- * 		Priority  : uint marking priority in multi-chain execution; 
- * 		Origin: rotation axis origin
- * 		Direction: axis direction coordinates
- * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
- * 		RefSystem: axes of current shape reference system. written in XML as:
+ * - <B>ClassName</B>: name of the class as "MiMMO.RotationBox"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Origin</B>: rotation axis origin
+ * - <B>Direction</B>: axis direction coordinates
+ * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * - <B>RefSystem</B>: axes of current shape reference system. written in XML as:
  * 					<RefSystem>
  * 						<axis0>	1.0 0.0 0.0 </axis0>
  * 						<axis1>	0.0 1.0 0.0 </axis1>
  * 						<axis2>	0.0 0.0 1.0 </axis2>
  * 					</RefSystem>
- * 		OriginRS: origin of the target reference system to be rotated
+ * - <B>OriginRS</B>: origin of the target reference system to be rotated
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

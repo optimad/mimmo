@@ -675,14 +675,14 @@ MultipleMimmoGeometries::execute(){
  * or passed by port linking), the class reads the following parameters:
  * 
  * --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution; 
- * ReadFlag : activate reading mode boolean
- * Read Info data : reading files data
- * WriteFlag : activate writing mode boolean
- * Write Info data : writing files data  
- * Codex : boolean to write ascii/binary
- * BvTree : evaluate bvTree true/false
- * KdTree : evaluate kdTree true/false
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>ReadInfoData</B>: reading files data
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>WriteInfoData</B> : writing files data  
+ * - <B>Codex</B>: boolean to write ascii/binary
+ * - <B>BvTree</B>: evaluate bvTree true/false
+ * - <B>KdTree</B>: evaluate kdTree true/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -847,10 +847,10 @@ return;
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.MultipleGeometries"
- * Priority  : uint marking priority in multi-chain execution; 	
- * ReadFlag : activate reading mode boolean
- * ReadInfodata : reading files data
+ * - <B>ClassName</B>: name of the class as "MiMMO.MultipleGeometries"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 	
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>ReadInfoData</B>: reading files data
  * 		<ReadInfoData>
  * 			<File0>
  * 				<tag> format tag extension </tag>
@@ -865,8 +865,8 @@ return;
  * 			...
  * 			...
  * 		</ReadInfoData>
- * WriteFlag : activate writing mode boolean
- * WriteInfodata : writing files data  
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>WriteInfoData</B>: writing files data  
  * 		<WriteInfoData>
  * 			<File0>
  * 				<tag> format tag extension </tag>
@@ -882,9 +882,9 @@ return;
  * 			...
  * 		</WriteInfoData>
  * 
- * Codex : boolean to write ascii/binary
- * BvTree : evaluate bvTree true/false
- * KdTree : evaluate kdTree true/false
+ * - <B>Codex</B>: boolean to write ascii/binary
+ * - <B>BvTree</B>: evaluate bvTree true/false
+ * - <B>KdTree</B>: evaluate kdTree true/false
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 

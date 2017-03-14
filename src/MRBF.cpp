@@ -535,12 +535,12 @@ void MRBF::execute(){
  * The sensible parameters are:
  * 
  * --> Absorbing data:
- * - Priority  : uint marking priority in multi-chain execution;
- * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - SupportRadius : local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
- * - SupportRadiusReal : local effective radius of RBF function for each nodes
- * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
- * - Tolerance : greedy engine tolerance (meant for mode 2);
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
+ * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes
+ * - <B>RBFShape</B>: shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
+ * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
  * 
@@ -626,13 +626,14 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * The sensible parameters are:
  * 
  * --> Flushing data// how to write it on XML:
- * - ClassName : name of the class as "MiMMO.MRBF"
- * - Priority  : uint marking priority in multi-chain execution;
- * - Mode : mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - SupportRadius : local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
- * - SupportRadiusReal : local effective radius of RBF function for each nodes
- * - RBFShape : shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
- * - Tolerance : greedy engine tolerance (meant for mode 2);
+ * - <B>ClassName</B>: name of the class as "MiMMO.MRBF"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
+ * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
+ * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes
+ * - <B>RBFShape</B>: shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
+ * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
+ * 
  * 
  * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
  * In any case, if different by default, such parameters are always written, even.

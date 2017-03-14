@@ -502,10 +502,11 @@ bitpit::VTKElementType	OverlapVectorFields::desumeElement(int typeGeom, ivector2
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  * -->Absorbing data:
- * Priority  : uint marking priority in multi-chain execution;
- * OverlapCriterium  - set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
- * PlotInExecution - plot optional results in execution
- * OutputPlot - path to store optional results
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
+ * - <B>PlotInExecution</B>: plot optional results in execution
+ * - <B>OutputPlot</B>: path to store optional results
+ * 
  * 
  * Fields and Geometry are mandatorily passed through ports. 
  * 
@@ -564,11 +565,11 @@ void OverlapVectorFields::absorbSectionXML(const bitpit::Config::Section & slotX
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  *
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.OverlapVectorFields"
- * Priority  : uint marking priority in multi-chain execution;
- * OverlapCriterium  - set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
- * PlotInExecution - plot optional results in execution
- * OutputPlot - path to store optional results
+ * - <B>ClassName</B>: name of the class as "MiMMO.OverlapVectorFields"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
+ * - <B>PlotInExecution</B>: plot optional results in execution
+ * - <B>OutputPlot</B>: path to store optional results
  * 
  * Fields and Geometry are mandatorily passed through ports. 
  *  

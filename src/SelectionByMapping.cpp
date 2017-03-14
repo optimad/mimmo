@@ -344,13 +344,13 @@ svector1D SelectionByMapping::extractInfo(std::string file){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Absorbing data:
- * Priority  : uint marking priority in multi-chain execution;
- * Dual       : boolean to get straight what given by selection method or its exact dual
- * Topology   : set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
- * Tolerance  : tolerance for detect proximity volume in which perform mapping 
- * Files	  : list by their filepaths of external geometries to be mapped on target one 
- * PlotInExecution : boolean 0/1 print optional results of the class.
- * OutputPlot : target directory for optional results writing. 
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+ * - <B>Topology</B>: set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
+ * - <B>Tolerance</B>: tolerance for detect proximity volume in which perform mapping 
+ * - <B>Files</B>: list by their filepaths of external geometries to be mapped on target one 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * 
  * Geometry is mandatorily passed through ports. 
@@ -463,12 +463,12 @@ void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXM
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Flushing data// how to write it on XML:
- * ClassName : name of the class as "MiMMO.SelectionByMapping"
- * Priority  : uint marking priority in multi-chain execution; 
- * Dual       : boolean to get straight what given by selection method or its exact dual
- * Topology   : set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
- * Tolerance  : tolerance for detect proximity volume in which perform mapping 
- * Files	  : list by their filepaths of external geometries to be mapped on target one 
+ * - <B>ClassName</B>: name of the class as "MiMMO.SelectionByMapping"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution; 
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
+ * - <B>Topology</B>: set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;
+ * - <B>Tolerance</B>: tolerance for detect proximity volume in which perform mapping 
+ * - <B>Files</B>: list by their filepaths of external geometries to be mapped on target one 
  * 				<Files>
  * 					<file0>
  * 						<fullpath> path to your file </fullpath>
@@ -481,8 +481,8 @@ void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXM
  *					...
  *					... 
  * 				</Files>
- * PlotInExecution : boolean 0/1 print optional results of the class.
- * OutputPlot : target directory for optional results writing. 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  *  
  * Geometry is mandatorily passed through ports. 
  *  

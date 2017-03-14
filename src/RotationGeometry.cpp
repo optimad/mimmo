@@ -190,10 +190,10 @@ RotationGeometry::execute(){
  * a geometry. Filter field, geometry and resulting displacements are passed mandatorily through ports
  * 
  * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		Origin: rotation axis origin
- * 		Direction: axis direction coordinates
- * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;	
+ * - <B>Origin</B>: rotation axis origin
+ * - <B>Direction</B>: axis direction coordinates
+ * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -250,11 +250,11 @@ void RotationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML,
  * geometry.Filter field, geometry and resulting displacements are passed mandatorily through ports
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.RotationGeometry"
- * 		Priority  : uint marking priority in multi-chain execution;	
- * 		Origin: rotation axis origin
- * 		Direction: axis direction coordinates
- * 		Rotation : rotation angle in radians. Positive on counterclockwise rotations around reference axis
+ * - <B>ClassName</B>: name of the class as "MiMMO.RotationGeometry"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;	
+ * - <B>Origin</B>: rotation axis origin
+ * - <B>Direction</B>: axis direction coordinates
+ * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot

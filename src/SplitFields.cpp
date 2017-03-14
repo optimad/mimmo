@@ -186,11 +186,11 @@ SplitField::execute(){
  * BaseManipulation::absorbSectionXML. Except of geometry parameters and field (which is instantiated internally
  * or passed by port linking), the class reads no other siginificant parameters.
  * 
- * * --> Absorbing data:
- * 		Priority  : uint marking priority in multi-chain execution;
- * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * --> Absorbing data:
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  *  
  * \param[in]	slotXML bitpit::Config::Section which reads from
@@ -251,11 +251,12 @@ return;
  * or passed by port linking), the class writes no siginificant parameters:
  * 
  * --> Flushing data// how to write it on XML:
- * 		ClassName : name of the class as "MiMMO.Split<Scalar/Vector>Fields"
- * 		Priority  : uint marking priority in multi-chain execution;	
- * 		Topology: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
- * 		PlotInExecution : boolean 0/1 print optional results of the class.
- * 		OutputPlot : target directory for optional results writing. 
+ * - <B>ClassName</B>: name of the class as "MiMMO.Split<Scalar/Vector>Fields"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
+ * 
  * 
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot 

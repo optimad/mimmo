@@ -529,11 +529,11 @@ ControlDeformExtSurface::execute(){
  * Get infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Absorbing data:
- *  Priority  : uint marking priority in multi-chain execution;
- *  Files	: external constraint surfaces list of file 
- *  BGDetails : OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
- *  PlotInExecution : boolean 0/1 print optional results of the class.
- *  OutputPlot : target directory for optional results writing.
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Files</B>: external constraint surfaces list of file 
+ * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry and its deformation fields are mandatorily passed through ports. 
  * 
@@ -631,9 +631,9 @@ void ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & s
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * * --> Flushing data// how to write it on XML:
- *  ClassName : name of the class as "MiMMO.ControlDeformExtSurface"
- *	Priority  : uint marking priority in multi-chain execution;
- *  Files	- external constraint surfaces list of file 
+ * - <B>ClassName</B>: name of the class as "MiMMO.ControlDeformExtSurface"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Files</B>: external constraint surfaces list of file 
  * 			 <Files>
  * 				<file0>	
  * 					<fullpath> full path to your file </fullpath>
@@ -648,9 +648,9 @@ void ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & s
  * 				...
  *				...		
  * 			 </Files>
- * BGDetails - OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
- * PlotInExecution - boolean 0/1 print optional results of the class.
- * OutputPlot - target directory for optional results writing.
+ * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  * 
  * Geometry and its deformation fields are mandatorily passed through ports. 
  *  
