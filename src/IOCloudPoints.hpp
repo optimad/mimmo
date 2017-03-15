@@ -22,8 +22,8 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#ifndef __INPUTDOF_HPP__
-#define __INPUTDOF_HPP__
+#ifndef __IOCLOUDPOINTS_HPP__
+#define __IOCLOUDPOINTS_HPP__
 
 #include <string>
 #include "BaseManipulation.hpp"
@@ -31,24 +31,55 @@
 namespace mimmo{
 
 /*!
- *	\class GenericInput
- *	\brief GenericInput is the class that set the initialization of a generic input data.
- *
- * GenericInput is derived from BaseManipulation class. 
- * Data passed as input are retained and always available
- * in BaseManipulation::Result member.
- * GenericInput can be read the input from a file or
- * it can be set by using setInput methods.
+ * \class IOCloudPoints
+ * \brief IOCloudPoints is the class to read from file a set of cloud 3D points w/ attached
+ * a scalar field of floats and/or a vector field of floats
+ * 
+ * The only admissible File format is an ascii list of values, organized as follow:
+ * 
+ * $POINT	l1  0.0 0.0  1.0
+ * $POINT	l2 -1.0 0.12 0.0
+ * ...
+ * where $POINT keyword identify the row relative to a single point, l1, l2,... the unique int label associated to the point
+ * and the following 3 floats represent the point coordinate. If $POINT is missing, the point will not be read.
+ * After all points declaration, to set a scalar value on a point define:
+ * 
+ * $SCALARF l1 12.0
+ * $SCALARF l2 -4.232
+ * ...
+ * 
+ * where l1, l2, are still the unique labels of points. Similarly for vector values on points, define:
+ * 
+ * $VECTORF l1 3.0 2.1 3.3
+ * $VECTORF l2 -4.2 0.0 0.0
+ * ...
+ * 
+ * Missing keywords or point without field defined will be considered at values 0.0 or 0.0,0.0,0.0;
+ * 
+ * IOCloudPoints is derived from BaseManipulation class. The class working in both Read and Write mode, that is can 
+ * read from or write to file, provided that its format requirements are met.
+ * When in write mode the class can generate a template file for both scalar and vector fields, that can be filled in a second moment for different purposes.
+ * The layout of this file will be:
+ * 
+ * $SCALARF	l1  {sl1} 
+ * $VECTORF	l2  {xl2} {yl2}  {zl2}
+ * ...
+ * 
+ * where {xxx} uniquely naming the component of displacement
  * 
  *
  *	=========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | compatibilities       |
- *	|-------|----------|-------------------|-----------------------|
- *	|-------|----------|-------------------|-----------------------|
+ *	|-------------------------------------------------------------------|
+ *	|                 Port Input                                        |
+ *	|-------|---------------|-------------------|-----------------------|
+ *	|PortID | PortType      | variable/function | compatibilities       |
+ *	|-------|---------------|-------------------|-----------------------|
+ *	| 0     | M_COORDS      | setPoints         | (VECARR3, FLOAT)      |
+ *	| 10    | M_DISPLS      | setVectorField    | (VECARR3, FLOAT)      |
+ *	| 18    | M_VECTORLI    | setLabels         | (VECTOR, LONG)        | 
+ *	| 19    | M_SCALARFIELD | setScalarField    | (VECTOR, FLOAT)       | 
+ *	|-------|---------------|-------------------|-----------------------|
  *
  *
  *	|-------------------------------------------|-----------------------|
@@ -56,101 +87,62 @@ namespace mimmo{
  *	|-------|---------------|-------------------|-----------------------|
  *	|PortID | PortType      | variable/function | DataType              |
  *	|-------|---------------|-------------------|-----------------------|
- *	| 0     | M_COORDS      | getResult         | (VECARR3, FLOAT)      |
- *	| 10    | M_DISPLS      | getResult         | (VECARR3, FLOAT)      |
- *	| 12    | M_FILTER      | getResult         | (VECTOR, FLOAT)       |
- *	| 19    | M_SCALARFIELD | getResult         | (VECTOR, FLOAT)       |
- *	| 20    | M_POINT       | getResult         | (ARRAY3, FLOAT)       |
- *	| 23    | M_SPAN        | getResult         | (ARRAY3, FLOAT)       |
- *	| 24    | M_DIMENSION   | getResult         | (ARRAY3, INT)         |
- *	| 30    | M_VALUED      | getResult         | (SCALAR, FLOAT)       |
- *	| 31    | M_VALUEI      | getResult         | (SCALAR, INT)         |
- *	| 32    | M_VALUEB      | getResult         | (SCALAR, BOOL)        |
- *	| 40    | M_DEG         | getResult         | (ARRAY3, INT)         |
- *	| 50    | M_FILENAME    | getResult         | (SCALAR, STRING)      |
- *	| 51    | M_DIR         | getResult         | (SCALAR, STRING)      |
+ *	| 0     | M_COORDS      | getPoints         | (VECARR3, FLOAT)      |
+ *	| 10    | M_DISPLS      | getVectorField    | (VECARR3, FLOAT)      |
+ *	| 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        | 
+ *	| 19    | M_SCALARFIELD | getScalarField    | (VECTOR, FLOAT)       | 
  *	|-------|---------------|-------------------|-----------------------|
  * ~~~
  *	=========================================================
  *
  */
-class GenericInput: public BaseManipulation{
-private:
+class IOCloudPoints: public BaseManipulation{
+protected:
 	//members
-	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
-	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
-	
-	std::unique_ptr<IOData>				m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
-	std::unique_ptr<IOData>				m_result;		/**<Pointer to a base class object Result (derived class is template).*/
+	bool			m_read;		/**<True if in Read mode, False if in Write mode.*/
+	std::string		m_filename;	/**<Source/Destination filename in absolute path*/
+	livector1D		m_labels;   /**<Labels associated to displacement */
+	dvecarr3E		m_points; /**<cloud points list*/
+	dvector1D 		m_scalarfield;  /**<scalar field attached*/
+	dvecarr3E		m_vectorfield;  /**<vector field attached*/
+	bool			m_template; /**<True/False enable the writing template mode */
 
 public:
-	GenericInput(bool readFromFile = false);
-	GenericInput(const bitpit::Config::Section & rootXML);
-	GenericInput(std::string filename);
-
-	/*!Custom template constructor of GenericInput.
-	 * It sets the base class input with data passed as argument.
-	 * \param[in] data Data used to set the input.
-	 */
-	template<typename T>
-	GenericInput(T data){
-		setInput<T>(data);
-	}
-	~GenericInput();
-
-	GenericInput(const GenericInput & other);
-	GenericInput & operator=(const GenericInput & other);
+	IOCloudPoints(bool readMode = true);
+	virtual ~IOCloudPoints();
+	IOCloudPoints(const bitpit::Config::Section & rootXML);
+	IOCloudPoints(const IOCloudPoints & other);
+	IOCloudPoints & operator=(const IOCloudPoints & other);
 
 	void buildPorts();
 
-	template<typename T>
-	T*					getInput();
-
-	template<typename T>
-	T 					getResult();
-
-	void setReadFromFile(bool readFromFile);
+	dvecarr3E		getPoints();
+	dvector1D		getScalarField();
+	dvecarr3E 		getVectorField();
+	livector1D		getLabels();
+	bool			isTemplate();
+	
 	void setFilename(std::string filename);
+	void setPoints(dvecarr3E points);
+	void setLabels(livector1D labels);
+	void setScalarField(dvector1D vecfield);
+	void setVectorField(dvecarr3E vecfield);
+	void setTemplate(bool flag);
 
-	template<typename T>
-	void 				setInput(T* data);
-	template<typename T>
-	void 				setInput(T& data);
-
-	template<typename T>
-	void 				setResult(T* data);
-	template<typename T>
-	void 				setResult(T& data);
-
-	template<typename T>
-	void 				_setInput(T* data);
-	template<typename T>
-	void 				_setInput(T& data);
-
-	template<typename T>
-	void 				_setResult(T* data);
-	template<typename T>
-	void 				_setResult(T& data);
-
-	template<typename T>
-	T*					_getInput();
-
-	template<typename T>
-	T*					_getResult();
-
-	void	clearInput();
-	void	clearResult();
+	void	clear();
 
 	void execute();
 	
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-
+	void plotOptionalResults();
+	
+private:
+	virtual void read();
+	virtual void write();
 };
 
-REGISTER(BaseManipulation, GenericInput, "MiMMO.GenericInput")
+REGISTER(BaseManipulation, IOCloudPoints, "MiMMO.IOCloudPoints")
 }
 
-#include "GenericInput.tpp"
-
-#endif /* __INPUTDOF_HPP__ */
+#endif /* __GENERICDISPLS_HPP__ */

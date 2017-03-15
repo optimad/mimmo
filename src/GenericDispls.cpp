@@ -390,7 +390,7 @@ void GenericDispls::write(){
 	
 	m_labels.resize(m_displ.size(), -1);
 	if(sizelabels < sizedispl){
-		for(int i = sizelabels-1; i<sizedispl; ++i){
+		for(int i = sizelabels; i<sizedispl; ++i){
 			m_labels[i] = maxlabel+1;
 			++maxlabel;
 		}
