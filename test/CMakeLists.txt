@@ -50,6 +50,7 @@ list(APPEND TESTS "test_MIMMO_00016")
 list(APPEND TESTS "test_MIMMO_00017")
 list(APPEND TESTS "test_MIMMO_00018")
 list(APPEND TESTS "test_MIMMO_binaryStringPorts")
+list(APPEND TESTS "test_MIMMO_readClouds")
 #include_directories("/opt/valgrind/3.11.0/include/")
 
 
@@ -167,6 +168,11 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/stanfordBunny_red.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/stanfordBunny_red.stl"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geo_data/sphere.stl" "${CMAKE_CURRENT_BINARY_DIR}/geo_data/sphere.stl"
     )	
+add_custom_command(
+    TARGET "test_MIMMO_readClouds" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/input_readClouds.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/input_readClouds.txt"           
+    )
 
+    
 unset(TEST_TARGETS)    
     
