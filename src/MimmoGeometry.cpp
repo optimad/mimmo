@@ -163,7 +163,7 @@ MimmoGeometry::setReadFileType(FileType type){
 void
 MimmoGeometry::setReadFileType(int type){
 	type = std::max(0, type);
-	if(type > 7)	type = 0;
+	if(type > 8)	type = 0;
 	m_rinfo.ftype = type;
 }
 
@@ -206,7 +206,7 @@ MimmoGeometry::setWriteFileType(FileType type){
 void
 MimmoGeometry::setWriteFileType(int type){
 	type = std::max(0, type);
-	if(type > 7)	type = 0;
+	if(type > 8)	type = 0;
 	m_winfo.ftype = type;
 }
 
@@ -300,13 +300,14 @@ MimmoGeometry::setGeometry(MimmoObject * external){
 
 /*!
  * Force your class to allocate an internal MimmoObject of type 1-Superficial mesh
- * 2-Volume Mesh. Other internal object allocated or externally linked geometries
+ * 2-Volume Mesh,3-Point Cloud, 4-3DCurve. Other internal object allocated or externally linked geometries
  * will be destroyed/unlinked.
- * \param[in] type 1-Surface MimmoObject, 2-Volume MimmoObject. Default is 1, no other type are supported
+ * \param[in] type 1-Surface MimmoObject, 2-Volume MimmoObject, 3-Point Cloud, 4-3DCurve. Default is 1, no other type are supported
  */
 void
 MimmoGeometry::setGeometry(int type){
-	int type_ = std::max(std::min(3,type),1);
+	if(type > 4)	type = 1;
+	int type_ = std::max(type,1);
 	m_geometry = NULL;
 	m_intgeo.reset(nullptr);
 	std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
@@ -539,7 +540,7 @@ MimmoGeometry::write(){
 		break;
 
 		case FileType::PCVTU :
-			//Export Triangulation Surface VTU
+			//Export Point Cloud VTU
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector1D	connectivity(points.size()); 
@@ -558,6 +559,23 @@ MimmoGeometry::write(){
 			return true;
 		}
 		break;
+
+		case FileType::CURVEVTU :
+			//Export 3DCurve in VTU
+		{
+			dvecarr3E	points = getGeometry()->getVertexCoords();
+			ivector2D	connectivity = getGeometry()->getCompactConnectivity(); 
+			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
+			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+			vtk.setDimensions(connectivity.size(), points.size());
+			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
+			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
+			vtk.write() ;
+			return true;
+		}
+		break;
+		
 		
 		default: //never been reached
 			break;
@@ -879,6 +897,47 @@ MimmoGeometry::read(){
 	
 		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+	}
+	break;
+	
+	case FileType::CURVEVTU :
+		//Import 3D Curve VTU
+	{
+		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+		bool check = infile.good();
+		if (!check) return false;
+		
+		dvecarr3E	Ipoints ;
+		ivector2D	Iconnectivity ;
+		
+		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::LINE);
+		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.read() ;
+		
+		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::LINE;
+		
+		setGeometry(4);
+		
+		int sizeV, sizeC;
+		sizeV = Ipoints.size();
+		sizeC = Iconnectivity.size();
+		m_intgeo->getPatch()->reserveVertices(sizeV);
+		m_intgeo->getPatch()->reserveCells(sizeC);
+		
+		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		for(auto & cc : Iconnectivity)	{
+			livector1D temp(cc.size());
+			int counter = 0;
+			for(auto && val : cc){
+				temp[counter] = val;
+				++counter;
+			}	
+			m_intgeo->addConnectedCell(temp, eltype);
+			
+		}	
+		
+		m_intgeo->cleanGeometry();
 	}
 	break;
 	

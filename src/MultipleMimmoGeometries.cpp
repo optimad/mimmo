@@ -68,7 +68,7 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
 
 /*!Custom constructor of MultipleMimmoGeometries.
  * Format admissible are linked to your choice of topology. See FileType enum
- * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
+ * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud 4- 3D Curve
  * \param[in] IOMode set boolean to activate reading(false) and writing(true) mode of the class
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(int topo, bool IOMode){
@@ -397,7 +397,7 @@ MultipleMimmoGeometries::setWrite(bool write){
 /*!
  * set codex ASCII false, BINARY true for writing sessions ONLY.
  * Default is Binary/Appended. Pay attention, binary writing is effective
- * only those file formats which support it.(ex STL, STVTU, SQVTU, VTVTU, VHVTU)
+ * only those file formats which support it.(ex STL, STVTU, SQVTU, VTVTU, VHVTU, PCVTU, CURVEVTU)
  */
 void MultipleMimmoGeometries::setCodex(bool binary){
 	m_codex = binary;
@@ -980,7 +980,7 @@ MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 	m_read = !IOMode; m_write = IOMode;
 	
 	m_topo     = std::min(1, topo);
-	if(m_topo > 3)	m_topo = 1;
+	if(m_topo > 4)	m_topo = 1;
 	
 	//checking admissible format
 	m_ftype_allow.clear();
@@ -995,10 +995,13 @@ MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 			m_ftype_allow.insert(3);
 			m_ftype_allow.insert(4);
 			break;
+		case 3:
+			m_ftype_allow.insert(8);
+			break;
 		default:
 			m_ftype_allow.insert(6);
 			m_ftype_allow.insert(7);
-			break;
+			break;	
 	}
 	
 	setDefaults();

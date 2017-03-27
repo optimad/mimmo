@@ -45,14 +45,15 @@ namespace mimmo{
  * 
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
- * - Ascii/Binary triangulation stl.	STL 	= 0,
- * - Surface triangulation vtu.			STVTU 	= 1,
- * - Surface quadrilateral vtu.			SQVTU 	= 2,
- * - Volume tetrahedral VTU.			VTVTU 	= 3,
- * - Volume hexahedral VTU.				VHVTU 	= 4,
+ * - Ascii/Binary triangulation stl		STL 	= 0,
+ * - Surface triangulation vtu			STVTU 	= 1,
+ * - Surface quadrilateral vtu			SQVTU 	= 2,
+ * - Volume tetrahedral VTU				VTVTU 	= 3,
+ * - Volume hexahedral VTU				VHVTU 	= 4,
  * - Nastran triangulation nas.			NAS 	= 5,
- * - Ascii OpenFoam point cloud.		OFP 	= 6,
- * - VTU point cloud.					PCVTU 	= 7,
+ * - Ascii OpenFoam point cloud			OFP 	= 6,
+ * - VTU point cloud					PCVTU 	= 7,
+ * - VTU 3D Curve						CURVEVTU= 8
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using mimmo::FileType.

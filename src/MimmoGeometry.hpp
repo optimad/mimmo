@@ -27,7 +27,7 @@
 #include "BaseManipulation.hpp"
 #include "MimmoNamespace.hpp"
 
-BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6, PCVTU = 7);
+BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6, PCVTU = 7, CURVEVTU = 8);
 
 
 namespace mimmo{
@@ -66,6 +66,7 @@ enum WFORMAT{	/*!Single precision data.*/		Short,
  * - Nastran triangulation nas.			NAS 	= 5
  * - Ascii OpenFoam point cloud.		OFP 	= 6
  * - Point Cloud VTU					PCVTU   = 7
+ * - 3D Curve in VTU					CURVEVTU= 8
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using mimmo::FileType 
