@@ -451,7 +451,7 @@ a {
 #footer .box {
     vertical-align:top;
     display: inline-block;
-    margin-right: 60px;
+    margin-right: 25px;
 }
 
 #footer .box:last-of-type {
@@ -474,8 +474,8 @@ a {
     margin: 0;
     padding: 0;
 
-    line-height: 1.2rem;
-    font-size: 0.85rem;
+    line-height: 0.95rem;
+    font-size: 0.7rem;
 }
 
 #footer a,
