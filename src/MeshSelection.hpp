@@ -112,13 +112,17 @@ public:
 
 	//execute
 	void		execute();
-
+	
+	virtual void plotOptionalResults();
+	
 protected:
 	/*!
 	 * Extract selection from target geometry
 	 */
 	virtual livector1D extractSelection() = 0;
-	virtual void plotOptionalResults();
+private:
+	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn);
+	
 };	
 
 

@@ -310,8 +310,77 @@ void GenericSelection::execute(){
  * as standard vtk unstructured grid.
  */
 void GenericSelection::plotOptionalResults(){
+	if(getPatch() == NULL) return;
 	if(getPatch()->isEmpty()) return;
-	std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
-	getPatch()->getPatch()->write(name);
+	
+	dvecarr3E points = getPatch()->getVertexCoords();
+	ivector2D connectivity;
+	bitpit::VTKElementType cellType;
+	
+	std::string dir = m_outputPlot;
+	std::string name = m_name + "_Patch";
+		
+	
+	if (getPatch()->getType() != 3){
+		connectivity = getPatch()->getCompactConnectivity();
+	}
+	else{
+		int np = points.size();
+		connectivity.resize(np);
+		for (int i=0; i<np; i++){
+			connectivity[i].resize(1);
+			connectivity[i][0] = i;
+			
+		}
+	}
+	cellType = desumeElement(getPatch()->getType(), connectivity); 
+	
+	
+	bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+	output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+	output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+	output.setDimensions(connectivity.size(), points.size());
+	
+	auto pids = getPatch()->getCompactPID();
+	if(pids.size() > 0) output.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+	
+	output.setCounter(getClassCounter());
+	output.setCodex(bitpit::VTKFormat::APPENDED);
+	
+	output.write();
 }
+
+/*!
+ * Desume Element type from passed typeGeom and connectivity. Return undefined type for unexistent 
+ * or unsupported element, or mixed element type connectivity. NEED TO BE MOVED IN MimmoObject
+ */
+bitpit::VTKElementType	GenericSelection::desumeElement(int typeGeom, ivector2D & conn){
+	bitpit::VTKElementType resultUND = bitpit::VTKElementType::UNDEFINED;
+	bitpit::VTKElementType result;
+	
+	switch(typeGeom){
+		case	1:
+			if(conn.empty()) 			return resultUND;
+			if(conn[0].size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
+			if(conn[0].size() == 4)		result = bitpit::VTKElementType::QUAD;
+			break;
+		case	2:
+			if(conn.empty()) 			return resultUND;
+			if(conn[0].size() == 4)		result = bitpit::VTKElementType::TETRA;
+			if(conn[0].size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
+		case	3:
+			result = bitpit::VTKElementType::VERTEX;
+			break;
+		case	4:
+			result = bitpit::VTKElementType::LINE;
+			break;
+		default : 
+			result =resultUND;
+			break;
+	}
+	
+	return result;
+};
+
+
 }

@@ -453,10 +453,12 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
+				shivector1D pids = getGeometry()->getCompactPID();
 				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 				vtk.setDimensions(connectivity.size(), points.size());
+				if(pids.size() > 0)	vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 				vtk.write() ;
@@ -469,12 +471,14 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
+			shivector1D pids = getGeometry()->getCompactPID();
 			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+			vtk.setDimensions(connectivity.size(), points.size());
+			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.setDimensions(connectivity.size(), points.size());
 			vtk.write() ;
 			return true;
 		}
@@ -485,12 +489,14 @@ MimmoGeometry::write(){
 			{
 				dvecarr3E	points = getGeometry()->getVertexCoords();
 				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
+				shivector1D pids = getGeometry()->getCompactPID();
 				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+				vtk.setDimensions(connectivity.size(), points.size());
+				if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-				vtk.setDimensions(connectivity.size(), points.size());
 				vtk.write() ;
 				return true;
 			}
@@ -501,12 +507,14 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
+			shivector1D pids = getGeometry()->getCompactPID();
 			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+			vtk.setDimensions(connectivity.size(), points.size());
+			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.setDimensions(connectivity.size(), points.size());
 			vtk.write() ;
 			return true;
 		}
@@ -565,10 +573,12 @@ MimmoGeometry::write(){
 		{
 			dvecarr3E	points = getGeometry()->getVertexCoords();
 			ivector2D	connectivity = getGeometry()->getCompactConnectivity(); 
+			shivector1D pids = getGeometry()->getCompactPID();
 			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
 			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 			vtk.setDimensions(connectivity.size(), points.size());
+			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
 			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
 			vtk.write() ;
@@ -641,23 +651,29 @@ MimmoGeometry::read(){
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
+		shivector1D pids;
 		
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TRIANGLE);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.addData("PID", pids);
+		
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 		
 		setGeometry(1);
 		
-		int sizeV, sizeC;
+		int sizeV, sizeC, sizeP;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
+		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
-		
+
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		
+		int ccell = 0;
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
 			int counter = 0;
@@ -665,8 +681,12 @@ MimmoGeometry::read(){
 				temp[counter] = val;
 				++counter;
 			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
+			if(sizeP == 0){
+				m_intgeo->addConnectedCell(temp, eltype);
+			}else{
+				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+			}	
+			ccell++;
 		}	
 				
 		m_intgeo->cleanGeometry();
@@ -683,23 +703,26 @@ MimmoGeometry::read(){
 	
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-
+		shivector1D pids;
+		
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::QUAD);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.addData("PID", pids);
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
 		
 		setGeometry(1);
 		
-		int sizeV, sizeC;
+		int sizeV, sizeC, sizeP;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
+		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
 		
-		
+		int ccell = 0;
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -708,8 +731,12 @@ MimmoGeometry::read(){
 				temp[counter] = val;
 				++counter;
 			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
+			if(sizeP == 0){
+				m_intgeo->addConnectedCell(temp, eltype);
+			}else{
+				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+			}	
+			ccell++;
 		}	
 		
 		m_intgeo->cleanGeometry();
@@ -726,23 +753,26 @@ MimmoGeometry::read(){
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-
+		shivector1D pids;
+		
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TETRA);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.addData("PID", pids);
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
 		
 		setGeometry(2);
 		
-		int sizeV, sizeC;
+		int sizeV, sizeC, sizeP;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
+		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
 		
-		
+		int ccell = 0;
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -751,8 +781,12 @@ MimmoGeometry::read(){
 				temp[counter] = val;
 				++counter;
 			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
+			if(sizeP == 0){
+				m_intgeo->addConnectedCell(temp, eltype);
+			}else{
+				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+			}	
+			ccell++;
 		}	
 		
 		
@@ -770,23 +804,26 @@ MimmoGeometry::read(){
 
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-
+		shivector1D pids;
+		
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::HEXAHEDRON);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.addData("PID", pids);
 		vtk.read() ;
 
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
 		
 		setGeometry(2);
 		
-		int sizeV, sizeC;
+		int sizeV, sizeC, sizeP;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
+		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
 		
-		
+		int ccell = 0;
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
 		for(auto & cc : Iconnectivity)	{
 			livector1D temp(cc.size());
@@ -795,8 +832,12 @@ MimmoGeometry::read(){
 				temp[counter] = val;
 				++counter;
 			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
+			if(sizeP == 0){
+				m_intgeo->addConnectedCell(temp, eltype);
+			}else{
+				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+			}	
+			ccell++;
 		}	
 		
 		m_intgeo->cleanGeometry();
@@ -891,12 +932,11 @@ MimmoGeometry::read(){
 		
 		setGeometry(3);
 		
-		int sizeV, sizeC;
+		int sizeV;
 		sizeV = Ipoints.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
-	
-		
 		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
+		
 	}
 	break;
 	
@@ -909,19 +949,21 @@ MimmoGeometry::read(){
 		
 		dvecarr3E	Ipoints ;
 		ivector2D	Iconnectivity ;
-		
+		shivector1D pids;
 		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::LINE);
 		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+		vtk.addData("PID", pids);
 		vtk.read() ;
 		
 		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::LINE;
 		
 		setGeometry(4);
 		
-		int sizeV, sizeC;
+		int sizeV, sizeC, sizeP;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
+		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
 		
@@ -936,7 +978,7 @@ MimmoGeometry::read(){
 			m_intgeo->addConnectedCell(temp, eltype);
 			
 		}	
-		
+		m_intgeo->setPID(pids);
 		m_intgeo->cleanGeometry();
 	}
 	break;
