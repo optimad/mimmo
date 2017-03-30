@@ -228,7 +228,6 @@ protected:
 private:
 	darray3E	overlapFields(dvecarr3E & locField);
 	std::unordered_map<long, dvecarr3E>		checkOverlapping();
-	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
 };	
 
 

@@ -759,8 +759,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 		checkedID = idtag;
 	}
 	
-	m_pidsType.insert(PID);
-	
+	setPIDCell(checkedID, PID);
 	//create inverse map of cells
 	m_mapCell.push_back(checkedID);
 	m_mapCellInv[checkedID] = m_mapCell.size()-1;
@@ -1280,5 +1279,45 @@ void MimmoObject::buildAdjacencies(){
 	getPatch()->buildAdjacencies();
 };
 
+
+/*!
+ * Desume Element type of your current mesh. Please note MimmoObject is handling mesh with homogeneous elements.
+ * Return undefined type for unexistent or unsupported element, or mixed element type connectivity.
+ */
+bitpit::VTKElementType	MimmoObject::desumeElement(){
+	bitpit::VTKElementType resultUND = bitpit::VTKElementType::UNDEFINED;
+	bitpit::VTKElementType result;
+	
+	if(getPatch() == NULL)	return result;	
+	livector1D conn;
+	switch(m_type){
+		case	1:
+			if(getNCells() == 0) 		return resultUND;
+			conn = getCellConnectivity((*(getCells().begin())).getId());
+			if(conn.size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
+			if(conn.size() == 4)		result = bitpit::VTKElementType::QUAD;
+			break;
+		case	2:
+			if(getNCells() == 0) 		return resultUND;
+			conn = getCellConnectivity((*(getCells().begin())).getId());
+			if(conn.size() == 4)		result = bitpit::VTKElementType::TETRA;
+			if(conn.size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
+		case	3:
+			result = bitpit::VTKElementType::VERTEX;
+			break;
+		case	4:
+			result = bitpit::VTKElementType::LINE;
+			break;
+		default : 
+			result =resultUND;
+			break;
+	}
+	
+	return result;
+};
+
+
 }
+
+
 

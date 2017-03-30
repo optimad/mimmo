@@ -294,10 +294,10 @@ void	OverlapScalarFields::plotData(std::string dir, std::string name, bool flag,
 
 	dvecarr3E points = geo->getVertexCoords();
     ivector2D connectivity;
-    bitpit::VTKElementType cellType;
-    if (geo->getType() != 3){
+	bitpit::VTKElementType cellType = geo->desumeElement();
+	
+	if (geo->getType() != 3){
         connectivity = geo->getCompactConnectivity();
-        cellType = desumeElement(geo->getType(), connectivity);
     }
     else{
         int np = points.size();
@@ -305,7 +305,6 @@ void	OverlapScalarFields::plotData(std::string dir, std::string name, bool flag,
         for (int i=0; i<np; i++){
             connectivity[i].resize(1);
             connectivity[i][0] = i;
-            cellType = bitpit::VTKElementType::VERTEX;
         }
     }
 	bitpit::VTKUnstructuredGrid output(dir,name,cellType);
@@ -436,29 +435,6 @@ double 	OverlapScalarFields::overlapFields(dvector1D & locField){
 	return value;
 };
 
-/*!
- * Desume Element type from passed typeGeom and connectivity. Return undefined type for unexistent 
- * or unsupported element, or mixed element type connectivity. NEED TO BE MOVED IN MimmoObject
- */
-bitpit::VTKElementType	OverlapScalarFields::desumeElement(int typeGeom, ivector2D & conn){
-	bitpit::VTKElementType result = bitpit::VTKElementType::UNDEFINED;
-	if(conn.empty())	return	result;
-
-	switch(typeGeom){
-		case	1:
-				if(conn[0].size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
-				if(conn[0].size() == 4)		result = bitpit::VTKElementType::QUAD;
-			break;
-		case	2:
-				if(conn[0].size() == 4)		result = bitpit::VTKElementType::TETRA;
-				if(conn[0].size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
-			break;
-		default : //never been reached
-			break;
-	}
-
-	return result;
-};
 
 /*!
  * Get infos from a XML bitpit::Config::section. The parameters available are

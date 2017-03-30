@@ -138,13 +138,17 @@ SplitScalarField::plotOptionalResults(){
 	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 	if(m_mapVertDivision.empty())	loc = bitpit::VTKLocation::CELL;
 	
+	
 	int counter=0;
 	for(auto & geo : m_originals){
+		
+		bitpit::VTKElementType cellType = geo->desumeElement();
 		dvecarr3E points = geo->getVertexCoords();
 		
-		if(getTopo() != 3){
+		if (cellType == bitpit::VTKElementType::UNDEFINED) continue; 
+		
+		if(cellType != bitpit::VTKElementType::VERTEX){
 			ivector2D connectivity = geo->getCompactConnectivity();
-			bitpit::VTKElementType cellType = desumeElement(connectivity);
 			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
@@ -157,7 +161,7 @@ SplitScalarField::plotOptionalResults(){
 			int size = points.size();
 			ivector1D connectivity(size);
 			for(int i=0; i<size; ++i)	connectivity[i]=i;
-			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	bitpit::VTKElementType::VERTEX);
+			bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),	cellType);
 			output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
 			output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
 			output.setDimensions(connectivity.size(), points.size());

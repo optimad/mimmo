@@ -276,13 +276,14 @@ void GenericSelection::execute(){
 	long idV;
 	int sizeCC;
 	bitpit::ElementInfo::Type eltype;
-	
+	short PID;
 	if (m_topo != 3){
 	    for(auto && idCell : extracted){
 
 	        bitpit::Cell & cell = tri->getCell(idCell);
 	        eltype = cell.getType();
 	        sizeCC = cell.getVertexCount();
+			PID = (short)cell.getPID();
 	        TT.resize(sizeCC);
 
 	        for(int i=0; i<sizeCC; ++i){
@@ -291,7 +292,8 @@ void GenericSelection::execute(){
 
 	            if(!mapV.exists(idV))	temp->addVertex(tri->getVertexCoords(idV),idV);
 	        }
-	        temp->addConnectedCell(TT,eltype,idCell);
+	        
+			temp->addConnectedCell(TT,eltype, PID, idCell);
 	        TT.clear();
 	    }
 	}
@@ -301,6 +303,7 @@ void GenericSelection::execute(){
         }
 	}
 
+	
 	m_subpatch = std::move(temp);
 	tri = NULL;
 };
@@ -333,7 +336,7 @@ void GenericSelection::plotOptionalResults(){
 			
 		}
 	}
-	cellType = desumeElement(getPatch()->getType(), connectivity); 
+	cellType = getPatch()->desumeElement(); 
 	
 	
 	bitpit::VTKUnstructuredGrid output(dir,name,cellType);
@@ -349,38 +352,6 @@ void GenericSelection::plotOptionalResults(){
 	
 	output.write();
 }
-
-/*!
- * Desume Element type from passed typeGeom and connectivity. Return undefined type for unexistent 
- * or unsupported element, or mixed element type connectivity. NEED TO BE MOVED IN MimmoObject
- */
-bitpit::VTKElementType	GenericSelection::desumeElement(int typeGeom, ivector2D & conn){
-	bitpit::VTKElementType resultUND = bitpit::VTKElementType::UNDEFINED;
-	bitpit::VTKElementType result;
-	
-	switch(typeGeom){
-		case	1:
-			if(conn.empty()) 			return resultUND;
-			if(conn[0].size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
-			if(conn[0].size() == 4)		result = bitpit::VTKElementType::QUAD;
-			break;
-		case	2:
-			if(conn.empty()) 			return resultUND;
-			if(conn[0].size() == 4)		result = bitpit::VTKElementType::TETRA;
-			if(conn[0].size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
-		case	3:
-			result = bitpit::VTKElementType::VERTEX;
-			break;
-		case	4:
-			result = bitpit::VTKElementType::LINE;
-			break;
-		default : 
-			result =resultUND;
-			break;
-	}
-	
-	return result;
-};
 
 
 }

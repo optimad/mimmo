@@ -170,30 +170,36 @@ ClipGeometry::execute(){
 	
 	long idV;
 	int sizeCC;
-	int counter=0;
 	bitpit::ElementInfo::Type eltype;
+	int PID;
 	
-	for(auto && idCell : extracted){
-		
-		bitpit::Cell & cell = tri->getCell(idCell);
-		eltype = cell.getType();
-		sizeCC = cell.getVertexCount();
-		TT.resize(sizeCC);
-		
-		for(int i=0; i<sizeCC; ++i){
-			idV = cell.getVertex(i);
-			TT[i] = idV;
+	if (getGeometry()->getType() != 3){
+		for(auto && idCell : extracted){
 			
-			if(!mapV.exists(idV))	temp->addVertex(tri->getVertexCoords(idV),idV);
+			bitpit::Cell & cell = tri->getCell(idCell);
+			eltype = cell.getType();
+			sizeCC = cell.getVertexCount();
+			PID = cell.getPID();
+			TT.resize(sizeCC);
+			
+			for(int i=0; i<sizeCC; ++i){
+				idV = cell.getVertex(i);
+				TT[i] = idV;
+				
+				if(!mapV.exists(idV))	temp->addVertex(tri->getVertexCoords(idV),idV);
+			}
+			temp->addConnectedCell(TT,eltype,short(PID), idCell);
+			TT.clear();
 		}
-		temp->addConnectedCell(TT,eltype,idCell);
-		TT.clear();
-		counter++;
+	}
+	else{
+		for(auto && idV : extracted){
+			temp->addVertex(tri->getVertexCoords(idV),idV);
+		}
 	}
 	
 	m_patch = std::move(temp);
 	tri = NULL;
-	return;
 };
 
 /*!
@@ -219,7 +225,7 @@ livector1D ClipGeometry::clipPlane(){
 	
 	bitpit::PatchKernel * tri = getGeometry()->getPatch();
 	
-	if(getGeometry()->getType() != 1 && getGeometry()->getType() != 2 ){
+	if(getGeometry()->getType() == 3){
 		counter = 0;
 		result.resize(tri->getVertexCount());
 		for(auto vert : tri->getVertices()){
@@ -251,9 +257,44 @@ livector1D ClipGeometry::clipPlane(){
  * as standard vtk unstructured grid.
  */
 void ClipGeometry::plotOptionalResults(){
-	if(getClippedPatch()->isEmpty() ) return;
-	std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
-	getClippedPatch()->getPatch()->write(name);
+	if(getClippedPatch() == NULL) return;
+	if(getClippedPatch()->isEmpty()) return;
+	
+	dvecarr3E points = getClippedPatch()->getVertexCoords();
+	ivector2D connectivity;
+	bitpit::VTKElementType cellType;
+	
+	std::string dir = m_outputPlot;
+	std::string name = m_name + "_Patch";
+	
+	
+	if (getClippedPatch()->getType() != 3){
+		connectivity = getClippedPatch()->getCompactConnectivity();
+	}
+	else{
+		int np = points.size();
+		connectivity.resize(np);
+		for (int i=0; i<np; i++){
+			connectivity[i].resize(1);
+			connectivity[i][0] = i;
+			
+		}
+	}
+	cellType = getClippedPatch()->desumeElement(); 
+	
+	
+	bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+	output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+	output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+	output.setDimensions(connectivity.size(), points.size());
+	
+	auto pids = getClippedPatch()->getCompactPID();
+	if(pids.size() > 0) output.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+	
+	output.setCounter(getClassCounter());
+	output.setCodex(bitpit::VTKFormat::APPENDED);
+	
+	output.write();
 }
 
 

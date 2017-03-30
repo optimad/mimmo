@@ -120,8 +120,6 @@ protected:
 	 * Extract selection from target geometry
 	 */
 	virtual livector1D extractSelection() = 0;
-private:
-	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn);
 	
 };	
 

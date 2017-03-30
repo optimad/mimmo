@@ -96,8 +96,6 @@ public:
 
 private:
 	virtual bool split()=0;
-protected:	
-	bitpit::VTKElementType desumeElement(ivector2D & conn );
 };
 
 /*!

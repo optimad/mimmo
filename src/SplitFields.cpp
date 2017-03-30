@@ -31,11 +31,11 @@ namespace mimmo{
 /*!Default constructor of SplitField.
  * Format admissible are linked to your choice of topology. See FileType enum.
  * No argument passed, give default topology 1.
- * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud
+ * \param[in] topo	set topology of your geometries. 1-surface, 2-volume, 3-pointcloud, 4-3D curve
  */
 SplitField::SplitField(int topo){
 	m_topo = std::max(1,topo);
-	if (m_topo >3) m_topo = 1;
+	if (m_topo >4) m_topo = 1;
 }
 
 /*!
@@ -278,34 +278,5 @@ void SplitField::flushSectionXML(bitpit::Config::Section & slotXML, std::string 
 	}
 return;	
 };	
-
-/*!
- * Desume Element type from passed typeGeom and connectivity. Return undefined type for unexistent 
- * or unsupported element, or mixed element type connectivity. NEED TO BE MOVED IN MimmoObject
- */
-bitpit::VTKElementType	
-SplitField::desumeElement(ivector2D & conn){
-	bitpit::VTKElementType result = bitpit::VTKElementType::UNDEFINED;
-	if(conn.empty() && m_topo != 3)	return	result;
-	
-	switch(m_topo){
-		case	1:
-			if(conn[0].size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
-			if(conn[0].size() == 4)		result = bitpit::VTKElementType::QUAD;
-			break;
-		case	2:
-			if(conn[0].size() == 4)		result = bitpit::VTKElementType::TETRA;
-			if(conn[0].size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
-			break;
-		case	3:
-			result=  bitpit::VTKElementType::VERTEX;
-			break;
-		default : //never been reached
-			break;
-	}
-	
-	return result;
-};
-
 
 }

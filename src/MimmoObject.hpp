@@ -161,7 +161,8 @@ public:
 	bool isClosedLoop();
 	
 	void buildAdjacencies();
-
+	bitpit::VTKElementType	desumeElement();
+	
 private:
 	int checkCellType(bitpit::ElementInfo::Type type);
 	void 	cleanKdTree();
