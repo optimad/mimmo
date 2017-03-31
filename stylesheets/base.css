@@ -167,11 +167,11 @@ a {
 }
 
 #header .menu li:hover {
-    background-color: #456F1D;
+    background-color: #E6E6E6;
 }
 
 #header .menu li.current {
-    background-color: #71B928;
+    background-color: #D8D8D8;
 }
 
 #header .menu li a,
