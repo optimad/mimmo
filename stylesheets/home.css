@@ -19,7 +19,7 @@
 }
 
 #main.home .content-box.dark {
-    background-color: #13496C;
+    background-color: #456F1D;
 }
 
 #main.home .content-box .content {
@@ -105,13 +105,13 @@
     margin-top: 40px;
     border-radius: 5px;
     line-height: auto;
-    background-color: #13496C;
+    background-color: #456F1D;
     cursor: pointer;
 }
 
 #main.home .content-box p.button.light
 {
-    background-color: #6DB7E6;
+    background-color: #71B928;
 }
 
 #main.home .content-box p.button,
@@ -132,7 +132,7 @@
 #main.home .content-box.dark h1,
 #main.home .content-box.dark h2,
 #main.home .content-box.dark a {
-    color: #6DB7E6;
+    color: #71B928;
 }
 
 #main.home .content-box.dark p {
