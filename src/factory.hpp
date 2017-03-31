@@ -164,12 +164,6 @@ public:
 /*!
  *	\brief Macro collection for automatic class registration
  */
-// #define REGISTER_DEFAULT(Base) \
-// static int factory_##Base = Factory<Base>::instance().setDefaultCreator(new Creator<Base, Base>());
-
-// #define REGISTER_DEFAULT_CUSTOM(Base, customCreator) \
-// static int factory_##Base = Factory<Base>::instance().setDefaultCreator(new Creator<Base, Base>(&customCreator));
-
 #define REGISTER(Base, Derived, name) \
 static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new mimmo::Creator<Base, Derived>());
 

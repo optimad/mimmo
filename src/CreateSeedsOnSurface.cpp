@@ -88,7 +88,7 @@ CreateSeedsOnSurface::~CreateSeedsOnSurface(){
 /*!
  * Copy constructor
  */
-CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other){
+CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):BaseManipulation(){
 	*this=other;
 };
 
@@ -513,7 +513,6 @@ void 	CreateSeedsOnSurface::solveGrid(bool debug){
 		dvecarr3E secondList;
 		secondList.reserve(initList.size());
 		{
-			int counter =0;
 			dvecarr3E::iterator it, itMaxNorm = initList.begin();
 			double normPoint, minValue = 1.E18;
 
@@ -663,8 +662,6 @@ dvecarr3E CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
 	// if no matches are found, choose randomly the next candidate
 	livector1D neighs, excl,effective;
 	std::set<long>	visited;
-	darray3E temp;
-	double valdum;
 	std::map<double, long> chooseCand; 
 	livector1D finalCandidates;
 	
@@ -756,6 +753,8 @@ dvecarr3E CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
  * \return	result, updated value of the m_sdf distance field on the target node.
  */
 double CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dvector1D & field){
+	
+	BITPIT_UNUSED(s);
 	//get the pointer to reference geometry
 	liimap & vmap = getGeometry()->getMapDataInv();
 	bitpit::PatchKernel * tri = getGeometry()->getPatch();
@@ -1094,7 +1093,7 @@ std::unordered_map<long,long> CreateSeedsOnSurface::getInverseConn(){
 	bitpit::PatchKernel * tri = getGeometry()->getPatch();
 	std::unordered_map<long,long> invConn ;
 	
-	long cellId, vertID;
+	long cellId;
 	const long * locConn;
 	int sizeConn, counter;
 	
@@ -1170,7 +1169,8 @@ std::set<long> CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId
  * \param[in] name   name associated to the slot
  */
 void CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
-	
+
+	BITPIT_UNUSED(name);	
 	if(slotXML.hasOption("NPoints")){
 		std::string input = slotXML.get("NPoints");
 		input = bitpit::utils::trim(input);
@@ -1271,6 +1271,8 @@ return;
  * \param[in] name   name associated to the slot
  */
 void CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

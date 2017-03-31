@@ -75,7 +75,7 @@ SelectionByPID::~SelectionByPID(){};
 /*!
  * Copy constructor
  */
-SelectionByPID::SelectionByPID(const SelectionByPID & other){
+SelectionByPID::SelectionByPID(const SelectionByPID & other):GenericSelection(){
 	*this = other;
 };
 
@@ -296,7 +296,8 @@ void SelectionByPID::syncPIDList(){
 * \param[in] name   name associated to the slot
 */
 void SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
+
+	BITPIT_UNUSED(name);	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -386,6 +387,8 @@ void SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * \param[in] name   name associated to the slot
  */
 void SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

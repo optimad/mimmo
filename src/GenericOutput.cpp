@@ -143,6 +143,7 @@ GenericOutput::execute(){
  */
 void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
 	std::string input; 
 	
 	if(slotXML.hasOption("Priority")){
@@ -178,6 +179,8 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * \param[in] name   name associated to the slot
  */
 void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

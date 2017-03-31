@@ -84,7 +84,7 @@ RBFBox::~RBFBox(){};
 /*! Copy Constructor
  *\param[in] other RBFBox where copy from
  */
-RBFBox::RBFBox(const RBFBox & other){
+RBFBox::RBFBox(const RBFBox & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -277,9 +277,10 @@ void 	RBFBox::plotOptionalResults(){
  * \param[in] name   name associated to the slot
  */
 void RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
+
+	BITPIT_UNUSED(name);	
 	std::string input; 
-	
+
 	if(slotXML.hasOption("Priority")){
 		input = slotXML.get("Priority");
 		int value =0;
@@ -339,6 +340,8 @@ void RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
  * \param[in] name   name associated to the slot
  */
 void RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

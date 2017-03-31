@@ -335,7 +335,7 @@ void BvTree::fillTree(int iparent)
 		if ( firstRight > m_nodes[iparent].m_element[0]  )
 		{
 			m_nodes[iparent].m_lchild = m_nnodes;
-			if ( m_nodes.size() <= m_nnodes+1) increaseStack();
+			if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
 			BvNode node;
 			node.m_element[0] = m_nodes[iparent].m_element[0];
 			node.m_element[1] = firstRight;
@@ -359,7 +359,7 @@ void BvTree::fillTree(int iparent)
 		if ( firstRight < m_nodes[iparent].m_element[1] )
 		{
 			m_nodes[iparent].m_rchild = m_nnodes;
-			if ( m_nodes.size() <= m_nnodes+1) increaseStack();
+			if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
 			BvNode node;
 			node.m_element[0] = firstRight;
 			node.m_element[1] = m_nodes[iparent].m_element[1];
@@ -494,7 +494,6 @@ void BvTree::computeBoundingBox(int inode)
 	node.m_maxPoint = {{-1.0e+18, -1.0e+18, -1.0e+18}};
 
 	bitpit::Cell 	cell;
-	long 			vertexID;
 	darray3E 		coords;
 
 	for ( i=is; i<ie; i++ )
@@ -654,7 +653,6 @@ double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::
 	double		rstart = r;
 	long		idr = -1,			idl = -1;
 	int			index_l = -1,	index_r = -1;
-	int			nextl = -1, 	nextr = -1;
 
 
 	if ( bvtree_->m_nnodes == 0 ) return(1.0e+18);
@@ -852,7 +850,6 @@ double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, 
 
 	// Local variables
 	int		index_l = -1,	index_r = -1;
-	int		nextl = -1, 	nextr = -1;
 	double 	hr = 1.0e+18,	hl = 1.0e+18;
 	long	idr = -1,		idl = -1;
 	double  rstart = r;
@@ -1137,7 +1134,7 @@ void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vect
 
 	bool check = false;
 	std::vector<BvNode*> tocheck;
-	for (int i=0; i<leafSelection.size(); i++){
+	for (int i=0; i<(int)leafSelection.size(); i++){
 		if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->m_minPoint-tol,
 				leafSelection[i]->m_maxPoint+tol,
 				target->m_nodes[next].m_minPoint,

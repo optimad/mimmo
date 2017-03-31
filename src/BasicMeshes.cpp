@@ -1197,8 +1197,9 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	int sizeTot = dim[0]*dim[1]*dim[2];
 	
 	dvecarr3E activeP;
-	if(extPoints != NULL && extPoints->size() == sizeTot){activeP = *extPoints; }
-	else{
+	if(extPoints != NULL && (int)extPoints->size() == sizeTot){
+		activeP = *extPoints;
+	}else{
 		activeP.resize(sizeTot);
 		for(int i=0; i<sizeTot; i++){
 			activeP[i] = getGlobalPoint(i);
@@ -1206,10 +1207,13 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	}
 	
 	ivector1D conn(activeP.size());
-	for(int i=0; i<activeP.size(); i++){
-		conn[i] = i;
+	{
+		int counter = 0; 
+		for(auto & val: conn){
+			val = counter;
+			++counter;
+		}
 	}
-
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
@@ -1240,7 +1244,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	int sizeMap = std::min((int)vertexList.size(), sizeTot);
 	
 	dvecarr3E activeP(sizeMap);
-	if(extPoints != NULL && extPoints->size() == sizeTot){
+	if(extPoints != NULL && (int)extPoints->size() == sizeTot){
 		for(int i=0; i<sizeMap; i++){
 			activeP[i] = (*extPoints)[vertexList[i]];
 		}  
@@ -1250,9 +1254,14 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 			activeP[i] = getGlobalPoint(vertexList[i]);
 		}
 	}
+	
 	ivector1D conn(activeP.size());
-	for(int i=0; i<activeP.size(); i++){
-		conn[i] = i;
+	{
+		int counter = 0; 
+		for(auto & val: conn){
+			val = counter;
+			++counter;
+		}
 	}
 
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, bitpit::VTKElementType::VERTEX);
@@ -1286,7 +1295,9 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 	dvecarr3E activeP(sizePt);
 	ivector2D activeConn(sizeCl, ivector1D(8,0));
 	
-	if(extPoints != NULL && extPoints->size() == sizePt){activeP = *extPoints;}
+	if(extPoints != NULL && (int)extPoints->size() == sizePt){
+		activeP = *extPoints;
+	}
 	else{
 		for(int i=0; i<sizePt; i++){
 			activeP[i] = getGlobalPoint(i);
@@ -1334,7 +1345,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	
 	for(int i=0; i<sizeCl; ++i){
 		activeConn[i] = getCellNeighs(i);
-		for(int j=0; j<activeConn[i].size(); ++j){
+		for(int j=0; j<(int)activeConn[i].size(); ++j){
 			mapPoints[activeConn[i][j]] = activeConn[i][j];
 		}
 	}
@@ -1343,7 +1354,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	ivector1D listP(mapPoints.size());
 	int counter = 0;
 	std::map<int,int>::iterator itF;
-	if(extPoints != NULL && extPoints->size() == sizePt){
+	if(extPoints != NULL && (int)extPoints->size() == sizePt){
 		for(itF = mapPoints.begin(); itF != mapPoints.end(); ++itF){
 			int pos = itF->second;
 			activeP[counter] = (*extPoints)[pos];
@@ -1363,7 +1374,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 	//update connectivity w/ local indexing of vertex;
 	
 	for(int i=0; i<sizeCl; ++i){
-		for(int j=0; j<activeConn[i].size(); ++j){
+		for(int j=0; j<(int)activeConn[i].size(); ++j){
 			int posV =posVectorFind(listP, activeConn[i][j]);
 			//update local connectivity
 			activeConn[i][j] = posV;
@@ -1419,7 +1430,7 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
 	bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-	if (data.size() == sizeCl) loc = bitpit::VTKLocation::CELL;
+	if ((int)data.size() == sizeCl) loc = bitpit::VTKLocation::CELL;
 
 	vtk.addData("field",bitpit::VTKFieldType::SCALAR, loc, data) ;
 	vtk.write();

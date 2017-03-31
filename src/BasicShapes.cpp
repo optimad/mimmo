@@ -233,7 +233,7 @@ ShapeType BasicShape::getShapeType(){
 /*! Get current type of shape instantiated. Const method overloading
  * \return const ShapeType enum
  */
-const ShapeType BasicShape::getShapeType() const {
+ShapeType BasicShape::getShapeType() const {
 	return(m_shape);
 };
 
@@ -549,7 +549,6 @@ bool BasicShape::isPointIncluded(darray3E point){
  */
 bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 	
-	bool check = true;
 	darray3E coords = tri->getVertex(indexV).getCoords();
 	return(isPointIncluded(coords));  
 };
@@ -905,9 +904,11 @@ void 		Cube::checkSpan(double &s0, double &s1, double &s2){
  * and eventually return correct values. Return true, if valid new value is set.
  */
 bool 		Cube::checkInfLimits(double &o0, int &dir){
-			//really doing nothing here.
-			//whatever origin for whatever coordinate must return always 0 for cubic/cuboidal shape
-			return(false);
+	BITPIT_UNUSED(o0);
+	BITPIT_UNUSED(dir);
+	//really doing nothing here.
+	//whatever origin for whatever coordinate must return always 0 for cubic/cuboidal shape
+	return(false);
 };
 
 /*! set local span & scaling vectors of your object */
@@ -938,7 +939,6 @@ void Cube::getTempBBox(){
 	locals[6][1] = 1.0;
 	locals[7][0] = locals[7][2] = 1.0;
 	
-	int counter = 0;
 	for(auto &vv : locals){
 		temp = toWorldCoord(basicToLocal(vv));
 		for(int i=0; i<3; ++i)	{
@@ -959,7 +959,6 @@ void Cube::getTempBBox(){
 bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	
 	dvecarr3E points(8, bMin);
-	double mindist;
 	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
 	points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
 	points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
@@ -1224,7 +1223,6 @@ void Cylinder::getTempBBox(){
 bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	
 	dvecarr3E points(8, bMin);
-	double mindist;
 	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
 	points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
 	points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];

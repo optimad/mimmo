@@ -83,7 +83,7 @@ MultipleMimmoGeometries::~MultipleMimmoGeometries(){
 
 /*!Copy constructor of MultipleMimmoGeometries.Soft Copy of MimmoObject;
  */
-MultipleMimmoGeometries::MultipleMimmoGeometries(const MultipleMimmoGeometries & other){
+MultipleMimmoGeometries::MultipleMimmoGeometries(const MultipleMimmoGeometries & other):BaseManipulation(){
 	*this = other;
 };	
 
@@ -235,7 +235,7 @@ MultipleMimmoGeometries::getObjMAP(){
 	
 	for(int i=0; i<totVal; ++i){
 		
-		std:string tag = "vtu";
+		std::string tag = "vtu";
 		switch(info[i].ftype){
 			case 0: tag="stl"; break;
 			case 5: tag="nas"; break;
@@ -689,6 +689,8 @@ MultipleMimmoGeometries::execute(){
  */
 void MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	std::vector<FileDataInfo> temp;
 	int counter;
@@ -891,6 +893,8 @@ return;
  */
 void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	slotXML.set("Topology", m_topo);
@@ -908,7 +912,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
-			bitpit::Config::Section & file = slotXML.addSection(strdum);
+			bitpit::Config::Section & file = local.addSection(strdum);
 			file.set("dir", m_rinfo[i].fdir);
 			file.set("name", m_rinfo[i].fname);
 			file.set("tag", (FileType::_from_integral(m_rinfo[i].ftype))._to_string());
@@ -926,7 +930,7 @@ void MultipleMimmoGeometries::flushSectionXML(bitpit::Config::Section & slotXML,
 		
 		for(int i=0; i<size; ++i){
 			strdum = root+std::to_string(i);
-			bitpit::Config::Section & file = slotXML.addSection(strdum);
+			bitpit::Config::Section & file = local.addSection(strdum);
 			file.set("dir", m_winfo[i].fdir);
 			file.set("name", m_winfo[i].fname);
 			file.set("tag", (FileType::_from_integral(m_winfo[i].ftype))._to_string());

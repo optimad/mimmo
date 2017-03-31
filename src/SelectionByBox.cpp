@@ -80,7 +80,7 @@ SelectionByBox::~SelectionByBox(){};
 /*!
  * Copy Constructor
  */
-SelectionByBox::SelectionByBox(const SelectionByBox & other){
+SelectionByBox::SelectionByBox(const SelectionByBox & other):GenericSelection(), Cube(){
 	*this = other;
 };
 

@@ -105,7 +105,7 @@ public:
 	dmatrix33E			getRefSystem();
 	CoordType			getCoordinateType(int dir);
 	ShapeType   		getShapeType();
-	const ShapeType		getShapeType() const;
+	ShapeType			getShapeType() const;
 	
 	darray3E	getScaling();
 	darray3E	getLocalSpan();

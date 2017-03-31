@@ -240,6 +240,7 @@ public:
 	/*!Assignement operator of IOData.
 	 */
 	IOData & operator=(const IOData & other){
+		BITPIT_UNUSED(other);
 		return (*this);
 	}
 

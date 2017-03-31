@@ -57,7 +57,7 @@ ProjectCloud::~ProjectCloud(){};
 
 /*!Copy constructor of ProjectCloud.
  */
-ProjectCloud::ProjectCloud(const ProjectCloud & other){
+ProjectCloud::ProjectCloud(const ProjectCloud & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -175,6 +175,7 @@ void ProjectCloud::plotOptionalResults(){
 */
 void ProjectCloud::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
 	
+	BITPIT_UNUSED(name);
 	//start absorbing
 
 	if(slotXML.hasOption("Priority")){
@@ -227,6 +228,8 @@ void ProjectCloud::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * \param[in] name   name associated to the slot
  */
 void ProjectCloud::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

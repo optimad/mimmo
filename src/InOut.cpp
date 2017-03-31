@@ -970,7 +970,7 @@ mimmo::PortOut::clear(){
  */
 void
 mimmo::PortOut::clear(int j){
-	if (j < m_objLink.size() && j >= 0){
+	if (j < (int)m_objLink.size() && j >= 0){
 		m_objLink.erase(m_objLink.begin() + j);
 		m_portLink.erase(m_portLink.begin() + j);
 	}
@@ -985,7 +985,7 @@ mimmo::PortOut::exec(){
 		writeBuffer();
 		bitpit::IBinaryStream input(m_obuffer.data());
 		cleanBuffer();
-		for (int j=0; j<m_objLink.size(); j++){
+		for (int j=0; j<(int)m_objLink.size(); j++){
 			if (m_objLink[j] != NULL){
 				m_objLink[j]->setBufferIn(m_portLink[j], input);
 				m_objLink[j]->readBufferIn(m_portLink[j]);
@@ -1058,7 +1058,7 @@ mimmo::PortIn::clear(){
  */
 void
 mimmo::PortIn::clear(int j){
-	if (j < m_objLink.size() && j >= 0){
+	if (j < (int)m_objLink.size() && j >= 0){
 		m_objLink.erase(m_objLink.begin() + j);
 	}
 }
