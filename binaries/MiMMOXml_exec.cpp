@@ -38,7 +38,6 @@ void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::st
 	
 	for(auto & sect : slot.getSections()){
         
-		int fallback_counter = 0;
 		std::string fallback_name = "ClassNONE";
 		
 		std::string className = sect.second->get("ClassName", fallback_name);

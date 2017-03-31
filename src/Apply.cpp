@@ -58,7 +58,7 @@ Apply::~Apply(){};
 
 /*!Copy constructor of Apply.
  */
-Apply::Apply(const Apply & other){
+Apply::Apply(const Apply & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -145,7 +145,9 @@ Apply::execute(){
  * \param[in] name   name associated to the slot
  */
  void Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	 
+	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	if(slotXML.hasOption("Priority")){
@@ -186,6 +188,8 @@ Apply::execute(){
  * \param[in] name   name associated to the slot
  */
 void Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
  	slotXML.set("Priority", std::to_string(getPriority()));

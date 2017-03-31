@@ -62,7 +62,7 @@ ReconstructScalar::~ReconstructScalar(){
 /*!
  * Copy Constructor
  */
-ReconstructScalar::ReconstructScalar(const ReconstructScalar & other){
+ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipulation(){
 	*this = other;
 }
 
@@ -355,7 +355,7 @@ std::unordered_map<long, dvector1D>		ReconstructScalar::checkOverlapping(){
 		livector1D & vMap = pairInd.first->getMapData();
 		counter = 0;
 		dvector1D field = *(pairInd.second);
-		for(int i=0; i<field.size(); ++i){
+		for(int i=0; i<(int)field.size(); ++i){
 			result[vMap[counter]].push_back(field[i]);
 			++counter;
 		}
@@ -402,6 +402,8 @@ void ReconstructScalar::buildPorts(){
  * \param[in] name   name associated to the slot
  */
 void ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
@@ -467,6 +469,8 @@ void ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] name   name associated to the slot
  */
 void ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

@@ -76,7 +76,7 @@ GenericDispls::~GenericDispls(){};
 /*!
  * Copy constructor of GenericDispls.
  */
-GenericDispls::GenericDispls(const GenericDispls & other){
+GenericDispls::GenericDispls(const GenericDispls & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -243,6 +243,8 @@ GenericDispls::execute(){
  */
 void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 
 	//checking IOmode
@@ -317,6 +319,8 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * \param[in] name   name associated to the slot
  */
 void GenericDispls::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("IOmode", std::to_string(int(m_read)));

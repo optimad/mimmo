@@ -68,7 +68,7 @@ OverlapVectorFields::~OverlapVectorFields(){
 /*!
  * Copy Constructor
  */
-OverlapVectorFields::OverlapVectorFields(const OverlapVectorFields & other){
+OverlapVectorFields::OverlapVectorFields(const OverlapVectorFields & other):BaseManipulation(){
 	*this = other;
 }
 
@@ -491,6 +491,8 @@ darray3E 	OverlapVectorFields::overlapFields(dvecarr3E & locField){
  */
 void OverlapVectorFields::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -553,6 +555,8 @@ void OverlapVectorFields::absorbSectionXML(const bitpit::Config::Section & slotX
  * \param[in] name   name associated to the slot
  */
 void OverlapVectorFields::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

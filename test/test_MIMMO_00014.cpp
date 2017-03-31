@@ -45,37 +45,9 @@ void test00014(MimmoGeometry * mimmo0, MimmoGeometry * mimmo1 ) {
 	//Creation of mimmo container.
 	MimmoObject * object_ = mimmo0->getGeometry();
 
-
-	//Initialize points
-//	Lattice * mesh = new Lattice();
-	{
-//		darray3E origin =  {{0.0,0.0, 0.0}};
-//		darray3E span = {{1.2,1.2,1.2}};
-
-//		//spoiler
-//		darray3E origin =  {{3.204,0.0, 1.0}};
-//		darray3E span = {{0.2,1.1,0.2}};
-
-		//		ahmed
-//		darray3E origin =  {{-0.52, 0.0, 0.168}};
-//		darray3E span = {{1.1, 0.5, 0.4}};
-
-		//setting mesh
-//		mesh->setShape(ShapeType::CUBE);
-//		mesh->setOrigin(origin);
-//		mesh->setSpan(span[0],span[1],span[2]);
-//		mesh->setDimension(iarray3E{{10, 10, 10}});
-	}
-
-//	mesh->exec();
-//
-//	mesh->plotGrid(".", "Box_0006", 0, true);
-
-
 	cout << "create bvtree" << endl;
 	//create bvtree object
 	bitpit::PatchKernel *patch_ = object_->getPatch();
-	bitpit::SurfUnstructured* spatch_ = static_cast<bitpit::SurfUnstructured*>(patch_);
 	BvTree tree(patch_);
 
 	cout << "execution start" << endl;
@@ -94,57 +66,6 @@ void test00014(MimmoGeometry * mimmo0, MimmoGeometry * mimmo1 ) {
 
 	cout << "execution start" << endl;
 	t1 = steady_clock::now();
-
-/*	int nP = mesh->getNNodes();
-	dvecarr3E 	points = mesh->getGlobalCoords();
-	dvector1D dF(nP);
-	darray3E normal;
-	long id;
-	double r;
-	for (int i=0; i<nP; i++){
-		r = 0.01;
-		dF[i] = signedDistance(&points[i], &tree, id, normal, r, spatch_);
-	}
-
-	r = 0.01;
-	dvecarr3E Ppoints = projectPoint(&points, &tree, r);
-
-
-	t2 = steady_clock::now();
-	cout << "execution done" << endl;
-	//Print execution time
-	time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "mimmo distance and projection took me " << time_span.count() << " seconds.";
-	std::cout << std::endl;
-
-
-
-
-	{
-		dvecarr3E * controlNodes = &points;
-		ivector1D conn(controlNodes->size());
-		for (int i=0; i<conn.size(); i++){
-			conn[i] = i;
-		}
-
-		string nfield = "dF";
-		bitpit::VTKUnstructuredGrid output( "./", "PointsDF_0006.0000", bitpit::VTKElementType::VERTEX, *controlNodes, conn);
-		output.addData( nfield, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, dF ) ;
-		output.write() ;
-
-		controlNodes = &Ppoints;
-
-		bitpit::VTKUnstructuredGrid output1( "./", "PointsDF_0006.0001", bitpit::VTKElementType::VERTEX, *controlNodes, conn);
-		output1.addData( nfield, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, dF ) ;
-		output1.write() ;
-	}
-
-
-
-	mesh->plotGridScalar("./", "GridDF_0006", 0, false, dF);
-	mesh->plotGridScalar("./", "GridDF_0006", 1, false, dF);
-
-*/
 
 
 	//Selection by patch
@@ -207,9 +128,6 @@ void test00014(MimmoGeometry * mimmo0, MimmoGeometry * mimmo1 ) {
 	temp->getPatch()->write("selection.0");
 	object_->getPatch()->write("selection.1");
 
-//	delete mesh;
-//	mesh = NULL;
-
 
 }
 
@@ -217,6 +135,9 @@ void test00014(MimmoGeometry * mimmo0, MimmoGeometry * mimmo1 ) {
 
 int main( int argc, char *argv[] ) {
 
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 
@@ -228,10 +149,6 @@ int main( int argc, char *argv[] ) {
 		mimmo0->setRead(true);
 		mimmo0->setReadDir("geo_data");
 		mimmo0->setReadFileType(FileType::STL);
-//		mimmo0->setReadFilename("sphere2");
-//		mimmo0->setReadFilename("cube");
-//		mimmo0->setReadFilename("spoiler2");
-//		mimmo0->setReadFilename("ahmed");
 		mimmo0->setReadFilename("drivAerBin2");
 		mimmo0->exec();
 
@@ -239,10 +156,6 @@ int main( int argc, char *argv[] ) {
 		mimmo1->setRead(true);
 		mimmo1->setReadDir("geo_data");
 		mimmo1->setReadFileType(FileType::STL);
-//		mimmo1->setReadFilename("sphere");
-//		mimmo1->setReadFilename("cube");
-//		mimmo1->setReadFilename("spoiler2");
-//		mimmo1->setReadFilename("ahmed");
 		mimmo1->setReadFilename("prese");
 		mimmo1->exec();
 

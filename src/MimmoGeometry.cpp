@@ -65,7 +65,7 @@ MimmoGeometry::~MimmoGeometry(){
 
 /*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
  */
-MimmoGeometry::MimmoGeometry(const MimmoGeometry & other){
+MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -591,6 +591,7 @@ MimmoGeometry::write(){
 			break;
 	}
 	
+	return false;
 };
 
 /*!It reads the mesh geometry from an input file and reverse it in the internal 
@@ -928,8 +929,6 @@ MimmoGeometry::read(){
 		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
 		vtk.read() ;
 		
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::VERTEX;
-		
 		setGeometry(3);
 		
 		int sizeV;
@@ -960,10 +959,9 @@ MimmoGeometry::read(){
 		
 		setGeometry(4);
 		
-		int sizeV, sizeC, sizeP;
+		int sizeV, sizeC;
 		sizeV = Ipoints.size();
 		sizeC = Iconnectivity.size();
-		sizeP = pids.size();
 		m_intgeo->getPatch()->reserveVertices(sizeV);
 		m_intgeo->getPatch()->reserveCells(sizeC);
 		
@@ -1156,6 +1154,8 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
  */
 void MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	if(slotXML.hasOption("Priority")){
@@ -1302,6 +1302,8 @@ return;
  * \param[in] name   name associated to the slot 
  */
 void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
@@ -1481,7 +1483,7 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 	{
 	case Short:
 	{
-		for (int i=0; i< facePts.size(); i++)
+		for (int i=0; i< (int)facePts.size(); i++)
 		{
 			fp1 = facePts[i] + 1;
 			writeValue(fp1, os);
@@ -1491,7 +1493,7 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 	}
 	case Long:
 	{
-		for (int i=0; i< facePts.size(); i++)
+		for (int i=0; i< (int)facePts.size(); i++)
 		{
 			fp1 = facePts[i] + 1;
 			writeValue(fp1, os);
@@ -1524,22 +1526,14 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
  * \param[in]     PIDS      list of Part Identifiers for each cells (optional)
  */
 void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
-	// Write points
-//	os << "$" << nl
-//			<< "$ Points" << nl
-//			<< "$" << nl;
 
-	for (int pointI=0; pointI< points.size(); pointI++)
+	for (int pointI=0; pointI< (int)points.size(); pointI++)
 	{
 		writeCoord(points[pointI], pointI, os);
 	}
-	// Write faces
-//	os << "$" << nl
-//			<< "$ Faces" << nl
-//			<< "$" << nl;
 	int nFace = 0;
 	bool flagpid = (PIDS != NULL);
-	for (int faceI=0; faceI< faces.size(); faceI++)
+	for (int faceI=0; faceI< (int)faces.size(); faceI++)
 	{
 		const ivector1D& f = faces[faceI];
 		int PID = 1;
@@ -1743,12 +1737,12 @@ NastranInterface::trim(string in){
 string
 NastranInterface::convertVertex(string in){
 	int pos = in.find_last_of("-");
-	if (pos<in.size() && pos > 0){
+	if (pos<(int)in.size() && pos > 0){
 		in.insert(pos, "E");
 	}
 	else{
 		pos = in.find_last_of("+");
-		if (pos<in.size() && pos > 0){
+		if (pos<(int)in.size() && pos > 0){
 				in.insert(pos, "E");
 		}
 	}

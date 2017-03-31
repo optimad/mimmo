@@ -160,6 +160,8 @@ livector1D SelectionByBox::extractSelection(){
  */
 void SelectionByBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
 		int value =0;
@@ -293,6 +295,8 @@ void SelectionByBox::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * \param[in] name   name associated to the slot
  */
 void SelectionByBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

@@ -86,7 +86,7 @@ FFDLattice::~FFDLattice(){};
 /*! Copy Constructor
  *\param[in] other FFDLattice where copy from
  */ 
-FFDLattice::FFDLattice(const FFDLattice & other){
+FFDLattice::FFDLattice(const FFDLattice & other):Lattice(){
 	*this = other;
 };
 
@@ -443,8 +443,10 @@ void 		FFDLattice::setNodalWeight(double val, int i, int j, int k){
  * \param[in] wg weights vector of each nx*ny*nz control nodes
  */
 void 		FFDLattice::setNodalWeight(dvector1D wg){
-	for(int i=0; i<wg.size(); ++i){
-		setNodalWeight(wg[i], i);
+	int counter = 0;
+	for(auto & val : wg){
+		setNodalWeight(val, counter);
+		counter++;
 	}	
 
 };
@@ -547,9 +549,13 @@ void 		FFDLattice::execute(){
 	//reset displacement in a unique vector
 	int size = container->getNVertex();
 	m_gdispl.resize(size, darray3E{0,0,0});
-	for(int i=0; i<map.size(); ++i){
-		m_gdispl[container->getMapDataInv(map[i])] = localdef[i];
-	}
+	{
+		int counter = 0;
+		for(auto &mapp: map){
+			m_gdispl[container->getMapDataInv(mapp)] = localdef[counter];
+			++counter;
+		}
+	}	
 
 };
 
@@ -611,9 +617,9 @@ dvecarr3E 	FFDLattice::apply(dvecarr3E * point){
 	result.resize(point->size(), darray3E{{0,0,0}});
 	livector1D list = getShape()->includeCloudPoints(*point);
 
-	for(int i=0; i<list.size(); ++i){
-		darray3E target = (*point)[list[i]];
-		result[list[i]] = nurbsEvaluator(target);
+	for(auto & index : list){
+		darray3E target = (*point)[index];
+		result[index] = nurbsEvaluator(target);
 	}
 
 	return(result);
@@ -1263,7 +1269,7 @@ double 		FFDLattice::getKnotValue(int index, int dir){
  * \param[in] dir 0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  */
 int 		FFDLattice::getKnotIndex(int index ,int dir){
-	if(index < 0 || index>=m_mapEff[dir].size()) return -1;
+	if(index < 0 || index>=(int)m_mapEff[dir].size()) return -1;
 	return(m_mapEff[dir][index]);
 };
 
@@ -1272,7 +1278,7 @@ int 		FFDLattice::getKnotIndex(int index ,int dir){
  * \param[in] dir 0,1,2 identifies the three direction x,y,z in space, and the relative knots distribution
  */
 int 		FFDLattice::getTheoreticalKnotIndex(int locIndex,int dir){
-	if(locIndex <0 || locIndex >= m_knots[dir].size()){return(-1);}
+	if(locIndex <0 || locIndex >= (int)m_knots[dir].size()){return(-1);}
 
 	// search from the end your m_mapEff vector
 	ivector1D::reverse_iterator it = find(m_mapEff[dir].rbegin(), m_mapEff[dir].rend(), locIndex);

@@ -68,7 +68,7 @@ ControlDeformExtSurface::~ControlDeformExtSurface(){};
 
 /*!Copy constructor of ControlDeformExtSurface.
  */
-ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface & other){
+ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -420,7 +420,7 @@ ControlDeformExtSurface::execute(){
 			if(checkOpen){
 				count = 0; 
 				for(auto &p : pointsOR){
-					dist = evaluateSignedDistance(pointsOR[count], local, id, normal, radius);
+					dist = evaluateSignedDistance(p, local, id, normal, radius);
 					if(radius < 1.0E-12)	radius = radius_old;
 					else 					radius_old = radius;
 					if(dist < 0.0)	refsigns[count] = -1.0;
@@ -542,6 +542,8 @@ ControlDeformExtSurface::execute(){
  */
 void ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
 		int value =0;
@@ -658,6 +660,8 @@ void ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & s
  * \param[in] name   name associated to the slot
  */
 void ControlDeformExtSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
@@ -803,7 +807,6 @@ void ControlDeformExtSurface::plotOptionalResults(){
 	points+=m_defField;
 	ivector2D connectivity = getGeometry()->getCompactConnectivity();
 	
-	bitpit::VTKFormat codex = bitpit::VTKFormat::APPENDED;
 	bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
 	
 	std::string name = m_name +std::to_string(getClassCounter())+ "_ViolationField";
@@ -811,7 +814,6 @@ void ControlDeformExtSurface::plotOptionalResults(){
 	output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 	output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 	output.setDimensions(connectivity.size(), points.size());
-	//output.setCodex(codex);
 	
 	
 	m_violationField.resize(points.size(), -1.e+18);

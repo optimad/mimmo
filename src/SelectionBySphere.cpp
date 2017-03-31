@@ -85,7 +85,7 @@ SelectionBySphere::~SelectionBySphere(){};
 /*!
  * Copy Constructor
  */
-SelectionBySphere::SelectionBySphere(const SelectionBySphere & other){
+SelectionBySphere::SelectionBySphere(const SelectionBySphere & other):GenericSelection(), Sphere(){
 	*this = other;
 };
 
@@ -163,6 +163,8 @@ livector1D SelectionBySphere::extractSelection(){
  * \param[in] name   name associated to the slot
  */
 void SelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
@@ -312,6 +314,8 @@ void SelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] name   name associated to the slot
  */
 void SelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

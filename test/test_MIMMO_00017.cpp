@@ -133,10 +133,8 @@ void test00017(MimmoGeometry * geo) {
 	
 	//Execution of chain
 	cout << "execution start" << endl;
-	steady_clock::time_point t1 = steady_clock::now();
 	ch0.exec(true);
 	ch1.exec(true);
-	steady_clock::time_point t2 = steady_clock::now();
 	cout << "execution done" << endl;
 	
 	delete seeder0;
@@ -161,6 +159,9 @@ void test00017(MimmoGeometry * geo) {
 
 int main( int argc, char *argv[] ) {
 
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 

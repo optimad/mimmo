@@ -61,7 +61,7 @@ OverlapScalarFields::~OverlapScalarFields(){
 /*!
  * Copy Constructor
  */
-OverlapScalarFields::OverlapScalarFields(const OverlapScalarFields & other){
+OverlapScalarFields::OverlapScalarFields(const OverlapScalarFields & other):BaseManipulation(){
 	*this = other;
 }
 
@@ -452,6 +452,8 @@ double 	OverlapScalarFields::overlapFields(dvector1D & locField){
  */
 void OverlapScalarFields::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -515,6 +517,8 @@ void OverlapScalarFields::absorbSectionXML(const bitpit::Config::Section & slotX
  * \param[in] name   name associated to the slot
  */
 void OverlapScalarFields::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

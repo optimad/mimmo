@@ -59,7 +59,7 @@ ControlDeformMaxDistance::~ControlDeformMaxDistance(){};
 
 /*!Copy constructor of ControlDeformMaxDistance.
  */
-ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistance & other){
+ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistance & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -242,6 +242,8 @@ ControlDeformMaxDistance::execute(){
  */
 void ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -303,6 +305,8 @@ void ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & 
  */
 void ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	
@@ -330,7 +334,6 @@ void ControlDeformMaxDistance::plotOptionalResults(){
 	points+=m_defField;
 	ivector2D connectivity = getGeometry()->getCompactConnectivity();
 	
-	bitpit::VTKFormat codex = bitpit::VTKFormat::APPENDED;
 	bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
 	
 	std::string name = m_name +std::to_string(getClassCounter())+ "_ViolationField";
@@ -338,7 +341,6 @@ void ControlDeformMaxDistance::plotOptionalResults(){
 	output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
 	output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
 	output.setDimensions(connectivity.size(), points.size());
-	//output.setCodex(codex);
 	
 	m_violationField.resize(points.size(), -1.e+18);
 	std::string sdfstr = "Violation Distance Field";

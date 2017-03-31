@@ -63,7 +63,7 @@ ReconstructVector::~ReconstructVector(){
 /*!
  * Copy Constructor
  */
-ReconstructVector::ReconstructVector(const ReconstructVector & other){
+ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipulation(){
 	*this = other;
 }
 
@@ -378,8 +378,8 @@ std::unordered_map<long, dvecarr3E>		ReconstructVector::checkOverlapping(){
 		livector1D & vMap = pairInd.first->getMapData();
 		counter = 0;
 		dvecarr3E field = *(pairInd.second);
-		for(int i=0; i<field.size(); ++i){
-			result[vMap[counter]].push_back(field[i]);
+		for(auto & val : field){
+			result[vMap[counter]].push_back(val);
 			++counter;
 		}
 	}
@@ -434,6 +434,8 @@ void 	ReconstructVector::plotOptionalResults(){
  * \param[in] name   name associated to the slot
  */
 void ReconstructVector::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
@@ -497,6 +499,8 @@ void ReconstructVector::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] name   name associated to the slot
  */
 void ReconstructVector::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

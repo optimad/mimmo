@@ -207,6 +207,7 @@ RotationBox::execute(){
  */
 void RotationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
 	
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -304,6 +305,8 @@ void RotationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
  * \param[in] name   name associated to the slot
  */
 void RotationBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

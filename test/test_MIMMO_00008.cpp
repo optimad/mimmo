@@ -86,6 +86,8 @@ void test0008() {
 	time_span = duration_cast<duration<double>>(t2 - t1);
 	std::cout<<"done simplex w one-by-one search in  "<<time_span.count() << " seconds."<<std::endl;
 	
+	std::cout<<testSimplex1.size()<<std::endl;
+	std::cout<<testSimplex2.size()<<std::endl;
 	//check if they are the same and return 
 	bool check = testSimplex1.size() == testSimplex2.size();
 	if(check){
@@ -94,8 +96,7 @@ void test0008() {
 		}
 	}
 
-	std::cout<<testSimplex1.size()<<std::endl;
-	std::cout<<testSimplex2.size()<<std::endl;
+
 	std::cout<<"Tessellation matching "<<check<<std::endl;
 	//print something;
 	MimmoObject * obj1 = new MimmoObject(1);
@@ -193,6 +194,9 @@ void test0008() {
 
 int main( int argc, char *argv[] ) {
 
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 

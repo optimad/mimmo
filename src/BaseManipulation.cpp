@@ -132,7 +132,7 @@ BaseManipulation::getNParent(){
  */
 BaseManipulation*
 BaseManipulation::getParent(int i){
-	if (i>m_parent.size()-1) return NULL;
+	if (i>(int)m_parent.size()-1) return NULL;
 	return next(m_parent.begin(), i)->first;
 };
 
@@ -143,12 +143,12 @@ BaseManipulation::getParent(int i){
  * \return false if not found.
  */
 bool
-BaseManipulation::isParent(BaseManipulation * target, int index){
+BaseManipulation::isParent(BaseManipulation * target, int &index){
 	unordered_map<BaseManipulation *, int>::iterator it;
 	it = m_parent.find(target);
 	index = -1;
 	if(it == m_parent.end()) return false;
-
+	
 	index = distance(m_parent.begin(), it);
 	return true;
 };
@@ -169,7 +169,7 @@ BaseManipulation::getNChild(){
  */
 BaseManipulation*
 BaseManipulation::getChild(int i){
-	if (i>m_child.size()-1) return NULL;
+	if (i>(int)m_child.size()-1) return NULL;
 	return next(m_child.begin(), i)->first;
 };
 
@@ -180,7 +180,7 @@ BaseManipulation::getChild(int i){
  * \return False if not found.
  */
 bool
-BaseManipulation::isChild(BaseManipulation * target, int index){
+BaseManipulation::isChild(BaseManipulation * target, int &index){
 	unordered_map<BaseManipulation *, int>::iterator it;
 	it = m_child.find(target);
 	index = -1;
@@ -587,7 +587,7 @@ BaseManipulation::findPinOut(PortOut& pin){
 void
 BaseManipulation::removePinIn(PortID portR, int j){
 	if ( m_portIn.count(portR) != 0 ){
-		if (j<m_portIn[portR]->getLink().size() && j >= 0){
+		if (j<(int)m_portIn[portR]->getLink().size() && j >= 0){
 			m_portIn[portR]->clear(j);
 		}
 	}
@@ -601,7 +601,7 @@ BaseManipulation::removePinIn(PortID portR, int j){
 void
 BaseManipulation::removePinOut(PortID portS, int j){
 	if ( m_portOut.count(portS) != 0 ){
-		if (j<m_portOut[portS]->getLink().size() && j >= 0){
+		if (j<(int)m_portOut[portS]->getLink().size() && j >= 0){
 			m_portOut[portS]->clear(j);
 		}
 	}
@@ -641,7 +641,7 @@ void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
 	if (objIn != NULL && m_portIn.count(portR) != 0){
 		std::vector<BaseManipulation*>	linked = m_portIn[portR]->getLink();
-		for (int i=0; i<linked.size(); i++){
+		for (int i=0; i<(int)linked.size(); i++){
 			if (linked[i] == objIn){
 				m_portIn[portR]->clear(i);
 			}
@@ -657,7 +657,7 @@ void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 	if (objOut != NULL && m_portOut.count(portS) != 0){
 		std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
-		for (int i=0; i<linked.size(); i++){
+		for (int i=0; i<(int)linked.size(); i++){
 			if (linked[i] == objOut){
 				m_portOut[portS]->clear(i);
 			}

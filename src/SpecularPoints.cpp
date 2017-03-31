@@ -62,7 +62,7 @@ SpecularPoints::~SpecularPoints(){};
 
 /*!Copy constructor of SpecularPoints.
  */
-SpecularPoints::SpecularPoints(const SpecularPoints & other){
+SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(){
 	*this = other;
 };
 
@@ -342,6 +342,8 @@ void SpecularPoints::clear(){
  */
 void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
+	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -444,6 +446,9 @@ void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * \param[in] name   name associated to the slot
  */
 void SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
+	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	

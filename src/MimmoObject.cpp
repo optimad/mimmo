@@ -660,7 +660,6 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	
 	long idc;
 	int nVert;
-	ElementInfo::Type eltype;
 	
 	for (const auto & cell : cells){
 		
@@ -1285,20 +1284,19 @@ void MimmoObject::buildAdjacencies(){
  * Return undefined type for unexistent or unsupported element, or mixed element type connectivity.
  */
 bitpit::VTKElementType	MimmoObject::desumeElement(){
-	bitpit::VTKElementType resultUND = bitpit::VTKElementType::UNDEFINED;
-	bitpit::VTKElementType result;
+	bitpit::VTKElementType result = bitpit::VTKElementType::UNDEFINED;
 	
 	if(getPatch() == NULL)	return result;	
 	livector1D conn;
 	switch(m_type){
 		case	1:
-			if(getNCells() == 0) 		return resultUND;
+			if(getNCells() == 0) 		return result;
 			conn = getCellConnectivity((*(getCells().begin())).getId());
 			if(conn.size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
 			if(conn.size() == 4)		result = bitpit::VTKElementType::QUAD;
 			break;
 		case	2:
-			if(getNCells() == 0) 		return resultUND;
+			if(getNCells() == 0) 		return result;
 			conn = getCellConnectivity((*(getCells().begin())).getId());
 			if(conn.size() == 4)		result = bitpit::VTKElementType::TETRA;
 			if(conn.size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
@@ -1309,7 +1307,6 @@ bitpit::VTKElementType	MimmoObject::desumeElement(){
 			result = bitpit::VTKElementType::LINE;
 			break;
 		default : 
-			result =resultUND;
 			break;
 	}
 	

@@ -202,7 +202,7 @@ Bend::execute(){
 		for (int i=0; i<ndispl; i++){
 			for (int z=0; z<3; z++){
 				if (m_degree[j][z] > 0){
-					for (int k=0; k<m_degree[j][z]+1; k++){
+					for (int k=0; k<(int)m_degree[j][z]+1; k++){
 						m_displ[i][j] += pow(m_coords[i][z],(double)k)*m_coeffs[j][z][k];
 					}
 				}
@@ -231,6 +231,8 @@ Bend::execute(){
  * \param[in] name   name associated to the slot
  */
 void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	std::string input; 
 	
@@ -275,7 +277,6 @@ void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
 		dmat33Evec temp = getCoeffs();
 		std::string rootPoly = "Poly";
 		std::string locPoly;
-		double dummyval;
 		int ik,jk;
 		for (int k=0; k<9; ++k){
 			locPoly = rootPoly + std::to_string(k);
@@ -327,6 +328,8 @@ void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
  * \param[in] name   name associated to the slot
  */
 void Bend::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

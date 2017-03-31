@@ -78,7 +78,7 @@ SelectionByBoxWithScalar::~SelectionByBoxWithScalar(){};
 /*!
  * Copy Constructor
  */
-SelectionByBoxWithScalar::SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other){
+SelectionByBoxWithScalar::SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other):SelectionByBox(){
     *this = other;
 };
 
@@ -189,6 +189,8 @@ void SelectionByBoxWithScalar::plotOptionalResults(){
  * \param[in] name   name associated to the slot
  */
 void SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
@@ -324,6 +326,8 @@ void SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & 
  * \param[in] name   name associated to the slot
  */
 void SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

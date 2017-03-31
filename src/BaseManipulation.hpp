@@ -118,10 +118,10 @@ public:
 	MimmoObject*		getGeometry();
 	int					getNParent();
 	BaseManipulation*	getParent(int i = 0);
-	bool				isParent(BaseManipulation *, int);
+	bool				isParent(BaseManipulation *, int&);
 	int					getNChild();
 	BaseManipulation*	getChild(int i = 0);
-	bool				isChild(BaseManipulation *, int);
+	bool				isChild(BaseManipulation *, int&);
 	ConnectionType		getConnectionType();
 	int 				getNPortsIn();
 	int 				getNPortsOut();

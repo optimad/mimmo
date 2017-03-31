@@ -211,8 +211,10 @@ void test0002() {
 
 	//********************************************************************************************
 	//clean up & exit;
-	delete lattice, applier;
-	delete lattice2, applier2;
+	delete lattice;
+	delete applier;
+	delete lattice2;
+	delete applier2;
 	delete mimmo0;
 	
 	lattice = NULL;
@@ -231,7 +233,10 @@ void test0002() {
 // =================================================================================== //
 
 int	main( int argc, char *argv[] ) {
-
+	
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 

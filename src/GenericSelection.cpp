@@ -50,7 +50,7 @@ GenericSelection::~GenericSelection(){
 /*!
  * Copy Constructor
  */
-GenericSelection::GenericSelection(const GenericSelection & other){
+GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulation(){
 	*this = other;
 };
 

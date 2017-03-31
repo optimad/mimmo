@@ -123,7 +123,12 @@ void test0001() {
 	mimmo0->execute();
 
 	//Delete and nullify pointer
-	delete lattice, applier, input, mimmo0, object;
+	delete lattice;
+	delete applier;
+	delete input;
+	delete mimmo0;
+	delete object;
+	
 	lattice = NULL;
 	applier = NULL;
 	input 	= NULL;
@@ -143,6 +148,9 @@ void test0001() {
 
 int main( int argc, char *argv[] ) {
 
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 

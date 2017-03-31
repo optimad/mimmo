@@ -78,7 +78,7 @@ StitchGeometry::~StitchGeometry(){
 
 /*!Copy constructor of StitchGeometry.Soft Copy of MimmoObject;
  */
-StitchGeometry::StitchGeometry(const StitchGeometry & other){
+StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(){
 	*this = other;
 };	
 
@@ -328,6 +328,8 @@ StitchGeometry::execute(){
  */
 void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	//checking topology
@@ -413,6 +415,8 @@ return;
  * \param[in] name   name associated to the slot 
  */
 void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

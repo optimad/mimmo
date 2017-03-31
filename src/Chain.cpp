@@ -50,10 +50,7 @@ Chain::~Chain(){
 /*!Copy constructor of Chain.
  */
 Chain::Chain(const Chain & other){
-	m_id 		= other.m_id;
-	m_objects	= other.m_objects;
-	m_idObjects	= other.m_idObjects;
-	m_objcounter= other.m_objcounter;
+	*this = other;
 };
 
 /*!Assignement operator of Chain.
@@ -63,6 +60,7 @@ Chain & Chain::operator=(const Chain & other){
 	m_objects	= other.m_objects;
 	m_idObjects	= other.m_idObjects;
 	m_objcounter= other.m_objcounter;
+	return (*this);
 };
 
 /*!It clears the object, by setting to zero/NULL each member/pointer in the object.
@@ -201,7 +199,7 @@ Chain::addObject(BaseManipulation* obj, int id_){
 		int idx = addObject(obj, id);
 		for (int i=0; i<obj->getNParent(); i++){
 			if (idxparent[i] > idxchild){
-				int idxp = addObject(parent[i], idparent[i]);
+				addObject(parent[i], idparent[i]);
 				parent[i] = NULL;
 			}
 		}
@@ -250,7 +248,7 @@ Chain::exec(bool debug){
 void
 Chain::exec(int idobj){
 	int idx = distance(m_idObjects.begin(), find(m_idObjects.begin(), m_idObjects.end(), idobj));
-	if (idx <  m_objects.size()) m_objects[idx]->exec();
+	if (idx <  (int)m_objects.size()) m_objects[idx]->exec();
 }
 
 /*!It checks if a loop exists in the chain.
@@ -261,7 +259,6 @@ Chain::checkLoops(){
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
 	vector<BaseManipulation*>::iterator itend = m_objects.end();
 	int actualidx = 0;
-	int childidx = 0;
 	for (it = itb; it != itend; ++it){
 		for (int i=0; i<(*it)->getNChild(); i++){
 			int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));

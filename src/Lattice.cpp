@@ -79,7 +79,7 @@ Lattice::~Lattice(){};
 /*! Copy Constructor
  *\param[in] other Lattice where copy from
  */
-Lattice::Lattice(const Lattice & other){
+Lattice::Lattice(const Lattice & other):BaseManipulation(), UStructMesh(){
 	*this = other;
 };
 
@@ -373,6 +373,8 @@ void 		Lattice::resizeMapDof(){
  */
 void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	if(slotXML.hasOption("Priority")){
 		input = slotXML.get("Priority");
@@ -508,6 +510,8 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
  */
 void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	
@@ -593,7 +597,6 @@ int
 Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
 
 	int delta = 0;
-	int dum = 0;
 	double dval;
 	switch(getShapeType()){
 

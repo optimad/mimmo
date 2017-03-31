@@ -68,7 +68,7 @@ MRBF::~MRBF(){};
 /*! Copy Constructor
  *@param[in] other MRBF where copy from
  */
-MRBF::MRBF(const MRBF & other){
+MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
 	*this = other;
 };
 
@@ -449,7 +449,9 @@ void MRBF::execute(){
 	MimmoObject * container = getGeometry();
 	if(container->isEmpty() ) return;
 
-	int size, sizeF = getDataCount();
+	int size = 0;
+	int sizeF = getDataCount();
+	
 	for (int i=0; i<sizeF; i++){
 		
 		if(m_solver == MRBFSol::NONE)	size = m_weight[i].size();
@@ -549,6 +551,8 @@ void MRBF::execute(){
  */
 void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	if(slotXML.hasOption("Priority")){
@@ -642,6 +646,8 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * \param[in] name   name associated to the slot
  */
 void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

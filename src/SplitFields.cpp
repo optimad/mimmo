@@ -47,7 +47,7 @@ SplitField::~SplitField(){
 
 /*!Copy constructor of SplitField.Soft Copy of MimmoObject;
  */
-SplitField::SplitField(const SplitField & other){
+SplitField::SplitField(const SplitField & other):BaseManipulation(){
 	*this = other;
 };	
 
@@ -198,6 +198,8 @@ SplitField::execute(){
  */
 void SplitField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	//checking topology
@@ -262,6 +264,8 @@ return;
  * \param[in] name   name associated to the slot 
  */
 void SplitField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

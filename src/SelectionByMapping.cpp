@@ -133,7 +133,7 @@ SelectionByMapping::~SelectionByMapping(){};
 /*!
  * copy Constructor
  */
-SelectionByMapping::SelectionByMapping(const SelectionByMapping & other){
+SelectionByMapping::SelectionByMapping(const SelectionByMapping & other):GenericSelection(){
 	*this = other;
 };
 
@@ -359,7 +359,9 @@ svector1D SelectionByMapping::extractInfo(std::string file){
  * \param[in] name   name associated to the slot
  */
 void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
+	
+	BITPIT_UNUSED(name);
+	
 	//checking topology
 	if(slotXML.hasOption("Topology")){
 		std::string input = slotXML.get("Topology");
@@ -490,6 +492,8 @@ void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXM
  * \param[in] name   name associated to the slot
  */
 void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

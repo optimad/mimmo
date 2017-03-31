@@ -114,7 +114,7 @@ OBBox::~OBBox(){};
 /*! Copy Constructor
  *\param[in] other OBBox where copy from
  */
-OBBox::OBBox(const OBBox & other){
+OBBox::OBBox(const OBBox & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -386,6 +386,8 @@ void 	OBBox::plotOptionalResults(){
  */
 void OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 	
 	if(slotXML.hasOption("Priority")){
@@ -436,6 +438,8 @@ void OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  */
 void OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	if(isPlotInExecution()){
@@ -464,7 +468,6 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
 	double * vt = new double [9];
 	double * s = new double[3];
 	double * superb = new double[3];
-	int info;
 		
 		int k=0;
 		for(int i=0; i<3; i++){
@@ -476,7 +479,7 @@ dmatrix33E 		OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
 		}
 
 		
-		info = LAPACKE_dgesvd( LAPACK_COL_MAJOR, 'N','S', 3, 3, a, 3, s, u, 3, vt, 3, superb);
+		LAPACKE_dgesvd( LAPACK_COL_MAJOR, 'N','S', 3, 3, a, 3, s, u, 3, vt, 3, superb);
 		
 		//solution norm
 		for (int i=0; i<9; i++){		
@@ -578,7 +581,6 @@ void 		OBBox::evaluateCovarianceMatrix( dmatrix33E & covariance, darray3E & eta)
 		
 		counter = 0;
 		dvecarr3E p2;
-		long id;
 		for(auto & cell: tri->getCells()){
 			vCount = cell.getVertexCount();
 			p2.resize(vCount);

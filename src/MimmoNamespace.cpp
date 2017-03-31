@@ -86,7 +86,7 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 	for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
 		if (i->second != NULL){
 			std::vector<BaseManipulation*> linked = i->second->getLink();
-			for (int j=0; j<linked.size(); j++){
+			for (int j=0; j<(int)linked.size(); j++){
 				if (linked[j] == objRec){
 					objSend->removePinOut(i->first,j);
 					objSend->unsetChild(objRec);
@@ -99,7 +99,7 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 	for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
 		std::vector<BaseManipulation*> linked = i->second->getLink();
 		if (i->second != NULL){
-			for (int j=0; j<linked.size(); j++){
+			for (int j=0; j<(int)linked.size(); j++){
 				if (linked[j] == objSend){
 					objRec->removePinIn(i->first,j);
 					objRec->unsetParent(objSend);

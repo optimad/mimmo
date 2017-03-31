@@ -74,7 +74,7 @@ IOCloudPoints::~IOCloudPoints(){};
 /*!
  * Copy constructor of IOCloudPoints.
  */
-IOCloudPoints::IOCloudPoints(const IOCloudPoints & other){
+IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -263,6 +263,8 @@ IOCloudPoints::execute(){
  */
 void IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
+	BITPIT_UNUSED(name);
+	
 	std::string input; 
 
 	//checking IOmode
@@ -346,6 +348,8 @@ void IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * \param[in] name   name associated to the slot
  */
 void IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("IOmode", std::to_string(int(m_read)));

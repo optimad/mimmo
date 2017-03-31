@@ -85,7 +85,7 @@ SelectionByCylinder::~SelectionByCylinder(){};
 /*!
  * Copy Constructor
  */
-SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other){
+SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other):GenericSelection(), Cylinder(){
 	*this = other;
 };
 
@@ -165,6 +165,8 @@ livector1D SelectionByCylinder::extractSelection(){
  * \param[in] name   name associated to the slot
  */
 void SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	//start absorbing
 	if(slotXML.hasOption("Priority")){
@@ -313,6 +315,8 @@ void SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotX
  * \param[in] name   name associated to the slot
  */
 void SelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

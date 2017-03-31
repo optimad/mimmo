@@ -101,6 +101,9 @@ void test00010() {
 
 int main( int argc, char *argv[] ) {
 
+	BITPIT_UNUSED(argc);
+	BITPIT_UNUSED(argv);
+	
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 

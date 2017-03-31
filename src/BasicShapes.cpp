@@ -310,6 +310,7 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
  * \return list-by-ids of simplicies included in the volumetric patch
  */
 livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
+	
 	if(tri == NULL)	return livector1D(0);
 	livector1D result(tri->getCellCount());
 	long id;
@@ -519,7 +520,7 @@ bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
   bool check = true;
   for(int i=0; i<nVertices; ++i){ 
 	//recover vertex index
-	check = check || isPointIncluded(tri, cell.getVertex(i)); 
+	check = check && isPointIncluded(tri, cell.getVertex(i)); 
   }
   return(check);
 };

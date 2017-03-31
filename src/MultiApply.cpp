@@ -58,7 +58,7 @@ MultiApply::~MultiApply(){};
 
 /*!Copy constructor of Apply.
  */
-MultiApply::MultiApply(const MultiApply & other){
+MultiApply::MultiApply(const MultiApply & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -178,6 +178,8 @@ MultiApply::execute(){
  * \param[in] name   name associated to the slot
  */
  void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+	
+	 BITPIT_UNUSED(name);
 	 
 	std::string input; 
 	
@@ -219,6 +221,8 @@ MultiApply::execute(){
  * * \param[in] name   name associated to the slot
  */
 void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

@@ -61,7 +61,7 @@ ClipGeometry::~ClipGeometry(){};
 
 /*!Copy constructor of ClipGeometry.
  */
-ClipGeometry::ClipGeometry(const ClipGeometry & other){
+ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(){
 	*this = other;
 };
 
@@ -317,6 +317,7 @@ void ClipGeometry::plotOptionalResults(){
 void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	//start absorbing
+	BITPIT_UNUSED(name);
 	
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
@@ -405,6 +406,8 @@ void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * \param[in] name   name associated to the slot
  */
 void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+	
+	BITPIT_UNUSED(name);
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));

@@ -112,10 +112,6 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
 		return;
 	}	
 	
-	mimmo::BaseManipulation *sender = NULL, *receiver = NULL;
-	short int sPort, rPort;
-	
-	
 	for( auto & sect : slotXML.getSections()){
 		
 		std::string snd_str; 
