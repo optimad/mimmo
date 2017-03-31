@@ -6,7 +6,7 @@
 
 html,
 body {
-    position: relative
+    position: relative;
     
     padding: 0;
     margin: 0;
@@ -451,7 +451,7 @@ a {
 #footer .box {
     vertical-align:top;
     display: inline-block;
-    margin-right: 25px;
+    margin-right: 40px;
 }
 
 #footer .box:last-of-type {
@@ -463,6 +463,16 @@ a {
 
     top: 0;
     left: 0;
+}
+
+#footer .legal {
+    position: absolute;
+
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    height: 1.75rem;
 }
 
 #footer strong,
@@ -484,6 +494,13 @@ a {
     color: #F8F8F8;
     text-decoration: none;
     font-weight: auto;
+}
+
+#footer .legal p {
+    line-height: 1.75rem;
+    font-size: 0.65rem;
+
+    text-align: center;
 }
 
 .big {
