@@ -309,6 +309,7 @@ endif ()
 # List of all avilable modules
 #------------------------------------------------------------------------------------#
 set(MIMMO_MODULE_LIST "")
+list(APPEND MIMMO_MODULE_LIST "common")
 list(APPEND MIMMO_MODULE_LIST "core")
 list(APPEND MIMMO_MODULE_LIST "iogeneric")
 list(APPEND MIMMO_MODULE_LIST "iocgns")
@@ -322,14 +323,14 @@ list(APPEND MIMMO_MODULE_LIST "utils")
 #------------------------------------------------------------------------------------#
 # Modules dependecies
 #------------------------------------------------------------------------------------#
-set(IOGENERIC_DEPS "core")
-set(IOCGNS_DEPS "core; iogeneric")
-set(IOVTK_DEPS "core;iogeneric")
-set(IOOFOAM_DEPS "core;iogeneric;iovtk")
-set(GEOHANDLERS_DEPS "core;iogeneric")
-set(MANIPULATORS_DEPS "core")
-set(WRAPPERS_DEPS "core")
-set(UTILS_DEPS "core")
+set(IOGENERIC_DEPS "core;common")
+set(IOCGNS_DEPS "iogeneric;core;common")
+set(IOVTK_DEPS "iogeneric;core;common")
+set(IOOFOAM_DEPS "iogeneric;iovtk;core;common")
+set(GEOHANDLERS_DEPS "core;common")
+set(MANIPULATORS_DEPS "core;common")
+set(WRAPPERS_DEPS "core;common")
+set(UTILS_DEPS "core;common")
 
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
@@ -368,7 +369,11 @@ while (${CHECK_DEPS} EQUAL 1)
 endwhile()
 unset(CHECK_DEPS)
 
-# The modules 'core', 'iogeneric' and 'manipulators' have to be always built
+# The modules 'common', 'core', 'iogeneric' and 'manipulators' have to be always built
+getModuleEnableName("common" COMMON_MODULE_ENABLED)
+unset(${COMMON_MODULE_ENABLED} CACHE)
+set(${COMMON_MODULE_ENABLED} 1 CACHE INTERNAL "Request building common module" FORCE)
+
 getModuleEnableName("core" CORE_MODULE_ENABLED)
 unset(${CORE_MODULE_ENABLED} CACHE)
 set(${CORE_MODULE_ENABLED} 1 CACHE INTERNAL "Request building core module" FORCE)

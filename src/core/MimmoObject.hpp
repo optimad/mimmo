@@ -29,7 +29,7 @@
 #include "bitpit_surfunstructured.hpp"
 #include "bitpit_SA.hpp"
 #include "BvTree.hpp"
-#include "MiMMO_TypeDef.hpp"
+#include "mimmoTypeDef.hpp"
 
 namespace mimmo{
 

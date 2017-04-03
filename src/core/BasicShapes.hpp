@@ -26,7 +26,7 @@
 #define __MIMMOBASICSHAPES_HH
 
 #include "bitpit.hpp"
-#include "MiMMO_TypeDef.hpp"
+#include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
 #include "SortAlgorithms.hpp"
 #include <unordered_set>

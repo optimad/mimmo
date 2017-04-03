@@ -31,7 +31,7 @@
 #include <array>
 #include <algorithm>
 
-#include "MiMMO_TypeDef.hpp"
+#include "mimmoTypeDef.hpp"
 
 
 /*! Template for freeing any std::vector container, by swap  

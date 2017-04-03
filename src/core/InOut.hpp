@@ -24,7 +24,7 @@
 #ifndef __INOUT_HPP__
 #define __INOUT_HPP__
 
-#include "MiMMO_TypeDef.hpp"
+#include "mimmoTypeDef.hpp"
 #include "binary_stream.hpp"
 #include "MimmoNamespace.hpp"
 #include "BasicShapes.hpp"
