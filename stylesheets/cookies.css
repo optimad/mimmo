@@ -6,7 +6,8 @@
     bottom: 0;
     width: 100%;
     z-index: 100;
-    background-color: rgba(0,0,0,.9);
+/*    background-color: rgba(0,0,0,.9); */
+    background-color: #D2F2D2;
     color: white;
 }
 
