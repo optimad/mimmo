@@ -22,14 +22,28 @@
     <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Lato:400,700'>
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/normalize.css" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/cookies.css" />
 {% for stylesheet in page.extra-css %}
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/{{stylesheet}}" />
 {% endfor %}
 
     <script type="text/javascript" src="{{ site.baseurl }}/scripts/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="{{ site.baseurl }}/scripts/cookies.js"></script>
 {% for script in page.extra-scripts %}
     <script type="text/javascript" src="{{ site.baseurl }}/scripts/{{script}}"></script>
 {% endfor %}
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-96644314-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
 
     <script type="text/javascript">
         $(document).ready(function(){
@@ -45,6 +59,19 @@
 </head>
 
 <body>
+
+<div id="cookie-warning">
+        <p id="accept-cookies" class="button">Continue</p>
+
+        <h3>Our website uses cookies</h3>
+
+        <p>
+        This website uses cookies. By continuing to use this website you are
+        giving consent to cookies being used. For information on cookies
+        and how you can disable them visit our
+        <a href="{{ site.baseurl }}/privacy.html">Privacy Policy</a>.
+        </p>
+</div>
 
 {% if page.layout == 'home' %}
 {% assign home_class = 'home' %}
