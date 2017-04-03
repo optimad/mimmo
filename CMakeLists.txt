@@ -41,7 +41,7 @@ set(BUILD_SHARED_LIBS 0 CACHE BOOL "Build Shared Libraries")
 #------------------------------------------------------------------------------------#
 function(getModuleEnableName MODULE_NAME FLAG_NAME)
 	string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
-	set(${FLAG_NAME} "BITPIT_MODULE_${UPPER_MODULE_NAME}" PARENT_SCOPE)
+	set(${FLAG_NAME} "MIMMO_MODULE_${UPPER_MODULE_NAME}" PARENT_SCOPE)
 endfunction()
 
 function(isModuleEnabled MODULE_NAME ENABLED)
@@ -102,7 +102,7 @@ function(addModuleIncludeDirectories MODULE_NAME)
 
     # External includes
     if (INCLUDE_EXTERNAL)
-        include_directories("${BITPIT_EXTERNAL_INCLUDE_DIRECTORIES}")
+        include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
     endif ()
 
     # Add dependiecies
@@ -140,8 +140,8 @@ endif()
 #------------------------------------------------------------------------------------#
 # Compiler settings
 #------------------------------------------------------------------------------------#
-set (BITPIT_DEFINITIONS_PRIVATE "")
-set (BITPIT_DEFINITIONS_PUBLIC "")
+set (MIMMO_DEFINITIONS_PRIVATE "")
+set (MIMMO_DEFINITIONS_PUBLIC "")
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
@@ -151,9 +151,9 @@ if (VERBOSE_MAKE)
 endif()
 
 if (ENABLE_MPI)
-	list (APPEND BITPIT_DEFINITIONS_PUBLIC "BITPIT_ENABLE_MPI=1")
+	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=1")
 else ()
-	list (APPEND BITPIT_DEFINITIONS_PUBLIC "BITPIT_ENABLE_MPI=0")
+	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=0")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
@@ -179,13 +179,13 @@ endif ()
 
 # Define a preprocessor macro to recognize debug builds
 IF(CMAKE_BUILD_TYPE_LOWER MATCHES "debug" OR CMAKE_BUILD_TYPE_LOWER MATCHES "debinfo")
-	list (APPEND BITPIT_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
 else ()
-	list (APPEND BITPIT_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
 endif ()
 
 IF(NOT CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
-	list (APPEND BITPIT_DEFINITIONS_PRIVATE "NDEBUG")
+	list (APPEND MIMMO_DEFINITIONS_PRIVATE "NDEBUG")
 endif ()
 
 # Define an alias for building with scalasca
@@ -220,8 +220,8 @@ scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
 endif ()
 
 # Add the definitions
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${BITPIT_DEFINITIONS_PRIVATE})
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${BITPIT_DEFINITIONS_PUBLIC})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
 
 #------------------------------------------------------------------------------------#
 # Customized build types
@@ -280,7 +280,7 @@ endif()
 #------------------------------------------------------------------------------------#
 # Library version
 #------------------------------------------------------------------------------------#
-set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}_version.hpp")
+set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/common/${CMAKE_PROJECT_NAME}_version.hpp")
 string(TOUPPER "${CMAKE_PROJECT_NAME}_VERSION" VERSION_DEFINE_NAME)
 
 file(READ "${VERSION_HEADER_FILENAME}" header)
@@ -323,6 +323,7 @@ list(APPEND MIMMO_MODULE_LIST "utils")
 #------------------------------------------------------------------------------------#
 # Modules dependecies
 #------------------------------------------------------------------------------------#
+set(CORE_DEPS "common")
 set(IOGENERIC_DEPS "core;common")
 set(IOCGNS_DEPS "iogeneric;core;common")
 set(IOVTK_DEPS "iogeneric;core;common")
@@ -332,21 +333,19 @@ set(MANIPULATORS_DEPS "core;common")
 set(WRAPPERS_DEPS "core;common")
 set(UTILS_DEPS "core;common")
 
+
+
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
 #------------------------------------------------------------------------------------#
 
-# If building without MPI remove dependecies on MPI-only modules
-if (NOT ENABLE_MPI)
-    foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
-        string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
-        list(LENGTH ${UPPER_MODULE_NAME}_DEPS DEPENDENCY_COUNT)
-        if (${DEPENDENCY_COUNT} GREATER 0)
-            list(REMOVE_ITEM ${UPPER_MODULE_NAME}_DEPS ${MPI_ONLY_MODULE_LIST})
-        endif()
-        unset(UPPER_MODULE_NAME)
-    endforeach()
-endif()
+# Initialize module state
+foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+		enableModule(${MODULE_NAME} TRUE FALSE)
+endforeach ()
+enableModule("iovtk" FALSE FALSE)
+enableModule("iocgns" FALSE FALSE)
+enableModule("ioofoam" FALSE FALSE)
 
 set(CHECK_DEPS 1)
 while (${CHECK_DEPS} EQUAL 1)
