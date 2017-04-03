@@ -28,7 +28,7 @@
 #include <memory>
 #include <array>
 #include "BasicShapes.hpp"
-#include "MiMMO_TypeDef.hpp"
+#include "mimmoTypeDef.hpp"
 
 namespace mimmo{
 

@@ -24,7 +24,7 @@
 
 # include "BvTree.hpp"
 # include "CG.hpp"
-# include "MiMMO_TypeDef.hpp"
+# include "mimmoTypeDef.hpp"
 # include <cmath>
 
 namespace mimmo{
