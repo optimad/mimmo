@@ -27,7 +27,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 #Name your project here
-project("MiMMO")
+project("mimmo")
 
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
@@ -36,27 +36,196 @@ set(ENABLE_MPI 0 CACHE BOOL "If set, the program is compiled with MPI support")
 set(VERBOSE_MAKE 0 CACHE BOOL "Set appropriate compiler and cmake flags to enable verbose output from compilation")
 set(BUILD_SHARED_LIBS 0 CACHE BOOL "Build Shared Libraries")
 
-#----------------------------------------------------------------------------
-# functions
-#----------------------------------------------------------------------------
-function(getTestName TEST_ENTRY TEST_NAME)
-    string(REGEX REPLACE ":[^:]*$" "" TEST_ENTRY_STRIPPED ${TEST_ENTRY})
-    set(${TEST_NAME} "${TEST_ENTRY_STRIPPED}" PARENT_SCOPE)
+#------------------------------------------------------------------------------------#
+# Functions
+#------------------------------------------------------------------------------------#
+function(getModuleEnableName MODULE_NAME FLAG_NAME)
+	string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+	set(${FLAG_NAME} "BITPIT_MODULE_${UPPER_MODULE_NAME}" PARENT_SCOPE)
 endfunction()
 
+function(isModuleEnabled MODULE_NAME ENABLED)
+	getModuleEnableName(${MODULE_NAME} ENABLED_VARIABLE)
+	if (DEFINED ${ENABLED_VARIABLE})
+		set(${ENABLED} ${${ENABLED_VARIABLE}} PARENT_SCOPE)
+	else ()
+		set(${ENABLED} "FALSE" PARENT_SCOPE)
+	endif ()
+endfunction()
 
+function(areModulesEnabled MODULE_LIST ENABLED)
+	foreach (MODULE_NAME IN LISTS MODULE_LIST)
+		isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+		if (NOT MODULE_ENABLED)
+			set(${ENABLED} "FALSE" PARENT_SCOPE)
+			return()
+		endif()
+	endforeach ()
+
+	set(${ENABLED} "TRUE" PARENT_SCOPE)
+endfunction()
+
+function(enableModule MODULE_NAME ENABLED)
+	set (EXTRA_ARGUMENTS ${ARGN})
+	list(LENGTH EXTRA_ARGUMENTS EXTRA_ARGUMENT_COUNT)
+	if (${EXTRA_ARGUMENT_COUNT} GREATER 0)
+		list(GET EXTRA_ARGUMENTS 0 FORCED)
+		if (FORCED)
+			set(FORCE_FLAG "FORCE")
+		endif()
+	endif ()
+
+	if (NOT DEFINED FORCE_FLAG)
+		set(FORCE_FLAG "")
+	endif ()
+
+	getModuleEnableName(${MODULE_NAME} MODULE_ENABLE_FLAG)
+	set(${MODULE_ENABLE_FLAG} ${ENABLED} CACHE BOOL "Request building ${MODULE_NAME} module" ${FORCE_FLAG})
+	mark_as_advanced(${MODULE_ENABLE_FLAG})
+endfunction()
+
+function(hideModule MODULE_NAME)
+	getModuleEnableName(${MODULE_NAME} MODULE_ENABLE_FLAG)
+	if (DEFINED ${MODULE_ENABLE_FLAG})
+		unset(${MODULE_ENABLE_FLAG} CACHE)
+	endif ()
+endfunction()
+
+function(addModuleIncludeDirectories MODULE_NAME)
+    set (EXTRA_ARGUMENTS ${ARGN})
+    list(LENGTH EXTRA_ARGUMENTS EXTRA_ARGUMENT_COUNT)
+    if (${EXTRA_ARGUMENT_COUNT} GREATER 0)
+        list(GET EXTRA_ARGUMENTS 0 INCLUDE_EXTERNAL)
+    else ()
+        set(INCLUDE_EXTERNAL "TRUE")
+    endif ()
+
+    # External includes
+    if (INCLUDE_EXTERNAL)
+        include_directories("${BITPIT_EXTERNAL_INCLUDE_DIRECTORIES}")
+    endif ()
+
+    # Add dependiecies
+    string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+    foreach (DEPENDENCY_NAME IN LISTS ${UPPER_MODULE_NAME}_DEPS)
+        addModuleIncludeDirectories(${DEPENDENCY_NAME} "FALSE")
+    endforeach()
+    unset(UPPER_MODULE_NAME)
+
+    # Add module directory
+    include_directories("${PROJECT_SOURCE_DIR}/src/${MODULE_NAME}")
+endfunction()
 
 #------------------------------------------------------------------------------------#
-# Internal dependencies
-#------------------------------------------------------------------------------------#
-include_directories("src")
-
-#------------------------------------------------------------------------------------#
-# External dependencies
+# MPI
 #------------------------------------------------------------------------------------#
 if (ENABLE_MPI)
-	find_package(MPI)
+    find_package(MPI)
+
+    include_directories("${MPI_INCLUDE_PATH}")
+
+    if(MPI_C_COMPILE_FLAGS)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+    endif()
+
+    if(MPI_CXX_COMPILE_FLAGS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+    endif()
+
+    if(MPI_CXX_LINK_FLAGS)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_CXX_LINK_FLAGS}")
+    endif()
 endif()
+
+#------------------------------------------------------------------------------------#
+# Compiler settings
+#------------------------------------------------------------------------------------#
+set (BITPIT_DEFINITIONS_PRIVATE "")
+set (BITPIT_DEFINITIONS_PUBLIC "")
+
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+
+set (ENABLE_WARNINGS ${VERBOSE_MAKE})
+if (VERBOSE_MAKE)
+	set(CMAKE_VERBOSE_MAKEFILE ON)
+endif()
+
+if (ENABLE_MPI)
+	list (APPEND BITPIT_DEFINITIONS_PUBLIC "BITPIT_ENABLE_MPI=1")
+else ()
+	list (APPEND BITPIT_DEFINITIONS_PUBLIC "BITPIT_ENABLE_MPI=0")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+
+if (ENABLE_WARNINGS)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") 
+endif()
+
+if (NOT ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.12"))
+	add_compile_options("-std=c++11")
+else ()
+	add_definitions("-std=c++11")
+endif ()
+
+# Define a preprocessor macro to recognize debug builds
+IF(CMAKE_BUILD_TYPE_LOWER MATCHES "debug" OR CMAKE_BUILD_TYPE_LOWER MATCHES "debinfo")
+	list (APPEND BITPIT_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
+else ()
+	list (APPEND BITPIT_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
+endif ()
+
+IF(NOT CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
+	list (APPEND BITPIT_DEFINITIONS_PRIVATE "NDEBUG")
+endif ()
+
+# Define an alias for building with scalasca
+if (ENABLE_MPI)
+	SET(C_FLAGS_INSTRUMENT   "-instrument mpicxx")
+	SET(CXX_FLAGS_INSTRUMENT "-instrument mpic")
+else ()
+	SET(C_FLAGS_INSTRUMENT   "")
+	SET(CXX_FLAGS_INSTRUMENT "")
+endif ()
+
+if (CMAKE_BUILD_TYPE_LOWER MATCHES "scalasca")
+	file(WRITE scalasca_c_compiler
+"#!/bin/bash
+scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
+"
+	)
+
+	file(WRITE scalasca_cxx_compiler
+"#!/bin/bash
+scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
+"
+	)
+
+	file(INSTALL scalasca_cxx_compiler DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
+	file(INSTALL scalasca_c_compiler   DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
+	file(REMOVE  scalasca_cxx_compiler)
+	file(REMOVE  scalasca_c_compiler)
+
+	set(CMAKE_CXX_COMPILER "${PROJECT_BINARY_DIR}/scalasca_cxx_compiler")
+	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
+endif ()
+
+# Add the definitions
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${BITPIT_DEFINITIONS_PRIVATE})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${BITPIT_DEFINITIONS_PUBLIC})
+
+#------------------------------------------------------------------------------------#
+# Customized build types
+#------------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------------#
 # Customized build types
@@ -109,104 +278,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 #------------------------------------------------------------------------------------#
-# Compilation settings
-#------------------------------------------------------------------------------------#
-set (MIMMO_DEFINITIONS_PRIVATE "")
-set (MIMMO_DEFINITIONS_PUBLIC "")
-
-string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
-
-set (ENABLE_WARNINGS ${VERBOSE_MAKE})
-if (VERBOSE_MAKE)
-	set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-
-if (ENABLE_MPI)
-	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=1")
-
-	if (MPI_C_FOUND)
-		set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-	else()
-		set(CMAKE_C_COMPILER mpicc)
-	endif()
-
-	if (MPI_CXX_FOUND)
-		set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-	else()
-		set(CMAKE_CXX_COMPILER mpic++)
-	endif()
-else ()
-	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=0")
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "-O2")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
-if (ENABLE_WARNINGS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") 
-endif()
-
-if (NOT ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.12"))
-	add_compile_options("-std=c++11")
-else ()
-	add_definitions("-std=c++11")
-endif ()
-
-# Define a preprocessor macro to recognize debug builds
-IF(CMAKE_BUILD_TYPE_LOWER MATCHES "debug" OR CMAKE_BUILD_TYPE_LOWER MATCHES "debinfo")
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
-else ()
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
-endif ()
-
-IF(NOT CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "NDEBUG")
-endif ()
-
-# Define an alias for building with scalasca
-if (ENABLE_MPI)
-	SET(C_FLAGS_INSTRUMENT   "-instrument mpicxx")
-	SET(CXX_FLAGS_INSTRUMENT "-instrument mpic")
-else ()
-	SET(C_FLAGS_INSTRUMENT   "")
-	SET(CXX_FLAGS_INSTRUMENT "")
-endif ()
-
-if (CMAKE_BUILD_TYPE_LOWER MATCHES "scalasca")
-	file(WRITE scalasca_c_compiler
-"#!/bin/bash
-scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
-"
-	)
-
-	file(WRITE scalasca_cxx_compiler
-"#!/bin/bash
-scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
-"
-	)
-
-	file(INSTALL scalasca_cxx_compiler DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
-	file(INSTALL scalasca_c_compiler   DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
-	file(REMOVE  scalasca_cxx_compiler)
-	file(REMOVE  scalasca_c_compiler)
-
-	set(CMAKE_CXX_COMPILER "${PROJECT_BINARY_DIR}/scalasca_cxx_compiler")
-	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
-endif ()
-
-# Add the definitions
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
-
-#------------------------------------------------------------------------------------#
 # Library version
 #------------------------------------------------------------------------------------#
 set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/${CMAKE_PROJECT_NAME}_version.hpp")
@@ -234,37 +305,122 @@ else ()
 	set(MIMMO_TAG_VERSION "")
 endif ()
 
-find_package(BITPIT REQUIRED)
-include(${BITPIT_USE_FILE})
+#------------------------------------------------------------------------------------#
+# List of all avilable modules
+#------------------------------------------------------------------------------------#
+set(MIMMO_MODULE_LIST "")
+list(APPEND MIMMO_MODULE_LIST "core")
+list(APPEND MIMMO_MODULE_LIST "iogeneric")
+list(APPEND MIMMO_MODULE_LIST "iocgns")
+list(APPEND MIMMO_MODULE_LIST "iovtk")
+list(APPEND MIMMO_MODULE_LIST "ioofoam")
+list(APPEND MIMMO_MODULE_LIST "geohandlers")
+list(APPEND MIMMO_MODULE_LIST "manipulators")
+list(APPEND MIMMO_MODULE_LIST "wrappers")
+list(APPEND MIMMO_MODULE_LIST "utils")
+
+#------------------------------------------------------------------------------------#
+# Modules dependecies
+#------------------------------------------------------------------------------------#
+set(IOGENERIC_DEPS "core")
+set(IOCGNS_DEPS "core; iogeneric")
+set(IOVTK_DEPS "core;iogeneric")
+set(IOOFOAM_DEPS "core;iogeneric;iovtk")
+set(GEOHANDLERS_DEPS "core;iogeneric")
+set(MANIPULATORS_DEPS "core")
+set(WRAPPERS_DEPS "core")
+set(UTILS_DEPS "core")
+
+#------------------------------------------------------------------------------------#
+# Check of the dependencies
+#------------------------------------------------------------------------------------#
+
+# If building without MPI remove dependecies on MPI-only modules
+if (NOT ENABLE_MPI)
+    foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+        string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+        list(LENGTH ${UPPER_MODULE_NAME}_DEPS DEPENDENCY_COUNT)
+        if (${DEPENDENCY_COUNT} GREATER 0)
+            list(REMOVE_ITEM ${UPPER_MODULE_NAME}_DEPS ${MPI_ONLY_MODULE_LIST})
+        endif()
+        unset(UPPER_MODULE_NAME)
+    endforeach()
+endif()
+
+set(CHECK_DEPS 1)
+while (${CHECK_DEPS} EQUAL 1)
+	set(CHECK_DEPS 0)
+	foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+		isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+		if (MODULE_ENABLED)
+			string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+			foreach (DEPENDENCY_NAME IN LISTS ${UPPER_MODULE_NAME}_DEPS)
+				isModuleEnabled(${DEPENDENCY_NAME} DEPENDENCY_ENABLED)
+				if (NOT DEPENDENCY_ENABLED)
+					set(CHECK_DEPS 1)
+					enableModule(${DEPENDENCY_NAME} TRUE TRUE)
+					message("Module '${DEPENDENCY_NAME}' has been enabled because it's needed by module '${MODULE_NAME}'")
+				endif ()
+			endforeach ()
+		endif ()
+		unset(MODULE_ENABLE_FLAG)
+	endforeach ()
+endwhile()
+unset(CHECK_DEPS)
+
+# The modules 'core', 'iogeneric' and 'manipulators' have to be always built
+getModuleEnableName("core" CORE_MODULE_ENABLED)
+unset(${CORE_MODULE_ENABLED} CACHE)
+set(${CORE_MODULE_ENABLED} 1 CACHE INTERNAL "Request building core module" FORCE)
+
+getModuleEnableName("iogeneric" IOGENERIC_MODULE_ENABLED)
+unset(${IOGENERIC_MODULE_ENABLED} CACHE)
+set(${IOGENERIC_MODULE_ENABLED} 1 CACHE INTERNAL "Request building iogeneric module" FORCE)
+
+# The modules 'core', 'iogeneric' and 'manipulators' have to be always built
+getModuleEnableName("manipulators" MANIPULATORS_MODULE_ENABLED)
+unset(${MANIPULATORS_MODULE_ENABLED} CACHE)
+set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulators module" FORCE)
+
+#------------------------------------------------------------------------------------#
+# External modules dependecies
+#------------------------------------------------------------------------------------#
 
 set(MIMMO_EXTERNAL_LIBRARIES "")
 set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
 
+find_package(BITPIT REQUIRED)
+include(${BITPIT_USE_FILE})
+
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
-	foreach (LAPACK_LIBRARY_PATH IN LISTS LAPACK_LIBRARIES)
-		get_filename_component(FILE_NAME "${LAPACK_LIBRARY_PATH}" NAME_WE)
-		if ("${FILE_NAME}" STREQUAL "liblapack")
-			get_filename_component(FILE_DIR "${LAPACK_LIBRARY_PATH}" PATH)
+foreach (LAPACK_LIBRARY_PATH IN LISTS LAPACK_LIBRARIES)
+	set(LAPACKE_FORCE_STATIC 0 CACHE BOOL "Use LAPACKe static libraries")
+	mark_as_advanced(LAPACKE_FORCE_STATIC)
+
+	get_filename_component(FILE_NAME "${LAPACK_LIBRARY_PATH}" NAME_WE)
+	if ("${FILE_NAME}" STREQUAL "liblapack")
+		get_filename_component(FILE_DIR "${LAPACK_LIBRARY_PATH}" PATH)
+		if (LAPACKE_FORCE_STATIC)
+			SET(FILE_EXT ".a")
+		else ()
 			get_filename_component(FILE_EXT "${LAPACK_LIBRARY_PATH}" EXT)
-
-			file(TO_NATIVE_PATH "${FILE_DIR}/liblapacke${FILE_EXT}" LAPACKE_LIB_PATH)
-			list (APPEND LAPACK_LIBRARIES "${LAPACKE_LIB_PATH}")
 		endif ()
-	endforeach ()
 
-	list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACK_LIBRARIES}")
+		file(TO_NATIVE_PATH "${FILE_DIR}/liblapacke${FILE_EXT}" LAPACKE_LIB_PATH)
+		list (INSERT LAPACK_LIBRARIES 0 "${LAPACKE_LIB_PATH}")
+	endif ()
+endforeach ()
 
+list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACK_LIBRARIES}")
 
-find_package(LibXml2 REQUIRED)
+list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
+list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${BITPIT_INCLUDE_DIR}")
 
-    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
-    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIR}")
-
-
-    include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
- 
+if (ENABLE_MPI)
+    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
+endif()
 
 #------------------------------------------------------------------------------------#
 # Subdirectories
@@ -272,7 +428,7 @@ find_package(LibXml2 REQUIRED)
 # Main library
 add_subdirectory(src)
 
-# Binaries
+# xml text unit interface binaries
 add_subdirectory(binaries)
 
 # CMake
@@ -282,31 +438,9 @@ add_subdirectory(cmake)
 add_subdirectory(examples)
 
 # Tests
+enable_testing()
 add_subdirectory(test)
 
 # Docs
 add_subdirectory(doc)
 
-
-#------------------------------------------------------------------------------------#
-# Tests
-#------------------------------------------------------------------------------------#
-enable_testing()
-
-# Serial tests
-if (DEFINED_TEST_LIST_SERIAL)
-    foreach(TEST_NAME IN LISTS_TEST_LIST_SERIAL)
-            add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/test")
-    endforeach()
-endif()
-
-# Parallel tests
-if (ENABLE_MPI)
-    if (DEFINED TEST_LIST_PARALLEL)
-        foreach(TEST_NAME IN LISTS_TEST_LIST_PARALLEL)
-            add_test(NAME ${TEST_NAME} COMMAND ${MPIEXEC} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_MAX_NUMPROCS} ${MPIEXEC_POSTFLAGS} ${TEST_NAME} WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/test")
-        endforeach()
-    endif()
-endif ()
-
-add_custom_target(check DEPENDS tests COMMAND ${CMAKE_MAKE_PROGRAM} test)
