@@ -1,19 +1,19 @@
 /*!
 \page styleguide Coding Style Guide
 
-Code developed in <B>%MiMMO</B> should follow the coding styles described here.  Any deviations from this style
+Code developed in <B>%mimmo</B> should follow the coding styles described here.  Any deviations from this style
 guide will result in severe berating and other verbal abuse.
 
-\section directory_structure MiMMO Directory Structure
-<B>%MiMMO</B> source code is organized in the following directory structure: \n
- - doc: documentation is put here, along with the input file for Doxygen.  Most <B>%MiMMO</B> documentation is doxygen-processed;
- - examples: examples of <B>%MiMMO</B> usage, both small and large.  These programs are not meant to be used as unit tests, but
-     rather as further documentation on <B>%MiMMO</B> usage;
+\section directory_structure mimmo Directory Structure
+<B>%mimmo</B> source code is organized in the following directory structure: \n
+ - doc: documentation is put here, along with the input file for Doxygen.  Most <B>%mimmo</B> documentation is doxygen-processed;
+ - examples: examples of <B>%mimmo</B> usage, both small and large.  These programs are not meant to be used as unit tests, but
+     rather as further documentation on <B>%mimmo</B> usage;
  - src : source code;
  - test: all unit test programs should go below this directory.
 
-If you're designing a new class or other code for <B>%MiMMO</B> and are not sure where to put it, try to find something similar
-and put it there.  Otherwise, email the <B>%MiMMO</B> email list for pointers.
+If you're designing a new class or other code for <B>%mimmo</B> and are not sure where to put it, try to find something similar
+and put it there.  Otherwise, email the <B>%mimmo</B> email list for pointers.
 
 \section source_style Source Code Style and Best Practices
 
@@ -156,7 +156,7 @@ the general purpose of the enumeration, so e.g. we use Interface::PositionType, 
 Interface::InterfacePositionType.
 
 No names should be added to the global namespace.  Everything should be
-in the <B>%MiMMO</B> namespace.  An exception can be made for names with a static
+in the <B>%mimmo</B> namespace.  An exception can be made for names with a static
 scope declared in a .cpp file, but class member functions never have a
 static scope.
 
@@ -169,9 +169,9 @@ by other code.  If that is not possible, then consider nesting the
 definitions such that the scope of the name is limited to that of the
 class using it.
 
-Any names introduced into the top-level <B>%MiMMO</B> namespace should be
+Any names introduced into the top-level <B>%mimmo</B> namespace should be
 sufficiently unique to avoid conflicts with other code.  If you must
-introduce a class to the top-level <B>%MiMMO</B> namespace, don't choose
+introduce a class to the top-level <B>%mimmo</B> namespace, don't choose
 an overly genereric name like \c Node.
 
 \subsection includes Includes
@@ -188,7 +188,7 @@ Don't use a pre-processor macro where a const variable or an inline or
 template function will suffice. There is absolutely benefit to the former
 over the later with modern compilers.  Further, using  macros bypasses
 typechecking that the compiler would otherwise do for you and if used in
-headers, introduce names into the global rather than <B>%MiMMO</B> namespace.
+headers, introduce names into the global rather than <B>%mimmo</B> namespace.
 
 Don't define constants that are already provided by standard libraries.
 For example, use \c M_PI as defined in \c math.h rather than defining
@@ -440,12 +440,12 @@ ugly), but try to avoid excess.  Instead, put the comments at the head
 of the function, telling people what it does, and possibly WHY it does
 it.
 
-Each class should be fully commented with a \\class comment block, formatted like those in the <B>%MiMMO</B> core classes. <B>The arguments of the class constructor are very important</B>,
+Each class should be fully commented with a \\class comment block, formatted like those in the <B>%mimmo</B> core classes. <B>The arguments of the class constructor are very important</B>,
 as they tell developers how to include the class declaration in their code.  This information goes into the "Detailed
 Description" portion of the class documentation.  This block should include any features or limitations of the class.
 
 Each method of a class in both the public and private interfaces should be commented, <B>Including any arguments and return values</B>.
-See the <B>%MiMMO</B> classes for examples of how to format these comments.  As a rule of thumb, your code should run through
+See the <B>%mimmo</B> classes for examples of how to format these comments.  As a rule of thumb, your code should run through
 Doxygen without generating any warnings; in fact, Doxygen is sometimes helpful at pointing out inconsistencies in your
 class declaration.
 

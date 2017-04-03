@@ -1,44 +1,14 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Eclipse
-.project
-
-# Building
+build/
 release/
 debug/
-build/
-
-#kwrite swap files
-*-swp
-
-#jekyll
+CMakeFiles/
+*.swp
+*~
+.cproject
+.project
+.directory
+.settings/
+.DS_Store
 _site/
 _config_local.yml
 
