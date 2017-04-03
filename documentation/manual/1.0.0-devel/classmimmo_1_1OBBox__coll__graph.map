@@ -1,5 +1,0 @@
-<map id="mimmo::OBBox" name="mimmo::OBBox">
-<area shape="rect" id="node2" href="$classmimmo_1_1mimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="5,184,239,211"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1mimmo_1_1MimmoObject.html" title="MimmoObject is the base container of geometry for MiMMo library. " alt="" coords="18,95,226,121"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1mimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="36,5,208,32"/>
-</map>

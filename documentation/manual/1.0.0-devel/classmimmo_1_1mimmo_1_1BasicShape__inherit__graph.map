@@ -1,8 +1,0 @@
-<map id="mimmo::mimmo::BasicShape" name="mimmo::mimmo::BasicShape">
-<area shape="rect" id="node2" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="287,5,393,32"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="278,56,402,83"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1mimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="261,107,419,133"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1mimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="252,157,428,184"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1mimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="255,208,425,235"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="281,259,399,285"/>
-</map>
