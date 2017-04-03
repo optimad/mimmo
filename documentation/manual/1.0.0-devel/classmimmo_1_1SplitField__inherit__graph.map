@@ -1,0 +1,5 @@
+<map id="mimmo::SplitField" name="mimmo::SplitField">
+<area shape="rect" id="node3" href="$classmimmo_1_1SplitScalarField.html" title="SplitScalarField is specialized derived class of SplitField to split a scalar field of doubles..." alt="" coords="5,155,168,181"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SplitVectorField.html" title="SplitVectorField is specialized derived class of SplitField to split a scalar field of array&lt;double..." alt="" coords="193,155,359,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="93,5,269,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="mimmo::ClipGeometry" name="mimmo::ClipGeometry">
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="5,187,181,213"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the base container of geometry for MiMMo library. " alt="" coords="16,96,171,123"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="36,5,151,32"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="mimmo::GenericSelection" name="mimmo::GenericSelection">
+<area shape="rect" id="node3" href="$classmimmo_1_1SelectionByBox.html" title="Selects through volume box primitive. " alt="" coords="463,13,630,40"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1SelectionByCylinder.html" title="Selects through cylinder primitive. " alt="" coords="451,64,642,91"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1SelectionByMapping.html" title="Selects mapping external surfaces on the target mesh. " alt="" coords="451,115,643,141"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1SelectionByPID.html" title="Selects using target mesh Part Identifiers. " alt="" coords="463,165,630,192"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1SelectionBySphere.html" title="Selects through sphere primitive. " alt="" coords="455,216,639,243"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any object (derived class) for manipulation of the geometry..." alt="" coords="5,115,181,141"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selects through volume box primitive. " alt="" coords="691,6,885,47"/>
+</map>
