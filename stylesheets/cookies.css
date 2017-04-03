@@ -17,6 +17,7 @@
     font-size: 0.75rem;
     line-height: normal;
     padding: 5px 175px 0 10px;
+    color: #456F1D;
 }
 
 
@@ -28,6 +29,9 @@
     padding: 5px 175px 5px 10px;
 }
 
+#cookie-warning a {
+    color: #456F1D;
+}
 #cookie-warning p.button {
     text-align: center;
     padding: 5px 15px 5px 15px;
@@ -50,4 +54,7 @@
     margin: 0;
 
     transform: translateY(-50%);
+    
+    color: white;
+    
 }
