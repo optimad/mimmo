@@ -26,28 +26,45 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Examples can be compiled only if all modules are enabled
-option(BUILD_EXAMPLES "Create and install the examples" OFF)
+set(MODULE_LIST "${MIMMO_MODULE_LIST}")
+if (NOT ENABLE_MPI)
+    list(REMOVE_ITEM MODULE_LIST "${MPI_ONLY_MODULE_LIST}")
+endif ()
+
+areModulesEnabled("${MODULE_LIST}" ALL_MODULES_ENABLED)
+if (ALL_MODULES_ENABLED)
+	option(BUILD_EXAMPLES "Create and install the examples" OFF)
+else ()
+	unset(BUILD_EXAMPLES CACHE)
+	return()
+endif ()
 
 # Add a target to generate the examples
-include_directories("${PROJECT_SOURCE_DIR}/src")
+foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+	if (MODULE_ENABLED)
+		addModuleIncludeDirectories(${MODULE_NAME})
+	endif()
+endforeach ()
 
 if(BUILD_EXAMPLES)
-    # List of examples
-    set(EXAMPLE_LIST "")
-    list(APPEND EXAMPLE_LIST "MIMMO_example_00001")
+	# List of examples
+	set(EXAMPLE_LIST "")
+	list(APPEND EXAMPLE_LIST "MIMMO_example_00001")
+	
+	#Rules to build the examples
+	foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
+		set(EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}.cpp")
+		list(APPEND EXAMPLES_SOURCES ${EXAMPLE_SOURCES})
 
-    #Rules to build the examples
-    foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
-        set(EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}.cpp")
-        list(APPEND EXAMPLES_SOURCES ${EXAMPLE_SOURCES})
+		add_executable(${EXAMPLE_NAME} "${EXAMPLE_SOURCES}")
+		target_link_libraries(${EXAMPLE_NAME} ${MIMMO_LIBRARY})
+		target_link_libraries(${EXAMPLE_NAME} ${MIMMO_EXTERNAL_LIBRARIES})
+		install(TARGETS ${EXAMPLE_NAME} DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
+	endforeach()
 
-        add_executable(${EXAMPLE_NAME} "${EXAMPLE_SOURCES}")
-        target_link_libraries(${EXAMPLE_NAME} ${MIMMO_LIBRARY})
-        install(TARGETS ${EXAMPLE_NAME} DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
-    endforeach()
+	add_custom_target(examples DEPENDS ${EXAMPLE_LIST})
+	add_custom_target(clean-examples COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-    add_custom_target(examples DEPENDS ${EXAMPLE_LIST})
-    add_custom_target(clean-examples COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-    set (EXAMPLES_SOURCES ${EXAMPLES_SOURCES} PARENT_SCOPE)
+	set (EXAMPLES_SOURCES ${EXAMPLES_SOURCES} PARENT_SCOPE)
 endif()

@@ -22,8 +22,9 @@
 #
 #----------------------------------------------------------------------------
 
-# Specify the version being used as well as the language
-cmake_minimum_required(VERSION 2.8)
+#------------------------------------------------------------------------------------#
+# Library properties
+#------------------------------------------------------------------------------------#
 
 # Library type
 if (BUILD_SHARED_LIBS)
@@ -34,19 +35,38 @@ else()
 	set(PIC_FLAG FALSE)
 endif()
 
-# Name your project here
-set(MIMMO_LIBRARY "MiMMO" CACHE INTERNAL "MIMMO Library" FORCE)
+#------------------------------------------------------------------------------------#
+# Subdirectories
+#------------------------------------------------------------------------------------#
 
-# Add library to targets
-file(GLOB SOURCE_FILES "*.cpp")
-set(MIMMO_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of MIMMO Library" FORCE)
-unset(SOURCE_FILES)
+if (DEFINED MODULE_SOURCES)
+	unset(${MODULE_SOURCES})
+	unset(${MODULE_DEFINITIONS})
+endif ()
 
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(MIMMO_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of MIMMO Library" FORCE)
-unset(BASE_HEADERS)
+# Modules
+foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+	if (MODULE_ENABLED)
+		string(TOUPPER ${MODULE_NAME} UPPERCASE_MODULE_NAME)
+		add_subdirectory(${MODULE_NAME})
+		if (TARGET ${UPPERCASE_MODULE_NAME}_TARGET_OBJECT)
+			set(MODULE_SOURCES ${MODULE_SOURCES} $<TARGET_OBJECTS:${UPPERCASE_MODULE_NAME}_TARGET_OBJECT>)
+			set_target_properties(${UPPERCASE_MODULE_NAME}_TARGET_OBJECT PROPERTIES POSITION_INDEPENDENT_CODE ${PIC_FLAG})
+		endif ()
+		if (DEFINED ${UPPERCASE_MODULE_NAME}_DEFINITIONS)
+			set(MODULE_DEFINITIONS ${MODULE_DEFINITIONS} ${${UPPERCASE_MODULE_NAME}_DEFINITIONS})
+		endif ()
+	endif ()
+endforeach()
 
-add_library(${MIMMO_LIBRARY} ${LIBRARY_TYPE} ${MIMMO_SOURCES})
+#------------------------------------------------------------------------------------#
+# Library
+#------------------------------------------------------------------------------------#
+
+set(MIMMO_LIBRARY ${CMAKE_PROJECT_NAME} CACHE INTERNAL "mimmo Base Library" FORCE)
+
+add_library(${MIMMO_LIBRARY} ${LIBRARY_TYPE} ${MODULE_SOURCES})
 
 if (ENABLE_MPI)
 	set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_MPI_D")
@@ -60,9 +80,12 @@ endif()
 set_target_properties(${MIMMO_LIBRARY} PROPERTIES POSITION_INDEPENDENT_CODE ${PIC_FLAG})
 set_target_properties(${MIMMO_LIBRARY} PROPERTIES VERSION "${MIMMO_VERSION}"
                                                  SOVERSION  "${MIMMO_MAJOR_VERSION}")
-                                                 
-add_custom_target(library DEPENDS ${MIMMO_LIBRARY})
-add_custom_target(clean-library COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 install(TARGETS ${MIMMO_LIBRARY} DESTINATION lib)
-install(FILES ${MIMMO_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+
+# Definitions
+set(MIMMO_DEFINITIONS ${MODULE_DEFINITIONS} CACHE INTERNAL "Pre-processor definitions needed by the Base Library" FORCE)
+
+# Targets
+add_custom_target(library DEPENDS ${BASE_LIBRARY})
+add_custom_target(clean-library COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
