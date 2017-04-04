@@ -9,7 +9,7 @@ mimmo depends on
 * (optionally) MPI implementation. It has been tested with OpenMPI >= 1.6.5. 
 * lapacke/lapack libraries. It has been tested with Lapack >= 3.5.0
 * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
-* bitpit library. It has been tested with bitpit >= 1.4.0. See www.optima.it/bitpit/ for further information.
+* bitpit library. It has been tested with bitpit >= 1.4.0. Visit www.optimad.it/products/bitpit/ for further information.
 
 ## Configuring MIMMO
 mimmo uses ccmake as building tool.
