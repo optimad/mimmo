@@ -28,13 +28,50 @@ using namespace bitpit;
 using namespace mimmo;
 
 
+class BaseClass {
+protected:
+	std::string m_member;
+public:
+	
+	BaseClass(){m_member="None";};
+	virtual ~BaseClass(){};
+	virtual std::string whoAmI() = 0;
+	
+};
+
+class DerivedClass:public BaseClass {
+public:
+	DerivedClass(const bitpit::Config::Section & xmlroot){
+		m_member= "DerivedClass";
+	};
+	virtual ~DerivedClass(){};
+	std::string whoAmI(){return m_member;};
+};
+
+REGISTER(BaseClass, DerivedClass, "DerivedObject");
 
 // =================================================================================== //
 
 int test1() {
 	
-	std::cout<<"waiting for a proper test. I do nothing for now"<<std::endl;
-    return 0;
+	
+	auto & factory = Factory<BaseClass>::instance();
+	std::string name = "DerivedObject";
+	
+	if(factory.containsCreator(name)){
+		std::cout<<"Found instantiable object "<<name<<std::endl;
+		std::unique_ptr<BaseClass> obj(factory.create(name, config::root));
+		if(obj->whoAmI() == "DerivedClass"){
+			std::cout<<"Correctly instantiated object of type "<<obj->whoAmI()<<std::endl;
+			return 0;
+		}else{
+			std::cout<<"Instantition of object "<<name<<" failed."<<std::endl;
+		}	
+	}else{
+		std::cout<<"NOT Found instantiable object "<<name<<std::endl;
+		
+	}
+    return 1;
 }
 
 // =================================================================================== //
