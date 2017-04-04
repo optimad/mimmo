@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------------------
  #                                                                            
- #  MiMMO
+ #  mimmo
  #
  #  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  #
  #  -------------------------------------------------------------------------
  #  License
- #  This file is part of MiMMO.
+ #  This file is part of mimmo.
  #
  #  bitpit is free software: you can redistribute it and/or modify it
  #  under the terms of the GNU Lesser General Public License v3 (LGPL)

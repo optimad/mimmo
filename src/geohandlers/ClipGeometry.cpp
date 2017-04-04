@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "ClipGeometry.hpp"
@@ -28,7 +28,7 @@ namespace mimmo{
 /*!Default constructor of ClipGeometry
 */
 ClipGeometry::ClipGeometry(){
-	m_name = "MiMMO.ClipGeometry";
+	m_name = "mimmo.ClipGeometry";
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
@@ -40,7 +40,7 @@ ClipGeometry::ClipGeometry(){
  */
 ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.ClipGeometry";
+	m_name = "mimmo.ClipGeometry";
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
@@ -48,10 +48,10 @@ ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.ClipGeometry"){
+	if(input == "mimmo.ClipGeometry"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::ClipGeometry constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::ClipGeometry constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -389,7 +389,7 @@ void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.ClipGeometry"
+ * - <B>ClassName</B>: name of the class as "mimmo.ClipGeometry"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane
  * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it

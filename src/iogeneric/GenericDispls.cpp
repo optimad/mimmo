@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
@@ -34,7 +34,7 @@ namespace mimmo {
  * \param[in] readMode True if the object is in read mode, false if in Write mode.
  */
 GenericDispls::GenericDispls(bool readMode){
-	m_name 		= "MiMMO.GenericDispls";
+	m_name 		= "mimmo.GenericDispls";
 	m_read 		= readMode;
 	m_nDispl  	= 0;
 	m_template 	= false;
@@ -47,7 +47,7 @@ GenericDispls::GenericDispls(bool readMode){
  */
 GenericDispls::GenericDispls(const bitpit::Config::Section & rootXML){
 	
-	m_name 		= "MiMMO.GenericDispls";
+	m_name 		= "mimmo.GenericDispls";
 	m_nDispl  	= 0;
 	m_template 	= false;
 	m_filename 	= m_name+"_source.dat";
@@ -63,10 +63,10 @@ GenericDispls::GenericDispls(const bitpit::Config::Section & rootXML){
 	
 	m_read = bool(std::atoi(input2.c_str()));
 
-	if(input == "MiMMO.GenericDispls"){
+	if(input == "mimmo.GenericDispls"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::GenericDispls constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::GenericDispls constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -307,7 +307,7 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * Displacements and labels are eventually passed only through ports.
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.GenericDispls"
+ * - <B>ClassName</B>: name of the class as "mimmo.GenericDispls"
  * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Filename</B>: path to your current file data

@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "Bend.hpp"
@@ -29,7 +29,7 @@ namespace mimmo{
 /*!Default constructor of Bend
  */
 Bend::Bend(){
-	m_name = "MiMMO.Bend";
+	m_name = "mimmo.Bend";
 	m_degree.fill({{0,0,0}});
 };
 
@@ -40,16 +40,16 @@ Bend::Bend(){
  */
 Bend::Bend(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.Bend";
+	m_name = "mimmo.Bend";
 	m_degree.fill({{0,0,0}});
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.Bend"){
+	if(input == "mimmo.Bend"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::Bend constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::Bend constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -299,7 +299,7 @@ void Bend::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
  *    --> Flushing data// how to write it on XML:
- * - <B>ClassName</B> : name of the class as "MiMMO.Bend"
+ * - <B>ClassName</B> : name of the class as "mimmo.Bend"
  * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
  *
  * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement 

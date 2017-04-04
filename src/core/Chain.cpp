@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "Chain.hpp"
@@ -225,13 +225,13 @@ Chain::exec(bool debug){
 	if(debug){
 		std::cout << " " << std::endl;
 		std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-		std::cout << "MiMMO : execution of chain - "<< m_objcounter << " objects" << std::endl;
+		std::cout << "mimmo : execution of chain - "<< m_objcounter << " objects" << std::endl;
 		std::cout << " " << std::endl;
 	}	
 	checkLoops();
 	int i = 1;
 	for (it = itb; it != itend; ++it){
-		if(debug)	std::cout << "MiMMO : execution object " << i << "	: " << (*it)->getName() << std::endl;
+		if(debug)	std::cout << "mimmo : execution object " << i << "	: " << (*it)->getName() << std::endl;
 		(*it)->exec();
 		i++;
 	}
@@ -263,7 +263,7 @@ Chain::checkLoops(){
 		for (int i=0; i<(*it)->getNChild(); i++){
 			int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));
 			if (idxchild <= actualidx){
-				std::cout << "MiMMO : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
+				std::cout << "mimmo : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
 				std::cout << " " << std::endl;
 				std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
 				std::cout << " " << std::endl;

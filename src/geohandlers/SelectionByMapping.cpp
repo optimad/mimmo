@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -37,7 +37,7 @@ namespace mimmo{
  * . Other options are not available, if forced trigger default value of 1.
  */
 SelectionByMapping::SelectionByMapping(int topo){
-	m_name = "MiMMO.SelectionByMapping";
+	m_name = "mimmo.SelectionByMapping";
 	m_type = SelectionType::MAPPING;
 	m_tolerance = 1.E-08;
 	
@@ -62,7 +62,7 @@ SelectionByMapping::SelectionByMapping(int topo){
  */
 SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.SelectionByMapping";
+	m_name = "mimmo.SelectionByMapping";
 	m_type = SelectionType::MAPPING;
 	m_tolerance = 1.E-08;
 
@@ -88,10 +88,10 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 	m_allowedType[2].insert(FileType::VHVTU);
 	
 	
-	if(input_name == "MiMMO.SelectionByMapping"){
+	if(input_name == "mimmo.SelectionByMapping"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::SelectionByMapping constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::SelectionByMapping constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -102,7 +102,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
  * \param[in]	tolerance	proximity criterium tolerance 
  */
 SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance){
-	m_name = "MiMMO.SelectionByMapping";
+	m_name = "mimmo.SelectionByMapping";
 	m_type = SelectionType::MAPPING;
 	m_tolerance = 1.E-08;
 	
@@ -465,7 +465,7 @@ void SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXM
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.SelectionByMapping"
+ * - <B>ClassName</B>: name of the class as "mimmo.SelectionByMapping"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
  * - <B>Topology</B>: set Topology for your mapping 1- 3D surface, 2- Volume mesh, 0 none;

@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "ProjectCloud.hpp"
@@ -29,7 +29,7 @@ namespace mimmo{
  * Default constructor of ProjectCloud
 */
 ProjectCloud::ProjectCloud(){
-	m_name = "MiMMO.ProjectCloud";
+	m_name = "mimmo.ProjectCloud";
 };
 
 /*!
@@ -38,15 +38,15 @@ ProjectCloud::ProjectCloud(){
  */
 ProjectCloud::ProjectCloud(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.ProjectCloud";
+	m_name = "mimmo.ProjectCloud";
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.ProjectCloud"){
+	if(input == "mimmo.ProjectCloud"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::ProjectCloud constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::ProjectCloud constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -218,7 +218,7 @@ void ProjectCloud::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * Cloud points coordinates are mandatorily passed through ports
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.ProjectCloud"
+ * - <B>ClassName</B>: name of the class as "mimmo.ProjectCloud"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;	
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing. 

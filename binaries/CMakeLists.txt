@@ -15,15 +15,27 @@ cmake_minimum_required(VERSION 2.8)
 
 option(BUILD_XMLTUI "Create and install xml-tui interface binaries" OFF)
 
-# Add a target to generate the examples
-foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
-	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
-	if (MODULE_ENABLED)
-		addModuleIncludeDirectories(${MODULE_NAME})
-	endif()
-endforeach ()
-
 if(BUILD_XMLTUI)
+	
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+		# Add a target to generate the examples
+	foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+		isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+		if (MODULE_ENABLED)
+			set(INCLUDE_LIST "${INCLUDE_LIST}#include \"mimmo_${MODULE_NAME}.hpp\"\n")
+			addModuleIncludeDirectories(${MODULE_NAME})
+		endif()
+	endforeach ()
+	
+	set(MIMMO_HEADER_TEMPLATE "mimmo_template.hpp.in")
+	set(MIMMO_HEADER "mimmo.hpp")
+	CONFIGURE_FILE("${MIMMO_HEADER_TEMPLATE}" "${MIMMO_HEADER}")
+	
+	unset(MIMMO_HEADER_TEMPLATE)
+	unset(MIMMO_HEADER)
+	unset(INCLUDE_LIST)
+
+	
 	# List of binaries
 	set(BINS "")
 	list(APPEND BINS "mimmoxml_exec")
@@ -32,7 +44,7 @@ if(BUILD_XMLTUI)
 	#     list(APPEND BINS "blablabla")
 	# endif()
 
-	set(MIMMO_BINS_TARGETS "${BINS}" CACHE INTERNAL "List of binary executables for the MiMMO API" FORCE)
+	set(MIMMO_BINS_TARGETS "${BINS}" CACHE INTERNAL "List of binary executables for the mimmo API" FORCE)
 
 	foreach(BIN_NAME IN LISTS MIMMO_BINS_TARGETS)
 		set(BIN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${BIN_NAME}.cpp")

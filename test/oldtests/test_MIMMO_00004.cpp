@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
@@ -8,21 +8,21 @@
  *  License
  *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
-#include "MiMMO.hpp"
+#include "mimmo.hpp"
 #include <functional>
 #include "customOperators.hpp"
 
@@ -40,7 +40,7 @@ using namespace std::placeholders;
 
 void test0004() {
 
-	//Creation of MiMMO container.
+	//Creation of mimmo container.
 	MimmoGeometry * mimmo0 = new MimmoGeometry();
 	
 	mimmo0->setRead(true);
@@ -239,7 +239,7 @@ void test0004() {
 
 	//Print execution time
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	std::cout << "MiMMO execution took me " << time_span.count() << " seconds.";
+	std::cout << "mimmo execution took me " << time_span.count() << " seconds.";
 	std::cout << std::endl;
 
 	return;
@@ -258,7 +258,7 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
-		/**<Calling MiMMO Test routines*/
+		/**<Calling mimmo Test routines*/
 
 		test0004() ;
 

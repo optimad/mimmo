@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ namespace mimmo{
  * Basic Constructor
  */
 SelectionByCylinder::SelectionByCylinder(){
-	m_name = "MiMMO.SelectionByCylinder";
+	m_name = "mimmo.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
 };
 
@@ -46,16 +46,16 @@ SelectionByCylinder::SelectionByCylinder(){
  */
 SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.SelectionByCylinder";
+	m_name = "mimmo.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
 
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.SelectionByCylinder"){
+	if(input == "mimmo.SelectionByCylinder"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::SelectionByCylinder constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::SelectionByCylinder constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -68,7 +68,7 @@ SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML
  * \param[in] target	pointer to a target geometry 
  */
 SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target){
-	m_name = "MiMMO.SelectionByCylinder";
+	m_name = "mimmo.SelectionByCylinder";
 	m_type = SelectionType::CYLINDER;
 	setGeometry(target);
 	setOrigin(origin);
@@ -294,7 +294,7 @@ void SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotX
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  *   --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.SelectionByCylinder"
+ * - <B>ClassName</B>: name of the class as "mimmo.SelectionByCylinder"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
  * - <B>Origin</B>: array of 3 doubles identifying origin

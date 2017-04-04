@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -31,7 +31,7 @@ namespace mimmo{
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
-	m_name = "MiMMO.MRBF";
+	m_name = "mimmo.MRBF";
 	m_maxFields=-1;
 	m_tol = 0.00001;
 	setMode(MRBFSol::NONE);
@@ -45,7 +45,7 @@ MRBF::MRBF(){
  */
 MRBF::MRBF(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.MRBF";
+	m_name = "mimmo.MRBF";
 	m_maxFields=-1;
 	m_tol = 0.00001;
 	setMode(MRBFSol::NONE);
@@ -55,10 +55,10 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.MRBF"){
+	if(input == "mimmo.MRBF"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::MRBF constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::MRBF constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -382,7 +382,7 @@ void MRBF::setTol(double tol){
 void MRBF::setDisplacements(dvecarr3E displ){
 	int size = displ.size();
 	if(size != getTotalNodesCount()){
-		std::cout << "MiMMO : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+		std::cout << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 	}
 	
 	removeAllData();
@@ -423,7 +423,7 @@ MRBF::setWeight(dvector2D value){
 		   
 	int size = value.size();
 	if(size != getTotalNodesCount()){
-		std::cout << "MiMMO : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+		std::cout << "mimmo : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 	}
 	
 	removeAllData();
@@ -458,7 +458,7 @@ void MRBF::execute(){
 		else							size = m_value[i].size();
 		
 		if(size != getTotalNodesCount()){
-			std::cout << "MiMMO : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+			std::cout << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 			fitDataToNodes(i);
 		}
 	}
@@ -630,7 +630,7 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * The sensible parameters are:
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.MRBF"
+ * - <B>ClassName</B>: name of the class as "mimmo.MRBF"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
  * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box

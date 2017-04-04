@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
  *
- *  mimmino
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
@@ -8,23 +8,22 @@
  *  License
  *  This file is part of mimmo.
  *
- *  mimmino is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  mimmino is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with mimmino. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
 #include "bitpit.hpp"
-#include "mimmo_core.hpp"
-
+#include "mimmo.hpp"
 
 using namespace std;
 using namespace bitpit;
@@ -51,9 +50,9 @@ void read_Dictionary( bitpit::Config::Section & slot, std::unordered_map<std::st
 			std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
 			mapInst[idstring] = std::move(temp);
 	
-			if(debug) std::cout<<"...Instantiated MiMMO block: "<<sect.first<<" of type "<<className<<std::endl;
+			if(debug) std::cout<<"...Instantiated mimmo block: "<<sect.first<<" of type "<<className<<std::endl;
 		}else if(idstring != "Connections") {
-			if(debug) std::cout<<"...Failed instantiation of "<<sect.first<<". MiMMO block of type "<<className<<" not registrated in the API"<<std::endl;
+			if(debug) std::cout<<"...Failed instantiation of "<<sect.first<<". mimmo block of type "<<className<<" not registered in the API"<<std::endl;
 		}
 	}
 	
@@ -112,10 +111,10 @@ int main( int argc, char *argv[] ) {
 		if(input[0] == "--help"){
 			std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
 			std::cout<<""<<std::endl;
-			std::cout<<"	Brief MiMMOXml_exec helper"<<std::endl;
+			std::cout<<"	Brief mimmoxml_exec helper"<<std::endl;
 			std::cout<<""<<std::endl;
 			std::cout<<""<<std::endl;
-			std::cout<<"	This is the executable command for running MiMMO instructions from XML Control Dictionaries"<<std::endl;
+			std::cout<<"	This is the executable command for running mimmo instructions from XML Control Dictionaries"<<std::endl;
 			std::cout<<" "<<std::endl;
 			std::cout<<"	Need to specify a path to your XML dictionary in first position after command, or "<<std::endl;
 			std::cout<<"	alternatively, you can launch this helper with --help option."<<std::endl;
@@ -134,7 +133,7 @@ int main( int argc, char *argv[] ) {
 		
 		//get into the mood.
 		
-		bitpit::config::reset("MiMMOXML");
+		bitpit::config::reset("mimmoXML");
 		bitpit::config::read(dictName);
 		
 		std::unordered_map<std::string, std::unique_ptr<BaseManipulation > > mapInst;

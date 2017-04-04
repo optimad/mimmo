@@ -1,12 +1,12 @@
 #---------------------------------------------------------------------------
 #
-#  MiMMO
+#  mimmo
 #
 #  Copyright (C) 2015-2016 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
-#  This file is part of MiMMO.
+#  This file is part of mimmo.
 #
 #  bitpit is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License v3 (LGPL)
@@ -32,7 +32,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 set(HEADERS "")
 
 # Generate the bitpit header file
-set(INCLUDE_LIST "#include \"mimmo_common.hpp\"\n")
+#set(INCLUDE_LIST "#include \"mimmo_common.hpp\"\n")
 foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
 	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
 	if (MODULE_ENABLED)

@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ namespace mimmo{
 
 /*! Basic Constructor. Doing nothing.*/
 RBFBox::RBFBox(){
-	m_name = "MiMMO.RBFBox";
+	m_name = "mimmo.RBFBox";
 	m_origin.fill(0.0);
 	m_span.fill(1.0);
 	int counter = 0;
@@ -55,7 +55,7 @@ RBFBox::RBFBox(){
  */
 RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.RBFBox";
+	m_name = "mimmo.RBFBox";
 	m_origin.fill(0.0);
 	m_span.fill(1.0);
 	int counter = 0;
@@ -71,10 +71,10 @@ RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.RBFBox"){
+	if(input == "mimmo.RBFBox"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::RBFBox constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::RBFBox constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -330,7 +330,7 @@ void RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
  * 
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.RBFBox"
+ * - <B>ClassName</B>: name of the class as "mimmo.RBFBox"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>SupportRadius</B>: Influence Radius value for RBF cloud in input
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.

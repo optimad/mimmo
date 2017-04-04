@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -29,7 +29,7 @@ namespace mimmo{
   * Constructor
   */
 ReconstructScalar::ReconstructScalar(){
-	m_name = "MiMMO.ReconstructScalar";
+	m_name = "mimmo.ReconstructScalar";
 	m_overlapCriterium = OverlapMethod::MAX;
 }
 
@@ -39,16 +39,16 @@ ReconstructScalar::ReconstructScalar(){
  */
 ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.ReconstructScalar";
+	m_name = "mimmo.ReconstructScalar";
 	m_overlapCriterium = OverlapMethod::MAX;
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.ReconstructScalar"){
+	if(input == "mimmo.ReconstructScalar"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::ReconstructScalar constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::ReconstructScalar constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -456,7 +456,7 @@ void ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML
  * 
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.ReconstructScalar"
+ * - <B>ClassName</B>: name of the class as "mimmo.ReconstructScalar"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.

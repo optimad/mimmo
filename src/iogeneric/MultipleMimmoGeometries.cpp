@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
@@ -59,10 +59,10 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
 
 	initializeClass(topo, false);
 	
-	if(input_name == "MiMMO.MultipleMimmoGeometries"){
+	if(input_name == "mimmo.MultipleMimmoGeometries"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::MultipleMimmoGeometries constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::MultipleMimmoGeometries constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -655,14 +655,14 @@ MultipleMimmoGeometries::execute(){
 	bool check = true;
 	if (m_read) check = read();
 	if (!check){
-		std::cout << "MiMMO : ERROR : no files to read found : "<< std::endl;
+		std::cout << "mimmo : ERROR : no files to read found : "<< std::endl;
 		std::cout << " " << std::endl;
 		exit(10);
 	}
 	check = true;
 	if (m_write) check = write();
 	if (!check){
-		std::cout << "MiMMO : ERROR : write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
+		std::cout << "mimmo : ERROR : write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
 		std::cout << " " << std::endl;
 		exit(11);
 	}
@@ -849,7 +849,7 @@ return;
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.MultipleGeometries"
+ * - <B>ClassName</B>: name of the class as "mimmo.MultipleGeometries"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 	
  * - <B>ReadFlag</B>: activate reading mode boolean
  * - <B>ReadInfoData</B>: reading files data
@@ -980,7 +980,7 @@ MultipleMimmoGeometries::setDefaults(){
 void
 MultipleMimmoGeometries::initializeClass(int topo, bool IOMode){
 	
-	m_name 		= "MiMMO.MultipleGeometries";
+	m_name 		= "mimmo.MultipleGeometries";
 	m_read = !IOMode; m_write = IOMode;
 	
 	m_topo     = std::min(1, topo);
