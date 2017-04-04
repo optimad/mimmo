@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "SpecularPoints.hpp"
@@ -29,7 +29,7 @@ namespace mimmo{
  * Default constructor of SpecularPoints
 */
 SpecularPoints::SpecularPoints(){
-	m_name = "MiMMO.SpecularPoints";
+	m_name = "mimmo.SpecularPoints";
 	m_plane.fill(0.0);
     m_insideout = false;
     m_force = true;
@@ -41,7 +41,7 @@ SpecularPoints::SpecularPoints(){
  */
 SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.SpecularPoints";
+	m_name = "mimmo.SpecularPoints";
 	m_plane.fill(0.0);
 	m_insideout = false;
 	m_force = true;
@@ -49,10 +49,10 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.SpecularPoints"){
+	if(input == "mimmo.SpecularPoints"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::SpecularPoints constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::SpecularPoints constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -428,7 +428,7 @@ void SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * 
  *  
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.SpecularPoints"
+ * - <B>ClassName</B>: name of the class as "mimmo.SpecularPoints"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Force</B>: boolean 0/1. If 1, force mirroring of points that lies on the plane.
  * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane

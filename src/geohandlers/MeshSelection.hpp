@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ enum class SelectionType{
  * Class/BaseManipulation Object managing selection of sub-patches of a 3D open 
  * unstructured surface/volume mesh.
  *
- * PORTS AVAILABLE IN GenericSelection Class (legend M_<> MiMMO native ports, C_<> CAMiLO own ports)
+ * PORTS AVAILABLE IN GenericSelection Class (legend M_<> mimmo native ports, C_<> CAMiLO own ports)
  *
  *	=========================================================
  * ~~~
@@ -636,12 +636,12 @@ public:
 };
 
 
-REGISTER(BaseManipulation, SelectionByBox,"MiMMO.SelectionByBox")
-REGISTER(BaseManipulation, SelectionByCylinder, "MiMMO.SelectionByCylinder")
-REGISTER(BaseManipulation, SelectionBySphere,"MiMMO.SelectionBySphere")
-REGISTER(BaseManipulation, SelectionByMapping, "MiMMO.SelectionByMapping")
-REGISTER(BaseManipulation, SelectionByPID, "MiMMO.SelectionByPID")
-REGISTER(BaseManipulation, SelectionByBoxWithScalar, "MiMMO.SelectionByBoxWithScalar")
+REGISTER(BaseManipulation, SelectionByBox,"mimmo.SelectionByBox")
+REGISTER(BaseManipulation, SelectionByCylinder, "mimmo.SelectionByCylinder")
+REGISTER(BaseManipulation, SelectionBySphere,"mimmo.SelectionBySphere")
+REGISTER(BaseManipulation, SelectionByMapping, "mimmo.SelectionByMapping")
+REGISTER(BaseManipulation, SelectionByPID, "mimmo.SelectionByPID")
+REGISTER(BaseManipulation, SelectionByBoxWithScalar, "mimmo.SelectionByBoxWithScalar")
 };
 
 #endif /* __MESHSELECTION_HPP__ */

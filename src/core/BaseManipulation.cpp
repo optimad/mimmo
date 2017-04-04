@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include <iterator>
@@ -38,7 +38,7 @@ int BaseManipulation::sm_baseManipulationCounter(1);
 BaseManipulation::BaseManipulation(){
 	m_geometry 		= NULL;
 	m_portsType		= ConnectionType::BOTH;
-	m_name			= "MiMMO";
+	m_name			= "mimmo";
 	m_active		= true;
 	m_arePortsBuilt = false;
 	m_execPlot      = false;

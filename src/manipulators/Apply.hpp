@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #ifndef __APPLYDEFORMATION_HPP__
@@ -32,7 +32,7 @@ namespace mimmo{
  *	\brief Apply is the class that applies the deformation resulting from a manipulation object to the geometry.
  *
  *	Apply is derived from BaseManipulation class. It uses the base member m_geometry to apply
- *	the result of the parent manipulator to the target MiMMO object.
+ *	the result of the parent manipulator to the target mimmo object.
  *	The deformation displacements have to be passed to the input member of base class through
  *	a pin linking or set by the user, i.e. one has to use setInput method to set
  *	the displacements to be applied to the geometry.
@@ -89,7 +89,7 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
 };
 
-REGISTER(BaseManipulation, Apply, "MiMMO.Apply")
+REGISTER(BaseManipulation, Apply, "mimmo.Apply")
 
 };
 

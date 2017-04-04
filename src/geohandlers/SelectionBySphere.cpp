@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  * 
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
 
@@ -35,7 +35,7 @@ namespace mimmo{
  * Basic Constructor
  */
 SelectionBySphere::SelectionBySphere(){
-	m_name = "MiMMO.SelectionBySphere";
+	m_name = "mimmo.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
 };
 
@@ -45,16 +45,16 @@ SelectionBySphere::SelectionBySphere(){
  */
 SelectionBySphere::SelectionBySphere(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.SelectionBySphere";
+	m_name = "mimmo.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.SelectionBySphere"){
+	if(input == "mimmo.SelectionBySphere"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::SelectionBySphere constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::SelectionBySphere constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -68,7 +68,7 @@ SelectionBySphere::SelectionBySphere(const bitpit::Config::Section & rootXML){
  * \param[in] target	pointer to a target geometry 
  */
 SelectionBySphere::SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target){
-	m_name = "MiMMO.SelectionBySphere";
+	m_name = "mimmo.SelectionBySphere";
 	m_type = SelectionType::SPHERE;
 	setGeometry(target);
 	setOrigin(origin);
@@ -292,7 +292,7 @@ void SelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML
  * Plot infos from a XML bitpit::Config::section. The parameters available are
  * 
  *   --> Flushing data// how to write it on XML: 
- * - <B>ClassName</B>: name of the class as "MiMMO.SelectionBySphere"
+ * - <B>ClassName</B>: name of the class as "mimmo.SelectionBySphere"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
  * - <B>Origin</B>: array of 3 doubles identifying origin

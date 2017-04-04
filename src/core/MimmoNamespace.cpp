@@ -50,14 +50,14 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 	if (!objSend->arePortsBuilt()){
 		objSend->buildPorts();
 		if (!objSend->arePortsBuilt()){
-			std::cout << "MiMMO : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
+			std::cout << "mimmo : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
 			exit(11);
 		}
 	}
 	if (!objRec->arePortsBuilt()){
 		objRec->buildPorts();
 		if (!objRec->arePortsBuilt()){
-			std::cout << "MiMMO : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
+			std::cout << "mimmo : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
 			exit(11);
 		}
 	}

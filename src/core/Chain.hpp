@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #ifndef __CHAIN_HPP__
@@ -31,7 +31,7 @@ namespace mimmo{
 /*!
  *	\class Chain
  *
- *	\brief Chain is the class used to manage the execution chain of MiMMO objects.
+ *	\brief Chain is the class used to manage the execution chain of mimmo objects.
  *
  *	Each object added to the chain is inserted with the correct position in the chain.
  *	An ID is assigned to a new chain and to every object in the chain, in order to give to the user a persistent

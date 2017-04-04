@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
@@ -34,7 +34,7 @@ namespace mimmo{
 GenericOutput::GenericOutput(std::string filename){
 	m_filename	= filename;
 	m_portsType	= ConnectionType::BACKWARD;
-	m_name 		= "MiMMO.GenericOutput";
+	m_name 		= "mimmo.GenericOutput";
 };
 
 /*!
@@ -45,15 +45,15 @@ GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
 	
 	m_filename	= "output.txt";
 	m_portsType	= ConnectionType::BACKWARD;
-	m_name 		= "MiMMO.GenericOutput";
+	m_name 		= "mimmo.GenericOutput";
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.GenericOutput"){
+	if(input == "mimmo.GenericOutput"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::GenericOutput constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::GenericOutput constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -170,7 +170,7 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * on a given file (all values in a row).
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.GenericOutput"
+ * - <B>ClassName</B>: name of the class as "mimmo.GenericOutput"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Filename</B>: name of file to write data  
  * 

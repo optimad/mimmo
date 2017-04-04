@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 #include "TranslationBox.hpp"
@@ -30,7 +30,7 @@ namespace mimmo{
  */
 TranslationBox::TranslationBox(darray3E direction){
 	m_direction = direction;
-	m_name = "MiMMO.TranslationBox";
+	m_name = "mimmo.TranslationBox";
 };
 
 /*!
@@ -40,15 +40,15 @@ TranslationBox::TranslationBox(darray3E direction){
 TranslationBox::TranslationBox(const bitpit::Config::Section & rootXML){
 	
 	m_direction.fill(0.0);
-	m_name = "MiMMO.TranslationBox";
+	m_name = "mimmo.TranslationBox";
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.TranslationBox"){
+	if(input == "mimmo.TranslationBox"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::TranslationBox constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::TranslationBox constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -213,7 +213,7 @@ void TranslationBox::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * BaseManipulation::absorbSectionXML.The class read essential parameters to perform translation of a 3D point.
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.TranslationBox"
+ * - <B>ClassName</B>: name of the class as "mimmo.TranslationBox"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>Origin</B>: point tha need to be translated
  * - <B>Direction</B>: translation direction

@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------------------*\
  *
- *  MiMMO
+ *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
- *  This file is part of MiMMO.
+ *  This file is part of mimmo.
  *
- *  MiMMO is free software: you can redistribute it and/or modify it
+ *  mimmo is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License v3 (LGPL)
  *  as published by the Free Software Foundation.
  *
- *  MiMMO is distributed in the hope that it will be useful, but WITHOUT
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
  *  License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MiMMO. If not, see <http://www.gnu.org/licenses/>.
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
 
@@ -34,7 +34,7 @@ namespace mimmo {
 /*!Default constructor of MimmoGeometry.
  */
 MimmoGeometry::MimmoGeometry(){
-	m_name 		= "MiMMO.Geometry";
+	m_name 		= "mimmo.Geometry";
 	setDefaults();
 }
 
@@ -44,16 +44,16 @@ MimmoGeometry::MimmoGeometry(){
  */
 MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
 	
-	m_name = "MiMMO.Geometry";
+	m_name = "mimmo.Geometry";
 	setDefaults();
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::trim(input);
-	if(input == "MiMMO.Geometry"){
+	if(input == "mimmo.Geometry"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml MiMMO::MimmoGeometry constructor. No valid xml data found"<<std::endl;
+		std::cout<<"Warning in custom xml mimmo::MimmoGeometry constructor. No valid xml data found"<<std::endl;
 	};
 }
 
@@ -999,14 +999,14 @@ MimmoGeometry::execute(){
 	bool check = true;
 	if (m_read) check = read();
 	if (!check){
-		std::cout << "MiMMO : ERROR : file not found : "<< m_rinfo.fname << std::endl;
+		std::cout << "mimmo : ERROR : file not found : "<< m_rinfo.fname << std::endl;
 		std::cout << " " << std::endl;
 		exit(10);
 	}
 	check = true;
 	if (m_write) check = write();
 	if (!check){
-		std::cout << "MiMMO : ERROR : write not done : geometry not linked " << std::endl;
+		std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
 		std::cout << " " << std::endl;
 		exit(11);
 	}
@@ -1284,7 +1284,7 @@ return;
  * or passed by port linking), the class writes the following parameters(if different from default):
  * 
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "MiMMO.Geometry"
+ * - <B>ClassName</B>: name of the class as "mimmo.Geometry"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>ReadFlag</B>: activate reading mode boolean
  * - <B>ReadDir</B>: reading directory path
@@ -1619,7 +1619,7 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDS
 void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
 
 	ofstream os(outputDir +"/"+surfaceName + ".nas");
-	os << "TITLE=MiMMO " << surfaceName << " mesh" << nl
+	os << "TITLE=mimmo " << surfaceName << " mesh" << nl
 			<< "$" << nl
 			<< "BEGIN BULK" << nl;
 	writeGeometry(points, faces, os, PIDS);

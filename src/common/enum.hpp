@@ -2,7 +2,7 @@
  * 
  * This file only is part of Better Enums, released under the BSD 2-clause license.
  * See doc/LICENSE for details, or visit https://github.com/aantron/better-enums.
- * The Optimad's MiMMO API, in its source and bynary distributables, uses it, without 
+ * The Optimad's mimmo API, in its source and bynary distributables, uses it, without 
  * modifications, in accordance of lineguides expressed in Better Enums license.
  *
  * Better Enums is distributed under the terms of the 2-clause BSD license. Its
