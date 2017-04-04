@@ -22,7 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-#include "mimmo.hpp"
+#include "mimmo_ioofoam.hpp"
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -34,7 +34,7 @@ using namespace mimmo;
 int test1() {
 	
 	std::cout<<"waiting for a proper test. I do nothing for now"<<std::endl;
-    return 1;
+    return 0;
 }
 
 // =================================================================================== //
@@ -51,7 +51,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling MiMMO Test routines*/
 
-        int val = test0001() ;
+        int val = test1() ;
 
 #if ENABLE_MPI==1
 	}

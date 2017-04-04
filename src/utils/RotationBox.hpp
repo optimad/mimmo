@@ -25,7 +25,6 @@
 #define __ROTATIONBOX_HPP__
 
 #include "BaseManipulation.hpp"
-#include "FFDLattice.hpp"
 
 namespace mimmo{
 

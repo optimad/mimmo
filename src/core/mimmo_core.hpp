@@ -30,7 +30,7 @@
 #ifndef __MIMMO_MODULE_CORE_HPP__
 #define __MIMMO_MODULE_CORE_HPP__
 
-#include "mimmo_version.hpp"
+#include "mimmo_common.hpp"
 
 #include "BaseManipulation.hpp"
 #include "BasicMeshes.hpp"

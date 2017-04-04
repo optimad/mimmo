@@ -30,7 +30,7 @@
 #ifndef __MIMMO_MODULE_MANIPULATORS_HPP__
 #define __MIMMO_MODULE_MANIPULATORS_HPP__
 
-#include "mimmo_version.hpp"
+#include "mimmo_core.hpp"
 
 #include "Apply.hpp"
 #include "FFDLattice.hpp"

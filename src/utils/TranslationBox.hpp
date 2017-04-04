@@ -25,7 +25,6 @@
 #define __TRANSLATIONBOX_HPP__
 
 #include "BaseManipulation.hpp"
-#include "FFDLattice.hpp"
 
 namespace mimmo{
 

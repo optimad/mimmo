@@ -227,10 +227,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_P
 # Customized build types
 #------------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------------#
-# Customized build types
-#------------------------------------------------------------------------------------#
-
 # GNU Profiling
 SET(CMAKE_CXX_FLAGS_GNUPROFILING "-pg" CACHE STRING
     "Flags used by the C++ compiler during GNU profiling builds." FORCE)
@@ -328,10 +324,10 @@ set(IOGENERIC_DEPS "core;common")
 set(IOCGNS_DEPS "iogeneric;core;common")
 set(IOVTK_DEPS "iogeneric;core;common")
 set(IOOFOAM_DEPS "iogeneric;iovtk;core;common")
-set(GEOHANDLERS_DEPS "core;common")
+set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(WRAPPERS_DEPS "core;common")
-set(UTILS_DEPS "core;common")
+set(UTILS_DEPS "core;common;iogeneric")
 
 
 

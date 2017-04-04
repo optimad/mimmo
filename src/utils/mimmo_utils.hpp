@@ -30,7 +30,7 @@
 #ifndef __MIMMO_MODULE_UTILS_HPP__
 #define __MIMMO_MODULE_UTILS_HPP__
 
-#include "mimmo_version.hpp"
+#include "mimmo_iogeneric.hpp"
 
 #include "ControlDeformExtSurface.hpp"
 #include "ControlDeformMaxDistance.hpp"
