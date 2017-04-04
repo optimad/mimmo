@@ -30,6 +30,6 @@
 #ifndef __MIMMO_MODULE_IOCGNS_HPP__
 #define __MIMMO_MODULE_IOCGNS_HPP__
 
-#include "mimmo_version.hpp"
+#include "mimmo_iogeneric.hpp"
 
 #endif

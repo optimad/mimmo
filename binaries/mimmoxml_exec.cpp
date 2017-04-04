@@ -23,7 +23,8 @@
 \*---------------------------------------------------------------------------*/
 
 #include "bitpit.hpp"
-#include "MiMMO.hpp"
+#include "mimmo_core.hpp"
+
 
 using namespace std;
 using namespace bitpit;

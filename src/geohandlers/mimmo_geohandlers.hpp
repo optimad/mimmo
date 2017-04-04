@@ -30,7 +30,7 @@
 #ifndef __MIMMO_MODULE_GEOHANDLERS_HPP__
 #define __MIMMO_MODULE_GEOHANDLERS_HPP__
 
-#include "mimmo_version.hpp"
+#include "mimmo_iogeneric.hpp"
 
 #include "ClipGeometry.hpp"
 #include "MeshSelection.hpp"
