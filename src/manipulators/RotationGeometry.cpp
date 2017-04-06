@@ -151,7 +151,9 @@ RotationGeometry::getDisplacements(){
 void
 RotationGeometry::execute(){
 
-    m_displ.resize(m_geometry->getNVertex());
+    int nV = m_geometry->getNVertex();
+    m_displ.resize(nV);
+    m_filter.resize(nV, 1.0);
 
     //compute coefficients and constant vectors of rodriguez formula
     double a = cos(m_alpha);
