@@ -40,5 +40,6 @@
 #include "RotationBox.hpp"
 #include "SpecularPoints.hpp"
 #include "TranslationBox.hpp"
+#include "OBBox.hpp"
 
 #endif
