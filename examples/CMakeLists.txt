@@ -25,19 +25,25 @@
 #Specify the version being used as well as the language
 cmake_minimum_required(VERSION 2.8)
 
-# Examples can be compiled only if all modules are enabled
-set(MODULE_LIST "${MIMMO_MODULE_LIST}")
+# # Examples can be compiled only if all modules are enabled
+# set(MODULE_LIST "${MIMMO_MODULE_LIST}")
 # if (NOT ENABLE_MPI)
 #     list(REMOVE_ITEM MODULE_LIST "${MPI_ONLY_MODULE_LIST}")
 # endif ()
 
-areModulesEnabled("${MODULE_LIST}" ALL_MODULES_ENABLED)
-if (ALL_MODULES_ENABLED)
+# areModulesEnabled("${MODULE_LIST}" ALL_MODULES_ENABLED)
+# if (ALL_MODULES_ENABLED)
 	option(BUILD_EXAMPLES "Create and install the examples" OFF)
-else ()
-	unset(BUILD_EXAMPLES CACHE)
-	return()
-endif ()
+# else ()
+# 	unset(BUILD_EXAMPLES CACHE)
+# 	return()
+# endif ()
+
+##NOTE###########
+# Specify examples list according to module used. for instance, enable an example 
+#using module utils verifying that a module utils is loaded 
+################
+
 
 # Add a target to generate the examples
 foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
