@@ -125,6 +125,13 @@ const BasicShape * UStructMesh::getShape() const {
 	return(m_shape.get());
 }
 
+/*! Return a pointer to the inner BasicShape object the current mesh is built on 
+ * \return BasicShape of the mesh
+ */
+BasicShape * UStructMesh::getShape(){
+	return(m_shape.get());
+}
+
 /*! Return current origin of BasicShape core of the mesh*/
 darray3E UStructMesh::getOrigin(){
 	if (getShape() == NULL) return(m_origin_temp);
@@ -1437,13 +1444,6 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
 
 };
 
-
-/*! Return a pointer to the inner BasicShape object the current mesh is built on 
- * \return BasicShape of the mesh
- */
-BasicShape * UStructMesh::getShape(){
-	return(m_shape.get());
-}
 
 /*! Destroy the all nodal structures of the mesh. */
 void UStructMesh::destroyNodalStructure(){

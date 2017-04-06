@@ -42,6 +42,5 @@
 #include "Lattice.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
-#include "OBBox.hpp"
 
 #endif
