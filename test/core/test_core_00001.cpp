@@ -27,13 +27,119 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+/*
+ * Test 00001
+ * Testing Executable blocks infrastructure: BaseManipulation - Pins - Chain execution 
+ */
 
+
+
+class ManipA: public BaseManipulation{
+public:
+	int m_member;
+	dvecarr3E m_coords;
+	dvector1D m_field;
+	
+	ManipA(){m_member = 1;};
+	virtual ~ManipA(){};
+	dvecarr3E getCoords(){ return m_coords;};
+	dvector1D getField(){ return m_field; };
+	void buildPorts(){
+		bool built = true;
+		built = built && createPortOut<dvecarr3E, ManipA>(this, &ManipA::getCoords, PortType::M_COORDS, pin::containerTAG::VECARR3, pin::dataTAG::FLOAT);
+		built = built && createPortOut<dvector1D, ManipA>(this, &ManipA::getField, PortType::M_SCALARFIELD, pin::containerTAG::VECTOR, pin::dataTAG::FLOAT);
+		m_arePortsBuilt = built;
+	};
+	void execute(){m_member = 4;};
+	
+};
+
+class ManipB: public BaseManipulation{
+public:
+	int m_member;
+	dvecarr3E m_coords;
+	dvector1D m_field;
+	
+	ManipB(){m_member = 1;};
+	virtual ~ManipB(){};
+	void setCoords(dvecarr3E points){ m_coords = points;};
+	void setField(dvector1D field){m_field = field;};
+	void buildPorts(){
+
+		bool built = true;
+		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, PortType::M_COORDS, pin::containerTAG::VECARR3, pin::dataTAG::FLOAT);
+		built = built && createPortIn<dvector1D, ManipB>(this, &ManipB::setField, PortType::M_SCALARFIELD, pin::containerTAG::VECTOR, pin::dataTAG::FLOAT);
+		m_arePortsBuilt = built;
+	};
+	void execute(){m_member = 4;};
+	
+	
+};
 
 // =================================================================================== //
 
 int test1() {
+	//testing instantiation
+	ManipA * objA = new ManipA();
+	ManipB * objB = new ManipB();
 	
-	std::cout<<"waiting for a proper test. I do nothing for now"<<std::endl;
+	if(objA->m_member != 1 || objA->m_member != 1){ 
+		std::cout<<"Failed instantiation"<<std::endl;
+		return 1;
+	}else{
+		std::cout<<"Correct instantiation"<<std::endl;
+	}	
+	//testing connections
+	
+	bool checkPin = true;
+	dvecarr3E points(3,{{1.5,1.5,1.5}});
+	dvector1D field(3,-1.2);
+	
+	objA->m_coords = points;
+	objA->m_field = field;
+	
+	checkPin = checkPin && addPin(objA, objB, PortType::M_COORDS, PortType::M_COORDS);
+	checkPin = checkPin && addPin(objA, objB, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
+	
+	if(!checkPin){ 
+		std::cout<<"Failed getting connections"<<std::endl;
+		delete objA;
+		delete objB;
+		return 1;
+	}else{
+		std::cout<<"Connections created"<<std::endl;
+	}	
+	
+	//testing chain & execution
+	
+	Chain * c0 = new Chain();
+	c0->addObject(objB);
+	c0->addObject(objA);
+	
+	c0->exec(false);
+	
+	int sF = field.size();
+	int sC = points.size();
+	
+	bool checkExec = (objA->m_member == 4);
+	checkExec = checkExec && (objA->m_member == 4);
+	checkExec = checkExec && ((int)objB->m_field.size() == sF);
+	checkExec = checkExec && ((int)objB->m_coords.size() == sC);
+	
+	if(!checkExec){ 
+		std::cout<<"Failed execution"<<std::endl;
+		delete objA;
+		delete objB;
+		delete c0;
+		return 1;
+	}else{
+		std::cout<<"Successfull execution"<<std::endl;
+	}	
+	
+	delete objA;
+	delete objB;
+	delete c0;
+	
     return 0;
 }
 
