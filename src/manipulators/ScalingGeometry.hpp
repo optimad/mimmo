@@ -31,7 +31,7 @@ namespace mimmo{
 /*!
  *	\class ScalingGeometry
  *	\brief ScalingGeometry is the class that applies a scaling to a given geometry
- *	patch in respect to the centroid of the vertices.
+ *	patch in respect to the mean point of the vertices.
  *
  *	The used parameters are the scaling factor values for each direction of the cartesian
  *	reference system.
