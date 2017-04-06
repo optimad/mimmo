@@ -37,5 +37,8 @@
 #include "MRBF.hpp"
 #include "MultiApply.hpp"
 #include "RotationGeometry.hpp"
+#include "TranslationGeometry.hpp"
+#include "ScalingGeometry.hpp"
+#include "TwistGeometry.hpp"
 
 #endif
