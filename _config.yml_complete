@@ -1,7 +1,7 @@
-name: MiMMO
+name: mimmo
 markdown: redcarpet
 highlighter: rouge
-baseurl: /MIMMO
+baseurl: /mimmo
 
 exclude: [_manual]
 
