@@ -316,6 +316,20 @@ list(APPEND MIMMO_MODULE_LIST "manipulators")
 list(APPEND MIMMO_MODULE_LIST "wrappers")
 list(APPEND MIMMO_MODULE_LIST "utils")
 
+set(MIMMO_MODULEENABLED_LIST "")
+list(APPEND MIMMO_MODULEENABLED_LIST "common")
+list(APPEND MIMMO_MODULEENABLED_LIST "core")
+list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
+list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
+list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
+list(APPEND MIMMO_MODULEENABLED_LIST "wrappers")
+list(APPEND MIMMO_MODULEENABLED_LIST "utils")
+
+set(MIMMO_MODULEDISABLED_LIST "")
+list(APPEND MIMMO_MODULEDISABLED_LIST "iocgns")
+list(APPEND MIMMO_MODULEDISABLED_LIST "iovtk")
+list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
+
 #------------------------------------------------------------------------------------#
 # Modules dependecies
 #------------------------------------------------------------------------------------#
@@ -336,12 +350,13 @@ set(UTILS_DEPS "core;common;iogeneric")
 #------------------------------------------------------------------------------------#
 
 # Initialize module state
-foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+foreach (MODULE_NAME IN LISTS MIMMO_MODULEENABLED_LIST)
 		enableModule(${MODULE_NAME} TRUE FALSE)
 endforeach ()
-enableModule("iovtk" FALSE FALSE)
-enableModule("iocgns" FALSE FALSE)
-enableModule("ioofoam" FALSE FALSE)
+
+foreach (MODULE_NAME IN LISTS MIMMO_MODULEDISABLED_LIST)
+		enableModule(${MODULE_NAME} FALSE FALSE)
+endforeach ()
 
 set(CHECK_DEPS 1)
 while (${CHECK_DEPS} EQUAL 1)
