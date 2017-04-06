@@ -21,18 +21,20 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __TRANSLATIONGEOMETRY_HPP__
-#define __TRANSLATIONGEOMETRY_HPP__
+#ifndef __SCALINGGEOMETRY_HPP__
+#define __SCALINGGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
- *	\class TranslationGeometry
- *	\brief TranslationGeometry is the class that applies a translation to a given geometry patch.
+ *	\class ScalingGeometry
+ *	\brief ScalingGeometry is the class that applies a scaling to a given geometry
+ *	patch in respect to the centroid of the vertices.
  *
- *	The used parameters are the translation value and the direction of the translation axis.
+ *	The used parameters are the scaling factor values for each direction of the cartesian
+ *	reference system.
  *
  *	=========================================================
  * ~~~
@@ -41,8 +43,7 @@ namespace mimmo{
  *	|-------|----------|-------------------|-----------------------|
  *	|PortID | PortType | variable/function | DataType              |
  *	|-------|----------|-------------------|-----------------------|
- *	| 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
- *	| 30    | M_VALUED | setTranslation    | (SCALAR, FLOAT)       |
+ *	| 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
  *	| 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
  *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
  *	|-------|----------|-------------------|-----------------------|
@@ -59,27 +60,24 @@ namespace mimmo{
  *	=========================================================
  *
  */
-class TranslationGeometry: public BaseManipulation{
+class ScalingGeometry: public BaseManipulation{
 private:
 	//members
-	darray3E	m_direction;	/**<Components of the translation axis.*/
-	double		m_alpha;        /**<Angle of translation in radiant. */
+	darray3E	m_scaling;	    /**<Values of the three fundamental scaling factors (1 = original geometry).*/
 	dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
-	TranslationGeometry(darray3E direction = { {0, 0, 0} });
-	TranslationGeometry(const bitpit::Config::Section & rootXML);
-	~TranslationGeometry();
+	ScalingGeometry(darray3E scaling = { {1.0, 1.0, 1.0} });
+	ScalingGeometry(const bitpit::Config::Section & rootXML);
+	~ScalingGeometry();
 
-	TranslationGeometry(const TranslationGeometry & other);
-	TranslationGeometry & operator=(const TranslationGeometry & other);
+	ScalingGeometry(const ScalingGeometry & other);
+	ScalingGeometry & operator=(const ScalingGeometry & other);
 
 	void        buildPorts();
 
-	void        setAxis(darray3E direction);
-	void        setDirection(darray3E direction);
-    void        setTranslation(double alpha);
+	void        setScaling(darray3E scaling);
     void        setFilter(dvector1D filter);
 
     dvecarr3E   getDisplacements();
@@ -90,8 +88,8 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
-REGISTER(BaseManipulation, TranslationGeometry, "mimmo.TranslationGeometry")
+REGISTER(BaseManipulation, ScalingGeometry, "mimmo.ScalingGeometry")
 
 };
 
-#endif /* __TRANSLATIONGEOMETRY_HPP__ */
+#endif /* __SCALINGGEOMETRY_HPP__ */
