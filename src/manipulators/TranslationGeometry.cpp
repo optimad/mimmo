@@ -86,14 +86,6 @@ void TranslationGeometry::buildPorts(){
 	m_arePortsBuilt = built;
 };
 
-/*!It sets the origin and direction of the translation axis.
- * \param[in] direction Direction of translation axis.
- */
-void
-TranslationGeometry::setAxis(darray3E direction){
-	m_direction = direction;
-}
-
 /*!It sets the direction of the translation axis.
  * \param[in] direction Direction of translation axis.
  */

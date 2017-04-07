@@ -77,7 +77,6 @@ public:
 
 	void        buildPorts();
 
-	void        setAxis(darray3E direction);
 	void        setDirection(darray3E direction);
     void        setTranslation(double alpha);
     void        setFilter(dvector1D filter);

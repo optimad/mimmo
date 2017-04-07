@@ -56,7 +56,7 @@ endforeach ()
 if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
-	list(APPEND EXAMPLE_LIST "MIMMO_example_00001")
+	list(APPEND EXAMPLE_LIST "MIMMO_example_00001" "manipulators_example_00001")
 	
 	#Rules to build the examples
 	foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
@@ -73,4 +73,17 @@ if(BUILD_EXAMPLES)
 	add_custom_target(clean-examples COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 	set (EXAMPLES_SOURCES ${EXAMPLES_SOURCES} PARENT_SCOPE)
+
+    # Data files
+    add_custom_command(
+        TARGET "manipulators_example_00001" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/prism.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/prism.stl"
+    )
+
+
+
 endif()
+
+
+
+
