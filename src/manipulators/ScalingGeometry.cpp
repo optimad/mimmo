@@ -138,7 +138,7 @@ ScalingGeometry::execute(){
         idx = mapID[ID];
 
         darray3E coords = vertex.getCoords();
-        m_displ[idx] = ( m_scaling*(coords - center) + center ) * m_filter[idx];
+        m_displ[idx] = ( m_scaling*(coords - center) + center ) * m_filter[idx] - coords;
     }
     return;
 };
