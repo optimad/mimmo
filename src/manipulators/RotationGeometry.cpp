@@ -64,6 +64,7 @@ RotationGeometry::~RotationGeometry(){};
 RotationGeometry::RotationGeometry(const RotationGeometry & other):BaseManipulation(other){
 	m_origin = other.m_origin;
 	m_direction = other.m_direction;
+    m_alpha = other.m_alpha;
 };
 
 /*!Assignement operator of RotationGeometry.
@@ -71,7 +72,8 @@ RotationGeometry::RotationGeometry(const RotationGeometry & other):BaseManipulat
 RotationGeometry & RotationGeometry::operator=(const RotationGeometry & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_origin = other.m_origin;
-	m_direction = other.m_direction;
+    m_direction = other.m_direction;
+    m_alpha = other.m_alpha;
 	return(*this);
 };
 
