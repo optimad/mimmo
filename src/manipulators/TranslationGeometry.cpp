@@ -61,13 +61,15 @@ TranslationGeometry::~TranslationGeometry(){};
  */
 TranslationGeometry::TranslationGeometry(const TranslationGeometry & other):BaseManipulation(other){
 	m_direction = other.m_direction;
+    m_alpha = other.m_alpha;
 };
 
 /*!Assignement operator of TranslationGeometry.
  */
 TranslationGeometry & TranslationGeometry::operator=(const TranslationGeometry & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-	m_direction = other.m_direction;
+    m_direction = other.m_direction;
+    m_alpha = other.m_alpha;
 	return(*this);
 };
 
