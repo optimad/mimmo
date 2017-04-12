@@ -14,8 +14,13 @@ GenericOutput::setInput(T* data){
 	std::ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){
-		file << *data;
-		file.close();
+	    if (m_csv){
+	        ofstreamcsv(file, *data);
+	    }
+	    else{
+	        file << *data;
+	    }
+	    file.close();
 	}
 }
 
@@ -31,7 +36,12 @@ GenericOutput::setInput(T data){
 	std::ofstream file;
 	file.open(m_filename);
 	if (file.is_open()){
-		file << data;
+        if (m_csv){
+            ofstreamcsv(file, data);
+        }
+        else{
+            file << data;
+        }
 		file.close();
 	}
 }
@@ -148,5 +158,47 @@ T*
 GenericOutput::_getResult(){
 	return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
+
+
+
+
+template <class T>
+std::ofstream& GenericOutput::ofstreamcsv(std::ofstream &out, const T &x)
+{
+    out << x << ",";
+    return(out);
+};
+
+template <class T>
+std::ofstream& GenericOutput::ofstreamcsv(std::ofstream &out, const std::vector< T > &x)
+{
+
+size_t n = x.size();
+if (n == 0) {
+    return(out);
+}
+for (size_t i = 0; i < n-1; i++) {
+    ofstreamcsv(out,x[i]);
+} //next i
+ofstreamcsv(out,x[n-1]);
+out << "\n";
+return(out);
+};
+
+template <class T, size_t d>
+std::ofstream& GenericOutput::ofstreamcsv(std::ofstream &out, const std::array< T,d > &x)
+{
+
+if (d == 0) return(out);
+for (size_t i = 0; i < d-1; i++) {
+    ofstreamcsv(out,x[i]);
+} //next i
+ofstreamcsv(out,x[d-1]);
+out << "\n";
+return(out);
+};
+
+//TODO Specialize ofstreamcsv for vector<vector<T> > and vector<array<T> > to eliminate commas at end of lines
+
 
 }

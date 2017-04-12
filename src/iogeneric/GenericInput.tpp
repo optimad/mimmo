@@ -9,8 +9,8 @@ namespace mimmo{
 template<typename T>
 void
 GenericInput::setInput(T* data){
-	_setInput(data);
-	_setResult(data);
+    _setInput(data);
+    _setResult(data);
 }
 
 /*!Overloaded function of base class setInput.
@@ -20,8 +20,8 @@ GenericInput::setInput(T* data){
 template<typename T>
 void
 GenericInput::setInput(T& data){
-	_setInput(data);
-	_setResult(data);
+    _setInput(data);
+    _setResult(data);
 }
 
 /*!Overloaded function of base class getResult.
@@ -32,21 +32,26 @@ GenericInput::setInput(T& data){
 template<typename T>
 T
 GenericInput::getResult(){
-	if (m_readFromFile){
-		T data;
-		std::ifstream file;
-		file.open(m_filename);
-		if (file.is_open()){
-			file >> data;
-			file.close();
-		}else{
-			std::cout << "file not open --> exit" << std::endl;
-			exit(1);
-		}
-		_setResult(data);
-	}
-	T temp = (*static_cast<IODataT<T>*>(m_result.get())->getData());
-	return(temp);
+    if (m_readFromFile){
+        T data;
+        std::ifstream file;
+        file.open(m_filename);
+        if (file.is_open()){
+            if (m_csv){
+                ifstreamcsv(file, data);
+            }
+            else{
+                file >> data;
+            }
+            file.close();
+        }else{
+            std::cout << "file not open --> exit" << std::endl;
+            exit(1);
+        }
+        _setResult(data);
+    }
+    T temp = (*static_cast<IODataT<T>*>(m_result.get())->getData());
+    return(temp);
 }
 
 
@@ -59,7 +64,7 @@ GenericInput::getResult(){
 template<typename T>
 T*
 GenericInput::getInput(){
-	return(static_cast<IODataT<T>*>(m_input.get())->getData());
+    return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
 /*!It sets the result member of the object.
@@ -68,9 +73,9 @@ GenericInput::getInput(){
 template<typename T>
 void
 GenericInput::setResult(T* data){
-	clearResult();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
-	m_result = std::move(dummy);
+    clearResult();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+    m_result = std::move(dummy);
 }
 
 /*!It sets the result member of the object.
@@ -79,9 +84,9 @@ GenericInput::setResult(T* data){
 template<typename T>
 void
 GenericInput::setResult(T& data){
-	clearResult();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
-	m_result = std::move(dummy);
+    clearResult();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+    m_result = std::move(dummy);
 }
 
 //==================================================   //
@@ -94,9 +99,9 @@ GenericInput::setResult(T& data){
 template<typename T>
 void
 GenericInput::_setInput(T* data){
-	clearInput();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
-	m_input = std::move(dummy);
+    clearInput();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+    m_input = std::move(dummy);
 }
 
 /*!It sets the input member of the object.
@@ -105,9 +110,9 @@ GenericInput::_setInput(T* data){
 template<typename T>
 void
 GenericInput::_setInput(T& data){
-	clearInput();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
-	m_input = std::move(dummy);
+    clearInput();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+    m_input = std::move(dummy);
 }
 
 /*!It gets the input member of the object.
@@ -116,7 +121,7 @@ GenericInput::_setInput(T& data){
 template<typename T>
 T*
 GenericInput::_getInput(){
-	return(static_cast<IODataT<T>*>(m_input.get())->getData());
+    return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
 //==================================================   //
@@ -129,9 +134,9 @@ GenericInput::_getInput(){
 template<typename T>
 void
 GenericInput::_setResult(T* data){
-	clearResult();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
-	m_result = std::move(dummy);
+    clearResult();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(*data));
+    m_result = std::move(dummy);
 }
 
 /*!It sets the result member of the object.
@@ -140,9 +145,9 @@ GenericInput::_setResult(T* data){
 template<typename T>
 void
 GenericInput::_setResult(T& data){
-	clearResult();
-	std::unique_ptr<IOData> dummy(new IODataT<T>(data));
-	m_result = std::move(dummy);
+    clearResult();
+    std::unique_ptr<IOData> dummy(new IODataT<T>(data));
+    m_result = std::move(dummy);
 }
 
 /*!It gets the result member of the object.
@@ -151,7 +156,56 @@ GenericInput::_setResult(T& data){
 template<typename T>
 T*
 GenericInput::_getResult(){
-	return(static_cast<IODataT<T>*>(m_result.get())->getData());
+    return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
+
+
+template <typename T>
+std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, T &x){
+
+T                   dummy;
+char                delim;
+
+if ((in.good())) {
+    if (in >> dummy && in >> delim) { x = dummy; }
+}
+return(in);
+}
+
+template <typename T>
+std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::vector< T > &x){
+
+T       dummy;
+char    delim;
+int     i, n = x.size();
+
+i = 0;
+while ((in.good()) && (i < n)) {
+    if (ifstreamcsv(in,dummy)) { x[i] = dummy; i++; }
+} //next i
+while (in.good()) {
+    if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
+}
+return(in);
+}
+
+template <typename T, size_t d>
+std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::array< T, d> &x){
+
+T       dummy;
+char    delim;
+int     i;
+
+i = 0;
+while ((in.good()) && (i < d)) {
+    if (ifstreamcsv(in,dummy)) { x[i] = dummy;}
+    i++;
+} //next i
+return(in);
+};
+
+
+
+
 
 }

@@ -31,8 +31,9 @@ namespace mimmo{
  * Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
-GenericOutput::GenericOutput(std::string filename){
-	m_filename	= filename;
+GenericOutput::GenericOutput(std::string filename, bool csv){
+    m_filename  = filename;
+    m_csv       = csv;
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "mimmo.GenericOutput";
 };
@@ -46,6 +47,7 @@ GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
 	m_filename	= "output.txt";
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "mimmo.GenericOutput";
+    m_csv       = false;
 	
 	std::string fallback_name = "ClassNONE";	
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -67,6 +69,7 @@ GenericOutput::~GenericOutput(){
  */
 GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other){
 	m_filename 		= other.m_filename;
+    m_csv           = other.m_csv;
 };
 
 /*!Assignement operator of GenericOutput.
@@ -74,6 +77,7 @@ GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other
 GenericOutput & GenericOutput::operator=(const GenericOutput & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_filename 		= other.m_filename;
+    m_csv           = other.m_csv;
 	return *this;
 };
 
@@ -104,7 +108,15 @@ GenericOutput::buildPorts(){
  */
 void
 GenericOutput::setFilename(std::string filename){
-	m_filename = filename;
+    m_filename = filename;
+};
+
+/*!It sets if the output file has to be written in csv format.
+ * \param[in] csv Write the output file in csv format.
+ */
+void
+GenericOutput::setCSV(bool csv){
+    m_csv = csv;
 };
 
 /*!It clear the input member of the object
@@ -137,6 +149,7 @@ GenericOutput::execute(){
  * --> Absorbing data:
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Filename</B>: name of file to write data  
+ * - <B>CSV</B>: true if write in csv format
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -156,12 +169,23 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 		setPriority(value);
 	};
 	
-	if(slotXML.hasOption("Filename")){
-		std::string input = slotXML.get("Filename");
-		input = bitpit::utils::trim(input);
-		setFilename(input);
-	}; 
-	
+    if(slotXML.hasOption("Filename")){
+        std::string input = slotXML.get("Filename");
+        input = bitpit::utils::trim(input);
+        setFilename(input);
+    };
+
+    if(slotXML.hasOption("CSV")){
+        std::string input = slotXML.get("CSV");
+        input = bitpit::utils::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setCSV(temp);
+    };
+
 }
 
 /*!
@@ -173,6 +197,7 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * - <B>ClassName</B>: name of the class as "mimmo.GenericOutput"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Filename</B>: name of file to write data  
+ * - <B>CSV</B>: true if write in csv format
  * 
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
@@ -184,7 +209,8 @@ void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
-	slotXML.set("Filename", m_filename);
+    slotXML.set("Filename", m_filename);
+    slotXML.set("CSV", std::to_string((int)m_csv));
 };	
 
 }
