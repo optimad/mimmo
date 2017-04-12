@@ -33,8 +33,9 @@ namespace mimmo {
  * Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
  */
-GenericInput::GenericInput(bool readFromFile){
-	m_readFromFile = readFromFile;
+GenericInput::GenericInput(bool readFromFile, bool csv){
+    m_readFromFile  = readFromFile;
+    m_csv           = csv;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "mimmo.GenericInput";
 };
@@ -46,6 +47,7 @@ GenericInput::GenericInput(bool readFromFile){
 GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
 	
 	m_readFromFile  = false;
+    m_csv           = false;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 	m_name 			= "mimmo.GenericInput";
 	
@@ -63,8 +65,9 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
  * \param[in] filename Name of the input file.
  * The m_readFromFile flag is set to true.
  */
-GenericInput::GenericInput(std::string filename){
+GenericInput::GenericInput(std::string filename, bool csv){
 	m_readFromFile 	= true;
+    m_csv           = csv;
 	m_filename 		= filename;
 	m_portsType 	= BaseManipulation::ConnectionType::FORWARD;
 };
@@ -74,7 +77,8 @@ GenericInput::~GenericInput(){};
 /*!Copy constructor of GenericInput.
  */
 GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
-	m_readFromFile 	= other.m_readFromFile;
+    m_readFromFile  = other.m_readFromFile;
+    m_csv           = other.m_csv;
 	m_filename 		= other.m_filename;
 };
 
@@ -83,6 +87,7 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
 GenericInput & GenericInput::operator=(const GenericInput & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_readFromFile 	= other.m_readFromFile;
+    m_csv           = other.m_csv;
 	m_filename 		= other.m_filename;
 	return *this;
 };
@@ -92,7 +97,15 @@ GenericInput & GenericInput::operator=(const GenericInput & other){
  */
 void
 GenericInput::setReadFromFile(bool readFromFile){
-	m_readFromFile = readFromFile;
+    m_readFromFile = readFromFile;
+};
+
+/*!It sets if the input file is in csv format.
+ * \param[in] csv Is the input file write in comma separated value format?
+ */
+void
+GenericInput::setCSV(bool csv){
+    m_csv = csv;
 };
 
 /*!It sets the name of the input file.
@@ -100,7 +113,7 @@ GenericInput::setReadFromFile(bool readFromFile){
  */
 void
 GenericInput::setFilename(std::string filename){
-	m_filename = filename;
+    m_filename = filename;
 };
 
 /*! It builds the input/output ports of the object
@@ -156,6 +169,7 @@ GenericInput::execute(){};
  * --> Absorbing data:
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
  * - <B>ReadFromFile</B>: 0/1 set class to read from a file	
+ * - <B>CSV</B>: 0/1 set class to read a CSV format
  * - <B>Filename</B>: path to your current file data
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
@@ -177,17 +191,28 @@ void GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 		setPriority(value);
 	}; 
 	
-	if(slotXML.hasOption("ReadFromFile")){
-		std::string input = slotXML.get("ReadFromFile");
-		input = bitpit::utils::trim(input);
-		bool temp = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>temp;
-		}
-		setReadFromFile(temp);
-	}; 
-	
+    if(slotXML.hasOption("ReadFromFile")){
+        std::string input = slotXML.get("ReadFromFile");
+        input = bitpit::utils::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setReadFromFile(temp);
+    };
+
+    if(slotXML.hasOption("CSV")){
+        std::string input = slotXML.get("CSV");
+        input = bitpit::utils::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setCSV(temp);
+    };
+
 	if(slotXML.hasOption("Filename") && m_readFromFile){
 		std::string input = slotXML.get("Filename");
 		input = bitpit::utils::trim(input);
@@ -204,7 +229,8 @@ void GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * --> Flushing data// how to write it on XML:
  * - <B>ClassName</B>: name of the class as "mimmo.GenericInput"
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
- * - <B>ReadFromFile</B>: 0/1 set class to read from a file	
+ * - <B>ReadFromFile</B>: 0/1 set class to read from a file
+ * - <B>CSV</B>: 0/1 set class to read a CSV format
  * - <B>Filename</B>: path to your current file data
  * 
  * \param[in] slotXML bitpit::Config::Section which writes to
@@ -217,7 +243,8 @@ void GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
 	
-	slotXML.set("ReadFromFile", std::to_string((int)m_readFromFile));
+    slotXML.set("ReadFromFile", std::to_string((int)m_readFromFile));
+    slotXML.set("CSV", std::to_string((int)m_csv));
 	slotXML.set("Filename", m_filename);
 };	
 

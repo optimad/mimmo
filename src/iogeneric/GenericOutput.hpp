@@ -73,11 +73,12 @@ private:
 	std::string				m_filename;		/**<Name of the output file.
 											The file will be an ascii text file.*/
 
+	bool                    m_csv;          /**<True if write output file in csv format.*/
 	std::unique_ptr<IOData>	m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>	m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
 public:
-	GenericOutput(std::string filename = "output.txt");
+	GenericOutput(std::string filename = "output.txt", bool csv = false);
 	GenericOutput(const bitpit::Config::Section & rootXML);
 	~GenericOutput();
 
@@ -122,12 +123,22 @@ public:
 	void	clearInput();
 	void	clearResult();
 
-	void setFilename(std::string filename);
+    void setFilename(std::string filename);
+    void setCSV(bool csv);
 
 	void 	execute();
 	
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+private:
+	template<typename T>
+    std::ofstream&  ofstreamcsv(std::ofstream &in, const T &x);
+    template<typename T>
+    std::ofstream&  ofstreamcsv(std::ofstream &in, const std::vector< T > &x);
+    template<typename T, size_t d>
+    std::ofstream&  ofstreamcsv(std::ofstream &in, const std::array< T,d > &x);
+
 };
 
 REGISTER(BaseManipulation, GenericOutput, "mimmo.GenericOutput")

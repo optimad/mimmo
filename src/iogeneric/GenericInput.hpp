@@ -77,16 +77,17 @@ namespace mimmo{
 class GenericInput: public BaseManipulation{
 private:
 	//members
-	bool			m_readFromFile;	/**<True if the object reads the values from file.*/
+    bool            m_readFromFile; /**<True if the object reads the values from file.*/
+    bool            m_csv;          /**<True if the file is in csv format.*/
 	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
 	
 	std::unique_ptr<IOData>				m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>				m_result;		/**<Pointer to a base class object Result (derived class is template).*/
 
 public:
-	GenericInput(bool readFromFile = false);
+	GenericInput(bool readFromFile = false, bool csv = false);
 	GenericInput(const bitpit::Config::Section & rootXML);
-	GenericInput(std::string filename);
+	GenericInput(std::string filename, bool csv = false);
 
 	/*!Custom template constructor of GenericInput.
 	 * It sets the base class input with data passed as argument.
@@ -109,8 +110,9 @@ public:
 	template<typename T>
 	T 					getResult();
 
-	void setReadFromFile(bool readFromFile);
-	void setFilename(std::string filename);
+    void setReadFromFile(bool readFromFile);
+    void setCSV(bool csv);
+    void setFilename(std::string filename);
 
 	template<typename T>
 	void 				setInput(T* data);
@@ -145,6 +147,14 @@ public:
 	
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+private:
+    template<typename T>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
+    template<typename T>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, std::vector< T > &x);
+    template<typename T, size_t d>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, std::array< T,d > &x);
 
 };
 
