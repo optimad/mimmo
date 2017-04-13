@@ -129,6 +129,8 @@ TranslationGeometry::getDisplacements(){
 void
 TranslationGeometry::execute(){
 
+    if (getGeometry() == NULL) return;
+
     int nV = m_geometry->getNVertex();
     m_displ.resize(nV);
     m_filter.resize(nV, 1.0);

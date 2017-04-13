@@ -37,7 +37,7 @@ using namespace mimmo::pin;
 
 	\brief Example of usage of global deformation blocks of an input geometry.
 
-	Global geometry deformation blocks used: translation, scaling, twisting and rotation.
+	Global geometry deformation blocks used: translation, scaling, twisting, bending and rotation.
 
 	<b>To run</b>: ./manipulators_example_00001 \n
 
@@ -91,6 +91,13 @@ void test00001() {
     mimmo4->setWriteFileType(FileType::STL);
     mimmo4->setWriteFilename("mimmo_00001.0004");
 
+    MimmoGeometry * mimmo5 = new MimmoGeometry();
+    mimmo5->setRead(false);
+    mimmo5->setWrite(true);
+    mimmo5->setWriteDir(".");
+    mimmo5->setWriteFileType(FileType::STL);
+    mimmo5->setWriteFilename("mimmo_00001.0005");
+
 
     /* Creation of translation block.
      * Translation performed in z direction by -1.0 unit length.
@@ -129,6 +136,25 @@ void test00001() {
     Apply* applierTwist = new Apply();
 
 
+    /* Creation of bending block.
+     * Bending performed in x direction by a maximum angle at a distance 1.0
+     * from the origin equal to pi/3 radiants.
+     */
+    BendGeometry* bend = new BendGeometry();
+    umatrix33E degree = {0,0,0, 0,0,0, 2,0,0};
+    bend->setDegree(degree);
+    dmat33Evec coeffs;
+    coeffs[2][0].resize(3);
+    coeffs[2][0][0] = 0;
+    coeffs[2][0][1] = 0;
+    coeffs[2][0][2] = 0.5;
+    bend->setCoeffs(coeffs);
+
+    /* Creation of applier block for twisting.
+     */
+    Apply* applierBend = new Apply();
+
+
     /* Creation of rotation block.
      * Rotation performed around an axis through the origin and
      * with direction (0.25,0.25,0.75) by pi/4 radiants.
@@ -159,10 +185,15 @@ void test00001() {
     addPin(twist, applierTwist, PortType::M_GDISPLS, PortType::M_GDISPLS);
     addPin(applierTwist, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
 
-    addPin(applierTwist, rotation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(applierTwist, applierRotation, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierTwist, bend, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierTwist, applierBend, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(bend, applierBend, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(applierBend, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
+
+    addPin(applierBend, rotation, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierBend, applierRotation, PortType::M_GEOM, PortType::M_GEOM);
     addPin(rotation, applierRotation, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierRotation, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierRotation, mimmo5, PortType::M_GEOM, PortType::M_GEOM);
 
 
     /* Setup execution chain.
@@ -178,9 +209,12 @@ void test00001() {
     ch0.addObject(twist);
     ch0.addObject(applierTwist);
     ch0.addObject(mimmo3);
+    ch0.addObject(bend);
+    ch0.addObject(applierBend);
+    ch0.addObject(mimmo4);
     ch0.addObject(rotation);
     ch0.addObject(applierRotation);
-    ch0.addObject(mimmo4);
+    ch0.addObject(mimmo5);
 
     /* Execution of chain.
      */
@@ -201,9 +235,12 @@ void test00001() {
     delete twist;
     delete applierTwist;
     delete mimmo3;
+    delete bend;
+    delete applierBend;
+    delete mimmo4;
     delete rotation;
     delete applierRotation;
-    delete mimmo4;
+    delete mimmo5;
 
     mimmo0 = NULL;
     translation = NULL;
@@ -215,9 +252,12 @@ void test00001() {
     twist = NULL;
     applierTwist = NULL;
     mimmo3 = NULL;
+    bend = NULL;
+    applierBend = NULL;
+    mimmo4 = NULL;
     rotation = NULL;
     applierRotation = NULL;
-    mimmo4 = NULL;
+    mimmo5 = NULL;
 
 }
 

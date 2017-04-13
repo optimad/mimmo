@@ -313,7 +313,6 @@ list(APPEND MIMMO_MODULE_LIST "iovtk")
 list(APPEND MIMMO_MODULE_LIST "ioofoam")
 list(APPEND MIMMO_MODULE_LIST "geohandlers")
 list(APPEND MIMMO_MODULE_LIST "manipulators")
-list(APPEND MIMMO_MODULE_LIST "wrappers")
 list(APPEND MIMMO_MODULE_LIST "utils")
 
 set(MIMMO_MODULEENABLED_LIST "")
@@ -322,7 +321,6 @@ list(APPEND MIMMO_MODULEENABLED_LIST "core")
 list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
 list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
 list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
-list(APPEND MIMMO_MODULEENABLED_LIST "wrappers")
 list(APPEND MIMMO_MODULEENABLED_LIST "utils")
 
 set(MIMMO_MODULEDISABLED_LIST "")
@@ -340,7 +338,6 @@ set(IOVTK_DEPS "iogeneric;core;common")
 set(IOOFOAM_DEPS "iogeneric;iovtk;core;common")
 set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
-set(WRAPPERS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
 
 

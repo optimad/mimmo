@@ -40,5 +40,6 @@
 #include "TranslationGeometry.hpp"
 #include "ScalingGeometry.hpp"
 #include "TwistGeometry.hpp"
+#include "BendGeometry.hpp"
 
 #endif
