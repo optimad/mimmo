@@ -1000,6 +1000,41 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
 	return(result);
 }
 
+/*! Extract Cell List from an ensamble of geometry Vertices.
+ * \param[in] vertexList List of bitpit::PatchKernel IDs identifying vertices.
+ *\return List of bitpit::PatchKernel IDs of involved 1-Ring cells.
+ */  
+
+livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
+    if(isEmpty())   return livector1D(0);
+    livector1D result;
+    std::unordered_set<long int> ordV, ordC;
+    ordV.insert(vertexList.begin(), vertexList.end());
+    //get conn from each cell of the list
+    for(auto & cell : m_patch->getCells()){
+        int nVloc = cell.getVertexCount();
+        int i=0;
+        bool check = false;
+        while(i< nVloc && !check){
+            check = ordV.count(cell.getVertex(i));
+            ++i;
+        }
+        if(check) ordC.insert(cell.getId());
+    }
+
+    result.resize(ordC.size());
+    std::unordered_set<long int>::iterator itS;
+    std::unordered_set<long int>::iterator itSEnd=ordC.end();
+
+    int counter =0;
+    for(itS=ordC.begin(); itS != itSEnd; ++itS){
+        result[counter] = *itS;
+        ++counter;
+    }
+
+    return(result);
+}
+
 /*! Convert Vertex List of bitpit::PatchKernel IDs to local ordered MimmoObject Vertex List.
  *  Unexistent vertex ID are marked in return vector as -1.
  * \param[in] vertexList List of bitpit::PatchKernel IDs identifying vertices.
