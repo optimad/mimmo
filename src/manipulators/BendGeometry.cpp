@@ -105,6 +105,22 @@ BendGeometry::buildPorts(){
     m_arePortsBuilt = built;
 };
 
+/*! Return current origin of reference system
+ * \return origin
+ */
+darray3E
+BendGeometry::getOrigin(){
+    return(m_origin);
+}
+
+/*! Return current reference system axes
+ * \return local reference system
+ */
+dmatrix33E
+BendGeometry::getRefSystem(){
+    return(m_system);
+}
+
 /*!It gets the degrees of polynomial law for each component of displacements of degrees of freedom.
  * \return Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
  */
@@ -252,7 +268,7 @@ BendGeometry::toLocalCoord(darray3E  point){
  * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
  * while Input and Geometry parameters are meant to be passed only through Port linking.
  * 
- * Assuming that x,y,z are the reference directions in space, as well as the preference directions
+ * Assuming that x,y,z are the reference (absolute or local) directions in space, as well as the preference directions
  * for nodal displacements, we can assume that:
  * 
  * --> Absorbing data:
@@ -261,6 +277,8 @@ BendGeometry::toLocalCoord(darray3E  point){
  *      in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
  *      marks a constant function 
  * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions.
+ * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0})
+ * - <B>RefSystem</B>: axes of local reference system (if not set the absolute one is used)
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
  * \param[in] name   name associated to the slot
@@ -325,6 +343,38 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         }
         setCoeffs(temp);
     };
+
+    if(slotXML.hasOption("Origin")){
+        std::string input = slotXML.get("Origin");
+        input = bitpit::utils::trim(input);
+        darray3E temp = {{0.0,0.0,0.0}};
+        if(!input.empty()){
+            std::stringstream ss(input);
+            for(auto &val : temp) ss>>val;
+        }
+        setOrigin(temp);
+    };
+
+    if(slotXML.hasSection("RefSystem")){
+        const bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
+        std::string rootAxis = "axis";
+        std::string axis;
+        dmatrix33E temp;
+        temp[0].fill(0.0); temp[0][0] = 1.0;
+        temp[1].fill(0.0); temp[1][1] = 1.0;
+        temp[2].fill(0.0); temp[2][2] = 1.0;
+        for(int i=0; i<3; ++i){
+            axis = rootAxis + std::to_string(i);
+            std::string input = rfXML.get(axis);
+            input = bitpit::utils::trim(input);
+            if(!input.empty()){
+                std::stringstream ss(input);
+                for(auto &val : temp[i]) ss>>val;
+            }
+        }
+        setRefSystem(temp);
+    };
+
 };
 
 /*!
@@ -359,6 +409,14 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * 							<Poly7> 1.5 0.0 0.1 0.2 </Poly7>
  * 						  </PolyCoefficients>
  * 
+ * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0})
+ * - <B>RefSystem</B>: axes of local reference system. written in XML as:
+ *                  <RefSystem>
+ *                      <axis0> 1.0 0.0 0.0 </axis0>
+ *                      <axis1> 0.0 1.0 0.0 </axis1>
+ *                      <axis2> 0.0 0.0 1.0 </axis2>
+ *                  </RefSystem>
+ *
  * \param[in]	slotXML bitpit::Config::Section which writes to
  * \param[in] name   name associated to the slot
  */
@@ -394,6 +452,27 @@ void BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
             std::stringstream ss;
             for(auto & loc: m_coeffs[i][j])	ss<<loc<<'\t';
             polyXML.set(locPoly, ss.str());
+        }
+    }
+
+    {
+        std::stringstream ss;
+        ss<<std::scientific<<getOrigin()[0]<<'\t'<<getOrigin()[1]<<'\t'<<getOrigin()[2];
+        slotXML.set("Origin", ss.str());
+    }
+
+    {
+        auto rs = getRefSystem();
+        bitpit::Config::Section & rsXML = slotXML.addSection("RefSystem");
+        std::string rootAxis = "axis";
+        std::string localAxis;
+        int counter=0;
+        for(auto &axis : rs){
+            localAxis = rootAxis+std::to_string(counter);
+            std::stringstream ss;
+            ss<<std::scientific<<axis[0]<<'\t'<<axis[1]<<'\t'<<axis[2];
+            rsXML.set(localAxis, ss.str());
+            ++counter;
         }
     }
 

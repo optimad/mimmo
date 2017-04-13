@@ -89,6 +89,8 @@ public:
 
 	void buildPorts();
 
+	darray3E    getOrigin();
+	dmatrix33E  getRefSystem();
 	umatrix33E	getDegree();
 	dmat33Evec	getCoeffs();
 	dvecarr3E	getDisplacements();
