@@ -646,7 +646,7 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
  * Identifiers of extracted matches are collected in result structure
  *\param[in] tree			BvTree of PatchKernel simplicies
  *\param[in] geo            pointer to tessellation the tree refers to. 
- *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
+ *\param[in] indexBvNode	BvTree node index of tree, which start seaching from  
  *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
  *\param[in,out] counter	last filled position of result vector.
  * 
@@ -695,7 +695,7 @@ void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel 
  * Identifiers of extracted matches are collected in result structure
  *\param[in] tree			BvTree of PatchKernel simplicies
  *\param[in] geo            pointer to tessellation the tree refers to. 
- *\param[in] indexKdNode	BvTree node index of tree, which start seaching from  
+ *\param[in] indexBvNode	BvTree node index of tree, which start seaching from  
  *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
  *\param[in,out] counter	last filled position of result vector.
  * 
