@@ -438,6 +438,42 @@ if (ENABLE_MPI)
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
 endif()
 
+
+
+#module  further dependency
+isModuleEnabled("iocgns" MODULE_ENABLED2)
+if (MODULE_ENABLED2)
+
+    # ---- CGNS forced ---
+    set(CGNS_DIR "/opt/cgns/cgns_3.2.1" CACHE STRING "path to CGNS installation")
+    set(HDF5_DIR "/opt/hdf5/hdf5_1.8.15-patch1" CACHE STRING "path to HDF5 installation")
+    set(HDF5_BUILD_TYPE "parallel" CACHE STRING
+        "Choose the type of HDF5 build, options are: parallel serial.")
+    # Set the possible values of HDF5 build type for the GUI
+    set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
+    
+    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${CGNS_DIR}/include")
+
+    set(CGNS_LIB "${CGNS_DIR}/lib/libcgns.so")
+    set(CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5.so")
+
+    if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
+        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_cpp.so")
+        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_fortran.so")
+        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_hl.so")
+        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_hl_cpp.so")
+        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5hl_fortran.so")
+    endif()
+    
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${CGNS_LIB}" "${CGNS_DEP}")
+    unset(CGNS_LIB)
+    unset(CGNS_DEP)
+    #      ---- 
+
+endif ()
+
+
+
 #------------------------------------------------------------------------------------#
 # Subdirectories
 #------------------------------------------------------------------------------------#

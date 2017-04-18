@@ -40,7 +40,7 @@ void testRC() {
 	dvecarr3E points = read->getResult<dvecarr3E>();
 
 	GenericOutput * write = new GenericOutput();
-    write->setFilename("output_00001.csv");
+    write->setFilename("generic_output_00001.csv");
     write->setCSV(true);
 	write->setInput(points);
 	write->execute();

@@ -808,7 +808,6 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 	return buffer;
 };
 
-
 ///*!
 // *	Input stream operator for std::string
 // *	\param[in] buffer is the input stream

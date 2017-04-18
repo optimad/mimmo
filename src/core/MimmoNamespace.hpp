@@ -73,7 +73,8 @@ BETTER_ENUM(PortType, int,
 			M_MAPDCELL			= 104,
 			M_MAPDVERT			= 105,
 			M_UMGEOSFD			= 106,
-			M_UMGEOVFD			= 107,
+            M_UMGEOVFD          = 107,
+            M_BCCGNS            = 108,
 			M_POINT2			= 120,
 			M_VALUED2			= 130,
 			M_VALUED3			= 131,
@@ -177,6 +178,7 @@ struct FileDataInfo{
  * - M_MAPDVERT      = 105  Port dedicated to communicate a map of vertex-ids of type <long, std::pair<int, long>>,
  * - M_UMGEOSFD      = 106  Port dedicated to communicate a map of MimmoObject* and dvector1D*,
  * - M_UMGEOVFD      = 107  Port dedicated to communicate a map of MimmoObject* and dvecarr3E*,
+ * - M_BCCGNS        = 108  Port dedicated to communicate a pointer to a BCCGNS object (Boundary Conditions Info for CGNS export),
  * - M_POINT2        = 120  Port dedicated to communicate the coordinate of a point field [array<double,3>].,
  * - M_VALUED2       = 130  Port dedicated to communicate a scalar value [double].,
  * - M_VALUEB2       = 140  Port dedicated to communicate a scalar value [bool].,
@@ -261,7 +263,8 @@ enum class dataTAG{
 	SHAPE_						/**< TAG related to a mimmo::BasicShape* data.*/,
 	COORDT						/**< TAG related to a mimmo::CoordType data.*/,
 	POLYDATA_					/**< TAG related to a VTK::vtkPolyData* data.*/,
-	TRACKINGPTR_				/**< TAG related to a generic object derived from mimmo::TrackingPointer class */
+    TRACKINGPTR_                /**< TAG related to a generic object derived from mimmo::TrackingPointer class */,
+    BCCGNS_                     /**< TAG related to a mimmo::BCCGNS* object (class with Boundary Conditions Info for CGNS export) */
 };
 
 

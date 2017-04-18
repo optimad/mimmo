@@ -57,6 +57,12 @@ if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
 	list(APPEND EXAMPLE_LIST "MIMMO_example_00001" "manipulators_example_00001" "genericinput_example_00001")
+
+    #Add examples of enabled modules
+    isModuleEnabled("iocgns" MODULE_ENABLED)
+    if (MODULE_ENABLED)
+        list(APPEND EXAMPLE_LIST "iocgns_example_00001")
+    endif ()
 	
 	#Rules to build the examples
 	foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
@@ -82,6 +88,10 @@ if(BUILD_EXAMPLES)
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/input_00001.csv"
+    )
+    add_custom_command(
+        TARGET "iocgns_example_00001" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/grid.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/grid.cgns"
     )
 
 
