@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
@@ -23,16 +23,12 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_ioofoam.hpp"
-using namespace std;
-using namespace bitpit;
 using namespace mimmo;
-
-
 
 // =================================================================================== //
 
 int test1() {
-	
+
 	std::cout<<"waiting for a proper test. I do nothing for now"<<std::endl;
     return 0;
 }
@@ -43,7 +39,7 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
+
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 
@@ -58,6 +54,6 @@ int main( int argc, char *argv[] ) {
 
 	MPI::Finalize();
 #endif
-	
+
 	return val;
 }

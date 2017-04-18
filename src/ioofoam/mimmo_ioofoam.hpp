@@ -30,6 +30,6 @@
 #ifndef __MIMMO_MODULE_IOOFOAM_HPP__
 #define __MIMMO_MODULE_IOOFOAM_HPP__
 
-#include "mimmo_iovtk.hpp"
+#include "IOOFOAM.hpp"
 
 #endif

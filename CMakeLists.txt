@@ -439,8 +439,19 @@ if (ENABLE_MPI)
 endif()
 
 
+# module further dependency
+isModuleEnabled("iovtk" MODULE_ENABLED1)
+if (MODULE_ENABLED1)
 
-#module  further dependency
+    # ---- VTK forced ---
+    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
+    find_package(VTK REQUIRED)
+    include(${VTK_USE_FILE})
+    #      ---- 
+
+endif ()
+
+# module further dependency
 isModuleEnabled("iocgns" MODULE_ENABLED2)
 if (MODULE_ENABLED2)
 
@@ -468,6 +479,18 @@ if (MODULE_ENABLED2)
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "${CGNS_LIB}" "${CGNS_DEP}")
     unset(CGNS_LIB)
     unset(CGNS_DEP)
+    #      ---- 
+
+endif ()
+
+# module further dependency
+isModuleEnabled("ioofoam" MODULE_ENABLED3)
+if (MODULE_ENABLED3 AND NOT MODULE_ENABLED1)
+
+    # ---- VTK forced ---
+    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
+    find_package(VTK REQUIRED)
+    include(${VTK_USE_FILE})
     #      ---- 
 
 endif ()

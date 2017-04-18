@@ -84,7 +84,8 @@ BETTER_ENUM(PortType, int,
 			M_VALUEB5			= 143,
 			M_VALUEI2			= 150,
 			M_VECPAIRSF			= 200,
-			M_VECPAIRVF			= 201
+			M_VECPAIRVF			= 201,
+            M_POLYDATA_         = 1100
    		);
 
 
@@ -185,9 +186,10 @@ struct FileDataInfo{
  * - M_VALUEB3       = 141  Port dedicated to communicate a scalar value [bool].,
  * - M_VALUEB4       = 142  Port dedicated to communicate a scalar value [bool].,
  * - M_VALUEB5       = 143  Port dedicated to communicate a scalar value [bool].,
- * - M_VALUEI2       = 150  Port dedicated to communicate a scalar value [int].
- * - M_VECPAIRSF     = 200  Port dedicated to communicate a std::vector<std::pair<MimmoObject*, dvector1D*> >.
- * - M_VECPAIRVF     = 201  Port dedicated to communicate a std::vector<std::pair<MimmoObject*, dvecarr3E*> >. 
+ * - M_VALUEI2       = 150  Port dedicated to communicate a scalar value [int].,
+ * - M_VECPAIRSF     = 200  Port dedicated to communicate a std::vector<std::pair<MimmoObject*, dvector1D*> >.,
+ * - M_VECPAIRVF     = 201  Port dedicated to communicate a std::vector<std::pair<MimmoObject*, dvecarr3E*> >.,
+ * - M_POLYDATA_     = 1100 Port dedicated to communicate a pointer to a vtk polydata mesh [vtkPolyData *].
  */
 namespace pin{
 
