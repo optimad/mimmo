@@ -30,6 +30,7 @@
 #ifndef __MIMMO_MODULE_IOVTK_HPP__
 #define __MIMMO_MODULE_IOVTK_HPP__
 
+#include "mimmo_iogeneric.hpp"
 #include "IOVTKScalar.hpp"
 
 #endif

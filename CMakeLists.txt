@@ -447,6 +447,7 @@ if (MODULE_ENABLED1)
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
     find_package(VTK REQUIRED)
     include(${VTK_USE_FILE})
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
     #      ---- 
 
 endif ()
@@ -491,6 +492,7 @@ if (MODULE_ENABLED3 AND NOT MODULE_ENABLED1)
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
     find_package(VTK REQUIRED)
     include(${VTK_USE_FILE})
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
     #      ---- 
 
 endif ()

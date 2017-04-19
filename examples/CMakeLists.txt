@@ -59,11 +59,17 @@ if(BUILD_EXAMPLES)
 	list(APPEND EXAMPLE_LIST "MIMMO_example_00001" "manipulators_example_00001" "genericinput_example_00001")
 
     #Add examples of enabled modules
-    isModuleEnabled("iocgns" MODULE_ENABLED)
-    if (MODULE_ENABLED)
+    isModuleEnabled("iocgns" MODULE_ENABLED1)
+    if (MODULE_ENABLED1)
         list(APPEND EXAMPLE_LIST "iocgns_example_00001")
     endif ()
-	
+    
+    #Add examples of enabled modules
+    isModuleEnabled("iovtk" MODULE_ENABLED2)
+    if (MODULE_ENABLED2)
+        list(APPEND EXAMPLE_LIST "iovtk_example_00001")
+    endif ()
+    
 	#Rules to build the examples
 	foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
 		set(EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}.cpp")
@@ -92,6 +98,10 @@ if(BUILD_EXAMPLES)
     add_custom_command(
         TARGET "iocgns_example_00001" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/grid.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/grid.cgns"
+    )
+    add_custom_command(
+        TARGET "iovtk_example_00001" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/iovtk.vtk" "${CMAKE_CURRENT_BINARY_DIR}/geodata/iovtk.vtk"
     )
 
 
