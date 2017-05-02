@@ -566,7 +566,7 @@ MimmoObject::getCopy(){
 bool
 MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices){
 	
-	if (isEmpty() || vertices.size()==0 ) return false;
+	if (vertices.empty()) return false;
 	
 	m_mapData.clear();
 	m_mapDataInv.clear();
@@ -577,17 +577,13 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 	
 	long id;
 	darray3E coords;
-	bool checkTot = true, check;
+	bool checkTot = true;
 	for (auto && val : vertices){
 		id = val.getId();
 		coords = val.getCoords();
-		check =  addVertex(coords, id);
-		checkTot = checkTot && check;
+        checkTot = checkTot && addVertex(coords, id);
 	}	
 
-	m_bvTreeBuilt = false;
-	m_kdTreeBuilt = false;
-	
 	return checkTot;
 };
 
@@ -647,38 +643,41 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 bool
 MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 	
-	if (isEmpty() || cells.size()==0 || !m_bvTreeSupported) return false;
-	
-	m_mapCell.clear();
-	m_mapCellInv.clear();
-	m_pidsType.clear();
-	
-	getPatch()->resetCells();
-	
-	int sizeCell = cells.size();
-	getPatch()->reserveCells(sizeCell);
-	
-	long idc;
-	int nVert;
-	
-	for (const auto & cell : cells){
-		
-		// get ID
-		idc = cell.getId();
-		//check on element type
-		nVert = checkCellType(cell.getType());
-		//pass info to my local cell
-		if(nVert > 0)	m_patch->addCell(cell, idc);
-		
-		short pid = (short)	cell.getPID();
-		m_pidsType.insert(pid);
-		m_patch->getCell(idc).setPID((int)pid);	
-	}
-	
-	//create inverse map of cells
-	setMapCell();
-	m_bvTreeBuilt = false;
-	return true;
+    if (cells.empty() || !m_bvTreeSupported) return false;
+
+    m_mapCell.clear();
+    m_mapCellInv.clear();
+    m_pidsType.clear();
+
+    getPatch()->resetCells();
+
+    int sizeCell = cells.size();
+    getPatch()->reserveCells(sizeCell);
+    
+    long idc;
+    int nVert;
+    short pid;
+    bitpit::ElementInfo::Type eltype;
+    bool checkTot = true;
+    livector1D connectivity;
+    
+    for (const auto & cell : cells){
+        // get ID
+        idc = cell.getId();
+        //check on element type
+        eltype = cell.getType();
+        //check info PID 
+        short pid = (short)	cell.getPID();
+        nVert = cell.getVertexCount();
+        connectivity.resize(nVert);
+        auto conn = cell.getConnect();
+        for(int i=0; i<nVert; ++i){
+            connectivity[i] = conn[i];
+        }
+        checkTot = checkTot && addConnectedCell(connectivity, eltype, pid, idc);
+    }
+
+	return checkTot;
 };
 
 /*!It adds one cell with its connectivity by vertex PatchKernel unique IDs, the type of cell to
