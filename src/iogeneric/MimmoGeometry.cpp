@@ -336,7 +336,8 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
 
 /*!
  * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
- * structure will be erased and substituted by the new ones. If an internal object is not 
+ * structure will be erased and substituted by the new ones. Connectivity information in a pre-existent 
+ * cell list will be lost, so be careful. If an internal object is not 
  * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
  * doing anything even in case of argument pointing to nullptr; 
  * \param[in] vertices pointer to a vertex PiercedVector structure 

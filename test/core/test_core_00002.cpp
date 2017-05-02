@@ -236,45 +236,8 @@ int test2() {
 
 	
 	MimmoObject * mesh_2 = new MimmoObject();
-
-    std::cout<<"expert patch "<<mesh_2->getPatch()->isExpert()<<std::endl;
-    mesh_2->setCells(mesh->getCells());
-    mesh_2->setVertices(mesh->getVertices()); 
-
-//     auto originalV = mesh->getVertices();
-//     auto originalC = mesh->getCells();
-//     
-//     auto copiedV = mesh_2->getVertices();
-//     auto copiedC = mesh_2->getCells();
-//     
-//     std::cout<<originalC.size()<<'\t'<<copiedC.size()<<std::endl;
-//     auto ito = originalC.begin();
-//     auto itc = copiedC.begin();
-//     
-//     while (ito != originalC.end() && itc != copiedC.end()){
-//         
-//         std::cout<<"id "<<ito->getId()<<'\t'<<itc->getId()<<std::endl;
-//         std::cout<<"pid "<<ito->getPID()<<'\t'<<itc->getPID()<<std::endl;
-//         
-//         auto conno = ito->getConnect();
-//         auto connc = itc->getConnect();
-//         int nvo = ito->getVertexCount();
-//         int nvc = itc->getVertexCount();
-//         
-//         std::cout<<"no vertex per cell "<<nvo<<'\t'<<nvc<<std::endl;
-//         std::cout<<"connectivity start"<<std::endl;
-//         for(int i=0; i<std::min(nvo,nvc); ++i){
-//             std::cout<<conno[i]<<'\t'<<connc<<std::endl;
-//         }
-//         std::cout<<"connectivity end"<<std::endl;
-//         
-//         ito++;
-//         itc++;
-//     }
-    
-    exit(1);
-    
-    //mesh_2->getPatch()->write("hardcopy");
+    mesh_2->setHARDCopy(mesh);
+    mesh_2->getPatch()->write("hardcopy");
 	
 	
 	delete mesh;

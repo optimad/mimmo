@@ -559,9 +559,12 @@ MimmoObject::getCopy(){
 	return this;
 }
 
-/*!Sets the vertices structure of the geometry Patch, clearing any previous vertex list stored.
+/*!
+ * Sets the vertices structure of the geometry Patch, clearing any previous vertex list stored.
+ * Be careful: any connectivity information stored in any existent cell list will be erased also.
+ * The cell list will survive, but carrying no connectivity information. 
  * \param[in] vertices vertex structure of geometry mesh.
- * \return False if no geometry is linked, not all vertices inserted or empty argument .
+ * \return False if no geometry is linked, not all vertices inserted or empty argument.
  */
 bool
 MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices){
