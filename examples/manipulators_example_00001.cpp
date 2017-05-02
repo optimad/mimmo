@@ -45,11 +45,9 @@ using namespace mimmo::pin;
 */
 
 
-
 void test00001() {
 
     /* Creation of mimmo containers.
-     *
      */
     MimmoGeometry * mimmo0 = new MimmoGeometry();
 
@@ -218,13 +216,12 @@ void test00001() {
 
     /* Execution of chain.
      */
-    cout << "execution start" << endl;
-    ch0.exec();
-    cout << "execution done" << endl;
+    cout << " --- execution start --- " << endl;
+    ch0.exec(true);
+    cout << " --- execution done --- " << endl;
 
-
-    //********************************************************************************************
-    //clean up & exit;
+    /* Clean up & exit;
+     */
     delete mimmo0;
     delete translation;
     delete applierTranslation;
