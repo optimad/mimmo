@@ -65,7 +65,9 @@ if(BUILD_XMLTUI)
 	# Data files
 	add_custom_command(
 		TARGET "mimmoxml_exec" PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/test1.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/test1.xml"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/test1.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/test1.xml"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/manipulators_example_00001.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/manipulators_example_00001.xml"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../examples/geodata/prism.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/prism.stl"
 	)
 
 	#...
