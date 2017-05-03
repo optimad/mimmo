@@ -406,8 +406,9 @@ class SelectionByMapping: public GenericSelection {
 	
 private:
 		double m_tolerance; 			/**< tolerance for proximity detection*/
-		std::unordered_map<std::string, int> m_geolist; /**< list of file for geometrical proximity check*/
-		std::vector<std::set< int > > m_allowedType; /**< list of FileType actually allowed for the target geometry type*/
+        std::unordered_map<std::string, int>    m_geolist; /**< list of file for geometrical proximity check*/
+        std::unordered_set<MimmoObject*>        m_mimmolist; /**< list of mimmo objects for geometrical proximity check*/
+		std::vector<std::set< int > >           m_allowedType; /**< list of FileType actually allowed for the target geometry type*/
 public:	
 	SelectionByMapping(int topo = 1);
 	SelectionByMapping(const bitpit::Config::Section & rootXML);
@@ -425,9 +426,11 @@ public:
 
 	const std::unordered_map<std::string, int> & 	getFiles() const;
 	void	setFiles(std::unordered_map<std::string,int> );
-	void 	addFile(std::pair<std::string,int> );
+    void    addFile(std::pair<std::string,int> );
 	void 	removeFile(std::string);
 	void 	removeFiles();
+    void    addMappingGeometry(MimmoObject * obj);
+    void    removeMappingGeometries();
 
 	void clear();
 	
@@ -439,7 +442,8 @@ protected:
 	livector1D extractSelection();
 	
 private:
-	livector1D getProximity(std::pair<std::string, int> val);
+    livector1D getProximity(std::pair<std::string, int> val);
+    livector1D getProximity(MimmoObject * obj);
 	svector1D extractInfo(std::string);
 };
 

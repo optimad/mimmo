@@ -158,7 +158,10 @@ void SelectionByMapping::buildPorts(){
 	//inheritance
 	GenericSelection::buildPorts();
 
-	m_arePortsBuilt = built;
+    //input
+    built = (built && createPortIn<MimmoObject *, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+
+    m_arePortsBuilt = built;
 };
 
 /*!
@@ -213,11 +216,21 @@ void	SelectionByMapping::setFiles(std::unordered_map<std::string, int>  files){
  * Add a new file to a list of external geometry files
  *\param[in] file of external geometry to be read
  */
-void 	SelectionByMapping::addFile(std::pair<std::string, int> file){
-	int type = m_topo;
-	if(m_allowedType[type].find(file.second) != m_allowedType[type].end()){									
-		m_geolist.insert(file);
-	}	
+void    SelectionByMapping::addFile(std::pair<std::string, int> file){
+    int type = m_topo;
+    if(m_allowedType[type].find(file.second) != m_allowedType[type].end()){
+        m_geolist.insert(file);
+    }
+};
+
+/*!
+ * Add a new mimmo object to a list of external geometries (only surface mesh allowed)
+ *\param[in] Pointer to MimmoObject of external geometry
+ */
+void    SelectionByMapping::addMappingGeometry(MimmoObject* obj){
+    if(obj->getType() == m_topo){
+        m_mimmolist.insert(obj);
+    }
 };
 
 /*!
@@ -236,11 +249,19 @@ void 	SelectionByMapping::removeFiles(){
 };
 
 /*!
+ * Empty your list of geometries for mapping
+ */
+void 	SelectionByMapping::removeMappingGeometries(){
+	m_mimmolist.clear();
+};
+
+/*!
  * Clear your class
  */
 void SelectionByMapping::clear(){
 	m_subpatch.reset(nullptr);
-	removeFiles();
+    removeFiles();
+    removeMappingGeometries();
 	m_topo = 0;
 	BaseManipulation::clear();
 };
@@ -254,11 +275,16 @@ livector1D SelectionByMapping::extractSelection(){
 	if(!(getGeometry()->isBvTreeBuilt()))	getGeometry()->buildBvTree();
 	std::set<long> cellList;
 	
-	for (auto && file : m_geolist){
-		livector1D list = getProximity(file);
-		cellList.insert(list.begin(), list.end());
-	}
-	
+    for (auto && file : m_geolist){
+        livector1D list = getProximity(file);
+        cellList.insert(list.begin(), list.end());
+    }
+
+    for (auto mimmo : m_mimmolist){
+        livector1D list = getProximity(mimmo);
+        cellList.insert(list.begin(), list.end());
+    }
+
 	//check if dual selection is triggered
 	livector1D result;
 	if(m_dual){
@@ -312,6 +338,23 @@ livector1D SelectionByMapping::getProximity(std::pair<std::string, int> val){
 	delete geo; 
 	geo=NULL;
 	
+	return	result;
+};
+
+/*!
+ * Return portion of target geometry near to an external geometry
+ * \param[in] obj pointer to external geometry to be compared.
+ */
+livector1D SelectionByMapping::getProximity(MimmoObject* obj){
+
+	obj->buildBvTree(true);
+
+	if(obj->getNVertex() == 0 || obj->getNCells() == 0 ){
+		std::cout<<"failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
+		return livector1D();
+	}
+	livector1D result = mimmo::bvTreeUtils::selectByPatch(obj->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
+
 	return	result;
 };
 

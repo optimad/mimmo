@@ -56,7 +56,6 @@ endforeach ()
 if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
-    list(APPEND EXAMPLE_LIST "MIMMO_example_00001")
     list(APPEND EXAMPLE_LIST "manipulators_example_00001")
     list(APPEND EXAMPLE_LIST "manipulators_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")
@@ -64,6 +63,7 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "manipulators_example_00005")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
+    list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
     list(APPEND EXAMPLE_LIST "genericinput_example_00001")
 
     #Add examples of enabled modules
@@ -124,6 +124,12 @@ if(BUILD_EXAMPLES)
         TARGET "geohandlers_example_00002" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+    )
+    add_custom_command(
+        TARGET "geohandlers_example_00003" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/plane1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane1.stl"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/plane2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane2.stl"
     )
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
