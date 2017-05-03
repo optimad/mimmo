@@ -59,42 +59,42 @@ void test00001() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00001.0000");
+    mimmo0->setWriteFilename("manipulators_output_00001.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00001.0001");
+    mimmo1->setWriteFilename("manipulators_output_00001.0001");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
     mimmo2->setRead(false);
     mimmo2->setWrite(true);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::STL);
-    mimmo2->setWriteFilename("mimmo_00001.0002");
+    mimmo2->setWriteFilename("manipulators_output_00001.0002");
 
     MimmoGeometry * mimmo3 = new MimmoGeometry();
     mimmo3->setRead(false);
     mimmo3->setWrite(true);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
-    mimmo3->setWriteFilename("mimmo_00001.0003");
+    mimmo3->setWriteFilename("manipulators_output_00001.0003");
 
     MimmoGeometry * mimmo4 = new MimmoGeometry();
     mimmo4->setRead(false);
     mimmo4->setWrite(true);
     mimmo4->setWriteDir(".");
     mimmo4->setWriteFileType(FileType::STL);
-    mimmo4->setWriteFilename("mimmo_00001.0004");
+    mimmo4->setWriteFilename("manipulators_output_00001.0004");
 
     MimmoGeometry * mimmo5 = new MimmoGeometry();
     mimmo5->setRead(false);
     mimmo5->setWrite(true);
     mimmo5->setWriteDir(".");
     mimmo5->setWriteFileType(FileType::STL);
-    mimmo5->setWriteFilename("mimmo_00001.0005");
+    mimmo5->setWriteFilename("manipulators_output_00001.0005");
 
 
     /* Creation of translation block.

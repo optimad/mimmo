@@ -61,14 +61,14 @@ void test00002() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00002.0000");
+    mimmo0->setWriteFilename("manipulators_output_00002.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00002.0001");
+    mimmo1->setWriteFilename("manipulators_output_00002.0001");
 
     /* Instantiation of a FFDobject with default shape cube.
      * Setup of span and origin of cube.

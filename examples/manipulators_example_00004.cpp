@@ -58,14 +58,14 @@ void test00004() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00004.0000");
+    mimmo0->setWriteFilename("manipulators_output_00004.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00004.0001");
+    mimmo1->setWriteFilename("manipulators_output_00004.0001");
 
     /* Instantiation of a FFDobject with spherical shape.
      * Setup of origin and span (radius and span angles) of sphere.

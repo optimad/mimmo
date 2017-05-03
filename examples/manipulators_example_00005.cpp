@@ -60,14 +60,14 @@ void test00005() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00005.0000");
+    mimmo0->setWriteFilename("manipulators_output_00005.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00005.0001");
+    mimmo1->setWriteFilename("manipulators_output_00005.0001");
 
     /* Creation of a random distribution of 10 points with coordinates between [-0.5, 0.5]
      */

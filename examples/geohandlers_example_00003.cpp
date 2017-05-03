@@ -61,7 +61,7 @@ void test00003() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00003.0000");
+    mimmo0->setWriteFilename("geohandlers_output_00003.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(true);
@@ -71,7 +71,7 @@ void test00003() {
     mimmo1->setWrite(true);
     mimmo1->setWriteDir("./");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00003p1.0000");
+    mimmo1->setWriteFilename("geohandlers_output_00003p1.0000");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
     mimmo2->setRead(true);
@@ -81,14 +81,14 @@ void test00003() {
     mimmo2->setWrite(true);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
-    mimmo2->setWriteFilename("mimmo_00003p2.0000");
+    mimmo2->setWriteFilename("geohandlers_output_00003p2.0000");
 
     MimmoGeometry * mimmo3 = new MimmoGeometry();
     mimmo3->setRead(false);
     mimmo3->setWrite(true);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
-    mimmo3->setWriteFilename("mimmo_00003.0001");
+    mimmo3->setWriteFilename("geohandlers_output_00003.0001");
 
 
     /* Instantiation of two Selection By Map block.

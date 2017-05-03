@@ -60,7 +60,7 @@ void test00002() {
     mimmo0->setWrite(true);
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00002.0000");
+    mimmo0->setWriteFilename("geohandlers_output_00002.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(true);
@@ -70,14 +70,14 @@ void test00002() {
     mimmo1->setWrite(true);
     mimmo1->setWriteDir("./");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00002.0001");
+    mimmo1->setWriteFilename("geohandlers_output_00002.0001");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
     mimmo2->setRead(false);
     mimmo2->setWrite(true);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
-    mimmo2->setWriteFilename("mimmo_00002.0002");
+    mimmo2->setWriteFilename("geohandlers_output_00002.0002");
 
     /* Instantiation of a Stitcher Geometry block.
      * Plot Optional results during execution active for Stitcher block.
