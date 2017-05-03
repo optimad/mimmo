@@ -33,46 +33,46 @@ using namespace mimmo;
 
 
 void testRC() {
-	GenericInput * read = new GenericInput(true, true);
-	read->setFilename("input/input_00001.csv");
-	read->execute();
-	
-	dvecarr3E points = read->getResult<dvecarr3E>();
+    GenericInput * read = new GenericInput(true, true);
+    read->setFilename("input/input_00001.csv");
+    read->execute();
 
-	GenericOutput * write = new GenericOutput();
+    dvecarr3E points = read->getResult<dvecarr3E>();
+
+    GenericOutput * write = new GenericOutput();
     write->setFilename("generic_output_00001.csv");
     write->setCSV(true);
-	write->setInput(points);
-	write->execute();
-	
-	std::cout<<"Here my points"<<std::endl;
-	for(auto & val: points){
-		std::cout<<val<<std::endl;
-	}
+    write->setInput(points);
+    write->execute();
+
+    std::cout<<"Here my points"<<std::endl;
+    for(auto & val: points){
+        std::cout<<val<<std::endl;
+    }
 }
 
 // =================================================================================== //
 
 int main( int argc, char *argv[] ) {
 
-	BITPIT_UNUSED(argc);
-	BITPIT_UNUSED(argv);
-	
+    BITPIT_UNUSED(argc);
+    BITPIT_UNUSED(argv);
+
 #if ENABLE_MPI==1
-	MPI::Init(argc, argv);
+    MPI::Init(argc, argv);
 
-	{
+    {
 #endif
-		/**<Calling mimmo Test routines*/
+        /**<Calling mimmo Test routines*/
 
-		testRC();
-		
+        testRC();
+
 #if ENABLE_MPI==1
-	}
+    }
 
-	MPI::Finalize();
+    MPI::Finalize();
 #endif
-	
-	return 0;
+
+    return 0;
 }
 

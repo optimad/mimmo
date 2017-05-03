@@ -1303,15 +1303,15 @@ void 	FFDLattice::plotOptionalResults(){
 	
 	std::string dir = m_outputPlot;
 	std::string nameGrid  = m_name+"GRID";
-	std::string nameCloud = m_name+"CLOUD";
+//	std::string nameCloud = m_name+"CLOUD";
 	std::string nameGridD  = m_name+"GRID_deformed";
-	std::string nameCloudD = m_name+"CLOUD_deformed";
+//	std::string nameCloudD = m_name+"CLOUD_deformed";
 	
 	
 	plotGrid(dir, nameGrid, getClassCounter(), true, false );
-	plotCloud(dir, nameCloud, getClassCounter(), true, false );
+//	plotCloud(dir, nameCloud, getClassCounter(), true, false );
 	plotGrid(dir, nameGridD, getClassCounter(), true, true );
-	plotCloud(dir, nameCloudD, getClassCounter(), true, true );
+//	plotCloud(dir, nameCloudD, getClassCounter(), true, true );
 }
 
 /*! Recover full displacements vector from DOF */

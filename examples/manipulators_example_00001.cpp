@@ -42,7 +42,7 @@ using namespace mimmo::pin;
 	<b>To run</b>: ./manipulators_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
-*/
+ */
 
 
 void test00001() {
@@ -256,30 +256,32 @@ void test00001() {
     applierRotation = NULL;
     mimmo5 = NULL;
 
+    return;
+
 }
 
 
 int main(int argc, char *argv[]) {
 
-	BITPIT_UNUSED(argc);
-	BITPIT_UNUSED(argv);
+    BITPIT_UNUSED(argc);
+    BITPIT_UNUSED(argv);
 
 #if BITPIT_ENABLE_MPI==1
-	MPI_Init(&argc, &argv);
+    MPI_Init(&argc, &argv);
 
-	{
+    {
 #endif
 
         /**<Calling mimmo Test routines*/
         test00001() ;
 
 #if BITPIT_ENABLE_MPI==1
-	}
+    }
 
-	MPI_Finalize();
+    MPI_Finalize();
 #endif
 
-	return (1);
+    return (1);
 }
 
 

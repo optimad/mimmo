@@ -584,10 +584,10 @@ void 	Lattice::plotOptionalResults(){
 	
 	std::string dir = m_outputPlot;
 	std::string nameGrid  = m_name+"GRID";
-	std::string nameCloud = m_name+"CLOUD";
+//	std::string nameCloud = m_name+"CLOUD";
 	
 	plotGrid(dir, nameGrid, getClassCounter(), true );
-	plotCloud(dir, nameCloud, getClassCounter(), true );
+//	plotCloud(dir, nameCloud, getClassCounter(), true );
 }
 
 /*!Get the effective dof size of the lattice according to its shape. Return info
