@@ -1215,6 +1215,18 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 	return check;
 };
 
+
+/*!
+ * Evaluate axis aligned bounding box of the current MimmoObject 
+ *\param[out] pmin lowest bounding box point
+ *\param[out] pmax highest bounding box point
+ */
+void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax){
+    if(m_patch == NULL)   return;
+    m_patch->getBoundingBox(pmin,pmax);
+    return;
+}
+
 /*!
  * Reset and build again simplex bvTree of your geometry (if supports connectivity elements).
  *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
