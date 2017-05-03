@@ -48,23 +48,22 @@ GenericSelection::~GenericSelection(){
 };
 
 /*!
- * Copy Constructor
+ * Copy Constructor, any already calculated selection is not copied. 
  */
 GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulation(){
-	*this = other;
+    *this = other;
 };
 
 /*!
- * Copy operator
+ * Copy operator, any already calculated selection is not copied. 
  */
 GenericSelection & GenericSelection::operator=(const GenericSelection & other){
-	*(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation * >(&other));
-	m_type = other.m_type;
+    *(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation * >(&other));
+    m_type = other.m_type;
 	m_topo = other.m_topo;
 	m_dual = other.m_dual;
-	m_subpatch.reset(nullptr);
-	std::unique_ptr<MimmoObject> dum(new MimmoObject(*(other.m_subpatch.get())));
-	m_subpatch = std::move(dum);
+    m_subpatch.reset(nullptr);
+	//m_subpatch is not copied and it is obtained in execution
 	return *this;
 };
 

@@ -155,7 +155,8 @@ MimmoObject::~MimmoObject(){
 /*!Copy constructor of MimmoObject. See MimmoObject::operator=.
  */
 MimmoObject::MimmoObject(const MimmoObject & other){
-	*this = other;
+	m_patch = NULL;
+    *this = other;
 };
 
 /*!
@@ -164,11 +165,15 @@ MimmoObject::MimmoObject(const MimmoObject & other){
  * the copied class will have an internal patch pointing to nullptr.
  */
 MimmoObject & MimmoObject::operator=(const MimmoObject & other){
-	clear();
 	m_type 			= other.m_type;
-	m_patch 		= other.m_patch;
+    if(m_patch != NULL){
+        if (m_internalPatch)    delete m_patch;
+        m_patch = NULL;
+    }
+    m_patch 		= other.m_patch;
 	m_internalPatch = false;
-	m_mapData		= other.m_mapData;
+	
+    m_mapData		= other.m_mapData;
 	m_mapCell		= other.m_mapCell;
 	m_mapDataInv	= other.m_mapDataInv;
 	m_mapCellInv	= other.m_mapCellInv;
@@ -190,10 +195,10 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
 void
 MimmoObject::clear(){
 	m_type=1;
-	if (m_internalPatch){
-		delete m_patch;
-	}
-	m_patch = NULL;
+    if(m_patch != NULL){
+        if (m_internalPatch)    delete m_patch;
+        m_patch = NULL;
+    }    
 	m_mapData.clear();
 	m_mapCell.clear();
 	m_mapDataInv.clear();
