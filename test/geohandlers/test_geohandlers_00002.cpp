@@ -168,7 +168,7 @@ int test2() {
     
     std::cout<<"test passed :"<<check<<std::endl; 
     
-    return (int)check;
+    return int(!check);
 }
 
 // =================================================================================== //
