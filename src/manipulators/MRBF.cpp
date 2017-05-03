@@ -31,12 +31,12 @@ namespace mimmo{
 
 /*! Default Constructor.*/
 MRBF::MRBF(){
-	m_name = "mimmo.MRBF";
-	m_maxFields=-1;
-	m_tol = 0.00001;
-	setMode(MRBFSol::NONE);
-	m_bfilter = false;
-	m_SRRatio = -1.0;
+    m_name = "mimmo.MRBF";
+    m_maxFields=-1;
+    m_tol = 0.00001;
+    setMode(MRBFSol::NONE);
+    m_bfilter = false;
+    m_SRRatio = -1.0;
 };
 
 /*!
@@ -44,22 +44,22 @@ MRBF::MRBF(){
  * \param[in] rootXML reference to your xml tree section
  */
 MRBF::MRBF(const bitpit::Config::Section & rootXML){
-	
-	m_name = "mimmo.MRBF";
-	m_maxFields=-1;
-	m_tol = 0.00001;
-	setMode(MRBFSol::NONE);
-	m_bfilter = false;
-	m_SRRatio = -1.0;
 
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "mimmo.MRBF"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml mimmo::MRBF constructor. No valid xml data found"<<std::endl;
-	};
+    m_name = "mimmo.MRBF";
+    m_maxFields=-1;
+    m_tol = 0.00001;
+    setMode(MRBFSol::NONE);
+    m_bfilter = false;
+    m_SRRatio = -1.0;
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.MRBF"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::MRBF constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*! Default Destructor */
@@ -69,39 +69,39 @@ MRBF::~MRBF(){};
  *@param[in] other MRBF where copy from
  */
 MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
-	*this = other;
+    *this = other;
 };
 
 /*! It builds the input/output ports of the object
  */
 void MRBF::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	
-	built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	m_arePortsBuilt = built;
+    bool built = true;
+    built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+
+    built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    m_arePortsBuilt = built;
 };
 
 /*! Copy Operator
  * @param[in] other MRBF where copy from
  */
 MRBF & MRBF::operator=(const MRBF & other){
-	*(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
-	*(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
-	m_tol = other.m_tol;
-	m_solver = other.m_solver;
-	m_SRRatio  = other.m_SRRatio;
-	m_supRIsValue = other.m_supRIsValue;
-	m_bfilter = other.m_bfilter;
-	if(m_bfilter)	m_filter = other.m_filter;
-	
-	return(*this);
+    *(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
+    *(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
+    m_tol = other.m_tol;
+    m_solver = other.m_solver;
+    m_SRRatio  = other.m_SRRatio;
+    m_supRIsValue = other.m_supRIsValue;
+    m_bfilter = other.m_bfilter;
+    if(m_bfilter)	m_filter = other.m_filter;
+
+    return(*this);
 };
 
 /*!It sets the geometry linked by the manipulator object (overloading of base class method).
@@ -109,14 +109,14 @@ MRBF & MRBF::operator=(const MRBF & other){
  */
 void
 MRBF::setGeometry(MimmoObject* geometry){
-	m_geometry = geometry;
+    m_geometry = geometry;
 };
 
 /*!It returns a pointer to the RBF node stored in the object.
  */
 dvecarr3E*
 MRBF::getNodes(){
-	return(&m_node);
+    return(&m_node);
 }
 
 /*! 
@@ -125,7 +125,7 @@ MRBF::getNodes(){
  */
 MRBFSol
 MRBF::getMode(){
-	return m_solver;
+    return m_solver;
 };
 
 /*!
@@ -135,9 +135,9 @@ MRBF::getMode(){
  */
 void
 MRBF::setMode(MRBFSol solver){
-	m_solver = solver;
-	if (m_solver == MRBFSol::NONE)	RBF::setMode(RBFMode::PARAM);
-	else							RBF::setMode(RBFMode::INTERP);
+    m_solver = solver;
+    if (m_solver == MRBFSol::NONE)	RBF::setMode(RBFMode::PARAM);
+    else							RBF::setMode(RBFMode::INTERP);
 };
 /*!
  * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
@@ -146,21 +146,21 @@ MRBF::setMode(MRBFSol solver){
  */
 void 
 MRBF::setMode(int type){
-	switch(type){
-		case 1 : setMode(MRBFSol::WHOLE);
-		   break;
-		case 2 : setMode(MRBFSol::GREEDY);
-		   break;
-		default: setMode(MRBFSol::NONE);	
-			break;
-	}
+    switch(type){
+    case 1 : setMode(MRBFSol::WHOLE);
+    break;
+    case 2 : setMode(MRBFSol::GREEDY);
+    break;
+    default: setMode(MRBFSol::NONE);
+    break;
+    }
 };
 
 /*! It gets current set filter field. See MRBF::setFilter
  * @return filter field.
  */
 dvector1D	MRBF::getFilter(){
-	return(m_filter);
+    return(m_filter);
 };
 
 /*! 
@@ -182,7 +182,7 @@ double	MRBF::getSupportRadius(){
  * @return support radius value
  */
 double	MRBF::getSupportRadiusValue(){
-	return(RBF::getSupportRadius());
+    return(RBF::getSupportRadius());
 };
 
 /*!
@@ -202,10 +202,10 @@ bool    MRBF::getIsSupportRadiusValue(){
  */
 std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
 
-	std::pair<MimmoObject *, dvecarr3E * > pairField;
-	pairField.first = getGeometry();
-	pairField.second = &m_displ;
-	return pairField;
+    std::pair<MimmoObject *, dvecarr3E * > pairField;
+    pairField.first = getGeometry();
+    pairField.second = &m_displ;
+    return pairField;
 };
 
 /*!
@@ -214,7 +214,7 @@ std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
  */
 dvecarr3E
 MRBF::getDisplacements(){
-	return m_displ;
+    return m_displ;
 };
 
 
@@ -224,7 +224,7 @@ MRBF::getDisplacements(){
  * @return RBF id.
  */
 int MRBF::addNode(darray3E node){
-	return(RBF::addNode(node));
+    return(RBF::addNode(node));
 };
 
 /*!Adds a list of RBF points to the total control node list and activate them.
@@ -233,7 +233,7 @@ int MRBF::addNode(darray3E node){
  * @return Vector of RBF ids.
  */
 std::vector<int> MRBF::addNode(dvecarr3E nodes){
-	return(RBF::addNode(nodes));
+    return(RBF::addNode(nodes));
 };
 
 /*!Adds a set of RBF points to the total control node list extracting
@@ -244,9 +244,9 @@ std::vector<int> MRBF::addNode(dvecarr3E nodes){
  * @return Vector of RBF ids.
  */
 ivector1D MRBF::addNode(MimmoObject* geometry){
-	if(geometry == NULL)	return	ivector1D(0);
-	dvecarr3E vertex = geometry->getVertexCoords();
-	return(RBF::addNode(vertex));
+    if(geometry == NULL)	return	ivector1D(0);
+    dvecarr3E vertex = geometry->getVertexCoords();
+    return(RBF::addNode(vertex));
 };
 
 
@@ -254,18 +254,18 @@ ivector1D MRBF::addNode(MimmoObject* geometry){
  * @param[in] node coordinates of control point.
  */
 void MRBF::setNode(darray3E node){
-	removeAllNodes();
-	RBF::addNode(node);
-	return;
+    removeAllNodes();
+    RBF::addNode(node);
+    return;
 };
 
 /*!Set a list of RBF points as control nodes and activate it.
  * @param[in] nodes coordinates of control points.
  */
 void MRBF::setNode(dvecarr3E nodes){
-	removeAllNodes();
-	RBF::addNode(nodes);
-	return;
+    removeAllNodes();
+    RBF::addNode(nodes);
+    return;
 };
 
 /*!Set the RBF points as control nodes extracting
@@ -273,11 +273,11 @@ void MRBF::setNode(dvecarr3E nodes){
  * @param[in] geometry Pointer to MimmoObject that contains the geometry.
  */
 void MRBF::setNode(MimmoObject* geometry){
-	if(geometry == NULL)	return ;
-	removeAllNodes();
-	dvecarr3E vertex = geometry->getVertexCoords();
-	RBF::addNode(vertex);
-	return;
+    if(geometry == NULL)	return ;
+    removeAllNodes();
+    dvecarr3E vertex = geometry->getVertexCoords();
+    RBF::addNode(vertex);
+    return;
 };
 
 /*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
@@ -285,9 +285,9 @@ void MRBF::setNode(MimmoObject* geometry){
  * @param[in] filter fields.
  */
 void	MRBF::setFilter(dvector1D filter){
-	m_filter.clear();
-	m_bfilter = !(filter.empty());
-	m_filter = filter;
+    m_filter.clear();
+    m_bfilter = !(filter.empty());
+    m_filter = filter;
 };
 
 
@@ -297,22 +297,22 @@ void	MRBF::setFilter(dvector1D filter){
  * @return	list of duplicated nodes.
  */
 ivector1D MRBF::checkDuplicatedNodes(double tol){
-	ivector1D marked;
-	int sizeEff = getTotalNodesCount();
-	if( sizeEff == 0 ) return marked;
-	
-	bvector1D check(sizeEff, false);
-	
-	for(int i=0; i<sizeEff; ++i){
-		for(int j=i+1; j<sizeEff; ++j){
-			double dist = norm2(m_node[j] - m_node[i]);
-			if(!check[j] && dist <= tol){
-				marked.push_back(i);
-				check[j] = true;
-			}
-		}
-	}	
-	return(marked);	
+    ivector1D marked;
+    int sizeEff = getTotalNodesCount();
+    if( sizeEff == 0 ) return marked;
+
+    bvector1D check(sizeEff, false);
+
+    for(int i=0; i<sizeEff; ++i){
+        for(int j=i+1; j<sizeEff; ++j){
+            double dist = norm2(m_node[j] - m_node[i]);
+            if(!check[j] && dist <= tol){
+                marked.push_back(i);
+                check[j] = true;
+            }
+        }
+    }
+    return(marked);
 }
 
 /*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all 
@@ -321,12 +321,12 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
  * @return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
 bool MRBF::removeDuplicatedNodes(ivector1D * list){
-	ivector1D marked;
-	if(list==NULL){
-		marked = checkDuplicatedNodes();
-		list = &marked;
-	}
-	return(removeNode(*list));
+    ivector1D marked;
+    if(list==NULL){
+        marked = checkDuplicatedNodes();
+        list = &marked;
+    }
+    return(removeNode(*list));
 }
 
 
@@ -367,7 +367,7 @@ MRBF::setSupportRadiusValue(double suppR_){
  * @param[in] tol Target tolerance.
  */
 void MRBF::setTol(double tol){
-	m_tol = tol;
+    m_tol = tol;
 }
 
 /*!
@@ -380,34 +380,34 @@ void MRBF::setTol(double tol){
  * @param[in] displ list of nodal displacements
  */
 void MRBF::setDisplacements(dvecarr3E displ){
-	int size = displ.size();
-	if(size != getTotalNodesCount()){
-		std::cout << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-	}
-	
-	removeAllData();
-	
-	dvector1D temp(size);
-	for(int loc=0; loc<3; ++loc){
-		for(int i=0; i<size; ++i){
-			temp[i] = displ[i][loc];
-		}
-		addData(temp);
-	}
+    int size = displ.size();
+    if(size != getTotalNodesCount()){
+        std::cout << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+    }
+
+    removeAllData();
+
+    dvector1D temp(size);
+    for(int loc=0; loc<3; ++loc){
+        for(int i=0; i<size; ++i){
+            temp[i] = displ[i][loc];
+        }
+        addData(temp);
+    }
 }
 
 /*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
 void MRBF::clear(){
-	BaseManipulation::clear();
-	clearFilter();
-	m_tol = 0.00001;
-	m_SRRatio = -1;
+    BaseManipulation::clear();
+    clearFilter();
+    m_tol = 0.00001;
+    m_SRRatio = -1;
 };
 
 /*!Clean filter field */
 void MRBF::clearFilter(){
-	m_filter.clear();
-	m_bfilter = false;
+    m_filter.clear();
+    m_bfilter = false;
 };
 
 /*!
@@ -419,24 +419,24 @@ void MRBF::clearFilter(){
  */
 void
 MRBF::setWeight(dvector2D value){
-	if(m_solver != MRBFSol::NONE)	return;
-		   
-	int size = value.size();
-	if(size != getTotalNodesCount()){
-		std::cout << "mimmo : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-	}
-	
-	removeAllData();
-	
-	dvector1D temp(size);
-	int sizeLoc = 0;
-	if(!(value.empty()))	sizeLoc = value[0].size();
-	for(int loc=0; loc<sizeLoc; ++loc){
-		for(int i=0; i<size; ++i){
-			temp[i] = value[i][loc];
-		}
-		addData(temp);
-	}
+    if(m_solver != MRBFSol::NONE)	return;
+
+    int size = value.size();
+    if(size != getTotalNodesCount()){
+        std::cout << "mimmo : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+    }
+
+    removeAllData();
+
+    dvector1D temp(size);
+    int sizeLoc = 0;
+    if(!(value.empty()))	sizeLoc = value[0].size();
+    for(int loc=0; loc<sizeLoc; ++loc){
+        for(int i=0; i<size; ++i){
+            temp[i] = value[i][loc];
+        }
+        addData(temp);
+    }
 }
 
 /*!Execution of RBF object. It evaluates the displacements (values) over the point of the
@@ -446,91 +446,156 @@ MRBF::setWeight(dvector2D value){
  */
 void MRBF::execute(){
 
-	MimmoObject * container = getGeometry();
-	if(container->isEmpty() ) return;
+    MimmoObject * container = getGeometry();
+    if(container->isEmpty() ) return;
 
-	int size = 0;
-	int sizeF = getDataCount();
-	
-	for (int i=0; i<sizeF; i++){
-		
-		if(m_solver == MRBFSol::NONE)	size = m_weight[i].size();
-		else							size = m_value[i].size();
-		
-		if(size != getTotalNodesCount()){
-			std::cout << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-			fitDataToNodes(i);
-		}
-	}
+    int size = 0;
+    int sizeF = getDataCount();
 
-	double bboxDiag;
-	{
-		darray3E pmin, pmax;
-		container->getPatch()->getBoundingBox(pmin, pmax);
-		bboxDiag= norm2(pmax - pmin);
-	}
-	
-	//Checking supportRadius.
-	double distance = 0.0;
-	if(m_SRRatio <=0.0){ //get maximum weight/value displ and assign support radius a 3 times this value.
+    for (int i=0; i<sizeF; i++){
 
-		for(int i=0; i<size; ++i){
-			
-			dvector1D data(sizeF);
+        if(m_solver == MRBFSol::NONE)	size = m_weight[i].size();
+        else							size = m_value[i].size();
 
-			for(int j=0; j<sizeF; ++j){
-				if(m_solver == MRBFSol::NONE)	data[j] = m_weight[j][i];
-				else							data[j] = m_value[j][i];
-			}	
+        if(size != getTotalNodesCount()){
+            std::cout << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+            fitDataToNodes(i);
+        }
+    }
 
-			distance = std::max(distance, norm2(data));
-		}
-		
-		distance *=3.0;
-	
-	}else{
-	    if (m_supRIsValue){
-	        distance = m_SRRatio;
-	    }
-	    else{
-	        distance = m_SRRatio * bboxDiag;
-	    }
-	}
-	
-	//TODO remove it (I can't use a support radius 0....why?)
-	if(distance <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
-		distance = 0.5*bboxDiag;
-	}
-	
-	const double radius = distance;
-	RBF::setSupportRadius(radius);
-	
-   if (m_solver == MRBFSol::WHOLE)	solve();
-   if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
+    double bboxDiag;
+    {
+        darray3E pmin, pmax;
+        container->getPatch()->getBoundingBox(pmin, pmax);
+        bboxDiag= norm2(pmax - pmin);
+    }
 
-	int nv = container->getNVertex();
-	dvecarr3E vertex = container->getVertexCoords();
+    //Checking supportRadius.
+    double distance = 0.0;
+    if(m_SRRatio <=0.0){ //get maximum weight/value displ and assign support radius a 3 times this value.
 
-	m_displ.resize(nv, darray3E{0,0,0});
-	dvector1D displ;
-	for(int i=0; i<nv; ++i){
-		displ = RBF::evalRBF(vertex[i]);
-		for (int j=0; j<3; j++) m_displ[i][j] = displ[j];
-	}
-	
-	//if m_filter is active;
-	if(m_bfilter){
-		m_filter.resize(nv,1.0);
-		int counter = 0;
-		for (auto && vec : m_displ){
-			vec = vec * m_filter[counter];
-			++counter;
-		}
-	}
+        for(int i=0; i<size; ++i){
 
-	return;
+            dvector1D data(sizeF);
+
+            for(int j=0; j<sizeF; ++j){
+                if(m_solver == MRBFSol::NONE)	data[j] = m_weight[j][i];
+                else							data[j] = m_value[j][i];
+            }
+
+            distance = std::max(distance, norm2(data));
+        }
+
+        distance *=3.0;
+
+    }else{
+        if (m_supRIsValue){
+            distance = m_SRRatio;
+        }
+        else{
+            distance = m_SRRatio * bboxDiag;
+        }
+    }
+
+    //TODO remove it (I can't use a support radius 0....why?)
+    if(distance <=1.E-18){ //checkSupportRadius if too small, set it to the semidiagonal value of the geometry AABB
+        distance = 0.5*bboxDiag;
+    }
+
+    const double radius = distance;
+    RBF::setSupportRadius(radius);
+
+    if (m_solver == MRBFSol::WHOLE)	solve();
+    if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
+
+    int nv = container->getNVertex();
+    dvecarr3E vertex = container->getVertexCoords();
+
+    m_displ.resize(nv, darray3E{0,0,0});
+    dvector1D displ;
+    for(int i=0; i<nv; ++i){
+        displ = RBF::evalRBF(vertex[i]);
+        for (int j=0; j<3; j++) m_displ[i][j] = displ[j];
+    }
+
+    //if m_filter is active;
+    if(m_bfilter){
+        m_filter.resize(nv,1.0);
+        int counter = 0;
+        for (auto && vec : m_displ){
+            vec = vec * m_filter[counter];
+            ++counter;
+        }
+    }
+
+    return;
 };
 
+
+/*!
+ * Plot Optional results of the class. It plots the RBF control nodes as a point cloud
+ * in *.vtu format, for both original/moved control nodes.
+ */
+void    MRBF::plotOptionalResults(){
+
+    std::string dir = m_outputPlot;
+    std::string nameCloud = m_name;
+    std::string nameCloudD = m_name+"_moved";
+
+    plotCloud(dir, nameCloud, getClassCounter(), true, false );
+    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
+}
+
+
+/*! Plot your current rbf nodes as a point cloud to *vtu file.
+ * \param[in] directory output directory
+ * \param[in] filename  output filename w/out tag
+ * \param[in] counterFile   integer identifier of the file
+ * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
+ * \param[in] deformed  boolean flag for plotting 0-"original points", 1-"moved points"
+ */
+void        MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
+
+    int nnodes = getTotalNodesCount();
+    nnodes = min(nnodes, int(m_displ.size()));
+    dvecarr3E* nodes_ = getNodes();
+    dvecarr3E nodes(nnodes);
+    dvecarr3E data(nnodes);
+    for(int i=0; i<nnodes; ++i){
+        for(int j=0; j<3; ++j){
+            if(m_solver == MRBFSol::NONE)   data[i][j] = m_weight[j][i];
+            else                            data[i][j] = m_value[j][i];
+        }
+    }
+    if(deformed){
+        for(int i=0; i<nnodes; ++i){
+            nodes[i] = (*nodes_)[i] + data[i];
+        }
+    }else{
+        for(int i=0; i<nnodes; ++i){
+            nodes[i] = (*nodes_)[i];
+        }
+    }
+
+    bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+    if(binary){codex=bitpit::VTKFormat::APPENDED;}
+
+    ivector1D conn(nnodes);
+    {
+        int counter = 0;
+        for(auto & val: conn){
+            val = counter;
+            ++counter;
+        }
+    }
+    bitpit::VTKUnstructuredGrid vtk(directory, filename, bitpit::VTKElementType::VERTEX);
+    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, nodes) ;
+    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+    vtk.setDimensions(conn.size(), nnodes);
+    vtk.setCodex(codex);
+    if(counterFile>=0){vtk.setCounter(counterFile);}
+    vtk.write();
+};
 
 /*!
  * Method to absorb parameter infos from an XML parser class of bitpit. 
@@ -550,79 +615,79 @@ void MRBF::execute(){
  * \param[in] name   name associated to the slot
  */
 void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	std::string input; 
-	
-	if(slotXML.hasOption("Priority")){
-		input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	};
-	
-	if(slotXML.hasOption("RBFShape")){
-		input = slotXML.get("RBFShape");
-		int value =1;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		value = std::max(1, value);
-		if(value > 13)	value =1;
-	   bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
-	   setFunction(shapetype);
-	}; 
-	
-	if(slotXML.hasOption("Mode")){
-		input = slotXML.get("Mode");
-		int value = 0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-			value = std::max(value, 0);
-			if(value > 2) value = 0;
-		}
-		setMode(value);
-	}; 
-	
-	if(slotXML.hasOption("SupportRadius")){
-		input = slotXML.get("SupportRadius");
-		double value = -1.0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-			setSupportRadius(value);
-		}
-	}; 
-	
-	if(slotXML.hasOption("SupportRadiusReal")){
-		input = slotXML.get("SupportRadiusReal");
-		double value = -1.0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-			setSupportRadiusValue(value);
-		}
-	}; 
-	
-	m_tol = 1.0E-6;
-	if(slotXML.hasOption("Tolerance")){
-		input = slotXML.get("Tolerance");
-		input = bitpit::utils::trim(input);
-		double value = m_tol;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-			if(value > 0.0)	setTol(value);
-		}
-	}; 
-	
-	return;
+
+    BITPIT_UNUSED(name);
+
+    std::string input;
+
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
+    if(slotXML.hasOption("RBFShape")){
+        input = slotXML.get("RBFShape");
+        int value =1;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        value = std::max(1, value);
+        if(value > 13)	value =1;
+        bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
+        setFunction(shapetype);
+    };
+
+    if(slotXML.hasOption("Mode")){
+        input = slotXML.get("Mode");
+        int value = 0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+            value = std::max(value, 0);
+            if(value > 2) value = 0;
+        }
+        setMode(value);
+    };
+
+    if(slotXML.hasOption("SupportRadius")){
+        input = slotXML.get("SupportRadius");
+        double value = -1.0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+            setSupportRadius(value);
+        }
+    };
+
+    if(slotXML.hasOption("SupportRadiusReal")){
+        input = slotXML.get("SupportRadiusReal");
+        double value = -1.0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+            setSupportRadiusValue(value);
+        }
+    };
+
+    m_tol = 1.0E-6;
+    if(slotXML.hasOption("Tolerance")){
+        input = slotXML.get("Tolerance");
+        input = bitpit::utils::trim(input);
+        double value = m_tol;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+            if(value > 0.0)	setTol(value);
+        }
+    };
+
+    return;
 }
 
 /*!
@@ -646,41 +711,41 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
  * \param[in] name   name associated to the slot
  */
 void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
-	
-	std::string input;
-	input = std::to_string(static_cast<int>(m_solver));
-	slotXML.set("Mode", input);
-	
-	
-	if(!m_supRIsValue){
-		std::stringstream ss;
-		ss<<std::scientific<<getSupportRadius();
-		slotXML.set("SupportRadius", ss.str());
-	}else{
-		std::stringstream ss;
-		ss<<std::scientific<<getSupportRadiusValue();
-		slotXML.set("SupportRadiusReal", ss.str());
-	}
-	
-	bitpit::RBFBasisFunction type = getFunctionType();
-	if(type != RBFBasisFunction::CUSTOM){
-		int val = static_cast<int>(type);
-		slotXML.set("RBFShape", std::to_string(val));
-	}
-	
-	//checking if not default and if not connected to a port
-	if(m_tol != 1.0E-6 ){
-		std::stringstream ss;
-		ss<<std::scientific<<m_tol;
-		slotXML.set("Tolerance", ss.str());
-	}
 
-	return;
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+
+    std::string input;
+    input = std::to_string(static_cast<int>(m_solver));
+    slotXML.set("Mode", input);
+
+
+    if(!m_supRIsValue){
+        std::stringstream ss;
+        ss<<std::scientific<<getSupportRadius();
+        slotXML.set("SupportRadius", ss.str());
+    }else{
+        std::stringstream ss;
+        ss<<std::scientific<<getSupportRadiusValue();
+        slotXML.set("SupportRadiusReal", ss.str());
+    }
+
+    bitpit::RBFBasisFunction type = getFunctionType();
+    if(type != RBFBasisFunction::CUSTOM){
+        int val = static_cast<int>(type);
+        slotXML.set("RBFShape", std::to_string(val));
+    }
+
+    //checking if not default and if not connected to a port
+    if(m_tol != 1.0E-6 ){
+        std::stringstream ss;
+        ss<<std::scientific<<m_tol;
+        slotXML.set("Tolerance", ss.str());
+    }
+
+    return;
 }
 
 }

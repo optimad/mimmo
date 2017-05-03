@@ -135,8 +135,8 @@ public:
 	void 			setTol(double tol);
 	void 			setDisplacements(dvecarr3E displ);
 
-	void 		clear();
-	void 		clearFilter();
+	void 		    clear();
+	void 		    clearFilter();
 	
 	//execute deformation methods
 	void 			execute();
@@ -147,6 +147,8 @@ public:
 	
 protected:
 	void			setWeight(dvector2D value);
+    void            plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed);
+    virtual void    plotOptionalResults();
 
 };
 
