@@ -33,73 +33,105 @@ using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
-	\example manipulators_example_00002.cpp
+	\example manipulators_example_00004.cpp
 
 	\brief Example of usage of free form deformation block to manipulate an input geometry.
 
-	Geometry deformation block used: FFD (shape cube).
+	Geometry deformation block used: FFD (shape sphere).
 
-	<b>To run</b>: ./manipulators_example_00002 \n
+	<b>To run</b>: ./manipulators_example_00004 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
-void test00002() {
+void test00004() {
 
     /* Creation of mimmo containers.
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
     MimmoGeometry * mimmo0 = new MimmoGeometry();
-
     mimmo0->setRead(true);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
-    mimmo0->setBuildBvTree(true);
-
     mimmo0->setWrite(true);
-    mimmo0->setWriteDir("./");
+    mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("mimmo_00002.0000");
+    mimmo0->setWriteFilename("mimmo_00004.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("mimmo_00002.0001");
+    mimmo1->setWriteFilename("mimmo_00004.0001");
 
-    /* Instantiation of a FFDobject with default shape cube.
-     * Setup of span and origin of cube.
+    /* Instantiation of a FFDobject with spherical shape.
+     * Setup of origin and span (radius and span angles) of sphere.
      * Plot Optional results during execution active for FFD block.
      */
     FFDLattice* lattice = new FFDLattice();
-    darray3E origin = {0.0, 0.0, 0.0};
+    darray3E origin = {0.0, 0.0,0.0};
     darray3E span;
-    span[0]= 1.2;
-    span[1]= 1.2;
-    span[2]= 1.2;
+    span[0]= 3.01;
+    span[1]= 2*M_PI;
+    span[2]= M_PI;
 
     /* Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
      */
     iarray3E dim, deg;
-    dim[0] = 20;
-    dim[1] = 20;
-    dim[2] = 20;
+    dim[0] = 30;
+    dim[1] = 30;
+    dim[2] = 30;
     deg[0] = 2;
     deg[1] = 2;
     deg[2] = 2;
 
-    lattice->setLattice(origin, span, ShapeType::CUBE, dim, deg);
+    //set lattice
+    lattice->setLattice(origin,span,ShapeType::SPHERE,dim, deg);
+
+    /* Change reference system to work in local spherical coordinates.
+     * Set coordinates as CLAMPED (continuity in origins of angles).
+     */
+    lattice->setRefSystem(2, darray3E{0,1,0});
+    lattice->setCoordType(CoordType::CLAMPED, 2);
     lattice->setPlotInExecution(true);
 
-    /* Creation of Generic input block to read the
+    /* Build mesh of lattice outside the execution chain
+     * to use it during setup the displacements.
+     */
+    lattice->build();
+
+    /* Creation of Generic input block and set it with the
      * displacements of the control nodes of the lattice.
+     * Use random values to set the displacements of the control nodes at a longitude
+     * angle smaller than PI and expansion on radius direction for nodes with longitude
+     * angle greater than PI.
+     */
+    int ndeg = lattice->getNNodes();
+    dvecarr3E displ(ndeg, darray3E{0,0,0});
+    time_t Time = time(NULL);
+    srand(Time);
+    for (int i=0; i<ndeg; i++){
+        int l1,l2,l3;
+        int index = lattice->accessGridFromDOF(i);
+        lattice->accessPointIndex(index,l1,l2,l3);
+        if(l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] < M_PI){
+            displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
+        }
+        if( (l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] >= M_PI)
+                || lattice->getLocalPoint(l1,l2,l3)[1] == 0){
+            displ[i][0] = 1.25;
+        }
+
+    }
+
+    /* Set Generic input block with the
+     * displacements defined above.
      */
     GenericInput* input = new GenericInput();
-    input->setReadFromFile(true);
-    input->setFilename("input/input_mimmo_00002.txt");
+    input->setInput(displ);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
@@ -108,36 +140,28 @@ void test00002() {
 
     /* Setup pin connections.
      */
-    cout << " --- create pin ---" << endl;
-    cout << " " << endl;
-    /* Add pin with port ID
-     */
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, 99, 99) << endl;
-    cout << " add pin info : " << boolalpha << addPin(input, lattice, 10, 10) << endl;
-    /* Add pin with port TAG
-     */
-    cout << " add pin info : " << boolalpha << addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM) << endl;
-    cout << " add pin info : " << boolalpha << addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM) << endl;
-    cout << " " << endl;
+    addPin(mimmo0, lattice, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(input, lattice, PortType::M_DISPLS, PortType::M_DISPLS);
+    addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
 
     /* Setup execution chain.
+     * The object can be insert in the chain in random order.
+     * The chain object recover the correct order of execution from
+     * the pin connections.
      */
     Chain ch0;
-    ch0.addObject(mimmo0);
     ch0.addObject(input);
-    ch0.addObject(lattice);
     ch0.addObject(applier);
+    ch0.addObject(lattice);
     ch0.addObject(mimmo1);
+    ch0.addObject(mimmo0);
 
     /* Execution of chain.
-     * Use debug flag false (default) to avoid to to print out the execution steps.
+     * Use debug flag true to print out the execution steps.
      */
-    cout << " " << endl;
-    cout << " --- execution start ---" << endl;
     ch0.exec(true);
-    cout << " --- execution done --- " << endl;
-    cout << " " << endl;
 
     /* Clean up & exit;
      */
@@ -150,14 +174,13 @@ void test00002() {
     lattice = NULL;
     applier = NULL;
     input 	= NULL;
-    mimmo0  = NULL;
-    mimmo1  = NULL;
+    mimmo0 = NULL;
+    mimmo1 = NULL;
 
     return;
-
 }
 
-int main( int argc, char *argv[] ) {
+int	main( int argc, char *argv[] ) {
 
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
@@ -168,8 +191,7 @@ int main( int argc, char *argv[] ) {
     {
 #endif
         /**<Calling mimmo Test routine*/
-
-        test00002() ;
+        test00004() ;
 
 #if ENABLE_MPI==1
     }

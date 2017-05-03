@@ -56,7 +56,12 @@ endforeach ()
 if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
-	list(APPEND EXAMPLE_LIST "MIMMO_example_00001" "manipulators_example_00001" "manipulators_example_00002" "manipulators_example_00003" "genericinput_example_00001")
+    list(APPEND EXAMPLE_LIST "MIMMO_example_00001")
+    list(APPEND EXAMPLE_LIST "manipulators_example_00001")
+    list(APPEND EXAMPLE_LIST "manipulators_example_00002")
+    list(APPEND EXAMPLE_LIST "manipulators_example_00003")
+    list(APPEND EXAMPLE_LIST "manipulators_example_00004")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00001")
 
     #Add examples of enabled modules
     isModuleEnabled("iocgns" MODULE_ENABLED1)
@@ -99,6 +104,10 @@ if(BUILD_EXAMPLES)
     add_custom_command(
         TARGET "manipulators_example_00003" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/catpipe.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/catpipe.stl"
+    )
+    add_custom_command(
+        TARGET "manipulators_example_00004" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
     )
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD

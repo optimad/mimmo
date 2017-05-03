@@ -215,6 +215,7 @@ void test00001() {
     ch0.addObject(mimmo5);
 
     /* Execution of chain.
+     * Use debug flag true to print out the execution steps.
      */
     cout << " --- execution start --- " << endl;
     ch0.exec(true);

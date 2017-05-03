@@ -37,7 +37,7 @@ using namespace mimmo::pin;
 
 	\brief Example of usage of free form deformation block to manipulate an input geometry.
 
-	Geometry deformation block used: FFD.
+	Geometry deformation block used: FFD (shape cylinder).
 
 	<b>To run</b>: ./manipulators_example_00003 \n
 
@@ -67,9 +67,8 @@ void test00003() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("mimmo_00003.0001");
 
-    //********************************************************************************************
     /* Instantiation of a FFDobject with cylindrical shape.
-     * Setup of span and origin of cube.
+     * Setup of span and origin of cylinder.
      * Plot Optional results during execution active for FFD block.
      */
     FFDLattice* lattice = new FFDLattice();
@@ -138,12 +137,10 @@ void test00003() {
     input->setReadFromFile(false);
     input->setInput(displ);
 
-
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
     Apply* applier = new Apply();
-
 
     /* Setup pin connections.
      */
@@ -163,10 +160,13 @@ void test00003() {
     ch0.addObject(mimmo1);
 
     /* Execution of chain.
+     * Use debug flag false (default) to avoid to to print out the execution steps.
      */
+    cout << " " << endl;
     cout << " --- execution start --- " << endl;
     ch0.exec();
     cout << " --- execution done --- " << endl;
+    cout << " " << endl;
 
     /* Clean up & exit;
      */
