@@ -165,7 +165,7 @@ GenericOutput::_getResult(){
 template <class T>
 std::ofstream& GenericOutput::ofstreamcsv(std::ofstream &out, const T &x)
 {
-    out << x << ",";
+    out << x << ", ";
     return(out);
 };
 
@@ -180,7 +180,7 @@ if (n == 0) {
 for (size_t i = 0; i < n-1; i++) {
     ofstreamcsv(out,x[i]);
 } //next i
-ofstreamcsv(out,x[n-1]);
+ofstreamcsvend(out,x[n-1]);
 out << "\n";
 return(out);
 };
@@ -193,12 +193,35 @@ if (d == 0) return(out);
 for (size_t i = 0; i < d-1; i++) {
     ofstreamcsv(out,x[i]);
 } //next i
-ofstreamcsv(out,x[d-1]);
+ofstreamcsvend(out,x[d-1]);
 out << "\n";
 return(out);
 };
 
-//TODO Specialize ofstreamcsv for vector<vector<T> > and vector<array<T> > to eliminate commas at end of lines
 
+
+
+template <class T>
+std::ofstream& GenericOutput::ofstreamcsvend(std::ofstream &out, const T &x)
+{
+    out << x;
+    return(out);
+};
+
+template <class T>
+std::ofstream& GenericOutput::ofstreamcsvend(std::ofstream &out, const std::vector< T > &x)
+{
+
+    ofstreamcsv(out,x);
+    return(out);
+};
+
+template <class T, size_t d>
+std::ofstream& GenericOutput::ofstreamcsvend(std::ofstream &out, const std::array< T,d > &x)
+{
+
+    ofstreamcsv(out,x);
+    return(out);
+};
 
 }

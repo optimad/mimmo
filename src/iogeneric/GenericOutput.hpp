@@ -132,12 +132,18 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 private:
-	template<typename T>
+    template<typename T>
     std::ofstream&  ofstreamcsv(std::ofstream &in, const T &x);
     template<typename T>
     std::ofstream&  ofstreamcsv(std::ofstream &in, const std::vector< T > &x);
     template<typename T, size_t d>
     std::ofstream&  ofstreamcsv(std::ofstream &in, const std::array< T,d > &x);
+    template<typename T>
+    std::ofstream&  ofstreamcsvend(std::ofstream &in, const T &x);
+    template<typename T>
+    std::ofstream&  ofstreamcsvend(std::ofstream &in, const std::vector< T > &x);
+    template<typename T, size_t d>
+    std::ofstream&  ofstreamcsvend(std::ofstream &in, const std::array< T,d > &x);
 
 };
 

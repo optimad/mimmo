@@ -137,6 +137,13 @@ void test00003() {
     input->setReadFromFile(false);
     input->setInput(displ);
 
+    /* Set Generic output block to write the
+     * displacements defined above.
+     */
+    GenericOutput * output = new GenericOutput();
+    output->setFilename("manipulators_output_00003.csv");
+    output->setCSV(true);
+
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
@@ -146,6 +153,7 @@ void test00003() {
      */
     pin::addPin(mimmo0, lattice, PortType::M_GEOM, PortType::M_GEOM);
     pin::addPin(input, lattice, PortType::M_DISPLS, PortType::M_DISPLS);
+    pin::addPin(input, output, PortType::M_DISPLS, PortType::M_DISPLS);
     pin::addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
     pin::addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
     pin::addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
@@ -155,6 +163,7 @@ void test00003() {
     Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(input);
+    ch0.addObject(output);
     ch0.addObject(lattice);
     ch0.addObject(applier);
     ch0.addObject(mimmo1);
@@ -173,12 +182,14 @@ void test00003() {
     delete lattice;
     delete applier;
     delete input;
+    delete output;
     delete mimmo0;
     delete mimmo1;
 
     lattice = NULL;
     applier = NULL;
     input   = NULL;
+    output   = NULL;
     mimmo0  = NULL;
     mimmo1  = NULL;
 
