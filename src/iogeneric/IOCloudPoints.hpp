@@ -100,7 +100,8 @@ class IOCloudPoints: public BaseManipulation{
 protected:
 	//members
 	bool			m_read;		/**<True if in Read mode, False if in Write mode.*/
-	std::string		m_filename;	/**<Source/Destination filename in absolute path*/
+	std::string     m_dir;      /**<Directory path for I/O*/
+	std::string		m_filename;	/**<I/O filename with extension tag*/
 	livector1D		m_labels;   /**<Labels associated to displacement */
 	dvecarr3E		m_points; /**<cloud points list*/
 	dvector1D 		m_scalarfield;  /**<scalar field attached*/
@@ -122,7 +123,10 @@ public:
 	livector1D		getLabels();
 	bool			isTemplate();
 	
-	void setFilename(std::string filename);
+    void setReadDir(std::string dir);
+    void setReadFilename(std::string filename);
+    void setWriteDir(std::string dir);
+    void setWriteFilename(std::string filename);
 	void setPoints(dvecarr3E points);
 	void setLabels(livector1D labels);
 	void setScalarField(dvector1D vecfield);

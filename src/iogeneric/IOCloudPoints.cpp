@@ -37,7 +37,8 @@ IOCloudPoints::IOCloudPoints(bool readMode){
 	m_name 		= "mimmo.IOCloudPoints";
 	m_read 		= readMode;
 	m_template 	= false;
-	m_filename 	= m_name+"_source.dat";
+	m_dir       = ".";
+    m_filename 	= m_name+"_source.dat";
 };
 
 /*!
@@ -48,7 +49,8 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
 	
 	m_name 		= "mimmo.IOCloudPoints";
 	m_template 	= false;
-	m_filename 	= m_name+"_source.dat";
+    m_dir       = ".";
+    m_filename 	= m_name+"_source.dat";
 	m_read 		= true;
 	
 	std::string fallback_name = "ClassNONE";	
@@ -83,7 +85,8 @@ IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(){
 IOCloudPoints & IOCloudPoints::operator=(const IOCloudPoints & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_read 		= other.m_read;
-	m_filename 	= other.m_filename;
+	m_dir       = other.m_dir;
+    m_filename 	= other.m_filename;
 	m_template = other.m_template;
 	
 	//data structure is not copied
@@ -158,12 +161,43 @@ IOCloudPoints::isTemplate(){
 };
 
 /*!
- * It sets the name of the input/output file.
- * \param[in] filename absolute path to the I/O file.
+* It sets the name of the input directory. Active only in read mode.
+* \param[in] dir directory path 
+*/
+void
+IOCloudPoints::setReadDir(std::string dir){
+    if(!m_read)    return;
+    m_dir = dir;
+};
+
+/*!
+ * It sets the name of the input file. Active only in read mode.
+ * \param[in] filename filename with tag extension included.
  */
 void
-IOCloudPoints::setFilename(std::string filename){
-	m_filename = filename;
+IOCloudPoints::setReadFilename(std::string filename){
+    if(!m_read)    return;
+    m_filename = filename;
+};
+
+/*!
+ * It sets the name of the output directory. Active only in write mode.
+ * \param[in] dir directory path 
+ */
+void
+IOCloudPoints::setWriteDir(std::string dir){
+    if(m_read)    return;
+    m_dir = dir;
+};
+
+/*!
+ * It sets the name of the output file. Active only in write mode.
+ * \param[in] filename filename with tag extension included.
+ */
+void
+IOCloudPoints::setWriteFilename(std::string filename){
+    if(m_read)    return;
+    m_filename = filename;
 };
 
 /*!
@@ -253,7 +287,10 @@ IOCloudPoints::execute(){
  * --> Absorbing data:
  * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively	
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
- * - <B>Filename</B>: path to your current file data
+ * - <B>ReadDir</B>: path to input directory in read mode
+ * - <B>ReadFilename</B>: name of input file with tag extension in read mode
+ * - <B>WriteDir</B>: path to output directory in write mode
+ * - <B>WriteFilename</B>: name of output file with tag extension in write mode
  * - <B>Template</B>: path to your current file data
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.  
@@ -292,11 +329,31 @@ void IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 		setPriority(value);
 	}; 
 
-	if(slotXML.hasOption("Filename")){
-		std::string input = slotXML.get("Filename");
-		input = bitpit::utils::trim(input);
-		setFilename(input);
-	}; 
+    if(m_read){
+        if(slotXML.hasOption("ReadDir")){
+            std::string input = slotXML.get("ReadDir");
+            input = bitpit::utils::trim(input);
+            setReadDir(input);
+        }; 
+        
+        if(slotXML.hasOption("ReadFilename")){
+            std::string input = slotXML.get("ReadFilename");
+            input = bitpit::utils::trim(input);
+            setReadFilename(input);
+        }; 
+    }else{    
+        if(slotXML.hasOption("WriteDir")){
+            std::string input = slotXML.get("WriteDir");
+            input = bitpit::utils::trim(input);
+            setWriteDir(input);
+        }; 
+        
+        if(slotXML.hasOption("WriteFilename")){
+            std::string input = slotXML.get("WriteFilename");
+            input = bitpit::utils::trim(input);
+            setWriteFilename(input);
+        };
+    }
 	
 	
 	if(slotXML.hasOption("Template")){
@@ -339,7 +396,10 @@ void IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * - <B>ClassName</B>: name of the class as "mimmo.IOCloudPoints"
  * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively
  * - <B>Priority</B>: uint marking priority in multi-chain execution; 
- * - <B>Filename</B>: path to your current file data
+ * - <B>ReadDir</B>: path to input directory in read mode
+ * - <B>ReadFilename</B>: name of input file with tag extension in read mode
+ * - <B>WriteDir</B>: path to output directory in write mode
+ * - <B>WriteFilename</B>: name of output file with tag extension in write mode
  * - <B>Template</B>: path to your current file data
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.  
@@ -354,7 +414,14 @@ void IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	slotXML.set("ClassName", m_name);
 	slotXML.set("IOmode", std::to_string(int(m_read)));
 	slotXML.set("Priority", std::to_string(getPriority()));
-	slotXML.set("Filename", m_filename);
+    if(m_read){
+        slotXML.set("ReadDir", m_dir);
+        slotXML.set("ReadFilename", m_filename);
+    }else{
+        slotXML.set("WriteDir", m_dir);
+        slotXML.set("WriteFilename", m_filename);
+    }
+    
 	slotXML.set("Template", std::to_string(int(m_template)));
 	if(isPlotInExecution()){
 		slotXML.set("PlotInExecution", std::to_string(1));
@@ -402,7 +469,8 @@ void IOCloudPoints::read(){
 
 	std::unordered_map<long, int> mapP;	
 	std::ifstream reading;
-	reading.open(m_filename.c_str());
+	std::string source = m_dir+"/"+m_filename;
+    reading.open(source.c_str());
 	if(reading.is_open()){
 		
 		m_points.clear();
@@ -510,7 +578,8 @@ void IOCloudPoints::write(){
 	}
 	
 	std::ofstream writing;
-	writing.open(filename.c_str());
+    std::string source = m_dir+"/"+m_filename;
+	writing.open(source.c_str());
 	std::string keyT1 = "{", keyT2 = "}";
 	if(writing.is_open()){
 		

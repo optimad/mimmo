@@ -37,8 +37,8 @@ namespace mimmo{
  * 
  * The only admissible File format is an ascii list of values, organized as follow:
  * 
- * $DISPL	l1  0.0 0.0  1.0
- * $DISPL	l2 -1.0 0.12 0.0
+ * $DISPL   l1  0.0 0.0  1.0
+ * $DISPL   l2 -1.0 0.12 0.0
  * ...
  * 
  * The $DISPL keyword identify the value, l1, l2 the unique int label associated to the displacement and the 
@@ -49,79 +49,82 @@ namespace mimmo{
  * When in write mode the class can generate a template file for displacements, that can be filled in a second moment for different purposes.
  * The layout of this file will be:
  * 
- * $DISPL	l1  {xl1} {yl1}  {zl1}
- * $DISPL	l2  {xl2} {yl2}  {zl2}
+ * $DISPL   l1  {xl1} {yl1}  {zl1}
+ * $DISPL   l2  {xl2} {yl2}  {zl2}
  * ...
  * 
  * where {xxx} uniquely naming the component of displacement
  * 
  *
- *	=========================================================
+ * =========================================================
  * ~~~
- *	|----------------------------------------------------------------|
- *	|                 Port Input                                     |
- *	|-------|------------|-------------------|-----------------------|
- *	|PortID | PortType   | variable/function | compatibilities       |
- *	|-------|------------|-------------------|-----------------------|
- *	| 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
- *	| 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        | 
- *	| 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
- *	|-------|------------|-------------------|-----------------------|
+ *  |----------------------------------------------------------------|
+ *  |                 Port Input                                     |
+ *  |-------|------------|-------------------|-----------------------|
+ *  |PortID | PortType   | variable/function | compatibilities       |
+ *  |-------|------------|-------------------|-----------------------|
+ *  | 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
+ *  | 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        | 
+ *  | 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
+ *  |-------|------------|-------------------|-----------------------|
  *
  *
- *	|-------------------------------------------|-----------------------|
- *	|              Port Output                  |                       |
- *	|-------|---------------|-------------------|-----------------------|
- *	|PortID | PortType      | variable/function | DataType              |
- *	|-------|---------------|-------------------|-----------------------|
- *	| 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
- *	| 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        | 
- *	| 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
- *	|-------|---------------|-------------------|-----------------------|
+ *  |-------------------------------------------|-----------------------|
+ *  |              Port Output                  |                       |
+ *  |-------|---------------|-------------------|-----------------------|
+ *  |PortID | PortType      | variable/function | DataType              |
+ *  |-------|---------------|-------------------|-----------------------|
+ *  | 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
+ *  | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        | 
+ *  | 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
+ *  |-------|---------------|-------------------|-----------------------|
  * ~~~
- *	=========================================================
+ *=========================================================
  *
  */
 class GenericDispls: public BaseManipulation{
 protected:
-	//members
-	bool			m_read;		/**<True if in Read mode, False if in Write mode.*/
-	std::string		m_filename;	/**<Source/Destination filename in absolute path*/
-	int				m_nDispl;   /**<Number of displacement hold by the class */
-	dvecarr3E		m_displ;    /**<Displacement list*/
-	livector1D		m_labels;   /**<Labels associated to displacement */
-	bool			m_template; /**<True/False enable the writing template mode */
+    //members
+    bool            m_read;     /**<True if in Read mode, False if in Write mode.*/
+    std::string     m_dir;      /**<Source/Destination directory path*/
+    std::string     m_filename; /**<Source/Destination filename with extension tag*/
+    int             m_nDispl;   /**<Number of displacement hold by the class */
+    dvecarr3E       m_displ;    /**<Displacement list*/
+    livector1D      m_labels;   /**<Labels associated to displacement */
+    bool            m_template; /**<True/False enable the writing template mode */
 
 public:
-	GenericDispls(bool readMode = true);
-	virtual ~GenericDispls();
-	GenericDispls(const bitpit::Config::Section & rootXML);
-	GenericDispls(const GenericDispls & other);
-	GenericDispls & operator=(const GenericDispls & other);
+    GenericDispls(bool readMode = true);
+    virtual ~GenericDispls();
+    GenericDispls(const bitpit::Config::Section & rootXML);
+    GenericDispls(const GenericDispls & other);
+    GenericDispls & operator=(const GenericDispls & other);
 
-	void buildPorts();
+    void buildPorts();
 
-	int 		 	getNDispl();
-	dvecarr3E 		getDispl();
-	livector1D		getLabels();
-	bool			isTemplate();
-	
-	void setFilename(std::string filename);
-	void setNDispl(int nD);
-	void setLabels(livector1D labels);
-	void setDispl(dvecarr3E displs);
-	void setTemplate(bool flag);
+    int         getNDispl();
+    dvecarr3E   getDispl();
+    livector1D  getLabels();
+    bool        isTemplate();
 
-	void	clear();
+    void setReadDir(std::string dir);
+    void setReadFilename(std::string filename);
+    void setWriteDir(std::string dir);
+    void setWriteFilename(std::string filename);
+    void setNDispl(int nD);
+    void setLabels(livector1D labels);
+    void setDispl(dvecarr3E displs);
+    void setTemplate(bool flag);
 
-	void execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    void    clear();
+    void    execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 private:
-	virtual void read();
-	virtual void write();
+    virtual void read();
+    virtual void write();
 };
 
 REGISTER(BaseManipulation, GenericDispls, "mimmo.GenericDispls")
