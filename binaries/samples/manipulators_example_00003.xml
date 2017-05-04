@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : manipulators_example_00001.cpp -->
+<!-- xml interface to replicate .cpp example : manipulators_example_00003.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
 		<ClassName> mimmo.Geometry </ClassName>

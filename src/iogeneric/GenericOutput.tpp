@@ -165,7 +165,7 @@ GenericOutput::_getResult(){
 template <class T>
 std::ofstream& GenericOutput::ofstreamcsv(std::ofstream &out, const T &x)
 {
-    out << x << ", ";
+    out << x << ",";
     return(out);
 };
 

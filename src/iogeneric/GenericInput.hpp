@@ -152,6 +152,8 @@ private:
     template<typename T>
     std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
     template<typename T>
+    std::ifstream&  ifstreamcsvend(std::ifstream &in, T &x);
+    template<typename T>
     std::ifstream&  ifstreamcsv(std::ifstream &in, std::vector< T > &x);
     template<typename T, size_t d>
     std::ifstream&  ifstreamcsv(std::ifstream &in, std::array< T,d > &x);

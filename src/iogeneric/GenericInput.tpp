@@ -51,6 +51,7 @@ GenericInput::getResult(){
         _setResult(data);
     }
     T temp = (*static_cast<IODataT<T>*>(m_result.get())->getData());
+
     return(temp);
 }
 
@@ -167,7 +168,19 @@ T                   dummy;
 char                delim;
 
 if ((in.good())) {
-    if (in >> dummy && in >> delim) { x = dummy; }
+    if (in >> dummy && in >> delim) { x = dummy;}
+}
+return(in);
+}
+
+template <typename T>
+std::ifstream&  GenericInput::ifstreamcsvend(std::ifstream &in, T &x){
+
+T                   dummy;
+char                delim;
+
+if ((in.good())) {
+    if (in >> dummy) { x = dummy;}
 }
 return(in);
 }
@@ -179,10 +192,10 @@ T       dummy;
 char    delim;
 int     i, n = x.size();
 
-i = 0;
-while ((in.good()) && (i < n)) {
-    if (ifstreamcsv(in,dummy)) { x[i] = dummy; i++; }
-} //next i
+//i = 0;
+//while ((in.good()) && (i < n)) {
+//    if (ifstreamcsv(in,dummy)) { x[i] = dummy; i++; }
+//} //next i
 while (in.good()) {
     if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
 }
@@ -197,10 +210,11 @@ char    delim;
 int     i;
 
 i = 0;
-while ((in.good()) && (i < d)) {
+while ((in.good()) && (i < d-1)) {
     if (ifstreamcsv(in,dummy)) { x[i] = dummy;}
     i++;
 } //next i
+if (ifstreamcsvend(in,dummy)) { x[i] = dummy;}
 return(in);
 };
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : manipulators_example_00002.cpp -->
+<!-- xml interface to replicate .cpp example : manipulators_example_00004.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
 		<ClassName> mimmo.Geometry </ClassName>
@@ -9,7 +9,7 @@
 		<ReadFileType> STL </ReadFileType>
 		<WriteFlag> 1 </WriteFlag>
 		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00002.0000 </WriteFilename>
+		<WriteFilename> manipulators_output_00004.0000 </WriteFilename>
 		<WriteFileType> STL </WriteFileType>
 	</Geom0>
 	<Geom1>
@@ -17,24 +17,32 @@
 		<ReadFlag> 0 </ReadFlag>
 		<WriteFlag> 1 </WriteFlag>
 		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00002.0001 </WriteFilename>
+		<WriteFilename> manipulators_output_00004.0001 </WriteFilename>
 		<WriteFileType> STL </WriteFileType>
 	</Geom1>
 	<FFD>
 		<ClassName> mimmo.FFDLattice </ClassName>
-        <Origin> 0.0 0.0 0.0 </Origin>
-        <Span> 1.2 1.2 1.2 </Span>
-        <Dimension> 20 20 20 </Dimension>
-        <Degrees> 2 2 2 </Degrees>
-        <Shape> CUBE </Shape>
+		<Origin> 0.0 0.0 0.0 </Origin>
+		<Span> 3.01 6.28 3.15 </Span>
+		<Dimension> 30 30 30 </Dimension>
+		<Degrees> 2 2 2 </Degrees>
+		<Shape> SPHERE </Shape>
+		<RefSystem>
+			<axis0> 1.0 0.0 0.0 </axis0>
+			<axis1> 0.0 0.0 1.0 </axis1>
+			<axis2> 0.0 1.0 0.0 </axis2>
+		</RefSystem>
+		<CoordType> UNCLAMPED PERIODIC CLAMPED</CoordType>
+        <DisplGlobal> 0 </DisplGlobal>
         <PlotInExecution> 1 </PlotInExecution>
 	</FFD>
-    <InputDispl>
-        <ClassName> mimmo.GenericInput </ClassName>
+	<InputDispl>
+		<ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
-        <Filename> input/manipulators_input_00002.txt </Filename>
-    </InputDispl>
-    <Applier>
+        <CSV> 1 </CSV>
+		<Filename> input/manipulators_input_00004.csv </Filename>
+	</InputDispl>
+	<Applier>
 		<ClassName> mimmo.Apply </ClassName>
 		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
 	</Applier>
