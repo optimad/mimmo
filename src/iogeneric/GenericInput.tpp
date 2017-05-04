@@ -35,7 +35,7 @@ GenericInput::getResult(){
     if (m_readFromFile){
         T data;
         std::ifstream file;
-        file.open(m_filename);
+        file.open(m_dir+"/"+m_filename);
         if (file.is_open()){
             if (m_csv){
                 ifstreamcsv(file, data);

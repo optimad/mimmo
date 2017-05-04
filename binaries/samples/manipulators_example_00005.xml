@@ -24,13 +24,15 @@
         <ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
         <CSV> 1 </CSV>
-        <Filename> input/manipulators_input_00005n.csv </Filename>
+        <ReadDir> input </ReadDir>
+        <Filename> manipulators_input_00005n.csv </Filename>
     </InputNode>
 	<InputDispl>
 		<ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
         <CSV> 1 </CSV>
-		<Filename> input/manipulators_input_00005d.csv </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> manipulators_input_00005d.csv </Filename>
 	</InputDispl>
     <MRBF>
         <ClassName> mimmo.MRBF </ClassName>

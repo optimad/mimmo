@@ -45,22 +45,26 @@
 	<InputNode1>
 		<ClassName> mimmo.GenericInput </ClassName>
 		<ReadFromFile> 1 </ReadFromFile>
-		<Filename> input/geohandlers_input_00003n1.txt </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> geohandlers_input_00003n1.txt </Filename>
 	</InputNode1>
 	<InputNode2>
 		<ClassName> mimmo.GenericInput </ClassName>
 		<ReadFromFile> 1 </ReadFromFile>
-		<Filename> input/geohandlers_input_00003n2.txt </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> geohandlers_input_00003n2.txt </Filename>
 	</InputNode2>
 	<InputDispl1>
 		<ClassName> mimmo.GenericInput </ClassName>
 		<ReadFromFile> 1 </ReadFromFile>
-		<Filename> input/geohandlers_input_00003d1.txt </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> geohandlers_input_00003d1.txt </Filename>
 	</InputDispl1>
 	<InputDispl2>
 		<ClassName> mimmo.GenericInput </ClassName>
 		<ReadFromFile> 1 </ReadFromFile>
-		<Filename> input/geohandlers_input_00003d2.txt </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> geohandlers_input_00003d2.txt </Filename>
 	</InputDispl2>
 	<SelMap1>
 		<ClassName> mimmo.SelectionByMapping </ClassName>

@@ -39,7 +39,8 @@ void test00001() {
      */
     GenericInput * read = new GenericInput(true, true);
     read->setReadFromFile(true);
-    read->setFilename("input/generic_input_00001.csv");
+    read->setReadDir("input");
+    read->setFilename("generic_input_00001.csv");
     read->setCSV(true);
 
     /* Creation of Generic output block to write a set of

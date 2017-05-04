@@ -124,6 +124,7 @@ public:
 	void	clearInput();
 	void	clearResult();
 
+    void setWriteDir(std::string dir);
     void setFilename(std::string filename);
     void setCSV(bool csv);
 

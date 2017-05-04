@@ -32,7 +32,8 @@
     <InputDispl>
         <ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
-        <Filename> input/manipulators_input_00002.txt </Filename>
+        <ReadDir> input </ReadDir>
+        <Filename> manipulators_input_00002.txt </Filename>
     </InputDispl>
     <Applier>
 		<ClassName> mimmo.Apply </ClassName>

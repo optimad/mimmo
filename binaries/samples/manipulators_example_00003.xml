@@ -39,7 +39,8 @@
 		<ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
         <CSV> 1 </CSV>
-		<Filename> input/manipulators_input_00003.csv </Filename>
+        <ReadDir> input </ReadDir>
+		<Filename> manipulators_input_00003.csv </Filename>
 	</InputDispl>
 	<Applier>
 		<ClassName> mimmo.Apply </ClassName>

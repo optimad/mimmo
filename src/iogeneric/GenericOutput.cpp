@@ -111,7 +111,7 @@ GenericOutput::buildPorts(){
  * \param[in] dir Name of the directory of the output file.
  */
 void
-GenericOutput::setDir(std::string dir){
+GenericOutput::setWriteDir(std::string dir){
     m_dir = dir;
 };
 
@@ -161,6 +161,7 @@ GenericOutput::execute(){
  * --> Absorbing data:
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Filename</B>: name of file to write data  
+ * - <B>WriteDir</B>: name of directory to write data
  * - <B>CSV</B>: true if write in csv format
  * 
  * \param[in] slotXML bitpit::Config::Section which reads from
@@ -187,6 +188,12 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
         setFilename(input);
     };
 
+    if(slotXML.hasOption("WriteDir")){
+        std::string input = slotXML.get("WriteDir");
+        input = bitpit::utils::trim(input);
+        setWriteDir(input);
+    };
+
     if(slotXML.hasOption("CSV")){
         std::string input = slotXML.get("CSV");
         input = bitpit::utils::trim(input);
@@ -209,6 +216,7 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
  * - <B>ClassName</B>: name of the class as "mimmo.GenericOutput"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Filename</B>: name of file to write data  
+ * - <B>WriteDir</B>: name of directory to write data
  * - <B>CSV</B>: true if write in csv format
  * 
  * 
@@ -222,6 +230,7 @@ void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 	slotXML.set("ClassName", m_name);
 	slotXML.set("Priority", std::to_string(getPriority()));
     slotXML.set("Filename", m_filename);
+    slotXML.set("WriteDir", m_dir);
     slotXML.set("CSV", std::to_string((int)m_csv));
 };	
 

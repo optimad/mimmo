@@ -5,7 +5,8 @@
 		<ClassName> mimmo.GenericInput </ClassName>
         <ReadFromFile> 1 </ReadFromFile>
         <CSV> 1 </CSV>
-		<Filename> input/generic_input_00001.csv </Filename>
+        <ReadDir> input </ReadDir>
+        <Filename> generic_input_00001.csv </Filename>
 	</InputNode>
 	<OutputNode>
 		<ClassName> mimmo.GenericOutput </ClassName>

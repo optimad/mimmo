@@ -88,7 +88,7 @@ private:
 public:
 	GenericInput(bool readFromFile = false, bool csv = false);
 	GenericInput(const bitpit::Config::Section & rootXML);
-	GenericInput(std::string filename, bool csv = false);
+	GenericInput(std::string dir, std::string filename, bool csv = false);
 
 	/*!Custom template constructor of GenericInput.
 	 * It sets the base class input with data passed as argument.
@@ -113,6 +113,7 @@ public:
 
     void setReadFromFile(bool readFromFile);
     void setCSV(bool csv);
+    void setReadDir(std::string dir);
     void setFilename(std::string filename);
 
 	template<typename T>
