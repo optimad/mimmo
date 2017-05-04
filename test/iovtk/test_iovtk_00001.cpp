@@ -33,7 +33,7 @@ using namespace mimmo;
 
 int test1() {
 	
-	std::cout<<"waiting for a proper test. I do nothing for now"<<std::endl;
+	std::cout<<"Waiting for a proper test. I do nothing for now"<<std::endl;
     return 0;
 }
 
