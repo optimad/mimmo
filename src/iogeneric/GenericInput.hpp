@@ -79,7 +79,8 @@ private:
 	//members
     bool            m_readFromFile; /**<True if the object reads the values from file.*/
     bool            m_csv;          /**<True if the file is in csv format.*/
-	std::string		m_filename;		/**<Name of the input file. The file has to be an ascii text file.*/
+    std::string     m_dir;          /**<Name of directory to read the input file.*/
+    std::string     m_filename;     /**<Name of the input file. The file has to be an ascii text file.*/
 	
 	std::unique_ptr<IOData>				m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>				m_result;		/**<Pointer to a base class object Result (derived class is template).*/

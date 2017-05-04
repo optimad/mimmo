@@ -31,7 +31,8 @@ namespace mimmo{
  * Default constructor of GenericOutput
  * \param[in] filename Name of the output file (default value = "output.txt").
  */
-GenericOutput::GenericOutput(std::string filename, bool csv){
+GenericOutput::GenericOutput(std::string dir, std::string filename, bool csv){
+    m_dir       = dir;
     m_filename  = filename;
     m_csv       = csv;
 	m_portsType	= ConnectionType::BACKWARD;
@@ -44,7 +45,8 @@ GenericOutput::GenericOutput(std::string filename, bool csv){
  */
 GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
 	
-	m_filename	= "output.txt";
+    m_dir       = "./";
+    m_filename  = "output.txt";
 	m_portsType	= ConnectionType::BACKWARD;
 	m_name 		= "mimmo.GenericOutput";
     m_csv       = false;
@@ -68,7 +70,8 @@ GenericOutput::~GenericOutput(){
 /*!Copy constructor of GenericOutput.
  */
 GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other){
-	m_filename 		= other.m_filename;
+    m_dir           = other.m_dir;
+    m_filename      = other.m_filename;
     m_csv           = other.m_csv;
 };
 
@@ -76,6 +79,7 @@ GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other
  */
 GenericOutput & GenericOutput::operator=(const GenericOutput & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+    m_dir           = other.m_dir;
 	m_filename 		= other.m_filename;
     m_csv           = other.m_csv;
 	return *this;
@@ -102,6 +106,14 @@ GenericOutput::buildPorts(){
 	
 	m_arePortsBuilt = built;
 }
+
+/*!It sets the name of the directory to write the output file.
+ * \param[in] dir Name of the directory of the output file.
+ */
+void
+GenericOutput::setDir(std::string dir){
+    m_dir = dir;
+};
 
 /*!It sets the name of the output file.
  * \param[in] filename Name of the output file.
