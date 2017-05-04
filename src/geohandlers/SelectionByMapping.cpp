@@ -67,7 +67,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 	m_tolerance = 1.E-08;
 
 	std::string fallback_name = "ClassNONE";	
-	std::string fallback_topo = "-1";	
+    std::string fallback_topo = "-1";
 	std::string input_name = rootXML.get("ClassName", fallback_name);
 	input_name = bitpit::utils::trim(input_name);
 	
@@ -188,7 +188,9 @@ void 	SelectionByMapping::setTolerance(double tol){
 void	SelectionByMapping::setGeometry( MimmoObject * target){
 	
 	if(target->getType() != m_topo){
-		std::cout<<"SelectionMapping Cannot support current geometry. Topology not supported."<<std::endl;
+        std::cout<<"Target Topology : "<< target->getType() << std::endl;
+        std::cout<<"Supported Topology : "<< m_topo << std::endl;
+        std::cout<<"SelectionMapping Cannot support current geometry. Topology not supported."<<std::endl;
 		return;
 	}
 	m_geometry = target;
@@ -396,6 +398,7 @@ svector1D SelectionByMapping::extractInfo(std::string file){
  * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 
  * 
+ * Topology has to be mandatorily fixed by xml dictionary.
  * Geometry is mandatorily passed through ports. 
  * 
  * \param[in] slotXML 	bitpit::Config::Section of XML file
