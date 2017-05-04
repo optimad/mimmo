@@ -31,6 +31,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # List of tests
 set(TESTS "")
 list(APPEND TESTS "test_iogeneric_00001")
+list(APPEND TESTS "test_iogeneric_00002")
 # if (ENABLE_MPI)
 # 	list(APPEND TESTS "test_iogeneric_parallel_00001:3") ##:x number of procs
 # endif ()
@@ -42,8 +43,12 @@ set(TEST_EXTRA_LIBRARIES "")
 addModuleTests(${MODULE_NAME} "${TESTS}" "${TEST_EXTRA_LIBRARIES}")
 unset(TESTS)
 
-# add_custom_command(
-#     TARGET "name test in the list" PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
-#     )
+add_custom_command(
+    TARGET "test_iogeneric_00001" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/prism.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/prism.stl"
+    )
 
+add_custom_command(
+    TARGET "test_iogeneric_00001" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
+    )

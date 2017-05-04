@@ -31,24 +31,23 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Reading a file with MimmoGeometry
+ * Reading a generic input from file with GenericInput
  */
-int test1() {
+int test2() {
 	
-    MimmoGeometry * reader = new MimmoGeometry();
-    reader->setRead(true);
-    reader->setReadDir("geodata");
-    reader->setReadFilename("prism");
-    reader->setReadFileType(FileType::STL);
-    reader->setWrite(false);
-    reader->exec();
+    GenericInput * ginput = new GenericInput();
+    ginput->setReadFromFile(true);
+    ginput->setCSV(true);
+    ginput->setFilename("input/generic_input_00001.csv");
+    ginput->exec();
     
-    bool check = reader->getGeometry()->getNCells() == 12288;
-    check = check && reader->getGeometry()->getNVertex() == 6146;
+    dvecarr3E result = ginput->getResult()<dvecarr3E>;
+    
+    bool check = result.size() != 7;
 
     std::cout<<"test passed :"<<check<<std::endl;
     
-    delete reader;
+    delete ginput;
     return int(!check);
 }
 
@@ -66,7 +65,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling mimmo Test routines*/
 
-        int val = test1() ;
+        int val = test2() ;
 
 #if ENABLE_MPI==1
 	}
