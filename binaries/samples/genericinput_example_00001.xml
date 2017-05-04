@@ -16,7 +16,7 @@
 		<c0>
 			<sender> InputNode </sender>
 			<senderPort> M_COORDS </senderPort>
-			<receiver>OutputNode </receiver>
+			<receiver> OutputNode </receiver>
 			<receiverPort> M_COORDS </receiverPort>
 		</c0>
 	</Connections>

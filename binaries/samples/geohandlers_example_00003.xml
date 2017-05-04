@@ -3,10 +3,10 @@
 <mimmoXML version="-1">
 	<Geom0>
 		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag>1</ReadFlag>
-		<ReadDir>./geodata</ReadDir>
-		<ReadFilename>sphere2</ReadFilename>
-		<ReadFileType>STL</ReadFileType>
+		<ReadFlag> 1 </ReadFlag>
+		<ReadDir> ./geodata </ReadDir>
+		<ReadFilename> sphere2 </ReadFilename>
+		<ReadFileType> STL </ReadFileType>
 		<WriteFlag> 1 </WriteFlag>
 		<WriteDir> ./ </WriteDir>
 		<WriteFilename> geohandlers_output_00003.0000 </WriteFilename>
@@ -14,10 +14,10 @@
 	</Geom0>
 	<Geom1>
 		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag>1</ReadFlag>
-		<ReadDir>./geodata</ReadDir>
-		<ReadFilename>plane1</ReadFilename>
-		<ReadFileType>STL</ReadFileType>
+		<ReadFlag> 1 </ReadFlag>
+		<ReadDir> ./geodata </ReadDir>
+		<ReadFilename> plane1 </ReadFilename>
+		<ReadFileType> STL </ReadFileType>
 		<WriteFlag> 1 </WriteFlag>
 		<WriteDir> ./ </WriteDir>
 		<WriteFilename> geohandlers_output_00003p1.0000 </WriteFilename>
@@ -25,10 +25,10 @@
 	</Geom1>
 	<Geom2>
 		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag>1</ReadFlag>
-		<ReadDir>./geodata</ReadDir>
-		<ReadFilename>plane2</ReadFilename>
-		<ReadFileType>STL</ReadFileType>
+		<ReadFlag> 1 </ReadFlag>
+		<ReadDir> ./geodata </ReadDir>
+		<ReadFilename> plane2 </ReadFilename>
+		<ReadFileType> STL </ReadFileType>
 		<WriteFlag> 1 </WriteFlag>
 		<WriteDir> ./ </WriteDir>
 		<WriteFilename> geohandlers_output_00003p2.0000 </WriteFilename>
@@ -99,50 +99,50 @@
 		<c0>
 			<sender> Geom0 </sender>
 			<senderPort> M_GEOM </senderPort>
-			<receiver>SelMap1 </receiver>
+			<receiver> SelMap1 </receiver>
 			<receiverPort> M_GEOM </receiverPort>
 		</c0>
 		<c1>
 			<sender> Geom0 </sender>
 			<senderPort> M_GEOM </senderPort>
 			<receiver> SelMap2 </receiver>
-			<receiverPort>M_GEOM</receiverPort>
+			<receiverPort> M_GEOM </receiverPort>
 		</c1>
 		<c2>
 			<sender> Geom0 </sender>
 			<senderPort> M_GEOM </senderPort>
 			<receiver> Recon </receiver>
-			<receiverPort>M_GEOM</receiverPort>
+			<receiverPort> M_GEOM </receiverPort>
 		</c2>
 		<c3>
 			<sender> Geom0 </sender>
 			<senderPort> M_GEOM </senderPort>
 			<receiver> Applier </receiver>
-			<receiverPort>M_GEOM</receiverPort>
+			<receiverPort> M_GEOM </receiverPort>
 		</c3>
 		<c4>
 			<sender> Geom1 </sender>
 			<senderPort> M_GEOM </senderPort>
-			<receiver>SelMap1 </receiver>
+			<receiver> SelMap1 </receiver>
 			<receiverPort> M_GEOM2 </receiverPort>
 		</c4>
 		<c5>
 			<sender> Geom2 </sender>
 			<senderPort> M_GEOM </senderPort>
-			<receiver>SelMap2 </receiver>
+			<receiver> SelMap2 </receiver>
 			<receiverPort> M_GEOM2 </receiverPort>
 		</c5>
 		<c6>
 			<sender> SelMap1 </sender>
 			<senderPort> M_GEOM </senderPort>
 			<receiver> MRBF1 </receiver>
-			<receiverPort>M_GEOM</receiverPort>
+			<receiverPort> M_GEOM </receiverPort>
 		</c6>
 		<c7>
 			<sender> SelMap2 </sender>
 			<senderPort> M_GEOM </senderPort>
 			<receiver> MRBF2 </receiver>
-			<receiverPort>M_GEOM</receiverPort>
+			<receiverPort> M_GEOM </receiverPort>
 		</c7>
 		<c8>
 			<sender> InputNode1 </sender>
