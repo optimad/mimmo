@@ -41,9 +41,9 @@ int test2() {
     ginput->setFilename("input/generic_input_00001.csv");
     ginput->exec();
     
-    dvecarr3E result = ginput->getResult()<dvecarr3E>;
+    dvecarr3E result = ginput->getResult<dvecarr3E>();
     
-    bool check = result.size() != 7;
+    bool check = result.size() == 7;
 
     std::cout<<"test passed :"<<check<<std::endl;
     
