@@ -99,7 +99,7 @@ void test00002() {
      */
     GenericInput* input = new GenericInput();
     input->setReadFromFile(true);
-    input->setFilename("input/input_mimmo_00002.txt");
+    input->setFilename("input/manipulators_input_00002.txt");
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.

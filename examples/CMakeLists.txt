@@ -102,7 +102,7 @@ if(BUILD_EXAMPLES)
     add_custom_command(
         TARGET "manipulators_example_00002" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/input_mimmo_00002.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/input_mimmo_00002.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/manipulators_input_00002.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00002.txt"
     )
     add_custom_command(
         TARGET "manipulators_example_00003" PRE_BUILD
