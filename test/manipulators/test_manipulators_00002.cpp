@@ -31,10 +31,10 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Testing Global Manipulators-> Rotation and Scaling 
+ * Testing RBF manipulator 
  */
 
-int test1() {
+int test2() {
     
     //create a mimmoobject containing a single triangle.
     MimmoObject * mesh = new MimmoObject(1);
@@ -52,58 +52,42 @@ int test1() {
         ++counter;
     }
     mesh->addConnectedCell(conn, bitpit::ElementInfo::Type::TRIANGLE, 0, 0);
+//     mesh->getPatch()->write("undeformed");
     
-    //recover normal of the triangle, and area;
-    darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
     
-    MimmoObject * mesh2 = new MimmoObject(1);
-    mesh2->setHARDCopy(mesh);
     
-    RotationGeometry * rot = new RotationGeometry();
-    rot->setGeometry(mesh);
-    rot->setAxis({{0.0,0.0,0.0}},{{1.0,0.0,0.0}});
-    rot->setRotation(M_PI/3.);
-    rot->exec();
+    dvecarr3E rbfpoints, rbfdispls;
+    rbfpoints.push_back(p[1]);
+    rbfpoints.push_back(p[2]);
+    rbfdispls.push_back({{1.0,0.0,0.0}});
+    rbfdispls.push_back({{0.0,1.0,0.0}});
     
-    ScalingGeometry * scale = new ScalingGeometry();
-    scale->setGeometry(mesh);
-    scale->setScaling({{0.5,0.5,0.5}});
-    scale->exec();
+    MRBF * mrbf = new MRBF();
+    mrbf->setGeometry(mesh);
+    mrbf->setNode(rbfpoints);
+    mrbf->setDisplacements(rbfdispls);
+    mrbf->setSupportRadiusValue(0.3);
+    mrbf->exec();
     
     
     Apply * applier = new Apply();
     applier->setGeometry(mesh);
-    applier->setInput(rot->getDisplacements());
-    
-    Apply * applier2 = new Apply();
-    applier2->setGeometry(mesh2);
-    applier2->setInput(scale->getDisplacements());
+    applier->setInput(mrbf->getDisplacements());
     
     applier->exec();
-    applier2->exec();
-
 
     //recover normal of the triangle rotated, and area of the scaled;
-    darray3E normal2 = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
-    double area2     = (static_cast<SurfaceKernel * >(mesh2->getPatch()))->evalCellArea(0);
+    double area2     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
     
-    
+//     mesh->getPatch()->write("deformed");
     //check phase
-    bool check = true;
-    
-    check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.e-18);
-    check = check && ( (std::abs(area/area2) - 4.0) <= 1.e-18);
-    
-//     mesh->getPatch()->write("rotated");
-//     mesh2->getPatch()->write("scaled");
+    bool check = ( (std::abs(area/area2) - 0.25) <= 1.e-18);
     
     delete mesh;
-    delete mesh2;
-    delete rot;
-    delete scale;
+    delete mrbf;
     delete applier;
-    delete applier2;
+    
     std::cout<<"test passed: "<<check<<std::endl;
     return int(!check);
 }
@@ -122,7 +106,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling mimmo Test routines*/
 
-        int val = test1() ;
+        int val = test2() ;
 
 #if ENABLE_MPI==1
 	}

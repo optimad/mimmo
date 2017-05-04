@@ -34,7 +34,7 @@ using namespace mimmo;
  * Testing Global Manipulators-> Rotation and Scaling 
  */
 
-int test1() {
+int test3() {
     
     //create a mimmoobject containing a single triangle.
     MimmoObject * mesh = new MimmoObject(1);
@@ -52,58 +52,59 @@ int test1() {
         ++counter;
     }
     mesh->addConnectedCell(conn, bitpit::ElementInfo::Type::TRIANGLE, 0, 0);
+//     mesh->getPatch()->write("undeformed");
     
     //recover normal of the triangle, and area;
     darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
-    double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
+    darray3E bbmin, bbmax;
+    mesh->getBoundingBox(bbmin, bbmax);
     
-    MimmoObject * mesh2 = new MimmoObject(1);
-    mesh2->setHARDCopy(mesh);
+    darray3E origin = 0.5*(bbmin + bbmax);
+    darray3E span   = bbmax - bbmin;
+    for(auto & val : span){
+        if (val<1.e-18) val = 2.E-03;
+    }
+    double zdispl = 0.5*span[0]*std::tan(M_PI/3.0);
     
-    RotationGeometry * rot = new RotationGeometry();
-    rot->setGeometry(mesh);
-    rot->setAxis({{0.0,0.0,0.0}},{{1.0,0.0,0.0}});
-    rot->setRotation(M_PI/3.);
-    rot->exec();
+    dvecarr3E displ(8,{{0.0,0.0,0.0}});
     
-    ScalingGeometry * scale = new ScalingGeometry();
-    scale->setGeometry(mesh);
-    scale->setScaling({{0.5,0.5,0.5}});
-    scale->exec();
+    displ[0][2] = -1.0*zdispl;
+    displ[1][2] = -1.0*zdispl;
+    displ[4][2] = -1.0*zdispl;
+    displ[5][2] = -1.0*zdispl;
     
+    displ[2][2] = zdispl;
+    displ[3][2] = zdispl;
+    displ[6][2] = zdispl;
+    displ[7][2] = zdispl;
+    
+    
+    FFDLattice * latt = new FFDLattice();
+    latt->setGeometry(mesh);
+    latt->setShape(mimmo::ShapeType::CUBE);
+    latt->setOrigin(origin);
+    latt->setSpan(span);
+    latt->setDimension(ivector1D(3,2));
+    latt->setDisplacements(displ);
+//     latt->setPlotInExecution(true);
+    latt->exec();
     
     Apply * applier = new Apply();
     applier->setGeometry(mesh);
-    applier->setInput(rot->getDisplacements());
-    
-    Apply * applier2 = new Apply();
-    applier2->setGeometry(mesh2);
-    applier2->setInput(scale->getDisplacements());
-    
+    applier->setInput(latt->getDeformation());
     applier->exec();
-    applier2->exec();
 
-
+//     mesh->getPatch()->write("deformed");
     //recover normal of the triangle rotated, and area of the scaled;
     darray3E normal2 = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
-    double area2     = (static_cast<SurfaceKernel * >(mesh2->getPatch()))->evalCellArea(0);
-    
     
     //check phase
-    bool check = true;
-    
-    check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.e-18);
-    check = check && ( (std::abs(area/area2) - 4.0) <= 1.e-18);
-    
-//     mesh->getPatch()->write("rotated");
-//     mesh2->getPatch()->write("scaled");
+    bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.E-18);
     
     delete mesh;
-    delete mesh2;
-    delete rot;
-    delete scale;
+    delete latt;
     delete applier;
-    delete applier2;
+    
     std::cout<<"test passed: "<<check<<std::endl;
     return int(!check);
 }
@@ -122,7 +123,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling mimmo Test routines*/
 
-        int val = test1() ;
+        int val = test3() ;
 
 #if ENABLE_MPI==1
 	}

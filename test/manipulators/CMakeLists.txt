@@ -31,6 +31,8 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # List of tests
 set(TESTS "")
 list(APPEND TESTS "test_manipulators_00001")
+list(APPEND TESTS "test_manipulators_00002")
+list(APPEND TESTS "test_manipulators_00003")
 # if (ENABLE_MPI)
 # 	list(APPEND TESTS "test_manipulators_parallel_00001:3") ##:x number of procs
 # endif ()
