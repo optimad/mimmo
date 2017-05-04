@@ -43,6 +43,14 @@
 		<WriteFilename> manipulators_output_00001.0004 </WriteFilename>
 		<WriteFileType> STL </WriteFileType>
 	</Geom4>
+	<Geom5>
+		<ClassName> mimmo.Geometry </ClassName>
+		<ReadFlag> 0 </ReadFlag>
+		<WriteFlag> 1 </WriteFlag>
+		<WriteDir> ./ </WriteDir>
+		<WriteFilename> manipulators_output_00001.0005 </WriteFilename>
+		<WriteFileType> STL </WriteFileType>
+	</Geom5>
 	<Transl>
 		<ClassName> mimmo.TranslationGeometry </ClassName>
 		<Direction> 0.0 0.0 -1.0 </Direction>
@@ -70,6 +78,21 @@
 		<ClassName> mimmo.Apply </ClassName>
 		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
 	</ApplierTw>
+	<Bend>
+		<ClassName> mimmo.BendGeometry </ClassName>
+		<DegreesMatrix>
+			<xDispl> 0 0 0 </xDispl>
+			<yDispl> 0 0 0 </yDispl>
+			<zDispl> 2 0 0 </zDispl>
+		</DegreesMatrix>
+		<PolyCoefficients>
+			<Poly6>0 0 0.5 </Poly6>
+		</PolyCoefficients>
+	</Bend>
+	<ApplierB>
+		<ClassName> mimmo.Apply </ClassName>
+		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+	</ApplierB>
 	<Rot>
 		<ClassName> mimmo.RotationGeometry </ClassName>
 		<Direction> 0.25 0.25 0.75 </Direction>
@@ -80,101 +103,125 @@
 		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
 	</ApplierR>
 	<Connections>
-        <c0>
-            <sender> Geom0 </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver>Transl </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c0>
-        <c1>
-            <sender> Geom0 </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> ApplierT </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c1>
-        <c2>
-            <sender> Transl </sender>
-            <senderPort> M_GDISPLS </senderPort>
-            <receiver>ApplierT </receiver>
-            <receiverPort> M_GDISPLS </receiverPort>
-        </c2>
-        <c3>
-            <sender> ApplierT </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom1 </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c3>
-        <c4>
-            <sender> Geom1 </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver>Scaling </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c4>
-        <c5>
-            <sender> ApplierT </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> ApplierS </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c5>
-        <c6>
-            <sender> Scaling </sender>
-            <senderPort> M_GDISPLS </senderPort>
-            <receiver>ApplierS </receiver>
-            <receiverPort> M_GDISPLS </receiverPort>
-        </c6>
-        <c7>
-            <sender> ApplierS </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom2 </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c7>
-        <c8>
-            <sender> Geom2 </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver>Twist </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c8>
-        <c9>
-            <sender> ApplierS </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> ApplierTw </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c9>
-        <c10>
-            <sender> Twist </sender>
-            <senderPort> M_GDISPLS </senderPort>
-            <receiver>ApplierTw </receiver>
-            <receiverPort> M_GDISPLS </receiverPort>
-        </c10>
-        <c11>
-            <sender> ApplierTw </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom3 </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c11>
-        <c12>
-            <sender> Geom3 </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver>Rot </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c12>
-        <c13>
-            <sender> ApplierTw </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> ApplierR </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c13>
-        <c14>
-            <sender> Rot </sender>
-            <senderPort> M_GDISPLS </senderPort>
-            <receiver>ApplierR </receiver>
-            <receiverPort> M_GDISPLS </receiverPort>
-        </c14>
-        <c15>
-            <sender> ApplierR </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom4 </receiver>
-            <receiverPort>M_GEOM</receiverPort>
-        </c15>
+		<c0>
+			<sender> Geom0 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver>Transl </receiver>
+			<receiverPort> M_GEOM </receiverPort>
+		</c0>
+		<c1>
+			<sender> Geom0 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> ApplierT </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c1>
+		<c2>
+			<sender> Transl </sender>
+			<senderPort> M_GDISPLS </senderPort>
+			<receiver>ApplierT </receiver>
+			<receiverPort> M_GDISPLS </receiverPort>
+		</c2>
+		<c3>
+			<sender> ApplierT </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> Geom1 </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c3>
+		<c4>
+			<sender> Geom1 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver>Scaling </receiver>
+			<receiverPort> M_GEOM </receiverPort>
+		</c4>
+		<c5>
+			<sender> ApplierT </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> ApplierS </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c5>
+		<c6>
+			<sender> Scaling </sender>
+			<senderPort> M_GDISPLS </senderPort>
+			<receiver>ApplierS </receiver>
+			<receiverPort> M_GDISPLS </receiverPort>
+		</c6>
+		<c7>
+			<sender> ApplierS </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> Geom2 </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c7>
+		<c8>
+			<sender> Geom2 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver>Twist </receiver>
+			<receiverPort> M_GEOM </receiverPort>
+		</c8>
+		<c9>
+			<sender> ApplierS </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> ApplierTw </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c9>
+		<c10>
+			<sender> Twist </sender>
+			<senderPort> M_GDISPLS </senderPort>
+			<receiver>ApplierTw </receiver>
+			<receiverPort> M_GDISPLS </receiverPort>
+		</c10>
+		<c11>
+			<sender> ApplierTw </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> Geom3 </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c11>
+		<c12>
+			<sender> Geom3 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver>Bend </receiver>
+			<receiverPort> M_GEOM </receiverPort>
+		</c12>
+		<c13>
+			<sender> ApplierTw </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> ApplierB </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c13>
+		<c14>
+			<sender> Bend </sender>
+			<senderPort> M_GDISPLS </senderPort>
+			<receiver>ApplierB </receiver>
+			<receiverPort> M_GDISPLS </receiverPort>
+		</c14>
+		<c15>
+			<sender> ApplierB </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> Geom4 </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c15>
+		<c16>
+			<sender> Geom4 </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver>Rot </receiver>
+			<receiverPort> M_GEOM </receiverPort>
+		</c16>
+		<c17>
+			<sender> ApplierB </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> ApplierR </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c17>
+		<c18>
+			<sender> Rot </sender>
+			<senderPort> M_GDISPLS </senderPort>
+			<receiver>ApplierR </receiver>
+			<receiverPort> M_GDISPLS </receiverPort>
+		</c18>
+		<c19>
+			<sender> ApplierR </sender>
+			<senderPort> M_GEOM </senderPort>
+			<receiver> Geom5 </receiver>
+			<receiverPort>M_GEOM</receiverPort>
+		</c19>
 	</Connections>
 </mimmoXML>	

@@ -275,8 +275,12 @@ BendGeometry::toLocalCoord(darray3E  point){
  * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
  * - <B>DegreesMatrix(3x3)</B> : degrees of each polynomial function referred to a displacement 
  *      in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
- *      marks a constant function 
- * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions.
+ *      marks a constant function. Sub-section for the degree of the displacements polynomial
+ *      in each direction are named <B>xDispl</B> , <B>yDispl</B> and <B>zDispl</B>.
+ * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Sub-section
+ *      for each function are <B>Poly<I>i</I></B> where i is the index of polynomial (i = 0..9).
+ *      Default value for coefficients is 0.
+ *
  * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0})
  * - <B>RefSystem</B>: axes of local reference system (if not set the absolute one is used)
  * 
@@ -316,8 +320,8 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
             for(int i=0; i<3; ++i)	ss>>temp[1][i];
         }
 
-        if(subslot.hasOption("yDispl")){
-            input = subslot.get("yDispl");
+        if(subslot.hasOption("zDispl")){
+            input = subslot.get("zDispl");
             std::stringstream ss(bitpit::utils::trim(input));
             for(int i=0; i<3; ++i)	ss>>temp[2][i];
         }
