@@ -116,6 +116,20 @@ void test00005() {
     GenericInput* input = new GenericInput();
     input->setInput(displ);
 
+    /* Set Generic output block to write the
+     * nodes defined above.
+     */
+    GenericOutput * outputn = new GenericOutput();
+    outputn->setFilename("manipulators_output_00005n.csv");
+    outputn->setCSV(true);
+
+    /* Set Generic output block to write the
+     * displacements defined above.
+     */
+    GenericOutput * outputd = new GenericOutput();
+    outputd->setFilename("manipulators_output_00005d.csv");
+    outputd->setCSV(true);
+
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
@@ -127,7 +141,9 @@ void test00005() {
     addPin(mimmo0, proj, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
     addPin(proj, mrbf, PortType::M_COORDS, PortType::M_COORDS);
+    addPin(proj, outputn, PortType::M_COORDS, PortType::M_COORDS);
     addPin(input, mrbf, PortType::M_DISPLS, PortType::M_DISPLS);
+    addPin(input, outputd, PortType::M_DISPLS, PortType::M_DISPLS);
     addPin(mrbf, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
     addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
 
@@ -138,6 +154,8 @@ void test00005() {
      */
     Chain ch0;
     ch0.addObject(input);
+    ch0.addObject(outputn);
+    ch0.addObject(outputd);
     ch0.addObject(mimmo0);
     ch0.addObject(proj);
     ch0.addObject(applier);
@@ -155,13 +173,17 @@ void test00005() {
     delete proj;
     delete applier;
     delete input;
+    delete outputn;
+    delete outputd;
     delete mimmo0;
     delete mimmo1;
 
     proj    = NULL;
     mrbf    = NULL;
     applier = NULL;
-    input 	= NULL;
+    input   = NULL;
+    outputn = NULL;
+    outputd = NULL;
     mimmo0  = NULL;
     mimmo1  = NULL;
 
