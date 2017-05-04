@@ -38,7 +38,8 @@ int test2() {
     GenericInput * ginput = new GenericInput();
     ginput->setReadFromFile(true);
     ginput->setCSV(true);
-    ginput->setFilename("input/generic_input_00001.csv");
+    ginput->setReadDir("input");
+    ginput->setFilename("generic_input_00001.csv");
     ginput->exec();
     
     dvecarr3E result = ginput->getResult<dvecarr3E>();
