@@ -32,23 +32,46 @@ using namespace mimmo;
 // =================================================================================== //
 
 
-void testRC() {
+void test00001() {
+
+    /* Creation of Generic output block to read a set of
+     * coordinates of cloud points as generic input in csv format.
+     */
     GenericInput * read = new GenericInput(true, true);
-    read->setFilename("input/input_00001.csv");
-    read->execute();
+    read->setReadFromFile(true);
+    read->setFilename("input/generic_input_00001.csv");
+    read->setCSV(true);
 
-    dvecarr3E points = read->getResult<dvecarr3E>();
-
+    /* Creation of Generic output block to write a set of
+     * coordinates of cloud points as generic output in csv format.
+     */
     GenericOutput * write = new GenericOutput();
     write->setFilename("generic_output_00001.csv");
     write->setCSV(true);
-    write->setInput(points);
-    write->execute();
 
-    std::cout<<"Here my points"<<std::endl;
-    for(auto & val: points){
-        std::cout<<val<<std::endl;
-    }
+    /* Setup pin connections.
+     */
+    addPin(read, write, PortType::M_COORDS, PortType::M_COORDS);
+
+    /* Setup execution chain.
+     */
+    Chain ch0;
+    ch0.addObject(read);
+    ch0.addObject(write);
+
+    /* Execution of chain.
+     * Use debug flag true to print out the execution steps.
+     */
+    ch0.exec(true);
+
+    /* Clean up & exit;
+     */
+    delete read;
+    delete write;
+
+    read = NULL;
+    write = NULL;
+
 }
 
 // =================================================================================== //
@@ -65,7 +88,7 @@ int main( int argc, char *argv[] ) {
 #endif
         /**<Calling mimmo Test routines*/
 
-        testRC();
+        test00001();
 
 #if ENABLE_MPI==1
     }

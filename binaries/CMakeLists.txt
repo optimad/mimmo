@@ -68,6 +68,7 @@ if(BUILD_XMLTUI)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/test1.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/test1.xml"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/manipulators_example_00001.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/manipulators_example_00001.xml"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/geohandlers_example_00003.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/geohandlers_example_00003.xml"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/genericinput_example_00001.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/genericinput_example_00001.xml"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/prism.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/prism.stl"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/geodata/plane1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane1.stl"
@@ -76,6 +77,7 @@ if(BUILD_XMLTUI)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/geohandlers_input_00003n2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003d2.txt"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/geohandlers_input_00003d1.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n1.txt"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/geohandlers_input_00003d2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n2.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
 	)
 
 	#...

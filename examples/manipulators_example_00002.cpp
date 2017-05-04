@@ -131,11 +131,11 @@ void test00002() {
     ch0.addObject(mimmo1);
 
     /* Execution of chain.
-     * Use debug flag false (default) to avoid to to print out the execution steps.
+     * Use debug flag false (default) to avoid to print out the execution steps.
      */
     cout << " " << endl;
     cout << " --- execution start ---" << endl;
-    ch0.exec(true);
+    ch0.exec(false);
     cout << " --- execution done --- " << endl;
     cout << " " << endl;
 
@@ -152,8 +152,6 @@ void test00002() {
     input 	= NULL;
     mimmo0  = NULL;
     mimmo1  = NULL;
-
-    return;
 
 }
 

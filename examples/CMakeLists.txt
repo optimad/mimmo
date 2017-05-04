@@ -133,7 +133,7 @@ if(BUILD_EXAMPLES)
     )
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/input_00001.csv"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
     )
     if (MODULE_ENABLED1)
         add_custom_command(
