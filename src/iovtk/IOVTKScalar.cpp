@@ -51,6 +51,35 @@ IOVTKScalar::IOVTKScalar(){
     m_scaling	= 1.0;
 }
 
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
+    
+    m_name      = "mimmo.IOVTKScalar";
+    m_read      = false;
+    m_rfilename = "mimmoVTKScalar";
+    m_write     = false;
+    m_wfilename = "mimmoVTKScalar";
+    m_rdir      = "./";
+    m_wdir      = "./";
+    m_polydata  = NULL;
+    m_local     = false;
+    m_normalize = true;
+    m_scaling   = 1.0;
+    
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.IOVTKScalar"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::IOVTKScalar constructor. No valid xml data found"<<std::endl;
+    };
+}
+
 /*!Default destructor of IOVTKScalar.
  */
 IOVTKScalar::~IOVTKScalar(){
@@ -66,6 +95,7 @@ IOVTKScalar::IOVTKScalar(const IOVTKScalar & other){
 /*!Assignement operator of IOVTKScalar.
  */
 IOVTKScalar & IOVTKScalar::operator=(const IOVTKScalar & other){
+    *(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation *>(&other));
     m_read = other.m_read;
     m_rfilename = other.m_rfilename;
     m_write = other.m_write;
@@ -95,42 +125,68 @@ IOVTKScalar::buildPorts(){
     m_arePortsBuilt = built;
 };
 
+/*!
+ * Return pointer to the currently linked VTK PolyData object
+ */
 vtkPolyData*
 IOVTKScalar::getPolyData(){
     return m_polydata;
 }
 
+/*!
+ * Return the currently set scaling parameter;
+ */
 double
 IOVTKScalar::getScaling(){
     return m_scaling;
 }
 
+/*!
+ * Returning field associated to the class
+ */
 dvector1D
 IOVTKScalar::getField(){
     return m_field;
 }
 
+/*!
+ * Set the pointer to the target VTK PolyData object
+ * \param[in] polydata vtkPolyData object pointer
+ */
 void
 IOVTKScalar::setPolyData(vtkPolyData* polydata){
     m_polydata = polydata;
 }
 
+/*!
+ * Set the scaling parameter to remodulate field
+ * \param[in] scaling parameter
+ */
 void
 IOVTKScalar::setScaling(double scaling){
     m_scaling = scaling;
 }
 
+/*!
+ * Set the field associated to the class.
+ * \param[in] field scalar field of doubles
+ */
 void
 IOVTKScalar::setField(dvector1D field){
     m_field = field;
 }
 
+/*!
+ * Activate field normalization w.r.t. the maximum field value found
+ * \param[in] normalize true/false to activate field normalization
+ */
 void
 IOVTKScalar::setNormalize(bool normalize){
     m_normalize = normalize;
 }
 
-/*!It sets the condition to read the geometry on file during the execution.
+/*!
+ * It sets the condition to read the geometry on file during the execution.
  * \param[in] read Does it read the geometry in execution?
  */
 void
@@ -138,7 +194,8 @@ IOVTKScalar::setRead(bool read){
     m_read = read;
 }
 
-/*!It sets the name of directory to read the geometry.
+/*!
+ * It sets the name of directory to read the geometry.
  * \param[in] dir Name of directory.
  */
 void
@@ -146,7 +203,8 @@ IOVTKScalar::setReadDir(string dir){
     m_rdir = dir;
 }
 
-/*!It sets the name of file to read the geometry.
+/*!
+ * It sets the name of file to read the geometry.
  * \param[in] filename Name of input file.
  */
 void
@@ -154,7 +212,8 @@ IOVTKScalar::setReadFilename(string filename){
     m_rfilename = filename;
 }
 
-/*!It sets the condition to write the geometry on file during the execution.
+/*!
+ * It sets the condition to write the geometry on file during the execution.
  * \param[in] write Does it write the geometry in execution?
  */
 void
@@ -162,7 +221,8 @@ IOVTKScalar::setWrite(bool write){
     m_write = write;
 }
 
-/*!It sets the name of directory to write the geometry.
+/*!
+ * It sets the name of directory to write the geometry.
  * \param[in] dir Name of directory.
  */
 void
@@ -170,7 +230,8 @@ IOVTKScalar::setWriteDir(string dir){
     m_wdir = dir;
 }
 
-/*!It sets the name of file to write the geometry.
+/*!
+ * It sets the name of file to write the geometry.
  * \param[in] filename Name of output file.
  */
 void
@@ -179,7 +240,8 @@ IOVTKScalar::setWriteFilename(string filename){
 }
 
 
-/*!It reads the mesh geometry from an input file.
+/*!
+ * It reads the mesh geometry from an input file.
  * \return False if file doesn't exists or is not a polydata.
  */
 bool
@@ -277,7 +339,8 @@ IOVTKScalar::read(){
 
 }
 
-/*!It writes the mesh geometry on output .vtu file.
+/*!
+ * It writes the mesh geometry on output .vtu file.
  * It modifies the linked polydata with the linked geometry if exists or it writes the linked geometry if only this exists.
  *\return False if not polydata neither geometry are linked.
  */
@@ -372,7 +435,8 @@ IOVTKScalar::write(){
     return true;
 }
 
-/*!Execution command.
+/*!
+ * Execution command.
  * It reads the geometry if the condition m_read is true.
  * It writes the geometry if the condition m_write is true.
  */
@@ -393,4 +457,176 @@ IOVTKScalar::execute(){
     }
 }
 
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML. Except of geometry parameters (polydata or MimmObject 
+ * which are instantiated internally or passed by port linking) and the target field, 
+ * the class reads the following parameters:
+ *
+ *  --> Absorbing data:
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean 0/1
+ * - <B>ReadDir</B>: reading directory path
+ * - <B>ReadFilename</B>: name of file for reading
+ * - <B>WriteFlag</B>: activate reading mode boolean 0/1
+ * - <B>WriteDir</B>: writing directory path
+ * - <B>WriteFilename</B>: name of file for writing
+ * - <B>Normalize</B>: activate field normalization boolean 0/1
+ * - <B>Scaling</B>: set field scaling factor (double) 
+ * 
+ *
+ * \param[in]   slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void 
+IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    std::string input;
+    
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+    
+    if(slotXML.hasOption("ReadFlag")){
+        input = slotXML.get("ReadFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setRead(value);
+    };
+
+    if(slotXML.hasOption("WriteFlag")){
+        input = slotXML.get("WriteFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setWrite(value);
+    };
+    
+    
+    if (m_read){
+        if(slotXML.hasOption("ReadDir")){
+            input = slotXML.get("ReadDir");
+            input = bitpit::utils::trim(input);
+            if(input.empty())   input = "./";
+            setReadDir(input);
+        };
+        
+        if(slotXML.hasOption("ReadFilename")){
+            input = slotXML.get("ReadFilename");
+            input = bitpit::utils::trim(input);
+            if(input.empty())   input = "mimmoGeometry";
+            setReadFilename(input);
+        };
+    }
+    
+    if(m_write){
+        if(slotXML.hasOption("WriteDir")){
+            input = slotXML.get("WriteDir");
+            input = bitpit::utils::trim(input);
+            if(input.empty())   input = "./";
+            setWriteDir(input);
+        };
+        
+        if(slotXML.hasOption("WriteFilename")){
+            input = slotXML.get("WriteFilename");
+            input = bitpit::utils::trim(input);
+            if(input.empty())   input = "mimmoGeometry";
+            setWriteFilename(input);
+        };
+    }
+    
+    if(slotXML.hasOption("Normalize")){
+        input = slotXML.get("Normalize");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setNormalize(value);
+    };
+    
+    if(slotXML.hasOption("Scaling")){
+        input = slotXML.get("Scaling");
+        double value = 1.0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setScaling(value);
+    };
+};
+
+/*!
+ * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML. Except of geometry parameters (polydata or MimmObject 
+ * which are instantiated internally or passed by port linking) and the target field,
+ * the class writes the following parameters:
+ * 
+ *
+ * --> Flushing data// how to write it on XML:
+ * - <B>ClassName</B>: name of the class as "mimmo.Geometry"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean 0/1
+ * - <B>ReadDir</B>: reading directory path
+ * - <B>ReadFilename</B>: name of file for reading
+ * - <B>WriteFlag</B>: activate reading mode boolean 0/1
+ * - <B>WriteDir</B>: writing directory path
+ * - <B>WriteFilename</B>: name of file for writing
+ * - <B>Normalize</B>: activate field normalization boolean 0/1
+ * - <B>Scaling</B>: set field scaling factor (double) 
+ * 
+ *
+ * \param[in]   slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void 
+IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+    std::string output;
+    
+    output = std::to_string(uint(m_read));
+    slotXML.set("ReadFlag", output);
+    
+    if(m_read){
+        slotXML.set("ReadDir", m_rdir);
+        slotXML.set("ReadFilename", m_rfilename);
+    }
+
+    output = std::to_string(uint(m_write));
+    slotXML.set("WriteFlag", output);
+    
+    if(m_write){
+        slotXML.set("WriteDir", m_wdir);
+        slotXML.set("WriteFilename", m_wfilename);
+    }
+    
+    output = std::to_string(uint(m_normalize));
+    slotXML.set("Normalize", output);
+    slotXML.set("Scaling", std::to_string(m_scaling));
+};
+
+
+
+
+
 }
+
+
