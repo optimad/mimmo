@@ -538,7 +538,7 @@ IOCGNS::read(){
         switch(val){
         case CGNS_ENUMV(MIXED):
 
-		        unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
+		                unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
         break;
 
         case CGNS_ENUMV(TETRA_4):
@@ -926,7 +926,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         case CGNS_ENUMV(NODE):
-			                                        ++it;
+			                                                ++it;
         break;
 
         case CGNS_ENUMV(BAR_2):
@@ -1127,14 +1127,14 @@ void IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         input = slotXML.get("WriteDir");
         input = bitpit::utils::trim(input);
         if(input.empty())   input = "./";
-       setWriteDir(input);
+        setWriteDir(input);
     };
 
     if(slotXML.hasOption("WriteFilename")){
         input = slotXML.get("WriteFilename");
         input = bitpit::utils::trim(input);
         if(input.empty())   input = "mimmoGeometry";
-       setWriteFilename(input);
+        setWriteFilename(input);
     };
 
 };
@@ -1145,7 +1145,7 @@ void IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
  * or passed by port linking), the class writes the following parameters(if different from default):
  *
  * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.Geometry"
+ * - <B>ClassName</B>: name of the class as "mimmo.IOCGNS"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>ReadFlag</B>: activate reading mode boolean 1-reading mode, 0-writing mode
  * - <B>ReadDir</B>: reading directory path
@@ -1177,7 +1177,6 @@ void IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
 
     slotXML.set("WriteFilename", m_wfilename);
 
-return;
 };
 
 

@@ -210,6 +210,8 @@ public:
 
 };
 
+REGISTER(BaseManipulation, IOCGNS,"mimmo.IOCGNS")
+
 }
 
 #endif /* __IOCGNS_HPP__ */

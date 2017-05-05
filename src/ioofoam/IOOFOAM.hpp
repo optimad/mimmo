@@ -88,7 +88,7 @@ private:
 	std::string                     m_wdirV;        /**<Name of directory to write the point cloud (without final "/").*/
 	std::string                     m_wfilenameV;   /**<Name of file to write the point cloud (with extension) in openFOAM points format.*/
 
-    short                           m_stopat;       /**<Index of first patch not read (OpenFOAM points = MAX_DHORT) or, during write, flag of patch not linked (0=surface, 1=volume, 2=both). */
+    short                           m_stopat;       /**<Index of first patch not read (OpenFOAM points = MAX_SHORT) or, during write, flag of patch not linked (0=surface, 1=volume, 2=both). */
 
     std::unique_ptr<MimmoObject>    m_volmesh;      /**<Original volume mesh, instantiated in reading */
     std::unique_ptr<MimmoObject>    m_surfmesh;     /**<Original boundary mesh, instantiated in reading */
@@ -102,12 +102,14 @@ private:
 
 public:
 	IOOFOAM();
+	IOOFOAM(const bitpit::Config::Section & rootXML);
 	~IOOFOAM();
 
 	IOOFOAM(const IOOFOAM & other);
 	IOOFOAM & operator=(const IOOFOAM & other);
 
-	void			buildPorts();
+    void            buildPorts();
+    void            setDefaults();
 
 	void			setRead(bool read);
     void            setVTKReadDir(std::vector<std::string> dir);
@@ -140,7 +142,12 @@ public:
 
 	void 			execute();
 
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 };
+
+REGISTER(BaseManipulation, IOOFOAM,"mimmo.IOOFOAM")
 
 }
 

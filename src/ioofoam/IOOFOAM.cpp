@@ -36,17 +36,27 @@ namespace mimmo{
 /*!Default constructor of IOOFOAM.
  */
 IOOFOAM::IOOFOAM(){
-	m_name 		 = "mimmo.IOOFOAM";
-	m_read		 = false;
-	m_rfilenameS.clear();
-	m_rdirS.clear();
-    m_write      = false;
-    m_wfilenameV = "mimmoPoints";
-	m_wdirV		 = "./";
-	m_surfmesh_ext = NULL;
-	m_maxf      = 0.0;
-	m_scaling   = 1.0;
-	m_normalize = true;
+    m_name 		 = "mimmo.IOOFOAM";
+    setDefaults();
+}
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
+
+    m_name = "mimmo.IOOFOAM";
+    setDefaults();
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.IOOFOAM"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::IOOFOAM constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*!Default destructor of IOOFOAM.
@@ -56,28 +66,45 @@ IOOFOAM::~IOOFOAM(){};
 /*!Copy constructor of IOOFOAM.
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other){
-	*this = other;
+    *this = other;
 };
 
 /*!Assignement operator of IOOFOAM.
  */
 IOOFOAM & IOOFOAM::operator=(const IOOFOAM & other){
-	m_read = other.m_read;
-	m_rfilenameS= other.m_rfilenameS;
-	m_write = other.m_write;
-	m_wfilenameV = other.m_wfilenameV;
-	m_rdirS = other.m_rdirS;
-	m_wdirV = other.m_wdirV;
+    m_read = other.m_read;
+    m_rfilenameS= other.m_rfilenameS;
+    m_write = other.m_write;
+    m_wfilenameV = other.m_wfilenameV;
+    m_rdirS = other.m_rdirS;
+    m_wdirV = other.m_wdirV;
     m_surfmesh_ext = other.m_surfmesh_ext;
-	return *this;
+    return *this;
 };
+
+/*!Default values for IOOFOAM.
+ */
+void
+IOOFOAM::setDefaults(){
+
+    m_read       = false;
+    m_rfilenameS.clear();
+    m_rdirS.clear();
+    m_write      = false;
+    m_wfilenameV = "mimmoPoints";
+    m_wdirV      = "./";
+    m_surfmesh_ext = NULL;
+    m_maxf      = 0.0;
+    m_scaling   = 1.0;
+    m_normalize = true;
+}
 
 /*! It builds the input/output ports of the object
  */
 void
 IOOFOAM::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    bool built = true;
+    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortIn<dvector1D, IOOFOAM>(this, &IOOFOAM::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 
@@ -92,7 +119,7 @@ IOOFOAM::buildPorts(){
  */
 void
 IOOFOAM::setRead(bool read){
-	m_read = read;
+    m_read = read;
 }
 
 /*!It sets the name of directory to read the geometry (surface patches).
@@ -100,7 +127,7 @@ IOOFOAM::setRead(bool read){
  */
 void
 IOOFOAM::setVTKReadDir(vector<string> dir){
-	m_rdirS = dir;
+    m_rdirS = dir;
 }
 
 /*!It sets the name of file to read the geometry (surface patches).
@@ -108,7 +135,7 @@ IOOFOAM::setVTKReadDir(vector<string> dir){
  */
 void
 IOOFOAM::setVTKReadFilename(vector<string> filename){
-	m_rfilenameS = filename;
+    m_rfilenameS = filename;
 }
 
 /*!It adds a name of directory to read a geometry (surface patch).
@@ -116,7 +143,7 @@ IOOFOAM::setVTKReadFilename(vector<string> filename){
  */
 void
 IOOFOAM::addVTKReadDir(string dir){
-	m_rdirS.push_back(dir);
+    m_rdirS.push_back(dir);
 }
 
 /*!It adds a name of file to read a geometry (surface patch).
@@ -124,7 +151,7 @@ IOOFOAM::addVTKReadDir(string dir){
  */
 void
 IOOFOAM::addVTKReadFilename(string filename){
-	m_rfilenameS.push_back(filename);
+    m_rfilenameS.push_back(filename);
 }
 
 /*!It sets the name of directory to read the points cloud (volume patch).
@@ -149,7 +176,7 @@ IOOFOAM::setPointsReadFilename(string filename){
  */
 void
 IOOFOAM::setWrite(bool write){
-	m_write = write;
+    m_write = write;
 }
 
 /*!It sets the name of directory to write the geometry (surface patch).
@@ -157,7 +184,7 @@ IOOFOAM::setWrite(bool write){
  */
 void
 IOOFOAM::setVTKWriteDir(string dir){
-	m_wdirS = dir;
+    m_wdirS = dir;
 }
 
 /*!It sets the name of file to write the geometry (surface patch).
@@ -165,7 +192,7 @@ IOOFOAM::setVTKWriteDir(string dir){
  */
 void
 IOOFOAM::setVTKWriteFilename(string filename){
-	m_wfilenameS = filename;
+    m_wfilenameS = filename;
 }
 
 /*!It sets the name of directory to write the geometry (volume points cloud).
@@ -338,7 +365,7 @@ IOOFOAM::read(){
     //release the surface mesh
     m_surfmesh = std::move(patchBnd);
 
-	return true;
+    return true;
 
 }
 
@@ -616,26 +643,317 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
  */
 void
 IOOFOAM::execute(){
-	bool check;
-	if (m_read) check = read();
-	if (!check){
-	    if (m_stopat == SHRT_MAX){
-	        std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameV << std::endl;
-	        std::cout << " " << std::endl;
-	        exit(10);
-	    }
-		std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameS[m_stopat] << std::endl;
-		std::cout << " " << std::endl;
-		exit(10);
-	}
-	if (m_write) check = write();
-	if (!check){
-	    if (m_stopat == 2){
-	        std::cout << "mimmo : ERROR : write not done : surface and volume geometry not linked " << std::endl;
-	        std::cout << " " << std::endl;
-	        exit(11);
-	    }
-	}
+    bool check;
+    if (m_read) check = read();
+    if (!check){
+        if (m_stopat == SHRT_MAX){
+            std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameV << std::endl;
+            std::cout << " " << std::endl;
+            exit(10);
+        }
+        std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameS[m_stopat] << std::endl;
+        std::cout << " " << std::endl;
+        exit(10);
+    }
+    if (m_write) check = write();
+    if (!check){
+        if (m_stopat == 2){
+            std::cout << "mimmo : ERROR : write not done : surface and volume geometry not linked " << std::endl;
+            std::cout << " " << std::endl;
+            exit(11);
+        }
+    }
 }
+
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class reads the following parameters:
+ *
+ *  --> Absorbing data:
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>VTKReadDirs</B>: VTK reading directories path; there can be more than one with the following sub-structure
+ *              <VTKReadDirs>
+ *                  <dir0>
+ *                      <dir> path to the directory of VTK file </dir>
+ *                  </dir0>
+ *                  <dir1>
+ *                      <dir> path to the directory of VTK file </dir>
+ *                  </dir1>
+ *                  ...
+ *                  ...
+ *              </VTKReadDirs>
+ * - <B>VTKReadFilenames</B>: names of files VTK for reading there can be more than one with the following sub-structure
+ *              <VTKReadFilenames>
+ *                  <file0>
+ *                      <filename> path to the directory of VTK file </dir>
+ *                  </file0>
+ *                  <file1>
+ *                      <filename> path to the directory of VTK file </dir>
+ *                  </file1>
+ *                  ...
+ *                  ...
+ *              </VTKReadFilenames>
+ * - <B>PointsReadDir</B>: points file reading directory path (there can be only one)
+ * - <B>PointsReadFilename</B>: name of points file for reading (there can be only one)
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>VTKWriteDir</B>: VTK file (one in output) writing directory path
+ * - <B>VTKWriteFilename</B>: VTK name of file for writing
+ * - <B>Scalar</B>: value to scale the scalar field eventually present on volume mesh (defined on points) [default 1.0]
+ * - <B>Normalize</B>: bool to define if the scalar field has to be normalize after read [default false]
+ *
+ * \param[in]   slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+
+    std::string input;
+
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
+    if(slotXML.hasOption("ReadFlag")){
+        input = slotXML.get("ReadFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setRead(value);
+    };
+
+    std::vector<std::string> temp_dirs;
+    if(slotXML.hasSection("VTKReadDirs")){
+
+        const bitpit::Config::Section & filesXML = slotXML.getSection("VTKReadDirs");
+
+        for(auto & subfile : filesXML.getSections()){
+            std::string dir;
+
+            if(subfile.second->hasOption("dir"))   {
+                dir = subfile.second->get("dir");
+            }
+
+            if(!dir.empty()){
+                temp_dirs.push_back(dir);
+            }
+        }
+        setVTKReadDir(temp_dirs);
+    }
+
+
+    std::vector<std::string> temp_files;
+    if(slotXML.hasSection("VTKReadFilenames")){
+
+        const bitpit::Config::Section & filesXML = slotXML.getSection("VTKReadFilenames");
+
+        for(auto & subfile : filesXML.getSections()){
+            std::string file;
+
+            if(subfile.second->hasOption("filename"))   {
+                file = subfile.second->get("filename");
+            }
+
+            if(!file.empty()){
+                temp_files.push_back(file);
+            }
+        }
+        setVTKReadFilename(temp_files);
+    }
+
+    if(slotXML.hasOption("PointsReadDir")){
+        input = slotXML.get("PointsReadDir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setPointsReadDir(input);
+    };
+
+
+    if(slotXML.hasOption("PointsReadFilename")){
+        input = slotXML.get("PointsReadFilename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setPointsReadFilename(input);
+    };
+
+
+    if(slotXML.hasOption("WriteFlag")){
+        input = slotXML.get("WriteFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setWrite(value);
+    };
+
+
+    if(slotXML.hasOption("PointsWriteDir")){
+        input = slotXML.get("PointsWriteDir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setPointsWriteDir(input);
+    };
+
+
+    if(slotXML.hasOption("PointsWriteFilename")){
+        input = slotXML.get("PointsWriteFilename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setPointsWriteFilename(input);
+    };
+
+
+    if(slotXML.hasOption("VTKWriteDir")){
+        input = slotXML.get("VTKWriteDir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setVTKWriteDir(input);
+    };
+
+
+    if(slotXML.hasOption("VTKWriteFilename")){
+        input = slotXML.get("VTKWriteFilename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())   input = "./";
+        setVTKWriteFilename(input);
+    };
+
+
+    if(slotXML.hasOption("Normalize")){
+        input = slotXML.get("Normalize");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setNormalize(value);
+    };
+
+
+    if(slotXML.hasOption("Scaling")){
+        input = slotXML.get("Scaling");
+        double value = 1.0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setScaling(value);
+    };
+
+};
+
+/*!
+ * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class writes the following parameters(if different from default):
+ *
+ * --> Flushing data// how to write it on XML:
+ * - <B>ClassName</B>: name of the class as "mimmo.IOOFOAM"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean
+ * - <B>VTKReadDirs</B>: VTK reading directories path; there can be more than one with the following sub-structure
+ *              <VTKReadDirs>
+ *                  <dir0>
+ *                      <dir> path to the directory of VTK file </dir>
+ *                  </dir0>
+ *                  <dir1>
+ *                      <dir> path to the directory of VTK file </dir>
+ *                  </dir1>
+ *                  ...
+ *                  ...
+ *              </VTKReadDirs>
+ * - <B>VTKReadFilenames</B>: names of files VTK for reading there can be more than one with the following sub-structure
+ *              <VTKReadFilenames>
+ *                  <file0>
+ *                      <filename> path to the directory of VTK file </dir>
+ *                  </file0>
+ *                  <file1>
+ *                      <filename> path to the directory of VTK file </dir>
+ *                  </file1>
+ *                  ...
+ *                  ...
+ *              </VTKReadFilenames>
+ * - <B>PointsReadDir</B>: points file reading directory path (there can be only one)
+ * - <B>PointsReadFilename</B>: name of points file for reading (there can be only one)
+ * - <B>WriteFlag</B>: activate writing mode boolean
+ * - <B>VTKWriteDir</B>: VTK file (one in output) writing directory path
+ * - <B>VTKWriteFilename</B>: VTK name of file for writing
+ * - <B>Scalar</B>: value to scale the scalar field eventually present on volume mesh (defined on points) [default 1.0]
+ * - <B>Normalize</B>: bool to define if the scalar field has to be normalize after read [default false]
+ *
+ * \param[in]   slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+
+
+    std::string output;
+
+    output = std::to_string(m_read);
+    slotXML.set("ReadFlag", output);
+
+    {
+        bitpit::Config::Section & filesXML = slotXML.addSection("VTKReadDirs");
+
+        int counter = 0;
+        for(auto & dir : m_rdirS){
+            std::string name = "dir"+std::to_string(counter);
+            bitpit::Config::Section & local = filesXML.addSection(name);
+            local.set("dir", dir);
+            ++counter;
+        }
+    }
+
+    {
+        bitpit::Config::Section & filesXML = slotXML.addSection("VTKReadFilenames");
+
+        int counter = 0;
+        for(auto & file : m_rfilenameS){
+            std::string name = "file"+std::to_string(counter);
+            bitpit::Config::Section & local = filesXML.addSection(name);
+            local.set("filename", file);
+            ++counter;
+        }
+    }
+
+    slotXML.set("PointsReadDir", m_rdirV);
+    slotXML.set("PointsReadFilename", m_rfilenameV);
+
+    output = std::to_string(m_write);
+    slotXML.set("WriteFlag", output);
+
+    slotXML.set("VTKWriteDir", m_wdirS);
+    slotXML.set("VTKWriteFilename", m_wfilenameS);
+    slotXML.set("PointsWriteDir", m_wdirV);
+    slotXML.set("PointsWriteFilename", m_wfilenameV);
+
+    output = std::to_string(m_normalize);
+    slotXML.set("Normalize", output);
+
+    if (m_scaling != 1.0){
+        std::stringstream ss;
+        ss<<std::scientific<<m_scaling;
+        slotXML.set("Scaling", ss.str());
+    }
+
+};
+
 
 }
