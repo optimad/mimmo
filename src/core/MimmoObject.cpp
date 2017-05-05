@@ -675,7 +675,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
         //check on element type
         eltype = cell.getType();
         //check info PID 
-        short pid = (short)	cell.getPID();
+        pid = (short)cell.getPID();
         nVert = cell.getVertexCount();
         connectivity.resize(nVert);
         auto conn = cell.getConnect();

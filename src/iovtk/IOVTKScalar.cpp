@@ -88,7 +88,7 @@ IOVTKScalar::~IOVTKScalar(){
 
 /*!Copy constructor of IOVTKScalar.
  */
-IOVTKScalar::IOVTKScalar(const IOVTKScalar & other){
+IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(){
     *this = other;
 };
 
@@ -285,7 +285,7 @@ IOVTKScalar::read(){
 
         vtkSmartPointer<vtkPoints> points = output2->GetPoints();
         vtkCellArray *cells = output2->GetPolys();
-        vtkCellData *cdata = output2->GetCellData();
+        //vtkCellData *cdata = output2->GetCellData();
         vtkPointData *pdata = output2->GetPointData();
 
         double point_[3];
@@ -442,7 +442,7 @@ IOVTKScalar::write(){
  */
 void
 IOVTKScalar::execute(){
-    bool check;
+    bool check = true;
     if (m_read) check = read();
     if (!check){
         std::cout << "mimmo : ERROR : file not found : "<< m_rfilename << std::endl;

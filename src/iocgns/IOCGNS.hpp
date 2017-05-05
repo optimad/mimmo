@@ -25,6 +25,7 @@
 #define __IOCGNS_HPP__
 
 #include "BaseManipulation.hpp"
+#include <cgnslib.h>
 
 namespace mimmo{
 
@@ -51,39 +52,39 @@ class BCCGNS;
  * Dependencies : cgns libraries.
  *
  *
- *	=========================================================
+ *  =========================================================
  * ~~~
- *	|-----------------------------------------------------------------------|
- *	|                     Port Input                                       	|
- *	|-------|------------------|------------------------|-------------------|
- *	|PortID | PortType         | variable/function      | DataTypes			|
- *	|-------|------------------|------------------------|-------------------|
- *  | 99	| M_GEOM 		   | setGeometry  		    | (SCALAR, MIMMO_)  |
+ *  |-----------------------------------------------------------------------|
+ *  |                     Port Input                                        |
+ *  |-------|------------------|------------------------|-------------------|
+ *  |PortID | PortType         | variable/function      | DataTypes         |
+ *  |-------|------------------|------------------------|-------------------|
+ *  | 99    | M_GEOM           | setGeometry            | (SCALAR, MIMMO_)  |
  *  | 98    | M_GEOM2          | setSurfaceBoundary     | (SCALAR, MIMMO_)  |
  *  | 108   | M_BCCGNS         | setBoundaryConditions  | (SCALAR, MIMMO_)  |
- *	|-------|------------------|------------------------|-------------------|
+ *  |-------|------------------|------------------------|-------------------|
  *
  *
- *	|-----------------------------------------------------------------------|
- *	|               Port Output                               				|
- *	|-------|------------------|------------------------|-------------------|
- *	|PortID | PortType         | variable/function      | DataTypes			|
- *	|-------|------------------|------------------------|-------------------|
- *  | 99	| M_GEOM 		   | getGeometry  		    | (SCALAR, MIMMO_)  |
- *	| 98    | M_GEOM2		   | getSurfaceBoundary     | (SCALAR, MIMMO_)  |
+ *  |-----------------------------------------------------------------------|
+ *  |               Port Output                                             |
+ *  |-------|------------------|------------------------|-------------------|
+ *  |PortID | PortType         | variable/function      | DataTypes         |
+ *  |-------|------------------|------------------------|-------------------|
+ *  | 99    | M_GEOM           | getGeometry            | (SCALAR, MIMMO_)  |
+ *  | 98    | M_GEOM2          | getSurfaceBoundary     | (SCALAR, MIMMO_)  |
  *  | 108   | M_BCCGNS         | getBoundaryConditions  | (SCALAR, MIMMO_)  |
- *	|-------|------------------|------------------------|-------------------|
+ *  |-------|------------------|------------------------|-------------------|
  *
  */
 class IOCGNS: public BaseManipulation{
 private:
-    bool			m_read; 		/**<If true it reads the geometry from file during the execution.*/
-    bool			m_write; 		/**<If true it writes the geometry on file during the execution.*/
+    bool            m_read;         /**<If true it reads the geometry from file during the execution.*/
+    bool            m_write;        /**<If true it writes the geometry on file during the execution.*/
 
-    std::string		m_rdir;			/**<Name of directory to read the geometry (without final "/").*/
-    std::string		m_rfilename;	/**<Name of file to read the geometry (without extension).*/
-    std::string		m_wdir;			/**<Name of directory to write the geometry (without final "/").*/
-    std::string		m_wfilename;	/**<Name of file to write the geometry.*/
+    std::string     m_rdir;         /**<Name of directory to read the geometry (without final "/").*/
+    std::string     m_rfilename;    /**<Name of file to read the geometry (without extension).*/
+    std::string     m_wdir;         /**<Name of directory to write the geometry (without final "/").*/
+    std::string     m_wfilename;    /**<Name of file to write the geometry.*/
 
     std::unique_ptr<MimmoObject>        m_volmesh;          /*!Original volume mesh, instantiated in reading */
     std::unique_ptr<MimmoObject>        m_surfmesh;         /*!Original boundary mesh, instantiad in reading */
@@ -107,36 +108,36 @@ public:
     MimmoObject*	getGeometry();
     BCCGNS*         getBoundaryConditions();
 
-    bool			isReadingMode();
-    bool			isWritingMode();
+    bool            isReadingMode();
+    bool            isWritingMode();
 
-    void			setReadDir(std::string dir);
-    void			setRead(bool read);
-    void			setWriteDir(std::string dir);
-    void			setReadFilename(std::string filename);
-    void			setWrite(bool write);
-    void			setWriteFilename(std::string filename);
+    void            setReadDir(std::string dir);
+    void            setRead(bool read);
+    void            setWriteDir(std::string dir);
+    void            setReadFilename(std::string filename);
+    void            setWrite(bool write);
+    void            setWriteFilename(std::string filename);
 
-    void			setGeometry(MimmoObject*);
-    void			setSurfaceBoundary(MimmoObject*);
+    void            setGeometry(MimmoObject*);
+    void            setSurfaceBoundary(MimmoObject*);
     void            setBoundaryConditions(BCCGNS*);
-    void 			execute();
+    void            execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
 
-    bool			write();
-    bool			read();
+    bool            write();
+    bool            read();
 
 private:
-    void	unpack3DElementsMixedConns(MimmoObject*,MimmoObject*, ivector1D &, long &startId);
+    void    unpack3DElementsMixedConns(MimmoObject*,MimmoObject*, ivector1D &, long &startId);
     void    recoverCGNSInfo();
 
 };
 
-#include <cgnslib.h>
+
 /*!
  *  \date           14/apr/2017
  *  \authors        Rocco Arpa

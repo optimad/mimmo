@@ -64,7 +64,7 @@ IOCGNS::~IOCGNS(){};
 
 /*!Copy constructor of IOCGNS.
  */
-IOCGNS::IOCGNS(const IOCGNS & other){
+IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(){
     *this = other;
 };
 
@@ -309,8 +309,9 @@ IOCGNS::read(){
     std::string file = m_rdir+"/"+m_rfilename+".cgns";
     std::string error_string = "read CGNS grid: " + file;
 
-    long nVertices, nCells, nBoundVertices;
-    int nCoords, nConnSections;
+    long nVertices;
+    //     long nCells, nBoundVertices;
+    int nCoords; //, nConnSections;
     std::array< std::vector<double>,3 > coords;
     std::vector<CG_ElementType_t> orderedConns;
     std::unordered_map<int, ivector1D> conns;
@@ -373,9 +374,11 @@ IOCGNS::read(){
     if(cg_zone_read(indexfile,1,1, zonename, sizeG.data()) != CG_OK ){
         return false;
     }
+
+    
     nVertices 		= sizeG[0];
-    nCells 			= sizeG[1];
-    nBoundVertices	= sizeG[2];
+//     nCells 			= sizeG[1];
+//     nBoundVertices	= sizeG[2];
 
     //Read Vertices.
     if(cg_ncoords(indexfile,1,1, &nCoords)!= CG_OK){
@@ -424,7 +427,7 @@ IOCGNS::read(){
         if(cg_ElementDataSize(indexfile,1,1, sec,&size)!= CG_OK){
             return false;
         }
-        cgsize_t nelements = eEnd-eBeg + 1;
+        //cgsize_t nelements = eEnd-eBeg + 1;
 
         connlocal.resize((size_t) size);
         int *ptr = NULL;
@@ -693,7 +696,7 @@ IOCGNS::write(){
     std::string error_string = "write CGNS grid: " + file;
 
     long nVertices, nCells, nBoundVertices;
-    int nCoords;
+    //int nCoords;
     std::array< std::vector<double>,3 > coords;
 
     /* Fill this structures (surface boundary connectivity has
@@ -705,7 +708,7 @@ IOCGNS::write(){
     if( vol->isEmpty() && bnd->isEmpty() ) return false;
 
     /* Verify if a surface boundary mesh exists. */
-    bool flagBnd = (bnd != NULL);
+    //bool flagBnd = (bnd != NULL);
 
     /* Check number of volume cells and global vertices. */
     nVertices = vol->getNVertex();
@@ -740,7 +743,7 @@ IOCGNS::write(){
 
     int zoneindex=1;
     CG_ZoneType_t zoneType =CG_ZoneType_t::CG_Unstructured ;
-    int index_dim = 1;
+    //int index_dim = 1;
     char zonename[33] = "Zone  1";
     std::vector<cgsize_t> sizeG(3);
     sizeG[0] = nVertices;

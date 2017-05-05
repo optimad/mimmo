@@ -177,7 +177,8 @@ TwistGeometry::execute(){
     liimap mapID = m_geometry->getMapDataInv();
     darray3E projected;
     double distance;
-    double sign, rot;
+    //double sign;
+    double rot;
 
     for (auto vertex : m_geometry->getVertices()){
         point = vertex.getCoords();

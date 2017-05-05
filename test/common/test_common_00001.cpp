@@ -42,7 +42,8 @@ public:
 class DerivedClass:public BaseClass {
 public:
 	DerivedClass(const bitpit::Config::Section & xmlroot){
-		m_member= "DerivedClass";
+        BITPIT_UNUSED(xmlroot);
+        m_member= "DerivedClass";
 	};
 	virtual ~DerivedClass(){};
 	std::string whoAmI(){return m_member;};

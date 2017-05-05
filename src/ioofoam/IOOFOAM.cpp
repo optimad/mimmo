@@ -65,7 +65,7 @@ IOOFOAM::~IOOFOAM(){};
 
 /*!Copy constructor of IOOFOAM.
  */
-IOOFOAM::IOOFOAM(const IOOFOAM & other){
+IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(){
     *this = other;
 };
 
@@ -320,8 +320,6 @@ IOOFOAM::read(){
 
         //Reverse info in your grids.
         std::unique_ptr<MimmoObject> patchVol(new MimmoObject(3));
-        long id;
-        darray3E temp;
 
         int sizeV = Ipoints.size();
         patchVol->getPatch()->reserveVertices(sizeV);
@@ -528,7 +526,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
 
 
     string inputFilename = inputDir+"/"+surfaceName+".vtk";
-    int np = 0;
+    //int np = 0;
     int nt = 0;
     darray3E point;
     bitpit::Vertex vertex;
@@ -556,7 +554,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
 
         vtkSmartPointer<vtkPoints> points = output2->GetPoints();
         vtkCellArray *cells = output2->GetPolys();
-        vtkCellData *cdata = output2->GetCellData();
+        //vtkCellData *cdata = output2->GetCellData();
         vtkPointData *pdata = output2->GetPointData();
 
 
@@ -643,7 +641,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
  */
 void
 IOOFOAM::execute(){
-    bool check;
+    bool check = true;
     if (m_read) check = read();
     if (!check){
         if (m_stopat == SHRT_MAX){

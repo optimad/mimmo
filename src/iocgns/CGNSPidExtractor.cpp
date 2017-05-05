@@ -44,7 +44,7 @@ CGNSPidExtractor::~CGNSPidExtractor(){};
 
 /*!Copy constructor of CGNSPidExtractor.
  */
-CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other){
+CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other):BaseManipulation(){
 	*this = other;
 };
 

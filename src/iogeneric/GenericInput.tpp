@@ -164,7 +164,7 @@ GenericInput::_getResult(){
 template <typename T>
 std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, T &x){
 
-T                   dummy;
+T                   dummy{};
 char                delim;
 
 if ((in.good())) {
@@ -176,8 +176,7 @@ return(in);
 template <typename T>
 std::ifstream&  GenericInput::ifstreamcsvend(std::ifstream &in, T &x){
 
-T                   dummy;
-char                delim;
+T                   dummy{};
 
 if ((in.good())) {
     if (in >> dummy) { x = dummy;}
@@ -189,13 +188,7 @@ template <typename T>
 std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::vector< T > &x){
 
 T       dummy;
-char    delim;
-int     i, n = x.size();
 
-//i = 0;
-//while ((in.good()) && (i < n)) {
-//    if (ifstreamcsv(in,dummy)) { x[i] = dummy; i++; }
-//} //next i
 while (in.good()) {
     if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
 }
@@ -205,8 +198,7 @@ return(in);
 template <typename T, size_t d>
 std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::array< T, d> &x){
 
-T       dummy;
-char    delim;
+T       dummy{};
 int     i;
 
 i = 0;
