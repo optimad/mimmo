@@ -33,9 +33,29 @@ namespace mimmo{
 /*!Default constructor of CGNSPidExtractor.
  */
 CGNSPidExtractor::CGNSPidExtractor(){
-	m_name 		= "MiMMINO.CGNSPidExtractor";
+	m_name 		= "mimmo.CGNSPidExtractor";
 	m_force = false;
 	m_targetpid.insert(0);
+}
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+CGNSPidExtractor::CGNSPidExtractor(const bitpit::Config::Section & rootXML){
+    
+    m_name = "mimmo.CGNSPidExtractor";
+    m_force = false;
+    m_targetpid.insert(0);
+    
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.CGNSPidExtractor"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::CGNSPidExtractor constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*!Default destructor of CGNSPidExtractor.
@@ -104,7 +124,7 @@ CGNSPidExtractor::isForcedToTriangulate(){
  */
 void
 CGNSPidExtractor::addPID( short val){
-	m_targetpid.insert(val);
+	if(val > 0) m_targetpid.insert(val);
 }
 
 /*!
@@ -239,5 +259,139 @@ void CGNSPidExtractor::plotOptionalResults(){
 	std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 	getPatch()->getPatch()->write(name);
 }
+
+/*!
+ * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class reads the following parameters:
+ *
+ *  --> Absorbing data:
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>nPID</B>: number of Geometry PID involved in the extraction
+ * - <B>PID</B>: list of Geometry PID (blank-separated) that need to be extracted(element must be coeherent with nPID)
+ * - <B>ForcedToTriangulate</B>: force retriangulation of the extracted patches, boolean 0/1
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * \param[in]   slotXML bitpit::Config::Section which reads from
+ * \param[in] name   name associated to the slot
+ */
+void 
+CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    std::string input;
+    
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+    
+    std::vector<short> temp;
+    if(slotXML.hasOption("nPID")){
+        input = slotXML.get("nPID");
+        int value = 0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+            value = std::max(0, value);
+        }
+        temp.resize(value, -1);
+    };
+
+    if(slotXML.hasOption("PID") && !temp.empty()){
+        input = slotXML.get("PID");
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            for(auto & val: temp){
+                ss >> val;
+            }
+        }
+        setPID(temp);
+    };
+    
+    if(slotXML.hasOption("ForcedToTriangulate")){
+        input = slotXML.get("ForcedToTriangulate");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setForcedToTriangulate(value);
+    };
+    
+    if(slotXML.hasOption("PlotInExecution")){
+        std::string input = slotXML.get("PlotInExecution");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setPlotInExecution(value);
+    }
+
+    if(slotXML.hasOption("OutputPlot")){
+        std::string input = slotXML.get("OutputPlot");
+        input = bitpit::utils::trim(input);
+        std::string temp = ".";
+        if(!input.empty())  setOutputPlot(input);
+        else                setOutputPlot(temp);
+    }
+};
+
+/*!
+ * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
+ * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
+ * or passed by port linking), the class writes the following parameters(if different from default):
+ *
+ * --> Flushing data// how to write it on XML:
+ * - <B>ClassName</B>: name of the class as "mimmo.CGNSPidExtractor"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>nPID</B>: number of Geometry PID involved in the extraction
+ * - <B>PID</B>: list of Geometry PID (blank-separated) that need to be extracted(element must be coeherent with nPID)
+ * - <B>ForcedToTriangulate</B>: force retriangulation of the extracted patches, boolean 0/1
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ * 
+ *
+ * \param[in]   slotXML bitpit::Config::Section which writes to
+ * \param[in] name   name associated to the slot
+ */
+void 
+CGNSPidExtractor::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+    slotXML.set("nPID", std::to_string(int(m_targetpid.size())));
+    
+    std::stringstream output;
+    auto it = m_targetpid.begin();
+    auto itE = m_targetpid.end();
+    while(it != itE)    {
+        output<<*it<<" ";
+        ++it;
+    }    
+    slotXML.set("PID", output.str());
+    slotXML.set("ForcedToTriangulate", std::to_string(int(m_force)));
+    
+    if(isPlotInExecution()){
+        slotXML.set("PlotInExecution", std::to_string(1));
+    }
+    if(m_outputPlot != "."){
+        slotXML.set("OutputPlot", m_outputPlot);
+    }
+    
+};
+
 
 }

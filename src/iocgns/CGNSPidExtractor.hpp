@@ -30,60 +30,62 @@
 namespace mimmo{
 
 /*!
- *	\date			28/apr/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
+ *  \class	CGNSPidExtractor
+ *  \brief CGNSPidExtractor is the class to extract a pidded patch from
+ *   a surface boundary mesh readed form cgns file.
  *
- *	\brief CGNSPidExtractor is the class to extract a pidded patch from a surface boundary mesh readed form cgns file.
- *
- * The object return the pidded patch as an independent surface mesh. It triangulates the patch if forced to
+ * The object return the pidded patch as an independent surface mesh. 
+ * It triangulates the patch if forced to.
 
- *	=========================================================
+ * =========================================================
  * ~~~
- *	|-----------------------------------------------------------------------|
- *	|                     Port Input                                    	|
- *	|-------|------------------|---------------------|----------------------|
- *	|PortID | PortType         | variable/function   | DataTypes			|
- *	|-------|------------------|---------------------|----------------------|
- *  | 99	| M_GEOM 		   | setGeometry  		 | (SCALAR, MIMMO_)		|
- *	|-------|------------------|---------------------|----------------------|
+ *  |-----------------------------------------------------------------------|
+ *  |                     Port Input                                        |
+ *  |-------|------------------|---------------------|----------------------|
+ *  |PortID | PortType         | variable/function   | DataTypes            |
+ *  |-------|------------------|---------------------|----------------------|
+ *  | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
+ *  |-------|------------------|---------------------|----------------------|
  *
  *
- *	|-------------------------------------------------------------------------|
- *	|               Port Output                           					  |
- *	|-------|------------------|---------------------|------------------------|
- *	|PortID | PortType         | variable/function   | DataTypes			  |
- *	|-------|------------------|---------------------|------------------------|
- *  | 99	| M_GEOM 		   | getPatch()  		 | (SCALAR, MIMMO_)		  |
- *	|-------|------------------|---------------------|------------------------|
+ *  |-------------------------------------------------------------------------|
+ *  |               Port Output                                               |
+ *  |-------|------------------|---------------------|------------------------|
+ *  |PortID | PortType         | variable/function   | DataTypes              |
+ *  |-------|------------------|---------------------|------------------------|
+ *  | 99    | M_GEOM           | getPatch()          | (SCALAR, MIMMO_)       |
+ *  |-------|------------------|---------------------|------------------------|
  *
  */
 class CGNSPidExtractor: public BaseManipulation{
 private:
-	bool					m_force; 		/**<force triangulation of the extracted patch if true.*/
-	std::set<short>			m_targetpid;	/**<If true it writes the geometry on file during the execution.*/
-	
-	std::unique_ptr<MimmoObject> m_patch; /*!extracted patch */
-	
+    bool                         m_force;     /**<force triangulation of the extracted patch if true.*/
+    std::set<short>              m_targetpid; /**<list of PID involved in the extraction.*/
+    std::unique_ptr<MimmoObject> m_patch;     /*!extracted patch */
+
 public:
-	CGNSPidExtractor();
-	~CGNSPidExtractor();
+    CGNSPidExtractor();
+    CGNSPidExtractor(const bitpit::Config::Section & rootXML);
+    ~CGNSPidExtractor();
 
-	CGNSPidExtractor(const CGNSPidExtractor & other);
-	CGNSPidExtractor & operator=(const CGNSPidExtractor & other);
+    CGNSPidExtractor(const CGNSPidExtractor & other);
+    CGNSPidExtractor & operator=(const CGNSPidExtractor & other);
 
-	void			buildPorts();
-	
-	MimmoObject*			getPatch();
-	std::set<short>			whatPIDActive();
-	bool					isForcedToTriangulate();
-	
-	void			addPID(short val);
-	void			setPID(std::vector<short int> vval);
-	void 			setForcedToTriangulate(bool flag);
-	void			setGeometry(MimmoObject*);
-	
-	void 			execute();
+    void            buildPorts();
+
+    MimmoObject*    getPatch();
+    std::set<short> whatPIDActive();
+    bool            isForcedToTriangulate();
+
+    void            addPID(short val);
+    void            setPID(std::vector<short int> vval);
+    void            setForcedToTriangulate(bool flag);
+    void            setGeometry(MimmoObject*);
+
+    void            execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
 	
@@ -91,6 +93,7 @@ protected:
 	
 };
 
+REGISTER(BaseManipulation, CGNSPidExtractor,"mimmo.CGNSPidExtractor")
 }
 
 #endif /* __CGNSPIDEXTRACTOR_HPP__ */
