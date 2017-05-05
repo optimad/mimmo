@@ -93,13 +93,15 @@ private:
     BCCGNS*                     m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
 
 public:
-    IOCGNS(bool read = true);
+    IOCGNS(bool read = false);
+    IOCGNS(const bitpit::Config::Section & rootXML);
     ~IOCGNS();
 
     IOCGNS(const IOCGNS & other);
     IOCGNS & operator=(const IOCGNS & other);
 
-    void			buildPorts();
+    void            setDefaults();
+    void            buildPorts();
 
     MimmoObject*	getSurfaceBoundary();
     MimmoObject*	getGeometry();
@@ -119,6 +121,9 @@ public:
     void			setSurfaceBoundary(MimmoObject*);
     void            setBoundaryConditions(BCCGNS*);
     void 			execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
 
