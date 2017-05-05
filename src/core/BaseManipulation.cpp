@@ -218,12 +218,21 @@ BaseManipulation::getNPortsOut(){
 }
 
 /*!
- * It gets if the object is activates or disable during the execution.
- * \return True/false if the object is activates or disable during the execution.
+ * It gets all the input ports of the object
+ * \return Map with PortID as key and pointer to input ports as value.
  */
-bool
-BaseManipulation::isActive(){
-	return (m_active);
+map<PortID, PortIn*>
+BaseManipulation::getPortsIn(){
+    return (m_portIn);
+}
+
+/*!
+ * It gets all the output ports of the object
+ * \return Map with PortID as key and pointer to output ports as value.
+ */
+map<PortID, PortOut*>
+BaseManipulation::getPortsOut(){
+    return (m_portOut);
 }
 
 /*!
@@ -233,6 +242,15 @@ BaseManipulation::isActive(){
 bool
 BaseManipulation::isPlotInExecution(){
 	return (m_execPlot);
+}
+
+/*!
+ * It gets if the object is activates or disable during the execution.
+ * \return True/false if the object is activates or disable during the execution.
+ */
+bool
+BaseManipulation::isActive(){
+	return (m_active);
 }
 
 /*!
@@ -275,7 +293,6 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
 	m_geometry = geometry;
 };
 
-
 /*!
  * Activates the feature to plot optional results of the block.
  * \param[in] flag true/false to activate/deactivate the feature
@@ -296,12 +313,12 @@ BaseManipulation::setOutputPlot(std::string path){
 	m_outputPlot = path;
 }
 
-
 /*!
  * Set (force) integer identifier of the object (deprecated : use setId())
  * \param[in] id integer identifier
  */
-void 	BaseManipulation::setClassCounter(int id){
+void
+BaseManipulation::setClassCounter(int id){
 	setId(id);
 }
 
@@ -309,7 +326,8 @@ void 	BaseManipulation::setClassCounter(int id){
  * Set (force) integer identifier of the object
  * \param[in] id integer identifier
  */
-void    BaseManipulation::setId(int id){
+void
+BaseManipulation::setId(int id){
     m_counter = id;
 }
 
@@ -373,7 +391,6 @@ BaseManipulation::removePinsOut(){
 	}
 }
 
-
 /*!
  * It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
@@ -402,19 +419,18 @@ BaseManipulation::exec(){
 	if(isPlotInExecution())	plotOptionalResults();
 }
 
-
 /*!
  * Base method to absorb parameter infos from an XML parser class of bitpit. Need to be coded for each
  * class derived from BaseManipulation. At this level, do nothing.
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name      string name associated to the slot. OPTIONAL
  */
-void  BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	BITPIT_UNUSED(slotXML);
 	BITPIT_UNUSED(name);
 	return;
 }
-
 
 /*!
  * Base method to flush parameter infos to an XML parser class of bitpit. Need to be coded for each
@@ -422,7 +438,8 @@ void  BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name      string name associated to the slot.OPTIONAL
  */
-void  BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	BITPIT_UNUSED(slotXML);
 	BITPIT_UNUSED(name);
 	return;
@@ -532,25 +549,6 @@ BaseManipulation::unsetChild(BaseManipulation * child){
 };
 
 /*!
- * It gets all the input ports of the object
- * \return Map with PortID as key and pointer to input ports as value.
- */
-map<PortID, PortIn*>
-BaseManipulation::getPortsIn(){
-	return (m_portIn);
-}
-
-/*!
- * It gets all the output ports of the object
- * \return Map with PortID as key and pointer to output ports as value.
- */
-map<PortID, PortOut*>
-BaseManipulation::getPortsOut(){
-	return (m_portOut);
-}
-
-
-/*!
  * It finds an input pin (connection) of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the input pins structure.
@@ -578,44 +576,15 @@ BaseManipulation::findPinOut(PortOut& pin){
 	return(-1);
 }
 
-/*!
- * It removes an input pin (connection) of the object and the
- * related output pin (connection) of the linked object.
- * \param[in] portR Port ID of target input pin (connection).
- * \param[in] j Index of target output pin (connection) of the portR input port.
- */
-void
-BaseManipulation::removePinIn(PortID portR, int j){
-	if ( m_portIn.count(portR) != 0 ){
-		if (j<(int)m_portIn[portR]->getLink().size() && j >= 0){
-			m_portIn[portR]->clear(j);
-		}
-	}
-}
-
-/*!It removes an output pin (connection) of the object and the
- * related input pin (connection) of the linked object.
- * \param[in] portS Port ID of target output pin (connection).
- * \param[in] j Index of target output pin (connection) of the portS output port.
- */
-void
-BaseManipulation::removePinOut(PortID portS, int j){
-	if ( m_portOut.count(portS) != 0 ){
-		if (j<(int)m_portOut[portS]->getLink().size() && j >= 0){
-			m_portOut[portS]->clear(j);
-		}
-	}
-}
-
 /*!It adds an input pin (connection) of the object.
  * \param[in] objIn Pointer to sender BaseManipulation object.
  * \param[in] portR ID of target input port.
  */
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
-	if (objIn != NULL && m_portIn.count(portR) !=0 ){
-		m_portIn[portR]->m_objLink.push_back(objIn);
-	}
+    if (objIn != NULL && m_portIn.count(portR) !=0 ){
+        m_portIn[portR]->m_objLink.push_back(objIn);
+    }
 };
 
 /*!It adds an output pin (connection) of the object.
@@ -625,12 +594,12 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR){
-	if (objOut != NULL && m_portOut.count(portS) != 0 ){
-		if (objOut->m_portIn.count(portR) != 0){
-			m_portOut[portS]->m_objLink.push_back(objOut);
-			m_portOut[portS]->m_portLink.push_back(portR);
-		}
-	}
+    if (objOut != NULL && m_portOut.count(portS) != 0 ){
+        if (objOut->m_portIn.count(portR) != 0){
+            m_portOut[portS]->m_objLink.push_back(objOut);
+            m_portOut[portS]->m_portLink.push_back(portR);
+        }
+    }
 };
 
 /*!It removes an input pin (connection) of the object and the related output pin (connection) of the linked object.
@@ -665,6 +634,34 @@ BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
 	};
 }
 
+/*!
+ * It removes an input pin (connection) of the object and the
+ * related output pin (connection) of the linked object.
+ * \param[in] portR Port ID of target input pin (connection).
+ * \param[in] j Index of target output pin (connection) of the portR input port.
+ */
+void
+BaseManipulation::removePinIn(PortID portR, int j){
+    if ( m_portIn.count(portR) != 0 ){
+        if (j<(int)m_portIn[portR]->getLink().size() && j >= 0){
+            m_portIn[portR]->clear(j);
+        }
+    }
+}
+
+/*!It removes an output pin (connection) of the object and the
+ * related input pin (connection) of the linked object.
+ * \param[in] portS Port ID of target output pin (connection).
+ * \param[in] j Index of target output pin (connection) of the portS output port.
+ */
+void
+BaseManipulation::removePinOut(PortID portS, int j){
+    if ( m_portOut.count(portS) != 0 ){
+        if (j<(int)m_portOut[portS]->getLink().size() && j >= 0){
+            m_portOut[portS]->clear(j);
+        }
+    }
+}
 
 /*!
  * Plot optional data related to your blocks. The current method for the BaseManipulation class

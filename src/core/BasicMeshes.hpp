@@ -70,7 +70,7 @@ private:
 	darray3E				m_span_temp;			
 	darray3E				m_inflimits_temp;
 	dmatrix33E				m_refsystem_temp;
-	ShapeType	m_shapetype_temp;
+	ShapeType	            m_shapetype_temp;
 
 public:	     
 	//Building stuffs	    
@@ -80,8 +80,7 @@ public:
 	// Copy constructor & assignment operators
 	UStructMesh(const UStructMesh & other);
 	UStructMesh & operator=(const UStructMesh & other);
-	
-	
+
 	//get-set methods  
 	const BasicShape*		getShape() const;
 	BasicShape*				getShape();
@@ -193,10 +192,8 @@ protected:
 	void 		resizeMesh();
 	void 		destroyNodalStructure();
 	void 		reshapeNodalStructure();
-
 	
 };
-
 
 
 /*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x

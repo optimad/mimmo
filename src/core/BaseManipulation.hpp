@@ -35,11 +35,7 @@
 #include <unordered_map>
 #include <typeinfo>
 
-
-
-
 namespace mimmo{
-	
 
 using namespace pin;
 
@@ -75,7 +71,7 @@ class BaseManipulation{
 public:
 	//type definitions
 	typedef std::unordered_map<BaseManipulation*, int>	bmumap;			/**<Unordered map type used for parent/child storing.*/
-	typedef pin::ConnectionType					ConnectionType;	/**<Connection type specification for Manipulation object.*/
+	typedef pin::ConnectionType					        ConnectionType;	/**<Connection type specification for Manipulation object.*/
 	typedef	short int									PortID;			/**<Port ID (position of slot).*/
 	
 protected:
@@ -112,7 +108,6 @@ public:
 
 	bool				arePortsBuilt();
 
-	//get methods
 	uint 				getPriority();
 	std::string			getName();
 	MimmoObject*		getGeometry();
@@ -133,7 +128,6 @@ public:
     int     getClassCounter();
     int     getId();
 
-	//set methods
 	void 	setPriority(uint priority);
 	void	setName(std::string name);
 	void 	setGeometry(MimmoObject* geometry);
@@ -145,22 +139,18 @@ public:
 	void	activate();
 	void	disable();
 
-	//cleaning/unset
 	void 	unsetGeometry();
 	void 	removePins();
 	void 	removePinsIn();
 	void 	removePinsOut();
 	void	clear();
 	
-	//execution utils
 	void 	exec();
 	
-	//XML utilities from reading writing settings to file
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 	
-	
-	
+
 protected:
 
 	virtual void 	buildPorts() = 0;
@@ -327,6 +317,5 @@ public:
 };
 
 #include "BaseManipulation.tpp"
-
 
 #endif /* __BASEMANIPULATION_HPP__ */
