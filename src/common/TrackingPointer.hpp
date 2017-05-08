@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -21,20 +21,22 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
+
 #ifndef __TRACKINGPOINTER_HPP__
 #define __TRACKINGPOINTER_HPP__
 
 namespace mimmo{
 /*!
  * \class TrackingPointer
- * \brief Basic virtual class to create a generic object whose pointer can return an identifying name.
+ * \brief Basic virtual class to derive a generic object whose pointer can return 
+ * an identifying name through the method whichClass.
  */
 class TrackingPointer{
 public:
-	TrackingPointer(){};
-	virtual ~TrackingPointer(){};
+    TrackingPointer(){};
+    virtual ~TrackingPointer(){};
 
-	virtual std::string whichClass() = 0;
+    virtual std::string whichClass() = 0;
 };
 
 }

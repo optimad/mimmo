@@ -1,5 +1,4 @@
 /*
- * 
  * This file only is part of Better Enums, released under the BSD 2-clause license.
  * See doc/LICENSE for details, or visit https://github.com/aantron/better-enums.
  * The Optimad's mimmo API, in its source and bynary distributables, uses it, without 
