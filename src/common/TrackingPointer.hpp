@@ -26,6 +26,12 @@
 #define __TRACKINGPOINTER_HPP__
 
 namespace mimmo{
+    
+    /*!
+     * \ingroup common
+     * \{
+     */
+    
 /*!
  * \class TrackingPointer
  * \brief Basic virtual class to derive a generic object whose pointer can return 
@@ -38,6 +44,10 @@ public:
 
     virtual std::string whichClass() = 0;
 };
+
+/*!
+ * \}
+ */
 
 }
 
