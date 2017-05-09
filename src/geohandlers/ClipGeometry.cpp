@@ -128,7 +128,7 @@ ClipGeometry::getClipPlane(){
 
 /*!
  * It sets coefficients of the clipping plane in its implicit form a*x+b*y+c*z+d=0
- * \param[in]plane array of 4 coefficients a,b,c,d.
+ * \param[in] plane array of 4 coefficients a,b,c,d.
  */
 void
 ClipGeometry::setClipPlane(darray4E plane){

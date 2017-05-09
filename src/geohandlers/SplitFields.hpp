@@ -72,7 +72,7 @@ namespace mimmo{
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
- * Geometry has to be mandatorily passed through port.
+ * Geometries and fields have to be mandatorily passed through port.
  *
  */
 class SplitField: public BaseManipulation{

@@ -254,9 +254,8 @@ private:
     std::unordered_map<long, dvecarr3E>        checkOverlapping();
 };
 
-
-REGISTER(BaseManipulation, ReconstructScalar,"mimmo.ReconstructScalar");
-REGISTER(BaseManipulation, ReconstructVector,"mimmo.ReconstructVector");
+REGISTER(BaseManipulation, ReconstructScalar,"mimmo.ReconstructScalar")
+REGISTER(BaseManipulation, ReconstructVector,"mimmo.ReconstructVector")
 
 };
 
