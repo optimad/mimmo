@@ -26,7 +26,7 @@
 
 #include "enum.hpp"
 
-/*!
+/*
  * \ingroup core
  * \def PortType
  * \brief better_enum for mimmo ports

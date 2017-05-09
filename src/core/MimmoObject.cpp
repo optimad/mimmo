@@ -1284,7 +1284,7 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
     
     switch(patchType){
         case 1:
-            if  type == bitpit::ElementInfo::TRIANGLE)      check = 3;
+            if  (type == bitpit::ElementInfo::TRIANGLE)     check = 3;
             if  (type == bitpit::ElementInfo::QUAD)         check = 4;
             break;
         case 2:
