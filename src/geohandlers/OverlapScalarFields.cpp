@@ -201,7 +201,6 @@ OverlapScalarFields::setOverlapCriterium( int funct){
     m_results.clear();
 };
 
-
 /*!
  * Append data fields of a geometry in a list , as a pair
  * (pointer to the geometry, pointer to the field it refers to).
@@ -235,7 +234,8 @@ OverlapScalarFields::setDataFieldMap( std::unordered_map<MimmoObject*, dvector1D
  * (pointer to the geometry, pointer to the field it refers to).
  * \param[in] fieldList    Vector of pair with geometry pointers and related fields to be inserted
  */
-void        OverlapScalarFields::setDataFieldList(std::vector<std::pair<MimmoObject*, dvector1D*> > fieldList){
+void
+OverlapScalarFields::setDataFieldList(std::vector<std::pair<MimmoObject*, dvector1D*> > fieldList){
 
     for(auto & val : fieldList){
         setAddDataField(val);
@@ -292,7 +292,6 @@ OverlapScalarFields::buildPorts(){
     built = (built && createPortOut<std::vector<std::pair<MimmoObject *, dvector1D *>>,OverlapScalarFields>(this, &mimmo::OverlapScalarFields::getDataFieldList, PortType::M_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_));
     m_arePortsBuilt = built;
 };
-
 
 /*!
  * Plot overlapped data field of a target geometry. If geometry is not listed into the class, plot nothing.
@@ -370,9 +369,9 @@ OverlapScalarFields::plotAllData(std::string dir, std::string name, bool flag){
     }
 };
 
-
 /*!
- * Execution command. Overlap fields and save result in m_results member.
+ * Execution command.
+ * Overlap fields and save result in m_results member.
  */
 void
 OverlapScalarFields::execute(){
@@ -414,7 +413,7 @@ OverlapScalarFields::plotOptionalResults(){
 /*!
  * Overlap concurrent value of different fields in the same node. Overlap Method is specified
  * in the class set
- *\param[in] locField list of value of concurrent field. If value is unique, simply assigns it 
+ *\param[in] locField List of value of concurrent field. If value is unique, simply assigns it
  *\return    assigned value
  */
 //DEVELOPERS REMIND if more overlap methods are added refer to this method to implement them
