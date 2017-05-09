@@ -22,12 +22,11 @@
  #
  #----------------------------------------------------------------------------*/
 
-/*!
- * @defgroup geoHandlers 
+ /*!
+ * \defgroup geohandlers
  * Collection of feature to manage meshes and data field attached onto them
  * \{
  * \}
- *
  */
 
 #ifndef __MIMMO_MODULE_GEOHANDLERS_HPP__

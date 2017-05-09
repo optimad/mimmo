@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -27,15 +27,11 @@
 #include <cstddef>
 namespace mimmo{
 
-//------------------------------------------------------------------------
-//SELECTION	BY PID class 	******************************************
-//------------------------------------------------------------------------
-
 /*!
  * Basic Constructor
  */
 SelectionByPID::SelectionByPID(){
-	m_name = "mimmo.SelectionByPID";
+    m_name = "mimmo.SelectionByPID";
 };
 
 /*!
@@ -43,28 +39,28 @@ SelectionByPID::SelectionByPID(){
  * \param[in] rootXML reference to your xml tree section
  */
 SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
-	
-	m_name = "mimmo.SelectionByPID";
-	
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "mimmo.SelectionByPID"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml mimmo::SelectionByPID constructor. No valid xml data found"<<std::endl;
-	};
+
+    m_name = "mimmo.SelectionByPID";
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.SelectionByPID"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::SelectionByPID constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*!
  * Custom Constructor
- * \param[in] pidlist list of pid to be included into selection
- * \param[in] target	pointer to taret geometry
+ * \param[in] pidlist List of pid to be included into selection
+ * \param[in] target    Pointer to target geometry
  */
 SelectionByPID::SelectionByPID(shivector1D & pidlist, MimmoObject * target){
-	m_name = "mimmo.SelectionByPID";
-	setGeometry(target);
-	setPID(pidlist);
+    m_name = "mimmo.SelectionByPID";
+    setGeometry(target);
+    setPID(pidlist);
 };
 
 /*!
@@ -76,75 +72,79 @@ SelectionByPID::~SelectionByPID(){};
  * Copy constructor
  */
 SelectionByPID::SelectionByPID(const SelectionByPID & other):GenericSelection(){
-	*this = other;
+    *this = other;
 };
 
 /*!
  * Copy Operator
  */
 SelectionByPID & SelectionByPID::operator=(const SelectionByPID & other){
-	*(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection * >(&other));
-	m_activePID = other.m_activePID;
-	return *this;
+    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection * >(&other));
+    m_activePID = other.m_activePID;
+    return *this;
 };
 
 /*!
  * It builds the input/output ports of the object
  */
-void SelectionByPID::buildPorts(){
+void
+SelectionByPID::buildPorts(){
 
-	bool built = true;
+    bool built = true;
 
-	//inheritance
-	GenericSelection::buildPorts();
+    GenericSelection::buildPorts();
 
-	//input
-	built = (built && createPortIn<short, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VALUESI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHORT));
-	built = (built && createPortIn<std::vector<short>, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VECTORSI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::SHORT));
+    built = (built && createPortIn<short, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VALUESI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHORT));
+    built = (built && createPortIn<std::vector<short>, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VECTORSI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::SHORT));
 
-	m_arePortsBuilt = built;
+    m_arePortsBuilt = built;
 };
 
 
 /*!
  * Return all available PID for current geometry linked. Void list means not linked target geometry
+ * \return vector with PIDs for current geometry
  */
-shivector1D 	SelectionByPID::getPID(){
-	shivector1D result(m_activePID.size());
-	int counter = 0;
-	for(auto && val : m_activePID){
-		result[counter] = val.first;
-		++counter;
-	}
-	return 	result;
+shivector1D
+SelectionByPID::getPID(){
+    shivector1D result(m_activePID.size());
+    int counter = 0;
+    for(auto && val : m_activePID){
+        result[counter] = val.first;
+        ++counter;
+    }
+    return     result;
 };
 /*!
- * Return active /not active for selection PIDs for current geometry linked. 
- * \param[in] active boolean to get active-true, not active false PID for selection
+ * Return active/inactive PIDs for current geometry linked.
+ * \param[in] active boolean to get active-true, inactive false PID for selection
+ * \return active/inactive PIDs for current geometry linked.
  */
-shivector1D	SelectionByPID::getActivePID(bool active){
-	shivector1D result;
-	for(auto && val : m_activePID){
-		if(val.second == active)	result.push_back(val.first);
-	}
-	return(result);
+shivector1D
+SelectionByPID::getActivePID(bool active){
+    shivector1D result;
+    for(auto && val : m_activePID){
+        if(val.second == active)    result.push_back(val.first);
+    }
+    return(result);
 };
 
 
 /*!
  * Set pointer to your target geometry. Reimplemented from mimmo::BaseManipulation::setGeometry()
+ * \param[in] target Pointer to MimmoObject target geometry.
  */
+void
+SelectionByPID::setGeometry(MimmoObject * target ){
+    if(target == NULL) return;
+    m_geometry = target;
 
-void 	SelectionByPID::setGeometry(MimmoObject * target ){
-	if(target == NULL) return;
-	m_geometry = target;
-	
-	std::unordered_set<short> & pids = 	target->getPIDTypeList();
-	std::unordered_set<short>::iterator it, itE = pids.end();
-	
-	for(it = pids.begin(); it!=itE; ++it){
-		m_activePID.insert(std::make_pair(*it,false));
-	}
+    std::unordered_set<short> & pids =     target->getPIDTypeList();
+    std::unordered_set<short>::iterator it, itE = pids.end();
+
+    for(it = pids.begin(); it!=itE; ++it){
+        m_activePID.insert(std::make_pair(*it,false));
+    }
 };
 
 /*!
@@ -152,21 +152,23 @@ void 	SelectionByPID::setGeometry(MimmoObject * target ){
  * Modifications are available after applying them with syncPIDList method; 
  * \param[in] i PID to be activated.
  */
-void 	SelectionByPID::setPID(short i){
-	if(m_setPID.count(-1) >0 || (!m_setPID.empty() && i==-1))	m_setPID.clear();
-	m_setPID.insert(i);
-	
+void
+SelectionByPID::setPID(short i){
+    if(m_setPID.count(-1) >0 || (!m_setPID.empty() && i==-1))    m_setPID.clear();
+    m_setPID.insert(i);
+
 };
 
 /*!
  * Activate a list of flagged PID i. SelectionByPID::setPID(short i).
  * Modifications are available after applying them with syncPIDList method; 
- * \param[in] list	list of PID to be activated
+ * \param[in] list    list of PID to be activated
  */
-void 	SelectionByPID::setPID(shivector1D list){
-	for(auto && index : list){
-		setPID(index);
-	}
+void
+SelectionByPID::setPID(shivector1D list){
+    for(auto && index : list){
+        setPID(index);
+    }
 };
 /*!
  * Deactivate flagged PID i. If i<0, deactivates all PIDs available.
@@ -175,75 +177,79 @@ void 	SelectionByPID::setPID(shivector1D list){
  * \param[in] i PID to be deactivated.
  */
 
-void 	SelectionByPID::removePID(short i){
-	if(i>0){
-			if(m_setPID.count(i) >0) m_setPID.erase(i);
-	}else{
-		m_setPID.clear();
-	}
+void
+SelectionByPID::removePID(short i){
+    if(i>0){
+        if(m_setPID.count(i) >0) m_setPID.erase(i);
+    }else{
+        m_setPID.clear();
+    }
 };
 
 /*!
  * Deactivate a list of flagged PID i. SelectionByPID::removePID(short i = -1).
  * Modifications are available after applying them with syncPIDList method; 
- * \param[in] list	list of PID to be deactivated
+ * \param[in] list    list of PID to be deactivated
  */
-void 	SelectionByPID::removePID(shivector1D list){
-	for(auto && index : list){
-		removePID(index);
-	}
+void
+SelectionByPID::removePID(shivector1D list){
+    for(auto && index : list){
+        removePID(index);
+    }
 };
 
 /*!
  * Clear your class
  */
-void SelectionByPID::clear(){
-	m_subpatch.reset(nullptr);
-	m_activePID.clear();
-	BaseManipulation::clear();
+void
+SelectionByPID::clear(){
+    m_subpatch.reset(nullptr);
+    m_activePID.clear();
+    BaseManipulation::clear();
 };
 
 /*!
  * Extract portion of target geometry which are enough near to the external geometry provided
- * \return ids of cell of target tesselation extracted 
+ * \return ids of cell of target tessellation extracted
  */
-livector1D SelectionByPID::extractSelection(){
-	livector1D result;
-	std::set<long> extraction;
-	
-	syncPIDList();
-	shivector1D pids = getActivePID();
-	
-	for(auto && pid : pids){
-		livector1D local = getGeometry()->extractPIDCells(pid);
-		extraction.insert(local.begin(),local.end());
-	}
-	
-	//check if dual selection is triggered
-	
-	if(m_dual){
-		livector1D totID = getGeometry()->getMapCell();
-		result.resize(totID.size() - extraction.size());
-		if(result.size() == 0) return result;
-		
-		std::sort(totID.begin(), totID.end());
-		int counter = 0;
-		auto tot_it  = totID.begin();
-		auto cand_it = extraction.begin();
-		while(tot_it != totID.end()){
-			long val = *tot_it;
-			if (cand_it == extraction.end() || val != *cand_it) {
-				result[counter] = val;
-				++counter;
-			} else {
-				++cand_it;
-			}
-			++tot_it;
-		}
-	}else{
-		result.insert(result.end(), extraction.begin(), extraction.end());
-	}	
-	return	result;
+livector1D
+SelectionByPID::extractSelection(){
+    livector1D result;
+    std::set<long> extraction;
+
+    syncPIDList();
+    shivector1D pids = getActivePID();
+
+    for(auto && pid : pids){
+        livector1D local = getGeometry()->extractPIDCells(pid);
+        extraction.insert(local.begin(),local.end());
+    }
+
+    //check if dual selection is triggered
+
+    if(m_dual){
+        livector1D totID = getGeometry()->getMapCell();
+        result.resize(totID.size() - extraction.size());
+        if(result.size() == 0) return result;
+
+        std::sort(totID.begin(), totID.end());
+        int counter = 0;
+        auto tot_it  = totID.begin();
+        auto cand_it = extraction.begin();
+        while(tot_it != totID.end()){
+            long val = *tot_it;
+            if (cand_it == extraction.end() || val != *cand_it) {
+                result[counter] = val;
+                ++counter;
+            } else {
+                ++cand_it;
+            }
+            ++tot_it;
+        }
+    }else{
+        result.insert(result.end(), extraction.begin(), extraction.end());
+    }
+    return    result;
 };
 
 /*!
@@ -251,176 +257,152 @@ livector1D SelectionByPID::extractSelection(){
  * Activate positive matching PIDs and erase negative matches from user list. 
  * if geometry is not currently linked does nothing.
  */
-void SelectionByPID::syncPIDList(){
-	if(getGeometry() == NULL)	return;
-	
-	if(m_setPID.count(-1) == 0){
-		
-		std::unordered_set<short>::iterator itU;
-		shivector1D negative;
-		for(itU = m_setPID.begin(); itU != m_setPID.end(); ++itU){
-			short value = *itU;
-			if(m_activePID.count(value) > 0)	m_activePID[value] = true;
-			else	negative.push_back(value);
-		}
-	
-		for(auto &val: negative)	m_setPID.erase(val);
+void
+SelectionByPID::syncPIDList(){
+    if(getGeometry() == NULL)    return;
 
-		
-	}else{
-		m_setPID.clear();
-		for(auto &val: m_activePID ){	
-			m_setPID.insert(val.first);
-			val.second = true;
-			
-		}
-	}	
+    if(m_setPID.count(-1) == 0){
+
+        std::unordered_set<short>::iterator itU;
+        shivector1D negative;
+        for(itU = m_setPID.begin(); itU != m_setPID.end(); ++itU){
+            short value = *itU;
+            if(m_activePID.count(value) > 0)    m_activePID[value] = true;
+            else    negative.push_back(value);
+        }
+
+        for(auto &val: negative)    m_setPID.erase(val);
+
+
+    }else{
+        m_setPID.clear();
+        for(auto &val: m_activePID ){
+            m_setPID.insert(val.first);
+            val.second = true;
+
+        }
+    }
 }
 
-
 /*!
-* Get infos from a XML bitpit::Config::section. The parameters available are
-* 
-* -->Absorbing Data
-* - <B>Priority</B>: uint marking priority in multi-chain execution;
-* - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
-* - <B>nPID</B>: number of PID to be selected
-* - <B>PID</B>: set PID to select, separate by blank space. -1 select all available PID
-* - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
-* - <B>OutputPlot</B>: target directory for optional results writing.
-* 
-* 
-* Geometry is mandatorily passed through ports. 
-* 
-* \param[in] slotXML 	bitpit::Config::Section of XML file
-* \param[in] name   name associated to the slot
-*/
-void SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
-	BITPIT_UNUSED(name);	
-	//start absorbing
-	if(slotXML.hasOption("Priority")){
-		std::string input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	};
-	
-	if(slotXML.hasOption("Dual")){
-		std::string input = slotXML.get("Dual");
-		input = bitpit::utils::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setDual(value);
-	}
-	
-	int nPID = 0;
-	if(slotXML.hasOption("nPID")){
-		std::string input = slotXML.get("nPID");
-		input = bitpit::utils::trim(input);
-		nPID = 0;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>nPID;
-			std::max(0, nPID);
-		}
-	}
-	shivector1D pidlist(nPID, -1);
-	
-	if(slotXML.hasOption("PID")){
-		std::string input = slotXML.get("PID");
-		input = bitpit::utils::trim(input);
-		if(!input.empty()){
-			std::stringstream ss(input);
-			for(int i=0; i<nPID; ++i){
-				ss>>pidlist[i];
-			}	
-		}
-	}
-	
-	setPID(pidlist);
-	
-	
-		if(slotXML.hasOption("PlotInExecution")){
-			std::string input = slotXML.get("PlotInExecution");
-			input = bitpit::utils::trim(input);
-			bool value = false;
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss >> value;
-			}
-			setPlotInExecution(value);
-		}
-		
-		if(slotXML.hasOption("OutputPlot")){
-			std::string input = slotXML.get("OutputPlot");
-			input = bitpit::utils::trim(input);
-			std::string temp = ".";
-			if(!input.empty())	setOutputPlot(input);
-			else			  	setOutputPlot(temp);
-		}
-	
-	return;	
+    BITPIT_UNUSED(name);
+    //start absorbing
+    if(slotXML.hasOption("Priority")){
+        std::string input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
+    if(slotXML.hasOption("Dual")){
+        std::string input = slotXML.get("Dual");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setDual(value);
+    }
+
+    int nPID = 0;
+    if(slotXML.hasOption("nPID")){
+        std::string input = slotXML.get("nPID");
+        input = bitpit::utils::trim(input);
+        nPID = 0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>nPID;
+            std::max(0, nPID);
+        }
+    }
+    shivector1D pidlist(nPID, -1);
+
+    if(slotXML.hasOption("PID")){
+        std::string input = slotXML.get("PID");
+        input = bitpit::utils::trim(input);
+        if(!input.empty()){
+            std::stringstream ss(input);
+            for(int i=0; i<nPID; ++i){
+                ss>>pidlist[i];
+            }
+        }
+    }
+
+    setPID(pidlist);
+
+
+    if(slotXML.hasOption("PlotInExecution")){
+        std::string input = slotXML.get("PlotInExecution");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setPlotInExecution(value);
+    }
+
+    if(slotXML.hasOption("OutputPlot")){
+        std::string input = slotXML.get("OutputPlot");
+        input = bitpit::utils::trim(input);
+        std::string temp = ".";
+        if(!input.empty())    setOutputPlot(input);
+        else                  setOutputPlot(temp);
+    }
+
 };
 
 /*!
- * Plot infos from a XML bitpit::Config::section. The parameters available are
- * 
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.SelectionByPID"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
- * - <B>nPID</B>: number of PID to be selected
- * - <B>PID</B>: set PID to select, separate by blank space. -1 select all available PID
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing.
- * 
- * Geometry is mandatorily passed through ports. 
- *  
- * \param[in] slotXML 	bitpit::Config::Section of XML file
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
-	
-	int value = m_dual;
-	slotXML.set("Dual", std::to_string(value));
-	
-	
-	shivector1D selected = getActivePID(true);
-	int size = selected.size();
-	
-	
-	if(size != 0){
-		slotXML.set("nPID", std::to_string(size));
-		
-		std::stringstream ss;
-		for(int i=0; i<size; ++i){
-			ss<<selected[i]<<'\t';
-		}
-		
-		slotXML.set("PID", ss.str());
-	}
-	
-		if(isPlotInExecution()){
-			slotXML.set("PlotInExecution", std::to_string(1));
-		}
-		
-		if(m_outputPlot != "."){
-			slotXML.set("OutputPlot", m_outputPlot);
-		}
-	
-	return;
+void
+SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+
+    int value = m_dual;
+    slotXML.set("Dual", std::to_string(value));
+
+
+    shivector1D selected = getActivePID(true);
+    int size = selected.size();
+
+
+    if(size != 0){
+        slotXML.set("nPID", std::to_string(size));
+
+        std::stringstream ss;
+        for(int i=0; i<size; ++i){
+            ss<<selected[i]<<'\t';
+        }
+
+        slotXML.set("PID", ss.str());
+    }
+
+    if(isPlotInExecution()){
+        slotXML.set("PlotInExecution", std::to_string(1));
+    }
+
+    if(m_outputPlot != "."){
+        slotXML.set("OutputPlot", m_outputPlot);
+    }
+
 };
 
 }

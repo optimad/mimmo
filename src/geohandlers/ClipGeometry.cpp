@@ -252,7 +252,8 @@ ClipGeometry::execute(){
  * or cell IDs if the geometry is a superficial or volumetric tessellation
  * \return vector with IDs
  */
-livector1D ClipGeometry::clipPlane(){
+livector1D
+ClipGeometry::clipPlane(){
 
     livector1D result;
     darray3E norm;
@@ -297,12 +298,12 @@ livector1D ClipGeometry::clipPlane(){
     return result;
 };
 
-
 /*!
  * It plots optional result of the class in execution,
  * that is the clipped geometry as standard vtk unstructured grid.
  */
-void ClipGeometry::plotOptionalResults(){
+void
+ClipGeometry::plotOptionalResults(){
     if(getClippedPatch() == NULL) return;
     if(getClippedPatch()->isEmpty()) return;
 
@@ -343,13 +344,13 @@ void ClipGeometry::plotOptionalResults(){
     output.write();
 }
 
-
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     /*start absorbing*/
     BITPIT_UNUSED(name);
@@ -417,7 +418,7 @@ void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         else  setOutputPlot(temp);
     }
 
-    return;
+
 };
 
 /*!
@@ -425,7 +426,8 @@ void ClipGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -467,7 +469,7 @@ void ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
         slotXML.set("OutputPlot", m_outputPlot);
     }
 
-    return;
+
 };
 
 }

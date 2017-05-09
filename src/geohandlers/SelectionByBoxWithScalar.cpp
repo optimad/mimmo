@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -26,10 +26,6 @@
 #include "levelSet.hpp"
 #include <cstddef>
 namespace mimmo{
-
-//------------------------------------------------------------------------
-//SELECTION BY BOX WITH SCALAR class    **********************************
-//------------------------------------------------------------------------
 
 /*!
  * Basic Constructor
@@ -58,9 +54,9 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(const bitpit::Config::Section
 
 /*!
  * Custom Constructor
- * \param[in] origin of the box->baricenter
- * \param[in] span   of the box, width/height/depth
- * \param[in] target    pointer to a target geometry
+ * \param[in] origin Origin of the box->baricenter.
+ * \param[in] span     Span of the box, width/height/depth.
+ * \param[in] target    Pointer to MimmoObject target geometry.
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target){
 	m_name = "mimmo.SelectionByBoxWithScalar";
@@ -93,17 +89,15 @@ SelectionByBoxWithScalar & SelectionByBoxWithScalar::operator=(const SelectionBy
 /*!
  * It builds the input/output ports of the object
  */
-void SelectionByBoxWithScalar::buildPorts(){
+void
+SelectionByBoxWithScalar::buildPorts(){
 
     bool built = true;
 
-    //inheritance
     SelectionByBox::buildPorts();
 
-    //input
     built = (built && createPortIn<dvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 
-    //output
     built = (built && createPortOut<dvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
 
     m_arePortsBuilt = built;
@@ -112,7 +106,8 @@ void SelectionByBoxWithScalar::buildPorts(){
 /*!
  * Clear content of the class
  */
-void SelectionByBoxWithScalar::clear(){
+void
+SelectionByBoxWithScalar::clear(){
     m_field.clear();
     SelectionByBox::clear();
 };
@@ -141,7 +136,8 @@ SelectionByBoxWithScalar::getField(){
  * intial whole scalar field given as input and stored in member
  * m_field (modified after the execution).
  */
-void SelectionByBoxWithScalar::execute(){
+void
+SelectionByBoxWithScalar::execute(){
 
     SelectionByBox::execute();
 
@@ -158,10 +154,11 @@ void SelectionByBoxWithScalar::execute(){
 
 
 /*!
- * Plot optional result of the class in execution, that is the selected patch
+ * Plot optional result of the class in execution. It plots the selected patch
  * as standard vtk unstructured grid and the related scalar field.
  */
-void SelectionByBoxWithScalar::plotOptionalResults(){
+void
+SelectionByBoxWithScalar::plotOptionalResults(){
     if(getPatch()->isEmpty()) return;
     std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 
@@ -170,29 +167,16 @@ void SelectionByBoxWithScalar::plotOptionalResults(){
     getPatch()->getPatch()->write(name);
 }
 
-
 /*!
- * Get infos from a XML bitpit::Config::section. The parameters available are
- * 
- *  --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
- * - <B>Origin</B>: array of 3 doubles identifying origin
- * - <B>Span</B>: span of the box (width, height, depth)
- * - <B>RefSystem</B>: reference system of the box;
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing.
- * 
- * Geometry is mandatorily passed through ports. 
- * 
- * \param[in] slotXML 	bitpit::Config::Section of XML file
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	
 	BITPIT_UNUSED(name);
 	
-	//start absorbing
 	if(slotXML.hasOption("Priority")){
 		std::string input = slotXML.get("Priority");
 		int value =0;
@@ -299,33 +283,15 @@ void SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & 
 		else			  	setOutputPlot(temp);
 	}
 	
-	return;	
 };
 
 /*!
- * Plot infos from a XML bitpit::Config::section. The parameters available are
- * 
- *  --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.SelectionByBoxWithScalar"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual
- * - <B>Origin</B>: array of 3 doubles identifying origin
- * - <B>Span</B>: span of the box (width, height, depth)
- * - <B>RefSystem</B>: reference system of the box;
- * 					<RefSystem>
- * 						<axis0>	1.0 0.0 0.0 </axis0>
- * 						<axis1>	0.0 1.0 0.0 </axis1>
- * 						<axis2>	0.0 0.0 1.0 </axis2>
- * 					</RefSystem>
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing.
- * 
- * Geometry is mandatorily passed through ports. 
- *  
- * \param[in] slotXML 	bitpit::Config::Section of XML file
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
 	BITPIT_UNUSED(name);
 	
@@ -369,7 +335,6 @@ void SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML
 		slotXML.set("OutputPlot", m_outputPlot);
 	}
 	
-	return;
 };
 
 }
