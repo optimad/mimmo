@@ -32,17 +32,14 @@ FileDataInfo & FileDataInfo::operator=(const FileDataInfo & other){
 	
 namespace pin{
 
-/**< @namespace mimmo::pin
- * pin namespace
- */
-
-/*!It adds a pin between two objects.
+/*!
+ * It adds a pin between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
  * \param[in] portS Port ID of the output port of sender object.
  * \param[in] portR Port ID of the input port of receiver object.
  * \param[in] forced If true it forces to build the connection without checking the compatibility between ports.
- * \return True if the pin is added.
+ * \return true if the pin is added.
  */
 bool
 addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced){
@@ -75,7 +72,8 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 	return done;
 }
 
-/*!It remove all pins between two objects.
+/*!
+ * It removes all pins between two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
  */
@@ -110,7 +108,8 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
 }
 
-/*!It remove a pin between two objects. If the pin is found it is removed, otherwise
+/*!
+ * It removes a pin between two objects. If the pin is found it is removed, otherwise
  * nothing is done.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
@@ -127,7 +126,8 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
 
 }
 
-/*!It checks the compatibility between input and output ports of two objects.
+/*!
+ * It checks the compatibility between input and output ports of two objects.
  * \param[in] objSend Pointer to BaseManipulation sender object.
  * \param[in] objRec Pointer to BaseManipulation receiver object.
  * \param[in] portS Port ID of the output port of sender object.

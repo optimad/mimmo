@@ -199,9 +199,9 @@ public:
  */
 
 /*!
-*	\ingroup macro
-*   \{
-*/
+ * \ingroup macro
+ * \{
+ */
 
 /*!
  * \def REGISTER_NO_UNUSED(Base, Derived, name)
