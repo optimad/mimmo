@@ -191,7 +191,7 @@ protected:
  *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
  *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
  *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  </RefSystem> </tt> \n
+ *                  \</RefSystem\> </tt> \n
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *

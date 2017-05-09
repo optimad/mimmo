@@ -233,7 +233,7 @@ SelectionByMapping::addFile(std::pair<std::string, int> file){
 
 /*!
  * Add a new mimmo object to a list of external geometries (only surface mesh allowed)
- * \param[in] Pointer to MimmoObject of external geometry
+ * \param[in] obj Pointer to MimmoObject of external geometry
  */
 void
 SelectionByMapping::addMappingGeometry(MimmoObject* obj){
