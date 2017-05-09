@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -26,6 +26,11 @@
 
 #include "enum.hpp"
 
+/*!
+ * \ingroup core
+ * \def PortType
+ * \brief better_enum for mimmo ports
+ */
 BETTER_ENUM(PortType, int,	
 			M_COORDS 			= 0, 
 			M_GLOBAL 			= 1,
