@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -34,28 +34,32 @@
 namespace mimmo{
 
 /*!
- * \class MimmoObject
- * \brief MimmoObject is the base container of geometry for MiMMo library
- *
- * mimmo container has the information about the geometry mesh:
- * - the type of the linked mesh of class bitpit::Patch (surface patch , volume patch or pointCloud);
- * - the pointer to the mesh of class bitpit::Patch;
- * - the boolean indicator of the nature of the patch (true if the patch is created within the MiMMo container).
- *
+ * \ingroup core
  */
+
+/*!
+* \class MimmoObject
+* \brief MimmoObject is the basic geometry container for mimmo library
+*
+* MimmoObject is the basic container for 3D geometry unustructured mesh data structure, 
+* based on bitpit::PatchKernel containers.
+* MimmoObject can handle unustructured surface meshes, unustructured volume meshes, 3D point clouds and 3D tessellated curves.
+* It supports interface methods to explore and handle the geometrical structure. It supports PID convention to mark subparts 
+* of geometry as well as building the search-trees KdTree and BvTree to quickly retrieve vertices and cells in the data structure.
+*/
 class MimmoObject{
 
 protected:
 //members
-    int                  m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
-    bitpit::PatchKernel* m_patch;           /**<Reference to bitpit patch handling geometry. */
-    bool                 m_internalPatch;   /**<If the geometry is internally created. */
-    livector1D           m_mapData;         /**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
-    livector1D           m_mapCell;         /**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
-    liimap               m_mapDataInv;      /**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
-    liimap               m_mapCellInv;      /**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+    int                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
+    bitpit::PatchKernel*                    m_patch;           /**<Reference to bitpit patch handling geometry. */
+    bool                                    m_internalPatch;   /**<True if the geometry is internally created. */
+    livector1D                              m_mapData;         /**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
+    livector1D                              m_mapCell;         /**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
+    liimap                                  m_mapDataInv;      /**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+    liimap                                   m_mapCellInv;     /**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
-    std::unordered_set<short>               m_pidsType;			/**<pid type available for your geometry */
+    std::unordered_set<short>               m_pidsType;        /**<pid type available for your geometry */
 
     BvTree                                  m_bvTree;          /**< ordered tree of geometry simplicies for fast searching purposes */
     bool                                    m_bvTreeBuilt;     /**< track correct building of bvtree along with geometry modifications */
@@ -63,9 +67,9 @@ protected:
     bool                                    m_kdTreeBuilt;     /**< track correct building of kdtree along eith geometry modifications */
     bool                                    m_bvTreeSupported; /**< Flag for geometries not supporting bvTree building*/
 
-    //TODO temporary flag for modifying vertices -> ambigous effect on bvTree, kdTree
-    bool                m_retrackBvTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
-    bool                m_retrackKdTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
+    //TODO temporary flags for modifying vertices -> ambigous effect on bvTree, kdTree
+    bool                                    m_retrackBvTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
+    bool                                    m_retrackKdTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
 
 public:
     MimmoObject(int type = 1); 
@@ -93,53 +97,49 @@ public:
     bitpit::PiercedVector<bitpit::Cell> &           getCells();
     const bitpit::PiercedVector<bitpit::Cell> &     getCells() const;
 
-    bitpit::PatchKernel*        getPatch();
+    bitpit::PatchKernel*                            getPatch();
 
-    livector1D&     getMapData();
-    long            getMapData(int i);
+    livector1D&                                     getMapData();
+    long                                            getMapData(int i);
+    liimap&                                         getMapDataInv();
+    const liimap&                                   getMapDataInv()const;
+    int                                             getMapDataInv(long id);
+    livector1D&                                     getMapCell();
+    long                                            getMapCell(int i);
+    liimap&                                         getMapCellInv();
+    int                                             getMapCellInv(long id);
 
-    liimap&         getMapDataInv();
-    const liimap&   getMapDataInv()const;
-    int             getMapDataInv(long id);
+    std::unordered_set<short> &                     getPIDTypeList();
+    shivector1D                                     getCompactPID();
+    std::unordered_map<long, short>                 getPID();
 
-    livector1D&     getMapCell();
-    long            getMapCell(int i);
-    liimap&         getMapCellInv();
-    int             getMapCellInv(long id);
+    bool                                            isBvTreeBuilt();
+    BvTree*                                         getBvTree();
+    bool                                            isKdTreeBuilt();
+    bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
+    bool                                            retrackTrees();
 
-    std::unordered_set<short> &     getPIDTypeList();
-    shivector1D                     getCompactPID();
-    std::unordered_map<long, short> getPID();
+    const MimmoObject *                             getCopy();
 
+    bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
+    bool        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
+    bool        modifyVertex(const darray3E & vertex, long id);
+    bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, short PID, long idtag = bitpit::Cell::NULL_ID);
 
-    bool                                        isBvTreeBuilt();
-    BvTree*                                     getBvTree();
-    bool                                        isKdTreeBuilt();
-    bitpit::KdTree<3, bitpit::Vertex, long> *   getKdTree();
-    bool                                        retrackTrees();
+    bool        setPatch(int type, bitpit::PatchKernel* geometry);
+    bool        setMapData();
+    bool        setMapCell();
 
-    const MimmoObject * getCopy();
+    void        setPID(shivector1D ); 
+    void        setPID(std::unordered_map<long, short>  ); 
+    void        setPIDCell(long, short);
 
-    bool    setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
-    bool    addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
-    bool    modifyVertex(const darray3E & vertex, long id);
+    void        setSOFTCopy(const MimmoObject * other);
+    void        setHARDCopy(const MimmoObject * other);
 
-    bool    setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
-    bool    addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
-    bool    addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, short PID, long idtag = bitpit::Cell::NULL_ID);
-
-    bool    setPatch(int type, bitpit::PatchKernel* geometry);
-    bool    setMapData();
-    bool    setMapCell();
-
-    void    setPID(shivector1D ); 
-    void    setPID(std::unordered_map<long, short>  ); 
-    void    setPIDCell(long, short);
-
-    void    setSOFTCopy(const MimmoObject * other);
-    void    setHARDCopy(const MimmoObject * other);
-
-    bool    cleanGeometry();
+    bool        cleanGeometry();
 
     livector1D  getVertexFromCellList(livector1D cellList);
     livector1D  getCellFromVertexList(livector1D vertList);
@@ -149,22 +149,21 @@ public:
     ivector1D   convertCellIDToLocal(livector1D);
 
     livector1D  extractBoundaryVertexID();
-
     livector1D  extractPIDCells(short);
     livector1D  extractPIDCells(shivector1D);
 
-    void    getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
-    void    buildBvTree(int value = 1);
-    void    buildKdTree();	
+    void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
+    void        buildBvTree(int value = 1);
+    void        buildKdTree();	
+    void        buildAdjacencies();
 
-    bool areAdjacenciesBuilt();
-    bool isClosedLoop();
-
-    void buildAdjacencies();
+    bool        areAdjacenciesBuilt();
+    bool        isClosedLoop();
+    
     bitpit::VTKElementType	desumeElement();
 
 private:
-    int checkCellType(bitpit::ElementInfo::Type type);
+    int     checkCellType(bitpit::ElementInfo::Type type);
     void    cleanKdTree();
 };
 
