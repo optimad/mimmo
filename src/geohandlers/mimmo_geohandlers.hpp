@@ -23,7 +23,10 @@
  #----------------------------------------------------------------------------*/
 
 /*!
- * @defgroup GeoHandlers collection of feature to manage meshes and data field attached onto them
+ * @defgroup geoHandlers 
+ * Collection of feature to manage meshes and data field attached onto them
+ * \{
+ * \}
  *
  */
 

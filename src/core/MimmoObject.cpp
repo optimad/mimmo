@@ -615,12 +615,13 @@ MimmoObject::getCopy(){
 }
 
 /*!
-* Sets the vertices structure of the geometry Patch, clearing any previous vertex list stored.
-* Be careful: any connectivity information stored in any existent cell list will be erased also.
-* The cell list will survive, but carrying no connectivity information. 
-* \param[in] vertices vertex structure of geometry mesh.
-* \return False if no geometry is linked, not all vertices inserted or empty argument.
-*/
+ * Set the vertices structure of the class, clearing any previous vertex list stored.
+ * Be careful: any connectivity information stored in an existent cell list will be erased too.
+ * The cell list will survive, but carrying no connectivity information.
+ * Local/unique-id vertex maps are updated automatically. 
+ * \param[in] vertices geometry vertex structure .
+ * \return false if no geometry is linked, not all vertices inserted or empty argument.
+ */
 bool
 MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices){
     
@@ -645,14 +646,19 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
     return checkTot;
 };
 
-/*!It adds the coordinates of one vertex of the geometry Patch.
-* If unique tag is specified for the vertex, assign it, otherwise provide itself
-* to get a unique tag for the added vertex. The latter option is default.
-* If tag is already assigned, return with unsuccessful insertion. 
-* \param[in] vertex Coordinates of vertex to be added to geometry mesh.
-* \param[in] idtag  unique ID associated to the vertex	
-* \return boolean true if the vertex is successful inserted.
-*/
+/*!
+ *It adds one vertex to the mesh.
+ * If unique-id is specified for the vertex, assign it, otherwise provide itself
+ * to get a unique-id for the added vertex. The latter option is the default.
+ * If the unique-id is already assigned, return with unsuccessful insertion.
+ * 
+ * Local/unique-id vertex maps are updated automatically. 
+ * 
+ * 
+ * \param[in] vertex vertex coordinates to be added 
+ * \param[in] idtag  unique id associated to the vertex	
+ * \return true if the vertex is successful inserted.
+ */
 bool
 MimmoObject::addVertex(const darray3E & vertex, const long idtag){
     if (isEmpty()) return false;
@@ -676,11 +682,12 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 };
 
 
-/*!It modifies the coordinates of the vertex of the geometry Patch.
-* \param[in] vertex Coordinates of vertex of geometry mesh.
-* \param[in] id bitpit::PatchKernel ID of vertex of geometry mesh to modify.
-* \return False if no geometry is linked or vertex id does not exist.
-*/
+/*!
+ * It modifies the coordinates of a pre-existent vertex.
+ * \param[in] vertex new vertex coordinates
+ * \param[in] id unique-id of the vertex meant to be modified
+ * \return false if no geometry is present or vertex id does not exist.
+ */
 bool
 MimmoObject::modifyVertex(const darray3E & vertex, long id){
     if (isEmpty()) return false;
@@ -693,11 +700,14 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 };
 
 /*!
-* Sets the cell structure of the geometry Patch, clearing any previous cell list stored.
-* Does not do anything if class type is a pointcloud one (type 3).
-* \param[in] cells cell structure of geometry mesh.
-* \return False if no geometry is linked, not all cells inserted, empty argument.
-*/
+ * Sets the cell structure of the geometry, clearing any previous cell list stored.
+ * Does not do anything if class type is a point cloud (mesh type 3).
+ *
+ * Local/unique-id cell maps are updated automatically. 
+ * 
+ * \param[in] cells cell structure of geometry mesh.
+ * \return false if no geometry is linked, not all cells are inserted or empty argument.
+ */
 bool
 MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
     
@@ -738,16 +748,21 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
     return checkTot;
 };
 
-/*!It adds one cell with its connectivity by vertex PatchKernel unique IDs, the type of cell to
-* be added and its own unique ID on the geometry Patch. If no ID is specified, assign it automatically.
-* The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
-* mismatches with the type of PatchKernel internally defined into the class, return false. 
-* Does nothing if class type is a pointcloud one (type 3);
-* \param[in] conn  connectivity of target cell of geometry mesh.
-* \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
-* \param[in] idtag id of the cell
-* \return False if no geometry is linked, idtag already assigned, mismatched connectivity 
-*/
+/*!
+ * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
+ * be added and its own unique id. If no id is specified, teh method assigns it automatically.
+ * Cell type and connectivity dimension of the cell are cross-checked with the mesh type of the class: if mismatch, the method
+ * does not add the cell and return false. 
+ * The method does nothing, if class type is a pointcloud one (type 3).
+ * 
+ * Local/unique-id cell maps are updated automatically. 
+ * 
+ * 
+ * \param[in] conn  connectivity of target cell of geometry mesh.
+ * \param[in] type  type of element to be added, according to bitpit::ElementInfo enum.
+ * \param[in] idtag id of the cell
+ * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type 
+ */
 bool
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type type, long idtag){
 
@@ -780,18 +795,22 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     return true;
 };
 
-/*!It adds one cell with its connectivity by vertex PatchKernel unique IDs, the type of cell to
-* be added and its own unique ID on the geometry Patch. If no ID is specified, assign it automatically.
-* Overloading give chance to assign directly a geometry Part IDentifier (PID) to the cell.
-* The cell type is directly recovered from the size of local connectivity array. If connectivity dimension
-* mismatches with the type of PatchKernel internally defined into the class, return false. 
-* Does nothing if class type is a pointcloud one (type 3);
-* \param[in] conn  Connectivity of target cell of geometry mesh.
-* \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
-* \param[in] PID   Part Identifier
-* \param[in] idtag id of the cell
-* \return False if no geometry is linked, idtag already assigned, mismatched connectivity 
-*/
+/*!
+ * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
+ * be added and its own unique id. If no id is specified, teh method assigns it automatically.
+ * Cell type and connectivity dimension of the cell are cross-checked with the mesh type of the class: if mismatch, the method
+ * does not add the cell and return false. 
+ * The method does nothing, if class type is a pointcloud one (type 3).
+ * A part identifier PID mark can be associated to the cell.
+ * 
+ * Local/unique-id cell maps are updated automatically. 
+ * 
+ * \param[in] conn  connectivity of target cell of geometry mesh.
+ * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
+ * \param[in] PID   part identifier
+ * \param[in] idtag id of the cell
+ * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type 
+ */
 bool
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type type, short PID, long idtag){
     
@@ -823,13 +842,15 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     return true;
 };
 
-
 /*!
-* It sets the geometry Patch.
-* \param[in] type Type of linked Patch (1 = surface, 2 = volume, 3 = pointCloud, 4=3DCurve).
-* \param[in] geometry Pointer to a geometry of class Patch to be linked.
-* \return False if the argument pointer is NULL or not correct type.
-*/
+ *  Link as geometry an external bitpit::PatchKernel  data structure;
+ *  If the external data structure is not compatible with the mesh type internally set, does not link anything.
+ *  Through this method, the class only copy the pointer to the external geometry.
+ * 
+ * \param[in] type mesh type see MimmoObject(int type) constructor documentation
+ * \param[in] geometry pointer to an external geoemtry data structure
+ * \return false if the argument pointer is NULL or not compatible data structure
+ */
 bool
 MimmoObject::setPatch(int type, PatchKernel* geometry){
     if (geometry == NULL ) return false;
@@ -858,9 +879,10 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
 };
 
 
-/*!It sets the mapper external data/vertices.
-* \return False if the geometry member pointer is NULL.
-*/
+/*!
+ * It builds the vertex map of local/unique-id indexing and its inverse.
+ * \return false if no geometry is present in the class.
+ */
 bool
 MimmoObject::setMapData(){
     
@@ -883,9 +905,10 @@ MimmoObject::setMapData(){
     return true;
 };
 
-/*!It sets the mapper external data/cells.
-* \return False if the geometry member pointer is NULL.
-*/
+/*!
+ * It builds the cell map of local/unique-id indexing and its inverse.
+ * \return false if no geometry is present in the class.
+ */
 bool
 MimmoObject::setMapCell(){
     
@@ -908,9 +931,11 @@ MimmoObject::setMapCell(){
 };
 
 
-/*!It sets the PIDs of all the cells of the geometry Patch. 
-* \param[in] pids PIDs of the cells of geometry mesh, in compact sequential form. Vector lenght must be coherent with cells number in the object. 
-*/
+/*!
+ * Set PIDs for all geometry cells available. 
+ * The PID list must be referred to the compact local/indexing of the cells in the class.
+ * \param[in] pids PID list.
+ */
 void
 MimmoObject::setPID(shivector1D pids){
     if((int)pids.size() != getNCells() || !m_bvTreeSupported)	return;
@@ -924,9 +949,11 @@ MimmoObject::setPID(shivector1D pids){
     }	
 };
 
-/*!It sets the PIDs of part of/all the cells in the geometry Patch. 
-* \param[in] pidsMap PIDs of the cells of geometry mesh, in map form. First argument is the cell  PatchKernel::ID, second argument is the PID. 
-*/
+/*!
+ * Set PIDs for all geometry cells available. 
+ * The PID must be provided as a map with cell unique-id as key and pid associated to it as argument.
+ * \param[in] pidsmap PID amp.
+ */
 void
 MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
     if(getNCells() == 0 || !m_bvTreeSupported)	return;
@@ -941,9 +968,10 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
     }	
 };
 
-/*!Sets the PID of single cell in the geometry Patch. 
-* \param[in] id id of the Cell
-* \param[in] pid pid to assign on cell
+/*!
+ * Set the PID of a target cell
+* \param[in] id unique-id of the cell
+* \param[in] pid PID to assign on cell
 */
 void
 MimmoObject::setPIDCell(long id, short pid){
@@ -955,24 +983,24 @@ MimmoObject::setPIDCell(long id, short pid){
 };
 
 /*!
-* Set your current class as a "soft" copy of the argument other.
-* All data are replaced by those provided by the argument.
-* Soft means that the m_patch member of the class is copied only by its pointer
-* and not allocated internally. 
-* \param[in] other pointer to another MimmoObject where copy from.
-*/
+ * Set your current class as a "soft" copy of another MimmoObject.
+ * All data are replaced by those provided by the argument.
+ * Soft means that the m_patch member of the class is copied only by its pointer
+ * and not allocated internally. 
+ * \param[in] other MimmoObject class .
+ */
 void MimmoObject::setSOFTCopy(const MimmoObject * other){
     clear();
     *this = *other; 
 };
 
 /*!
-* Set your current class as a "hard" copy of the argument other.
-* All data are replaced by those provided by the argument.
-* Hard means that the m_patch member of the class is allocated internally
-* as an exact and independent copy of the m_patch member of the argument. 
-* \param[in] other pointer to another MimmoObject where copy from.
-*/
+ * Set your current class as a "hard" copy of another MimmoObject.
+ * All data are replaced by those provided by the argument.
+ * Hard means that the m_patch member of the class is allocated internally
+ * as an exact and independent copy of the m_patch member of the argument. 
+ * \param[in] other MimmoObject class.
+ */
 void MimmoObject::setHARDCopy(const MimmoObject * other){
     clear();
     m_type 			= other->m_type;
@@ -1006,9 +1034,10 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
     //it's all copied(maps are update in the loops, pids if exists), trees are rebuilt and sync'ed is they must be
 };
 
-/*!It cleans the geometry Patch defiances, id any.
-* \return False if the geometry member pointer is NULL.
-*/
+/*!
+ * It cleans geometry duplicated and, in case of connected tessellations, all orphan/isolated vertices.
+ * \return false if the geometry member pointer is NULL.
+ */
 bool
 MimmoObject::cleanGeometry(){
     if (isEmpty()) return false;
@@ -1024,13 +1053,14 @@ MimmoObject::cleanGeometry(){
     return true;
 };
 
-/*! Extract Vertex List from an ensamble of geometry Cells.
-*\param[in] cellList List of bitpit::PatchKernel IDs identifying cells.
-*\return List of bitpit::PatchKernel IDs of involved vertices.
-*/  
-
+/*! 
+ * Extract vertex list from an ensamble of geometry cells.
+ *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
+ *\return the list of bitpit::PatchKernel ids of involved vertices.
+ */  
 livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
     if(isEmpty())	return livector1D(0);
+    if(getType() == 3)  return  livector1D(0);
     
     livector1D result;
     set<long int> ordV;
@@ -1057,13 +1087,16 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
     return(result);
 }
 
-/*! Extract Cell List from an ensamble of geometry Vertices.
-* \param[in] vertexList List of bitpit::PatchKernel IDs identifying vertices.
-*\return List of bitpit::PatchKernel IDs of involved 1-Ring cells.
-*/  
+/*! 
+ * Extract cell list from an ensamble of geometry vertices.
+ * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
+ * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
+ */
 
 livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
     if(isEmpty())   return livector1D(0);
+    if(getType() == 3)  return  vertexList;
+    
     livector1D result;
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
@@ -1092,11 +1125,12 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
     return(result);
 }
 
-/*! Convert Vertex List of bitpit::PatchKernel IDs to local ordered MimmoObject Vertex List.
-*  Unexistent vertex ID are marked in return vector as -1.
-* \param[in] vertexList List of bitpit::PatchKernel IDs identifying vertices.
-* \return List of local ids of vertices according m_mapData ordering. 
-*/  
+/*! 
+ * Convert a list of bitpit::PatchKernel vertex ids to their local/compact index value.
+ * Unexistent vertex ids are marked in return vector as -1.
+ * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
+ * \return list of local index of vertices according to compact ordering
+ */
 ivector1D MimmoObject::convertVertexIDToLocal(livector1D vertexList){
     
     ivector1D result(vertexList.size());
@@ -1108,11 +1142,12 @@ ivector1D MimmoObject::convertVertexIDToLocal(livector1D vertexList){
     return result;
 }
 
-/*! Convert local ordered MimmoObject Vertex List to Vertex List of bitpit::PatchKernel IDs.
-*  Unexistent local vertex index are marked in return vector as -1.
-* \param[in] vList List of local ids of vertices according m_mapData ordering
-* \return list of bitpit::PatchKernel IDs identifying vertices.
-*/  
+/*! 
+ * Convert a list of local/compact vertex index in their bitpit::PatchKernel unique id value.
+ * Unexistent vertex index are marked in return vector as -1.
+ * \param[in] vertexList list of vertex index in local/compact ordering 
+ * \return list bitpit::PatchKernel ids identifying vertices.
+ */ 
 livector1D MimmoObject::convertLocalToVertexID(ivector1D vList){
     
     livector1D result(vList.size());
@@ -1124,12 +1159,12 @@ livector1D MimmoObject::convertLocalToVertexID(ivector1D vList){
     return result;
 }
 
-
-/*! Convert Cell List of bitpit::PatchKernel IDs to local ordered MimmoObject Cell List.
-*  Unexistent cell ID are marked in return vector as -1.
-* \param[in] cellList list of bitpit::PatchKernel IDs identifying cells.
-* \return list of local ids of cells according m_mapCell ordering.
-*/  
+/*! 
+ * Convert a list of bitpit::PatchKernel cell ids to their local/compact index value.
+ * Unexistent cell ids are marked in return vector as -1.
+ * \param[in] cellList list of bitpit::PatchKernel IDs identifying cells.
+ * \return list of local index of cells according to compact ordering
+ */
 ivector1D MimmoObject::convertCellIDToLocal(livector1D cellList){
     
     ivector1D result(cellList.size());
@@ -1142,11 +1177,12 @@ ivector1D MimmoObject::convertCellIDToLocal(livector1D cellList){
     return result;
 }
 
-/*! Convert local ordered MimmoObject Cell List to Cell List of bitpit::PatchKernel IDs.
-* Unexistent local cell index are marked in return vector as -1.
-* \param[in] cList List of local ids of cells according m_mapCell ordering
-* \return list of bitpit::PatchKernel IDs identifying cells.
-*/  
+/*! 
+ * Convert a list of local/compact cell index in their bitpit::PatchKernel unique id value.
+ * Unexistent cell index are marked in return vector as -1.
+ * \param[in] cellList list of cell index in local/compact ordering 
+ * \return list bitpit::PatchKernel ids identifying cells.
+ */ 
 livector1D MimmoObject::convertLocalToCellID(ivector1D cList){
     
     livector1D result(cList.size());
@@ -1161,9 +1197,9 @@ livector1D MimmoObject::convertLocalToCellID(ivector1D cList){
 
 
 /*!
-* Extract ids of all vertices at mesh boundaries.
-* \return list of vertex IDs.
-*/
+ * Extract vertices at the mesh boundaries, if any.
+ * \return list of vertex unique-ids.
+ */
 livector1D 	MimmoObject::extractBoundaryVertexID(){
     
     if(isEmpty())	return livector1D(0);
@@ -1200,11 +1236,10 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 };
 
 /*!
-* Extract all cells by their bitpit::PatchKernel unique ID, associated to 
-* PID flag.
-* \param[in]	flag	PID for extraction
-* \return		list of cell ID marked as PID flag
-*/
+ * Extract all cells marked with a target PID flag.
+ * \param[in]	flag	PID for extraction
+ * \return		list of cells as unique-ids
+ */
 livector1D	MimmoObject::extractPIDCells(short flag){
     
     if(m_pidsType.count(flag) < 1)	return livector1D(0);
@@ -1222,11 +1257,10 @@ livector1D	MimmoObject::extractPIDCells(short flag){
 };
 
 /*!
-* Extract all cells by their bitpit::PatchKernel unique ID, associated to 
-* PID flag.
-* \param[in]	flag	list of PIDs for extraction
-* \return		list of cell ID marked as PID flags
-*/
+ * Extract all cells marked with a series of target PIDs.
+ * \param[in]   flag    list of PID for extraction
+ * \return      list of cells as unique-ids
+ */
 livector1D	MimmoObject::extractPIDCells(shivector1D flag){
     livector1D result;
     result.reserve(getNCells());
@@ -1239,30 +1273,30 @@ livector1D	MimmoObject::extractPIDCells(shivector1D flag){
 
 
 /*!
-* Check if specified ElementType for a given cell is supported by the current PatchKernel mesh
-* internally allocated in the current class. Supported types are for superficial mesh 
-* bitpit::ElementInfo::TRIANGLE and bitpit::ElementInfo::QUAD, for volumetric mesh bitpit::ElementInfo::TETRA
-* and bitpit::ElementInfo::HEXAHEDRON, and 3DCurve mesh bitpit::ElementInfo::LINE
-* \param[in] type	element type to check, from bitpit::ElementInfo enum
-* \return integer with the dimension of the element supported. -1 flag the unsupported element;
-*/
+ * Check if a specified cell topology is currently supported by the class, and return the typical size of its connectivity.
+ * 
+ * \param[in] type  cell type to check, as bitpit::ElementInfo enum
+ * \return integer with the dimension of the element supported. -1 flag the unsupported element;
+ */
 int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
     int check = -1;
     int patchType =getType();
     
     switch(patchType){
         case 1:
-            if	(type == bitpit::ElementInfo::TRIANGLE) check = 3;
-            if  (type == bitpit::ElementInfo::QUAD)		check = 4;
+            if  type == bitpit::ElementInfo::TRIANGLE)      check = 3;
+            if  (type == bitpit::ElementInfo::QUAD)         check = 4;
             break;
         case 2:
-            if	(type == bitpit::ElementInfo::TETRA) 		check = 4;
-            if	(type == bitpit::ElementInfo::PYRAMID) 		check = 5;
-            if	(type == bitpit::ElementInfo::WEDGE) 		check = 6;
-            if  (type == bitpit::ElementInfo::HEXAHEDRON)	check = 8;
+            if  (type == bitpit::ElementInfo::TETRA)        check = 4;
+            if  (type == bitpit::ElementInfo::PYRAMID)      check = 5;
+            if  (type == bitpit::ElementInfo::WEDGE)        check = 6;
+            if  (type == bitpit::ElementInfo::HEXAHEDRON)   check = 8;
             break;
+        case 3:
+            if (type == bitpit::ElementInfo::VERTEX)        check = 1;
         case 4:
-            if	(type == bitpit::ElementInfo::LINE) 		check = 2;
+            if	(type == bitpit::ElementInfo::LINE)         check = 2;
             break;
         default:	//do nothing
             break;
@@ -1272,10 +1306,10 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
 
 
 /*!
-* Evaluate axis aligned bounding box of the current MimmoObject 
-*\param[out] pmin lowest bounding box point
-*\param[out] pmax highest bounding box point
-*/
+ * Evaluate axis aligned bounding box of the current MimmoObject 
+ * \param[out] pmin lowest bounding box point
+ * \param[out] pmax highest bounding box point
+ */
 void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax){
     if(m_patch == NULL)   return;
     m_patch->getBoundingBox(pmin,pmax);
@@ -1283,9 +1317,9 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
 }
 
 /*!
-* Reset and build again simplex bvTree of your geometry (if supports connectivity elements).
-*\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
-*/
+ * Reset and build again simplex bvTree of your geometry (if supports connectivity elements).
+ *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
+ */
 void MimmoObject::buildBvTree(int value){
     if(!m_bvTreeSupported || m_patch == NULL)	return;
     
@@ -1302,8 +1336,8 @@ void MimmoObject::buildBvTree(int value){
 }
 
 /*!
-* Reset and build again vertex kdTree of your geometry .
-*/
+ * Reset and build again vertex kdTree of your geometry.
+ */
 void MimmoObject::buildKdTree(){
     if( m_patch == NULL)	return;
     long label;
@@ -1323,16 +1357,16 @@ void MimmoObject::buildKdTree(){
 }
 
 /*!
-* Clean the KdTree of the class
-*/
+ * Clean the KdTree of the class
+ */
 void	MimmoObject::cleanKdTree(){
     m_kdTree.n_nodes = 0;
     m_kdTree.nodes.clear();
 }
 
 /*!
-* Check if Adjacency is built for your current mesh
-*/
+ * \return true if cell-cell adjacency is built for your current mesh.
+ */
 bool MimmoObject::areAdjacenciesBuilt(){
     
     bool check = true;
@@ -1350,8 +1384,8 @@ bool MimmoObject::areAdjacenciesBuilt(){
 };
 
 /*!
-* Check if your mesh has open edges/faces 
-*/
+ * \return false if your mesh has open edges/faces. True otherwise
+ */
 bool MimmoObject::isClosedLoop(){
     
     if(!areAdjacenciesBuilt())	buildAdjacencies();
@@ -1376,17 +1410,18 @@ bool MimmoObject::isClosedLoop(){
 };
 
 /*!
-* Forcing to build your adjacency.
-*/
+ * Force the class to build cell-cell adjacency connectivity.
+ */
 void MimmoObject::buildAdjacencies(){
     getPatch()->buildAdjacencies();
 };
 
-
 /*!
-* Desume Element type of your current mesh. Please note MimmoObject is handling mesh with homogeneous elements.
-* Return undefined type for unexistent or unsupported element, or mixed element type connectivity.
-*/
+ * Desume Element type of your current mesh. 
+ * Please note MimmoObject is handling meshes with homogeneous elements.
+ * Return undefined type for unexistent or unsupported element, or mixed element type connectivity.
+ * \return cell type hold by the mesh
+ */
 bitpit::VTKElementType	MimmoObject::desumeElement(){
     bitpit::VTKElementType result = bitpit::VTKElementType::UNDEFINED;
     
