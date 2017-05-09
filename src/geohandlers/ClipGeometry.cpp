@@ -29,9 +29,12 @@ namespace mimmo{
 */
 ClipGeometry::ClipGeometry(){
 	m_name = "mimmo.ClipGeometry";
-	m_plane.fill(0.0);
+    m_plane.fill(0.0);
+    m_origin.fill(0.0);
+    m_normal.fill(0.0);
 	m_insideout = false;
 	m_patch.reset(nullptr);
+    m_implicit = false;
 };
 
 /*!
@@ -70,7 +73,10 @@ ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(){
 ClipGeometry & ClipGeometry::operator=(const ClipGeometry & other){
 	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
 	m_plane = other.m_plane;
-	m_insideout = other.m_insideout;
+    m_insideout = other.m_insideout;
+    m_origin = other.m_origin;
+    m_normal = other.m_normal;
+    m_implicit = other.m_implicit;
 	return(*this);
 };
 
@@ -80,7 +86,9 @@ void
 ClipGeometry::buildPorts(){
 	bool built = true;
 	
-	built = (built && createPortIn<darray4E, ClipGeometry>(this, &mimmo::ClipGeometry::setClipPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray4E, ClipGeometry>(this, &mimmo::ClipGeometry::setClipPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setNormal, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
 	built = (built && createPortIn<bool, ClipGeometry>(this, &mimmo::ClipGeometry::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
 	built = (built && createPortIn<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
 	
@@ -120,6 +128,7 @@ ClipGeometry::getClipPlane(){
 void
 ClipGeometry::setClipPlane(darray4E plane){
 	m_plane = plane;
+    m_implicit = true;
 };
 
 /*!
@@ -138,6 +147,29 @@ ClipGeometry::setClipPlane(darray3E origin, darray3E normal){
 	m_plane[1] = normal[1];
 	m_plane[2] = normal[2];
 	m_plane[3] = b;
+
+    m_implicit = true;
+
+};
+
+/*!
+ * Set origin for clipping plane
+ * \param[in] origin point belonging to plane
+ *
+ */
+void
+ClipGeometry::setOrigin(darray3E origin){
+    m_origin = origin;
+};
+
+/*!
+ * Set normal for clipping plane
+ * \param[in] normal plane normal
+ *
+ */
+void
+ClipGeometry::setNormal(darray3E normal){
+    m_normal = normal;
 };
 
 /*! Set direction for clipping. If false take all parts of target geometry lying on the half positive space 
@@ -156,6 +188,11 @@ ClipGeometry::execute(){
 
 	if(getGeometry() == NULL || getGeometry()->isEmpty()) return;
 	
+	/* If an implicit definition is not present it has to be computed
+	 * by using origin and normal.
+	 */
+	if (!m_implicit) setClipPlane(m_origin, m_normal);
+
 	m_patch.reset(nullptr);
 	
 	livector1D extracted = clipPlane();

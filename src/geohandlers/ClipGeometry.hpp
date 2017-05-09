@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,12 +31,15 @@ namespace mimmo{
 
 /*!
  * \class ClipGeometry
+ * \ingroup geohandlers
  * \brief ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it.
  *
  * ClipGeometry is derived from BaseManipulation class.
- * It needs a target MimmoObject geometry, alongside a clipping plane definition [a,b,c,d], in its
- * implicit form a*x + b*y + c*z + d =0; 
- * Returns geometry clipped in an independent MimmoObject. Controls clipping direction with an "insideout" boolean.
+ * It needs a target MimmoObject geometry, alongside a clipping plane definition through its origin
+ * and normal or by a set af value [a,b,c,d], describing its
+ * implicit form a*x + b*y + c*z + d = 0;
+ * Returns geometry clipped in an independent MimmoObject.
+ * Controls clipping direction (based on normal direction) with an "insideout" boolean.
  * Class plot as optional result the clipped portion of geoemetry, and absorb/flush its parameters from xml 
  * dictionaries
  *
@@ -47,7 +50,9 @@ namespace mimmo{
  *	|-------|----------|-------------------|-------------------------|
  *	|PortID | PortType | variable/function | DataType                |
  *	|-------|----------|-------------------|-------------------------|
- *	| 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)         |
+ *  | 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)         |
+ *  | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)         |
+ *  | 21    | M_AXIS   | setNormal         | (ARRAY3, FLOAT)         |
  *	| 32    | M_VALUEB | setInsideOut      | (SCALAR, BOOL)          |
  *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
  *	|-------|----------|-------------------|-------------------------|
@@ -66,9 +71,12 @@ namespace mimmo{
  */
 class ClipGeometry: public BaseManipulation{
 private:
-	darray4E						m_plane;		/**<Coefficients of implicit plane a*x +b*y+c*z + d =0.*/
+    darray4E                        m_plane;    /**<Coefficients of implicit plane a*x +b*y+c*z + d =0.*/
 	bool						m_insideout;	/**<set direction of clipping, false along current plane normal, true the opposite*/
-	std::unique_ptr<MimmoObject>	m_patch;		/**<Resulting Clipped Patch.*/
+	std::unique_ptr<MimmoObject>	m_patch;	/**<Resulting Clipped Patch.*/
+    darray3E                        m_origin;   /**<Origin of plane. */
+    darray3E                        m_normal;   /**<Normal of plane. */
+    bool                            m_implicit; /**<True if an implicit definition of plane is set. */
 	
 public:
 	ClipGeometry();
@@ -85,7 +93,9 @@ public:
 	darray4E 		getClipPlane();	
 
 	void	setClipPlane(darray4E plane);
-	void	setClipPlane(darray3E origin, darray3E normal);
+    void    setClipPlane(darray3E origin, darray3E normal);
+    void    setOrigin(darray3E origin);
+    void    setNormal(darray3E normal);
 	void	setInsideOut(bool flag);
 
 	void 	execute();
