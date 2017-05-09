@@ -188,7 +188,8 @@ ClipGeometry::setInsideOut(bool flag){
     m_insideout = flag;
 };
 
-/*!Execution command. Clip geometry and save result in m_patch member.
+/*!
+ * Execution command. Clip geometry and save result in m_patch member.
  */
 void
 ClipGeometry::execute(){

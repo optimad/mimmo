@@ -42,7 +42,7 @@ namespace mimmo{
  * The class controls clipping direction (based on normal direction) with an "insideout" boolean.
  * ClipGeometry plots as optional result the clipped portion of input geometry.
  *
- * Ports available in ClipGeoemtry Class :
+ * Ports available in ClipGeometry Class :
  *
  *    =========================================================
  * ~~~
