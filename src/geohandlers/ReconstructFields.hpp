@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -33,202 +33,226 @@ namespace mimmo{
 
 /*!
  * @enum OverlapMethod
+ * \ingroup geohandlers
  * @brief class for setting overlapping criterium for two different scalar fields:
- * 			1) MAX = get max(with sign) between available field values 
- * 			2) MIN = get min(with sign) between available field values 
- * 			3) AVERAGE = get simple average between available values
- * 			4) SUM = take sum of both values between overlapped fields
- */	
+ *             1) MAX = get max(with sign) between available field values
+ *             2) MIN = get min(with sign) between available field values
+ *             3) AVERAGE = get simple average between available values
+ *             4) SUM = take sum of both values between overlapped fields
+ */
 enum class OverlapMethod{
-	MAX = 1 /**< take max values between overlapped fields*/,
-	MIN = 2 /**< take min values between overlapped fields*/,
-	AVERAGE = 3 /**< take averaged values between overlapped fields*/,
-	SUM = 4 /**< take sum of both values between overlapped fields*/
+    MAX = 1 /**< take max values between overlapped fields*/,
+            MIN = 2 /**< take min values between overlapped fields*/,
+            AVERAGE = 3 /**< take averaged values between overlapped fields*/,
+            SUM = 4 /**< take sum of both values between overlapped fields*/
 };
 
 /*!
  * \class ReconstructScalar
+ * \ingroup geohandlers
  * \brief Reconstruct a scalar field from daughter mesh to mother mesh
  * 
  * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObject mesh, from several
- * scalar fields defined on sub-patches of the target mesh. Field values are defined on nodes.
+ * scalar fields defined on sub-patches of the target mesh.
+ * Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
- * PORTS AVAILABLE IN ReconstructScalar Class 
+ * Ports available in ReconstructScalar Class :
  * 
- *	=========================================================
+ *    =========================================================
  * ~~~
- *	|---------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                                      |
- *	|-------|----------------|---------------------------------------|----------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes                        |
- *	|-------|----------------|---------------------------------------|----------------------------------|
- *	| 81    | M_PAIRSCAFIELD | setData                               | (PAIR, MIMMO_VECFLOAT_)          |
- *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)                 |
- *	| 200   | M_VECPAIRSF    | setData                               | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
- *	|-------|----------------|---------------------------------------|----------------------------------|
+ *    |--------------------------------------------------------------------------------|
+ *    |                   Port Input                                                   |
+ *    |-------|----------------|--------------------|----------------------------------|
+ *    |PortID | PortType       | variable/function  | DataTypes                        |
+ *    |-------|----------------|--------------------|----------------------------------|
+ *    | 81    | M_PAIRSCAFIELD | setData            | (PAIR, MIMMO_VECFLOAT_)          |
+ *    | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                 |
+ *    | 200   | M_VECPAIRSF    | setData            | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
+ *    |-------|----------------|--------------------|----------------------------------|
  * 
  *
  *
- *	|---------------------------------------------------------------------|
- *	|             Port Output                                             |
- *	|-------|----------------|--------------------|-----------------------|
- *	|PortID | PortType       | variable/function  | DataTypes             |
- *	|-------|----------------|--------------------|-----------------------|
- *	| 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
- *	| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
- *	| 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
- *	|-------|----------------|--------------------|-----------------------|
+ *    |---------------------------------------------------------------------|
+ *    |             Port Output                                             |
+ *    |-------|----------------|--------------------|-----------------------|
+ *    |PortID | PortType       | variable/function  | DataTypes             |
+ *    |-------|----------------|--------------------|-----------------------|
+ *    | 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
+ *    | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
+ *    | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
+ *    |-------|----------------|--------------------|-----------------------|
  *
  * ~~~
- *	=========================================================
+ *    =========================================================
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ReconstructScalar</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing;
+ *
+ * Fields and Geometry have to be mandatorily passed through port.
+ *
  */
-
 class ReconstructScalar: public mimmo::BaseManipulation {
-	
-private:
-	
-	OverlapMethod m_overlapCriterium;
-	std::unordered_map < mimmo::MimmoObject*, dvector1D * > m_subpatch;
-	dvector1D	m_result;
-	
-public:
-	typedef std::pair<mimmo::MimmoObject*, dvector1D *>  pField; /**< Internal definition of the class */
-	ReconstructScalar();
-	ReconstructScalar(const bitpit::Config::Section & rootXML);
-	virtual ~ReconstructScalar();
-	ReconstructScalar(const ReconstructScalar & other);
-	ReconstructScalar & operator=(const ReconstructScalar & other);
-	
-	//get-set methods
-	OverlapMethod			getOverlapCriteriumENUM();
-	int 					getOverlapCriterium();
-	dvector1D 				getData(mimmo::MimmoObject * patch );
-	int 					getNData();
-	dvector1D				getResultField();
-	pField					getResultFieldPair();
-	
-	std::vector< mimmo::MimmoObject	* >	whichSubMeshes();
-	
-	void 		setOverlapCriteriumENUM( OverlapMethod);
-	void 		setOverlapCriterium( int);
-	void		setData( pField );
-	void 		setData(std::vector<pField> );
-	void		removeData(mimmo::MimmoObject* );
-	void		removeAllData();
-	void		buildPorts();
-	//cleaners
-	void clear();
-	
-	//plotting
 
-	void	plotData(std::string dir, std::string name, bool flag, int counter);
-	
-	//execute
-	void		execute();
-	
-	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-protected:
-		virtual void plotOptionalResults();
-	
 private:
-	double 	overlapFields(dvector1D & locField);
-	std::unordered_map<long, dvector1D>		checkOverlapping();
-	bitpit::VTKElementType	desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
-};	
-	
+
+    OverlapMethod m_overlapCriterium;                                      /**<Overlap Method */
+    std::unordered_map < mimmo::MimmoObject*, dvector1D * > m_subpatch;   /**<List of input geometries and related field pointers. */
+    dvector1D m_result;                                                   /**<Output reconstructed field. */
+
+public:
+    typedef std::pair<mimmo::MimmoObject*, dvector1D *>  pField;           /**< Internal definition of the class for the list of input geometries and related field pointers. */
+    ReconstructScalar();
+    ReconstructScalar(const bitpit::Config::Section & rootXML);
+    virtual ~ReconstructScalar();
+    ReconstructScalar(const ReconstructScalar & other);
+    ReconstructScalar & operator=(const ReconstructScalar & other);
+
+    //get-set methods
+    OverlapMethod            getOverlapCriteriumENUM();
+    int                     getOverlapCriterium();
+    dvector1D                 getData(mimmo::MimmoObject * patch );
+    int                     getNData();
+    dvector1D                getResultField();
+    pField                    getResultFieldPair();
+
+    std::vector< mimmo::MimmoObject    * >    whichSubMeshes();
+
+    void         setOverlapCriteriumENUM( OverlapMethod);
+    void         setOverlapCriterium( int);
+    void        setData( pField );
+    void         setData(std::vector<pField> );
+    void        removeData(mimmo::MimmoObject* );
+    void        removeAllData();
+    void        buildPorts();
+    //cleaners
+    void clear();
+
+    //plotting
+
+    void    plotData(std::string dir, std::string name, bool flag, int counter);
+
+    //execute
+    void        execute();
+
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+protected:
+    virtual void plotOptionalResults();
+
+private:
+    double     overlapFields(dvector1D & locField);
+    std::unordered_map<long, dvector1D>        checkOverlapping();
+    bitpit::VTKElementType    desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
+};
+
 /*!
  * \class ReconstructVector
+ * \ingroup geohandlers
  * \brief Reconstruct a vector field from daughter mesh to mother mesh
  * 
  * Class/BaseManipulation Object reconstructing a vector field on a mimmo::MimmoObject mesh, from several
  * vector fields defined on sub-patches of the target mesh. Field values are defined on nodes.
  * Reconstructed field is provided in m_result member of the class.
  * 
- * PORTS AVAILABLE IN ReconstructVector Class 
+ * Ports available in ReconstructVector Class :
  * 
- *	=========================================================
+ *    =========================================================
  * ~~~
- *	|-----------------------------------------------------------------------------------------------------|
- *	|                   Port Input                                                                        |
- *	|-------|----------------|---------------------------------------|------------------------------------|
- *	|PortID | PortType       | variable/function                     | DataTypes                          |
- *	|-------|----------------|---------------------------------------|------------------------------------|
- *	| 80    | M_PAIRVECFIELD | setData                               | (PAIR, MIMMO_VECARR3FLOAT_)        |
- *	| 99    | M_GEOM         | m_geometry                            | (SCALAR, MIMMO_)                   |
- *	| 201   | M_VECPAIRVF    | setData                               | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
- *	|-------|----------------|---------------------------------------|------------------------------------|
+ *    |----------------------------------------------------------------------------------|
+ *    |                   Port Input                                                     |
+ *    |-------|----------------|--------------------|------------------------------------|
+ *    |PortID | PortType       | variable/function  | DataTypes                          |
+ *    |-------|----------------|--------------------|------------------------------------|
+ *    | 80    | M_PAIRVECFIELD | setData            | (PAIR, MIMMO_VECARR3FLOAT_)        |
+ *    | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                   |
+ *    | 201   | M_VECPAIRVF    | setData            | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
+ *    |-------|----------------|--------------------|------------------------------------|
  * 
- *	|--------------------------------------------------------------------------|
- *	|             Port Output                                                  |
- *	|-------|----------------|--------------------|----------------------------|
- *	|PortID | PortType       | variable/function  | DataTypes                  |
- *	|-------|----------------|--------------------|----------------------------|
- *	| 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           | 
- *	| 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
- *	| 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
- *	|-------|----------------|--------------------|----------------------------|
+ *    |--------------------------------------------------------------------------|
+ *    |             Port Output                                                  |
+ *    |-------|----------------|--------------------|----------------------------|
+ *    |PortID | PortType       | variable/function  | DataTypes                  |
+ *    |-------|----------------|--------------------|----------------------------|
+ *    | 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           |
+ *    | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
+ *    | 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
+ *    |-------|----------------|--------------------|----------------------------|
  * 
  * ~~~
- *	=========================================================
+ *    =========================================================
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ReconstructVector</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing;
+ *
+ * Fields and Geometry have to be mandatorily passed through port.
+ *
  */
-
 class ReconstructVector: public mimmo::BaseManipulation {
-	
+
 private:
-	
-	OverlapMethod m_overlapCriterium;
-	std::unordered_map < mimmo::MimmoObject*, dvecarr3E * > m_subpatch;
-	dvecarr3E	m_result;
+
+    OverlapMethod m_overlapCriterium;                                     /**<Overlap Method */
+    std::unordered_map < mimmo::MimmoObject*, dvecarr3E * > m_subpatch;   /**<List of input geometries and related field pointers. */
+    dvecarr3E m_result;                                                   /**<Output reconstructed field. */
 
 public:
-	typedef std::pair<mimmo::MimmoObject*, dvecarr3E *>  pVector; /**< Internal definition of the class */
-	ReconstructVector();
-	ReconstructVector(const bitpit::Config::Section & rootXML);
-	virtual ~ReconstructVector();
-	ReconstructVector(const ReconstructVector & other);
-	ReconstructVector & operator=(const ReconstructVector & other);
-	
-	//get-set methods
-	OverlapMethod			getOverlapCriteriumENUM();
-	int						getOverlapCriterium();
-	dvecarr3E 				getData(mimmo::MimmoObject * patch);
-	int 					getNData();
-	dvecarr3E				getResultField();
-	pVector					getResultFieldPair();
-	
-	std::vector< mimmo::MimmoObject	* >	whichSubMeshes();
-	
-	void 		setOverlapCriteriumENUM( OverlapMethod);
-	void		setOverlapCriterium(int );
-	void		setData( pVector );
-	void 		setData(std::vector<pVector> );
-	void		removeData(mimmo::MimmoObject* );
-	void		removeAllData();
-	void		buildPorts();
-	//cleaners
-	void clear();
-	
+    typedef std::pair<mimmo::MimmoObject*, dvecarr3E *>  pVector;         /**< Internal definition of the class for the list of input geometries and related field pointers. */
+    ReconstructVector();
+    ReconstructVector(const bitpit::Config::Section & rootXML);
+    virtual ~ReconstructVector();
+    ReconstructVector(const ReconstructVector & other);
+    ReconstructVector & operator=(const ReconstructVector & other);
 
-	//plotting
-	void	plotData(std::string dir, std::string name, bool flag, int counter);
-	
-	//execute
-	void		execute();
+    //get-set methods
+    OverlapMethod            getOverlapCriteriumENUM();
+    int                        getOverlapCriterium();
+    dvecarr3E                 getData(mimmo::MimmoObject * patch);
+    int                     getNData();
+    dvecarr3E                getResultField();
+    pVector                    getResultFieldPair();
 
-	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-	
+    std::vector< mimmo::MimmoObject    * >    whichSubMeshes();
+
+    void         setOverlapCriteriumENUM( OverlapMethod);
+    void        setOverlapCriterium(int );
+    void        setData( pVector );
+    void         setData(std::vector<pVector> );
+    void        removeData(mimmo::MimmoObject* );
+    void        removeAllData();
+    void        buildPorts();
+    //cleaners
+    void clear();
+
+
+    //plotting
+    void    plotData(std::string dir, std::string name, bool flag, int counter);
+
+    //execute
+    void        execute();
+
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 protected:
-	virtual void plotOptionalResults();
-	
+    virtual void plotOptionalResults();
+
 private:
-	darray3E	overlapFields(dvecarr3E & locField);
-	std::unordered_map<long, dvecarr3E>		checkOverlapping();
-};	
+    darray3E    overlapFields(dvecarr3E & locField);
+    std::unordered_map<long, dvecarr3E>        checkOverlapping();
+};
 
 
 REGISTER(BaseManipulation, ReconstructScalar,"mimmo.ReconstructScalar");

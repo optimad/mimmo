@@ -84,8 +84,6 @@ namespace mimmo{
  *
  * Geometry has to be mandatorily passed through port.
  *
- *  =========================================================
- *
  */
 class ClipGeometry: public BaseManipulation{
 private:

@@ -455,7 +455,6 @@ OverlapScalarFields::overlapFields(dvector1D & locField){
     return value;
 };
 
-
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file

@@ -75,7 +75,7 @@ namespace mimmo{
  * - <B>PlotInExecution</B>: plot optional results in execution;
  * - <B>OutputPlot</B>: path to store optional results.
  *
- * Fields and Geometry has to be mandatorily passed through port.
+ * Fields and Geometry have to be mandatorily passed through port.
  *
  */
 class OverlapScalarFields: public mimmo::BaseManipulation {
@@ -83,7 +83,7 @@ class OverlapScalarFields: public mimmo::BaseManipulation {
 private:
 
     OverlapMethod m_overlapCriterium;                                                   /**<Overlap Method */
-    std::unordered_map < mimmo::MimmoObject*, std::vector<dvector1D *> > m_originals;   /**<List of input geometry and related field pointers. */
+    std::unordered_map < mimmo::MimmoObject*, std::vector<dvector1D *> > m_originals;   /**<List of input geometries and related field pointers. */
     std::unordered_map < mimmo::MimmoObject*, dvector1D > m_results;                    /**<List of output geometry pointers and overlapped fields. */
 
 public:
@@ -171,13 +171,13 @@ private:
  *
  * The xml available parameters, sections and subsections are the following :
  *
- * - <B>ClassName</B>: name of the class as <tt>mimmo.OverlapScalarFields</tt>;
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.OverlapVectorFields</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  * - <B>PlotInExecution</B>: plot optional results in execution;
  * - <B>OutputPlot</B>: path to store optional results.
  *
- * Fields and Geometry has to be mandatorily passed through port.
+ * Fields and Geometry have to be mandatorily passed through port.
  *
  */
 class OverlapVectorFields: public mimmo::BaseManipulation {
@@ -185,7 +185,7 @@ class OverlapVectorFields: public mimmo::BaseManipulation {
 private:
 
     OverlapMethod m_overlapCriterium;                                                   /**<Overlap Method */
-    std::unordered_map < mimmo::MimmoObject*, std::vector<dvecarr3E *> > m_originals;   /**<List of input geometry and related field pointers. */
+    std::unordered_map < mimmo::MimmoObject*, std::vector<dvecarr3E *> > m_originals;   /**<List of input geometries and related field pointers. */
     std::unordered_map < mimmo::MimmoObject*, dvecarr3E > m_results;                    /**<List of output geometry pointers and overlapped fields. */
 
 public:
