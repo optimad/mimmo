@@ -28,6 +28,7 @@
 
 using namespace std;
 using namespace bitpit;
+
 namespace mimmo{
 
 
@@ -375,10 +376,10 @@ IOCGNS::read(){
         return false;
     }
 
-    
+
     nVertices 		= sizeG[0];
-//     nCells 			= sizeG[1];
-//     nBoundVertices	= sizeG[2];
+    //     nCells 			= sizeG[1];
+    //     nBoundVertices	= sizeG[2];
 
     //Read Vertices.
     if(cg_ncoords(indexfile,1,1, &nCoords)!= CG_OK){
@@ -541,7 +542,7 @@ IOCGNS::read(){
         switch(val){
         case CGNS_ENUMV(MIXED):
 
-		                unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
+		                        unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
         break;
 
         case CGNS_ENUMV(TETRA_4):
@@ -929,7 +930,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         case CGNS_ENUMV(NODE):
-			                                                ++it;
+			                                                        ++it;
         break;
 
         case CGNS_ENUMV(BAR_2):

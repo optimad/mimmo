@@ -22,9 +22,11 @@
  #
  #----------------------------------------------------------------------------*/
 
-/*!
- * @defgroup IOGeneric basic Input/Output handling for surface/volume meshes and raw data 
- *
+ /*!
+ * \defgroup iogeneric
+ * basic Input/Output handling for surface/volume meshes and raw data
+ * \{
+ * \}
  */
 
 #ifndef __MIMMO_MODULE_IOGENERIC_HPP__

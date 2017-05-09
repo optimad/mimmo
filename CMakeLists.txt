@@ -333,7 +333,7 @@ list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
 #------------------------------------------------------------------------------------#
 set(CORE_DEPS "common")
 set(IOGENERIC_DEPS "core;common")
-set(IOCGNS_DEPS "iogeneric;core;common")
+set(IOCGNS_DEPS "core;common;iogeneric")
 set(IOVTK_DEPS "iogeneric;core;common")
 set(IOOFOAM_DEPS "iogeneric;iovtk;core;common")
 set(GEOHANDLERS_DEPS "core;common;iogeneric")

@@ -1,24 +1,24 @@
 #---------------------------------------------------------------------------
 #
-#  MIMMO
+#  mimmo
 #
-#  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
 #  This file is part of mimmo.
 #
-#  MIMMO is free software: you can redistribute it and/or modify it
+#  mimmo is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License v3 (LGPL)
 #  as published by the Free Software Foundation.
 #
-#  MIMMO is distributed in the hope that it will be useful, but WITHOUT
+#  mimmo is distributed in the hope that it will be useful, but WITHOUT
 #  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 #  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
 #  License for more details.
 #
 #  You should have received a copy of the GNU Lesser General Public License
-#  along with MIMMO. If not, see <http://www.gnu.org/licenses/>.
+#  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
 #
 #---------------------------------------------------------------------------*/
 
@@ -54,7 +54,7 @@ IF(BUILD_DOCUMENTATION)
 
   SET(DOXYFILE_IN          ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
   SET(DOXYFILE_CSS         ${CMAKE_CURRENT_SOURCE_DIR}/mimmoStyleSheet.css)
-  SET(DOXYFILE             ${PROJECT_BINARY_DIR}/Doxyfile)
+  SET(DOXYFILE             ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   SET(DOXY_HTML_INDEX_FILE ${CMAKE_CURRENT_BINARY_DIR}/html/index.html)
   SET(DOXY_OUTPUT_ROOT     ${CMAKE_CURRENT_BINARY_DIR})
   SET(DOXY_PREDEFINED      "\"MIMMO_ENABLE_MPI=${DOXY_ENABLE_MPI}\" \"MIMMO_DEPRECATED(x)=x\"")
@@ -65,7 +65,7 @@ IF(BUILD_DOCUMENTATION)
   SET(DOXY_DISABLE_INDEX         "YES" CACHE INTERNAL "Controls if the index should be disabled")
   SET(DOXY_GENERATE_TREEVIEW     "YES" CACHE INTERNAL "Controls if a tree-like index structure should be generated")
 
-  SET(DOXY_INPUT_DIRECTORIES "${CMAKE_SOURCE_DIR}/src \\\n      ${CMAKE_SOURCE_DIR}/examples \\\n      ${CMAKE_SOURCE_DIR}/doc/extra")
+  SET(DOXY_INPUT_DIRECTORIES "${CMAKE_SOURCE_DIR}/src/common \\\n      ${CMAKE_SOURCE_DIR}/examples \\\n      ${CMAKE_SOURCE_DIR}/doc/extra")
   SET(DOXY_INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/extra/mimmo.hpp;${CMAKE_CURRENT_SOURCE_DIR}/extra/mimmoStyleGuide.hpp;${EXAMPLES_SOURCES}")
   foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
     isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)

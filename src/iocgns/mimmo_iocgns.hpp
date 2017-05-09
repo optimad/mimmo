@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -22,15 +22,18 @@
  *
 \*---------------------------------------------------------------------------*/
 
-/*!
- * @defgroup IOCGNS 
- *
+ /*!
+ * \defgroup iocgns
+ * Input/Output manager for meshes in cgns format
+ * \{
+ * \}
  */
 
 #ifndef __MIMMO_MODULE_IOCGNS_HPP__
 #define __MIMMO_MODULE_IOCGNS_HPP__
 
 #include "mimmo_iogeneric.hpp"
+
 #include "IOCGNS.hpp"
 #include "CGNSPidExtractor.hpp"
 
