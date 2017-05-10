@@ -107,6 +107,9 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 private:
+    /*!
+     * Split method virtual. See derived classes SplitScalarField and SplitVectorField.
+     */
     virtual bool split()=0;
 };
 

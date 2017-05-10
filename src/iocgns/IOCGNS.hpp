@@ -38,7 +38,7 @@ namespace mimmo{
  */
 class InfoCGNS{
     friend class IOCGNS;
-public:
+private:
 
     std::map<bitpit::ElementInfo::Type, CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
     std::map<CG_ElementType_t, std::string>                 mcg_typetostring;  /**<Element type conversion CGNS->sting.*/
@@ -55,9 +55,13 @@ public:
     std::map<long int, int>                                 mcg_bndidtoindex;   /**<Map of boundary elements bitpit ID to local CGNS index.*/
     std::vector<long int>                                   mcg_bndindextoid;   /**<Vector of boundary elements local CGNS index to bitpit ID.*/
 
-
+public:
     InfoCGNS(){};
     ~InfoCGNS();
+private:
+    /*!
+     * Clear members of the class.
+     */
     void
     clear(){
         mcg_number.clear();
@@ -84,12 +88,12 @@ public:
  */
 class BCCGNS{
     friend class IOCGNS;
-public:
-
+private:
     std::map<int, CG_BCType_t >         mcg_pidtobc;        /**<Converter of boundary conditions types (PID->conditionType).*/
     std::map<int, std::string >         mcg_pidtoname;       /**<Converter of boundary conditions types (PID->nameBC).*/
     std::map<int, std::vector<int> >    mcg_bndpidtoindex;  /**<Map of boundary elements bitpit PID to vector of local CGNS index.*/
 
+public:
     BCCGNS(){};
     ~BCCGNS(){
         mcg_pidtobc.clear();
@@ -115,6 +119,7 @@ public:
  *
  * Dependencies : cgns libraries.
  *
+ * Ports available in IOCGNS Class :
  *
  *  =========================================================
  * ~~~
@@ -139,6 +144,18 @@ public:
  *  | 108   | M_BCCGNS         | getBoundaryConditions  | (SCALAR, MIMMO_)  |
  *  |-------|------------------|------------------------|-------------------|
  * ~~~
+ *    =========================================================
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.IOCGNS</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean 1-reading mode, 0-writing mode;
+ * - <B>ReadDir</B>: reading directory path;
+ * - <B>ReadFilename</B>: name of file for reading;
+ * - <B>WriteDir</B>: writing directory path;
+ * - <B>WriteFilename</B>: name of file for writing;
+ *
  */
 class IOCGNS: public BaseManipulation{
 private:
@@ -150,9 +167,9 @@ private:
     std::string     m_wdir;         /**<Name of directory to write the geometry (without final "/").*/
     std::string     m_wfilename;    /**<Name of file to write the geometry.*/
 
-    std::unique_ptr<MimmoObject>        m_volmesh;          /*!Original volume mesh, instantiated in reading */
-    std::unique_ptr<MimmoObject>        m_surfmesh;         /*!Original boundary mesh, instantiad in reading */
-    MimmoObject *                       m_surfmesh_not;     /*! Pointed external boundary mesh*/
+    std::unique_ptr<MimmoObject>        m_volmesh;          /**<Original volume mesh, instantiated in reading */
+    std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiad in reading */
+    MimmoObject *                       m_surfmesh_not;     /**<Pointed external boundary mesh*/
 
     InfoCGNS*                   m_storedInfo;       /**<Information of a CGNS read mesh.*/
     BCCGNS*                     m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
@@ -168,8 +185,8 @@ public:
     void            setDefaults();
     void            buildPorts();
 
-    MimmoObject*	getSurfaceBoundary();
-    MimmoObject*	getGeometry();
+    MimmoObject*    getSurfaceBoundary();
+    MimmoObject*    getGeometry();
     BCCGNS*         getBoundaryConditions();
 
     bool            isReadingMode();
@@ -200,10 +217,6 @@ private:
     void    recoverCGNSInfo();
 
 };
-
-
-
-
 
 REGISTER(BaseManipulation, IOCGNS,"mimmo.IOCGNS")
 

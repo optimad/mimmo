@@ -31,8 +31,8 @@ using namespace bitpit;
 
 namespace mimmo{
 
-
-/*!Default constructor of IOCGNS.
+/*!
+ * Default constructor of IOCGNS.
  */
 IOCGNS::IOCGNS(bool read){
     setDefaults();
@@ -59,17 +59,20 @@ IOCGNS::IOCGNS(const bitpit::Config::Section & rootXML){
     };
 }
 
-/*!Default destructor of IOCGNS.
+/*!
+ * Default destructor of IOCGNS.
  */
 IOCGNS::~IOCGNS(){};
 
-/*!Copy constructor of IOCGNS.
+/*!
+ * Copy constructor of IOCGNS.
  */
 IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(){
     *this = other;
 };
 
-/*!Assignement operator of IOCGNS.
+/*!
+ * Assignement operator of IOCGNS.
  */
 IOCGNS & IOCGNS::operator=(const IOCGNS & other){
 
@@ -86,7 +89,8 @@ IOCGNS & IOCGNS::operator=(const IOCGNS & other){
     return *this;
 };
 
-/*!Default values for IOCGNS.
+/*!
+ * Default values for IOCGNS.
  */
 void
 IOCGNS::setDefaults(){
@@ -119,7 +123,8 @@ IOCGNS::setDefaults(){
 
 }
 
-/*! It builds the input/output ports of the object
+/*!
+ * It builds the input/output ports of the object
  */
 void
 IOCGNS::buildPorts(){
@@ -138,17 +143,19 @@ IOCGNS::buildPorts(){
  * Return all the surface bounding the current volume mesh.
  * During reading mode returns info contained in cgns, marking with PID all the possible boundary patches, 
  * while in writing mode refers to the actual object pointed by the User.
+ * \return pointer to surface boundary mesh
  */
 MimmoObject*
 IOCGNS::getSurfaceBoundary(){
-    if(m_read)	return m_surfmesh.get();
+    if(m_read)    return m_surfmesh.get();
     //    if(m_surfmesh != NULL) return m_surfmesh.get();
-    else	return m_surfmesh_not;
+    else    return m_surfmesh_not;
 }
 
 /*!
  * Return current pointer to geometry.If read mode return local read volumetric mesh, else
  * if in write mode return pointed externally geometry
+ * \return pointer to volume mesh
  */
 MimmoObject*
 IOCGNS::getGeometry(){
@@ -161,7 +168,7 @@ IOCGNS::getGeometry(){
  * Return the Info object (class BCCGNS) for boundary conditions of surface patches
  * as PIDs associated to Surface boundary mesh.
  * Meaningful only in reading mode.
- * \return Pointer to BCCGNS object with boundary conditions information read from file.
+ * \return pointer to BCCGNS object with boundary conditions information read from file.
  */
 BCCGNS*
 IOCGNS::getBoundaryConditions(){
@@ -170,6 +177,7 @@ IOCGNS::getBoundaryConditions(){
 
 /*!
  * Return true if current class is in reading mode
+ * \return reading mode flag
  */
 bool
 IOCGNS::isReadingMode(){
@@ -178,6 +186,7 @@ IOCGNS::isReadingMode(){
 
 /*!
  * Return true if current class is in writing mode
+ * \return writing mode flag
  */
 bool
 IOCGNS::isWritingMode(){
@@ -237,12 +246,13 @@ IOCGNS::setWriteFilename(string filename){
 
 /*!
  * Set current geometry to an external volume mesh.
+ * \param[in] geo Pointer to input volume mesh.
  */
 void
 IOCGNS::setGeometry(MimmoObject * geo){
-    if(geo == NULL || m_read)	return;
-    if(geo->isEmpty())	return;
-    if(geo->getType() != 2)	return;
+    if(geo == NULL || m_read)    return;
+    if(geo->isEmpty())    return;
+    if(geo->getType() != 2)    return;
 
     BaseManipulation::setGeometry(geo);
     //m_volmesh.reset(nullptr);
@@ -250,13 +260,14 @@ IOCGNS::setGeometry(MimmoObject * geo){
 
 /*!
  * Set boundary surface relative to the volume mesh.Option active only in writing mode.
- * Preexistent boundary surfaces read from file, when class is set in read mode,  will be erased.
+ * Pre-existent boundary surfaces read from file, when class is set in read mode,  will be erased.
+ * \param[in] geosurf Pointer to input volume mesh.
  */
-void			
+void
 IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
-    if(geosurf == NULL || m_read)	return;
-    if(geosurf->isEmpty())	return;
-    if(geosurf->getType() != 1)	return;
+    if(geosurf == NULL || m_read)    return;
+    if(geosurf->isEmpty())    return;
+    if(geosurf->getType() != 1)    return;
 
     m_surfmesh_not = geosurf;
     //m_surfmesh.reset(nullptr);
@@ -266,7 +277,7 @@ IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
  * Set the Info object (class BCCGNS) for boundary conditions of surface patches
  * as PIDs associated to Surface boundary mesh.
  * Meaningful only in writing mode.
- * \param[in] Pointer to BCCGNS object with boundary conditions information read from file.
+ * \param[in] bccgns Pointer to BCCGNS object with boundary conditions information read from file.
  */
 void
 IOCGNS::setBoundaryConditions(BCCGNS* bccgns){
@@ -377,9 +388,9 @@ IOCGNS::read(){
     }
 
 
-    nVertices 		= sizeG[0];
-    //     nCells 			= sizeG[1];
-    //     nBoundVertices	= sizeG[2];
+    nVertices         = sizeG[0];
+    //     nCells             = sizeG[1];
+    //     nBoundVertices    = sizeG[2];
 
     //Read Vertices.
     if(cg_ncoords(indexfile,1,1, &nCoords)!= CG_OK){
@@ -416,7 +427,7 @@ IOCGNS::read(){
         CG_ElementType_t type;
         cgsize_t eBeg, eEnd, enBdry;
         int parent_flag;
-        std::vector<cgsize_t>	connlocal;
+        std::vector<cgsize_t>    connlocal;
         cgsize_t size;
 
         //Read elements name, type and range
@@ -519,10 +530,10 @@ IOCGNS::read(){
     long id;
     darray3E temp;
 
-    //	Stock vertices in volume grid
+    //    Stock vertices in volume grid
     for(int i=0; i<nVertices; ++i){
 
-        for(int j=0; j<3; ++j)	temp[j] = coords[j][i];
+        for(int j=0; j<3; ++j)    temp[j] = coords[j][i];
         id = i+1; //not C indexing, labeling coherent with connectivity.
         patchVol->addVertex(temp,id);
     }
@@ -542,7 +553,7 @@ IOCGNS::read(){
         switch(val){
         case CGNS_ENUMV(MIXED):
 
-		                        unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
+                                        unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
         break;
 
         case CGNS_ENUMV(TETRA_4):
@@ -647,7 +658,7 @@ IOCGNS::read(){
     }
 
     //divide patchBnd in subpatch if any bc is present.
-    if(bcLists.size() > 0)	{
+    if(bcLists.size() > 0)    {
         for(auto & sel: bcLists){
             if(sel.second.size() > 0){
                 for(auto &ind : sel.second){
@@ -724,7 +735,7 @@ IOCGNS::write(){
         dvecarr3E vert = vol->getVertexCoords();
         int count=0;
         for(auto &val:vert){
-            for(int j=0; j<3; ++j)	coords[j][count] = val[j];
+            for(int j=0; j<3; ++j)    coords[j][count] = val[j];
             ++count;
         }
     }
@@ -847,10 +858,10 @@ IOCGNS::write(){
 /*!
  * Extract mixed connectivity of 3D elements volume mesh//surface boundary mesh in two separated objects, given an array 
  * of mixed connectivity of CGNS reader
- * \param[in,out]	patchVol pointer to Volume MimmoObject handler
- * \param[in,out]	patchSurf pointer to Surface MimmoObject handler
- * \param[in,out]	conn	list of vertex index connectivity of CGNS_ENUMV(MIXED)type
- * \param[in,out]	startID starting ID to labeling mixed cells. Returns incremented of found mixed 3D cells	
+ * \param[in,out]    patchVol Pointer to Volume MimmoObject handler
+ * \param[in,out]    patchSurf Pointer to Surface MimmoObject handler
+ * \param[in,out]    conn    List of vertex index connectivity of CGNS_ENUMV(MIXED)type
+ * \param[in,out]    startId Starting ID to labeling mixed cells. Returns incremented of found mixed 3D cells
  */
 void
 IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSurf, ivector1D & conn, long & startId){
@@ -930,13 +941,13 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         case CGNS_ENUMV(NODE):
-			                                                        ++it;
+                                                                            ++it;
         break;
 
         case CGNS_ENUMV(BAR_2):
         case CGNS_ENUMV(BAR_3):
 
-        for(int j=0; j<2; ++j)	++it;
+        for(int j=0; j<2; ++j)    ++it;
         break;
 
         case CGNS_ENUMV(TRI_3):
@@ -977,7 +988,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         }
     } //end while
 
-};	
+};
 
 /*! It recovers CGNS Info from linked Mimmo Objects.
  * It fills all the structures needed to export the volume and (eventually) surface
@@ -1070,24 +1081,13 @@ IOCGNS::recoverCGNSInfo(){
 
 
 
-
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class reads the following parameters:
- *
- *  --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean 1-reading mode, 0-writing mode
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFilename</B>: name of file for writing
- *
- * \param[in]   slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -1144,23 +1144,12 @@ void IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
 };
 
 /*!
- * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class writes the following parameters(if different from default):
- *
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.IOCGNS"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean 1-reading mode, 0-writing mode
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFilename</B>: name of file for writing
- *
- * \param[in]   slotXML bitpit::Config::Section which writes to
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 

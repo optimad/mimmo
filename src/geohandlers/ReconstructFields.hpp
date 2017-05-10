@@ -149,7 +149,6 @@ protected:
 private:
     double     overlapFields(dvector1D & locField);
     std::unordered_map<long, dvector1D>        checkOverlapping();
-    bitpit::VTKElementType    desumeElement(int typeGeom, ivector2D & conn); //TODO need to be moved in MimmoObject.
 };
 
 /*!
