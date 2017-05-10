@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -30,11 +30,17 @@
 namespace mimmo{
 
 /*!
- *	\class GenericOutput
- *	\brief GenericOutput is the class that write the an output on file.
+ * \class GenericOutput
+ * \ingroup iogeneric
+ * \brief GenericOutput is the class that write data in an output on file.
  *
- *	GenericOutput is derived from BaseManipulation class.
- *	It uses and it writes the base members input.
+ * GenericOutput is derived from BaseManipulation class.
+ * GenericOutput can write the output in a data file (unformatted/csv).
+ * When writing, the GenericOutput object recognizes the type of data and
+ * it adapts the writing method in function of the input port used
+ * to build link (pin) with an other object.
+ *
+ * Ports available in GenericOutput Class :
  *
  *	=========================================================
  * ~~~
@@ -66,10 +72,17 @@ namespace mimmo{
  * ~~~
  *	=========================================================
  *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericOutput</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Filename</B>: name of file to write data;
+ * - <B>WriteDir</B>: name of directory to write data;
+ * - <B>CSV</B>: true if write in csv format;
+ *
  */
 class GenericOutput: public BaseManipulation{
 private:
-	//members
     std::string             m_dir;          /**<Name of directory to write the output file.*/
     std::string             m_filename;     /**<Name of the output file.
                                             The file will be an ascii text file.*/
@@ -88,11 +101,11 @@ public:
 
 	void buildPorts();
 
-	template<typename T>
-	T*					getInput();
+	BITPIT_DEPRECATED( template<typename T>
+	T*					getInput());
 
-	template<typename T>
-	T* 					getResult();
+	BITPIT_DEPRECATED( template<typename T>
+	T* 					getResult());
 
 	template<typename T>
 	void 	setInput(T* data);
@@ -100,26 +113,10 @@ public:
 	template<typename T>
 	void 	setInput(T data);
 
-	template<typename T>
-	void 				setResult(T* data);
-	template<typename T>
-	void 				setResult(T data);
-
-	template<typename T>
-	void 				_setInput(T* data);
-	template<typename T>
-	void 				_setInput(T data);
-
-	template<typename T>
-	void 				_setResult(T* data);
-	template<typename T>
-	void 				_setResult(T data);
-
-	template<typename T>
-	T*					_getInput();
-
-	template<typename T>
-	T*					_getResult();
+	BITPIT_DEPRECATED( template<typename T>
+	void 				setResult(T* data));
+	BITPIT_DEPRECATED( template<typename T>
+	void 				setResult(T data));
 
 	void	clearInput();
 	void	clearResult();
@@ -134,6 +131,23 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 private:
+
+	template<typename T>
+    void                _setInput(T* data);
+    template<typename T>
+    void                _setInput(T data);
+
+    template<typename T>
+    void                _setResult(T* data);
+    template<typename T>
+    void                _setResult(T data);
+
+    template<typename T>
+    T*                  _getInput();
+
+    template<typename T>
+    T*                  _getResult();
+
     template<typename T>
     std::ofstream&  ofstreamcsv(std::ofstream &in, const T &x);
     template<typename T>

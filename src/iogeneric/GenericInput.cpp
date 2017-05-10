@@ -38,7 +38,8 @@ GenericInput::GenericInput(bool readFromFile, bool csv){
     m_readFromFile  = readFromFile;
     m_csv           = csv;
     m_portsType     = BaseManipulation::ConnectionType::FORWARD;
-    m_name             = "mimmo.GenericInput";
+    m_name          = "mimmo.GenericInput";
+    m_dir           = "./";
 };
 
 /*!
@@ -51,6 +52,8 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
     m_csv           = false;
     m_portsType     = BaseManipulation::ConnectionType::FORWARD;
     m_name             = "mimmo.GenericInput";
+    m_dir       = "./";
+    m_filename  = "input.txt";
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -66,11 +69,11 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
  * Custom constructor of GenericInput.
  * \param[in] dir Directory of the input file.
  * \param[in] filename Name of the input file.
- * \param[in] csv True if the input file is a csv format file (defualt value false).
+ * \param[in] csv True if the input file is a csv format file (default value false).
  * The m_readFromFile flag is set to true.
  */
 GenericInput::GenericInput(std::string dir, std::string filename, bool csv){
-    m_readFromFile     = true;
+    m_readFromFile  = true;
     m_csv           = csv;
     m_dir           = dir;
     m_filename      = filename;
@@ -127,7 +130,7 @@ GenericInput::setFilename(std::string filename){
 };
 
 /*!It sets the name of the directory of input file.
- * \param[in] filename Name of the directory of input file.
+ * \param[in] dir Name of the directory of input file.
  */
 void
 GenericInput::setReadDir(std::string dir){

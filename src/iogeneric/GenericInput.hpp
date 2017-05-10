@@ -31,9 +31,9 @@
 namespace mimmo{
 
 /*!
- *    \class GenericInput
+ * \class GenericInput
  * \ingroup iogeneric
- *    \brief GenericInput is the class that set the initialization of a generic input data.
+ * \brief GenericInput is the class that set the initialization of a generic input data.
  *
  * GenericInput is derived from BaseManipulation class. 
  * GenericInput can read the input from a data file (unformatted/csv) or
@@ -78,17 +78,6 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
- * - <B>ClassName</B>: name of the class as <tt>mimmo.ClipGeometry</tt>;
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane normal;
- * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it: \n
- *         <tt> \<ClipPlane\> \n
- *              \<Point\> 0.0 0.0 0.0 \</Point\> \n
- *              \<Normal\> 0.0 1.0 0.0 \</Normal\> \n
- *              \</ClipPlane\> </tt>;
- * - <B>PlotInExecution</B> : boolean 0/1 print optional results of the class;
- * - <B>OutputPlot</B>: target directory for optional results writing.
- *
  * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericInput</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>ReadFromFile</B>: 0/1 set class to read from a file;
@@ -116,10 +105,10 @@ public:
      * It sets the base class input with data passed as argument.
      * \param[in] data Data used to set the input.
      */
-    template<typename T>
+    BITPIT_DEPRECATED( template<typename T>
     GenericInput(T data){
         setInput<T>(data);
-    }
+    });
     ~GenericInput();
 
     GenericInput(const GenericInput & other);
@@ -148,6 +137,16 @@ public:
     BITPIT_DEPRECATED( template<typename T>
     void                 setResult(T& data));
 
+    void    clearInput();
+    void    clearResult();
+
+    void execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+private:
+
     template<typename T>
     void                 _setInput(T* data);
     template<typename T>
@@ -164,15 +163,6 @@ public:
     template<typename T>
     T*                    _getResult();
 
-    void    clearInput();
-    void    clearResult();
-
-    void execute();
-
-    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-
-private:
     template<typename T>
     std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
     template<typename T>

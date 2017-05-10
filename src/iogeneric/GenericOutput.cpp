@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -21,7 +21,6 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-
 #include "GenericOutput.hpp"
 
 using namespace std;
@@ -29,14 +28,16 @@ namespace mimmo{
 
 /*!
  * Default constructor of GenericOutput
+ * \param[in] dir Directory of the output file (default value = "./").
  * \param[in] filename Name of the output file (default value = "output.txt").
+ * \param[in] csv True if the output file is a csv format file (default value false).
  */
 GenericOutput::GenericOutput(std::string dir, std::string filename, bool csv){
     m_dir       = dir;
     m_filename  = filename;
     m_csv       = csv;
-	m_portsType	= ConnectionType::BACKWARD;
-	m_name 		= "mimmo.GenericOutput";
+    m_portsType    = ConnectionType::BACKWARD;
+    m_name         = "mimmo.GenericOutput";
 };
 
 /*!
@@ -44,30 +45,32 @@ GenericOutput::GenericOutput(std::string dir, std::string filename, bool csv){
  * \param[in] rootXML reference to your xml tree section
  */
 GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
-	
+
     m_dir       = "./";
     m_filename  = "output.txt";
-	m_portsType	= ConnectionType::BACKWARD;
-	m_name 		= "mimmo.GenericOutput";
+    m_portsType    = ConnectionType::BACKWARD;
+    m_name         = "mimmo.GenericOutput";
     m_csv       = false;
-	
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "mimmo.GenericOutput"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml mimmo::GenericOutput constructor. No valid xml data found"<<std::endl;
-	};
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.GenericOutput"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::GenericOutput constructor. No valid xml data found"<<std::endl;
+    };
 }
 
-/*!Default destructor of GenericOutput.
+/*!
+ * Default destructor of GenericOutput.
  */
 GenericOutput::~GenericOutput(){
-	m_portsType = ConnectionType::BACKWARD;
+    m_portsType = ConnectionType::BACKWARD;
 };
 
-/*!Copy constructor of GenericOutput.
+/*!
+ * Copy constructor of GenericOutput.
  */
 GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other){
     m_dir           = other.m_dir;
@@ -75,39 +78,42 @@ GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other
     m_csv           = other.m_csv;
 };
 
-/*!Assignement operator of GenericOutput.
+/*!
+ * Assignement operator of GenericOutput.
  */
 GenericOutput & GenericOutput::operator=(const GenericOutput & other){
-	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_dir           = other.m_dir;
-	m_filename 		= other.m_filename;
+    m_filename         = other.m_filename;
     m_csv           = other.m_csv;
-	return *this;
+    return *this;
 };
 
-/*! It builds the input/output ports of the object
+/*!
+ * It builds the input/output ports of the object
  */
 void
 GenericOutput::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<dvector1D, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvector1D>, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<darray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<darray3E>, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, PortType::M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<double, GenericOutput>(this, &mimmo::GenericOutput::setInput<double>, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-	built = (built && createPortIn<int, GenericOutput>(this, &mimmo::GenericOutput::setInput<int>, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<bool, GenericOutput>(this, &mimmo::GenericOutput::setInput<bool>, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-	built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-	built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, PortType::M_FILENAME, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
-	built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, PortType::M_DIR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
-// 	built = (built && createPortIn<string*, GenericOutput>(this, &mimmo::GenericOutput::setInput<string*>, PortType::M_FILENAMEPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
-// 	built = (built && createPortIn<string*, GenericOutput>(this, &mimmo::GenericOutput::setInput<string*>, PortType::M_DIRPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
-	
-	m_arePortsBuilt = built;
+    bool built = true;
+    built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvector1D, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvector1D>, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<darray3E>, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, PortType::M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+    built = (built && createPortIn<double, GenericOutput>(this, &mimmo::GenericOutput::setInput<double>, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<int, GenericOutput>(this, &mimmo::GenericOutput::setInput<int>, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+    built = (built && createPortIn<bool, GenericOutput>(this, &mimmo::GenericOutput::setInput<bool>, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+    built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
+    built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, PortType::M_FILENAME, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
+    built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, PortType::M_DIR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
+    //     built = (built && createPortIn<string*, GenericOutput>(this, &mimmo::GenericOutput::setInput<string*>, PortType::M_FILENAMEPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
+    //     built = (built && createPortIn<string*, GenericOutput>(this, &mimmo::GenericOutput::setInput<string*>, PortType::M_DIRPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
+
+    m_arePortsBuilt = built;
 }
 
-/*!It sets the name of the directory to write the output file.
+/*!
+ * It sets the name of the directory to write the output file.
  * \param[in] dir Name of the directory of the output file.
  */
 void
@@ -115,7 +121,8 @@ GenericOutput::setWriteDir(std::string dir){
     m_dir = dir;
 };
 
-/*!It sets the name of the output file.
+/*!
+ * It sets the name of the output file.
  * \param[in] filename Name of the output file.
  */
 void
@@ -123,7 +130,8 @@ GenericOutput::setFilename(std::string filename){
     m_filename = filename;
 };
 
-/*!It sets if the output file has to be written in csv format.
+/*!
+ * It sets if the output file has to be written in csv format.
  * \param[in] csv Write the output file in csv format.
  */
 void
@@ -131,57 +139,52 @@ GenericOutput::setCSV(bool csv){
     m_csv = csv;
 };
 
-/*!It clear the input member of the object
+/*!
+ * It clear the input member of the object
  */
 void
 GenericOutput::clearInput(){
-	m_input.reset(nullptr);
+    m_input.reset(nullptr);
 }
 
-/*!It clear the result member of the object
+/*!
+ * It clear the result member of the object
  */
 void
 GenericOutput::clearResult(){
-	m_result.reset(nullptr);
+    m_result.reset(nullptr);
 }
 
-/*!Execution command. It does nothing, the real execution of the object
+/*!Execution command.
+ * It does nothing, the real execution of the object
  * happens in setInput.
  */
 void
 GenericOutput::execute(){
-	rename("output.txt", m_filename.c_str());
+    rename("output.txt", m_filename.c_str());
 };
 
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML.The class write only data in admissible format (see ports)
- * on a given file (all values in a row).
- * 
- * --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Filename</B>: name of file to write data  
- * - <B>WriteDir</B>: name of directory to write data
- * - <B>CSV</B>: true if write in csv format
- * 
- * \param[in] slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	std::string input; 
-	
-	if(slotXML.hasOption("Priority")){
-		input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	};
-	
+void
+GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+    std::string input;
+
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
     if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
         input = bitpit::utils::trim(input);
@@ -208,30 +211,20 @@ void GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 }
 
 /*!
- * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML.The class write only data in admissible format (see ports)
- * on a given file (all values in a row).
- * 
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.GenericOutput"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Filename</B>: name of file to write data  
- * - <B>WriteDir</B>: name of directory to write data
- * - <B>CSV</B>: true if write in csv format
- * 
- * 
- * \param[in] slotXML bitpit::Config::Section which writes to
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
+void
+GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
     slotXML.set("Filename", m_filename);
     slotXML.set("WriteDir", m_dir);
     slotXML.set("CSV", std::to_string((int)m_csv));
-};	
+};
 
 }

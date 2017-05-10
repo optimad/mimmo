@@ -185,7 +185,6 @@ GenericInput::_getResult(){
     return(static_cast<IODataT<T>*>(m_result.get())->getData());
 }
 
-
 /*!
  * Recover a data from a stream when import in csv format.
  * \param[in] in import stream.
