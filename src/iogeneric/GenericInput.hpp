@@ -26,7 +26,6 @@
 #define __INPUTDOF_HPP__
 
 #include <string>
-#include "mimmo_common.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
@@ -129,7 +128,7 @@ public:
     void buildPorts();
 
 
-    MIMMO_DEPRECATED( template<typename T> T* getInput());
+    BITPIT_DEPRECATED( template<typename T> T* getInput());
 
     template<typename T>
     T  getResult();
@@ -144,9 +143,9 @@ public:
     template<typename T>
     void                 setInput(T& data);
 
-    MIMMO_DEPRECATED( template<typename T>
+    BITPIT_DEPRECATED( template<typename T>
     void                 setResult(T* data));
-    MIMMO_DEPRECATED( template<typename T>
+    BITPIT_DEPRECATED( template<typename T>
     void                 setResult(T& data));
 
     template<typename T>

@@ -49,7 +49,6 @@
 
 #include "mimmo_version.hpp"
 
-#include "compiler.hpp"
 #include "enum.hpp"
 #include "factory.hpp"
 #include "mimmoTypeDef.hpp"
