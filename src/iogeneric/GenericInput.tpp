@@ -117,11 +117,8 @@ GenericInput::setResult(T& data){
     m_result = std::move(dummy);
 }
 
-//==================================================   //
-// OLD BASEMANIPULATION CLASS TEMPLATED INPUT METHODS  //
-//==================================================   //
-
-/*!It sets the input member of the object.
+/*!
+ * It sets the input member of the object.
  * \param[in] data Pointer to data to be stored in the input member.
  */
 template<typename T>
@@ -132,7 +129,8 @@ GenericInput::_setInput(T* data){
     m_input = std::move(dummy);
 }
 
-/*!It sets the input member of the object.
+/*!
+ * It sets the input member of the object.
  * \param[in] data Data to be stored in the input member.
  */
 template<typename T>
@@ -143,7 +141,8 @@ GenericInput::_setInput(T& data){
     m_input = std::move(dummy);
 }
 
-/*!It gets the input member of the object.
+/*!
+ * It gets the input member of the object.
  * \return Pointer to data stored in the input member.
  */
 template<typename T>
@@ -152,11 +151,8 @@ GenericInput::_getInput(){
     return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
-//==================================================   //
-// OLD BASEMANIPULATION CLASS TEMPLATED RESULT METHODS //
-//==================================================   //
-
-/*!It sets the result member of the object.
+/*!
+ * It sets the result member of the object.
  * \param[in] data Pointer to data to be stored in the result member.
  */
 template<typename T>
@@ -167,7 +163,8 @@ GenericInput::_setResult(T* data){
     m_result = std::move(dummy);
 }
 
-/*!It sets the result member of the object.
+/*!
+ * It sets the result member of the object.
  * \param[in] data Data to be stored in the result member.
  */
 template<typename T>
@@ -178,7 +175,8 @@ GenericInput::_setResult(T& data){
     m_result = std::move(dummy);
 }
 
-/*!It gets the result member of the object.
+/*!
+ * It gets the result member of the object.
  * \return Pointer to data stored in the result member.
  */
 template<typename T>
@@ -188,57 +186,78 @@ GenericInput::_getResult(){
 }
 
 
+/*!
+ * Recover a data from a stream when import in csv format.
+ * \param[in] in import stream.
+ * \param[out] x data read.
+ * \return Reference to result import stream after data import.
+ */
 template <typename T>
-std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, T &x){
+std::ifstream&
+GenericInput::ifstreamcsv(std::ifstream &in, T &x){
 
-T                   dummy{};
-char                delim;
+    T                   dummy{};
+    char                delim;
 
-if ((in.good())) {
-    if (in >> dummy && in >> delim) { x = dummy;}
+    if ((in.good())) {
+        if (in >> dummy && in >> delim) { x = dummy;}
+    }
+    return(in);
 }
-return(in);
-}
 
+/*!
+ * Recover a data from a stream when import in csv format when end of line is reached.
+ * \param[in] in import stream.
+ * \param[out] x data read.
+ * \return Reference to result import stream after data import.
+ */
 template <typename T>
 std::ifstream&  GenericInput::ifstreamcsvend(std::ifstream &in, T &x){
 
-T                   dummy{};
+    T                   dummy{};
 
-if ((in.good())) {
-    if (in >> dummy) { x = dummy;}
-}
-return(in);
+    if ((in.good())) {
+        if (in >> dummy) { x = dummy;}
+    }
+    return(in);
 }
 
+/*!
+ * Recover a data from a stream when import in csv format a vector of data.
+ * \param[in] in import stream.
+ * \param[out] x vector data read.
+ * \return Reference to result import stream after data import.
+ */
 template <typename T>
 std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::vector< T > &x){
 
-T       dummy;
+    T       dummy;
 
-while (in.good()) {
-    if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
-}
-return(in);
+    while (in.good()) {
+        if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
+    }
+    return(in);
 }
 
+/*!
+ * Recover a data from a stream when import in csv format an array of data of dimension d.
+ * \param[in] in import stream.
+ * \param[out] x array data read.
+ * \return Reference to result import stream after data import.
+ */
 template <typename T, size_t d>
 std::ifstream&  GenericInput::ifstreamcsv(std::ifstream &in, std::array< T, d> &x){
 
-T       dummy{};
-int     i;
+    T       dummy{};
+    int     i;
 
-i = 0;
-while ((in.good()) && (i < d-1)) {
-    if (ifstreamcsv(in,dummy)) { x[i] = dummy;}
-    i++;
-} //next i
-if (ifstreamcsvend(in,dummy)) { x[i] = dummy;}
-return(in);
+    i = 0;
+    while ((in.good()) && (i < d-1)) {
+        if (ifstreamcsv(in,dummy)) { x[i] = dummy;}
+        i++;
+    } //next i
+    if (ifstreamcsvend(in,dummy)) { x[i] = dummy;}
+    return(in);
 };
-
-
-
-
 
 }
