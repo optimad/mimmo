@@ -1,8 +1,34 @@
+/*---------------------------------------------------------------------------*\
+ *
+ *  mimmo
+ *
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *
+ *  -------------------------------------------------------------------------
+ *  License
+ *  This file is part of mimmo.
+ *
+ *  mimmo is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
+ *
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
+ *
+\*---------------------------------------------------------------------------*/
+
 #include <fstream>
 #include "Operators.hpp"
 
 namespace mimmo{
-/*!Overloaded function of base class setInput.
+
+/*!
+ * Overloaded function of base class setInput.
  * It sets the input of the object, but at the same time it sets even the result.
  * \param[in] data Pointer to data to be used to set the input/result.
  */
@@ -13,7 +39,8 @@ GenericInput::setInput(T* data){
     _setResult(data);
 }
 
-/*!Overloaded function of base class setInput.
+/*!
+ * Overloaded function of base class setInput.
  * It sets the input of the object, but at the same time it sets even the result.
  * \param[in] data Data to be used to set the input/result.
  */
@@ -24,7 +51,8 @@ GenericInput::setInput(T& data){
     _setResult(data);
 }
 
-/*!Overloaded function of base class getResult.
+/*!
+ * Overloaded function of base class getResult.
  * It gets the result of the object, equal to the input.
  * In the case it reads the input from file before to set and to get the result.
  * \return Pointer to data stored in result member.
@@ -56,10 +84,8 @@ GenericInput::getResult(){
 }
 
 
-// OLD BASEMANIPULATION CLASS TEMPLATED INPUT/RESULT METHODS	//
-
-
-/*!It gets the input member of the object.
+/*!
+ * It gets the input member of the object.
  * \return Pointer to data stored in the input member.
  */
 template<typename T>
@@ -68,7 +94,8 @@ GenericInput::getInput(){
     return(static_cast<IODataT<T>*>(m_input.get())->getData());
 }
 
-/*!It sets the result member of the object.
+/*!
+ * It sets the result member of the object.
  * \param[in] data Pointer to data to be stored in the result member.
  */
 template<typename T>

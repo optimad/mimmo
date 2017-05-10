@@ -31,7 +31,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # Reset the variable
 set(HEADERS "")
 
-# Generate the bitpit header file
+# Generate the mimmo header file
 set(INCLUDE_LIST "#include \"mimmo_common.hpp\"\n")
 foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
 	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
