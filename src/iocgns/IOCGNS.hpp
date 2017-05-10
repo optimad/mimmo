@@ -156,6 +156,8 @@ public:
  * - <B>WriteDir</B>: writing directory path;
  * - <B>WriteFilename</B>: name of file for writing;
  *
+ * Geometry has to be mandatorily read or passed through port.
+ *
  */
 class IOCGNS: public BaseManipulation{
 private:

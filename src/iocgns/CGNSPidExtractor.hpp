@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -30,13 +30,16 @@
 namespace mimmo{
 
 /*!
- *  \class	CGNSPidExtractor
- *  \brief CGNSPidExtractor is the class to extract a pidded patch from
- *   a surface boundary mesh readed form cgns file.
+ *  \class    CGNSPidExtractor
+ *  \ingroup iocgns
+ *  \brief CGNSPidExtractor is the class to extract a with pid (or pids) from
+ *   a surface boundary mesh read form cgns file.
  *
- * The object return the pidded patch as an independent surface mesh. 
- * It triangulates the patch if forced to.
-
+ * The object return the patch with a target pid (or pids) as an independent surface mesh.
+ * It triangulates the patch if required (currently only for elements of type QUAD).
+ *
+ * Ports available in CGNSPidExtractor Class :
+ *
  * =========================================================
  * ~~~
  *  |-----------------------------------------------------------------------|
@@ -55,13 +58,27 @@ namespace mimmo{
  *  |-------|------------------|---------------------|------------------------|
  *  | 99    | M_GEOM           | getPatch()          | (SCALAR, MIMMO_)       |
  *  |-------|------------------|---------------------|------------------------|
+ * ~~~
+ * =========================================================
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.CGNSPidExtractor</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>nPID</B>: number of Geometry PID involved in the extraction;
+ * - <B>PID</B>: list of Geometry PID (blank-separated) that need to be extracted(element must be coeherent with nPID);
+ * - <B>ForcedToTriangulate</B>: force retriangulation of the extracted patches, boolean 0/1;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry has to be mandatorily read or passed through port.
  *
  */
 class CGNSPidExtractor: public BaseManipulation{
 private:
     bool                         m_force;     /**<force triangulation of the extracted patch if true.*/
     std::set<short>              m_targetpid; /**<list of PID involved in the extraction.*/
-    std::unique_ptr<MimmoObject> m_patch;     /*!extracted patch */
+    std::unique_ptr<MimmoObject> m_patch;     /**<extracted patch */
 
 public:
     CGNSPidExtractor();
@@ -88,9 +105,9 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
-	
-	void plotOptionalResults();
-	
+
+    void plotOptionalResults();
+
 };
 
 REGISTER(BaseManipulation, CGNSPidExtractor,"mimmo.CGNSPidExtractor")
