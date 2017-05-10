@@ -182,7 +182,6 @@ GenericInput::clearResult(){
 void
 GenericInput::execute(){};
 
-
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file

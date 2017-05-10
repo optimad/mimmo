@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -21,7 +21,6 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-
 #ifndef __GENERICDISPLS_HPP__
 #define __GENERICDISPLS_HPP__
 
@@ -32,14 +31,17 @@ namespace mimmo{
 
 /*!
  * \class GenericDispls
+ * \ingroup iogeneric
  * \brief GenericDispls is the class to read from file an initial set of displacements 
  * as a generic vector field of floats or write it to file
  * 
  * The only admissible File format is an ascii list of values, organized as follow:
  * 
- * $DISPL   l1  0.0 0.0  1.0
- * $DISPL   l2 -1.0 0.12 0.0
+ * <tt>
+ * $DISPL   l1  0.0 0.0  1.0 \n
+ * $DISPL   l2 -1.0 0.12 0.0 \n
  * ...
+ * </tt>
  * 
  * The $DISPL keyword identify the value, l1, l2 the unique int label associated to the displacement and the 
  * following 3 vector coordinate represents the entity of the displacement. If $DISPL is missing, the value will not be read.
@@ -49,42 +51,59 @@ namespace mimmo{
  * When in write mode the class can generate a template file for displacements, that can be filled in a second moment for different purposes.
  * The layout of this file will be:
  * 
- * $DISPL   l1  {xl1} {yl1}  {zl1}
- * $DISPL   l2  {xl2} {yl2}  {zl2}
+ * <tt>
+ * $DISPL   l1  {xl1} {yl1}  {zl1} \n
+ * $DISPL   l2  {xl2} {yl2}  {zl2} \n
  * ...
+ * </tt>
  * 
  * where {xxx} uniquely naming the component of displacement
- * 
+ *
+ * \n
+ * Ports available in GenericDispls Class :
  *
  * =========================================================
  * ~~~
- *  |----------------------------------------------------------------|
- *  |                 Port Input                                     |
- *  |-------|------------|-------------------|-----------------------|
- *  |PortID | PortType   | variable/function | compatibilities       |
- *  |-------|------------|-------------------|-----------------------|
- *  | 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
- *  | 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        | 
- *  | 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
- *  |-------|------------|-------------------|-----------------------|
+   |----------------------------------------------------------------|
+   |                 Port Input                                     |
+   |-------|------------|-------------------|-----------------------|
+   |PortID | PortType   | variable/function | compatibilities       |
+   |-------|------------|-------------------|-----------------------|
+   | 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
+   | 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        |
+   | 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
+   |-------|------------|-------------------|-----------------------|
+
+
+   |-------------------------------------------------------------------|
+   |              Port Output                                          |
+   |-------|---------------|-------------------|-----------------------|
+   |PortID | PortType      | variable/function | DataType              |
+   |-------|---------------|-------------------|-----------------------|
+   | 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
+   | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        |
+   | 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
+   |-------|---------------|-------------------|-----------------------|
+ ~~~
  *
- *
- *  |-------------------------------------------|-----------------------|
- *  |              Port Output                  |                       |
- *  |-------|---------------|-------------------|-----------------------|
- *  |PortID | PortType      | variable/function | DataType              |
- *  |-------|---------------|-------------------|-----------------------|
- *  | 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
- *  | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        | 
- *  | 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
- *  |-------|---------------|-------------------|-----------------------|
- * ~~~
  *=========================================================
+ * \n
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericDispls</tt>;
+ * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadDir</B>: path to input directory in read mode;
+ * - <B>ReadFilename</B>: name of input file with tag extension in read mode;
+ * - <B>WriteDir</B>: path to output directory in write mode;
+ * - <B>WriteFilename</B>: name of output file with tag extension in write mode;
+ * - <B>NDispl</B>: path to your current file dataTAG;
+ * - <B>Template</B>: path to your current file data;
  *
  */
 class GenericDispls: public BaseManipulation{
 protected:
-    //members
     bool            m_read;     /**<True if in Read mode, False if in Write mode.*/
     std::string     m_dir;      /**<Source/Destination directory path*/
     std::string     m_filename; /**<Source/Destination filename with extension tag*/
