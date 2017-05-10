@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -21,7 +21,6 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-
 #include "MimmoGeometry.hpp"
 #include "customOperators.hpp"
 #include <iostream>
@@ -34,8 +33,8 @@ namespace mimmo {
 /*!Default constructor of MimmoGeometry.
  */
 MimmoGeometry::MimmoGeometry(){
-	m_name 		= "mimmo.Geometry";
-	setDefaults();
+    m_name         = "mimmo.Geometry";
+    setDefaults();
 }
 
 /*!
@@ -43,52 +42,52 @@ MimmoGeometry::MimmoGeometry(){
  * \param[in] rootXML reference to your xml tree section
  */
 MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
-	
-	m_name = "mimmo.Geometry";
-	setDefaults();
-	
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "mimmo.Geometry"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml mimmo::MimmoGeometry constructor. No valid xml data found"<<std::endl;
-	};
+
+    m_name = "mimmo.Geometry";
+    setDefaults();
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.Geometry"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::MimmoGeometry constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*!Default destructor of MimmoGeometry.
  */
 MimmoGeometry::~MimmoGeometry(){
-	clear();
+    clear();
 };
 
 /*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
  */
 MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(){
-	*this = other;
+    *this = other;
 };
 
 /*!
  * Assignement operator of MimmoGeometry. Soft copy of MimmoObject
  */
 MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-	clear();
-	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-	m_rinfo = other.m_rinfo;
-	m_winfo = other.m_winfo;
-	m_read = other.m_read;
-	m_write = other.m_write;
-	m_wformat = other.m_wformat;
-	m_codex = other.m_codex;
-	m_buildBvTree = other.m_buildBvTree;
-	m_buildKdTree = other.m_buildKdTree;
-	
-	if(other.m_isInternal){
-		m_geometry = other.m_intgeo.get();
-	}	
-	m_isInternal = false;
-	return *this;
+    clear();
+    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+    m_rinfo = other.m_rinfo;
+    m_winfo = other.m_winfo;
+    m_read = other.m_read;
+    m_write = other.m_write;
+    m_wformat = other.m_wformat;
+    m_codex = other.m_codex;
+    m_buildBvTree = other.m_buildBvTree;
+    m_buildKdTree = other.m_buildKdTree;
+
+    if(other.m_isInternal){
+        m_geometry = other.m_intgeo.get();
+    }
+    m_isInternal = false;
+    return *this;
 };
 
 /*!
@@ -96,25 +95,25 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
  */
 void
 MimmoGeometry::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-	m_arePortsBuilt = built;
+    bool built = true;
+    built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    m_arePortsBuilt = built;
 }
 
 /*!
  * Return a const pointer to your current class.
  */
 const MimmoGeometry * MimmoGeometry::getCopy(){
-	return this;
+    return this;
 }
 
 /*!
  * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry
  */
 MimmoObject * MimmoGeometry::getGeometry(){
-	if(m_isInternal)	return m_intgeo.get();
-	else				return m_geometry;
+    if(m_isInternal)    return m_intgeo.get();
+    else                return m_geometry;
 }
 
 /*!
@@ -122,8 +121,8 @@ MimmoObject * MimmoGeometry::getGeometry(){
  * const overloading
  */
 const MimmoObject * MimmoGeometry::getGeometry() const{
-	if(m_isInternal)	return m_intgeo.get();
-	else				return m_geometry;
+    if(m_isInternal)    return m_intgeo.get();
+    else                return m_geometry;
 }
 
 /*!
@@ -131,22 +130,22 @@ const MimmoObject * MimmoGeometry::getGeometry() const{
  */
 void
 MimmoGeometry::setDefaults(){
-	
-	m_read			= false;
-	m_rinfo.fname	= "mimmoGeometry";
-	m_rinfo.ftype	= static_cast<int>(FileType::STL);
-	m_rinfo.fdir	= "./";
-	
-	m_write			= false;
-	m_winfo.fname	= "mimmoGeometry";
-	m_winfo.ftype	= static_cast<int>(FileType::STL);
-	m_winfo.fdir	= "./";
 
-	m_wformat		= Short;
-	m_isInternal  	= true;
-	m_codex			= true;
-	m_buildBvTree	= false;
-	m_buildKdTree	= false;
+    m_read            = false;
+    m_rinfo.fname    = "mimmoGeometry";
+    m_rinfo.ftype    = static_cast<int>(FileType::STL);
+    m_rinfo.fdir    = "./";
+
+    m_write            = false;
+    m_winfo.fname    = "mimmoGeometry";
+    m_winfo.ftype    = static_cast<int>(FileType::STL);
+    m_winfo.fdir    = "./";
+
+    m_wformat        = Short;
+    m_isInternal      = true;
+    m_codex            = true;
+    m_buildBvTree    = false;
+    m_buildKdTree    = false;
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -154,7 +153,7 @@ MimmoGeometry::setDefaults(){
  */
 void
 MimmoGeometry::setReadFileType(FileType type){
-	m_rinfo.ftype = type._to_integral();
+    m_rinfo.ftype = type._to_integral();
 }
 
 /*!It sets the type of file to read the geometry during the execution.
@@ -162,9 +161,9 @@ MimmoGeometry::setReadFileType(FileType type){
  */
 void
 MimmoGeometry::setReadFileType(int type){
-	type = std::max(0, type);
-	if(type > 8)	type = 0;
-	m_rinfo.ftype = type;
+    type = std::max(0, type);
+    if(type > 8)    type = 0;
+    m_rinfo.ftype = type;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -172,7 +171,7 @@ MimmoGeometry::setReadFileType(int type){
  */
 void
 MimmoGeometry::setRead(bool read){
-	m_read = read;
+    m_read = read;
 }
 
 /*!It sets the name of directory to read the geometry.
@@ -180,7 +179,7 @@ MimmoGeometry::setRead(bool read){
  */
 void
 MimmoGeometry::setReadDir(string dir){
-	m_rinfo.fdir = dir;
+    m_rinfo.fdir = dir;
 }
 
 /*!It sets the name of file to read the geometry.
@@ -188,7 +187,7 @@ MimmoGeometry::setReadDir(string dir){
  */
 void
 MimmoGeometry::setReadFilename(string filename){
-	m_rinfo.fname = filename;
+    m_rinfo.fname = filename;
 }
 
 
@@ -197,7 +196,7 @@ MimmoGeometry::setReadFilename(string filename){
  */
 void
 MimmoGeometry::setWriteFileType(FileType type){
-	m_winfo.ftype = type._to_integral();
+    m_winfo.ftype = type._to_integral();
 }
 
 /*!It sets the type of file to write the geometry during the execution.
@@ -205,9 +204,9 @@ MimmoGeometry::setWriteFileType(FileType type){
  */
 void
 MimmoGeometry::setWriteFileType(int type){
-	type = std::max(0, type);
-	if(type > 8)	type = 0;
-	m_winfo.ftype = type;
+    type = std::max(0, type);
+    if(type > 8)    type = 0;
+    m_winfo.ftype = type;
 }
 
 /*!It sets the condition to write the geometry on file during the execution.
@@ -215,7 +214,7 @@ MimmoGeometry::setWriteFileType(int type){
  */
 void
 MimmoGeometry::setWrite(bool write){
-	m_write = write;
+    m_write = write;
 }
 
 /*!It sets the name of directory to write the geometry.
@@ -223,7 +222,7 @@ MimmoGeometry::setWrite(bool write){
  */
 void
 MimmoGeometry::setWriteDir(string dir){
-	m_winfo.fdir = dir;
+    m_winfo.fdir = dir;
 }
 
 /*!It sets the name of file to write the geometry.
@@ -231,16 +230,17 @@ MimmoGeometry::setWriteDir(string dir){
  */
 void
 MimmoGeometry::setWriteFilename(string filename){
-	m_winfo.fname = filename;
+    m_winfo.fname = filename;
 }
 
 /*!
  * set codex ASCII false, BINARY true for writing sessions ONLY.
  * Default is Binary/Appended. Pay attention, binary writing is effective
  * only those file formats which support it.(ex STL, STVTU, SQVTU, VTVTU, VHVTU)
+ * \param[in] binary codex flag.
  */
 void MimmoGeometry::setCodex(bool binary){
-	m_codex = binary;
+    m_codex = binary;
 }
 
 /*!Sets your current class as a "soft" copy of the argument.
@@ -251,8 +251,8 @@ void MimmoGeometry::setCodex(bool binary){
  */
 void
 MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
-	clear();	
-	*this = *other;
+    clear();
+    *this = *other;
 }
 
 /*!Sets your current class as a "HARD" copy of the argument.
@@ -264,38 +264,39 @@ MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
 void
 MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 
-	clear();
-	*(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
-	
-	std::unique_ptr<MimmoObject> dum (new MimmoObject());
-	dum->setHARDCopy(other->getGeometry());
+    clear();
+    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
 
-	m_geometry = NULL;
-	m_isInternal = true;
-	m_intgeo = std::move(dum);
-	
-	m_rinfo = other->m_rinfo;
-	m_winfo = other->m_winfo;
-	m_read = other->m_read;
-	m_write = other->m_write;
-	m_wformat = other->m_wformat;
-	m_codex = other->m_codex;
-	m_buildBvTree = other->m_buildBvTree;
-	m_buildKdTree = other->m_buildKdTree;
+    std::unique_ptr<MimmoObject> dum (new MimmoObject());
+    dum->setHARDCopy(other->getGeometry());
+
+    m_geometry = NULL;
+    m_isInternal = true;
+    m_intgeo = std::move(dum);
+
+    m_rinfo = other->m_rinfo;
+    m_winfo = other->m_winfo;
+    m_read = other->m_read;
+    m_write = other->m_write;
+    m_wformat = other->m_wformat;
+    m_codex = other->m_codex;
+    m_buildBvTree = other->m_buildBvTree;
+    m_buildKdTree = other->m_buildKdTree;
 }
 
 /*!
  * Set geometry from an external MimmoObject source, softly linked. 
  * Reimplementation of BaseManipulation::setGeometry
+ * \param[in] external pointer to external geometry
  */
 void
 MimmoGeometry::setGeometry(MimmoObject * external){
-	
-	if(getGeometry() == external) return;
-	
-	m_intgeo.reset(nullptr);
-	m_geometry = external;
-	m_isInternal = false;
+
+    if(getGeometry() == external) return;
+
+    m_intgeo.reset(nullptr);
+    m_geometry = external;
+    m_isInternal = false;
 };
 
 /*!
@@ -306,32 +307,35 @@ MimmoGeometry::setGeometry(MimmoObject * external){
  */
 void
 MimmoGeometry::setGeometry(int type){
-	if(type > 4)	type = 1;
-	int type_ = std::max(type,1);
-	m_geometry = NULL;
-	m_intgeo.reset(nullptr);
-	std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
-	m_intgeo = std::move(dum);
-	m_isInternal = true;
+    if(type > 4)    type = 1;
+    int type_ = std::max(type,1);
+    m_geometry = NULL;
+    m_intgeo.reset(nullptr);
+    std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
+    m_intgeo = std::move(dum);
+    m_isInternal = true;
 };
 
 /*!
  * Return a pointer to the Vertex structure of the MimmoObject geometry actually pointed or allocated by
  * the class. If no geometry is actually available return a nullptr
+ * \return pointer to the vertices structure
  */
-bitpit::PiercedVector<bitpit::Vertex> * MimmoGeometry::getVertices(){
-	if(isEmpty())	return NULL;
-	return &(getGeometry()->getVertices());
+bitpit::PiercedVector<bitpit::Vertex> *
+MimmoGeometry::getVertices(){
+    if(isEmpty())    return NULL;
+    return &(getGeometry()->getVertices());
 };
 
 /*!
  * Return a pointer to the Cell structure of the MimmoObject geometry actually pointed or allocated by
  * the class. If no geometry is actually available return a nullptr 
+ * \return pointer to the cells structure
  */
 bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
-	if(isEmpty())	return NULL;
-	return	&(getGeometry()->getCells());
-	
+    if(isEmpty())    return NULL;
+    return    &(getGeometry()->getCells());
+
 };
 
 /*!
@@ -344,8 +348,8 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
  */
 void
 MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
-	if(m_intgeo.get() == NULL || vertices == NULL) return ;
-	m_intgeo->setVertices(*vertices);
+    if(m_intgeo.get() == NULL || vertices == NULL) return ;
+    m_intgeo->setVertices(*vertices);
 };
 
 /*!
@@ -357,8 +361,8 @@ MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
  */
 void
 MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
-	if(m_intgeo.get() == NULL || cells == NULL) return;
-	m_intgeo->setCells(*cells);
+    if(m_intgeo.get() == NULL || cells == NULL) return;
+    m_intgeo->setCells(*cells);
 };
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
@@ -366,7 +370,7 @@ MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
  */
 void
 MimmoGeometry::setPID(shivector1D pids){
-	getGeometry()->setPID(pids);
+    getGeometry()->setPID(pids);
 };
 
 /*!It sets the PIDs of part of/all the cells of the geometry Patch.
@@ -374,7 +378,7 @@ MimmoGeometry::setPID(shivector1D pids){
  */
 void
 MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
-	getGeometry()->setPID(pidsMap);
+    getGeometry()->setPID(pidsMap);
 };
 
 
@@ -385,32 +389,34 @@ MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
  */
 void
 MimmoGeometry::setBuildBvTree(bool build){
-	m_buildBvTree = build;
+    m_buildBvTree = build;
 }
 
 /*!It sets if the KdTree of the patch has to be built during execution.
-* \param[in] build If true the KdTree is built in execution and stored in
-* the related MimmoObject member.
-*/
+ * \param[in] build If true the KdTree is built in execution and stored in
+ * the related MimmoObject member.
+ */
 void
 MimmoGeometry::setBuildKdTree(bool build){
-	m_buildKdTree = build;
+    m_buildKdTree = build;
 }
 
 /*!
  * Check if geometry is not linked or not locally instantiated in your class.
  * True - no geometry present, False otherwise.
+ * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty(){
-	return (m_geometry == NULL && (m_intgeo.get() == NULL));
+    return (m_geometry == NULL && (m_intgeo.get() == NULL));
 }
 
 /*!
  * Check if geometry is internally instantiated (true) or externally linked(false).
  * Return false if no geometry is checked. Please verify it with isEmpty method first
+ * \return is the geometry internally instantiated?
  */
 bool MimmoGeometry::isInternal(){
-	return (m_isInternal);
+    return (m_isInternal);
 }
 
 /*!
@@ -418,9 +424,9 @@ bool MimmoGeometry::isInternal(){
  */
 void
 MimmoGeometry::clear(){
-	setDefaults();
-	m_intgeo.reset(nullptr);
-	BaseManipulation::clear();
+    setDefaults();
+    m_intgeo.reset(nullptr);
+    BaseManipulation::clear();
 };
 
 /*!It sets the format to export .nas file.
@@ -428,7 +434,7 @@ MimmoGeometry::clear(){
  */
 void
 MimmoGeometry::setFormatNAS(WFORMAT wform){
-	m_wformat = wform;
+    m_wformat = wform;
 }
 
 /*!It writes the mesh geometry on output .vtu file.
@@ -436,163 +442,163 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
  */
 bool
 MimmoGeometry::write(){
-	if (isEmpty()) return false;
-	
-	switch(FileType::_from_integral(m_winfo.ftype)){
-		
-		case FileType::STL :
-			//Export STL
-			{
-			string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-			dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex);
-			return true;
-			}
-		break;
-		
-		case FileType::STVTU :
-			//Export Triangulation Surface VTU
-			{
-				dvecarr3E	points = getGeometry()->getVertexCoords();
-				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				shivector1D pids = getGeometry()->getCompactPID();
-				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
-			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-				vtk.setDimensions(connectivity.size(), points.size());
-				if(pids.size() > 0)	vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-				vtk.write() ;
-				return true;
-			}
-		break;
-		
-		case FileType::SQVTU :
-		//Export Quadrilateral Surface VTU
-		{
-			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			shivector1D pids = getGeometry()->getCompactPID();
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
-		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-			vtk.setDimensions(connectivity.size(), points.size());
-			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.write() ;
-			return true;
-		}
-		break;
-		
-		case FileType::VTVTU :
-			//Export Tetra Volume VTU
-			{
-				dvecarr3E	points = getGeometry()->getVertexCoords();
-				ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-				shivector1D pids = getGeometry()->getCompactPID();
-				bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
-			    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-			    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-				vtk.setDimensions(connectivity.size(), points.size());
-				if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-				if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-				else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-				vtk.write() ;
-				return true;
-			}
-		break;
-		
-		case FileType::VHVTU :
-		//Export Hexa Volume VTU
-		{
-			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			shivector1D pids = getGeometry()->getCompactPID();
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
-		    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-		    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-			vtk.setDimensions(connectivity.size(), points.size());
-			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.write() ;
-			return true;
-		}
-		break;
-	
-		case FileType::NAS :
-		//Export Nastran file
-		{
-			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector2D	connectivity = getGeometry()->getCompactConnectivity();
-			NastranInterface nastran;
-			nastran.setWFormat(m_wformat);
-			shivector1D pids = getGeometry()->getCompactPID();
-			std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
-			if (pids.size() == connectivity.size()){
-				nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity, &pids, &pidsset);
-			}else{
-				nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity);
-			}
-			return true;
-		}
-		break;
-	
-		case FileType::OFP : //Export ascii OpenFOAM point cloud
-		{
+    if (isEmpty()) return false;
 
-			dvecarr3E points = getGeometry()->getVertexCoords();
-			writeOFP(m_winfo.fdir, m_winfo.fname, points);
-			return true;
-		}
-		break;
+    switch(FileType::_from_integral(m_winfo.ftype)){
 
-		case FileType::PCVTU :
-			//Export Point Cloud VTU
-		{
-			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector1D	connectivity(points.size()); 
-			int counter = 0;
-			for(auto & c:connectivity){
-				c = counter;
-				counter++;
-			}
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
-			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-			vtk.setDimensions(connectivity.size(), points.size());
-			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.write() ;
-			return true;
-		}
-		break;
+    case FileType::STL :
+        //Export STL
+    {
+        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex);
+        return true;
+    }
+    break;
 
-		case FileType::CURVEVTU :
-			//Export 3DCurve in VTU
-		{
-			dvecarr3E	points = getGeometry()->getVertexCoords();
-			ivector2D	connectivity = getGeometry()->getCompactConnectivity(); 
-			shivector1D pids = getGeometry()->getCompactPID();
-			bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
-			vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-			vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-			vtk.setDimensions(connectivity.size(), points.size());
-			if(pids.size() > 0)		vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-			if(!m_codex)	vtk.setCodex(bitpit::VTKFormat::ASCII);
-			else			vtk.setCodex(bitpit::VTKFormat::APPENDED);
-			vtk.write() ;
-			return true;
-		}
-		break;
-		
-		
-		default: //never been reached
-			break;
-	}
-	
-	return false;
+    case FileType::STVTU :
+        //Export Triangulation Surface VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        shivector1D pids = getGeometry()->getCompactPID();
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(pids.size() > 0)    vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+    case FileType::SQVTU :
+        //Export Quadrilateral Surface VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        shivector1D pids = getGeometry()->getCompactPID();
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+    case FileType::VTVTU :
+        //Export Tetra Volume VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        shivector1D pids = getGeometry()->getCompactPID();
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+    case FileType::VHVTU :
+        //Export Hexa Volume VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        shivector1D pids = getGeometry()->getCompactPID();
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+    case FileType::NAS :
+        //Export Nastran file
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        NastranInterface nastran;
+        nastran.setWFormat(m_wformat);
+        shivector1D pids = getGeometry()->getCompactPID();
+        std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
+        if (pids.size() == connectivity.size()){
+            nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity, &pids, &pidsset);
+        }else{
+            nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity);
+        }
+        return true;
+    }
+    break;
+
+    case FileType::OFP : //Export ascii OpenFOAM point cloud
+    {
+
+        dvecarr3E points = getGeometry()->getVertexCoords();
+        writeOFP(m_winfo.fdir, m_winfo.fname, points);
+        return true;
+    }
+    break;
+
+    case FileType::PCVTU :
+        //Export Point Cloud VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector1D    connectivity(points.size());
+        int counter = 0;
+        for(auto & c:connectivity){
+            c = counter;
+            counter++;
+        }
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+    case FileType::CURVEVTU :
+        //Export 3DCurve in VTU
+    {
+        dvecarr3E    points = getGeometry()->getVertexCoords();
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        shivector1D pids = getGeometry()->getCompactPID();
+        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+        vtk.setDimensions(connectivity.size(), points.size());
+        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+        vtk.write() ;
+        return true;
+    }
+    break;
+
+
+    default: //never been reached
+        break;
+    }
+
+    return false;
 };
 
 /*!It reads the mesh geometry from an input file and reverse it in the internal 
@@ -601,394 +607,394 @@ MimmoGeometry::write(){
  */
 bool
 MimmoGeometry::read(){
-	if(!m_isInternal) return false;
-	
-	switch(FileType::_from_integral(m_rinfo.ftype)){
+    if(!m_isInternal) return false;
 
-	//Import STL
-	case FileType::STL :
-	{
-		setGeometry(1);
-		string name;
+    switch(FileType::_from_integral(m_rinfo.ftype)){
 
-		{
-			std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
-			bool check = infile.good();
-			name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
-			if (!check){
-				infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
-				check = infile.good();
-				name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
-				if (!check) return false;
-			}
-		}
+    //Import STL
+    case FileType::STL :
+    {
+        setGeometry(1);
+        string name;
 
-		ifstream in(name);
-		string	ss, sstype;
-		getline(in,ss);
-		stringstream ins;
-		ins << ss;
-		ins >> sstype;
-		bool binary = true;
-		if (sstype == "solid" || sstype == "SOLID") binary = false;
-		in.close();
+        {
+            std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
+            bool check = infile.good();
+            name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
+            if (!check){
+                infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
+                check = infile.good();
+                name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
+                if (!check) return false;
+            }
+        }
 
-		dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
-		getGeometry()->cleanGeometry();
-		
-		//count PID if multi-solid
-		auto & map = getGeometry()->getPIDTypeList();
-		for(auto & cell : getGeometry()->getCells() ){
-			map.insert(cell.getPID());
-		}
-	}
-	break;
-	
-	case FileType::STVTU :
-		//Import Triangulation Surface VTU
-	{
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
+        ifstream in(name);
+        string    ss, sstype;
+        getline(in,ss);
+        stringstream ins;
+        ins << ss;
+        ins >> sstype;
+        bool binary = true;
+        if (sstype == "solid" || sstype == "SOLID") binary = false;
+        in.close();
 
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-		shivector1D pids;
-		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TRIANGLE);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.addData("PID", pids);
-		
-		vtk.read() ;
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
+        getGeometry()->cleanGeometry();
 
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
-		
-		setGeometry(1);
-		
-		int sizeV, sizeC, sizeP;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		sizeP = pids.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
+        //count PID if multi-solid
+        auto & map = getGeometry()->getPIDTypeList();
+        for(auto & cell : getGeometry()->getCells() ){
+            map.insert(cell.getPID());
+        }
+    }
+    break;
 
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		
-		int ccell = 0;
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			if(sizeP == 0){
-				m_intgeo->addConnectedCell(temp, eltype);
-			}else{
-				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-			}	
-			ccell++;
-		}	
-				
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::SQVTU :
-		//Import Quadrilateral Surface VTU
-	{
+    case FileType::STVTU :
+        //Import Triangulation Surface VTU
+    {
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-	
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-		shivector1D pids;
-		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::QUAD);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.addData("PID", pids);
-		vtk.read() ;
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+        shivector1D pids;
 
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
-		
-		setGeometry(1);
-		
-		int sizeV, sizeC, sizeP;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		sizeP = pids.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		int ccell = 0;
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			if(sizeP == 0){
-				m_intgeo->addConnectedCell(temp, eltype);
-			}else{
-				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-			}	
-			ccell++;
-		}	
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::VTVTU :
-		//Import Tetra Volume VTU
-	{
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TRIANGLE);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.addData("PID", pids);
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
+        vtk.read() ;
 
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-		shivector1D pids;
-		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TETRA);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.addData("PID", pids);
-		vtk.read() ;
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
 
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
-		
-		setGeometry(2);
-		
-		int sizeV, sizeC, sizeP;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		sizeP = pids.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		int ccell = 0;
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			if(sizeP == 0){
-				m_intgeo->addConnectedCell(temp, eltype);
-			}else{
-				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-			}	
-			ccell++;
-		}	
-		
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::VHVTU :
-		//Import Hexa Volume VTU
-	{
+        setGeometry(1);
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
+        int sizeV, sizeC, sizeP;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        sizeP = pids.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
 
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-		shivector1D pids;
-		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::HEXAHEDRON);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.addData("PID", pids);
-		vtk.read() ;
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
 
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
-		
-		setGeometry(2);
-		
-		int sizeV, sizeC, sizeP;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		sizeP = pids.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		int ccell = 0;
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			if(sizeP == 0){
-				m_intgeo->addConnectedCell(temp, eltype);
-			}else{
-				m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-			}	
-			ccell++;
-		}	
-		
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	case FileType::NAS :
-		//Import Surface NAS
-	{
+        int ccell = 0;
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            if(sizeP == 0){
+                m_intgeo->addConnectedCell(temp, eltype);
+            }else{
+                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+            }
+            ccell++;
+        }
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
-		bool check = infile.good();
-		if (!check) return false;
-		infile.close();
+        m_intgeo->cleanGeometry();
+    }
+    break;
 
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
+    case FileType::SQVTU :
+        //Import Quadrilateral Surface VTU
+    {
 
-		NastranInterface nastran;
-		nastran.setWFormat(m_wformat);
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
 
-		shivector1D pids;
-		nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, Iconnectivity, pids );
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+        shivector1D pids;
 
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
-		
-		setGeometry(1);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		m_intgeo->setPID(pids);
-		m_intgeo->cleanGeometry();
-	}
-	
-	break;
-	
-	//Import ascii OpenFOAM point cloud
-	case FileType::OFP :
-	{
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::QUAD);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.addData("PID", pids);
+        vtk.read() ;
 
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname);
-		bool check = infile.good();
-		if (!check) return false;
-		infile.close();
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
 
-		dvecarr3E	Ipoints;
-		readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
+        setGeometry(1);
 
-		setGeometry(3);
+        int sizeV, sizeC, sizeP;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        sizeP = pids.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
 
-		int sizeV = Ipoints.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		
-	}
-	break;
+        int ccell = 0;
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            if(sizeP == 0){
+                m_intgeo->addConnectedCell(temp, eltype);
+            }else{
+                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+            }
+            ccell++;
+        }
 
-	//Import point cloud from vtu
-	case FileType::PCVTU :
-	{
-		
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-		
-		dvecarr3E	Ipoints ;
-		ivector1D	Iconnectivity ;
-		
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::VERTEX);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.read() ;
-		
-		setGeometry(3);
-		
-		int sizeV;
-		sizeV = Ipoints.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		
-	}
-	break;
-	
-	case FileType::CURVEVTU :
-		//Import 3D Curve VTU
-	{
-		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-		bool check = infile.good();
-		if (!check) return false;
-		
-		dvecarr3E	Ipoints ;
-		ivector2D	Iconnectivity ;
-		shivector1D pids;
-		bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::LINE);
-		vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-		vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-		vtk.addData("PID", pids);
-		vtk.read() ;
-		
-		bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::LINE;
-		
-		setGeometry(4);
-		
-		int sizeV, sizeC;
-		sizeV = Ipoints.size();
-		sizeC = Iconnectivity.size();
-		m_intgeo->getPatch()->reserveVertices(sizeV);
-		m_intgeo->getPatch()->reserveCells(sizeC);
-		
-		for(auto & vv : Ipoints)		m_intgeo->addVertex(vv);
-		for(auto & cc : Iconnectivity)	{
-			livector1D temp(cc.size());
-			int counter = 0;
-			for(auto && val : cc){
-				temp[counter] = val;
-				++counter;
-			}	
-			m_intgeo->addConnectedCell(temp, eltype);
-			
-		}	
-		m_intgeo->setPID(pids);
-		m_intgeo->cleanGeometry();
-	}
-	break;
-	
-	
-	default: //never been reached
-		break;
-	
-	}
-	
-	return true;
+        m_intgeo->cleanGeometry();
+    }
+    break;
+
+    case FileType::VTVTU :
+        //Import Tetra Volume VTU
+    {
+
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
+
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+        shivector1D pids;
+
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TETRA);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.addData("PID", pids);
+        vtk.read() ;
+
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
+
+        setGeometry(2);
+
+        int sizeV, sizeC, sizeP;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        sizeP = pids.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
+
+        int ccell = 0;
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            if(sizeP == 0){
+                m_intgeo->addConnectedCell(temp, eltype);
+            }else{
+                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+            }
+            ccell++;
+        }
+
+
+        m_intgeo->cleanGeometry();
+    }
+    break;
+
+    case FileType::VHVTU :
+        //Import Hexa Volume VTU
+    {
+
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
+
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+        shivector1D pids;
+
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::HEXAHEDRON);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.addData("PID", pids);
+        vtk.read() ;
+
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
+
+        setGeometry(2);
+
+        int sizeV, sizeC, sizeP;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        sizeP = pids.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
+
+        int ccell = 0;
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            if(sizeP == 0){
+                m_intgeo->addConnectedCell(temp, eltype);
+            }else{
+                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
+            }
+            ccell++;
+        }
+
+        m_intgeo->cleanGeometry();
+    }
+    break;
+
+    case FileType::NAS :
+        //Import Surface NAS
+    {
+
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
+        bool check = infile.good();
+        if (!check) return false;
+        infile.close();
+
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+
+        NastranInterface nastran;
+        nastran.setWFormat(m_wformat);
+
+        shivector1D pids;
+        nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, Iconnectivity, pids );
+
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+
+        setGeometry(1);
+
+        int sizeV, sizeC;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
+
+
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            m_intgeo->addConnectedCell(temp, eltype);
+
+        }
+        m_intgeo->setPID(pids);
+        m_intgeo->cleanGeometry();
+    }
+
+    break;
+
+    //Import ascii OpenFOAM point cloud
+    case FileType::OFP :
+    {
+
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname);
+        bool check = infile.good();
+        if (!check) return false;
+        infile.close();
+
+        dvecarr3E    Ipoints;
+        readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
+
+        setGeometry(3);
+
+        int sizeV = Ipoints.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+
+    }
+    break;
+
+    //Import point cloud from vtu
+    case FileType::PCVTU :
+    {
+
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
+
+        dvecarr3E    Ipoints ;
+        ivector1D    Iconnectivity ;
+
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::VERTEX);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.read() ;
+
+        setGeometry(3);
+
+        int sizeV;
+        sizeV = Ipoints.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+
+    }
+    break;
+
+    case FileType::CURVEVTU :
+        //Import 3D Curve VTU
+    {
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        bool check = infile.good();
+        if (!check) return false;
+
+        dvecarr3E    Ipoints ;
+        ivector2D    Iconnectivity ;
+        shivector1D pids;
+        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::LINE);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
+        vtk.addData("PID", pids);
+        vtk.read() ;
+
+        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::LINE;
+
+        setGeometry(4);
+
+        int sizeV, sizeC;
+        sizeV = Ipoints.size();
+        sizeC = Iconnectivity.size();
+        m_intgeo->getPatch()->reserveVertices(sizeV);
+        m_intgeo->getPatch()->reserveCells(sizeC);
+
+        for(auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        for(auto & cc : Iconnectivity)    {
+            livector1D temp(cc.size());
+            int counter = 0;
+            for(auto && val : cc){
+                temp[counter] = val;
+                ++counter;
+            }
+            m_intgeo->addConnectedCell(temp, eltype);
+
+        }
+        m_intgeo->setPID(pids);
+        m_intgeo->cleanGeometry();
+    }
+    break;
+
+
+    default: //never been reached
+        break;
+
+    }
+
+    return true;
 };
 
 /*!Execution command.
@@ -997,356 +1003,310 @@ MimmoGeometry::read(){
  */
 void
 MimmoGeometry::execute(){
-	bool check = true;
-	if (m_read) check = read();
-	if (!check){
-		std::cout << "mimmo : ERROR : file not found : "<< m_rinfo.fname << std::endl;
-		std::cout << " " << std::endl;
-		exit(10);
-	}
-	check = true;
-	if (m_write) check = write();
-	if (!check){
-		std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
-		std::cout << " " << std::endl;
-		exit(11);
-	}
-	if (m_buildBvTree) getGeometry()->buildBvTree();
-	if (m_buildKdTree) getGeometry()->buildKdTree();
-	return;
+    bool check = true;
+    if (m_read) check = read();
+    if (!check){
+        std::cout << "mimmo : ERROR : file not found : "<< m_rinfo.fname << std::endl;
+        std::cout << " " << std::endl;
+        exit(10);
+    }
+    check = true;
+    if (m_write) check = write();
+    if (!check){
+        std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
+        std::cout << " " << std::endl;
+        exit(11);
+    }
+    if (m_buildBvTree) getGeometry()->buildBvTree();
+    if (m_buildKdTree) getGeometry()->buildKdTree();
 }
 
-//===============================//
-//====== OFOAM INTERFACE ========//
-//===============================//
-
 /*!
- *	Read openFoam format geometry file and absorb it as a point cloud ONLY.
- *\param[in]	inputDir	folder of file
- *\param[in]	surfaceName	name of file
- *\param[out]	points		list of points in the cloud  
+ *    Read openFoam format geometry file and absorb it as a point cloud ONLY.
+ *\param[in]    inputDir    folder of file
+ *\param[in]    surfaceName    name of file
+ *\param[out]    points        list of points in the cloud
  * 
  */
 void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
 
-	ifstream is(inputDir +"/"+surfaceName);
+    ifstream is(inputDir +"/"+surfaceName);
 
-	points.clear();
-	int ip = 0;
-	int np;
-	darray3E point;
-	string sread;
-	char par;
+    points.clear();
+    int ip = 0;
+    int np;
+    darray3E point;
+    string sread;
+    char par;
 
-	for (int i=0; i<18; i++){
-		getline(is,sread);
-	}
-	is >> np;
-	getline(is,sread);
-	getline(is,sread);
+    for (int i=0; i<18; i++){
+        getline(is,sread);
+    }
+    is >> np;
+    getline(is,sread);
+    getline(is,sread);
 
-	points.resize(np);
-	while(!is.eof() && ip<np){
-		is.get(par);
-		for (int i=0; i<3; i++) is >> point[i];
-		is.get(par);
-		getline(is,sread);
-		points[ip] = point;
-		ip++;
-	}
-	is.close();
-	return;
-
+    points.resize(np);
+    while(!is.eof() && ip<np){
+        is.get(par);
+        for (int i=0; i<3; i++) is >> point[i];
+        is.get(par);
+        getline(is,sread);
+        points[ip] = point;
+        ip++;
+    }
+    is.close();
 }
 /*!
- *	Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]	outputDir	folder of file
- *\param[in]	surfaceName	name of file
- *\param[out]	points		list of points in the cloud  
+ *    Write geometry file in openFoam format as a point cloud ONLY.
+ *\param[in]    outputDir    folder of file
+ *\param[in]    surfaceName    name of file
+ *\param[out]    points        list of points in the cloud
  * 
  */
 void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
 
-	ofstream os(outputDir +"/"+surfaceName);
-	char nl = '\n';
+    ofstream os(outputDir +"/"+surfaceName);
+    char nl = '\n';
 
-	string separator(" ");
-	string parl("("), parr(")");
-	string hline;
+    string separator(" ");
+    string parl("("), parr(")");
+    string hline;
 
-	hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
-	os << hline << nl;
-	hline = "| =========                 |                                                 |";
-	os << hline << nl;
-	hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-	os << hline << nl;
-	hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
-	os << hline << nl;
-	hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-	os << hline << nl;
-	hline = "|    \\\\/     M anipulation  |                                                 |";
-	os << hline << nl;
-	hline = "\\*---------------------------------------------------------------------------*/";
-	os << hline << nl;
-	hline = "FoamFile";
-	os << hline << nl;
-	hline = "{";
-	os << hline << nl;
-	hline = "    version     2.0;";
-	os << hline << nl;
-	hline = "    format      ascii;";
-	os << hline << nl;
-	hline = "    class       vectorField;";
-	os << hline << nl;
-	hline = "    location    \"constant/polyMesh\";";
-	os << hline << nl;
-	hline = "    object      points;";
-	os << hline << nl;
-	hline = "}";
-	os << hline << nl;
-	hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-	os << hline << nl;
-	os << nl;
-	os << nl;
-	int np = points.size();
-	os << np << nl;
-	os << parl << nl;
-	for (int i=0; i<np; i++){
-		os << parl;
-		for (int j=0; j<2; j++){
-			os << setprecision(16) << points[i][j] << separator;
-		}
-		os << setprecision(16) << points[i][2] << parr << nl;
-	}
-	os << parr << nl;
-	os << nl;
-	os << nl;
-	hline = "// ************************************************************************* //";
-	os << hline << nl;
+    hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
+    os << hline << nl;
+    hline = "| =========                 |                                                 |";
+    os << hline << nl;
+    hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
+    os << hline << nl;
+    hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
+    os << hline << nl;
+    hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
+    os << hline << nl;
+    hline = "|    \\\\/     M anipulation  |                                                 |";
+    os << hline << nl;
+    hline = "\\*---------------------------------------------------------------------------*/";
+    os << hline << nl;
+    hline = "FoamFile";
+    os << hline << nl;
+    hline = "{";
+    os << hline << nl;
+    hline = "    version     2.0;";
+    os << hline << nl;
+    hline = "    format      ascii;";
+    os << hline << nl;
+    hline = "    class       vectorField;";
+    os << hline << nl;
+    hline = "    location    \"constant/polyMesh\";";
+    os << hline << nl;
+    hline = "    object      points;";
+    os << hline << nl;
+    hline = "}";
+    os << hline << nl;
+    hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
+    os << hline << nl;
+    os << nl;
+    os << nl;
+    int np = points.size();
+    os << np << nl;
+    os << parl << nl;
+    for (int i=0; i<np; i++){
+        os << parl;
+        for (int j=0; j<2; j++){
+            os << setprecision(16) << points[i][j] << separator;
+        }
+        os << setprecision(16) << points[i][2] << parr << nl;
+    }
+    os << parr << nl;
+    os << nl;
+    os << nl;
+    hline = "// ************************************************************************* //";
+    os << hline << nl;
 
-	os.close();
-	return;
-
+    os.close();
 }
 
-
-
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class reads the following parameters:
- * 
- *  --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution; 
- * - <B>ReadFlag</B>: activate reading mode boolean
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFileType</B>: file type identifier
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteFlag</B>: activate writing mode boolean
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFileType</B>: file type identifier
- * - <B>WriteFilename</B>: name of file for writing
- * - <B>Codex</B>: boolean to write ascii/binary
- * - <B>BvTree</B>: evaluate bvTree true 1/false 0
- * - <B>KdTree</B>: evaluate kdTree true 1/false 0
- * 
- * \param[in]	slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
-	BITPIT_UNUSED(name);
-	
-	std::string input; 
-	
-	if(slotXML.hasOption("Priority")){
-		input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	};
+    BITPIT_UNUSED(name);
 
-	if(slotXML.hasOption("ReadFlag")){
-		input = slotXML.get("ReadFlag");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-		}
-		setRead(value);
-	}; 
-	
-	if(slotXML.hasOption("ReadDir")){
-		input = slotXML.get("ReadDir");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "./";
-		setReadDir(input);
-	}; 
-	
-	if(slotXML.hasOption("ReadFileType")){
-		input = slotXML.get("ReadFileType");
-		input = bitpit::utils::trim(input);
-		if(!input.empty()){
-			for(auto c: FileType::_values()){
-				if(input == c._to_string()){
-					setReadFileType(c);
-				}
-			}
-		}else{
-			setReadFileType(0);
-		}
-	}; 
+    std::string input;
 
-	if(slotXML.hasOption("ReadFilename")){
-		input = slotXML.get("ReadFilename");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "mimmoGeometry";
-		setReadFilename(input);
-	}; 
-	
-	if(slotXML.hasOption("WriteFlag")){
-		input = slotXML.get("WriteFlag");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-		}
-		setWrite(value);
-	}; 
-	
-	if(slotXML.hasOption("WriteDir")){
-		input = slotXML.get("WriteDir");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "./";
-	   setWriteDir(input);
-	}; 
-	
-	if(slotXML.hasOption("WriteFileType")){
-		input = slotXML.get("WriteFileType");
-		input = bitpit::utils::trim(input);
-		if(!input.empty()){
-			for(auto c: FileType::_values()){
-				if(input == c._to_string()){
-					setWriteFileType(c);
-				}
-			}
-		}else{
-			setWriteFileType(0);
-		}
-	}; 
-	
-	if(slotXML.hasOption("WriteFilename")){
-		input = slotXML.get("WriteFilename");
-		input = bitpit::utils::trim(input);
-		if(input.empty())	input = "mimmoGeometry";
-	   setWriteFilename(input);
-	}; 
-	
-	if(slotXML.hasOption("Codex")){
-		input = slotXML.get("Codex");
-		bool value = true;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-		}
-		setCodex(value);
-	}; 
-	
-	
-	if(slotXML.hasOption("BvTree")){
-		input = slotXML.get("BvTree");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-		}
-		setBuildBvTree(value);
-	}; 
-	
-	if(slotXML.hasOption("KdTree")){
-		input = slotXML.get("KdTree");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss >> value;
-		}
-		setBuildKdTree(value);
-	}; 
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
 
-return;	
+    if(slotXML.hasOption("ReadFlag")){
+        input = slotXML.get("ReadFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setRead(value);
+    };
+
+    if(slotXML.hasOption("ReadDir")){
+        input = slotXML.get("ReadDir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "./";
+        setReadDir(input);
+    };
+
+    if(slotXML.hasOption("ReadFileType")){
+        input = slotXML.get("ReadFileType");
+        input = bitpit::utils::trim(input);
+        if(!input.empty()){
+            for(auto c: FileType::_values()){
+                if(input == c._to_string()){
+                    setReadFileType(c);
+                }
+            }
+        }else{
+            setReadFileType(0);
+        }
+    };
+
+    if(slotXML.hasOption("ReadFilename")){
+        input = slotXML.get("ReadFilename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "mimmoGeometry";
+        setReadFilename(input);
+    };
+
+    if(slotXML.hasOption("WriteFlag")){
+        input = slotXML.get("WriteFlag");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setWrite(value);
+    };
+
+    if(slotXML.hasOption("WriteDir")){
+        input = slotXML.get("WriteDir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "./";
+        setWriteDir(input);
+    };
+
+    if(slotXML.hasOption("WriteFileType")){
+        input = slotXML.get("WriteFileType");
+        input = bitpit::utils::trim(input);
+        if(!input.empty()){
+            for(auto c: FileType::_values()){
+                if(input == c._to_string()){
+                    setWriteFileType(c);
+                }
+            }
+        }else{
+            setWriteFileType(0);
+        }
+    };
+
+    if(slotXML.hasOption("WriteFilename")){
+        input = slotXML.get("WriteFilename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "mimmoGeometry";
+        setWriteFilename(input);
+    };
+
+    if(slotXML.hasOption("Codex")){
+        input = slotXML.get("Codex");
+        bool value = true;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setCodex(value);
+    };
+
+
+    if(slotXML.hasOption("BvTree")){
+        input = slotXML.get("BvTree");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setBuildBvTree(value);
+    };
+
+    if(slotXML.hasOption("KdTree")){
+        input = slotXML.get("KdTree");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setBuildKdTree(value);
+    };
+
 };
 
 /*!
- * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class writes the following parameters(if different from default):
- * 
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.Geometry"
- * - <B>Priority</B>: uint marking priority in multi-chain execution; 
- * - <B>ReadFlag</B>: activate reading mode boolean
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFileType</B>: file type identifier
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteFlag</B>: activate writing mode boolean
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFileType</B>: file type identifier
- * - <B>WriteFilename</B>: name of file for writing
- * - <B>Codex</B>: boolean to write ascii/binary
- * - <B>BvTree</B>: evaluate bvTree true 1/false 0
- * - <B>KdTree</B>: evaluate kdTree true 1/false 0
- * 
- * \param[in]	slotXML bitpit::Config::Section which writes to
- * \param[in] name   name associated to the slot 
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
  */
-void MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
-	
-	
-	std::string output;
-	
-	output = std::to_string(m_read);
-	slotXML.set("ReadFlag", output);
+void
+MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
-	slotXML.set("ReadDir", m_rinfo.fdir);
-	
-	slotXML.set("ReadFilename", m_rinfo.fname);
-	
-	{
-		std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
-		slotXML.set("ReadFileType", temp);
-	}
-	
-	output = std::to_string(m_write);
-	slotXML.set("WriteFlag", output);
-	
-	slotXML.set("WriteDir", m_winfo.fdir);
-	
-	slotXML.set("WriteFilename", m_winfo.fname);
-	
-	{
-		std::string temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
-		slotXML.set("WriteFileType", temp);
-	}
-	
-	output = std::to_string(m_codex);
-	slotXML.set("Codex", output);
-	
-	output = std::to_string(m_buildBvTree);
-	slotXML.set("BvTree", output);
-	
-	output = std::to_string(m_buildKdTree);
-	slotXML.set("KdTree", output);
-	
-return;	
-};	
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+
+
+    std::string output;
+
+    output = std::to_string(m_read);
+    slotXML.set("ReadFlag", output);
+
+    slotXML.set("ReadDir", m_rinfo.fdir);
+
+    slotXML.set("ReadFilename", m_rinfo.fname);
+
+    {
+        std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
+        slotXML.set("ReadFileType", temp);
+    }
+
+    output = std::to_string(m_write);
+    slotXML.set("WriteFlag", output);
+
+    slotXML.set("WriteDir", m_winfo.fdir);
+
+    slotXML.set("WriteFilename", m_winfo.fname);
+
+    {
+        std::string temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
+        slotXML.set("WriteFileType", temp);
+    }
+
+    output = std::to_string(m_codex);
+    slotXML.set("Codex", output);
+
+    output = std::to_string(m_buildBvTree);
+    slotXML.set("BvTree", output);
+
+    output = std::to_string(m_buildKdTree);
+    slotXML.set("KdTree", output);
+
+};
 
 
 
@@ -1359,363 +1319,360 @@ return;
  * \param[in] wf WFORMAT Short/Long of your nastran file
  */
 void NastranInterface::setWFormat(WFORMAT wf){
-	wformat = wf;
+    wformat = wf;
 }
 
 /*!
  * Write a keyword string according to WFORMAT chosen by the User
- * \param[in]     key	keyword
- * \param[in,out] os	ofstream where the keyword is written
+ * \param[in]     key    keyword
+ * \param[in,out] os    ofstream where the keyword is written
  */
 void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
-	os.setf(ios_base::left);
-	switch (wformat)
-	{
-	case Short:
-	{
-		os << setw(8) << key;
-		break;
-	}
-	case Long:
-	{
-		os << setw(8) << string(key + '*');
-		break;
-	}
-	}
-	os.unsetf(ios_base::left);
+    os.setf(ios_base::left);
+    switch (wformat)
+    {
+    case Short:
+    {
+        os << setw(8) << key;
+        break;
+    }
+    case Long:
+    {
+        os << setw(8) << string(key + '*');
+        break;
+    }
+    }
+    os.unsetf(ios_base::left);
 }
 
 /*!
  * Write a 3D point to an ofstream 
- * \param[in]     p 		point
- * \param[in] 	  pointI	point label
- * \param[in,out] os		ofstream where the point is written
+ * \param[in]     p         point
+ * \param[in]       pointI    point label
+ * \param[in,out] os        ofstream where the point is written
  */
 void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
-	// Fixed short/long formats:
-	// 1 GRID
-	// 2 ID : point ID - requires starting index of 1
-	// 3 CP : co-ordinate system ID (blank)
-	// 4 X1 : point x cp-ordinate
-	// 5 X2 : point x cp-ordinate
-	// 6 X3 : point x cp-ordinate
-	// 7 CD : co-ordinate system for displacements (blank)
-	// 8 PS : single point constraints (blank)
-	// 9 SEID : super-element ID
+    // Fixed short/long formats:
+    // 1 GRID
+    // 2 ID : point ID - requires starting index of 1
+    // 3 CP : co-ordinate system ID (blank)
+    // 4 X1 : point x cp-ordinate
+    // 5 X2 : point x cp-ordinate
+    // 6 X3 : point x cp-ordinate
+    // 7 CD : co-ordinate system for displacements (blank)
+    // 8 PS : single point constraints (blank)
+    // 9 SEID : super-element ID
 
-	string separator_("");
-	writeKeyword(string("GRID"), os);
-	os << separator_;
-	os.setf(ios_base::right);
-	int pointI1 = pointI+1;
-	writeValue(pointI1, os);
-	os << separator_;
-	writeValue("", os);
-	os << separator_;
-	writeValue(p[0], os);
-	os << separator_;
-	writeValue(p[1], os);
-	os << separator_;
-	switch (wformat)
-	{
-	case Short:
-	{
-		writeValue(p[2], os);
-		os << nl;
-//		os << setw(8) << p[2]
-//						   << nl;
-		os.unsetf(ios_base::right);
-		break;
-	}
-	case Long:
-	{
-		os << nl;
-		os.unsetf(ios_base::right);
-		writeKeyword("", os);
-		os.setf(ios_base::right);
-		writeValue(p[2], os);
-		os << nl;
-		break;
-	}
-	default:
-	{
-		cout << "Unknown writeFormat enumeration" << endl;
-		exit(999);
-	}
-	}
-	os.unsetf(ios_base::right);
+    string separator_("");
+    writeKeyword(string("GRID"), os);
+    os << separator_;
+    os.setf(ios_base::right);
+    int pointI1 = pointI+1;
+    writeValue(pointI1, os);
+    os << separator_;
+    writeValue("", os);
+    os << separator_;
+    writeValue(p[0], os);
+    os << separator_;
+    writeValue(p[1], os);
+    os << separator_;
+    switch (wformat)
+    {
+    case Short:
+    {
+        writeValue(p[2], os);
+        os << nl;
+        //        os << setw(8) << p[2]
+        //                           << nl;
+        os.unsetf(ios_base::right);
+        break;
+    }
+    case Long:
+    {
+        os << nl;
+        os.unsetf(ios_base::right);
+        writeKeyword("", os);
+        os.setf(ios_base::right);
+        writeValue(p[2], os);
+        os << nl;
+        break;
+    }
+    default:
+    {
+        cout << "Unknown writeFormat enumeration" << endl;
+        exit(999);
+    }
+    }
+    os.unsetf(ios_base::right);
 }
 
 /*!
  * Write a face to an ofstream 
- * \param[in]     faceType 	string reporting label fo the type of element
- * \param[in] 	  facePts	Element Points connectivity 
- * \param[in] 	  nFace		element label
- * \param[in,out] os		ofstream where the face is written
+ * \param[in]     faceType     string reporting label fo the type of element
+ * \param[in]       facePts    Element Points connectivity
+ * \param[in]       nFace        element label
+ * \param[in,out] os        ofstream where the face is written
  * \param[in]     PID       part identifier associated to the element
  */
 void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os,int PID){
-	// Only valid surface elements are CTRIA3 and CQUAD4
+    // Only valid surface elements are CTRIA3 and CQUAD4
 
-	// Fixed short/long formats:
-	// 1 CQUAD4
-	// 2 EID : element ID
-	// 3 PID : property element ID; default = EID (blank)
-	// 4 G1 : grid point index - requires starting index of 1
-	// 5 G2 : grid point index
-	// 6 G3 : grid point index
-	// 7 G4 : grid point index
-	// 8 onwards - not used
+    // Fixed short/long formats:
+    // 1 CQUAD4
+    // 2 EID : element ID
+    // 3 PID : property element ID; default = EID (blank)
+    // 4 G1 : grid point index - requires starting index of 1
+    // 5 G2 : grid point index
+    // 6 G3 : grid point index
+    // 7 G4 : grid point index
+    // 8 onwards - not used
 
-	// For CTRIA3 elements, cols 7 onwards are not used
+    // For CTRIA3 elements, cols 7 onwards are not used
 
-	WFORMAT wformat_ = wformat;
-	wformat = Short;
-	string separator_("");
-	writeKeyword(faceType, os);
-	os << separator_;
-	os.setf(ios_base::right);
-	nFace++;
-	writeValue(nFace, os);
-	os << separator_;
-	writeValue(PID, os);
-	int fp1;
-	switch (wformat)
-	{
-	case Short:
-	{
-		for (int i=0; i< (int)facePts.size(); i++)
-		{
-			fp1 = facePts[i] + 1;
-			writeValue(fp1, os);
-		}
+    WFORMAT wformat_ = wformat;
+    wformat = Short;
+    string separator_("");
+    writeKeyword(faceType, os);
+    os << separator_;
+    os.setf(ios_base::right);
+    nFace++;
+    writeValue(nFace, os);
+    os << separator_;
+    writeValue(PID, os);
+    int fp1;
+    switch (wformat)
+    {
+    case Short:
+    {
+        for (int i=0; i< (int)facePts.size(); i++)
+        {
+            fp1 = facePts[i] + 1;
+            writeValue(fp1, os);
+        }
 
-		break;
-	}
-	case Long:
-	{
-		for (int i=0; i< (int)facePts.size(); i++)
-		{
-			fp1 = facePts[i] + 1;
-			writeValue(fp1, os);
-//			if (i == 1)
-//			{
-//				os << nl;
-//				os.unsetf(ios_base::right);
-//				writeKeyword("", os);
-//				os.setf(ios_base::right);
-//			}
-		}
-		break;
-	}
-	default:
-	{
-		cout << "Unknown writeFormat enumeration" << endl;
-		exit(999);
-	}
-	}
-	os << nl;
-	os.unsetf(ios_base::right);
-	wformat = wformat_;
+        break;
+    }
+    case Long:
+    {
+        for (int i=0; i< (int)facePts.size(); i++)
+        {
+            fp1 = facePts[i] + 1;
+            writeValue(fp1, os);
+            //            if (i == 1)
+            //            {
+            //                os << nl;
+            //                os.unsetf(ios_base::right);
+            //                writeKeyword("", os);
+            //                os.setf(ios_base::right);
+            //            }
+        }
+        break;
+    }
+    default:
+    {
+        cout << "Unknown writeFormat enumeration" << endl;
+        exit(999);
+    }
+    }
+    os << nl;
+    os.unsetf(ios_base::right);
+    wformat = wformat_;
 }
 
 /*!
  * Write a face to an ofstream 
- * \param[in]     points 	list of vertices
- * \param[in] 	  faces		element points connectivity 
- * \param[in,out] os		ofstream where the geometry is written
+ * \param[in]     points     list of vertices
+ * \param[in]       faces        element points connectivity
+ * \param[in,out] os        ofstream where the geometry is written
  * \param[in]     PIDS      list of Part Identifiers for each cells (optional)
  */
 void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
 
-	for (int pointI=0; pointI< (int)points.size(); pointI++)
-	{
-		writeCoord(points[pointI], pointI, os);
-	}
-	int nFace = 0;
-	bool flagpid = (PIDS != NULL);
-	for (int faceI=0; faceI< (int)faces.size(); faceI++)
-	{
-		const ivector1D& f = faces[faceI];
-		int PID = 1;
-		if (flagpid) PID = (*PIDS)[faceI];
-		if (f.size() == 3)
-		{
-			writeFace("CTRIA3", faces[faceI], nFace, os, PID);
-		}
-		else if (f.size() == 4)
-		{
-			writeFace("CQUAD4", faces[faceI], nFace, os, PID);
-		}
-		else
-		{
-			cout << "Unknown face format" << endl;
-			exit(999);
-		}
-	}
+    for (int pointI=0; pointI< (int)points.size(); pointI++)
+    {
+        writeCoord(points[pointI], pointI, os);
+    }
+    int nFace = 0;
+    bool flagpid = (PIDS != NULL);
+    for (int faceI=0; faceI< (int)faces.size(); faceI++)
+    {
+        const ivector1D& f = faces[faceI];
+        int PID = 1;
+        if (flagpid) PID = (*PIDS)[faceI];
+        if (f.size() == 3)
+        {
+            writeFace("CTRIA3", faces[faceI], nFace, os, PID);
+        }
+        else if (f.size() == 4)
+        {
+            writeFace("CQUAD4", faces[faceI], nFace, os, PID);
+        }
+        else
+        {
+            cout << "Unknown face format" << endl;
+            exit(999);
+        }
+    }
 }
 
 /*!
  * Write nastran footer to an ofstream 
- * \param[in,out] os		ofstream where the footer is written
+ * \param[in,out] os        ofstream where the footer is written
  * \param[in]     PIDSSET   list of overall available part identifiers
  */
 void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDSSET){
-	string separator_("");
-	if (PIDSSET == NULL){
-		int PID = 1;
-		writeKeyword("PSHELL", os);
-		os << separator_;
-		writeValue(PID, os);
-		for (int i = 0; i < 6; i++)
-		{
-			// Dummy values
-			double uno = 1.0;
-			os << separator_;
-			writeValue(uno, os);
-		}
-		os << nl;
-	}
-	else{
-		for (std::unordered_set<short>::iterator it = PIDSSET->begin(); it != PIDSSET->end(); it++)
-		{
-		writeKeyword("PSHELL", os);
-		int PID = (*it);
-		os << separator_;
-		writeValue(PID, os);
-			for (int i = 0; i < 6; i++)
-			{
-				// Dummy values
-				double uno = 1.0;
-				os << separator_;
-				writeValue(uno, os);
-			}
-			os << nl;
+    string separator_("");
+    if (PIDSSET == NULL){
+        int PID = 1;
+        writeKeyword("PSHELL", os);
+        os << separator_;
+        writeValue(PID, os);
+        for (int i = 0; i < 6; i++)
+        {
+            // Dummy values
+            double uno = 1.0;
+            os << separator_;
+            writeValue(uno, os);
+        }
+        os << nl;
+    }
+    else{
+        for (std::unordered_set<short>::iterator it = PIDSSET->begin(); it != PIDSSET->end(); it++)
+        {
+            writeKeyword("PSHELL", os);
+            int PID = (*it);
+            os << separator_;
+            writeValue(PID, os);
+            for (int i = 0; i < 6; i++)
+            {
+                // Dummy values
+                double uno = 1.0;
+                os << separator_;
+                writeValue(uno, os);
+            }
+            os << nl;
 
-		}
-	}
+        }
+    }
 
-	writeKeyword("MAT1", os);
-	os << separator_;
-	int MID = 1;
-	writeValue(MID, os);
-	for (int i = 0; i < 7; i++)
-	{
-		// Dummy values
-		os << separator_;
-		writeValue("", os);
-	}
-	os << nl;
+    writeKeyword("MAT1", os);
+    os << separator_;
+    int MID = 1;
+    writeValue(MID, os);
+    for (int i = 0; i < 7; i++)
+    {
+        // Dummy values
+        os << separator_;
+        writeValue("", os);
+    }
+    os << nl;
 }
 
 /*!
  * Write a bdf nastran file
- * \param[in] outputDir	output directory
- * \param[in] surfaceName	output filename
- * \param[in] points	reference of a point container that has to be written
+ * \param[in] outputDir    output directory
+ * \param[in] surfaceName    output filename
+ * \param[in] points    reference of a point container that has to be written
  * \param[in] faces     reference to element-point connectivity that has to be written 
- * \param[in] PIDS		reference to short int vector for Part Identifiers that need to be associated to elements
- * \param[in] PIDSSET	map of overall available Part Identifiers
+ * \param[in] PIDS        reference to short int vector for Part Identifiers that need to be associated to elements
+ * \param[in] PIDSSET    map of overall available Part Identifiers
  */
 void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
 
-	ofstream os(outputDir +"/"+surfaceName + ".nas");
-	os << "TITLE=mimmo " << surfaceName << " mesh" << nl
-			<< "$" << nl
-			<< "BEGIN BULK" << nl;
-	writeGeometry(points, faces, os, PIDS);
-	writeFooter(os, PIDSSET);
-	os << "ENDDATA" << endl;
-	return;
+    ofstream os(outputDir +"/"+surfaceName + ".nas");
+    os << "TITLE=mimmo " << surfaceName << " mesh" << nl
+            << "$" << nl
+            << "BEGIN BULK" << nl;
+    writeGeometry(points, faces, os, PIDS);
+    writeFooter(os, PIDSSET);
+    os << "ENDDATA" << endl;
 }
 
 //========READ====//
 /*!
  * Read a bdf nastran file
- * \param[in] inputDir	input directory
- * \param[in] surfaceName	input filename
- * \param[in,out] points	reference of a point container that has to be filled
- * \param[in,out] faces     reference to element-point connectivity that has to be filled 
- * \param[in,out] PIDS		reference to short int vector for Part Identifier storage
+ * \param[in] inputDir    input directory
+ * \param[in] surfaceName    input filename
+ * \param[out] points    reference of a point container that has to be filled
+ * \param[out] faces     reference to element-point connectivity that has to be filled
+ * \param[out] PIDS        reference to short int vector for Part Identifier storage
  */
 void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS){
 
-	ifstream is(inputDir +"/"+surfaceName + ".nas");
+    ifstream is(inputDir +"/"+surfaceName + ".nas");
 
-	points.clear();
-	faces.clear();
-	PIDS.clear();
+    points.clear();
+    faces.clear();
+    PIDS.clear();
 
-	int ipoint = 0;
-	int iface  = 0;
-	darray3E point;
-	ivector1D face(3);
-	map<int,int> mapnodes;
-	int id;
-	int pid;
-	string sread;
-	string ssub = trim(sread.substr(0,8));
+    int ipoint = 0;
+    int iface  = 0;
+    darray3E point;
+    ivector1D face(3);
+    map<int,int> mapnodes;
+    int id;
+    int pid;
+    string sread;
+    string ssub = trim(sread.substr(0,8));
 
-	while(!is.eof()){
-		while(ssub != "GRID" &&
-				ssub != "GRID*" &&
-				ssub != "CTRIA3" &&
-				ssub != "CTRIA3*" &&
-				!is.eof()){
+    while(!is.eof()){
+        while(ssub != "GRID" &&
+                ssub != "GRID*" &&
+                ssub != "CTRIA3" &&
+                ssub != "CTRIA3*" &&
+                !is.eof()){
 
-			getline(is,sread);
-			ssub = trim(sread.substr(0,8));
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
 
-		}
-		if(ssub == "GRID"){
-			id = stoi(sread.substr(8,8));
-			mapnodes[id] = ipoint;
-			point[0] = stod(convertVertex(trim(sread.substr(24,8))));
-			point[1] = stod(convertVertex(trim(sread.substr(32,8))));
-			point[2] = stod(convertVertex(trim(sread.substr(40,8))));
-			points.push_back(point);
-			ipoint++;
-			getline(is,sread);
-			ssub = trim(sread.substr(0,8));
-		}
-		else if(ssub == "GRID*"){
-			id = stoi(sread.substr(16,16));
-			mapnodes[id] = ipoint;
-			point[0] = stod(convertVertex(trim(sread.substr(48,16))));
-			point[1] = stod(convertVertex(trim(sread.substr(64,16))));
-			point[2] = stod(convertVertex(trim(sread.substr(80,16))));
-			points.push_back(point);
-			ipoint++;
-			getline(is,sread);
-			ssub = trim(sread.substr(0,8));
-		}
-		else if(ssub == "CTRIA3"){
-			pid = stoi(sread.substr(16,8));
-			face[0] = mapnodes[stoi(sread.substr(24,8))];
-			face[1] = mapnodes[stoi(sread.substr(32,8))];
-			face[2] = mapnodes[stoi(sread.substr(40,8))];
-			faces.push_back(face);
-			PIDS.push_back(pid);
-			iface++;
-			getline(is,sread);
-			ssub = trim(sread.substr(0,8));
-		}
-		else if(ssub == "CTRIA3*"){
-			pid = stoi(sread.substr(32,16));
-			face[0] = mapnodes[stoi(sread.substr(48,16))];
-			face[1] = mapnodes[stoi(sread.substr(64,16))];
-			face[2] = mapnodes[stoi(sread.substr(80,16))];
-			faces.push_back(face);
-			PIDS.push_back((short)pid);
-			iface++;
-			getline(is,sread);
-			ssub = trim(sread.substr(0,8));
-		}
+        }
+        if(ssub == "GRID"){
+            id = stoi(sread.substr(8,8));
+            mapnodes[id] = ipoint;
+            point[0] = stod(convertVertex(trim(sread.substr(24,8))));
+            point[1] = stod(convertVertex(trim(sread.substr(32,8))));
+            point[2] = stod(convertVertex(trim(sread.substr(40,8))));
+            points.push_back(point);
+            ipoint++;
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
+        else if(ssub == "GRID*"){
+            id = stoi(sread.substr(16,16));
+            mapnodes[id] = ipoint;
+            point[0] = stod(convertVertex(trim(sread.substr(48,16))));
+            point[1] = stod(convertVertex(trim(sread.substr(64,16))));
+            point[2] = stod(convertVertex(trim(sread.substr(80,16))));
+            points.push_back(point);
+            ipoint++;
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
+        else if(ssub == "CTRIA3"){
+            pid = stoi(sread.substr(16,8));
+            face[0] = mapnodes[stoi(sread.substr(24,8))];
+            face[1] = mapnodes[stoi(sread.substr(32,8))];
+            face[2] = mapnodes[stoi(sread.substr(40,8))];
+            faces.push_back(face);
+            PIDS.push_back(pid);
+            iface++;
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
+        else if(ssub == "CTRIA3*"){
+            pid = stoi(sread.substr(32,16));
+            face[0] = mapnodes[stoi(sread.substr(48,16))];
+            face[1] = mapnodes[stoi(sread.substr(64,16))];
+            face[2] = mapnodes[stoi(sread.substr(80,16))];
+            faces.push_back(face);
+            PIDS.push_back((short)pid);
+            iface++;
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
 
-	}
-	is.close();
-	return;
-
+    }
+    is.close();
 }
 
 /*!
@@ -1725,10 +1682,10 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
 string
 NastranInterface::trim(string in){
 
-	stringstream out;
-	out << in;
-	out >> in;
-	return in;
+    stringstream out;
+    out << in;
+    out >> in;
+    return in;
 }
 
 /*!
@@ -1737,17 +1694,17 @@ NastranInterface::trim(string in){
  */
 string
 NastranInterface::convertVertex(string in){
-	int pos = in.find_last_of("-");
-	if (pos<(int)in.size() && pos > 0){
-		in.insert(pos, "E");
-	}
-	else{
-		pos = in.find_last_of("+");
-		if (pos<(int)in.size() && pos > 0){
-				in.insert(pos, "E");
-		}
-	}
-	return in;
+    int pos = in.find_last_of("-");
+    if (pos<(int)in.size() && pos > 0){
+        in.insert(pos, "E");
+    }
+    else{
+        pos = in.find_last_of("+");
+        if (pos<(int)in.size() && pos > 0){
+            in.insert(pos, "E");
+        }
+    }
+    return in;
 }
 
 }
