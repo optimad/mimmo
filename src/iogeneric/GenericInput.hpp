@@ -42,40 +42,41 @@ namespace mimmo{
  * it adapts the reading method in function of the output port used
  * to build link (pin) with other objects.
  * 
+ * \n
  * Ports available in GenericInput Class :
  *
  *    =========================================================
  * ~~~
- *    |--------------------------------------------------------------|
- *    |                 Port Input                                   |
- *    |-------|----------|-------------------|-----------------------|
- *    |PortID | PortType | variable/function | compatibilities       |
- *    |-------|----------|-------------------|-----------------------|
- *    |-------|----------|-------------------|-----------------------|
- *
- *
- *    |-------------------------------------------|-----------------------|
- *    |              Port Output                  |                       |
- *    |-------|---------------|-------------------|-----------------------|
- *    |PortID | PortType      | variable/function | DataType              |
- *    |-------|---------------|-------------------|-----------------------|
- *    | 0     | M_COORDS      | getResult         | (VECARR3, FLOAT)      |
- *    | 10    | M_DISPLS      | getResult         | (VECARR3, FLOAT)      |
- *    | 12    | M_FILTER      | getResult         | (VECTOR, FLOAT)       |
- *    | 19    | M_SCALARFIELD | getResult         | (VECTOR, FLOAT)       |
- *    | 20    | M_POINT       | getResult         | (ARRAY3, FLOAT)       |
- *    | 23    | M_SPAN        | getResult         | (ARRAY3, FLOAT)       |
- *    | 24    | M_DIMENSION   | getResult         | (ARRAY3, INT)         |
- *    | 30    | M_VALUED      | getResult         | (SCALAR, FLOAT)       |
- *    | 31    | M_VALUEI      | getResult         | (SCALAR, INT)         |
- *    | 32    | M_VALUEB      | getResult         | (SCALAR, BOOL)        |
- *    | 40    | M_DEG         | getResult         | (ARRAY3, INT)         |
- *    | 50    | M_FILENAME    | getResult         | (SCALAR, STRING)      |
- *    | 51    | M_DIR         | getResult         | (SCALAR, STRING)      |
- *    |-------|---------------|-------------------|-----------------------|
- * ~~~
+     |--------------------------------------------------------------|
+     |                 Port Input                                   |
+     |-------|----------|-------------------|-----------------------|
+     |PortID | PortType | variable/function | compatibilities       |
+     |-------|----------|-------------------|-----------------------|
+     |-------|----------|-------------------|-----------------------|
+
+
+     |-------------------------------------------|-----------------------|
+     |              Port Output                  |                       |
+     |-------|---------------|-------------------|-----------------------|
+     |PortID | PortType      | variable/function | DataType              |
+     |-------|---------------|-------------------|-----------------------|
+     | 0     | M_COORDS      | getResult         | (VECARR3, FLOAT)      |
+     | 10    | M_DISPLS      | getResult         | (VECARR3, FLOAT)      |
+     | 12    | M_FILTER      | getResult         | (VECTOR, FLOAT)       |
+     | 19    | M_SCALARFIELD | getResult         | (VECTOR, FLOAT)       |
+     | 20    | M_POINT       | getResult         | (ARRAY3, FLOAT)       |
+     | 23    | M_SPAN        | getResult         | (ARRAY3, FLOAT)       |
+     | 24    | M_DIMENSION   | getResult         | (ARRAY3, INT)         |
+     | 30    | M_VALUED      | getResult         | (SCALAR, FLOAT)       |
+     | 31    | M_VALUEI      | getResult         | (SCALAR, INT)         |
+     | 32    | M_VALUEB      | getResult         | (SCALAR, BOOL)        |
+     | 40    | M_DEG         | getResult         | (ARRAY3, INT)         |
+     | 50    | M_FILENAME    | getResult         | (SCALAR, STRING)      |
+     | 51    | M_DIR         | getResult         | (SCALAR, STRING)      |
+     |-------|---------------|-------------------|-----------------------|
+  ~~~
  *    =========================================================
- *
+ * \n
  * The xml available parameters, sections and subsections are the following :
  *
  * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericInput</tt>;
