@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
  /*!
- * \defgroup iocgns
+ * \defgroup iocgns iocgns
  * Input/Output manager for meshes in cgns format
  * \{
  * \}

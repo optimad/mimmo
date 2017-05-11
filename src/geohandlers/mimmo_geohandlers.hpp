@@ -23,7 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
  /*!
- * \defgroup geohandlers
+ * \defgroup geohandlers geohandlers
  * Collection of feature to manage meshes and attached data field
  * \{
  * \}

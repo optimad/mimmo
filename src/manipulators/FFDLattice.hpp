@@ -113,7 +113,7 @@ namespace mimmo{
  * - <B>DisplGlobal</B>:0/1 use local-shape/global x,y,z reference system to define displacements of lattice node;
  * - <B>Lattice</B>: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information on how to write Lattice parameters.
  *
- * Geometry, displacements field and filter field have to be mandatorily passed through port. *
+ * Geometry, displacements field and filter field have to be mandatorily passed through port.
  */
 class FFDLattice: public Lattice {
 

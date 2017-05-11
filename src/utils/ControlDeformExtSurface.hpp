@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,7 +31,7 @@ namespace mimmo{
 
 /*!
  * \class ControlDeformExtSurface
- *
+ * \ingroup utils
  * \brief ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometry,
  *   for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
  *
@@ -43,78 +43,107 @@ namespace mimmo{
  * No optional result are plot. 
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
- *	=========================================================
- * ~~~
- *	|----------------------------------------------------------------|
- *	|                 Port Input                                     |
- *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType                |
- *	|-------|----------|-------------------|-------------------------|
- *	| 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
- *	|-------|----------|-------------------|-------------------------|
+ * \n
+ * Ports available in ControlDeformExtSurface Class :
  *
- *
- *	|-------------------------------------------------------------------------|
- *	|            Port Output                                                  |
- *	|-------|---------------|-------------------|-----------------------------|
- *	|PortID | PortType      | variable/function | DataType                    |
- *	|-------|---------------|-------------------|-----------------------------|
- *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             | 
- *	| 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
- *	| 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
- *	|-------|---------------|-------------------|-----------------------------|
+ *    =========================================================
  * ~~~
- *	=========================================================
+     |----------------------------------------------------------------|
+     |                 Port Input                                     |
+     |-------|----------|-------------------|-------------------------|
+     |PortID | PortType | variable/function | DataType                |
+     |-------|----------|-------------------|-------------------------|
+     | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
+     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
+     |-------|----------|-------------------|-------------------------|
+
+
+     |-------------------------------------------------------------------------|
+     |            Port Output                                                  |
+     |-------|---------------|-------------------|-----------------------------|
+     |PortID | PortType      | variable/function | DataType                    |
+     |-------|---------------|-------------------|-----------------------------|
+     | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
+     | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+     | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
+     |-------|---------------|-------------------|-----------------------------|
+  ~~~
+ *    =========================================================
+ * \n
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ControlDeformExtSurface</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Files</B>: external constraint surfaces list of file: \n
+ *           <tt> \<Files\> \n
+ *              \<file0\> \n
+ *                  \<fullpath\> full path to your file \</fullpath\> \n
+ *                  \<tag\> tag extension of your file \</tag\> \n
+ *                  \<tolerance\> double offset to control violation \</tolerance\> \n
+ *              \</file0\> \n
+ *              \<file1\> \n
+ *                  \<fullpath\> full path to your file \</fullpath\> \n
+ *                  \<tag\> tag extension of your file \</tag\> \n
+ *                  \<tolerance\> double offset to control violation \</tolerance\> \n
+ *              \</file1\> \n
+ *              ... \n
+ *              ... \n
+ *           \</Files\> </tt> \n
+ * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry and deformation field have to be mandatorily passed through port.
  *
  */
 class ControlDeformExtSurface: public BaseManipulation{
 private:
-	std::unordered_map<std::string, std::pair<double, int> > m_geolist; /**< list of file for geometrical proximity check*/
-	dvector1D					m_violationField;	/**<Violation Field as distance from constraint */
-	dvecarr3E					m_defField; 	/**<Deformation field*/
-	int 						m_cellBackground; /**< Number of cells N to determine background grid spacing */ 						
-	std::unordered_set<int>		m_allowed; /**< list of currently file format supported by the class*/
+    std::unordered_map<std::string, std::pair<double, int> > m_geolist; /**< list of file for geometrical proximity check*/
+    dvector1D                    m_violationField;    /**<Violation Field as distance from constraint */
+    dvecarr3E                    m_defField;     /**<Deformation field*/
+    int                         m_cellBackground; /**< Number of cells N to determine background grid spacing */
+    std::unordered_set<int>        m_allowed; /**< list of currently file format supported by the class*/
 public:
-	ControlDeformExtSurface();
-	ControlDeformExtSurface(const bitpit::Config::Section & rootXML);
-	~ControlDeformExtSurface();
+    ControlDeformExtSurface();
+    ControlDeformExtSurface(const bitpit::Config::Section & rootXML);
+    ~ControlDeformExtSurface();
 
-	ControlDeformExtSurface(const ControlDeformExtSurface & other);
-	ControlDeformExtSurface & operator=(const ControlDeformExtSurface & other);
+    ControlDeformExtSurface(const ControlDeformExtSurface & other);
+    ControlDeformExtSurface & operator=(const ControlDeformExtSurface & other);
 
-	void	buildPorts();
+    void    buildPorts();
 
-	double 									getViolation();
-	std::pair<BaseManipulation*, double>	getViolationPair();
-	dvector1D								getViolationField();
-	double 									getToleranceWithinViolation(std::string);
-	int 									getBackgroundDetails();
-	
-	void	setDefField(dvecarr3E field);
-	void 	setGeometry(MimmoObject * geo);
-	void 	setBackgroundDetails(int nCell=50);
-	const 	std::unordered_map<std::string, std::pair<double, int> > & 	getFiles() const;
-	void	setFiles(std::unordered_map<std::string,std::pair<double, int> > list );
-	void 	addFile(std::string file, double tol, int format);
-	void 	addFile(std::string file, double tol, FileType format);
-	void 	removeFile(std::string);
-	void 	removeFiles();
-	
-	void clear();
-	
-	void 	execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    double                                     getViolation();
+    std::pair<BaseManipulation*, double>    getViolationPair();
+    dvector1D                                getViolationField();
+    double                                     getToleranceWithinViolation(std::string);
+    int                                     getBackgroundDetails();
 
-protected:	
-	void plotOptionalResults();
-	
+    void    setDefField(dvecarr3E field);
+    void     setGeometry(MimmoObject * geo);
+    void     setBackgroundDetails(int nCell=50);
+    const     std::unordered_map<std::string, std::pair<double, int> > &     getFiles() const;
+    void    setFiles(std::unordered_map<std::string,std::pair<double, int> > list );
+    void     addFile(std::string file, double tol, int format);
+    void     addFile(std::string file, double tol, FileType format);
+    void     removeFile(std::string);
+    void     removeFiles();
+
+    void clear();
+
+    void     execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+protected:
+    void plotOptionalResults();
+
 private:
-	void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
-	svector1D extractInfo(std::string file);
-	double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
+    void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
+    svector1D extractInfo(std::string file);
+    double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
 };
 
 REGISTER(BaseManipulation, ControlDeformExtSurface,"mimmo.ControlDeformExtSurface")

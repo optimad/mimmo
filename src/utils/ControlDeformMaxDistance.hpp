@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,7 +31,7 @@ namespace mimmo{
 
 /*!
  * \class ControlDeformMaxDistance
- *
+ * \ingroup utils
  * \brief ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject geometry,
  *  once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
  *
@@ -44,64 +44,78 @@ namespace mimmo{
  * No optional result are plot. 
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
- *	=========================================================
- * ~~~
- *	|----------------------------------------------------------------|
- *	|                 Port Input                                     |
- *	|-------|----------|-------------------|-------------------------|
- *	|PortID | PortType | variable/function | DataType                |
- *	|-------|----------|-------------------|-------------------------|
- *	| 11    | M_GDISPLS| setDefField	   | (VECARR3E, FLOAT)       |
- *	| 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
- *	|-------|----------|-------------------|-------------------------|
+ * \n
+ * Ports available in ControlDeformMaxDistance Class :
  *
- *
- *	|-------------------------------------------------------------------------|
- *	|            Port Output                                                  |
- *	|-------|---------------|-------------------|-----------------------------|
- *	|PortID | PortType      | variable/function | DataType                    |
- *	|-------|---------------|-------------------|-----------------------------|
- *	| 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             | 
- *	| 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
- *	| 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
- *	|-------|---------------|-------------------|-----------------------------|
+ *    =========================================================
  * ~~~
- *	=========================================================
+     |----------------------------------------------------------------|
+     |                 Port Input                                     |
+     |-------|----------|-------------------|-------------------------|
+     |PortID | PortType | variable/function | DataType                |
+     |-------|----------|-------------------|-------------------------|
+     | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
+     | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
+     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
+     |-------|----------|-------------------|-------------------------|
+
+
+     |-------------------------------------------------------------------------|
+     |            Port Output                                                  |
+     |-------|---------------|-------------------|-----------------------------|
+     |PortID | PortType      | variable/function | DataType                    |
+     |-------|---------------|-------------------|-----------------------------|
+     | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
+     | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+     | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
+     |-------|---------------|-------------------|-----------------------------|
+  ~~~
+ *    =========================================================
+ * \n
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ControlDeformMaxDistance</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>LimitDistance</B>: constraint surface distance from target geometry;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry and deformation field have to be mandatorily passed through port.
  *
  */
 class ControlDeformMaxDistance: public BaseManipulation{
 private:
-	double						m_maxDist;		/**<Limit Distance*/
-	dvector1D					m_violationField;	/**<Violation Distance Field */
-	dvecarr3E					m_defField; 	/**<Deformation field*/
-	
+    double                        m_maxDist;        /**<Limit Distance*/
+    dvector1D                    m_violationField;    /**<Violation Distance Field */
+    dvecarr3E                    m_defField;     /**<Deformation field*/
+
 public:
-	ControlDeformMaxDistance();
-	ControlDeformMaxDistance(const bitpit::Config::Section & rootXML);
-	~ControlDeformMaxDistance();
+    ControlDeformMaxDistance();
+    ControlDeformMaxDistance(const bitpit::Config::Section & rootXML);
+    ~ControlDeformMaxDistance();
 
-	ControlDeformMaxDistance(const ControlDeformMaxDistance & other);
-	ControlDeformMaxDistance & operator=(const ControlDeformMaxDistance & other);
+    ControlDeformMaxDistance(const ControlDeformMaxDistance & other);
+    ControlDeformMaxDistance & operator=(const ControlDeformMaxDistance & other);
 
-	void	buildPorts();
+    void    buildPorts();
 
-	double 									getViolation();
-	dvector1D								getViolationField();
-	std::pair<BaseManipulation*, double>	getViolationPair();
-	
-	void	setDefField(dvecarr3E field);
-	void	setLimitDistance(double dist);
+    double                                     getViolation();
+    dvector1D                                getViolationField();
+    std::pair<BaseManipulation*, double>    getViolationPair();
 
-	void 	execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    void    setDefField(dvecarr3E field);
+    void    setLimitDistance(double dist);
+
+    void     execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 protected:
-    void plotOptionalResults();	
+    void plotOptionalResults();
 
-	
+
 };
 
 REGISTER(BaseManipulation, ControlDeformMaxDistance, "mimmo.ControlDeformMaxDistance")
