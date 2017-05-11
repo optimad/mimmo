@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -30,6 +30,7 @@ namespace mimmo{
 
 /*!
  * \class BendGeometry
+ * \ingroup manipulators
  * \brief BendGeometry is the class that applies the a polynomial bending function of coordinates
  *  to the displacements of the nodes of a MimmoObject.
  *
@@ -39,83 +40,120 @@ namespace mimmo{
  * where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  * applied to the i-th displacements.
  * 
- *	=========================================================
+ * \n
+ * Ports available in BendGeometry Class :
+ *
+ *    =========================================================
  * ~~~
- *	|---------------------------------------------------------------|
- *	|                  Port Input                                   |
- *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType              |
- *	|-------|-----------|-------------------|-----------------------|
- *  | 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT)       |
- *  | 20    | M_POINT   | setOrigin         | (ARRAY3, FLOAT)       |
- *  | 22    | M_AXES    | setRefSystem      | (ARR3ARR3, FLOAT)     |
- *	| 31    | M_BMATRIX | setDegree         | (ARR3ARR3, INT)       |
- *	| 32    | M_BCOEFFS | setCoeffs         | (ARR3ARR3VEC, FLOAT)  |
- *  | 99    | M_GEOM    | setGeometry       | (SCALAR, MIMMO_)      |
- *	|-------|-----------|-------------------|-----------------------|
+     |---------------------------------------------------------------|
+     |                  Port Input                                   |
+     |-------|-----------|-------------------|-----------------------|
+     |PortID | PortType  | variable/function | DataType              |
+     |-------|-----------|-------------------|-----------------------|
+     | 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT)       |
+     | 20    | M_POINT   | setOrigin         | (ARRAY3, FLOAT)       |
+     | 22    | M_AXES    | setRefSystem      | (ARR3ARR3, FLOAT)     |
+     | 31    | M_BMATRIX | setDegree         | (ARR3ARR3, INT)       |
+     | 32    | M_BCOEFFS | setCoeffs         | (ARR3ARR3VEC, FLOAT)  |
+     | 99    | M_GEOM    | setGeometry       | (SCALAR, MIMMO_)      |
+     |-------|-----------|-------------------|-----------------------|
+
+
+     |------------------------------------------------------------|
+     |                  Port Output                               |
+     |-------|----------|-------------------|---------------------|
+     |PortID | PortType | variable/function | DataType            |
+     |-------|----------|-------------------|---------------------|
+     | 11    | M_GDISPLS| getDisplacements  | (VECARR3, FLOAT)    |
+     |-------|----------|-------------------|---------------------|
+  ~~~
+ *    =========================================================
+ * \n
  *
+ * The xml available parameters, sections and subsections are the following :
  *
- *	|------------------------------------------------------------|
- *	|                  Port Output                               |
- *	|-------|----------|-------------------|---------------------|
- *	|PortID | PortType | variable/function | DataType            |
- *	|-------|----------|-------------------|---------------------|
- *  | 11    | M_GDISPLS| getDisplacements  | (VECARR3, FLOAT)    |
- *	|-------|----------|-------------------|---------------------|
- * ~~~
- *	=========================================================
+ * - <B>ClassName</B> : name of the class as <tt>mimmo.BendGeometry</tt>;
+ * - <B>Priority</B>  : uint marking priority of class execution in multichain frame;
+ * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement
+ *                          in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
+ *                          marks a constant function.
+ *                          Written in XML as: \n
+ *                          <tt> \<DegreesMatrix\> \n
+ *                              \<xDispl\> 1 0 0 \</xDispl\> (linear x-displacement distribution in x bending direction) \n
+ *                              \<yDispl\> 2 0 0 \</yDispl\> (quadratic y-displacement distribution in x bending direction) \n
+ *                              \<zDispl\> 0 3 0 \</zDispl\> (cubic z-displacement in y bending direction) \n
+ *                          \</DegreesMatrix\> </tt> \n
+ * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Writing following
+ *                        the enumeration n = i*3 + j, where i is the displacement direction and j the bending direction.
+ *                        For example n=7 corresponds to i=2, j=1, reflecting in a z displacement distribution in y-bending direction.
+ *                        Please note the number of coefficients for a ij-bending function is equal to the degree
+ *                        of freedom DegreesMatrix(i,j), ordered as c0 + c1*x +c2*x^2+...
+ *                        Written in xml as : \n
+ *                        <tt> \<PolyCoefficients\> \n
+ *                          \<Poly0\> 1.0 1.5 \</Poly0\> \n
+ *                          \<Poly3\> -0.1 0.2 -0.01 \</Poly3\> \n
+ *                          \<Poly7\> 1.5 0.0 0.1 0.2 \</Poly7\> \n
+ *                        \</PolyCoefficients\> </tt> \n
+ * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0});
+ * - <B>RefSystem</B>: axes of local reference system. written in XML as:
+ *                  <tt> \<RefSystem\> \n
+ *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
+ *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
+ *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
+ *                  \</RefSystem\> </tt> \n
  *
- * TODO implementation of user interface seems not ROBUST. Please recheck set*** methods.
+ * Geometry has to be mandatorily passed through port.
+ *
  */
 class BendGeometry: public BaseManipulation{
 private:
     darray3E            m_origin;       /**<Origin of the reference system.*/
     dmatrix33E          m_system;       /**<Local reference system w.r.t absolute one.*/
     bool                m_local;        /**<True if the reference system is set by user and not the default one.*/
-	umatrix33E			m_degree;	    /**<Degree of polynomial law for each coordinate
-										    (each componentns of displacement is
-										    f(x,y,z) with no mixed terms)*/
-	dmat33Evec			m_coeffs;	    /**<Coeffs of polynomial law for each coordinate.*/
+    umatrix33E            m_degree;        /**<Degree of polynomial law for each coordinate
+                                            (each componentns of displacement is
+                                            f(x,y,z) with no mixed terms)*/
+    dmat33Evec            m_coeffs;        /**<Coeffs of polynomial law for each coordinate.*/
     dvector1D           m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E           m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
-	BendGeometry();
-	BendGeometry(const bitpit::Config::Section & rootXML);
-	~BendGeometry();
+    BendGeometry();
+    BendGeometry(const bitpit::Config::Section & rootXML);
+    ~BendGeometry();
 
-	BendGeometry(const BendGeometry & other);
-	BendGeometry & operator=(const BendGeometry & other);
+    BendGeometry(const BendGeometry & other);
+    BendGeometry & operator=(const BendGeometry & other);
 
-	void buildPorts();
+    void buildPorts();
 
-	darray3E    getOrigin();
-	dmatrix33E  getRefSystem();
-	umatrix33E	getDegree();
-	dmat33Evec	getCoeffs();
-	dvecarr3E	getDisplacements();
+    darray3E    getOrigin();
+    dmatrix33E  getRefSystem();
+    umatrix33E    getDegree();
+    dmat33Evec    getCoeffs();
+    dvecarr3E    getDisplacements();
 
     void    setFilter(dvector1D filter);
     void    setOrigin(darray3E origin);
     void    setRefSystem(dmatrix33E axes);
-	void	setDegree(umatrix33E degree);
-	void	setDegree(int i, int j, uint32_t degree);
-	void	setCoeffs(dmat33Evec coeffs);
-	void	setCoeffs(int i, int j, dvector1D coeffs);
+    void    setDegree(umatrix33E degree);
+    void    setDegree(int i, int j, uint32_t degree);
+    void    setCoeffs(dmat33Evec coeffs);
+    void    setCoeffs(int i, int j, dvector1D coeffs);
 
-	void 	execute();
+    void     execute();
 
-	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
-	
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 
 private:
-	darray3E    toLocalCoord(darray3E point);
+    darray3E    toLocalCoord(darray3E point);
 
 };
 
-REGISTER(BaseManipulation, BendGeometry, "mimmo.BendGeometry");
+REGISTER(BaseManipulation, BendGeometry, "mimmo.BendGeometry")
 
 }
 

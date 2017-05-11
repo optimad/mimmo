@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -87,7 +87,7 @@ BendGeometry & BendGeometry::operator=(const BendGeometry & other){
     m_filter = other.m_filter;
     m_degree = other.m_degree;
     m_coeffs = other.m_coeffs;
-    return	*this;
+    return    *this;
 };
 
 
@@ -197,7 +197,8 @@ BendGeometry::setOrigin(darray3E origin){
 /*! Set new axis orientation of the local reference system.
  * \param[in] axes new direction of all local axes.
  */
-void BendGeometry::setRefSystem(dmatrix33E axes){
+void
+BendGeometry::setRefSystem(dmatrix33E axes){
     m_system[0] = axes[0];
     m_system[1] = axes[1];
     m_system[2] = axes[2];
@@ -262,32 +263,13 @@ BendGeometry::toLocalCoord(darray3E  point){
     return(work);
 };
 
-
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
- * while Input and Geometry parameters are meant to be passed only through Port linking.
- * 
- * Assuming that x,y,z are the reference (absolute or local) directions in space, as well as the preference directions
- * for nodal displacements, we can assume that:
- * 
- * --> Absorbing data:
- * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
- * - <B>DegreesMatrix(3x3)</B> : degrees of each polynomial function referred to a displacement 
- *      in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
- *      marks a constant function. Sub-section for the degree of the displacements polynomial
- *      in each direction are named <B>xDispl</B> , <B>yDispl</B> and <B>zDispl</B>.
- * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Sub-section
- *      for each function are <B>Poly<I>i</I></B> where i is the index of polynomial (i = 0..9).
- *      Default value for coefficients is 0.
- *
- * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0})
- * - <B>RefSystem</B>: axes of local reference system (if not set the absolute one is used)
- * 
- * \param[in] slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -311,19 +293,19 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         if(subslot.hasOption("xDispl")){
             input = subslot.get("xDispl");
             std::stringstream ss(bitpit::utils::trim(input));
-            for(int i=0; i<3; ++i)	ss>>temp[0][i];
+            for(int i=0; i<3; ++i)    ss>>temp[0][i];
         }
 
         if(subslot.hasOption("yDispl")){
             input = subslot.get("yDispl");
             std::stringstream ss(bitpit::utils::trim(input));
-            for(int i=0; i<3; ++i)	ss>>temp[1][i];
+            for(int i=0; i<3; ++i)    ss>>temp[1][i];
         }
 
         if(subslot.hasOption("zDispl")){
             input = subslot.get("zDispl");
             std::stringstream ss(bitpit::utils::trim(input));
-            for(int i=0; i<3; ++i)	ss>>temp[2][i];
+            for(int i=0; i<3; ++i)    ss>>temp[2][i];
         }
 
         setDegree(temp);
@@ -342,7 +324,7 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
                 std::stringstream ss(bitpit::utils::trim(input));
                 ik = (int)(k/3);
                 jk = k%3;
-                for(auto & val: temp[ik][jk])	ss>>val;
+                for(auto & val: temp[ik][jk])    ss>>val;
             }
         }
         setCoeffs(temp);
@@ -382,49 +364,12 @@ void BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 };
 
 /*!
- * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::flushSectionXML;
- * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
- * while Input and Geometry parameters are meant to be passed only through Port linking.
- * 
- *    --> Flushing data// how to write it on XML:
- * - <B>ClassName</B> : name of the class as "mimmo.BendGeometry"
- * - <B>Priority</B>  : uint marking priority of class execution in multichain frame	
- *
- * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement 
- * 					        in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
- * 						    marks a constant function.
- *							Written in XML as:
- * 							<DegreesMatrix>
- *								<xDispl> 1 0 0 </xDispl> (linear x-displacement distribution in x bending direction)
- *								<yDispl> 2 0 0 </yDispl> (quadratic y-displacement distribution in x bending direction)
- *								<zDispl> 0 3 0  </zDispl> (cubic z-displacement in y bending direction)
- *							</DegreesMatrix>
- *
- * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Writing following 
- * 						  the enumeration n = i*3 + j, where i is the displacement direction and j the bending direction.
- * 						  For example n=7 corresponds to i=2, j=1, reflecting in a z displacement distribution in y-bending direction. 
- * 						  Please note the number of coefficients for a ij-bending function is equal to the degree
- * 						  of freedom DegreesMatrix(i,j), ordered as c0 + c1*x +c2*x^2+...
- * 						  Written in xml as :
- * 						  <PolyCoefficients>
- * 							<Poly0> 1.0 1.5 </Poly0>
- * 							<Poly3> -0.1 0.2 -0.01 </Poly3>
- * 							<Poly7> 1.5 0.0 0.1 0.2 </Poly7>
- * 						  </PolyCoefficients>
- * 
- * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0})
- * - <B>RefSystem</B>: axes of local reference system. written in XML as:
- *                  <RefSystem>
- *                      <axis0> 1.0 0.0 0.0 </axis0>
- *                      <axis1> 0.0 1.0 0.0 </axis1>
- *                      <axis2> 0.0 0.0 1.0 </axis2>
- *                  </RefSystem>
- *
- * \param[in]	slotXML bitpit::Config::Section which writes to
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -437,7 +382,7 @@ void BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
     int counter = 0;
     for(auto & val: m_degree){
         std::stringstream ss;
-        for(auto & loc: val)	ss<<loc<<'\t';
+        for(auto & loc: val)    ss<<loc<<'\t';
         d_str[counter] = ss.str();
         ++counter;
     }
@@ -454,7 +399,7 @@ void BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
             if(m_coeffs[i][j].empty()) continue;
             locPoly = rootPoly + std::to_string(int(i*3+j));
             std::stringstream ss;
-            for(auto & loc: m_coeffs[i][j])	ss<<loc<<'\t';
+            for(auto & loc: m_coeffs[i][j])    ss<<loc<<'\t';
             polyXML.set(locPoly, ss.str());
         }
     }
@@ -480,7 +425,7 @@ void BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
         }
     }
 
-};	
+};
 
 }
 

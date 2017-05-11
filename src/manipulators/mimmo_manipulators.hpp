@@ -22,9 +22,13 @@
  #
  #----------------------------------------------------------------------------*/
 
-/*!
- * @defgroup MANIPULATORS all Executable blocks that provides a deformation field for a target mesh and applies to it.
- *
+
+ /*!
+ * \defgroup manipulators
+* Collection of all executable blocks that provides a
+* deformation field for a target mesh and applies to it.
+ * \{
+ * \}
  */
 
 #ifndef __MIMMO_MODULE_MANIPULATORS_HPP__
