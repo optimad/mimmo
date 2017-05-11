@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -28,7 +28,8 @@ namespace mimmo{
 
 uint8_t Chain::sm_chaincounter(0);
 
-/*!Default constructor of Chain.
+/*!
+ * Default constructor of Chain.
  * It sets to zero/null each member/pointer.
  */
 Chain::Chain(){
@@ -40,20 +41,23 @@ Chain::Chain(){
 };
 
 
-/*!Default destructor of Chain.
+/*!
+ * Default destructor of Chain.
  */
 Chain::~Chain(){
 	clear();
 	sm_chaincounter = 0;
 };
 
-/*!Copy constructor of Chain.
+/*!
+ * Copy constructor of Chain.
  */
 Chain::Chain(const Chain & other){
 	*this = other;
 };
 
-/*!Assignement operator of Chain.
+/*!
+ * Assignement operator of Chain.
  */
 Chain & Chain::operator=(const Chain & other){
 	m_id 		= other.m_id;
@@ -63,7 +67,8 @@ Chain & Chain::operator=(const Chain & other){
 	return (*this);
 };
 
-/*!It clears the object, by setting to zero/NULL each member/pointer in the object.
+/*!
+ * It clears the object, by setting to zero/NULL each member/pointer in the object.
  */
 void
 Chain::clear(){
@@ -73,7 +78,8 @@ Chain::clear(){
 };
 
 
-/*!It gets the number of manipulator objects in the chain.
+/*!
+ * It gets the number of manipulator objects in the chain.
  * \return Number of objects in the chain.
  */
 uint32_t
@@ -81,7 +87,8 @@ Chain::getNObjects(){
 	return m_objects.size();
 };
 
-/*!It gets the ID of the chain.
+/*!
+ * It gets the ID of the chain.
  * \return ID of the chain.
  */
 uint8_t
@@ -89,7 +96,8 @@ Chain::getID(){
 	return m_id;
 };
 
-/*!It gets the number of chains actually defined in the process.
+/*!
+ * It gets the number of chains actually defined in the process.
  * \return Number of chains in the process.
  */
 uint8_t
@@ -97,7 +105,8 @@ Chain::getNChains(){
 	return sm_chaincounter;
 };
 
-/*!It gets the ID of an object in the chain.
+/*!
+ * It gets the ID of an object in the chain.
  * \param[in] i Index of the target object in the chain.
  * \return ID of the i-th object.
  */
@@ -106,7 +115,8 @@ Chain::getID(int i){
 	return m_idObjects[i];
 };
 
-/*!It gets the name of an object in the chain.
+/*!
+ * It gets the name of an object in the chain.
  * \param[in] i Index of the target object in the chain.
  * \return name of the i-th object.
  */
@@ -115,7 +125,8 @@ Chain::getName(int i){
 	return m_objects[i]->getName();
 };
 
-/*!It deletes a manipulator object in the chain.
+/*!
+ * It deletes a manipulator object in the chain.
  * \return True if some linking in the chain after the deletion are interrupted.
  */
 bool
@@ -131,7 +142,8 @@ Chain::deleteObject(int idobj){
 	return cut;
 };
 
-/*!It adds a manipulator object in the chain.
+/*!
+ * It adds a manipulator object in the chain.
  * The position of the objects after the insertion can be modified
  * in order to respect the parent/child dependencies during the execution of the chain.
  * \param[in] obj Pointer to object to be inserted.
@@ -212,7 +224,8 @@ Chain::addObject(BaseManipulation* obj, int id_){
 	return 0;
 }
 
-/*!It executes the chain, i.e. it executes all the manipulator objects
+/*!
+ * It executes the chain, i.e. it executes all the manipulator objects
  * contained in the chain following the correct order.
  * In the case that a loop exists in the chain the execution doesn't start and
  * the process ends with an error.
@@ -242,7 +255,8 @@ Chain::exec(bool debug){
 	}	
 }
 
-/*!It executes one manipulator object contained in the chain singularly.
+/*!
+ * It executes one manipulator object contained in the chain singularly.
  * \param[in] idobj ID of the target manipulator object.
  */
 void
@@ -251,7 +265,8 @@ Chain::exec(int idobj){
 	if (idx <  (int)m_objects.size()) m_objects[idx]->exec();
 }
 
-/*!It checks if a loop exists in the chain.
+/*!
+ * It checks if a loop exists in the chain.
  * In the case that a loop exists the process ends with an error.
  */
 void

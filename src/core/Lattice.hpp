@@ -30,19 +30,20 @@
 namespace mimmo{
 
 /*!
-* \class Lattice
-* \brief Structured 3D Cartesian Mesh.
-* \ingroup core
-* 
-*  Basically, it builds an elemental 3D shape (box, sphere, cylinder or part of them) around the 
-*  geometry and set a structured cartesian mesh of control points on it (lattice). 
-*  NO displacements for control points and NO NURBS parameters for FFD are present
-*  in this structure, only geometrical information are stored in the object.
-*
-*  Ports available in Lattice class:
-*  \n
-*   =========================================================
-* ~~~
+ * \class Lattice
+ * \ingroup core
+ * \brief Structured 3D Cartesian Mesh.
+ * 
+ *
+ * Basically, it builds an elemental 3D shape (box, sphere, cylinder or part of them) around the
+ * geometry and set a structured cartesian mesh of control points on it (lattice).
+ * No displacements for control points and NO NURBS parameters for FFD are present
+ * in this structure, only geometrical information are stored in the object.
+ *
+ * Ports available in Lattice class: 
+ *
+ * =========================================================
+ * ~~~
     |-------------------------------------------------------------------------------------|
     |                    Port Input                                                       |
     |-------|-------------|---------------------------------------|-----------------------|
@@ -76,8 +77,8 @@ namespace mimmo{
     | 99    | M_GEOM      | getGeometry       | (SCALAR, MIMMO_)    |
     |-------|-------------|-------------------|---------------------|
   ~~~
-*   =========================================================
-*
+* =========================================================
+* 
 * The xml available parameters, sections and subsections  are the following:
 * 
 * - <B>ClassName</B>: name of the class as "mimmo.Lattice"

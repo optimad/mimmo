@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,16 +29,19 @@
 namespace mimmo{
 
 /*!
- *	\class Chain
+ * \class Chain
+ * \ingroup core
+ * \brief Chain is the class used to manage the chain execution of multiple executable blocks (manipulation object).
  *
- *	\brief Chain is the class used to manage the execution chain of mimmo objects.
- *
- *	Each object added to the chain is inserted with the correct position in the chain.
- *	An ID is assigned to a new chain and to every object in the chain, in order to give to the user a persistent
- *	information to recover or the position or the ID of the object in the chain.
- *	The execution is performed following the correct order of the object chain in order to avoid
- *	conflicts in parent/child dependencies.
- *	Loops in the chain are not allowed.
+ * Chain is a wrapper, executable container capable to manage the workflow execution of multiple 
+ * manipulation objects, connected each other through port PINs.
+ * Each object added to the chain is inserted in the chain. According to the mutual connections with other object, 
+ * the class will automatically assign to it a priority of execution. 
+ * An ID is assigned to a new chain and to every object in the chain, in order to give to the user a persistent
+ * information to recover or the position or the ID of the object in the chain.
+ * The execution is performed following the correct order of the object chain in order to avoid
+ * conflicts in parent/child dependencies.
+ * Closed connections loops in the chain are not allowed.
  *
  */
 class Chain{
