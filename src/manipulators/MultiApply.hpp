@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,6 +29,7 @@
 namespace mimmo{
 /*!
  * \class MultiApply
+ * \ingroup manipulators
  * \brief MultiApply is the class that applies one or more deformations resulting from one or more manipulation objects 
  * to different geometries.
  *
@@ -40,55 +41,65 @@ namespace mimmo{
  * After the execution of an object MultiApply, the original geometries linked will be 
  * modified (if pointing to non void object).
  *
- *	=========================================================
- * ~~~
- *	|---------------------------------------------------------------------|
- *	|                  Port Input                                         |
- *	|-------|-----------|-------------------|-----------------------------|
- *	|PortID | PortType  | variable/function | dataType                    |
- *	|-------|-----------|-------------------|-----------------------------|
- *	| 107   | M_UMGEOVFD| setInputList      | (UMAP, MIMMO_VECARR3FLOAT_) |
- *	|-------|-----------|-------------------|-----------------------------|
+ * \n
+ * Ports available in MultiApply Class :
  *
- *
- *	|--------------------------------------------------------|
- *	|                  Port Output                           |
- *	|-------|----------|-------------------|-----------------|
- *	|PortID | PortType | variable/function | dataType        |
- *	|-------|----------|-------------------|-----------------|
- *	|-------|----------|-------------------|-----------------|
+ *    =========================================================
  * ~~~
- *	=========================================================
+     |---------------------------------------------------------------------|
+     |                  Port Input                                         |
+     |-------|-----------|-------------------|-----------------------------|
+     |PortID | PortType  | variable/function | dataType                    |
+     |-------|-----------|-------------------|-----------------------------|
+     | 107   | M_UMGEOVFD| setInputList      | (UMAP, MIMMO_VECARR3FLOAT_) |
+     |-------|-----------|-------------------|-----------------------------|
+
+
+     |--------------------------------------------------------|
+     |                  Port Output                           |
+     |-------|----------|-------------------|-----------------|
+     |PortID | PortType | variable/function | dataType        |
+     |-------|----------|-------------------|-----------------|
+     |-------|----------|-------------------|-----------------|
+  ~~~
+ *    =========================================================
+ * \n
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.MultiApply</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries;
+ *
+ * Geometries input has to be mandatorily passed through port.
  *
  */
 class MultiApply: public BaseManipulation{
 public:
 
-	std::unordered_map<MimmoObject*, dvecarr3E*> m_input; /**< container for vector field of displacements to apply */
-	bool m_force; /**< member to force rebuilding of trees of a geometrical object*/
+    std::unordered_map<MimmoObject*, dvecarr3E*> m_input; /**< container for vector field of displacements to apply */
+    bool m_force; /**< member to force rebuilding of trees of a geometrical object*/
 
-	MultiApply();
-	MultiApply(const bitpit::Config::Section & rootXML);
-	~MultiApply();
+    MultiApply();
+    MultiApply(const bitpit::Config::Section & rootXML);
+    ~MultiApply();
 
-	MultiApply(const MultiApply & other);
-	MultiApply & operator=(const MultiApply & other);
+    MultiApply(const MultiApply & other);
+    MultiApply & operator=(const MultiApply & other);
 
-	void buildPorts();
+    void buildPorts();
 
-	bool getRefreshGeometryTrees();
-	void setRefreshGeometryTrees(bool force);
+    bool getRefreshGeometryTrees();
+    void setRefreshGeometryTrees(bool force);
 
-	void addInput(std::pair<MimmoObject*, dvecarr3E*> input);
-	void setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input);
+    void addInput(std::pair<MimmoObject*, dvecarr3E*> input);
+    void setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input);
 
-	void clearList();
+    void clearList();
 
-	void execute();
+    void execute();
 
-	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");	
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 };
 
 REGISTER(BaseManipulation, MultiApply, "mimmo.MultiApply")

@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -82,8 +82,10 @@ MultiApply::buildPorts(){
 
 /*!
  * Return true, if rebuilding of search trees of your target geometries of class MimmoObject are forced by the User
+ * \return rebuilding trees flag
  */
-bool	MultiApply::getRefreshGeometryTrees(){
+bool
+MultiApply::getRefreshGeometryTrees(){
 	return m_force;
 }
 
@@ -91,8 +93,10 @@ bool	MultiApply::getRefreshGeometryTrees(){
 
 /*!
  * If set true, forces rebuilding of search trees of your target geometries of class MimmoObject
+ * \param[in] rebuilding trees flag
  */
-void	MultiApply::setRefreshGeometryTrees(bool force){
+void
+MultiApply::setRefreshGeometryTrees(bool force){
 	m_force = force;
 
 }
@@ -100,6 +104,7 @@ void	MultiApply::setRefreshGeometryTrees(bool force){
 /*! Set the input of the class as std::pair of target MimmoObject * and
  * relative displacement field dvecarr3E *. If target geometry already exist or it is NULL
  * no input is added to the class.
+ * \param[in] input geometry and its displacements
  */
 void
 MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
@@ -112,6 +117,7 @@ MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
 /*! Set a whole list of inputs of the class as an unorderd map of target MimmoObject * as key and
  * relative displacement field dvecarr3E * as argument. If a target geometry already exists in the member list or it is NULL
  * no input is added to the class. Multiple insertion of list of inputs are appended in the unique member list.
+ * \param[in] input list of geometries and displacements
  */
 void
 MultiApply::setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input){
@@ -164,17 +170,9 @@ MultiApply::execute(){
 	return;
 };
 
-
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML.The class read only RefreshGeometryTrees parameter, 
- * while Input and Geometry parameters are meant to be passed only through Port linking.
- * 
- * --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries
- * 
- * \param[in]	slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
  void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
@@ -207,18 +205,9 @@ MultiApply::execute(){
 };
 
 /*!
- * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::flushSectionXML;
- * The class write only RefreshGeometryTrees parameter, if it is different from its default value, 
- * while Input and Geometry parameters are meant to be passed only through Port linking.
- * 
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.MultiApply"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries
- * 
- * \param[in]	slotXML bitpit::Config::Section which writes to
- * * \param[in] name   name associated to the slot
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
  */
 void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	
