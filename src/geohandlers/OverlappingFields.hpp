@@ -44,27 +44,20 @@ namespace mimmo{
  * Ports available in OverlapScalarFields Class :
  * 
  *    =========================================================
- * ~~~
- *    |--------------------------------------------------------------------------------|
- *    |                   Port Input                                                   |
- *    |-------|----------------|--------------------|----------------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                        |
- *    |-------|----------------|--------------------|----------------------------------|
- *    | 81    | M_PAIRSCAFIELD | setAddDataField    | (PAIR, MIMMO_VECFLOAT_)          |
- *    | 106   | M_UMGEOSFD     | setDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)          |
- *    | 200   | M_VECPAIRSF    | setDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
- *    |-------|----------------|--------------------|----------------------------------|
  *
- *    |----------------------------------------------------------------------------|
- *    |             Port Output                                                    |
- *    |-------|----------------|--------------------|------------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                    |
- *    |-------|----------------|--------------------|------------------------------|
- *    | 106   | M_UMGEOSFD     | getDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)      |
- *    | 200   | M_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
- *    |-------|----------------|--------------------|------------------------------|
- *
- * ~~~
+     |                   Port Input |||                                                  |
+     |-------|----------------|--------------------|----------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 81    | M_PAIRSCAFIELD | setAddDataField    | (PAIR, MIMMO_VECFLOAT_)          |
+     | 106   | M_UMGEOSFD     | setDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)          |
+     | 200   | M_VECPAIRSF    | setDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
+
+     |             Port Output    |||                                                |
+     |-------|----------------|--------------------|------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 106   | M_UMGEOSFD     | getDataFieldMap    | (UMAP, MIMMO_VECFLOAT_)      |
+     | 200   | M_VECPAIRSF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECFLOAT_)|
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
@@ -146,27 +139,20 @@ private:
  * Ports available in OverlapVectorFields Class :
  * 
  *    =========================================================
- * ~~~
- *    |-------------------------------------------------------------------------------|
- *    |                   Port Input                                                  |
- *    |-------|----------------|------------------|-----------------------------------|
- *    |PortID | PortType       | variable/function| DataTypes                         |
- *    |-------|----------------|------------------|-----------------------------------|
- *    | 80    | M_PAIRVECFIELD | setAddDataField  | (PAIR, MIMMO_VECARR3FLOAT_)       |
- *    | 107   | M_UMGEOSVD     | setDataFieldMap  | (UMAP, MIMMO_VECARR3FLOAT_)       |
- *    | 201   | M_VECPAIRVF    | setDataFieldList | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
- *    |-------|----------------|------------------|-----------------------------------|
  *
- *    |---------------------------------------------------------------------------------|
- *    |             Port Output                                                         |
- *    |-------|----------------|--------------------|-----------------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                         |
- *    |-------|----------------|--------------------|-----------------------------------|
- *    | 107   | M_UMGEOVFD     | getDataFieldMap    | (UMAP, MIMMO_VECARR3EFLOAT_)      |
- *    | 201   | M_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
- *    |-------|----------------|--------------------|-----------------------------------|
- *
- * ~~~
+     |                   Port Input    |||                                              |
+     |-------|----------------|------------------|-----------------------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 80    | M_PAIRVECFIELD | setAddDataField  | (PAIR, MIMMO_VECARR3FLOAT_)       |
+     | 107   | M_UMGEOSVD     | setDataFieldMap  | (UMAP, MIMMO_VECARR3FLOAT_)       |
+     | 201   | M_VECPAIRVF    | setDataFieldList | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+
+     |             Port Output      |||                                                   |
+     |-------|----------------|--------------------|-----------------------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 107   | M_UMGEOVFD     | getDataFieldMap    | (UMAP, MIMMO_VECARR3EFLOAT_)      |
+     | 201   | M_VECPAIRVF    | getDataFieldList   | (VECTOR, PAIRMIMMO_VECARR3EFLOAT_)|
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :

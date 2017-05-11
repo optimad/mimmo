@@ -63,28 +63,22 @@ namespace mimmo{
  * Ports available in GenericDispls Class :
  *
  * =========================================================
- * ~~~
-   |----------------------------------------------------------------|
-   |                 Port Input                                     |
+
+   |                 Port Input   |||                                  |
    |-------|------------|-------------------|-----------------------|
-   |PortID | PortType   | variable/function | compatibilities       |
-   |-------|------------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
    | 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        |
    | 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
-   |-------|------------|-------------------|-----------------------|
 
 
-   |-------------------------------------------------------------------|
-   |              Port Output                                          |
+   |              Port Output  |||                                        |
    |-------|---------------|-------------------|-----------------------|
-   |PortID | PortType      | variable/function | DataType              |
-   |-------|---------------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
    | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        |
    | 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
-   |-------|---------------|-------------------|-----------------------|
- ~~~
+
  *
  *=========================================================
  * \n

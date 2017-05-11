@@ -60,30 +60,23 @@ enum class OverlapMethod{
  * Ports available in ReconstructScalar Class :
  * 
  *    =========================================================
- * ~~~
- *    |--------------------------------------------------------------------------------|
- *    |                   Port Input                                                   |
- *    |-------|----------------|--------------------|----------------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                        |
- *    |-------|----------------|--------------------|----------------------------------|
- *    | 81    | M_PAIRSCAFIELD | setData            | (PAIR, MIMMO_VECFLOAT_)          |
- *    | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                 |
- *    | 200   | M_VECPAIRSF    | setData            | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
- *    |-------|----------------|--------------------|----------------------------------|
- * 
  *
- *
- *    |---------------------------------------------------------------------|
- *    |             Port Output                                             |
- *    |-------|----------------|--------------------|-----------------------|
- *    |PortID | PortType       | variable/function  | DataTypes             |
- *    |-------|----------------|--------------------|-----------------------|
- *    | 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
- *    | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
- *    | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
- *    |-------|----------------|--------------------|-----------------------|
- *
- * ~~~
+     |                   Port Input    |||                                               |
+     |-------|----------------|--------------------|----------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 81    | M_PAIRSCAFIELD | setData            | (PAIR, MIMMO_VECFLOAT_)          |
+     | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                 |
+     | 200   | M_VECPAIRSF    | setData            | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
+
+
+
+     |             Port Output   |||                                          |
+     |-------|----------------|--------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
+     | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
+     | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
@@ -163,28 +156,21 @@ private:
  * Ports available in ReconstructVector Class :
  * 
  *    =========================================================
- * ~~~
- *    |----------------------------------------------------------------------------------|
- *    |                   Port Input                                                     |
- *    |-------|----------------|--------------------|------------------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                          |
- *    |-------|----------------|--------------------|------------------------------------|
- *    | 80    | M_PAIRVECFIELD | setData            | (PAIR, MIMMO_VECARR3FLOAT_)        |
- *    | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                   |
- *    | 201   | M_VECPAIRVF    | setData            | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
- *    |-------|----------------|--------------------|------------------------------------|
- * 
- *    |--------------------------------------------------------------------------|
- *    |             Port Output                                                  |
- *    |-------|----------------|--------------------|----------------------------|
- *    |PortID | PortType       | variable/function  | DataTypes                  |
- *    |-------|----------------|--------------------|----------------------------|
- *    | 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           |
- *    | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
- *    | 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
- *    |-------|----------------|--------------------|----------------------------|
- * 
- * ~~~
+ *
+     |                   Port Input   |||                                                  |
+     |-------|----------------|--------------------|------------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 80    | M_PAIRVECFIELD | setData            | (PAIR, MIMMO_VECARR3FLOAT_)        |
+     | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                   |
+     | 201   | M_VECPAIRVF    | setData            | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
+
+     |             Port Output  |||                                                |
+     |-------|----------------|--------------------|----------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           |
+     | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
+     | 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :

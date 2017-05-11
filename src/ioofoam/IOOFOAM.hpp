@@ -53,28 +53,22 @@ namespace mimmo{
  * Ports available in IOOFOAM Class :
  *
  *    =========================================================
- * ~~~
-   |-----------------------------------------------------------------------|
-   |                     Port Input                                        |
+
+   |                     Port Input   |||                                     |
    |-------|------------------|---------------------|----------------------|
-   |PortID | PortType         | variable/function   | DataTypes            |
-   |-------|------------------|---------------------|----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 19    | M_SCALARFIELD    | setField            | (VECTOR, FLOAT)      |
    | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
    | 98    | M_GEOM2          | setSurfaceBoundary  | (SCALAR, MIMMO_)     |
-   |-------|------------------|---------------------|----------------------|
 
 
-   |-----------------------------------------------------------------------|
-   |               Port Output                                             |
+   |               Port Output    |||                                         |
    |-------|------------------|--------------------|-----------------------|
-   |PortID | PortType         | variable/function  | DataTypes             |
-   |-------|------------------|--------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 19    | M_SCALARFIELD    | getField           | (VECTOR, FLOAT)       |
    | 99    | M_GEOM           | getGeometry        | (SCALAR, MIMMO_)      |
    | 98    | M_GEOM2          | getSurfaceBoundary | (SCALAR, MIMMO_)      |
-   |-------|------------------|--------------------|-----------------------|
-     ~~~
+
  * =========================================================
  * \n
  *

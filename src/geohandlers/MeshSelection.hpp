@@ -61,27 +61,20 @@ enum class SelectionType{
  * Ports available in GenericSelection Class :
  *
  *    =========================================================
- * ~~~
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
  *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- *
- * ~~~
+     |                   Port Input       |||                               |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output     |||                                      |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *    =========================================================
  *
  */
@@ -136,47 +129,35 @@ protected:
  * Ports available in SelectionByBox Class :
  *
  *    =========================================================
- * ~~~
- *    |----------------------------------------------------------------------|
- *    |                   Port Input                                         |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
- *    | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
- *    | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
- *    |-------|----------------|---------------------|-----------------------|
- *
- *
- *    |----------------------------------------------------------------------|
- *    |             Port Output                                              |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    |-------|----------------|---------------------|-----------------------|
- *
- *
- *    Inherited from GenericSelection
- *
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
- *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- * ~~~
+
+     |                   Port Input  |||                                       |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
+     | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
+     | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
+
+
+     |             Port Output        |||                                      |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *    ===============================================================================
  *
  * The xml available parameters, sections and subsections are the following :
@@ -230,48 +211,35 @@ protected:
  * Ports available in SelectionByCylinder Class :
  *
  *    =========================================================
- * ~~~
- *    |----------------------------------------------------------------------|
- *    |                   Port Input                                         |
- *    |-------|----------------|----------------------|----------------------|
- *    |PortID | PortType       | variable/function    | DataTypes            |
- *    |-------|----------------|----------------------|----------------------|
- *    | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
- *    | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
- *    | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
- *    | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
- *    |-------|----------------|----------------------|----------------------|
- *
- *    |----------------------------------------------------------------------|
- *    |             Port Output                                              |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    |-------|----------------|---------------------|-----------------------|
- *
- *
- *    Inherited from GenericSelection
- *
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
- *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- *
- * ~~~
+
+     |                   Port Input  |||                                       |
+     |-------|----------------|----------------------|----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
+     | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
+     | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
+     | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
+
+     |             Port Output        |||                                      |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *    =========================================================
  *
  */
@@ -307,48 +275,36 @@ protected:
  * Ports available in SelectionBySphere Class :
  *
  *    =========================================================
- * ~~~
- *    |----------------------------------------------------------------------|
- *    |                   Port Input                                         |
- *    |-------|----------------|----------------------|----------------------|
- *    |PortID | PortType       | variable/function    | DataTypes            |
- *    |-------|----------------|----------------------|----------------------|
- *    | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
- *    | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
- *    | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
- *    | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
- *    |-------|----------------|----------------------|----------------------|
- * 
- *    |----------------------------------------------------------------------|
- *    |             Port Output                                              |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    |-------|----------------|---------------------|-----------------------|
  *
- *
- *    Inherited from GenericSelection
- *
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
- *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- *
- * ~~~
+     |                   Port Input  |||                                       |
+     |-------|----------------|----------------------|----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
+     | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
+     | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
+     | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
+
+     |             Port Output    |||                                          |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
+
  *    =========================================================
  *
  */
@@ -387,44 +343,32 @@ protected:
  * Ports available in SelectionByMapping Class :
  *
  *    =========================================================
- * ~~~
- *    |---------------------------------------------------------------------------------------|
- *    |                   Port Input                                                          |
- *    |-------|----------------|--------------------------|----------------------|
- *    |PortID | PortType       | variable/function        | DataTypes            |
- *    |-------|----------------|--------------------------|----------------------|
- *    | 98    | M_GEOM2        | addMappingGeometry       | (SCALAR, MIMMO_)     |
- *    |-------|----------------|--------------------------|----------------------|
  *
- *    |----------------------------------------------------------------------|
- *    |             Port Output                                              |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    |-------|----------------|---------------------|-----------------------|
- *
- *
- *    Inherited from GenericSelection
- *
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
- *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- * ~~~
+     |                   Port Input     |||                                                     |
+     |-------|----------------|--------------------------|----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 98    | M_GEOM2        | addMappingGeometry       | (SCALAR, MIMMO_)     |
+
+     |             Port Output       |||                                       |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *    =========================================================
  *
  */
@@ -484,46 +428,33 @@ private:
  * Ports available in SelectionByPID Class :
  *
  *    =========================================================
- * ~~~
- *    |----------------------------------------------------------------------|
- *    |                   Port Input                                         |
- *    |-------|----------------|----------------------|----------------------|
- *    |PortID | PortType       | variable/function    | DataTypes            |
- *    |-------|----------------|----------------------|----------------------|
- *    | 17    | M_VECTORSI     | setPID               | (VECTOR, SHORT)      |
- *    | 35    | M_VALUESI      | setPID               | (SCALAR, SHORT)      |
- *    |-------|----------------|----------------------|----------------------|
  *
- *    |----------------------------------------------------------------------|
- *    |             Port Output                                              |
- *    |-------|----------------|---------------------|-----------------------|
- *    |PortID | PortType       | variable/function   | DataTypes             |
- *    |-------|----------------|---------------------|-----------------------|
- *    |-------|----------------|---------------------|-----------------------|
- *
- *
- *    Inherited from GenericSelection
- *
- *    |-------------------------------------------------------------------|
- *    |                   Port Input                                      |
- *    |-------|----------------|----------------------|-------------------|
- *    |PortID | PortType       | variable/function    | DataTypes         |
- *    |-------|----------------|----------------------|-------------------|
- *    | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *    | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *    |-------|----------------|----------------------|-------------------|
- *
- *
- *    |-------------------------------------------------------------------|
- *    |             Port Output                                           |
- *    |-------|----------------|---------------------|--------------------|
- *    |PortID | PortType       | variable/function   | DataTypes          |
- *    |-------|----------------|---------------------|--------------------|
- *    | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *    | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *    |-------|----------------|---------------------|--------------------|
- *
- * ~~~
+     |                   Port Input   |||                                      |
+     |-------|----------------|----------------------|----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 17    | M_VECTORSI     | setPID               | (VECTOR, SHORT)      |
+     | 35    | M_VALUESI      | setPID               | (SCALAR, SHORT)      |
+
+     |             Port Output     |||                                         |
+     |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *    =========================================================
  *
  */
@@ -577,67 +508,48 @@ protected:
  * Ports available in SelectionByBoxWithScalar Class :
  *
  *  =========================================================
- * ~~~
- *  |----------------------------------------------------------------------|
- *  |                   Port Input                                         |
- *  |-------|----------------|---------------------|-----------------------|
- *  |PortID | PortType       | variable/function   | DataTypes             |
- *  |-------|----------------|---------------------|-----------------------|
- *  | 19    | M_SCALARFIELD  | setField            | (VECTOR, FLOAT)       |
- *  |-------|----------------|---------------------|-----------------------|
  *
- *
- *  |----------------------------------------------------------------------|
- *  |             Port Output                                              |
- *  |-------|----------------|---------------------|-----------------------|
- *  |PortID | PortType       | variable/function   | DataTypes             |
- *  |-------|----------------|---------------------|-----------------------|
- *  | 19    | M_SCALARFIELD  | getField            | (VECTOR, FLOAT)       |
- *  |-------|----------------|---------------------|-----------------------|
- *
- *  Inherited from SelectionByBox
- *
- *  |----------------------------------------------------------------------|
- *  |                   Port Input                                         |
- *  |-------|----------------|---------------------|-----------------------|
- *  |PortID | PortType       | variable/function   | DataTypes             |
- *  |-------|----------------|---------------------|-----------------------|
- *  | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
- *  | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
- *  | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
- *  |-------|----------------|---------------------|-----------------------|
- *
- *
- *  |----------------------------------------------------------------------|
- *  |             Port Output                                              |
- *  |-------|----------------|---------------------|-----------------------|
- *  |PortID | PortType       | variable/function   | DataTypes             |
- *  |-------|----------------|---------------------|-----------------------|
- *  |-------|----------------|---------------------|-----------------------|
- *
- *
- *    Inherited from GenericSelection
- *
- *  |-------------------------------------------------------------------|
- *  |                   Port Input                                      |
- *  |-------|----------------|----------------------|-------------------|
- *  |PortID | PortType       | variable/function    | DataTypes         |
- *  |-------|----------------|----------------------|-------------------|
- *  | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
- *  | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
- *  |-------|----------------|----------------------|-------------------|
- *
- *
- *  |-------------------------------------------------------------------|
- *  |             Port Output                                           |
- *  |-------|----------------|---------------------|--------------------|
- *  |PortID | PortType       | variable/function   | DataTypes          |
- *  |-------|----------------|---------------------|--------------------|
- *  | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
- *  | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
- *  |-------|----------------|---------------------|--------------------|
- *
- * ~~~
+   |                   Port Input      |||                                   |
+   |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | 19    | M_SCALARFIELD  | setField            | (VECTOR, FLOAT)       |
+
+
+   |             Port Output    |||                                          |
+   |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | 19    | M_SCALARFIELD  | getField            | (VECTOR, FLOAT)       |
+
+   Inherited from SelectionByBox
+
+   |                   Port Input  |||                                       |
+   |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
+   | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
+   | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
+
+
+   |             Port Output       |||                                       |
+   |-------|----------------|---------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   |||                                   |
+     |-------|----------------|----------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+
+
+     |             Port Output          |||                                 |
+     |-------|----------------|---------------------|--------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+
  *  ===============================================================================
  *
  */

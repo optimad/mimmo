@@ -66,30 +66,24 @@ namespace mimmo{
  * Ports available in MultipleMimmoGeometries Class :
  *
  *    =========================================================
- * ~~~
-     |---------------------------------------------------------------------|
-     |                 Port Input                                          |
+
+     |                 Port Input   |||                                       |
      |-------|----------|------------------|-------------------------------|
-     |PortID | PortType | variable/function| DataType                      |
-     |-------|----------|------------------|-------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 100   | M_VECGEOM| setGeometry      | (VECTOR, MIMMO_)              |
      | 101   | M_MAPGEOM| setObjMap        | (UN_MAP, STRINGPAIRINTMIMMO_) |
      | 102   | M_FINFO  | setReadListFDI   | (VECTOR, FILEINFODATA)        |
      | 103   | M_FINFO2 | setWriteListFDI  | (VECTOR, FILEINFODATA)        |
-     |-------|----------|------------------|-------------------------------|
 
 
-     |---------------------------------------|------------------------------|
-     |            Port Output                |                              |
+     |            Port Output    ||            |                              |
      |-------|-----------|-------------------|------------------------------|
-     |PortID | PortType  | variable/function | DataType                     |
-     |-------|-----------|-------------------|------------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 100   | M_VECGEOM | getGeometry       | (VECTOR, MIMMO_)             |
      | 101   | M_MAPGEOM | getObjMap         | (UN_MAP, STRINGPAIRINTMIMMO_)|
      | 102   | M_FINFO   | getReadListFDI    | (VECTOR, FILEINFODATA)       |
      | 103   | M_FINFO2  | getWriteListFDI   | (VECTOR, FILEINFODATA)       |
-     |-------|-----------|-------------------|------------------------------|
-  ~~~
+
  *    =========================================================
  *
  * \n

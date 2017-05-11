@@ -81,30 +81,24 @@ namespace mimmo{
  * Ports available in IOCloudPoints Class :
  *
  *    =========================================================
- * ~~~
-     |-------------------------------------------------------------------|
-     |                 Port Input                                        |
+
+     |                 Port Input   |||                                     |
      |-------|---------------|-------------------|-----------------------|
-     |PortID | PortType      | variable/function | compatibilities       |
-     |-------|---------------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 0     | M_COORDS      | setPoints         | (VECARR3, FLOAT)      |
      | 10    | M_DISPLS      | setVectorField    | (VECARR3, FLOAT)      |
      | 18    | M_VECTORLI    | setLabels         | (VECTOR, LONG)        |
      | 19    | M_SCALARFIELD | setScalarField    | (VECTOR, FLOAT)       |
-     |-------|---------------|-------------------|-----------------------|
 
 
-     |-------------------------------------------------------------------|
-     |              Port Output                                          |
+     |              Port Output  |||                                        |
      |-------|---------------|-------------------|-----------------------|
-     |PortID | PortType      | variable/function | DataType              |
-     |-------|---------------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 0     | M_COORDS      | getPoints         | (VECARR3, FLOAT)      |
      | 10    | M_DISPLS      | getVectorField    | (VECARR3, FLOAT)      |
      | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        |
      | 19    | M_SCALARFIELD | getScalarField    | (VECTOR, FLOAT)       |
-     |-------|---------------|-------------------|-----------------------|
-  ~~~
+
  *    =========================================================
  * \n
  *

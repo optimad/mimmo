@@ -42,26 +42,20 @@ namespace mimmo{
  * Ports available in SplitField Class :
  *
  *    =========================================================
- * ~~~
- *    |---------------------------------------------------------------------------------------|
- *    |                 Port Input                                                            |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    |PortID | PortType   | variable/function                  | DataType                    |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
- *    | 100   | M_VECGEOM  | setSplittedGeometries              | (VECTOR, MIMMO_)            |
- *    | 104   | M_MAPDCELL | setCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
- *    | 105   | M_MAPDVERT | setVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
- *    |-------|------------|------------------------------------|-----------------------------|
  *
- *
- *    |--------------------------------------------------------|-----------------------|
- *    |            Port Output                                 |                       |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |PortID | PortType  | variable/function                  | DataType              |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |-------|-----------|------------------------------------|-----------------------|
- * ~~~
+     |                 Port Input     |||                                                     |
+     |-------|------------|------------------------------------|-----------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+     | 100   | M_VECGEOM  | setSplittedGeometries              | (VECTOR, MIMMO_)            |
+     | 104   | M_MAPDCELL | setCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
+     | 105   | M_MAPDVERT | setVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
+
+
+    |            Port Output         |||             |
+     |-------|------------|------------------------------------|-----------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
@@ -122,46 +116,34 @@ private:
  * Ports available in SplitScalarField Class :
  *
  *    =========================================================
- * ~~~
- *    |------------------------------------------------------------|
- *    |                 Port Input                                 |
- *    |-------|--------------|--------------------|----------------|
- *    |PortID | PortType     | variable/function  | DataType       |
- *    |-------|--------------|--------------------|----------------|
- *    | 19    | M_SCALARFIELD| setField           | (VECTOR, FLOAT)|
- *    |-------|--------------|--------------------|----------------|
  *
- *
- *    |------------------------------------------------------------------|
- *    |            Port Output                                           |
- *    |-------|-----------|-------------------|--------------------------|
- *    |PortID | PortType  | variable/function | DataType                 |
- *    |-------|-----------|-------------------|--------------------------|
- *    | 106   | M_UMGEOSFD| getSplittedData   | (UN_MAP, MIMMO_VECFLOAT_)|
- *    |-------|-----------|-------------------|--------------------------|
- * 
- * 
- * Inherited from SplitField
- * 
- *    |---------------------------------------------------------------------------------------|
- *    |                 Port Input                                                            |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    |PortID | PortType   | variable/function                  | DataType                    |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
- *    | 100   | M_VECGEOM  | setSplittedGeometries              | (VECTOR, MIMMO_)            |
- *    | 104   | M_MAPDCELL | setCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
- *    | 105   | M_MAPDVERT | setVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
- *    |-------|------------|------------------------------------|-----------------------------|
- *
- *
- *    |--------------------------------------------------------|-----------------------|
- *    |            Port Output                                 |                       |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |PortID | PortType  | variable/function                  | DataType              |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |-------|-----------|------------------------------------|-----------------------|
- * ~~~
+     |                 Port Input   |||                              |
+     |-------|--------------|--------------------|----------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 19    | M_SCALARFIELD| setField           | (VECTOR, FLOAT)|
+
+
+     |            Port Output   |||                                        |
+     |-------|-----------|-------------------|--------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 106   | M_UMGEOSFD| getSplittedData   | (UN_MAP, MIMMO_VECFLOAT_)|
+
+
+  Inherited from SplitField
+
+     |                 Port Input   |||                                                         |
+     |-------|------------|------------------------------------|-----------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+     | 100   | M_VECGEOM  | setSplittedGeometries              | (VECTOR, MIMMO_)            |
+     | 104   | M_MAPDCELL | setCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
+     | 105   | M_MAPDVERT | setVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)   |
+
+
+     |            Port Output  |||                               |
+     |-------|-----------|------------------------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
  *    =========================================================
  *
  */

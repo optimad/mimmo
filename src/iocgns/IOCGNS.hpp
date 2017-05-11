@@ -122,28 +122,22 @@ public:
  * Ports available in IOCGNS Class :
  *
  *  =========================================================
- * ~~~
- *  |-----------------------------------------------------------------------|
- *  |                     Port Input                                        |
- *  |-------|------------------|------------------------|-------------------|
- *  |PortID | PortType         | variable/function      | DataTypes         |
- *  |-------|------------------|------------------------|-------------------|
- *  | 99    | M_GEOM           | setGeometry            | (SCALAR, MIMMO_)  |
- *  | 98    | M_GEOM2          | setSurfaceBoundary     | (SCALAR, MIMMO_)  |
- *  | 108   | M_BCCGNS         | setBoundaryConditions  | (SCALAR, MIMMO_)  |
- *  |-------|------------------|------------------------|-------------------|
- *
- *
- *  |-----------------------------------------------------------------------|
- *  |               Port Output                                             |
- *  |-------|------------------|------------------------|-------------------|
- *  |PortID | PortType         | variable/function      | DataTypes         |
- *  |-------|------------------|------------------------|-------------------|
- *  | 99    | M_GEOM           | getGeometry            | (SCALAR, MIMMO_)  |
- *  | 98    | M_GEOM2          | getSurfaceBoundary     | (SCALAR, MIMMO_)  |
- *  | 108   | M_BCCGNS         | getBoundaryConditions  | (SCALAR, MIMMO_)  |
- *  |-------|------------------|------------------------|-------------------|
- * ~~~
+
+   |                     Port Input  |||                                      |
+   |-------|------------------|------------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | 99    | M_GEOM           | setGeometry            | (SCALAR, MIMMO_)  |
+   | 98    | M_GEOM2          | setSurfaceBoundary     | (SCALAR, MIMMO_)  |
+   | 108   | M_BCCGNS         | setBoundaryConditions  | (SCALAR, MIMMO_)  |
+
+
+   |               Port Output   |||                                          |
+   |-------|------------------|------------------------|-------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | 99    | M_GEOM           | getGeometry            | (SCALAR, MIMMO_)  |
+   | 98    | M_GEOM2          | getSurfaceBoundary     | (SCALAR, MIMMO_)  |
+   | 108   | M_BCCGNS         | getBoundaryConditions  | (SCALAR, MIMMO_)  |
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :

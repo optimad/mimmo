@@ -45,12 +45,10 @@ namespace mimmo{
  * Ports available in GenericOutput Class :
  *
  *	=========================================================
- * ~~~
- 	|-------------------------------------------------------------------|
- 	|                    Port Input                                     |
+
+ 	|                    Port Input  |||                                   |
  	|-------|-------------|-------------------|-------------------------|
- 	|PortID | PortType    | variable/function | DataType                |
- 	|-------|-------------|-------------------|-------------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  	| 0     | M_COORDS    | setResult         | (VECARR3, FLOAT)        |
  	| 10    | M_DISPLS    | setResult         | (VECARR3, FLOAT)        |
  	| 12    | M_FILTER    | setResult         | (VECTOR, FLOAT)         |
@@ -62,16 +60,14 @@ namespace mimmo{
  	| 40    | M_DEG       | setResult         | (ARRAY3, INT)           |
  	| 50    | M_FILENAME  | setResult         | (SCALAR, STRING)        |
  	| 51    | M_DIR       | setResult         | (SCALAR, STRING)        |
- 	|-------|-------------|-------------------|-------------------------|
 
 
- 	|-----------------------------------------|
- 	|              Port Output                |
- 	|-------|-------------|-------------------|
- 	|PortID | PortType    | variable/function |
- 	|-------|-------------|-------------------|
- 	|-------|-------------|-------------------|
-  ~~~
+
+
+ 	|              Port Output  |||              |
+ 	|-------|-------------|---------|----------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
  *	=========================================================
  *
  * \n

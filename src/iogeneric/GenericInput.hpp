@@ -47,20 +47,15 @@ namespace mimmo{
  * Ports available in GenericInput Class :
  *
  *    =========================================================
- * ~~~
-     |--------------------------------------------------------------|
-     |                 Port Input                                   |
+
+     |                 Port Input  |||                                 |
      |-------|----------|-------------------|-----------------------|
-     |PortID | PortType | variable/function | compatibilities       |
-     |-------|----------|-------------------|-----------------------|
-     |-------|----------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
-     |-------------------------------------------|-----------------------|
-     |              Port Output                  |                       |
+     |              Port Output   ||               |                       |
      |-------|---------------|-------------------|-----------------------|
-     |PortID | PortType      | variable/function | DataType              |
-     |-------|---------------|-------------------|-----------------------|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 0     | M_COORDS      | getResult         | (VECARR3, FLOAT)      |
      | 10    | M_DISPLS      | getResult         | (VECARR3, FLOAT)      |
      | 12    | M_FILTER      | getResult         | (VECTOR, FLOAT)       |
@@ -74,8 +69,7 @@ namespace mimmo{
      | 40    | M_DEG         | getResult         | (ARRAY3, INT)         |
      | 50    | M_FILENAME    | getResult         | (SCALAR, STRING)      |
      | 51    | M_DIR         | getResult         | (SCALAR, STRING)      |
-     |-------|---------------|-------------------|-----------------------|
-  ~~~
+
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :
