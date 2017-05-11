@@ -37,25 +37,18 @@ namespace mimmo{
  * Ports available in ProjectCloud Class :
  *
  *  =========================================================
- * ~~~
-   |------------------------------------------------------------|
-   |                 Port Input                                 |
-   |-------|----------|-------------------|---------------------|
-   |PortID | PortType | variable/function | DataType            |
-   |-------|----------|-------------------|---------------------|
+
+   |Port Input | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
    | 0     | M_COORDS | setCoords         | (VECARR3, FLOAT)    |
    | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)    |
-   |-------|----------|-------------------|---------------------|
 
-
-   |------------------------------------------------------------|
-   |            Port Output                                     |
-   |-------|----------|-------------------|---------------------|
-   |PortID | PortType | variable/function | DataType            |
-   |-------|----------|-------------------|---------------------|
+   |Port Output | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>   |
    | 0     | M_COORDS | getCloudResult    | (VECARR3, FLOAT)    |
-   |-------|----------|-------------------|---------------------|
-  ~~~
+
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

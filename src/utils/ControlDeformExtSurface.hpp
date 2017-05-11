@@ -47,27 +47,21 @@ namespace mimmo{
  * Ports available in ControlDeformExtSurface Class :
  *
  *    =========================================================
- * ~~~
-     |----------------------------------------------------------------|
-     |                 Port Input                                     |
-     |-------|----------|-------------------|-------------------------|
-     |PortID | PortType | variable/function | DataType                |
-     |-------|----------|-------------------|-------------------------|
-     | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
-     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
-     |-------|----------|-------------------|-------------------------|
+
+    | Port Input | | | |
+    |-|-|-|-|
+    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+    | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
+    | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
 
 
-     |-------------------------------------------------------------------------|
-     |            Port Output                                                  |
-     |-------|---------------|-------------------|-----------------------------|
-     |PortID | PortType      | variable/function | DataType                    |
-     |-------|---------------|-------------------|-----------------------------|
-     | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
-     | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
-     | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
-     |-------|---------------|-------------------|-----------------------------|
-  ~~~
+    |Port Output | | | |
+    |-|-|-|-|
+    |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+    | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
+    | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+    | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
+
  *    =========================================================
  * \n
  *

@@ -42,12 +42,10 @@ namespace mimmo{
  * Ports available in GenericInput Class :
  *
  *    =========================================================
- * ~~~
-   |-----------------------------------------------------------------------|
-   |                 Port Input                                            |
-   |-------|---------------|-------------------|---------------------------|
-   |PortID | PortType      | variable/function | DataType                  |
-   |-------|---------------|-------------------|---------------------------|
+
+   |Port Input | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 10    | M_DISPLS      | setVectorData     | (VECARR3, FLOAT)          |
    | 19    | M_SCALARFIELD | setScalarData     | (VECTOR, FLOAT)           |
    | 29    | M_PLANE       | setPlane          | (ARRAY4, FLOAT)           |
@@ -55,40 +53,28 @@ namespace mimmo{
    | 21    | M_AXIS        | setNormal         | (ARRAY3, FLOAT)           |
    | 32    | M_VALUEB      | setInsideOut      | (SCALAR, BOOL)            |
    | 140   | M_VALUEB      | setForce          | (SCALAR, BOOL)            |
-   |-------|---------------|-------------------|---------------------------|
 
-
-   |--------------------------------------------------------------------|
-   |            Port Output                                             |
-   |-------|---------------|-------------------|------------------------|
-   |PortID | PortType      | variable/function | DataType               |
-   |-------|---------------|-------------------|------------------------|
+   |Port Output | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
    | 10    | M_DISPLS      | getCloudVectorData| (VECARR3, FLOAT)       |
    | 19    | M_SCALARFIELD | getCloudScalarData| (VECTOR, FLOAT)        |
-   |-------|---------------|-------------------|------------------------|
 
 
   Inherited from ProjectCloud
 
-   |------------------------------------------------------------|
-   |                 Port Input                                 |
-   |-------|----------|-------------------|---------------------|
-   |PortID | PortType | variable/function | DataType            |
-   |-------|----------|-------------------|---------------------|
+   |Port Input | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | 0     | M_COORDS | setCoords         | (VECARR3, FLOAT)    |
    | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)    |
-   |-------|----------|-------------------|---------------------|
 
-
-   |------------------------------------------------------------|
-   |            Port Output                                     |
-   |-------|----------|-------------------|---------------------|
-   |PortID | PortType | variable/function | DataType            |
-   |-------|----------|-------------------|---------------------|
+   |Port Output | | | |
+   |-|-|-|-|
+   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
    | 0     | M_COORDS | getCloudResult    | (VECARR3, FLOAT)    |
-   |-------|----------|-------------------|---------------------|
 
-  ~~~
+
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

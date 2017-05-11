@@ -39,26 +39,20 @@ namespace mimmo{
  * Ports available in OBBox Class :
  *
  *    =========================================================
- * ~~~
-     |-------------------------------------------------------------------------------------|
-     |                    Port Input                                                       |
-     |-------|-------------|---------------------------------------|-----------------------|
-     |PortID | PortType    | variable/function                     | DataType              |
-     |-------|-------------|---------------------------------------|-----------------------|
+ 
+ 
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 99    | M_GEOM      | m_geometry                            |(SCALAR, MIMMO_)       |
-     |-------|-------------|---------------------------------------|-----------------------|
 
-
-     |---------------------------------------------------------------|
-     |               Port Output                                     |
-     |-------|-------------|-------------------|---------------------|
-     |PortID | PortType    | variable/function | DataType            |
-     |-------|-------------|-------------------|---------------------|
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
      | 22    | M_AXES      | getAxes           | (ARR3ARR3, FLOAT)   |
      | 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
-     |-------|-------------|-------------------|---------------------|
-  ~~~
+
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

@@ -48,28 +48,21 @@ namespace mimmo{
  * Ports available in ControlDeformMaxDistance Class :
  *
  *    =========================================================
- * ~~~
-     |----------------------------------------------------------------|
-     |                 Port Input                                     |
-     |-------|----------|-------------------|-------------------------|
-     |PortID | PortType | variable/function | DataType                |
-     |-------|----------|-------------------|-------------------------|
+
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
      | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
-     |-------|----------|-------------------|-------------------------|
 
-
-     |-------------------------------------------------------------------------|
-     |            Port Output                                                  |
-     |-------|---------------|-------------------|-----------------------------|
-     |PortID | PortType      | variable/function | DataType                    |
-     |-------|---------------|-------------------|-----------------------------|
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
      | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
      | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
      | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
-     |-------|---------------|-------------------|-----------------------------|
-  ~~~
+
  *    =========================================================
  * \n
  *

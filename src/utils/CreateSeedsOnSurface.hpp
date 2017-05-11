@@ -63,29 +63,21 @@ enum class CSeedSurf{
  * Ports available in GenericInput Class :
  *
  *    =========================================================
- * ~~~
-     |----------------------------------------------------------------------------------------|
-     |                   Port Input                                                           |
-     |-------|----------------|---------------------------------------|-----------------------|
-     |PortID | PortType       | variable/function                     | DataTypes             |
-     |-------|----------------|---------------------------------------|-----------------------|
+ * 
+     | Port Input | | | |                                                             
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 20    | M_POINT        | setSeed                               | (ARRAY3, FLOAT)       |
      | 31    | M_VALUEI       | setNPoints                            | (SCALAR, INT)         |
      | 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)        |
      | 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      |
      | 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)         |
-     |-------|----------------|---------------------------------------|-----------------------|
 
-
-     |-----------------------------------------------------------------------|
-     |             Port Output                                               |
-     |-------|----------------|--------------------|-------------------------|
-     |PortID | PortType       | variable/function  | DataTypes               |
-     |-------|----------------|--------------------|-------------------------|
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | 0     | M_COORDS       | getPoints          | (VECARR3E, FLOAT)       |
-     |-------|----------------|--------------------|-------------------------|
 
-  ~~~
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

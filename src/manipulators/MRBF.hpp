@@ -57,30 +57,23 @@ enum class MRBFSol{
  * Ports available in MRBF Class :
  *
  *    =========================================================
- * ~~~
-     |-------------------------------------------------------------------|
-     |                  Port Input                                       |
-     |-------|-----------|-----------------------|-----------------------|
-     |PortID | PortType  | variable/function     | DataType              |
-     |-------|-----------|-----------------------|-----------------------|
+ 
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
      | 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
      | 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT)       |
      | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
      | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
      | 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
-     |-------|-----------|-----------------------|-----------------------|
 
-
-     |---------------------------------------------------------------------------|
-     |             Port Output                                                   |
-     |-------|----------------|-------------------|------------------------------|
-     |PortID | PortType       | variable/function | DataType                     |
-     |-------|----------------|-------------------|------------------------------|
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
      | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
-     |-------|----------------|-------------------|------------------------------|
-  ~~~
+
  *    =========================================================
  * \n
  *

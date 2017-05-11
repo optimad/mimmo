@@ -54,7 +54,7 @@ namespace mimmo{
 
     |Port Output | | | |
  	|-|-|-|-|
-    |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+    |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
  	| 20    | M_POINT   | getRotatedOrigin  | (ARRAY3, FLOAT)       |
  	| 22    | M_AXES    | getRotatedAxes    | (ARR3ARR3, FLOAT)     |
 

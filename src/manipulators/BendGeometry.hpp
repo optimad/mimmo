@@ -44,29 +44,22 @@ namespace mimmo{
  * Ports available in BendGeometry Class :
  *
  *    =========================================================
- * ~~~
-     |---------------------------------------------------------------|
-     |                  Port Input                                   |
-     |-------|-----------|-------------------|-----------------------|
-     |PortID | PortType  | variable/function | DataType              |
-     |-------|-----------|-------------------|-----------------------|
+
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT)       |
      | 20    | M_POINT   | setOrigin         | (ARRAY3, FLOAT)       |
      | 22    | M_AXES    | setRefSystem      | (ARR3ARR3, FLOAT)     |
      | 31    | M_BMATRIX | setDegree         | (ARR3ARR3, INT)       |
      | 32    | M_BCOEFFS | setCoeffs         | (ARR3ARR3VEC, FLOAT)  |
      | 99    | M_GEOM    | setGeometry       | (SCALAR, MIMMO_)      |
-     |-------|-----------|-------------------|-----------------------|
-
-
-     |------------------------------------------------------------|
-     |                  Port Output                               |
-     |-------|----------|-------------------|---------------------|
-     |PortID | PortType | variable/function | DataType            |
-     |-------|----------|-------------------|---------------------|
+ 
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | 11    | M_GDISPLS| getDisplacements  | (VECARR3, FLOAT)    |
-     |-------|----------|-------------------|---------------------|
-  ~~~
+ 
  *    =========================================================
  * \n
  *

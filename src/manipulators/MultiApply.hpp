@@ -45,23 +45,16 @@ namespace mimmo{
  * Ports available in MultiApply Class :
  *
  *    =========================================================
- * ~~~
-     |---------------------------------------------------------------------|
-     |                  Port Input                                         |
-     |-------|-----------|-------------------|-----------------------------|
-     |PortID | PortType  | variable/function | dataType                    |
-     |-------|-----------|-------------------|-----------------------------|
+ * 
+     | Port Input | | | |                                                             
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 107   | M_UMGEOVFD| setInputList      | (UMAP, MIMMO_VECARR3FLOAT_) |
-     |-------|-----------|-------------------|-----------------------------|
+ 
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>| 
 
-
-     |--------------------------------------------------------|
-     |                  Port Output                           |
-     |-------|----------|-------------------|-----------------|
-     |PortID | PortType | variable/function | dataType        |
-     |-------|----------|-------------------|-----------------|
-     |-------|----------|-------------------|-----------------|
-  ~~~
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

@@ -43,25 +43,18 @@ namespace mimmo{
  * Ports available in Apply Class :
  *
  *    =========================================================
- * ~~~
-     |---------------------------------------------------------|
-     |                  Port Input                             |
-     |-------|-----------|-------------------|-----------------|
-     |PortID | PortType  | variable/function | dataType        |
-     |-------|-----------|-------------------|-----------------|
+ * 
+     | Port Input | | | |                                                              
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 11    | M_GDISPLS | setInput          | (VECARR3,FLOAT) |
      | 99    | M_GEOM    | setGeometry       | (SCALAR,MIMMO_) |
-     |-------|-----------|-------------------|-----------------|
-
-
-     |--------------------------------------------------------|
-     |                  Port Output                           |
-     |-------|----------|-------------------|-----------------|
-     |PortID | PortType | variable/function | dataType        |
-     |-------|----------|-------------------|-----------------|
-     | 99    | M_GEOM   | getGeoemtry       | (SCALAR,MIMMO_) |
-     |-------|----------|-------------------|-----------------|
-  ~~~
+ 
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |    
+     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+ 
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :

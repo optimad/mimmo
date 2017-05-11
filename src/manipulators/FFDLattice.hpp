@@ -43,38 +43,34 @@ namespace mimmo{
  * Ports available in FFDLattice Class :
  *
  *    =========================================================
- * ~~~
-     |--------------------------------------------------------------------------------|
-     |                               Port Input                                       |
-     |-------|------------------|-----------------------------------------------------|
-     |PortID | PortType         | variable/function             | DataType            |
-     |-------|------------------|-------------------------------|---------------------|
+
+ 
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 10    | M_DISPLS         | m_displ                       | (VECARR3, FLOAT)    |
      | 12    | M_FILTER         | m_filter                      | (VECTOR, FLOAT)     |
      | 40    | M_DEG            | setDegrees                    | (ARRAY3, INT)       |
      | 44    | M_NURBSWEIGHTS   | setNodalWeight                | (VECTOR, FLOAT)     |
      | 43    | M_NURBSCOORDTYPE | setCoordType                  | (ARRAY3, COORDT)    |
-     |--------------------------------------------------------------------------------|
 
-     |-------------------------------------------------------------------------------|
-     |                        Port Output                                            |
-     |-------|-------------------|-------------------|-------------------------------|
-     |PortID | PortType          | variable/function | DataType                      |
-     |-------|-------------------|-------------------|-------------------------------|
+
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS         | getDeformation    | (VECARR3, FLOAT)              |
      | 80    | M_PAIRVECFIELD    | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)   |
      | 40    | M_DEG             | getDegrees        | (ARRAY3, INT)                 |
      | 12    | M_FILTER          | getFilter         | (VECTOR, FLOAT)               |
      | 44    | M_NURBSWEIGHTS    | getWeights        | (VECTOR, FLOAT)               |
      | 43    | M_NURBSCOORDTYPE  | getCoordType      | (ARRAY3, COORDT)              |
-     |-------|-------------------|-------------------|-------------------------------|
 
-      Inherited from lattice
-     |-------------------------------------------------------------------------------------|
-     |                    Port Input                                                       |
-     |-------|-------------|---------------------------------------|-----------------------|
-     |PortID | PortType    | variable/function                     | DataType              |
-     |-------|-------------|---------------------------------------|-----------------------|
+     
+      Inherited from Lattice :
+
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 99    | M_GEOM      | m_geometry                            | (SCALAR, MIMMO_)      |
      | 24    | M_DIMENSION | setDimension                          | (ARRAY3, INT)         |
      | 25    | M_INFLIMITS | setInfLimits                          | (ARRAY3, FLOAT)       |
@@ -84,14 +80,10 @@ namespace mimmo{
      | 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | (SCALAR, SHAPET)      |
      | 27    | M_COPYSHAPE | setShape(const BasicShape  )          | (SCALAR, SHAPE_       |
      | 28    | M_SHAPEI    | setShape(int)                         | (SCALAR, INT)         |
-     |-------|-------------|---------------------------------------|-----------------------|
 
-
-     |---------------------------------------------------------------|
-     |               Port Output                                     |
-     |-------|-------------|-------------------|---------------------|
-     |PortID | PortType    | variable/function | DataType            |
-     |-------|-------------|-------------------|---------------------|
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 1     | M_GLOBAL    | getGlobalCoords   | (VECARR3, FLOAT)    |
      | 2     | M_LOCAL     | getLocalCoords    | (VECARR3, FLOAT)    |
      | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
@@ -101,8 +93,7 @@ namespace mimmo{
      | 24    | M_DIMENSION | getDimension      | (ARRAY3, INT)       |
      | 27    | M_COPYSHAPE | getShape          | (SCALAR, SHAPE_)    |
      | 99    | M_GEOM      | getGeometry       | (SCALAR, MIMMO_)    |
-     |-------|-------------|-------------------|---------------------|
-  ~~~
+
  *    =========================================================
  * \n
  *

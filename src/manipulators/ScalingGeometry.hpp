@@ -41,26 +41,19 @@ namespace mimmo{
  * Ports available in ScalingGeometry Class :
  *
  *    =========================================================
- * ~~~
-     |--------------------------------------------------------------|
-     |                 Port Input                                   |
-     |-------|----------|-------------------|-----------------------|
-     |PortID | PortType | variable/function | DataType              |
-     |-------|----------|-------------------|-----------------------|
+
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
      | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
-     |-------|----------|-------------------|-----------------------|
-
-
-     |---------------------------------------------------------------|
-     |            Port Output                                        |
-     |-------|-----------|-------------------|-----------------------|
-     |PortID | PortType  | variable/function | DataType              |
-     |-------|-----------|-------------------|-----------------------|
+ 
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
-     |-------|-----------|-------------------|-----------------------|
-  ~~~
+ 
  *    =========================================================
  *
  * \n
