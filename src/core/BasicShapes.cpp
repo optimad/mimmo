@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,26 +29,10 @@ using namespace bitpit;
 
 namespace mimmo{
 
-/*
- *	\date			03/01/2015
- *  \authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *
- *	\brief Abstract Interface class for Elementary Shape Representation
- *
- *	Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
- *  Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class 
- *  internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
- *	Class works with three reference systems:
- * 	1) Global Absolute SDR: is the external World reference system
- *  2) Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
- *  3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
- *   
+
+/*! 
+ * Basic Constructor 
  */
- 
-/*! Basic Constructor */
 BasicShape::BasicShape(){
 
 	m_shape = ShapeType::CUBE;
@@ -66,14 +50,17 @@ BasicShape::BasicShape(){
 /*! Basic Destructor */
 BasicShape::~BasicShape(){};
 
-/*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
+/*! 
+ * Set origin of your shape. The origin is meant as the baricenter of your shape in 
+ * absolute reference system.
  * \param[in] origin new origin point
  */
 void BasicShape::setOrigin(darray3E origin){
 	m_origin = origin;
 }
 
-/*! Set span of your shape, according to its local reference system 
+/*! 
+ * Set span of your shape, according to its local reference system 
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
@@ -83,7 +70,8 @@ void BasicShape::setSpan(double s0, double s1, double s2){
 	setScaling(s0,s1,s2);
 }
 
-/*! Set span of your shape, according to its local reference system
+/*! 
+ * Set span of your shape, according to its local reference system
  * \param[in] span coordinate span
  */
 void BasicShape::setSpan(darray3E span){
@@ -91,7 +79,8 @@ void BasicShape::setSpan(darray3E span){
 	setScaling(span[0],span[1],span[2]);
 }
 
-/*! Set inferior limits of your shape, in its local reference system.
+/*! 
+ * Set inferior limits of your shape, in its local reference system.
  *  The method is useful when drawing part of your original shape, as in the 
  *  case of cylinders or sphere portions, by manipulating the adimensional 
  *  curvilinear coordinate.
@@ -110,7 +99,8 @@ void BasicShape::setInfLimits(double orig, int dir){
 	}
 }
 
-/*! Set inferior limits your shape, in its local reference system.
+/*! 
+ * Set inferior limits your shape, in its local reference system.
  *  The method is useful when drawing part of your original shape, as in the 
  *  case of cylinders or sphere portions, by manipulating the adimensional 
  *  curvilinear coordinate.
@@ -123,7 +113,8 @@ void BasicShape::setInfLimits(darray3E val){
 	}
 }
 
-/*! Set new axis orientation of the local reference system
+/*! 
+ * Set new axis orientation of the local reference system
  * \param[in] axis0 first axis
  * \param[in] axis1 second axis
  * \param[in] axis2 third axis
@@ -144,7 +135,8 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 	m_sdr[2] = axis2;
 }
 
-/*! Set new axis orientation of the local reference system
+/*! 
+ * Set new axis orientation of the local reference system
  * \param[in] label 0,1,2 identify local x,y,z axis of the primitive shape
  * \param[in] axis new direction of selected local axis.
  */
@@ -167,7 +159,8 @@ void BasicShape::setRefSystem(int label, darray3E axis){
 	m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
 }
 
-/*! Set new axes orientation of the local reference system
+/*! 
+ * Set new axes orientation of the local reference system
  * \param[in] axes new direction of local axes.
  */
 void BasicShape::setRefSystem(dmatrix33E axes){
@@ -176,7 +169,8 @@ void BasicShape::setRefSystem(dmatrix33E axes){
 	}
 }
 
-/*! Set type to treat your shape coordinates. 
+/*! 
+ * Set type to treat your shape coordinates. 
  * \param[in] type CoordType enum.
  * \param[in] dir  0,1,2 int flag identifying coordinate
  */
@@ -184,15 +178,16 @@ void BasicShape::setCoordinateType(CoordType type, int dir){
 	m_typeCoord[dir] = type;
 }
 
-/*! Return current origin of your shape
- * \return origin
+/*!
+ * \return current origin of your shape
  */
 darray3E BasicShape::getOrigin(){
 	return(m_origin);
 }
 
-/*! Return current span of your shape
- * \return span
+/*! 
+ * \return current span of your shape
+ * 
  */
 darray3E BasicShape::getSpan(){
 	darray3E result = getLocalSpan();
@@ -203,54 +198,58 @@ darray3E BasicShape::getSpan(){
 	return(result);
 }
 
-/*! Return current inferior limits of your shape, in local coord reference system
- * \return coords origin
+/*! 
+ * \return current inferior limits of your shape, in local coord reference system
  */
 darray3E BasicShape::getInfLimits(){
 	return(m_infLimits);
 }
 
-/*! Return actual axis of global relative sdr
- * \return relative sdr
+/*! 
+ * \return actual axis of global relative sdr
  */
 dmatrix33E BasicShape::getRefSystem(){
 	return(m_sdr);
 }
 
-/*! Return type of your current shape coordinate "dir". See CoordType enum 
+/*! 
+ * \return type of your current shape coordinate "dir". See CoordType enum 
  * \param[in] dir   0,1,2 int flag identifying coordinate
  */
 CoordType BasicShape::getCoordinateType(int dir){
 	return(m_typeCoord[dir]);
 }
-/*! Get current type of shape instantiated
- * \return ShapeType enum
+/*!
+ * \return current type of shape instantiated
  */
 ShapeType BasicShape::getShapeType(){
 	return(m_shape);
 };
 
-/*! Get current type of shape instantiated. Const method overloading
- * \return const ShapeType enum
+/*! 
+ * \return current type of shape instantiated. Const method overloading
  */
 ShapeType BasicShape::getShapeType() const {
 	return(m_shape);
 };
 
-/*! Get current scaling w.r.t the local sdr elemental shape*/
+/*! 
+ * \return current scaling w.r.t the local sdr elemental shape
+ */
 darray3E BasicShape::getScaling(){
 	return(m_scaling);
 }
 
-/*! Return span of your elementary shape, in local coord system
- * \return span
+/*!
+ * \return span of your elementary shape, in local coord system
  */
 darray3E BasicShape::getLocalSpan(){
 	return(m_span);
 }
 
-/*! Given a geometry by MimmoObject class, return cell identifiers of those simplex inside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the bvTree 
+/*!
+ * Given a geometry by MimmoObject class, return cell identifiers of those simplex inside the volume of
+ * the BasicShape object. The methods implicitly use search algorithms based on the BvTree 
  * of the class MimmoObject.  
  * \param[in] geo target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
@@ -270,8 +269,9 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 	return(elements);
 };
 
-/*! Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the bvTree 
+/*! 
+ * Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
+ * the BasicShape object. The methods implicitly use search algorithms based on the BvTree 
  * of the class MimmoObject.
  * \param[in] geo target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
@@ -304,7 +304,8 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 
 
 
-/*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex inside the volume of
+/*! 
+ * Given a bitpit class bitpit::PatchKernel tessellation, return cell identifiers of those simplex inside the volume of
  * the BasicShape object. The method searches simplex one-by-one on the whole tesselation.
  * \param[in] tri target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
@@ -327,7 +328,8 @@ livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
  
 };
 
-/*! Given a bitpit class bitpit::Patch tessellation, return cell identifiers of those simplex outside the volume of
+/*!
+ * Given a bitpit class bitpit::PatchKernel tessellation, return cell identifiers of those simplex outside the volume of
  * the BasicShape object.The method searches simplex one-by-one on the whole tesselation. 
  * \param[in] tri target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
@@ -350,7 +352,8 @@ livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
 	
 };
 
-/*! Given a list of vertices of a point cloud, return indices of those vertices included into 
+/*! 
+ * Given a list of vertices of a point cloud, return indices of those vertices included into 
  * the volume of the object. The method searches vertex one-by-one on the whole point cloud.  
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices included in the volumetric patch
@@ -372,7 +375,8 @@ livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
 	return(result);
 };
 
-/*! Given a list of vertices of a point cloud, return indices of those vertices outside 
+/*! 
+ * Given a list of vertices of a point cloud, return indices of those vertices outside 
  * the volume of BasicShape object 
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices outside the volumetric patch
@@ -394,7 +398,8 @@ livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
 	
 };
 
-/*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points inside the volume of
+/*! 
+ * Given a bitpit class bitpit::PatchKernel point cloud, return identifiers of those points inside the volume of
  * the BasicShape object. The method force a one-by-one vertex search.   
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-ids of vertices included in the volumetric patch
@@ -416,7 +421,8 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 	return(result);
 };
 
-/*! Given a bitpit class bitpit::Patch point cloud, return identifiers of those points outside the volume of
+/*! 
+ * Given a bitpit class bitpit::PatchKernel point cloud, return identifiers of those points outside the volume of
  * the BasicShape object.The method force a one-by-one vertex search.     
  * \param[in] tri pointer to bitpit::PatchKernel object retaining the cloud point
  * \return list-by-ids of vertices outside the volumetric patch
@@ -439,8 +445,9 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 	
 };
 
-/*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
+/*! 
+ * Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
+ * the BasicShape object. The methods implicitly use search algorithms based on the bitpit::KdTree 
  * of the class MimmoObject.  
  * \param[in] geo target geometry
  * \return list-by-ids of vertices included in the volumetric patch
@@ -462,7 +469,7 @@ livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 };
 
 /*! Given a geometry by MimmoObject class, return vertex identifiers of those vertices outside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the kdTree 
+ * the BasicShape object. The methods implicitly use search algorithms based on the bitpit::KdTree 
  * of the class MimmoObject.
  * \param[in] geo target geometry
  * \return list-by-ids of vertices outside the volumetric patch
@@ -493,11 +500,9 @@ livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
 	return result;
 };
 
-
-
-/*! Return True if all vertices of a given simplex are included in the volume of the shape
+/*! 
+ * \return true if all vertices of a given simplex are included in the volume of the shape
  * \param[in] simplexVert 3 vertices of the given Triangle
- * \return boolean
  */   
 bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   
@@ -508,10 +513,10 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   return(check);
 };
 
-/*! Return True if if all vertices of a given simplex are included in the volume of the shape
+/*!
+ * \return true if if all vertices of a given simplex are included in the volume of the shape
  * \param[in] tri pointer to a Class_SurfTri tesselation 
  * \param[in] indexT triangle index of tri.
- * \return boolean
  */ 
 bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
 
@@ -525,9 +530,9 @@ bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
   return(check);
 };
 
-/*! Return True if the given point is included in the volume of the patch
+/*!
+ * \return true if the given point is included in the volume of the patch
  * \param[in] point given vertex
- * \return boolean
  */
 bool BasicShape::isPointIncluded(darray3E point){
 	
@@ -543,10 +548,10 @@ bool BasicShape::isPointIncluded(darray3E point){
 	return(check);  
 };
 
-/*! Return True if the given point is included in the volume of the patch
+/*! 
+ * \return true if the given point is included in the volume of the patch
  * \param[in] tri pointer to a bitpit::Patch tesselation / point cloud
  * \param[in] indexV id of a vertex belonging to tri;
- * \return boolean
  */
 bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 	
@@ -582,12 +587,11 @@ bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
 
 
 /*!
- * Return the nearest point belonging to an Axis Aligned Bounding Box, given a target vertex.
+ * \return the nearest point belonging to an Axis Aligned Bounding Box, given a target vertex.
  * If the target is internal to or on surface of the AABB, return the target itself.
  * \param[in]	point	target vertex
  * \param[in]	bMin	inferior extremal point of the AABB	
  * \param[in]	bMax	superior extremal point of the AABB
- * \return		the nearest point of AABB wrt to target vertex
  */
 darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax){
 	
@@ -743,10 +747,12 @@ void	BasicShape::searchBvTreeNotMatches(mimmo::BvTree & tree,  bitpit::PatchKern
 /*!
  * Given a 3D point, Check if the Axis Aligned Bounding box of your current shape intersects 
  * a given fundamental plane, x=a, y=b, z=c passing from such point. 
+ * 
  * Return unsigned integer 0,1,2 with the following meaning:
  * 	- 0 : no intersection , shape on the left/bottom/before the plane
  * 	- 1 : no intersection , shape on the right/top/after the plane
  * 	- 2 : intersection occurs
+ * 
  * \param[in] level current level of kdTree. 0-> xplane, 1-> yplane, 2->zplane, no other value are allowed.
  * \param[in] target 3D point
  * \return	 unsigned integer flag between 0 and 2
@@ -762,29 +768,21 @@ uint32_t		BasicShape::intersectShapePlane(int level, darray3E target) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Cube IMPLEMENTATION 
-/*
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *
- *	\brief Elementary Shape Representation of a Cube
- *
- *	Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.   
+
+/*! 
+ * Basic Constructor
  */
-   
-/*! Basic Constructor */
 Cube::Cube(){
 	m_shape=ShapeType::CUBE;
 	m_span = {{1.0, 1.0, 1.0}};
 };
 
- /*! Custom Constructor. Set shape origin and its span,
+ /*! 
+  * Custom Constructor. Set shape origin and its span,
   * ordered as width, height and depth. 
-   * \param[in] origin point origin in global reference system
-   * \param[in] span span in each shape local coordinate x,y,z;
-   */
+  * \param[in] origin point origin in global reference system
+  * \param[in] span span in each shape local coordinate x,y,z;
+  */
  Cube::Cube(darray3E &origin, darray3E & span): Cube(){
 	      
 	setOrigin(origin);
@@ -795,14 +793,16 @@ Cube::Cube(){
 Cube::~Cube(){};
 
 
-/*! Copy Constructor 
+/*! 
+ * Copy Constructor 
  * \param[in] other Cube object where copy from
  */
 Cube::Cube(const Cube & other){
 	*this = other;
 };
 
-/*! Copy Operator 
+/*! 
+ * Assignement Operator 
  * \param[in] other Cube object where copy from
  */
 Cube & Cube::operator=(const Cube & other){
@@ -818,7 +818,8 @@ Cube & Cube::operator=(const Cube & other){
 };
 
 
-/*! Transform point from local reference system of the shape,
+/*! 
+ * Transform point from local reference system of the shape,
  * to world reference system. 
  * \param[in] point target
  * \return transformed point
@@ -841,7 +842,9 @@ darray3E	Cube::toWorldCoord(darray3E  point){
 	work = work2 + m_origin;
 	return(work);
 };
-/*! Transform point from world coordinate system, to local reference system 
+
+/*!
+ * Transform point from world coordinate system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -869,12 +872,15 @@ darray3E	Cube::toLocalCoord(darray3E  point){
 	
 };
 
-/*! Return local origin of your primitive shape*/
+/*! 
+ * \return local origin of your primitive shape
+ */
 darray3E	Cube::getLocalOrigin(){
 	return(darray3E{-0.5,-0.5,-0.5});
 };
 
-/*! Transform point from unitary cube reference system, to local reference system 
+/*!
+ * Transform point from unitary cube reference system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -883,7 +889,8 @@ darray3E	Cube::basicToLocal(darray3E point){
 	return(point + getLocalOrigin());
 };
 
-/*! Transform point from local reference system of the shape,
+/*!
+ * Transform point from local reference system of the shape,
  * to unitary cube reference system. 
  * \param[in] point target
  * \return transformed point
@@ -892,8 +899,12 @@ darray3E	Cube::localToBasic(darray3E point){
 	return(point - getLocalOrigin());
 };
 
-/*! Check if your new span values fit your current shape set up
+/*! 
+ * Check if your new span values fit your current shape set up
  * and eventually return correct values.
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
  */
 void 		Cube::checkSpan(double &s0, double &s1, double &s2){
 			s0 = std::abs(s0);
@@ -901,8 +912,12 @@ void 		Cube::checkSpan(double &s0, double &s1, double &s2){
 			s2 = std::abs(s2);
 };
 
-/*! Check if your coords origin values fit your current shape set up
- * and eventually return correct values. Return true, if valid new value is set.
+/*! 
+ * Check if your inf limits coords values fit your current shape set up
+ * and eventually return correct values.
+ * \param[in] o0 inf limits origin array
+ * \param[in] dir coordinate index
+ * \return true, if valid new value is set.
  */
 bool 		Cube::checkInfLimits(double &o0, int &dir){
 	BITPIT_UNUSED(o0);
@@ -912,7 +927,12 @@ bool 		Cube::checkInfLimits(double &o0, int &dir){
 	return(false);
 };
 
-/*! set local span & scaling vectors of your object */
+/*! 
+ * Set local span & scaling vectors of your object
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
+ */
 void 		Cube::setScaling( double &s0, double &s1, double &s2){
 			m_span.fill(1.0);
 			m_scaling[0] = s0;
@@ -921,7 +941,8 @@ void 		Cube::setScaling( double &s0, double &s1, double &s2){
 };
 
 /*!
- * evaluate temporary AABBox of the shape and store value in m_bbox protected member
+ * Evaluate temporary Axis Aligned Bounding Box of the shape and 
+ * store value in m_bbox protected member.
  */
 void Cube::getTempBBox(){
 	
@@ -955,7 +976,7 @@ void Cube::getTempBBox(){
  * \param[in]	bMax	superior extremal point of the AABB	
  * \return true if intersects, false otherwise
  * 
- * WARNING NEED TO BE OPTIMIZED!
+ * TODO NEED TO BE OPTIMIZED!
  */
 bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	
@@ -993,26 +1014,18 @@ bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Cylinder IMPLEMENTATION 
-/*
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *
- *	\brief Elementary Shape Representation of a Cylinder or portion of it
- *
- *	Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
- */
 
-/*! Basic Constructor */
+/*! 
+ * Basic Constructor
+ */
 Cylinder::Cylinder(){
 	m_shape=ShapeType::CYLINDER;
 	m_span = {{1.0, 2*M_PI, 1.0}};
 	setCoordinateType(CoordType::PERIODIC, 1);
 };
 
-/*! Custom Constructor. Set shape origin and its dimensions, 
+/*! 
+ * Custom Constructor. Set shape origin and its dimensions, 
  * ordered as basis radius, azimuthal/tangential coordinate and height. 
  * \param[in] origin point origin in global reference system
  * \param[in] span  characteristic dimension of your cylinder;
@@ -1026,14 +1039,16 @@ Cylinder::Cylinder(darray3E &origin, darray3E & span): Cylinder(){
 /*! Basic Destructor */
 Cylinder::~Cylinder(){};
 
-/*! Copy Constructor 
+/*! 
+ * Copy Constructor 
  * \param[in] other Cylinder object where copy from
  */
 Cylinder::Cylinder(const Cylinder & other){
 	*this = other;
 };
 
-/*! Copy Operator 
+/*!
+ *Assignement Operator 
  * \param[in] other Cylinder object where copy from
  */
 Cylinder & Cylinder::operator=(const Cylinder & other){
@@ -1049,7 +1064,8 @@ Cylinder & Cylinder::operator=(const Cylinder & other){
 };
 
 
-/*! Transform point from local reference system of the shape,
+/*!
+ * Transform point from local reference system of the shape,
  * to world reference system. 
  * \param[in] point target
  * \return transformed point
@@ -1076,7 +1092,9 @@ darray3E	Cylinder::toWorldCoord(darray3E  point){
 	
 	return(work2);
 };
-/*! Transform point from world coordinate system, to local reference system 
+
+/*! 
+ * Transform point from world coordinate system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -1113,12 +1131,15 @@ darray3E	Cylinder::toLocalCoord(darray3E  point){
 	return(work2);
 };
 
-/*! Return local origin of your primitive shape*/
+/*! 
+ *\return local origin of your primitive shape
+ */
 darray3E	Cylinder::getLocalOrigin(){
 	return(darray3E{0.0,0.0,-0.5});
 };
 
-/*! Transform point from unitary cube reference system, to local reference system 
+/*!
+ * Transform point from unitary cube reference system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -1129,7 +1150,8 @@ darray3E	Cylinder::basicToLocal(darray3E  point){
 	return(point);
 };
 
-/*! Transform point from local reference system of the shape,
+/*!
+ * Transform point from local reference system of the shape,
  * to unitary cube reference system.
  * \param[in] point target
  * \return transformed point
@@ -1140,8 +1162,12 @@ darray3E	Cylinder::localToBasic(darray3E  point){
 	return(point);
 };
 
-/*! Check if your new span values fit your current shape set up
+/*!
+ * Check if your new span values fit your current shape set up
  * and eventually return correct values.
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
  */
 void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
 	s0 = std::abs(s0);
@@ -1154,8 +1180,12 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
 	if(!(s1 < thetalim)){setCoordinateType(CoordType::PERIODIC,1);}
 };
 
-/*! Check if your coords origin values fit your current shape set up
- * and eventually return correct values. Return true, if valid new value is set.
+/*!
+ * Check if your inf limits origin values fit your current shape set up
+ * and eventually return correct values. 
+ * \param[in] orig inf limits origin
+ * \param[in] dir coordinate index to check
+ * \return true, if valid new value is set.
  */
 bool 	Cylinder::checkInfLimits(double &orig, int &dir){
 	double thetalim = 8.0* std::atan(1.0);
@@ -1171,7 +1201,12 @@ bool 	Cylinder::checkInfLimits(double &orig, int &dir){
 	return(check);
 };
 
-/*! set span and scaling vectors of your object */
+/*! 
+ * Set span and scaling vectors of your object
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
+ */
 void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 		m_span.fill(1.0);
 		m_scaling.fill(1.0);
@@ -1182,7 +1217,8 @@ void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
 
 
 /*!
- * evaluate temporary AABBox of the shape and store value in m_bbox protected member
+ * Evaluate temporary Axis Aligned Bounding Box of the shape and 
+ * store value in m_bbox protected member.
  */
 void Cylinder::getTempBBox(){
 	
@@ -1219,7 +1255,7 @@ void Cylinder::getTempBBox(){
  * \param[in]	bMax	superior extremal point of the AABB	
  * \return true if intersects, false otherwise
  * 
- * WARNING NEED TO BE OPTIMIZED!
+ * TODO NEED TO BE OPTIMIZED!
  */
 bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 	
@@ -1269,19 +1305,10 @@ bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Sphere IMPLEMENTATION 
-/*
- *	\date			03/01/2015
- *	\authors		Edoardo Lombardi
- *	\authors		Arpa Rocco
- *	\copyright		Copyright 2015 Optimad engineering srl. All rights reserved.
- *	\par			License:\n
- *
- *	\brief Elementary Shape Representation of a sphere or portion of it
- *
- *	Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
- */
 
-/*! Basic Constructor */
+/*! 
+ * Basic Constructor
+ */
 Sphere::Sphere(){
 	m_shape=ShapeType::SPHERE;
 	m_span = {{1.0, 2*M_PI, M_PI}};
@@ -1289,7 +1316,8 @@ Sphere::Sphere(){
 	setCoordinateType(CoordType::CLAMPED, 2);
 };
 
-/*! Custom Constructor. Set shape originand its dimensions, 
+/*! 
+ * Custom Constructor. Set shape originand its dimensions, 
  * ordered as overall radius, azimuthal/tangential coordinate, polar coordinate. 
  * \param[in] origin point origin in global reference system
  * \param[in] span  characteristic dimension of your sphere/ portion of;
@@ -1303,14 +1331,16 @@ Sphere::Sphere(darray3E &origin, darray3E & span): Sphere(){
 /*! Basic Destructor */
 Sphere::~Sphere(){};
 
-/*! Copy Constructor 
+/*! 
+ * Copy Constructor 
  * \param[in] other Sphere object where copy from
  */
 Sphere::Sphere(const Sphere & other){
 	*this = other;
 };
 
-/*! Copy Operator 
+/*! 
+ * Assignement Operator 
  * \param[in] other Sphere object where copy from
  */
 Sphere & Sphere::operator=(const Sphere & other){
@@ -1325,7 +1355,8 @@ Sphere & Sphere::operator=(const Sphere & other){
 	return(*this);
 };
 
-/*! Transform point from local reference system of the shape,
+/*! 
+ * Transform point from local reference system of the shape,
  * to world reference system. 
  * \param[in] point target
  * \return transformed point
@@ -1351,7 +1382,9 @@ darray3E	Sphere::toWorldCoord(darray3E  point){
 	work2 = work + m_origin;
 	return(work2);
 };
-/*! Transform point from world coordinate system, to local reference system 
+
+/*!
+ * Transform point from world coordinate system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -1393,12 +1426,15 @@ darray3E	Sphere::toLocalCoord(darray3E  point){
 	return(work2);
 };
 
-/*! Return local origin of your primitive shape*/
+/*! 
+ * \return local origin of your primitive shape
+ */
 darray3E	Sphere::getLocalOrigin(){
 	return(darray3E{0.0,0.0,0.0});
 };
 
-/*! Transform point from unitary cube reference system, to local reference system 
+/*! 
+ * Transform point from unitary cube reference system, to local reference system 
  * of the shape.
  * \param[in] point target
  * \return transformed point
@@ -1409,7 +1445,8 @@ darray3E	Sphere::basicToLocal(darray3E  point){
 	return(point);
 };
 
-/*! Transform point from local reference system of the shape,
+/*! 
+ * Transform point from local reference system of the shape,
  * to unitary cube reference system.
  * \param[in] point target
  * \return transformed point
@@ -1420,8 +1457,12 @@ darray3E	Sphere::localToBasic(darray3E  point){
 	return(point);
 };
 
-/*! Check if your new span values fit your current shape set up
+/*! 
+ * Check if your new span values fit your current shape set up
  * and eventually return correct values.
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
  */
 void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	s0 = std::abs(s0);
@@ -1439,8 +1480,13 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	
 };
 
-/*! Check if your coords origin values fit your current shape set up
+/*! 
+ * Check if inf limits origin values fit your current shape set up
  * and eventually return correct values.
+ * \param[in] orig  inf limits origin
+ * \param[in] dir   coordinate index to check
+ * \return true, if valid new value is set
+ * 
  */
 bool 		Sphere::checkInfLimits(double &orig, int &dir){
 	
@@ -1462,7 +1508,12 @@ bool 		Sphere::checkInfLimits(double &orig, int &dir){
 	return(check);
 };
 
-/*! set scaling vector of your object */
+/*! 
+ * Set scaling vector of your object 
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
+ */
 void 		Sphere::setScaling(double &s0, double &s1, double &s2){
 	m_span.fill(1.0);
 	m_scaling.fill(1.0);
@@ -1473,7 +1524,8 @@ void 		Sphere::setScaling(double &s0, double &s1, double &s2){
 };
 
 /*!
- * evaluate temporary AABBox of the shape and store value in m_bbox protected member
+ * Evaluate temporary Axis Aligned Bounding Box of the shape and 
+ * store value in m_bbox protected member.
  */
 void Sphere::getTempBBox(){
 	

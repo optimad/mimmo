@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -34,38 +34,44 @@
 namespace mimmo{
 
 /*!
- * @enum ShapeType
- * @brief Identifies the type of elemental shape supported by BasicShape class
+ *\enum ShapeType
+ *\brief Identifies the type of elemental shape supported by BasicShape class
+ *\ingroup shapeEnum 
  */
 enum class ShapeType{
-	CUBE /**< cubic or generic voxel-shaped objects */,
-	CYLINDER /**< cylindric objects */, 
-	SPHERE /**< spherical objects */
-	
-};	
+    CUBE        /**<Cubic or generic voxel-shaped objects.*/,
+    CYLINDER    /**<Cylindrical objects.                  */,
+    SPHERE     /**<Spherical objects.                     */    
+};
 
 /*!
- * @enum CoordType
- * @brief Specify type of conditions to distribute NURBS node in a given coordinate of the shape
+ *\enum CoordType
+ *
+ * \brief Specify type of conditions to distribute NURBS node in a given coordinate of the shape
+ * \ingroup shapeEnum
  */
 enum class CoordType{
-	UNCLAMPED /**< free clamping conditions */, 
-	CLAMPED /**< force nurbs to pass on the extremal point of the interval (clamping) */, 
-	PERIODIC /**< provide periodic condition on the interval extrema */, 
-	SYMMETRIC /**< provide simmetry condition on the interval extrema */
+    
+    UNCLAMPED/**<free clamping conditions*/,
+    CLAMPED/**<force nurbs to pass on the extremal point of the interval (clamping)*/,
+    PERIODIC/**<provide periodic condition on the interval extrema*/,
+    SYMMETRIC/**<provide simmetry condition on the interval extrema*/
 }; 
+
 
 /*!
  *\class BasicShape
+ *\ingroup core 
  *\brief Abstract Interface class for Elementary Shape Representation
  *
  * Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
  * Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class 
  * internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
+ * 
  * Class works with three reference systems:
- * 1) Global Absolute SDR: is the external World reference system
- * 2) Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
- * 3) basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
+ * + Global Absolute SDR: is the external World reference system
+ * + Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
+ * + basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
  *   
  */
 class BasicShape {
@@ -132,15 +138,34 @@ public:
     bool		isPointIncluded(darray3E);
 	bool		isPointIncluded(bitpit::PatchKernel * , long int indexV);
 
+    /*!
+     * Pure virtual method to get if the current shape an a given Axis Aligned Bounding Box intersects
+     * \param[in] bMin min point of AABB
+     * \param[in] bMax max point of AABB
+     */
 	virtual bool	intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
 	bool		containShapeAABBox(darray3E bMin, darray3E bMax);
 	
 
-	/*! pure virtual method to convert from Local to World Coordinates*/
+	/*! 
+     * Pure virtual method to convert from Local to World Coordinates
+     * \param[in] point 3D point in local shape coordinates
+     * \return point in world global coordinate
+     */
 	virtual	darray3E	toWorldCoord(darray3E  point)=0;
-	/*! pure virtual method to convert from World to Local Coordinates*/
+	
+    /*! 
+     * Pure virtual method to convert from World to Local Coordinates
+     * \param[in] point 3D point in world global coordinates
+     * \return point in local world coordinate
+     * 
+     */
 	virtual	darray3E	toLocalCoord(darray3E  point)=0;
-	/*! pure virtual method to get local Coordinate inferior limits of primitive shape*/
+    
+	/*! 
+     * Pure virtual method to get local Coordinate inferior limits of primitive shape
+     * \return local origin
+     */
 	virtual darray3E	getLocalOrigin()=0;  
 
 protected:
@@ -148,19 +173,60 @@ protected:
 	darray3E	checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 	
 private:	
-	virtual	darray3E	basicToLocal(darray3E  point)=0;
-	virtual	darray3E	localToBasic(darray3E  point)=0;
-	virtual void 		checkSpan(double &, double &, double &)=0;
-	virtual bool 		checkInfLimits(double &, int &dir)=0;
-	virtual void		setScaling(double &, double &, double &)=0;
+    /*!
+     * Pure Virtual method to transform a 3D point from basic elemental shape coordinate in local ones
+     * \param[in] point mapped in basic elemental shape coordinates
+     * \return point in local reference system coordinates
+     */
+    virtual	darray3E	basicToLocal(darray3E  point)=0;
+    
+    /*!
+     * Pure Virtual method to transform a 3D point from local shape coordinate in basic elemental ones
+     * \param[in] point mapped in local shape coordinates
+     * \return point in basic elemental shape reference system coordinate
+     */
+    virtual	darray3E	localToBasic(darray3E  point)=0;
+    
+    /*! 
+     * Pure virtual method to check if your new span values fit your current shape set up
+     * and eventually return correct values.
+     * \param[in] s0 first span dimension
+     * \param[in] s1 second span dimension
+     * \param[in] s2 third span dimension
+     */
+	virtual void 		checkSpan(double &s0, double &s1, double &s2)=0;
+	
+    /*! 
+     * Pure virtual method to check if your inf limits origin values fit your current shape set up
+     * and eventually return correct values.
+     * \param[in] orig inf limits origin array
+     * \param[in] dir coordinate index
+     * \return true, if valid new value is set.
+     */
+    virtual bool 		checkInfLimits(double & orig, int &dir)=0;
+    
+    /*! 
+     * Pure virtual method to set local span & scaling vectors of your shape
+     * \param[in] s0 first span dimension
+     * \param[in] s1 second span dimension
+     * \param[in] s2 third span dimension
+     */
+	virtual void		setScaling(double &s0, double &s1, double &s2)=0;
+    
 	void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
 	void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
 	void				searchBvTreeNotMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);	
-	virtual void		getTempBBox()=0;
+	
+    /*!
+     * Pure virtual method to get the Axis Aligned Bounding Box of the current shape
+     * and return it in m_bbox member.
+     */
+    virtual void		getTempBBox()=0;
 };
 
 /*!
  * \class Cube
+ * \ingroup core
  * \brief Elementary Shape Representation of a Cube
  *
  * Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.   
@@ -195,11 +261,11 @@ private:
 };
 
 /*!
- *
  *\class Cylinder 
+ *\ingroup core
  *\brief Elementary Shape Representation of a Cylinder or portion of it
  *
- *Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
  */
 
 class Cylinder: public BasicShape {
@@ -232,9 +298,10 @@ private:
 
 /*!
  *\class Sphere
+ *\ingroup core
  *\brief Elementary Shape Representation of a Sphere or portion of it
  *
- *Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
  */
 
 class Sphere: public BasicShape {
