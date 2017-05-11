@@ -28,7 +28,7 @@ using namespace std;
 
 
 /*!
-    Output stream operator for dvector1D
+    Output stream operator for dvector1D 
     \param[in] buffer is the output stream
     \param[in] var is the element to be streamed
     \result Returns the same output stream received in input.
@@ -241,7 +241,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::ShapeTyp
 }
 
 /*!
-*	Output stream operator for std::array<mimmo::CoordType,3> enum
+*	Output stream operator for std::array\<mimmo::CoordType,3\> enum
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -256,7 +256,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::arr
 
 
 /*!
-*	Input stream operator for std::array<mimmo::CoordType,3> enum
+*	Input stream operator for std::array\<mimmo::CoordType,3\> enum
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -270,9 +270,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<mimm
 }
 
 /*!
-*	Input stream operator for std::pair<MimmoObject*, dvecarr3E *> 
+*	Input stream operator for std::pair\<MimmoObject*, dvecarr3E *\> 
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element){
@@ -285,9 +285,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo
 };
 
 /*!
-*	Output stream operator for std::pair<MimmoObject*, dvecarr3E *>
+*	Output stream operator for std::pair\<MimmoObject*, dvecarr3E *\>
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<mimmo::MimmoObject*, dvecarr3E *>& element){
@@ -296,9 +296,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 };
 
 /*!
-*	Input stream operator for std::pair<MimmoObject*, dvector1D *> 
+*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\> 
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo::MimmoObject*, dvector1D *>& element){
@@ -310,9 +310,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo
 };
 
 /*!
-*	Input stream operator for std::pair<MimmoObject*, dvector1D *> 
+*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\> 
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<mimmo::MimmoObject*, dvector1D *>& element){
@@ -322,7 +322,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 
 
 /*!
-* Input stream operator for std::vector<mimmo::TrackingPointer * >
+* Input stream operator for std::vector\<mimmo::TrackingPointer * \>
 * \param[in] buffer is the input stream
 * \param[in] var is the element to be streamed
 * \result Returns the same input stream received in input.
@@ -339,7 +339,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mim
 }
 
 /*!
-* Output stream operator for std::vector<mimmo::TrackingPointer * >
+* Output stream operator for std::vector\<mimmo::TrackingPointer * \>
 * \param[in] buffer is the output stream
 * \param[in] var is the element to be streamed
 * \result Returns the same output stream received in input.
@@ -355,9 +355,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
 }
 
 /*!
-*	Input stream operator for std::pair<BaseManipulation*, double> 
+*	Input stream operator for std::pair\<BaseManipulation*, double\> 
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo::BaseManipulation*, double>& element){
@@ -369,9 +369,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo
 };
 
 /*!
-*	Input stream operator for std::pair<BaseManipulation*, double>
+*	Input stream operator for std::pair\<BaseManipulation*, double\>
 *	\param[in] buffer is the input stream
-*	\param[in] var is the element to be streamed
+*	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<mimmo::BaseManipulation*, double>& element){
@@ -460,7 +460,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivecarr2E &var)
 }
 
 /*!
-*	Output stream operator for std::vector<dvecarr2E>
+*	Output stream operator for std::vector\<dvecarr2E\>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -485,7 +485,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
 
 
 /*!
-*	Input stream operator for std::vector<dvecarr2E>
+*	Input stream operator for std::vector\<dvecarr2E\>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -509,7 +509,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
 
 
 /*!
-*	Input stream operator for std::unordered_map<std::string,std::pair<int, MimmoObject*> >
+*	Input stream operator for std::unordered_map\<std::string,std::pair\<int, MimmoObject*\> \>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -529,7 +529,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 };
 
 /*!
-*	Output stream operator for std::unordered_map<std::string, std::pair<int, MimmoObject*>>
+*	Output stream operator for std::unordered_map\<std::string, std::pair\<int, MimmoObject*\>\>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -545,7 +545,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 };
 
 /*!
-*	Input stream operator for std::unordered_map<long,std::pair<int,long> >
+*	Input stream operator for std::unordered_map\<long,std::pair\<int,long\> \>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -565,7 +565,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 };
 
 /*!
-*	Output stream operator for std::unordered_map<long,std::pair<int,long> >
+*	Output stream operator for std::unordered_map\<long,std::pair\<int,long\> \>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -583,7 +583,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 
 
 /*!
-*	Input stream operator for std::vector<MimmoObject *>
+*	Input stream operator for std::vector\<MimmoObject *\>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -600,7 +600,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<mimm
 };
 
 /*!
-*	Output stream operator for std::vector<MimmoObject *>
+*	Output stream operator for std::vector\<MimmoObject *\>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -647,7 +647,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::Fi
 };
 
 /*!
-*	Input stream operator for std::vector<mimmo::FileDataInfo>
+*	Input stream operator for std::vector\<mimmo::FileDataInfo\>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -664,7 +664,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mim
 };
 
 /*!
-*	Output stream operator for std::vector<mimmo::FileDataInfo>
+*	Output stream operator for std::vector\<mimmo::FileDataInfo\>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -679,7 +679,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 };
 
 /*!
-*	Input stream operator for std::unordered_map< MimmoObject*, dvector1D* >
+*	Input stream operator for std::unordered_map\< MimmoObject*, dvector1D* \>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -698,7 +698,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 };
 
 /*!
-*	Output stream operator for std::unordered_map< MimmoObject*, dvector1D* >
+*	Output stream operator for std::unordered_map\< MimmoObject*, dvector1D* \>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -713,7 +713,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 };
 
 /*!
-*	Input stream operator for std::unordered_map< MimmoObject*, dvecarr3E* >
+*	Input stream operator for std::unordered_map\< MimmoObject*, dvecarr3E* \>
 *	\param[in] buffer is the input stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -732,7 +732,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 };
 
 /*!
-*	Output stream operator for std::unordered_map< MimmoObject*, dvecarr3E* >
+*	Output stream operator for std::unordered_map\< MimmoObject*, dvecarr3E* \>
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
@@ -747,9 +747,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 };
 
 /*!
-* Input stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >
+* Input stream operator for std::vector\< std::pair\<mimmo::MimmoObject*, dvector1D *\> \>
 * \param[in] buffer is the input stream
-* \param[in] var is the element to be streamed
+* \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
@@ -764,9 +764,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 };
 
 /*!
-* Output stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >
+* Output stream operator for std::vector\< std::pair\<mimmo::MimmoObject*, dvector1D *\> \>
 * \param[in] buffer is the output stream
-* \param[in] var is the element to be streamed
+* \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
@@ -778,9 +778,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 };
 
 /*!
-* Input stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >
+* Input stream operator for std::vector\< std::pair\<mimmo::MimmoObject*, dvecarr3E *\> \>
 * \param[in] buffer is the input stream
-* \param[in] var is the element to be streamed
+* \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
@@ -795,9 +795,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 };
 
 /*!
-* Output stream operator for std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >
+* Output stream operator for std::vector\< std::pair\<mimmo::MimmoObject*, dvecarr3E *\> \>
 * \param[in] buffer is the output stream
-* \param[in] var is the element to be streamed
+* \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
@@ -808,39 +808,18 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
     return buffer;
 };
 
-///*!
-// *	Input stream operator for std::string
-// *	\param[in] buffer is the input stream
-// *	\param[in] var is the element to be streamed
-// *	\result Returns the same input stream received in input.
-// */
-//bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::string *  var){
-    
-//	buffer>>var;
-//	return buffer;
-//};
-
-///*!
-// *	Output stream operator for std::string
-// *	\param[in] buffer is the output stream
-// *	\param[in] var is the element to be streamed
-// *	\result Returns the same output stream received in input.
-// */
-//bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::string * var){
-//	buffer<<var;
-//	return buffer;
-//};
-
-
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 //==============================================================//
 namespace mimmo{
-/*!Default constructor of DataType
-*/
+
+/*!
+ * Default constructor of DataType
+ */
 DataType::DataType(){};
 
-/*!Custom constructor of DataType.
+/*!
+ * Custom constructor of DataType.
 * \param[in] conType TAG of type of container.
 * \param[in] dataType TAG of type of data.
 */
@@ -850,28 +829,32 @@ DataType::DataType(containerTAG conType, dataTAG dataType){
     return;
 };
 
-/*!Default destructor of DataType
-*/
+/*!
+ * Default destructor of DataType
+ */
 DataType::~DataType(){};
 
-/*!Copy constructor of DataType.
-*/
+/*!
+ * Copy constructor of DataType.
+ */
 DataType::DataType(const DataType & other){
     m_conType 	= other.m_conType;
     m_dataType	= other.m_dataType;
     return;
 };
 
-/*!Assignement operator of DataType.
-*/
+/*!
+ * Assignement operator of DataType.
+ */
 DataType & DataType::operator=(const DataType & other){
     m_conType 	= other.m_conType;
     m_dataType	= other.m_dataType;
     return (*this);
 };
 
-/*!Compare operator of DataType.
-*/
+/*!
+ * Compare operator of DataType.
+ */
 bool DataType::operator==(const DataType & other){
     bool check = true;
     check = check && (m_conType == other.m_conType);
@@ -881,21 +864,24 @@ bool DataType::operator==(const DataType & other){
 
 
 //==============================================================//
-// BASE INOUT CLASS	IMPLEMENTATION								//
+// BASE INOUT CLASS	IMPLEMENTATION                              //
 //==============================================================//
 
-/*!Default constructor of PortOut
-*/
+/*!
+ * Default constructor of PortOut
+ */
 PortOut::PortOut(){
     m_objLink.clear();
 };
 
-/*!Default destructor of PortOut
-*/
+/*!
+ * Default destructor of PortOut
+ */
 PortOut::~PortOut(){};
 
-/*!Copy constructor of PortOut.
-*/
+/*!
+ * Copy constructor of PortOut.
+ */
 PortOut::PortOut(const PortOut & other){
     m_objLink 	= other.m_objLink;
     m_obuffer	= other.m_obuffer;
@@ -904,8 +890,9 @@ PortOut::PortOut(const PortOut & other){
     return;
 };
 
-/*!Assignement operator of PortOut.
-*/
+/*!
+ * Assignement operator of PortOut.
+ */
 PortOut & PortOut::operator=(const PortOut & other){
     m_objLink 	= other.m_objLink;
     m_obuffer	= other.m_obuffer;
@@ -914,8 +901,9 @@ PortOut & PortOut::operator=(const PortOut & other){
     return (*this);
 };
 
-/*!Compare operator of PortOut.
-*/
+/*!
+ * Compare operator of PortOut.
+ */
 bool PortOut::operator==(const PortOut & other){
     bool check = true;
     check = check && (m_portLink == other.m_portLink);
@@ -924,15 +912,17 @@ bool PortOut::operator==(const PortOut & other){
     return(check);
 };
 
-/*!It gets the objects linked by this port.
-* \return Vector of pointer to linked objects.
+/*!
+ * It gets the objects linked by this port.
+* \return vector of pointer to linked objects.
 */
 std::vector<mimmo::BaseManipulation*>
 PortOut::getLink(){
     return(m_objLink);
 }
 
-/*!It gets the input port ID of the objects linked by this port.
+/*!
+ * It gets the input port ID of the objects linked by this port.
 * \return Vector of PortID.
 */
 std::vector<PortID>
@@ -940,7 +930,8 @@ PortOut::getPortLink(){
     return(m_portLink);
 }
 
-/*!It gets the TAG of data type communicated by this port.
+/*!
+ * It gets the TAG of data type communicated by this port.
 * \return TAG of datat type communicated.
 */
 DataType
@@ -948,23 +939,26 @@ PortOut::getDataType(){
     return(m_datatype);
 }
 
-/*!It release the memory occupied by the output buffer.
-*/
+/*!
+ * It releases the memory occupied by the output buffer.
+ */
 void
 mimmo::PortOut::cleanBuffer(){
     m_obuffer.setCapacity(0);
     m_obuffer.eof();
 }
 
-/*!It cleans the links to objects and the related port ID vector.
-*/
+/*!
+ * It clears the links to objects and the related ports.
+ */
 void
 mimmo::PortOut::clear(){
     m_objLink.clear();
     m_portLink.clear();
 }
 
-/*!It removes the link to an object and the related port ID.
+/*!
+ * It removes the link to an object and the related port ID.
 * \param[in] j Index of the linked object in the links vector of this port.
 */
 void
@@ -975,9 +969,11 @@ mimmo::PortOut::clear(int j){
     }
 }
 
-/*! Execution of the pin.
-* All the pins of an object are called in execute of the owner after its own execution.
-*/
+/*! 
+ * Execution of the PIN.
+ * All the pins are called in execution of the sending owner after its own execution.
+ * Reading stage of pin linked receivers is automatically performed within this execution.
+ */
 void
 mimmo::PortOut::exec(){
     if (m_objLink.size() > 0){
@@ -994,15 +990,18 @@ mimmo::PortOut::exec(){
     }
 };
 
-/*!Default constructor of PortIn
-*/
+/*!
+ * Default constructor of PortIn
+ */
 PortIn::PortIn(){};
 
-/*!Default destructor of PortIn
-*/
+/*!
+ * Default destructor of PortIn
+ */
 PortIn::~PortIn(){};
 
-/*!Copy constructor of PortIn.
+/*!
+ * Copy constructor of PortIn.
 */
 PortIn::PortIn(const PortIn & other){
     m_objLink 	= other.m_objLink;
@@ -1011,8 +1010,9 @@ PortIn::PortIn(const PortIn & other){
     return;
 };
 
-/*!Assignement operator of PortIn.
-*/
+/*!
+ * Assignement operator of PortIn.
+ */
 PortIn & PortIn::operator=(const PortIn & other){
     m_objLink 	= other.m_objLink;
     m_ibuffer	= other.m_ibuffer;
@@ -1020,8 +1020,9 @@ PortIn & PortIn::operator=(const PortIn & other){
     return (*this);
 };
 
-/*!Compare operator of PortIn.
-*/
+/*!
+ * Compare operator of PortIn.
+ */
 bool PortIn::operator==(const PortIn & other){
     bool check = true;
     check = check && (m_objLink == other.m_objLink);
@@ -1029,32 +1030,36 @@ bool PortIn::operator==(const PortIn & other){
     return(check);
 };
 
-/*!It gets the linked object by this port.
-* \return Pointer to linked object.
-*/
+/*!
+ * It gets the linked object by this port.
+ * \return Pointer to linked object.
+ */
 std::vector<mimmo::BaseManipulation*>
 PortIn::getLink(){
     return(m_objLink);
 }
 
-/*!It gets the TAG of data type communicated by this port.
-* \return TAG of datat type communicated.
-*/
+/*!
+ * It gets the TAG of data type communicated by this port.
+ * \return TAG of datat type communicated.
+ */
 DataType
 PortIn::getDataType(){
     return(m_datatype);
 }
 
-/*!It clears the linked object by this port.
-*/
+/*!
+ * It clears all linked objects into this port.
+ */
 void
 mimmo::PortIn::clear(){
     m_objLink.clear();
 }
 
-/*!It removes the link to an object and the related port ID.
-* \param[in] j Index of the linked object in the links vector of this port.
-*/
+/*!
+ * It removes the link to an object and the related port ID.
+ * \param[in] j Index of the linked object in the links vector of this port.
+ */
 void
 mimmo::PortIn::clear(int j){
     if (j < (int)m_objLink.size() && j >= 0){
@@ -1063,8 +1068,9 @@ mimmo::PortIn::clear(int j){
 }
 
 
-/*!It release the memory occupied by the input buffer.
-*/
+/*!
+ * It releases the memory occupied by the input buffer.
+ */
 void
 mimmo::PortIn::cleanBuffer(){
     m_ibuffer.setCapacity(0);

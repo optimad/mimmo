@@ -28,16 +28,19 @@
 
 #include <iostream>
 namespace mimmo {
-/*!Default constructor of PortOutT
-*/
+    
+/*!
+ * Default constructor of PortOutT
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(){
     m_var_ = NULL;
 };
 
-/*!Custom constructor of PortOutT
-* \param[in] var_ Pointer to variable to be streamed.
-*/
+/*!
+ * Custom constructor of PortOutT
+ * \param[in] var_ Pointer to variable to be streamed.
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(T *var_){
     m_obj_ 		= NULL;
@@ -45,10 +48,11 @@ PortOutT<T,O>::PortOutT(T *var_){
     m_getVar_ 	= NULL;
 };
 
-/*!Custom constructor of PortOutT
-* \param[in] var_ Pointer to variable to be streamed.
-* \param[in] datatype TAG of datat type communicated.
-*/
+/*!
+ * Custom constructor of PortOutT
+ * \param[in] var_ Pointer to variable to be streamed. 
+ * \param[in] datatype TAG of datat type communicated.
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(T *var_, DataType datatype){
     m_obj_ 		= NULL;
@@ -57,10 +61,11 @@ PortOutT<T,O>::PortOutT(T *var_, DataType datatype){
     m_datatype	= datatype;
 };
 
-/*!Custom constructor of PortOutT
-* \param[in] obj_ Pointer to object owner of the port.
-* \param[in] getVar_ Pointer to function that gets the data to be streamed.
-*/
+/*!
+ * Custom constructor of PortOutT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] getVar_ Pointer to function that gets the data to be streamed.
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
     m_obj_ 		= obj_;
@@ -68,11 +73,12 @@ PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
     m_var_ 		= NULL;
 };
 
-/*!Custom constructor of PortOutT
-* \param[in] obj_ Pointer to object owner of the port.
-* \param[in] getVar_ Pointer to function that gets the data to be streamed.
-* \param[in] datatype TAG of datat type communicated.
-*/
+/*!
+ * Custom constructor of PortOutT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] getVar_ Pointer to function that gets the data to be streamed.
+ * \param[in] datatype TAG of datat type communicated.
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype){
     m_obj_ 		= obj_;
@@ -82,8 +88,9 @@ PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype){
 };
 
 
-/*!Default destructor of PortOutT
-*/
+/*!
+ * Default destructor of PortOutT
+ */
 template<typename T, typename O>
 PortOutT<T,O>::~PortOutT(){
     m_obj_ 		= NULL;
@@ -91,15 +98,17 @@ PortOutT<T,O>::~PortOutT(){
     m_getVar_ 	= NULL;
 };
 
-/*!Copy constructor of PortOutT.
-*/
+/*!
+ * Copy constructor of PortOutT.
+ */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(const PortOutT<T,O> & other){
     *this = other;
 };
 
-/*!Assignement operator of PortOutT.
-*/
+/*!
+ * Assignement operator of PortOutT.
+ */
 template<typename T, typename O>
 PortOutT<T,O> &  PortOutT<T,O>::operator=(const PortOutT<T,O> & other){
     m_obj_ 		= other.m_obj_;
@@ -108,8 +117,9 @@ PortOutT<T,O> &  PortOutT<T,O>::operator=(const PortOutT<T,O> & other){
     return (*this);
 };
 
-/*!Compare operator of PortOutT.
-*/
+/*!
+ * Compare operator of PortOutT.
+ */
 template<typename T, typename O>
 bool  PortOutT<T,O>::operator==(const PortOutT<T,O> & other){
     bool equal = true;
@@ -140,8 +150,9 @@ PortOutT<T,O>::writeBuffer(){
 
 
 
-/*!Default constructor of PortInT
-*/
+/*!
+ * Default constructor of PortInT
+ */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(){
     m_obj_ 		= NULL;
@@ -149,9 +160,10 @@ PortInT<T, O>::PortInT(){
     m_setVar_ 	= NULL;
 };
 
-/*!Custom constructor of PortInT
-* \param[in] var_ Pointer to variable to be streamed.
-*/
+/*!
+ * Custom constructor of PortInT
+ * \param[in] var_ Pointer to variable to be streamed.
+ */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(T *var_){
     m_obj_ 		= NULL;
@@ -159,10 +171,11 @@ PortInT<T, O>::PortInT(T *var_){
     m_setVar_ 	= NULL;
 };
 
-/*!Custom constructor of PortInT
-* \param[in] var_ Pointer to variable to be streamed.
-* \param[in] datatype TAG of datat type communicated.
-*/
+/*!
+ * Custom constructor of PortInT
+ * \param[in] var_ Pointer to variable to be streamed.
+ * \param[in] datatype TAG of datat type communicated.
+ */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(T *var_, DataType datatype){
     m_obj_ 		= NULL;
@@ -171,10 +184,11 @@ PortInT<T, O>::PortInT(T *var_, DataType datatype){
     m_datatype	= datatype;
 };
 
-/*!Custom constructor of PortInT
-* \param[in] obj_ Pointer to object owner of the port.
-* \param[in] setVar_ Pointer to function that sets members with the data in buffer.
-*/
+/*!
+ * Custom constructor of PortInT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
+ */
 template<typename T, typename O>
 PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
     m_obj_ 		= obj_;
@@ -182,11 +196,12 @@ PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
     m_var_ 		= NULL;
 };
 
-/*!Custom constructor of PortInT
-* \param[in] obj_ Pointer to object owner of the port.
-* \param[in] setVar_ Pointer to function that sets members with the data in buffer.
-* \param[in] datatype TAG of datat type communicated.
-*/
+/*!
+ * Custom constructor of PortInT
+ * \param[in] obj_ Pointer to object owner of the port.
+ * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
+ * \param[in] datatype TAG of datat type communicated.
+ */
 template<typename T, typename O>
 PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype){
     m_obj_ 		= obj_;
@@ -195,8 +210,9 @@ PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype){
     m_datatype	= datatype;
 };
 
-/*!Default destructor of PortInT
-*/
+/*!
+ * Default destructor of PortInT
+ */
 template<typename T, typename O>
 PortInT<T, O>::~PortInT(){
     m_obj_ 		= NULL;
@@ -204,15 +220,17 @@ PortInT<T, O>::~PortInT(){
     m_setVar_ 	= NULL;
 };
 
-/*!Copy constructor of PortInT.
-*/
+/*!
+ * Copy constructor of PortInT.
+ */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(const PortInT<T, O> & other){
     *this = other;
 };
 
-/*!Assignement operator of PortInT.
-*/
+/*!
+ * Assignement operator of PortInT.
+ */
 template<typename T, typename O>
 PortInT<T, O> &  PortInT<T, O>::operator=(const PortInT<T, O> & other){
     m_obj_ 		= other.m_obj_;
@@ -221,8 +239,9 @@ PortInT<T, O> &  PortInT<T, O>::operator=(const PortInT<T, O> & other){
     return (*this);
 };
 
-/*!Compare operator of PortInT.
-*/
+/*!
+ * Compare operator of PortInT.
+ */
 template<typename T, typename O>
 bool  PortInT<T, O>::operator==(const PortInT<T, O> & other){
     bool equal = true;
@@ -232,9 +251,10 @@ bool  PortInT<T, O>::operator==(const PortInT<T, O> & other){
     return (equal);
 };
 
-/*!It reads the buffer of the output port with the data to be communicated.
-* It stores the read values in the linked m_var_ by casting in the stream operator.
-*/
+/*!
+ * It reads the buffer of the output port with the data to be communicated.
+ * It stores the read values in the linked m_var_ by casting in the stream operator.
+ */
 template<typename T, typename O>
 void
 PortInT<T, O>::readBuffer(){

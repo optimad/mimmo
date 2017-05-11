@@ -76,10 +76,11 @@ public:
 * this value as input. 
 * 
 * The class store the following data:
-*  - a buffer to communicate output data (m_obuffer)
-*  - a list of pointer to BaseManipulation receivers (m_objLink)
-*  - a list of Ports integer identifiers, marking the input ports of receivers, where the data will be sent (m_portLink)
-*  - information on the container adn data type exchanged (m_datatype)
+* 
+* - a buffer to communicate output data (m_obuffer)
+* - a list of pointer to BaseManipulation receivers (m_objLink)
+* - a list of Ports integer identifiers, marking the input ports of receivers, where the data will be sent (m_portLink)
+* - information on the container and data type exchanged (m_datatype)
 *  
 * In general, a set of data (still not specified in this abstract class) of type m_datatype, written in a buffer stream m_obuffer, 
 * will be sent to a list of BaseManipulation objects/receivers. Input ports of receivers are responsible to decode the 
@@ -126,22 +127,24 @@ public:
 //==============================================================//
 
 /*!
-*  \class PortOutT
-*   \brief PortOutT is the PIN class to exchange output data from an object to others.
-*   \ingroup core
+* \class PortOutT
+* \brief PortOutT is the PIN class to exchange output data from an object to others.
+* \ingroup core
 * 
-*   PortOutT is the template derived class of PortOut specifying the set of data 
-*   that need to exchanged. 
-*   PortOut stores the following members:
-*       - pointer to the sender object, owner of the PIN (m_obj)
-*       - pointer to the type of sender object variable containing the data that need to be exchanged (m_var)
-*       - pointer to a "get" method of the sender object that recovers the data that need to be exchanged (O::*m_getVar)
+* PortOutT is the template derived class of PortOut specifying the set of data 
+* that need to exchanged.
 * 
-*   The last two members are alternative to each other, depending on the sender object interface design.
-*   Once the data is recovered from its sender object, it is redistributed as in PortOut base class (see PortOut doc).
+* PortOut stores the following members:
+* 
+* - pointer to the sender object, owner of the PIN (m_obj)
+* - pointer to the type of sender object variable containing the data that need to be exchanged (m_var)
+* - pointer to a "get" method of the sender object that recovers the data that need to be exchanged (O::*m_getVar)
+* 
+* The last two members are alternative to each other, depending on the sender object interface design.
+* Once the data is recovered from its sender object, it is redistributed as in PortOut base class (see PortOut doc).
 * 
 * "Get" methods have to be function objects of the standard library (functional include) created by the bind method.
-*  The data value must be returned by this methods as a copy or pointer. 
+* The data value must be returned by this methods as a copy or pointer. 
 *
 */
 template<typename T, typename O>
@@ -172,9 +175,9 @@ public:
 
 
 /*!
-*  \class PortIn
-*  \brief PortIn is the abstract PIN base class dedicated to carry data to a target class from other ones (input).
-*  \ingroup core
+* \class PortIn
+* \brief PortIn is the abstract PIN base class dedicated to carry data to a target class from other ones (input).
+* \ingroup core
 * 
 * A PIN is an object member of BaseManipulation object.
 * Through a PIN two base manipulation objects are linked together. One of these two
@@ -182,9 +185,10 @@ public:
 * this value as input. 
 * 
 * The class store the following data:
-*  - a buffer to communicate input data (m_ibuffer)
-*  - a list of pointer to BaseManipulation senders (m_objLink)
-*  - information on the container adn data type exchanged (m_datatype)
+* 
+* - a buffer to communicate input data (m_ibuffer)
+* - a list of pointer to BaseManipulation senders (m_objLink)
+* - information on the container and data type exchanged (m_datatype)
 *  
 * In general, a set of data of type m_datatype, is sent from one or more senders 
 * and read as a buffer stream m_ibuffer. This class is responsible to decode the data and handle with the problem to manage multiple data 
@@ -224,25 +228,27 @@ public:
 //==============================================================//
 
 /*!
-*  \class PortInT
-*	\brief PortInT is the PIN class to get input data arriving to an object from other objects.
-*   \ingroup core
+* \class PortInT
+* \brief PortInT is the PIN class to get input data arriving to an object from other objects.
+* \ingroup core
 * 
-*   PortInT is the template derived class of PortIn specifying the set of data 
-*   that need to exchanged. 
-*   PortIn stores the following members:
-*       - pointer to the receiver object, owner of the PIN (m_obj)
-*       - pointer to the type of receiver object variable, that will contain the data that need to be exchanged (m_var)
-*       - pointer to a "set" method of the receiver object that will store the data that need to be exchanged (O::*m_setVar)
+* PortInT is the template derived class of PortIn specifying the set of data 
+* that need to exchanged. 
 * 
-*   The last two members are alternative to each other, depending on the receiver object interface design.
-*   If receiver's m_var or set method are capable to handle with multiple inputs,all inputs passing through the ports will be stored
-*   in the receiver class, otherwise multiple data will be progressively overwritten each other, till the last, who will remain. 
-*   Activation of the class will be automatically triggered by sender port PortOutT associated to it. See more in PortOut,PortOutT, 
-*   PortIn documentation.
+* PortIn stores the following members:
 * 
-*   "Set" methods have to be function objects of the standard library (functional include) created by the bind method.
-*    The data value must be passed as argument of the function by copy or pointer. 
+* - pointer to the receiver object, owner of the PIN (m_obj)
+* - pointer to the type of receiver object variable, that will contain the data that need to be exchanged (m_var)
+* - pointer to a "set" method of the receiver object that will store the data that need to be exchanged (O::*m_setVar)
+* 
+* The last two members are alternative to each other, depending on the receiver object interface design.
+* If receiver's m_var or set method are capable to handle with multiple inputs,all inputs passing through the ports will be stored
+* in the receiver class, otherwise multiple data will be progressively overwritten each other, till the last, who will remain. 
+* Activation of the class will be automatically triggered by sender port PortOutT associated to it. See more in PortOut,PortOutT, 
+* PortIn documentation.
+* 
+* "Set" methods have to be function objects of the standard library (functional include) created by the bind method.
+* The data value must be passed as argument of the function by copy or pointer. 
 */
 template<typename T, typename O>
 class PortInT: public PortIn {

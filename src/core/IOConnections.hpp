@@ -39,12 +39,12 @@ namespace mimmo{
  * them, in input mode, or write existing connections in output mode.
  * 
  * In the XML interface a connection between two executable blocks must be declared following the nomenclature:
- * <tt> \n \< name of connection (must be unique)\> \n
- *       \<sender\> name of the sender \</sender\> \n
- *       \<senderPort\> type of the sender Port \</senderPort\> \n
- *       \<receiver\> name of the receiver \</receiver\> \n
- *       \<receiverPort\> name of the receiver Port \</receiverPort\> \n
- *        \</name of connection (must be unique)\> \n </tt>
+ *   <tt> \n \< name of connection (must be unique)\> \n
+ *               \<sender\> name of the sender \</sender\> \n
+ *               \<senderPort\> type of the sender Port \</senderPort\> \n
+ *               \<receiver\> name of the receiver \</receiver\> \n
+ *               \<receiverPort\> name of the receiver Port \</receiverPort\> \n
+ *           \</name of connection (must be unique)\> \n </tt>
  * 
  * Multiple connections are declared repeating this block format as many times as necessary
  */
