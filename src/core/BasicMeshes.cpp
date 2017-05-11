@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,7 +31,7 @@ namespace mimmo{
 
 
 /*! 
- *Basic Constructor. Default Shape CUBE 
+ * Basic Constructor. Default Shape CUBE 
  */
 UStructMesh::UStructMesh(){
 	m_nx = 0; m_ny=0; m_nz=0;
@@ -50,21 +50,22 @@ UStructMesh::UStructMesh(){
 };
 
 /*! 
- *Basic destructor 
+ * Basic destructor 
  */
 UStructMesh::~UStructMesh(){
 	m_xnode.clear(); m_ynode.clear(); m_znode.clear();
 	m_xedge.clear(); m_yedge.clear(); m_zedge.clear();
 }
 
-/*! Copy Constructor.
+/*! 
+ * Copy Constructor.
  * \param[in] other UStructMesh object where copy from
  */
 UStructMesh::UStructMesh(const UStructMesh & other){
 	*this = other;
 };
 
-/*! Copy Operator.
+/*! Assignement Operator.
  * \param[in] other UStructMesh object where copy from
  */
 UStructMesh & UStructMesh::operator=(const UStructMesh & other){
@@ -118,63 +119,78 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	return(*this); 
 };
 
-/*! Return a const pointer to the inner BasicShape object the current mesh is built on. Const method 
- * \return BasicShape of the mesh
+/*! 
+ * \return a const pointer to the inner BasicShape object the current mesh is built on. Const method 
  */
 const BasicShape * UStructMesh::getShape() const {
 	return(m_shape.get());
 }
 
-/*! Return a pointer to the inner BasicShape object the current mesh is built on 
- * \return BasicShape of the mesh
+/*! 
+ * \return a pointer to the inner BasicShape object the current mesh is built on 
  */
 BasicShape * UStructMesh::getShape(){
 	return(m_shape.get());
 }
 
-/*! Return current origin of BasicShape core of the mesh*/
+/*! 
+ * \return current origin of BasicShape core of the mesh
+ */
 darray3E UStructMesh::getOrigin(){
 	if (getShape() == NULL) return(m_origin_temp);
 	return(getShape()->getOrigin());
 }
 
-/*! Return current span of BasicShape core of the mesh*/
+/*! 
+ * \return current span of BasicShape core of the mesh
+ */
 darray3E UStructMesh::getSpan(){
 	if (getShape() == NULL) return(m_span_temp);
 	return(getShape()->getSpan());
 }
 
-/*! Return current lower limits of coordinates in BasicShape core of the mesh*/
+/*! 
+ * \return current lower limits of coordinates in BasicShape core of the mesh
+ */
 darray3E UStructMesh::getInfLimits(){
 	if (getShape() == NULL) return(m_inflimits_temp);
 	return(getShape()->getInfLimits());
 }
 
-/*! Return current local Reference System af axes*/
+/*! 
+ *\return current local Reference System af axes
+ */
 dmatrix33E UStructMesh::getRefSystem(){
 	if (getShape() == NULL) return(m_refsystem_temp);
 	return(getShape()->getRefSystem());
 }
 
-/*! Return actual scaling to primitive shape used in BasicShape core of the mesh*/
+/*! 
+ *\return actual scaling to primitive shape used in BasicShape core of the mesh
+ */
 darray3E UStructMesh::getScaling(){
 	if (getShape() == NULL) return(darray3E{{1,1,1}});
 	return(getShape()->getScaling());
 }
 
-/*! Return local span of the primitive shape associated to BasicShape core of the mesh*/
+/*! 
+ *\return local span of the primitive shape associated to BasicShape core of the mesh
+ */
 darray3E UStructMesh::getLocalSpan(){
 	if (getShape() == NULL) return(darray3E{{1,1,1}});
 	return(getShape()->getLocalSpan());
 }
 
-/*! Return type of shape associated to mesh core. See ShapeType enum */
+/*! 
+ *\return type of shape associated to mesh core. See ShapeType enum 
+ */
 ShapeType UStructMesh::getShapeType(){
 	if (getShape() == NULL) return(m_shapetype_temp);
 	return(getShape()->getShapeType());
 }
 
-/*! Return coordinate type of component 0 a BasicShape mesh core.
+/*! 
+ * \return coordinate type of component 0 a BasicShape mesh core.
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypex(){
@@ -182,7 +198,7 @@ CoordType UStructMesh::getCoordTypex(){
 	return(getShape()->getCoordinateType(0));
 }
 
-/*! Return coordinate type of a component of a BasicShape mesh core.
+/*! \return coordinate type of a component of a BasicShape mesh core.
  * See CoordType enum.
  * \param[in] i index of component.
  */
@@ -191,7 +207,8 @@ CoordType UStructMesh::getCoordType(int i){
 	return(getShape()->getCoordinateType(i));
 }
 
-/*! Return coordinate type of component 1 a BasicShape mesh core.
+/*! 
+ * \return coordinate type of component 1 a BasicShape mesh core.
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypey(){
@@ -199,7 +216,8 @@ CoordType UStructMesh::getCoordTypey(){
 	return(getShape()->getCoordinateType(1));
 }
 
-/*! Return coordinate type of component 2 a BasicShape mesh core.
+/*! 
+ * \return coordinate type of component 2 a BasicShape mesh core.
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypez(){
@@ -207,7 +225,8 @@ CoordType UStructMesh::getCoordTypez(){
 	return(getShape()->getCoordinateType(2));
 }
 
-/*! Return coordinates type of a BasicShape mesh core. See CoordType enum.
+/*! 
+ * \return coordinates type of a BasicShape mesh core. See CoordType enum.
  * \return Type of all the cooordinates.
  */
 array<CoordType, 3> UStructMesh::getCoordType(){
@@ -218,7 +237,9 @@ array<CoordType, 3> UStructMesh::getCoordType(){
 	return(types);
 }
 
-/*! Return current mesh spacing */
+/*! 
+ * \return current mesh spacing in all three coordinates
+ */
 darray3E UStructMesh::getSpacing(){
 	darray3E res;
 	darray3E scale = getScaling();
@@ -226,7 +247,9 @@ darray3E UStructMesh::getSpacing(){
 	return(res); 
 };
 
-/*! Return current dimension of the mesh (number of mesh nodes in each direction) */
+/*! 
+ * \return current dimensions of the mesh (number of mesh nodes in each direction)
+ */
 iarray3E UStructMesh::getDimension(){
 	
 	iarray3E res;
@@ -236,7 +259,8 @@ iarray3E UStructMesh::getDimension(){
 	return(res); 
 };
 
-/*! Get n-th center cell coordinates in local mesh reference frame, 
+/*! 
+ * \return the n-th center-cell coordinates in local mesh reference frame, 
  * given its global cell index on the mesh.  
  * \param[in] index cell index in the global nodal list.
  */
@@ -248,7 +272,9 @@ darray3E UStructMesh::getLocalCCell(int index){
 	
 	return(res);
 };
-/*! Get n-th center cell coordinates in local mesh reference frame, 
+
+/*! 
+ * \return the n-th center-cell coordinates in local mesh reference frame, 
  * given its cartesian cell indices on the mesh. 
  * \param[in] i_ x cartesian index.
  * \param[in] j_ y cartesian index.
@@ -264,7 +290,8 @@ darray3E UStructMesh::getLocalCCell(int i_, int j_, int k_){
 	return(res);
 };
 
-/*! Get n-th nodal vertex coordinates in local mesh reference frame, 
+/*! 
+ * \return teh n-th nodal vertex coordinates in local mesh reference frame, 
  * given its global point index on the mesh. 
  * \param[in] index point index in the global nodal list.
  */
@@ -276,7 +303,8 @@ darray3E UStructMesh::getLocalPoint(int index){
 	
 	return(res);
 };
-/*! Get n-th nodal vertex coordinates in local reference frame, 
+/*! 
+ * \return the n-th nodal vertex coordinates in local reference frame, 
  * given its cartesian point indices on the mesh. 
  * \param[in] i_ x cartesian index.
  * \param[in] j_ y cartesian index.
@@ -292,7 +320,8 @@ darray3E UStructMesh::getLocalPoint(int i_, int j_, int k_){
 	return(res);
 };    
 
-/*! Get n-th center cell coordinates in global absolute reference frame, 
+/*! 
+ * \return the n-th center-cell coordinates in global absolute reference frame, 
  * given its global cell index on the mesh. 
  * \param[in] index cell index in the global nodal list.
  */
@@ -301,7 +330,8 @@ darray3E UStructMesh::getGlobalCCell(int index){
 	darray3E res = getLocalCCell(index);
 	return(transfToGlobal(res));
 };
-/*! Get n-th center cell coordinates in global absolute reference frame, 
+/*!
+ * \return the n-th center cell coordinates in global absolute reference frame, 
  * given its cartesian cell indices on the mesh. 
  * \param[in] i_ x cartesian index.
  * \param[in] j_ y cartesian index.
@@ -313,7 +343,8 @@ darray3E UStructMesh::getGlobalCCell(int i_, int j_, int k_){
 	return(transfToGlobal(res));
 };
 
-/*! Get n-th nodal vertex coordinates in global absolute reference frame, 
+/*! 
+ * \return the n-th nodal vertex coordinates in global absolute reference frame, 
  * given its global point index on the mesh. 
  * \param[in] index point index in the global nodal list.
  */
@@ -321,7 +352,8 @@ darray3E UStructMesh::getGlobalPoint(int index){
 	darray3E res = getLocalPoint(index);
 	return(transfToGlobal(res));
 };
-/*! Get n-th nodal vertex coordinates in global absolute reference frame, 
+/*! 
+ * \return the n-th nodal vertex coordinates in global absolute reference frame, 
  * given its cartesian point indices on the mesh. 
  * \param[in] i_ x cartesian index.
  * \param[in] j_ y cartesian index.
@@ -333,7 +365,9 @@ darray3E UStructMesh::getGlobalPoint(int i_, int j_, int k_){
 	return(transfToGlobal(res));
 };    
 
-/*! Get neighbor vertices (by their global indices and in VTK-hexahedra ordered) of a given cell
+/*! 
+ * \return the list of neighbor vertices (by their global indices and in VTK-hexahedron ordering) 
+ * of a given cell
  * \param[in] i_ x coordinate cell index
  * \param[in] j_ y coordinate cell index
  * \param[in] k_ z coordinate cell index
@@ -352,7 +386,9 @@ ivector1D UStructMesh::getCellNeighs(int i_, int j_, int k_){
 	return(result);  
 }
 
-/*! Get neighbor vertices (by their global indices and in VTK-hexahedra ordered) of a given cell
+/*! 
+ * \return the list of neighbor vertices (by their global indices and in VTK-hexahedron ordering)
+ * of a given cell
  * \param[in] index cell global index
  */ 
 ivector1D UStructMesh::getCellNeighs(int index){
@@ -362,7 +398,9 @@ ivector1D UStructMesh::getCellNeighs(int index){
 	return(getCellNeighs(pp[0],pp[1],pp[2]));
 }
 
-/*! Return complete list of mesh nodes, in local shape ref system */
+/*! 
+ *\return the complete list of mesh nodes, in local shape reference system 
+ */
 dvecarr3E UStructMesh::getLocalCoords(){
 
 	int np = (m_nx+1)*(m_ny+1)*(m_nz+1);
@@ -373,7 +411,9 @@ dvecarr3E UStructMesh::getLocalCoords(){
 	return coords;
 };
 
-/*! Return complete list of mesh nodes, in global absolute ref system */
+/*! 
+ * \return teh complete list of mesh nodes, in global absolute reference system 
+ */
 dvecarr3E UStructMesh::getGlobalCoords(){
 	int np = (m_nx+1)*(m_ny+1)*(m_nz+1);
 	dvecarr3E coords(np);
@@ -383,8 +423,9 @@ dvecarr3E UStructMesh::getGlobalCoords(){
 	return coords;
 };
 
-
-/*! Return complete list of mesh cell centers, in local shape ref system */
+/*! 
+ * \return complete list of mesh cell centers, in local shape reference system 
+ */
 dvecarr3E UStructMesh::getLocalCellCentroids(){
 	
 	int np = (m_nx)*(m_ny)*(m_nz);
@@ -395,7 +436,9 @@ dvecarr3E UStructMesh::getLocalCellCentroids(){
 	return coords;
 };
 
-/*! Return complete list of mesh cell centers, in global absolute ref system */
+/*! 
+ * \return complete list of mesh cell centers, in global absolute reference system 
+ */
 dvecarr3E UStructMesh::getGlobalCellCentroids(){
 	int np = (m_nx)*(m_ny)*(m_nz);
 	dvecarr3E coords(np);
@@ -405,11 +448,10 @@ dvecarr3E UStructMesh::getGlobalCellCentroids(){
 	return coords;
 };
 
-
-
-/*! Set origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
- *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute()/build() method. 
+/*! 
+ * Set the origin of your shape. The origin is meant as the baricenter of your shape in absolute r.s.
+ * Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ * To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] origin new origin point
  */
 void UStructMesh::setOrigin(darray3E origin){
@@ -421,9 +463,10 @@ void UStructMesh::setOrigin(darray3E origin){
 	}	
 }
 
-/*! Set span of your shape, according to its local reference system.
- *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
- *  To apply current modifications use UStructMesh::execute()/build() method. 
+/*! 
+ * Set the span of your shape, according to its local reference system.
+ * Info is just passed and stored in memory, but no modifications are applied to your current mesh.
+ * To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] s0 first coordinate span
  * \param[in] s1 second coordinate span
  * \param[in] s2 third coordinate span
@@ -441,7 +484,8 @@ void UStructMesh::setSpan(double s0, double s1, double s2){
 	m_isBuild = false;
 }
 
-/*! Set span of your shape, according to its local reference system. 
+/*! 
+ * Set the span of your shape, according to its local reference system. 
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] s coordinates span
@@ -450,7 +494,8 @@ void UStructMesh::setSpan(darray3E s){
 	setSpan( s[0], s[1], s[2]);
 }
 
-/*! Set inferior limits of your shape, according to its local reference system.
+/*! 
+ * Set inferior limits of your shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are a*pplied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method.   
  * \param[in] inflim coordinate inferior limit
@@ -465,7 +510,8 @@ void UStructMesh::setInfLimits(double inflim, int dir){
 	}	
 }
 
-/*! Set coordinates' inferior limits of your shape, according to its local reference system.
+/*!
+ * Set coordinates' inferior limits of your shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method.    
  * \param[in] inflim coordinates inferior limits
@@ -476,7 +522,8 @@ void UStructMesh::setInfLimits(darray3E inflim){
 	setInfLimits(inflim[2], 2);
 }
 
-/*! Set new axis orientation of the local reference system of your mesh core shape.
+/*!
+ * Set new axis orientation of the local reference system of your mesh core shape.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] axis0 first axis
@@ -497,7 +544,8 @@ void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 	}	
 }
 
-/*! Set new axis orientation of the local reference system of your mesh core shape
+/*!
+ * Set new axis orientation of the local reference system of your mesh core shape
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] label 0,1,2 identify local x,y,z axis of the primitive shape
@@ -517,7 +565,8 @@ void UStructMesh::setRefSystem(int label, darray3E axis){
 	}
 }
 
-/*! Set new axis orientation of the local reference system of your mesh core shape
+/*!
+ * Set new axis orientation of the local reference system of your mesh core shape
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method. 
  * \param[in] axes new direction of all local axes.
@@ -535,7 +584,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 	
 }
 
-/*! Set the dimensions of the mesh.
+/*!
+ * Set the dimensions of the mesh.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method.	
  *  \param[in] dim  number of mesh nodes in each direction
@@ -548,7 +598,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 	 m_isBuild = false;
 };
 
-/*! Set the dimensions of the mesh.
+/*!
+ * Set the dimensions of the mesh.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method.	
  *  \param[in] dim  number of mesh nodes in each direction
@@ -561,7 +612,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 	 m_isBuild = false;
  };
 
-  /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
+  /*! 
+   * Set your shape, according to the following input parameters and the already saved/default parmaters.
    * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] itype shape of your mesh, casted to enum.(option available are: 0-CUBE(default), 1-CYLINDER, 2-SPHERE)
    */
@@ -570,7 +622,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 	  UStructMesh::setShape(type);
   }
 
-  /*! Set your shape, according to the following input parameters and the already saved/default parmaters.
+  /*! 
+   * Set your shape, according to the following input parameters and the already saved/default parmaters.
    * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] type shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
    */
@@ -630,7 +683,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 		m_isBuild = false;
 }
 
-/*! Set mesh shape, copying an external BasicShape object .
+/*! 
+ * Set mesh shape, copying an external BasicShape object .
  * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
  * \param[in] shape pointer to an external allocated BasicShape object
  */
@@ -659,7 +713,8 @@ void UStructMesh::setShape(const BasicShape * shape){
 };
 
 
-/*! Set coordinate type of component 0 of a BasicShape mesh core.
+/*!
+ * Set coordinate type of component 0 of a BasicShape mesh core.
  * See CoordType enum.
  */
 void UStructMesh::setCoordTypex(CoordType type){
@@ -667,7 +722,8 @@ void UStructMesh::setCoordTypex(CoordType type){
 	getShape()->setCoordinateType(type,0);
 }
 
-/*! Set coordinate type of a component of a BasicShape mesh core.
+/*!
+ * Set coordinate type of a component of a BasicShape mesh core.
  * See CoordType enum.
  * \param[in] type CoordType enum input
  * \param[in] i index of component.
@@ -677,7 +733,8 @@ void UStructMesh::setCoordType(CoordType type, int i){
 	getShape()->setCoordinateType(type,i);
 }
 
-/*! Set coordinate type of component 1 a BasicShape mesh core.
+/*!
+ * Set coordinate type of component 1 a BasicShape mesh core.
  * See CoordType enum.
  * * \param[in] type CoordType enum input
  */
@@ -686,7 +743,8 @@ void UStructMesh::setCoordTypey(CoordType type){
 	getShape()->setCoordinateType(type,1);
 }
 
-/*! Set coordinate type of component 2 a BasicShape mesh core.
+/*!
+ * Set coordinate type of component 2 a BasicShape mesh core.
  * See CoordType enum.
  * * \param[in] type CoordType enum input
  */
@@ -695,7 +753,8 @@ void UStructMesh::setCoordTypez(CoordType type){
 	getShape()->setCoordinateType(type,2);
 }
 
-/*! Set coordinates type of a BasicShape mesh core. See CoordType enum.
+/*!
+ * Set coordinates type of a BasicShape mesh core. See CoordType enum.
  * \param[in] types array of CoordType enum for all the cooordinates.
  */
 void UStructMesh::setCoordType(std::array<CoordType, 3> types){
@@ -704,7 +763,8 @@ void UStructMesh::setCoordType(std::array<CoordType, 3> types){
 	}
 }
 
-/*! Set your mesh, according to the following input parameters
+/*!
+ * Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
@@ -722,7 +782,8 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, iar
 };
 
 
-/*! Set your mesh, according to the following input parameters
+/*!
+ * Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
@@ -764,7 +825,8 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dve
 	build();
 };
 
-/*! Set your mesh, according to the following input parameters
+/*! 
+ * Set your mesh, according to the following input parameters
  * \param[in] shape pointer to an external allocated BasicShape object
  * \param[in] dimensions number of mesh points for each coordinate.
  */
@@ -777,7 +839,8 @@ void UStructMesh::setMesh(BasicShape * shape, iarray3E & dimensions){
 	build();
 };
 
-/*!Set your mesh, according to the following input parameters
+/*!
+ * Set your mesh, according to the following input parameters
  * \param[in] shape pointer to an external allocated BasicShape object
  * \param[in] spacing fixed spacing for each coordinate
  */
@@ -816,7 +879,10 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 };
 
 
-/*!Clear the Mesh structure. Unlink external shapes or destroy internal shapes, destroy nodal structure.*/
+/*!
+ *Clear the Mesh structure. Unlink external shapes 
+ * or destroy internal shapes. Destroy nodal structure.
+ */
 void UStructMesh::clearMesh(){
 	
 	m_shape.reset(nullptr);
@@ -840,7 +906,9 @@ void UStructMesh::clearMesh(){
 };  
 
 
-/*! Return cartesian indices of the cell containing the target point in global reference frame
+/*! 
+ * \return cartesian indices of the cell containing 
+ * the target point in global reference frame.
  * \param[in] point 3D coordinate of target point
  * \param[out] i x cell index
  * \param[out] j y cell index
@@ -856,7 +924,9 @@ void UStructMesh::locateCellByPoint(darray3E & point, int &i, int &j, int &k){
 	k = min(m_nz-1, max(0, (int) floor((P[2]-locOr[2])/m_dz)));
 };
 
-/*! Return cartesian indices of the cell containing the target point in global reference framne
+/*!
+ * \return cartesian indices of the cell containing the target point 
+ * in global reference framne
  * \param[in] point 3D coordinate of target point
  * \param[out] i x cell index
  * \param[out] j y cell index
@@ -867,7 +937,9 @@ void UStructMesh::locateCellByPoint(dvector1D & point, int &i, int &j, int &k){
 		locateCellByPoint(temp,i,j,k);
 };
 
-/*! Return global index of the cell given its cartesian indices. Follows the ordering sequences z-y-x
+/*! 
+ * \return global index of the cell given its cartesian indices. 
+ * Follows the ordering sequences z-y-x
  * \param[in] i x cartesian index
  *\param[in] j y cartesian index
  *\param[in] k z cartesian index
@@ -879,8 +951,10 @@ int UStructMesh::accessCellIndex(int i, int j, int k){
 	return(index);
 };
 
-/*! Return cartesian indices of the cell given its global index. Follows the ordering sequences z-y-x
- * \param[in] N_ global index 
+/*!
+ *\return cartesian indices of the cell given its global index. 
+ * Follows the ordering sequences z-y-x
+ *\param[in] N_ global index 
  *\param[out] i x cartesian index
  *\param[out] j y cartesian index
  *\param[out] k z cartesian index
@@ -892,11 +966,13 @@ void UStructMesh::accessCellIndex(int N_, int & i, int & j, int & k){
 	i = index / m_ny; 
 };
 
-/*! Return cartesian indices of the point given its global index. Follows the ordering sequences z-y-x
+/*!
+ * \return cartesian indices of the point given its global index. 
+ * Follows the ordering sequences z-y-x
  * \param[in] N_ global index 
- *\param[out] i x cartesian index
- *\param[out] j y cartesian index
- *\param[out] k z cartesian index
+ * \param[out] i x cartesian index
+ * \param[out] j y cartesian index
+ * \param[out] k z cartesian index
  */
 void UStructMesh::accessPointIndex(int N_, int &i, int &j, int &k){
 	
@@ -906,17 +982,28 @@ void UStructMesh::accessPointIndex(int N_, int &i, int &j, int &k){
 	i = index / (m_ny+1); 
 };
 
-/*! Transform point from Local to Global ref system*/
+/*! 
+ * \return transformed point from Local to Global reference system
+ * \param[in] point in local reference system
+ */
 darray3E	UStructMesh::transfToGlobal( darray3E & point){
 	return(getShape()->toWorldCoord(point));
 };
-/*! Transform point from Local to Global ref system*/
+
+/*! 
+ * \return transformed point from Local to Global reference system
+ * \param[in] point in local reference system
+ */
 dvector1D	UStructMesh::transfToGlobal( dvector1D & point){
 	darray3E temp = conArray<double,3>(point);
 	darray3E temp2 = getShape()->toWorldCoord(temp);
 	return(conVect(temp2));
 };
-/*! Transform list of points from Local to Global ref system*/
+
+/*! 
+ * \return list of transformed point from Local to Global reference system
+ * \param[in] list_points in local reference system
+ */
 dvecarr3E	UStructMesh::transfToGlobal( dvecarr3E & list_points){
 	int size = list_points.size();
 	dvecarr3E result(size);
@@ -926,7 +1013,10 @@ dvecarr3E	UStructMesh::transfToGlobal( dvecarr3E & list_points){
 	return(result);
 };    
 
-/*! Transform point from Global to Local ref system*/
+/*! 
+ * \return transformed point from Global to Local reference system
+ * \param[in] point in global reference system
+ */
 darray3E 	UStructMesh::transfToLocal( darray3E & point){
 	return(getShape()->toLocalCoord(point));
 };
@@ -937,7 +1027,11 @@ dvector1D 	UStructMesh::transfToLocal( dvector1D & point){
 	return(conVect(temp2));
 	
 };
-/*! Transform point from Global to Local ref system*/
+
+/*! 
+ * \return list of transformed point from Global to Local reference system
+ * \param[in] list_points in global reference system
+ */
 dvecarr3E 	UStructMesh::transfToLocal( dvecarr3E & list_points){
 	int size = list_points.size();
 	dvecarr3E result(size);
@@ -948,11 +1042,10 @@ dvecarr3E 	UStructMesh::transfToLocal( dvecarr3E & list_points){
 	
 };  
 
-
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*!
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \return interpResult interpolated value
  */
 double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 	
@@ -986,10 +1079,11 @@ double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 	return(result);      
 };
 
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*!
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \return interpResult interpolated value
+ * 
  */
 int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 	
@@ -1024,10 +1118,10 @@ int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 	return(result2);
 };
 
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*! 
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] celldata data field defined on centercells
- * \return interpResult interpolated value
  */
 darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata){
 	
@@ -1062,10 +1156,10 @@ darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata
 	return(result);	      
 };
 
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*! 
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \return interpResult interpolated value
  */
 double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata){
 	
@@ -1102,10 +1196,10 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 	return(result);
 };
 
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*! 
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \return interpResult interpolated value
  */
 int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	
@@ -1144,10 +1238,10 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 	return(result2);
 };
 
-/*! Interpolate value of a given data field on a target point inside the mesh
+/*! 
+ * \return interpolated value of a given data field on a target point inside the mesh
  * \param[in] point target point
  * \param[in] pointdata data field defined on grid points
- * \return interpResult interpolated value
  */
 darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointdata){
 	
@@ -1187,7 +1281,8 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 };
 
 
-/*! Write your grid as a point cloud in a *.vtu file. 
+/*! 
+ * Write your grid as a point cloud in a *.vtu file. 
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
@@ -1232,7 +1327,8 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 
 };
 
-/*! Write your grid as a point cloud in a *.vtu file. 
+/*!
+ * Write your grid as a point cloud in a *.vtu file. 
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
@@ -1282,7 +1378,8 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	
 };
 
-/*! Write your grid as a hexahedrical one in a *.vtu file. 
+/*! 
+ * Write your grid as a hexahedrical one in a *.vtu file. 
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
@@ -1327,7 +1424,8 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 
 };
 
-/*! Write your grid as a hexahedrical one in a *.vtu file. 
+/*!
+ * Write your grid as a hexahedrical one in a *.vtu file. 
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
@@ -1400,7 +1498,8 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counte
 
 };
 
-/*! Write your grid as a hexahedrical one in a *.vtu file.
+/*! 
+ * Write your grid as a hexahedrical one in a *.vtu file.
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
@@ -1445,7 +1544,9 @@ void UStructMesh::plotGridScalar(std::string folder, std::string outfile , int c
 };
 
 
-/*! Destroy the all nodal structures of the mesh. */
+/*!
+ * Destroy all nodal structures of the mesh. 
+ */
 void UStructMesh::destroyNodalStructure(){
 	m_xnode.clear();
 	m_ynode.clear();
@@ -1455,13 +1556,18 @@ void UStructMesh::destroyNodalStructure(){
 	m_zedge.clear();  
 };
 
-/*! Destroy the all nodal structures of the mesh, and reinitialize them to current mesh dimensions. */
+/*! 
+ * Destroy all nodal structures of the mesh, 
+ * and reinitialize them to current mesh dimensions. 
+ */
 void UStructMesh::reshapeNodalStructure(){
 	destroyNodalStructure();
 	resizeMesh();
 };
 
-/*! Resize nodal structure to current dimension set */
+/*! Resize nodal structures to current 
+ * dimensions set 
+ */
 void UStructMesh::resizeMesh(){
 	// Cell centers
 	m_xnode.resize(m_nx, 0.0);
@@ -1474,7 +1580,8 @@ void UStructMesh::resizeMesh(){
 	m_zedge.resize(m_nz+1, 0.0);
 };
 
-/*! Apply stored mesh information and build the mesh. If no core shape is
+/*! 
+ * Apply stored mesh information and build the mesh. If no core shape is
  *  build, does nothing and exit.
  */
 void UStructMesh::build(){
@@ -1521,14 +1628,16 @@ void UStructMesh::build(){
 };
 
 
-/*! Execute the object, that is build the mesh with current stored parameters.
+/*! 
+ * Execute the object, that is build the mesh with current stored parameters.
  */
 void UStructMesh::execute(){
 	build();
 }
 
-/*! Check true if mesh is build according to the currently set parameters, 
- * or false if not */
+/*! 
+ * \return true if mesh is built according to the currently set parameters, 
+ */
 bool UStructMesh::isBuilt(){
 	return(m_isBuild);
 }

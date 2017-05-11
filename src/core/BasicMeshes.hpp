@@ -2,7 +2,7 @@
  * 
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -22,8 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-#ifndef __mimmo_BASICMESHES_HH
-#define __mimmo_BASICMESHES_HH
+#ifndef __BASICMESHES_HH
+#define __BASICMESHES_HH
 
 #include <memory>
 #include <array>
@@ -34,7 +34,8 @@ namespace mimmo{
 
 /*!
  * \class UStructMesh 
- * \brief Class for 3D uniform structured mesh --> based on ucartmesh scheme of Bitpit 
+ * \ingroup core
+ * \brief Class for 3D uniform structured mesh --> based on cartesian structured mesh of bitpit 
  *
  * Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
  * coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
@@ -66,11 +67,11 @@ protected:
 	bool					m_isBuild;			/**< check if mesh is build according to the currently set parameters, or not */
 private:	
 	//list of temp members 
-	darray3E				m_origin_temp;		
-	darray3E				m_span_temp;			
-	darray3E				m_inflimits_temp;
-	dmatrix33E				m_refsystem_temp;
-	ShapeType	            m_shapetype_temp;
+    darray3E				m_origin_temp;  /**< temporary origin member */
+    darray3E				m_span_temp;    /**< temporary span member */
+    darray3E				m_inflimits_temp; /**< temporary inf_limits origin member */
+    dmatrix33E				m_refsystem_temp; /**< temporary reference axes matrix member */
+    ShapeType	            m_shapetype_temp; /**< temporary shape type member */
 
 public:	     
 	//Building stuffs	    
@@ -175,7 +176,6 @@ public:
 	darray3E	interpolatePointData(darray3E & point, dvecarr3E & pointdata);
 
 	//plotting
-	//TODO whenever VTK are ready, release ASCII writing in their cpp implementation
 	void 		plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
 	void 		plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
 	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
@@ -196,11 +196,11 @@ protected:
 };
 
 
-/*! Return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
- * \param[in] i x cartesian index
+/*! 
+ *\return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
+ *\param[in] i x cartesian index
  *\param[in] j y cartesian index
  *\param[in] k z cartesian index
- *\return global index
  */
 inline int  UStructMesh::accessPointIndex(int i, int j, int k){
 	int index = (m_ny+1) * (m_nz+1) * i + (m_nz+1) * j + k;
@@ -209,4 +209,4 @@ inline int  UStructMesh::accessPointIndex(int i, int j, int k){
 
 };
 
-#endif //__mimmo_BASICMESHES_HH
+#endif //__BASICMESHES_HH
