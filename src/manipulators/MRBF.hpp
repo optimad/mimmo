@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -28,19 +28,21 @@
 #include "rbf.hpp"
 
 namespace mimmo{
-	
+
 /*!
- * @enum MRBFSol
- * @brief Solver enum for your RBF data fields interpolation/ direct parameterization
+ * \enum MRBFSol
+ * \ingroup manipulators
+ * \brief Solver enum for your RBF data fields interpolation/ direct parameterization
  */
 enum class MRBFSol{
-	NONE = 0, 	/**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
-	WHOLE = 1,	/**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/ 
-	GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
+    NONE = 0,     /**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
+            WHOLE = 1,    /**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/
+            GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
 };
-	
+
 /*!
- * @class MRBF
+ * \class MRBF
+ * \ingroup manipulators
  * \brief Radial Basis Function evaluation from clouds of control points.
  *
  * This class is derived from BaseManipulation class of mimmo and from RBF class
@@ -51,102 +53,116 @@ enum class MRBFSol{
  * interpolation features.
  * See bitpit::RBF docs for further information.
  *
- *	=========================================================
- * ~~~
- *	|-------------------------------------------------------------------|
- *	|                  Port Input                                       |
- *	|-------|-----------|-----------------------|-----------------------|
- *	|PortID | PortType  | variable/function     | DataType              |
- *	|-------|-----------|-----------------------|-----------------------|
- *	| 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
- *	| 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
- *	| 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT)       |
- *	| 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
- *	| 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
- *	| 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
- *	|-------|-----------|-----------------------|-----------------------|
+ * \n
+ * Ports available in MRBF Class :
  *
- *
- *	|--------------------------------------------|------------------------------|
- *	|             Port Output                                                   |
- *	|-------|----------------|-------------------|------------------------------|
- *	|PortID | PortType       | variable/function | DataType                     |
- *	|-------|----------------|-------------------|------------------------------|
- *	| 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
- *	| 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
- *	|-------|----------------|-------------------|------------------------------|
+ *    =========================================================
  * ~~~
- *	=========================================================
+     |-------------------------------------------------------------------|
+     |                  Port Input                                       |
+     |-------|-----------|-----------------------|-----------------------|
+     |PortID | PortType  | variable/function     | DataType              |
+     |-------|-----------|-----------------------|-----------------------|
+     | 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
+     | 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
+     | 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT)       |
+     | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
+     | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
+     | 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
+     |-------|-----------|-----------------------|-----------------------|
+
+
+     |---------------------------------------------------------------------------|
+     |             Port Output                                                   |
+     |-------|----------------|-------------------|------------------------------|
+     |PortID | PortType       | variable/function | DataType                     |
+     |-------|----------------|-------------------|------------------------------|
+     | 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
+     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     |-------|----------------|-------------------|------------------------------|
+  ~~~
+ *    =========================================================
+ * \n
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.MRBF</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class );
+ * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box;
+ * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes;
+ * - <B>RBFShape</B>: shape of RBF function wendlandc2 (1), linear (2), gauss90 (3), gauss95 (4), gauss99 (5);
+ * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
+ *
+ * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
  *
  */
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
-	double 		m_tol;	    	/**< Tolerance for greedy algorithm.*/
-	MRBFSol		m_solver;   	/**<Type of solver specified for the class as default in execution*/
-	dvector1D	m_filter;   	/**<Filter field for displacements modulation */
-	bool		m_bfilter;  	/**<boolean to recognize if a filter field is applied */
-	double		m_SRRatio;	    /**<support Radius ratio */
-	dvecarr3E	m_displ;	    /**<Resulting displacements of geometry vertex.*/
-	bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
+    double         m_tol;            /**< Tolerance for greedy algorithm.*/
+    MRBFSol        m_solver;       /**<Type of solver specified for the class as default in execution*/
+    dvector1D    m_filter;       /**<Filter field for displacements modulation */
+    bool        m_bfilter;      /**<boolean to recognize if a filter field is applied */
+    double        m_SRRatio;        /**<support Radius ratio */
+    dvecarr3E    m_displ;        /**<Resulting displacements of geometry vertex.*/
+    bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
 
 public:
-	MRBF();
-	MRBF(const bitpit::Config::Section & rootXML);
-	
-	virtual ~MRBF();
+    MRBF();
+    MRBF(const bitpit::Config::Section & rootXML);
 
-	//copy operators/constructors
-	MRBF(const MRBF & other);
-	MRBF & operator=(const MRBF & other);
+    virtual ~MRBF();
 
-	void buildPorts();
+    //copy operators/constructors
+    MRBF(const MRBF & other);
+    MRBF & operator=(const MRBF & other);
 
-	void 			setGeometry(MimmoObject* geometry);
-	
-	dvecarr3E*		getNodes();
+    void buildPorts();
 
-	MRBFSol			getMode();
-	void			setMode(MRBFSol);
-	void			setMode(int);
-	dvector1D		getFilter();
-	double			getSupportRadius();
-	double			getSupportRadiusValue();
+    void             setGeometry(MimmoObject* geometry);
+
+    dvecarr3E*        getNodes();
+
+    MRBFSol            getMode();
+    void            setMode(MRBFSol);
+    void            setMode(int);
+    dvector1D        getFilter();
+    double            getSupportRadius();
+    double            getSupportRadiusValue();
     bool            getIsSupportRadiusValue();
-	
-	std::pair<MimmoObject * , dvecarr3E * >	getDeformedField();
-	dvecarr3E		getDisplacements();
-	
-	int 			addNode(darray3E);
-	ivector1D		addNode(dvecarr3E);
-	ivector1D	 	addNode(MimmoObject* geometry);
 
-	void 			setNode(darray3E);
-	void			setNode(dvecarr3E);
-	void		 	setNode(MimmoObject* geometry);
-	void			setFilter(dvector1D );
-	
-	ivector1D		checkDuplicatedNodes(double tol=1.0E-12);
-	bool 			removeDuplicatedNodes(ivector1D * list=NULL);
-	
+    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
+    dvecarr3E        getDisplacements();
+
+    int             addNode(darray3E);
+    ivector1D        addNode(dvecarr3E);
+    ivector1D         addNode(MimmoObject* geometry);
+
+    void             setNode(darray3E);
+    void            setNode(dvecarr3E);
+    void             setNode(MimmoObject* geometry);
+    void            setFilter(dvector1D );
+
+    ivector1D        checkDuplicatedNodes(double tol=1.0E-12);
+    bool             removeDuplicatedNodes(ivector1D * list=NULL);
+
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
-	void 			setTol(double tol);
-	void 			setDisplacements(dvecarr3E displ);
+    void             setTol(double tol);
+    void             setDisplacements(dvecarr3E displ);
 
-	void 		    clear();
-	void 		    clearFilter();
-	
-	//execute deformation methods
-	void 			execute();
+    void             clear();
+    void             clearFilter();
 
-	//XML utilities from reading writing settings to file
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-	
+    void             execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 protected:
-	void			setWeight(dvector2D value);
+    void            setWeight(dvector2D value);
     void            plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed);
     virtual void    plotOptionalResults();
 
@@ -154,7 +170,7 @@ protected:
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
 
-	
+
 };
 
 #endif /* __MRBF_HPP__ */

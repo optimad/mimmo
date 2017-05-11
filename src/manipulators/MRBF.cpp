@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -66,7 +66,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 MRBF::~MRBF(){};
 
 /*! Copy Constructor
- *@param[in] other MRBF where copy from
+ *\param[in] other MRBF where copy from
  */
 MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
     *this = other;
@@ -74,7 +74,8 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
 
 /*! It builds the input/output ports of the object
  */
-void MRBF::buildPorts(){
+void
+MRBF::buildPorts(){
     bool built = true;
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
@@ -89,7 +90,7 @@ void MRBF::buildPorts(){
 };
 
 /*! Copy Operator
- * @param[in] other MRBF where copy from
+ * \param[in] other MRBF where copy from
  */
 MRBF & MRBF::operator=(const MRBF & other){
     *(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
@@ -99,13 +100,13 @@ MRBF & MRBF::operator=(const MRBF & other){
     m_SRRatio  = other.m_SRRatio;
     m_supRIsValue = other.m_supRIsValue;
     m_bfilter = other.m_bfilter;
-    if(m_bfilter)	m_filter = other.m_filter;
+    if(m_bfilter)    m_filter = other.m_filter;
 
     return(*this);
 };
 
 /*!It sets the geometry linked by the manipulator object (overloading of base class method).
- * @param[in] geometry Pointer to geometry to be deformed by the manipulator object.
+ * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
  */
 void
 MRBF::setGeometry(MimmoObject* geometry){
@@ -113,6 +114,7 @@ MRBF::setGeometry(MimmoObject* geometry){
 };
 
 /*!It returns a pointer to the RBF node stored in the object.
+ * \return pointer to nodes list
  */
 dvecarr3E*
 MRBF::getNodes(){
@@ -122,6 +124,7 @@ MRBF::getNodes(){
 /*! 
  * Return actual solver set for RBF data fields interpolation in MRBF::execute
  * Reimplemented from RBF::getMode() of bitpit;
+ * \return solver mode
  */
 MRBFSol
 MRBF::getMode(){
@@ -131,18 +134,18 @@ MRBF::getMode(){
 /*!
  * Set type of solver set for RBF data fields interpolation/parameterization in MRBF::execute.
  * Reimplemented from RBF::setMode() of bitpit;
- * @param[in] solver type of MRBFSol enum; 
+ * \param[in] solver type of MRBFSol enum;
  */
 void
 MRBF::setMode(MRBFSol solver){
     m_solver = solver;
-    if (m_solver == MRBFSol::NONE)	RBF::setMode(RBFMode::PARAM);
-    else							RBF::setMode(RBFMode::INTERP);
+    if (m_solver == MRBFSol::NONE)    RBF::setMode(RBFMode::PARAM);
+    else                            RBF::setMode(RBFMode::INTERP);
 };
 /*!
  * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
  * Reimplemented from RBF::setMode() of bitpit;
- * @param[in] type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum; 
+ * \param[in] type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum;
  */
 void 
 MRBF::setMode(int type){
@@ -157,9 +160,10 @@ MRBF::setMode(int type){
 };
 
 /*! It gets current set filter field. See MRBF::setFilter
- * @return filter field.
+ * \return filter field.
  */
-dvector1D	MRBF::getFilter(){
+dvector1D
+MRBF::getFilter(){
     return(m_filter);
 };
 
@@ -167,9 +171,10 @@ dvector1D	MRBF::getFilter(){
  * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
  * See MRBF::setSupportRadius and MRBF::setSupportRadiusValue method documentation.
  * Reimplemented from bitpit::RBF::getSupportRadius.
- * @return support radius ratio
+ * \return support radius ratio
  */
-double	MRBF::getSupportRadius(){
+double
+MRBF::getSupportRadius(){
     if (m_supRIsValue)
     {
         return(getSupportRadiusValue());
@@ -179,28 +184,32 @@ double	MRBF::getSupportRadius(){
 
 /*! 
  * It gets the current real value of support radius for RBF kernels set up in the class. 
- * @return support radius value
+ * \return
+ * support radius value
  */
-double	MRBF::getSupportRadiusValue(){
+double
+MRBF::getSupportRadiusValue(){
     return(RBF::getSupportRadius());
 };
 
 /*!
  * It gets if the support radius for RBF kernels is set up as absolute value (true) or
  * ratio of diagonal of bounding box of the geometry (false).
- * @return support radius is set as value?
+ * \return support radius is set as value?
  */
 
-bool    MRBF::getIsSupportRadiusValue(){
+bool
+MRBF::getIsSupportRadiusValue(){
     return(m_supRIsValue);
 }
 
 /*!
  * Return actual computed deformation field (if any) for the geometry linked.
  * If no field is actually present, return null pointers;
- * @return 	std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
  */
-std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
+std::pair<MimmoObject * , dvecarr3E * >
+MRBF::getDeformedField(){
 
     std::pair<MimmoObject *, dvecarr3E * > pairField;
     pairField.first = getGeometry();
@@ -210,7 +219,7 @@ std::pair<MimmoObject * , dvecarr3E * >	MRBF::getDeformedField(){
 
 /*!
  * Return actual computed displacements field (if any) for the geometry linked.
- * @return 	The computed deformation field on the vertices of the linked geometry
+ * \return     The computed deformation field on the vertices of the linked geometry
  */
 dvecarr3E
 MRBF::getDisplacements(){
@@ -220,19 +229,21 @@ MRBF::getDisplacements(){
 
 /*!Adds a RBF point to the total control node list and activate it.
  * Reimplemented from RBF::addNode of bitpit;
- * @param[in] node coordinates of control point.
- * @return RBF id.
+ * \param[in] node coordinates of control point.
+ * \return RBF id.
  */
-int MRBF::addNode(darray3E node){
+int
+MRBF::addNode(darray3E node){
     return(RBF::addNode(node));
 };
 
 /*!Adds a list of RBF points to the total control node list and activate them.
  * Reimplemented from RBF::addNode of bitpit;
- * @param[in] nodes coordinates of control points.
- * @return Vector of RBF ids.
+ * \param[in] nodes coordinates of control points.
+ * \return Vector of RBF ids.
  */
-std::vector<int> MRBF::addNode(dvecarr3E nodes){
+std::vector<int>
+MRBF::addNode(dvecarr3E nodes){
     return(RBF::addNode(nodes));
 };
 
@@ -240,51 +251,56 @@ std::vector<int> MRBF::addNode(dvecarr3E nodes){
  * the vertices stored in a MimmoObject container. Return a vector containing 
  * the RBF node int id.
  * Reimplemented from RBF::addNode of bitpit;
- * @param[in] geometry Pointer to MimmoObject that contains the geometry.
- * @return Vector of RBF ids.
+ * \param[in] geometry Pointer to MimmoObject that contains the geometry.
+ * \return Vector of RBF ids.
  */
-ivector1D MRBF::addNode(MimmoObject* geometry){
-    if(geometry == NULL)	return	ivector1D(0);
+ivector1D
+MRBF::addNode(MimmoObject* geometry){
+    if(geometry == NULL)    return    ivector1D(0);
     dvecarr3E vertex = geometry->getVertexCoords();
     return(RBF::addNode(vertex));
 };
 
 
 /*!Set a RBF point as unique control node and activate it.
- * @param[in] node coordinates of control point.
+ * \param[in] node coordinates of control point.
  */
-void MRBF::setNode(darray3E node){
+void
+MRBF::setNode(darray3E node){
     removeAllNodes();
     RBF::addNode(node);
-    return;
+
 };
 
 /*!Set a list of RBF points as control nodes and activate it.
- * @param[in] nodes coordinates of control points.
+ * \param[in] nodes coordinates of control points.
  */
-void MRBF::setNode(dvecarr3E nodes){
+void
+MRBF::setNode(dvecarr3E nodes){
     removeAllNodes();
     RBF::addNode(nodes);
-    return;
+
 };
 
 /*!Set the RBF points as control nodes extracting
  * the vertices stored in a MimmoObject container.
- * @param[in] geometry Pointer to MimmoObject that contains the geometry.
+ * \param[in] geometry Pointer to MimmoObject that contains the geometry.
  */
-void MRBF::setNode(MimmoObject* geometry){
-    if(geometry == NULL)	return ;
+void
+MRBF::setNode(MimmoObject* geometry){
+    if(geometry == NULL)    return ;
     removeAllNodes();
     dvecarr3E vertex = geometry->getVertexCoords();
     RBF::addNode(vertex);
-    return;
+
 };
 
 /*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
  * coherent size between field size and number of geometry vertices is expected.
- * @param[in] filter fields.
+ * \param[in] filter fields.
  */
-void	MRBF::setFilter(dvector1D filter){
+void
+MRBF::setFilter(dvector1D filter){
     m_filter.clear();
     m_bfilter = !(filter.empty());
     m_filter = filter;
@@ -293,10 +309,11 @@ void	MRBF::setFilter(dvector1D filter){
 
 /*! Find all possible duplicated nodes within a prescribed distance tolerance.
  * Default tolerance value is 1.0E-12;
- * @param[in] tol distance tolerance
- * @return	list of duplicated nodes.
+ * \param[in] tol distance tolerance
+ * \return    list of duplicated nodes.
  */
-ivector1D MRBF::checkDuplicatedNodes(double tol){
+ivector1D
+MRBF::checkDuplicatedNodes(double tol){
     ivector1D marked;
     int sizeEff = getTotalNodesCount();
     if( sizeEff == 0 ) return marked;
@@ -317,10 +334,11 @@ ivector1D MRBF::checkDuplicatedNodes(double tol){
 
 /*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all 
  * possible duplicated nodes within a default tolerance of 1.0E-12 and erase them, if any.
- * @param[in] list pointer to a list of id's of RBF candidate nodes
- * @return	boolean, true if all duplicated nodes are erased, false if one or more of them are not.
+ * \param[in] list pointer to a list of id's of RBF candidate nodes
+ * \return    boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
-bool MRBF::removeDuplicatedNodes(ivector1D * list){
+bool
+MRBF::removeDuplicatedNodes(ivector1D * list){
     ivector1D marked;
     if(list==NULL){
         marked = checkDuplicatedNodes();
@@ -337,7 +355,7 @@ bool MRBF::removeDuplicatedNodes(ivector1D * list){
  * function, and almost flat functions (as sphere of infinite radius), respectively. 
  * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is 
  * R is set proportional to the maximum displacement value.
- * @param[in] suppR_ new value of suppR
+ * \param[in] suppR_ new value of suppR
  */
 void
 MRBF::setSupportRadius(double suppR_){
@@ -353,7 +371,7 @@ MRBF::setSupportRadius(double suppR_){
  * function, and almost flat functions (as sphere of infinite radius), respectively.
  * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is
  * R is set proportional to the maximum displacement value.
- * @param[in] suppR_ new value of support radius.
+ * \param[in] suppR_ new value of support radius.
  */
 void
 MRBF::setSupportRadiusValue(double suppR_){
@@ -364,9 +382,10 @@ MRBF::setSupportRadiusValue(double suppR_){
 
 /*!It sets the tolerance for greedy - interpolation algorithm.
  * Tolerance infos are not used in MRBFSol::NONE mode. 
- * @param[in] tol Target tolerance.
+ * \param[in] tol Target tolerance.
  */
-void MRBF::setTol(double tol){
+void
+MRBF::setTol(double tol){
     m_tol = tol;
 }
 
@@ -377,9 +396,10 @@ void MRBF::setTol(double tol){
  * Displacements size may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
  * 
- * @param[in] displ list of nodal displacements
+ * \param[in] displ list of nodal displacements
  */
-void MRBF::setDisplacements(dvecarr3E displ){
+void
+MRBF::setDisplacements(dvecarr3E displ){
     int size = displ.size();
     if(size != getTotalNodesCount()){
         std::cout << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
@@ -397,7 +417,8 @@ void MRBF::setDisplacements(dvecarr3E displ){
 }
 
 /*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
-void MRBF::clear(){
+void
+MRBF::clear(){
     BaseManipulation::clear();
     clearFilter();
     m_tol = 0.00001;
@@ -405,7 +426,8 @@ void MRBF::clear(){
 };
 
 /*!Clean filter field */
-void MRBF::clearFilter(){
+void
+MRBF::clearFilter(){
     m_filter.clear();
     m_bfilter = false;
 };
@@ -415,11 +437,11 @@ void MRBF::clearFilter(){
  * Weights total number may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
  * 
- * @param[in] value list of nodal weights
+ * \param[in] value list of nodal weights
  */
 void
 MRBF::setWeight(dvector2D value){
-    if(m_solver != MRBFSol::NONE)	return;
+    if(m_solver != MRBFSol::NONE)    return;
 
     int size = value.size();
     if(size != getTotalNodesCount()){
@@ -430,7 +452,7 @@ MRBF::setWeight(dvector2D value){
 
     dvector1D temp(size);
     int sizeLoc = 0;
-    if(!(value.empty()))	sizeLoc = value[0].size();
+    if(!(value.empty()))    sizeLoc = value[0].size();
     for(int loc=0; loc<sizeLoc; ++loc){
         for(int i=0; i<size; ++i){
             temp[i] = value[i][loc];
@@ -444,7 +466,8 @@ MRBF::setWeight(dvector2D value){
  * The result is stored in the m_displ member.
  *
  */
-void MRBF::execute(){
+void
+MRBF::execute(){
 
     MimmoObject * container = getGeometry();
     if(container->isEmpty() ) return;
@@ -454,8 +477,8 @@ void MRBF::execute(){
 
     for (int i=0; i<sizeF; i++){
 
-        if(m_solver == MRBFSol::NONE)	size = m_weight[i].size();
-        else							size = m_value[i].size();
+        if(m_solver == MRBFSol::NONE)    size = m_weight[i].size();
+        else                            size = m_value[i].size();
 
         if(size != getTotalNodesCount()){
             std::cout << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
@@ -479,8 +502,8 @@ void MRBF::execute(){
             dvector1D data(sizeF);
 
             for(int j=0; j<sizeF; ++j){
-                if(m_solver == MRBFSol::NONE)	data[j] = m_weight[j][i];
-                else							data[j] = m_value[j][i];
+                if(m_solver == MRBFSol::NONE)    data[j] = m_weight[j][i];
+                else                            data[j] = m_value[j][i];
             }
 
             distance = std::max(distance, norm2(data));
@@ -505,8 +528,8 @@ void MRBF::execute(){
     const double radius = distance;
     RBF::setSupportRadius(radius);
 
-    if (m_solver == MRBFSol::WHOLE)	solve();
-    if (m_solver == MRBFSol::GREEDY)	greedy(m_tol);
+    if (m_solver == MRBFSol::WHOLE)    solve();
+    if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
     int nv = container->getNVertex();
     dvecarr3E vertex = container->getVertexCoords();
@@ -528,7 +551,7 @@ void MRBF::execute(){
         }
     }
 
-    return;
+
 };
 
 
@@ -536,7 +559,8 @@ void MRBF::execute(){
  * Plot Optional results of the class. It plots the RBF control nodes as a point cloud
  * in *.vtu format, for both original/moved control nodes.
  */
-void    MRBF::plotOptionalResults(){
+void
+MRBF::plotOptionalResults(){
 
     std::string dir = m_outputPlot;
     std::string nameCloud = m_name;
@@ -554,7 +578,8 @@ void    MRBF::plotOptionalResults(){
  * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
  * \param[in] deformed  boolean flag for plotting 0-"original points", 1-"moved points"
  */
-void        MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
+void
+MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
 
     int nnodes = getTotalNodesCount();
     nnodes = min(nnodes, int(m_displ.size()));
@@ -598,23 +623,12 @@ void        MRBF::plotCloud(std::string directory, std::string filename, int cou
 };
 
 /*!
- * Method to absorb parameter infos from an XML parser class of bitpit. 
- * The sensible parameters are:
- * 
- * --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
- * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes
- * - <B>RBFShape</B>: shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
- * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
- * 
- * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
- * 
- * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -638,7 +652,7 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
             ss>>value;
         }
         value = std::max(1, value);
-        if(value > 13)	value =1;
+        if(value > 13)    value =1;
         bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
         setFunction(shapetype);
     };
@@ -683,34 +697,20 @@ void  MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
         if(!input.empty()){
             std::stringstream ss(bitpit::utils::trim(input));
             ss >> value;
-            if(value > 0.0)	setTol(value);
+            if(value > 0.0)    setTol(value);
         }
     };
 
-    return;
+
 }
 
 /*!
- * Method to flush parameter infos to an XML parser class of bitpit. 
- * The sensible parameters are:
- * 
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.MRBF"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class )
- * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box
- * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes
- * - <B>RBFShape</B>: shape of RBF function 1(wendlandc2), 2(linear), 3(gauss90), 4(gauss95),5(gauss99) 
- * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
- * 
- * 
- * RBF node list, Filter to deformation, Geometry and RBF nodal displacements are passed through port linking
- * In any case, if different by default, such parameters are always written, even.
- * 
- * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -745,7 +745,6 @@ void  MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
         slotXML.set("Tolerance", ss.str());
     }
 
-    return;
 }
 
 }
