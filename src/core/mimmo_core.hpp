@@ -29,11 +29,6 @@
  *      List of significant binary streams used to exchange data through pin/ports
  *      \{
  *      \}
- * 
- *      \defgroup shapeEnum BasicShapeEnumerators
- *      List of enumerators relative to the creation of primitive shapes.
- *      \{
- *      \}
  * \}
  *
  */

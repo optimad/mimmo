@@ -26,7 +26,6 @@
 
 #include "enum.hpp"
 
-
 BETTER_ENUM(PortType, int,	
             M_COORDS 			= 0, 
             M_GLOBAL 			= 1,
@@ -88,7 +87,6 @@ BETTER_ENUM(PortType, int,
             M_VECPAIRVF			= 201,
             M_POLYDATA_         = 1100
         );
-
 
 
 namespace mimmo{
@@ -194,11 +192,12 @@ struct FileDataInfo{
 */
 namespace pin{
 
+
 /*!
 *\enum ConnectionType
 *\brief Type of allowed connections of the object: bidirectional, only input or only output.
 */
-enum ConnectionType{
+enum class ConnectionType{
     BOTH 		/**<Bidirectional object. It allows both input and output connections.*/,
     BACKWARD 	/**<Uni-directional backward object. It allows only input connections.*/,
     FORWARD 	/**<Uni-directional forwadr object. It allows only output connections.*/

@@ -55,4 +55,14 @@
 #include "TrackingPointer.hpp"
 #include "customOperators.hpp"
 
+
+
+/*!
+ * \brief mimmo main namespace
+ * General namespace of the API.
+ */
+namespace mimmo{
+}
+
+
 #endif
