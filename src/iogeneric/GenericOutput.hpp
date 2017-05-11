@@ -25,6 +25,7 @@
 #define __OUTPUTDOF_HPP__
 
 #include "BaseManipulation.hpp"
+#include "IOData.hpp"
 #include <string>
 
 namespace mimmo{

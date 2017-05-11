@@ -545,7 +545,7 @@ FFDLattice::plotCloud(std::string directory, std::string filename, int counter, 
 };
 
 /*! Given pointer to a reference geometry and, execute deformation w/ the current setup.
- * Result is stored in BaseManipulation IOData member m_result. Execution build your mesh, 
+ * Result is stored in BaseManipulation member m_gdispl. Execution build your mesh,
  * if not done already.
  */
 void

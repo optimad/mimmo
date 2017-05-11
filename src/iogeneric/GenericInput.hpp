@@ -27,6 +27,7 @@
 
 #include <string>
 #include "BaseManipulation.hpp"
+#include "IOData.hpp"
 
 namespace mimmo{
 

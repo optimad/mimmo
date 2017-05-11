@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -92,6 +92,7 @@ BaseManipulation::arePortsBuilt(){
 /*!
  * Get current unsigned int marking priority of execution of class in a multi-chain
  * frame.
+ * \return priority mark
  */
 uint
 BaseManipulation::getPriority(){
@@ -236,8 +237,7 @@ BaseManipulation::getPortsOut(){
 }
 
 /*!
- * Returns true if the feature to plot optional results of the block is active.
- * False otherwise.
+ * \return true if the feature to plot optional results of the block is active.
  */
 bool
 BaseManipulation::isPlotInExecution(){
@@ -254,22 +254,25 @@ BaseManipulation::isActive(){
 }
 
 /*!
- * Return integer identifier of the object (deprecated : use getId())
+ * \return integer identifier of the object (deprecated : use getId())
  */
-int     BaseManipulation::getClassCounter(){
+int
+BaseManipulation::getClassCounter(){
     return getId();
 }
 
 /*!
- * Return integer identifier of the object
+ * \return integer identifier of the object
  */
-int     BaseManipulation::getId(){
+int
+BaseManipulation::getId(){
     return m_counter;
 }
 
 /*!
  * Set unsigned int priority of execution of class in a multi-chain
  * frame. value must be > 0;
+ * \param[in] priority priority mark
  */
 void
 BaseManipulation::setPriority(uint priority){
@@ -429,7 +432,6 @@ void
 BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 	BITPIT_UNUSED(slotXML);
 	BITPIT_UNUSED(name);
-	return;
 }
 
 /*!
@@ -442,7 +444,6 @@ void
 BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	BITPIT_UNUSED(slotXML);
 	BITPIT_UNUSED(name);
-	return;
 }
 
 /*!
@@ -458,7 +459,6 @@ BaseManipulation::deletePorts(){
 		delete i->second;
 		i->second = NULL;
 	}
-	return;
 }
 
 /*!
@@ -668,9 +668,6 @@ BaseManipulation::removePinOut(PortID portS, int j){
  * do nothing. For Programmers only: to customize your optional results plotting create your own reimplementation 
  * of this method in each BaseManipulation derived block.
  */
-void 	BaseManipulation::plotOptionalResults(){
-	//do nothing
-	return;
-}
+void 	BaseManipulation::plotOptionalResults(){};
 
-}
+};
