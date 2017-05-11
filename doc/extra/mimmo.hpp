@@ -11,31 +11,31 @@ controllable by the User.
 # Modules
 
 ## core 
-<B>core</B> provides the basic EB structure and low level tools to manage them.
+<B>mimmo::core</B> provides the basic EB structure and low level tools to manage them.
 
 ## iogeneric
-<B>iogeneric</B> provides all EBs to read/write geometry from/on external files, as well as raw data in generic formats.
+<B>mimmo::iogeneric</B> provides all EBs to read/write geometry from/on external files, as well as raw data in generic formats.
 
 ## iocgns
-<B>iocgns</B> collects all interfaces to volume mesh CGNS format input/output
+<B>mimmo::iocgns</B> collects all interfaces to volume mesh CGNS format input/output
 
 ## iovtk
-<B>iovtk</B> collects all interfaces to volume mesh VTK format input/output.
+<B>mimmo::iovtk</B> collects all interfaces to volume mesh VTK format input/output.
 
 ## ioofoam
-<B>ioofoam</B> collects all interfaces to volume mesh OpenFoam format input/output.
+<B>mimmo::ioofoam</B> collects all interfaces to volume mesh OpenFoam format input/output.
 
 ## geohandlers
-<B>geohandlers</B> provides tools to handle, transform, select a target geometry mesh and scalar/vector field attached to it, if any
+<B>mimmo::geohandlers</B> provides tools to handle, transform, select a target geometry mesh and scalar/vector field attached to it, if any
 
 ## manipulators
-<B>manipulators</B> provides core engines to manipulate the target mesh with eFFD or RBF techniques
+<B>mimmo::manipulators</B> provides core engines to manipulate the target mesh with eFFD or RBF techniques
 
 ## wrappers
 <B>wrappers</B> provides special EBs that globally control displacements of a point cloud of control nodes associated to a manipulator.
 
 ## utils
-<B>utils</B> provides miscellaneous features for morphing workflow
+<B>mimmo::utils</B> provides miscellaneous features for morphing workflow
 
 */
 

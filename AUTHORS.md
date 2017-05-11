@@ -1,4 +1,4 @@
-mimmo was originally created in 2016 at OPTIMAD Engineering Srl.
+mimmo was originally created in 2015 at OPTIMAD Engineering Srl.
 
 # Main authors
 
@@ -7,6 +7,7 @@ All the modules available up to now are developed by
 
   * [Edoardo Lombardi](mailto:edoardo.lombardi@optimad.it)
   * [Rocco Arpa](mailto:rocco.arpa@optimad.it)
+  * [Andrea Iob](mailto:andrea.iob@optimad.it)
 
 # Contributors
 
