@@ -43,12 +43,11 @@ namespace mimmo{
  * Ports available in Lattice class: 
  *
  * =========================================================
- * ~~~
-    |-------------------------------------------------------------------------------------|
-    |                    Port Input                                                       |
-    |-------|-------------|---------------------------------------|-----------------------|
-    |PortID | PortType    | variable/function                     | DataType              |
-    |-------|-------------|---------------------------------------|-----------------------|
+ *  
+ *  
+ *  |Port Input  | | | |
+    |-|-|-|-|
+    |<B>PortID</B>|<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
     | 99    | M_GEOM      | m_geometry                            | (SCALAR, MIMMO_)      |
     | 24    | M_DIMENSION | setDimension                          | (ARRAY3, INT)         |
     | 25    | M_INFLIMITS | setInfLimits                          | (ARRAY3, FLOAT)       |
@@ -58,14 +57,12 @@ namespace mimmo{
     | 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | (SCALAR, SHAPET)      |
     | 27    | M_COPYSHAPE | setShape(const BasicShape*  )         | (SCALAR, SHAPE_)      |
     | 28    | M_SHAPEI    | setShape(int)                         | (SCALAR, INT)         |
-    |-------|-------------|---------------------------------------|-----------------------|
-  
- 
-    |---------------------------------------------------------------|
-    |               Port Output                                     |
-    |-------|-------------|-------------------|---------------------|
-    |PortID | PortType    | variable/function | DataType            |
-    |-------|-------------|-------------------|---------------------|
+
+
+
+    | Port Output | | | |
+    |-|-|-|-|
+    |<B>PortID</B>|<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
     | 1     | M_GLOBAL    | getGlobalCoords   | (VECARR3, FLOAT)    |
     | 2     | M_LOCAL     | getLocalCoords    | (VECARR3, FLOAT)    |
     | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
@@ -75,8 +72,7 @@ namespace mimmo{
     | 24    | M_DIMENSION | getDimension      | (ARRAY3, INT)       |
     | 27    | M_COPYSHAPE | getShape          | (SCALAR, SHAPE_)    |
     | 99    | M_GEOM      | getGeometry       | (SCALAR, MIMMO_)    |
-    |-------|-------------|-------------------|---------------------|
-  ~~~
+
 * =========================================================
 * 
 * The xml available parameters, sections and subsections  are the following:

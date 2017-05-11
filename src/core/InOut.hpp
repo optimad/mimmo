@@ -36,9 +36,9 @@ namespace mimmo{
 
 class BaseManipulation;
 
-typedef short int                   PortID;
-typedef mimmo::pin::containerTAG    containerTAG;
-typedef mimmo::pin::dataTAG         dataTAG;
+typedef short int                   PortID; /**< port ID typedef */
+typedef mimmo::pin::containerTAG    containerTAG; /**< containerTAG enum typedef*/
+typedef mimmo::pin::dataTAG         dataTAG; /**< dataTAG enum typedef */
 
 
 /*!
