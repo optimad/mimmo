@@ -2,7 +2,7 @@
  *
  *  bitpit
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -37,7 +37,6 @@ BvElement::BvElement(long label)
 {
 	m_label		= label;
 	m_centroid	= {{0.0, 0.0, 0.0}};
-	return;
 }
 
 /*!
@@ -52,7 +51,6 @@ BvElement::~BvElement(){};
 BvElement::BvElement(const BvElement & other)
 {
 	*this	= other;
-	return;
 };
 
 /*!
@@ -66,14 +64,15 @@ BvElement & BvElement::operator=(const BvElement & other)
 };
 
 /*!
- *  \class compareElements
- *	\brief compareElements is an ad-hoc class used to sort the elements of a Bv-Tree by their
- *	centroid coordinates.
+ * \class compareElements
+ * \ingroup core
+ * \brief compareElements is an ad-hoc class used to sort the elements of a Bv-Tree by their
+ * centroid coordinates.
  *
  */
 class compareElements{
 public:
-	int dir;
+	int dir; /**< target centroid coordinate (0,1,2) to compare */
 public:
 	/*!Custom constructor for class compareElements.
 	 * \param[in] dir_ Direction used to compare the coordinates of the elements centroid.
@@ -90,7 +89,8 @@ public:
 	}
 };
 
-/*! Default constructor for class BvNode.
+/*! 
+ * Default constructor for class BvNode.
  * Initialize an empty node in the bv-tree.
  */
 BvNode::BvNode()
@@ -103,20 +103,20 @@ BvNode::BvNode()
 	m_leaf			= false;
 	m_minPoint		= {{1.0e+18, 1.0e+18, 1.0e+18}};
 	m_maxPoint		= {{-1.0e+18, -1.0e+18, -1.0e+18}};
-	return;
 }
 
-/*! Default destructor for class BvNode.
+/*!
+ * Default destructor for class BvNode.
  * Clear BvNode content and release memory.
  */
 BvNode::~BvNode(){}
 
-/*! Copy constructor for class BvNode.
+/*! 
+ * Copy constructor for class BvNode.
  */
 BvNode::BvNode(const BvNode & other)
 {
 	*this	= other;
-	return;
 };
 
 /*! Assignement operator for class BvNode.
@@ -133,7 +133,8 @@ BvNode & BvNode::operator=(const BvNode & other)
 	return *this;
 };
 
-/*! Default constructor for class BvTree.
+/*!
+ * Default constructor for class BvTree.
  * Initialize an empty bv-tree structure and reserve memory for the insertion
  * of maxstack nodes.
  * If a linked patch is passed by argument, the contained information are used
@@ -166,26 +167,26 @@ BvTree::BvTree(bitpit::PatchKernel *patch_)
 	return;
 }
 
-/*! Default destructor for class BvTree.
+/*!
+ * Default destructor for class BvTree.
  * Clear bv-tree content and release memory.
  */
 BvTree::~BvTree()
 {
 	m_patch_ = NULL;
 	clean();
-	return;
 }
 
-/*! Copy constructor for class BvTree.
+/*! 
+ * Copy constructor for class BvTree.
  */
 BvTree::BvTree(const BvTree & other)
 {
 	*this	= other;
-	return;
-
 };
 
-/*! Assignement operator for class BvTree.
+/*!
+ * Assignement operator for class BvTree.
  */
 BvTree & BvTree::operator=(const BvTree & other)
 {
@@ -204,10 +205,10 @@ BvTree & BvTree::operator=(const BvTree & other)
 	return *this;
 };
 
-/*! It sets the bitpit::PatchKernel linked by the tree. The Simplex of the patch
+/*! 
+ * It sets the bitpit::PatchKernel linked by the tree. The Simplex of the patch
  * are ordered during the construction of the bv-tree.
- *  \param[in] patch_ Pointer to the target bitpit::PatchKernel.
- *
+ * \param[in] patch_ Pointer to the target bitpit::PatchKernel.
  */
 void BvTree::setPatch(bitpit::PatchKernel *patch_)
 {
@@ -221,21 +222,19 @@ void BvTree::setPatch(bitpit::PatchKernel *patch_)
 	m_nodes.clear();
 	m_elements.clear();
 	increaseStack();
-	return;
 }
 
-/*! It sets the maximum number of elements in the leaf nodes of the tree.
+/*! 
+ * It sets the maximum number of elements in the leaf nodes of the tree.
  *  \param[in] maxsize Maximum number of elements in a leaf node (default =1).
- *
  */
 void BvTree::setMaxLeafSize(int maxsize){
 	m_maxsize = maxsize;
-	return;
 }
 
-/*!It builds the bv-tree starting from the root node (its bounding volume is the
+/*!
+ * It builds the bv-tree starting from the root node (its bounding volume is the
  * AABB bounding volume of the whole geometry contained in the patch).
- *
  */
 void BvTree::buildTree()
 {
@@ -274,10 +273,10 @@ void BvTree::buildTree()
 		fillTree(0);
 	}
 	decreaseStack();
-	return;
 };
 
-/*!It fills the bv-tree starting from an existing node.
+/*!
+ * It fills the bv-tree starting from an existing node.
  * \param[in] iparent Index of the node used to start the fill procedure.
  */
 void BvTree::fillTree(int iparent)
@@ -386,15 +385,14 @@ void BvTree::fillTree(int iparent)
 
 	}
 
-	return;
 }
 
-/*!It computes the mean centroid of a set of elements given the starting index and
+/*!
+ * It computes the mean centroid of a set of elements given the starting index and
  * the final index of the elements in the m_elements structure.
  * \param[in] istart Index of the first element to be used.
  * \param[in] iend Index of the last element to be used.
  * \return Coordinates of the mean centroid.
- *
  */
 darray3E BvTree::computeMeanPoint(int istart, int iend)
 {
@@ -410,7 +408,14 @@ darray3E BvTree::computeMeanPoint(int istart, int iend)
 	return(meanC);
 }
 
-
+/*!
+ * Find the index of the first BvElement in a given list, whose "dir" centroid coordinate is 
+ * immediately at right of a a target mean centroid "dir "coordinate.
+ * \param[in] itstart begin iterator of the target list
+ * \param[in] itend end iterator of a target list
+ * \param[in] meanC mean centroid
+ * \param[in] dir centroid coordinate (0-x,1-y, 2-z)
+ */
 int	BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
 		std::vector<BvElement>::iterator itend, darray3E meanC, int dir){
 
@@ -432,12 +437,10 @@ int	BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
 	}
 
 	return (std::max(0, int(distance(m_elements.begin(), itend))));
-
-
 }
 
-
-/*!It finds the first element, contained din a target node, with a coordinate
+/*!
+ * It finds the first element, contained din a target node, with a coordinate
  * of its centroid greater than a reference point (the mean centroid in the
  * bv-tree construction).
  * \param[in] inode Node index used to search.
@@ -472,14 +475,14 @@ int BvTree::findFirstGreater(int inode, darray3E meanC, int dir)
 	return guess;
 }
 
-/*!It computes the bounding box coordinate of a given node.
+/*!
+ * It computes the bounding box coordinate of a given node.
  * \param[in] inode Index of the target node.
  *
  * After the call of the method the member m_minPpoint and m_maxPoint
  * of the inode.th node are filled by the coordinates of the extrema
  * points of the bounding volume that contains the elements
  * of the node.
- *
  */
 void BvTree::computeBoundingBox(int inode)
 {
@@ -512,10 +515,10 @@ void BvTree::computeBoundingBox(int inode)
 	}
 	node.m_minPoint -= m_tol;
 	node.m_maxPoint += m_tol;
-	return;
 }
 
-/*!It evluates if a point is inside the bounding box
+/*!
+ * It evaluates if a point is inside the bounding box
  * of a node broaden by a given quantity.
  * \param[in] P_ Pointer to the input point coordinates.
  * \param[in] node_ Pointer to the target node.
@@ -537,14 +540,14 @@ bool BvTree::inBoundingBox(darray3E *P_, BvNode *node_, double r)
 	return(in);
 }
 
-/*!It evluates if a sphere centered in a point intersects the bounding box
+/*!
+ * It evaluates if a sphere centered in a point intersects the bounding box
  * of a node broaden by a given quantity.
  * \param[in] P_ Pointer to the input point coordinates.
  * \param[in] node_ Pointer to the target node.
  * \param[in] r Radius of the sphere.
  * \return True if there is intersection between sphere and bounding box (or
  * the sphere is completely inside the bounding box).
- *
  */
 bool BvTree::SphereBoundingBox(darray3E *P_, BvNode *node_, double r)
 {
@@ -559,7 +562,8 @@ bool BvTree::SphereBoundingBox(darray3E *P_, BvNode *node_, double r)
     return(dist < r*r);
 }
 
-/*!It cleans the bv-tree and release memory.
+/*!
+ * It cleans the bv-tree and release memory.
  */
 void BvTree::clean(){
 
@@ -570,12 +574,10 @@ void BvTree::clean(){
 	m_nodes.clear();
 	m_elements.clear();
 	m_nleaf		= 0;
-	return;
-
 }
 
-/*!It sets the bv-tree parameters by using the linked patch.
- *
+/*!
+ * It sets the bv-tree parameters by using the linked patch.
  */
 void BvTree::setup(){
 
@@ -594,33 +596,30 @@ void BvTree::setup(){
 	}
 	m_elements.resize(m_nelements);
 	increaseStack();
-	return;
-
 }
 
-/*! Whenever the bv-tree reaches its full capacity (i.e. the number of BvNode
+/*! 
+ * Whenever the bv-tree reaches its full capacity (i.e. the number of BvNode
  * stored in the tree is equal to the memory reserved), increase the memory
  * reserve by maxstack.
  */
 void BvTree::increaseStack()
 {
 	m_nodes.resize(m_nodes.size() + m_MAXSTK);
-	return;
 };
 
-/*! Decrease the memory reserved for bv-tree by maxstack.
+/*! 
+ * Decrease the memory reserved for bv-tree by maxstack.
  * Resize the m_nodes to effective number of nodes.
  */
 void BvTree::decreaseStack()
 {
-	//	m_nodes.resize(bitpit::max(m_MAXSTK, int(m_nodes.size()) - m_MAXSTK));
-	//	m_elements.resize(bitpit::max(m_MAXSTK, int(m_elements.size()) - m_MAXSTK));
 	m_nodes.resize(m_nnodes);
-	return;
 };
 
 namespace bvTreeUtils{
-/*!It computes the signed distance of a point to a geometry linked in a BvTree
+/*!
+ * It computes the signed distance of a point to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * The sign of the distance is provided by the normal to the geometry locally
@@ -827,7 +826,8 @@ double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::
 };
 
 
-/*!It computes the unsigned distance of a point to a geometry linked in a BvTree
+/*!
+ * It computes the unsigned distance of a point to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the element with minimum distance in a box of length 2*r, if none
@@ -955,7 +955,8 @@ double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, 
 	return(h);
 };
 
-/*!It computes the projection of a point on a geometry linked in a BvTree
+/*!
+ * It computes the projection of a point on a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
@@ -984,10 +985,10 @@ darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
 	darray3E 	projP = (*P_) - dist*normal;
 
 	return (projP);
-
 }
 
-/*!It computes the signed distance of a set of points to a geometry linked in a BvTree
+/*!
+ * It computes the signed distance of a set of points to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * The sign of the distance is provided by the normal to the geometry locally
@@ -1021,7 +1022,8 @@ dvector1D signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_
 	return(dist);
 }
 
-/*!It computes the unsigned distance of a set of points to a geometry linked in a BvTree
+/*!
+ * It computes the unsigned distance of a set of points to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements with minimum distance in a box of length 2*r, if none
@@ -1048,7 +1050,8 @@ dvector1D distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std:
 	return(dist);
 }
 
-/*!It computes the projection of a set of points on a geometry linked in a BvTree
+/*!
+ * It computes the projection of a set of points on a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
@@ -1074,7 +1077,8 @@ dvecarr3E projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, 
 	return(projPoint);
 }
 
-/*!It selects the elements of a geometry stored in a bv-tree by a distance criterion
+/*!
+ * It selects the elements of a geometry stored in a bv-tree by a distance criterion
  * in respect to an other geometry stored in a different bv-tree.
  * \param[in] selection Pointer to bv-tree used as selection patch.
  * \param[in] target Pointer to bv-tree that store the target geometry.
@@ -1112,7 +1116,8 @@ std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol){
 
 }
 
-/*!It extracts the elements of a leaf node of geometry stored in a bv-tree
+/*!
+ * It extracts the elements of a leaf node of geometry stored in a bv-tree
  * by a distance criterion in respect to an other geometry stored
  * in a different bv-tree. It is a recursive method used in selectByPatch method.
  * \param[in] target Pointer to bv-tree that store the target geometry.

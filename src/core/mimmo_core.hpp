@@ -22,7 +22,7 @@
   ----------------------------------------------------------------------------*/
 
 /*!
- * @defgroup core Core 
+ * @defgroup core core 
  * Executable Blocks basic features and data structures 
  * \{
  *      @defgroup binaryStream BinaryStream

@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -32,6 +32,7 @@ namespace mimmo{
 
 /*!
  * \class BvElement
+ * \ingroup core
  * \brief Bv-Element is the class to manage the elements linked by a Bv-Tree.
  *
  */
@@ -49,7 +50,8 @@ public:
 
 /*!
  * \class BvNode
- *	\brief Bv-Node is the class of a node of a Bv-Tree.
+ * \ingroup core
+ * \brief Bv-Node is the class of a node of a Bv-Tree.
  *
  */
 class BvNode {
@@ -71,6 +73,7 @@ public:
 
 /*!
  * \class BvTree
+ * \ingroup core
  * \brief Bv-Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch.
  *
  * A Bv-Tree is composed by its nodes and the elements related to each node.
@@ -124,8 +127,7 @@ private:
 	void fillTree(int iparent);
 	std::array<double,3> computeMeanPoint(int istart, int iend);
 	int findFirstGreater(int inode, std::array<double,3> meanC, int dir);
-	int pseudoSort(std::vector<BvElement>::iterator itstart,
-			std::vector<BvElement>::iterator itend, std::array<double,3> meanC, int dir);
+	int pseudoSort(std::vector<BvElement>::iterator itstart, std::vector<BvElement>::iterator itend, std::array<double,3> meanC, int dir);
 	void computeBoundingBox(int inode);
 	void increaseStack();
 	void decreaseStack();
@@ -133,7 +135,8 @@ private:
 };
 
 /*!
- *	\brief Utilities employing bvTree.
+ * \brief Utilities employing bvTree.
+ * \ingroup core
  */
 namespace bvTreeUtils{
 	

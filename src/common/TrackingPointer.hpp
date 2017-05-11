@@ -42,6 +42,9 @@ public:
     TrackingPointer(){};
     virtual ~TrackingPointer(){};
 
+    /*!
+     * Pure virtual class to recover the identifying name 
+     */
     virtual std::string whichClass() = 0;
 };
 

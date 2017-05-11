@@ -952,7 +952,7 @@ MimmoObject::setPID(shivector1D pids){
 /*!
  * Set PIDs for all geometry cells available. 
  * The PID must be provided as a map with cell unique-id as key and pid associated to it as argument.
- * \param[in] pidsmap PID amp.
+ * \param[in] pidsMap PID amp.
  */
 void
 MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
@@ -1145,7 +1145,7 @@ ivector1D MimmoObject::convertVertexIDToLocal(livector1D vertexList){
 /*! 
  * Convert a list of local/compact vertex index in their bitpit::PatchKernel unique id value.
  * Unexistent vertex index are marked in return vector as -1.
- * \param[in] vertexList list of vertex index in local/compact ordering 
+ * \param[in] vList list of vertex index in local/compact ordering 
  * \return list bitpit::PatchKernel ids identifying vertices.
  */ 
 livector1D MimmoObject::convertLocalToVertexID(ivector1D vList){
@@ -1180,7 +1180,7 @@ ivector1D MimmoObject::convertCellIDToLocal(livector1D cellList){
 /*! 
  * Convert a list of local/compact cell index in their bitpit::PatchKernel unique id value.
  * Unexistent cell index are marked in return vector as -1.
- * \param[in] cellList list of cell index in local/compact ordering 
+ * \param[in] cList list of cell index in local/compact ordering 
  * \return list bitpit::PatchKernel ids identifying cells.
  */ 
 livector1D MimmoObject::convertLocalToCellID(ivector1D cList){

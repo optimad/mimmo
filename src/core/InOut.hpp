@@ -109,14 +109,15 @@ public:
     std::vector<PortID>				getPortLink();
     DataType						getDataType();
 
+    /*!
+     * Pure virtual function to write a buffer.
+     */
     virtual void	writeBuffer() = 0;
     void 			cleanBuffer();
 
     void clear();
     void clear(int j);
 
-    /*!Execution method.
-    */
     void exec();
 
 };
@@ -216,7 +217,9 @@ public:
     void clear();
     void clear(int j);
 
-
+    /*!
+     * Pure virtual function to read a buffer.
+     */
     virtual void    readBuffer() = 0;
     void            cleanBuffer();
 
