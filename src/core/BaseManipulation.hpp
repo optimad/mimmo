@@ -60,6 +60,10 @@ class IOData;
 * The exchange of such data is realized through ports of input/output;
 * two objects (sender/receiver) can be linked by two ports (output/input)
 * that communicate the same type of data. \n
+* The ports of a manipulation object are built in buildPorts() method. This function is
+* a pure virtual method for the base class, i.e. buildPorts() has to be implemented for each
+* derived. In buildPorts() of the derived class function will be defined all the input/output allowed connections
+* of a manipulation object. \n
 * See mimmo::pin namespace and examples for further
 * information about the linking procedure of BaseManipulation derived objects. \n
 * Please note, when copying a derived object by operators/constructors of the base class,
@@ -91,7 +95,7 @@ public:
     typedef	short int									PortID;			/**<Port ID (position of slot).*/
     
 protected:
-    uint                        m_priority;         /**<Flag marking priority of execution of class for multichain exec >*/
+    uint                        m_priority;         /**<Flag marking priority of execution of the object (0 - highest priority) >*/
     std::string					m_name;				/**<Name of the manipulation object.*/
     int 						m_counter;			/**<Counter associated to the object */
     MimmoObject*				m_geometry;			/**<Pointer to manipulated geometry. */
