@@ -24,19 +24,19 @@
 
 
 /*!
- * \defgroup common
+ * \defgroup common Common
  *  Common classes and utils for mimmo
  * \{
- *      \defgroup common_Utils
+ *      \defgroup common_Utils common_Utils
  *       Collection of general methods and functions related to mimmo
  *       \{
  *       \} 
  * \}
- * \defgroup macro
+ * \defgroup macro Macro
  * Preprocessor macros available in mimmo, for executable class registration and factorization
  * \{
  * \}
- * \defgroup typedefs
+ * \defgroup typedefs Typedefs
  * Custom typedefs available in mimmo
  * \{
  * \}
