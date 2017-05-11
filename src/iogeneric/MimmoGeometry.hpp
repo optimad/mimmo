@@ -60,7 +60,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * 
  * - <B>STL     = 0</B>    Ascii/Binary triangulation stl.
  * - <B>STVTU     = 1</B> Surface triangulation vtu.
- * -             <B>SQVTU     = 2</B> Surface quadrilateral vtu.
+ * - <B>SQVTU     = 2</B> Surface quadrilateral vtu.
  * - <B>VTVTU     = 3</B> Volume tetrahedral VTU.
  * - <B>VHVTU     = 4</B> Volume hexahedral VTU.
  * - <B>NAS     = 5</B> Nastran triangulation nas.
@@ -73,7 +73,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * and including MimmoGeometry header.
  *
  * \n
- * Ports available in GenericInput Class :
+ * Ports available in MimmoGeometry Class :
  *
  *    =========================================================
  * ~~~
@@ -113,7 +113,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>BvTree</B>: evaluate bvTree true 1/false 0;
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
  *
- * Geometry has to be mandatorily passed through port.
+ * In case of writing mode Geometry has to be mandatorily passed through port.
  *
  */
 class MimmoGeometry: public BaseManipulation{
