@@ -1,4 +1,4 @@
-# MIMMO installation
+# mimmo installation
 
 mimmo currently runs on Linux platforms. Compatibility on Windows and MacOSX is currently being tested by developers.
 
@@ -6,12 +6,14 @@ mimmo currently runs on Linux platforms. Compatibility on Windows and MacOSX is 
 mimmo depends on
 * c++ compiler supporting `-std=c++11`. It has been tested with g++ >= 4.7.3
 * cmake >= 2.8
-* (optionally) MPI implementation. It has been tested with OpenMPI >= 1.6.5. 
 * lapacke/lapack libraries. It has been tested with Lapack >= 3.5.0
 * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
-* bitpit library. It has been tested with bitpit >= 1.4.0. Visit www.optimad.it/products/bitpit/ for further information.
+* bitpit library. It has been tested with bitpit >= 1.3.0. Visit www.optimad.it/products/bitpit/ for further information.
+* (optionally) MPI implementation. It has been tested with OpenMPI >= 1.6.5. 
+* (optionally) vtk. It has been tested with vtk >= 6.3. 
+* (optionally) cgns. It has been tested with cgns = 3.2.1. 
 
-## Configuring MIMMO
+## Configuring mimmo
 mimmo uses ccmake as building tool.
 In the mimmo's root folder make a building folder, e.g. build
 ```bash
@@ -25,6 +27,7 @@ Enter the `build` folder
 ```bash
     mimmo/build$ ccmake ../
 ```
+
  By this way, mimmo can be configured for production and installation.
 Setting some variable in ccmake interface you can customize a bit your configuration.
 
@@ -36,7 +39,7 @@ The `ENABLE_MPI` variable can be used to compile the parallel implementation of 
 
 The `BUILD_EXAMPLES` can be used to compile examples sources in `mimmo/examples`. Note that the tests sources in `mimmo/test`are necessarily compiled and successively available at `mimmo/build/test/` as well as the compiled examples are available at `mimmo/build/examples/`.
 
-The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible `ON/OFF` (MIMMO_MODULE_IOVTK, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_WRAPPERS, MIMMO_MODULE_UTILS...). Possible dependencies between mimmo modules are automatically resolved. 
+The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible `ON/OFF` (MIMMO_MODULE_IOVTK, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_UTILS...). Possible dependencies between mimmo modules are automatically resolved. 
 
 Finally, you can choose the installation folder setting the cmake variable `CMAKE_INSTALL_PREFIX`. The default installation folder is `/usr/local/`.
 

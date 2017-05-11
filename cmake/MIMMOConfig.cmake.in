@@ -1,20 +1,20 @@
-# MIMMOConfig.cmake - MIMMO CMake configuration file for external projects.
+# MIMMOConfig.cmake - mimmo CMake configuration file for external projects.
 # -----------
 #
-# This file is configured by MIMMO and used by the UseMIMMO.cmake module
-# to load MIMMO's settings for an external project.
+# This file is configured by mimmo and used by the UseMIMMO.cmake module
+# to load mimmo's settings for an external project.
 
 # Compute the installation prefix from this MIMMOConfig.cmake file location.
 @MIMMO_CONFIG_CODE@
 
-# The C and C++ flags added by MIMMO to the cmake-configured flags.
+# The C and C++ flags added by mimmo to the cmake-configured flags.
 SET(MIMMO_REQUIRED_C_FLAGS "")
 SET(MIMMO_REQUIRED_CXX_FLAGS "")
 SET(MIMMO_REQUIRED_EXE_LINKER_FLAGS "")
 SET(MIMMO_REQUIRED_SHARED_LINKER_FLAGS "")
 SET(MIMMO_REQUIRED_MODULE_LINKER_FLAGS "")
 
-# The MIMMO version number
+# The mimmo version number
 SET(MIMMO_MAJOR_VERSION "@MIMMO_MAJOR_VERSION@")
 SET(MIMMO_MINOR_VERSION "@MIMMO_MINOR_VERSION@")
 SET(MIMMO_PATCH_VERSION "@MIMMO_PATCH_VERSION@")
@@ -85,7 +85,7 @@ else ()
     set( MIMMO_LIBRARY "MIMMO_LIBRARY-NOTFOUND")
 endif ()
 
-# MIMMO Definitions
+# mimmo Definitions
 set(MIMMO_DEFINITIONS "@MIMMO_DEFINITIONS_PUBLIC@")
 
 # Let libfind_process initialize the appropriate variables

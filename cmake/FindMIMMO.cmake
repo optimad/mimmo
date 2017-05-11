@@ -1,17 +1,17 @@
 # FindMIMMO.cmake
 # -----------
 #
-# The following variables are set if MIMMO is found. If MIMMO is
+# The following variables are set if mimmo is found. If mimmo is
 # not found, MIMMO_FOUND is set to false:
 #
-#  MIMMO_FOUND        - System has the MIMMO library
-#  MIMMO_USE_FILE     - CMake file to use MIMMO.
-#  MIMMO_VERSION      - Version of the MIMMO library found
-#  MIMMO_INCLUDE_DIRS - The MIMMO include directories
-#  MIMMO_LIBRARIES    - The libraries needed to use MIMMO
+#  MIMMO_FOUND        - System has the mimmo library
+#  MIMMO_USE_FILE     - CMake file to use mimmo.
+#  MIMMO_VERSION      - Version of the mimmo library found
+#  MIMMO_INCLUDE_DIRS - The mimmo include directories
+#  MIMMO_LIBRARIES    - The libraries needed to use mimmo
 #  MIMMO_DEFINITIONS  - Compiler switches required for using patchman
 #
-# The following cache entries must be set by the user to locate MIMMO:
+# The following cache entries must be set by the user to locate mimmo:
 #
 #  MIMMO_DIR - The directory containing MIMMOConfig.cmake.
 #
@@ -24,9 +24,9 @@ set(MIMMO_FOUND 0)
 # command will have already loaded MIMMOConfig.cmake and set MIMMO_FOUND.
 find_package(MIMMO QUIET NO_MODULE)
 
-# If MIMMO was not found, explain to the user how to specify its location.
+# If mimmo was not found, explain to the user how to specify its location.
 if (NOT MIMMO_FOUND)
-    set(MIMMO_DIR_MESSAGE "MIMMO not found. Set the MIMMO_DIR cmake cache entry to the directory containing MIMMOConfig.cmake")
+    set(MIMMO_DIR_MESSAGE "mimmo not found. Set the MIMMO_DIR cmake cache entry to the directory containing MIMMOConfig.cmake")
 
     if (MIMMO_FIND_REQUIRED)
         message(FATAL_ERROR ${MIMMO_DIR_MESSAGE})
