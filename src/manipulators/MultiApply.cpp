@@ -93,7 +93,7 @@ MultiApply::getRefreshGeometryTrees(){
 
 /*!
  * If set true, forces rebuilding of search trees of your target geometries of class MimmoObject
- * \param[in] rebuilding trees flag
+ * \param[in] force rebuilding trees flag
  */
 void
 MultiApply::setRefreshGeometryTrees(bool force){

@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,63 +29,76 @@
 namespace mimmo{
 
 /*!
- *	\class ScalingGeometry
- *	\brief ScalingGeometry is the class that applies a scaling to a given geometry
- *	patch in respect to the mean point of the vertices.
+ *    \class ScalingGeometry
+ *    \ingroup manipulators
+ *    \brief ScalingGeometry is the class that applies a scaling to a given geometry
+ *    patch in respect to the mean point of the vertices.
  *
- *	The used parameters are the scaling factor values for each direction of the cartesian
- *	reference system.
+ *    The used parameters are the scaling factor values for each direction of the cartesian
+ *    reference system.
  *
- *	=========================================================
+ * \n
+ * Ports available in ScalingGeometry Class :
+ *
+ *    =========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType              |
- *	|-------|----------|-------------------|-----------------------|
- *	| 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
- *	| 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
- *	|-------|----------|-------------------|-----------------------|
+     |--------------------------------------------------------------|
+     |                 Port Input                                   |
+     |-------|----------|-------------------|-----------------------|
+     |PortID | PortType | variable/function | DataType              |
+     |-------|----------|-------------------|-----------------------|
+     | 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
+     | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
+     |-------|----------|-------------------|-----------------------|
+
+
+     |---------------------------------------------------------------|
+     |            Port Output                                        |
+     |-------|-----------|-------------------|-----------------------|
+     |PortID | PortType  | variable/function | DataType              |
+     |-------|-----------|-------------------|-----------------------|
+     | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
+     |-------|-----------|-------------------|-----------------------|
+  ~~~
+ *    =========================================================
  *
+ * \n
  *
- *	|---------------------------------------|-----------------------|
- *	|            Port Output                |                       |
- *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType              |
- *	|-------|-----------|-------------------|-----------------------|
- *	| 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
- *	|-------|-----------|-------------------|-----------------------|
- * ~~~
- *	=========================================================
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ScalingGeometry</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Scaling</B>: scaling factor values for each cartesian axis.
+ *
+ * Geometry has to be mandatorily passed through port.
  *
  */
 class ScalingGeometry: public BaseManipulation{
 private:
-	//members
-	darray3E	m_scaling;	    /**<Values of the three fundamental scaling factors (1 = original geometry).*/
-	dvector1D   m_filter;       /**<Filter field for displacements modulation. */
+    darray3E    m_scaling;        /**<Values of the three fundamental scaling factors (1 = original geometry).*/
+    dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
-	ScalingGeometry(darray3E scaling = { {1.0, 1.0, 1.0} });
-	ScalingGeometry(const bitpit::Config::Section & rootXML);
-	~ScalingGeometry();
+    ScalingGeometry(darray3E scaling = { {1.0, 1.0, 1.0} });
+    ScalingGeometry(const bitpit::Config::Section & rootXML);
+    ~ScalingGeometry();
 
-	ScalingGeometry(const ScalingGeometry & other);
-	ScalingGeometry & operator=(const ScalingGeometry & other);
+    ScalingGeometry(const ScalingGeometry & other);
+    ScalingGeometry & operator=(const ScalingGeometry & other);
 
-	void        buildPorts();
+    void        buildPorts();
 
-	void        setScaling(darray3E scaling);
+    void        setScaling(darray3E scaling);
     void        setFilter(dvector1D filter);
 
     dvecarr3E   getDisplacements();
 
-	void 	    execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    void         execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
 REGISTER(BaseManipulation, ScalingGeometry, "mimmo.ScalingGeometry")

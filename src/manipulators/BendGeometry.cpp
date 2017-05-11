@@ -97,6 +97,7 @@ void
 BendGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<dvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<umatrix33E, BendGeometry>(&m_degree, PortType::M_BMATRIX, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<dmat33Evec, BendGeometry>(&m_coeffs, PortType::M_BCOEFFS, mimmo::pin::containerTAG::ARR3ARR3VEC, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<dmatrix33E, BendGeometry>(&m_system, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
@@ -203,6 +204,15 @@ BendGeometry::setRefSystem(dmatrix33E axes){
     m_system[1] = axes[1];
     m_system[2] = axes[2];
     m_local        = true;
+}
+
+/*!It sets the filter field to modulate the displacements of the vertices
+ * of the target geometry.
+ * \param[in] filter filter field defined on geometry vertices.
+ */
+void
+BendGeometry::setFilter(dvector1D filter){
+    m_filter = filter;
 }
 
 /*!Execution command. It computes the nodes displacements with the polynomial law by

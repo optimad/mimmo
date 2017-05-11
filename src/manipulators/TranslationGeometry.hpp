@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,64 +29,78 @@
 namespace mimmo{
 
 /*!
- *	\class TranslationGeometry
- *	\brief TranslationGeometry is the class that applies a translation to a given geometry patch.
+ *    \class TranslationGeometry
+ *    \ingroup manipulators
+ *    \brief TranslationGeometry is the class that applies a translation to a given geometry patch.
  *
- *	The used parameters are the translation value and the direction of the translation axis.
+ *    The used parameters are the translation value and the direction of the translation axis.
  *
- *	=========================================================
+ * \n
+ * Ports available in TranslationGeometry Class :
+ *
+ *    =========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType              |
- *	|-------|----------|-------------------|-----------------------|
- *	| 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
- *	| 30    | M_VALUED | setTranslation    | (SCALAR, FLOAT)       |
- *	| 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
- *	|-------|----------|-------------------|-----------------------|
+     |--------------------------------------------------------------|
+     |                 Port Input                                   |
+     |-------|----------|-------------------|-----------------------|
+     |PortID | PortType | variable/function | DataType              |
+     |-------|----------|-------------------|-----------------------|
+     | 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
+     | 30    | M_VALUED | setTranslation    | (SCALAR, FLOAT)       |
+     | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
+     |-------|----------|-------------------|-----------------------|
+
+
+     |---------------------------------------------------------------|
+     |            Port Output                                        |
+     |-------|-----------|-------------------|-----------------------|
+     |PortID | PortType  | variable/function | DataType              |
+     |-------|-----------|-------------------|-----------------------|
+     | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
+     |-------|-----------|-------------------|-----------------------|
+  ~~~
+ *    =========================================================
+ * \n
  *
+ * The xml available parameters, sections and subsections are the following :
  *
- *	|---------------------------------------|-----------------------|
- *	|            Port Output                |                       |
- *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType              |
- *	|-------|-----------|-------------------|-----------------------|
- *	| 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
- *	|-------|-----------|-------------------|-----------------------|
- * ~~~
- *	=========================================================
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.TranslationGeometry</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Direction</B>: axis direction coordinates;
+ * - <B>Translation</B>: translation value in length unity.
+ *
+ * Geometry has to be mandatorily passed through port.
  *
  */
 class TranslationGeometry: public BaseManipulation{
 private:
-	//members
-	darray3E	m_direction;	/**<Components of the translation axis.*/
-	double		m_alpha;        /**<Angle of translation in radiant. */
-	dvector1D   m_filter;       /**<Filter field for displacements modulation. */
+    //members
+    darray3E    m_direction;    /**<Components of the translation axis.*/
+    double      m_alpha;        /**<Angle of translation in radiant. */
+    dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
-	TranslationGeometry(darray3E direction = { {0, 0, 0} });
-	TranslationGeometry(const bitpit::Config::Section & rootXML);
-	~TranslationGeometry();
+    TranslationGeometry(darray3E direction = { {0, 0, 0} });
+    TranslationGeometry(const bitpit::Config::Section & rootXML);
+    ~TranslationGeometry();
 
-	TranslationGeometry(const TranslationGeometry & other);
-	TranslationGeometry & operator=(const TranslationGeometry & other);
+    TranslationGeometry(const TranslationGeometry & other);
+    TranslationGeometry & operator=(const TranslationGeometry & other);
 
-	void        buildPorts();
+    void        buildPorts();
 
-	void        setDirection(darray3E direction);
+    void        setDirection(darray3E direction);
     void        setTranslation(double alpha);
     void        setFilter(dvector1D filter);
 
     dvecarr3E   getDisplacements();
 
-	void 	    execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    void         execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
 REGISTER(BaseManipulation, TranslationGeometry, "mimmo.TranslationGeometry")

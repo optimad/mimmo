@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,69 +29,84 @@
 namespace mimmo{
 
 /*!
- *	\class RotationGeometry
- *	\brief RotationGeometry is the class that applies a rotation to a given geometry patch.
+ *    \class RotationGeometry
+ *    \ingroup manipulators
+ *    \brief RotationGeometry is the class that applies a rotation to a given geometry patch.
  *
- *	The used parameters are the rotation value and the direction and the origin
- *	of the rotation axis.
+ *    The used parameters are the rotation value and the direction and the origin
+ *    of the rotation axis.
  *
- *	=========================================================
+ * \n
+ * Ports available in RotationGeometry Class :
+ *
+ *    =========================================================
  * ~~~
- *	|--------------------------------------------------------------|
- *	|                 Port Input                                   |
- *	|-------|----------|-------------------|-----------------------|
- *	|PortID | PortType | variable/function | DataType              |
- *	|-------|----------|-------------------|-----------------------|
- *	| 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
- *	| 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
- *	| 30    | M_VALUED | setRotation       | (SCALAR, FLOAT)       |
- *	| 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
- *	| 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
- *	|-------|----------|-------------------|-----------------------|
+     |--------------------------------------------------------------|
+     |                 Port Input                                   |
+     |-------|----------|-------------------|-----------------------|
+     |PortID | PortType | variable/function | DataType              |
+     |-------|----------|-------------------|-----------------------|
+     | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
+     | 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
+     | 30    | M_VALUED | setRotation       | (SCALAR, FLOAT)       |
+     | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
+     |-------|----------|-------------------|-----------------------|
+
+
+     |---------------------------------------------------------------|
+     |            Port Output                                        |
+     |-------|-----------|-------------------|-----------------------|
+     |PortID | PortType  | variable/function | DataType              |
+     |-------|-----------|-------------------|-----------------------|
+     | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
+     |-------|-----------|-------------------|-----------------------|
+  ~~~
+ *    =========================================================
+ * \n
  *
+ * The xml available parameters, sections and subsections are the following :
  *
- *	|---------------------------------------|-----------------------|
- *	|            Port Output                |                       |
- *	|-------|-----------|-------------------|-----------------------|
- *	|PortID | PortType  | variable/function | DataType              |
- *	|-------|-----------|-------------------|-----------------------|
- *	| 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
- *	|-------|-----------|-------------------|-----------------------|
- * ~~~
- *	=========================================================
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.RotationGeometry</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Origin</B>: rotation axis origin;
+ * - <B>Direction</B>: axis direction coordinates;
+ * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis.
+ *
+ * Geometry has to be mandatorily passed through port.
  *
  */
 class RotationGeometry: public BaseManipulation{
 private:
-	//members
-	darray3E	m_origin;		/**<Origin of the rotation axis.*/
-	darray3E	m_direction;	/**<Components of the rotation axis.*/
-	double		m_alpha;        /**<Angle of rotation in radiant. */
-	dvector1D   m_filter;       /**<Filter field for displacements modulation. */
+    //members
+    darray3E    m_origin;        /**<Origin of the rotation axis.*/
+    darray3E    m_direction;    /**<Components of the rotation axis.*/
+    double        m_alpha;        /**<Angle of rotation in radiant. */
+    dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
-	RotationGeometry(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });
-	RotationGeometry(const bitpit::Config::Section & rootXML);
-	~RotationGeometry();
+    RotationGeometry(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });
+    RotationGeometry(const bitpit::Config::Section & rootXML);
+    ~RotationGeometry();
 
-	RotationGeometry(const RotationGeometry & other);
-	RotationGeometry & operator=(const RotationGeometry & other);
+    RotationGeometry(const RotationGeometry & other);
+    RotationGeometry & operator=(const RotationGeometry & other);
 
-	void        buildPorts();
+    void        buildPorts();
 
-	void        setAxis(darray3E origin, darray3E direction);
-	void        setOrigin(darray3E origin);
-	void        setDirection(darray3E direction);
+    void        setAxis(darray3E origin, darray3E direction);
+    void        setOrigin(darray3E origin);
+    void        setDirection(darray3E direction);
     void        setRotation(double alpha);
     void        setFilter(dvector1D filter);
 
     dvecarr3E   getDisplacements();
 
-	void 	    execute();
-	
-	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
-	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    void         execute();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
 REGISTER(BaseManipulation, RotationGeometry, "mimmo.RotationGeometry")
