@@ -24,7 +24,7 @@
 
 
  /*!
- * \defgroup manipulators
+ * \defgroup manipulators manipulators
 * Collection of all executable blocks that provides a
 * deformation field for a target mesh and applies to it.
  * \{

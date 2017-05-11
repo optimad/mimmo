@@ -23,7 +23,7 @@
  #----------------------------------------------------------------------------*/
 
  /*!
- * \defgroup utils
+ * \defgroup utils utils
 * Miscellaneous features for morphing workflow
  * \{
  * \}
@@ -39,9 +39,9 @@
 #include "CreateSeedsOnSurface.hpp"
 #include "ProjectCloud.hpp"
 #include "RBFBox.hpp"
-#include "RotationBox.hpp"
+#include "RotationAxes.hpp"
 #include "SpecularPoints.hpp"
-#include "TranslationBox.hpp"
+#include "TranslationPoint.hpp"
 #include "OBBox.hpp"
 
 #endif

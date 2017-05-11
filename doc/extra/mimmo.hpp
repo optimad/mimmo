@@ -8,34 +8,34 @@ is made by essential executable blocks (EB), each one providing a basic feature,
 sub-portion of target geometries, etc... . Blocks are connectable between each other, so that they can describe a morphing workflow, easily
 controllable by the User.
 
-# Basic contents
+# Modules
 
 ## core 
-<B>mimmo::core</B> provides the basic EB structure and low level tools to manage them.  
+<B>core</B> provides the basic EB structure and low level tools to manage them.
 
 ## iogeneric
-<B> mimmo::iogeneric </B> provides all EBs to read/write geometry from/on external files, as well as raw data in generic formats.
+<B>iogeneric</B> provides all EBs to read/write geometry from/on external files, as well as raw data in generic formats.
 
 ## iocgns
-<B>mimmo::iocgns</B> collects all interfaces to volume mesh CGNS format input/output
+<B>iocgns</B> collects all interfaces to volume mesh CGNS format input/output
 
 ## iovtk
-<B>mimmo::iovtk</B> collects all interfaces to volume mesh VTK format input/output.
+<B>iovtk</B> collects all interfaces to volume mesh VTK format input/output.
 
 ## ioofoam
-<B>mimmo::ioofoam</B> collects all interfaces to volume mesh OpenFoam format input/output.
+<B>ioofoam</B> collects all interfaces to volume mesh OpenFoam format input/output.
 
 ## geohandlers
-<B>mimmo::geohandlers</B> provides tools to handle, transform, select a target geometry mesh and scalar/vector field attached to it, if any 
+<B>geohandlers</B> provides tools to handle, transform, select a target geometry mesh and scalar/vector field attached to it, if any
 
 ## manipulators
-<B>mimmo::manipulators</B> provides core engines to manipulate the target mesh with eFFD or RBF techniques
+<B>manipulators</B> provides core engines to manipulate the target mesh with eFFD or RBF techniques
 
 ## wrappers
-<B>mimmo::wrappers</B> provides special EBs that globally control displacements of a point cloud of control nodes associated to a manipulator.
+<B>wrappers</B> provides special EBs that globally control displacements of a point cloud of control nodes associated to a manipulator.
 
 ## utils
-- <B>bitpit::utils</B> provides a miscellaneous group of blocks that can be useful during the statement of the morphing workflow
+<B>utils</B> provides miscellaneous features for morphing workflow
 
 */
 

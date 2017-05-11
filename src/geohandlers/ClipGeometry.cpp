@@ -47,6 +47,9 @@ ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
     m_plane.fill(0.0);
     m_insideout = false;
     m_patch.reset(nullptr);
+    m_origin.fill(0.0);
+    m_normal.fill(0.0);
+    m_implicit = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
