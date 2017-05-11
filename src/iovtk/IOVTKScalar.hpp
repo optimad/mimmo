@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -30,11 +30,9 @@
 namespace mimmo{
 
 /*!
- *	\date			28/apr/2016
- *	\authors		Rocco Arpa
- *	\authors		Edoardo Lombardi
- *
- *	\brief IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry.
+ * \class IOVTKScalar
+ * \ingroup iovtk
+ * \brief IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry.
  *
  * The object provides an interface to retrieve/modify a scalar field evaluated on
  * the points of the surface polymesh.
@@ -48,30 +46,48 @@ namespace mimmo{
  *
  * Dependencies : vtk libraries (tested with vtk DataFile Version 4.0).
  *
-
+ * \n
+ * Ports available in IOVTKScalar Class :
+ *
  *  =========================================================
  * ~~~
- *  |-----------------------------------------------------------------------|
- *  |                     Port Input                                        |
- *  |-------|------------------|---------------------|----------------------|
- *  |PortID | PortType         | variable/function   | DataTypes            |
- *  |-------|------------------|---------------------|----------------------|
- *  | 19    | M_SCALARFIELD    | setField            | (VECTOR, FLOAT)      |
- *  | 30    | M_VALUED         | setScaling          | (SCALAR, FLOAT)      |
- *  | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
- *  | 1100  | M_POLYDATA_      | setPolyData         | (SCALAR, POLYDATA_)  |
- *  |-------|------------------|---------------------|----------------------|
+   |-----------------------------------------------------------------------|
+   |                     Port Input                                        |
+   |-------|------------------|---------------------|----------------------|
+   |PortID | PortType         | variable/function   | DataTypes            |
+   |-------|------------------|---------------------|----------------------|
+   | 19    | M_SCALARFIELD    | setField            | (VECTOR, FLOAT)      |
+   | 30    | M_VALUED         | setScaling          | (SCALAR, FLOAT)      |
+   | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
+   | 1100  | M_POLYDATA_      | setPolyData         | (SCALAR, POLYDATA_)  |
+   |-------|------------------|---------------------|----------------------|
+
+
+   |-----------------------------------------------------------------------|
+   |               Port Output                                             |
+   |-------|------------------|-------------------|------------------------|
+   |PortID | PortType         | variable/function | DataTypes              |
+   |-------|------------------|-------------------|------------------------|
+   | 19    | M_SCALARFIELD    | getField          | (VECTOR, FLOAT)        |
+   | 99    | M_GEOM           | getGeometry       | (SCALAR, MIMMO_)       |
+   | 1100  | M_POLYDATA_      | getPolyData       | (SCALAR, POLYDATA_)    |
+   |-------|------------------|-------------------|------------------------|
+    ~~~
+ *  =========================================================
+ * \n
  *
+ * The xml available parameters, sections and subsections are the following :
  *
- *  |-----------------------------------------------------------------------|
- *  |               Port Output                                             |
- *  |-------|------------------|-------------------|------------------------|
- *  |PortID | PortType         | variable/function | DataTypes              |
- *  |-------|------------------|-------------------|------------------------|
- *  | 19    | M_SCALARFIELD    | getField          | (VECTOR, FLOAT)        |
- *  | 99    | M_GEOM           | getGeometry       | (SCALAR, MIMMO_)       |
- *  | 1100  | M_POLYDATA_      | getPolyData       | (SCALAR, POLYDATA_)    |
- *	|-------|------------------|-------------------|------------------------|
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.IOVTKScalar</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>ReadFlag</B>: activate reading mode boolean 0/1;
+ * - <B>ReadDir</B>: reading directory path;
+ * - <B>ReadFilename</B>: name of file for reading;
+ * - <B>WriteFlag</B>: activate reading mode boolean 0/1;
+ * - <B>WriteDir</B>: writing directory path;
+ * - <B>WriteFilename</B>: name of file for writing;
+ * - <B>Normalize</B>: activate field normalization boolean 0/1;
+ * - <B>Scaling</B>: set field scaling factor (double).
  *
  */
 class IOVTKScalar: public BaseManipulation{
@@ -121,7 +137,7 @@ public:
     bool            read();
 
     void            execute();
-    
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 

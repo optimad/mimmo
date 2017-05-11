@@ -2,7 +2,7 @@
  #                                                                           
  #  mimmo
  #
- #  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  #
  #  -------------------------------------------------------------------------
  #  License
@@ -22,9 +22,11 @@
  #
  #----------------------------------------------------------------------------*/
 
-/*!
- * @defgroup IOVTK
- *
+ /*!
+ * \defgroup iovtk
+ * basic Input/Output handling for meshes in VTK format with data
+ * \{
+ * \}
  */
 
 #ifndef __MIMMO_MODULE_IOVTK_HPP__

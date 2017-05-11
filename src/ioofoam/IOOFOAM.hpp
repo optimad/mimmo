@@ -46,7 +46,7 @@ namespace mimmo{
  * The volume points cloud (import of one "points" file allowed)
  * is insert in pointer to a MimmoObject (locally instantiated).
  *
- * Dependencies : vtk libraries.
+ * Dependencies : vtk libraries (tested with vtk DataFile Version 4.0).
  *
  * \n
  *
@@ -175,8 +175,8 @@ public:
     MimmoObject*    getGeometry();
     dvector1D       getField();
 
-    void            readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points);
-    void            writeOFP(std::string& outputDir, std::string& surfaceName, bitpit::PiercedVector<bitpit::Vertex> &vertices);
+    void            readOFP(std::string& inputDir, std::string& pointsName, dvecarr3E& points);
+    void            writeOFP(std::string& outputDir, std::string& pointsName, bitpit::PiercedVector<bitpit::Vertex> &vertices);
     bool            readVTK(std::string& inputDir, std::string& surfaceName, short PID, MimmoObject* patchBnd);
 
     bool            write();

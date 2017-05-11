@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -38,17 +38,17 @@ namespace mimmo{
 /*!Default constructor of IOVTKScalar.
  */
 IOVTKScalar::IOVTKScalar(){
-    m_name 		= "mimmo.IOVTKScalar";
-    m_read		= false;
-    m_rfilename	= "mimmoVTKScalar";
-    m_write		= false;
-    m_wfilename	= "mimmoVTKScalar";
-    m_rdir		= "./";
-    m_wdir		= "./";
-    m_polydata	= NULL;
-    m_local		= false;
-    m_normalize	= true;
-    m_scaling	= 1.0;
+    m_name         = "mimmo.IOVTKScalar";
+    m_read        = false;
+    m_rfilename    = "mimmoVTKScalar";
+    m_write        = false;
+    m_wfilename    = "mimmoVTKScalar";
+    m_rdir        = "./";
+    m_wdir        = "./";
+    m_polydata    = NULL;
+    m_local        = false;
+    m_normalize    = true;
+    m_scaling    = 1.0;
 }
 
 
@@ -57,7 +57,7 @@ IOVTKScalar::IOVTKScalar(){
  * \param[in] rootXML reference to your xml tree section
  */
 IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
-    
+
     m_name      = "mimmo.IOVTKScalar";
     m_read      = false;
     m_rfilename = "mimmoVTKScalar";
@@ -69,7 +69,7 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
     m_local     = false;
     m_normalize = true;
     m_scaling   = 1.0;
-    
+
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::trim(input);
@@ -127,6 +127,7 @@ IOVTKScalar::buildPorts(){
 
 /*!
  * Return pointer to the currently linked VTK PolyData object
+ * \return pointer to VTK PolyData object
  */
 vtkPolyData*
 IOVTKScalar::getPolyData(){
@@ -134,7 +135,8 @@ IOVTKScalar::getPolyData(){
 }
 
 /*!
- * Return the currently set scaling parameter;
+ * Return the currently set scaling parameter
+ * \return scaling parameter
  */
 double
 IOVTKScalar::getScaling(){
@@ -143,6 +145,7 @@ IOVTKScalar::getScaling(){
 
 /*!
  * Returning field associated to the class
+ * \return scalar field
  */
 dvector1D
 IOVTKScalar::getField(){
@@ -160,7 +163,7 @@ IOVTKScalar::setPolyData(vtkPolyData* polydata){
 
 /*!
  * Set the scaling parameter to remodulate field
- * \param[in] scaling parameter
+ * \param[in] scaling scaling parameter
  */
 void
 IOVTKScalar::setScaling(double scaling){
@@ -168,7 +171,7 @@ IOVTKScalar::setScaling(double scaling){
 }
 
 /*!
- * Set the field associated to the class.
+ * Set the field associated to the mesh.
  * \param[in] field scalar field of doubles
  */
 void
@@ -242,7 +245,7 @@ IOVTKScalar::setWriteFilename(string filename){
 
 /*!
  * It reads the mesh geometry from an input file.
- * \return False if file doesn't exists or is not a polydata.
+ * \return False if file doesn't exist or is not a polydata.
  */
 bool
 IOVTKScalar::read(){
@@ -260,8 +263,8 @@ IOVTKScalar::read(){
     }
 
     string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
-    int	np = 0;
-    int	nt = 0;
+    int    np = 0;
+    int    nt = 0;
     darray3E point;
 
     // Get all data from the file
@@ -459,33 +462,17 @@ IOVTKScalar::execute(){
 
 
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameters (polydata or MimmObject 
- * which are instantiated internally or passed by port linking) and the target field, 
- * the class reads the following parameters:
- *
- *  --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean 0/1
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteFlag</B>: activate reading mode boolean 0/1
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFilename</B>: name of file for writing
- * - <B>Normalize</B>: activate field normalization boolean 0/1
- * - <B>Scaling</B>: set field scaling factor (double) 
- * 
- *
- * \param[in]   slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
 void 
 IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     std::string input;
-    
+
     if(slotXML.hasOption("Priority")){
         input = slotXML.get("Priority");
         int value =0;
@@ -495,7 +482,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         }
         setPriority(value);
     };
-    
+
     if(slotXML.hasOption("ReadFlag")){
         input = slotXML.get("ReadFlag");
         bool value = false;
@@ -515,8 +502,8 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         }
         setWrite(value);
     };
-    
-    
+
+
     if (m_read){
         if(slotXML.hasOption("ReadDir")){
             input = slotXML.get("ReadDir");
@@ -524,7 +511,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
             if(input.empty())   input = "./";
             setReadDir(input);
         };
-        
+
         if(slotXML.hasOption("ReadFilename")){
             input = slotXML.get("ReadFilename");
             input = bitpit::utils::trim(input);
@@ -532,7 +519,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
             setReadFilename(input);
         };
     }
-    
+
     if(m_write){
         if(slotXML.hasOption("WriteDir")){
             input = slotXML.get("WriteDir");
@@ -540,7 +527,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
             if(input.empty())   input = "./";
             setWriteDir(input);
         };
-        
+
         if(slotXML.hasOption("WriteFilename")){
             input = slotXML.get("WriteFilename");
             input = bitpit::utils::trim(input);
@@ -548,7 +535,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
             setWriteFilename(input);
         };
     }
-    
+
     if(slotXML.hasOption("Normalize")){
         input = slotXML.get("Normalize");
         bool value = false;
@@ -558,7 +545,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         }
         setNormalize(value);
     };
-    
+
     if(slotXML.hasOption("Scaling")){
         input = slotXML.get("Scaling");
         double value = 1.0;
@@ -571,40 +558,22 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
 };
 
 /*!
- * Write settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameters (polydata or MimmObject 
- * which are instantiated internally or passed by port linking) and the target field,
- * the class writes the following parameters:
- * 
- *
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.Geometry"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean 0/1
- * - <B>ReadDir</B>: reading directory path
- * - <B>ReadFilename</B>: name of file for reading
- * - <B>WriteFlag</B>: activate reading mode boolean 0/1
- * - <B>WriteDir</B>: writing directory path
- * - <B>WriteFilename</B>: name of file for writing
- * - <B>Normalize</B>: activate field normalization boolean 0/1
- * - <B>Scaling</B>: set field scaling factor (double) 
- * 
- *
- * \param[in]   slotXML bitpit::Config::Section which writes to
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
 void 
 IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     slotXML.set("ClassName", m_name);
     slotXML.set("Priority", std::to_string(getPriority()));
     std::string output;
-    
+
     output = std::to_string(uint(m_read));
     slotXML.set("ReadFlag", output);
-    
+
     if(m_read){
         slotXML.set("ReadDir", m_rdir);
         slotXML.set("ReadFilename", m_rfilename);
@@ -612,20 +581,16 @@ IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
 
     output = std::to_string(uint(m_write));
     slotXML.set("WriteFlag", output);
-    
+
     if(m_write){
         slotXML.set("WriteDir", m_wdir);
         slotXML.set("WriteFilename", m_wfilename);
     }
-    
+
     output = std::to_string(uint(m_normalize));
     slotXML.set("Normalize", output);
     slotXML.set("Scaling", std::to_string(m_scaling));
 };
-
-
-
-
 
 }
 

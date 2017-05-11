@@ -440,9 +440,9 @@ void IOOFOAM::readOFP(string& inputDir, string& pointsName, dvecarr3E& points){
 
 /*!
  *  Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]    inputDir    folder of file
+ *\param[in]    outputDir    folder of file
  *\param[in]    pointsName  name of file
- *\param[out]   points      list of points in the cloud
+ *\param[out]   vertices    list of points in the cloud
  *
  */
 void IOOFOAM::writeOFP(string& outputDir, string& pointsName, PiercedVector<Vertex>& vertices){
