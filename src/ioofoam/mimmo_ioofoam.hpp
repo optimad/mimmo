@@ -2,7 +2,7 @@
  #                                                                           
  #  mimmo
  #
- #  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  #
  #  -------------------------------------------------------------------------
  #  License
@@ -22,9 +22,11 @@
  #
  #----------------------------------------------------------------------------*/
 
-/*!
- * @defgroup IOOFOAM 
- *
+ /*!
+ * \defgroup ioofoam
+ * basic Input/Output handling for meshes in OpenFOAM format
+ * \{
+ * \}
  */
 
 #ifndef __MIMMO_MODULE_IOOFOAM_HPP__

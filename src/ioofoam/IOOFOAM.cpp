@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2016 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -36,7 +36,7 @@ namespace mimmo{
 /*!Default constructor of IOOFOAM.
  */
 IOOFOAM::IOOFOAM(){
-    m_name 		 = "mimmo.IOOFOAM";
+    m_name          = "mimmo.IOOFOAM";
     setDefaults();
 }
 
@@ -227,7 +227,8 @@ IOOFOAM::setGeometry(MimmoObject * geom){
 
 /*!
  * Set boundary surface relative to the volume mesh.Option active only in writing mode.
- * Preexistent boundary surfaces read from file, when class is set in read mode,  will be erased.
+ * Pre-existent boundary surfaces read from file, when class is set in read mode,  will be erased.
+ * \param[in] geosurf pointer to surface boundary mesh
  */
 void
 IOOFOAM::setSurfaceBoundary(MimmoObject* geosurf){
@@ -269,6 +270,7 @@ IOOFOAM::setNormalize(bool normalize){
  * Return all the surface bounding the current volume mesh.
  * If reading mode is active returns info contained in vtk, marking with internal PID all the possible boundary patches,
  * otherwise refers to the actual object pointed by the User.
+ * \return pointer to surface boundary mesh
  */
 MimmoObject*
 IOOFOAM::getSurfaceBoundary(){
@@ -280,6 +282,7 @@ IOOFOAM::getSurfaceBoundary(){
 /*!
  * Return current pointer to geometry.If read mode is active return local read volumetric mesh, else
  * otherwise return pointed externally geometry
+ * \return pointer to volume points cloud mesh
  */
 MimmoObject*
 IOOFOAM::getGeometry(){
@@ -665,47 +668,12 @@ IOOFOAM::execute(){
 
 
 /*!
- * Get settings of the class from bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::absorbSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class reads the following parameters:
- *
- *  --> Absorbing data:
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean
- * - <B>VTKReadDirs</B>: VTK reading directories path; there can be more than one with the following sub-structure
- *              <VTKReadDirs>
- *                  <dir0>
- *                      <dir> path to the directory of VTK file </dir>
- *                  </dir0>
- *                  <dir1>
- *                      <dir> path to the directory of VTK file </dir>
- *                  </dir1>
- *                  ...
- *                  ...
- *              </VTKReadDirs>
- * - <B>VTKReadFilenames</B>: names of files VTK for reading there can be more than one with the following sub-structure
- *              <VTKReadFilenames>
- *                  <file0>
- *                      <filename> path to the directory of VTK file </dir>
- *                  </file0>
- *                  <file1>
- *                      <filename> path to the directory of VTK file </dir>
- *                  </file1>
- *                  ...
- *                  ...
- *              </VTKReadFilenames>
- * - <B>PointsReadDir</B>: points file reading directory path (there can be only one)
- * - <B>PointsReadFilename</B>: name of points file for reading (there can be only one)
- * - <B>WriteFlag</B>: activate writing mode boolean
- * - <B>VTKWriteDir</B>: VTK file (one in output) writing directory path
- * - <B>VTKWriteFilename</B>: VTK name of file for writing
- * - <B>Scalar</B>: value to scale the scalar field eventually present on volume mesh (defined on points) [default 1.0]
- * - <B>Normalize</B>: bool to define if the scalar field has to be normalize after read [default false]
- *
- * \param[in]   slotXML bitpit::Config::Section which reads from
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void
+IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -853,48 +821,12 @@ void IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 };
 
 /*!
- * Write settings of the class to bitpit::Config::Section slot. Reimplemented from
- * BaseManipulation::flushSectionXML. Except of geometry parameter (which is instantiated internally
- * or passed by port linking), the class writes the following parameters(if different from default):
- *
- * --> Flushing data// how to write it on XML:
- * - <B>ClassName</B>: name of the class as "mimmo.IOOFOAM"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>ReadFlag</B>: activate reading mode boolean
- * - <B>VTKReadDirs</B>: VTK reading directories path; there can be more than one with the following sub-structure
- *              <VTKReadDirs>
- *                  <dir0>
- *                      <dir> path to the directory of VTK file </dir>
- *                  </dir0>
- *                  <dir1>
- *                      <dir> path to the directory of VTK file </dir>
- *                  </dir1>
- *                  ...
- *                  ...
- *              </VTKReadDirs>
- * - <B>VTKReadFilenames</B>: names of files VTK for reading there can be more than one with the following sub-structure
- *              <VTKReadFilenames>
- *                  <file0>
- *                      <filename> path to the directory of VTK file </dir>
- *                  </file0>
- *                  <file1>
- *                      <filename> path to the directory of VTK file </dir>
- *                  </file1>
- *                  ...
- *                  ...
- *              </VTKReadFilenames>
- * - <B>PointsReadDir</B>: points file reading directory path (there can be only one)
- * - <B>PointsReadFilename</B>: name of points file for reading (there can be only one)
- * - <B>WriteFlag</B>: activate writing mode boolean
- * - <B>VTKWriteDir</B>: VTK file (one in output) writing directory path
- * - <B>VTKWriteFilename</B>: VTK name of file for writing
- * - <B>Scalar</B>: value to scale the scalar field eventually present on volume mesh (defined on points) [default 1.0]
- * - <B>Normalize</B>: bool to define if the scalar field has to be normalize after read [default false]
- *
- * \param[in]   slotXML bitpit::Config::Section which writes to
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void
+IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
