@@ -42,23 +42,38 @@ using namespace pin;
 class IOData;
 
 /*!
-* \class BaseManipulation 
-* \brief BaseManipulation is the base class of any object (derived class) for manipulation of the geometry.
+* \class BaseManipulation
+* \ingroup core
+* \brief BaseManipulation is the base class of any manipulation object of the library.
 *
-* BaseManipulation is the base class used to build each generic or particular manipulation object.
-* This base class has some common interface methods, as the base get/set methods.
-* The only method to be called to execute the manipulation object is the method exec() that calls the pure virtual execute(),
-* codified in ach derived class.
-* Each manipulation base object has a linked geometry (a target MimmoObject) and one or more linked manipulation
-* objects from wich recovering/distributing relevant data. 
-* The exchange of such data is realized through Ports (input/output link to same class objects). See mimmo::pin namespace
-* for further information about the linking procedure of BaseManipulation objects.
-* Please note, when you get a copy by deputed operators/constructors of the class, pins, parental linking as well as custom 
-* input/result slots are not copied and left empty. Copy of BaseManipulation members in itself or in its derivations retains 
-* only the following parameters of BaseManipulation: link to target geometry, its own name and its supported Type of Ports.
+* BaseManipulation is the base class used to derive each manipulation object of mimmo API. \n
+* This base class provides some common interface methods, as the base get/set methods. \n
+* To execute an object derived from BaseManipulation call the
+* method exec() of the base class.
+* In the exec() function the pure virtual execute() method is called.
+* Pure virtual execute() is the real working function of a manipulation object and has to be
+* implemented in each derived class. \n
+* A manipulation base object has a linked geometry, a MimmoObject, that is
+* the target geometry to manipulate. \n
+* A set of manipulation objects can be rearranged in an execution chain and linked
+* in order to communicate each other useful data and geometries.
+* The exchange of such data is realized through ports of input/output;
+* two objects (sender/receiver) can be linked by two ports (output/input)
+* that communicate the same type of data. \n
+* See mimmo::pin namespace and examples for further
+* information about the linking procedure of BaseManipulation derived objects. \n
+* Please note, when copying a derived object by operators/constructors of the base class,
+* ports, linking as well as custom input/result slots are not
+* copied and left empty. Copy of BaseManipulation members in itself
+* or in its derivations retains only the following parameters of
+* BaseManipulation:
+* - link to target geometry;
+* - name;
+* - supported type of Ports.
 *
 *
-* PortType specification : please refer to PortType enum documentation.
+* For further information about PortType specification
+* please refer to PortType enum documentation.
 *
 */
 class BaseManipulation{
