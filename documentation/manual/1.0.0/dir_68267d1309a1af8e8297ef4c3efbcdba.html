@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -118,6 +125,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('dir_68267d1309a1af8e8297ef4c3efbcdba.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -132,11 +154,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">src Directory Reference</div>  </div>
@@ -147,7 +164,7 @@ Directory dependency graph for src:</div>
 <div class="dyncontent">
 <div class="center"><img src="dir_68267d1309a1af8e8297ef4c3efbcdba_dep.png" border="0" usemap="#dir__68267d1309a1af8e8297ef4c3efbcdba__dep" alt="src"/></div>
 <map name="dir__68267d1309a1af8e8297ef4c3efbcdba__dep" id="dir__68267d1309a1af8e8297ef4c3efbcdba__dep">
-<area shape="rect" id="node2" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html" title="common" alt="" coords="555,27,627,75"/><area shape="rect" id="node3" href="dir_aebb8dcc11953d78e620bbef0b9e2183.html" title="core" alt="" coords="459,27,531,75"/><area shape="rect" id="node4" href="dir_825ce8e0244dc61c0597d890c256a8de.html" title="geohandlers" alt="" coords="342,27,433,75"/><area shape="rect" id="node5" href="dir_9334478165b559cbe42bc43747cac735.html" title="iogeneric" alt="" coords="243,27,317,75"/><area shape="rect" id="node6" href="dir_61747b952f97c0533f40101898e1ce77.html" title="manipulators" alt="" coords="123,27,219,75"/><area shape="rect" id="node7" href="dir_313caf1132e152dd9b58bea13a4052ca.html" title="utils" alt="" coords="27,27,99,75"/><area shape="rect" id="clust1" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html" alt="" coords="16,16,733,85"/></map>
+<area shape="rect" id="node2" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html" title="common" alt="" coords="843,27,915,75"/><area shape="rect" id="node3" href="dir_aebb8dcc11953d78e620bbef0b9e2183.html" title="core" alt="" coords="747,27,819,75"/><area shape="rect" id="node4" href="dir_825ce8e0244dc61c0597d890c256a8de.html" title="geohandlers" alt="" coords="630,27,721,75"/><area shape="rect" id="node5" href="dir_6b24acc2f22aa40c64fc9391b94f8627.html" title="iocgns" alt="" coords="533,27,605,75"/><area shape="rect" id="node6" href="dir_9334478165b559cbe42bc43747cac735.html" title="iogeneric" alt="" coords="435,27,509,75"/><area shape="rect" id="node7" href="dir_7d51de39de225604e22b8fcb1062ba2e.html" title="ioofoam" alt="" coords="339,27,411,75"/><area shape="rect" id="node8" href="dir_eb67da3f14478242e086b01014a55535.html" title="iovtk" alt="" coords="243,27,315,75"/><area shape="rect" id="node9" href="dir_61747b952f97c0533f40101898e1ce77.html" title="manipulators" alt="" coords="123,27,219,75"/><area shape="rect" id="node10" href="dir_313caf1132e152dd9b58bea13a4052ca.html" title="utils" alt="" coords="27,27,99,75"/><area shape="rect" id="clust1" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html" alt="" coords="16,16,1021,85"/></map>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="subdirs"></a>
@@ -158,7 +175,13 @@ Directories</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:dir_825ce8e0244dc61c0597d890c256a8de"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_825ce8e0244dc61c0597d890c256a8de.html">geohandlers</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:dir_6b24acc2f22aa40c64fc9391b94f8627"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_6b24acc2f22aa40c64fc9391b94f8627.html">iocgns</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:dir_9334478165b559cbe42bc43747cac735"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_9334478165b559cbe42bc43747cac735.html">iogeneric</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:dir_7d51de39de225604e22b8fcb1062ba2e"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_7d51de39de225604e22b8fcb1062ba2e.html">ioofoam</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:dir_eb67da3f14478242e086b01014a55535"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_eb67da3f14478242e086b01014a55535.html">iovtk</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:dir_61747b952f97c0533f40101898e1ce77"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_61747b952f97c0533f40101898e1ce77.html">manipulators</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,15 +189,19 @@ Directories</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

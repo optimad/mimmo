@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -124,6 +131,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="namespacemembers.html"><span>Namespace&#160;Members</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('namespacemimmo_1_1pin.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -138,11 +160,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespacemimmo.html">mimmo</a></li><li class="navelem"><a class="el" href="namespacemimmo_1_1pin.html">pin</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#typedef-members">Typedefs</a> &#124;
@@ -286,7 +303,7 @@ Functions</h2></td></tr>
 <li><b>M_MAPDVERT </b>= 105 Port dedicated to communicate a map of vertex-ids of type &lt;long, std::pair&lt;int, long&gt;&gt;,</li>
 <li><b>M_UMGEOSFD </b>= 106 Port dedicated to communicate a map of MimmoObject* and dvector1D*,</li>
 <li><b>M_UMGEOVFD </b>= 107 Port dedicated to communicate a map of MimmoObject* and dvecarr3E*,</li>
-<li><b>M_BCCGNS </b>= 108 Port dedicated to communicate a pointer to a BCCGNS object (Boundary Conditions Info for CGNS export),</li>
+<li><b>M_BCCGNS </b>= 108 Port dedicated to communicate a pointer to a <a class="el" href="classmimmo_1_1BCCGNS.html" title="Class to store the Info related to boundary conditions of CGNS grid. ">BCCGNS</a> object (Boundary Conditions Info for CGNS export),</li>
 <li><b>M_POINT2 </b>= 120 Port dedicated to communicate the coordinate of a point field [array&lt;double,3&gt;].,</li>
 <li><b>M_VALUED2 </b>= 130 Port dedicated to communicate a scalar value [double].,</li>
 <li><b>M_VALUEB2 </b>= 140 Port dedicated to communicate a scalar value [bool].,</li>
@@ -504,7 +521,7 @@ Functions</h2></td></tr>
 <p>TAG related to a generic object derived from <a class="el" href="classmimmo_1_1TrackingPointer.html" title="Basic virtual class to derive a generic object whose pointer can return an identifying name through t...">mimmo::TrackingPointer</a> class </p>
 </td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="a28e92d990ef829ef12d644783e2baf0aaeccff8830ea1f37f8a85ae2fe5585374"></a>BCCGNS_</em>&nbsp;</td><td class="fielddoc">
-<p>TAG related to a mimmo::BCCGNS* object (class with Boundary Conditions Info for CGNS export) </p>
+<p>TAG related to a <a class="el" href="classmimmo_1_1BCCGNS.html" title="Class to store the Info related to boundary conditions of CGNS grid. ">mimmo::BCCGNS</a>* object (class with Boundary Conditions Info for CGNS export) </p>
 </td></tr>
 </table>
 
@@ -709,15 +726,19 @@ Functions</h2></td></tr>
 </div>
 </div>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="namespacemimmo.html">mimmo</a></li><li class="navelem"><a class="el" href="namespacemimmo_1_1pin.html">pin</a></li>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

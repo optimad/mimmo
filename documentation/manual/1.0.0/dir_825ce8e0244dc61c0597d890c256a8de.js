@@ -1,0 +1,26 @@
+var dir_825ce8e0244dc61c0597d890c256a8de =
+[
+    [ "ClipGeometry.cpp", "ClipGeometry_8cpp_source.html", null ],
+    [ "ClipGeometry.hpp", "ClipGeometry_8hpp_source.html", null ],
+    [ "GenericSelection.cpp", "GenericSelection_8cpp_source.html", null ],
+    [ "MeshSelection.hpp", "MeshSelection_8hpp_source.html", null ],
+    [ "mimmo_geohandlers.hpp", "mimmo__geohandlers_8hpp_source.html", null ],
+    [ "OverlappingFields.hpp", "OverlappingFields_8hpp_source.html", null ],
+    [ "OverlapScalarFields.cpp", "OverlapScalarFields_8cpp_source.html", null ],
+    [ "OverlapVectorFields.cpp", "OverlapVectorFields_8cpp_source.html", null ],
+    [ "ReconstructFields.hpp", "ReconstructFields_8hpp_source.html", null ],
+    [ "ReconstructScalar.cpp", "ReconstructScalar_8cpp_source.html", null ],
+    [ "ReconstructVector.cpp", "ReconstructVector_8cpp_source.html", null ],
+    [ "SelectionByBox.cpp", "SelectionByBox_8cpp_source.html", null ],
+    [ "SelectionByBoxWithScalar.cpp", "SelectionByBoxWithScalar_8cpp_source.html", null ],
+    [ "SelectionByCylinder.cpp", "SelectionByCylinder_8cpp_source.html", null ],
+    [ "SelectionByMapping.cpp", "SelectionByMapping_8cpp_source.html", null ],
+    [ "SelectionByPID.cpp", "SelectionByPID_8cpp_source.html", null ],
+    [ "SelectionBySphere.cpp", "SelectionBySphere_8cpp_source.html", null ],
+    [ "SplitFields.cpp", "SplitFields_8cpp_source.html", null ],
+    [ "SplitFields.hpp", "SplitFields_8hpp_source.html", null ],
+    [ "SplitScalarField.cpp", "SplitScalarField_8cpp_source.html", null ],
+    [ "SplitVectorField.cpp", "SplitVectorField_8cpp_source.html", null ],
+    [ "StitchGeometry.cpp", "StitchGeometry_8cpp_source.html", null ],
+    [ "StitchGeometry.hpp", "StitchGeometry_8hpp_source.html", null ]
+];

@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -123,6 +130,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('mimmoTypeDef_8hpp_source.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -137,11 +159,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">mimmoTypeDef.hpp</div>  </div>
@@ -274,15 +291,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="group__typedefs_html_ga67935362b04d67f6c38bd74f18bef3a4"><div class="ttname"><a href="group__typedefs.html#ga67935362b04d67f6c38bd74f18bef3a4">livector2D</a></div><div class="ttdeci">std::vector&lt; livector1D &gt; livector2D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00067">mimmoTypeDef.hpp:67</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga9a7236cd5bdd8be32d6bc27a4621fa1e"><div class="ttname"><a href="group__typedefs.html#ga9a7236cd5bdd8be32d6bc27a4621fa1e">ivector3D</a></div><div class="ttdeci">std::vector&lt; ivector2D &gt; ivector3D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00077">mimmoTypeDef.hpp:77</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:07 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><b>mimmoTypeDef.hpp</b></li>
+    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

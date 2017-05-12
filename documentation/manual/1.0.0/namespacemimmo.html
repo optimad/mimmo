@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -124,6 +131,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="namespacemembers.html"><span>Namespace&#160;Members</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('namespacemimmo.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -138,7 +160,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
@@ -173,6 +194,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BasicShape.html">BasicShape</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract Interface class for Elementary Shape Representation.  <a href="classmimmo_1_1BasicShape.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BCCGNS.html">BCCGNS</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class to store the Info related to boundary conditions of CGNS grid.  <a href="classmimmo_1_1BCCGNS.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BendGeometry.html">BendGeometry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1BendGeometry.html" title="BendGeometry is the class that applies the a polynomial bending function of coordinates to the displa...">BendGeometry</a> is the class that applies the a polynomial bending function of coordinates to the displacements of the nodes of a <a class="el" href="classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. ">MimmoObject</a>.  <a href="classmimmo_1_1BendGeometry.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,6 +208,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvTree.html">BvTree</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bv-Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch.  <a href="classmimmo_1_1BvTree.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1CGNSPidExtractor.html">CGNSPidExtractor</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1CGNSPidExtractor.html" title="CGNSPidExtractor is the class to extract a with pid (or pids) from a surface boundary mesh read form ...">CGNSPidExtractor</a> is the class to extract a with pid (or pids) from a surface boundary mesh read form cgns file.  <a href="classmimmo_1_1CGNSPidExtractor.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1Chain.html">Chain</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1Chain.html" title="Chain is the class used to manage the chain execution of multiple executable blocks (manipulation obj...">Chain</a> is the class used to manage the chain execution of multiple executable blocks (manipulation object).  <a href="classmimmo_1_1Chain.html#details">More...</a><br/></td></tr>
@@ -236,6 +263,12 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1GenericSelection.html">GenericSelection</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract Interface for selection classes.  <a href="classmimmo_1_1GenericSelection.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1InfoCGNS.html">InfoCGNS</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class to store the Info related to <a class="el" href="classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. ">MimmoObject</a> in order to export in CGNS grid format. Only one zone supported.  <a href="classmimmo_1_1InfoCGNS.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1IOCGNS.html">IOCGNS</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1IOCGNS.html" title="IOCGNS is the class to import/ export an unstructured volume mesh written in CNGS. ">IOCGNS</a> is the class to import/ export an unstructured volume mesh written in CNGS.  <a href="classmimmo_1_1IOCGNS.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1IOCloudPoints.html">IOCloudPoints</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1IOCloudPoints.html" title="IOCloudPoints is the class to read from file a set of cloud 3D points w/ attached a scalar field of f...">IOCloudPoints</a> is the class to read from file a set of cloud 3D points w/ attached a scalar field of floats and/or a vector field of floats.  <a href="classmimmo_1_1IOCloudPoints.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,6 +280,12 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1IODataT.html">IODataT</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1IODataT.html" title="IODataT is the templated class of generic data derived from IOData base class. ">IODataT</a> is the templated class of generic data derived from <a class="el" href="classmimmo_1_1IOData.html" title="IOData is the base class of generic data stored as input or result in a Port. ">IOData</a> base class.  <a href="classmimmo_1_1IODataT.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1IOOFOAM.html">IOOFOAM</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1IOOFOAM.html" title="IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f...">IOOFOAM</a> is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata for surface meshes and points cloud for volume mesh.  <a href="classmimmo_1_1IOOFOAM.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classmimmo_1_1IOVTKScalar.html" title="IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry. ">IOVTKScalar</a> is the class to import/export and modify a surface vtk Polydata geometry.  <a href="classmimmo_1_1IOVTKScalar.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1Lattice.html">Lattice</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured 3D Cartesian Mesh.  <a href="classmimmo_1_1Lattice.html#details">More...</a><br/></td></tr>
@@ -473,15 +512,19 @@ Enumerations</h2></td></tr>
 </div>
 </div>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:07 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="namespacemimmo.html">mimmo</a></li>
+    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

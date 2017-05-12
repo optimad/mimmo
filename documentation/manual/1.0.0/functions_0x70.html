@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -158,6 +165,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions_0x70.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -221,9 +242,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1UStructMesh.html#a69e7cb1588000ce529bbd8065467f9a0">mimmo::UStructMesh</a>
 </li>
 <li>plotOptionalResults()
-: <a class="el" href="classmimmo_1_1OverlapVectorFields.html#a64ed0a929fa364039cac23e27cff9c3d">mimmo::OverlapVectorFields</a>
+: <a class="el" href="classmimmo_1_1OverlapScalarFields.html#aecee7d4512b1030506d30ed5fdcef9c2">mimmo::OverlapScalarFields</a>
+, <a class="el" href="classmimmo_1_1OverlapVectorFields.html#a64ed0a929fa364039cac23e27cff9c3d">mimmo::OverlapVectorFields</a>
 , <a class="el" href="classmimmo_1_1ReconstructScalar.html#acd2111c39f4cd7d238b577a10d5403e8">mimmo::ReconstructScalar</a>
-, <a class="el" href="classmimmo_1_1OBBox.html#a660a62c2d12671e14c8179acf8212477">mimmo::OBBox</a>
+, <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#a4b5a7c7f57f849dc1b364c4d8a7016d6">mimmo::CreateSeedsOnSurface</a>
 , <a class="el" href="classmimmo_1_1ReconstructVector.html#a8f5ce8041a7942664b06830d36bc0c4c">mimmo::ReconstructVector</a>
 , <a class="el" href="classmimmo_1_1SplitScalarField.html#a51e95ec80c8cef0615543c42d87db51b">mimmo::SplitScalarField</a>
 , <a class="el" href="classmimmo_1_1SplitVectorField.html#a8b6695a25cb9b051146432283bcc57a6">mimmo::SplitVectorField</a>
@@ -232,17 +254,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classmimmo_1_1MRBF.html#abebb282764d68858dc0ba2c0b7684b0c">mimmo::MRBF</a>
 , <a class="el" href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">mimmo::ControlDeformExtSurface</a>
 , <a class="el" href="classmimmo_1_1ControlDeformMaxDistance.html#a05567e27053ba8df362406fa9f928495">mimmo::ControlDeformMaxDistance</a>
-, <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#a4b5a7c7f57f849dc1b364c4d8a7016d6">mimmo::CreateSeedsOnSurface</a>
+, <a class="el" href="classmimmo_1_1OBBox.html#a660a62c2d12671e14c8179acf8212477">mimmo::OBBox</a>
 , <a class="el" href="classmimmo_1_1ProjectCloud.html#a6ae59f26a852e8808a1df7b154fea8d4">mimmo::ProjectCloud</a>
 , <a class="el" href="classmimmo_1_1RBFBox.html#a718b8c10d50a7b4a3d5a54aa026590d5">mimmo::RBFBox</a>
-, <a class="el" href="classmimmo_1_1OverlapScalarFields.html#aecee7d4512b1030506d30ed5fdcef9c2">mimmo::OverlapScalarFields</a>
+, <a class="el" href="classmimmo_1_1SelectionByBoxWithScalar.html#a86561ef2e1739ff977d549f00eb9248e">mimmo::SelectionByBoxWithScalar</a>
 , <a class="el" href="classmimmo_1_1SpecularPoints.html#a72697f14d4b31f2df33feb98d91ac451">mimmo::SpecularPoints</a>
 , <a class="el" href="classmimmo_1_1BaseManipulation.html#a538cba230947c51b6a01620ad92534ac">mimmo::BaseManipulation</a>
 , <a class="el" href="classmimmo_1_1Lattice.html#a936e7e257f380d604c9c35934038dc57">mimmo::Lattice</a>
 , <a class="el" href="classmimmo_1_1IOCloudPoints.html#aa5e501315d93f82047261e6d0d7035b9">mimmo::IOCloudPoints</a>
+, <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#a20eb3ace23f58e13286722bca9fa2dfe">mimmo::CGNSPidExtractor</a>
 , <a class="el" href="classmimmo_1_1ClipGeometry.html#ac3838487da447430c7d856189fbb05da">mimmo::ClipGeometry</a>
 , <a class="el" href="classmimmo_1_1GenericSelection.html#a67c136691d0b6454f3c2698397a9336f">mimmo::GenericSelection</a>
-, <a class="el" href="classmimmo_1_1SelectionByBoxWithScalar.html#a86561ef2e1739ff977d549f00eb9248e">mimmo::SelectionByBoxWithScalar</a>
 </li>
 <li>PortID
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">mimmo::BaseManipulation</a>
@@ -251,34 +273,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1PortIn.html#a920102aeb6f57d61a54ffecbe873237b">mimmo::PortIn</a>
 </li>
 <li>PortInT()
-: <a class="el" href="classmimmo_1_1PortInT.html#a8c397037bbfc0ff3465ae64f14dae2fd">mimmo::PortInT&lt; T, O &gt;</a>
+: <a class="el" href="classmimmo_1_1PortInT.html#ab78aa857c10157837825fc14b077af72">mimmo::PortInT&lt; T, O &gt;</a>
 </li>
 <li>PortOut()
-: <a class="el" href="classmimmo_1_1PortOut.html#a82b854fd7305a7639517cf0d78062b56">mimmo::PortOut</a>
+: <a class="el" href="classmimmo_1_1PortOut.html#a3f0b9c92bb7f534ad7491e78f3cf0638">mimmo::PortOut</a>
 </li>
 <li>PortOut::exec
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#acbf888e25d36fa18ec96016297bb781a">mimmo::BaseManipulation</a>
 </li>
 <li>PortOutT()
-: <a class="el" href="classmimmo_1_1PortOutT.html#a5b3b1dbde87f8c7218106519958c3aaa">mimmo::PortOutT&lt; T, O &gt;</a>
+: <a class="el" href="classmimmo_1_1PortOutT.html#aba5ffaec7e8435687233eceea761e8ca">mimmo::PortOutT&lt; T, O &gt;</a>
 </li>
 <li>ProjectCloud()
-: <a class="el" href="classmimmo_1_1ProjectCloud.html#aa414cf0bc8829f160490782a1aacfd6a">mimmo::ProjectCloud</a>
+: <a class="el" href="classmimmo_1_1ProjectCloud.html#a57105654ca1098f131613720633ccd4a">mimmo::ProjectCloud</a>
 </li>
 <li>pVector
 : <a class="el" href="classmimmo_1_1ReconstructVector.html#a2946bc38db7a9bfa0751d0953df83723">mimmo::ReconstructVector</a>
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

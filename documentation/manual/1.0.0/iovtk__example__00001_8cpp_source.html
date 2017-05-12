@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -123,6 +130,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('iovtk__example__00001_8cpp_source.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -137,11 +159,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">iovtk_example_00001.cpp</div>  </div>
@@ -181,24 +198,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="comment">/* Import vtk. */</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    IOVTKScalar* iovtk = <span class="keyword">new</span> IOVTKScalar();</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    iovtk-&gt;setRead(<span class="keyword">true</span>);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    iovtk-&gt;setReadDir(<span class="stringliteral">&quot;geodata&quot;</span>);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    iovtk-&gt;setReadFilename(<span class="stringliteral">&quot;iovtk&quot;</span>);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    iovtk-&gt;setScaling(1.0);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    iovtk-&gt;setNormalize(<span class="keyword">false</span>);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>* iovtk = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>();</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    iovtk-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a33292173ccad1837e2cb1c73c5731f23">setRead</a>(<span class="keyword">true</span>);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    iovtk-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a2523735c55c1177d00c860d210fae052">setReadDir</a>(<span class="stringliteral">&quot;geodata&quot;</span>);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    iovtk-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a30370c76d1b5b7865d6acbc3d3b15338">setReadFilename</a>(<span class="stringliteral">&quot;iovtk&quot;</span>);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    iovtk-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#ab559a2c069f9a6befb6ffcb162548a7c">setScaling</a>(1.0);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    iovtk-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#abe6556bf35c582fe9d7248acf985dd56">setNormalize</a>(<span class="keyword">false</span>);</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">/* Export vtk with polydata */</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    IOVTKScalar* iovtk2 = <span class="keyword">new</span> IOVTKScalar();</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    iovtk2-&gt;setWrite(<span class="keyword">true</span>);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    iovtk2-&gt;setWriteDir(<span class="stringliteral">&quot;.&quot;</span>);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    iovtk2-&gt;setWriteFilename(<span class="stringliteral">&quot;iovtk_output_00001&quot;</span>);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>* iovtk2 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    iovtk2-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a4b6952722a11a58e7f9fe541c46cb816">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    iovtk2-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#aadc230378c56c86cc89ee73ee4793020">setWriteDir</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    iovtk2-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a81ede4d63352a4825fd7f42942026555">setWriteFilename</a>(<span class="stringliteral">&quot;iovtk_output_00001&quot;</span>);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="comment">/* Export vtk without polydata */</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    IOVTKScalar* iovtk3 = <span class="keyword">new</span> IOVTKScalar();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    iovtk3-&gt;setWrite(<span class="keyword">true</span>);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    iovtk3-&gt;setWriteDir(<span class="stringliteral">&quot;.&quot;</span>);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    iovtk3-&gt;setWriteFilename(<span class="stringliteral">&quot;iovtk_output_00002&quot;</span>);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>* iovtk3 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1IOVTKScalar.html">IOVTKScalar</a>();</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    iovtk3-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a4b6952722a11a58e7f9fe541c46cb816">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    iovtk3-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#aadc230378c56c86cc89ee73ee4793020">setWriteDir</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    iovtk3-&gt;<a class="code" href="classmimmo_1_1IOVTKScalar.html#a81ede4d63352a4825fd7f42942026555">setWriteFilename</a>(<span class="stringliteral">&quot;iovtk_output_00002&quot;</span>);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="comment">/* Create PINs. */</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="namespacemimmo_1_1pin.html#a498190655e41517971ce0003eb6d5d7b">addPin</a>(iovtk,iovtk2, PortType::M_GEOM, PortType::M_GEOM);</div>
@@ -250,20 +267,33 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;}</div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_ab559a2c069f9a6befb6ffcb162548a7c"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#ab559a2c069f9a6befb6ffcb162548a7c">mimmo::IOVTKScalar::setScaling</a></div><div class="ttdeci">void setScaling(double scaling)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00169">IOVTKScalar.cpp:169</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_abe6556bf35c582fe9d7248acf985dd56"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#abe6556bf35c582fe9d7248acf985dd56">mimmo::IOVTKScalar::setNormalize</a></div><div class="ttdeci">void setNormalize(bool normalize)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00187">IOVTKScalar.cpp:187</a></div></div>
 <div class="ttc" id="classmimmo_1_1Chain_html_afbd5f945b7339031be9f0a71f9a0e8c4"><div class="ttname"><a href="classmimmo_1_1Chain.html#afbd5f945b7339031be9f0a71f9a0e8c4">mimmo::Chain::exec</a></div><div class="ttdeci">void exec(bool debug=false)</div><div class="ttdef"><b>Definition:</b> <a href="Chain_8cpp_source.html#l00235">Chain.cpp:235</a></div></div>
 <div class="ttc" id="classmimmo_1_1Chain_html"><div class="ttname"><a href="classmimmo_1_1Chain.html">mimmo::Chain</a></div><div class="ttdoc">Chain is the class used to manage the chain execution of multiple executable blocks (manipulation obj...</div><div class="ttdef"><b>Definition:</b> <a href="Chain_8hpp_source.html#l00047">Chain.hpp:47</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_a33292173ccad1837e2cb1c73c5731f23"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#a33292173ccad1837e2cb1c73c5731f23">mimmo::IOVTKScalar::setRead</a></div><div class="ttdeci">void setRead(bool read)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00196">IOVTKScalar.cpp:196</a></div></div>
 <div class="ttc" id="classmimmo_1_1Chain_html_acb7682db8c13414c23fca80e5ed397ff"><div class="ttname"><a href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">mimmo::Chain::addObject</a></div><div class="ttdeci">int addObject(BaseManipulation *obj, int id_=-1)</div><div class="ttdef"><b>Definition:</b> <a href="Chain_8cpp_source.html#l00155">Chain.cpp:155</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_aadc230378c56c86cc89ee73ee4793020"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#aadc230378c56c86cc89ee73ee4793020">mimmo::IOVTKScalar::setWriteDir</a></div><div class="ttdeci">void setWriteDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00232">IOVTKScalar.cpp:232</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_a4b6952722a11a58e7f9fe541c46cb816"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#a4b6952722a11a58e7f9fe541c46cb816">mimmo::IOVTKScalar::setWrite</a></div><div class="ttdeci">void setWrite(bool write)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00223">IOVTKScalar.cpp:223</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_a2523735c55c1177d00c860d210fae052"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#a2523735c55c1177d00c860d210fae052">mimmo::IOVTKScalar::setReadDir</a></div><div class="ttdeci">void setReadDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00205">IOVTKScalar.cpp:205</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html">mimmo::IOVTKScalar</a></div><div class="ttdoc">IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry. </div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8hpp_source.html#l00087">IOVTKScalar.hpp:87</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a498190655e41517971ce0003eb6d5d7b"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a498190655e41517971ce0003eb6d5d7b">mimmo::pin::addPin</a></div><div class="ttdeci">bool addPin(BaseManipulation *objSend, BaseManipulation *objRec, PortID portS, PortID portR, bool forced)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00045">MimmoNamespace.cpp:45</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_a30370c76d1b5b7865d6acbc3d3b15338"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#a30370c76d1b5b7865d6acbc3d3b15338">mimmo::IOVTKScalar::setReadFilename</a></div><div class="ttdeci">void setReadFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00214">IOVTKScalar.cpp:214</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOVTKScalar_html_a81ede4d63352a4825fd7f42942026555"><div class="ttname"><a href="classmimmo_1_1IOVTKScalar.html#a81ede4d63352a4825fd7f42942026555">mimmo::IOVTKScalar::setWriteFilename</a></div><div class="ttdeci">void setWriteFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOVTKScalar_8cpp_source.html#l00241">IOVTKScalar.cpp:241</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:07 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li><li class="navelem"><b>iovtk_example_00001.cpp</b></li>
+    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

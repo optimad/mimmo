@@ -1,43 +1,47 @@
 <map id="mimmo::BaseManipulation" name="mimmo::BaseManipulation">
 <area shape="rect" id="node2" href="$classmimmo_1_1Apply.html" title="Apply is the class that applies the deformation resulting from a manipulation object to the geometry..." alt="" coords="293,5,400,32"/>
 <area shape="rect" id="node3" href="$classmimmo_1_1BendGeometry.html" title="BendGeometry is the class that applies the a polynomial bending function of coordinates to the displa..." alt="" coords="267,56,427,83"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1ClipGeometry.html" title="ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it..." alt="" coords="270,107,423,133"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1ControlDeformExtSurface.html" title="ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometr..." alt="" coords="235,157,458,184"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1ControlDeformMaxDistance.html" title="ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject geomet..." alt="" coords="229,208,464,235"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1CreateSeedsOnSurface.html" title="Distribute points on a target 3D surface. " alt="" coords="241,259,452,285"/>
-<area shape="rect" id="node8" href="$classmimmo_1_1GenericDispls.html" title="GenericDispls is the class to read from file an initial set of displacements as a generic vector fiel..." alt="" coords="269,309,424,336"/>
-<area shape="rect" id="node9" href="$classmimmo_1_1GenericInput.html" title="GenericInput is the class that set the initialization of a generic input data. " alt="" coords="273,360,420,387"/>
-<area shape="rect" id="node10" href="$classmimmo_1_1GenericOutput.html" title="GenericOutput is the class that write data in an output on file. " alt="" coords="268,411,425,437"/>
-<area shape="rect" id="node11" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="261,461,433,488"/>
-<area shape="rect" id="node18" href="$classmimmo_1_1IOCloudPoints.html" title="IOCloudPoints is the class to read from file a set of cloud 3D points w/ attached a scalar field of f..." alt="" coords="267,512,426,539"/>
-<area shape="rect" id="node19" href="$classmimmo_1_1Lattice.html" title="Structured 3D Cartesian Mesh. " alt="" coords="291,563,403,589"/>
-<area shape="rect" id="node21" href="$classmimmo_1_1MimmoGeometry.html" title="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje..." alt="" coords="260,613,433,640"/>
-<area shape="rect" id="node22" href="$classmimmo_1_1MRBF.html" title="Radial Basis Function evaluation from clouds of control points. " alt="" coords="291,664,402,691"/>
-<area shape="rect" id="node23" href="$classmimmo_1_1MultiApply.html" title="MultiApply is the class that applies one or more deformations resulting from one or more manipulation..." alt="" coords="279,715,414,741"/>
-<area shape="rect" id="node24" href="$classmimmo_1_1MultipleMimmoGeometries.html" title="MultipleMimmoGeometries is an executable block class capable of I/O hanfling of multiple geometries f..." alt="" coords="233,765,461,792"/>
-<area shape="rect" id="node25" href="$classmimmo_1_1OBBox.html" title="Oriented Bounding Box calculator. " alt="" coords="289,816,404,843"/>
-<area shape="rect" id="node26" href="$classmimmo_1_1OverlapScalarFields.html" title="Manipulator that overlaps multiple scalar fields defined on the same mesh objects. " alt="" coords="251,867,442,893"/>
-<area shape="rect" id="node27" href="$classmimmo_1_1OverlapVectorFields.html" title="Manipulator that overlaps multiple vector fields defined on the same mesh objects. " alt="" coords="251,917,442,944"/>
-<area shape="rect" id="node28" href="$classmimmo_1_1ProjectCloud.html" title="ProjectCloud is the class that project a 3D cloud of points on a target geometry. ..." alt="" coords="273,968,421,995"/>
-<area shape="rect" id="node30" href="$classmimmo_1_1RBFBox.html" title="Radial Basis Functions Bounding Box calculator. " alt="" coords="285,1019,408,1045"/>
-<area shape="rect" id="node31" href="$classmimmo_1_1ReconstructScalar.html" title="Reconstruct a scalar field from daughter mesh to mother mesh. " alt="" coords="256,1069,437,1096"/>
-<area shape="rect" id="node32" href="$classmimmo_1_1ReconstructVector.html" title="Reconstruct a vector field from daughter mesh to mother mesh. " alt="" coords="255,1120,438,1147"/>
-<area shape="rect" id="node33" href="$classmimmo_1_1RotationAxes.html" title="RotationAxes is the class that applies a rotation to a given reference system. " alt="" coords="271,1171,423,1197"/>
-<area shape="rect" id="node34" href="$classmimmo_1_1RotationGeometry.html" title="RotationGeometry is the class that applies a rotation to a given geometry patch. " alt="" coords="257,1221,436,1248"/>
-<area shape="rect" id="node35" href="$classmimmo_1_1ScalingGeometry.html" title="ScalingGeometry is the class that applies a scaling to a given geometry patch in respect to the mean ..." alt="" coords="260,1272,433,1299"/>
-<area shape="rect" id="node36" href="$classmimmo_1_1SplitField.html" title="SplitField is an abstract executable block class capable of splitting fields associated to a stitched..." alt="" coords="283,1323,410,1349"/>
-<area shape="rect" id="node39" href="$classmimmo_1_1StitchGeometry.html" title="StitchGeometry is an executable block class capable of stitch multiple MimmoObject geometries of the ..." alt="" coords="265,1373,429,1400"/>
-<area shape="rect" id="node40" href="$classmimmo_1_1TranslationGeometry.html" title="TranslationGeometry is the class that applies a translation to a given geometry patch. " alt="" coords="249,1424,444,1451"/>
-<area shape="rect" id="node41" href="$classmimmo_1_1TranslationPoint.html" title="TranslationPoint is the class that applies the a translation to a point. " alt="" coords="263,1475,430,1501"/>
-<area shape="rect" id="node42" href="$classmimmo_1_1TwistGeometry.html" title="TwistGeometry is the class that applies a twist to a given geometry patch. " alt="" coords="265,1525,428,1552"/>
-<area shape="rect" id="node12" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="525,335,691,361"/>
-<area shape="rect" id="node14" href="$classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. " alt="" coords="513,385,703,412"/>
-<area shape="rect" id="node15" href="$classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces on the target mesh. " alt="" coords="512,436,704,463"/>
-<area shape="rect" id="node16" href="$classmimmo_1_1SelectionByPID.html" title="Selection using target mesh Part Identifiers. " alt="" coords="525,487,691,513"/>
-<area shape="rect" id="node17" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="516,537,700,564"/>
-<area shape="rect" id="node13" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selection through volume box primitive. " alt="" coords="753,327,946,369"/>
-<area shape="rect" id="node20" href="$classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice. " alt="" coords="539,588,677,615"/>
-<area shape="rect" id="node29" href="$classmimmo_1_1SpecularPoints.html" title="SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target geometry i..." alt="" coords="527,968,689,995"/>
-<area shape="rect" id="node37" href="$classmimmo_1_1SplitScalarField.html" title="SplitScalarField is specialized derived class of SplitField to split a scalar field of doubles..." alt="" coords="526,1297,690,1324"/>
-<area shape="rect" id="node38" href="$classmimmo_1_1SplitVectorField.html" title="SplitVectorField is specialized derived class of SplitField to split a scalar field of array&lt;double..." alt="" coords="525,1348,691,1375"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1CGNSPidExtractor.html" title="CGNSPidExtractor is the class to extract a with pid (or pids) from a surface boundary mesh read form ..." alt="" coords="255,107,439,133"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1ClipGeometry.html" title="ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it..." alt="" coords="270,157,423,184"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1ControlDeformExtSurface.html" title="ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometr..." alt="" coords="235,208,458,235"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1ControlDeformMaxDistance.html" title="ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject geomet..." alt="" coords="229,259,464,285"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1CreateSeedsOnSurface.html" title="Distribute points on a target 3D surface. " alt="" coords="241,309,452,336"/>
+<area shape="rect" id="node9" href="$classmimmo_1_1GenericDispls.html" title="GenericDispls is the class to read from file an initial set of displacements as a generic vector fiel..." alt="" coords="269,360,424,387"/>
+<area shape="rect" id="node10" href="$classmimmo_1_1GenericInput.html" title="GenericInput is the class that set the initialization of a generic input data. " alt="" coords="273,411,420,437"/>
+<area shape="rect" id="node11" href="$classmimmo_1_1GenericOutput.html" title="GenericOutput is the class that write data in an output on file. " alt="" coords="268,461,425,488"/>
+<area shape="rect" id="node12" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="261,512,433,539"/>
+<area shape="rect" id="node19" href="$classmimmo_1_1IOCGNS.html" title="IOCGNS is the class to import/ export an unstructured volume mesh written in CNGS. " alt="" coords="283,563,410,589"/>
+<area shape="rect" id="node20" href="$classmimmo_1_1IOCloudPoints.html" title="IOCloudPoints is the class to read from file a set of cloud 3D points w/ attached a scalar field of f..." alt="" coords="267,613,426,640"/>
+<area shape="rect" id="node21" href="$classmimmo_1_1IOOFOAM.html" title="IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f..." alt="" coords="279,664,414,691"/>
+<area shape="rect" id="node22" href="$classmimmo_1_1IOVTKScalar.html" title="IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry. " alt="" coords="271,715,422,741"/>
+<area shape="rect" id="node23" href="$classmimmo_1_1Lattice.html" title="Structured 3D Cartesian Mesh. " alt="" coords="291,765,403,792"/>
+<area shape="rect" id="node25" href="$classmimmo_1_1MimmoGeometry.html" title="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje..." alt="" coords="260,816,433,843"/>
+<area shape="rect" id="node26" href="$classmimmo_1_1MRBF.html" title="Radial Basis Function evaluation from clouds of control points. " alt="" coords="291,867,402,893"/>
+<area shape="rect" id="node27" href="$classmimmo_1_1MultiApply.html" title="MultiApply is the class that applies one or more deformations resulting from one or more manipulation..." alt="" coords="279,917,414,944"/>
+<area shape="rect" id="node28" href="$classmimmo_1_1MultipleMimmoGeometries.html" title="MultipleMimmoGeometries is an executable block class capable of I/O hanfling of multiple geometries f..." alt="" coords="233,968,461,995"/>
+<area shape="rect" id="node29" href="$classmimmo_1_1OBBox.html" title="Oriented Bounding Box calculator. " alt="" coords="289,1019,404,1045"/>
+<area shape="rect" id="node30" href="$classmimmo_1_1OverlapScalarFields.html" title="Manipulator that overlaps multiple scalar fields defined on the same mesh objects. " alt="" coords="251,1069,442,1096"/>
+<area shape="rect" id="node31" href="$classmimmo_1_1OverlapVectorFields.html" title="Manipulator that overlaps multiple vector fields defined on the same mesh objects. " alt="" coords="251,1120,442,1147"/>
+<area shape="rect" id="node32" href="$classmimmo_1_1ProjectCloud.html" title="ProjectCloud is the class that project a 3D cloud of points on a target geometry. ..." alt="" coords="273,1171,421,1197"/>
+<area shape="rect" id="node34" href="$classmimmo_1_1RBFBox.html" title="Radial Basis Functions Bounding Box calculator. " alt="" coords="285,1221,408,1248"/>
+<area shape="rect" id="node35" href="$classmimmo_1_1ReconstructScalar.html" title="Reconstruct a scalar field from daughter mesh to mother mesh. " alt="" coords="256,1272,437,1299"/>
+<area shape="rect" id="node36" href="$classmimmo_1_1ReconstructVector.html" title="Reconstruct a vector field from daughter mesh to mother mesh. " alt="" coords="255,1323,438,1349"/>
+<area shape="rect" id="node37" href="$classmimmo_1_1RotationAxes.html" title="RotationAxes is the class that applies a rotation to a given reference system. " alt="" coords="271,1373,423,1400"/>
+<area shape="rect" id="node38" href="$classmimmo_1_1RotationGeometry.html" title="RotationGeometry is the class that applies a rotation to a given geometry patch. " alt="" coords="257,1424,436,1451"/>
+<area shape="rect" id="node39" href="$classmimmo_1_1ScalingGeometry.html" title="ScalingGeometry is the class that applies a scaling to a given geometry patch in respect to the mean ..." alt="" coords="260,1475,433,1501"/>
+<area shape="rect" id="node40" href="$classmimmo_1_1SplitField.html" title="SplitField is an abstract executable block class capable of splitting fields associated to a stitched..." alt="" coords="283,1525,410,1552"/>
+<area shape="rect" id="node43" href="$classmimmo_1_1StitchGeometry.html" title="StitchGeometry is an executable block class capable of stitch multiple MimmoObject geometries of the ..." alt="" coords="265,1576,429,1603"/>
+<area shape="rect" id="node44" href="$classmimmo_1_1TranslationGeometry.html" title="TranslationGeometry is the class that applies a translation to a given geometry patch. " alt="" coords="249,1627,444,1653"/>
+<area shape="rect" id="node45" href="$classmimmo_1_1TranslationPoint.html" title="TranslationPoint is the class that applies the a translation to a point. " alt="" coords="263,1677,430,1704"/>
+<area shape="rect" id="node46" href="$classmimmo_1_1TwistGeometry.html" title="TwistGeometry is the class that applies a twist to a given geometry patch. " alt="" coords="265,1728,428,1755"/>
+<area shape="rect" id="node13" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="525,411,691,437"/>
+<area shape="rect" id="node15" href="$classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. " alt="" coords="513,461,703,488"/>
+<area shape="rect" id="node16" href="$classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces on the target mesh. " alt="" coords="512,512,704,539"/>
+<area shape="rect" id="node17" href="$classmimmo_1_1SelectionByPID.html" title="Selection using target mesh Part Identifiers. " alt="" coords="525,563,691,589"/>
+<area shape="rect" id="node18" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="516,613,700,640"/>
+<area shape="rect" id="node14" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selection through volume box primitive. " alt="" coords="753,403,946,445"/>
+<area shape="rect" id="node24" href="$classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice. " alt="" coords="539,765,677,792"/>
+<area shape="rect" id="node33" href="$classmimmo_1_1SpecularPoints.html" title="SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target geometry i..." alt="" coords="527,1171,689,1197"/>
+<area shape="rect" id="node41" href="$classmimmo_1_1SplitScalarField.html" title="SplitScalarField is specialized derived class of SplitField to split a scalar field of doubles..." alt="" coords="526,1500,690,1527"/>
+<area shape="rect" id="node42" href="$classmimmo_1_1SplitVectorField.html" title="SplitVectorField is specialized derived class of SplitField to split a scalar field of array&lt;double..." alt="" coords="525,1551,691,1577"/>
 </map>

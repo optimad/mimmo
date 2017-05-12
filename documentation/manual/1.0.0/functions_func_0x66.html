@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -158,6 +165,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions_func_0x66.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -216,6 +237,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classmimmo_1_1SelectionByCylinder.html#a3bd8d4e6c394d09e88f3324720ae32b8">mimmo::SelectionByCylinder</a>
 , <a class="el" href="classmimmo_1_1SelectionByBox.html#afd82feb954562151c8d691f9c0981dbb">mimmo::SelectionByBox</a>
 , <a class="el" href="classmimmo_1_1ClipGeometry.html#a1559930e0377afe8ec6d1ac4771027de">mimmo::ClipGeometry</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#ac7ce1d797909c341fdd3f1bc022b56ab">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a6159c248cd5d7105b2e708f20cd149c0">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#ae37b25679801f2d1f6baf9e2e41d6d5b">mimmo::CGNSPidExtractor</a>
 , <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#ac3a67fedbfa9c514f3bba8bb6e4fe7e1">mimmo::MultipleMimmoGeometries</a>
 , <a class="el" href="classmimmo_1_1MimmoGeometry.html#af15b4ba08008372f75c149b5f2d01db9">mimmo::MimmoGeometry</a>
 , <a class="el" href="classmimmo_1_1IOCloudPoints.html#ac47b374e3be331ef758103dbaafba0c4">mimmo::IOCloudPoints</a>
@@ -234,15 +259,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

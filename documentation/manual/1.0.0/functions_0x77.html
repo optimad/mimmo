@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -158,6 +165,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions_0x77.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -179,12 +200,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>wformat
 : <a class="el" href="classmimmo_1_1NastranInterface.html#a4f247ef2c96e25eb81361037cb88bb31">mimmo::NastranInterface</a>
 </li>
+<li>whatPIDActive()
+: <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#a1002d9a4aa8397266d8a58eccade085f">mimmo::CGNSPidExtractor</a>
+</li>
 <li>whichClass()
 : <a class="el" href="classmimmo_1_1TrackingPointer.html#a36742c8a110203c8dd6279cb43c6792f">mimmo::TrackingPointer</a>
 </li>
 <li>whichGeometriesLinked()
-: <a class="el" href="classmimmo_1_1OverlapVectorFields.html#affd549bfedeb701987bbfeb299dd057c">mimmo::OverlapVectorFields</a>
-, <a class="el" href="classmimmo_1_1OverlapScalarFields.html#acd0a581a312f4316b0fbcd6559207c4b">mimmo::OverlapScalarFields</a>
+: <a class="el" href="classmimmo_1_1OverlapScalarFields.html#acd0a581a312f4316b0fbcd6559207c4b">mimmo::OverlapScalarFields</a>
+, <a class="el" href="classmimmo_1_1OverlapVectorFields.html#affd549bfedeb701987bbfeb299dd057c">mimmo::OverlapVectorFields</a>
 </li>
 <li>whichMethod()
 : <a class="el" href="classmimmo_1_1GenericSelection.html#a79363d9e165a14591e1fa4d95737d886">mimmo::GenericSelection</a>
@@ -193,13 +217,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#aeeb49f21dc4c0cd2586eec5848a2b6c0">mimmo::MultipleMimmoGeometries</a>
 </li>
 <li>whichSubMeshes()
-: <a class="el" href="classmimmo_1_1ReconstructVector.html#a988761fdd9f71596a46ad91ce0ed0a31">mimmo::ReconstructVector</a>
-, <a class="el" href="classmimmo_1_1ReconstructScalar.html#ab5f2a1933feb369b1fc87794c90eda09">mimmo::ReconstructScalar</a>
+: <a class="el" href="classmimmo_1_1ReconstructScalar.html#ab5f2a1933feb369b1fc87794c90eda09">mimmo::ReconstructScalar</a>
+, <a class="el" href="classmimmo_1_1ReconstructVector.html#a988761fdd9f71596a46ad91ce0ed0a31">mimmo::ReconstructVector</a>
 </li>
 <li>write()
 : <a class="el" href="classmimmo_1_1MimmoGeometry.html#a048e84c841427686a9708bd1d1abc5e7">mimmo::MimmoGeometry</a>
 , <a class="el" href="classmimmo_1_1NastranInterface.html#af95aa9a9106cc58eb065af3b0ad69b7e">mimmo::NastranInterface</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a65340101ba0d0d7084d7e3f5c574653b">mimmo::IOOFOAM</a>
 , <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#af18e111a6c27b4f59901d211b29ba4b1">mimmo::MultipleMimmoGeometries</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a9fd8adac8450cd2265ece833eea3f42a">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#adae7d5b0330a8101b2e50df0b51f825e">mimmo::IOVTKScalar</a>
 </li>
 <li>writeBuffer()
 : <a class="el" href="classmimmo_1_1PortOut.html#a411040e4e2faf42f2ae4acfb1b91c350">mimmo::PortOut</a>
@@ -222,21 +249,25 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>writeOFP()
 : <a class="el" href="classmimmo_1_1MimmoGeometry.html#a2d184c02b4f9f9917ff3ab2ab53013b8">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a85d32de7740996f2fb667d64507b86ae">mimmo::IOOFOAM</a>
 </li>
 <li>writeValue()
 : <a class="el" href="classmimmo_1_1NastranInterface.html#ab7aa17d750a68b714cc63b5d637d8e82">mimmo::NastranInterface</a>
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

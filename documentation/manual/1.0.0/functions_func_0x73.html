@@ -30,6 +30,13 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -62,7 +69,7 @@
         <span>Documentation</span>
         <ul class="sub-menu">
             <li><a href="/mimmo/documentation/installation.html">Installation guide</a></li>
-            <li><a href="/mimmo/documentation/manual/1.0.0-devel/index.html">Programmer's manual</a></li>
+            <li><a href="/mimmo/documentation/manual/1.0.0/index.html">Programmer's manual</a></li>
         </ul>
     </li>
     <li>
@@ -158,6 +165,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions_func_0x73.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -224,6 +245,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>setBackgroundDetails()
 : <a class="el" href="classmimmo_1_1ControlDeformExtSurface.html#abe4835e1cd5f684f949b8153c81e2ad7">mimmo::ControlDeformExtSurface</a>
 </li>
+<li>setBoundaryConditions()
+: <a class="el" href="classmimmo_1_1IOCGNS.html#a7bbfc98dcd3ffbd596883c5ecf68be71">mimmo::IOCGNS</a>
+</li>
 <li>setBufferIn()
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#ae5e4b638bdce03890e31c387ed1a47dc">mimmo::BaseManipulation</a>
 </li>
@@ -276,8 +300,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1UStructMesh.html#a7bf4ca2909766faccef58242fc7bd3ce">mimmo::UStructMesh</a>
 </li>
 <li>setCSV()
-: <a class="el" href="classmimmo_1_1GenericOutput.html#aaad066ead3aa1847de07f828f334cf6c">mimmo::GenericOutput</a>
-, <a class="el" href="classmimmo_1_1GenericInput.html#acc0c5d5b8f5a1769f9ab47d6470de3c7">mimmo::GenericInput</a>
+: <a class="el" href="classmimmo_1_1GenericInput.html#acc0c5d5b8f5a1769f9ab47d6470de3c7">mimmo::GenericInput</a>
+, <a class="el" href="classmimmo_1_1GenericOutput.html#aaad066ead3aa1847de07f828f334cf6c">mimmo::GenericOutput</a>
 </li>
 <li>setData()
 : <a class="el" href="classmimmo_1_1IOData.html#a23419125855e104b2029202c08eb80ec">mimmo::IOData</a>
@@ -295,6 +319,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>setDefaultCreator()
 : <a class="el" href="classmimmo_1_1Factory.html#af53a5f6e316eee73d50f33b4051332a8">mimmo::Factory&lt; Base &gt;</a>
+</li>
+<li>setDefaults()
+: <a class="el" href="classmimmo_1_1IOCGNS.html#aa8d746994ba1f33cede8d921c1c7058d">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a3ef7f3e5cd2274f70726090ece75b09b">mimmo::IOOFOAM</a>
 </li>
 <li>setDefField()
 : <a class="el" href="classmimmo_1_1ControlDeformExtSurface.html#a0416253e99aecac1da97fd77838550ec">mimmo::ControlDeformExtSurface</a>
@@ -336,7 +364,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#a27f25ed3f0ebe0522ab9539ca4debabe">mimmo::CreateSeedsOnSurface</a>
 </li>
 <li>setField()
-: <a class="el" href="classmimmo_1_1SelectionByBoxWithScalar.html#ad5b1089a89edff9e56040cb1a76cf1b1">mimmo::SelectionByBoxWithScalar</a>
+: <a class="el" href="classmimmo_1_1IOVTKScalar.html#ab47b431f2aae82e64b63fd6d1303f688">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#ac5c07940683611a1d784e6e3f2264112">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1SelectionByBoxWithScalar.html#ad5b1089a89edff9e56040cb1a76cf1b1">mimmo::SelectionByBoxWithScalar</a>
 , <a class="el" href="classmimmo_1_1SplitScalarField.html#a623483c5ac1c662871e9a550b4b6ce16">mimmo::SplitScalarField</a>
 , <a class="el" href="classmimmo_1_1SplitVectorField.html#a44dfafcdda944cb30cbf887b895f09ba">mimmo::SplitVectorField</a>
 </li>
@@ -360,23 +390,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>setForce()
 : <a class="el" href="classmimmo_1_1SpecularPoints.html#ab9bed6a40f5cda19ebf2e32a88b28edb">mimmo::SpecularPoints</a>
 </li>
+<li>setForcedToTriangulate()
+: <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#a64db5b9a7295cd241f5c124840d7e32d">mimmo::CGNSPidExtractor</a>
+</li>
 <li>setFormatNAS()
 : <a class="el" href="classmimmo_1_1MimmoGeometry.html#a8f23dde4bd64e5586e804de320256f9b">mimmo::MimmoGeometry</a>
 , <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a8ed14558f6107c1e8232db1912f11e87">mimmo::MultipleMimmoGeometries</a>
 </li>
 <li>setGeometry()
-: <a class="el" href="classmimmo_1_1BaseManipulation.html#a6d123a0872c4a922b1b9589e6d47f520">mimmo::BaseManipulation</a>
-, <a class="el" href="classmimmo_1_1MimmoGeometry.html#a6b2b81bcf46d40249f9db0401d4e075a">mimmo::MimmoGeometry</a>
-, <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a983d594cafd0961db9f37b54a3270a41">mimmo::MultipleMimmoGeometries</a>
-, <a class="el" href="classmimmo_1_1GenericSelection.html#a751a83e14d2c64b72a1fc8ddc2f20db8">mimmo::GenericSelection</a>
-, <a class="el" href="classmimmo_1_1SelectionByMapping.html#a0fcdb11678f5240a897a6991909d9afe">mimmo::SelectionByMapping</a>
-, <a class="el" href="classmimmo_1_1SelectionByPID.html#af44830f20ae3fb4111399b1cc6b6d2d1">mimmo::SelectionByPID</a>
-, <a class="el" href="classmimmo_1_1SplitField.html#a6c7b94d1d71f33a6daec2438ce0e5a3b">mimmo::SplitField</a>
+: <a class="el" href="classmimmo_1_1SplitField.html#a6c7b94d1d71f33a6daec2438ce0e5a3b">mimmo::SplitField</a>
 , <a class="el" href="classmimmo_1_1StitchGeometry.html#a6e832260db012258b1e94cf66a0a2809">mimmo::StitchGeometry</a>
 , <a class="el" href="classmimmo_1_1MRBF.html#a9838b9bc9e1d0e65351eb83c590a0448">mimmo::MRBF</a>
 , <a class="el" href="classmimmo_1_1ControlDeformExtSurface.html#a7e52d356211cb69dc5408b75c7756ba3">mimmo::ControlDeformExtSurface</a>
 , <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#a9e2ca338fb2b3c3ef25cc9525413d831">mimmo::CreateSeedsOnSurface</a>
 , <a class="el" href="classmimmo_1_1OBBox.html#a6b2dbeedeaf5b0de03b52b527258d25b">mimmo::OBBox</a>
+, <a class="el" href="classmimmo_1_1BaseManipulation.html#a6d123a0872c4a922b1b9589e6d47f520">mimmo::BaseManipulation</a>
+, <a class="el" href="classmimmo_1_1MimmoGeometry.html#a6b2b81bcf46d40249f9db0401d4e075a">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a983d594cafd0961db9f37b54a3270a41">mimmo::MultipleMimmoGeometries</a>
+, <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#a5688a94d794b670e529cb3f593e66e73">mimmo::CGNSPidExtractor</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a0b514eee5032b36d4d71af8fc65eed40">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a4b8f6a5bfb82b6e7b342d96259c84a11">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1GenericSelection.html#a751a83e14d2c64b72a1fc8ddc2f20db8">mimmo::GenericSelection</a>
+, <a class="el" href="classmimmo_1_1SelectionByMapping.html#a0fcdb11678f5240a897a6991909d9afe">mimmo::SelectionByMapping</a>
+, <a class="el" href="classmimmo_1_1SelectionByPID.html#af44830f20ae3fb4111399b1cc6b6d2d1">mimmo::SelectionByPID</a>
 </li>
 <li>setHARDCopy()
 : <a class="el" href="classmimmo_1_1MimmoObject.html#acfdc9dcf944c7ea329e0411168cf9ba4">mimmo::MimmoObject</a>
@@ -428,7 +464,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1BvTree.html#a09034c3884e4b6cd1eee20d0ebe2be1d">mimmo::BvTree</a>
 </li>
 <li>setMesh()
-: <a class="el" href="classmimmo_1_1UStructMesh.html#af9059730cb44c32c700687d5fbdb63a6">mimmo::UStructMesh</a>
+: <a class="el" href="classmimmo_1_1UStructMesh.html#a9501757850a1c65995e00c9f6f8140f5">mimmo::UStructMesh</a>
 </li>
 <li>setMode()
 : <a class="el" href="classmimmo_1_1MRBF.html#ac2958d66f7675ab40882fbc4092dd6ae">mimmo::MRBF</a>
@@ -440,15 +476,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1GenericDispls.html#a0361e9275409e228c7dbe31c9e893fa3">mimmo::GenericDispls</a>
 </li>
 <li>setNodalWeight()
-: <a class="el" href="classmimmo_1_1FFDLattice.html#a0dbda6d2e3cd2bc912dc4a9d8567e012">mimmo::FFDLattice</a>
+: <a class="el" href="classmimmo_1_1FFDLattice.html#a3fecfcbadaa4dbd54faf694278396e9a">mimmo::FFDLattice</a>
 </li>
 <li>setNode()
-: <a class="el" href="classmimmo_1_1RBFBox.html#a3d7f3891e787623e0fd4b61b8162a982">mimmo::RBFBox</a>
-, <a class="el" href="classmimmo_1_1MRBF.html#a29015e6e9b96751b54c73e989744b6e5">mimmo::MRBF</a>
+: <a class="el" href="classmimmo_1_1MRBF.html#a85d2ea5a6314c4b283f40d64f1da1ffc">mimmo::MRBF</a>
+, <a class="el" href="classmimmo_1_1RBFBox.html#a3d7f3891e787623e0fd4b61b8162a982">mimmo::RBFBox</a>
 </li>
 <li>setNormal()
 : <a class="el" href="classmimmo_1_1ClipGeometry.html#ae17c77939c5f7220ed4359ee8bab7a78">mimmo::ClipGeometry</a>
 , <a class="el" href="classmimmo_1_1SpecularPoints.html#a1b2f7fb3252220a4ec7a892ea1215d15">mimmo::SpecularPoints</a>
+</li>
+<li>setNormalize()
+: <a class="el" href="classmimmo_1_1IOVTKScalar.html#abe6556bf35c582fe9d7248acf985dd56">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a3225427aeefb1792c3def858b142e0e0">mimmo::IOOFOAM</a>
 </li>
 <li>setNPoints()
 : <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#a2048efb93649b6d80fab2d9deeb7c7de">mimmo::CreateSeedsOnSurface</a>
@@ -457,30 +497,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a711f3b57b883d1aa0628dbf084346230">mimmo::MultipleMimmoGeometries</a>
 </li>
 <li>setOrigin()
-: <a class="el" href="classmimmo_1_1UStructMesh.html#a8d45ec7bbebb9fb24b206cd4496fc06a">mimmo::UStructMesh</a>
+: <a class="el" href="classmimmo_1_1TranslationPoint.html#a603ffff458fe1169ca3fc4bd8fa745c1">mimmo::TranslationPoint</a>
+, <a class="el" href="classmimmo_1_1RotationGeometry.html#af438130d59a5979be6ac475f0423f070">mimmo::RotationGeometry</a>
+, <a class="el" href="classmimmo_1_1UStructMesh.html#a8d45ec7bbebb9fb24b206cd4496fc06a">mimmo::UStructMesh</a>
 , <a class="el" href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">mimmo::BasicShape</a>
 , <a class="el" href="classmimmo_1_1ClipGeometry.html#af56a7c2c38280d0c9eb27700267ea0b4">mimmo::ClipGeometry</a>
-, <a class="el" href="classmimmo_1_1RotationGeometry.html#af438130d59a5979be6ac475f0423f070">mimmo::RotationGeometry</a>
+, <a class="el" href="classmimmo_1_1BendGeometry.html#a9b890fe95a7a54dbe135d8bdd051ec9a">mimmo::BendGeometry</a>
 , <a class="el" href="classmimmo_1_1TwistGeometry.html#ad3b7685309ade306b270e2796fe2d236">mimmo::TwistGeometry</a>
 , <a class="el" href="classmimmo_1_1RotationAxes.html#a495998c9408f38b74d1918047b5ca2f7">mimmo::RotationAxes</a>
 , <a class="el" href="classmimmo_1_1SpecularPoints.html#a53945fea0e3c4746ff4044c11acff560">mimmo::SpecularPoints</a>
-, <a class="el" href="classmimmo_1_1TranslationPoint.html#a603ffff458fe1169ca3fc4bd8fa745c1">mimmo::TranslationPoint</a>
-, <a class="el" href="classmimmo_1_1BendGeometry.html#a9b890fe95a7a54dbe135d8bdd051ec9a">mimmo::BendGeometry</a>
 </li>
 <li>setOutputPlot()
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">mimmo::BaseManipulation</a>
 </li>
 <li>setOverlapCriterium()
 : <a class="el" href="classmimmo_1_1OverlapScalarFields.html#ae1e452c90cbd0747dc70ca64ced29e9c">mimmo::OverlapScalarFields</a>
+, <a class="el" href="classmimmo_1_1OverlapVectorFields.html#a912f81cc6a89e3bd63e44c9d42bc651a">mimmo::OverlapVectorFields</a>
 , <a class="el" href="classmimmo_1_1ReconstructScalar.html#af595d0233b7e423a07dd6aa3f578c3ff">mimmo::ReconstructScalar</a>
 , <a class="el" href="classmimmo_1_1ReconstructVector.html#a5701f7e06b1e97939f6e7a27742099dd">mimmo::ReconstructVector</a>
-, <a class="el" href="classmimmo_1_1OverlapVectorFields.html#a912f81cc6a89e3bd63e44c9d42bc651a">mimmo::OverlapVectorFields</a>
 </li>
 <li>setOverlapCriteriumENUM()
-: <a class="el" href="classmimmo_1_1OverlapScalarFields.html#a9c603bc04f29c01e506997d2dbd40463">mimmo::OverlapScalarFields</a>
-, <a class="el" href="classmimmo_1_1ReconstructScalar.html#a92633fe0f5870bbc8af4bf0c1f0d154c">mimmo::ReconstructScalar</a>
-, <a class="el" href="classmimmo_1_1ReconstructVector.html#ae395d51e172a2e28cffcfc552de64c1a">mimmo::ReconstructVector</a>
+: <a class="el" href="classmimmo_1_1ReconstructScalar.html#a92633fe0f5870bbc8af4bf0c1f0d154c">mimmo::ReconstructScalar</a>
+, <a class="el" href="classmimmo_1_1OverlapScalarFields.html#a9c603bc04f29c01e506997d2dbd40463">mimmo::OverlapScalarFields</a>
 , <a class="el" href="classmimmo_1_1OverlapVectorFields.html#acabd768e61288fdd575ee61c9721efff">mimmo::OverlapVectorFields</a>
+, <a class="el" href="classmimmo_1_1ReconstructVector.html#ae395d51e172a2e28cffcfc552de64c1a">mimmo::ReconstructVector</a>
 </li>
 <li>setPatch()
 : <a class="el" href="classmimmo_1_1BvTree.html#a497cd5af84c7a92a4e22f391ff548f82">mimmo::BvTree</a>
@@ -490,18 +530,34 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1MimmoObject.html#a92c67671ece0c0873983c05ff42e564e">mimmo::MimmoObject</a>
 , <a class="el" href="classmimmo_1_1MimmoGeometry.html#a950d9260e76560cf9e6b6b1b5de7b9b0">mimmo::MimmoGeometry</a>
 , <a class="el" href="classmimmo_1_1SelectionByPID.html#a155705ce76759d20eef57257ec7010d3">mimmo::SelectionByPID</a>
+, <a class="el" href="classmimmo_1_1CGNSPidExtractor.html#a15f4f8d0e47a890ed4ee056f9d2c7aed">mimmo::CGNSPidExtractor</a>
 </li>
 <li>setPIDCell()
 : <a class="el" href="classmimmo_1_1MimmoObject.html#a3de588152de5b81915bf067c12fb0a69">mimmo::MimmoObject</a>
 </li>
 <li>setPlane()
-: <a class="el" href="classmimmo_1_1SpecularPoints.html#a8e18ad30c1a6593cee9d50bafd6c4bbf">mimmo::SpecularPoints</a>
+: <a class="el" href="classmimmo_1_1SpecularPoints.html#aa4dd44a3f1db9ff984c2545cb578d167">mimmo::SpecularPoints</a>
 </li>
 <li>setPlotInExecution()
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">mimmo::BaseManipulation</a>
 </li>
 <li>setPoints()
 : <a class="el" href="classmimmo_1_1IOCloudPoints.html#a16a12380f49a553e73a451f6a928948c">mimmo::IOCloudPoints</a>
+</li>
+<li>setPointsReadDir()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#aaa30109b15c6a4848bf395ca0cc2a55d">mimmo::IOOFOAM</a>
+</li>
+<li>setPointsReadFilename()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#a9cb4276aa0fdfdc0c2833cec94e85da8">mimmo::IOOFOAM</a>
+</li>
+<li>setPointsWriteDir()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#af7c950fc6625fe2161ad166c652c8e69">mimmo::IOOFOAM</a>
+</li>
+<li>setPointsWriteFilename()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#a2bd6d2541f94179e937bc74fa46be4dc">mimmo::IOOFOAM</a>
+</li>
+<li>setPolyData()
+: <a class="el" href="classmimmo_1_1IOVTKScalar.html#a91a4b10b4126f6d5e724b1b63aee72b8">mimmo::IOVTKScalar</a>
 </li>
 <li>setPriority()
 : <a class="el" href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">mimmo::BaseManipulation</a>
@@ -511,21 +567,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>setRead()
 : <a class="el" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a370d705bb22b474fefd81423970c50dd">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#a33292173ccad1837e2cb1c73c5731f23">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#a5046446ceec7240577e57411a51d33fa">mimmo::IOOFOAM</a>
 , <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a31f19bbfca4293b4631380ed18f333da">mimmo::MultipleMimmoGeometries</a>
 </li>
 <li>setReadDir()
 : <a class="el" href="classmimmo_1_1MimmoGeometry.html#aad153e11d174f3fad3641ae1d91f9af3">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a528a2860dfbc9d108b9d196ca4d8137e">mimmo::IOCGNS</a>
 , <a class="el" href="classmimmo_1_1GenericInput.html#a17f027beff0036ada516ee7d9e3c8f7b">mimmo::GenericInput</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#a2523735c55c1177d00c860d210fae052">mimmo::IOVTKScalar</a>
 , <a class="el" href="classmimmo_1_1IOCloudPoints.html#a1cb3d44e059e365002c21e43fa63b85d">mimmo::IOCloudPoints</a>
 , <a class="el" href="classmimmo_1_1GenericDispls.html#ab9f8fadbd81d8cda95e5b4f732ec4cdf">mimmo::GenericDispls</a>
 </li>
 <li>setReadFilename()
-: <a class="el" href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">mimmo::MimmoGeometry</a>
+: <a class="el" href="classmimmo_1_1GenericDispls.html#a0b57c63bed69cfd9669ddc2eb22a7637">mimmo::GenericDispls</a>
+, <a class="el" href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">mimmo::MimmoGeometry</a>
 , <a class="el" href="classmimmo_1_1IOCloudPoints.html#a273b2d33d2bfe0f5ec6ce006a326933a">mimmo::IOCloudPoints</a>
-, <a class="el" href="classmimmo_1_1GenericDispls.html#a0b57c63bed69cfd9669ddc2eb22a7637">mimmo::GenericDispls</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a2773f879c5170bb699aa3ad43ca7b066">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#a30370c76d1b5b7865d6acbc3d3b15338">mimmo::IOVTKScalar</a>
 </li>
 <li>setReadFileType()
-: <a class="el" href="classmimmo_1_1MimmoGeometry.html#ae5de0071358d1ef3c5e14bddabcf441a">mimmo::MimmoGeometry</a>
+: <a class="el" href="classmimmo_1_1MimmoGeometry.html#a3d926643cfd82059f0a8410a9f74aa6e">mimmo::MimmoGeometry</a>
 </li>
 <li>setReadFromFile()
 : <a class="el" href="classmimmo_1_1GenericInput.html#a9ef971dada7159093730824371ad2ea0">mimmo::GenericInput</a>
@@ -534,25 +597,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a1a416f0fcbb5d5f2f998e3d9007fbc39">mimmo::MultipleMimmoGeometries</a>
 </li>
 <li>setRefreshGeometryTrees()
-: <a class="el" href="classmimmo_1_1MultiApply.html#a8b025f08630c582327c0adb97706a1cb">mimmo::MultiApply</a>
-, <a class="el" href="classmimmo_1_1Apply.html#a647aa04db0041a9eaff59d68726acdd3">mimmo::Apply</a>
+: <a class="el" href="classmimmo_1_1Apply.html#a647aa04db0041a9eaff59d68726acdd3">mimmo::Apply</a>
+, <a class="el" href="classmimmo_1_1MultiApply.html#a8b025f08630c582327c0adb97706a1cb">mimmo::MultiApply</a>
 </li>
 <li>setRefSystem()
-: <a class="el" href="classmimmo_1_1UStructMesh.html#ae192ca2536e73110d69cb7589c7b3e12">mimmo::UStructMesh</a>
-, <a class="el" href="classmimmo_1_1BasicShape.html#a160e2a67bfc7d883b9f7c646a25b9ddc">mimmo::BasicShape</a>
-, <a class="el" href="classmimmo_1_1UStructMesh.html#a862a7533dd947b9ac47576f47611debc">mimmo::UStructMesh</a>
-, <a class="el" href="classmimmo_1_1BasicShape.html#a94ec6af404dd3182cce0b88f517e68ae">mimmo::BasicShape</a>
+: <a class="el" href="classmimmo_1_1UStructMesh.html#a862a7533dd947b9ac47576f47611debc">mimmo::UStructMesh</a>
+, <a class="el" href="classmimmo_1_1BasicShape.html#a8bfa17031ad830c63d19fd7c2700b2e9">mimmo::BasicShape</a>
 , <a class="el" href="classmimmo_1_1BendGeometry.html#a665071465affeb1e6e167cd993a16996">mimmo::BendGeometry</a>
+, <a class="el" href="classmimmo_1_1UStructMesh.html#adcca4581e714ff9d72160ec4a1e93889">mimmo::UStructMesh</a>
+, <a class="el" href="classmimmo_1_1BasicShape.html#a94ec6af404dd3182cce0b88f517e68ae">mimmo::BasicShape</a>
 </li>
 <li>setResult()
-: <a class="el" href="classmimmo_1_1GenericOutput.html#a4f1748e40bbfd276d0bc47656908c413">mimmo::GenericOutput</a>
-, <a class="el" href="classmimmo_1_1GenericInput.html#a9d7afa0e29dec5f6f6453f2b017eb734">mimmo::GenericInput</a>
-, <a class="el" href="classmimmo_1_1GenericOutput.html#ae201324b03b81ba389575280afa3484b">mimmo::GenericOutput</a>
+: <a class="el" href="classmimmo_1_1GenericInput.html#a9d7afa0e29dec5f6f6453f2b017eb734">mimmo::GenericInput</a>
+, <a class="el" href="classmimmo_1_1GenericOutput.html#a4f1748e40bbfd276d0bc47656908c413">mimmo::GenericOutput</a>
 , <a class="el" href="classmimmo_1_1GenericInput.html#abf828754c439b83b0cbd64feb6268910">mimmo::GenericInput</a>
 </li>
 <li>setRotation()
-: <a class="el" href="classmimmo_1_1RotationGeometry.html#a157196e6d20d206464053a11cc385160">mimmo::RotationGeometry</a>
-, <a class="el" href="classmimmo_1_1RotationAxes.html#a748675d973f88e93ee75d35194d26915">mimmo::RotationAxes</a>
+: <a class="el" href="classmimmo_1_1RotationAxes.html#a748675d973f88e93ee75d35194d26915">mimmo::RotationAxes</a>
+, <a class="el" href="classmimmo_1_1RotationGeometry.html#a157196e6d20d206464053a11cc385160">mimmo::RotationGeometry</a>
 </li>
 <li>setScalarData()
 : <a class="el" href="classmimmo_1_1SpecularPoints.html#a77cef463d88e5ed394b8fc0d756652a4">mimmo::SpecularPoints</a>
@@ -561,7 +623,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1IOCloudPoints.html#a08f48d569d661f87018013cd25acb279">mimmo::IOCloudPoints</a>
 </li>
 <li>setScaling()
-: <a class="el" href="classmimmo_1_1ScalingGeometry.html#aca6ca1b9ad09bfc229039002c9f4c9f1">mimmo::ScalingGeometry</a>
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#ac8dae194e92fd09a7bfbc8f010f70405">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#ab559a2c069f9a6befb6ffcb162548a7c">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1ScalingGeometry.html#aca6ca1b9ad09bfc229039002c9f4c9f1">mimmo::ScalingGeometry</a>
 </li>
 <li>setSeed()
 : <a class="el" href="classmimmo_1_1CreateSeedsOnSurface.html#ab147c666e1ff98143481aab693b9da41">mimmo::CreateSeedsOnSurface</a>
@@ -570,12 +634,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1UStructMesh.html#acd88828760c9911989313a894623069f">mimmo::UStructMesh</a>
 </li>
 <li>setSOFTCopy()
-: <a class="el" href="classmimmo_1_1MimmoGeometry.html#a466a611125d2851471d78c04cce81754">mimmo::MimmoGeometry</a>
+: <a class="el" href="classmimmo_1_1MimmoObject.html#a49e1f511a84f3a2c49d2f59c5a6dec78">mimmo::MimmoObject</a>
 , <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a84bf84e1f30b309fd83d3d1b3c66efed">mimmo::MultipleMimmoGeometries</a>
-, <a class="el" href="classmimmo_1_1MimmoObject.html#a49e1f511a84f3a2c49d2f59c5a6dec78">mimmo::MimmoObject</a>
+, <a class="el" href="classmimmo_1_1MimmoGeometry.html#a466a611125d2851471d78c04cce81754">mimmo::MimmoGeometry</a>
 </li>
 <li>setSpan()
-: <a class="el" href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">mimmo::BasicShape</a>
+: <a class="el" href="classmimmo_1_1UStructMesh.html#ad47bc556861448517b8875e93062b49c">mimmo::UStructMesh</a>
+, <a class="el" href="classmimmo_1_1BasicShape.html#aba0f1060a6b87ed33d375368214f0c20">mimmo::BasicShape</a>
 , <a class="el" href="classmimmo_1_1UStructMesh.html#a7aac20ac0f8fc7b4a7e5dd4a1c0dfcf3">mimmo::UStructMesh</a>
 </li>
 <li>setSplittedGeometries()
@@ -587,6 +652,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>setSupportRadiusValue()
 : <a class="el" href="classmimmo_1_1MRBF.html#a0a0f62586616f56d7c632e121db0c0c7">mimmo::MRBF</a>
+</li>
+<li>setSurfaceBoundary()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#a8dc844ccf9c13d1c5de4637cf0da47ec">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a69e8d3859425e4f693e3a14056545a80">mimmo::IOCGNS</a>
 </li>
 <li>setTemplate()
 : <a class="el" href="classmimmo_1_1IOCloudPoints.html#a4b3870726d50e72fec8e36771c5a438b">mimmo::IOCloudPoints</a>
@@ -621,6 +690,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1MimmoObject.html#a85b94f51e12c21dad1ef21de4baff425">mimmo::MimmoObject</a>
 , <a class="el" href="classmimmo_1_1MimmoGeometry.html#a26eb2d17c43b80426bf08d652673e15d">mimmo::MimmoGeometry</a>
 </li>
+<li>setVTKReadDir()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#ab2e9925f231c4c9cc65ee761e3c2da7c">mimmo::IOOFOAM</a>
+</li>
+<li>setVTKReadFilename()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#a9e77dd561cf53901d090121b334d172e">mimmo::IOOFOAM</a>
+</li>
+<li>setVTKWriteDir()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#a1003e7d854cb8e9726dd608a50e6dba3">mimmo::IOOFOAM</a>
+</li>
+<li>setVTKWriteFilename()
+: <a class="el" href="classmimmo_1_1IOOFOAM.html#aba2345403dbd97df1079ca49e628c733">mimmo::IOOFOAM</a>
+</li>
 <li>setWeight()
 : <a class="el" href="classmimmo_1_1MRBF.html#aaebc01f34d7d38bbd04fec5365b39faa">mimmo::MRBF</a>
 </li>
@@ -628,22 +709,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1NastranInterface.html#a79e44fdf346aee56e0db1af21fd5ba02">mimmo::NastranInterface</a>
 </li>
 <li>setWrite()
-: <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#ae9be0912403bf63be1b9caebaabdc90b">mimmo::MultipleMimmoGeometries</a>
+: <a class="el" href="classmimmo_1_1IOVTKScalar.html#a4b6952722a11a58e7f9fe541c46cb816">mimmo::IOVTKScalar</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a4179938dcebc3b9135cae216af61b8f1">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOOFOAM.html#acd597e6e0260fbdd10570c0eb607a785">mimmo::IOOFOAM</a>
+, <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#ae9be0912403bf63be1b9caebaabdc90b">mimmo::MultipleMimmoGeometries</a>
 , <a class="el" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">mimmo::MimmoGeometry</a>
 </li>
 <li>setWriteDir()
 : <a class="el" href="classmimmo_1_1GenericOutput.html#a041a9d6af539a2a2c708e09e8ea95315">mimmo::GenericOutput</a>
-, <a class="el" href="classmimmo_1_1IOCloudPoints.html#a4d6c89f6dbfaaa9ef9fe664a9413d72f">mimmo::IOCloudPoints</a>
-, <a class="el" href="classmimmo_1_1GenericDispls.html#a3ebb7913d3dbbe34ea96eeb3016310ef">mimmo::GenericDispls</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a36290d111ca81a1c44a6382becf55550">mimmo::IOCGNS</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#aadc230378c56c86cc89ee73ee4793020">mimmo::IOVTKScalar</a>
 , <a class="el" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1GenericDispls.html#a3ebb7913d3dbbe34ea96eeb3016310ef">mimmo::GenericDispls</a>
+, <a class="el" href="classmimmo_1_1IOCloudPoints.html#a4d6c89f6dbfaaa9ef9fe664a9413d72f">mimmo::IOCloudPoints</a>
 </li>
 <li>setWriteFilename()
-: <a class="el" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">mimmo::MimmoGeometry</a>
-, <a class="el" href="classmimmo_1_1IOCloudPoints.html#a3b25acf9dd1a3829298cd98108f0c0ba">mimmo::IOCloudPoints</a>
+: <a class="el" href="classmimmo_1_1IOCloudPoints.html#a3b25acf9dd1a3829298cd98108f0c0ba">mimmo::IOCloudPoints</a>
+, <a class="el" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">mimmo::MimmoGeometry</a>
+, <a class="el" href="classmimmo_1_1IOVTKScalar.html#a81ede4d63352a4825fd7f42942026555">mimmo::IOVTKScalar</a>
 , <a class="el" href="classmimmo_1_1GenericDispls.html#ade525a3e0e1b19e6f398a717a2efdeb6">mimmo::GenericDispls</a>
+, <a class="el" href="classmimmo_1_1IOCGNS.html#a96c47dd841d555307ae296eb99595e43">mimmo::IOCGNS</a>
 </li>
 <li>setWriteFileType()
-: <a class="el" href="classmimmo_1_1MimmoGeometry.html#a234d84385713137cfa056921c590f5f1">mimmo::MimmoGeometry</a>
+: <a class="el" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">mimmo::MimmoGeometry</a>
 </li>
 <li>setWriteListFDI()
 : <a class="el" href="classmimmo_1_1MultipleMimmoGeometries.html#a54273662e77d40b237d09ec76ed1a17e">mimmo::MultipleMimmoGeometries</a>
@@ -655,7 +743,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1SpecularPoints.html#aada7cc7c0fdc6316604ead57663a7aae">mimmo::SpecularPoints</a>
 </li>
 <li>Sphere()
-: <a class="el" href="classmimmo_1_1Sphere.html#a9d652c9a721ed54f6cfe9abd11077d64">mimmo::Sphere</a>
+: <a class="el" href="classmimmo_1_1Sphere.html#a7a5cc18dee50907c92fe8dd8159b6e64">mimmo::Sphere</a>
 </li>
 <li>SphereBoundingBox()
 : <a class="el" href="classmimmo_1_1BvTree.html#a6e5386415615c9f7c5c3a054e303bf05">mimmo::BvTree</a>
@@ -664,10 +752,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classmimmo_1_1SplitField.html#a5c95c9ead8476aaf0f6dfba3758047c6">mimmo::SplitField</a>
 </li>
 <li>SplitScalarField()
-: <a class="el" href="classmimmo_1_1SplitScalarField.html#a7e3ec60709da010e6a5f6c17378cdc43">mimmo::SplitScalarField</a>
+: <a class="el" href="classmimmo_1_1SplitScalarField.html#a6ed7eaff0f6f9daf18f541baa95fb4f4">mimmo::SplitScalarField</a>
 </li>
 <li>SplitVectorField()
-: <a class="el" href="classmimmo_1_1SplitVectorField.html#acc676096939d9a8275babe77777fdde9">mimmo::SplitVectorField</a>
+: <a class="el" href="classmimmo_1_1SplitVectorField.html#a624d02c414c039bde8cb6d70178939fd">mimmo::SplitVectorField</a>
 </li>
 <li>StitchGeometry()
 : <a class="el" href="classmimmo_1_1StitchGeometry.html#acf8fca2c22ed917f160f15da3c7469d0">mimmo::StitchGeometry</a>
@@ -677,15 +765,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<address class="footer"><small>
-Generated on Fri May 12 2017 11:47:08 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.5
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated on Fri May 12 2017 11:59:47 for mimmo by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
+  </ul>
+</div>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">
