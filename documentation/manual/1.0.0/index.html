@@ -139,50 +139,53 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><b>mimmo</b> is a C++ library for Manipulation and Morphing of surface/volume meshes (Open source). <br/>
- The main aim of <b>mimmo</b> is to provide a framework of tools able to handle a tessellated geometry and quickly modify it. It relies on Radial Basis Function (<b>RBF</b>) and extended Free Form Deformation (<b>eFFD</b>) techniques to achieve it. <br/>
- Many efforts are spent to make <b>mimmo</b> a flexible platform, able to adapt to any User problem/need, and open to any customization. Its inner structure is made by essential executable blocks, each one providing a basic feature, such as I/O handling, manipulating, selecting sub-portion of target geometries, etc... <br/>
+<br/>
+The main aim of <b>mimmo</b> is to provide a framework of tools able to handle a tessellated geometry and quickly modify it. It relies on Radial Basis Function (<b>RBF</b>) and extended Free Form Deformation (<b>eFFD</b>) techniques to achieve it. <br/>
+<br/>
+Many efforts are spent to make <b>mimmo</b> a flexible platform, able to adapt to any User problem/need, and open to any customization. Its inner structure is made by essential executable blocks, each one providing a basic feature, such as I/O handling, manipulating, selecting sub-portion of target geometries, etc... <br/>
+<br/>
 Blocks are connectable between each other, so that they can describe a morphing workflow, easily controllable by the User. <br/>
  </p>
 <h1>Modules</h1>
 <h2>core</h2>
-<p><b>core</b> provides the basic structures and low level tools to manage them.</p>
+<p><b>core</b> provides the basic structures and low level tools to manage them. Main executable blocks are:</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. ">mimmo::BaseManipulation</a></b> is the base class and interface for each executable block.</li>
-<li><b><a class="el" href="classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. ">mimmo::MimmoObject</a></b> is the geometry container used to store and perform operation on a target geometry.</li>
-<li><b><a class="el" href="classmimmo_1_1Chain.html" title="Chain is the class used to manage the chain execution of multiple executable blocks (manipulation obj...">mimmo::Chain</a></b> provides tools to manage and execute a set of manipulation blocks in an automatic work-flow.</li>
+<li><b><a class="el" href="classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. ">mimmo::BaseManipulation</a></b> is the base class and interface for each executable block</li>
+<li><b><a class="el" href="classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. ">mimmo::MimmoObject</a></b> is the geometry container used to store and perform operation on a target geometry</li>
+<li><b><a class="el" href="classmimmo_1_1Chain.html" title="Chain is the class used to manage the chain execution of multiple executable blocks (manipulation obj...">mimmo::Chain</a></b> provides tools to manage and execute a set of manipulation blocks in an automatic work-flow</li>
 </ul>
 <h2>iogeneric</h2>
-<p><b>iogeneric</b> provides all executable blocks to read/write geometry from/on external files, as well as raw data in generic formats. Main executable blocks are :</p>
+<p><b>iogeneric</b> provides all executable blocks to read/write geometry from/on external files, as well as raw data in generic formats. Main executable blocks are:</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1MimmoGeometry.html" title="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje...">mimmo::MimmoGeometry</a></b> is the input/output block for geometry files. Supported format are :<ul>
-<li><b>STL</b> Ascii/Binary triangulation.</li>
-<li><b>VTU</b> Surface/Volume/Point Cloud/Curve.</li>
-<li><b>NAS</b> Nastran triangulation.</li>
-<li>Ascii <b>OpenFoam</b> point cloud.</li>
+<li><b><a class="el" href="classmimmo_1_1MimmoGeometry.html" title="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje...">mimmo::MimmoGeometry</a></b> is the input/output block for geometry files. Supported format are:<ul>
+<li><b>STL</b> Ascii/Binary triangulation</li>
+<li><b>VTU</b> Surface/Volume/Point Cloud/Curve</li>
+<li><b>NAS</b> Nastran triangulation</li>
+<li>Ascii <b>OpenFoam</b> point cloud</li>
 </ul>
 </li>
-<li><b><a class="el" href="classmimmo_1_1GenericInput.html" title="GenericInput is the class that set the initialization of a generic input data. ">mimmo::GenericInput</a></b> provides input interfaces to unformatted/CSV files.</li>
-<li><b><a class="el" href="classmimmo_1_1GenericOutput.html" title="GenericOutput is the class that write data in an output on file. ">mimmo::GenericOutput</a></b> provides output interfaces to unformatted/CSV files.</li>
+<li><b><a class="el" href="classmimmo_1_1GenericInput.html" title="GenericInput is the class that set the initialization of a generic input data. ">mimmo::GenericInput</a></b> provides input interfaces to unformatted/CSV files</li>
+<li><b><a class="el" href="classmimmo_1_1GenericOutput.html" title="GenericOutput is the class that write data in an output on file. ">mimmo::GenericOutput</a></b> provides output interfaces to unformatted/CSV files</li>
 </ul>
 <h2>iocgns</h2>
 <p><b>iocgns</b> collects all interfaces to volume mesh CGNS format input/output.</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1IOCGNS.html" title="IOCGNS is the class to import/ export an unstructured volume mesh written in CNGS. ">mimmo::IOCGNS</a></b> input/output block for CGNS meshes.</li>
+<li><b><a class="el" href="classmimmo_1_1IOCGNS.html" title="IOCGNS is the class to import/ export an unstructured volume mesh written in CNGS. ">mimmo::IOCGNS</a></b> input/output block for CGNS meshes</li>
 </ul>
 <h2>iovtk</h2>
 <p><b>iovtk</b> collects all interfaces to volume mesh VTK format input/output.</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1IOVTKScalar.html" title="IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry. ">mimmo::IOVTKScalar</a></b> input/output block for VTK surface meshes with scalar field.</li>
+<li><b><a class="el" href="classmimmo_1_1IOVTKScalar.html" title="IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry. ">mimmo::IOVTKScalar</a></b> input/output block for VTK surface meshes with scalar field</li>
 </ul>
 <h2>ioofoam</h2>
 <p><b>ioofoam</b> collects all interfaces to volume mesh OpenFoam format input/output.</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1IOOFOAM.html" title="IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f...">mimmo::IOOFOAM</a></b> input/output block for meshes in OpenFOAM format (VTK surface and volume Point CLoud).</li>
+<li><b><a class="el" href="classmimmo_1_1IOOFOAM.html" title="IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f...">mimmo::IOOFOAM</a></b> input/output block for meshes in OpenFOAM format (VTK surface and volume Point CLoud)</li>
 </ul>
 <h2>geohandlers</h2>
-<p><b>geohandlers</b> provides tools to handle, transform, select a target geometry mesh and attached data fields. Main executable blocks are :</p>
+<p><b>geohandlers</b> provides tools to handle, transform, select a target geometry mesh and attached data fields. Main executable blocks are:</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. ">mimmo::GenericSelection</a></b> is the base block that provides interfaces to specific selection blocks :<ul>
+<li><b><a class="el" href="classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. ">mimmo::GenericSelection</a></b> is the base block that provides interfaces to specific selection blocks:<ul>
 <li><b><a class="el" href="classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. ">mimmo::SelectionByBox</a></b></li>
 <li><b><a class="el" href="classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. ">mimmo::SelectionBySphere</a></b></li>
 <li><b><a class="el" href="classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. ">mimmo::SelectionByCylinder</a></b></li>
@@ -190,12 +193,12 @@ Blocks are connectable between each other, so that they can describe a morphing 
 <li><b><a class="el" href="classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces on the target mesh. ">mimmo::SelectionByMapping</a></b></li>
 </ul>
 </li>
-<li><b><a class="el" href="classmimmo_1_1ClipGeometry.html" title="ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it...">mimmo::ClipGeometry</a></b> and <b><a class="el" href="classmimmo_1_1StitchGeometry.html" title="StitchGeometry is an executable block class capable of stitch multiple MimmoObject geometries of the ...">mimmo::StitchGeometry</a></b> are executable blocks to cut a target geometry and stitch multiple geometries.</li>
+<li><b><a class="el" href="classmimmo_1_1ClipGeometry.html" title="ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it...">mimmo::ClipGeometry</a></b> and <b><a class="el" href="classmimmo_1_1StitchGeometry.html" title="StitchGeometry is an executable block class capable of stitch multiple MimmoObject geometries of the ...">mimmo::StitchGeometry</a></b> are executable blocks to cut a target geometry and stitch multiple geometries</li>
 </ul>
 <h2>manipulators</h2>
-<p><b>manipulators</b> provides core engines to morph a target mesh directly or with <b>eFFD</b> and <b>RBF</b> techniques. Main executable blocks are :</p>
+<p><b>manipulators</b> provides core engines to morph a target mesh directly or with <b>eFFD</b> and <b>RBF</b> techniques. Main executable blocks are:</p>
 <ul>
-<li><b><a class="el" href="classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice. ">mimmo::FFDLattice</a></b> provides Free Form Deformation based manipulation tools</li>
+<li><b><a class="el" href="classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice. ">mimmo::FFDLattice</a></b> provides extended Free Form Deformation based manipulation tools</li>
 <li><b><a class="el" href="classmimmo_1_1MRBF.html" title="Radial Basis Function evaluation from clouds of control points. ">mimmo::MRBF</a></b> provides Radial Basis Functions based manipulation tools</li>
 <li><b><a class="el" href="classmimmo_1_1RotationGeometry.html" title="RotationGeometry is the class that applies a rotation to a given geometry patch. ">mimmo::RotationGeometry</a></b>, <b><a class="el" href="classmimmo_1_1ScalingGeometry.html" title="ScalingGeometry is the class that applies a scaling to a given geometry patch in respect to the mean ...">mimmo::ScalingGeometry</a></b>, <b><a class="el" href="classmimmo_1_1TranslationGeometry.html" title="TranslationGeometry is the class that applies a translation to a given geometry patch. ">mimmo::TranslationGeometry</a></b> and <b><a class="el" href="classmimmo_1_1TwistGeometry.html" title="TwistGeometry is the class that applies a twist to a given geometry patch. ">mimmo::TwistGeometry</a></b> provide global direct transformation</li>
 </ul>
@@ -207,7 +210,7 @@ Blocks are connectable between each other, so that they can describe a morphing 
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 12 2017 12:55:04 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 12 2017 13:08:55 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>
