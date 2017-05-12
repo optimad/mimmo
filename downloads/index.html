@@ -6,22 +6,22 @@ section: downloads
 
 <h1>Download stable releases<span class="anchor" id="stable"></span></h1>
 
-<h2>Current stable (mimmo 1.0.0) [ongoing work] <span class="date">31 Jan 2017</span></h2>
+<h2>Current stable (<a href="https://github.com/optimad/mimmo">mimmo 1.0.0</a>) <span class="date">12 May 2017</span></h2>
 
 <ul class="downloads">
     <li>
-    <a href="https://github.com/optimad/MIMMO/archive/MIMMO-1.0.0.tar.gz" class="big" >mimmo-1.0.0.bz2 (not yet available)</a> [???? kB]<br/>
+    <a href="https://github.com/optimad/mimmo/archive/mimmo-1.0.0.tar.gz" class="big" >mimmo-1.0.0.tar.gz</a> [34 MB]<br/>
     <p>
-    md5: ... <br/>
-    sha256: ...  <br/>
+    md5:39d081df1608d53b878ac35d2d377fc6 <br/>
+    sha256: 8157ade166b17675b71b5ef6aaa2421f8006f59b8936f047ba46e362eebea3b2  <br/>
     <p>
     </li>
 
     <li>
-    <a href="https://github.com/optimad/MIMMO/archive/MIMMO-1.0.0.zip" class="big" >mimmo-1.0.0.zip (not yet available) </a> [???? kB]<br/>
+    <a href="https://github.com/optimad/mimmo/archive/mimmo-1.0.0.zip" class="big" >mimmo-1.0.0.zip</a> [34 MB]<br/>
     <p>
-    md5: ... <br/>
-    sha256: ... <br/>
+    md5: 4b41e9c00a4a02c6b8615967cde20c05 <br/>
+    sha256: ebff71fd15c5162740a9537df99acffb36c8835b9e331c1653bf89fccb8b86ce <br/>
     <p>
     </li>
 </ul>
@@ -55,7 +55,7 @@ The first step is to clone the mimmo repository. This will take a while.
 <p>
 In a terminal window, enter the following command:
 <span class="codebox">
-git clone https://github.com/optimad/MIMMO.git
+git clone https://github.com/optimad/mimmo.git
 </span>
 This clones the entire mimmo repository into a subdirectory named mimmo. To
 install into a specific directory, add that to the command line (for more info
@@ -72,7 +72,7 @@ If you have developer access, then instead of cloning anonymously with
 https you should clone with your ssh &lt;USERNAME&gt; so that you can submit
 changes for review:
 <span class="codebox">
-git clone https://&lt;USERNAME&gt;&#64;github.com/optimad/MIMMO.git
+git clone https://&lt;USERNAME&gt;&#64;github.com/optimad/mimmo.git
 </span>
 </p>
 
@@ -82,7 +82,8 @@ git clone https://&lt;USERNAME&gt;&#64;github.com/optimad/MIMMO.git
 
 <p>
 The latest development version of mimmo is tracked in the 'master' branch.
-This is what is locally checked out by default when you first clone the mimmo
+This is what is locally checked out by default when you first clone the 
+<a href="https://github.com/optimad/mimmo">mimmo</a>
 repository. If you have switched to another branch but would like to switch back
 o using bleeding-edge mimmo, do:
 <span class="codebox">
@@ -95,12 +96,12 @@ git checkout master
 <p>Specific stable versions of mimmo are tracked using 'tags'. These are analogous
 to the tarball releases. You can see the versions available with:
 <span class="codebox">
-git tag -l | grep MIMMO | sort -V
+git tag -l | grep mimmo | sort -V
 </span>
 Using non GNU sort command, such as on Mac OS X, you have to rely on the good
 old separators:
 <span class="codebox">
-git tag -l | grep MIMMO | sort -n -t. -k1 -k2 -k3
+git tag -l | grep mimmo | sort -n -t. -k1 -k2 -k3
 </span>
 </p>
 
