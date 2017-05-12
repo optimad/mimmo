@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classmimmo_1_1IOData.html" title="IOData is the base class of generic data stored as input or result in a Port. " alt="" coords="5,5,120,32"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1IODataT.html" title="IODataT is the templated class of generic data derived from IOData base class. " alt="" coords="168,5,323,32"/>
+</map>
