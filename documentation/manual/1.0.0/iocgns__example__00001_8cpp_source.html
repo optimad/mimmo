@@ -30,13 +30,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-  $(window).load(resizeHeight);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -130,21 +123,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('iocgns__example__00001_8cpp_source.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -159,6 +137,11 @@ $(document).ready(function(){initNavTree('iocgns__example__00001_8cpp_source.htm
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">iocgns_example_00001.cpp</div>  </div>
@@ -278,19 +261,15 @@ $(document).ready(function(){initNavTree('iocgns__example__00001_8cpp_source.htm
 <div class="ttc" id="classmimmo_1_1BaseManipulation_html_aaf48ae2e832729c0d9a0b01a77438bdc"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">mimmo::BaseManipulation::setPlotInExecution</a></div><div class="ttdeci">void setPlotInExecution(bool)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00304">BaseManipulation.cpp:304</a></div></div>
 <div class="ttc" id="classmimmo_1_1CGNSPidExtractor_html_a15f4f8d0e47a890ed4ee056f9d2c7aed"><div class="ttname"><a href="classmimmo_1_1CGNSPidExtractor.html#a15f4f8d0e47a890ed4ee056f9d2c7aed">mimmo::CGNSPidExtractor::setPID</a></div><div class="ttdeci">void setPID(std::vector&lt; short int &gt; vval)</div><div class="ttdef"><b>Definition:</b> <a href="CGNSPidExtractor_8cpp_source.html#l00143">CGNSPidExtractor.cpp:143</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li><li class="navelem"><b>iocgns_example_00001.cpp</b></li>
-    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
-  </ul>
-</div>
+<address class="footer"><small>
+Generated on Fri May 12 2017 12:04:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.5
+</small></address>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

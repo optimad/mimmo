@@ -30,13 +30,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-  $(window).load(resizeHeight);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -130,21 +123,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('geohandlers__example__00001_8cpp_source.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -159,6 +137,11 @@ $(document).ready(function(){initNavTree('geohandlers__example__00001_8cpp_sourc
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">geohandlers_example_00001.cpp</div>  </div>
@@ -323,19 +306,15 @@ $(document).ready(function(){initNavTree('geohandlers__example__00001_8cpp_sourc
 <div class="ttc" id="classmimmo_1_1MimmoGeometry_html_aa80ef53cadff6d9fedee9398e7614efa"><div class="ttname"><a href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">mimmo::MimmoGeometry::setReadFilename</a></div><div class="ttdeci">void setReadFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoGeometry_8cpp_source.html#l00189">MimmoGeometry.cpp:189</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html">mimmo::SelectionBySphere</a></div><div class="ttdoc">Selection through sphere primitive. </div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00311">MeshSelection.hpp:311</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li><li class="navelem"><b>geohandlers_example_00001.cpp</b></li>
-    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
-  </ul>
-</div>
+<address class="footer"><small>
+Generated on Fri May 12 2017 12:04:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.5
+</small></address>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

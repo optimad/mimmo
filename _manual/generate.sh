@@ -69,7 +69,7 @@ cmake ${MIMMO_SOURCE_DIR} \
     -DDOXY_HTML_FOOTER="${MANUAL_BUILD_DIR}/templates/doxygen_footer.html" \
     -DDOXY_HTML_EXTRA_STYLESHEET="${MANUAL_BUILD_DIR}/stylesheets/manual.css" \
     -DDOXY_DISABLE_INDEX="NO" \
-    -DDOXY_GENERATE_TREEVIEW="YES"
+    -DDOXY_GENERATE_TREEVIEW="NO"
 
     
 cd doc

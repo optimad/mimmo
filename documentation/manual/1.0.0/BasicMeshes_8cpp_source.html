@@ -30,13 +30,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-  $(window).load(resizeHeight);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -130,21 +123,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('BasicMeshes_8cpp_source.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -159,6 +137,11 @@ $(document).ready(function(){initNavTree('BasicMeshes_8cpp_source.html','');});
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_aebb8dcc11953d78e620bbef0b9e2183.html">core</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">BasicMeshes.cpp</div>  </div>
@@ -1426,19 +1409,15 @@ $(document).ready(function(){initNavTree('BasicMeshes_8cpp_source.html','');});
 <div class="ttc" id="classmimmo_1_1UStructMesh_html_a4324c73b47f3e830ede4a0faf129d734"><div class="ttname"><a href="classmimmo_1_1UStructMesh.html#a4324c73b47f3e830ede4a0faf129d734">mimmo::UStructMesh::m_ynode</a></div><div class="ttdeci">dvector1D m_ynode</div><div class="ttdef"><b>Definition:</b> <a href="BasicMeshes_8hpp_source.html#l00057">BasicMeshes.hpp:57</a></div></div>
 <div class="ttc" id="classmimmo_1_1UStructMesh_html_a34c936e614d344db1cc8528d97a03d1a"><div class="ttname"><a href="classmimmo_1_1UStructMesh.html#a34c936e614d344db1cc8528d97a03d1a">mimmo::UStructMesh::m_dy</a></div><div class="ttdeci">double m_dy</div><div class="ttdef"><b>Definition:</b> <a href="BasicMeshes_8hpp_source.html#l00051">BasicMeshes.hpp:51</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_aebb8dcc11953d78e620bbef0b9e2183.html">core</a></li><li class="navelem"><b>BasicMeshes.cpp</b></li>
-    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
-  </ul>
-</div>
+<address class="footer"><small>
+Generated on Fri May 12 2017 12:04:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.5
+</small></address>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">

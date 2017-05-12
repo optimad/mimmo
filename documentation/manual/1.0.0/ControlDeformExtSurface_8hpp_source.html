@@ -30,13 +30,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-  $(window).load(resizeHeight);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -130,21 +123,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('ControlDeformExtSurface_8hpp_source.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -159,6 +137,11 @@ $(document).ready(function(){initNavTree('ControlDeformExtSurface_8hpp_source.ht
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_313caf1132e152dd9b58bea13a4052ca.html">utils</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">ControlDeformExtSurface.hpp</div>  </div>
@@ -280,19 +263,15 @@ $(document).ready(function(){initNavTree('ControlDeformExtSurface_8hpp_source.ht
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ad4283fe02b93117e5592b4a3f78ef691"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ad4283fe02b93117e5592b4a3f78ef691">mimmo::ControlDeformExtSurface::~ControlDeformExtSurface</a></div><div class="ttdeci">~ControlDeformExtSurface()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00067">ControlDeformExtSurface.cpp:67</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ab369004a0395485fc4caf9a381f0eba8"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">mimmo::ControlDeformExtSurface::plotOptionalResults</a></div><div class="ttdeci">void plotOptionalResults()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00780">ControlDeformExtSurface.cpp:780</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_313caf1132e152dd9b58bea13a4052ca.html">utils</a></li><li class="navelem"><b>ControlDeformExtSurface.hpp</b></li>
-    <li class="footer">Generated on Fri May 12 2017 11:59:46 for mimmo by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
-  </ul>
-</div>
+<address class="footer"><small>
+Generated on Fri May 12 2017 12:04:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.5
+</small></address>
     <div id="footer" >
         <div class="middle">
             <div class="box-wrapper">
