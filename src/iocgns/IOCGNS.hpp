@@ -26,9 +26,13 @@
 #define __IOCGNS_HPP__
 
 #include "BaseManipulation.hpp"
-#include <cgnslib.h>
+//#include <cgnslib.h>
+
 
 namespace mimmo{
+
+typedef int M_CG_ElementType_t;
+typedef int M_CG_BCType_t;
 
 /*!
  * \class InfoCGNS
@@ -40,18 +44,18 @@ class InfoCGNS{
     friend class IOCGNS;
 private:
 
-    std::map<bitpit::ElementInfo::Type, CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
-    std::map<CG_ElementType_t, std::string>                 mcg_typetostring;  /**<Element type conversion CGNS->sting.*/
+    std::map<bitpit::ElementInfo::Type, M_CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
+    std::map<M_CG_ElementType_t, std::string>                 mcg_typetostring;  /**<Element type conversion CGNS->sting.*/
 
-    std::map<CG_ElementType_t, int>                         mcg_number;     /**<Number of elements in each volume section per type.*/
-    std::map<CG_ElementType_t, std::vector<long int> >      mcg_typetoid;   /**<Map of elements (bitpit ID vector) in each volume section per type.*/
-    std::map<CG_ElementType_t, std::vector<int> >           mcg_typetoconn; /**<Map of connectivity of elements (bitpit vertex ID vector) in each volume section per type.*/
+    std::map<M_CG_ElementType_t, int>                         mcg_number;     /**<Number of elements in each volume section per type.*/
+    std::map<M_CG_ElementType_t, std::vector<long int> >      mcg_typetoid;   /**<Map of elements (bitpit ID vector) in each volume section per type.*/
+    std::map<M_CG_ElementType_t, std::vector<int> >           mcg_typetoconn; /**<Map of connectivity of elements (bitpit vertex ID vector) in each volume section per type.*/
     std::map<long int, int>                                 mcg_idtoindex;  /**<Map of elements bitpit ID to local CGNS index.*/
     std::vector<long int>                                   mcg_indextoid;  /**<Vector of elements local CGNS index to bitpit ID.*/
 
-    std::map<CG_ElementType_t, int>                         mcg_bndnumber;      /**<Number of elements in each boundary section per type.*/
-    std::map<CG_ElementType_t, std::vector<long int> >      mcg_bndtypetoid;    /**<Map of boundary elements (bitpit ID vector) in each boundary section per type.*/
-    std::map<CG_ElementType_t, std::vector<int> >           mcg_bndtypetoconn;  /**<Map of connectivity of boundary elements (bitpit vertex ID vector) in each boundary section per type.*/
+    std::map<M_CG_ElementType_t, int>                         mcg_bndnumber;      /**<Number of elements in each boundary section per type.*/
+    std::map<M_CG_ElementType_t, std::vector<long int> >      mcg_bndtypetoid;    /**<Map of boundary elements (bitpit ID vector) in each boundary section per type.*/
+    std::map<M_CG_ElementType_t, std::vector<int> >           mcg_bndtypetoconn;  /**<Map of connectivity of boundary elements (bitpit vertex ID vector) in each boundary section per type.*/
     std::map<long int, int>                                 mcg_bndidtoindex;   /**<Map of boundary elements bitpit ID to local CGNS index.*/
     std::vector<long int>                                   mcg_bndindextoid;   /**<Vector of boundary elements local CGNS index to bitpit ID.*/
 
@@ -89,7 +93,7 @@ private:
 class BCCGNS{
     friend class IOCGNS;
 private:
-    std::map<int, CG_BCType_t >         mcg_pidtobc;        /**<Converter of boundary conditions types (PID->conditionType).*/
+    std::map<int, M_CG_BCType_t >         mcg_pidtobc;        /**<Converter of boundary conditions types (PID->conditionType).*/
     std::map<int, std::string >         mcg_pidtoname;       /**<Converter of boundary conditions types (PID->nameBC).*/
     std::map<int, std::vector<int> >    mcg_bndpidtoindex;  /**<Map of boundary elements bitpit PID to vector of local CGNS index.*/
 

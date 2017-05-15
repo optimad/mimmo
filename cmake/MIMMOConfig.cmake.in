@@ -90,3 +90,5 @@ set(MIMMO_DEFINITIONS "@MIMMO_DEFINITIONS_PUBLIC@")
 
 # Let libfind_process initialize the appropriate variables
 libfind_process(MIMMO)
+
+

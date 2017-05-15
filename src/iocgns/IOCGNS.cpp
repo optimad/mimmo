@@ -790,7 +790,7 @@ IOCGNS::write(){
         sec++;
         if(connMap.second.size() == 0) continue;
 
-        CG_ElementType_t type = (connMap.first);
+        CG_ElementType_t type = CG_ElementType_t(connMap.first);
 
         eEnd = eBeg + m_storedInfo->mcg_number[type] - 1;
 
@@ -805,7 +805,7 @@ IOCGNS::write(){
         sec++;
         if(connMap.second.size() == 0) continue;
 
-        CG_ElementType_t type = (connMap.first);
+        CG_ElementType_t type = CG_ElementType_t(connMap.first);
 
         eEnd = eBeg + m_storedInfo->mcg_bndnumber[type] - 1;
 
@@ -829,7 +829,7 @@ IOCGNS::write(){
 
         cgsize_t nelements = bc.second.size();
         int bcPID = bc.first;
-        if (m_storedBC->mcg_pidtobc.count(bcPID)) bocotype = m_storedBC->mcg_pidtobc[bcPID];
+        if (m_storedBC->mcg_pidtobc.count(bcPID)) bocotype = CG_BCType_t(m_storedBC->mcg_pidtobc[bcPID]);
 
         std::string bcname = "wall_"+std::to_string(bcPID);
         if (m_storedBC->mcg_pidtoname.count(bcPID)) bcname = m_storedBC->mcg_pidtoname[bcPID];
@@ -1013,7 +1013,7 @@ IOCGNS::recoverCGNSInfo(){
     CG_ElementType_t cgtype;
     long int ID;
     for (auto & cell : vol->getCells()){
-        cgtype = m_storedInfo->mcg_typeconverter[cell.getType()];
+        cgtype = CG_ElementType_t(m_storedInfo->mcg_typeconverter[cell.getType()]);
         ID = cell.getId();
         m_storedInfo->mcg_number[cgtype]++;
         m_storedInfo->mcg_typetoid[cgtype].push_back(ID);
@@ -1026,7 +1026,8 @@ IOCGNS::recoverCGNSInfo(){
     /*Iterate map volume info and fill local CGNS index info
      * (volume elements will be appended before boundary elements)
      */
-    std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+//    std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+    std::map<int, std::vector<long int> >::iterator it, itend;
     std::vector<long int>::iterator itV, itVend;
     itend = m_storedInfo->mcg_typetoid.end();
     int cgnsidx = 0;
@@ -1048,7 +1049,7 @@ IOCGNS::recoverCGNSInfo(){
         CG_ElementType_t cgtype;
         long int ID;
         for (auto & cell : bnd->getCells()){
-            cgtype = m_storedInfo->mcg_typeconverter[cell.getType()];
+            cgtype = CG_ElementType_t(m_storedInfo->mcg_typeconverter[cell.getType()]);
             ID = cell.getId();
             m_storedInfo->mcg_bndnumber[cgtype]++;
             m_storedInfo->mcg_bndtypetoid[cgtype].push_back(ID);
@@ -1061,7 +1062,8 @@ IOCGNS::recoverCGNSInfo(){
         /*Iterate map surface (boundary) info and fill local CGNS index info
          * (surface elements will be appended after volume elements)
          */
-        std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+//        std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+        std::map<int, std::vector<long int> >::iterator it, itend;
         std::vector<long int>::iterator itV, itVend;
         itend = m_storedInfo->mcg_bndtypetoid.end();
         int bndcgnsidx = 0;
