@@ -242,6 +242,25 @@ protected:
 
  *    =========================================================
  *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionByCylinder</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
+ * - <B>Origin</B>: array of 3 doubles identifying origin of cylinder;
+ * - <B>Span</B>: span of the cylinder (base radius, angular azimuthal width, height);
+ * - <B>RefSystem</B>: reference system of the cylinder(axis2 along the cylinder's height): \n
+ *                <tt>\<RefSystem\> \n
+ *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
+ *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
+ *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
+ *                  \</RefSystem\> </tt> \n
+ * - <B>InfLimits</B>: set starting point for each cylindrical coordinate. Useful to assign different starting angular coordinate to azimuthal width.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry has to be mandatorily passed through port.
+ *
  */
 class SelectionByCylinder: public GenericSelection, public mimmo::Cylinder {
 
@@ -307,6 +326,26 @@ protected:
 
  *    =========================================================
  *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionBySphere</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
+ * - <B>Origin</B>: array of 3 doubles identifying origin of sphere;
+ * - <B>Span</B>: span of the cylinder (radius, angular azimuthal width, angular polar width);
+ * - <B>RefSystem</B>: reference system of the sphere: \n
+ *                <tt>\<RefSystem\> \n
+ *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
+ *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
+ *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
+ *                  \</RefSystem\> </tt> \n
+ * - <B>InfLimits</B>: set starting point for each spherical coordinate. Useful to assign different starting angular coordinate to azimuthal width/ polar width.
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry has to be mandatorily passed through port.
+ 
+ *
  */
 class SelectionBySphere: public GenericSelection, public mimmo::Sphere {
 
@@ -371,6 +410,31 @@ protected:
 
  *    =========================================================
  *
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionByMapping</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Topology</B>: number indentifying topology of tesselated mesh. 1-surfaces, 2-voume. no other types are supported;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
+ * - <B>Tolerance</B>: proximity threshold to activate mapping;
+ * - <B>Span</B>: span of the cylinder (base radius, angular azimuthal width, height);
+ * - <B>Files</B>: list of external files to map on the target surface: \n
+ *                <tt>\<Files\> \n
+ *                      \<file0\> \n
+ *                          \<fullpath> absolute path to your file with extension \<fullpath\> \n
+ *                          \<tag\> tag extension as supported format STL,NAS,STVTU,etc...\<tag\> \n
+ *                      \<file0\> \n
+ *                      \<file1\> \n
+ *                          \<fullpath> absolute path to your file with extension \<fullpath\> \n
+ *                          \<tag\> tag extension as supported format STL,NAS,STVTU,etc...\<tag\> \n
+ *                      \<file1\> \n
+ *                      ... 
+ *                  \</Files\> </tt> \n
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry has to be mandatorily passed through port.
  */
 class SelectionByMapping: public GenericSelection {
 
@@ -457,6 +521,18 @@ private:
 
  *    =========================================================
  *
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionByMapping</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
+ * - <B>nPID</B>: number of PID to be selected relative to target geometry; 
+ * - <B>PID</B>: list of PID (separated by blank spaces) to be selected relative to target geometry; 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Geometry has to be mandatorily passed through port.
  */
 class SelectionByPID: public GenericSelection {
 
