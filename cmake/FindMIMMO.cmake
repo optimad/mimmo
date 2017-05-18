@@ -4,12 +4,15 @@
 # The following variables are set if mimmo is found. If mimmo is
 # not found, MIMMO_FOUND is set to false:
 #
-#  MIMMO_FOUND        - System has the mimmo library
-#  MIMMO_USE_FILE     - CMake file to use mimmo.
-#  MIMMO_VERSION      - Version of the mimmo library found
-#  MIMMO_INCLUDE_DIRS - The mimmo include directories
-#  MIMMO_LIBRARIES    - The libraries needed to use mimmo
-#  MIMMO_DEFINITIONS  - Compiler switches required for using patchman
+#  MIMMO_FOUND         - System has the mimmo library
+#  MIMMO_USE_FILE      - CMake file to use mimmo.
+#  MIMMO_VERSION       - Version of the mimmo library found
+#  MIMMO_INCLUDE_DIRS  - The mimmo include directories
+#  MIMMO_LIBRARIES     - The libraries needed to use mimmo
+#  MIMMO_DEFINITIONS   - Compiler switches required for using patchman
+#  MIMMO_IOCGNS_ACTIVE - true if optional I/O CGNS module is compiled along with mimmo
+#  MIMMO_IOOFOAM_ACTIVE- true if optional I/O OpenFOAM interface module is compiled along with mimmo
+#  MIMMO_IOVTK_ACTIVE  - true if optional I/O VTK interface module is compiled along with mimmo
 #
 # The following cache entries must be set by the user to locate mimmo:
 #

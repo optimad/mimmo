@@ -88,6 +88,11 @@ endif ()
 # mimmo Definitions
 set(MIMMO_DEFINITIONS "@MIMMO_DEFINITIONS_PUBLIC@")
 
+# mimmo optional modules boolean variables to retrack additional external libraries.
+set(MIMMO_IOVTK_ACTIVE @IOVTK_ACTIVE@)
+set(MIMMO_IOOFOAM_ACTIVE @IOOFOAM_ACTIVE@)
+set(MIMMO_IOCGNS_ACTIVE @IOCGNS_ACTIVE@)
+
 # Let libfind_process initialize the appropriate variables
 libfind_process(MIMMO)
 
