@@ -116,6 +116,20 @@ function(addModuleIncludeDirectories MODULE_NAME)
     include_directories("${PROJECT_SOURCE_DIR}/src/${MODULE_NAME}")
 endfunction()
 
+#works only in linux systems ->suitable for libraries who does not own a find_package
+function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV)
+    if(DEFINED SHAREDV AND SHAREDV)
+        SET(TAG ".so")
+    else()
+        SET(TAG ".a")
+    endif()
+    find_library(NAMEPATH "lib${NAMELIB}${TAG}" HINTS "${HINTS_DIR}")
+    add_library(${NAMELIB} UNKNOWN IMPORTED)
+    set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_LOCATION ${NAMEPATH})
+    set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_IMPLIB ${NAMEPATH})
+    unset(NAMEPATH CACHE)
+endfunction()
+
 #------------------------------------------------------------------------------------#
 # MPI
 #------------------------------------------------------------------------------------#
@@ -442,15 +456,17 @@ endif()
 
 # module further dependency
 isModuleEnabled("iovtk" MODULE_ENABLED1)
-if (MODULE_ENABLED1)
+isModuleEnabled("ioofoam" MODULE_ENABLED3)
+if (MODULE_ENABLED1 OR MODULE_ENABLED3)
 
     # ---- VTK forced ---
-    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
+    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
     find_package(VTK REQUIRED)
     include(${VTK_USE_FILE})
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
     #      ---- 
-
+else()
+    UNSET(VTK_DIR CACHE)
 endif ()
 
 # module further dependency
@@ -458,47 +474,40 @@ isModuleEnabled("iocgns" MODULE_ENABLED2)
 if (MODULE_ENABLED2)
 
     # ---- CGNS forced ---
-    set(CGNS_DIR "/opt/cgns/cgns_3.2.1" CACHE STRING "path to CGNS installation")
-    set(HDF5_DIR "/opt/hdf5/hdf5_1.8.15-patch1" CACHE STRING "path to HDF5 installation")
+    set(CGNS_DIR "/opt/cgns/cgns_3.2.1" CACHE PATH "path to CGNS installation")
+    set(HDF5_DIR "/opt/hdf5/hdf5_1.8.15-patch1" CACHE PATH "path to HDF5 installation")
     set(HDF5_BUILD_TYPE "parallel" CACHE STRING
         "Choose the type of HDF5 build, options are: parallel serial.")
     # Set the possible values of HDF5 build type for the GUI
     set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
     
-    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${CGNS_DIR}/include")
-
-    set(CGNS_LIB "${CGNS_DIR}/lib/libcgns.so")
-    set(CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5.so")
-
-    if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
-        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_cpp.so")
-        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_fortran.so")
-        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_hl.so")
-        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5_hl_cpp.so")
-        list(APPEND CGNS_DEP "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib/libhdf5hl_fortran.so")
-    endif()
     
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${CGNS_LIB}" "${CGNS_DEP}")
-    unset(CGNS_LIB)
-    unset(CGNS_DEP)
+    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${CGNS_DIR}/include")
+    addImportedLibrary("cgns" "${CGNS_DIR}/lib" ON)
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "cgns")
+    
+    addImportedLibrary("hdf5" "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5")
+    
+    if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
+        addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+        addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+        addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+        addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+        addImportedLibrary("hdf5hl_fortran" "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_cpp")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_fortran")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5hl_fortran")
+    endif()
     #      ---- 
-
+else()
+    unset(CGNS_DIR CACHE)
+    unset(HDF5_DIR CACHE)
+    unset(HDF5_BUILD_TYPE CACHE)
 endif ()
-
-# module further dependency
-isModuleEnabled("ioofoam" MODULE_ENABLED3)
-if (MODULE_ENABLED3 AND NOT MODULE_ENABLED1)
-
-    # ---- VTK forced ---
-    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE STRING "path to VTK installation")
-    find_package(VTK REQUIRED)
-    include(${VTK_USE_FILE})
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
-    #      ---- 
-
-endif ()
-
-
 
 #------------------------------------------------------------------------------------#
 # Subdirectories
