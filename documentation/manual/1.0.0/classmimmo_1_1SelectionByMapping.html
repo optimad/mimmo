@@ -461,9 +461,33 @@ Additional Inherited Members</h2></td></tr>
 <td>99 </td><td>M_GEOM </td><td>getPatch </td><td>(SCALAR, MIMMO_) </td></tr>
 </table>
 <hr/>
- <dl><dt><b>Examples: </b></dt><dd><a class="el" href="geohandlers_example_00003_8cpp-example.html#_a9">geohandlers_example_00003.cpp</a>.</dd>
+<p>The xml available parameters, sections and subsections are the following :</p>
+<ul>
+<li><b>ClassName</b>: name of the class as <code><a class="el" href="classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces on the target mesh. ">mimmo.SelectionByMapping</a></code>;</li>
+<li><b>Priority</b>: uint marking priority in multi-chain execution;</li>
+<li><b>Topology</b>: number indentifying topology of tesselated mesh. 1-surfaces, 2-voume. no other types are supported;</li>
+<li><b>Dual</b>: boolean to get straight what given by selection method or its exact dual;</li>
+<li><b>Tolerance</b>: proximity threshold to activate mapping;</li>
+<li><b>Span</b>: span of the cylinder (base radius, angular azimuthal width, height);</li>
+<li><b>Files</b>: list of external files to map on the target surface: <br/>
+ <code>&lt;Files&gt; <br/>
+ &lt;file0&gt; <br/>
+ &lt;fullpath&gt; absolute path to your file with extension &lt;fullpath&gt; <br/>
+ &lt;tag&gt; tag extension as supported format STL,NAS,STVTU,etc...&lt;tag&gt; <br/>
+ &lt;file0&gt; <br/>
+ &lt;file1&gt; <br/>
+ &lt;fullpath&gt; absolute path to your file with extension &lt;fullpath&gt; <br/>
+ &lt;tag&gt; tag extension as supported format STL,NAS,STVTU,etc...&lt;tag&gt; <br/>
+ &lt;file1&gt; <br/>
+ ... &lt;/Files&gt; </code> <br/>
+</li>
+<li><b>PlotInExecution</b>: boolean 0/1 print optional results of the class;</li>
+<li><b>OutputPlot</b>: target directory for optional results writing.</li>
+</ul>
+<p>Geometry has to be mandatorily passed through port. </p>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="geohandlers_example_00003_8cpp-example.html#_a9">geohandlers_example_00003.cpp</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00375">375</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
+<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00439">439</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a0b1c9402926ebc4c5ff778f973576b55"></a>
 <div class="memitem">
@@ -1029,7 +1053,7 @@ Additional Inherited Members</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 12 2017 13:08:54 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 10:46:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

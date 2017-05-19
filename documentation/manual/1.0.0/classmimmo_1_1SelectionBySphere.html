@@ -560,9 +560,28 @@ Additional Inherited Members</h2></td></tr>
 <td>99 </td><td>M_GEOM </td><td>getPatch </td><td>(SCALAR, MIMMO_) </td></tr>
 </table>
 <hr/>
- <dl><dt><b>Examples: </b></dt><dd><a class="el" href="geohandlers_example_00001_8cpp-example.html#_a12">geohandlers_example_00001.cpp</a>.</dd>
+<p>The xml available parameters, sections and subsections are the following :</p>
+<ul>
+<li><b>ClassName</b>: name of the class as <code><a class="el" href="classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. ">mimmo.SelectionBySphere</a></code>;</li>
+<li><b>Priority</b>: uint marking priority in multi-chain execution;</li>
+<li><b>Dual</b>: boolean to get straight what given by selection method or its exact dual;</li>
+<li><b>Origin</b>: array of 3 doubles identifying origin of sphere;</li>
+<li><b>Span</b>: span of the cylinder (radius, angular azimuthal width, angular polar width);</li>
+<li><b>RefSystem</b>: reference system of the sphere: <br/>
+ <code>&lt;RefSystem&gt; <br/>
+ &lt;axis0&gt; 1.0 0.0 0.0 &lt;/axis0&gt; <br/>
+ &lt;axis1&gt; 0.0 1.0 0.0 &lt;/axis1&gt; <br/>
+ &lt;axis2&gt; 0.0 0.0 1.0 &lt;/axis2&gt; <br/>
+ &lt;/RefSystem&gt; </code> <br/>
+</li>
+<li><b>InfLimits</b>: set starting point for each spherical coordinate. Useful to assign different starting angular coordinate to azimuthal width/ polar width.</li>
+<li><b>PlotInExecution</b>: boolean 0/1 print optional results of the class;</li>
+<li><b>OutputPlot</b>: target directory for optional results writing.</li>
+</ul>
+<p>Geometry has to be mandatorily passed through port. </p>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="geohandlers_example_00001_8cpp-example.html#_a12">geohandlers_example_00001.cpp</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00311">311</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
+<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00350">350</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a20b7a292a724f512126258254df80cd7"></a>
 <div class="memitem">
@@ -906,7 +925,7 @@ Additional Inherited Members</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 12 2017 13:08:54 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 10:46:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

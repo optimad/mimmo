@@ -560,8 +560,27 @@ Additional Inherited Members</h2></td></tr>
 <td>99 </td><td>M_GEOM </td><td>getPatch </td><td>(SCALAR, MIMMO_) </td></tr>
 </table>
 <hr/>
- 
-<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00246">246</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
+<p>The xml available parameters, sections and subsections are the following :</p>
+<ul>
+<li><b>ClassName</b>: name of the class as <code><a class="el" href="classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. ">mimmo.SelectionByCylinder</a></code>;</li>
+<li><b>Priority</b>: uint marking priority in multi-chain execution;</li>
+<li><b>Dual</b>: boolean to get straight what given by selection method or its exact dual;</li>
+<li><b>Origin</b>: array of 3 doubles identifying origin of cylinder;</li>
+<li><b>Span</b>: span of the cylinder (base radius, angular azimuthal width, height);</li>
+<li><b>RefSystem</b>: reference system of the cylinder(axis2 along the cylinder's height): <br/>
+ <code>&lt;RefSystem&gt; <br/>
+ &lt;axis0&gt; 1.0 0.0 0.0 &lt;/axis0&gt; <br/>
+ &lt;axis1&gt; 0.0 1.0 0.0 &lt;/axis1&gt; <br/>
+ &lt;axis2&gt; 0.0 0.0 1.0 &lt;/axis2&gt; <br/>
+ &lt;/RefSystem&gt; </code> <br/>
+</li>
+<li><b>InfLimits</b>: set starting point for each cylindrical coordinate. Useful to assign different starting angular coordinate to azimuthal width.</li>
+<li><b>PlotInExecution</b>: boolean 0/1 print optional results of the class;</li>
+<li><b>OutputPlot</b>: target directory for optional results writing.</li>
+</ul>
+<p>Geometry has to be mandatorily passed through port. </p>
+
+<p>Definition at line <a class="el" href="MeshSelection_8hpp_source.html#l00265">265</a> of file <a class="el" href="MeshSelection_8hpp_source.html">MeshSelection.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a0573a849bdddb5ce194add4e33208152"></a>
 <div class="memitem">
@@ -905,7 +924,7 @@ Additional Inherited Members</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 12 2017 13:08:54 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 10:46:21 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

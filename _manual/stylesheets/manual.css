@@ -14,9 +14,26 @@
     z-index: 50;
 }
 
-body, table, div, p, dl {
+table, div, p, dl {
     font: 400 14px/22px Roboto,sans-serif;
 }
+
+body {
+    position: relative;
+    
+    padding: 0;
+    margin: 0;
+
+    height: 100%;
+    width: 100%;
+
+    min-width: 900px;
+    
+    font-size: 19px;
+
+    font-family: Lato,"Helvetica Neue",Helvetica,sans-serif;
+}
+
 
 /* @group Heading Levels */
 
