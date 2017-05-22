@@ -264,6 +264,7 @@ void BvTree::buildTree()
 	if ( m_nelements == 1 )
 	{
 		m_nodes[m_nnodes].m_leaf = true;
+        computeBoundingBox(0);
 		m_nleaf++;
 		m_nnodes++;
 	}
