@@ -62,6 +62,10 @@ void example00001() {
     ch0.addObject(cgnsO);
     ch0.exec(true);
 
+
+    cgnsI->getSurfaceBoundary()->getPatch()->write();
+
+
     /* Destroy objects. */
     delete cgnsI;
     delete cgnsExtr;

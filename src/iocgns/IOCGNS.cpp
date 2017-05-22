@@ -419,7 +419,6 @@ IOCGNS::read(){
         return false;
     }
 
-
     for(int sec = 1; sec <= nSections; ++sec){
 
         //Read section sec
@@ -441,16 +440,19 @@ IOCGNS::read(){
         }
         //cgsize_t nelements = eEnd-eBeg + 1;
 
+
         connlocal.resize((size_t) size);
         int *ptr = NULL;
         if(cg_elements_read(indexfile,1,1,sec, connlocal.data(),ptr) !=CG_OK){
             return false;
         }
 
-        conns[type].resize(connlocal.size());
+//        conns[type].resize(connlocal.size());
+        conns[sec].resize(connlocal.size());
         int count=0;
         for(auto &val: connlocal){
-            conns[type][count] = (int)val;
+//            conns[type][count] = (int)val;
+            conns[sec][count] = (int)val;
             ++count;
         }
 
@@ -489,18 +491,35 @@ IOCGNS::read(){
 
         if(ptset_type == CG_PointSetType_t::CG_ElementList || ptset_type == CG_PointSetType_t::CG_ElementRange){
 
-            cgsize_t dim;
+            cgsize_t dim = nBCElements[0];
+
+            std::vector<cgsize_t> localbc;
+
             if(ptset_type == CG_PointSetType_t::CG_ElementList){
-                dim = nBCElements[0];
-            }else{
-                dim = nBCElements[1] - nBCElements[0] +1;
+                localbc.resize((size_t) dim);
+                int *ptr = NULL;
+
+                if(cg_boco_read(indexfile,1,1,bc, localbc.data(), ptr )!= CG_OK){
+                    return false;
+                }
+
             }
+            else{
 
-            std::vector<cgsize_t> localbc((size_t) dim);
-            int *ptr = NULL;
+                std::vector<cgsize_t> rangeidx(2);
+                int *ptr = NULL;
 
-            if(cg_boco_read(indexfile,1,1,bc, localbc.data(), ptr )!= CG_OK){
-                return false;
+                if(cg_boco_read(indexfile,1,1,bc, rangeidx.data(), ptr )!= CG_OK){
+                    return false;
+                }
+
+                dim = rangeidx[1] - rangeidx[0] + 1;
+                localbc.reserve((size_t) dim);
+
+                for (auto idx = rangeidx[0]; idx <= rangeidx[1]; idx++){
+                    localbc.push_back(idx);
+                }
+
             }
 
             bcLists[bc-1].resize(localbc.size());
@@ -542,18 +561,21 @@ IOCGNS::read(){
     //TODO ????
 
     id = 1;
+    int idsection = 0;
     //Unpack 3D elements connectivities and store it in volume grid. Label same species elements w PID.
     for(auto & val: orderedConns){
+
+        idsection++;
 
         livector1D lConn;
         bitpit::ElementInfo::Type btype;
         short PID = 0;
-        int size = conns[(int)val].size();
+        int size = conns[idsection].size();
 
         switch(val){
         case CGNS_ENUMV(MIXED):
 
-                                        unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[(int)val], id);
+             unpack3DElementsMixedConns(patchVol.get(), patchBnd.get(), conns[idsection], id);
         break;
 
         case CGNS_ENUMV(TETRA_4):
@@ -563,7 +585,7 @@ IOCGNS::read(){
         lConn.resize(4);
         for(int i=0; i<size; i+=4){
             for(int j=0; j<4; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
@@ -578,7 +600,7 @@ IOCGNS::read(){
         lConn.resize(5);
         for(int i=0; i<size; i+=5){
             for(int j=0; j<5; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
@@ -594,7 +616,7 @@ IOCGNS::read(){
         lConn.resize(6);
         for(int i=0; i<size; i+=6){
             for(int j=0; j<6; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
@@ -611,7 +633,7 @@ IOCGNS::read(){
         lConn.resize(8);
         for(int i=0; i<size; i+=8){
             for(int j=0; j<8; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
@@ -627,7 +649,7 @@ IOCGNS::read(){
 
         for(int i=0; i<size; i+=3){
             for(int j=0; j<3; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchBnd->addConnectedCell(lConn, btype, id );
             patchBnd->setPIDCell(id,PID);
@@ -643,7 +665,7 @@ IOCGNS::read(){
         lConn.resize(4);
         for(int i=0; i<size; i+=4){
             for(int j=0; j<4; ++j){
-                lConn[j] = conns[(int)val][i+j];
+                lConn[j] = conns[idsection][i+j];
             }
             patchBnd->addConnectedCell(lConn, btype, id );
             patchBnd->setPIDCell(id,PID);
@@ -661,9 +683,9 @@ IOCGNS::read(){
     if(bcLists.size() > 0)    {
         for(auto & sel: bcLists){
             if(sel.second.size() > 0){
+                short PID = sel.first + 1;
                 for(auto &ind : sel.second){
                     id = ind;
-                    short PID = sel.first + 1;
                     patchBnd->setPIDCell(id,PID);
                 }
             }
@@ -941,7 +963,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         case CGNS_ENUMV(NODE):
-                                                                            ++it;
+                                                                                    ++it;
         break;
 
         case CGNS_ENUMV(BAR_2):
@@ -1026,7 +1048,7 @@ IOCGNS::recoverCGNSInfo(){
     /*Iterate map volume info and fill local CGNS index info
      * (volume elements will be appended before boundary elements)
      */
-//    std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+    //    std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
     std::map<int, std::vector<long int> >::iterator it, itend;
     std::vector<long int>::iterator itV, itVend;
     itend = m_storedInfo->mcg_typetoid.end();
@@ -1062,7 +1084,7 @@ IOCGNS::recoverCGNSInfo(){
         /*Iterate map surface (boundary) info and fill local CGNS index info
          * (surface elements will be appended after volume elements)
          */
-//        std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
+        //        std::map<CG_ElementType_t, std::vector<long int> >::iterator it, itend;
         std::map<int, std::vector<long int> >::iterator it, itend;
         std::vector<long int>::iterator itV, itVend;
         itend = m_storedInfo->mcg_bndtypetoid.end();
