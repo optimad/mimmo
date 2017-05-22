@@ -189,7 +189,7 @@ MRBF::getSupportRadius(){
  */
 double
 MRBF::getSupportRadiusValue(){
-    return(RBF::getSupportRadius());
+    return(m_SRRatio);
 };
 
 /*!
