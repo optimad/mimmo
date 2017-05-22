@@ -179,7 +179,6 @@ OverlapVectorFields::getDataFieldList(){
 }
 
 /*!
-/*!
  * Set overlap criterium for multi-fields overlapping. See OverlapMethod enum
  * Class default is OverlapMethod::SUM. Enum overloading
  * \param[in] funct    Type of overlap method
