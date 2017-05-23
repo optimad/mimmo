@@ -114,8 +114,6 @@ public:
 
     void buildPorts();
 
-    void             setGeometry(MimmoObject* geometry);
-
     dvecarr3E*        getNodes();
 
     MRBFSol            getMode();

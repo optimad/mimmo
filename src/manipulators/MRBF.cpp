@@ -105,14 +105,6 @@ MRBF & MRBF::operator=(const MRBF & other){
     return(*this);
 };
 
-/*!It sets the geometry linked by the manipulator object (overloading of base class method).
- * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
- */
-void
-MRBF::setGeometry(MimmoObject* geometry){
-    m_geometry = geometry;
-};
-
 /*!It returns a pointer to the RBF node stored in the object.
  * \return pointer to nodes list
  */
