@@ -1,4 +1,4 @@
-# About mimmo
+## About mimmo
 **mimmo** is a C++ library for Manipulation and Morphing of surface/volume meshes (Open source).
 
 The main aim of **mimmo** is to provide a framework of tools able to handle a tessellated geometry and quickly modify it. 
@@ -11,4 +11,24 @@ Blocks are connectable between each other through input/output ports, so that th
 
 Further info available @ [mimmo website](http://optimad.github.io/mimmo/)
  
-**mimmo** is developed and maintained by **Optimad engineering srl** and is being distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 3.
+### License 
+**mimmo** is released under the GNU LESSER GENERAL PUBLIC LICENSE version 3.
+
+### Attribution
+To cite the **mimmo** library, please use this BibTeX entry:
+    
+    @misc{mimmo,
+      title = {{mimmo}: Surface manipulation and mesh morphing library},
+      author = {Optimad engineering srl},
+      note = {https://github.com/optimad/mimmo},
+      year = {2015},
+    }
+
+### Contact
+**mimmo** is developed and maintained by **Optimad engineering srl**.  
+Please contact Optimad office's [mail](info@optimad.it) for further info and details.
+
+### Copyright
+
+2015-2017 **Optimad engineering srl**.
+
