@@ -54,7 +54,7 @@ if(BUILD_XMLTUI)
 	list(APPEND BINS "mimmoxml_exec")
 
 	# if (ENABLE_MPI)
-	#     list(APPEND BINS "blablabla")
+	#     list(APPEND BINS "mimmoxml_exec_par")
 	# endif()
 
 	set(MIMMO_BINS_TARGETS "${BINS}" CACHE INTERNAL "List of binary executables for the mimmo API" FORCE)
