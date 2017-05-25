@@ -181,8 +181,8 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-
-
+    
+    virtual std::vector<BaseManipulation*> getSubBlocksEmbedded();
 protected:
 
     /*!

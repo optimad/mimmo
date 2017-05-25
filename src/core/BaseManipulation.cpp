@@ -670,4 +670,18 @@ BaseManipulation::removePinOut(PortID portS, int j){
  */
 void 	BaseManipulation::plotOptionalResults(){};
 
+/*!
+ * Method to return all possible executable bloks of type BaseManipulation
+ * embedded in the current class. For example create a BaseManipulation executable object with its own ports
+ * which wraps a certain number of other BaseManipulation executable objects with their own i/o ports,
+ * independent from their father.
+ * By default this method return nothing. It needs to be customized according to functionality of your executable
+ * derived class.
+ * \return list of children BaseManipulation object pointers
+ */
+std::vector<BaseManipulation*>    BaseManipulation::getSubBlocksEmbedded(){
+    return std::vector<BaseManipulation *>();
 };
+
+};
+
