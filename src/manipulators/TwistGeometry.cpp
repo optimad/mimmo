@@ -32,6 +32,7 @@ namespace mimmo{
 TwistGeometry::TwistGeometry(darray3E origin, darray3E direction){
     m_origin = origin;
     m_direction = direction;
+    m_sym = false;
     m_name = "mimmo.TwistGeometry";
 };
 
@@ -43,6 +44,7 @@ TwistGeometry::TwistGeometry(const bitpit::Config::Section & rootXML){
 
     m_origin.fill(0.0);
     m_direction.fill(0.0);
+    m_sym = false;
     m_name = "mimmo.TwistGeometry";
 
     std::string fallback_name = "ClassNONE";
@@ -65,6 +67,7 @@ TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other
     m_origin = other.m_origin;
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
+    m_sym = other.m_sym;
     m_distance = other.m_distance;
 };
 
@@ -76,6 +79,7 @@ TwistGeometry & TwistGeometry::operator=(const TwistGeometry & other){
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
     m_distance = other.m_distance;
+    m_sym = other.m_sym;
     return(*this);
 };
 
@@ -131,6 +135,14 @@ TwistGeometry::setDirection(darray3E direction){
 void
 TwistGeometry::setTwist(double alpha){
     m_alpha = alpha;
+}
+
+/*!It sets if the twist has to be performed for negative local coordinates.
+ * \param[in] sym Symmetric twist?
+ */
+void
+TwistGeometry::setSym(bool sym){
+    m_sym = sym;
 }
 
 /*!It sets the value of the distance (on the twist axis) where the maximum twist is reached.
@@ -206,13 +218,13 @@ TwistGeometry::execute(){
 
         //compute coefficients and constant vectors of rodriguez formula
         rot = std::min(m_alpha, (std::abs(distance)/m_distance)*m_alpha);
-        if (distance < 0) rot = -rot;
+        if (distance < 0) rot = -rot*int(m_sym);
         double a = cos(rot);
         darray3E b =  (1 - cos(rot)) * m_direction;
         double c = sin(rot);
 
         //project point on axis (local origin)
-        projected = distance*m_direction;
+        projected = distance*m_direction + m_origin;
 
 
         point -= projected;
@@ -294,6 +306,17 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setMaxDistance(temp);
     }
 
+    if(slotXML.hasOption("Symmetric")){
+        std::string input = slotXML.get("Symmetric");
+        input = bitpit::utils::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setSym(temp);
+    };
+
 };
 
 /*!
@@ -325,6 +348,8 @@ TwistGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     slotXML.set("Twist", std::to_string(m_alpha));
 
     slotXML.set("Distance", std::to_string(m_distance));
+
+    slotXML.set("Symmetric", std::to_string(int(m_sym)));
 
 };
 
