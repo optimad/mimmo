@@ -38,14 +38,14 @@ namespace mimmo{
  */
 class BvElement {
 public:
-	long 					m_label;	/**< Label of the object (ID of the Cell). */
-	std::array<double,3>	m_centroid;	/**< Centroid of the cell. */
+    long                     m_label;    /**< Label of the object (ID of the Cell). */
+    std::array<double,3>    m_centroid;    /**< Centroid of the cell. */
 
 public:
-	BvElement(long label = -1);
-	~BvElement();
-	BvElement(const BvElement & other);
-	BvElement & operator=(const BvElement & other);
+    BvElement(long label = -1);
+    ~BvElement();
+    BvElement(const BvElement & other) = default;
+    BvElement & operator=(const BvElement & other);
 };
 
 /*!
@@ -56,19 +56,22 @@ public:
  */
 class BvNode {
 public:
-	std::array<double,3>	m_minPoint;	/**<Minimum coordinates of the bounding box of the node. */
-	std::array<double,3>	m_maxPoint;	/**<Maximum coordinates of the bounding box of the node. */
-	std::array<int,2>	 	m_element;	/**<Range index of elements of the node. */
-	int					 	m_nrange;	/**<Number of elements in the bounding box of the node. */
-	int						m_lchild;	/**<Index of left child. */
-	int						m_rchild;	/**<Index of right child. */
-	bool					m_leaf;		/**<True if the node is a leaf node. */
+    std::array<double,3>    m_minPoint;    /**<Minimum coordinates of the bounding box of the node. */
+    std::array<double,3>    m_maxPoint;    /**<Maximum coordinates of the bounding box of the node. */
+    std::array<int,2>         m_element;    /**<Range index of elements of the node. */
+    int                         m_nrange;    /**<Number of elements in the bounding box of the node. */
+    int                        m_lchild;    /**<Index of left child. */
+    int                        m_rchild;    /**<Index of right child. */
+    bool                    m_leaf;        /**<True if the node is a leaf node. */
+
+private:
+    const double m_MAXLIMIT = std::numeric_limits<double>::max(); /**<Constant number used as infite.*/
 
 public:
-	BvNode();
-	~BvNode();
-	BvNode(const BvNode & other);
-	BvNode & operator=(const BvNode & other);
+    BvNode();
+    ~BvNode();
+    BvNode(const BvNode & other) = default;
+    BvNode & operator=(const BvNode & other);
 };
 
 /*!
@@ -93,44 +96,45 @@ public:
  */
 class BvTree {
 public:
-	int							m_dim;			/**<Dimension of the space (currently only 3d space admitted.). */
-	bitpit::PatchKernel			*m_patch_;		/**< Patch linked by the bv-tree. */
-	int                     	m_nelements;	/**< Number of elements of the patch. */
-	std::vector<BvElement>		m_elements;		/**< Bv-tree elements structure. */
-	int                    		m_nnodes;		/**< Number of nodes in the tree. */
-	std::vector<BvNode>			m_nodes;		/**< Bv-tree nodes structure. */
-	int                     	m_MAXSTK;		/**< Max stack size. */
+    int                            m_dim;            /**<Dimension of the space (currently only 3d space admitted.). */
+    bitpit::PatchKernel            *m_patch;        /**< Patch linked by the bv-tree. */
+    int                         m_nelements;    /**< Number of elements of the patch. */
+    std::vector<BvElement>        m_elements;        /**< Bv-tree elements structure. */
+    int                            m_nnodes;        /**< Number of nodes in the tree. */
+    std::vector<BvNode>            m_nodes;        /**< Bv-tree nodes structure. */
+    int                         m_maxstk;        /**< Max stack size. */
 
-	int							m_nleaf;		/**<Number of leaf nodes in the bv-tree. */
-	int							m_maxsize;		/**<Maximum number of elements for leaf nodes. */
+    int                            m_nleaf;        /**<Number of leaf nodes in the bv-tree. */
+    int                            m_maxsize;        /**<Maximum number of elements for leaf nodes. */
 
 private:
-	double 						m_tol;			/**<Internal tolerance.*/
+    double                         m_tol;            /**<Internal tolerance.*/
+    const double m_MAXLIMIT = std::numeric_limits<double>::max(); /**<Constant number used as infite.*/
 
 public:
-	BvTree(bitpit::PatchKernel *patch_ = NULL);
-	~BvTree();
-	BvTree(const BvTree & other);
-	BvTree & operator=(const BvTree & other);
+    BvTree(bitpit::PatchKernel *patch_ = NULL);
+    ~BvTree();
+    BvTree(const BvTree & other) = default;
+    BvTree & operator=(const BvTree & other);
 
-	void setPatch(bitpit::PatchKernel *patch_);
-	void setMaxLeafSize(int maxsize);
+    void setPatch(bitpit::PatchKernel *patch_);
+    void setMaxLeafSize(int maxsize);
     bool inBoundingBox(std::array<double,3> *P_, BvNode *nod_, double r = 0.0);
     bool SphereBoundingBox(std::array<double,3> *P_, BvNode *nod_, double r = 0.0);
 
-	void clean();
-	void setup();
-	void buildTree();
+    void clean();
+    void setup();
+    void buildTree();
 
 
 private:
-	void fillTree(int iparent);
-	std::array<double,3> computeMeanPoint(int istart, int iend);
-	int findFirstGreater(int inode, std::array<double,3> meanC, int dir);
-	int pseudoSort(std::vector<BvElement>::iterator itstart, std::vector<BvElement>::iterator itend, std::array<double,3> meanC, int dir);
-	void computeBoundingBox(int inode);
-	void increaseStack();
-	void decreaseStack();
+    void fillTree(int iparent);
+    std::array<double,3> computeMeanPoint(int istart, int iend);
+    int findFirstGreater(int inode, std::array<double,3> meanC, int dir);
+    int pseudoSort(std::vector<BvElement>::iterator itstart, std::vector<BvElement>::iterator itend, std::array<double,3> meanC, int dir);
+    void computeBoundingBox(int inode);
+    void increaseStack();
+    void decreaseStack();
 
 };
 
@@ -139,19 +143,19 @@ private:
  * \ingroup core
  */
 namespace bvTreeUtils{
-	
-	double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, int method = 1, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
-	double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method = 1, int next = 0, double h = 1.0e+18);
-	std::array<double,3> projectPoint(std::array<double,3> *P_, BvTree *bvtree_, double r_ = 1.0e+18);
-	
-	std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> >  &n, double r_ = 1.0e+18, int method = 1);
-	std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18, int method = 1 );
-	std::vector<std::array<double,3> > projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_ = 1.0e+18);
 
-	std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol = 1.0e-04);
-	void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vector<long> &extracted, double tol, int next = 0);
-	
-	
+    double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3>  &n, double &r, int method = 1, bitpit::SurfUnstructured *spatch_ = NULL, int next = 0, double h = 1.0e+18);
+    double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method = 1, int next = 0, double h = 1.0e+18);
+    std::array<double,3> projectPoint(std::array<double,3> *P_, BvTree *bvtree_, double r_ = 1.0e+18);
+
+    std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> >  &n, double r_ = 1.0e+18, int method = 1);
+    std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18, int method = 1 );
+    std::vector<std::array<double,3> > projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_ = 1.0e+18);
+
+    std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol = 1.0e-04);
+    void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vector<long> &extracted, double tol, int next = 0);
+
+
 }; //end namespace bvTreeUtils
 
 } //end namespace mimmo
