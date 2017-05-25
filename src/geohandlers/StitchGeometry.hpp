@@ -41,28 +41,22 @@ namespace mimmo{
  * Ports available in StitchGeometry Class :
  *
  *    =========================================================
- * ~~~
- *    |-------------------------------------------------------------------------------|
- *    |                 Port Input                                                    |
- *    |-------|----------|------------------------------------|-----------------------|
- *    |PortID | PortType | variable/function                  | DataType              |
- *    |-------|----------|------------------------------------|-----------------------|
- *    | 99    | M_GEOM   | setAddGeometry                     | (SCALAR, MIMMO_)      |
- *    | 100   | M_VECGEOM| setGeometry                        | (VECTOR, MIMMO_)      |
- *    |-------|----------|------------------------------------|-----------------------|
- *
- *
- *    |--------------------------------------------------------|--------------------------|
- *    |            Port Output                                 |                          |
- *    |-------|-----------|------------------------------------|--------------------------|
- *    |PortID | PortType  | variable/function                  | DataType                 |
- *    |-------|-----------|------------------------------------|--------------------------|
- *    | 99    | M_GEOM    | getGeometry                        | (SCALAR, MIMMO_)         |
- *    | 100   | M_VECGEOM | getOriginalGeometries              | (VECTOR, MIMMO_)         |
- *    | 104   | M_MAPDCELL| getCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
- *    | 105   | M_MAPDVERT| getVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
- *    |-------|-----------|------------------------------------|--------------------------|
- * ~~~
+
+     |Port Input | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 99    | M_GEOM   | setAddGeometry                     | (SCALAR, MIMMO_)      |
+     | 100   | M_VECGEOM| setGeometry                        | (VECTOR, MIMMO_)      |
+
+
+     |Port Output | | | |
+     |-|-|-|-|
+     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | 99    | M_GEOM    | getGeometry                        | (SCALAR, MIMMO_)         |
+     | 100   | M_VECGEOM | getOriginalGeometries              | (VECTOR, MIMMO_)         |
+     | 104   | M_MAPDCELL| getCellDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
+     | 105   | M_MAPDVERT| getVertDivisionMap                 | (UN_MAP, LONGPAIRINTLONG)|
+
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :

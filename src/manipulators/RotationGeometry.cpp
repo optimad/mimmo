@@ -91,6 +91,7 @@ RotationGeometry::buildPorts(){
     built = (built && createPortIn<dvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, RotationGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortOut<dvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , RotationGeometry>(this, &mimmo::RotationGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
     m_arePortsBuilt = built;
 };
 
@@ -147,6 +148,20 @@ RotationGeometry::setFilter(dvector1D filter){
 dvecarr3E
 RotationGeometry::getDisplacements(){
     return m_displ;
+};
+
+/*!
+ * Return actual computed deformation field (if any) for the geometry linked.
+ * If no field is actually present, return null pointers;
+ * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ */
+std::pair<MimmoObject * , dvecarr3E * >
+RotationGeometry::getDeformedField(){
+
+    std::pair<MimmoObject *, dvecarr3E * > pairField;
+    pairField.first = getGeometry();
+    pairField.second = &m_displ;
+    return pairField;
 };
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the

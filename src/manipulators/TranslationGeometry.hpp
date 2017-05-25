@@ -52,6 +52,7 @@ namespace mimmo{
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
+     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
  
  *    =========================================================
  * \n
@@ -89,6 +90,7 @@ public:
     void        setFilter(dvector1D filter);
 
     dvecarr3E   getDisplacements();
+    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
 
     void         execute();
 

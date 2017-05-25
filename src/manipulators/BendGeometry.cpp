@@ -103,6 +103,7 @@ BendGeometry::buildPorts(){
     built = (built && createPortIn<dmatrix33E, BendGeometry>(&m_system, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<darray3E, BendGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dvecarr3E, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , BendGeometry>(this, &mimmo::BendGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
     m_arePortsBuilt = built;
 };
 
@@ -144,6 +145,20 @@ BendGeometry::getCoeffs(){
 dvecarr3E
 BendGeometry::getDisplacements(){
     return(m_displ);
+};
+
+/*!
+ * Return actual computed deformation field (if any) for the geometry linked.
+ * If no field is actually present, return null pointers;
+ * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ */
+std::pair<MimmoObject * , dvecarr3E * >
+BendGeometry::getDeformedField(){
+
+    std::pair<MimmoObject *, dvecarr3E * > pairField;
+    pairField.first = getGeometry();
+    pairField.second = &m_displ;
+    return pairField;
 };
 
 /*!It sets the degrees of polynomial law for each component of displacements of degrees of freedom.
