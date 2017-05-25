@@ -84,6 +84,7 @@ private:
     double      m_distance;     /**<Maximum distance where the input angle of twist is reached. */
     dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
+    bool        m_sym;          /**<Propagate twist for negative local coordinate.*/
 
 public:
     TwistGeometry(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });
@@ -99,6 +100,7 @@ public:
     void        setOrigin(darray3E origin);
     void        setDirection(darray3E direction);
     void        setTwist(double alpha);
+    void        setSym(bool sym);
     void        setMaxDistance(double distance);
     void        setFilter(dvector1D filter);
 

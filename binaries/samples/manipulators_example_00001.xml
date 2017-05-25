@@ -71,7 +71,8 @@
 	</ApplierS>
 	<Twist>
 		<ClassName> mimmo.TwistGeometry </ClassName>
-		<Direction> 1.0 0.0 0.0 </Direction>
+        <Origin> 0.0 0.0 0.0 </Origin>
+        <Direction> 1.0 0.0 0.0 </Direction>
 		<Twist> 1.0 </Twist>
 		<Distance> 1.0 </Distance>
 	</Twist>
