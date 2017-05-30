@@ -29,8 +29,8 @@ namespace mimmo{
  * Default constructor of Apply
  */
 MultiApply::MultiApply():BaseManipulation(){
-	m_name = "mimmo.MultiApply";
-	m_force = false;
+    m_name = "mimmo.MultiApply";
+    m_force = false;
 };
 
 /*!
@@ -38,18 +38,18 @@ MultiApply::MultiApply():BaseManipulation(){
  * \param[in] rootXML reference to your xml tree section
  */
 MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
-	
-	m_name = "mimmo.MultiApply";
-	m_force = false;
-	
-	std::string fallback_name = "ClassNONE";	
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::trim(input);
-	if(input == "mimmo.MultiApply"){
-		absorbSectionXML(rootXML);
-	}else{	
-		std::cout<<"Warning in custom xml mimmo::MultiApply constructor. No valid xml data found"<<std::endl;
-	};
+
+    m_name = "mimmo.MultiApply";
+    m_force = false;
+
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::trim(input);
+    if(input == "mimmo.MultiApply"){
+        absorbSectionXML(rootXML);
+    }else{
+        std::cout<<"Warning in custom xml mimmo::MultiApply constructor. No valid xml data found"<<std::endl;
+    };
 }
 
 /*!Default destructor of Apply
@@ -59,25 +59,25 @@ MultiApply::~MultiApply(){};
 /*!Copy constructor of Apply.
  */
 MultiApply::MultiApply(const MultiApply & other):BaseManipulation(){
-	*this = other;
+    *this = other;
 };
 
 /*!Assignement operator of Apply.
  */
 MultiApply & MultiApply::operator=(const MultiApply & other){
-	*(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-	m_force = other.m_force;
-	m_input = other.m_input;
-	return(*this);
+    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+    m_force = other.m_force;
+    m_input = other.m_input;
+    return(*this);
 };
 
 /*! It builds the input/output ports of the object
  */
 void
 MultiApply::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<std::unordered_map<MimmoObject*, dvecarr3E*>, MultiApply>(this, &MultiApply::setInputList, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
-	m_arePortsBuilt = built;
+    bool built = true;
+    built = (built && createPortIn<std::unordered_map<MimmoObject*, dvecarr3E*>, MultiApply>(this, &MultiApply::setInputList, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    m_arePortsBuilt = built;
 };
 
 /*!
@@ -86,7 +86,7 @@ MultiApply::buildPorts(){
  */
 bool
 MultiApply::getRefreshGeometryTrees(){
-	return m_force;
+    return m_force;
 }
 
 
@@ -97,7 +97,7 @@ MultiApply::getRefreshGeometryTrees(){
  */
 void
 MultiApply::setRefreshGeometryTrees(bool force){
-	m_force = force;
+    m_force = force;
 
 }
 
@@ -109,8 +109,8 @@ MultiApply::setRefreshGeometryTrees(bool force){
 void
 MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
 
-	if (input.first == NULL || m_input.count(input.first) > 0 ) return;
-	m_input[input.first] = input.second;
+    if (input.first == NULL || m_input.count(input.first) > 0 ) return;
+    m_input[input.first] = input.second;
 }
 
 
@@ -121,11 +121,11 @@ MultiApply::addInput(std::pair<MimmoObject*, dvecarr3E*> input){
  */
 void
 MultiApply::setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input){
-	
-	for(auto & val : input){
-		
-		addInput(val);
-	}
+
+    for(auto & val : input){
+
+        addInput(val);
+    }
 }
 
 /*!
@@ -133,7 +133,7 @@ MultiApply::setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input){
  */
 void
 MultiApply::clearList(){
-	m_input.clear();
+    m_input.clear();
 }
 
 /*!Execution command.
@@ -142,32 +142,32 @@ MultiApply::clearList(){
  */
 void
 MultiApply::execute(){
-	
-
-	if (m_input.empty()) return;
 
 
-	for(auto val: m_input){	
-		
+    if (m_input.empty()) return;
 
-		
-		dvecarr3E vertex = val.first->getVertexCoords();
-		long nv = val.first->getNVertex();
-		nv = long(std::min(int(nv), int(val.second->size())));
 
-		livector1D & idmap = val.first->getMapData();
-		for (long i=0; i<nv; i++){
+    for(auto val: m_input){
 
-			vertex[i] += (*(val.second))[i];
-			val.first->modifyVertex(vertex[i], idmap[i]);
-		}	
 
-		if(m_force){
-			val.first->buildBvTree();
-			val.first->buildKdTree();
-		}
-	}
-	return;
+
+        dvecarr3E vertex = val.first->getVertexCoords();
+        long nv = val.first->getNVertex();
+        nv = long(std::min(int(nv), int(val.second->size())));
+
+        livector1D & idmap = val.first->getMapData();
+        for (long i=0; i<nv; i++){
+
+            vertex[i] += (*(val.second))[i];
+            val.first->modifyVertex(vertex[i], idmap[i]);
+        }
+
+        if(m_force){
+            val.first->buildBvTree();
+            val.first->buildKdTree();
+        }
+    }
+    return;
 };
 
 /*!
@@ -175,33 +175,32 @@ MultiApply::execute(){
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
- void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
-	 BITPIT_UNUSED(name);
-	 
-	std::string input; 
-	
-	if(slotXML.hasOption("Priority")){
-		input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	};
-	
-	if(slotXML.hasOption("RefreshGeometryTrees")){
-		std::string input = slotXML.get("RefreshGeometryTrees");
-	}; 
-	
-	bool value = false;
-	if(!input.empty()){
-		std::stringstream ss(bitpit::utils::trim(input));
-		ss >> value;
-	}
-	
-	setRefreshGeometryTrees(value);
+void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
+
+    std::string input;
+
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
+    if(slotXML.hasOption("RefreshGeometryTrees")){
+        std::string input = slotXML.get("RefreshGeometryTrees");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setRefreshGeometryTrees(value);
+    };
+
 };
 
 /*!
@@ -210,17 +209,17 @@ MultiApply::execute(){
  * \param[in] name   name associated to the slot
  */
 void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
-	
-	bool value = getRefreshGeometryTrees();
-	
-	std::string towrite = std::to_string(value);
-	
-	slotXML.set("RefreshGeometryTrees", towrite);
+
+    BITPIT_UNUSED(name);
+
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+
+    bool value = getRefreshGeometryTrees();
+
+    std::string towrite = std::to_string(value);
+
+    slotXML.set("RefreshGeometryTrees", towrite);
 };	
 
 
