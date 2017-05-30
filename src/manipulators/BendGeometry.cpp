@@ -285,7 +285,7 @@ BendGeometry::toLocalCoord(darray3E  point){
     //apply change to local sdr transformation
     dmatrix33E transp = linearalgebra::transpose(m_system);
     linearalgebra::matmul(work, transp, work2);
-    return(work);
+    return(work2);
 };
 
 /*!
