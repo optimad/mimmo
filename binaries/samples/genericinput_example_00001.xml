@@ -2,23 +2,23 @@
 <!-- xml interface to replicate .cpp example : genericinput_example_00001.cpp -->
 <mimmoXML version="-1">
 	<InputNode>
-		<ClassName> mimmo.GenericInput </ClassName>
-        <ReadFromFile> 1 </ReadFromFile>
-        <CSV> 1 </CSV>
-        <ReadDir> input </ReadDir>
-        <Filename> generic_input_00001.csv </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+       <ReadFromFile>1</ReadFromFile>
+       <CSV>1</CSV>
+       <ReadDir>input</ReadDir>
+       <Filename>generic_input_00001.csv</Filename>
 	</InputNode>
 	<OutputNode>
-		<ClassName> mimmo.GenericOutput </ClassName>
-        <CSV> 1 </CSV>
-		<Filename> generic_output_00001.csv </Filename>
+		<ClassName>mimmo.GenericOutput</ClassName>
+       <CSV>1</CSV>
+		<Filename>generic_output_00001.csv</Filename>
 	</OutputNode>
-    <Connections>
+   <Connections>
 		<c0>
-			<sender> InputNode </sender>
-			<senderPort> M_COORDS </senderPort>
-			<receiver> OutputNode </receiver>
-			<receiverPort> M_COORDS </receiverPort>
+			<sender>InputNode</sender>
+			<senderPort>M_COORDS</senderPort>
+			<receiver>OutputNode</receiver>
+			<receiverPort>M_COORDS</receiverPort>
 		</c0>
 	</Connections>
 </mimmoXML>	

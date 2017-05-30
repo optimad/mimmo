@@ -2,81 +2,81 @@
 <!-- xml interface to replicate .cpp example : manipulators_example_00004.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> sphere2 </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00004.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>sphere2</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00004.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00004.0001 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00004.0001</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom1>
 	<FFD>
-		<ClassName> mimmo.FFDLattice </ClassName>
-		<Origin> 0.0 0.0 0.0 </Origin>
-		<Span> 3.01 6.28 3.15 </Span>
-		<Dimension> 30 30 30 </Dimension>
-		<Degrees> 2 2 2 </Degrees>
-		<Shape> SPHERE </Shape>
+		<ClassName>mimmo.FFDLattice</ClassName>
+		<Origin>0.0 0.0 0.0</Origin>
+		<Span>3.01 6.28 3.15</Span>
+		<Dimension>30 30 30</Dimension>
+		<Degrees>2 2 2</Degrees>
+		<Shape>SPHERE</Shape>
 		<RefSystem>
-			<axis0> 1.0 0.0 0.0 </axis0>
-			<axis1> 0.0 0.0 1.0 </axis1>
-			<axis2> 0.0 1.0 0.0 </axis2>
+			<axis0>1.0 0.0 0.0</axis0>
+			<axis1>0.0 0.0 1.0</axis1>
+			<axis2>0.0 1.0 0.0</axis2>
 		</RefSystem>
-		<CoordType> UNCLAMPED PERIODIC CLAMPED</CoordType>
-        <DisplGlobal> 0 </DisplGlobal>
-        <PlotInExecution> 1 </PlotInExecution>
+		<CoordType>UNCLAMPED PERIODIC CLAMPED</CoordType>
+       <DisplGlobal>0</DisplGlobal>
+       <PlotInExecution>1</PlotInExecution>
 	</FFD>
 	<InputDispl>
-		<ClassName> mimmo.GenericInput </ClassName>
-        <ReadFromFile> 1 </ReadFromFile>
-        <CSV> 1 </CSV>
-        <ReadDir> input </ReadDir>
-		<Filename> manipulators_input_00004.csv </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+       <ReadFromFile>1</ReadFromFile>
+       <CSV>1</CSV>
+       <ReadDir>input</ReadDir>
+		<Filename>manipulators_input_00004.csv</Filename>
 	</InputDispl>
 	<Applier>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</Applier>
 	<Connections>
 		<c0>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> FFD </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>FFD</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c0>
 		<c1>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Applier </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Applier</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c1>
 		<c2>
-			<sender> InputDispl </sender>
-			<senderPort> M_DISPLS </senderPort>
-			<receiver> FFD </receiver>
-			<receiverPort> M_DISPLS </receiverPort>
+			<sender>InputDispl</sender>
+			<senderPort>M_DISPLS</senderPort>
+			<receiver>FFD</receiver>
+			<receiverPort>M_DISPLS</receiverPort>
 		</c2>
 		<c3>
-			<sender> FFD </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> Applier </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>FFD</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>Applier</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c3>
 		<c4>
-			<sender> Applier </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom1 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Applier</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom1</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c4>
 	</Connections>
 </mimmoXML>	

@@ -2,228 +2,228 @@
 <!-- xml interface to replicate .cpp example : manipulators_example_00001.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> prism </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>prism</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0001 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0001</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom1>
 	<Geom2>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0002 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0002</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom2>
 	<Geom3>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0003 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0003</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom3>
 	<Geom4>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0004 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0004</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom4>
 	<Geom5>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> manipulators_output_00001.0005 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>manipulators_output_00001.0005</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom5>
 	<Transl>
-		<ClassName> mimmo.TranslationGeometry </ClassName>
-		<Direction> 0.0 0.0 -1.0 </Direction>
-		<Translation> 1.0 </Translation>
+		<ClassName>mimmo.TranslationGeometry</ClassName>
+		<Direction>0.0 0.0 -1.0</Direction>
+		<Translation>1.0</Translation>
 	</Transl>
 	<ApplierT>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierT>
 	<Scaling>
-		<ClassName> mimmo.ScalingGeometry </ClassName>
-		<Scaling> 1.0 0.5 0.5 </Scaling>
+		<ClassName>mimmo.ScalingGeometry</ClassName>
+		<Scaling>1.0 0.5 0.5</Scaling>
 	</Scaling>
 	<ApplierS>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierS>
 	<Twist>
-		<ClassName> mimmo.TwistGeometry </ClassName>
-        <Origin> 0.0 0.0 0.0 </Origin>
-        <Direction> 1.0 0.0 0.0 </Direction>
-		<Twist> 1.0 </Twist>
-		<Distance> 1.0 </Distance>
+		<ClassName>mimmo.TwistGeometry</ClassName>
+       <Origin>0.0 0.0 0.0</Origin>
+       <Direction>1.0 0.0 0.0</Direction>
+		<Twist>1.0</Twist>
+		<Distance>1.0</Distance>
 	</Twist>
 	<ApplierTw>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierTw>
 	<Bend>
-		<ClassName> mimmo.BendGeometry </ClassName>
+		<ClassName>mimmo.BendGeometry</ClassName>
 		<DegreesMatrix>
-			<xDispl> 0 0 0 </xDispl>
-			<yDispl> 0 0 0 </yDispl>
-			<zDispl> 2 0 0 </zDispl>
+			<xDispl>0 0 0</xDispl>
+			<yDispl>0 0 0</yDispl>
+			<zDispl>2 0 0</zDispl>
 		</DegreesMatrix>
 		<PolyCoefficients>
-			<Poly6> 0 0 0.5 </Poly6>
+			<Poly6>0 0 0.5</Poly6>
 		</PolyCoefficients>
 	</Bend>
 	<ApplierB>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierB>
 	<Rot>
-		<ClassName> mimmo.RotationGeometry </ClassName>
-		<Direction> 0.25 0.25 0.75 </Direction>
-		<Rotation> 0.75 </Rotation>
+		<ClassName>mimmo.RotationGeometry</ClassName>
+		<Direction>0.25 0.25 0.75</Direction>
+		<Rotation>0.75</Rotation>
 	</Rot>
 	<ApplierR>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierR>
 	<Connections>
 		<c0>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Transl </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Transl</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c0>
 		<c1>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> ApplierT </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>ApplierT</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c1>
 		<c2>
-			<sender> Transl </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> ApplierT </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Transl</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>ApplierT</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c2>
 		<c3>
-			<sender> ApplierT </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom1 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierT</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom1</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c3>
 		<c4>
-			<sender> Geom1 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver>Scaling </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom1</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Scaling</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c4>
 		<c5>
-			<sender> ApplierT </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> ApplierS </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierT</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>ApplierS</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c5>
 		<c6>
-			<sender> Scaling </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> ApplierS </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Scaling</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>ApplierS</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c6>
 		<c7>
-			<sender> ApplierS </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom2 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierS</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom2</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c7>
 		<c8>
-			<sender> Geom2 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Twist </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom2</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Twist</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c8>
 		<c9>
-			<sender> ApplierS </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> ApplierTw </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierS</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>ApplierTw</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c9>
 		<c10>
-			<sender> Twist </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver>ApplierTw </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Twist</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>ApplierTw</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c10>
 		<c11>
-			<sender> ApplierTw </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom3 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierTw</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom3</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c11>
 		<c12>
-			<sender> Geom3 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Bend </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom3</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Bend</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c12>
 		<c13>
-			<sender> ApplierTw </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> ApplierB </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierTw</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>ApplierB</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c13>
 		<c14>
-			<sender> Bend </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> ApplierB </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Bend</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>ApplierB</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c14>
 		<c15>
-			<sender> ApplierB </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom4 </receiver>
+			<sender>ApplierB</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom4</receiver>
 			<receiverPort>M_GEOM</receiverPort>
 		</c15>
 		<c16>
-			<sender> Geom4 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Rot </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom4</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Rot</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c16>
 		<c17>
-			<sender> ApplierB </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> ApplierR </receiver>
+			<sender>ApplierB</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>ApplierR</receiver>
 			<receiverPort>M_GEOM</receiverPort>
 		</c17>
 		<c18>
-			<sender> Rot </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> ApplierR </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Rot</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>ApplierR</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c18>
 		<c19>
-			<sender> ApplierR </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom5 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>ApplierR</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom5</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c19>
 	</Connections>
 </mimmoXML>	

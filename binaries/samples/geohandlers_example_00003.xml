@@ -2,199 +2,199 @@
 <!-- xml interface to replicate .cpp example : geohandlers_example_00003.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> sphere2 </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00003.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>sphere2</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00003.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> plane1 </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00003p1.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>plane1</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00003p1.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom1>
 	<Geom2>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> plane2 </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00003p2.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>plane2</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00003p2.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom2>
 	<Geom3>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00003.0001 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00003.0001</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom3>
 	<InputNode1>
-		<ClassName> mimmo.GenericInput </ClassName>
-		<ReadFromFile> 1 </ReadFromFile>
-        <ReadDir> input </ReadDir>
-		<Filename> geohandlers_input_00003n1.txt </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+		<ReadFromFile>1</ReadFromFile>
+       <ReadDir>input</ReadDir>
+		<Filename>geohandlers_input_00003n1.txt</Filename>
 	</InputNode1>
 	<InputNode2>
-		<ClassName> mimmo.GenericInput </ClassName>
-		<ReadFromFile> 1 </ReadFromFile>
-        <ReadDir> input </ReadDir>
-		<Filename> geohandlers_input_00003n2.txt </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+		<ReadFromFile>1</ReadFromFile>
+       <ReadDir>input</ReadDir>
+		<Filename>geohandlers_input_00003n2.txt</Filename>
 	</InputNode2>
 	<InputDispl1>
-		<ClassName> mimmo.GenericInput </ClassName>
-		<ReadFromFile> 1 </ReadFromFile>
-        <ReadDir> input </ReadDir>
-		<Filename> geohandlers_input_00003d1.txt </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+		<ReadFromFile>1</ReadFromFile>
+       <ReadDir>input</ReadDir>
+		<Filename>geohandlers_input_00003d1.txt</Filename>
 	</InputDispl1>
 	<InputDispl2>
-		<ClassName> mimmo.GenericInput </ClassName>
-		<ReadFromFile> 1 </ReadFromFile>
-        <ReadDir> input </ReadDir>
-		<Filename> geohandlers_input_00003d2.txt </Filename>
+		<ClassName>mimmo.GenericInput</ClassName>
+		<ReadFromFile>1</ReadFromFile>
+       <ReadDir>input</ReadDir>
+		<Filename>geohandlers_input_00003d2.txt</Filename>
 	</InputDispl2>
 	<SelMap1>
-		<ClassName> mimmo.SelectionByMapping </ClassName>
-		<PlotInExecution> 1 </PlotInExecution>
-        <Tolerance> 0.1 </Tolerance>
-        <Topology> 1 </Topology>
+		<ClassName>mimmo.SelectionByMapping</ClassName>
+		<PlotInExecution>1</PlotInExecution>
+       <Tolerance>0.1</Tolerance>
+       <Topology>1</Topology>
 	</SelMap1>
 	<SelMap2>
-		<ClassName> mimmo.SelectionByMapping </ClassName>
-		<PlotInExecution> 1 </PlotInExecution>
-		<Tolerance> 0.1 </Tolerance>
-        <Topology> 1 </Topology>
+		<ClassName>mimmo.SelectionByMapping</ClassName>
+		<PlotInExecution>1</PlotInExecution>
+		<Tolerance>0.1</Tolerance>
+       <Topology>1</Topology>
 	</SelMap2>
 	<MRBF1>
-		<ClassName> mimmo.MRBF </ClassName>
-		<SupportRadiusReal> 0.3 </SupportRadiusReal>
-		<PlotInExecution> 1 </PlotInExecution>
-		<Mode> 0 </Mode>
+		<ClassName>mimmo.MRBF</ClassName>
+		<SupportRadiusReal>0.3</SupportRadiusReal>
+		<PlotInExecution>1</PlotInExecution>
+		<Mode>0</Mode>
 	</MRBF1>
 	<MRBF2>
-		<ClassName> mimmo.MRBF </ClassName>
-		<SupportRadiusReal> 0.3 </SupportRadiusReal>
-		<PlotInExecution> 1 </PlotInExecution>
-		<Mode> 0 </Mode>
+		<ClassName>mimmo.MRBF</ClassName>
+		<SupportRadiusReal>0.3</SupportRadiusReal>
+		<PlotInExecution>1</PlotInExecution>
+		<Mode>0</Mode>
 	</MRBF2>
 	<Recon>
-		<ClassName> mimmo.ReconstructVector </ClassName>
-		<Scaling> 1.0 0.5 0.5 </Scaling>
+		<ClassName>mimmo.ReconstructVector</ClassName>
+		<Scaling>1.0 0.5 0.5</Scaling>
 	</Recon>
 	<Applier>
-		<ClassName> mimmo.Apply </ClassName>
-		<RefreshGeometryTrees> 1 </RefreshGeometryTrees>
-		<PlotInExecution> 1 </PlotInExecution>
+		<ClassName>mimmo.Apply</ClassName>
+		<RefreshGeometryTrees>1</RefreshGeometryTrees>
+		<PlotInExecution>1</PlotInExecution>
 	</Applier>
 	<Connections>
 		<c0>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelMap1 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelMap1</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c0>
 		<c1>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelMap2 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelMap2</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c1>
 		<c2>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Recon </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Recon</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c2>
 		<c3>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Applier </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Applier</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c3>
 		<c4>
-			<sender> Geom1 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelMap1 </receiver>
-			<receiverPort> M_GEOM2 </receiverPort>
+			<sender>Geom1</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelMap1</receiver>
+			<receiverPort>M_GEOM2</receiverPort>
 		</c4>
 		<c5>
-			<sender> Geom2 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelMap2 </receiver>
-			<receiverPort> M_GEOM2 </receiverPort>
+			<sender>Geom2</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelMap2</receiver>
+			<receiverPort>M_GEOM2</receiverPort>
 		</c5>
 		<c6>
-			<sender> SelMap1 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> MRBF1 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>SelMap1</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>MRBF1</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c6>
 		<c7>
-			<sender> SelMap2 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> MRBF2 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>SelMap2</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>MRBF2</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c7>
 		<c8>
-			<sender> InputNode1 </sender>
-			<senderPort> M_COORDS </senderPort>
-			<receiver> MRBF1 </receiver>
-			<receiverPort> M_COORDS </receiverPort>
+			<sender>InputNode1</sender>
+			<senderPort>M_COORDS</senderPort>
+			<receiver>MRBF1</receiver>
+			<receiverPort>M_COORDS</receiverPort>
 		</c8>
 		<c9>
-			<sender> InputNode2 </sender>
-			<senderPort> M_COORDS </senderPort>
-			<receiver> MRBF2 </receiver>
-			<receiverPort> M_COORDS </receiverPort>
+			<sender>InputNode2</sender>
+			<senderPort>M_COORDS</senderPort>
+			<receiver>MRBF2</receiver>
+			<receiverPort>M_COORDS</receiverPort>
 		</c9>
 		<c10>
-			<sender> InputDispl1 </sender>
-			<senderPort> M_DISPLS </senderPort>
-			<receiver> MRBF1 </receiver>
-			<receiverPort> M_DISPLS </receiverPort>
+			<sender>InputDispl1</sender>
+			<senderPort>M_DISPLS</senderPort>
+			<receiver>MRBF1</receiver>
+			<receiverPort>M_DISPLS</receiverPort>
 		</c10>
 		<c11>
-			<sender> InputDispl2 </sender>
-			<senderPort> M_DISPLS </senderPort>
-			<receiver> MRBF2 </receiver>
-			<receiverPort> M_DISPLS </receiverPort>
+			<sender>InputDispl2</sender>
+			<senderPort>M_DISPLS</senderPort>
+			<receiver>MRBF2</receiver>
+			<receiverPort>M_DISPLS</receiverPort>
 		</c11>
 		<c12>
-			<sender> MRBF1 </sender>
-			<senderPort> M_PAIRVECFIELD </senderPort>
-			<receiver> Recon </receiver>
-			<receiverPort> M_PAIRVECFIELD </receiverPort>
+			<sender>MRBF1</sender>
+			<senderPort>M_PAIRVECFIELD</senderPort>
+			<receiver>Recon</receiver>
+			<receiverPort>M_PAIRVECFIELD</receiverPort>
 		</c12>
 		<c13>
-			<sender> MRBF2 </sender>
-			<senderPort> M_PAIRVECFIELD </senderPort>
-			<receiver> Recon </receiver>
-			<receiverPort> M_PAIRVECFIELD </receiverPort>
+			<sender>MRBF2</sender>
+			<senderPort>M_PAIRVECFIELD</senderPort>
+			<receiver>Recon</receiver>
+			<receiverPort>M_PAIRVECFIELD</receiverPort>
 		</c13>
 		<c14>
-			<sender> Recon </sender>
-			<senderPort> M_GDISPLS </senderPort>
-			<receiver> Applier </receiver>
-			<receiverPort> M_GDISPLS </receiverPort>
+			<sender>Recon</sender>
+			<senderPort>M_GDISPLS</senderPort>
+			<receiver>Applier</receiver>
+			<receiverPort>M_GDISPLS</receiverPort>
 		</c14>
 		<c15>
-			<sender> Applier </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> Geom3 </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Applier</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>Geom3</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c15>
 	</Connections>
 </mimmoXML>	

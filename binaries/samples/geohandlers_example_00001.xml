@@ -2,68 +2,68 @@
 <!-- xml interface to replicate .cpp example : geohandlers_example_00001.cpp -->
 <mimmoXML version="-1">
 	<Geom0>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 1 </ReadFlag>
-		<ReadDir> ./geodata </ReadDir>
-		<ReadFilename> sphere2 </ReadFilename>
-		<ReadFileType> STL </ReadFileType>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00001.0000 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>1</ReadFlag>
+		<ReadDir>./geodata</ReadDir>
+		<ReadFilename>sphere2</ReadFilename>
+		<ReadFileType>STL</ReadFileType>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00001.0000</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00001.0001 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00001.0001</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom1>
 	<Geom2>
-		<ClassName> mimmo.Geometry </ClassName>
-		<ReadFlag> 0 </ReadFlag>
-		<WriteFlag> 1 </WriteFlag>
-		<WriteDir> ./ </WriteDir>
-		<WriteFilename> geohandlers_output_00001.0002 </WriteFilename>
-		<WriteFileType> STL </WriteFileType>
+		<ClassName>mimmo.Geometry</ClassName>
+		<ReadFlag>0</ReadFlag>
+		<WriteFlag>1</WriteFlag>
+		<WriteDir>./</WriteDir>
+		<WriteFilename>geohandlers_output_00001.0002</WriteFilename>
+		<WriteFileType>STL</WriteFileType>
 	</Geom2>
 	<SelBox>
-		<ClassName> mimmo.SelectionByBox </ClassName>
-		<PlotInExecution> 1 </PlotInExecution>
-        <Origin> -0.5 -0.5 0.2 </Origin>
-        <Span> 0.6 0.6 0.6 </Span>
+		<ClassName>mimmo.SelectionByBox</ClassName>
+		<PlotInExecution>1</PlotInExecution>
+       <Origin>-0.5 -0.5 0.2</Origin>
+       <Span>0.6 0.6 0.6</Span>
 	</SelBox>
-    <SelSphere>
-        <ClassName> mimmo.SelectionBySphere </ClassName>
-        <PlotInExecution> 1 </PlotInExecution>
-        <Origin> -0.5 0.5 0.2 </Origin>
-        <Span> 0.34 6.28 3.14 </Span>
-    </SelSphere>
+   <SelSphere>
+       <ClassName>mimmo.SelectionBySphere</ClassName>
+       <PlotInExecution>1</PlotInExecution>
+       <Origin>-0.5 0.5 0.2</Origin>
+       <Span>0.34 6.28 3.14</Span>
+   </SelSphere>
 	<Connections>
 		<c0>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelBox </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelBox</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c0>
 		<c1>
-			<sender> Geom0 </sender>
-			<senderPort> M_GEOM </senderPort>
-			<receiver> SelSphere </receiver>
-			<receiverPort> M_GEOM </receiverPort>
+			<sender>Geom0</sender>
+			<senderPort>M_GEOM</senderPort>
+			<receiver>SelSphere</receiver>
+			<receiverPort>M_GEOM</receiverPort>
 		</c1>
-        <c2>
-            <sender> SelBox </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom1 </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c2>
-        <c3>
-            <sender> SelSphere </sender>
-            <senderPort> M_GEOM </senderPort>
-            <receiver> Geom2 </receiver>
-            <receiverPort> M_GEOM </receiverPort>
-        </c3>
+       <c2>
+           <sender>SelBox</sender>
+           <senderPort>M_GEOM</senderPort>
+           <receiver>Geom1</receiver>
+           <receiverPort>M_GEOM</receiverPort>
+       </c2>
+       <c3>
+           <sender>SelSphere</sender>
+           <senderPort>M_GEOM</senderPort>
+           <receiver>Geom2</receiver>
+           <receiverPort>M_GEOM</receiverPort>
+       </c3>
 	</Connections>
 </mimmoXML>	
