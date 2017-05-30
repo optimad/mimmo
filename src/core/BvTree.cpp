@@ -35,33 +35,25 @@ namespace mimmo{
  */
 BvElement::BvElement(long label)
 {
-	m_label		= label;
-	m_centroid	= {{0.0, 0.0, 0.0}};
+    m_label        = label;
+    m_centroid    = {{0.0, 0.0, 0.0}};
 }
 
 /*!
  * Default destructor for class BvElement.
  * Clear BvElement content and release memory.
  */
-BvElement::~BvElement(){};
-
-/*!
- * Copy constructor for class BvElement.
- */
-BvElement::BvElement(const BvElement & other)
-{
-	*this	= other;
-};
+BvElement::~BvElement(){}
 
 /*!
  * Assignement operator of BvElement.
  */
 BvElement & BvElement::operator=(const BvElement & other)
 {
-	m_label		= other.m_label;
-	m_centroid	= other.m_centroid;
-	return *this;
-};
+    m_label        = other.m_label;
+    m_centroid    = other.m_centroid;
+    return *this;
+}
 
 /*!
  * \class compareElements
@@ -72,21 +64,21 @@ BvElement & BvElement::operator=(const BvElement & other)
  */
 class compareElements{
 public:
-	int dir; /**< target centroid coordinate (0,1,2) to compare */
+    int dir; /**< target centroid coordinate (0,1,2) to compare */
 public:
-	/*!Custom constructor for class compareElements.
-	 * \param[in] dir_ Direction used to compare the coordinates of the elements centroid.
-	 */
-	compareElements(int dir_) : dir(dir_){};
+    /*!Custom constructor for class compareElements.
+     * \param[in] dir_ Direction used to compare the coordinates of the elements centroid.
+     */
+    compareElements(int dir_) : dir(dir_){}
 
-	/*!Custom operator () for class compareElements.
-	 * \param[in] a First element to be compared.
-	 * \param[in] b Secon element to be compared.
-	 */
-	bool operator()(BvElement a, BvElement b)
-	{
-		return (a.m_centroid[dir] < b.m_centroid[dir] );
-	}
+    /*!Custom operator () for class compareElements.
+     * \param[in] a First element to be compared.
+     * \param[in] b Secon element to be compared.
+     */
+    bool operator()(BvElement a, BvElement b)
+    {
+        return (a.m_centroid[dir] < b.m_centroid[dir] );
+    }
 };
 
 /*! 
@@ -95,14 +87,14 @@ public:
  */
 BvNode::BvNode()
 {
-	m_lchild		= -1;
-	m_rchild 		= -1;
-	m_element[0]	= -1;
-	m_element[1]	= -1;
-	m_nrange		= 0;
-	m_leaf			= false;
-	m_minPoint		= {{1.0e+18, 1.0e+18, 1.0e+18}};
-	m_maxPoint		= {{-1.0e+18, -1.0e+18, -1.0e+18}};
+    m_lchild        = -1;
+    m_rchild         = -1;
+    m_element[0]    = -1;
+    m_element[1]    = -1;
+    m_nrange        = 0;
+    m_leaf            = false;
+    m_minPoint        = {{m_MAXLIMIT, m_MAXLIMIT, m_MAXLIMIT}};
+    m_maxPoint        = {{-m_MAXLIMIT, -m_MAXLIMIT, -m_MAXLIMIT}};
 }
 
 /*!
@@ -111,27 +103,19 @@ BvNode::BvNode()
  */
 BvNode::~BvNode(){}
 
-/*! 
- * Copy constructor for class BvNode.
- */
-BvNode::BvNode(const BvNode & other)
-{
-	*this	= other;
-};
-
 /*! Assignement operator for class BvNode.
  */
 BvNode & BvNode::operator=(const BvNode & other)
 {
-	m_lchild		= other.m_lchild;
-	m_rchild 		= other.m_rchild;
-	m_element		= other.m_element;
-	m_nrange		= other.m_nrange;
-	m_leaf			= other.m_leaf;
-	m_minPoint		= other.m_minPoint;
-	m_maxPoint		= other.m_maxPoint;
-	return *this;
-};
+    m_lchild        = other.m_lchild;
+    m_rchild         = other.m_rchild;
+    m_element        = other.m_element;
+    m_nrange        = other.m_nrange;
+    m_leaf            = other.m_leaf;
+    m_minPoint        = other.m_minPoint;
+    m_maxPoint        = other.m_maxPoint;
+    return *this;
+}
 
 /*!
  * Default constructor for class BvTree.
@@ -145,26 +129,25 @@ BvNode & BvNode::operator=(const BvNode & other)
  */
 BvTree::BvTree(bitpit::PatchKernel *patch_)
 {
-	m_patch_	= patch_;
-	m_dim		= 3;
-	m_nnodes	= 0;
-	m_nleaf		= 0;
-	if (patch_ != NULL)
-	{
-		m_MAXSTK	= std::max(10, int(m_patch_->getVertexCount()));
-		m_nelements = m_patch_->getCellCount();
-	}
-	else
-	{
-		m_MAXSTK	= 10;
-		m_nelements = 0;
-	}
-	m_elements.resize(m_nelements);
-	increaseStack();
+    m_patch    = patch_;
+    m_dim        = 3;
+    m_nnodes    = 0;
+    m_nleaf        = 0;
+    if (patch_ != NULL)
+    {
+        m_maxstk    = std::max(10, int(m_patch->getVertexCount()));
+        m_nelements = m_patch->getCellCount();
+    }
+    else
+    {
+        m_maxstk    = 10;
+        m_nelements = 0;
+    }
+    m_elements.resize(m_nelements);
+    increaseStack();
 
-	m_tol 			= 1.0e-08;
-	m_maxsize	= 1;
-	return;
+    m_tol             = 1.0e-08;
+    m_maxsize    = 1;
 }
 
 /*!
@@ -173,37 +156,29 @@ BvTree::BvTree(bitpit::PatchKernel *patch_)
  */
 BvTree::~BvTree()
 {
-	m_patch_ = NULL;
-	clean();
+    m_patch = NULL;
+    clean();
 }
-
-/*! 
- * Copy constructor for class BvTree.
- */
-BvTree::BvTree(const BvTree & other)
-{
-	*this	= other;
-};
 
 /*!
  * Assignement operator for class BvTree.
  */
 BvTree & BvTree::operator=(const BvTree & other)
 {
-	clean();
-	m_patch_		= other.m_patch_;
-	setup();
-	m_dim 			= other.m_dim;
-	m_MAXSTK		= other.m_MAXSTK;
-	m_nodes			= other.m_nodes;
-	m_nnodes		= other.m_nnodes;
-	m_nleaf			= other.m_nleaf;
-	m_maxsize		= other.m_maxsize;
-	m_nelements		= other.m_nelements;
-	m_elements		= other.m_elements;
-	m_tol 			= other.m_tol;
-	return *this;
-};
+    clean();
+    m_patch        = other.m_patch;
+    setup();
+    m_dim             = other.m_dim;
+    m_maxstk        = other.m_maxstk;
+    m_nodes            = other.m_nodes;
+    m_nnodes        = other.m_nnodes;
+    m_nleaf            = other.m_nleaf;
+    m_maxsize        = other.m_maxsize;
+    m_nelements        = other.m_nelements;
+    m_elements        = other.m_elements;
+    m_tol             = other.m_tol;
+    return *this;
+}
 
 /*! 
  * It sets the bitpit::PatchKernel linked by the tree. The Simplex of the patch
@@ -212,16 +187,16 @@ BvTree & BvTree::operator=(const BvTree & other)
  */
 void BvTree::setPatch(bitpit::PatchKernel *patch_)
 {
-	m_patch_ 	= NULL;
-	m_patch_ 	= patch_;
-	m_dim 		= 3;
-	if (patch_ != NULL) m_MAXSTK = std::max(10, int(m_patch_->getVertexCount()));
-	m_nelements = 0;
-	m_nnodes 	= 0;
-	m_nleaf		= 0;
-	m_nodes.clear();
-	m_elements.clear();
-	increaseStack();
+    m_patch     = NULL;
+    m_patch     = patch_;
+    m_dim         = 3;
+    if (patch_ != NULL) m_maxstk = std::max(10, int(m_patch->getVertexCount()));
+    m_nelements = 0;
+    m_nnodes     = 0;
+    m_nleaf        = 0;
+    m_nodes.clear();
+    m_elements.clear();
+    increaseStack();
 }
 
 /*! 
@@ -229,7 +204,7 @@ void BvTree::setPatch(bitpit::PatchKernel *patch_)
  *  \param[in] maxsize Maximum number of elements in a leaf node (default =1).
  */
 void BvTree::setMaxLeafSize(int maxsize){
-	m_maxsize = maxsize;
+    m_maxsize = maxsize;
 }
 
 /*!
@@ -238,43 +213,43 @@ void BvTree::setMaxLeafSize(int maxsize){
  */
 void BvTree::buildTree()
 {
-	if (m_patch_ == NULL) return;
+    if (m_patch == NULL) return;
 
-	if (m_nelements == 0 || m_nodes.size() == 0) setup();
-	if (m_nelements == 0) return;
+    if (m_nelements == 0 || m_nodes.size() == 0) setup();
+    if (m_nelements == 0) return;
 
-	int iel = 0;
-	long id;
+    int iel = 0;
+    long id;
 
-	//fill ids and centroid
-	for ( auto & cell : m_patch_->getCells() )
-	{
-		id = cell.getId();
-		m_elements[iel].m_label = id;
-		m_elements[iel].m_centroid = m_patch_->evalCellCentroid(id);
-		iel++;
-	}
+    //fill ids and centroid
+    for ( auto & cell : m_patch->getCells() )
+    {
+        id = cell.getId();
+        m_elements[iel].m_label = id;
+        m_elements[iel].m_centroid = m_patch->evalCellCentroid(id);
+        iel++;
+    }
 
-	//node root
-	BvNode node;
-	node.m_element[0] = 0;
-	node.m_element[1] = m_nelements;
-	node.m_nrange = m_nelements;
-	m_nodes[m_nnodes] = node;
-	if ( m_nelements == 1 )
-	{
-		m_nodes[m_nnodes].m_leaf = true;
+    //node root
+    BvNode node;
+    node.m_element[0] = 0;
+    node.m_element[1] = m_nelements;
+    node.m_nrange = m_nelements;
+    m_nodes[m_nnodes] = node;
+    if ( m_nelements == 1 )
+    {
+        m_nodes[m_nnodes].m_leaf = true;
         computeBoundingBox(0);
-		m_nleaf++;
-		m_nnodes++;
-	}
-	else
-	{
-		m_nnodes++;
-		fillTree(0);
-	}
-	decreaseStack();
-};
+        m_nleaf++;
+        m_nnodes++;
+    }
+    else
+    {
+        m_nnodes++;
+        fillTree(0);
+    }
+    decreaseStack();
+}
 
 /*!
  * It fills the bv-tree starting from an existing node.
@@ -283,108 +258,107 @@ void BvTree::buildTree()
 void BvTree::fillTree(int iparent)
 {
 
-	int j;
 
-	//compute Bounding Box of node
-	computeBoundingBox(iparent);
-
-
-	if ( m_nodes[iparent].m_nrange > m_maxsize )
-	{
-
-		//split parent by mean of centroid in node
-		darray3E meanC = computeMeanPoint(m_nodes[iparent].m_element[0], m_nodes[iparent].m_element[1]);
-
-		//split by plane normal to maximum dimension of the centroid box
-		darray3E minPC{{1.0e+18, 1.0e+18, 1.0e+18}};
-		darray3E maxPC{{-1.0e+18, -1.0e+18, -1.0e+18}};
-		int ic, ics = m_nodes[iparent].m_element[0], ice = m_nodes[iparent].m_element[1];
-		for ( ic=ics; ic<ice; ++ic )
-		{
-			for ( j=0; j<m_dim; ++j )
-			{
-				minPC[j] = std::min(minPC[j], m_elements[ic].m_centroid[j]);
-				maxPC[j] = std::max(maxPC[j], m_elements[ic].m_centroid[j]);
-			}
-		}
-
-		int dir = 0;
-		double maxRange = maxPC[dir] - minPC[dir];
-		for ( int idim=1; idim<m_dim; ++idim )
-		{
-			if ((maxPC[idim] - minPC[idim]) > maxRange)
-			{
-				dir = idim;
-				maxRange = maxPC[dir] - minPC[dir];
-			}
-		}
-
-		//Sort elements by coordinate dir.
-		std::vector<BvElement>::iterator itstart = m_elements.begin()+m_nodes[iparent].m_element[0];
-		std::vector<BvElement>::iterator itend = m_elements.begin()+(m_nodes[iparent].m_element[1]);
-
-		//Old algorithm
-		//		sort( itstart, itend, compareElements(dir) );
-		//		//find first element with coords[dir] > of meanC[dir]
-		//		int firstRight = findFirstGreater(iparent, meanC, dir);
+    //compute Bounding Box of node
+    computeBoundingBox(iparent);
 
 
-		int firstRight = pseudoSort( itstart, itend, meanC, dir );
+    if ( m_nodes[iparent].m_nrange > m_maxsize )
+    {
 
-		//insert lchild
-		if ( firstRight > m_nodes[iparent].m_element[0]  )
-		{
-			m_nodes[iparent].m_lchild = m_nnodes;
-			if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
-			BvNode node;
-			node.m_element[0] = m_nodes[iparent].m_element[0];
-			node.m_element[1] = firstRight;
-			node.m_nrange = node.m_element[1] - node.m_element[0];
-			m_nodes[m_nnodes] = node;
-			if ( node.m_nrange == 1 )
-			{
-				m_nodes[m_nnodes].m_leaf = true;
-				computeBoundingBox(m_nnodes);
-				m_nnodes++;
-				m_nleaf++;
-			}
-			else
-			{
-				m_nnodes++;
-				fillTree(m_nnodes-1);
-			}
-		}
+        //split parent by mean of centroid in node
+        darray3E meanC = computeMeanPoint(m_nodes[iparent].m_element[0], m_nodes[iparent].m_element[1]);
 
-		//insert rchild
-		if ( firstRight < m_nodes[iparent].m_element[1] )
-		{
-			m_nodes[iparent].m_rchild = m_nnodes;
-			if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
-			BvNode node;
-			node.m_element[0] = firstRight;
-			node.m_element[1] = m_nodes[iparent].m_element[1];
-			node.m_nrange = node.m_element[1] - node.m_element[0];
-			m_nodes[m_nnodes] = node;
-			if (node.m_nrange == 1){
-				m_nodes[m_nnodes].m_leaf = true;
-				computeBoundingBox(m_nnodes);
-				m_nnodes++;
-				m_nleaf++;
-			}
-			else{
-				m_nnodes++;
-				fillTree(m_nnodes-1);
-			}
-		}
+        //split by plane normal to maximum dimension of the centroid box
+        darray3E minPC{{m_MAXLIMIT, m_MAXLIMIT, m_MAXLIMIT}};
+        darray3E maxPC{{-m_MAXLIMIT, -m_MAXLIMIT, -m_MAXLIMIT}};
+        int ics = m_nodes[iparent].m_element[0], ice = m_nodes[iparent].m_element[1];
+        for (int ic=ics; ic<ice; ++ic )
+        {
+            for (int j=0; j<m_dim; ++j )
+            {
+                minPC[j] = std::min(minPC[j], m_elements[ic].m_centroid[j]);
+                maxPC[j] = std::max(maxPC[j], m_elements[ic].m_centroid[j]);
+            }
+        }
 
-	}
-	else
-	{
-		//insert this node as leaf
-		m_nodes[iparent].m_leaf = true;
-		m_nleaf++;
+        int dir = 0;
+        double maxRange = maxPC[dir] - minPC[dir];
+        for ( int idim=1; idim<m_dim; ++idim )
+        {
+            if ((maxPC[idim] - minPC[idim]) > maxRange)
+            {
+                dir = idim;
+                maxRange = maxPC[dir] - minPC[dir];
+            }
+        }
 
-	}
+        //Sort elements by coordinate dir.
+        std::vector<BvElement>::iterator itstart = m_elements.begin()+m_nodes[iparent].m_element[0];
+        std::vector<BvElement>::iterator itend = m_elements.begin()+(m_nodes[iparent].m_element[1]);
+
+        //Old algorithm
+        //        sort( itstart, itend, compareElements(dir) );
+        //        //find first element with coords[dir] > of meanC[dir]
+        //        int firstRight = findFirstGreater(iparent, meanC, dir);
+
+
+        int firstRight = pseudoSort( itstart, itend, meanC, dir );
+
+        //insert lchild
+        if ( firstRight > m_nodes[iparent].m_element[0]  )
+        {
+            m_nodes[iparent].m_lchild = m_nnodes;
+            if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
+            BvNode node;
+            node.m_element[0] = m_nodes[iparent].m_element[0];
+            node.m_element[1] = firstRight;
+            node.m_nrange = node.m_element[1] - node.m_element[0];
+            m_nodes[m_nnodes] = node;
+            if ( node.m_nrange == 1 )
+            {
+                m_nodes[m_nnodes].m_leaf = true;
+                computeBoundingBox(m_nnodes);
+                m_nnodes++;
+                m_nleaf++;
+            }
+            else
+            {
+                m_nnodes++;
+                fillTree(m_nnodes-1);
+            }
+        }
+
+        //insert rchild
+        if ( firstRight < m_nodes[iparent].m_element[1] )
+        {
+            m_nodes[iparent].m_rchild = m_nnodes;
+            if ( (int)m_nodes.size() <= m_nnodes+1) increaseStack();
+            BvNode node;
+            node.m_element[0] = firstRight;
+            node.m_element[1] = m_nodes[iparent].m_element[1];
+            node.m_nrange = node.m_element[1] - node.m_element[0];
+            m_nodes[m_nnodes] = node;
+            if (node.m_nrange == 1){
+                m_nodes[m_nnodes].m_leaf = true;
+                computeBoundingBox(m_nnodes);
+                m_nnodes++;
+                m_nleaf++;
+            }
+            else{
+                m_nnodes++;
+                fillTree(m_nnodes-1);
+            }
+        }
+
+    }
+    else
+    {
+        //insert this node as leaf
+        m_nodes[iparent].m_leaf = true;
+        m_nleaf++;
+
+    }
 
 }
 
@@ -398,15 +372,15 @@ void BvTree::fillTree(int iparent)
 darray3E BvTree::computeMeanPoint(int istart, int iend)
 {
 
-	long id;
-	darray3E meanC({{0.0, 0.0, 0.0}});
-	for ( int i=istart; i<iend; ++i )
-	{
-		id = m_elements[i].m_label;
-		meanC += m_patch_->evalCellCentroid(id);
-	}
-	meanC /= double(iend-istart);
-	return(meanC);
+    long id;
+    darray3E meanC({{0.0, 0.0, 0.0}});
+    for ( int i=istart; i<iend; ++i )
+    {
+        id = m_elements[i].m_label;
+        meanC += m_patch->evalCellCentroid(id);
+    }
+    meanC /= double(iend-istart);
+    return meanC;
 }
 
 /*!
@@ -417,27 +391,27 @@ darray3E BvTree::computeMeanPoint(int istart, int iend)
  * \param[in] meanC mean centroid
  * \param[in] dir centroid coordinate (0-x,1-y, 2-z)
  */
-int	BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
-		std::vector<BvElement>::iterator itend, darray3E meanC, int dir){
+int    BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
+        std::vector<BvElement>::iterator itend, darray3E meanC, int dir){
 
-	double thres = meanC[dir];
+    double thres = meanC[dir];
 
-	itend--;
-	while(itstart != itend){
+    itend--;
+    while(itstart != itend){
 
-		while (itstart->m_centroid[dir] <= thres && itstart != itend){
-			itstart++;
-		}
-		while (itend->m_centroid[dir] > thres && itend != itstart){
-			itend--;
-		}
+        while (itstart->m_centroid[dir] <= thres && itstart != itend){
+            itstart++;
+        }
+        while (itend->m_centroid[dir] > thres && itend != itstart){
+            itend--;
+        }
 
-		if (itstart != itend){
-			std::iter_swap(itstart, itend);
-		}
-	}
+        if (itstart != itend){
+            std::iter_swap(itstart, itend);
+        }
+    }
 
-	return (std::max(0, int(distance(m_elements.begin(), itend))));
+    return (std::max(0, int(distance(m_elements.begin(), itend))));
 }
 
 /*!
@@ -453,27 +427,27 @@ int	BvTree::pseudoSort(std::vector<BvElement>::iterator itstart,
  */
 int BvTree::findFirstGreater(int inode, darray3E meanC, int dir)
 {
-	double mean = meanC[dir];
-	int guess = (m_nodes[inode].m_element[1] - m_nodes[inode].m_element[0])/2;
-	int step = guess;
+    double mean = meanC[dir];
+    int guess = (m_nodes[inode].m_element[1] - m_nodes[inode].m_element[0])/2;
+    int step = guess;
 
-	while( step > 0 )
-	{
-		step /= 2;
-		guess += step * int(sign(mean - m_elements[guess].m_centroid[dir]));
-		guess = std::max(m_nodes[inode].m_element[0], guess);
-		guess = std::min(m_nodes[inode].m_element[1]-1, guess);
-	}
+    while( step > 0 )
+    {
+        step /= 2;
+        guess += step * int(sign(mean - m_elements[guess].m_centroid[dir]));
+        guess = std::max(m_nodes[inode].m_element[0], guess);
+        guess = std::min(m_nodes[inode].m_element[1]-1, guess);
+    }
 
-	while ( mean < m_elements[guess].m_centroid[dir] && guess > m_nodes[inode].m_element[0] )
-	{
-		guess--;
-	}
-	while ( mean > m_elements[guess].m_centroid[dir] && guess < m_nodes[inode].m_element[1]-1 )
-	{
-		guess++;
-	}
-	return guess;
+    while ( mean < m_elements[guess].m_centroid[dir] && guess > m_nodes[inode].m_element[0] )
+    {
+        guess--;
+    }
+    while ( mean > m_elements[guess].m_centroid[dir] && guess < m_nodes[inode].m_element[1]-1 )
+    {
+        guess++;
+    }
+    return guess;
 }
 
 /*!
@@ -487,35 +461,35 @@ int BvTree::findFirstGreater(int inode, darray3E meanC, int dir)
  */
 void BvTree::computeBoundingBox(int inode)
 {
-	BvNode &node(m_nodes[inode]);
+    BvNode &node(m_nodes[inode]);
 
-	int is = node.m_element[0];
-	int ie = node.m_element[1];
+    int is = node.m_element[0];
+    int ie = node.m_element[1];
 
-	int i, j, iV, nV;
+    int nV;
 
-	node.m_minPoint = {{1.0e+18, 1.0e+18, 1.0e+18}};
-	node.m_maxPoint = {{-1.0e+18, -1.0e+18, -1.0e+18}};
+    node.m_minPoint = {{m_MAXLIMIT, m_MAXLIMIT, m_MAXLIMIT}};
+    node.m_maxPoint = {{-m_MAXLIMIT, -m_MAXLIMIT, -m_MAXLIMIT}};
 
-	bitpit::Cell 	cell;
-	darray3E 		coords;
+    bitpit::Cell     cell;
+    darray3E         coords;
 
-	for ( i=is; i<ie; i++ )
-	{
-		cell = m_patch_->getCell(m_elements[i].m_label);
-		nV = cell.getVertexCount();
-		for ( iV=0; iV<nV; ++iV )
-		{
-			coords = m_patch_->getVertexCoords(cell.getVertex(iV));
-			for ( j=0; j<m_dim; ++j )
-			{
-				node.m_minPoint[j] = std::min(node.m_minPoint[j], coords[j]);
-				node.m_maxPoint[j] = std::max(node.m_maxPoint[j], coords[j]);
-			}
-		}
-	}
-	node.m_minPoint -= m_tol;
-	node.m_maxPoint += m_tol;
+    for (int i=is; i<ie; i++ )
+    {
+        cell = m_patch->getCell(m_elements[i].m_label);
+        nV = cell.getVertexCount();
+        for (int iV=0; iV<nV; ++iV )
+        {
+            coords = m_patch->getVertexCoords(cell.getVertex(iV));
+            for (int j=0; j<m_dim; ++j )
+            {
+                node.m_minPoint[j] = std::min(node.m_minPoint[j], coords[j]);
+                node.m_maxPoint[j] = std::max(node.m_maxPoint[j], coords[j]);
+            }
+        }
+    }
+    node.m_minPoint -= m_tol;
+    node.m_maxPoint += m_tol;
 }
 
 /*!
@@ -530,15 +504,15 @@ void BvTree::computeBoundingBox(int inode)
  */
 bool BvTree::inBoundingBox(darray3E *P_, BvNode *node_, double r)
 {
-	bool in = true;
-	for ( int i=0; i<m_dim; i++ )
-	{
-		if ( ( (*P_)[i] < ( node_->m_minPoint[i] - r) ) || ( (*P_)[i] > ( node_->m_maxPoint[i] + r ) ) ){
-			in = false;
-			break;
-		}
-	}
-	return(in);
+    bool in = true;
+    for ( int i=0; i<m_dim; i++ )
+    {
+        if ( ( (*P_)[i] < ( node_->m_minPoint[i] - r) ) || ( (*P_)[i] > ( node_->m_maxPoint[i] + r ) ) ){
+            in = false;
+            break;
+        }
+    }
+    return in;
 }
 
 /*!
@@ -560,7 +534,7 @@ bool BvTree::SphereBoundingBox(darray3E *P_, BvNode *node_, double r)
     }
     double dist = dotProduct(closestP-(*P_), closestP-(*P_));
 
-    return(dist < r*r);
+    return (dist < r*r);
 }
 
 /*!
@@ -568,13 +542,13 @@ bool BvTree::SphereBoundingBox(darray3E *P_, BvNode *node_, double r)
  */
 void BvTree::clean(){
 
-	m_dim		= 3;
-	m_nelements = 0;
-	m_nnodes	= 0;
-	m_MAXSTK	= 10;
-	m_nodes.clear();
-	m_elements.clear();
-	m_nleaf		= 0;
+    m_dim        = 3;
+    m_nelements = 0;
+    m_nnodes    = 0;
+    m_maxstk    = 10;
+    m_nodes.clear();
+    m_elements.clear();
+    m_nleaf        = 0;
 }
 
 /*!
@@ -582,21 +556,21 @@ void BvTree::clean(){
  */
 void BvTree::setup(){
 
-	m_dim		= 3;
-	m_nnodes	= 0;
-	m_nleaf		= 0;
-	if (m_patch_ != NULL)
-	{
-		m_MAXSTK	= std::max(10, int(m_patch_->getVertexCount()));
-		m_nelements = m_patch_->getCellCount();
-	}
-	else
-	{
-		m_MAXSTK	= 10;
-		m_nelements = 0;
-	}
-	m_elements.resize(m_nelements);
-	increaseStack();
+    m_dim        = 3;
+    m_nnodes    = 0;
+    m_nleaf        = 0;
+    if (m_patch != NULL)
+    {
+        m_maxstk    = std::max(10, int(m_patch->getVertexCount()));
+        m_nelements = m_patch->getCellCount();
+    }
+    else
+    {
+        m_maxstk    = 10;
+        m_nelements = 0;
+    }
+    m_elements.resize(m_nelements);
+    increaseStack();
 }
 
 /*! 
@@ -606,8 +580,8 @@ void BvTree::setup(){
  */
 void BvTree::increaseStack()
 {
-	m_nodes.resize(m_nodes.size() + m_MAXSTK);
-};
+    m_nodes.resize(m_nodes.size() + m_maxstk);
+}
 
 /*! 
  * Decrease the memory reserved for bv-tree by maxstack.
@@ -615,8 +589,8 @@ void BvTree::increaseStack()
  */
 void BvTree::decreaseStack()
 {
-	m_nodes.resize(m_nnodes);
-};
+    m_nodes.resize(m_nnodes);
+}
 
 namespace bvTreeUtils{
 /*!
@@ -646,185 +620,185 @@ namespace bvTreeUtils{
 double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3> &n, double &r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)
 {
 
-	if ( spatch_ == NULL ) spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
+    if ( spatch_ == NULL ) spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch);
 
-	// Local variables
-	double		hr = 1.0e+18,	hl = 1.0e+18;
-	double		rstart = r;
-	long		idr = -1,			idl = -1;
-	int			index_l = -1,	index_r = -1;
+    // Local variables
+    double        hr = 1.0e+18,    hl = 1.0e+18;
+    double        rstart = r;
+    long        idr = -1,            idl = -1;
+    int            index_l = -1,    index_r = -1;
 
 
-	if ( bvtree_->m_nnodes == 0 ) return(1.0e+18);
+    if ( bvtree_->m_nnodes == 0 ) return 1.0e+18;
 
-	if ( !(bvtree_->m_nodes[next].m_leaf) )
-	{
+    if ( !(bvtree_->m_nodes[next].m_leaf) )
+    {
 
-		index_l = bvtree_->m_nodes[next].m_lchild;
-		index_r = bvtree_->m_nodes[next].m_rchild;
-		if ( index_l >= 0 )
-		{
-		    if (method == 0){
-		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-		        {
-		            hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
-		        }
-		    }
-		    else if (method == 1){
-		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-		        {
-		            hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
-		        }
-		    }
+        index_l = bvtree_->m_nodes[next].m_lchild;
+        index_r = bvtree_->m_nodes[next].m_rchild;
+        if ( index_l >= 0 )
+        {
+            if (method == 0){
+                if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+                {
+                    hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
+                }
+            }
+            else if (method == 1){
+                if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+                {
+                    hl = signedDistance(P_, bvtree_, idl, n, r, method, spatch_, index_l, h);
+                }
+            }
 
-		}
-		if ( hl < h )
-		{
-			h = hl;
-			id = idl;
-			r = h;
-		}
+        }
+        if ( hl < h )
+        {
+            h = hl;
+            id = idl;
+            r = h;
+        }
 
-		if ( index_r >= 0 )
-		{
-		    if (method == 0){
-		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
-		        {
-		            hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
-		        }
-		    }
-		    else if (method == 1){
-		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
-		        {
-		            hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
-		        }
-		    }
-		}
-		if ( hr < h )
-		{
-			h = hr;
-			id = idr;
-			r = h;
-		}
+        if ( index_r >= 0 )
+        {
+            if (method == 0){
+                if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+                {
+                    hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
+                }
+            }
+            else if (method == 1){
+                if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
+                {
+                    hr = signedDistance(P_, bvtree_, idr, n, r, method, spatch_, index_r, h);
+                }
+            }
+        }
+        if ( hr < h )
+        {
+            h = hr;
+            id = idr;
+            r = h;
+        }
 
-	}
-	else
-	{
+    }
+    else
+    {
 
-		long 		id_;
-		darray3E 	xP;
-		int 		iV, nV, ie;
-		double 		ah_;
+        long         id_;
+        darray3E     xP;
+        int         nV;
+        double         ah_;
 
-		for ( ie = 0; ie < bvtree_->m_nodes[next].m_nrange; ++ie)
-		{
-			id_ = bvtree_->m_elements[bvtree_->m_nodes[next].m_element[0]+ie].m_label;
-			bitpit::Cell cell = spatch_->getCell(id_);
-			nV = cell.getVertexCount();
-			dvecarr3E VS(nV);
-			for (iV=0; iV<nV; ++iV)
-			{
-				VS[iV] = spatch_->getVertexCoords(cell.getVertex(iV));
-			}
+        for (int ie = 0; ie < bvtree_->m_nodes[next].m_nrange; ++ie)
+        {
+            id_ = bvtree_->m_elements[bvtree_->m_nodes[next].m_element[0]+ie].m_label;
+            bitpit::Cell cell = spatch_->getCell(id_);
+            nV = cell.getVertexCount();
+            dvecarr3E VS(nV);
+            for (int iV=0; iV<nV; ++iV)
+            {
+                VS[iV] = spatch_->getVertexCoords(cell.getVertex(iV));
+            }
 
-			//signed distance only for patch with triangles or segments
-			if ( nV == 3 )
-			{
-				darray3E lambda ;
-				int flag;
-				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
-			}
-			else if ( nV == 2 )
-			{
-				darray2E lambda ;
-				int flag;
-				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
+            //signed distance only for patch with triangles or segments
+            if ( nV == 3 )
+            {
+                darray3E lambda ;
+                int flag;
+                ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
+            }
+            else if ( nV == 2 )
+            {
+                darray2E lambda ;
+                int flag;
+                ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
 
-			}
-			else{
-				int flag;
-				ah_ = bitpit::CGElem::distancePointSimplex((*P_), VS, xP, flag);
-			}
+            }
+            else{
+                int flag;
+                ah_ = bitpit::CGElem::distancePointSimplex((*P_), VS, xP, flag);
+            }
 
-			if ( ah_ < h )
-			{
-				h = ah_;
-				id = id_;
-				r = h;
-			}
-		}
+            if ( ah_ < h )
+            {
+                h = ah_;
+                id = id_;
+                r = h;
+            }
+        }
 
-	}
+    }
 
-	if ( next == 0 )
-	{
+    if ( next == 0 )
+    {
 
-		if ( h < rstart )
-		{
-			double 		s;
-			darray3E 	xP, normal;
-			int 		iV, nV;
+        if ( h < rstart )
+        {
+            double         s;
+            darray3E     xP, normal;
+            int         nV;
 
-			bitpit::Cell cell = spatch_->getCell(id);
-			nV = cell.getVertexCount();
-			dvecarr3E VS(nV);
-			for ( iV = 0; iV < nV; ++iV )
-			{
-				VS[iV] = spatch_->getVertexCoords(cell.getVertex(iV));
-			}
+            bitpit::Cell cell = spatch_->getCell(id);
+            nV = cell.getVertexCount();
+            dvecarr3E VS(nV);
+            for (int iV = 0; iV < nV; ++iV )
+            {
+                VS[iV] = spatch_->getVertexCoords(cell.getVertex(iV));
+            }
 
-			//signed distance only for patch with triangles or segments
-			if ( nV == 3 )
-			{
-				darray3E lambda ;
-				int flag;
-				h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
-				normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
-				normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
-				normal += lambda[2] * spatch_->evalVertexNormal(id,2) ;
-				s =  sign( dotProduct(normal, (*P_) - xP) );
-				h = s * h;
-				//pseudo-normal (direction P and xP closest point on triangle)
-				n = s * ((*P_) - xP);
-				double normX = norm2(n);
-				if(normX < 1.E-15){
-					n = normal/norm2(normal);
-				}else{
-					n /= norm2(n);
-				}
-			}
-			else if ( nV == 2 )
-			{
-				darray2E lambda ;
-				int flag;
-				h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
-				normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
-				normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
-				s = sign( dotProduct(normal, (*P_) - xP) );
-				h = s * h;
-				//pseudo-normal (direction P and xP closest point on triangle)
-				n = s * ((*P_) - xP);
-				
-				double normX = norm2(n);
-				if(normX < 1.E-15){
-					n = normal/norm2(normal);
-				}else{
-					n /= norm2(n);
-				}
-				
-				
-			}
-		}
-		else
-		{
-			h = 1.0e+18;
-		}
+            //signed distance only for patch with triangles or segments
+            if ( nV == 3 )
+            {
+                darray3E lambda ;
+                int flag;
+                h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
+                normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
+                normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
+                normal += lambda[2] * spatch_->evalVertexNormal(id,2) ;
+                s =  sign( dotProduct(normal, (*P_) - xP) );
+                h = s * h;
+                //pseudo-normal (direction P and xP closest point on triangle)
+                n = s * ((*P_) - xP);
+                double normX = norm2(n);
+                if(normX < 1.E-15){
+                    n = normal/norm2(normal);
+                }else{
+                    n /= norm2(n);
+                }
+            }
+            else if ( nV == 2 )
+            {
+                darray2E lambda ;
+                int flag;
+                h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
+                normal  = lambda[0] * spatch_->evalVertexNormal(id,0) ;
+                normal += lambda[1] * spatch_->evalVertexNormal(id,1) ;
+                s = sign( dotProduct(normal, (*P_) - xP) );
+                h = s * h;
+                //pseudo-normal (direction P and xP closest point on triangle)
+                n = s * ((*P_) - xP);
 
-	}
+                double normX = norm2(n);
+                if(normX < 1.E-15){
+                    n = normal/norm2(normal);
+                }else{
+                    n /= norm2(n);
+                }
 
-	return(h);
 
-};
+            }
+        }
+        else
+        {
+            h = 1.0e+18;
+        }
+
+    }
+
+    return h;
+
+}
 
 
 /*!
@@ -849,42 +823,42 @@ double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::
 double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method, int next, double h)
 {
 
-	// Local variables
-	int		index_l = -1,	index_r = -1;
-	double 	hr = 1.0e+18,	hl = 1.0e+18;
-	long	idr = -1,		idl = -1;
-	double  rstart = r;
+    // Local variables
+    int        index_l = -1,    index_r = -1;
+    double     hr = 1.0e+18,    hl = 1.0e+18;
+    long    idr = -1,        idl = -1;
+    double  rstart = r;
 
-	if ( bvtree_->m_nnodes == 0 ) return(1.0e+18);
+    if ( bvtree_->m_nnodes == 0 ) return 1.0e+18;
 
-	if ( !(bvtree_->m_nodes[next].m_leaf) )
-	{
+    if ( !(bvtree_->m_nodes[next].m_leaf) )
+    {
 
-		index_l = bvtree_->m_nodes[next].m_lchild;
-		index_r = bvtree_->m_nodes[next].m_rchild;
-		if ( index_l >= 0 )
-		{
-		    if (method == 0){
-		        if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-		        {
-		            hl = distance(P_, bvtree_, idl, r, method, index_l, h);
-		        }
-		    }
-		    else if (method == 1){
-		        if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
-		        {
-		            hl = distance(P_, bvtree_, idl, r, method, index_l, h);
-		        }
-		    }
-		}
-		if ( hl < h )
-		{
-			h = hl;
-			id = idl;
-			r = h;
-		}
-		if ( index_r >= 0 )
-		{
+        index_l = bvtree_->m_nodes[next].m_lchild;
+        index_r = bvtree_->m_nodes[next].m_rchild;
+        if ( index_l >= 0 )
+        {
+            if (method == 0){
+                if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+                {
+                    hl = distance(P_, bvtree_, idl, r, method, index_l, h);
+                }
+            }
+            else if (method == 1){
+                if ( bvtree_->SphereBoundingBox(P_, &bvtree_->m_nodes[index_l], r) )
+                {
+                    hl = distance(P_, bvtree_, idl, r, method, index_l, h);
+                }
+            }
+        }
+        if ( hl < h )
+        {
+            h = hl;
+            id = idl;
+            r = h;
+        }
+        if ( index_r >= 0 )
+        {
             if (method == 0){
                 if ( bvtree_->inBoundingBox(P_, &bvtree_->m_nodes[index_r], r) )
                 {
@@ -897,64 +871,64 @@ double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, 
                     hr = distance(P_, bvtree_, idr, r, method, index_r, h);
                 }
             }
-		}
-		if ( hr < h )
-		{
-			h = hr;
-			id = idr;
-			r = h;
-		}
+        }
+        if ( hr < h )
+        {
+            h = hr;
+            id = idr;
+            r = h;
+        }
 
-	}
-	else{
+    }
+    else{
 
-		long 		id_;
-		darray3E 	xP;
-		int 		iV, nV, ie;
-		double 		ah_;
+        long         id_;
+        darray3E     xP;
+        int         nV;
+        double         ah_;
 
-		for ( ie = 0; ie < bvtree_->m_nodes[next].m_nrange; ++ie)
-		{
-			id_ = bvtree_->m_elements[bvtree_->m_nodes[next].m_element[0]+ie].m_label;
-			bitpit::Cell cell = bvtree_->m_patch_->getCell(id_);
-			nV = cell.getVertexCount();
-			dvecarr3E VS(nV);
-			for ( iV = 0; iV < nV; ++iV )
-			{
-				VS[iV] = bvtree_->m_patch_->getVertexCoords(cell.getVertex(iV));
-			}
+        for (int ie = 0; ie < bvtree_->m_nodes[next].m_nrange; ++ie)
+        {
+            id_ = bvtree_->m_elements[bvtree_->m_nodes[next].m_element[0]+ie].m_label;
+            bitpit::Cell cell = bvtree_->m_patch->getCell(id_);
+            nV = cell.getVertexCount();
+            dvecarr3E VS(nV);
+            for (int iV = 0; iV < nV; ++iV )
+            {
+                VS[iV] = bvtree_->m_patch->getVertexCoords(cell.getVertex(iV));
+            }
 
-			if ( nV == 3 )
-			{
-				darray3E lambda ;
-				int flag;
-				ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
-			}
-			else if ( nV == 2 )
-			{
-				darray2E lambda ;
-				int flag;
-				ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
-			}
-			else{
-				int flag;
-				ah_ = bitpit::CGElem::distancePointSimplex((*P_), VS, xP, flag);
-			}
+            if ( nV == 3 )
+            {
+                darray3E lambda ;
+                int flag;
+                ah_ = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
+            }
+            else if ( nV == 2 )
+            {
+                darray2E lambda ;
+                int flag;
+                ah_ = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
+            }
+            else{
+                int flag;
+                ah_ = bitpit::CGElem::distancePointSimplex((*P_), VS, xP, flag);
+            }
 
 
-			if ( ah_ < h )
-			{
-				h = ah_;
-				id = id_;
-				r = h;
-			}
-		}
-	}
+            if ( ah_ < h )
+            {
+                h = ah_;
+                id = id_;
+                r = h;
+            }
+        }
+    }
 
-	if ( next == 0 && h > rstart ) h = 1.0e+18;
+    if ( next == 0 && h > rstart ) h = 1.0e+18;
 
-	return(h);
-};
+    return h;
+}
 
 /*!
  * It computes the projection of a point on a geometry linked in a BvTree
@@ -971,21 +945,21 @@ double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, 
  */
 darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
 {
-	bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
+    bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch);
 
-	long 		id;
-	darray3E 	normal;
+    long         id;
+    darray3E     normal;
 
-	double 		dist = 1.0e+18;
-	while (std::abs(dist) >= 1.0e+18){
-	    //use method sphere by default
-		dist = signedDistance(P_, bvtree_, id, normal, r, 1, spatch_);
-		r *= 1.5;
-	}
+    double         dist = 1.0e+18;
+    while (std::abs(dist) >= 1.0e+18){
+        //use method sphere by default
+        dist = signedDistance(P_, bvtree_, id, normal, r, 1, spatch_);
+        r *= 1.5;
+    }
 
-	darray3E 	projP = (*P_) - dist*normal;
+    darray3E     projP = (*P_) - dist*normal;
 
-	return (projP);
+    return (projP);
 }
 
 /*!
@@ -1010,17 +984,16 @@ darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
  */
 dvector1D signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> > &n, double r_, int method)
 {
-	bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch_);
+    bitpit::SurfUnstructured *spatch_ = static_cast<bitpit::SurfUnstructured*>(bvtree_->m_patch);
 
-	double 		r = r_;
-	int			nP = P_->size();
-	dvector1D 	dist(nP);
+    double         r = r_;
+    int            nP = P_->size();
+    dvector1D     dist(nP);
 
-	int i;
-	for ( i = 0; i < nP; ++i){
-		dist[i] = signedDistance(&((*P_)[i]), bvtree_, id[i], n[i], r, method, spatch_);
-	}
-	return(dist);
+    for (int i = 0; i < nP; ++i){
+        dist[i] = signedDistance(&((*P_)[i]), bvtree_, id[i], n[i], r, method, spatch_);
+    }
+    return dist;
 }
 
 /*!
@@ -1040,15 +1013,14 @@ dvector1D signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_
 dvector1D distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_, int method)
 {
 
-	double 		r = r_;
-	int			nP = P_->size();
-	dvector1D 	dist(nP);
+    double         r = r_;
+    int            nP = P_->size();
+    dvector1D     dist(nP);
 
-	int i;
-	for ( i = 0; i < nP; ++i){
-		dist[i] = distance(&((*P_)[i]), bvtree_, id[i], r, method);
-	}
-	return(dist);
+    for (int i = 0; i < nP; ++i){
+        dist[i] = distance(&((*P_)[i]), bvtree_, id[i], r, method);
+    }
+    return dist;
 }
 
 /*!
@@ -1067,15 +1039,14 @@ dvector1D distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std:
 dvecarr3E projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_)
 {
 
-	int			nP = P_->size();
-	dvector1D 	dist(nP);
-	dvecarr3E 	projPoint(nP);
+    int            nP = P_->size();
+    dvector1D     dist(nP);
+    dvecarr3E     projPoint(nP);
 
-	int i;
-	for ( i = 0; i < nP; ++i){
-		projPoint[i] = projectPoint(&(*P_)[i], bvtree_, r_);
-	}
-	return(projPoint);
+    for (int i = 0; i < nP; ++i){
+        projPoint[i] = projectPoint(&(*P_)[i], bvtree_, r_);
+    }
+    return projPoint;
 }
 
 /*!
@@ -1090,29 +1061,29 @@ dvecarr3E projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, 
  */
 std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol){
 
-	int nleafs = selection->m_nleaf;
-	int nnodess = selection->m_nnodes;
-	std::vector<BvNode*> leafSelection(nleafs);
-	int count = 0;
-	for (int i=0; i<nnodess; i++){
-		if (selection->m_nodes[i].m_leaf){
-			if (bitpit::CGElem::intersectBoxBox(selection->m_nodes[i].m_minPoint-tol,
-					selection->m_nodes[i].m_maxPoint+tol,
-					target->m_nodes[0].m_minPoint,
-					target->m_nodes[0].m_maxPoint ) ){
-				leafSelection[count] = &(selection->m_nodes[i]);
-				count++;
+    int nleafs = selection->m_nleaf;
+    int nnodess = selection->m_nnodes;
+    std::vector<BvNode*> leafSelection(nleafs);
+    int count = 0;
+    for (int i=0; i<nnodess; i++){
+        if (selection->m_nodes[i].m_leaf){
+            if (bitpit::CGElem::intersectBoxBox(selection->m_nodes[i].m_minPoint-tol,
+                    selection->m_nodes[i].m_maxPoint+tol,
+                    target->m_nodes[0].m_minPoint,
+                    target->m_nodes[0].m_maxPoint ) ){
+                leafSelection[count] = &(selection->m_nodes[i]);
+                count++;
 
-			}
-		}
-	}
-	leafSelection.resize(count);
+            }
+        }
+    }
+    leafSelection.resize(count);
 
 
-	std::vector<long> extracted;
-	extractTarget(target, leafSelection, extracted, tol);
+    std::vector<long> extracted;
+    extractTarget(target, leafSelection, extracted, tol);
 
-	return(extracted);
+    return extracted;
 
 
 }
@@ -1138,38 +1109,38 @@ std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol){
  */
 void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vector<long> &extracted, double tol, int next){
 
-	bool check = false;
-	std::vector<BvNode*> tocheck;
-	for (int i=0; i<(int)leafSelection.size(); i++){
-		if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->m_minPoint-tol,
-				leafSelection[i]->m_maxPoint+tol,
-				target->m_nodes[next].m_minPoint,
-				target->m_nodes[next].m_maxPoint ) ){
-			check = true;
-			tocheck.push_back(leafSelection[i]);
-		}
-	}
+    bool check = false;
+    std::vector<BvNode*> tocheck;
+    for (int i=0; i<(int)leafSelection.size(); i++){
+        if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->m_minPoint-tol,
+                leafSelection[i]->m_maxPoint+tol,
+                target->m_nodes[next].m_minPoint,
+                target->m_nodes[next].m_maxPoint ) ){
+            check = true;
+            tocheck.push_back(leafSelection[i]);
+        }
+    }
 
-	leafSelection.clear();
-	leafSelection = tocheck;
+    leafSelection.clear();
+    leafSelection = tocheck;
 
-	int nextl, nextr;
-	if (check){
-		if (target->m_nodes[next].m_leaf){
-			for (int ie=0; ie<target->m_nodes[next].m_nrange; ie++){
-				extracted.push_back(target->m_elements[target->m_nodes[next].m_element[0]+ie].m_label);
-			}
-		}
-		else{
-		nextl = target->m_nodes[next].m_lchild;
-		extractTarget(target, leafSelection, extracted, tol, nextl);
-		nextr = target->m_nodes[next].m_rchild;
-		extractTarget(target, leafSelection, extracted, tol, nextr);
-		}
-	}
-	return;
+    int nextl, nextr;
+    if (check){
+        if (target->m_nodes[next].m_leaf){
+            for (int ie=0; ie<target->m_nodes[next].m_nrange; ie++){
+                extracted.push_back(target->m_elements[target->m_nodes[next].m_element[0]+ie].m_label);
+            }
+        }
+        else{
+        nextl = target->m_nodes[next].m_lchild;
+        extractTarget(target, leafSelection, extracted, tol, nextl);
+        nextr = target->m_nodes[next].m_rchild;
+        extractTarget(target, leafSelection, extracted, tol, nextr);
+        }
+    }
+
 }
 
-};
+}
 
 }; // end namespace mimmo
