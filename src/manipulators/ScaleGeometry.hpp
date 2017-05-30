@@ -21,30 +21,31 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#ifndef __SCALINGGEOMETRY_HPP__
-#define __SCALINGGEOMETRY_HPP__
+#ifndef __SCALEGEOMETRY_HPP__
+#define __SCALEGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
- *    \class ScalingGeometry
+ *    \class ScaleGeometry
  *    \ingroup manipulators
- *    \brief ScalingGeometry is the class that applies a scaling to a given geometry
+ *    \brief ScaleGeometry is the class that applies a scaling to a given geometry
  *    patch in respect to the mean point of the vertices.
  *
  *    The used parameters are the scaling factor values for each direction of the cartesian
  *    reference system.
  *
  * \n
- * Ports available in ScalingGeometry Class :
+ * Ports available in ScaleGeometry Class :
  *
  *    =========================================================
 
      |Port Input | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
      | 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
      | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
@@ -61,31 +62,37 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
- * - <B>ClassName</B>: name of the class as <tt>mimmo.ScalingGeometry</tt>;
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ScaleGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Origin</B>: scaling center point;
+ * - <B>MeanPoint</B>: use mean point as center of scaling;
  * - <B>Scaling</B>: scaling factor values for each cartesian axis.
  *
  * Geometry has to be mandatorily passed through port.
  *
  */
-class ScalingGeometry: public BaseManipulation{
+class ScaleGeometry: public BaseManipulation{
 private:
+    darray3E    m_origin;        /**<Center point of scaling.*/
     darray3E    m_scaling;        /**<Values of the three fundamental scaling factors (1 = original geometry).*/
     dvector1D   m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
+    bool        m_meanP;       /**<Use mean point as center of scaling.*/
 
 public:
-    ScalingGeometry(darray3E scaling = { {1.0, 1.0, 1.0} });
-    ScalingGeometry(const bitpit::Config::Section & rootXML);
-    ~ScalingGeometry();
+    ScaleGeometry(darray3E scaling = { {1.0, 1.0, 1.0} });
+    ScaleGeometry(const bitpit::Config::Section & rootXML);
+    ~ScaleGeometry();
 
-    ScalingGeometry(const ScalingGeometry & other);
-    ScalingGeometry & operator=(const ScalingGeometry & other);
+    ScaleGeometry(const ScaleGeometry & other);
+    ScaleGeometry & operator=(const ScaleGeometry & other);
 
     void        buildPorts();
 
     void        setScaling(darray3E scaling);
     void        setFilter(dvector1D filter);
+    void        setOrigin(darray3E origin);
+    void        setMeanPoint(bool meanP);
 
     dvecarr3E   getDisplacements();
     std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
@@ -96,8 +103,8 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 };
 
-REGISTER(BaseManipulation, ScalingGeometry, "mimmo.ScalingGeometry")
+REGISTER(BaseManipulation, ScaleGeometry, "mimmo.ScaleGeometry")
 
 };
 
-#endif /* __SCALINGGEOMETRY_HPP__ */
+#endif /* __SCALEGEOMETRY_HPP__ */

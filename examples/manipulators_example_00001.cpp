@@ -112,7 +112,7 @@ void test00001() {
     /* Creation of scaling block.
      * Scaling performed in y & z direction by 0.5 factor.
      */
-    ScalingGeometry* scaling = new ScalingGeometry();
+    ScaleGeometry* scaling = new ScaleGeometry();
     scaling->setScaling(darray3E{1.0, 0.5, 0.5});
 
     /* Creation of applier block for scaling.

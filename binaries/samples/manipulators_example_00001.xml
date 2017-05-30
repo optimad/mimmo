@@ -62,7 +62,7 @@
 		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierT>
 	<Scaling>
-		<ClassName>mimmo.ScalingGeometry</ClassName>
+		<ClassName>mimmo.ScaleGeometry</ClassName>
 		<Scaling>1.0 0.5 0.5</Scaling>
 	</Scaling>
 	<ApplierS>

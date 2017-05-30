@@ -66,7 +66,7 @@ int test1() {
     rot->setRotation(M_PI/3.);
     rot->exec();
     
-    ScalingGeometry * scale = new ScalingGeometry();
+    ScaleGeometry * scale = new ScaleGeometry();
     scale->setGeometry(mesh);
     scale->setScaling({{0.5,0.5,0.5}});
     scale->exec();

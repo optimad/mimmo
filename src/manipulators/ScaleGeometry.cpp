@@ -21,53 +21,61 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include "ScalingGeometry.hpp"
+#include "ScaleGeometry.hpp"
 
 namespace mimmo{
 
 
 /*!
- * Default constructor of ScalingGeometry
+ * Default constructor of ScaleGeometry
  */
-ScalingGeometry::ScalingGeometry(darray3E scaling){
+ScaleGeometry::ScaleGeometry(darray3E scaling){
     m_scaling = scaling;
-    m_name = "mimmo.ScalingGeometry";
+    m_origin.fill(0.0);
+    m_meanP = false;
+    m_name = "mimmo.ScaleGeometry";
 };
 
 /*!
  * Custom constructor reading xml data
  * \param[in] rootXML reference to your xml tree section
  */
-ScalingGeometry::ScalingGeometry(const bitpit::Config::Section & rootXML){
+ScaleGeometry::ScaleGeometry(const bitpit::Config::Section & rootXML){
 
     m_scaling.fill(1.0);
-    m_name = "mimmo.ScalingGeometry";
+    m_origin.fill(0.0);
+    m_meanP = false;
+    m_name = "mimmo.ScaleGeometry";
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::trim(input);
-    if(input == "mimmo.ScalingGeometry"){
+    if(input == "mimmo.ScaleGeometry"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::ScalingGeometry constructor. No valid xml data found"<<std::endl;
+        std::cout<<"Warning in custom xml mimmo::ScaleGeometry constructor. No valid xml data found"<<std::endl;
     };
 }
 
-/*!Default destructor of ScalingGeometry
+/*!Default destructor of ScaleGeometry
  */
-ScalingGeometry::~ScalingGeometry(){};
+ScaleGeometry::~ScaleGeometry(){};
 
-/*!Copy constructor of ScalingGeometry.
+/*!Copy constructor of ScaleGeometry.
  */
-ScalingGeometry::ScalingGeometry(const ScalingGeometry & other):BaseManipulation(other){
+ScaleGeometry::ScaleGeometry(const ScaleGeometry & other):BaseManipulation(other){
     m_scaling = other.m_scaling;
+    m_origin = other.m_origin;
+    m_meanP = other.m_meanP;;
 };
 
-/*!Assignement operator of ScalingGeometry.
+/*!Assignement operator of ScaleGeometry.
  */
-ScalingGeometry & ScalingGeometry::operator=(const ScalingGeometry & other){
+ScaleGeometry & ScaleGeometry::operator=(const ScaleGeometry & other){
     *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_scaling = other.m_scaling;
+    m_origin = other.m_origin;
+    m_meanP = other.m_meanP;;
     return(*this);
 };
 
@@ -75,21 +83,38 @@ ScalingGeometry & ScalingGeometry::operator=(const ScalingGeometry & other){
 /*! It builds the input/output ports of the object
  */
 void
-ScalingGeometry::buildPorts(){
+ScaleGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<darray3E, ScalingGeometry>(&m_scaling, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, ScalingGeometry>(this, &mimmo::ScalingGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<MimmoObject*, ScalingGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<dvecarr3E, ScalingGeometry>(this, &mimmo::ScalingGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , ScalingGeometry>(this, &mimmo::ScalingGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortOut<dvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , ScaleGeometry>(this, &mimmo::ScaleGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
     m_arePortsBuilt = built;
 };
+
+/*!It sets the center point.
+ * \param[in] origin origin for scaling transform
+ */
+void
+ScaleGeometry::setOrigin(darray3E origin){
+    m_origin = origin;
+}
+
+/*!It sets if the center point for scaling is the mean point of the geometry.
+ * \param[in] meanP origin for scaling transform is the mean point?
+ */
+void
+ScaleGeometry::setMeanPoint(bool meanP){
+    m_meanP = meanP;
+}
 
 /*!It sets the scaling factors of each axis.
  * \param[in] scaling scaling factor values for x, y and z absolute axis.
  */
 void
-ScalingGeometry::setScaling(darray3E scaling){
+ScaleGeometry::setScaling(darray3E scaling){
     m_scaling = scaling;
 }
 
@@ -98,7 +123,7 @@ ScalingGeometry::setScaling(darray3E scaling){
  * \param[in] filter filter field defined on geometry vertices.
  */
 void
-ScalingGeometry::setFilter(dvector1D filter){
+ScaleGeometry::setFilter(dvector1D filter){
     m_filter = filter;
 }
 
@@ -107,7 +132,7 @@ ScalingGeometry::setFilter(dvector1D filter){
  * \return  deformation field
  */
 dvecarr3E
-ScalingGeometry::getDisplacements(){
+ScaleGeometry::getDisplacements(){
     return m_displ;
 };
 
@@ -117,7 +142,7 @@ ScalingGeometry::getDisplacements(){
  * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
  */
 std::pair<MimmoObject * , dvecarr3E * >
-ScalingGeometry::getDeformedField(){
+ScaleGeometry::getDeformedField(){
 
     std::pair<MimmoObject *, dvecarr3E * > pairField;
     pairField.first = getGeometry();
@@ -129,7 +154,7 @@ ScalingGeometry::getDeformedField(){
  * of the points of the geometry. It applies a filter field eventually set as input.
  */
 void
-ScalingGeometry::execute(){
+ScaleGeometry::execute(){
 
     if (getGeometry() == NULL) return;
 
@@ -143,14 +168,15 @@ ScalingGeometry::execute(){
     liimap mapID = m_geometry->getMapDataInv();
 
     //computing centroid
-    darray3E center;
-    center.fill(0.0);
-    for (auto vertex : m_geometry->getVertices()){
-        ID = vertex.getId();
-        idx = mapID[ID];
-        center += vertex.getCoords() / double(nV);
+    darray3E center = m_origin;
+    if (m_meanP){
+        center.fill(0.0);
+        for (auto vertex : m_geometry->getVertices()){
+            ID = vertex.getId();
+            idx = mapID[ID];
+            center += vertex.getCoords() / double(nV);
+        }
     }
-
     for (auto vertex : m_geometry->getVertices()){
         ID = vertex.getId();
         idx = mapID[ID];
@@ -166,7 +192,7 @@ ScalingGeometry::execute(){
  * \param[in] name   name associated to the slot
  */
 void
-ScalingGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -179,6 +205,28 @@ ScalingGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::
         }
         setPriority(value);
     };
+
+    if(slotXML.hasOption("MeanPoint")){
+        std::string input = slotXML.get("MeanPoint");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setMeanPoint(value);
+    };
+
+
+    if(slotXML.hasOption("Origin")){
+        std::string input = slotXML.get("Origin");
+        input = bitpit::utils::trim(input);
+        darray3E temp = {{0.0,0.0,0.0}};
+        if(!input.empty()){
+            std::stringstream ss(input);
+            for(auto &val : temp) ss>>val;
+        }
+        setOrigin(temp);
+    }
 
     if(slotXML.hasOption("Scaling")){
         std::string input = slotXML.get("Scaling");
@@ -199,7 +247,7 @@ ScalingGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::
  * \param[in] name   name associated to the slot
  */
 void
-ScalingGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+ScaleGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -208,9 +256,22 @@ ScalingGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string 
 
     {
         std::stringstream ss;
+        ss<<std::scientific<<m_origin[0]<<'\t'<<m_origin[1]<<'\t'<<m_origin[2];
+        slotXML.set("Origin", ss.str());
+    }
+
+    {
+        bool value = m_meanP;
+        std::string towrite = std::to_string(value);
+        slotXML.set("MeanPoint", towrite);
+    }
+
+    {
+        std::stringstream ss;
         ss<<std::scientific<<m_scaling[0]<<'\t'<<m_scaling[1]<<'\t'<<m_scaling[2];
         slotXML.set("Scaling", ss.str());
     }
+
 
 };
 

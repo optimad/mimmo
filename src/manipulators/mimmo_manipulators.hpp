@@ -42,7 +42,7 @@
 #include "MultiApply.hpp"
 #include "RotationGeometry.hpp"
 #include "TranslationGeometry.hpp"
-#include "ScalingGeometry.hpp"
+#include "ScaleGeometry.hpp"
 #include "TwistGeometry.hpp"
 #include "BendGeometry.hpp"
 
