@@ -70,7 +70,6 @@ class Apply: public BaseManipulation{
 public:
 
     dvecarr3E    m_input; /**< storing vector fields of floats */
-    bool m_force;         /**< storing variable to force building of trees in Geometrical Objects */
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -81,9 +80,6 @@ public:
     Apply & operator=(const Apply & other);
 
     void buildPorts();
-
-    bool getRefreshGeometryTrees();
-    void setRefreshGeometryTrees(bool force);
 
     void setInput(dvecarr3E input);
 

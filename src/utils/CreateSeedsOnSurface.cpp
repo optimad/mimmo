@@ -369,7 +369,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     dvecarr3E initList;
     m_deads.reserve(m_nPoints);
 
-    getGeometry()->getPatch()->buildAdjacencies();
+    if(!getGeometry()->areAdjacenciesBuilt() ) getGeometry()->buildAdjacencies();
     //find the nearest point of triagulation to the seed
     if(!(getGeometry()->isKdTreeBuilt())) getGeometry()->buildKdTree();
 

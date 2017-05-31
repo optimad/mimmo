@@ -44,7 +44,6 @@
 	</InputDispl>
 	<Applier>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</Applier>
 	<Connections>
 		<c0>

@@ -57,7 +57,7 @@ protected:
     livector1D                              m_mapData;         /**<Map of vertex ids actually set, for aligning external vertex data to bitpit::PatchKernel ordering */
     livector1D                              m_mapCell;         /**<Map of cell ids actually set, for aligning external cell data to bitpit::PatchKernel ordering*/ 
     liimap                                  m_mapDataInv;      /**<Inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering */
-    liimap                                   m_mapCellInv;     /**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
+    liimap                                  m_mapCellInv;     /**<Inverse of Map of cell ids actually set, for aligning external vertex data to bitpit::Patch ordering */
 
     std::unordered_set<short>               m_pidsType;        /**<pid type available for your geometry */
 
@@ -68,8 +68,11 @@ protected:
     bool                                    m_bvTreeSupported; /**< Flag for geometries not supporting bvTree building*/
 
     //TODO temporary flags for modifying vertices -> ambigous effect on bvTree, kdTree
-    bool                                    m_retrackBvTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
-    bool                                    m_retrackKdTree;    /**< set true if Bv tree is still usable but non sync'd with geometry modifications */
+    bool                                    m_bvTreeSync;    /**< set false if Bv tree is not sync'd with geometry modifications */
+    bool                                    m_kdTreeSync;    /**< set false if Bv tree is not sync'd with geometry modifications */
+
+    bool                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
+
 
 public:
     MimmoObject(int type = 1); 
@@ -117,7 +120,8 @@ public:
     BvTree*                                         getBvTree();
     bool                                            isKdTreeBuilt();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
-    bool                                            retrackTrees();
+    bool                                            isBvTreeSync();
+    bool                                            isKdTreeSync();
 
     const MimmoObject *                             getCopy();
 
@@ -154,7 +158,9 @@ public:
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     void        buildBvTree(int value = 1);
-    void        buildKdTree();	
+    void        buildKdTree();
+    void        updateBvTree();
+    void        updateKdTree();
     void        buildAdjacencies();
 
     bool        areAdjacenciesBuilt();

@@ -56,8 +56,9 @@ MimmoObject::MimmoObject(int type){
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSupported = (m_type != 3);
-    m_retrackBvTree = false;
-    m_retrackKdTree = false;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
 }
 
 /*!
@@ -147,8 +148,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSupported = (m_type != 3);
-    m_retrackBvTree = false;
-    m_retrackKdTree = false;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
 };
 
 /*!
@@ -200,12 +202,16 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     m_pidsType		= other.m_pidsType;
     
     m_bvTreeSupported = other.m_bvTreeSupported;
-    m_bvTreeBuilt	= other.m_bvTreeBuilt;
+    m_bvTreeBuilt   = other.m_bvTreeBuilt;
     m_kdTreeBuilt   = other.m_kdTreeBuilt;
+    m_bvTreeSync   = other.m_bvTreeSync;
+    m_kdTreeSync   = other.m_kdTreeSync;
 
     if(m_bvTreeSupported && m_bvTreeBuilt)	buildBvTree();
     if(m_kdTreeBuilt)	buildKdTree();
-    
+
+    m_AdjBuilt = other.m_AdjBuilt;
+
     return *this;
 };
 
@@ -231,8 +237,10 @@ MimmoObject::clear(){
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSupported = true;
-    m_retrackKdTree = false;
-    m_retrackBvTree = false;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
+
 };
 
 /*!
@@ -566,7 +574,7 @@ MimmoObject::getPID() {
 bool
 MimmoObject::isBvTreeBuilt(){
     if (!m_bvTreeBuilt || !m_bvTreeSupported) return(false);
-    return (m_bvTree.m_nelements == getNCells());
+    return (isBvTreeSync());
 }
 
 /*!
@@ -585,7 +593,7 @@ MimmoObject::getBvTree(){
 bool
 MimmoObject::isKdTreeBuilt(){
     if (!m_kdTreeBuilt ) return(false);
-    return (m_kdTree.n_nodes == getNVertex());
+    return (isKdTreeSync());
 }
 
 /*!
@@ -597,13 +605,23 @@ MimmoObject::getKdTree(){
 }
 
 /*!
- * \return true if class Kd/Bv trees are still usable but not synchronized with 
- * the current geometry modifications (as in the case of deformations, changing nodes 
- * coordinates, but preserving its number and connectivity)
+ * \return true if the bVTree is synchronized
+ * with your current geometry
  */
 bool
-MimmoObject::retrackTrees(){
-    return (m_retrackBvTree || m_retrackKdTree);
+MimmoObject::isBvTreeSync(){
+    if (!m_bvTreeBuilt || !m_bvTreeSupported) return(false);
+    return (m_bvTreeSync);
+}
+
+/*!
+ * \return true if the kdTree is synchronized
+ * with your current geometry
+ */
+bool
+MimmoObject::isKdTreeSync(){
+    if (!m_kdTreeBuilt) return(false);
+    return (m_kdTreeSync);
 }
 
 /*!
@@ -678,6 +696,9 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
     m_mapDataInv[checkedID] = m_mapData.size()-1;
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
     return true;
 };
 
@@ -694,8 +715,8 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
     if(!(getVertices().exists(id)))	return false;
     bitpit::Vertex &vert = m_patch->getVertex(id);
     vert.setCoords(vertex);
-    if(m_bvTreeBuilt)  m_retrackBvTree = true;
-    if(m_kdTreeBuilt)  m_retrackKdTree = true;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
     return true;
 };
 
@@ -792,6 +813,8 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     m_mapCell.push_back(checkedID);
     m_mapCellInv[checkedID] = m_mapCell.size()-1;
     m_bvTreeBuilt = false;
+    m_bvTreeSync = false;
+    m_AdjBuilt = false;
     return true;
 };
 
@@ -839,6 +862,8 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     m_mapCell.push_back(checkedID);
     m_mapCellInv[checkedID] = m_mapCell.size()-1;
     m_bvTreeBuilt = false;
+    m_bvTreeSync = false;
+    m_AdjBuilt = false;
     return true;
 };
 
@@ -870,14 +895,14 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
         for(auto & cell : geometry->getCells()){
             m_pidsType.insert(cell.getPID());
         }
+        m_AdjBuilt = false;
     }	
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
-    m_retrackKdTree = false;
-    m_retrackBvTree = false;
+    m_bvTreeSync = false;
+    m_kdTreeSync = false;
     return true;
 };
-
 
 /*!
  * It builds the vertex map of local/unique-id indexing and its inverse.
@@ -929,7 +954,6 @@ MimmoObject::setMapCell(){
     }
     return true;
 };
-
 
 /*!
  * Set PIDs for all geometry cells available. 
@@ -1029,8 +1053,11 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
         if(m_bvTreeBuilt)	buildBvTree();
     }	
     if(m_kdTreeBuilt)	buildKdTree();
-    m_retrackKdTree = false;
-    m_retrackBvTree = false;
+    m_bvTreeSync = true;
+    m_kdTreeSync = true;
+
+    m_AdjBuilt = other->m_AdjBuilt;;
+
     //it's all copied(maps are update in the loops, pids if exists), trees are rebuilt and sync'ed is they must be
 };
 
@@ -1048,8 +1075,9 @@ MimmoObject::cleanGeometry(){
     setMapCell();
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
-    m_retrackKdTree = false;
-    m_retrackBvTree = false;
+    m_bvTreeSync = false;
+    m_bvTreeSync = false;
+    m_AdjBuilt = false;
     return true;
 };
 
@@ -1195,7 +1223,6 @@ livector1D MimmoObject::convertLocalToCellID(ivector1D cList){
     return result;
 }
 
-
 /*!
  * Extract vertices at the mesh boundaries, if any.
  * \return list of vertex unique-ids.
@@ -1271,7 +1298,6 @@ livector1D	MimmoObject::extractPIDCells(shivector1D flag){
     return(result);
 };
 
-
 /*!
  * Check if a specified cell topology is currently supported by the class, and return the typical size of its connectivity.
  * 
@@ -1304,7 +1330,6 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
     return check;
 };
 
-
 /*!
  * Evaluate axis aligned bounding box of the current MimmoObject 
  * \param[out] pmin lowest bounding box point
@@ -1323,15 +1348,14 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
 void MimmoObject::buildBvTree(int value){
     if(!m_bvTreeSupported || m_patch == NULL)	return;
     
-    if (!m_bvTreeBuilt || m_retrackBvTree){
+    if (!m_bvTreeBuilt || !m_bvTreeSync){
         m_bvTree.clean();
         m_bvTree.setup();
         m_bvTree.setMaxLeafSize(value);
         m_bvTree.buildTree();
         m_bvTreeBuilt = true;
+        m_bvTreeSync = true;
     }
-    
-    m_retrackBvTree = false;
     return;
 }
 
@@ -1342,7 +1366,7 @@ void MimmoObject::buildKdTree(){
     if( m_patch == NULL)	return;
     long label;
     
-    if (!m_kdTreeBuilt || m_retrackKdTree){
+    if (!m_kdTreeBuilt || !m_bvTreeSync){
         cleanKdTree();
         m_kdTree.nodes.resize(getNVertex() + m_kdTree.MAXSTK);
         
@@ -1351,8 +1375,8 @@ void MimmoObject::buildKdTree(){
             m_kdTree.insert(&val, label);
         }
         m_kdTreeBuilt = true;
+        m_bvTreeSync = true;
     }
-    m_retrackKdTree = false;
     return;
 }
 
@@ -1369,6 +1393,9 @@ void	MimmoObject::cleanKdTree(){
  */
 bool MimmoObject::areAdjacenciesBuilt(){
     
+    return(m_AdjBuilt);
+
+    /*
     bool check = true;
     
     auto itp = getCells().cbegin();
@@ -1381,6 +1408,7 @@ bool MimmoObject::areAdjacenciesBuilt(){
     }
     
     return !check;
+    */
 };
 
 /*!
@@ -1414,6 +1442,7 @@ bool MimmoObject::isClosedLoop(){
  */
 void MimmoObject::buildAdjacencies(){
     getPatch()->buildAdjacencies();
+    m_AdjBuilt = true;
 };
 
 /*!

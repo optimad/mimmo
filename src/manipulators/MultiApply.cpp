@@ -30,7 +30,6 @@ namespace mimmo{
  */
 MultiApply::MultiApply():BaseManipulation(){
     m_name = "mimmo.MultiApply";
-    m_force = false;
 };
 
 /*!
@@ -40,7 +39,6 @@ MultiApply::MultiApply():BaseManipulation(){
 MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
 
     m_name = "mimmo.MultiApply";
-    m_force = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -66,7 +64,6 @@ MultiApply::MultiApply(const MultiApply & other):BaseManipulation(){
  */
 MultiApply & MultiApply::operator=(const MultiApply & other){
     *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_force = other.m_force;
     m_input = other.m_input;
     return(*this);
 };
@@ -80,26 +77,6 @@ MultiApply::buildPorts(){
     m_arePortsBuilt = built;
 };
 
-/*!
- * Return true, if rebuilding of search trees of your target geometries of class MimmoObject are forced by the User
- * \return rebuilding trees flag
- */
-bool
-MultiApply::getRefreshGeometryTrees(){
-    return m_force;
-}
-
-
-
-/*!
- * If set true, forces rebuilding of search trees of your target geometries of class MimmoObject
- * \param[in] force rebuilding trees flag
- */
-void
-MultiApply::setRefreshGeometryTrees(bool force){
-    m_force = force;
-
-}
 
 /*! Set the input of the class as std::pair of target MimmoObject * and
  * relative displacement field dvecarr3E *. If target geometry already exist or it is NULL
@@ -162,10 +139,6 @@ MultiApply::execute(){
             val.first->modifyVertex(vertex[i], idmap[i]);
         }
 
-        if(m_force){
-            val.first->buildBvTree();
-            val.first->buildKdTree();
-        }
     }
     return;
 };
@@ -191,16 +164,6 @@ void MultiApply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::
         setPriority(value);
     };
 
-    if(slotXML.hasOption("RefreshGeometryTrees")){
-        std::string input = slotXML.get("RefreshGeometryTrees");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss >> value;
-        }
-        setRefreshGeometryTrees(value);
-    };
-
 };
 
 /*!
@@ -215,11 +178,6 @@ void MultiApply::flushSectionXML(bitpit::Config::Section & slotXML, std::string 
     slotXML.set("ClassName", m_name);
     slotXML.set("Priority", std::to_string(getPriority()));
 
-    bool value = getRefreshGeometryTrees();
-
-    std::string towrite = std::to_string(value);
-
-    slotXML.set("RefreshGeometryTrees", towrite);
 };	
 
 
