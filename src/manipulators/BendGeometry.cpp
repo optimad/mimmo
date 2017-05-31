@@ -95,7 +95,7 @@ BendGeometry & BendGeometry::operator=(const BendGeometry & other){
 void
 BendGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
     built = (built && createPortIn<dvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<umatrix33E, BendGeometry>(&m_degree, PortType::M_BMATRIX, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<dmat33Evec, BendGeometry>(&m_coeffs, PortType::M_BCOEFFS, mimmo::pin::containerTAG::ARR3ARR3VEC, mimmo::pin::dataTAG::FLOAT));

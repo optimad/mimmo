@@ -199,9 +199,13 @@ public:
 class PortIn{
 public:
     //members
-    bitpit::IBinaryStream               m_ibuffer;  /**<input buffer to recover data.*/
-    std::vector<BaseManipulation*>      m_objLink;  /**<Input objects from which recover the data. */
-    DataType                            m_datatype; /**<TAG of type of data communicated.*/
+    bitpit::IBinaryStream               m_ibuffer;          /**<input buffer to recover data.*/
+    std::vector<BaseManipulation*>      m_objLink;          /**<Input objects from which recover the data. */
+    DataType                            m_datatype;         /**<TAG of type of data communicated.*/
+    bool                                m_mandatory;        /**<Does the port have to be mandatorily linked?.*/
+    int                                 m_familym;          /**<Tag of family of mandatory alternative ports.
+                                                                 At least one of the ports of the same family has to be linked.
+                                                                 Family TAG = 0 -> no family, this port has to be mandatory linked.*/
 
 public:
     PortIn();
@@ -213,6 +217,8 @@ public:
 
     std::vector<mimmo::BaseManipulation*>   getLink();
     DataType                                getDataType();
+    bool                                    isMandatory();
+    int                                     getFamily();
 
     void clear();
     void clear(int j);
@@ -265,9 +271,9 @@ public:
 public:
     PortInT();
     PortInT(T *var_);
-    PortInT(T *var_, DataType datatype);
-    PortInT(O* obj_, void (O::*setVar_)(T));
-    PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype);
+    PortInT(T *var_, DataType datatype, bool mandatory = false, int family = 0);
+    PortInT(O* obj_, void (O::*setVar_)(T), bool mandatory = false, int family = 0);
+    PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype, bool mandatory = false, int family = 0);
     virtual ~PortInT();
 
     PortInT(const PortInT & other);

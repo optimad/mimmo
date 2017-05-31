@@ -118,7 +118,7 @@ CreateSeedsOnSurface::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
     built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSeed, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setNPoints, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, PortType::M_VALUEI2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));

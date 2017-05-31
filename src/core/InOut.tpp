@@ -169,31 +169,40 @@ PortInT<T, O>::PortInT(T *var_){
     m_obj_ 		= NULL;
     m_var_ 		= var_;
     m_setVar_ 	= NULL;
+    m_mandatory = false;
 };
 
 /*!
  * Custom constructor of PortInT
  * \param[in] var_ Pointer to variable to be streamed.
  * \param[in] datatype TAG of datat type communicated.
+ * \param[in] mandatory mandatory port?
+ * \param[in] family mandatory family tag.
  */
 template<typename T, typename O>
-PortInT<T, O>::PortInT(T *var_, DataType datatype){
+PortInT<T, O>::PortInT(T *var_, DataType datatype, bool mandatory, int family){
     m_obj_ 		= NULL;
     m_var_ 		= var_;
     m_setVar_ 	= NULL;
     m_datatype	= datatype;
+    m_mandatory = mandatory;
+    m_familym   = family;
 };
 
 /*!
  * Custom constructor of PortInT
  * \param[in] obj_ Pointer to object owner of the port.
  * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
+ * \param[in] mandatory mandatory port?
+ * \param[in] family mandatory family tag.
  */
 template<typename T, typename O>
-PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
+PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), bool mandatory, int family){
     m_obj_ 		= obj_;
     m_setVar_ 	= setVar_;
     m_var_ 		= NULL;
+    m_mandatory = mandatory;
+    m_familym   = family;
 };
 
 /*!
@@ -201,13 +210,17 @@ PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T)){
  * \param[in] obj_ Pointer to object owner of the port.
  * \param[in] setVar_ Pointer to function that sets members with the data in buffer.
  * \param[in] datatype TAG of datat type communicated.
+ * \param[in] mandatory mandatory port?
+ * \param[in] family mandatory family tag.
  */
 template<typename T, typename O>
-PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype){
+PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype, bool mandatory, int family){
     m_obj_ 		= obj_;
     m_setVar_ 	= setVar_;
     m_var_ 		= NULL;
     m_datatype	= datatype;
+    m_mandatory = mandatory;
+    m_familym   = family;
 };
 
 /*!

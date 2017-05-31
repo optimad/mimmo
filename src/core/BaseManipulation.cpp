@@ -36,25 +36,25 @@ int BaseManipulation::sm_baseManipulationCounter(1);
  * It sets to zero/null each member/pointer.
  */
 BaseManipulation::BaseManipulation(){
-	m_geometry 		= NULL;
-	m_portsType		= ConnectionType::BOTH;
-	m_name			= "mimmo";
-	m_active		= true;
-	m_arePortsBuilt = false;
-	m_execPlot      = false;
-	m_outputPlot	= "./";
-	m_counter		= sm_baseManipulationCounter;
+    m_geometry 		= NULL;
+    m_portsType		= ConnectionType::BOTH;
+    m_name			= "mimmo";
+    m_active		= true;
+    m_arePortsBuilt = false;
+    m_execPlot      = false;
+    m_outputPlot	= "./";
+    m_counter		= sm_baseManipulationCounter;
     m_priority      = 0;
     m_apply         = false;
-	sm_baseManipulationCounter++;
+    sm_baseManipulationCounter++;
 };
 
 /*!
  * Default destructor of BaseManipulation.
  */
 BaseManipulation::~BaseManipulation(){
-	clear();
-	deletePorts();
+    clear();
+    deletePorts();
 };
 
 /*!
@@ -62,7 +62,7 @@ BaseManipulation::~BaseManipulation(){
  * \param[in] other class of type BaseManipulation
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
-	*this = other;
+    *this = other;
 };
 
 /*!
@@ -70,16 +70,16 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
  * \param[in] other class of type BaseManipulation
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
-	m_geometry 		= other.m_geometry;
-	m_portsType		= other.m_portsType;
-	m_name 			= other.m_name;
-	m_active		= other.m_active;
-	m_arePortsBuilt = false;
-	m_execPlot 		= other.m_execPlot;
-	m_counter       = other.m_counter;
-	m_priority      = other.m_priority; 
+    m_geometry 		= other.m_geometry;
+    m_portsType		= other.m_portsType;
+    m_name 			= other.m_name;
+    m_active		= other.m_active;
+    m_arePortsBuilt = false;
+    m_execPlot 		= other.m_execPlot;
+    m_counter       = other.m_counter;
+    m_priority      = other.m_priority;
     m_apply         = other.m_apply;
-	return (*this);
+    return (*this);
 };
 
 /*!
@@ -88,7 +88,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
  */
 bool
 BaseManipulation::arePortsBuilt(){
-	return(m_arePortsBuilt);
+    return(m_arePortsBuilt);
 }
 
 /*!
@@ -98,7 +98,7 @@ BaseManipulation::arePortsBuilt(){
  */
 uint
 BaseManipulation::getPriority(){
-	return m_priority;
+    return m_priority;
 }
 
 /*!
@@ -107,7 +107,7 @@ BaseManipulation::getPriority(){
  */
 string
 BaseManipulation::getName(){
-	return m_name;
+    return m_name;
 };
 
 /*!
@@ -116,7 +116,7 @@ BaseManipulation::getName(){
  */
 MimmoObject*
 BaseManipulation::getGeometry(){
-	return m_geometry;
+    return m_geometry;
 };
 
 /*!
@@ -125,7 +125,7 @@ BaseManipulation::getGeometry(){
  */
 int
 BaseManipulation::getNParent(){
-	return m_parent.size();
+    return m_parent.size();
 };
 
 /*!
@@ -135,8 +135,8 @@ BaseManipulation::getNParent(){
  */
 BaseManipulation*
 BaseManipulation::getParent(int i){
-	if (i>(int)m_parent.size()-1) return NULL;
-	return next(m_parent.begin(), i)->first;
+    if (i>(int)m_parent.size()-1) return NULL;
+    return next(m_parent.begin(), i)->first;
 };
 
 /*!
@@ -147,13 +147,13 @@ BaseManipulation::getParent(int i){
  */
 bool
 BaseManipulation::isParent(BaseManipulation * target, int &index){
-	unordered_map<BaseManipulation *, int>::iterator it;
-	it = m_parent.find(target);
-	index = -1;
-	if(it == m_parent.end()) return false;
-	
-	index = distance(m_parent.begin(), it);
-	return true;
+    unordered_map<BaseManipulation *, int>::iterator it;
+    it = m_parent.find(target);
+    index = -1;
+    if(it == m_parent.end()) return false;
+
+    index = distance(m_parent.begin(), it);
+    return true;
 };
 
 /*!
@@ -162,7 +162,7 @@ BaseManipulation::isParent(BaseManipulation * target, int &index){
  */
 int
 BaseManipulation::getNChild(){
-	return m_child.size();
+    return m_child.size();
 };
 
 /*!
@@ -172,8 +172,8 @@ BaseManipulation::getNChild(){
  */
 BaseManipulation*
 BaseManipulation::getChild(int i){
-	if (i>(int)m_child.size()-1) return NULL;
-	return next(m_child.begin(), i)->first;
+    if (i>(int)m_child.size()-1) return NULL;
+    return next(m_child.begin(), i)->first;
 };
 
 /*!
@@ -184,13 +184,13 @@ BaseManipulation::getChild(int i){
  */
 bool
 BaseManipulation::isChild(BaseManipulation * target, int &index){
-	unordered_map<BaseManipulation *, int>::iterator it;
-	it = m_child.find(target);
-	index = -1;
-	if(it == m_child.end()) return false;
+    unordered_map<BaseManipulation *, int>::iterator it;
+    it = m_child.find(target);
+    index = -1;
+    if(it == m_child.end()) return false;
 
-	index = distance(m_child.begin(), it);
-	return true;
+    index = distance(m_child.begin(), it);
+    return true;
 };
 
 /*!
@@ -199,7 +199,7 @@ BaseManipulation::isChild(BaseManipulation * target, int &index){
  */
 BaseManipulation::ConnectionType
 BaseManipulation::getConnectionType(){
-	return (m_portsType);
+    return (m_portsType);
 }
 
 /*! 
@@ -208,7 +208,7 @@ BaseManipulation::getConnectionType(){
  */
 int
 BaseManipulation::getNPortsIn(){
-	return (m_portIn.size());
+    return (m_portIn.size());
 }
 
 /*! 
@@ -217,7 +217,7 @@ BaseManipulation::getNPortsIn(){
  */
 int
 BaseManipulation::getNPortsOut(){
-	return (m_portOut.size());
+    return (m_portOut.size());
 }
 
 /*!
@@ -243,7 +243,7 @@ BaseManipulation::getPortsOut(){
  */
 bool
 BaseManipulation::isPlotInExecution(){
-	return (m_execPlot);
+    return (m_execPlot);
 }
 
 /*!
@@ -260,7 +260,7 @@ BaseManipulation::isApply(){
  */
 bool
 BaseManipulation::isActive(){
-	return (m_active);
+    return (m_active);
 }
 
 /*!
@@ -286,7 +286,7 @@ BaseManipulation::getId(){
  */
 void
 BaseManipulation::setPriority(uint priority){
-	m_priority = priority;
+    m_priority = priority;
 };
 
 /*!
@@ -295,7 +295,7 @@ BaseManipulation::setPriority(uint priority){
  */
 void
 BaseManipulation::setName(std::string name){
-	m_name = name;
+    m_name = name;
 };
 
 /*!It sets the geometry linked by the manipulator object.
@@ -303,7 +303,7 @@ BaseManipulation::setName(std::string name){
  */
 void
 BaseManipulation::setGeometry(MimmoObject* geometry){
-	m_geometry = geometry;
+    m_geometry = geometry;
 };
 
 /*!
@@ -312,7 +312,7 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
  */
 void
 BaseManipulation::setPlotInExecution( bool flag){
-	m_execPlot = flag;
+    m_execPlot = flag;
 }
 
 /*!
@@ -322,8 +322,8 @@ BaseManipulation::setPlotInExecution( bool flag){
  */
 void
 BaseManipulation::setOutputPlot(std::string path){
-	if(path.empty())	path = ".";
-	m_outputPlot = path;
+    if(path.empty())	path = ".";
+    m_outputPlot = path;
 }
 
 /*!
@@ -332,7 +332,7 @@ BaseManipulation::setOutputPlot(std::string path){
  */
 void
 BaseManipulation::setClassCounter(int id){
-	setId(id);
+    setId(id);
 }
 
 /*!
@@ -358,7 +358,7 @@ BaseManipulation::setId(int id){
  */
 void
 BaseManipulation::activate(){
-	m_active = true;
+    m_active = true;
 };
 
 /*!
@@ -366,7 +366,7 @@ BaseManipulation::activate(){
  */
 void
 BaseManipulation::disable(){
-	m_active = false;
+    m_active = false;
 };
 
 /*!
@@ -374,7 +374,7 @@ BaseManipulation::disable(){
  */
 void
 BaseManipulation::unsetGeometry(){
-	m_geometry = NULL;
+    m_geometry = NULL;
 };
 
 /*!
@@ -383,8 +383,8 @@ BaseManipulation::unsetGeometry(){
  */
 void
 BaseManipulation::removePins(){
-	removePinsIn();
-	removePinsOut();
+    removePinsIn();
+    removePinsOut();
 }
 
 /*!
@@ -393,11 +393,11 @@ BaseManipulation::removePins(){
  */
 void
 BaseManipulation::removePinsIn(){
-	unordered_map<BaseManipulation*, int>::iterator it;
-	while(m_parent.size()){
-		it = m_parent.begin();
-		mimmo::pin::removeAllPins(it->first, this);
-	}
+    unordered_map<BaseManipulation*, int>::iterator it;
+    while(m_parent.size()){
+        it = m_parent.begin();
+        mimmo::pin::removeAllPins(it->first, this);
+    }
 }
 
 /*!
@@ -406,11 +406,11 @@ BaseManipulation::removePinsIn(){
  */
 void
 BaseManipulation::removePinsOut(){
-	unordered_map<BaseManipulation*, int>::iterator it;
-	while(m_child.size()){
-		it = m_child.begin();
-		mimmo::pin::removeAllPins(this, it->first);
-	}
+    unordered_map<BaseManipulation*, int>::iterator it;
+    while(m_child.size()){
+        it = m_child.begin();
+        mimmo::pin::removeAllPins(this, it->first);
+    }
 }
 
 /*!
@@ -418,10 +418,10 @@ BaseManipulation::removePinsOut(){
  */
 void
 BaseManipulation::clear(){
-	unsetGeometry();
-	removePins();
-	m_execPlot = false;
-	m_outputPlot = ".";
+    unsetGeometry();
+    removePins();
+    m_execPlot = false;
+    m_outputPlot = ".";
 };
 
 /*!
@@ -430,16 +430,53 @@ BaseManipulation::clear(){
  */
 void
 BaseManipulation::exec(){
-	if (m_active) execute();
-	for (map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
-		std::vector<BaseManipulation*>	linked = i->second->getLink();
-		if (linked.size() > 0){
-			i->second->exec();
-		}
-	}
-	
-	if(isPlotInExecution())	plotOptionalResults();
-	if(isApply()) apply();
+
+    map<int, vector<PortIn*> > families;
+    map<int, vector<PortID> > familiesID;
+    for (map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+        if (i->second->isMandatory()){
+            families[i->second->getFamily()].push_back(i->second);
+            familiesID[i->second->getFamily()].push_back(i->first);
+        }
+    }
+    map<int, vector<PortID> >::iterator itID = familiesID.begin();
+    for (map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
+        if (i->first == 0){
+            int count = 0;
+            for (auto ip : i->second){
+                std::vector<BaseManipulation*>  linked = ip->getLink();
+                if (linked.size() == 0){
+                    std::cout << "mimmo : error " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
+                    exit(11);
+                }
+                count++;
+            }
+        }
+        else{
+            bool check = false;
+            for (auto ip : i->second){
+                std::vector<BaseManipulation*>  linked = ip->getLink();
+                check = check || linked.size();
+            }
+            if (!check){
+                std::cout << "mimmo : error " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
+                exit(11);
+            }
+        }
+        itID++;
+    }
+
+    if (m_active) execute();
+
+    for (map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+        std::vector<BaseManipulation*>	linked = i->second->getLink();
+        if (linked.size() > 0){
+            i->second->exec();
+        }
+    }
+
+    if(isPlotInExecution())	plotOptionalResults();
+    if(isApply()) apply();
 }
 
 /*!
@@ -450,8 +487,8 @@ BaseManipulation::exec(){
  */
 void
 BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	BITPIT_UNUSED(slotXML);
-	BITPIT_UNUSED(name);
+    BITPIT_UNUSED(slotXML);
+    BITPIT_UNUSED(name);
 }
 
 /*!
@@ -462,8 +499,8 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
  */
 void
 BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	BITPIT_UNUSED(slotXML);
-	BITPIT_UNUSED(name);
+    BITPIT_UNUSED(slotXML);
+    BITPIT_UNUSED(name);
 }
 
 /*!
@@ -471,14 +508,14 @@ BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string
  */
 void
 BaseManipulation::deletePorts(){
-	for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
-		delete i->second;
-		i->second = NULL;
-	}
-	for (map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
-		delete i->second;
-		i->second = NULL;
-	}
+    for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
+        delete i->second;
+        i->second = NULL;
+    }
+    for (map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
+        delete i->second;
+        i->second = NULL;
+    }
 }
 
 /*!
@@ -488,7 +525,7 @@ BaseManipulation::deletePorts(){
  */
 void
 BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
-	m_portIn[port]->m_ibuffer = input;
+    m_portIn[port]->m_ibuffer = input;
 }
 
 /*!
@@ -498,7 +535,7 @@ BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
  */
 void
 BaseManipulation::readBufferIn(PortID port){
-	m_portIn[port]->readBuffer();
+    m_portIn[port]->readBuffer();
 }
 
 /*!
@@ -507,7 +544,7 @@ BaseManipulation::readBufferIn(PortID port){
  */
 void
 BaseManipulation::cleanBufferIn(PortID port){
-	m_portIn[port]->cleanBuffer();
+    m_portIn[port]->cleanBuffer();
 }
 
 /*!
@@ -517,11 +554,11 @@ BaseManipulation::cleanBufferIn(PortID port){
 void
 BaseManipulation::addParent(BaseManipulation* parent){
 
-	if(!m_parent.count(parent)){
-		m_parent.insert(pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
-	}else{
-		m_parent[parent]++; //just incrementing pre-existent parent counter;
-	}	
+    if(!m_parent.count(parent)){
+        m_parent.insert(pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
+    }else{
+        m_parent[parent]++; //just incrementing pre-existent parent counter;
+    }
 };
 
 /*!
@@ -530,11 +567,11 @@ BaseManipulation::addParent(BaseManipulation* parent){
  */
 void
 BaseManipulation::addChild(BaseManipulation* child){
-	if(!m_child.count(child)){
-		m_child.insert(pair<BaseManipulation*,int>(child,1)); //add new child with counter 1;
-	}else{
-		m_child[child]++; //just incrementing pre-existent child counter;
-	}	
+    if(!m_child.count(child)){
+        m_child.insert(pair<BaseManipulation*,int>(child,1)); //add new child with counter 1;
+    }else{
+        m_child[child]++; //just incrementing pre-existent child counter;
+    }
 };
 
 /*!
@@ -546,11 +583,11 @@ BaseManipulation::addChild(BaseManipulation* child){
 void
 BaseManipulation::unsetParent(BaseManipulation * parent){
 
-	unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
-	if(got != m_parent.end()){
-		m_parent[parent]--;
-		if(m_parent[parent] <1)	m_parent.erase(parent);
-	}
+    unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
+    if(got != m_parent.end()){
+        m_parent[parent]--;
+        if(m_parent[parent] <1)	m_parent.erase(parent);
+    }
 };
 
 /*! 
@@ -561,11 +598,11 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
  */
 void
 BaseManipulation::unsetChild(BaseManipulation * child){
-	unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
-	if(got != m_child.end()){
-		m_child[child]--;
-		if(m_child[child] <1) m_child.erase(child);
-	}
+    unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
+    if(got != m_child.end()){
+        m_child[child]--;
+        if(m_child[child] <1) m_child.erase(child);
+    }
 };
 
 /*!
@@ -576,10 +613,10 @@ BaseManipulation::unsetChild(BaseManipulation * child){
  */
 PortID
 BaseManipulation::findPinIn(PortIn& pin){
-	for (std::map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
-		if (pin == *(i->second)) return(i->first);
-	}
-	return(-1);
+    for (std::map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+        if (pin == *(i->second)) return(i->first);
+    }
+    return(-1);
 }
 
 /*!
@@ -590,10 +627,10 @@ BaseManipulation::findPinIn(PortIn& pin){
  */
 PortID
 BaseManipulation::findPinOut(PortOut& pin){
-	for (std::map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
-		if (pin == *(i->second)) return(i->first);
-	}
-	return(-1);
+    for (std::map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+        if (pin == *(i->second)) return(i->first);
+    }
+    return(-1);
 }
 
 /*!It adds an input pin (connection) of the object.
@@ -628,14 +665,14 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
  */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
-	if (objIn != NULL && m_portIn.count(portR) != 0){
-		std::vector<BaseManipulation*>	linked = m_portIn[portR]->getLink();
-		for (int i=0; i<(int)linked.size(); i++){
-			if (linked[i] == objIn){
-				m_portIn[portR]->clear(i);
-			}
-		}
-	}
+    if (objIn != NULL && m_portIn.count(portR) != 0){
+        std::vector<BaseManipulation*>	linked = m_portIn[portR]->getLink();
+        for (int i=0; i<(int)linked.size(); i++){
+            if (linked[i] == objIn){
+                m_portIn[portR]->clear(i);
+            }
+        }
+    }
 };
 
 /*!It removes an output pin (connection) of the object and the related input pin (connection) of the linked object.
@@ -644,14 +681,14 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
-	if (objOut != NULL && m_portOut.count(portS) != 0){
-		std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
-		for (int i=0; i<(int)linked.size(); i++){
-			if (linked[i] == objOut){
-				m_portOut[portS]->clear(i);
-			}
-		}
-	};
+    if (objOut != NULL && m_portOut.count(portS) != 0){
+        std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
+        for (int i=0; i<(int)linked.size(); i++){
+            if (linked[i] == objOut){
+                m_portOut[portS]->clear(i);
+            }
+        }
+    };
 }
 
 /*!

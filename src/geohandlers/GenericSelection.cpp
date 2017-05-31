@@ -71,7 +71,7 @@ GenericSelection::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
     built = (built && createPortIn<bool, GenericSelection>(this, &GenericSelection::setDual, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
 
     built = (built && createPortOut<MimmoObject *, GenericSelection>(this, &GenericSelection::getPatch, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
