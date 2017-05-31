@@ -253,10 +253,13 @@ BendGeometry::execute(){
     int idx;
     liimap mapID = m_geometry->getMapDataInv();
 
-    darray3E point;
+    darray3E point, point0;
     for (auto vertex : m_geometry->getVertices()){
         point = vertex.getCoords();
-        if (m_local) point = toLocalCoord(point);
+        if (m_local){
+            point0 = point;
+            point = toLocalCoord(point);
+        }
         ID = vertex.getId();
         idx = mapID[ID];
         for (int j=0; j<3; j++){
@@ -268,7 +271,13 @@ BendGeometry::execute(){
                 }
             }
         }
+        if (m_local){
+            point += m_displ[idx];
+            point = toGlobalCoord(point);
+            m_displ[idx] = point - point0;
+        }
     }
+    std::cout << m_displ<< std::endl;
     return;
 };
 
@@ -304,6 +313,30 @@ BendGeometry::toLocalCoord(darray3E  point){
     linearalgebra::matmul(work, transp, work2);
     return(work2);
 };
+
+/*!
+ * Transform point from local reference system of the shape,
+ * to world reference system.
+ * \param[in] point target
+ * \return transformed point
+ */
+darray3E    BendGeometry::toGlobalCoord(darray3E  point){
+
+    darray3E work, work2;
+    //unscale your local point
+    for(int i =0; i<3; ++i){
+        work[i] = point[i];
+    }
+
+    //unapply change to local sdr transformation
+    linearalgebra::matmul(work, m_system, work2);
+
+    //unapply origin translation
+    work = work2 + m_origin;
+    return(work);
+};
+
+
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
