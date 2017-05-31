@@ -51,7 +51,7 @@ if(BUILD_XMLTUI)
 	
 	# List of binaries
 	set(BINS "")
-	list(APPEND BINS "mimmoxml_exec")
+	list(APPEND BINS "mimmo++")
 
 	# if (ENABLE_MPI)
 	#     list(APPEND BINS "mimmoxml_exec_par")
@@ -68,7 +68,7 @@ if(BUILD_XMLTUI)
 		target_link_libraries(${BIN_NAME} ${MIMMO_EXTERNAL_LIBRARIES})
 
 	##    target_link_libraries(${TEST_NAME} ${VTK_LIBRARIES})
-		install(TARGETS ${BIN_NAME} DESTINATION binaries/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION})
+		install(TARGETS ${BIN_NAME} DESTINATION bin)
 	endforeach()
 
 	add_custom_target(binaries DEPENDS ${MIMMO_BINS_TARGETS})
@@ -77,7 +77,7 @@ if(BUILD_XMLTUI)
 
 	# Data files
 	add_custom_command(
-		TARGET "mimmoxml_exec" PRE_BUILD
+		TARGET "mimmo++" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/manipulators_example_00001.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/manipulators_example_00001.xml"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/manipulators_example_00002.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/manipulators_example_00002.xml"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/samples/manipulators_example_00003.xml" "${CMAKE_CURRENT_BINARY_DIR}/samples/manipulators_example_00003.xml"
