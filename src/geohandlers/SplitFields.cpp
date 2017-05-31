@@ -71,8 +71,8 @@ SplitField & SplitField::operator=(const SplitField & other){
 void
 SplitField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, SplitField>(this, &mimmo::SplitField::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<std::vector<MimmoObject*>, SplitField>(this, &mimmo::SplitField::setSplittedGeometries, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject*, SplitField>(this, &mimmo::SplitField::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
+    built = (built && createPortIn<std::vector<MimmoObject*>, SplitField>(this, &mimmo::SplitField::setSplittedGeometries, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_, true));
 
     built = (built && createPortIn<std::unordered_map<long,std::pair<int, long> >, SplitField>(this, &mimmo::SplitField::setCellDivisionMap, PortType::M_MAPDCELL, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGPAIRINTLONG));
     built = (built && createPortIn<std::unordered_map<long,std::pair<int, long> >, SplitField>(this, &mimmo::SplitField::setVertDivisionMap, PortType::M_MAPDVERT, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::LONGPAIRINTLONG));

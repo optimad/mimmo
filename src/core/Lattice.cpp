@@ -84,7 +84,7 @@ Lattice & Lattice::operator=(const Lattice & other){
 void Lattice::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
     built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, PortType::M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, PortType::M_INFLIMITS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));

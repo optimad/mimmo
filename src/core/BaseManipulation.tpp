@@ -73,15 +73,17 @@ BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS, contai
  * \param[in] portR ID of the port; the port will be created at portR-th slot of the input ports of the object.
  * \param[in] conType port container type identified through containerTAG enum
  * \param[in] dataType port data type identified through dataTAG enum
+ * \param[in] mandatory does the port have to be mandatorily linked?
+ * \param[in] family tag of family of mandatory ports (family=0 independent ports with no alternative).
  * \return true/false, if port is created
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType ){
+BaseManipulation::createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType, bool mandatory, int family ){
 	bool check = false;
 	if (m_portIn.count(portR) != 0 ) return (check);
 	DataType datat(conType, dataType);
-	PortInT<T, O>* portIn = new PortInT<T, O>(var_, datat);
+	PortInT<T, O>* portIn = new PortInT<T, O>(var_, datat, mandatory, family);
 	m_portIn[portR] = portIn;
 	check = true;
 	return(check);
@@ -95,15 +97,17 @@ BaseManipulation::createPortIn(T* var_, PortID portR, containerTAG conType, data
  * \param[in] portR ID of the port; the port will be created at portR-th slot of the input ports of the object.
  * \param[in] conType port container type identified through containerTAG enum
  * \param[in] dataType port data type identified through dataTAG enum
+ * \param[in] mandatory does the port have to be mandatorily linked?
+ * \param[in] family tag of family of mandatory ports (family=0 independent ports with no alternative).
  * \return true/false, if port is created
  */
 template<typename T, typename O>
 bool
-BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType ){
+BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType, bool mandatory, int family ){
 	bool check = false;
 	if (m_portIn.count(portR) != 0 ) return (check);
 	DataType datat(conType, dataType);
-	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_, datat);
+	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_, datat, mandatory, family);
 	m_portIn[portR] = portIn;
 	check = true;
 	return(check);

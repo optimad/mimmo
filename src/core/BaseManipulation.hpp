@@ -202,10 +202,10 @@ protected:
     bool    createPortOut(T* var_, PortID portS, containerTAG conType, dataTAG dataType);
 
     template<typename T, typename O>
-    bool    createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType);
+    bool    createPortIn(T* var_, PortID portR, containerTAG conType, dataTAG dataType, bool mandatory = false, int family = 0);
 
     template<typename T, typename O>
-    bool    createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType);
+    bool    createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, containerTAG conType, dataTAG dataType, bool mandatory = false, int family = 0);
 
     void    setBufferIn(PortID port, bitpit::IBinaryStream& input);
     void    readBufferIn(PortID port);

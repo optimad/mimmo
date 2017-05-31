@@ -1006,7 +1006,9 @@ PortIn::~PortIn(){};
 PortIn::PortIn(const PortIn & other){
     m_objLink 	= other.m_objLink;
     m_ibuffer	= other.m_ibuffer;
-    m_datatype	= other.m_datatype;
+    m_datatype  = other.m_datatype;
+    m_mandatory = other.m_mandatory;
+    m_familym   = other.m_familym;
     return;
 };
 
@@ -1017,6 +1019,8 @@ PortIn & PortIn::operator=(const PortIn & other){
     m_objLink 	= other.m_objLink;
     m_ibuffer	= other.m_ibuffer;
     m_datatype	= other.m_datatype;
+    m_mandatory = other.m_mandatory;
+    m_familym   = other.m_familym;
     return (*this);
 };
 
@@ -1027,6 +1031,8 @@ bool PortIn::operator==(const PortIn & other){
     bool check = true;
     check = check && (m_objLink == other.m_objLink);
     check = check && (m_datatype == other.m_datatype);
+    check = check && (m_mandatory = other.m_mandatory);
+    check = check && (m_familym   = other.m_familym);
     return(check);
 };
 
@@ -1046,6 +1052,24 @@ PortIn::getLink(){
 DataType
 PortIn::getDataType(){
     return(m_datatype);
+}
+
+/*!
+ * It gets if this port has to be mandatorily linked.
+ * \return mandatory?.
+ */
+bool
+PortIn::isMandatory(){
+    return(m_mandatory);
+}
+
+/*!
+ * It gets the family of this port.
+ * \return mandatory family.
+ */
+int
+PortIn::getFamily(){
+    return(m_familym);
 }
 
 /*!

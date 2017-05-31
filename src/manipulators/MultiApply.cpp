@@ -76,7 +76,7 @@ MultiApply & MultiApply::operator=(const MultiApply & other){
 void
 MultiApply::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::unordered_map<MimmoObject*, dvecarr3E*>, MultiApply>(this, &MultiApply::setInputList, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortIn<std::unordered_map<MimmoObject*, dvecarr3E*>, MultiApply>(this, &MultiApply::setInputList, PortType::M_UMGEOVFD, mimmo::pin::containerTAG::UN_MAP, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_, true));
     m_arePortsBuilt = built;
 };
 
