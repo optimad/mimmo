@@ -90,7 +90,6 @@ BendGeometry & BendGeometry::operator=(const BendGeometry & other){
     return    *this;
 };
 
-
 /*! It builds the input/output ports of the object
  */
 void
@@ -104,6 +103,7 @@ BendGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, BendGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dvecarr3E, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , BendGeometry>(this, &mimmo::BendGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<MimmoObject*, BendGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
 
@@ -263,7 +263,7 @@ BendGeometry::execute(){
             for (int z=0; z<3; z++){
                 if (m_degree[j][z] > 0){
                     for (int k=0; k<(int)m_degree[j][z]+1; k++){
-                        m_displ[idx][j] += pow(point[z],(double)k)*m_coeffs[j][z][k];
+                        m_displ[idx][j] += pow(point[z],(double)k)*m_coeffs[j][z][k]*m_filter[idx];
                     }
                 }
             }
@@ -272,6 +272,23 @@ BendGeometry::execute(){
     return;
 };
 
+/*!
+ * Directly apply deformation field to target geometry.
+ */
+void
+BendGeometry::apply(){
+
+    if (getGeometry() == NULL) return;
+    dvecarr3E vertex = getGeometry()->getVertexCoords();
+    long nv = getGeometry()->getNVertex();
+    nv = long(std::min(int(nv), int(m_displ.size())));
+    livector1D & idmap = getGeometry()->getMapData();
+    for (long i=0; i<nv; i++){
+        vertex[i] += m_displ[i];
+        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    }
+
+}
 
 /*! It gets the local coordinates of a point wrt the local reference system
  * \param[in] point Input point global coordinates
@@ -386,6 +403,17 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         setRefSystem(temp);
     };
 
+    if(slotXML.hasOption("Apply")){
+        std::string input = slotXML.get("Apply");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setApply(value);
+    }
+
 };
 
 /*!
@@ -448,6 +476,10 @@ BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
             rsXML.set(localAxis, ss.str());
             ++counter;
         }
+    }
+
+    if(isApply()){
+        slotXML.set("Apply", std::to_string(1));
     }
 
 };

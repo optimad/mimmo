@@ -44,7 +44,8 @@ BaseManipulation::BaseManipulation(){
 	m_execPlot      = false;
 	m_outputPlot	= "./";
 	m_counter		= sm_baseManipulationCounter;
-	m_priority      = 0;
+    m_priority      = 0;
+    m_apply         = false;
 	sm_baseManipulationCounter++;
 };
 
@@ -77,6 +78,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 	m_execPlot 		= other.m_execPlot;
 	m_counter       = other.m_counter;
 	m_priority      = other.m_priority; 
+    m_apply         = other.m_apply;
 	return (*this);
 };
 
@@ -245,6 +247,14 @@ BaseManipulation::isPlotInExecution(){
 }
 
 /*!
+ * \return true if the feature to apply the results of the block is active.
+ */
+bool
+BaseManipulation::isApply(){
+    return (m_apply);
+}
+
+/*!
  * It gets if the object is activates or disable during the execution.
  * \return True/false if the object is activates or disable during the execution.
  */
@@ -323,6 +333,15 @@ BaseManipulation::setOutputPlot(std::string path){
 void
 BaseManipulation::setClassCounter(int id){
 	setId(id);
+}
+
+/*!
+ * Activates the feature to apply directly the results of the block if possible.
+ * \param[in] flag true/false to activate/deactivate the feature
+ */
+void
+BaseManipulation::setApply( bool flag){
+    m_apply = flag;
 }
 
 /*!
@@ -420,6 +439,7 @@ BaseManipulation::exec(){
 	}
 	
 	if(isPlotInExecution())	plotOptionalResults();
+	if(isApply()) apply();
 }
 
 /*!
@@ -669,6 +689,14 @@ BaseManipulation::removePinOut(PortID portS, int j){
  * of this method in each BaseManipulation derived block.
  */
 void 	BaseManipulation::plotOptionalResults(){};
+
+/*!
+ * Apply directly the result of your blocks without the need of a follower applier block. The current method for the BaseManipulation class
+ * do nothing. For Programmers only: to customize your optional direct apply create your own implementation
+ * of this method in each BaseManipulation derived block.
+ */
+void    BaseManipulation::apply(){};
+
 
 /*!
  * Method to return all possible executable bloks of type BaseManipulation

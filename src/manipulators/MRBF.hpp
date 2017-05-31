@@ -73,6 +73,7 @@ enum class MRBFSol{
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
      | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
 
  *    =========================================================
  * \n
@@ -86,6 +87,7 @@ enum class MRBFSol{
  * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes;
  * - <B>RBFShape</B>: shape of RBF function wendlandc2 (1), linear (2), gauss90 (3), gauss95 (4), gauss99 (5);
  * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  *
  * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
  *
@@ -148,6 +150,7 @@ public:
     void             clearFilter();
 
     void             execute();
+    void             apply();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");

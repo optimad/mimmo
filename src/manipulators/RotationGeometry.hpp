@@ -55,6 +55,7 @@ namespace mimmo{
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
      | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
      | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
  * \n
@@ -66,6 +67,7 @@ namespace mimmo{
  * - <B>Origin</B>: rotation axis origin;
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis.
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -99,6 +101,7 @@ public:
     std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
 
     void         execute();
+    void         apply();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");

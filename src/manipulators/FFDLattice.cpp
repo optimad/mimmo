@@ -645,6 +645,24 @@ FFDLattice::apply(dvecarr3E * point){
     return(result);
 };
 
+/*!
+ * Directly apply deformation field to target geometry.
+ */
+void
+FFDLattice::apply(){
+
+    if (getGeometry() == NULL) return;
+    dvecarr3E vertex = getGeometry()->getVertexCoords();
+    long nv = getGeometry()->getNVertex();
+    nv = long(std::min(int(nv), int(m_gdispl.size())));
+    livector1D & idmap = getGeometry()->getMapData();
+    for (long i=0; i<nv; i++){
+        vertex[i] += m_gdispl[i];
+        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    }
+
+}
+
 /*! Convert a target displacement (expressed in local shape ref frame) in XYZ frame
  *    \param[in] target  target displacement
  *  \param[in] i reference displacement index
@@ -1545,6 +1563,18 @@ FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
         setDisplGlobal(temp);
     };
 
+    if(slotXML.hasOption("Apply")){
+        std::string input = slotXML.get("Apply");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setApply(value);
+    }
+
+
 };
 
 /*!
@@ -1582,6 +1612,11 @@ FFDLattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
     {
         slotXML.set("DisplGlobal", std::to_string(int(isDisplGlobal())));
     }
+
+    if(isApply()){
+        slotXML.set("Apply", std::to_string(1));
+    }
+
 };
 
 }

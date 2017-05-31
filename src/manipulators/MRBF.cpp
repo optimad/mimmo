@@ -86,6 +86,7 @@ MRBF::buildPorts(){
 
     built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
 
@@ -543,9 +544,25 @@ MRBF::execute(){
         }
     }
 
-
 };
 
+/*!
+ * Directly apply deformation field to target geometry.
+ */
+void
+MRBF::apply(){
+
+    if (getGeometry() == NULL) return;
+    dvecarr3E vertex = getGeometry()->getVertexCoords();
+    long nv = getGeometry()->getNVertex();
+    nv = long(std::min(int(nv), int(m_displ.size())));
+    livector1D & idmap = getGeometry()->getMapData();
+    for (long i=0; i<nv; i++){
+        vertex[i] += m_displ[i];
+        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    }
+
+}
 
 /*!
  * Plot Optional results of the class. It plots the RBF control nodes as a point cloud
@@ -693,6 +710,16 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         }
     };
 
+    if(slotXML.hasOption("Apply")){
+        std::string input = slotXML.get("Apply");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setApply(value);
+    }
 
 }
 
@@ -735,6 +762,10 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
         std::stringstream ss;
         ss<<std::scientific<<m_tol;
         slotXML.set("Tolerance", ss.str());
+    }
+
+    if(isApply()){
+        slotXML.set("Apply", std::to_string(1));
     }
 
 }

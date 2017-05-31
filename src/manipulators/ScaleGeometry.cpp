@@ -91,6 +91,7 @@ ScaleGeometry::buildPorts(){
     built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortOut<dvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , ScaleGeometry>(this, &mimmo::ScaleGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
 
@@ -187,6 +188,24 @@ ScaleGeometry::execute(){
 };
 
 /*!
+ * Directly apply deformation field to target geometry.
+ */
+void
+ScaleGeometry::apply(){
+
+    if (getGeometry() == NULL) return;
+    dvecarr3E vertex = getGeometry()->getVertexCoords();
+    long nv = getGeometry()->getNVertex();
+    nv = long(std::min(int(nv), int(m_displ.size())));
+    livector1D & idmap = getGeometry()->getMapData();
+    for (long i=0; i<nv; i++){
+        vertex[i] += m_displ[i];
+        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    }
+
+}
+
+/*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
@@ -239,6 +258,17 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setScaling(temp);
     }
 
+    if(slotXML.hasOption("Apply")){
+        std::string input = slotXML.get("Apply");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setApply(value);
+    }
+
 };
 
 /*!
@@ -272,6 +302,9 @@ ScaleGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
         slotXML.set("Scaling", ss.str());
     }
 
+    if(isApply()){
+        slotXML.set("Apply", std::to_string(1));
+    }
 
 };
 

@@ -147,11 +147,10 @@ void test00001() {
     coeffs[2][0][1] = 0;
     coeffs[2][0][2] = 0.5;
     bend->setCoeffs(coeffs);
-
-    /* Creation of applier block for twisting.
+    /*
+     * Bend directly applied during execution
      */
-    Apply* applierBend = new Apply();
-
+    bend->setApply();
 
     /* Creation of rotation block.
      * Rotation performed around an axis through the origin and
@@ -184,12 +183,10 @@ void test00001() {
     addPin(applierTwist, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
 
     addPin(applierTwist, bend, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(applierTwist, applierBend, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(bend, applierBend, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierBend, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(bend, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
 
-    addPin(applierBend, rotation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(applierBend, applierRotation, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(bend, rotation, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(bend, applierRotation, PortType::M_GEOM, PortType::M_GEOM);
     addPin(rotation, applierRotation, PortType::M_GDISPLS, PortType::M_GDISPLS);
     addPin(applierRotation, mimmo5, PortType::M_GEOM, PortType::M_GEOM);
 
@@ -208,7 +205,6 @@ void test00001() {
     ch0.addObject(applierTwist);
     ch0.addObject(mimmo3);
     ch0.addObject(bend);
-    ch0.addObject(applierBend);
     ch0.addObject(mimmo4);
     ch0.addObject(rotation);
     ch0.addObject(applierRotation);
@@ -234,7 +230,6 @@ void test00001() {
     delete applierTwist;
     delete mimmo3;
     delete bend;
-    delete applierBend;
     delete mimmo4;
     delete rotation;
     delete applierRotation;
@@ -251,7 +246,6 @@ void test00001() {
     applierTwist = NULL;
     mimmo3 = NULL;
     bend = NULL;
-    applierBend = NULL;
     mimmo4 = NULL;
     rotation = NULL;
     applierRotation = NULL;

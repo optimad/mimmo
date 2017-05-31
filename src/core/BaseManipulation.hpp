@@ -125,6 +125,7 @@ protected:
 
     bool                        m_active;            /**<True/false to activate/disable the object during the execution.*/
     bool                        m_execPlot;         /**<Activate plotting of optional result directly in execution.*/
+    bool                        m_apply;           /**<Activate apply result directly in execution.*/
     std::string                    m_outputPlot;        /**<Define path for plotting optional results in execution.*/
 
     //static members
@@ -157,6 +158,7 @@ public:
 
     bool    isPlotInExecution();
     bool    isActive();
+    bool    isApply();
     int     getClassCounter();
     int     getId();
 
@@ -167,6 +169,7 @@ public:
     void    setOutputPlot(std::string path);
     void    setClassCounter(int );
     void    setId(int );
+    void    setApply(bool flag = true);
 
     void    activate();
     void    disable();
@@ -231,6 +234,9 @@ protected:
     virtual void     execute() = 0;
 
     virtual void     plotOptionalResults();
+
+    virtual void     apply();
+
 };
 
 

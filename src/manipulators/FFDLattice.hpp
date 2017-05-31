@@ -103,6 +103,7 @@ namespace mimmo{
  * - <B>Degrees</B>: degrees for NURBS interpolant in each spatial direction;
  * - <B>DisplGlobal</B>:0/1 use local-shape/global x,y,z reference system to define displacements of lattice node;
  * - <B>Lattice</B>: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information on how to write Lattice parameters.
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  *
  * Geometry, displacements field and filter field have to be mandatorily passed through port.
  */
@@ -175,6 +176,8 @@ public:
     dvecarr3E     apply(dvecarr3E * point);
     dvecarr3E     apply(livector1D & map);
     virtual void         build();
+
+    void     apply();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");

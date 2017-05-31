@@ -25,6 +25,7 @@
 #define __BENDGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
+#include "Apply.hpp"
 
 namespace mimmo{
 
@@ -60,6 +61,7 @@ namespace mimmo{
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | 11    | M_GDISPLS| getDisplacements  | (VECARR3, FLOAT)    |
      | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
  * \n
@@ -95,6 +97,7 @@ namespace mimmo{
  *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
  *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
  *                  \</RefSystem\> </tt> \n
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -104,10 +107,10 @@ private:
     darray3E            m_origin;       /**<Origin of the reference system.*/
     dmatrix33E          m_system;       /**<Local reference system w.r.t absolute one.*/
     bool                m_local;        /**<True if the reference system is set by user and not the default one.*/
-    umatrix33E            m_degree;        /**<Degree of polynomial law for each coordinate
+    umatrix33E          m_degree;        /**<Degree of polynomial law for each coordinate
                                             (each componentns of displacement is
                                             f(x,y,z) with no mixed terms)*/
-    dmat33Evec            m_coeffs;        /**<Coeffs of polynomial law for each coordinate.*/
+    dmat33Evec          m_coeffs;        /**<Coeffs of polynomial law for each coordinate.*/
     dvector1D           m_filter;       /**<Filter field for displacements modulation. */
     dvecarr3E           m_displ;        /**<Resulting displacements of geometry vertex.*/
 
@@ -137,6 +140,7 @@ public:
     void    setCoeffs(int i, int j, dvector1D coeffs);
 
     void     execute();
+    void     apply();
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
