@@ -69,6 +69,7 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 			}
 		}
 	}
+	if (!done) std::cout<<"Warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
 	return done;
 }
 
