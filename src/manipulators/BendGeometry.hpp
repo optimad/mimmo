@@ -149,6 +149,7 @@ public:
 
 private:
     darray3E    toLocalCoord(darray3E point);
+    darray3E    toGlobalCoord(darray3E point);
 
 };
 
