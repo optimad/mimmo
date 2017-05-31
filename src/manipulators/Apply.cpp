@@ -31,7 +31,6 @@ namespace mimmo{
  */
 Apply::Apply():BaseManipulation(){
     m_name = "mimmo.Apply";
-    m_force = false;
 };
 
 /*!
@@ -66,7 +65,7 @@ Apply::Apply(const Apply & other):BaseManipulation(){
  */
 Apply & Apply::operator=(const Apply & other){
     *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_force = other.m_force;
+    m_input = other.m_input;
     return(*this);
 };
 
@@ -81,24 +80,6 @@ Apply::buildPorts(){
     built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
-
-/*!
- * Return true, if rebuilding of search trees of your
- * target geometry of class MimmoObject is forced by the User
- * \return rebuilding trees flag
- */
-bool    Apply::getRefreshGeometryTrees(){
-    return m_force;
-}
-
-/*!
- * If set true, forces rebuilding of search trees of
- * your target geometry of class MimmoObject
- * \param[in] force rebuilding trees flag
- */
-void    Apply::setRefreshGeometryTrees(bool force){
-    m_force = force;
-}
 
 /*!It sets the displacements input.
  * \param[in] input Input displacements of the geometry vertices.
@@ -126,11 +107,6 @@ Apply::execute(){
         getGeometry()->modifyVertex(vertex[i], idmap[i]);
     }
 
-    if(m_force){
-        getGeometry()->buildBvTree();
-        getGeometry()->buildKdTree();
-    }
-
 };
 
 
@@ -156,17 +132,6 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
         setPriority(value);
     };
 
-
-    if(slotXML.hasOption("RefreshGeometryTrees")){
-        input = slotXML.get("RefreshGeometryTrees");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss >> value;
-        }
-        setRefreshGeometryTrees(value);
-    };
-
 };
 
 /*!
@@ -182,11 +147,6 @@ Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     slotXML.set("ClassName", m_name);
     slotXML.set("Priority", std::to_string(getPriority()));
 
-    bool value = getRefreshGeometryTrees();
-
-    std::string towrite = std::to_string(value);
-
-    slotXML.set("RefreshGeometryTrees", towrite);
 };
 
 

@@ -700,7 +700,7 @@ ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometr
         if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isBvTreeSupported()){
             std::cout<<"failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
         }else{
-            geo->getGeometry()->getPatch()->buildAdjacencies();
+            if (!geo->getGeometry()->areAdjacenciesBuilt()) geo->getGeometry()->getPatch()->buildAdjacencies();
             extGeo[counter] = std::move(geo);
             tols[counter] = geoinfo.second.first;
             ++counter;

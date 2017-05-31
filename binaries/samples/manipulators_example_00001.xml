@@ -59,7 +59,6 @@
 	</Transl>
 	<ApplierT>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierT>
 	<Scaling>
 		<ClassName>mimmo.ScaleGeometry</ClassName>
@@ -67,7 +66,6 @@
 	</Scaling>
 	<ApplierS>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierS>
 	<Twist>
 		<ClassName>mimmo.TwistGeometry</ClassName>
@@ -78,7 +76,6 @@
 	</Twist>
 	<ApplierTw>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierTw>
 	<Bend>
 		<ClassName>mimmo.BendGeometry</ClassName>
@@ -93,7 +90,6 @@
 	</Bend>
 	<ApplierB>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierB>
 	<Rot>
 		<ClassName>mimmo.RotationGeometry</ClassName>
@@ -102,7 +98,6 @@
 	</Rot>
 	<ApplierR>
 		<ClassName>mimmo.Apply</ClassName>
-		<RefreshGeometryTrees>1</RefreshGeometryTrees>
 	</ApplierR>
 	<Connections>
 		<c0>

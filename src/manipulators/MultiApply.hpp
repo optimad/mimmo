@@ -70,7 +70,6 @@ class MultiApply: public BaseManipulation{
 public:
 
     std::unordered_map<MimmoObject*, dvecarr3E*> m_input; /**< container for vector field of displacements to apply */
-    bool m_force; /**< member to force rebuilding of trees of a geometrical object*/
 
     MultiApply();
     MultiApply(const bitpit::Config::Section & rootXML);
@@ -80,9 +79,6 @@ public:
     MultiApply & operator=(const MultiApply & other);
 
     void buildPorts();
-
-    bool getRefreshGeometryTrees();
-    void setRefreshGeometryTrees(bool force);
 
     void addInput(std::pair<MimmoObject*, dvecarr3E*> input);
     void setInputList(std::unordered_map<MimmoObject*, dvecarr3E*> input);
