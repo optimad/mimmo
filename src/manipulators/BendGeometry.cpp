@@ -276,6 +276,11 @@ BendGeometry::execute(){
             point = toGlobalCoord(point);
             m_displ[idx] = point - point0;
         }
+        if (m_local){
+            point += m_displ[idx];
+            point = toGlobalCoord(point);
+            m_displ[idx] = point - point0;
+        }
     }
     std::cout << m_displ<< std::endl;
     return;
