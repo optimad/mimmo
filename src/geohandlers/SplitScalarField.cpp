@@ -58,7 +58,7 @@ SplitScalarField::SplitScalarField(const bitpit::Config::Section & rootXML){
     if(input_name == "mimmo.SplitScalarField"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::SplitScalarField constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::SplitScalarField constructor. No valid xml data found"<<std::endl;
     };
 }
 

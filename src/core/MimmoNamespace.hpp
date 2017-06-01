@@ -25,6 +25,7 @@
 #define __MIMMONAMESPACE_HPP__
 
 #include "enum.hpp"
+#include "bitpit.hpp"
 
 BETTER_ENUM(PortType, int,	
             M_COORDS 			= 0, 
@@ -270,7 +271,6 @@ enum class dataTAG{
 };
 
 
-
 bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced = false);
 
 void removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec);
@@ -281,6 +281,9 @@ bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, Por
 
 
 } //end of pin namespace
+
+//log variables
+static  const std::string   MIMMO_DEFAULT_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
 
 }//end namespace mimmo
 

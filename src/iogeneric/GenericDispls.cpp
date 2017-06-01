@@ -67,7 +67,7 @@ GenericDispls::GenericDispls(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.GenericDispls"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::GenericDispls constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::GenericDispls constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -291,7 +291,7 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
             ss>>value;
         }
         if (m_read != value){
-            std::cout<< "Warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
+            (*m_log)<< "Warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
             return;
         }
     };
@@ -421,7 +421,7 @@ void GenericDispls::read(){
         m_nDispl = m_displ.size();
 
     }else{
-        std::cout<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+        (*m_log)<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
         exit(1);
     }
 
@@ -478,7 +478,7 @@ void GenericDispls::write(){
         }
 
     }else{
-        std::cout<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+        (*m_log)<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
         exit(1);
     }
 

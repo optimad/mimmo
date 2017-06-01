@@ -47,7 +47,7 @@ OverlapVectorFields::OverlapVectorFields(const bitpit::Config::Section & rootXML
     if(input == "mimmo.OverlapVectorFields"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::OverlapVectorFields constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::OverlapVectorFields constructor. No valid xml data found"<<std::endl;
     };
 }
 

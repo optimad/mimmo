@@ -58,7 +58,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.MRBF"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::MRBF constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::MRBF constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -395,7 +395,7 @@ void
 MRBF::setDisplacements(dvecarr3E displ){
     int size = displ.size();
     if(size != getTotalNodesCount()){
-        std::cout << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+        (*m_log) << "mimmo : WARNING : " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
     }
 
     removeAllData();
@@ -438,7 +438,7 @@ MRBF::setWeight(dvector2D value){
 
     int size = value.size();
     if(size != getTotalNodesCount()){
-        std::cout << "mimmo : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+        (*m_log) << "mimmo : WARNING : " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
     }
 
     removeAllData();
@@ -474,7 +474,7 @@ MRBF::execute(){
         else                            size = m_value[i].size();
 
         if(size != getTotalNodesCount()){
-            std::cout << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+            (*m_log) << "mimmo : WARNING : " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
             fitDataToNodes(i);
         }
     }

@@ -30,6 +30,7 @@
 #include "bitpit_SA.hpp"
 #include "BvTree.hpp"
 #include "mimmoTypeDef.hpp"
+#include "MimmoNamespace.hpp"
 
 namespace mimmo{
 
@@ -73,6 +74,7 @@ protected:
 
     bool                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
 
+    bitpit::Logger*                         m_log;          /**<Pointer to logger.*/
 
 public:
     MimmoObject(int type = 1); 

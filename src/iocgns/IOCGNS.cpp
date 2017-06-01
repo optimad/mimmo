@@ -55,7 +55,7 @@ IOCGNS::IOCGNS(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.IOCGNS"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::IOCGNS constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::IOCGNS constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -298,16 +298,16 @@ IOCGNS::execute(){
         check = read();
     }
     if (!check){
-        std::cout << "mimmo : ERROR : file corrupted or not found : "<< m_rfilename << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : file corrupted or not found : "<< m_rfilename << std::endl;
+        (*m_log) << " " << std::endl;
         exit(10);
     }
     if (m_write) {
         check = write();
     }
     if (!check){
-        std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
+        (*m_log) << " " << std::endl;
         exit(11);
     }
 }
@@ -341,7 +341,7 @@ IOCGNS::read(){
         return false;
     }
     if(nbases > 1){
-        std::cout << "More than one base found in grid file -> only the first zone will be read" << std::endl;
+        (*m_log) << "More than one base found in grid file -> only the first zone will be read" << std::endl;
     }
 
     //Read name of basis and physical dimension
@@ -1004,7 +1004,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         default:
-            std::cout<< "mimmo : ERROR : "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
+            (*m_log)<< "mimmo : ERROR : "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
             return;
             break;
         }

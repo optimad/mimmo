@@ -73,7 +73,7 @@ GenericInput::getResult(){
             }
             file.close();
         }else{
-            std::cout << "file not open --> exit" << std::endl;
+            (*m_log) << "file not open --> exit" << std::endl;
             exit(1);
         }
         _setResult(data);

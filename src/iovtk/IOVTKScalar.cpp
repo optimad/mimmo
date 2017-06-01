@@ -76,7 +76,7 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.IOVTKScalar"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::IOVTKScalar constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::IOVTKScalar constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -334,7 +334,7 @@ IOVTKScalar::read(){
         }
     }
     else{
-        std::cout << "mimmo : ERROR : polydata not found in : "<< m_rfilename << std::endl;
+        (*m_log) << "mimmo : ERROR : polydata not found in : "<< m_rfilename << std::endl;
         return false;
     }
 
@@ -448,14 +448,14 @@ IOVTKScalar::execute(){
     bool check = true;
     if (m_read) check = read();
     if (!check){
-        std::cout << "mimmo : ERROR : file not found : "<< m_rfilename << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : file not found : "<< m_rfilename << std::endl;
+        (*m_log) << " " << std::endl;
         exit(10);
     }
     if (m_write) check = write();
     if (!check){
-        std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
+        (*m_log) << " " << std::endl;
         exit(11);
     }
 }

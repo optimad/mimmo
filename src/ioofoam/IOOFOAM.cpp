@@ -55,7 +55,7 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.IOOFOAM"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::IOOFOAM constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::IOOFOAM constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -628,7 +628,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
         }
     }
     else{
-        std::cout << "mimmo : ERROR : polydata not found in : "<< inputFilename << std::endl;
+        (*m_log) << "mimmo : ERROR : polydata not found in : "<< inputFilename << std::endl;
         m_stopat = PID;
         return false;
     }
@@ -648,19 +648,19 @@ IOOFOAM::execute(){
     if (m_read) check = read();
     if (!check){
         if (m_stopat == SHRT_MAX){
-            std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameV << std::endl;
-            std::cout << " " << std::endl;
+            (*m_log) << "mimmo : ERROR : file not found : "<< m_rfilenameV << std::endl;
+            (*m_log) << " " << std::endl;
             exit(10);
         }
-        std::cout << "mimmo : ERROR : file not found : "<< m_rfilenameS[m_stopat] << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : file not found : "<< m_rfilenameS[m_stopat] << std::endl;
+        (*m_log) << " " << std::endl;
         exit(10);
     }
     if (m_write) check = write();
     if (!check){
         if (m_stopat == 2){
-            std::cout << "mimmo : ERROR : write not done : surface and volume geometry not linked " << std::endl;
-            std::cout << " " << std::endl;
+            (*m_log) << "mimmo : ERROR : write not done : surface and volume geometry not linked " << std::endl;
+            (*m_log) << " " << std::endl;
             exit(11);
         }
     }
