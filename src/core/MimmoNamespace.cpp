@@ -3,6 +3,7 @@
 
 namespace mimmo{
 
+
 /*!
  * Default constructor od FileDataInfo
  */
@@ -43,18 +44,19 @@ namespace pin{
  */
 bool
 addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced){
-	bool done = false;
+    bitpit::Logger* log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    bool done = false;
 	if (!objSend->arePortsBuilt()){
 		objSend->buildPorts();
 		if (!objSend->arePortsBuilt()){
-			std::cout << "mimmo : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
+			(*log) << "mimmo : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
 			exit(11);
 		}
 	}
 	if (!objRec->arePortsBuilt()){
 		objRec->buildPorts();
 		if (!objRec->arePortsBuilt()){
-			std::cout << "mimmo : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
+			(*log) << "mimmo : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
 			exit(11);
 		}
 	}
@@ -69,7 +71,7 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 			}
 		}
 	}
-	if (!done) std::cout<<"Warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
+	if (!done) (*log)<<"Warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
 	return done;
 }
 

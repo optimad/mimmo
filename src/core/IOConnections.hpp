@@ -56,6 +56,8 @@ protected:
     std::unordered_map<std::string, short int> m_mapPorts;                  /**< map of ports available in mimmo */
     std::unordered_map<short int, std::string> m_invMapPorts;               /**< inverse map of ports available in mimmo */
 
+    bitpit::Logger*             m_log;             /**<Pointer to logger.*/
+
 public:
     IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn);
     virtual ~IOConnections_MIMMO();

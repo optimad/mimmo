@@ -58,7 +58,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
     if(input == "mimmo.ControlDeformExtSurface"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::ControlDeformExtSurface constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::ControlDeformExtSurface constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -203,7 +203,7 @@ ControlDeformExtSurface::setGeometry( MimmoObject * target){
     if(target->isEmpty())    return;
 
     if(target->getType() != 1){
-        std::cout<<"ControlDeformExtSurface cannot support current geometry. It works only w/ 3D surface."<<std::endl;
+        (*m_log)<<"ControlDeformExtSurface cannot support current geometry. It works only w/ 3D surface."<<std::endl;
         return;
     }
     m_geometry = target;
@@ -698,7 +698,7 @@ ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometr
         geo->execute();
 
         if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isBvTreeSupported()){
-            std::cout<<"failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
+            (*m_log)<<"failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
         }else{
             if (!geo->getGeometry()->areAdjacenciesBuilt()) geo->getGeometry()->getPatch()->buildAdjacencies();
             extGeo[counter] = std::move(geo);

@@ -87,7 +87,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
     if(input_name == "mimmo.SelectionByMapping"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::SelectionByMapping constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::SelectionByMapping constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -190,9 +190,9 @@ void
 SelectionByMapping::setGeometry( MimmoObject * target){
 
     if(target->getType() != m_topo){
-        std::cout<<"Target Topology : "<< target->getType() << std::endl;
-        std::cout<<"Supported Topology : "<< m_topo << std::endl;
-        std::cout<<"SelectionMapping Cannot support current geometry. Topology not supported."<<std::endl;
+        (*m_log)<<"Target Topology : "<< target->getType() << std::endl;
+        (*m_log)<<"Supported Topology : "<< m_topo << std::endl;
+        (*m_log)<<"SelectionMapping Cannot support current geometry. Topology not supported."<<std::endl;
         return;
     }
     m_geometry = target;
@@ -346,7 +346,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     geo->execute();
 
     if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 ){
-        std::cout<<"failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
+        (*m_log)<<"failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
         return livector1D();
     }
     livector1D result = mimmo::bvTreeUtils::selectByPatch(geo->getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
@@ -366,7 +366,7 @@ SelectionByMapping::getProximity(MimmoObject* obj){
     obj->buildBvTree(true);
 
     if(obj->getNVertex() == 0 || obj->getNCells() == 0 ){
-        std::cout<<"failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
+        (*m_log)<<"failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
         return livector1D();
     }
     livector1D result = mimmo::bvTreeUtils::selectByPatch(obj->getBvTree(), getGeometry()->getBvTree(), m_tolerance);

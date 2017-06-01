@@ -52,7 +52,7 @@ MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.Geometry"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::MimmoGeometry constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::MimmoGeometry constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -1006,15 +1006,15 @@ MimmoGeometry::execute(){
     bool check = true;
     if (m_read) check = read();
     if (!check){
-        std::cout << "mimmo : ERROR : file not found : "<< m_rinfo.fname << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : file not found : "<< m_rinfo.fname << std::endl;
+        (*m_log) << " " << std::endl;
         exit(10);
     }
     check = true;
     if (m_write) check = write();
     if (!check){
-        std::cout << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
-        std::cout << " " << std::endl;
+        (*m_log) << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
+        (*m_log) << " " << std::endl;
         exit(11);
     }
     if (m_buildBvTree) getGeometry()->buildBvTree();

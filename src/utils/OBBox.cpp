@@ -68,7 +68,7 @@ OBBox::OBBox(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.OBBox"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::OBBox constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::OBBox constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -158,7 +158,7 @@ OBBox::getAxes(){
 void
 OBBox::setGeometry(MimmoObject * geo){
     if (geo->getType() == 2 )    {
-        std::cout<<"WARNING: "<<m_name<<" does not support volumetric tessellation. Geometry not set"<<std::endl;
+        (*m_log)<<"WARNING: "<<m_name<<" does not support volumetric tessellation. Geometry not set"<<std::endl;
         return;
     }
     BaseManipulation::setGeometry(geo);

@@ -53,7 +53,7 @@ TwistGeometry::TwistGeometry(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.TwistGeometry"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::TwistGeometry constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::TwistGeometry constructor. No valid xml data found"<<std::endl;
     };
 }
 

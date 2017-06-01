@@ -29,7 +29,6 @@
 #include "MimmoObject.hpp"
 #include "InOut.hpp"
 
-
 #include <string>
 #include <functional>
 #include <unordered_map>
@@ -126,10 +125,12 @@ protected:
     bool                        m_active;            /**<True/false to activate/disable the object during the execution.*/
     bool                        m_execPlot;         /**<Activate plotting of optional result directly in execution.*/
     bool                        m_apply;           /**<Activate apply result directly in execution.*/
-    std::string                    m_outputPlot;        /**<Define path for plotting optional results in execution.*/
+    std::string                 m_outputPlot;        /**<Define path for plotting optional results in execution.*/
+
+    bitpit::Logger*             m_log;             /**<Pointer to logger.*/
 
     //static members
-    static  int                 sm_baseManipulationCounter;    /**<Current global number of BaseManipulation object in the instance. */
+    static  int                 sm_baseManipulationCounter;     /**<Current global number of BaseManipulation object in the instance. */
 
 
 public:
@@ -138,6 +139,9 @@ public:
 
     BaseManipulation(const BaseManipulation & other);
     BaseManipulation & operator=(const BaseManipulation & other);
+
+    void initializeLogger();
+    bitpit::Logger& getLog();
 
     bool                arePortsBuilt();
 

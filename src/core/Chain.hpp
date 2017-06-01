@@ -25,6 +25,7 @@
 #define __CHAIN_HPP__
 
 #include "BaseManipulation.hpp"
+#include "MimmoNamespace.hpp"
 
 namespace mimmo{
 
@@ -52,6 +53,8 @@ protected:
 	std::vector<int>				m_idObjects;		/**<ID (order of insertion) of the mimmo objects in the chain. */
 	uint32_t						m_objcounter;		/**<Counter of objects inserted the chain.*/
 
+    bitpit::Logger*                 m_log;              /**<Pointer to logger.*/
+
 	//static members
 	static	uint8_t					sm_chaincounter;	/**<Current global number of chain in the instance. */
 
@@ -63,7 +66,7 @@ public:
 	Chain(const Chain & other);
 	Chain & operator=(const Chain & other);
 
-	//get/set methods
+    //get/set methods
 	uint32_t	getNObjects();
 	uint8_t		getID();
 	uint8_t		getNChains();

@@ -48,7 +48,7 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(const bitpit::Config::Section
 	if(input == "mimmo.SelectionByBoxWithScalar"){
 		absorbSectionXML(rootXML);
 	}else{	
-		std::cout<<"Warning in custom xml mimmo::SelectionByBoxWithScalar constructor. No valid xml data found"<<std::endl;
+		(*m_log)<<"Warning in custom xml mimmo::SelectionByBoxWithScalar constructor. No valid xml data found"<<std::endl;
 	};
 }
 

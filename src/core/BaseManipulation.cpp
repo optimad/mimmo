@@ -30,6 +30,8 @@ using namespace std;
 namespace mimmo {
 
 int BaseManipulation::sm_baseManipulationCounter(1);
+//const std::string   MIMMO_DEFAULT_LOG_FILE = "mimmo";
+//bitpit::Logger*     m_log;
 
 /*!
  * Default constructor of BaseManipulation.
@@ -47,6 +49,9 @@ BaseManipulation::BaseManipulation(){
     m_priority      = 0;
     m_apply         = false;
     sm_baseManipulationCounter++;
+    m_log           = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    if (m_counter == 1)
+        initializeLogger();
 };
 
 /*!
@@ -81,6 +86,24 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
     m_apply         = other.m_apply;
     return (*this);
 };
+
+/*! Initialize the logger
+ */
+void
+BaseManipulation::initializeLogger(){
+    bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::QUIET);
+    (*m_log) << "    " << std::endl;
+    (*m_log) << "    ----    mimmo    ----" << std::endl;
+    (*m_log) << "    " << std::endl;
+}
+
+/*!Get the logger.
+ * \return Reference to logger object.
+ */
+bitpit::Logger&
+BaseManipulation::getLog(){
+    return (*m_log);
+}
 
 /*!
  * It gets if the ports of this object are already built.
@@ -446,7 +469,7 @@ BaseManipulation::exec(){
             for (auto ip : i->second){
                 std::vector<BaseManipulation*>  linked = ip->getLink();
                 if (linked.size() == 0){
-                    std::cout << "mimmo : error " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
+                    (*m_log) << "mimmo : error " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
                     exit(11);
                 }
                 count++;
@@ -459,7 +482,7 @@ BaseManipulation::exec(){
                 check = check || linked.size();
             }
             if (!check){
-                std::cout << "mimmo : error " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
+                (*m_log) << "mimmo : error " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
                 exit(11);
             }
         }

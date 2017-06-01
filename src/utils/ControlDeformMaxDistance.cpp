@@ -49,7 +49,7 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section
     if(input == "mimmo.ControlDeformMaxDistance"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::ControlDeformMaxDistance constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::ControlDeformMaxDistance constructor. No valid xml data found"<<std::endl;
     };
 }
 

@@ -77,7 +77,6 @@ Chain::clear(){
 	m_idObjects.clear();
 };
 
-
 /*!
  * It gets the number of manipulator objects in the chain.
  * \return Number of objects in the chain.
@@ -233,25 +232,26 @@ Chain::addObject(BaseManipulation* obj, int id_){
  */
 void
 Chain::exec(bool debug){
+    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
 	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
 	vector<BaseManipulation*>::iterator itend = m_objects.end();
 	if(debug){
-		std::cout << " " << std::endl;
-		std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-		std::cout << "mimmo : execution of chain - "<< m_objcounter << " objects" << std::endl;
-		std::cout << " " << std::endl;
+		(*m_log) << " " << endl;
+		(*m_log) << "---------------------------------------------------------------------------------------------------    " << endl;
+		(*m_log) << "mimmo : execution of chain - "<< m_objcounter << " objects" << std::endl;
+		(*m_log) << " " << std::endl;
 	}	
 	checkLoops();
 	int i = 1;
 	for (it = itb; it != itend; ++it){
-		if(debug)	std::cout << "mimmo : execution object " << i << "	: " << (*it)->getName() << std::endl;
+		if(debug)	(*m_log) << "mimmo : execution object " << i << "	: " << (*it)->getName() << std::endl;
 		(*it)->exec();
 		i++;
 	}
 	if(debug){
-		std::cout << " " << std::endl;
-		std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-		std::cout << " " << std::endl;
+		(*m_log) << " " << std::endl;
+		(*m_log) << "---------------------------------------------------------------------------------------------------    " << std::endl;
+		(*m_log) << " " << std::endl;
 	}	
 }
 
@@ -278,10 +278,10 @@ Chain::checkLoops(){
 		for (int i=0; i<(*it)->getNChild(); i++){
 			int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));
 			if (idxchild <= actualidx){
-				std::cout << "mimmo : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
-				std::cout << " " << std::endl;
-				std::cout << "---------------------------------------------------------------------------------------------------    " << std::endl;
-				std::cout << " " << std::endl;
+				(*m_log) << "mimmo : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
+				(*m_log) << " " << std::endl;
+				(*m_log) << "---------------------------------------------------------------------------------------------------    " << std::endl;
+				(*m_log) << " " << std::endl;
 				exit(8);
 			}
 		}

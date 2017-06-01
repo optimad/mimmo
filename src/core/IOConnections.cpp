@@ -35,6 +35,8 @@ namespace mimmo{
  */
 IOConnections_MIMMO::IOConnections_MIMMO(std::unordered_map<std::string, BaseManipulation * > mapConn) {
 
+    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+
     for(auto &val: mapConn){
         if(val.second == NULL) continue;
         m_mapConn[val.first] = val.second;
@@ -102,7 +104,7 @@ void
 IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debug){
     
     if(slotXML.getSectionCount() == 0)	{
-        if(debug)	std::cout<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
+        if(debug)	(*m_log)<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
         return;
     }	
     
@@ -130,33 +132,33 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         auto itRPort = m_mapPorts.find(rcvP_str);
         
         if(itSend == m_mapConn.end() || itRece == m_mapConn.end() || itSPort == m_mapPorts.end() || itRPort == m_mapPorts.end()){
-            if(debug)	std::cout<<"---------------------------------------------"<<std::endl;
-            if(debug)	std::cout<<"sender: "<<snd_str<<std::endl;
-            if(debug)	std::cout<<"receiver: "<<rcv_str<<std::endl;
-            if(debug)	std::cout<<"senderPort: "<<sndP_str<<std::endl;
-            if(debug)	std::cout<<"receiverPort: "<<rcvP_str<<std::endl;
-            if(debug)	std::cout<<"---------------------------------------------"<<std::endl;
-            if(debug)	std::cout<<""<<std::endl;
-            if(debug)	std::cout<<"IOConnections::absorbConnections does not found any sender/receiver and/or port compatible with API."<<std::endl;
-            if(debug)	std::cout<<"Please control connection data entries in your XML file"<<std::endl;
-            if(debug)	std::cout<<""<<std::endl;
+            if(debug)	(*m_log)<<"---------------------------------------------"<<std::endl;
+            if(debug)	(*m_log)<<"sender: "<<snd_str<<std::endl;
+            if(debug)	(*m_log)<<"receiver: "<<rcv_str<<std::endl;
+            if(debug)	(*m_log)<<"senderPort: "<<sndP_str<<std::endl;
+            if(debug)	(*m_log)<<"receiverPort: "<<rcvP_str<<std::endl;
+            if(debug)	(*m_log)<<"---------------------------------------------"<<std::endl;
+            if(debug)	(*m_log)<<""<<std::endl;
+            if(debug)	(*m_log)<<"IOConnections::absorbConnections does not found any sender/receiver and/or port compatible with API."<<std::endl;
+            if(debug)	(*m_log)<<"Please control connection data entries in your XML file"<<std::endl;
+            if(debug)	(*m_log)<<""<<std::endl;
             continue;
         }
         
         bool check = pin::addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
         
         if(debug && !check){
-            std::cout<<"---------------------------------------------"<<std::endl;
-            std::cout<<"sender: "<<snd_str<<std::endl;
-            std::cout<<"receiver: "<<rcv_str<<std::endl;
-            std::cout<<"senderPort: "<<sndP_str<<std::endl;
-            std::cout<<"receiverPort: "<<rcvP_str<<std::endl;
-            std::cout<<"---------------------------------------------"<<std::endl;
-            std::cout<<""<<std::endl;
-            std::cout<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
-            std::cout<<""<<std::endl;
+            (*m_log)<<"---------------------------------------------"<<std::endl;
+            (*m_log)<<"sender: "<<snd_str<<std::endl;
+            (*m_log)<<"receiver: "<<rcv_str<<std::endl;
+            (*m_log)<<"senderPort: "<<sndP_str<<std::endl;
+            (*m_log)<<"receiverPort: "<<rcvP_str<<std::endl;
+            (*m_log)<<"---------------------------------------------"<<std::endl;
+            (*m_log)<<""<<std::endl;
+            (*m_log)<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
+            (*m_log)<<""<<std::endl;
         }	
-        if(debug && check)	std::cout<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
+        if(debug && check)	(*m_log)<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
     }
     
     return;
@@ -208,7 +210,7 @@ IOConnections_MIMMO::flushConnections(bitpit::Config & slotXML, bool debug ){
     }//loop on all instantiated object.
     
     if(debug){
-        std::cout<<"IOConnections::flushConnections wrote "<< slotXML.getSectionCount()<< " active connections."<<std::endl;
+        (*m_log)<<"IOConnections::flushConnections wrote "<< slotXML.getSectionCount()<< " active connections."<<std::endl;
     }
     return;
 };

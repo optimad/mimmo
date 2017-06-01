@@ -73,7 +73,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
     if(input == "mimmo.CreateSeedsOnSurface"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::CreateSeedsOnSurface constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::CreateSeedsOnSurface constructor. No valid xml data found"<<std::endl;
     };
 }
 
@@ -331,7 +331,7 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == NULL || m_nPoints< 1){
-        if(debug)    std::cout<<"No geometry linked, or not enough total point set in "<<m_name<<" object. Doing Nothing"<<std::endl;
+        if(debug)    (*m_log)<<"No geometry linked, or not enough total point set in "<<m_name<<" object. Doing Nothing"<<std::endl;
         return;
     }
     m_points.clear();
@@ -365,7 +365,7 @@ CreateSeedsOnSurface::solve(bool debug){
 void
 CreateSeedsOnSurface::solveLSet(bool debug){
 
-    if(debug)    std::cout<<m_name<<" : started LevelSet engine"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : started LevelSet engine"<<std::endl;
     dvecarr3E initList;
     m_deads.reserve(m_nPoints);
 
@@ -405,10 +405,10 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
     m_deads.push_back(getGeometry()->getMapDataInv(candidate));
     int deadSize = m_deads.size();
-    if(debug)    std::cout<<m_name<<" : projected seed point"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
 
     std::unordered_map<long,long> invConn = getInverseConn();
-    if(debug)    std::cout<<m_name<<" : created geometry inverse connectivity"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : created geometry inverse connectivity"<<std::endl;
 
     while(deadSize < m_nPoints){
 
@@ -424,7 +424,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         m_deads.push_back(std::distance(field.begin(), itF));
 
         deadSize = m_deads.size();
-        if(debug)    std::cout<<m_name<<" : geodesic distance field for point "<<deadSize-1<<" found"<<std::endl;
+        if(debug)    (*m_log)<<m_name<<" : geodesic distance field for point "<<deadSize-1<<" found"<<std::endl;
     }
 
     //store result in m_points.
@@ -442,7 +442,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     }
 
     m_deads.clear();
-    if(debug)    std::cout<<m_name<<" : distribution of point successfully found w/ LevelSet engine "<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ LevelSet engine "<<std::endl;
 };
 
 /*!
@@ -454,12 +454,12 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 void
 CreateSeedsOnSurface::solveGrid(bool debug){
 
-    if(debug)    std::cout<<m_name<<" : started CartesianGrid engine"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : started CartesianGrid engine"<<std::endl;
     iarray3E dim;
 
     //get the seed and project it on surface
     darray3E projSeed = bvTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
-    if(debug)    std::cout<<m_name<<" : projected seed point"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
         m_points.push_back(projSeed);
@@ -511,7 +511,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     grid->execute();
     //grid->plotGrid("./", "lattice",0,false);
 
-    if(debug)    std::cout<<m_name<<" : build volume cartesian grid wrapping 3D surface"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : build volume cartesian grid wrapping 3D surface"<<std::endl;
     //find narrow band cells and extracting their centroids
     dvecarr3E centroids = grid->getGlobalCellCentroids();
 
@@ -530,7 +530,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
         }
         normal.fill(0.0);
     }
-    if(debug)    std::cout<<m_name<<" : found grid cell centers in the narrow band of 3D surface and projected them on it "<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : found grid cell centers in the narrow band of 3D surface and projected them on it "<<std::endl;
 
 
     //rearrange the list, putting the most nearest point to the seed on top
@@ -560,12 +560,12 @@ CreateSeedsOnSurface::solveGrid(bool debug){
         }
 
         initList = decimatePoints(secondList);
-        if(debug)    std::cout<<m_name<<" : candidates decimated "<<std::endl;
+        if(debug)    (*m_log)<<m_name<<" : candidates decimated "<<std::endl;
     }
     //store result in m_points.
     m_points = initList;
     m_nPoints = (int)m_points.size();
-    if(debug)    std::cout<<m_name<<" : distribution of point successfully found w/ CartesianGrid engine "<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ CartesianGrid engine "<<std::endl;
     delete grid; grid = NULL;
 };
 
@@ -578,12 +578,12 @@ CreateSeedsOnSurface::solveGrid(bool debug){
 void
 CreateSeedsOnSurface::solveRandom(bool debug){
 
-    if(debug)    std::cout<<m_name<<" : started Random engine"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : started Random engine"<<std::endl;
     dvecarr3E initList(getNPoints());
 
     //get the seed and project it on surface
     initList[0] = bvTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
-    if(debug)    std::cout<<m_name<<" : projected seed point"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
         m_points = initList;
@@ -627,14 +627,14 @@ CreateSeedsOnSurface::solveRandom(bool debug){
     }
 
 
-    if(debug)    std::cout<<m_name<<" : found random points"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : found random points"<<std::endl;
     //decimate points up to desired value
     initList = decimatePoints(tentative);
-    if(debug)    std::cout<<m_name<<" : decimated random points"<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : decimated random points"<<std::endl;
     //store result in m_points.
     m_points = initList;
     m_nPoints = (int)m_points.size();
-    if(debug)    std::cout<<m_name<<" : distribution of point successfully found w/ Random engine "<<std::endl;
+    if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ Random engine "<<std::endl;
 };
 
 

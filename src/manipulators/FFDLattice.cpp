@@ -61,7 +61,7 @@ FFDLattice::FFDLattice(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.FFDLattice"){
         absorbSectionXML(rootXML);
     }else{
-        std::cout<<"Warning in custom xml mimmo::FFDLattice constructor. No valid xml data found"<<std::endl;
+        (*m_log)<<"Warning in custom xml mimmo::FFDLattice constructor. No valid xml data found"<<std::endl;
     };
 }
 
