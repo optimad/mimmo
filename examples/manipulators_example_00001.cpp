@@ -61,6 +61,9 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("manipulators_output_00001.0000");
 
+    /**<Test control on change the logger name of mimmo after a base object declaration*/
+    setLogger("manipulators_example_00002");
+
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setRead(false);
     mimmo1->setWrite(true);
@@ -211,11 +214,9 @@ void test00001() {
     ch0.addObject(mimmo5);
 
     /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+     * Use debug flag false to avoid to print out the execution steps on console.
      */
-    cout << " --- execution start --- " << endl;
-    ch0.exec(true);
-    cout << " --- execution done --- " << endl;
+    ch0.exec();
 
     /* Clean up & exit;
      */
@@ -266,6 +267,10 @@ int main(int argc, char *argv[]) {
 
     {
 #endif
+
+        /**<Change the name of mimmo logger file (default mimmo.log)
+         * before initialization of BaseManipulation objects*/
+        mimmo::setLogger("mimmo");
 
         /**<Calling mimmo Test routines*/
         test00001() ;

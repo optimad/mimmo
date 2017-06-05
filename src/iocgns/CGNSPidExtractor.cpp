@@ -54,7 +54,7 @@ CGNSPidExtractor::CGNSPidExtractor(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.CGNSPidExtractor"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::CGNSPidExtractor constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

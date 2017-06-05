@@ -58,7 +58,7 @@ BendGeometry::BendGeometry(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.BendGeometry"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::BendGeometry constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

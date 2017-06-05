@@ -177,7 +177,7 @@ SplitField::execute(){
 
     bool check = split();
     if(!check){
-        (*m_log)<<"Error in class "<<m_name<<". Field cannot be split"<<std::endl;
+        (*m_log)<<"error in class "<<m_name<<". Field cannot be split"<<std::endl;
         (*m_log)<<"This could be due to not correct setting of geometries or division maps"<<std::endl;
     }
 }

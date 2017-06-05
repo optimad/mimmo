@@ -46,7 +46,7 @@ ProjectCloud::ProjectCloud(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.ProjectCloud"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::ProjectCloud constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

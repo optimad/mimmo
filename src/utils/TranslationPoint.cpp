@@ -48,7 +48,7 @@ TranslationPoint::TranslationPoint(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.TranslationPoint"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::TranslationPoint constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

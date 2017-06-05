@@ -55,7 +55,7 @@ IOCGNS::IOCGNS(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.IOCGNS"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::IOCGNS constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
@@ -298,7 +298,7 @@ IOCGNS::execute(){
         check = read();
     }
     if (!check){
-        (*m_log) << "mimmo : ERROR : file corrupted or not found : "<< m_rfilename << std::endl;
+        (*m_log) << "error: file corrupted or not found : "<< m_rfilename << std::endl;
         (*m_log) << " " << std::endl;
         exit(10);
     }
@@ -306,7 +306,7 @@ IOCGNS::execute(){
         check = write();
     }
     if (!check){
-        (*m_log) << "mimmo : ERROR : write not done : geometry not linked " << std::endl;
+        (*m_log) << "error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
         exit(11);
     }
@@ -341,7 +341,9 @@ IOCGNS::read(){
         return false;
     }
     if(nbases > 1){
-        (*m_log) << "More than one base found in grid file -> only the first zone will be read" << std::endl;
+        m_log->setPriority(bitpit::log::DEBUG);
+        (*m_log) << m_name << " more than one base found in grid file -> only the first zone will be read" << std::endl;
+        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     //Read name of basis and physical dimension
@@ -1004,7 +1006,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         default:
-            (*m_log)<< "mimmo : ERROR : "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
+            (*m_log)<< "error: "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
             return;
             break;
         }

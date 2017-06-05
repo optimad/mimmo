@@ -28,6 +28,7 @@
 
 using namespace std;
 using namespace bitpit;
+
 namespace mimmo{
 
 /*!
@@ -59,7 +60,7 @@ MimmoObject::MimmoObject(int type){
     m_bvTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
-    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
 /*!
@@ -141,8 +142,10 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
             m_pidsType.insert(0);
             
         }else{
+            m_log->setPriority(bitpit::log::DEBUG);
             (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
             (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
+            m_log->setPriority(bitpit::log::NORMAL);
         }	
     }
     m_bvTree.setPatch(m_patch);
@@ -152,7 +155,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     m_bvTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
-    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*!
@@ -164,7 +167,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     setPatch(type,geometry);
-    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
 /*!

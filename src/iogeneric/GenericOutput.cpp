@@ -58,7 +58,7 @@ GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.GenericOutput"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::GenericOutput constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

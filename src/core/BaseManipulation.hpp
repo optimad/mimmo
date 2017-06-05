@@ -99,6 +99,10 @@ class BaseManipulation{
      * see PortOut::exec
      */
     friend void PortOut::exec();
+    /*!
+     * see mimmo::setLogger
+     */
+    friend void mimmo::setLogger(std::string log);
 
 public:
     //type definitions

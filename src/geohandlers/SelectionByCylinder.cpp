@@ -50,7 +50,7 @@ SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML
     if(input == "mimmo.SelectionByCylinder"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::SelectionByCylinder constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
