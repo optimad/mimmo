@@ -73,7 +73,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
     if(input == "mimmo.CreateSeedsOnSurface"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::CreateSeedsOnSurface constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
@@ -308,7 +308,9 @@ CreateSeedsOnSurface::clear(){
  */
 void
 CreateSeedsOnSurface::execute(){
+    m_log->setPriority(bitpit::log::DEBUG);
     solve(false);
+    m_log->setPriority(bitpit::log::NORMAL);
 }
 
 /*!

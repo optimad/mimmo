@@ -30,8 +30,6 @@ using namespace std;
 namespace mimmo {
 
 int BaseManipulation::sm_baseManipulationCounter(1);
-//const std::string   MIMMO_DEFAULT_LOG_FILE = "mimmo";
-//bitpit::Logger*     m_log;
 
 /*!
  * Default constructor of BaseManipulation.
@@ -49,7 +47,7 @@ BaseManipulation::BaseManipulation(){
     m_priority      = 0;
     m_apply         = false;
     sm_baseManipulationCounter++;
-    m_log           = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
     if (m_counter == 1)
         initializeLogger();
 };
@@ -87,13 +85,18 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
     return (*this);
 };
 
-/*! Initialize the logger
+/*! Initialize the logger.
+ * NOTE: console verbosity set to QUIET as default.
  */
 void
 BaseManipulation::initializeLogger(){
-    bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::QUIET);
-    (*m_log) << "    " << std::endl;
-    (*m_log) << "    ----    mimmo    ----" << std::endl;
+    bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
+    bitpit::log::setFileVerbosity((*m_log), bitpit::log::DEBUG);
+    (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
+    (*m_log) << bitpit::log::context("mimmo");
+    (*m_log) << "--------------------------------------------------" << std::endl;
+    (*m_log) << "- mimmo - Surface manipulation and mesh morphing -" << std::endl;
+    (*m_log) << "--------------------------------------------------" << std::endl;
     (*m_log) << "    " << std::endl;
 }
 
@@ -469,7 +472,7 @@ BaseManipulation::exec(){
             for (auto ip : i->second){
                 std::vector<BaseManipulation*>  linked = ip->getLink();
                 if (linked.size() == 0){
-                    (*m_log) << "mimmo : error " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
+                    (*m_log) << "error: " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
                     exit(11);
                 }
                 count++;
@@ -482,7 +485,7 @@ BaseManipulation::exec(){
                 check = check || linked.size();
             }
             if (!check){
-                (*m_log) << "mimmo : error " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
+                (*m_log) << "error: " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
                 exit(11);
             }
         }

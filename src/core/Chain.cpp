@@ -24,6 +24,7 @@
 #include "Chain.hpp"
 
 using namespace std;
+
 namespace mimmo{
 
 uint8_t Chain::sm_chaincounter(0);
@@ -33,11 +34,11 @@ uint8_t Chain::sm_chaincounter(0);
  * It sets to zero/null each member/pointer.
  */
 Chain::Chain(){
-	m_id 			= sm_chaincounter;
-	m_objcounter	= 0;
-	m_objects.clear();
-	m_idObjects.clear();
-	sm_chaincounter++;
+    m_id 			= sm_chaincounter;
+    m_objcounter	= 0;
+    m_objects.clear();
+    m_idObjects.clear();
+    sm_chaincounter++;
 };
 
 
@@ -45,26 +46,26 @@ Chain::Chain(){
  * Default destructor of Chain.
  */
 Chain::~Chain(){
-	clear();
-	sm_chaincounter = 0;
+    clear();
+    sm_chaincounter = 0;
 };
 
 /*!
  * Copy constructor of Chain.
  */
 Chain::Chain(const Chain & other){
-	*this = other;
+    *this = other;
 };
 
 /*!
  * Assignement operator of Chain.
  */
 Chain & Chain::operator=(const Chain & other){
-	m_id 		= other.m_id;
-	m_objects	= other.m_objects;
-	m_idObjects	= other.m_idObjects;
-	m_objcounter= other.m_objcounter;
-	return (*this);
+    m_id 		= other.m_id;
+    m_objects	= other.m_objects;
+    m_idObjects	= other.m_idObjects;
+    m_objcounter= other.m_objcounter;
+    return (*this);
 };
 
 /*!
@@ -72,9 +73,9 @@ Chain & Chain::operator=(const Chain & other){
  */
 void
 Chain::clear(){
-	m_objcounter	= 0;
-	m_objects.clear();
-	m_idObjects.clear();
+    m_objcounter	= 0;
+    m_objects.clear();
+    m_idObjects.clear();
 };
 
 /*!
@@ -83,7 +84,7 @@ Chain::clear(){
  */
 uint32_t
 Chain::getNObjects(){
-	return m_objects.size();
+    return m_objects.size();
 };
 
 /*!
@@ -92,7 +93,7 @@ Chain::getNObjects(){
  */
 uint8_t
 Chain::getID(){
-	return m_id;
+    return m_id;
 };
 
 /*!
@@ -101,7 +102,7 @@ Chain::getID(){
  */
 uint8_t
 Chain::getNChains(){
-	return sm_chaincounter;
+    return sm_chaincounter;
 };
 
 /*!
@@ -111,7 +112,7 @@ Chain::getNChains(){
  */
 int
 Chain::getID(int i){
-	return m_idObjects[i];
+    return m_idObjects[i];
 };
 
 /*!
@@ -121,7 +122,7 @@ Chain::getID(int i){
  */
 string
 Chain::getName(int i){
-	return m_objects[i]->getName();
+    return m_objects[i]->getName();
 };
 
 /*!
@@ -130,15 +131,15 @@ Chain::getName(int i){
  */
 bool
 Chain::deleteObject(int idobj){
-	bool cut = false;
-	vector<int>::iterator it = find(m_idObjects.begin(), m_idObjects.end(), idobj);
-	if (it != m_idObjects.end()){
-		int idx = distance(m_idObjects.begin(), it);
-		if (m_objects[idx]->getParent() != NULL || m_objects[idx]->getNChild() != 0) cut = true;
-		m_objects.erase(m_objects.begin()+idx);
-		m_idObjects.erase(it);
-	}
-	return cut;
+    bool cut = false;
+    vector<int>::iterator it = find(m_idObjects.begin(), m_idObjects.end(), idobj);
+    if (it != m_idObjects.end()){
+        int idx = distance(m_idObjects.begin(), it);
+        if (m_objects[idx]->getParent() != NULL || m_objects[idx]->getNChild() != 0) cut = true;
+        m_objects.erase(m_objects.begin()+idx);
+        m_idObjects.erase(it);
+    }
+    return cut;
 };
 
 /*!
@@ -152,75 +153,75 @@ Chain::deleteObject(int idobj){
  */
 int
 Chain::addObject(BaseManipulation* obj, int id_){
-	int id = id_;
-	if (id_ < 0){
-		id = m_objcounter;
-		m_objcounter++;
-	}
-	if (m_objects.size() == 0){
-		m_objects.push_back(obj);
-		m_idObjects.push_back(id);
-		return 0;
-	}
-	vector<BaseManipulation*>::iterator itchild = m_objects.end();
-	vector<BaseManipulation*>::iterator itparent;
-	int idxchild = m_objects.size();
-	ivector1D idxparent(obj->getNParent(), -1);
-	if (obj->getNChild()>0){
-		for (int i=0; i<obj->getNChild(); i++){
-			itchild = find(m_objects.begin(), m_objects.end(), obj->getChild(i));
-			if (itchild != m_objects.end()){
-				idxchild = min(idxchild, int(distance(m_objects.begin(), itchild)));
-			}
-		}
-	}
-	if (obj->getNParent()>0){
-		for (int i=0; i<obj->getNParent(); i++){
-			if (obj->getParent(i) != NULL){
-				itparent = find(m_objects.begin(), m_objects.end(), obj->getParent(i));
-				if (itparent != m_objects.end()){
-					idxparent[i] = distance(m_objects.begin(), itparent);
-				}
-			}
-		}
-	}
-	for (int i=0; i<obj->getNParent(); i++){
-		if (idxparent[i] == idxchild) return -1;
-	}
+    int id = id_;
+    if (id_ < 0){
+        id = m_objcounter;
+        m_objcounter++;
+    }
+    if (m_objects.size() == 0){
+        m_objects.push_back(obj);
+        m_idObjects.push_back(id);
+        return 0;
+    }
+    vector<BaseManipulation*>::iterator itchild = m_objects.end();
+    vector<BaseManipulation*>::iterator itparent;
+    int idxchild = m_objects.size();
+    ivector1D idxparent(obj->getNParent(), -1);
+    if (obj->getNChild()>0){
+        for (int i=0; i<obj->getNChild(); i++){
+            itchild = find(m_objects.begin(), m_objects.end(), obj->getChild(i));
+            if (itchild != m_objects.end()){
+                idxchild = min(idxchild, int(distance(m_objects.begin(), itchild)));
+            }
+        }
+    }
+    if (obj->getNParent()>0){
+        for (int i=0; i<obj->getNParent(); i++){
+            if (obj->getParent(i) != NULL){
+                itparent = find(m_objects.begin(), m_objects.end(), obj->getParent(i));
+                if (itparent != m_objects.end()){
+                    idxparent[i] = distance(m_objects.begin(), itparent);
+                }
+            }
+        }
+    }
+    for (int i=0; i<obj->getNParent(); i++){
+        if (idxparent[i] == idxchild) return -1;
+    }
 
-	bool parentsMinor = true;
-	for (int i=0; i<obj->getNParent(); i++){
-		if (idxparent[i] > idxchild){
-			parentsMinor = false;
-		}
-	}
-	if (!parentsMinor){
-		ivector1D idparent(obj->getNParent(), -1);
-		vector<BaseManipulation*> parent(obj->getNParent());
-		for (int i=0; i<obj->getNParent(); i++){
-			if (idxparent[i] > idxchild){
-				parent[i] = obj->getParent(i);
-				itparent = find(m_objects.begin(), m_objects.end(), parent[i]);
-				int idxtemp = distance(m_objects.begin(), itparent);
-				idparent[i] = m_idObjects[idxtemp];
-				m_objects.erase(itparent);
-				m_idObjects.erase(m_idObjects.begin()+idxtemp);
-			}
-		}
-		int idx = addObject(obj, id);
-		for (int i=0; i<obj->getNParent(); i++){
-			if (idxparent[i] > idxchild){
-				addObject(parent[i], idparent[i]);
-				parent[i] = NULL;
-			}
-		}
-		return idx+1;
-	}else{
-		m_objects.insert(m_objects.begin()+idxchild, obj);
-		m_idObjects.insert(m_idObjects.begin()+idxchild, id);
-		return idxchild;
-	}
-	return 0;
+    bool parentsMinor = true;
+    for (int i=0; i<obj->getNParent(); i++){
+        if (idxparent[i] > idxchild){
+            parentsMinor = false;
+        }
+    }
+    if (!parentsMinor){
+        ivector1D idparent(obj->getNParent(), -1);
+        vector<BaseManipulation*> parent(obj->getNParent());
+        for (int i=0; i<obj->getNParent(); i++){
+            if (idxparent[i] > idxchild){
+                parent[i] = obj->getParent(i);
+                itparent = find(m_objects.begin(), m_objects.end(), parent[i]);
+                int idxtemp = distance(m_objects.begin(), itparent);
+                idparent[i] = m_idObjects[idxtemp];
+                m_objects.erase(itparent);
+                m_idObjects.erase(m_idObjects.begin()+idxtemp);
+            }
+        }
+        int idx = addObject(obj, id);
+        for (int i=0; i<obj->getNParent(); i++){
+            if (idxparent[i] > idxchild){
+                addObject(parent[i], idparent[i]);
+                parent[i] = NULL;
+            }
+        }
+        return idx+1;
+    }else{
+        m_objects.insert(m_objects.begin()+idxchild, obj);
+        m_idObjects.insert(m_idObjects.begin()+idxchild, id);
+        return idxchild;
+    }
+    return 0;
 }
 
 /*!
@@ -232,27 +233,28 @@ Chain::addObject(BaseManipulation* obj, int id_){
  */
 void
 Chain::exec(bool debug){
-    m_log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
-	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
-	vector<BaseManipulation*>::iterator itend = m_objects.end();
-	if(debug){
-		(*m_log) << " " << endl;
-		(*m_log) << "---------------------------------------------------------------------------------------------------    " << endl;
-		(*m_log) << "mimmo : execution of chain - "<< m_objcounter << " objects" << std::endl;
-		(*m_log) << " " << std::endl;
-	}	
-	checkLoops();
-	int i = 1;
-	for (it = itb; it != itend; ++it){
-		if(debug)	(*m_log) << "mimmo : execution object " << i << "	: " << (*it)->getName() << std::endl;
-		(*it)->exec();
-		i++;
-	}
-	if(debug){
-		(*m_log) << " " << std::endl;
-		(*m_log) << "---------------------------------------------------------------------------------------------------    " << std::endl;
-		(*m_log) << " " << std::endl;
-	}	
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    m_log->setPriority(bitpit::log::DEBUG);
+    vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
+    vector<BaseManipulation*>::iterator itend = m_objects.end();
+    if(debug)
+        m_log->setPriority(bitpit::log::NORMAL);
+    (*m_log) << " " << endl;
+    (*m_log) << "--------------------------------------------------" << std::endl;
+    (*m_log) << " Execution of chain - "<< m_objcounter << " objects" << std::endl;
+    (*m_log) << " " << std::endl;
+    checkLoops();
+    int i = 1;
+    for (it = itb; it != itend; ++it){
+        (*m_log) << " execution object " << i << "	: " << (*it)->getName() << std::endl;
+        (*it)->exec();
+        i++;
+    }
+
+    (*m_log) << " " << std::endl;
+    (*m_log) << "--------------------------------------------------" << std::endl;
+    (*m_log) << " " << std::endl;
+    m_log->setPriority(bitpit::log::NORMAL);
 }
 
 /*!
@@ -261,8 +263,8 @@ Chain::exec(bool debug){
  */
 void
 Chain::exec(int idobj){
-	int idx = distance(m_idObjects.begin(), find(m_idObjects.begin(), m_idObjects.end(), idobj));
-	if (idx <  (int)m_objects.size()) m_objects[idx]->exec();
+    int idx = distance(m_idObjects.begin(), find(m_idObjects.begin(), m_idObjects.end(), idobj));
+    if (idx <  (int)m_objects.size()) m_objects[idx]->exec();
 }
 
 /*!
@@ -271,22 +273,20 @@ Chain::exec(int idobj){
  */
 void
 Chain::checkLoops(){
-	vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
-	vector<BaseManipulation*>::iterator itend = m_objects.end();
-	int actualidx = 0;
-	for (it = itb; it != itend; ++it){
-		for (int i=0; i<(*it)->getNChild(); i++){
-			int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));
-			if (idxchild <= actualidx){
-				(*m_log) << "mimmo : ERROR : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
-				(*m_log) << " " << std::endl;
-				(*m_log) << "---------------------------------------------------------------------------------------------------    " << std::endl;
-				(*m_log) << " " << std::endl;
-				exit(8);
-			}
-		}
-		actualidx++;
-	}
+    vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
+    vector<BaseManipulation*>::iterator itend = m_objects.end();
+    int actualidx = 0;
+    for (it = itb; it != itend; ++it){
+        for (int i=0; i<(*it)->getNChild(); i++){
+            int idxchild = distance(m_objects.begin(), find(m_objects.begin(), m_objects.end(), (*it)->getChild(i)));
+            if (idxchild <= actualidx){
+                (*m_log) << " error : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
+                (*m_log) << " " << std::endl;
+                exit(8);
+            }
+        }
+        actualidx++;
+    }
 }
 
 }

@@ -48,7 +48,7 @@ SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.SelectionByPID"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::SelectionByPID constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

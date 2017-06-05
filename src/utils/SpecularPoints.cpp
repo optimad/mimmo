@@ -58,7 +58,7 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.SpecularPoints"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::SpecularPoints constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

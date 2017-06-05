@@ -47,7 +47,7 @@ OverlapScalarFields::OverlapScalarFields(const bitpit::Config::Section & rootXML
     if(input == "mimmo.OverlapScalarFields"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::OverlapScalarFields constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

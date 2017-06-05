@@ -61,7 +61,7 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
     if(input_name == "mimmo.MultipleMimmoGeometries"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::MultipleMimmoGeometries constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
@@ -602,7 +602,9 @@ MultipleMimmoGeometries::write(){
     int totInfo = m_winfo.size();
 
     if(totGeo != totInfo)    {
-        (*m_log)<<"WARNING:Not enough output info or some invalid geoemetries found writing in class "<<m_name<<std::endl;
+        m_log->setPriority(bitpit::log::DEBUG);
+        (*m_log)<<"warning: not enough output info or some invalid geoemetries found writing in class "<<m_name<<std::endl;
+        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     totGeo = std::min(totGeo, totInfo);
@@ -668,14 +670,14 @@ MultipleMimmoGeometries::execute(){
     bool check = true;
     if (m_read) check = read();
     if (!check){
-        (*m_log) << "mimmo : ERROR : no files to read found : "<< std::endl;
+        (*m_log) << m_name << " error: no files to read found : "<< std::endl;
         (*m_log) << " " << std::endl;
         exit(10);
     }
     check = true;
     if (m_write) check = write();
     if (!check){
-        (*m_log) << "mimmo : ERROR : write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
+        (*m_log) << m_name << " error: write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
         (*m_log) << " " << std::endl;
         exit(11);
     }

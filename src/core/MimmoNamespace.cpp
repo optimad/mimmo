@@ -1,36 +1,37 @@
 #include "MimmoNamespace.hpp"
 #include "BaseManipulation.hpp"
 
-namespace mimmo{
+std::string mimmo::MIMMO_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
 
+namespace mimmo{
 
 /*!
  * Default constructor od FileDataInfo
  */
 FileDataInfo::FileDataInfo(){};
-	
+
 /*!
  * Default destructor of FileDataInfo.
  */
 FileDataInfo::~FileDataInfo(){};
-	
+
 /*!
  * Copy constructor of FileDataInfo;
  */
 FileDataInfo::FileDataInfo(const FileDataInfo & other){
-	*this = other;
+    *this = other;
 };
-	
+
 /*!
  * Assignement operator of FileDataInfo.
  */
 FileDataInfo & FileDataInfo::operator=(const FileDataInfo & other){
-	ftype = other.ftype;
-	fname = other.fname;
-	fdir = other.fdir;
-	return *this;
+    ftype = other.ftype;
+    fname = other.fname;
+    fdir = other.fdir;
+    return *this;
 };
-	
+
 namespace pin{
 
 /*!
@@ -44,35 +45,35 @@ namespace pin{
  */
 bool
 addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced){
-    bitpit::Logger* log = &bitpit::log::cout(MIMMO_DEFAULT_LOG_FILE);
+    bitpit::Logger* log = &bitpit::log::cout(MIMMO_LOG_FILE);
     bool done = false;
-	if (!objSend->arePortsBuilt()){
-		objSend->buildPorts();
-		if (!objSend->arePortsBuilt()){
-			(*log) << "mimmo : error " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
-			exit(11);
-		}
-	}
-	if (!objRec->arePortsBuilt()){
-		objRec->buildPorts();
-		if (!objRec->arePortsBuilt()){
-			(*log) << "mimmo : error " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
-			exit(11);
-		}
-	}
-	if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){
-		if (objSend->m_portOut.count(portS) != 0 && objRec->m_portIn.count(portR) != 0){
-			if (forced || checkCompatibility(objSend, objRec, portS, portR)){
-				objSend->addPinOut(objRec, portS, portR);
-				objRec->addPinIn(objSend, portR);
-				objSend->addChild(objRec);
-				objRec->addParent(objSend);
-				done = true;
-			}
-		}
-	}
-	if (!done) (*log)<<"Warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
-	return done;
+    if (!objSend->arePortsBuilt()){
+        objSend->buildPorts();
+        if (!objSend->arePortsBuilt()){
+            (*log) << "error: " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
+            exit(11);
+        }
+    }
+    if (!objRec->arePortsBuilt()){
+        objRec->buildPorts();
+        if (!objRec->arePortsBuilt()){
+            (*log) << "error: " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
+            exit(11);
+        }
+    }
+    if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){
+        if (objSend->m_portOut.count(portS) != 0 && objRec->m_portIn.count(portR) != 0){
+            if (forced || checkCompatibility(objSend, objRec, portS, portR)){
+                objSend->addPinOut(objRec, portS, portR);
+                objRec->addPinIn(objSend, portR);
+                objSend->addChild(objRec);
+                objRec->addParent(objSend);
+                done = true;
+            }
+        }
+    }
+    if (!done) (*log)<<"warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
+    return done;
 }
 
 /*!
@@ -83,31 +84,31 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 void
 removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
-	std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
-	for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
-		if (i->second != NULL){
-			std::vector<BaseManipulation*> linked = i->second->getLink();
-			for (int j=0; j<(int)linked.size(); j++){
-				if (linked[j] == objRec){
-					objSend->removePinOut(i->first,j);
-					objSend->unsetChild(objRec);
-				}
-			}
-		}
-	}
+    std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
+    for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
+        if (i->second != NULL){
+            std::vector<BaseManipulation*> linked = i->second->getLink();
+            for (int j=0; j<(int)linked.size(); j++){
+                if (linked[j] == objRec){
+                    objSend->removePinOut(i->first,j);
+                    objSend->unsetChild(objRec);
+                }
+            }
+        }
+    }
 
-	std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
-	for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
-		std::vector<BaseManipulation*> linked = i->second->getLink();
-		if (i->second != NULL){
-			for (int j=0; j<(int)linked.size(); j++){
-				if (linked[j] == objSend){
-					objRec->removePinIn(i->first,j);
-					objRec->unsetParent(objSend);
-				}
-			}
-		}
-	}
+    std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
+    for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
+        std::vector<BaseManipulation*> linked = i->second->getLink();
+        if (i->second != NULL){
+            for (int j=0; j<(int)linked.size(); j++){
+                if (linked[j] == objSend){
+                    objRec->removePinIn(i->first,j);
+                    objRec->unsetParent(objSend);
+                }
+            }
+        }
+    }
 
 }
 
@@ -122,10 +123,10 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 void
 removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
 
-	objSend->removePinOut(objRec, portS);
-	objRec->removePinIn(objSend, portR);
-	objSend->unsetChild(objRec);
-	objRec->unsetParent(objSend);
+    objSend->removePinOut(objRec, portS);
+    objRec->removePinIn(objSend, portR);
+    objSend->unsetChild(objRec);
+    objRec->unsetParent(objSend);
 
 }
 
@@ -139,15 +140,36 @@ removePin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, Por
  */
 bool
 checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR){
-	bool check = false;
-	PortIn*		pinin 	= objRec->getPortsIn()[portR];
-	PortOut*	pinout 	= objSend->getPortsOut()[portS];
-	DataType typeR = pinin->getDataType();
-	DataType typeS = pinout->getDataType();
-	check = (typeS == typeR);
-	return(check);
+    bool check = false;
+    PortIn*		pinin 	= objRec->getPortsIn()[portR];
+    PortOut*	pinout 	= objSend->getPortsOut()[portS];
+    DataType typeR = pinin->getDataType();
+    DataType typeS = pinout->getDataType();
+    check = (typeS == typeR);
+    return(check);
 }
 
 }//end pin namespace
+
+
+/*!Change the name of the logger.
+ * \param[in] log name of the logger file.
+ */
+void    setLogger(std::string log){
+    if (BaseManipulation::sm_baseManipulationCounter > 1){
+        bitpit::Logger* log = &bitpit::log::cout(MIMMO_LOG_FILE);
+        log->setPriority(bitpit::log::DEBUG);
+        (*log) << "warning: logger already set -> cannot change logger name " << std::endl;
+        log->setPriority(bitpit::log::NORMAL);
+        return;
+    }
+    MIMMO_LOG_FILE = log;
+}
+
+void    warningXML(bitpit::Logger* log, std::string name){
+    log->setPriority(bitpit::log::DEBUG);
+    (*log)<<"warning in custom xml " << name << " constructor. No valid xml data found"<<std::endl;
+    log->setPriority(bitpit::log::NORMAL);
+}
 
 }//end mimmo namespace

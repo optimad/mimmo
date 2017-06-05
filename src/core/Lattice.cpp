@@ -1,25 +1,25 @@
 /*---------------------------------------------------------------------------*\
-*
-*  mimmo
-*
-*  Copyright (C) 2015-2017 OPTIMAD engineering Srl
-*
-*  -------------------------------------------------------------------------
-*  License
-*  This file is part of mimmo.
-*
-*  mimmo is free software: you can redistribute it and/or modify it
-*  under the terms of the GNU Lesser General Public License v3 (LGPL)
-*  as published by the Free Software Foundation.
-*
-*  mimmo is distributed in the hope that it will be useful, but WITHOUT
-*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
-*  License for more details.
-*
-*  You should have received a copy of the GNU Lesser General Public License
-*  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
-*
+ *
+ *  mimmo
+ *
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *
+ *  -------------------------------------------------------------------------
+ *  License
+ *  This file is part of mimmo.
+ *
+ *  mimmo is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
+ *
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
+ *
 \ *---------------------------------------------------------------------------*/
 
 #include "Lattice.hpp"
@@ -53,7 +53,7 @@ Lattice::Lattice(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.Lattice"){
         absorbSectionXML(rootXML);
     }else{	
-        (*m_log)<<"Warning in custom xml mimmo::Lattice constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
@@ -61,15 +61,15 @@ Lattice::Lattice(const bitpit::Config::Section & rootXML){
 Lattice::~Lattice(){};
 
 /*! Copy Constructor
-*\param[in] other Lattice object
-*/
+ *\param[in] other Lattice object
+ */
 Lattice::Lattice(const Lattice & other):BaseManipulation(), UStructMesh(){
     *this = other;
 };
 
 /*! Copy Operator
-* \param[in] other Lattice object
-*/
+ * \param[in] other Lattice object
+ */
 Lattice & Lattice::operator=(const Lattice & other){
 
     *(static_cast<UStructMesh *>(this))  = *(static_cast<const UStructMesh *>(&other));
@@ -94,7 +94,7 @@ void Lattice::buildPorts(){
     built = (built && createPortIn<const BasicShape *, Lattice>(this, &mimmo::Lattice::setShape, PortType::M_COPYSHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
     built = (built && createPortIn<int, Lattice>(this, &mimmo::Lattice::setShape, PortType::M_SHAPEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
 
-// creating output ports
+    // creating output ports
     built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getGlobalCoords, PortType::M_GLOBAL, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dvecarr3E, Lattice>(this, &mimmo::Lattice::getLocalCoords, PortType::M_LOCAL, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
@@ -103,7 +103,7 @@ void Lattice::buildPorts(){
     built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, PortType::M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
     built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, PortType::M_COPYSHAPE, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHAPE_));
     built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    
+
     m_arePortsBuilt = built;
 };
 
@@ -126,9 +126,9 @@ int Lattice::getNNodes(){
 
 /*! 
  * Return position of effective mesh nodes in the lattice, in absolute reference system.
-*  Reimplemented from UstructMesh::getGlobalCoords. 
-* \return effective mesh nodes position 
-*/
+ *  Reimplemented from UstructMesh::getGlobalCoords.
+ * \return effective mesh nodes position
+ */
 dvecarr3E
 Lattice::getGlobalCoords(){
     int np = (getNNodes());
@@ -144,9 +144,9 @@ Lattice::getGlobalCoords(){
 
 /*! 
  * Return position of effective mesh nodes in the lattice, in local shape reference system.
-*  Reimplemented from UstructMesh::getLocalCoords. 
-* \return effective mesh nodes position 
-*/
+ *  Reimplemented from UstructMesh::getLocalCoords.
+ * \return effective mesh nodes position
+ */
 dvecarr3E
 Lattice::getLocalCoords(){
     int np = (getNNodes());
@@ -288,79 +288,79 @@ Lattice::resizeMapDof(){
     int i0,i1,i2;
     switch(getShapeType()){
 
-        case ShapeType::CYLINDER :
-            target=0;
-            while(itMap != itMapEnd){
+    case ShapeType::CYLINDER :
+        target=0;
+        while(itMap != itMapEnd){
 
-                *itMap = target;
-                index = std::distance(itMapBegin, itMap);
-                accessPointIndex(index,i0,i1,i2);
+            *itMap = target;
+            index = std::distance(itMapBegin, itMap);
+            accessPointIndex(index,i0,i1,i2);
 
-                if(info[0] && i0 == 0){
-                    for(int k=0; k<=m_ny;++k){
-                        m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
+            if(info[0] && i0 == 0){
+                for(int k=0; k<=m_ny;++k){
+                    m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
+                }
+            }
+            if(info[1] && i1 == 0){
+                m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
+            }
+
+            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+            target++;
+        }
+        break;
+
+    case ShapeType::SPHERE :
+
+        target = 0;
+        while(itMap != itMapEnd){
+
+            *itMap = target;
+            index = std::distance(itMapBegin, itMap);
+            accessPointIndex(index,i0,i1,i2);
+
+            if(info[0] && i0 == 0){
+                for(int k1=0; k1<=m_ny;++k1){
+                    for(int k2=0; k2<=m_nz; ++k2){
+                        m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
                     }
                 }
-                if(info[1] && i1 == 0){
-                    m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
-                }
-
-                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-                target++;
             }
-            break;
 
-        case ShapeType::SPHERE :
-
-            target = 0;
-            while(itMap != itMapEnd){
-
-                *itMap = target;
-                index = std::distance(itMapBegin, itMap);
-                accessPointIndex(index,i0,i1,i2);
-
-                if(info[0] && i0 == 0){
-                    for(int k1=0; k1<=m_ny;++k1){
-                        for(int k2=0; k2<=m_nz; ++k2){
-                            m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
-                        }
-                    }
-                }
-
-                if(info[1] && i1 == 0){
-                    m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
-                }
-
-                if(info[2] && i2 == 0){
-                    for(int k1=0; k1<=m_ny; ++k1){
-                            m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
-                        }
-                }
-
-                if(info[3] && i2 == (m_nz)){
-                    for(int k1=0; k1<=m_ny;++k1){
-                        m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
-                    }
-                }
-
-                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-                target++;
+            if(info[1] && i1 == 0){
+                m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
             }
-            break;
 
-
-        case ShapeType::CUBE :
-            target = 0;
-            while(itMap != itMapEnd){
-
-                *itMap = target;
-                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-                target++;
+            if(info[2] && i2 == 0){
+                for(int k1=0; k1<=m_ny; ++k1){
+                    m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+                }
             }
-            break;
 
-        default: //doing nothing
-            break;
+            if(info[3] && i2 == (m_nz)){
+                for(int k1=0; k1<=m_ny;++k1){
+                    m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+                }
+            }
+
+            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+            target++;
+        }
+        break;
+
+
+    case ShapeType::CUBE :
+        target = 0;
+        while(itMap != itMapEnd){
+
+            *itMap = target;
+            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+            target++;
+        }
+        break;
+
+    default: //doing nothing
+    break;
     }//end switch
 
 }
@@ -371,9 +371,9 @@ Lattice::resizeMapDof(){
  * \param[in] name   name associated to the slot
  */
 void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     std::string input; 
     if(slotXML.hasOption("Priority")){
         input = slotXML.get("Priority");
@@ -384,11 +384,11 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         }
         setPriority(value);
     }; 
-    
+
     if(slotXML.hasOption("Shape")){
         std::string input = slotXML.get("Shape");
         input = bitpit::utils::trim(input);
-        
+
         if(input == "CYLINDER"){
             setShape(ShapeType::CYLINDER);
         }else if(input =="SPHERE"){
@@ -397,7 +397,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             setShape(ShapeType::CUBE);
         }
     }; 
-    
+
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
         input = bitpit::utils::trim(input);
@@ -408,7 +408,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         }
         setOrigin(temp);
     }; 
-        
+
     if(slotXML.hasOption("Span")){
         std::string input = slotXML.get("Span");
         input = bitpit::utils::trim(input);
@@ -419,7 +419,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         }
         setSpan(temp);
     }; 
-    
+
     if(slotXML.hasSection("RefSystem")){
         const bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
         std::string rootAxis = "axis";
@@ -461,7 +461,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         }
         setDimension(temp);
     };
-    
+
     if(slotXML.hasOption("PlotInExecution")){
         std::string input = slotXML.get("PlotInExecution");
         input = bitpit::utils::trim(input);
@@ -472,15 +472,15 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         }
         setPlotInExecution(value);
     }
-    
+
     if(slotXML.hasOption("OutputPlot")){
         std::string input = slotXML.get("OutputPlot");
         input = bitpit::utils::trim(input);
         std::string temp = ".";
         if(!input.empty())	setOutputPlot(input);
-    else			  	setOutputPlot(temp);
+        else			  	setOutputPlot(temp);
     }
-    
+
 }
 
 /*!
@@ -489,22 +489,22 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
  * \param[in] name   name associated to the slot
  */
 void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     slotXML.set("ClassName", m_name);
     slotXML.set("Priority", std::to_string(getPriority()));
-    
-    
+
+
     std::string towrite = "CUBE";
-    
+
     if(getShapeType() == ShapeType::CYLINDER){
         towrite = "CYLINDER";
     } else if(getShapeType() == ShapeType::SPHERE){
         towrite = "SPHERE";
     }	
     slotXML.set("Shape", towrite);
-    
+
     {
         std::stringstream ss;
         ss<<std::scientific<<getOrigin()[0]<<'\t'<<getOrigin()[1]<<'\t'<<getOrigin()[2];
@@ -516,7 +516,7 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
         ss<<std::scientific<<getSpan()[0]<<'\t'<<getSpan()[1]<<'\t'<<getSpan()[2];
         slotXML.set("Span", ss.str());
     }
-    
+
     {
         auto rs = getRefSystem();
         bitpit::Config::Section & rsXML = slotXML.addSection("RefSystem");
@@ -531,27 +531,27 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
             ++counter;
         }
     }
-    
+
     {
         std::stringstream ss;
         ss<<std::scientific<<getInfLimits()[0]<<'\t'<<getInfLimits()[1]<<'\t'<<getInfLimits()[2];
         slotXML.set("InfLimits", ss.str());
     }
-    
+
     {
         std::stringstream ss;
         ss<<getDimension()[0]<<'\t'<<getDimension()[1]<<'\t'<<getDimension()[2];
         slotXML.set("Dimension", ss.str());
     }
-    
+
     if(isPlotInExecution()){
         slotXML.set("PlotInExecution", std::to_string(1));
     }
-    
+
     if(m_outputPlot != "."){
         slotXML.set("OutputPlot", m_outputPlot);
     }
-    
+
 };
 
 
@@ -580,38 +580,38 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
     double dval;
     switch(getShapeType()){
 
-        case ShapeType::CYLINDER :
-            delta += nz;
-            nx--;
-            if(getCoordType(1) == CoordType::PERIODIC)	ny--;
+    case ShapeType::CYLINDER :
+        delta += nz;
+        nx--;
+        if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 
-            info.push_back(true);
-            info.push_back(getCoordType(1) == CoordType::PERIODIC);
-            break;
+        info.push_back(true);
+        info.push_back(getCoordType(1) == CoordType::PERIODIC);
+        break;
 
-        case ShapeType::SPHERE :
-            delta ++;
-            nx--;
-            if(getCoordType(1) == CoordType::PERIODIC)	ny--;
-            dval = getInfLimits()[2];
-            if(dval == 0.0)	{
-                nz--;
-                delta += nx;
-            }
-            if((dval + getLocalSpan()[2]) == M_PI){
-                nz--;
-                delta += nx;
-            }
+    case ShapeType::SPHERE :
+        delta ++;
+        nx--;
+        if(getCoordType(1) == CoordType::PERIODIC)	ny--;
+        dval = getInfLimits()[2];
+        if(dval == 0.0)	{
+            nz--;
+            delta += nx;
+        }
+        if((dval + getLocalSpan()[2]) == M_PI){
+            nz--;
+            delta += nx;
+        }
 
-            info.push_back(true);
-            info.push_back(getCoordType(1) == CoordType::PERIODIC);
-            info.push_back(dval==0.0);
-            info.push_back((dval + getLocalSpan()[2]) == M_PI);
-            break;
+        info.push_back(true);
+        info.push_back(getCoordType(1) == CoordType::PERIODIC);
+        info.push_back(dval==0.0);
+        info.push_back((dval + getLocalSpan()[2]) == M_PI);
+        break;
 
-        default:
-            //doing nothing
-            break;
+    default:
+        //doing nothing
+        break;
     }
 
     int result = nx*ny*nz + delta;

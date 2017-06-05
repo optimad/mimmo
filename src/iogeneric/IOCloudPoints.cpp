@@ -66,7 +66,7 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.IOCloudPoints"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::IOCloudPoints constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 
@@ -308,7 +308,9 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
             ss>>value;
         }
         if (m_read != value){
-            (*m_log)<< "Warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
+            m_log->setPriority(bitpit::log::DEBUG);
+            (*m_log)<< "warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
+            m_log->setPriority(bitpit::log::NORMAL);
             return;
         }
     };
@@ -521,7 +523,7 @@ IOCloudPoints::read(){
         }while(!reading.eof());
 
     }else{
-        (*m_log)<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
         exit(1);
     }
 
@@ -601,7 +603,7 @@ IOCloudPoints::write(){
         }
         writing<<""<<std::endl;
     }else{
-        (*m_log)<<"Error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
         exit(1);
     }
 

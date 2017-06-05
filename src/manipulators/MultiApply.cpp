@@ -46,7 +46,7 @@ MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
     if(input == "mimmo.MultiApply"){
         absorbSectionXML(rootXML);
     }else{
-        (*m_log)<<"Warning in custom xml mimmo::MultiApply constructor. No valid xml data found"<<std::endl;
+        warningXML(m_log, m_name);
     };
 }
 

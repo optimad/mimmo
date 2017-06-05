@@ -283,11 +283,12 @@ bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, Por
 } //end of pin namespace
 
 //log variables
-static  const std::string   MIMMO_DEFAULT_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
+extern std::string MIMMO_LOG_FILE; /**<Name of logger file.*/
+
+void    setLogger(std::string log);
+
+void    warningXML(bitpit::Logger* log, std::string name);
 
 }//end namespace mimmo
-
-
-
 
 #endif
