@@ -90,7 +90,7 @@ void test00002() {
     deg[2] = 2;
 
     lattice->setLattice(origin, span, ShapeType::CUBE, dim, deg);
-    lattice->setPlotInExecution(true);
+   
 
     /* Creation of Generic input block to read the
      * displacements of the control nodes of the lattice.
@@ -128,13 +128,16 @@ void test00002() {
     ch0.addObject(lattice);
     ch0.addObject(applier);
     ch0.addObject(mimmo1);
-
+    
+    ch0.setPlotDebugResults(true);
+    ch0.setOutputDebugResults(".");
+    
     /* Execution of chain.
      * Use debug flag false (default) to avoid to print out the execution steps.
      */
     cout << " " << endl;
     cout << " --- execution start ---" << endl;
-    ch0.exec(false);
+    ch0.exec(true);
     cout << " --- execution done --- " << endl;
     cout << " " << endl;
 

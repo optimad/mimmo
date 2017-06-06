@@ -55,6 +55,8 @@ protected:
 
     bitpit::Logger*                 m_log;              /**<Pointer to logger.*/
 
+    bool                            m_plotDebRes;       /**<boolean to activate plotting of debug intermediate results */
+    std::string                     m_outputDebRes;     /**<directory path to store the debug intermediate results, if plot is enabled*/
 	//static members
 	static	uint8_t					sm_chaincounter;	/**<Current global number of chain in the instance. */
 
@@ -78,6 +80,11 @@ public:
 	bool		deleteObject(int idobj);
 	void		clear();
 
+    void            setPlotDebugResults(bool active);
+    void            setOutputDebugResults(std::string path);
+    bool            isPlottingDebugResults();
+    std::string     getOutputDebugResults();
+    
 	//relationship methods
 	void 		exec(bool debug = false);
 	void 		exec(int idobj);

@@ -335,6 +335,7 @@ BaseManipulation::setGeometry(MimmoObject* geometry){
 
 /*!
  * Activates the feature to plot optional results of the block.
+ * This features is meant for debug purpose only.
  * \param[in] flag true/false to activate/deactivate the feature
  */
 void
@@ -344,7 +345,7 @@ BaseManipulation::setPlotInExecution( bool flag){
 
 /*!
  * Set path to directory where the optional results will be stored, 
- * if plotInExecution feature is set active.
+ * if setPlotInExecution feature is set active.
  * \param[in] path absolute path to specified directory, if empty use the default value "."
  */
 void

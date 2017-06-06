@@ -39,6 +39,8 @@ Chain::Chain(){
     m_objects.clear();
     m_idObjects.clear();
     sm_chaincounter++;
+    m_plotDebRes = false;
+    m_outputDebRes = ".";
 };
 
 
@@ -61,10 +63,12 @@ Chain::Chain(const Chain & other){
  * Assignement operator of Chain.
  */
 Chain & Chain::operator=(const Chain & other){
-    m_id 		= other.m_id;
-    m_objects	= other.m_objects;
-    m_idObjects	= other.m_idObjects;
-    m_objcounter= other.m_objcounter;
+    m_id           = other.m_id;
+    m_objects      = other.m_objects;
+    m_idObjects    = other.m_idObjects;
+    m_objcounter   = other.m_objcounter;
+    m_plotDebRes   = other.m_plotDebRes;
+    m_outputDebRes = other.m_outputDebRes;
     return (*this);
 };
 
@@ -224,6 +228,40 @@ Chain::addObject(BaseManipulation* obj, int id_){
     return 0;
 }
 
+
+/*!
+ * Activate plotting of intermediate/optional results of each block in the chain.
+ * Results will be stored in a directory path specified with method setOutputDebugResults;
+ * \param[in] active true/false to activate plotting
+ */
+void Chain::setPlotDebugResults(bool active){
+    m_plotDebRes = active;
+}
+
+/*!
+ * Specify path for plotting intermediate/optional results of each block in the chain.
+ * \param[in] path output directory path
+ */
+void Chain::setOutputDebugResults(std::string path){
+    m_outputDebRes = path;
+}
+
+/*!
+ * \return true if plotting of intermediate/optional results of each block in the chain is active.
+ */
+bool Chain::isPlottingDebugResults(){
+    return m_plotDebRes;
+}
+
+/*!
+ * \return specified path for storing intermediate/optional results of each block in the chain,
+ * if their plotting is enabled.
+ */
+std::string Chain::getOutputDebugResults(){
+    return m_outputDebRes;
+}
+
+
 /*!
  * It executes the chain, i.e. it executes all the manipulator objects
  * contained in the chain following the correct order.
@@ -241,11 +279,21 @@ Chain::exec(bool debug){
     (*m_log) << " " << endl;
     (*m_log) << "--------------------------------------------------" << std::endl;
     (*m_log) << " Execution of chain - "<< m_objcounter << " objects" << std::endl;
+    if(m_plotDebRes){
+        (*m_log) << "--------------------------------------------------" << std::endl;
+        (*m_log) << " Plotting of Debug Results is active"<< std::endl;
+        (*m_log) << " Results will be stored in the directory: "<<m_outputDebRes<< std::endl;
+        (*m_log) << "--------------------------------------------------" << std::endl;
+    }
     (*m_log) << " " << std::endl;
     checkLoops();
     int i = 1;
     for (it = itb; it != itend; ++it){
         (*m_log) << " execution object " << i << "	: " << (*it)->getName() << std::endl;
+        if(m_plotDebRes){
+            (*it)->setPlotInExecution(m_plotDebRes);
+            (*it)->setOutputPlot(m_outputDebRes);
+        }    
         (*it)->exec();
         i++;
     }
