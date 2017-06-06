@@ -47,8 +47,9 @@ BaseManipulation::BaseManipulation(){
     m_priority      = 0;
     m_apply         = false;
     sm_baseManipulationCounter++;
+    bool logexists  = bitpit::log::manager().exists(MIMMO_LOG_FILE);
     m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
-    if (m_counter == 1)
+    if (m_counter == 1 && !logexists)
         initializeLogger();
 };
 
