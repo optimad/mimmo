@@ -74,8 +74,11 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.IOOFOAM</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
  * - <B>ReadFlag</B>: activate reading mode boolean;
  * - <B>VTKReadDirs</B>: VTK reading directories path; there can be more than one with the following sub-structure : \n
  *              <tt> \<VTKReadDirs\> \n
