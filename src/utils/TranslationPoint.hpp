@@ -62,8 +62,11 @@ namespace mimmo{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.TranslationPoint</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
  * - <B>Origin</B>: point tha need to be translated;
  * - <B>Direction</B>: translation direction;
  * - <B>Translation</B>: entity of translation.

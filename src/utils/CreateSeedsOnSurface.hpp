@@ -82,15 +82,19 @@ enum class CSeedSurf{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.CreateSeedsOnSurface</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: plot optional result during object execution;
+ * - <B>OutputPlot</B>: set path to store optional result.
+ *
+ * Proper of the class:
  * - <B>NPoints</B>: total points to distribute;
  * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
  * - <B>Seed</B>: initial seed point;
  * - <B>MassCenterAsSeed</B>: boolean, if true use geometry mass center sa seed;
  * - <B>RandomFixedSeed</B>: get signature to fix distribution pattern when 0:RANDOM engine is selected;
- * - <B>PlotInExecution</B>: plot optional result during object execution;
- * - <B>OutputPlot</B>: set path to store optional result.
+
  *
  */
 class CreateSeedsOnSurface: public mimmo::BaseManipulation {

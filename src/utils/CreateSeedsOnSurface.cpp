@@ -1197,6 +1197,9 @@ void
 CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
 
     BITPIT_UNUSED(name);
+    
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
     if(slotXML.hasOption("NPoints")){
         std::string input = slotXML.get("NPoints");
         input = bitpit::utils::trim(input);
@@ -1256,24 +1259,6 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
         setRandomFixed(value);
     }
 
-    if(slotXML.hasOption("PlotInExecution")){
-        std::string input = slotXML.get("PlotInExecution");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setPlotInExecution(value);
-    }
-
-    if(slotXML.hasOption("OutputPlot")){
-        std::string input = slotXML.get("OutputPlot");
-        input = bitpit::utils::trim(input);
-        std::string temp = ".";
-        if(!input.empty())    setOutputPlot(input);
-        else                  setOutputPlot(temp);
-    }
 
 };
 
@@ -1287,9 +1272,8 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
-
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
     if(m_nPoints != 0 ){
         slotXML.set("NPoints", std::to_string(m_nPoints));
     }
@@ -1316,13 +1300,6 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
         slotXML.set("RandomFixed", std::to_string(signat));
     }
 
-    if(isPlotInExecution()){
-        slotXML.set("PlotInExecution", std::to_string(1));
-    }
-
-    if(m_outputPlot != "."){
-        slotXML.set("OutputPlot", m_outputPlot);
-    }
 
 };
 

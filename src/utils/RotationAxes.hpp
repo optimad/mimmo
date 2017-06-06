@@ -62,8 +62,11 @@ namespace mimmo{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.RotationAxes</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
  * - <B>Origin</B>: rotation axis origin;
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis;

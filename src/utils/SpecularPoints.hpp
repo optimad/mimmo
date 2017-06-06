@@ -79,8 +79,13 @@ namespace mimmo{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.SpecularPoints</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ * 
+ * Proper of the class:
  * - <B>Force</B>: boolean 0/1. If 1, force mirroring of points that lies on the plane;
  * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane;
  * - <B>Plane</B>: section defining the plane's normal and a point belonging to it : \n
@@ -88,8 +93,7 @@ namespace mimmo{
  *                  \<Point\> 0.0 0.0 0.0 \</Point\> \n
  *                  \<Normal\> 0.0 1.0 0.0 \</Normal\> \n
  *              \</Plane\> </tt> \n
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
- * - <B>OutputPlot</B>: target directory for optional results writing.
+
  *
  * Points list and data have to be mandatorily passed through port.
  *

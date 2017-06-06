@@ -67,8 +67,13 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.ControlDeformExtSurface</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Proper of the class:
  * - <B>Files</B>: external constraint surfaces list of file: \n
  *           <tt> \<Files\> \n
  *              \<file0\> \n
@@ -85,8 +90,6 @@ namespace mimmo{
  *              ... \n
  *           \</Files\> </tt> \n
  * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor;
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
- * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Geometry and deformation field have to be mandatorily passed through port.
  *
