@@ -174,115 +174,9 @@ SelectionByBoxWithScalar::plotOptionalResults(){
  */
 void
 SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	if(slotXML.hasOption("Priority")){
-		std::string input = slotXML.get("Priority");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::trim(input));
-			ss>>value;
-		}
-		setPriority(value);
-	}; 
-	
-	
-	if(slotXML.hasOption("Dual")){
-		std::string input = slotXML.get("Dual");
-		input = bitpit::utils::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setDual(value);
-	}
-	
-	if(slotXML.hasOption("Origin")){
-		std::string input = slotXML.get("Origin");
-		input = bitpit::utils::trim(input);
-		darray3E temp = {{0.0,0.0,0.0}};
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>temp[0]>>temp[1]>>temp[2];
-			setOrigin(temp);
-		}else{
-			setOrigin(temp);
-		}	
-	}
-	
-	if(slotXML.hasOption("Span")){
-		std::string input = slotXML.get("Span");
-		input = bitpit::utils::trim(input);
-		darray3E temp = {{1.0,1.0,1.0}};
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss>>temp[0]>>temp[1]>>temp[2];
-			setSpan(temp);
-		}else{
-			setSpan(temp);
-		}	
-	}	
-	
-	if(slotXML.hasSection("RefSystem")){
-		
-		const bitpit::Config::Section & axesXML = slotXML.getSection("RefSystem");
-		dmatrix33E axes;
-		for(int i=0; i<3; ++i){
-			axes[i].fill(0.0);
-			axes[i][i] = 1.0;
-		}
-		
-		if(axesXML.hasOption("axis0")){
-			std::string input = axesXML.get("axis0");
-			input = bitpit::utils::trim(input);
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss>>axes[0][0]>>axes[0][1]>>axes[0][2];
-			}
-		}
-		
-		if(axesXML.hasOption("axis1")){
-			std::string input = axesXML.get("axis1");
-			input = bitpit::utils::trim(input);
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss>>axes[1][0]>>axes[1][1]>>axes[1][2];
-			}
-		}
-		
-		if(axesXML.hasOption("axis2")){
-			std::string input = axesXML.get("axis2");
-			input = bitpit::utils::trim(input);
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss>>axes[2][0]>>axes[2][1]>>axes[2][2];
-			}
-		}
-		
-		setRefSystem(axes);
-	}	
-	
-	if(slotXML.hasOption("PlotInExecution")){
-		std::string input = slotXML.get("PlotInExecution");
-		input = bitpit::utils::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setPlotInExecution(value);
-	}
-	
-	if(slotXML.hasOption("OutputPlot")){
-		std::string input = slotXML.get("OutputPlot");
-		input = bitpit::utils::trim(input);
-		std::string temp = ".";
-		if(!input.empty())	setOutputPlot(input);
-		else			  	setOutputPlot(temp);
-	}
-	
+
+    BITPIT_UNUSED(name);
+    SelectionByBox::absorbSectionXML(slotXML, name);
 };
 
 /*!
@@ -292,49 +186,9 @@ SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotX
  */
 void
 SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-	
-	BITPIT_UNUSED(name);
-	
-	slotXML.set("ClassName", m_name);
-	slotXML.set("Priority", std::to_string(getPriority()));
-	
-	int value = m_dual;
-	slotXML.set("Dual", std::to_string(value));
-	
-	{
-		darray3E org = getOrigin();
-		std::stringstream ss;
-		ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2];
-		slotXML.set("Origin",ss.str());
-	}
-	
-	{
-		darray3E span = getSpan();
-		std::stringstream ss;
-		ss<<std::scientific<<span[0]<<'\t'<<span[1]<<'\t'<<span[2];
-		slotXML.set("Span",ss.str());
-	}
-	
-	{
-		dmatrix33E axes = getRefSystem();
-		bitpit::Config::Section & axesXML = slotXML.addSection("RefSystem");
-		
-		for(int i=0; i<3; ++i){
-			std::string name = "axis"+std::to_string(i);
-			std::stringstream ss;
-			ss<<std::scientific<<axes[i][0]<<'\t'<<axes[i][1]<<'\t'<<axes[i][2];
-			axesXML.set(name, ss.str());
-		}
-	}
-	
-	if(isPlotInExecution()){
-		slotXML.set("PlotInExecution", std::to_string(1));
-	}
-	
-	if(m_outputPlot != "."){
-		slotXML.set("OutputPlot", m_outputPlot);
-	}
-	
+    
+    BITPIT_UNUSED(name);
+    SelectionByBox::flushSectionXML(slotXML, name);
 };
 
 }

@@ -65,16 +65,20 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.ClipGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B> : boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Proper of the class:
  * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane normal;
  * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it: \n
  *         <tt> \<ClipPlane\> \n
  *              \<Point\> 0.0 0.0 0.0 \</Point\> \n
  *              \<Normal\> 0.0 1.0 0.0 \</Normal\> \n
  *              \</ClipPlane\> </tt>;
- * - <B>PlotInExecution</B> : boolean 0/1 print optional results of the class;
- * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
  *
  * Geometry has to be mandatorily passed through port.
  *

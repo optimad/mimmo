@@ -153,15 +153,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     BITPIT_UNUSED(name);
 
-    if(slotXML.hasOption("Priority")){
-        std::string input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
@@ -251,26 +243,6 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
     }
 
-
-    if(slotXML.hasOption("PlotInExecution")){
-        std::string input = slotXML.get("PlotInExecution");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setPlotInExecution(value);
-    }
-
-    if(slotXML.hasOption("OutputPlot")){
-        std::string input = slotXML.get("OutputPlot");
-        input = bitpit::utils::trim(input);
-        std::string temp = ".";
-        if(!input.empty())    setOutputPlot(input);
-        else                  setOutputPlot(temp);
-    }
-
 };
 
 /*!
@@ -283,8 +255,7 @@ SelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
+    BaseManipulation::flushSectionXML(slotXML, name);
 
     int value = m_dual;
     slotXML.set("Dual", std::to_string(value));
@@ -321,14 +292,6 @@ SelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::str
         std::stringstream ss;
         ss<<std::scientific<<inflim[0]<<'\t'<<inflim[1]<<'\t'<<inflim[2];
         slotXML.set("InfLimits",ss.str());
-    }
-
-    if(isPlotInExecution()){
-        slotXML.set("PlotInExecution", std::to_string(1));
-    }
-
-    if(m_outputPlot != "."){
-        slotXML.set("OutputPlot", m_outputPlot);
     }
 
 };

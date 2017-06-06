@@ -61,14 +61,17 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as "mimmo.StitchGeometry"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
- * - <B>BvTree</B>: evaluate bvTree true 1/false 0
- * - <B>KdTree</B>: evaluate kdTree true 1/false 0
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
+ * Proper of the class:
+ * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * - <B>BvTree</B>: evaluate bvTree true 1/false 0
+ * - <B>KdTree</B>: evaluate kdTree true 1/false 0
+ 
  * Geometries have to be mandatorily passed through port.
  *
  */

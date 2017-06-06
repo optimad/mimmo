@@ -62,11 +62,14 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation
  * - <B>ClassName</B>: name of the class as <tt>mimmo.OverlapScalarFields</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  * - <B>PlotInExecution</B>: plot optional results in execution;
  * - <B>OutputPlot</B>: path to store optional results.
+ *
+ * Proper of the class:
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
  *
@@ -157,11 +160,14 @@ private:
  *
  * The xml available parameters, sections and subsections are the following :
  *
- * - <B>ClassName</B>: name of the class as <tt>mimmo.OverlapVectorFields</tt>;
+ * Inherited from BaseManipulation
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.OverlapScalarFields</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  * - <B>PlotInExecution</B>: plot optional results in execution;
  * - <B>OutputPlot</B>: path to store optional results.
+ *
+ * Proper of the class:
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
  *

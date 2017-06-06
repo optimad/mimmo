@@ -77,8 +77,13 @@ namespace mimmo{
 * 
 * The xml available parameters, sections and subsections  are the following:
 * 
+* Inherited from BaseManipulation:
 * - <B>ClassName</B>: name of the class as "mimmo.Lattice"
-* - <B>Priority</B>: uint marking priority in multi-chain execution;    
+* - <B>Priority</B>: uint marking priority in multi-chain execution;
+* - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+* - <B>OutputPlot</B>: target directory for optional results writing. 
+*
+*  Proper of the class:
 * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
 * - <B>Origin</B>: 3D point marking the shape barycenter
 * - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
@@ -90,8 +95,6 @@ namespace mimmo{
 *                   \</RefSystem\> </tt>
 * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
 * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
-* - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
-* - <B>OutputPlot</B>: target directory for optional results writing. 
 * 
 * Geometry has to be mandatorily passed through port.
 */

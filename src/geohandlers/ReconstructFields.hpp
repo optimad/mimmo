@@ -81,11 +81,14 @@ enum class OverlapMethod{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation
  * - <B>ClassName</B>: name of the class as <tt>mimmo.ReconstructScalar</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
  * - <B>OutputPlot</B>: target directory for optional results writing;
+ *
+ * Proper of the class:
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
  *
@@ -175,11 +178,14 @@ private:
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation
  * - <B>ClassName</B>: name of the class as <tt>mimmo.ReconstructVector</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
  * - <B>OutputPlot</B>: target directory for optional results writing;
+ *
+ * Proper of the class:
+ * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
  *

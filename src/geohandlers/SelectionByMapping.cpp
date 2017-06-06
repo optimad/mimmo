@@ -428,16 +428,7 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
         if(m_topo != temp)    return;
     }
 
-    if(slotXML.hasOption("Priority")){
-        std::string input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
-
+    BaseManipulation::absorbSectionXML(slotXML, name);
     //start absorbing
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
@@ -493,25 +484,6 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 
     }
 
-        if(slotXML.hasOption("PlotInExecution")){
-            std::string input = slotXML.get("PlotInExecution");
-            input = bitpit::utils::trim(input);
-            bool value = false;
-            if(!input.empty()){
-                std::stringstream ss(input);
-                ss >> value;
-            }
-            setPlotInExecution(value);
-        }
-
-        if(slotXML.hasOption("OutputPlot")){
-            std::string input = slotXML.get("OutputPlot");
-            input = bitpit::utils::trim(input);
-            std::string temp = ".";
-            if(!input.empty())    setOutputPlot(input);
-            else                  setOutputPlot(temp);
-        }
-
 };
 
 /*!
@@ -523,9 +495,8 @@ void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std:
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
-
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
     slotXML.set("Topology", m_topo);
 
     int value = m_dual;
@@ -549,14 +520,6 @@ void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std:
         local.set("tag", typetag);
         ++counter;
     }
-
-        if(isPlotInExecution()){
-            slotXML.set("PlotInExecution", std::to_string(1));
-        }
-
-        if(m_outputPlot != "."){
-            slotXML.set("OutputPlot", m_outputPlot);
-        }
 
 };
 
