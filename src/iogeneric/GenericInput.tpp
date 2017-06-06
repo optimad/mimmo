@@ -74,7 +74,7 @@ GenericInput::getResult(){
             file.close();
         }else{
             (*m_log) << "file not open --> exit" << std::endl;
-            exit(1);
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
         _setResult(data);
     }

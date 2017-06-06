@@ -300,7 +300,7 @@ IOCGNS::execute(){
     if (!check){
         (*m_log) << "error: file corrupted or not found : "<< m_rfilename << std::endl;
         (*m_log) << " " << std::endl;
-        exit(10);
+        throw std::runtime_error ("file corrupted or not found : " + m_rfilename);
     }
     if (m_write) {
         check = write();
@@ -308,7 +308,7 @@ IOCGNS::execute(){
     if (!check){
         (*m_log) << "error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        exit(11);
+        throw std::runtime_error ("write not done : geometry not linked ");
     }
 }
 
@@ -767,14 +767,16 @@ IOCGNS::write(){
     //Write Base and Zone Info
     int indexfile;
     if(cg_open(file.c_str(), CG_MODE_WRITE, &indexfile) != CG_OK){
-        exit(11);
+        (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+        throw std::runtime_error ("cgns error during write " + m_wfilename);
     }
 
     int baseindex = 1;
     char basename[33] = "Base";
     int physdim=3, celldim=3;
     if(cg_base_write(indexfile,basename, celldim, physdim, &baseindex) != CG_OK){
-        exit(11);
+        (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+        throw std::runtime_error ("cgns error during write " + m_wfilename);
     }
 
     int zoneindex=1;
@@ -787,7 +789,8 @@ IOCGNS::write(){
     sizeG[2] = nBoundVertices;
 
     if(cg_zone_write(indexfile,baseindex, zonename, sizeG.data(), zoneType, &zoneindex) != CG_OK ){
-        exit(11);
+        (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+        throw std::runtime_error ("cgns error during write " + m_wfilename);
     }
 
     //writing vertices.
@@ -799,7 +802,8 @@ IOCGNS::write(){
 
     for(int i=1; i<=3; ++i){
         if(cg_coord_write(indexfile,baseindex,zoneindex, datatype, names[i-1].data(), coords[i-1].data(), &i )!=CG_OK){
-            exit(11);
+            (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+            throw std::runtime_error ("cgns error during write " + m_wfilename);
         }
     }
 
@@ -819,7 +823,8 @@ IOCGNS::write(){
         eEnd = eBeg + m_storedInfo->mcg_number[type] - 1;
 
         if(cg_section_write(indexfile,baseindex,zoneindex,m_storedInfo->mcg_typetostring[type].data(), type,eBeg,eEnd, nbdry, connMap.second.data(), &sec) !=CG_OK){
-            exit(11);
+            (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+            throw std::runtime_error ("cgns error during write " + m_wfilename);
         }
         eBeg = eEnd+1;
     }
@@ -834,7 +839,8 @@ IOCGNS::write(){
         eEnd = eBeg + m_storedInfo->mcg_bndnumber[type] - 1;
 
         if(cg_section_write(indexfile,baseindex,zoneindex,m_storedInfo->mcg_typetostring[type].data(), type,eBeg,eEnd, nbdry, connMap.second.data(), &sec) !=CG_OK){
-            exit(11);
+            (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+            throw std::runtime_error ("cgns error during write " + m_wfilename);
         }
         eBeg = eEnd+1;
     }
@@ -860,7 +866,8 @@ IOCGNS::write(){
 
         if(cg_boco_write(indexfile, baseindex, zoneindex, bcname.data(),
                 bocotype, ptset_type, nelements, bc.second.data(), &bcid )!= CG_OK){
-            exit(11);
+            (*m_log) << "error: cgns error during write " << m_wfilename << std::endl;
+            throw std::runtime_error ("cgns error during write " + m_wfilename);
         }
 
     }
@@ -1007,6 +1014,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
 
         default:
             (*m_log)<< "error: "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
+            throw std::runtime_error (m_name + " : found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. ");
             return;
             break;
         }

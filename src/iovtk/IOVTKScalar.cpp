@@ -450,13 +450,13 @@ IOVTKScalar::execute(){
     if (!check){
         (*m_log) << m_name << " error: file not found : "<< m_rfilename << std::endl;
         (*m_log) << " " << std::endl;
-        exit(10);
+        throw std::runtime_error (m_name + ": file not found : " + m_rfilename);
     }
     if (m_write) check = write();
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        exit(11);
+        throw std::runtime_error (m_name + ": write not done : geometry not linked ");
     }
 }
 

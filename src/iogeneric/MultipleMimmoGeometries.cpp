@@ -670,16 +670,16 @@ MultipleMimmoGeometries::execute(){
     bool check = true;
     if (m_read) check = read();
     if (!check){
-        (*m_log) << m_name << " error: no files to read found : "<< std::endl;
+        (*m_log) << m_name << " error: no files to read found "<< std::endl;
         (*m_log) << " " << std::endl;
-        exit(10);
+        throw std::runtime_error (m_name + ": no files to read found");
     }
     check = true;
     if (m_write) check = write();
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked/ write-paths not specified/or incompatible formats " << std::endl;
         (*m_log) << " " << std::endl;
-        exit(11);
+        throw std::runtime_error (m_name + ": write not done : geometry not linked/ write-paths not specified/or incompatible formats ");
     }
 }
 

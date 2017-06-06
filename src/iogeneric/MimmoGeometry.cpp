@@ -1008,14 +1008,14 @@ MimmoGeometry::execute(){
     if (!check){
         (*m_log) << m_name << " error: file not found : "<< m_rinfo.fname << std::endl;
         (*m_log) << " " << std::endl;
-        exit(10);
+        throw std::runtime_error (m_name + " : file not found : " + m_rinfo.fname);
     }
     check = true;
     if (m_write) check = write();
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        exit(11);
+        throw std::runtime_error (m_name + " : write not done : geometry not linked ");
     }
     if (m_buildBvTree) getGeometry()->buildBvTree();
     if (m_buildKdTree) getGeometry()->buildKdTree();
@@ -1400,7 +1400,7 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
     default:
     {
         cout << "Unknown writeFormat enumeration" << endl;
-        exit(999);
+        throw std::runtime_error ("Unknown writeFormat enumeration");
     }
     }
     os.unsetf(ios_base::right);
@@ -1471,7 +1471,7 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
     default:
     {
         cout << "Unknown writeFormat enumeration" << endl;
-        exit(999);
+        throw std::runtime_error ("Unknown writeFormat enumeration");
     }
     }
     os << nl;
@@ -1510,7 +1510,7 @@ void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstre
         else
         {
             cout << "Unknown face format" << endl;
-            exit(999);
+            throw std::runtime_error ("Unknown face format");
         }
     }
 }

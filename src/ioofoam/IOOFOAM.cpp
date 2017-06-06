@@ -650,18 +650,18 @@ IOOFOAM::execute(){
         if (m_stopat == SHRT_MAX){
             (*m_log) << m_name << " error: file not found : "<< m_rfilenameV << std::endl;
             (*m_log) << " " << std::endl;
-            exit(10);
+            throw std::runtime_error (m_name + ": file not found : " + m_rfilenameV);
         }
         (*m_log) << m_name << " error: file not found : "<< m_rfilenameS[m_stopat] << std::endl;
         (*m_log) << " " << std::endl;
-        exit(10);
+        throw std::runtime_error (m_name + ": file not found : " + m_rfilenameS[m_stopat]);
     }
     if (m_write) check = write();
     if (!check){
         if (m_stopat == 2){
             (*m_log) << m_name << " error: write not done : surface and volume geometry not linked " << std::endl;
             (*m_log) << " " << std::endl;
-            exit(11);
+            throw std::runtime_error (m_name + ": write not done : surface and volume geometry not linked ");
         }
     }
 }

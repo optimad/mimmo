@@ -282,7 +282,7 @@ Chain::checkLoops(){
             if (idxchild <= actualidx){
                 (*m_log) << " error : loop in chain : "<< (*it)->getName() << " linked to " << (*it)->getChild(i)->getName() <<  std::endl;
                 (*m_log) << " " << std::endl;
-                exit(8);
+                throw std::runtime_error ("loop in chain : " + (*it)->getName() + " linked to " + (*it)->getChild(i)->getName());
             }
         }
         actualidx++;
