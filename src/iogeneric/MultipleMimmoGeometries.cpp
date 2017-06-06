@@ -602,9 +602,7 @@ MultipleMimmoGeometries::write(){
     int totInfo = m_winfo.size();
 
     if(totGeo != totInfo)    {
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log)<<"warning: not enough output info or some invalid geoemetries found writing in class "<<m_name<<std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     totGeo = std::min(totGeo, totInfo);

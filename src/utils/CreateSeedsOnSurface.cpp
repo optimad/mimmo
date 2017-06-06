@@ -308,9 +308,7 @@ CreateSeedsOnSurface::clear(){
  */
 void
 CreateSeedsOnSurface::execute(){
-    m_log->setPriority(bitpit::log::DEBUG);
     solve(false);
-    m_log->setPriority(bitpit::log::NORMAL);
 }
 
 /*!

@@ -142,10 +142,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
             m_pidsType.insert(0);
             
         }else{
-            m_log->setPriority(bitpit::log::DEBUG);
             (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
             (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
-            m_log->setPriority(bitpit::log::NORMAL);
         }	
     }
     m_bvTree.setPatch(m_patch);

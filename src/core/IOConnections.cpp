@@ -215,11 +215,10 @@ IOConnections_MIMMO::flushConnections(bitpit::Config & slotXML, bool debug ){
         }//loop on all the port of the single object
     }//loop on all instantiated object.
 
-    m_log->setPriority(bitpit::log::DEBUG);
     if(debug)
         m_log->setPriority(bitpit::log::NORMAL);
     (*m_log)<<"IOConnections::flushConnections wrote "<< slotXML.getSectionCount()<< " active connections."<<std::endl;
-    m_log->setPriority(bitpit::log::NORMAL);
+    m_log->setPriority(bitpit::log::DEBUG);
     return;
 };
 

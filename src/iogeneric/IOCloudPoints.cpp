@@ -308,9 +308,7 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
             ss>>value;
         }
         if (m_read != value){
-            m_log->setPriority(bitpit::log::DEBUG);
             (*m_log)<< "warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
-            m_log->setPriority(bitpit::log::NORMAL);
             return;
         }
     };

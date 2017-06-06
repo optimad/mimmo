@@ -234,7 +234,6 @@ Chain::addObject(BaseManipulation* obj, int id_){
 void
 Chain::exec(bool debug){
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    m_log->setPriority(bitpit::log::DEBUG);
     vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
     vector<BaseManipulation*>::iterator itend = m_objects.end();
     if(debug)
@@ -254,7 +253,7 @@ Chain::exec(bool debug){
     (*m_log) << " " << std::endl;
     (*m_log) << "--------------------------------------------------" << std::endl;
     (*m_log) << " " << std::endl;
-    m_log->setPriority(bitpit::log::NORMAL);
+    m_log->setPriority(bitpit::log::DEBUG);
 }
 
 /*!

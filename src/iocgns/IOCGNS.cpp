@@ -341,9 +341,7 @@ IOCGNS::read(){
         return false;
     }
     if(nbases > 1){
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log) << m_name << " more than one base found in grid file -> only the first zone will be read" << std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     //Read name of basis and physical dimension

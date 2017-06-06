@@ -277,9 +277,7 @@ MimmoGeometry::setIOMode(IOMode mode){
         _setWrite();
     }
     else{
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log) << m_name << " warning: no allowed IOMode found -> set as reader" << std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
         _setRead();
         _setWrite(false);
     }
@@ -306,9 +304,7 @@ MimmoGeometry::setIOMode(int mode){
         _setWrite();
     }
     else{
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log) << m_name << " warning: no allowed IOMode find -> set as reader" << std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
         _setRead();
         _setWrite(false);
     }

@@ -72,7 +72,9 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
             }
         }
     }
+    log->setPriority(bitpit::log::NORMAL);
     if (!done) (*log)<<"warning: pin connection " << objSend->getName() << "[" << portS << "] --> " << objRec->getName() << "[" << portR << "] NOT linked. "<< std::endl;
+    log->setPriority(bitpit::log::DEBUG);
     return done;
 }
 
@@ -158,18 +160,14 @@ checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID p
 void    setLogger(std::string log){
     if (BaseManipulation::sm_baseManipulationCounter > 1){
         bitpit::Logger* log = &bitpit::log::cout(MIMMO_LOG_FILE);
-        log->setPriority(bitpit::log::DEBUG);
         (*log) << "warning: logger already set -> cannot change logger name " << std::endl;
-        log->setPriority(bitpit::log::NORMAL);
         return;
     }
     MIMMO_LOG_FILE = log;
 }
 
 void    warningXML(bitpit::Logger* log, std::string name){
-    log->setPriority(bitpit::log::DEBUG);
     (*log)<<"warning in custom xml " << name << " constructor. No valid xml data found"<<std::endl;
-    log->setPriority(bitpit::log::NORMAL);
 }
 
 }//end mimmo namespace

@@ -395,9 +395,7 @@ void
 MRBF::setDisplacements(dvecarr3E displ){
     int size = displ.size();
     if(size != getTotalNodesCount()){
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     removeAllData();
@@ -440,9 +438,7 @@ MRBF::setWeight(dvector2D value){
 
     int size = value.size();
     if(size != getTotalNodesCount()){
-        m_log->setPriority(bitpit::log::DEBUG);
         (*m_log) << "warning: " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-        m_log->setPriority(bitpit::log::NORMAL);
     }
 
     removeAllData();
@@ -478,9 +474,7 @@ MRBF::execute(){
         else                            size = m_value[i].size();
 
         if(size != getTotalNodesCount()){
-            m_log->setPriority(bitpit::log::DEBUG);
             (*m_log) << "warning: " << getName() << " has displacements of " << i << " field with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-            m_log->setPriority(bitpit::log::NORMAL);
             fitDataToNodes(i);
         }
     }
