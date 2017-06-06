@@ -165,9 +165,9 @@ void test00004() {
     ch0.addObject(mimmo0);
 
     /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+     * Use debug flag false to avoid printing intermediate results of the execution steps.
      */
-    ch0.exec(true);
+    ch0.exec(false);
 
     /* Clean up & exit;
      */

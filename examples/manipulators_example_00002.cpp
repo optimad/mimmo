@@ -129,11 +129,13 @@ void test00002() {
     ch0.addObject(applier);
     ch0.addObject(mimmo1);
     
+    //force the chain to plot all the optional results of its children...
     ch0.setPlotDebugResults(true);
+    //...in the path specified by the User.
     ch0.setOutputDebugResults(".");
     
     /* Execution of chain.
-     * Use debug flag false (default) to avoid to print out the execution steps.
+     * Use debug flag true to full print out the execution steps.
      */
     cout << " " << endl;
     cout << " --- execution start ---" << endl;
