@@ -3,51 +3,45 @@
 <mimmoXML version="-1">
 	<Geom0>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>1</ReadFlag>
+        <IOMode>CONVERT</IOMode>
 		<ReadDir>./geodata</ReadDir>
 		<ReadFilename>prism</ReadFilename>
 		<ReadFileType>STL</ReadFileType>
-		<WriteFlag>1</WriteFlag>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0000</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>WRITE</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0001</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom1>
 	<Geom2>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>WRITE</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0002</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom2>
 	<Geom3>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>WRITE</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0003</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom3>
 	<Geom4>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>WRITE</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0004</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom4>
 	<Geom5>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>WRITE</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00001.0005</WriteFilename>
 		<WriteFileType>STL</WriteFileType>

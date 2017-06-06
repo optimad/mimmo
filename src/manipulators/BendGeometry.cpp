@@ -282,7 +282,6 @@ BendGeometry::execute(){
             m_displ[idx] = point - point0;
         }
     }
-    std::cout << m_displ<< std::endl;
     return;
 };
 

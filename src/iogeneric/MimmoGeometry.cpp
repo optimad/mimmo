@@ -148,24 +148,6 @@ MimmoGeometry::setDefaults(){
     m_buildKdTree    = false;
 }
 
-/*!It sets the type of file to read the geometry during the execution.
- * \param[in] type Extension of file.
- */
-void
-MimmoGeometry::setReadFileType(FileType type){
-    m_rinfo.ftype = type._to_integral();
-}
-
-/*!It sets the type of file to read the geometry during the execution.
- * \param[in] type Label of file type (0 = bynary STL).
- */
-void
-MimmoGeometry::setReadFileType(int type){
-    type = std::max(0, type);
-    if(type > 8)    type = 0;
-    m_rinfo.ftype = type;
-}
-
 /*!It sets the condition to read the geometry on file during the execution.
  * \param[in] read Does it read the geometry in execution?
  */
@@ -174,8 +156,37 @@ MimmoGeometry::setRead(bool read){
     m_read = read;
 }
 
+/*!It sets the condition to read the geometry on file during the execution.
+ * \param[in] read Does it read the geometry in execution?
+ */
+void
+MimmoGeometry::_setRead(bool read){
+    m_read = read;
+}
+
+/*!It sets the type of file to read the geometry during the execution.
+ * \param[in] type Extension of file.
+ * NOTE: use it only for converter mode, otherwise setFileType is recommended
+ */
+void
+MimmoGeometry::setReadFileType(FileType type){
+    m_rinfo.ftype = type._to_integral();
+}
+
+/*!It sets the type of file to read the geometry during the execution.
+ * \param[in] type Label of file type (0 = bynary STL).
+ * NOTE: use it only for converter mode, otherwise setFileType is recommended
+ */
+void
+MimmoGeometry::setReadFileType(int type){
+    type = std::max(0, type);
+    if(type > 8)    type = 0;
+    m_rinfo.ftype = type;
+}
+
 /*!It sets the name of directory to read the geometry.
  * \param[in] dir Name of directory.
+ * NOTE: use it only for converter mode, otherwise setDir is recommended
  */
 void
 MimmoGeometry::setReadDir(string dir){
@@ -184,15 +195,16 @@ MimmoGeometry::setReadDir(string dir){
 
 /*!It sets the name of file to read the geometry.
  * \param[in] filename Name of input file.
+ * NOTE: use it only for converter mode, otherwise setFilename is recommended
  */
 void
 MimmoGeometry::setReadFilename(string filename){
     m_rinfo.fname = filename;
 }
 
-
 /*!It sets the type of file to write the geometry during the execution.
  * \param[in] type Extension of file.
+ * NOTE: use it only for converter mode, otherwise setFileType is recommended
  */
 void
 MimmoGeometry::setWriteFileType(FileType type){
@@ -201,6 +213,7 @@ MimmoGeometry::setWriteFileType(FileType type){
 
 /*!It sets the type of file to write the geometry during the execution.
  * \param[in] type Label of file type (0 = bynary STL).
+ * NOTE: use it only for converter mode, otherwise setFileType is recommended
  */
 void
 MimmoGeometry::setWriteFileType(int type){
@@ -217,8 +230,17 @@ MimmoGeometry::setWrite(bool write){
     m_write = write;
 }
 
+/*!It sets the condition to write the geometry on file during the execution.
+ * \param[in] write Does it write the geometry in execution?
+ */
+void
+MimmoGeometry::_setWrite(bool write){
+    m_write = write;
+}
+
 /*!It sets the name of directory to write the geometry.
  * \param[in] dir Name of directory.
+ * NOTE: use it only for converter mode, otherwise setDir is recommended
  */
 void
 MimmoGeometry::setWriteDir(string dir){
@@ -227,10 +249,109 @@ MimmoGeometry::setWriteDir(string dir){
 
 /*!It sets the name of file to write the geometry.
  * \param[in] filename Name of output file.
+ * NOTE: use it only for converter mode, otherwise setFilename is recommended
  */
 void
 MimmoGeometry::setWriteFilename(string filename){
     m_winfo.fname = filename;
+}
+
+/*!Set the mode of the block as reader, writer or converter.
+ * \param[in] mode Modality of the block
+ * NOTE: in case of converter the directory and filename will be the same
+ * for input & output
+ * (the I/O extensions have to be set by setReadFileType & setWriteFileType).
+ */
+void
+MimmoGeometry::setIOMode(IOMode mode){
+    if (mode._to_integral() == IOMode::READ){
+        _setRead();
+        _setWrite(false);
+    }
+    else if (mode._to_integral() == IOMode::WRITE){
+        _setRead(false);
+        _setWrite();
+    }
+    else if (mode._to_integral() == IOMode::CONVERT){
+        _setRead();
+        _setWrite();
+    }
+    else{
+        m_log->setPriority(bitpit::log::DEBUG);
+        (*m_log) << m_name << " warning: no allowed IOMode found -> set as reader" << std::endl;
+        m_log->setPriority(bitpit::log::NORMAL);
+        _setRead();
+        _setWrite(false);
+    }
+}
+
+/*!Set the mode of the block as reader, writer or converter.
+ * \param[in] mode Modality of the block
+ * NOTE: in case of converter the directory and filename will be the same
+ * for input & output
+ * (the I/O extensions have to be set by setReadFileType & setWriteFileType).
+ */
+void
+MimmoGeometry::setIOMode(int mode){
+    if (mode == IOMode::READ){
+        _setRead();
+        _setWrite(false);
+    }
+    if (mode == IOMode::WRITE){
+        _setRead(false);
+        _setWrite();
+    }
+    if (mode == IOMode::CONVERT){
+        _setRead();
+        _setWrite();
+    }
+    else{
+        m_log->setPriority(bitpit::log::DEBUG);
+        (*m_log) << m_name << " warning: no allowed IOMode find -> set as reader" << std::endl;
+        m_log->setPriority(bitpit::log::NORMAL);
+        _setRead();
+        _setWrite(false);
+    }
+}
+
+/*!It sets the name of directory to read/write the geometry.
+ * \param[in] dir Name of directory.
+ */
+void
+MimmoGeometry::setDir(string dir){
+    m_rinfo.fdir = dir;
+    m_winfo.fdir = dir;
+}
+
+/*!It sets the name of file to read/write the geometry.
+ * \param[in] filename Name of output file.
+ */
+void
+MimmoGeometry::setFilename(string filename){
+    m_winfo.fname = filename;
+    m_rinfo.fname = filename;
+}
+
+/*!It sets the type of file to read/write the geometry during the execution.
+ * \param[in] type Extension of file.
+ * NOTE: in case of converter mode use separate setReadFileType and setWriteFileType
+ */
+void
+MimmoGeometry::setFileType(FileType type){
+    m_winfo.ftype = type._to_integral();
+    m_rinfo.ftype = type._to_integral();
+}
+
+/*!It sets the type of file to read/write the geometry during the execution.
+ * \param[in] type Label of file type (0 = bynary STL).
+ * NOTE: in case of converter mode use separate setReadFileType and setWriteFileType
+ */
+void
+MimmoGeometry::setFileType(int type){
+    type = std::max(0, type);
+    if(type > 8)    type = 0;
+    m_winfo.ftype = type;
+    m_rinfo.ftype = type;
 }
 
 /*!
@@ -380,8 +501,6 @@ void
 MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
     getGeometry()->setPID(pidsMap);
 };
-
-
 
 /*!It sets if the BvTree of the patch has to be built during execution.
  * \param[in] build If true the BvTree is built in execution and stored in
@@ -1140,21 +1259,32 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
    BaseManipulation::absorbSectionXML(slotXML, name);
 
-    if(slotXML.hasOption("ReadFlag")){
-        input = slotXML.get("ReadFlag");
-        bool value = false;
+    if(slotXML.hasOption("IOMode")){
+        input = slotXML.get("IOMode");
+        input = bitpit::utils::trim(input);
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss >> value;
+            for(auto c: IOMode::_values()){
+                if(input == c._to_string()){
+                    setIOMode(c);
+                }
+            }
+        }else{
+            setIOMode(0);
         }
-        setRead(value);
     };
 
-    if(slotXML.hasOption("ReadDir")){
-        input = slotXML.get("ReadDir");
+    if(slotXML.hasOption("FileType")){
+        input = slotXML.get("FileType");
         input = bitpit::utils::trim(input);
-        if(input.empty())    input = "./";
-        setReadDir(input);
+        if(!input.empty()){
+            for(auto c: FileType::_values()){
+                if(input == c._to_string()){
+                    setFileType(c);
+                }
+            }
+        }else{
+            setFileType(0);
+        }
     };
 
     if(slotXML.hasOption("ReadFileType")){
@@ -1166,33 +1296,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
                     setReadFileType(c);
                 }
             }
-        }else{
-            setReadFileType(0);
         }
-    };
-
-    if(slotXML.hasOption("ReadFilename")){
-        input = slotXML.get("ReadFilename");
-        input = bitpit::utils::trim(input);
-        if(input.empty())    input = "mimmoGeometry";
-        setReadFilename(input);
-    };
-
-    if(slotXML.hasOption("WriteFlag")){
-        input = slotXML.get("WriteFlag");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss >> value;
-        }
-        setWrite(value);
-    };
-
-    if(slotXML.hasOption("WriteDir")){
-        input = slotXML.get("WriteDir");
-        input = bitpit::utils::trim(input);
-        if(input.empty())    input = "./";
-        setWriteDir(input);
     };
 
     if(slotXML.hasOption("WriteFileType")){
@@ -1204,16 +1308,52 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
                     setWriteFileType(c);
                 }
             }
-        }else{
-            setWriteFileType(0);
         }
     };
+
+    if(slotXML.hasOption("Dir")){
+        input = slotXML.get("Dir");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "./";
+        setDir(input);
+    };
+
+
+    if(slotXML.hasOption("Filename")){
+        input = slotXML.get("Filename");
+        input = bitpit::utils::trim(input);
+        if(input.empty())    input = "mimmoGeometry";
+        setFilename(input);
+    };
+
+    if(slotXML.hasOption("ReadDir")){
+        input = slotXML.get("ReadDir");
+        input = bitpit::utils::trim(input);
+        if(!input.empty())
+            setReadDir(input);
+    };
+
+
+    if(slotXML.hasOption("ReadFilename")){
+        input = slotXML.get("ReadFilename");
+        input = bitpit::utils::trim(input);
+        if(!input.empty())
+            setReadFilename(input);
+    };
+
+    if(slotXML.hasOption("WriteDir")){
+        input = slotXML.get("WriteDir");
+        input = bitpit::utils::trim(input);
+        if(!input.empty())
+            setWriteDir(input);
+    };
+
 
     if(slotXML.hasOption("WriteFilename")){
         input = slotXML.get("WriteFilename");
         input = bitpit::utils::trim(input);
-        if(input.empty())    input = "mimmoGeometry";
-        setWriteFilename(input);
+        if(!input.empty())
+            setWriteFilename(input);
     };
 
     if(slotXML.hasOption("Codex")){
@@ -1263,28 +1403,34 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     std::string output;
 
-    output = std::to_string(m_read);
-    slotXML.set("ReadFlag", output);
+    {
+        std::string temp = (IOMode::_from_integral(m_write+m_read*m_write))._to_string();
+        slotXML.set("IOMode", temp);
+    }
 
-    slotXML.set("ReadDir", m_rinfo.fdir);
+    if (m_read && m_write)
+    {
+        slotXML.set("ReadDir", m_rinfo.fdir);
+        slotXML.set("ReadFilename", m_rinfo.fname);
+        slotXML.set("WriteDir", m_winfo.fdir);
+        slotXML.set("WriteFilename", m_winfo.fname);
+    }
+    else{
+        slotXML.set("Dir", m_rinfo.fdir);
+        slotXML.set("Filename", m_rinfo.fname);
+    }
 
-    slotXML.set("ReadFilename", m_rinfo.fname);
-
+    if (m_read && m_write)
     {
         std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
         slotXML.set("ReadFileType", temp);
-    }
-
-    output = std::to_string(m_write);
-    slotXML.set("WriteFlag", output);
-
-    slotXML.set("WriteDir", m_winfo.fdir);
-
-    slotXML.set("WriteFilename", m_winfo.fname);
-
-    {
-        std::string temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
+        temp = (FileType::_from_integral(m_winfo.ftype))._to_string();
         slotXML.set("WriteFileType", temp);
+    }
+    else
+    {
+        std::string temp = (FileType::_from_integral(m_rinfo.ftype))._to_string();
+        slotXML.set("FileType", temp);
     }
 
     output = std::to_string(m_codex);

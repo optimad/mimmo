@@ -28,6 +28,7 @@
 #include "MimmoNamespace.hpp"
 
 BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6, PCVTU = 7, CURVEVTU = 8);
+BETTER_ENUM(IOMode, int, READ = 0, WRITE = 1, CONVERT = 2);
 
 namespace mimmo{
 
@@ -50,10 +51,17 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  *
  *  MimmoGeometry is the object to manage the import/export/substantial modifications of geometries. It returns a
  *  standard MimmoObject class as product of its execution;
- *  The mesh to import/export has to be a mesh with constant type elements.
+ *  The mesh to import/export/convert has to be a mesh with constant type elements.
  *  The valid format are: binary .stl, ascii .vtu (triangle/quadrilateral elements) and
  *  ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *  for volume mesh.
+ *
+ *  \n
+ *  It can be used in three modes reader/writerconverter. To set the mode it uses an enum
+ *  IOMode list:
+ *  - <B>READ    = 0</B>
+ *  - <B>WRITE   = 1</B>
+ *  - <B>CONVERT = 2</B>
  * 
  * \n
  * It uses smart enums FileType list of available geometry formats, which are:
@@ -96,16 +104,16 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.Geometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- *
- * Proper of the class:
- * - <B>ReadFlag</B>: activate reading mode boolean;
- * - <B>ReadDir</B>: reading directory path;
- * - <B>ReadFileType</B>: file type identifier;
- * - <B>ReadFilename</B>: name of file for reading;
- * - <B>WriteFlag</B>: activate writing mode boolean;
- * - <B>WriteDir</B>: writing directory path;
- * - <B>WriteFileType</B>: file type identifier;
- * - <B>WriteFilename</B>: name of file for writing;
+ * - <B>IOMode</B>: activate read, write or convert mode;
+ * - <B>Dir</B>: directory path;
+ * - <B>Filename</B>: name of file for reading/writing;
+ * - <B>FileType</B>: file type identifier;
+ * - <B>ReadFileType</B>: file type identifier for reader (to be used in case of converter mode);
+ * - <B>WriteFileType</B>: file type identifier for writer (to be used in case of converter mode);
+ * - <B>ReadDir</B>: directory path (to be used in case of converter mode and different paths);
+ * - <B>ReadFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
+ * - <B>WriteDir</B>: directory path (to be used in case of converter mode and different paths);
+ * - <B>WriteFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
  * - <B>Codex</B>: boolean to write ascii/binary;
  * - <B>BvTree</B>: evaluate bvTree true 1/false 0;
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
@@ -144,16 +152,24 @@ public:
     MimmoObject *     getGeometry();
     const MimmoObject *     getGeometry()const ;
 
+public:
     void        setReadDir(std::string dir);
+    BITPIT_DEPRECATED(void        setRead(bool read = true) );
+    void        setWriteDir(std::string dir);
+    void        setReadFilename(std::string filename);
+    BITPIT_DEPRECATED(void        setWrite(bool write = true) );
+    void        setWriteFilename(std::string filename);
+
+    void        setIOMode(IOMode mode);
+    void        setIOMode(int mode);
+    void        setDir(std::string dir);
+    void        setFilename(std::string filename);
     void        setReadFileType(FileType type);
     void        setReadFileType(int type);
     void        setWriteFileType(FileType type);
     void        setWriteFileType(int type);
-    void        setRead(bool read);
-    void        setWriteDir(std::string dir);
-    void        setReadFilename(std::string filename);
-    void        setWrite(bool write);
-    void        setWriteFilename(std::string filename);
+    void        setFileType(FileType type);
+    void        setFileType(int type);
     void        setCodex(bool binary = true);
 
     void        setHARDCopy( const MimmoGeometry * other);
@@ -191,7 +207,10 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 private:
-    void     setDefaults();
+    void    setDefaults();
+    void    _setRead(bool read = true);
+    void    _setWrite(bool write = true);
+
 
 };
 

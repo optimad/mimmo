@@ -54,38 +54,34 @@ void test00003() {
      * as two different objects (no loop in chain are permitted).
      */
     MimmoGeometry * mimmo0 = new MimmoGeometry();
-    mimmo0->setRead(true);
+    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
-    mimmo0->setWrite(true);
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00003.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo1->setRead(true);
+    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFileType(FileType::STL);
     mimmo1->setReadFilename("plane1");
-    mimmo1->setWrite(true);
     mimmo1->setWriteDir("./");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00003p1.0000");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
-    mimmo2->setRead(true);
+    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo2->setReadDir("geodata");
     mimmo2->setReadFileType(FileType::STL);
     mimmo2->setReadFilename("plane2");
-    mimmo2->setWrite(true);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00003p2.0000");
 
     MimmoGeometry * mimmo3 = new MimmoGeometry();
-    mimmo3->setRead(false);
-    mimmo3->setWrite(true);
+    mimmo0->setIOMode(IOMode::WRITE);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
     mimmo3->setWriteFilename("geohandlers_output_00003.0001");

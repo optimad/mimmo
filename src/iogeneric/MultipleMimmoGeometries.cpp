@@ -612,10 +612,10 @@ MultipleMimmoGeometries::write(){
     for(int k=0; k<totGeo; ++k){
 
         std::unique_ptr<MimmoGeometry> writer(new MimmoGeometry());
-        writer->setWrite(true);
-        writer->setWriteDir(m_winfo[k].fdir);
-        writer->setWriteFilename(m_winfo[k].fname);
-        writer->setWriteFileType(m_winfo[k].ftype);
+        writer->setIOMode(IOMode::WRITE);
+        writer->setDir(m_winfo[k].fdir);
+        writer->setFilename(m_winfo[k].fname);
+        writer->setFileType(m_winfo[k].ftype);
         writer->setCodex(m_codex);
         writer->setFormatNAS(m_wformat);
         writer->setGeometry(m_extgeo[k]);
@@ -640,10 +640,10 @@ MultipleMimmoGeometries::read(){
     for(auto & data: m_rinfo){
         std::unique_ptr<MimmoGeometry> geo(new MimmoGeometry());
         std::unique_ptr<MimmoObject> subData(new MimmoObject());
-        geo->setRead(true);
-        geo->setReadDir(data.fdir);
-        geo->setReadFilename(data.fname);
-        geo->setReadFileType(data.ftype);
+        geo->setIOMode(IOMode::READ);
+        geo->setDir(data.fdir);
+        geo->setFilename(data.fname);
+        geo->setFileType(data.ftype);
         geo->execute();
 
         subData->setHARDCopy(geo->getGeometry());

@@ -103,10 +103,10 @@ IOConnections_MIMMO::getInvMapPorts(){
 void
 IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debug){
 
+    if(debug)
+        m_log->setPriority(bitpit::log::NORMAL);
+
     if(slotXML.getSectionCount() == 0)	{
-        m_log->setPriority(bitpit::log::DEBUG);
-        if(debug)
-            m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
         return;
     }	
@@ -164,8 +164,8 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         else{
             (*m_log)<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
         }
-        m_log->setPriority(bitpit::log::NORMAL);
     }
+    m_log->setPriority(bitpit::log::DEBUG);
 
     return;
 };

@@ -3,19 +3,17 @@
 <mimmoXML version="-1">
 	<Geom0>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>1</ReadFlag>
+        <IOMode>2</IOMode>
 		<ReadDir>./geodata</ReadDir>
 		<ReadFilename>sphere2</ReadFilename>
 		<ReadFileType>STL</ReadFileType>
-		<WriteFlag>1</WriteFlag>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00005.0000</WriteFilename>
 		<WriteFileType>STL</WriteFileType>
 	</Geom0>
 	<Geom1>
 		<ClassName>mimmo.Geometry</ClassName>
-		<ReadFlag>0</ReadFlag>
-		<WriteFlag>1</WriteFlag>
+        <IOMode>1</IOMode>
 		<WriteDir>./</WriteDir>
 		<WriteFilename>manipulators_output_00005.0001</WriteFilename>
 		<WriteFileType>STL</WriteFileType>

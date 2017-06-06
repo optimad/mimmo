@@ -98,6 +98,7 @@ BaseManipulation::initializeLogger(){
     (*m_log) << "- mimmo - Surface manipulation and mesh morphing -" << std::endl;
     (*m_log) << "--------------------------------------------------" << std::endl;
     (*m_log) << "    " << std::endl;
+    (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
 }
 
 /*!Get the logger.

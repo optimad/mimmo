@@ -653,11 +653,10 @@ ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometr
 
         svector1D info = extractInfo(geoinfo.first);
         std::unique_ptr<MimmoGeometry> geo (new MimmoGeometry());
-        geo->setRead(true);
-        geo->setWrite(false);
-        geo->setReadDir(info[0]);
-        geo->setReadFilename(info[1]);
-        geo->setReadFileType(geoinfo.second.second);
+        geo->setIOMode(IOMode::READ);
+        geo->setDir(info[0]);
+        geo->setFilename(info[1]);
+        geo->setFileType(geoinfo.second.second);
         geo->setBuildBvTree(true);
         geo->execute();
 

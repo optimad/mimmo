@@ -339,11 +339,10 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     svector1D info = extractInfo(val.first);
 
     MimmoGeometry * geo = new MimmoGeometry();
-    geo->setRead(true);
-    geo->setWrite(false);
-    geo->setReadDir(info[0]);
-    geo->setReadFilename(info[1]);
-    geo->setReadFileType(val.second);
+    geo->setIOMode(IOMode::READ);
+    geo->setDir(info[0]);
+    geo->setFilename(info[1]);
+    geo->setFileType(val.second);
     geo->setBuildBvTree(true);
     geo->execute();
 
