@@ -74,8 +74,16 @@ using namespace pin;
  *
  *
  * For further information about PortType specification
- * please refer to PortType enum documentation.
+ * please refer to PortType enum documentation. \n
  *
+ * BaseManipulation controls a initial set of xml attributes which can be read from a xml file interface or written to it,
+ * through absorbSectionXML/flushSectionXML methods. Such parameters are:
+ * - <B>ClassName</B>: specific name identifying the class as "mimmo.XXXXX"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class, for debugging purpose.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
+ * 
+ * All BaseManipulation derived classes inherite these attributes.
  */
 class BaseManipulation{
 

@@ -516,8 +516,38 @@ BaseManipulation::exec(){
  */
 void
 BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    BITPIT_UNUSED(slotXML);
     BITPIT_UNUSED(name);
+
+    std::string input; 
+    if(slotXML.hasOption("Priority")){
+        input = slotXML.get("Priority");
+        int value =0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss>>value;
+        }
+        setPriority(value);
+    };
+
+    if(slotXML.hasOption("PlotInExecution")){
+        std::string input = slotXML.get("PlotInExecution");
+        input = bitpit::utils::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setPlotInExecution(value);
+    }
+
+    if(slotXML.hasOption("OutputPlot")){
+        std::string input = slotXML.get("OutputPlot");
+        input = bitpit::utils::trim(input);
+        std::string temp = ".";
+        if(!input.empty())  setOutputPlot(input);
+        else                setOutputPlot(temp);
+    }
+    
 }
 
 /*!
@@ -528,8 +558,13 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
  */
 void
 BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    BITPIT_UNUSED(slotXML);
+
     BITPIT_UNUSED(name);
+    
+    slotXML.set("ClassName", m_name);
+    slotXML.set("Priority", std::to_string(getPriority()));
+    slotXML.set("PlotInExecution", std::to_string(int(isPlotInExecution())));
+    slotXML.set("OutputPlot", m_outputPlot);
 }
 
 /*!
