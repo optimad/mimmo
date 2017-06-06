@@ -57,13 +57,16 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.CGNSPidExtractor</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ *Proper of the class
  * - <B>nPID</B>: number of Geometry PID involved in the extraction;
  * - <B>PID</B>: list of Geometry PID (blank-separated) that need to be extracted(element must be coeherent with nPID);
  * - <B>ForcedToTriangulate</B>: force retriangulation of the extracted patches, boolean 0/1;
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
- * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Geometry has to be mandatorily read or passed through port.
  *

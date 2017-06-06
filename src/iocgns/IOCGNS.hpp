@@ -145,9 +145,12 @@ public:
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
- *
+ * 
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.IOCGNS</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
  * - <B>ReadFlag</B>: activate reading mode boolean 1-reading mode, 0-writing mode;
  * - <B>ReadDir</B>: reading directory path;
  * - <B>ReadFilename</B>: name of file for reading;
