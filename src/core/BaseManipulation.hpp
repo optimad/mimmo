@@ -153,7 +153,7 @@ public:
     BaseManipulation(const BaseManipulation & other);
     BaseManipulation & operator=(const BaseManipulation & other);
 
-    void initializeLogger();
+    void initializeLogger(bool logexists);
     bitpit::Logger& getLog();
 
     bool                arePortsBuilt();

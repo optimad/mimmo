@@ -49,8 +49,8 @@ BaseManipulation::BaseManipulation(){
     sm_baseManipulationCounter++;
     bool logexists  = bitpit::log::manager().exists(MIMMO_LOG_FILE);
     m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
-    if (m_counter == 1 && !logexists)
-        initializeLogger();
+    if (m_counter == 1)
+        initializeLogger(logexists);
 };
 
 /*!
@@ -87,12 +87,16 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 };
 
 /*! Initialize the logger.
- * NOTE: console verbosity set to QUIET as default.
+ *  \param[in] logexist does a logger already exist?
+ * NOTE: console verbosity set to NORMAL as default (file verbosity set to DEBUG). If a logger already exists
+ * the verbosities of the external logger are used.
  */
 void
-BaseManipulation::initializeLogger(){
-    bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
-    bitpit::log::setFileVerbosity((*m_log), bitpit::log::DEBUG);
+BaseManipulation::initializeLogger(bool logexist){
+    if (!logexist){
+        bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
+        bitpit::log::setFileVerbosity((*m_log), bitpit::log::DEBUG);
+    }
     (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
     (*m_log) << bitpit::log::context("mimmo");
     (*m_log) << "--------------------------------------------------" << std::endl;
@@ -532,7 +536,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         setPriority(value);
     };
 
-    
+
     if(slotXML.hasOption("Apply")){
         std::string input = slotXML.get("Apply");
         input = bitpit::utils::trim(input);
@@ -562,7 +566,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         if(!input.empty())  setOutputPlot(input);
         else                setOutputPlot(temp);
     }
-    
+
 }
 
 /*!
@@ -575,10 +579,10 @@ void
 BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-    
+
     slotXML.set("ClassName", m_name);
     slotXML.set("Priority", std::to_string(getPriority()));
-    
+
     if(isApply()){
         slotXML.set("Apply", std::to_string(1));
     }
