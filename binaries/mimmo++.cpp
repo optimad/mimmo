@@ -111,7 +111,7 @@ int main( int argc, char *argv[] ) {
 		if(input[0] == "--help"){
 			std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
 			std::cout<<""<<std::endl;
-			std::cout<<"	Brief mimmoxml_exec helper"<<std::endl;
+			std::cout<<"	Brief mimmo++ helper, version 1.0"<<std::endl;
 			std::cout<<""<<std::endl;
 			std::cout<<""<<std::endl;
 			std::cout<<"	This is the executable command for running mimmo instructions from XML Control Dictionaries"<<std::endl;
@@ -133,7 +133,7 @@ int main( int argc, char *argv[] ) {
 		
 		//get into the mood.
 		
-		bitpit::config::reset("mimmoXML");
+		bitpit::config::reset("mimmoXML", 1);
 		bitpit::config::read(dictName);
 		
 		std::unordered_map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
