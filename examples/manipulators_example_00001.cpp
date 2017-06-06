@@ -64,31 +64,31 @@ void test00001() {
     setLogger("manipulators_example_00002");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("manipulators_output_00001.0001");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo2->setIOMode(IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("manipulators_output_00001.0002");
 
     MimmoGeometry * mimmo3 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo3->setIOMode(IOMode::WRITE);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
     mimmo3->setWriteFilename("manipulators_output_00001.0003");
 
     MimmoGeometry * mimmo4 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo4->setIOMode(IOMode::WRITE);
     mimmo4->setWriteDir(".");
     mimmo4->setWriteFileType(FileType::STL);
     mimmo4->setWriteFilename("manipulators_output_00001.0004");
 
     MimmoGeometry * mimmo5 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo5->setIOMode(IOMode::WRITE);
     mimmo5->setWriteDir(".");
     mimmo5->setWriteFileType(FileType::STL);
     mimmo5->setWriteFilename("manipulators_output_00001.0005");

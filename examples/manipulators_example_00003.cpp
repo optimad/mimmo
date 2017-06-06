@@ -60,7 +60,7 @@ void test00003() {
     mimmo0->setWriteFilename("manipulators_output_00003.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("manipulators_output_00003.0001");

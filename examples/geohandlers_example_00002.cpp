@@ -62,7 +62,7 @@ void test00002() {
     mimmo0->setWriteFilename("geohandlers_output_00002.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::CONVERT);
+    mimmo1->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFilename("stanfordBunny2");
     mimmo1->setReadFileType(FileType::STL);
@@ -71,7 +71,7 @@ void test00002() {
     mimmo1->setWriteFilename("geohandlers_output_00002.0001");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo2->setIOMode(IOMode::WRITE);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00002.0002");

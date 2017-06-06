@@ -254,6 +254,7 @@ MimmoGeometry::setWriteDir(string dir){
 void
 MimmoGeometry::setWriteFilename(string filename){
     m_winfo.fname = filename;
+
 }
 
 /*!Set the mode of the block as reader, writer or converter.
@@ -295,11 +296,11 @@ MimmoGeometry::setIOMode(int mode){
         _setRead();
         _setWrite(false);
     }
-    if (mode == IOMode::WRITE){
+    else if (mode == IOMode::WRITE){
         _setRead(false);
         _setWrite();
     }
-    if (mode == IOMode::CONVERT){
+    else if (mode == IOMode::CONVERT){
         _setRead();
         _setWrite();
     }
@@ -557,6 +558,7 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
  */
 bool
 MimmoGeometry::write(){
+
     if (isEmpty()) return false;
 
     switch(FileType::_from_integral(m_winfo.ftype)){
@@ -722,6 +724,7 @@ MimmoGeometry::write(){
  */
 bool
 MimmoGeometry::read(){
+
     if(!m_isInternal) return false;
 
     switch(FileType::_from_integral(m_rinfo.ftype)){

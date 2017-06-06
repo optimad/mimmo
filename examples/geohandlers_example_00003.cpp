@@ -63,7 +63,7 @@ void test00003() {
     mimmo0->setWriteFilename("geohandlers_output_00003.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::CONVERT);
+    mimmo1->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFileType(FileType::STL);
     mimmo1->setReadFilename("plane1");
@@ -72,7 +72,7 @@ void test00003() {
     mimmo1->setWriteFilename("geohandlers_output_00003p1.0000");
 
     MimmoGeometry * mimmo2 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::CONVERT);
+    mimmo2->setIOMode(IOMode::CONVERT);
     mimmo2->setReadDir("geodata");
     mimmo2->setReadFileType(FileType::STL);
     mimmo2->setReadFilename("plane2");
@@ -81,7 +81,7 @@ void test00003() {
     mimmo2->setWriteFilename("geohandlers_output_00003p2.0000");
 
     MimmoGeometry * mimmo3 = new MimmoGeometry();
-    mimmo0->setIOMode(IOMode::WRITE);
+    mimmo3->setIOMode(IOMode::WRITE);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
     mimmo3->setWriteFilename("geohandlers_output_00003.0001");
