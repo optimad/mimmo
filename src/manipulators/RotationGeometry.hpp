@@ -62,12 +62,16 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.RotationGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+ *
+ * Proper of the class:
  * - <B>Origin</B>: rotation axis origin;
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis.
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ *
  *
  * Geometry has to be mandatorily passed through port.
  *

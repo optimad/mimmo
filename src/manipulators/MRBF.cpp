@@ -649,15 +649,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
 
     std::string input;
 
-    if(slotXML.hasOption("Priority")){
-        input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
     if(slotXML.hasOption("RBFShape")){
         input = slotXML.get("RBFShape");
@@ -715,18 +707,6 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
             if(value > 0.0)    setTol(value);
         }
     };
-
-    if(slotXML.hasOption("Apply")){
-        std::string input = slotXML.get("Apply");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setApply(value);
-    }
-
 }
 
 /*!
@@ -739,9 +719,8 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
-
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
     std::string input;
     input = std::to_string(static_cast<int>(m_solver));
     slotXML.set("Mode", input);
@@ -770,10 +749,7 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
         slotXML.set("Tolerance", ss.str());
     }
 
-    if(isApply()){
-        slotXML.set("Apply", std::to_string(1));
-    }
-
+ 
 }
 
 }

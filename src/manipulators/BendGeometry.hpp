@@ -68,8 +68,12 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited form BaseManipulation:
  * - <B>ClassName</B> : name of the class as <tt>mimmo.BendGeometry</tt>;
  * - <B>Priority</B>  : uint marking priority of class execution in multichain frame;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+ *
+ * Proper of the class:
  * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement
  *                          in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
  *                          marks a constant function.
@@ -97,7 +101,7 @@ namespace mimmo{
  *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
  *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
  *                  \</RefSystem\> </tt> \n
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ * 
  *
  * Geometry has to be mandatorily passed through port.
  *

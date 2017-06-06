@@ -66,13 +66,17 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.TwistGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ *
+ * Proper of the class:
  * - <B>Origin</B>: twist axis origin;
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Twist</B>: twist angle in radians. Positive on counterclockwise twists around reference axis;
  * - <B>Distance</B>: distance from the origin (on twist axis) where the twist angle is reached.
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ * - <B>Symmetric</B>: boolean 0/1 activate symmetric twisting 
  *
  * Geometry has to be mandatorily passed through port.
  *

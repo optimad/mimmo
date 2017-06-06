@@ -60,11 +60,15 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.TranslationGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+ *
+ * Proper of the class:
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Translation</B>: translation value in length unity.
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+
  *
  * Geometry has to be mandatorily passed through port.
  *

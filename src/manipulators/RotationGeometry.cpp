@@ -236,16 +236,8 @@ RotationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     BITPIT_UNUSED(name);
 
-    if(slotXML.hasOption("Priority")){
-        std::string input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
-
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
         input = bitpit::utils::trim(input);
@@ -279,17 +271,6 @@ RotationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         setRotation(temp);
     }
 
-    if(slotXML.hasOption("Apply")){
-        std::string input = slotXML.get("Apply");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setApply(value);
-    }
-
 };
 
 /*!
@@ -302,9 +283,7 @@ RotationGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
-
+    BaseManipulation::flushSectionXML(slotXML, name);
 
     {
         std::stringstream ss;
@@ -319,10 +298,6 @@ RotationGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string
     }
 
     slotXML.set("Rotation", std::to_string(m_alpha));
-
-    if(isApply()){
-        slotXML.set("Apply", std::to_string(1));
-    }
 
 };
 

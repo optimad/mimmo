@@ -1563,18 +1563,6 @@ FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
         setDisplGlobal(temp);
     };
 
-    if(slotXML.hasOption("Apply")){
-        std::string input = slotXML.get("Apply");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setApply(value);
-    }
-
-
 };
 
 /*!
@@ -1611,10 +1599,6 @@ FFDLattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string name)
 
     {
         slotXML.set("DisplGlobal", std::to_string(int(isDisplGlobal())));
-    }
-
-    if(isApply()){
-        slotXML.set("Apply", std::to_string(1));
     }
 
 };

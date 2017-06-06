@@ -80,6 +80,7 @@ using namespace pin;
  * through absorbSectionXML/flushSectionXML methods. Such parameters are:
  * - <B>ClassName</B>: specific name identifying the class as "mimmo.XXXXX"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class, for debugging purpose.
  * - <B>OutputPlot</B>: target directory for optional results writing. 
  * 

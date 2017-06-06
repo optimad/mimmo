@@ -215,16 +215,8 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     BITPIT_UNUSED(name);
 
-    if(slotXML.hasOption("Priority")){
-        std::string input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
-
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
     if(slotXML.hasOption("MeanPoint")){
         std::string input = slotXML.get("MeanPoint");
         bool value = false;
@@ -258,17 +250,6 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setScaling(temp);
     }
 
-    if(slotXML.hasOption("Apply")){
-        std::string input = slotXML.get("Apply");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setApply(value);
-    }
-
 };
 
 /*!
@@ -281,9 +262,7 @@ ScaleGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
-
+    BaseManipulation::flushSectionXML(slotXML, name);
     {
         std::stringstream ss;
         ss<<std::scientific<<m_origin[0]<<'\t'<<m_origin[1]<<'\t'<<m_origin[2];
@@ -302,9 +281,6 @@ ScaleGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
         slotXML.set("Scaling", ss.str());
     }
 
-    if(isApply()){
-        slotXML.set("Apply", std::to_string(1));
-    }
 
 };
 

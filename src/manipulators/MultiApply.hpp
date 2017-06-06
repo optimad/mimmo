@@ -59,9 +59,9 @@ namespace mimmo{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.MultiApply</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>RefreshGeometryTrees</B>: 0/1 to force update of trees for current linked geometries;
  *
  * Geometries input has to be mandatorily passed through port.
  *

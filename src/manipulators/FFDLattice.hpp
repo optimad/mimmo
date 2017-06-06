@@ -99,11 +99,32 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as "mimmo.Lattice"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution; 
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing. 
+ *
+ *  Inherited from Lattice:
+ * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * - <B>Origin</B>: 3D point marking the shape barycenter
+ * - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
+ * - <B>RefSystem</B>: axes of current shape reference system. written in XML as:
+ *                  <tt> \n \<RefSystem\> \n
+ *                       \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
+ *                       \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
+ *                       \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
+ *                   \</RefSystem\> </tt>
+ * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
+ * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
+ * 
+ * Proper of the class:
  * - <B>CoordType</B>: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are <B>CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC</B>;
  * - <B>Degrees</B>: degrees for NURBS interpolant in each spatial direction;
  * - <B>DisplGlobal</B>:0/1 use local-shape/global x,y,z reference system to define displacements of lattice node;
- * - <B>Lattice</B>: Lattice's xml parameters are available for this class. Please read mimmo::Lattice class for further information on how to write Lattice parameters.
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ *
+
  *
  * Geometry, displacements field and filter field have to be mandatorily passed through port.
  */

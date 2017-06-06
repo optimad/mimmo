@@ -80,14 +80,18 @@ enum class MRBFSol{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.MRBF</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+ *
+ * Proper of the class:
  * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class );
  * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box;
  * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes;
  * - <B>RBFShape</B>: shape of RBF function wendlandc2 (1), linear (2), gauss90 (3), gauss95 (4), gauss99 (5);
  * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
- * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
+ * 
  *
  * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
  *
