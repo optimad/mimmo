@@ -296,15 +296,7 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
         }
     };
 
-    if(slotXML.hasOption("Priority")){
-        input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
     if(m_read){
         if(slotXML.hasOption("ReadDir")){
@@ -365,9 +357,9 @@ void GenericDispls::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
     slotXML.set("IOmode", std::to_string(int(m_read)));
-    slotXML.set("Priority", std::to_string(getPriority()));
     if(m_read){
         slotXML.set("ReadDir", m_dir);
         slotXML.set("ReadFilename", m_filename);

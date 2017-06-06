@@ -315,16 +315,8 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         }
     };
 
-    if(slotXML.hasOption("Priority")){
-        input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
-
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
     if(m_read){
         if(slotXML.hasOption("ReadDir")){
             std::string input = slotXML.get("ReadDir");
@@ -363,25 +355,6 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setTemplate(temp);
     };
 
-    if(slotXML.hasOption("PlotInExecution")){
-        std::string input = slotXML.get("PlotInExecution");
-        input = bitpit::utils::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setPlotInExecution(value);
-    }
-
-    if(slotXML.hasOption("OutputPlot")){
-        std::string input = slotXML.get("OutputPlot");
-        input = bitpit::utils::trim(input);
-        std::string temp = ".";
-        if(!input.empty())    setOutputPlot(input);
-        else                  setOutputPlot(temp);
-    }
-
 }
 
 /*!
@@ -394,9 +367,10 @@ IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
+    BaseManipulation::flushSectionXML(slotXML, name);
+   
     slotXML.set("IOmode", std::to_string(int(m_read)));
-    slotXML.set("Priority", std::to_string(getPriority()));
+    
     if(m_read){
         slotXML.set("ReadDir", m_dir);
         slotXML.set("ReadFilename", m_filename);
@@ -406,13 +380,6 @@ IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     }
 
     slotXML.set("Template", std::to_string(int(m_template)));
-    if(isPlotInExecution()){
-        slotXML.set("PlotInExecution", std::to_string(1));
-    }
-
-    if(m_outputPlot != "."){
-        slotXML.set("OutputPlot", m_outputPlot);
-    }
 };
 
 

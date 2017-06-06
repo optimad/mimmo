@@ -73,8 +73,11 @@ namespace mimmo{
  * \n
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericOutput</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
  * - <B>Filename</B>: name of file to write data;
  * - <B>WriteDir</B>: name of directory to write data;
  * - <B>CSV</B>: true if write in csv format;

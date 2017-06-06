@@ -175,15 +175,7 @@ GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     BITPIT_UNUSED(name);
     std::string input;
 
-    if(slotXML.hasOption("Priority")){
-        input = slotXML.get("Priority");
-        int value =0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
-            ss>>value;
-        }
-        setPriority(value);
-    };
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
     if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
@@ -220,8 +212,8 @@ GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     BITPIT_UNUSED(name);
 
-    slotXML.set("ClassName", m_name);
-    slotXML.set("Priority", std::to_string(getPriority()));
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
     slotXML.set("Filename", m_filename);
     slotXML.set("WriteDir", m_dir);
     slotXML.set("CSV", std::to_string((int)m_csv));

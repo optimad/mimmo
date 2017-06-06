@@ -85,9 +85,12 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericDispls</tt>;
- * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
+ * - <B>IOmode</B>: 1/0 enable Read and Write mode,respectively;
  * - <B>ReadDir</B>: path to input directory in read mode;
  * - <B>ReadFilename</B>: name of input file with tag extension in read mode;
  * - <B>WriteDir</B>: path to output directory in write mode;

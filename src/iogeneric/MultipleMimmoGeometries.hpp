@@ -90,8 +90,12 @@ namespace mimmo{
  *
  * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.MultipleGeometries</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
+ * - <B>Topology</B> unique type of multiple geometries read/written: 1-surface mesh 2-volume mesh 3-point cloud 4-3D curve
  * - <B>ReadFlag</B>: activate reading mode boolean;
  * - <B>ReadInfoData</B>: reading files data: \n
  *     <tt> \<ReadInfoData\> \n
