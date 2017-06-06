@@ -524,7 +524,7 @@ IOCloudPoints::read(){
 
     }else{
         (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        exit(1);
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
     }
 
     reading.close();
@@ -604,7 +604,7 @@ IOCloudPoints::write(){
         writing<<""<<std::endl;
     }else{
         (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        exit(1);
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
     }
 
     writing.close();

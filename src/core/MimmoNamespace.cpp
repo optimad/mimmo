@@ -51,14 +51,14 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
         objSend->buildPorts();
         if (!objSend->arePortsBuilt()){
             (*log) << "error: " << objSend->m_name << " cannot build ports -> exit! " << std::endl;
-            exit(11);
+            throw std::runtime_error (objSend->m_name + " cannot build ports");
         }
     }
     if (!objRec->arePortsBuilt()){
         objRec->buildPorts();
         if (!objRec->arePortsBuilt()){
             (*log) << "error: " << objRec->m_name << " cannot build ports -> exit! " << std::endl;
-            exit(11);
+            throw std::runtime_error (objRec->m_name + " cannot build ports");
         }
     }
     if (!(objSend->getConnectionType() == ConnectionType::BACKWARD) && !(objRec->getConnectionType() == ConnectionType::FORWARD) ){

@@ -422,7 +422,7 @@ void GenericDispls::read(){
 
     }else{
         (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        exit(1);
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
     }
 
     reading.close();
@@ -479,7 +479,7 @@ void GenericDispls::write(){
 
     }else{
         (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        exit(1);
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
     }
 
     writing.close();

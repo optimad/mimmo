@@ -473,7 +473,7 @@ BaseManipulation::exec(){
                 std::vector<BaseManipulation*>  linked = ip->getLink();
                 if (linked.size() == 0){
                     (*m_log) << "error: " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
-                    exit(11);
+                    throw std::runtime_error (m_name + " mandatory port " + std::to_string(itID->second[count]) + " not linked");
                 }
                 count++;
             }
@@ -486,7 +486,10 @@ BaseManipulation::exec(){
             }
             if (!check){
                 (*m_log) << "error: " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
-                exit(11);
+                std::string ports;
+                for (auto p : itID->second)
+                    ports += " " + std::to_string(p) + " ";
+                throw std::runtime_error (m_name + " none of mandatory ports " + ports + " linked");
             }
         }
         itID++;
