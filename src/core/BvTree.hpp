@@ -44,6 +44,9 @@ public:
 public:
     BvElement(long label = -1);
     ~BvElement();
+    /*!
+     * Default copy constructor of BvElement.
+     */
     BvElement(const BvElement & other) = default;
     BvElement & operator=(const BvElement & other);
 };
@@ -70,6 +73,9 @@ private:
 public:
     BvNode();
     ~BvNode();
+    /*!
+     * Default copy constructor of BvNode.
+     */
     BvNode(const BvNode & other) = default;
     BvNode & operator=(const BvNode & other);
 };
@@ -114,6 +120,9 @@ private:
 public:
     BvTree(bitpit::PatchKernel *patch_ = NULL);
     ~BvTree();
+    /*!
+     * Default copy constructor of BvTree.
+     */
     BvTree(const BvTree & other) = default;
     BvTree & operator=(const BvTree & other);
 

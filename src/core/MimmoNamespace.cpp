@@ -166,6 +166,10 @@ void    setLogger(std::string log){
     MIMMO_LOG_FILE = log;
 }
 
+/*!Base warning for no data found in xml dictionary.
+ * \param[in] log pointer to logger file.
+ * \param[in] name name of the mimmo block.
+ */
 void    warningXML(bitpit::Logger* log, std::string name){
     (*log)<<"warning in custom xml " << name << " constructor. No valid xml data found"<<std::endl;
 }

@@ -161,7 +161,13 @@ public:
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     void        buildBvTree(int value = 1);
     void        buildKdTree();
+    /*!
+     * Update BvTree (not available)
+     */
     void        updateBvTree();
+    /*!
+     * Update KdTree (not available)
+     */
     void        updateKdTree();
     void        buildAdjacencies();
 

@@ -31,8 +31,8 @@
 
 namespace mimmo{
 
-typedef int M_CG_ElementType_t;
-typedef int M_CG_BCType_t;
+typedef int M_CG_ElementType_t;     /**<Casting of CG_ElementType_t to int.*/
+typedef int M_CG_BCType_t;          /**<Casting of CG_BCType_t to int.*/
 
 /*!
  * \class InfoCGNS
