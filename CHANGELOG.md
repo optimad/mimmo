@@ -14,12 +14,14 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 ### Changed
 - MimmoGeometry now works in three operational modes (read/write/converter).
 - Changed the name of **mimmo** executable in **mimmo++**
-- ScalingGeometry renamed in ScaleGeoemtry.
+- Changed command options of **mimmo++**. For further info launch mimmo++ --help
+- Changed layout of mimmo XML-TUI dictionaries. See examples in samples folder.
+- ScalingGeometry renamed in ScaleGeometry.
 - README updated with new modifications.
 
 ### Fixed
 - Fixed plot in execution options for blocks.
-- Fixed absorb xml parameters.
+- Fixed absorb/flush xml parameters.
 - Bug fixing in global manipulators.
 - Bug fixing in BendGeometry manipulator (local coordinate).
 - Bug fixed in read CGNS format files.
