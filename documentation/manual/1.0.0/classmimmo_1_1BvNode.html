@@ -164,8 +164,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aacda5f848abf0fbeb79d1c071f74beeb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvNode.html#aacda5f848abf0fbeb79d1c071f74beeb">BvNode</a> ()</td></tr>
 <tr class="separator:aacda5f848abf0fbeb79d1c071f74beeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f5ac16d6233e06e1a721a5272f286dd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvNode.html#a4f5ac16d6233e06e1a721a5272f286dd">BvNode</a> (const <a class="el" href="classmimmo_1_1BvNode.html">BvNode</a> &amp;other)</td></tr>
-<tr class="separator:a4f5ac16d6233e06e1a721a5272f286dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a163378b1475a36bf8d4ba07297aed435"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvNode.html#a163378b1475a36bf8d4ba07297aed435">BvNode</a> (const <a class="el" href="classmimmo_1_1BvNode.html">BvNode</a> &amp;other)=default</td></tr>
+<tr class="separator:a163378b1475a36bf8d4ba07297aed435"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41098719a6bb89235a136777e3b63d5d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvNode.html#a41098719a6bb89235a136777e3b63d5d">~BvNode</a> ()</td></tr>
 <tr class="separator:a41098719a6bb89235a136777e3b63d5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208c3cd3d9841bac6bf331eb6b1fcc40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmimmo_1_1BvNode.html">BvNode</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmimmo_1_1BvNode.html#a208c3cd3d9841bac6bf331eb6b1fcc40">operator=</a> (const <a class="el" href="classmimmo_1_1BvNode.html">BvNode</a> &amp;other)</td></tr>
@@ -191,7 +191,7 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bv-Node is the class of a node of a Bv-Tree. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00057">57</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00060">60</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aacda5f848abf0fbeb79d1c071f74beeb"></a>
 <div class="memitem">
@@ -207,7 +207,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Default constructor for class <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a>. Initialize an empty node in the bv-tree. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00096">96</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00088">88</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
 
 </div>
 </div>
@@ -225,13 +225,16 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Default destructor for class <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a>. Clear <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a> content and release memory. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00112">112</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00104">104</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a4f5ac16d6233e06e1a721a5272f286dd"></a>
+<a class="anchor" id="a163378b1475a36bf8d4ba07297aed435"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">mimmo::BvNode::BvNode </td>
@@ -241,10 +244,13 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">default</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Copy constructor for class <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a>. </p>
-
-<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00117">117</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
+<p>Default copy constructor of <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a>. </p>
 
 </div>
 </div>
@@ -264,7 +270,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Assignement operator for class <a class="el" href="classmimmo_1_1BvNode.html" title="Bv-Node is the class of a node of a Bv-Tree. ">BvNode</a>. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00124">124</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8cpp_source.html#l00108">108</a> of file <a class="el" href="BvTree_8cpp_source.html">BvTree.cpp</a>.</p>
 
 </div>
 </div>
@@ -280,7 +286,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Range index of elements of the node. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00061">61</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00064">64</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -295,7 +301,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Index of left child. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00063">63</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00066">66</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -310,7 +316,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>True if the node is a leaf node. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00065">65</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00068">68</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -325,7 +331,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Maximum coordinates of the bounding box of the node. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00060">60</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00063">63</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -340,7 +346,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Minimum coordinates of the bounding box of the node. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00059">59</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00062">62</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -355,7 +361,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Number of elements in the bounding box of the node. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00062">62</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00065">65</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -370,7 +376,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Index of right child. </p>
 
-<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00064">64</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
+<p>Definition at line <a class="el" href="BvTree_8hpp_source.html#l00067">67</a> of file <a class="el" href="BvTree_8hpp_source.html">BvTree.hpp</a>.</p>
 
 </div>
 </div>
@@ -384,7 +390,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:37 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

@@ -28,7 +28,7 @@
 <area shape="rect" id="node36" href="$classmimmo_1_1ReconstructVector.html" title="Reconstruct a vector field from daughter mesh to mother mesh. " alt="" coords="255,1323,438,1349"/>
 <area shape="rect" id="node37" href="$classmimmo_1_1RotationAxes.html" title="RotationAxes is the class that applies a rotation to a given reference system. " alt="" coords="271,1373,423,1400"/>
 <area shape="rect" id="node38" href="$classmimmo_1_1RotationGeometry.html" title="RotationGeometry is the class that applies a rotation to a given geometry patch. " alt="" coords="257,1424,436,1451"/>
-<area shape="rect" id="node39" href="$classmimmo_1_1ScalingGeometry.html" title="ScalingGeometry is the class that applies a scaling to a given geometry patch in respect to the mean ..." alt="" coords="260,1475,433,1501"/>
+<area shape="rect" id="node39" href="$classmimmo_1_1ScaleGeometry.html" title="ScaleGeometry is the class that applies a scaling to a given geometry patch in respect to the mean po..." alt="" coords="265,1475,428,1501"/>
 <area shape="rect" id="node40" href="$classmimmo_1_1SplitField.html" title="SplitField is an abstract executable block class capable of splitting fields associated to a stitched..." alt="" coords="283,1525,410,1552"/>
 <area shape="rect" id="node43" href="$classmimmo_1_1StitchGeometry.html" title="StitchGeometry is an executable block class capable of stitch multiple MimmoObject geometries of the ..." alt="" coords="265,1576,429,1603"/>
 <area shape="rect" id="node44" href="$classmimmo_1_1TranslationGeometry.html" title="TranslationGeometry is the class that applies a translation to a given geometry patch. " alt="" coords="249,1627,444,1653"/>

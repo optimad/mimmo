@@ -46,7 +46,7 @@ var searchData=
   ['_7ereconstructvector',['~ReconstructVector',['../classmimmo_1_1ReconstructVector.html#ad0c53b593619e7209074971a2af730e5',1,'mimmo::ReconstructVector']]],
   ['_7erotationaxes',['~RotationAxes',['../classmimmo_1_1RotationAxes.html#aff1cc6b342d0c13dd9506b9b13bef1d1',1,'mimmo::RotationAxes']]],
   ['_7erotationgeometry',['~RotationGeometry',['../classmimmo_1_1RotationGeometry.html#a62f7849e8e51755ea878eef247aa1af2',1,'mimmo::RotationGeometry']]],
-  ['_7escalinggeometry',['~ScalingGeometry',['../classmimmo_1_1ScalingGeometry.html#ab24c962f7d3191fa1bd9702ed611bdd8',1,'mimmo::ScalingGeometry']]],
+  ['_7escalegeometry',['~ScaleGeometry',['../classmimmo_1_1ScaleGeometry.html#a7a49d9abbe3b0f122e4660bd08863b10',1,'mimmo::ScaleGeometry']]],
   ['_7eselectionbybox',['~SelectionByBox',['../classmimmo_1_1SelectionByBox.html#af87d0c7d9740b4e6938b0d78095d079a',1,'mimmo::SelectionByBox']]],
   ['_7eselectionbyboxwithscalar',['~SelectionByBoxWithScalar',['../classmimmo_1_1SelectionByBoxWithScalar.html#a6c7fe175009026557e672de47a706250',1,'mimmo::SelectionByBoxWithScalar']]],
   ['_7eselectionbycylinder',['~SelectionByCylinder',['../classmimmo_1_1SelectionByCylinder.html#a47be271b9fbae72a0ec0af727eeff6c1',1,'mimmo::SelectionByCylinder']]],

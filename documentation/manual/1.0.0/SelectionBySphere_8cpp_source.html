@@ -192,7 +192,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordflow">if</span>(input == <span class="stringliteral">&quot;mimmo.SelectionBySphere&quot;</span>){</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <a class="code" href="classmimmo_1_1SelectionBySphere.html#a88eb9e17a1b50c0ef6465b6dfb9dc145">absorbSectionXML</a>(rootXML);</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        std::cout&lt;&lt;<span class="stringliteral">&quot;Warning in custom xml mimmo::SelectionBySphere constructor. No valid xml data found&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <a class="code" href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">warningXML</a>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a0da2f768693c21977caf0dea4e74d52a">m_log</a>, <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a>);</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    };</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
@@ -260,215 +260,177 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    BITPIT_UNUSED(name);</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="comment">//start absorbing</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Priority&quot;</span>)){</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Priority&quot;</span>);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keywordtype">int</span> value =0;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;            ss&gt;&gt;value;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;        }</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;        <a class="code" href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">setPriority</a>(value);</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    };</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Dual&quot;</span>)){</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Dual&quot;</span>);</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        }</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <a class="code" href="classmimmo_1_1GenericSelection.html#a7c22b8ee74c0a47b2569f661d160511f">setDual</a>(value);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    }</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Origin&quot;</span>)){</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Origin&quot;</span>);</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{0.0,0.0,0.0}};</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">setOrigin</a>(temp);</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">setOrigin</a>(temp);</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        }</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    }</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Span&quot;</span>)){</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Span&quot;</span>);</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{1.0,2.0*M_PI,M_PI}};</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">setSpan</a>(temp);</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">setSpan</a>(temp);</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        }</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    }</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;RefSystem&quot;</span>)){</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; axesXML = slotXML.getSection(<span class="stringliteral">&quot;RefSystem&quot;</span>);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;        <a class="code" href="group__typedefs.html#gab0a301afe02111b3cea7bb29a03e00c5">dmatrix33E</a> axes;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0; i&lt;3; ++i){</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            axes[i].fill(0.0);</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;            axes[i][i] = 1.0;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;        }</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis0&quot;</span>)){</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis0&quot;</span>);</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;            input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;                std::stringstream ss(input);</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;                ss&gt;&gt;axes[0][0]&gt;&gt;axes[0][1]&gt;&gt;axes[0][2];</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;            }</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        }</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis1&quot;</span>)){</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis1&quot;</span>);</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;            input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;                std::stringstream ss(input);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;                ss&gt;&gt;axes[1][0]&gt;&gt;axes[1][1]&gt;&gt;axes[1][2];</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;            }</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;        }</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis2&quot;</span>)){</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis2&quot;</span>);</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;            input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;                std::stringstream ss(input);</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;                ss&gt;&gt;axes[2][0]&gt;&gt;axes[2][1]&gt;&gt;axes[2][2];</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;            }</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        }</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        <a class="code" href="classmimmo_1_1BasicShape.html#a160e2a67bfc7d883b9f7c646a25b9ddc">setRefSystem</a>(axes);</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    }</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;InfLimits&quot;</span>)){</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;InfLimits&quot;</span>);</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{0.0,0.0,0.0}};</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a5614f13ed299b460348c0f5fbcae1830">setInfLimits</a>(temp);</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a5614f13ed299b460348c0f5fbcae1830">setInfLimits</a>(temp);</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;        }</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    }</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">BaseManipulation::absorbSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    </div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Dual&quot;</span>)){</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Dual&quot;</span>);</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            std::stringstream ss(input);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        }</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        <a class="code" href="classmimmo_1_1GenericSelection.html#a7c22b8ee74c0a47b2569f661d160511f">setDual</a>(value);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    }</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Origin&quot;</span>)){</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Origin&quot;</span>);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{0.0,0.0,0.0}};</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;            std::stringstream ss(input);</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">setOrigin</a>(temp);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;        }<span class="keywordflow">else</span>{</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">setOrigin</a>(temp);</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;        }</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    }</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Span&quot;</span>)){</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Span&quot;</span>);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{1.0,2.0*M_PI,M_PI}};</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;            std::stringstream ss(input);</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">setSpan</a>(temp);</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        }<span class="keywordflow">else</span>{</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">setSpan</a>(temp);</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        }</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    }</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;RefSystem&quot;</span>)){</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; axesXML = slotXML.getSection(<span class="stringliteral">&quot;RefSystem&quot;</span>);</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        <a class="code" href="group__typedefs.html#gab0a301afe02111b3cea7bb29a03e00c5">dmatrix33E</a> axes;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0; i&lt;3; ++i){</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;            axes[i].fill(0.0);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            axes[i][i] = 1.0;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        }</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis0&quot;</span>)){</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis0&quot;</span>);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;                std::stringstream ss(input);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;                ss&gt;&gt;axes[0][0]&gt;&gt;axes[0][1]&gt;&gt;axes[0][2];</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;            }</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;        }</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis1&quot;</span>)){</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis1&quot;</span>);</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;            input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;                std::stringstream ss(input);</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;                ss&gt;&gt;axes[1][0]&gt;&gt;axes[1][1]&gt;&gt;axes[1][2];</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;            }</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        }</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        <span class="keywordflow">if</span>(axesXML.hasOption(<span class="stringliteral">&quot;axis2&quot;</span>)){</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;            std::string input = axesXML.get(<span class="stringliteral">&quot;axis2&quot;</span>);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;            input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;            <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;                std::stringstream ss(input);</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;                ss&gt;&gt;axes[2][0]&gt;&gt;axes[2][1]&gt;&gt;axes[2][2];</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;            }</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        }</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        <a class="code" href="classmimmo_1_1BasicShape.html#a160e2a67bfc7d883b9f7c646a25b9ddc">setRefSystem</a>(axes);</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    }</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;InfLimits&quot;</span>)){</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;InfLimits&quot;</span>);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> temp = {{0.0,0.0,0.0}};</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;            std::stringstream ss(input);</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;            ss&gt;&gt;temp[0]&gt;&gt;temp[1]&gt;&gt;temp[2];</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a5614f13ed299b460348c0f5fbcae1830">setInfLimits</a>(temp);</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        }<span class="keywordflow">else</span>{</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;            <a class="code" href="classmimmo_1_1BasicShape.html#a5614f13ed299b460348c0f5fbcae1830">setInfLimits</a>(temp);</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        }</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    }</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;};</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00251"></a><span class="lineno"><a class="line" href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">  251</a></span>&#160;<a class="code" href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">SelectionBySphere::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PlotInExecution&quot;</span>)){</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;PlotInExecution&quot;</span>);</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;        }</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        <a class="code" href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">setPlotInExecution</a>(value);</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    }</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;OutputPlot&quot;</span>)){</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;OutputPlot&quot;</span>);</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        std::string temp = <span class="stringliteral">&quot;.&quot;</span>;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;        <span class="keywordflow">if</span>(!input.empty())    <a class="code" href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">setOutputPlot</a>(input);</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;        <span class="keywordflow">else</span>                  <a class="code" href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">setOutputPlot</a>(temp);</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    }</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;};</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00280"></a><span class="lineno"><a class="line" href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">  280</a></span>&#160;<a class="code" href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">SelectionBySphere::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    BITPIT_UNUSED(name);</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    slotXML.set(<span class="stringliteral">&quot;ClassName&quot;</span>, <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a>);</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Priority&quot;</span>, std::to_string(<a class="code" href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">getPriority</a>()));</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    BITPIT_UNUSED(name);</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">BaseManipulation::flushSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    </div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keywordtype">int</span> value = <a class="code" href="classmimmo_1_1GenericSelection.html#a47717afe78b5e96d91c36ea00cb81262">m_dual</a>;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Dual&quot;</span>, std::to_string(value));</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    {</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> org = <a class="code" href="classmimmo_1_1BasicShape.html#ae4721e79a1dca214773c9eede5f108cd">getOrigin</a>();</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;        std::stringstream ss;</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;org[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;org[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;org[2];</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Origin&quot;</span>,ss.str());</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    }</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    {</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> span = <a class="code" href="classmimmo_1_1BasicShape.html#a467494c2a0d6d5c7c6d2cdb48baa6849">getSpan</a>();</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;        std::stringstream ss;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;span[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;span[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;span[2];</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Span&quot;</span>,ss.str());</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    }</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    {</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;        <a class="code" href="group__typedefs.html#gab0a301afe02111b3cea7bb29a03e00c5">dmatrix33E</a> axes = <a class="code" href="classmimmo_1_1BasicShape.html#a66a4d11008b3015e9698cd1cb5c8323b">getRefSystem</a>();</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;        bitpit::Config::Section &amp; axesXML = slotXML.addSection(<span class="stringliteral">&quot;RefSystem&quot;</span>);</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0; i&lt;3; ++i){</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;            std::string name = <span class="stringliteral">&quot;axis&quot;</span>+std::to_string(i);</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;            std::stringstream ss;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;            ss&lt;&lt;std::scientific&lt;&lt;axes[i][0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;axes[i][1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;axes[i][2];</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;            axesXML.set(name, ss.str());</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;        }</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    }</div>
 <div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keywordtype">int</span> value = <a class="code" href="classmimmo_1_1GenericSelection.html#a47717afe78b5e96d91c36ea00cb81262">m_dual</a>;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Dual&quot;</span>, std::to_string(value));</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    {</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> org = <a class="code" href="classmimmo_1_1BasicShape.html#ae4721e79a1dca214773c9eede5f108cd">getOrigin</a>();</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        std::stringstream ss;</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;org[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;org[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;org[2];</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Origin&quot;</span>,ss.str());</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    }</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    {</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> span = <a class="code" href="classmimmo_1_1BasicShape.html#a467494c2a0d6d5c7c6d2cdb48baa6849">getSpan</a>();</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;        std::stringstream ss;</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;span[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;span[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;span[2];</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Span&quot;</span>,ss.str());</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    }</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    {</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        <a class="code" href="group__typedefs.html#gab0a301afe02111b3cea7bb29a03e00c5">dmatrix33E</a> axes = <a class="code" href="classmimmo_1_1BasicShape.html#a66a4d11008b3015e9698cd1cb5c8323b">getRefSystem</a>();</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;        bitpit::Config::Section &amp; axesXML = slotXML.addSection(<span class="stringliteral">&quot;RefSystem&quot;</span>);</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0; i&lt;3; ++i){</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            std::string name = <span class="stringliteral">&quot;axis&quot;</span>+std::to_string(i);</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;            std::stringstream ss;</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;            ss&lt;&lt;std::scientific&lt;&lt;axes[i][0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;axes[i][1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;axes[i][2];</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;            axesXML.set(name, ss.str());</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;        }</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    }</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    {</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> inflim = <a class="code" href="classmimmo_1_1BasicShape.html#ad27c9647fb29c456e22476e99e790dec">getInfLimits</a>();</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;        std::stringstream ss;</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;inflim[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;inflim[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;inflim[2];</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        slotXML.set(<span class="stringliteral">&quot;InfLimits&quot;</span>,ss.str());</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    }</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#ac343bf89833af328cdadc0f53d9c84c0">isPlotInExecution</a>()){</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        slotXML.set(<span class="stringliteral">&quot;PlotInExecution&quot;</span>, std::to_string(1));</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    }</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a> != <span class="stringliteral">&quot;.&quot;</span>){</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        slotXML.set(<span class="stringliteral">&quot;OutputPlot&quot;</span>, <a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a>);</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    }</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;};</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;}</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    {</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;        <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> inflim = <a class="code" href="classmimmo_1_1BasicShape.html#ad27c9647fb29c456e22476e99e790dec">getInfLimits</a>();</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;        std::stringstream ss;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;inflim[0]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;inflim[1]&lt;&lt;<span class="charliteral">&#39;\t&#39;</span>&lt;&lt;inflim[2];</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;        slotXML.set(<span class="stringliteral">&quot;InfLimits&quot;</span>,ss.str());</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    }</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;};</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;}</div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_ae696801e284c4809bc25f4e473a68baf"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#ae696801e284c4809bc25f4e473a68baf">mimmo::BasicShape::setSpan</a></div><div class="ttdeci">void setSpan(double, double, double)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00068">BasicShapes.cpp:68</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_acc6c9f895642dadb9f48bd94b9a4132f"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#acc6c9f895642dadb9f48bd94b9a4132f">mimmo::SelectionBySphere::operator=</a></div><div class="ttdeci">SelectionBySphere &amp; operator=(const SelectionBySphere &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00091">SelectionBySphere.cpp:91</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda8e545f114800e02240daaf0648a48d66"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8e545f114800e02240daaf0648a48d66">mimmo::pin::containerTAG::ARR3ARR3</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_a751a83e14d2c64b72a1fc8ddc2f20db8"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#a751a83e14d2c64b72a1fc8ddc2f20db8">mimmo::GenericSelection::setGeometry</a></div><div class="ttdeci">virtual void setGeometry(MimmoObject *)</div><div class="ttdef"><b>Definition:</b> <a href="GenericSelection_8cpp_source.html#l00117">GenericSelection.cpp:117</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a6dec9105fc241b9b8ab756fb524e8ac1"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">mimmo::BaseManipulation::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00525">BaseManipulation.cpp:525</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a94c25fc1d23cf197c2668288b45f3d52"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a94c25fc1d23cf197c2668288b45f3d52">mimmo::BasicShape::includeGeometry</a></div><div class="ttdeci">livector1D includeGeometry(mimmo::MimmoObject *)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00257">BasicShapes.cpp:257</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a467494c2a0d6d5c7c6d2cdb48baa6849"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a467494c2a0d6d5c7c6d2cdb48baa6849">mimmo::BasicShape::getSpan</a></div><div class="ttdeci">darray3E getSpan()</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00192">BasicShapes.cpp:192</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_a20b7a292a724f512126258254df80cd7"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#a20b7a292a724f512126258254df80cd7">mimmo::SelectionBySphere::SelectionBySphere</a></div><div class="ttdeci">SelectionBySphere()</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00033">SelectionBySphere.cpp:33</a></div></div>
-<div class="ttc" id="classmimmo_1_1SelectionBySphere_html_a5b5234dad8668590b33d5a151c012636"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">mimmo::SelectionBySphere::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00280">SelectionBySphere.cpp:280</a></div></div>
+<div class="ttc" id="classmimmo_1_1SelectionBySphere_html_a5b5234dad8668590b33d5a151c012636"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#a5b5234dad8668590b33d5a151c012636">mimmo::SelectionBySphere::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00251">SelectionBySphere.cpp:251</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html">mimmo::GenericSelection</a></div><div class="ttdoc">Abstract Interface for selection classes. </div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00081">MeshSelection.hpp:81</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda772136570f40904641ac8cde4eb79d38"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda772136570f40904641ac8cde4eb79d38">mimmo::pin::containerTAG::ARRAY3</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a026a140207feac29cf1049547a4209b1"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a026a140207feac29cf1049547a4209b1">mimmo::BasicShape::setOrigin</a></div><div class="ttdeci">void setOrigin(darray3E)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00058">BasicShapes.cpp:58</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00116">BaseManipulation.cpp:116</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00050">MimmoObject.hpp:50</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_aab68f28a168170150c54fb0b929e5871"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">mimmo::BaseManipulation::setOutputPlot</a></div><div class="ttdeci">void setOutputPlot(std::string path)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00314">BaseManipulation.cpp:314</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00150">BaseManipulation.cpp:150</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00051">MimmoObject.hpp:51</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_ac082937e8d9ffddf21a1b6a32c056e58"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#ac082937e8d9ffddf21a1b6a32c056e58">mimmo::GenericSelection::m_subpatch</a></div><div class="ttdeci">std::unique_ptr&lt; MimmoObject &gt; m_subpatch</div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00086">MeshSelection.hpp:86</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_a72fd37f87bc90106a80ed5b583014e1e"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#a72fd37f87bc90106a80ed5b583014e1e">mimmo::GenericSelection::m_topo</a></div><div class="ttdeci">int m_topo</div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00087">MeshSelection.hpp:87</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a91597232a8450fb21f5b5b5cb6f72fec"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">mimmo::BaseManipulation::getPriority</a></div><div class="ttdeci">uint getPriority()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00098">BaseManipulation.cpp:98</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00112">BaseManipulation.hpp:112</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga0eb880e478ea7de170904ecc286d3873"><div class="ttname"><a href="group__typedefs.html#ga0eb880e478ea7de170904ecc286d3873">livector1D</a></div><div class="ttdeci">std::vector&lt; long &gt; livector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00040">mimmoTypeDef.hpp:40</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_a47717afe78b5e96d91c36ea00cb81262"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#a47717afe78b5e96d91c36ea00cb81262">mimmo::GenericSelection::m_dual</a></div><div class="ttdeci">bool m_dual</div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00088">MeshSelection.hpp:88</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_af466f917665c72bd7cc405699b3ea35c"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#af466f917665c72bd7cc405699b3ea35c">mimmo::BaseManipulation::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00401">BaseManipulation.cpp:401</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_af466f917665c72bd7cc405699b3ea35c"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#af466f917665c72bd7cc405699b3ea35c">mimmo::BaseManipulation::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00453">BaseManipulation.cpp:453</a></div></div>
 <div class="ttc" id="group__typedefs_html_gab0a301afe02111b3cea7bb29a03e00c5"><div class="ttname"><a href="group__typedefs.html#gab0a301afe02111b3cea7bb29a03e00c5">dmatrix33E</a></div><div class="ttdeci">std::array&lt; darray3E, 3 &gt; dmatrix33E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00085">mimmoTypeDef.hpp:85</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac639019d9f65cbdeaa4a574ee2c97af6"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">mimmo::BaseManipulation::setPriority</a></div><div class="ttdeci">void setPriority(uint priority)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00278">BaseManipulation.cpp:278</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a160e2a67bfc7d883b9f7c646a25b9ddc"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a160e2a67bfc7d883b9f7c646a25b9ddc">mimmo::BasicShape::setRefSystem</a></div><div class="ttdeci">void setRefSystem(darray3E, darray3E, darray3E)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00124">BasicShapes.cpp:124</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a></div></div>
+<div class="ttc" id="namespacemimmo_html_ac06db59436387b5a00d2b9f375c1f62d"><div class="ttname"><a href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">mimmo::warningXML</a></div><div class="ttdeci">void warningXML(bitpit::Logger *log, std::string name)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00173">MimmoNamespace.cpp:173</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_a1d7fdb9ab59043a54ff3dc307c5a2400"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#a1d7fdb9ab59043a54ff3dc307c5a2400">mimmo::SelectionBySphere::buildPorts</a></div><div class="ttdeci">void buildPorts()</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00101">SelectionBySphere.cpp:101</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a0da2f768693c21977caf0dea4e74d52a"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a0da2f768693c21977caf0dea4e74d52a">mimmo::BaseManipulation::m_log</a></div><div class="ttdeci">bitpit::Logger * m_log</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00143">BaseManipulation.hpp:143</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_a7c22b8ee74c0a47b2569f661d160511f"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#a7c22b8ee74c0a47b2569f661d160511f">mimmo::GenericSelection::setDual</a></div><div class="ttdeci">void setDual(bool flag=false)</div><div class="ttdef"><b>Definition:</b> <a href="GenericSelection_8cpp_source.html#l00139">GenericSelection.cpp:139</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_a88eb9e17a1b50c0ef6465b6dfb9dc145"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#a88eb9e17a1b50c0ef6465b6dfb9dc145">mimmo::SelectionBySphere::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00149">SelectionBySphere.cpp:149</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a66a4d11008b3015e9698cd1cb5c8323b"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a66a4d11008b3015e9698cd1cb5c8323b">mimmo::BasicShape::getRefSystem</a></div><div class="ttdeci">dmatrix33E getRefSystem()</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00211">BasicShapes.cpp:211</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a25279e18e1d8d05633eba7951b25af59"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">mimmo::BaseManipulation::m_outputPlot</a></div><div class="ttdeci">std::string m_outputPlot</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00128">BaseManipulation.hpp:128</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_ab4bb655684e570893c4c414ac8f4fb86"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#ab4bb655684e570893c4c414ac8f4fb86">mimmo::SelectionBySphere::extractSelection</a></div><div class="ttdeci">livector1D extractSelection()</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00128">SelectionBySphere.cpp:128</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_ad27c9647fb29c456e22476e99e790dec"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#ad27c9647fb29c456e22476e99e790dec">mimmo::BasicShape::getInfLimits</a></div><div class="ttdeci">darray3E getInfLimits()</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00204">BasicShapes.cpp:204</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a5456aba90bbcad732ee560b91d9c275f"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a5456aba90bbcad732ee560b91d9c275f">mimmo::BasicShape::excludeCloudPoints</a></div><div class="ttdeci">livector1D excludeCloudPoints(dvecarr3E &amp;)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00384">BasicShapes.cpp:384</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a379910fb36f3a2af4a6ea4306117c3ae"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">mimmo::BaseManipulation::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00579">BaseManipulation.cpp:579</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a12460a68565a74bdcbbd902626fd3f61"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a12460a68565a74bdcbbd902626fd3f61">mimmo::BasicShape::includeCloudPoints</a></div><div class="ttdeci">livector1D includeCloudPoints(dvecarr3E &amp;)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00361">BasicShapes.cpp:361</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga5df63afb31922e8b4ada0a5cc96ad765"><div class="ttname"><a href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a></div><div class="ttdeci">std::array&lt; double, 3 &gt; darray3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00048">mimmoTypeDef.hpp:48</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a8af7c86ab746a3941bd76a7ee7aa81e3"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a8af7c86ab746a3941bd76a7ee7aa81e3">mimmo::BasicShape::excludeGeometry</a></div><div class="ttdeci">livector1D excludeGeometry(mimmo::MimmoObject *)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00279">BasicShapes.cpp:279</a></div></div>
@@ -477,11 +439,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_ad1ac8e449825bf2f070f55db8df72ad8"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#ad1ac8e449825bf2f070f55db8df72ad8">mimmo::GenericSelection::buildPorts</a></div><div class="ttdeci">void buildPorts()</div><div class="ttdef"><b>Definition:</b> <a href="GenericSelection_8cpp_source.html#l00070">GenericSelection.cpp:70</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_ae4721e79a1dca214773c9eede5f108cd"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#ae4721e79a1dca214773c9eede5f108cd">mimmo::BasicShape::getOrigin</a></div><div class="ttdeci">darray3E getOrigin()</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00184">BasicShapes.cpp:184</a></div></div>
 <div class="ttc" id="classmimmo_1_1Sphere_html"><div class="ttname"><a href="classmimmo_1_1Sphere.html">mimmo::Sphere</a></div><div class="ttdoc">Elementary Shape Representation of a Sphere or portion of it. </div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8hpp_source.html#l00306">BasicShapes.hpp:306</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_aaf48ae2e832729c0d9a0b01a77438bdc"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">mimmo::BaseManipulation::setPlotInExecution</a></div><div class="ttdeci">void setPlotInExecution(bool)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00304">BaseManipulation.cpp:304</a></div></div>
 <div class="ttc" id="classmimmo_1_1SelectionBySphere_html_af67d8d085ba05b2bbf9861af6081ec5b"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html#af67d8d085ba05b2bbf9861af6081ec5b">mimmo::SelectionBySphere::~SelectionBySphere</a></div><div class="ttdeci">virtual ~SelectionBySphere()</div><div class="ttdef"><b>Definition:</b> <a href="SelectionBySphere_8cpp_source.html#l00079">SelectionBySphere.cpp:79</a></div></div>
-<div class="ttc" id="classmimmo_1_1SelectionBySphere_html"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html">mimmo::SelectionBySphere</a></div><div class="ttdoc">Selection through sphere primitive. </div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00350">MeshSelection.hpp:350</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac343bf89833af328cdadc0f53d9c84c0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac343bf89833af328cdadc0f53d9c84c0">mimmo::BaseManipulation::isPlotInExecution</a></div><div class="ttdeci">bool isPlotInExecution()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00243">BaseManipulation.cpp:243</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
+<div class="ttc" id="classmimmo_1_1SelectionBySphere_html"><div class="ttname"><a href="classmimmo_1_1SelectionBySphere.html">mimmo::SelectionBySphere</a></div><div class="ttdoc">Selection through sphere primitive. </div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00363">MeshSelection.hpp:363</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00136">BaseManipulation.hpp:136</a></div></div>
 <div class="ttc" id="classmimmo_1_1BasicShape_html_a5614f13ed299b460348c0f5fbcae1830"><div class="ttname"><a href="classmimmo_1_1BasicShape.html#a5614f13ed299b460348c0f5fbcae1830">mimmo::BasicShape::setInfLimits</a></div><div class="ttdeci">void setInfLimits(double val, int dir)</div><div class="ttdef"><b>Definition:</b> <a href="BasicShapes_8cpp_source.html#l00091">BasicShapes.cpp:91</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericSelection_html_a42887dcad84eed3dafdc42e06d1373a2"><div class="ttname"><a href="classmimmo_1_1GenericSelection.html#a42887dcad84eed3dafdc42e06d1373a2">mimmo::GenericSelection::m_type</a></div><div class="ttdeci">SelectionType m_type</div><div class="ttdef"><b>Definition:</b> <a href="MeshSelection_8hpp_source.html#l00085">MeshSelection.hpp:85</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
@@ -490,7 +450,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

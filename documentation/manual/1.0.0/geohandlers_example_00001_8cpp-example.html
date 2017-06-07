@@ -185,25 +185,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="comment">     * as two different objects (no loop in chain are permitted).</span></div>
 <div class="line"><span class="comment">     */</span></div>
 <div class="line">    <a name="_a0"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a> * mimmo0 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>();</div>
-<div class="line">    mimmo0-&gt;<a name="a1"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">setRead</a>(<span class="keyword">true</span>);</div>
-<div class="line">    mimmo0-&gt;<a name="a2"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aad153e11d174f3fad3641ae1d91f9af3">setReadDir</a>(<span class="stringliteral">&quot;geodata&quot;</span>);</div>
-<div class="line">    mimmo0-&gt;<a name="a3"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#ae5de0071358d1ef3c5e14bddabcf441a">setReadFileType</a>(FileType::STL);</div>
-<div class="line">    mimmo0-&gt;<a name="a4"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">setReadFilename</a>(<span class="stringliteral">&quot;sphere2&quot;</span>);</div>
-<div class="line">    mimmo0-&gt;<a name="a5"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a1"></a><a class="code" href="classmimmo_1_1BaseManipulation.html#af8d1c9148d706fa00dda27abb2462386">setName</a>(<span class="stringliteral">&quot;mimmo0&quot;</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a2"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a4652ea8d059afa79750a3cc1d6c8b308">setIOMode</a>(IOMode::CONVERT);</div>
+<div class="line">    mimmo0-&gt;<a name="a3"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aad153e11d174f3fad3641ae1d91f9af3">setReadDir</a>(<span class="stringliteral">&quot;./geodata&quot;</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a4"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#ae5de0071358d1ef3c5e14bddabcf441a">setReadFileType</a>(FileType::STL);</div>
+<div class="line">    mimmo0-&gt;<a name="a5"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">setReadFilename</a>(<span class="stringliteral">&quot;sphere2&quot;</span>);</div>
 <div class="line">    mimmo0-&gt;<a name="a6"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;./&quot;</span>);</div>
 <div class="line">    mimmo0-&gt;<a name="a7"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
 <div class="line">    mimmo0-&gt;<a name="a8"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;geohandlers_output_00001.0000&quot;</span>);</div>
 <div class="line"></div>
 <div class="line">    <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a> * mimmo1 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>();</div>
-<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">setRead</a>(<span class="keyword">false</span>);</div>
-<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a4652ea8d059afa79750a3cc1d6c8b308">setIOMode</a>(IOMode::WRITE);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;geohandlers_output_00001.0001&quot;</span>);</div>
 <div class="line"></div>
 <div class="line">    <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a> * mimmo2 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>();</div>
-<div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">setRead</a>(<span class="keyword">false</span>);</div>
-<div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a4652ea8d059afa79750a3cc1d6c8b308">setIOMode</a>(IOMode::WRITE);</div>
 <div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
 <div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
 <div class="line">    mimmo2-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;geohandlers_output_00001.0002&quot;</span>);</div>
@@ -290,7 +288,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

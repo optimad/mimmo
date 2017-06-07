@@ -200,7 +200,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordflow">if</span>(input == <span class="stringliteral">&quot;mimmo.ControlDeformExtSurface&quot;</span>){</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a7275f8a24af37309bdaf17454b727670">absorbSectionXML</a>(rootXML);</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        std::cout&lt;&lt;<span class="stringliteral">&quot;Warning in custom xml mimmo::ControlDeformExtSurface constructor. No valid xml data found&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <a class="code" href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">warningXML</a>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a0da2f768693c21977caf0dea4e74d52a">m_log</a>, <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a>);</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    };</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;}</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
@@ -223,8 +223,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classmimmo_1_1ControlDeformExtSurface.html#adbe4fef9cc2c32bfe15c078523e51a35">   91</a></span>&#160;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#adbe4fef9cc2c32bfe15c078523e51a35">ControlDeformExtSurface::buildPorts</a>(){</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">bool</span> built = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    built = (built &amp;&amp; createPortIn&lt;dvecarr3E, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a0416253e99aecac1da97fd77838550ec">mimmo::ControlDeformExtSurface::setDefField</a>, PortType::M_GDISPLS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22ddacf6251ca35cd1786ae2a681667992e02">mimmo::pin::containerTAG::VECARR3</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a>));</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    built = (built &amp;&amp; createPortIn&lt;MimmoObject*, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a7e52d356211cb69dc5408b75c7756ba3">mimmo::ControlDeformExtSurface::setGeometry</a>, PortType::M_GEOM, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9">mimmo::pin::containerTAG::SCALAR</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d">mimmo::pin::dataTAG::MIMMO_</a>));</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    built = (built &amp;&amp; createPortIn&lt;dvecarr3E, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a0416253e99aecac1da97fd77838550ec">mimmo::ControlDeformExtSurface::setDefField</a>, PortType::M_GDISPLS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22ddacf6251ca35cd1786ae2a681667992e02">mimmo::pin::containerTAG::VECARR3</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a>, <span class="keyword">true</span>));</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    built = (built &amp;&amp; createPortIn&lt;MimmoObject*, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a7e52d356211cb69dc5408b75c7756ba3">mimmo::ControlDeformExtSurface::setGeometry</a>, PortType::M_GEOM, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9">mimmo::pin::containerTAG::SCALAR</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d">mimmo::pin::dataTAG::MIMMO_</a>, <span class="keyword">true</span>));</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    built = (built &amp;&amp; createPortOut&lt;double, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#ac213591f53d02af6ed3550344a70aa9b">mimmo::ControlDeformExtSurface::getViolation</a>, PortType::M_VALUED, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9">mimmo::pin::containerTAG::SCALAR</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a>));</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    built = (built &amp;&amp; createPortOut&lt;dvector1D, ControlDeformExtSurface&gt;(<span class="keyword">this</span>, &amp;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a20d53c6026e4cd22cb2d00b7b29b0b34">mimmo::ControlDeformExtSurface::getViolationField</a>, PortType::M_SCALARFIELD, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda87752381b583740610f1dfeb07fdad7e">mimmo::pin::containerTAG::VECTOR</a>, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a>));</div>
@@ -293,7 +293,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordflow">if</span>(target-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#aaa873f60f33badf2087d6b2462b3b144">isEmpty</a>())    <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keywordflow">if</span>(target-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a3caa9afa9d69c4f723db99d0b1d2a57a">getType</a>() != 1){</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;        std::cout&lt;&lt;<span class="stringliteral">&quot;ControlDeformExtSurface cannot support current geometry. It works only w/ 3D surface.&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;        (*m_log)&lt;&lt;<span class="stringliteral">&quot;warning: ControlDeformExtSurface cannot support current geometry. It works only w/ 3D surface.&quot;</span>&lt;&lt;std::endl;</div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    }</div>
 <div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#adb65c59fdf6627e6070f724dfcc18053">m_geometry</a> = target;</div>
@@ -585,301 +585,261 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;</div>
 <div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;    BITPIT_UNUSED(name);</div>
 <div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;</div>
-<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Priority&quot;</span>)){</div>
-<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;Priority&quot;</span>);</div>
-<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;        <span class="keywordtype">int</span> value =0;</div>
-<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;            ss&gt;&gt;value;</div>
-<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;        }</div>
-<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;        <a class="code" href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">setPriority</a>(value);</div>
-<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;    };</div>
-<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;</div>
-<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;    std::unordered_map&lt;std::string, std::pair&lt;double, int&gt; &gt; mapp;</div>
-<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;Files&quot;</span>)){</div>
-<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;</div>
-<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;Files&quot;</span>);</div>
-<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;</div>
-<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
-<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;            std::string path;</div>
-<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;            std::string tag, tolstring;</div>
-<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;            <span class="keywordtype">double</span> value = 1.E-8;</div>
-<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;</div>
-<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;fullpath&quot;</span>))    {</div>
-<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;                path = subfile.second-&gt;get(<span class="stringliteral">&quot;fullpath&quot;</span>);</div>
-<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;                path = bitpit::utils::trim(path);</div>
+<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">BaseManipulation::absorbSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;    </div>
+<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;    std::unordered_map&lt;std::string, std::pair&lt;double, int&gt; &gt; mapp;</div>
+<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;Files&quot;</span>)){</div>
+<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;</div>
+<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;Files&quot;</span>);</div>
+<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;</div>
+<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;            std::string path;</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;            std::string tag, tolstring;</div>
+<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;            <span class="keywordtype">double</span> value = 1.E-8;</div>
+<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;</div>
+<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;fullpath&quot;</span>))    {</div>
+<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;                path = subfile.second-&gt;get(<span class="stringliteral">&quot;fullpath&quot;</span>);</div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;                path = bitpit::utils::trim(path);</div>
+<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;            }</div>
+<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;tag&quot;</span>)){</div>
+<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;                tag = subfile.second-&gt;get(<span class="stringliteral">&quot;tag&quot;</span>);</div>
+<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;                tag = bitpit::utils::trim(tag);</div>
+<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;                <span class="comment">//check tag;</span></div>
+<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;                <span class="keyword">auto</span> maybe_tag = FileType::_from_string_nothrow(tag.c_str());</div>
+<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;                <span class="keywordflow">if</span>(!maybe_tag)    tag.clear();</div>
+<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;                <span class="keywordflow">else</span>    tag = maybe_tag-&gt;_to_string();</div>
 <div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;            }</div>
-<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;tag&quot;</span>)){</div>
-<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;                tag = subfile.second-&gt;get(<span class="stringliteral">&quot;tag&quot;</span>);</div>
-<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;                tag = bitpit::utils::trim(tag);</div>
-<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;                <span class="comment">//check tag;</span></div>
-<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;                <span class="keyword">auto</span> maybe_tag = FileType::_from_string_nothrow(tag.c_str());</div>
-<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;                <span class="keywordflow">if</span>(!maybe_tag)    tag.clear();</div>
-<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;                <span class="keywordflow">else</span>    tag = maybe_tag-&gt;_to_string();</div>
-<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;            }</div>
-<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;</div>
-<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;tolerance&quot;</span>))    {</div>
-<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;                tolstring = subfile.second-&gt;get(<span class="stringliteral">&quot;tolerance&quot;</span>);</div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;                tolstring = bitpit::utils::trim(tolstring);</div>
-<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;                <span class="keywordflow">if</span>(!tolstring.empty()){</div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;                    std::stringstream ss(tolstring);</div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;                    ss &gt;&gt; value;</div>
-<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;                }</div>
-<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;            }</div>
-<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;</div>
-<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;            <span class="keywordflow">if</span>(!path.empty() &amp;&amp; !tag.empty()){</div>
-<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;                mapp[path] = std::make_pair(value,(<span class="keywordtype">int</span>) FileType::_from_string(tag.c_str()));</div>
-<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;            }</div>
-<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;        }</div>
-<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;</div>
-<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;        <a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a440bb70cb8ab655169fc43b064b65ce4">setFiles</a>(mapp);</div>
-<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;</div>
-<div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;    }</div>
-<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;</div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;BGDetails&quot;</span>)){</div>
-<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;BGDetails&quot;</span>);</div>
-<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;        <span class="keywordtype">int</span> value = 50;</div>
-<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;        }</div>
-<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;        <a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#abe4835e1cd5f684f949b8153c81e2ad7">setBackgroundDetails</a>(value);</div>
-<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;    }</div>
-<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;</div>
-<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;</div>
-<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PlotInExecution&quot;</span>)){</div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;PlotInExecution&quot;</span>);</div>
-<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;            std::stringstream ss(input);</div>
-<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;        }</div>
-<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;        <a class="code" href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">setPlotInExecution</a>(value);</div>
-<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;    }</div>
-<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;</div>
-<div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;OutputPlot&quot;</span>)){</div>
-<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;OutputPlot&quot;</span>);</div>
-<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;        std::string temp = <span class="stringliteral">&quot;.&quot;</span>;</div>
-<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;        <span class="keywordflow">if</span>(!input.empty())    <a class="code" href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">setOutputPlot</a>(input);</div>
-<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;        <span class="keywordflow">else</span>                  <a class="code" href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">setOutputPlot</a>(temp);</div>
-<div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;    }</div>
-<div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;</div>
-<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;};</div>
+<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;</div>
+<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;tolerance&quot;</span>))    {</div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;                tolstring = subfile.second-&gt;get(<span class="stringliteral">&quot;tolerance&quot;</span>);</div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;                tolstring = bitpit::utils::trim(tolstring);</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;                <span class="keywordflow">if</span>(!tolstring.empty()){</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;                    std::stringstream ss(tolstring);</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;                    ss &gt;&gt; value;</div>
+<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;                }</div>
+<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;            }</div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;</div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;            <span class="keywordflow">if</span>(!path.empty() &amp;&amp; !tag.empty()){</div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;                mapp[path] = std::make_pair(value,(<span class="keywordtype">int</span>) FileType::_from_string(tag.c_str()));</div>
+<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;            }</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;        }</div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;</div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;        <a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a440bb70cb8ab655169fc43b064b65ce4">setFiles</a>(mapp);</div>
+<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;</div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;    }</div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;</div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;BGDetails&quot;</span>)){</div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;        std::string input = slotXML.get(<span class="stringliteral">&quot;BGDetails&quot;</span>);</div>
+<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;        <span class="keywordtype">int</span> value = 50;</div>
+<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;            std::stringstream ss(input);</div>
+<div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;        }</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;        <a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#abe4835e1cd5f684f949b8153c81e2ad7">setBackgroundDetails</a>(value);</div>
+<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;    }</div>
+<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;</div>
+<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;};</div>
+<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;</div>
+<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00608"></a><span class="lineno"><a class="line" href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">  608</a></span>&#160;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">ControlDeformExtSurface::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
+<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;</div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;    BITPIT_UNUSED(name);</div>
+<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;</div>
+<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">BaseManipulation::flushSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;    bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;Files&quot;</span>);</div>
+<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;</div>
+<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;    <span class="keywordtype">int</span> counter = 0;</div>
+<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;    <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; file : m_geolist){</div>
+<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;        std::string name = <span class="stringliteral">&quot;file&quot;</span>+std::to_string(counter);</div>
+<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;        bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
+<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;        local.set(<span class="stringliteral">&quot;fullpath&quot;</span>, file.first);</div>
+<div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;        std::string typetag = (FileType::_from_integral(file.second.second))._to_string();</div>
+<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;        local.set(<span class="stringliteral">&quot;tag&quot;</span>, typetag);</div>
+<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;        std::string tolerance;</div>
+<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;        {</div>
+<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;            std::stringstream ss;</div>
+<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;            ss&lt;&lt;std::scientific&lt;&lt;file.second.first;</div>
+<div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;            tolerance = ss.str();</div>
+<div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;        }</div>
+<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;        local.set(<span class="stringliteral">&quot;tolerance&quot;</span>, tolerance);</div>
 <div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;</div>
-<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00636"></a><span class="lineno"><a class="line" href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">  636</a></span>&#160;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">ControlDeformExtSurface::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
-<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;</div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    BITPIT_UNUSED(name);</div>
-<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;</div>
-<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;    slotXML.set(<span class="stringliteral">&quot;ClassName&quot;</span>, <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a>);</div>
-<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Priority&quot;</span>, std::to_string(<a class="code" href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">getPriority</a>()));</div>
-<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;</div>
-<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;    bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;Files&quot;</span>);</div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;</div>
-<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;    <span class="keywordtype">int</span> counter = 0;</div>
-<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; file : m_geolist){</div>
-<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;        std::string name = <span class="stringliteral">&quot;file&quot;</span>+std::to_string(counter);</div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;        bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
-<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;        local.set(<span class="stringliteral">&quot;fullpath&quot;</span>, file.first);</div>
-<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;        std::string typetag = (FileType::_from_integral(file.second.second))._to_string();</div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;        local.set(<span class="stringliteral">&quot;tag&quot;</span>, typetag);</div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;        std::string tolerance;</div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;        {</div>
-<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;            std::stringstream ss;</div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;            ss&lt;&lt;std::scientific&lt;&lt;file.second.first;</div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;            tolerance = ss.str();</div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;        }</div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;        local.set(<span class="stringliteral">&quot;tolerance&quot;</span>, tolerance);</div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;</div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;        ++counter;</div>
-<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;    }</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;</div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;    slotXML.set(<span class="stringliteral">&quot;BGDetails&quot;</span>, std::to_string(m_cellBackground));</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;</div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#ac343bf89833af328cdadc0f53d9c84c0">isPlotInExecution</a>()){</div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;        slotXML.set(<span class="stringliteral">&quot;PlotInExecution&quot;</span>, std::to_string(1));</div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;    }</div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a> != <span class="stringliteral">&quot;.&quot;</span>){</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;        slotXML.set(<span class="stringliteral">&quot;OutputPlot&quot;</span>, <a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a>);</div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    }</div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;</div>
+<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;        ++counter;</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;    }</div>
+<div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;</div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    slotXML.set(<span class="stringliteral">&quot;BGDetails&quot;</span>, std::to_string(m_cellBackground));</div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;</div>
+<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;};</div>
+<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;</div>
+<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;ControlDeformExtSurface::readGeometries(std::vector&lt;std::unique_ptr&lt;MimmoGeometry&gt; &gt; &amp; extGeo, std::vector&lt;double&gt;&amp; tols){</div>
+<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;</div>
+<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    extGeo.resize(m_geolist.size());</div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;    tols.resize(m_geolist.size());</div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;</div>
+<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    <span class="keywordtype">int</span> counter = 0;</div>
+<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;    <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; geoinfo : m_geolist){</div>
+<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;</div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;        <a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a> info = extractInfo(geoinfo.first);</div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;        std::unique_ptr&lt;MimmoGeometry&gt; geo (<span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>());</div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;        geo-&gt;setIOMode(IOMode::READ);</div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;        geo-&gt;setDir(info[0]);</div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;        geo-&gt;setFilename(info[1]);</div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;        geo-&gt;setFileType(geoinfo.second.second);</div>
+<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;        geo-&gt;setBuildBvTree(<span class="keyword">true</span>);</div>
+<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;        geo-&gt;execute();</div>
+<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;</div>
+<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;        <span class="keywordflow">if</span>(geo-&gt;getGeometry()-&gt;getNVertex() == 0 || geo-&gt;getGeometry()-&gt;getNCells() == 0 || !geo-&gt;getGeometry()-&gt;isBvTreeSupported()){</div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;warning: failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file...&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;        }<span class="keywordflow">else</span>{</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;            <span class="keywordflow">if</span> (!geo-&gt;getGeometry()-&gt;areAdjacenciesBuilt()) geo-&gt;getGeometry()-&gt;getPatch()-&gt;buildAdjacencies();</div>
+<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;            extGeo[counter] = std::move(geo);</div>
+<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;            tols[counter] = geoinfo.second.first;</div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;            ++counter;</div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;        }</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;    }</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    extGeo.resize(counter);</div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;    tols.resize(counter);</div>
 <div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;};</div>
 <div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;ControlDeformExtSurface::readGeometries(std::vector&lt;std::unique_ptr&lt;MimmoGeometry&gt; &gt; &amp; extGeo, std::vector&lt;double&gt;&amp; tols){</div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    extGeo.resize(m_geolist.size());</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    tols.resize(m_geolist.size());</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    <span class="keywordtype">int</span> counter = 0;</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;    <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; geoinfo : m_geolist){</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;        <a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a> info = extractInfo(geoinfo.first);</div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;        std::unique_ptr&lt;MimmoGeometry&gt; geo (<span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>());</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;        geo-&gt;setRead(<span class="keyword">true</span>);</div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;        geo-&gt;setWrite(<span class="keyword">false</span>);</div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;        geo-&gt;setReadDir(info[0]);</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;        geo-&gt;setReadFilename(info[1]);</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;        geo-&gt;setReadFileType(geoinfo.second.second);</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;        geo-&gt;setBuildBvTree(<span class="keyword">true</span>);</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;        geo-&gt;execute();</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;        <span class="keywordflow">if</span>(geo-&gt;getGeometry()-&gt;getNVertex() == 0 || geo-&gt;getGeometry()-&gt;getNCells() == 0 || !geo-&gt;getGeometry()-&gt;isBvTreeSupported()){</div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;            std::cout&lt;&lt;<span class="stringliteral">&quot;failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file...&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;        }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;            geo-&gt;getGeometry()-&gt;getPatch()-&gt;buildAdjacencies();</div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;            extGeo[counter] = std::move(geo);</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;            tols[counter] = geoinfo.second.first;</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;            ++counter;</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;        }</div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;    }</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;</div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;    extGeo.resize(counter);</div>
-<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;    tols.resize(counter);</div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;};</div>
-<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;<a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a></div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;ControlDeformExtSurface::extractInfo(std::string file){</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;    std::string root, name, tag,temp;</div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    std::string key1=<span class="stringliteral">&quot;.&quot;</span>, key2=<span class="stringliteral">&quot;/\\&quot;</span>;</div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;<a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a></div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;ControlDeformExtSurface::extractInfo(std::string file){</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    std::string root, name, tag,temp;</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    std::string key1=<span class="stringliteral">&quot;.&quot;</span>, key2=<span class="stringliteral">&quot;/\\&quot;</span>;</div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    std::size_t found = file.find_last_of(key2);</div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;    root = file.substr(0, found);</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    temp = file.substr(found+1);</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;    found = temp.find_last_of(key1);</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    name = temp.substr(0,found);</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;    tag = temp.substr(found+1);</div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;</div>
+<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;    <a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a> result(3);</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;    result[0] = root;</div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    result[1] = name;</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;    result[2] = tag;</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;    <span class="keywordflow">return</span>     result;</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;}</div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;</div>
+<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;<span class="keywordtype">double</span></div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;ControlDeformExtSurface::evaluateSignedDistance(<a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> &amp;point, <a class="code" href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a> * geo, <span class="keywordtype">long</span> &amp; <span class="keywordtype">id</span>, <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> &amp; normal, <span class="keywordtype">double</span> &amp;initRadius){</div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;</div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    <span class="keywordtype">double</span> dist = 1.0E+18;</div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    <span class="keywordtype">double</span> rate = 0.02;</div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    <span class="keywordtype">int</span> kmax = 1000;</div>
+<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;    <span class="keywordtype">int</span> kiter = 0;</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    <span class="keywordtype">bool</span> flag = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;    std::size_t found = file.find_last_of(key2);</div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    root = file.substr(0, found);</div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    temp = file.substr(found+1);</div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;</div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;    found = temp.find_last_of(key1);</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;    name = temp.substr(0,found);</div>
-<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;    tag = temp.substr(found+1);</div>
-<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;</div>
-<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;    <a class="code" href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a> result(3);</div>
-<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    result[0] = root;</div>
-<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;    result[1] = name;</div>
-<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;    result[2] = tag;</div>
-<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;</div>
-<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;    <span class="keywordflow">return</span>     result;</div>
-<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;}</div>
-<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;</div>
-<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;<span class="keywordtype">double</span></div>
-<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;ControlDeformExtSurface::evaluateSignedDistance(<a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> &amp;point, <a class="code" href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a> * geo, <span class="keywordtype">long</span> &amp; <span class="keywordtype">id</span>, <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> &amp; normal, <span class="keywordtype">double</span> &amp;initRadius){</div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;    <span class="keywordflow">if</span>(!geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a25b63d28bb6b508107d8f7560e55b869">isBvTreeBuilt</a>())    geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#ad05d1b4dc8ef99301958fe9fdbf86119">buildBvTree</a>();</div>
+<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;</div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    <span class="keywordflow">while</span>(flag &amp;&amp; kiter &lt; kmax){</div>
+<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;        dist = <a class="code" href="namespacemimmo_1_1bvTreeUtils.html#a0c00e3613272b652de61637cd107d0b2">bvTreeUtils::signedDistance</a>(&amp;point, geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a826bd7a15a7b2d2675efc6730fe9cdd3">getBvTree</a>(), id, normal, initRadius);</div>
+<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;        flag = (dist == 1.0E+18);</div>
+<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;        <span class="keywordflow">if</span>(flag)    initRadius *= (1.0+ rate*((double)flag));</div>
+<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;        kiter++;</div>
+<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;    }</div>
+<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;</div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    <span class="keywordflow">return</span> dist;</div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;}</div>
+<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;</div>
+<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00741"></a><span class="lineno"><a class="line" href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">  741</a></span>&#160;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">ControlDeformExtSurface::plotOptionalResults</a>(){</div>
+<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;isEmpty())    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;</div>
+<div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;    <a class="code" href="group__typedefs.html#ga66d951d058466791a17bc45d019a4442">dvecarr3E</a>  points = <a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a6388cd9ba9770cfed39b1b4a30923e95">getVertexCoords</a>();</div>
+<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;    m_defField.resize(points.size());</div>
+<div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160;    points+=m_defField;</div>
+<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;    <a class="code" href="group__typedefs.html#ga23aaf25f7d12e31b7b5341eb84649118">ivector2D</a> connectivity = <a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a8c875870cc2ab9a39d17092f0c8b5f1e">getCompactConnectivity</a>();</div>
+<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;</div>
+<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;    bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;</div>
+<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;</div>
+<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;    std::string name = <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> +std::to_string(<a class="code" href="classmimmo_1_1BaseManipulation.html#ac18ff7dbad17544aa72b8c75dd844bae">getClassCounter</a>())+ <span class="stringliteral">&quot;_ViolationField&quot;</span>;</div>
+<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;    bitpit::VTKUnstructuredGrid output(<a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a>, name, elDM);</div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;</div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;</div>
+<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;    output.setDimensions(connectivity.size(), points.size());</div>
 <div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;</div>
-<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;    <span class="keywordtype">double</span> dist = 1.0E+18;</div>
-<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;    <span class="keywordtype">double</span> rate = 0.02;</div>
-<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160;    <span class="keywordtype">int</span> kmax = 1000;</div>
-<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;    <span class="keywordtype">int</span> kiter = 0;</div>
-<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160;    <span class="keywordtype">bool</span> flag = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160;</div>
-<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;    <span class="keywordflow">if</span>(!geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a25b63d28bb6b508107d8f7560e55b869">isBvTreeBuilt</a>())    geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#ad05d1b4dc8ef99301958fe9fdbf86119">buildBvTree</a>();</div>
-<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;</div>
-<div class="line"><a name="l00765"></a><span class="lineno">  765</span>&#160;    <span class="keywordflow">while</span>(flag &amp;&amp; kiter &lt; kmax){</div>
-<div class="line"><a name="l00766"></a><span class="lineno">  766</span>&#160;        dist = <a class="code" href="namespacemimmo_1_1bvTreeUtils.html#a0c00e3613272b652de61637cd107d0b2">bvTreeUtils::signedDistance</a>(&amp;point, geo-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a826bd7a15a7b2d2675efc6730fe9cdd3">getBvTree</a>(), id, normal, initRadius);</div>
-<div class="line"><a name="l00767"></a><span class="lineno">  767</span>&#160;        flag = (dist == 1.0E+18);</div>
-<div class="line"><a name="l00768"></a><span class="lineno">  768</span>&#160;        <span class="keywordflow">if</span>(flag)    initRadius *= (1.0+ rate*((double)flag));</div>
-<div class="line"><a name="l00769"></a><span class="lineno">  769</span>&#160;        kiter++;</div>
-<div class="line"><a name="l00770"></a><span class="lineno">  770</span>&#160;    }</div>
-<div class="line"><a name="l00771"></a><span class="lineno">  771</span>&#160;</div>
-<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;    <span class="keywordflow">return</span> dist;</div>
-<div class="line"><a name="l00773"></a><span class="lineno">  773</span>&#160;}</div>
-<div class="line"><a name="l00774"></a><span class="lineno">  774</span>&#160;</div>
-<div class="line"><a name="l00779"></a><span class="lineno">  779</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00780"></a><span class="lineno"><a class="line" href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">  780</a></span>&#160;<a class="code" href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">ControlDeformExtSurface::plotOptionalResults</a>(){</div>
-<div class="line"><a name="l00781"></a><span class="lineno">  781</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;isEmpty())    <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00782"></a><span class="lineno">  782</span>&#160;</div>
-<div class="line"><a name="l00783"></a><span class="lineno">  783</span>&#160;    <a class="code" href="group__typedefs.html#ga66d951d058466791a17bc45d019a4442">dvecarr3E</a>  points = <a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a6388cd9ba9770cfed39b1b4a30923e95">getVertexCoords</a>();</div>
-<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;    m_defField.resize(points.size());</div>
-<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;    points+=m_defField;</div>
-<div class="line"><a name="l00786"></a><span class="lineno">  786</span>&#160;    <a class="code" href="group__typedefs.html#ga23aaf25f7d12e31b7b5341eb84649118">ivector2D</a> connectivity = <a class="code" href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">getGeometry</a>()-&gt;<a class="code" href="classmimmo_1_1MimmoObject.html#a8c875870cc2ab9a39d17092f0c8b5f1e">getCompactConnectivity</a>();</div>
-<div class="line"><a name="l00787"></a><span class="lineno">  787</span>&#160;</div>
-<div class="line"><a name="l00788"></a><span class="lineno">  788</span>&#160;    bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;</div>
-<div class="line"><a name="l00789"></a><span class="lineno">  789</span>&#160;</div>
-<div class="line"><a name="l00790"></a><span class="lineno">  790</span>&#160;    std::string name = <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> +std::to_string(<a class="code" href="classmimmo_1_1BaseManipulation.html#ac18ff7dbad17544aa72b8c75dd844bae">getClassCounter</a>())+ <span class="stringliteral">&quot;_ViolationField&quot;</span>;</div>
-<div class="line"><a name="l00791"></a><span class="lineno">  791</span>&#160;    bitpit::VTKUnstructuredGrid output(<a class="code" href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">m_outputPlot</a>, name, elDM);</div>
-<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160;    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;</div>
-<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;</div>
-<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160;    output.setDimensions(connectivity.size(), points.size());</div>
-<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;</div>
-<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;</div>
-<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;    m_violationField.resize(points.size(), -1.e+18);</div>
-<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;    std::string sdfstr = <span class="stringliteral">&quot;Violation Distance Field&quot;</span>;</div>
-<div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160;    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_violationField);</div>
-<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;    output.write();</div>
-<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;}</div>
-<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;</div>
-<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;}</div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a4361f6fec739ae70aee475575ec5bda1"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a4361f6fec739ae70aee475575ec5bda1">mimmo::MimmoObject::getNVertex</a></div><div class="ttdeci">long getNVertex() const </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00272">MimmoObject.cpp:272</a></div></div>
+<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;</div>
+<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;    m_violationField.resize(points.size(), -1.e+18);</div>
+<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160;    std::string sdfstr = <span class="stringliteral">&quot;Violation Distance Field&quot;</span>;</div>
+<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_violationField);</div>
+<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160;    output.write();</div>
+<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160;}</div>
+<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;</div>
+<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;}</div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a4361f6fec739ae70aee475575ec5bda1"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a4361f6fec739ae70aee475575ec5bda1">mimmo::MimmoObject::getNVertex</a></div><div class="ttdeci">long getNVertex() const </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00284">MimmoObject.cpp:284</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a68243c2d801c0a803726693a3250feb2"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a68243c2d801c0a803726693a3250feb2">mimmo::ControlDeformExtSurface::getViolationPair</a></div><div class="ttdeci">std::pair&lt; BaseManipulation *, double &gt; getViolationPair()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00130">ControlDeformExtSurface.cpp:130</a></div></div>
 <div class="ttc" id="group__typedefs_html_gaafd4f9ceadf40ed46aae58321bbdd808"><div class="ttname"><a href="group__typedefs.html#gaafd4f9ceadf40ed46aae58321bbdd808">iarray3E</a></div><div class="ttdeci">std::array&lt; int, 3 &gt; iarray3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00051">mimmoTypeDef.hpp:51</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_adbe4fef9cc2c32bfe15c078523e51a35"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#adbe4fef9cc2c32bfe15c078523e51a35">mimmo::ControlDeformExtSurface::buildPorts</a></div><div class="ttdeci">void buildPorts()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00091">ControlDeformExtSurface.cpp:91</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a6dec9105fc241b9b8ab756fb524e8ac1"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">mimmo::BaseManipulation::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00525">BaseManipulation.cpp:525</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a7275f8a24af37309bdaf17454b727670"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a7275f8a24af37309bdaf17454b727670">mimmo::ControlDeformExtSurface::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00542">ControlDeformExtSurface.cpp:542</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22ddacf6251ca35cd1786ae2a681667992e02"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22ddacf6251ca35cd1786ae2a681667992e02">mimmo::pin::containerTAG::VECARR3</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a826bd7a15a7b2d2675efc6730fe9cdd3"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a826bd7a15a7b2d2675efc6730fe9cdd3">mimmo::MimmoObject::getBvTree</a></div><div class="ttdeci">BvTree * getBvTree()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00576">MimmoObject.cpp:576</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a3caa9afa9d69c4f723db99d0b1d2a57a"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a3caa9afa9d69c4f723db99d0b1d2a57a">mimmo::MimmoObject::getType</a></div><div class="ttdeci">int getType()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00263">MimmoObject.cpp:263</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a826bd7a15a7b2d2675efc6730fe9cdd3"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a826bd7a15a7b2d2675efc6730fe9cdd3">mimmo::MimmoObject::getBvTree</a></div><div class="ttdeci">BvTree * getBvTree()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00588">MimmoObject.cpp:588</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a3caa9afa9d69c4f723db99d0b1d2a57a"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a3caa9afa9d69c4f723db99d0b1d2a57a">mimmo::MimmoObject::getType</a></div><div class="ttdeci">int getType()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00275">MimmoObject.cpp:275</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ae4c14a7fffb2626453fb8dbc63446f10"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ae4c14a7fffb2626453fb8dbc63446f10">mimmo::ControlDeformExtSurface::removeFile</a></div><div class="ttdeci">void removeFile(std::string)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00279">ControlDeformExtSurface.cpp:279</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_adb65c59fdf6627e6070f724dfcc18053"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#adb65c59fdf6627e6070f724dfcc18053">mimmo::BaseManipulation::m_geometry</a></div><div class="ttdeci">MimmoObject * m_geometry</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00114">BaseManipulation.hpp:114</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_adb65c59fdf6627e6070f724dfcc18053"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#adb65c59fdf6627e6070f724dfcc18053">mimmo::BaseManipulation::m_geometry</a></div><div class="ttdeci">MimmoObject * m_geometry</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00126">BaseManipulation.hpp:126</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a440bb70cb8ab655169fc43b064b65ce4"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a440bb70cb8ab655169fc43b064b65ce4">mimmo::ControlDeformExtSurface::setFiles</a></div><div class="ttdeci">void setFiles(std::unordered_map&lt; std::string, std::pair&lt; double, int &gt; &gt; list)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00245">ControlDeformExtSurface.cpp:245</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga66d951d058466791a17bc45d019a4442"><div class="ttname"><a href="group__typedefs.html#ga66d951d058466791a17bc45d019a4442">dvecarr3E</a></div><div class="ttdeci">std::vector&lt; darray3E &gt; dvecarr3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00056">mimmoTypeDef.hpp:56</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a64049ff717c1acd2a8eb73ecddf77343"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a64049ff717c1acd2a8eb73ecddf77343">mimmo::ControlDeformExtSurface::removeFiles</a></div><div class="ttdeci">void removeFiles()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00287">ControlDeformExtSurface.cpp:287</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00116">BaseManipulation.cpp:116</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00150">BaseManipulation.cpp:150</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda87752381b583740610f1dfeb07fdad7e"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda87752381b583740610f1dfeb07fdad7e">mimmo::pin::containerTAG::VECTOR</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a25b63d28bb6b508107d8f7560e55b869"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a25b63d28bb6b508107d8f7560e55b869">mimmo::MimmoObject::isBvTreeBuilt</a></div><div class="ttdeci">bool isBvTreeBuilt()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00567">MimmoObject.cpp:567</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a25b63d28bb6b508107d8f7560e55b869"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a25b63d28bb6b508107d8f7560e55b869">mimmo::MimmoObject::isBvTreeBuilt</a></div><div class="ttdeci">bool isBvTreeBuilt()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00579">MimmoObject.cpp:579</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d">mimmo::pin::dataTAG::MIMMO_</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00050">MimmoObject.hpp:50</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00051">MimmoObject.hpp:51</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ac213591f53d02af6ed3550344a70aa9b"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ac213591f53d02af6ed3550344a70aa9b">mimmo::ControlDeformExtSurface::getViolation</a></div><div class="ttdeci">double getViolation()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00111">ControlDeformExtSurface.cpp:111</a></div></div>
 <div class="ttc" id="group__typedefs_html_gacf69999d8e863d14b3a5b774467a4f1e"><div class="ttname"><a href="group__typedefs.html#gacf69999d8e863d14b3a5b774467a4f1e">svector1D</a></div><div class="ttdeci">std::vector&lt; std::string &gt; svector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00045">mimmoTypeDef.hpp:45</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aaa211c619a2b67e3cb4aca479e503021f"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aaa211c619a2b67e3cb4aca479e503021f">mimmo::pin::dataTAG::PAIRMIMMO_OBJFLOAT_</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_aab68f28a168170150c54fb0b929e5871"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#aab68f28a168170150c54fb0b929e5871">mimmo::BaseManipulation::setOutputPlot</a></div><div class="ttdeci">void setOutputPlot(std::string path)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00314">BaseManipulation.cpp:314</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9">mimmo::pin::containerTAG::SCALAR</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a06e46a490f31dc616d251a1b98c94030"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a06e46a490f31dc616d251a1b98c94030">mimmo::ControlDeformExtSurface::getToleranceWithinViolation</a></div><div class="ttdeci">double getToleranceWithinViolation(std::string)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00168">ControlDeformExtSurface.cpp:168</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a20d53c6026e4cd22cb2d00b7b29b0b34"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a20d53c6026e4cd22cb2d00b7b29b0b34">mimmo::ControlDeformExtSurface::getViolationField</a></div><div class="ttdeci">dvector1D getViolationField()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00156">ControlDeformExtSurface.cpp:156</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a91597232a8450fb21f5b5b5cb6f72fec"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">mimmo::BaseManipulation::getPriority</a></div><div class="ttdeci">uint getPriority()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00098">BaseManipulation.cpp:98</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00112">BaseManipulation.hpp:112</a></div></div>
-<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a32790a7c5199f16e50d9d95938258a2e"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">mimmo::ControlDeformExtSurface::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00636">ControlDeformExtSurface.cpp:636</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
+<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a32790a7c5199f16e50d9d95938258a2e"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a32790a7c5199f16e50d9d95938258a2e">mimmo::ControlDeformExtSurface::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00608">ControlDeformExtSurface.cpp:608</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a7e52d356211cb69dc5408b75c7756ba3"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a7e52d356211cb69dc5408b75c7756ba3">mimmo::ControlDeformExtSurface::setGeometry</a></div><div class="ttdeci">void setGeometry(MimmoObject *geo)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00202">ControlDeformExtSurface.cpp:202</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoGeometry_html"><div class="ttname"><a href="classmimmo_1_1MimmoGeometry.html">mimmo::MimmoGeometry</a></div><div class="ttdoc">MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje...</div><div class="ttdef"><b>Definition:</b> <a href="MimmoGeometry_8hpp_source.html#l00113">MimmoGeometry.hpp:113</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoGeometry_html"><div class="ttname"><a href="classmimmo_1_1MimmoGeometry.html">mimmo::MimmoGeometry</a></div><div class="ttdoc">MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje...</div><div class="ttdef"><b>Definition:</b> <a href="MimmoGeometry_8hpp_source.html#l00124">MimmoGeometry.hpp:124</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a3555f67d2f87b6caf3eb9679c2a1af27"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a3555f67d2f87b6caf3eb9679c2a1af27">mimmo::ControlDeformExtSurface::addFile</a></div><div class="ttdeci">void addFile(std::string file, double tol, int format)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00258">ControlDeformExtSurface.cpp:258</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_af466f917665c72bd7cc405699b3ea35c"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#af466f917665c72bd7cc405699b3ea35c">mimmo::BaseManipulation::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00401">BaseManipulation.cpp:401</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_af466f917665c72bd7cc405699b3ea35c"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#af466f917665c72bd7cc405699b3ea35c">mimmo::BaseManipulation::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00453">BaseManipulation.cpp:453</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a11620be7b87cd05d8715909f8d394ede"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a11620be7b87cd05d8715909f8d394ede">mimmo::ControlDeformExtSurface::execute</a></div><div class="ttdeci">void execute()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00306">ControlDeformExtSurface.cpp:306</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html">mimmo::BaseManipulation</a></div><div class="ttdoc">BaseManipulation is the base class of any manipulation object of the library. </div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00081">BaseManipulation.hpp:81</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html">mimmo::BaseManipulation</a></div><div class="ttdoc">BaseManipulation is the base class of any manipulation object of the library. </div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00089">BaseManipulation.hpp:89</a></div></div>
 <div class="ttc" id="group__typedefs_html_gacd1eb3ee2ab4fc1ae4943a58ff33f773"><div class="ttname"><a href="group__typedefs.html#gacd1eb3ee2ab4fc1ae4943a58ff33f773">ivector1D</a></div><div class="ttdeci">std::vector&lt; int &gt; ivector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00039">mimmoTypeDef.hpp:39</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac639019d9f65cbdeaa4a574ee2c97af6"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">mimmo::BaseManipulation::setPriority</a></div><div class="ttdeci">void setPriority(uint priority)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00278">BaseManipulation.cpp:278</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_afa35118dbfbbd0dd38204cba36c29d66"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#afa35118dbfbbd0dd38204cba36c29d66">mimmo::ControlDeformExtSurface::getBackgroundDetails</a></div><div class="ttdeci">int getBackgroundDetails()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00179">ControlDeformExtSurface.cpp:179</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga700e3f9fb7ca166ccdae122be74fc91c"><div class="ttname"><a href="group__typedefs.html#ga700e3f9fb7ca166ccdae122be74fc91c">dvector1D</a></div><div class="ttdeci">std::vector&lt; double &gt; dvector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00037">mimmoTypeDef.hpp:37</a></div></div>
+<div class="ttc" id="namespacemimmo_html_ac06db59436387b5a00d2b9f375c1f62d"><div class="ttname"><a href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">mimmo::warningXML</a></div><div class="ttdeci">void warningXML(bitpit::Logger *log, std::string name)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00173">MimmoNamespace.cpp:173</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a75facbb55740aeb4be95899f8913dd2c"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a75facbb55740aeb4be95899f8913dd2c">mimmo::ControlDeformExtSurface::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00295">ControlDeformExtSurface.cpp:295</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda553baa5a5ca7bf9fbbd9344220355374"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda553baa5a5ca7bf9fbbd9344220355374">mimmo::pin::containerTAG::PAIR</a></div></div>
-<div class="ttc" id="namespacemimmo_1_1bvTreeUtils_html_a0c00e3613272b652de61637cd107d0b2"><div class="ttname"><a href="namespacemimmo_1_1bvTreeUtils.html#a0c00e3613272b652de61637cd107d0b2">mimmo::bvTreeUtils::signedDistance</a></div><div class="ttdeci">double signedDistance(std::array&lt; double, 3 &gt; *P_, BvTree *bvtree_, long &amp;id, std::array&lt; double, 3 &gt; &amp;n, double &amp;r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)</div><div class="ttdef"><b>Definition:</b> <a href="BvTree_8cpp_source.html#l00645">BvTree.cpp:645</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac18ff7dbad17544aa72b8c75dd844bae"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac18ff7dbad17544aa72b8c75dd844bae">mimmo::BaseManipulation::getClassCounter</a></div><div class="ttdeci">int getClassCounter()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00260">BaseManipulation.cpp:260</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a25279e18e1d8d05633eba7951b25af59"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">mimmo::BaseManipulation::m_outputPlot</a></div><div class="ttdeci">std::string m_outputPlot</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00128">BaseManipulation.hpp:128</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a0da2f768693c21977caf0dea4e74d52a"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a0da2f768693c21977caf0dea4e74d52a">mimmo::BaseManipulation::m_log</a></div><div class="ttdeci">bitpit::Logger * m_log</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00143">BaseManipulation.hpp:143</a></div></div>
+<div class="ttc" id="namespacemimmo_1_1bvTreeUtils_html_a0c00e3613272b652de61637cd107d0b2"><div class="ttname"><a href="namespacemimmo_1_1bvTreeUtils.html#a0c00e3613272b652de61637cd107d0b2">mimmo::bvTreeUtils::signedDistance</a></div><div class="ttdeci">double signedDistance(std::array&lt; double, 3 &gt; *P_, BvTree *bvtree_, long &amp;id, std::array&lt; double, 3 &gt; &amp;n, double &amp;r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)</div><div class="ttdef"><b>Definition:</b> <a href="BvTree_8cpp_source.html#l00620">BvTree.cpp:620</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac18ff7dbad17544aa72b8c75dd844bae"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac18ff7dbad17544aa72b8c75dd844bae">mimmo::BaseManipulation::getClassCounter</a></div><div class="ttdeci">int getClassCounter()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00302">BaseManipulation.cpp:302</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a25279e18e1d8d05633eba7951b25af59"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a25279e18e1d8d05633eba7951b25af59">mimmo::BaseManipulation::m_outputPlot</a></div><div class="ttdeci">std::string m_outputPlot</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00141">BaseManipulation.hpp:141</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a0416253e99aecac1da97fd77838550ec"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a0416253e99aecac1da97fd77838550ec">mimmo::ControlDeformExtSurface::setDefField</a></div><div class="ttdeci">void setDefField(dvecarr3E field)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00189">ControlDeformExtSurface.cpp:189</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a03340465cf20dfa127389907089b54cf"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a03340465cf20dfa127389907089b54cf">mimmo::BaseManipulation::getPortsIn</a></div><div class="ttdeci">std::map&lt; PortID, PortIn * &gt; getPortsIn()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00226">BaseManipulation.cpp:226</a></div></div>
-<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html">mimmo::ControlDeformExtSurface</a></div><div class="ttdoc">ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometr...</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8hpp_source.html#l00094">ControlDeformExtSurface.hpp:94</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a03340465cf20dfa127389907089b54cf"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a03340465cf20dfa127389907089b54cf">mimmo::BaseManipulation::getPortsIn</a></div><div class="ttdeci">std::map&lt; PortID, PortIn * &gt; getPortsIn()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00260">BaseManipulation.cpp:260</a></div></div>
+<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html">mimmo::ControlDeformExtSurface</a></div><div class="ttdoc">ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometr...</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8hpp_source.html#l00097">ControlDeformExtSurface.hpp:97</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_af61f9f8905e18bceb0e07101d54fc291"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#af61f9f8905e18bceb0e07101d54fc291">mimmo::ControlDeformExtSurface::operator=</a></div><div class="ttdeci">ControlDeformExtSurface &amp; operator=(const ControlDeformExtSurface &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00079">ControlDeformExtSurface.cpp:79</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a8c875870cc2ab9a39d17092f0c8b5f1e"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a8c875870cc2ab9a39d17092f0c8b5f1e">mimmo::MimmoObject::getCompactConnectivity</a></div><div class="ttdeci">ivector2D getCompactConnectivity()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00340">MimmoObject.cpp:340</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a379910fb36f3a2af4a6ea4306117c3ae"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">mimmo::BaseManipulation::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00579">BaseManipulation.cpp:579</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a8c875870cc2ab9a39d17092f0c8b5f1e"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a8c875870cc2ab9a39d17092f0c8b5f1e">mimmo::MimmoObject::getCompactConnectivity</a></div><div class="ttdeci">ivector2D getCompactConnectivity()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00352">MimmoObject.cpp:352</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga5df63afb31922e8b4ada0a5cc96ad765"><div class="ttname"><a href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a></div><div class="ttdeci">std::array&lt; double, 3 &gt; darray3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00048">mimmoTypeDef.hpp:48</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_aaffca6ad32a5f8c404d943031075db7c"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#aaffca6ad32a5f8c404d943031075db7c">mimmo::ControlDeformExtSurface::ControlDeformExtSurface</a></div><div class="ttdeci">ControlDeformExtSurface()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00032">ControlDeformExtSurface.cpp:32</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a6388cd9ba9770cfed39b1b4a30923e95"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a6388cd9ba9770cfed39b1b4a30923e95">mimmo::MimmoObject::getVertexCoords</a></div><div class="ttdeci">dvecarr3E getVertexCoords()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00290">MimmoObject.cpp:290</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a6388cd9ba9770cfed39b1b4a30923e95"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a6388cd9ba9770cfed39b1b4a30923e95">mimmo::MimmoObject::getVertexCoords</a></div><div class="ttdeci">dvecarr3E getVertexCoords()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00302">MimmoObject.cpp:302</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_abe4835e1cd5f684f949b8153c81e2ad7"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#abe4835e1cd5f684f949b8153c81e2ad7">mimmo::ControlDeformExtSurface::setBackgroundDetails</a></div><div class="ttdeci">void setBackgroundDetails(int nCell=50)</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00222">ControlDeformExtSurface.cpp:222</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga23aaf25f7d12e31b7b5341eb84649118"><div class="ttname"><a href="group__typedefs.html#ga23aaf25f7d12e31b7b5341eb84649118">ivector2D</a></div><div class="ttdeci">std::vector&lt; ivector1D &gt; ivector2D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00066">mimmoTypeDef.hpp:66</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_a7f5b7ab7882afb868e544ef7333bf386"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#a7f5b7ab7882afb868e544ef7333bf386">mimmo::ControlDeformExtSurface::getFiles</a></div><div class="ttdeci">const std::unordered_map&lt; std::string, std::pair&lt; double, int &gt; &gt; &amp; getFiles() const </div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00234">ControlDeformExtSurface.cpp:234</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_aaf48ae2e832729c0d9a0b01a77438bdc"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">mimmo::BaseManipulation::setPlotInExecution</a></div><div class="ttdeci">void setPlotInExecution(bool)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00304">BaseManipulation.cpp:304</a></div></div>
 <div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ad4283fe02b93117e5592b4a3f78ef691"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ad4283fe02b93117e5592b4a3f78ef691">mimmo::ControlDeformExtSurface::~ControlDeformExtSurface</a></div><div class="ttdeci">~ControlDeformExtSurface()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00067">ControlDeformExtSurface.cpp:67</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac343bf89833af328cdadc0f53d9c84c0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac343bf89833af328cdadc0f53d9c84c0">mimmo::BaseManipulation::isPlotInExecution</a></div><div class="ttdeci">bool isPlotInExecution()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00243">BaseManipulation.cpp:243</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_ad05d1b4dc8ef99301958fe9fdbf86119"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#ad05d1b4dc8ef99301958fe9fdbf86119">mimmo::MimmoObject::buildBvTree</a></div><div class="ttdeci">void buildBvTree(int value=1)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01323">MimmoObject.cpp:1323</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_aaa873f60f33badf2087d6b2462b3b144"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aaa873f60f33badf2087d6b2462b3b144">mimmo::MimmoObject::isEmpty</a></div><div class="ttdeci">bool isEmpty()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00243">MimmoObject.cpp:243</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_aeeb14fa3250fd87ef7e6c787147b15d5"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aeeb14fa3250fd87ef7e6c787147b15d5">mimmo::MimmoObject::isClosedLoop</a></div><div class="ttdeci">bool isClosedLoop()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01389">MimmoObject.cpp:1389</a></div></div>
-<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ab369004a0395485fc4caf9a381f0eba8"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">mimmo::ControlDeformExtSurface::plotOptionalResults</a></div><div class="ttdeci">void plotOptionalResults()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00780">ControlDeformExtSurface.cpp:780</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_ad05d1b4dc8ef99301958fe9fdbf86119"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#ad05d1b4dc8ef99301958fe9fdbf86119">mimmo::MimmoObject::buildBvTree</a></div><div class="ttdeci">void buildBvTree(int value=1)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01352">MimmoObject.cpp:1352</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00136">BaseManipulation.hpp:136</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_aaa873f60f33badf2087d6b2462b3b144"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aaa873f60f33badf2087d6b2462b3b144">mimmo::MimmoObject::isEmpty</a></div><div class="ttdeci">bool isEmpty()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00255">MimmoObject.cpp:255</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_aeeb14fa3250fd87ef7e6c787147b15d5"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aeeb14fa3250fd87ef7e6c787147b15d5">mimmo::MimmoObject::isClosedLoop</a></div><div class="ttdeci">bool isClosedLoop()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01421">MimmoObject.cpp:1421</a></div></div>
+<div class="ttc" id="classmimmo_1_1ControlDeformExtSurface_html_ab369004a0395485fc4caf9a381f0eba8"><div class="ttname"><a href="classmimmo_1_1ControlDeformExtSurface.html#ab369004a0395485fc4caf9a381f0eba8">mimmo::ControlDeformExtSurface::plotOptionalResults</a></div><div class="ttdeci">void plotOptionalResults()</div><div class="ttdef"><b>Definition:</b> <a href="ControlDeformExtSurface_8cpp_source.html#l00741">ControlDeformExtSurface.cpp:741</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

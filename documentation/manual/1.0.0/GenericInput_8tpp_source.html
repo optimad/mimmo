@@ -206,8 +206,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;            }</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            file.close();</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;file not open --&gt; exit&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            exit(1);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            (*m_log) &lt;&lt; <span class="stringliteral">&quot;file not open --&gt; exit&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            <span class="keywordflow">throw</span> std::runtime_error (<a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> + <span class="stringliteral">&quot; : cannot open &quot;</span> + m_filename + <span class="stringliteral">&quot; requested&quot;</span>);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        }</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        _setResult(data);</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
@@ -335,6 +335,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;}</div>
 <div class="ttc" id="classmimmo_1_1GenericInput_html_a41cb4c3d82404f67b41e022a81e64045"><div class="ttname"><a href="classmimmo_1_1GenericInput.html#a41cb4c3d82404f67b41e022a81e64045">mimmo::GenericInput::clearInput</a></div><div class="ttdeci">void clearInput()</div><div class="ttdef"><b>Definition:</b> <a href="GenericInput_8cpp_source.html#l00167">GenericInput.cpp:167</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
 <div class="ttc" id="classmimmo_1_1IODataT_html"><div class="ttname"><a href="classmimmo_1_1IODataT.html">mimmo::IODataT</a></div><div class="ttdoc">IODataT is the templated class of generic data derived from IOData base class. </div><div class="ttdef"><b>Definition:</b> <a href="IOData_8hpp_source.html#l00088">IOData.hpp:88</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericInput_html_a9d7afa0e29dec5f6f6453f2b017eb734"><div class="ttname"><a href="classmimmo_1_1GenericInput.html#a9d7afa0e29dec5f6f6453f2b017eb734">mimmo::GenericInput::setResult</a></div><div class="ttdeci">void setResult(T *data)</div><div class="ttdef"><b>Definition:</b> <a href="GenericInput_8tpp_source.html#l00103">GenericInput.tpp:103</a></div></div>
 <div class="ttc" id="classmimmo_1_1GenericInput_html_abc70bd8d2d4ec1bad47a180c762c7bf3"><div class="ttname"><a href="classmimmo_1_1GenericInput.html#abc70bd8d2d4ec1bad47a180c762c7bf3">mimmo::GenericInput::getInput</a></div><div class="ttdeci">T * getInput()</div><div class="ttdef"><b>Definition:</b> <a href="GenericInput_8tpp_source.html#l00093">GenericInput.tpp:93</a></div></div>
@@ -347,7 +348,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

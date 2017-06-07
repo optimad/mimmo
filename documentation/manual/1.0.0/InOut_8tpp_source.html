@@ -271,102 +271,109 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    m_obj_      = NULL;</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    m_var_      = var_;</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    m_setVar_   = NULL;</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;};</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00180"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#ab78aa857c10157837825fc14b077af72">  180</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T, O&gt;::PortInT</a>(T *var_, <a class="code" href="classmimmo_1_1DataType.html">DataType</a> datatype){</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    m_obj_      = NULL;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    m_var_      = var_;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    m_setVar_   = NULL;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    m_datatype  = datatype;</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;};</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00193"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a19414ebabea3b6385ca4877e2c6b4309">  193</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T,O&gt;::PortInT</a>(O* obj_, <span class="keywordtype">void</span> (O::*setVar_)(T)){</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    m_obj_      = obj_;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    m_setVar_   = setVar_;</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    m_var_      = NULL;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;};</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00206"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#ae13c47441b9bbaa708bf7f9a179f9a05">  206</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T,O&gt;::PortInT</a>(O* obj_, <span class="keywordtype">void</span> (O::*setVar_)(T), <a class="code" href="classmimmo_1_1DataType.html">DataType</a> datatype){</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    m_obj_      = obj_;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    m_setVar_   = setVar_;</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    m_var_      = NULL;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    m_datatype  = datatype;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;};</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    m_mandatory = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;};</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00183"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#ada8e07d22c365da075b94b214b4bbcca">  183</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T, O&gt;::PortInT</a>(T *var_, <a class="code" href="classmimmo_1_1DataType.html">DataType</a> datatype, <span class="keywordtype">bool</span> mandatory, <span class="keywordtype">int</span> family){</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    m_obj_      = NULL;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    m_var_      = var_;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    m_setVar_   = NULL;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    m_datatype  = datatype;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    m_mandatory = mandatory;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    m_familym   = family;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;};</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00200"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a136d1925a8d3eb437e18598c25f18bcc">  200</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T,O&gt;::PortInT</a>(O* obj_, <span class="keywordtype">void</span> (O::*setVar_)(T), <span class="keywordtype">bool</span> mandatory, <span class="keywordtype">int</span> family){</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    m_obj_      = obj_;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    m_setVar_   = setVar_;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    m_var_      = NULL;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    m_mandatory = mandatory;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    m_familym   = family;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;};</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;</div>
 <div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00217"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">  217</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">PortInT&lt;T, O&gt;::~PortInT</a>(){</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    m_obj_      = NULL;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    m_var_      = NULL;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    m_setVar_   = NULL;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;};</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00227"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a8c397037bbfc0ff3465ae64f14dae2fd">  227</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T, O&gt;::PortInT</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    *<span class="keyword">this</span> = other;</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;};</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00235"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">  235</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp;  <a class="code" href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">PortInT&lt;T, O&gt;::operator=</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    m_obj_      = other.<a class="code" href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">m_obj_</a>;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    m_var_      = other.<a class="code" href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">m_var_</a>;</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    m_setVar_   = other.<a class="code" href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">m_setVar_</a>;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordflow">return</span> (*<span class="keyword">this</span>);</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;};</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00246"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">  246</a></span>&#160;<span class="keywordtype">bool</span>  <a class="code" href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">PortInT&lt;T, O&gt;::operator==</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keywordtype">bool</span> equal = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    equal &amp;= (m_obj_ == other.<a class="code" href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">m_obj_</a>);</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    equal &amp;= (m_var_ == other.<a class="code" href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">m_var_</a>);</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    equal &amp;= (m_setVar_ == other.<a class="code" href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">m_setVar_</a>);</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keywordflow">return</span> (equal);</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;};</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
+<div class="line"><a name="l00217"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#ac4938118c23d07fb251a6e25bab7ea74">  217</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T,O&gt;::PortInT</a>(O* obj_, <span class="keywordtype">void</span> (O::*setVar_)(T), <a class="code" href="classmimmo_1_1DataType.html">DataType</a> datatype, <span class="keywordtype">bool</span> mandatory, <span class="keywordtype">int</span> family){</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    m_obj_      = obj_;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    m_setVar_   = setVar_;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    m_var_      = NULL;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    m_datatype  = datatype;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    m_mandatory = mandatory;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    m_familym   = family;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;};</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00230"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">  230</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">PortInT&lt;T, O&gt;::~PortInT</a>(){</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    m_obj_      = NULL;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    m_var_      = NULL;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    m_setVar_   = NULL;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;};</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00240"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a8c397037bbfc0ff3465ae64f14dae2fd">  240</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">PortInT&lt;T, O&gt;::PortInT</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    *<span class="keyword">this</span> = other;</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;};</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00248"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">  248</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp;  <a class="code" href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">PortInT&lt;T, O&gt;::operator=</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    m_obj_      = other.<a class="code" href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">m_obj_</a>;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    m_var_      = other.<a class="code" href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">m_var_</a>;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    m_setVar_   = other.<a class="code" href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">m_setVar_</a>;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keywordflow">return</span> (*<span class="keyword">this</span>);</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;};</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00260"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">  260</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">PortInT&lt;T, O&gt;::readBuffer</a>(){</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    T temp;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    m_ibuffer &gt;&gt; temp;</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="keywordflow">if</span> (m_setVar_ != NULL){</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        (m_obj_-&gt;*m_setVar_)(temp);</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    }</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordflow">if</span> (m_var_ != NULL){</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;        (*m_var_) = temp;</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    }</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;}</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;}</div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_a3e429e7c0b11220fb2d2d06e55b3d532"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">mimmo::PortInT::~PortInT</a></div><div class="ttdeci">virtual ~PortInT()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00217">InOut.tpp:217</a></div></div>
+<div class="line"><a name="l00259"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">  259</a></span>&#160;<span class="keywordtype">bool</span>  <a class="code" href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">PortInT&lt;T, O&gt;::operator==</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1PortInT.html">PortInT&lt;T, O&gt;</a> &amp; other){</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keywordtype">bool</span> equal = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    equal &amp;= (m_obj_ == other.<a class="code" href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">m_obj_</a>);</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    equal &amp;= (m_var_ == other.<a class="code" href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">m_var_</a>);</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    equal &amp;= (m_setVar_ == other.<a class="code" href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">m_setVar_</a>);</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="keywordflow">return</span> (equal);</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;};</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00273"></a><span class="lineno"><a class="line" href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">  273</a></span>&#160;<a class="code" href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">PortInT&lt;T, O&gt;::readBuffer</a>(){</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    T temp;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    m_ibuffer &gt;&gt; temp;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordflow">if</span> (m_setVar_ != NULL){</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;        (m_obj_-&gt;*m_setVar_)(temp);</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    }</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordflow">if</span> (m_var_ != NULL){</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;        (*m_var_) = temp;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    }</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;}</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;}</div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_a3e429e7c0b11220fb2d2d06e55b3d532"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a3e429e7c0b11220fb2d2d06e55b3d532">mimmo::PortInT::~PortInT</a></div><div class="ttdeci">virtual ~PortInT()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00230">InOut.tpp:230</a></div></div>
 <div class="ttc" id="classmimmo_1_1DataType_html"><div class="ttname"><a href="classmimmo_1_1DataType.html">mimmo::DataType</a></div><div class="ttdoc">Class DataType defines the container and the type of data communicated by ports.Class retains two mem...</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00052">InOut.hpp:52</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html"><div class="ttname"><a href="classmimmo_1_1PortOutT.html">mimmo::PortOutT</a></div><div class="ttdoc">PortOutT is the PIN class to exchange output data from an object to others.PortOutT is the template d...</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00152">InOut.hpp:152</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_aa71bbe0f2dcf1d4167c264e73bd71919"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#aa71bbe0f2dcf1d4167c264e73bd71919">mimmo::PortOutT::operator==</a></div><div class="ttdeci">bool operator==(const PortOutT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00124">InOut.tpp:124</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_aa1b4bd2944f839d7872c76e1093be735"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#aa1b4bd2944f839d7872c76e1093be735">mimmo::PortOutT::m_getVar_</a></div><div class="ttdeci">T(O::* m_getVar_)()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00158">InOut.hpp:158</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_adc5542655f2f419903a5ad05673cd2f4"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#adc5542655f2f419903a5ad05673cd2f4">mimmo::PortOutT::m_var_</a></div><div class="ttdeci">T * m_var_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00157">InOut.hpp:157</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_a38739ff3a170748e31d319c759986dce"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">mimmo::PortInT::operator=</a></div><div class="ttdeci">PortInT &amp; operator=(const PortInT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00235">InOut.tpp:235</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_a824b8962f3693be3d5a0d23eee8b8d93"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">mimmo::PortInT::operator==</a></div><div class="ttdeci">bool operator==(const PortInT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00246">InOut.tpp:246</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_ac39e4efa2263712be686962286547a23"><div class="ttname"><a href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">mimmo::PortInT::m_var_</a></div><div class="ttdeci">T * m_var_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00262">InOut.hpp:262</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_a38739ff3a170748e31d319c759986dce"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a38739ff3a170748e31d319c759986dce">mimmo::PortInT::operator=</a></div><div class="ttdeci">PortInT &amp; operator=(const PortInT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00248">InOut.tpp:248</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_a824b8962f3693be3d5a0d23eee8b8d93"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a824b8962f3693be3d5a0d23eee8b8d93">mimmo::PortInT::operator==</a></div><div class="ttdeci">bool operator==(const PortInT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00259">InOut.tpp:259</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_ac39e4efa2263712be686962286547a23"><div class="ttname"><a href="classmimmo_1_1PortInT.html#ac39e4efa2263712be686962286547a23">mimmo::PortInT::m_var_</a></div><div class="ttdeci">T * m_var_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00268">InOut.hpp:268</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_a93b8b819f9af0a4dbe527765e0e2ff9d"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#a93b8b819f9af0a4dbe527765e0e2ff9d">mimmo::PortOutT::operator=</a></div><div class="ttdeci">PortOutT &amp; operator=(const PortOutT &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00113">InOut.tpp:113</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_a5b3b1dbde87f8c7218106519958c3aaa"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#a5b3b1dbde87f8c7218106519958c3aaa">mimmo::PortOutT::PortOutT</a></div><div class="ttdeci">PortOutT()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00036">InOut.tpp:36</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortInT_html_a6c595838f40a862eee726bd11ca89c68"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a6c595838f40a862eee726bd11ca89c68">mimmo::PortInT::PortInT</a></div><div class="ttdeci">PortInT()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00157">InOut.tpp:157</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html"><div class="ttname"><a href="classmimmo_1_1PortInT.html">mimmo::PortInT</a></div><div class="ttdoc">PortInT is the PIN class to get input data arriving to an object from other objects.PortInT is the template derived class of PortIn specifying the set of data that need to exchanged. </div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00257">InOut.hpp:257</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html"><div class="ttname"><a href="classmimmo_1_1PortInT.html">mimmo::PortInT</a></div><div class="ttdoc">PortInT is the PIN class to get input data arriving to an object from other objects.PortInT is the template derived class of PortIn specifying the set of data that need to exchanged. </div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00263">InOut.hpp:263</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_a008c3871f0111d6c314202600375edf5"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#a008c3871f0111d6c314202600375edf5">mimmo::PortOutT::m_obj_</a></div><div class="ttdeci">O * m_obj_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00156">InOut.hpp:156</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_ac7600d409a49b094581d792820510507"><div class="ttname"><a href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">mimmo::PortInT::m_obj_</a></div><div class="ttdeci">O * m_obj_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00261">InOut.hpp:261</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_ac7600d409a49b094581d792820510507"><div class="ttname"><a href="classmimmo_1_1PortInT.html#ac7600d409a49b094581d792820510507">mimmo::PortInT::m_obj_</a></div><div class="ttdeci">O * m_obj_</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00267">InOut.hpp:267</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_a3203f9cfb4063345b7efe8be316d5738"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#a3203f9cfb4063345b7efe8be316d5738">mimmo::PortOutT::writeBuffer</a></div><div class="ttdeci">void writeBuffer()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00139">InOut.tpp:139</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_a48cfc209544bfcc3eb5ee238ea192150"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">mimmo::PortInT::readBuffer</a></div><div class="ttdeci">void readBuffer()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00260">InOut.tpp:260</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_a48cfc209544bfcc3eb5ee238ea192150"><div class="ttname"><a href="classmimmo_1_1PortInT.html#a48cfc209544bfcc3eb5ee238ea192150">mimmo::PortInT::readBuffer</a></div><div class="ttdeci">void readBuffer()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00273">InOut.tpp:273</a></div></div>
 <div class="ttc" id="classmimmo_1_1PortOutT_html_a21bbfe84b25bbc3100e0231a890b8e20"><div class="ttname"><a href="classmimmo_1_1PortOutT.html#a21bbfe84b25bbc3100e0231a890b8e20">mimmo::PortOutT::~PortOutT</a></div><div class="ttdeci">virtual ~PortOutT()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8tpp_source.html#l00095">InOut.tpp:95</a></div></div>
-<div class="ttc" id="classmimmo_1_1PortInT_html_aee1d46646632f635b59f70c6203aeb09"><div class="ttname"><a href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">mimmo::PortInT::m_setVar_</a></div><div class="ttdeci">void(O::* m_setVar_)(T)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00263">InOut.hpp:263</a></div></div>
+<div class="ttc" id="classmimmo_1_1PortInT_html_aee1d46646632f635b59f70c6203aeb09"><div class="ttname"><a href="classmimmo_1_1PortInT.html#aee1d46646632f635b59f70c6203aeb09">mimmo::PortInT::m_setVar_</a></div><div class="ttdeci">void(O::* m_setVar_)(T)</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8hpp_source.html#l00269">InOut.hpp:269</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 
 </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

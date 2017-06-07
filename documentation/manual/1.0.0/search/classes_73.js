@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scalinggeometry',['ScalingGeometry',['../classmimmo_1_1ScalingGeometry.html',1,'mimmo']]],
+  ['scalegeometry',['ScaleGeometry',['../classmimmo_1_1ScaleGeometry.html',1,'mimmo']]],
   ['selectionbybox',['SelectionByBox',['../classmimmo_1_1SelectionByBox.html',1,'mimmo']]],
   ['selectionbyboxwithscalar',['SelectionByBoxWithScalar',['../classmimmo_1_1SelectionByBoxWithScalar.html',1,'mimmo']]],
   ['selectionbycylinder',['SelectionByCylinder',['../classmimmo_1_1SelectionByCylinder.html',1,'mimmo']]],

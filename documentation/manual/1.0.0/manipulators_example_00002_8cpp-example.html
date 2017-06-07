@@ -184,20 +184,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="comment">     */</span></div>
 <div class="line">    <a name="_a0"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a> * mimmo0 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>();</div>
 <div class="line"></div>
-<div class="line">    mimmo0-&gt;<a name="a1"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">setRead</a>(<span class="keyword">true</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a1"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a4652ea8d059afa79750a3cc1d6c8b308">setIOMode</a>(IOMode::CONVERT);</div>
 <div class="line">    mimmo0-&gt;<a name="a2"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aad153e11d174f3fad3641ae1d91f9af3">setReadDir</a>(<span class="stringliteral">&quot;geodata&quot;</span>);</div>
 <div class="line">    mimmo0-&gt;<a name="a3"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#ae5de0071358d1ef3c5e14bddabcf441a">setReadFileType</a>(FileType::STL);</div>
 <div class="line">    mimmo0-&gt;<a name="a4"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aa80ef53cadff6d9fedee9398e7614efa">setReadFilename</a>(<span class="stringliteral">&quot;sphere2&quot;</span>);</div>
 <div class="line">    mimmo0-&gt;<a name="a5"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a8afbd65dd385c5839f33e6dea4df4c30">setBuildBvTree</a>(<span class="keyword">true</span>);</div>
 <div class="line"></div>
-<div class="line">    mimmo0-&gt;<a name="a6"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">setWrite</a>(<span class="keyword">true</span>);</div>
-<div class="line">    mimmo0-&gt;<a name="a7"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;./&quot;</span>);</div>
-<div class="line">    mimmo0-&gt;<a name="a8"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
-<div class="line">    mimmo0-&gt;<a name="a9"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;manipulators_output_00002.0000&quot;</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a6"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;./&quot;</span>);</div>
+<div class="line">    mimmo0-&gt;<a name="a7"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
+<div class="line">    mimmo0-&gt;<a name="a8"></a><a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;manipulators_output_00002.0000&quot;</span>);</div>
 <div class="line"></div>
 <div class="line">    <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a> * mimmo1 = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1MimmoGeometry.html">MimmoGeometry</a>();</div>
-<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a487c0223a457494ea7b8e5a6b3ef04aa">setRead</a>(<span class="keyword">false</span>);</div>
-<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0c864cb84abbbbadda851d2bef32b770">setWrite</a>(<span class="keyword">true</span>);</div>
+<div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a4652ea8d059afa79750a3cc1d6c8b308">setIOMode</a>(IOMode::WRITE);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a0662133edef9b8d7421401435e253568">setWriteDir</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#aeeb362f2afa17c1d8e04df7a54d9c7a9">setWriteFileType</a>(FileType::STL);</div>
 <div class="line">    mimmo1-&gt;<a class="code" href="classmimmo_1_1MimmoGeometry.html#a00bc68638ef10a67dcd2d6ec94fb4f0a">setWriteFilename</a>(<span class="stringliteral">&quot;manipulators_output_00002.0001&quot;</span>);</div>
@@ -206,7 +204,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="comment">     * Setup of span and origin of cube.</span></div>
 <div class="line"><span class="comment">     * Plot Optional results during execution active for FFD block.</span></div>
 <div class="line"><span class="comment">     */</span></div>
-<div class="line">    <a name="_a10"></a><a class="code" href="classmimmo_1_1FFDLattice.html">FFDLattice</a>* lattice = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1FFDLattice.html">FFDLattice</a>();</div>
+<div class="line">    <a name="_a9"></a><a class="code" href="classmimmo_1_1FFDLattice.html">FFDLattice</a>* lattice = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1FFDLattice.html">FFDLattice</a>();</div>
 <div class="line">    <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> origin = {0.0, 0.0, 0.0};</div>
 <div class="line">    <a class="code" href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a> span;</div>
 <div class="line">    span[0]= 1.2;</div>
@@ -223,21 +221,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">    deg[1] = 2;</div>
 <div class="line">    deg[2] = 2;</div>
 <div class="line"></div>
-<div class="line">    lattice-&gt;<a name="a11"></a><a class="code" href="classmimmo_1_1FFDLattice.html#ab72cce2e6661cb995a15d3308c8c9cb0">setLattice</a>(origin, span, ShapeType::CUBE, dim, deg);</div>
-<div class="line">    lattice-&gt;<a name="a12"></a><a class="code" href="classmimmo_1_1BaseManipulation.html#aaf48ae2e832729c0d9a0b01a77438bdc">setPlotInExecution</a>(<span class="keyword">true</span>);</div>
+<div class="line">    lattice-&gt;<a name="a10"></a><a class="code" href="classmimmo_1_1FFDLattice.html#ab72cce2e6661cb995a15d3308c8c9cb0">setLattice</a>(origin, span, ShapeType::CUBE, dim, deg);</div>
+<div class="line">   </div>
 <div class="line"></div>
 <div class="line">    <span class="comment">/* Creation of Generic input block to read the</span></div>
 <div class="line"><span class="comment">     * displacements of the control nodes of the lattice.</span></div>
 <div class="line"><span class="comment">     */</span></div>
-<div class="line">    <a name="_a13"></a><a class="code" href="classmimmo_1_1GenericInput.html">GenericInput</a>* input = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1GenericInput.html">GenericInput</a>();</div>
-<div class="line">    input-&gt;<a name="a14"></a><a class="code" href="classmimmo_1_1GenericInput.html#a9ef971dada7159093730824371ad2ea0">setReadFromFile</a>(<span class="keyword">true</span>);</div>
-<div class="line">    input-&gt;<a name="a15"></a><a class="code" href="classmimmo_1_1GenericInput.html#a17f027beff0036ada516ee7d9e3c8f7b">setReadDir</a>(<span class="stringliteral">&quot;input&quot;</span>);</div>
-<div class="line">    input-&gt;<a name="a16"></a><a class="code" href="classmimmo_1_1GenericInput.html#af1f3accb676cf7f67344d27877daab28">setFilename</a>(<span class="stringliteral">&quot;manipulators_input_00002.txt&quot;</span>);</div>
+<div class="line">    <a name="_a11"></a><a class="code" href="classmimmo_1_1GenericInput.html">GenericInput</a>* input = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1GenericInput.html">GenericInput</a>();</div>
+<div class="line">    input-&gt;<a name="a12"></a><a class="code" href="classmimmo_1_1GenericInput.html#a9ef971dada7159093730824371ad2ea0">setReadFromFile</a>(<span class="keyword">true</span>);</div>
+<div class="line">    input-&gt;<a name="a13"></a><a class="code" href="classmimmo_1_1GenericInput.html#a17f027beff0036ada516ee7d9e3c8f7b">setReadDir</a>(<span class="stringliteral">&quot;input&quot;</span>);</div>
+<div class="line">    input-&gt;<a name="a14"></a><a class="code" href="classmimmo_1_1GenericInput.html#af1f3accb676cf7f67344d27877daab28">setFilename</a>(<span class="stringliteral">&quot;manipulators_input_00002.txt&quot;</span>);</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">/* Create applier block.</span></div>
 <div class="line"><span class="comment">     * It applies the deformation displacements to the original input geometry.</span></div>
 <div class="line"><span class="comment">     */</span></div>
-<div class="line">    <a name="_a17"></a><a class="code" href="classmimmo_1_1Apply.html">Apply</a>* applier = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1Apply.html">Apply</a>();</div>
+<div class="line">    <a name="_a15"></a><a class="code" href="classmimmo_1_1Apply.html">Apply</a>* applier = <span class="keyword">new</span> <a class="code" href="classmimmo_1_1Apply.html">Apply</a>();</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">/* Setup pin connections.</span></div>
 <div class="line"><span class="comment">     */</span></div>
@@ -256,19 +254,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"></div>
 <div class="line">    <span class="comment">/* Setup execution chain.</span></div>
 <div class="line"><span class="comment">     */</span></div>
-<div class="line">    <a name="_a18"></a><a class="code" href="classmimmo_1_1Chain.html">Chain</a> ch0;</div>
-<div class="line">    ch0.<a name="a19"></a><a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(mimmo0);</div>
+<div class="line">    <a name="_a16"></a><a class="code" href="classmimmo_1_1Chain.html">Chain</a> ch0;</div>
+<div class="line">    ch0.<a name="a17"></a><a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(mimmo0);</div>
 <div class="line">    ch0.<a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(input);</div>
 <div class="line">    ch0.<a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(lattice);</div>
 <div class="line">    ch0.<a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(applier);</div>
 <div class="line">    ch0.<a class="code" href="classmimmo_1_1Chain.html#acb7682db8c13414c23fca80e5ed397ff">addObject</a>(mimmo1);</div>
-<div class="line"></div>
+<div class="line">    </div>
+<div class="line">    ch0.<a name="a18"></a><a class="code" href="classmimmo_1_1Chain.html#a557e6290840d6fb8478008d881314797">setPlotDebugResults</a>(<span class="keyword">true</span>);</div>
+<div class="line">    ch0.<a name="a19"></a><a class="code" href="classmimmo_1_1Chain.html#a6f6563e6fa76f80b950f4aa052244f13">setOutputDebugResults</a>(<span class="stringliteral">&quot;.&quot;</span>);</div>
+<div class="line">    </div>
 <div class="line">    <span class="comment">/* Execution of chain.</span></div>
 <div class="line"><span class="comment">     * Use debug flag false (default) to avoid to print out the execution steps.</span></div>
 <div class="line"><span class="comment">     */</span></div>
 <div class="line">    cout &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; endl;</div>
 <div class="line">    cout &lt;&lt; <span class="stringliteral">&quot; --- execution start ---&quot;</span> &lt;&lt; endl;</div>
-<div class="line">    ch0.<a name="a20"></a><a class="code" href="classmimmo_1_1Chain.html#afbd5f945b7339031be9f0a71f9a0e8c4">exec</a>(<span class="keyword">false</span>);</div>
+<div class="line">    ch0.<a name="a20"></a><a class="code" href="classmimmo_1_1Chain.html#afbd5f945b7339031be9f0a71f9a0e8c4">exec</a>(<span class="keyword">true</span>);</div>
 <div class="line">    cout &lt;&lt; <span class="stringliteral">&quot; --- execution done --- &quot;</span> &lt;&lt; endl;</div>
 <div class="line">    cout &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; endl;</div>
 <div class="line"></div>
@@ -315,7 +316,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>

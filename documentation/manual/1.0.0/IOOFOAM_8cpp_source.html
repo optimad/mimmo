@@ -198,7 +198,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordflow">if</span>(input == <span class="stringliteral">&quot;mimmo.IOOFOAM&quot;</span>){</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        absorbSectionXML(rootXML);</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    }<span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        std::cout&lt;&lt;<span class="stringliteral">&quot;Warning in custom xml mimmo::IOOFOAM constructor. No valid xml data found&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        <a class="code" href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">warningXML</a>(m_log, m_name);</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    };</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
@@ -661,7 +661,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;        }</div>
 <div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;    }</div>
 <div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;    <span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot;mimmo : ERROR : polydata not found in : &quot;</span>&lt;&lt; inputFilename &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;        (*m_log) &lt;&lt; <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> &lt;&lt; <span class="stringliteral">&quot; error: polydata not found in : &quot;</span>&lt;&lt; inputFilename &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;        m_stopat = PID;</div>
 <div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;    }</div>
@@ -677,20 +677,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;    <span class="keywordflow">if</span> (m_read) check = <a class="code" href="classmimmo_1_1IOOFOAM.html#a3112b01eebd6402f57898db61f8bd85e">read</a>();</div>
 <div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    <span class="keywordflow">if</span> (!check){</div>
 <div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;        <span class="keywordflow">if</span> (m_stopat == SHRT_MAX){</div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;mimmo : ERROR : file not found : &quot;</span>&lt;&lt; m_rfilenameV &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;            exit(10);</div>
+<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;            (*m_log) &lt;&lt; <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> &lt;&lt; <span class="stringliteral">&quot; error: file not found : &quot;</span>&lt;&lt; m_rfilenameV &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;            (*m_log) &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;            <span class="keywordflow">throw</span> std::runtime_error (<a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> + <span class="stringliteral">&quot;: file not found : &quot;</span> + m_rfilenameV);</div>
 <div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;        }</div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot;mimmo : ERROR : file not found : &quot;</span>&lt;&lt; m_rfilenameS[m_stopat] &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;        exit(10);</div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;        (*m_log) &lt;&lt; <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> &lt;&lt; <span class="stringliteral">&quot; error: file not found : &quot;</span>&lt;&lt; m_rfilenameS[m_stopat] &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;        (*m_log) &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;        <span class="keywordflow">throw</span> std::runtime_error (<a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> + <span class="stringliteral">&quot;: file not found : &quot;</span> + m_rfilenameS[m_stopat]);</div>
 <div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;    }</div>
 <div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;    <span class="keywordflow">if</span> (m_write) check = <a class="code" href="classmimmo_1_1IOOFOAM.html#a65340101ba0d0d7084d7e3f5c574653b">write</a>();</div>
 <div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;    <span class="keywordflow">if</span> (!check){</div>
 <div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;        <span class="keywordflow">if</span> (m_stopat == 2){</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;mimmo : ERROR : write not done : surface and volume geometry not linked &quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;            exit(11);</div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;            (*m_log) &lt;&lt; <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> &lt;&lt; <span class="stringliteral">&quot; error: write not done : surface and volume geometry not linked &quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;            (*m_log) &lt;&lt; <span class="stringliteral">&quot; &quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;            <span class="keywordflow">throw</span> std::runtime_error (<a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a> + <span class="stringliteral">&quot;: write not done : surface and volume geometry not linked &quot;</span>);</div>
 <div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;        }</div>
 <div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;    }</div>
 <div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;}</div>
@@ -703,251 +703,242 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;</div>
 <div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;    std::string input;</div>
 <div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;</div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Priority&quot;</span>)){</div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;Priority&quot;</span>);</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;        <span class="keywordtype">int</span> value =0;</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;            ss&gt;&gt;value;</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;        }</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;        <a class="code" href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">setPriority</a>(value);</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    };</div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;ReadFlag&quot;</span>)){</div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;ReadFlag&quot;</span>);</div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;        }</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a5046446ceec7240577e57411a51d33fa">setRead</a>(value);</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;    };</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">BaseManipulation::absorbSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    </div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;ReadFlag&quot;</span>)){</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;ReadFlag&quot;</span>);</div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;        }</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a5046446ceec7240577e57411a51d33fa">setRead</a>(value);</div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;    };</div>
+<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;    std::vector&lt;std::string&gt; temp_dirs;</div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>)){</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>);</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;            std::string dir;</div>
 <div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;</div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;    std::vector&lt;std::string&gt; temp_dirs;</div>
-<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>)){</div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>);</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;            std::string dir;</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;</div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;dir&quot;</span>))   {</div>
-<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;                dir = subfile.second-&gt;get(<span class="stringliteral">&quot;dir&quot;</span>);</div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;            }</div>
+<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;dir&quot;</span>))   {</div>
+<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;                dir = subfile.second-&gt;get(<span class="stringliteral">&quot;dir&quot;</span>);</div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;            }</div>
+<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;</div>
+<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;            <span class="keywordflow">if</span>(!dir.empty()){</div>
+<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;                temp_dirs.push_back(dir);</div>
+<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;            }</div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;        }</div>
+<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#ab2e9925f231c4c9cc65ee761e3c2da7c">setVTKReadDir</a>(temp_dirs);</div>
+<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;    }</div>
+<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;</div>
 <div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;            <span class="keywordflow">if</span>(!dir.empty()){</div>
-<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;                temp_dirs.push_back(dir);</div>
-<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;            }</div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;        }</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#ab2e9925f231c4c9cc65ee761e3c2da7c">setVTKReadDir</a>(temp_dirs);</div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    }</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;</div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;    std::vector&lt;std::string&gt; temp_files;</div>
+<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>)){</div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;</div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>);</div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;</div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;            std::string file;</div>
 <div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;</div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    std::vector&lt;std::string&gt; temp_files;</div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>)){</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;</div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;        <span class="keyword">const</span> bitpit::Config::Section &amp; filesXML = slotXML.getSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>);</div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;</div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; subfile : filesXML.getSections()){</div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;            std::string file;</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;</div>
-<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;filename&quot;</span>))   {</div>
-<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;                file = subfile.second-&gt;get(<span class="stringliteral">&quot;filename&quot;</span>);</div>
-<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;            }</div>
-<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;</div>
-<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;            <span class="keywordflow">if</span>(!file.empty()){</div>
-<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;                temp_files.push_back(file);</div>
-<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;            }</div>
-<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;        }</div>
-<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a9e77dd561cf53901d090121b334d172e">setVTKReadFilename</a>(temp_files);</div>
-<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;    }</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;            <span class="keywordflow">if</span>(subfile.second-&gt;hasOption(<span class="stringliteral">&quot;filename&quot;</span>))   {</div>
+<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;                file = subfile.second-&gt;get(<span class="stringliteral">&quot;filename&quot;</span>);</div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;            }</div>
+<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;</div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;            <span class="keywordflow">if</span>(!file.empty()){</div>
+<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;                temp_files.push_back(file);</div>
+<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;            }</div>
+<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;        }</div>
+<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a9e77dd561cf53901d090121b334d172e">setVTKReadFilename</a>(temp_files);</div>
+<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;    }</div>
+<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;</div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsReadDir&quot;</span>)){</div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsReadDir&quot;</span>);</div>
+<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
+<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#aaa30109b15c6a4848bf395ca0cc2a55d">setPointsReadDir</a>(input);</div>
+<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;    };</div>
+<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;</div>
 <div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;</div>
-<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsReadDir&quot;</span>)){</div>
-<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsReadDir&quot;</span>);</div>
+<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>)){</div>
+<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>);</div>
 <div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;        input = bitpit::utils::trim(input);</div>
 <div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#aaa30109b15c6a4848bf395ca0cc2a55d">setPointsReadDir</a>(input);</div>
+<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a9cb4276aa0fdfdc0c2833cec94e85da8">setPointsReadFilename</a>(input);</div>
 <div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160;    };</div>
 <div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;</div>
 <div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;</div>
-<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>)){</div>
-<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>);</div>
-<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a9cb4276aa0fdfdc0c2833cec94e85da8">setPointsReadFilename</a>(input);</div>
-<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;    };</div>
-<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;</div>
-<div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;</div>
-<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;WriteFlag&quot;</span>)){</div>
-<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;WriteFlag&quot;</span>);</div>
-<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;        }</div>
-<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#acd597e6e0260fbdd10570c0eb607a785">setWrite</a>(value);</div>
+<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;WriteFlag&quot;</span>)){</div>
+<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;WriteFlag&quot;</span>);</div>
+<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;        }</div>
+<div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#acd597e6e0260fbdd10570c0eb607a785">setWrite</a>(value);</div>
+<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;    };</div>
+<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;</div>
+<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160;</div>
+<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>)){</div>
+<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>);</div>
+<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160;        input = bitpit::utils::trim(input);</div>
+<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
+<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#af7c950fc6625fe2161ad166c652c8e69">setPointsWriteDir</a>(input);</div>
 <div class="line"><a name="l00765"></a><span class="lineno">  765</span>&#160;    };</div>
 <div class="line"><a name="l00766"></a><span class="lineno">  766</span>&#160;</div>
 <div class="line"><a name="l00767"></a><span class="lineno">  767</span>&#160;</div>
-<div class="line"><a name="l00768"></a><span class="lineno">  768</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>)){</div>
-<div class="line"><a name="l00769"></a><span class="lineno">  769</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>);</div>
+<div class="line"><a name="l00768"></a><span class="lineno">  768</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>)){</div>
+<div class="line"><a name="l00769"></a><span class="lineno">  769</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>);</div>
 <div class="line"><a name="l00770"></a><span class="lineno">  770</span>&#160;        input = bitpit::utils::trim(input);</div>
 <div class="line"><a name="l00771"></a><span class="lineno">  771</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#af7c950fc6625fe2161ad166c652c8e69">setPointsWriteDir</a>(input);</div>
+<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a2bd6d2541f94179e937bc74fa46be4dc">setPointsWriteFilename</a>(input);</div>
 <div class="line"><a name="l00773"></a><span class="lineno">  773</span>&#160;    };</div>
 <div class="line"><a name="l00774"></a><span class="lineno">  774</span>&#160;</div>
 <div class="line"><a name="l00775"></a><span class="lineno">  775</span>&#160;</div>
-<div class="line"><a name="l00776"></a><span class="lineno">  776</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>)){</div>
-<div class="line"><a name="l00777"></a><span class="lineno">  777</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>);</div>
+<div class="line"><a name="l00776"></a><span class="lineno">  776</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>)){</div>
+<div class="line"><a name="l00777"></a><span class="lineno">  777</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>);</div>
 <div class="line"><a name="l00778"></a><span class="lineno">  778</span>&#160;        input = bitpit::utils::trim(input);</div>
 <div class="line"><a name="l00779"></a><span class="lineno">  779</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00780"></a><span class="lineno">  780</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a2bd6d2541f94179e937bc74fa46be4dc">setPointsWriteFilename</a>(input);</div>
+<div class="line"><a name="l00780"></a><span class="lineno">  780</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a1003e7d854cb8e9726dd608a50e6dba3">setVTKWriteDir</a>(input);</div>
 <div class="line"><a name="l00781"></a><span class="lineno">  781</span>&#160;    };</div>
 <div class="line"><a name="l00782"></a><span class="lineno">  782</span>&#160;</div>
 <div class="line"><a name="l00783"></a><span class="lineno">  783</span>&#160;</div>
-<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>)){</div>
-<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>);</div>
+<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>)){</div>
+<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>);</div>
 <div class="line"><a name="l00786"></a><span class="lineno">  786</span>&#160;        input = bitpit::utils::trim(input);</div>
 <div class="line"><a name="l00787"></a><span class="lineno">  787</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00788"></a><span class="lineno">  788</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a1003e7d854cb8e9726dd608a50e6dba3">setVTKWriteDir</a>(input);</div>
+<div class="line"><a name="l00788"></a><span class="lineno">  788</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#aba2345403dbd97df1079ca49e628c733">setVTKWriteFilename</a>(input);</div>
 <div class="line"><a name="l00789"></a><span class="lineno">  789</span>&#160;    };</div>
 <div class="line"><a name="l00790"></a><span class="lineno">  790</span>&#160;</div>
 <div class="line"><a name="l00791"></a><span class="lineno">  791</span>&#160;</div>
-<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>)){</div>
-<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>);</div>
-<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160;        input = bitpit::utils::trim(input);</div>
-<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;        <span class="keywordflow">if</span>(input.empty())   input = <span class="stringliteral">&quot;./&quot;</span>;</div>
-<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#aba2345403dbd97df1079ca49e628c733">setVTKWriteFilename</a>(input);</div>
-<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;    };</div>
-<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;</div>
-<div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160;</div>
-<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Normalize&quot;</span>)){</div>
-<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;Normalize&quot;</span>);</div>
-<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00804"></a><span class="lineno">  804</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00805"></a><span class="lineno">  805</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00806"></a><span class="lineno">  806</span>&#160;        }</div>
-<div class="line"><a name="l00807"></a><span class="lineno">  807</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a3225427aeefb1792c3def858b142e0e0">setNormalize</a>(value);</div>
-<div class="line"><a name="l00808"></a><span class="lineno">  808</span>&#160;    };</div>
-<div class="line"><a name="l00809"></a><span class="lineno">  809</span>&#160;</div>
-<div class="line"><a name="l00810"></a><span class="lineno">  810</span>&#160;</div>
-<div class="line"><a name="l00811"></a><span class="lineno">  811</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Scaling&quot;</span>)){</div>
-<div class="line"><a name="l00812"></a><span class="lineno">  812</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;Scaling&quot;</span>);</div>
-<div class="line"><a name="l00813"></a><span class="lineno">  813</span>&#160;        <span class="keywordtype">double</span> value = 1.0;</div>
-<div class="line"><a name="l00814"></a><span class="lineno">  814</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
-<div class="line"><a name="l00815"></a><span class="lineno">  815</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
-<div class="line"><a name="l00816"></a><span class="lineno">  816</span>&#160;            ss &gt;&gt; value;</div>
-<div class="line"><a name="l00817"></a><span class="lineno">  817</span>&#160;        }</div>
-<div class="line"><a name="l00818"></a><span class="lineno">  818</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#ac8dae194e92fd09a7bfbc8f010f70405">setScaling</a>(value);</div>
-<div class="line"><a name="l00819"></a><span class="lineno">  819</span>&#160;    };</div>
-<div class="line"><a name="l00820"></a><span class="lineno">  820</span>&#160;</div>
-<div class="line"><a name="l00821"></a><span class="lineno">  821</span>&#160;};</div>
+<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Normalize&quot;</span>)){</div>
+<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;Normalize&quot;</span>);</div>
+<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160;        <span class="keywordtype">bool</span> value = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
+<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;        }</div>
+<div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#a3225427aeefb1792c3def858b142e0e0">setNormalize</a>(value);</div>
+<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;    };</div>
+<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;</div>
+<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;</div>
+<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;    <span class="keywordflow">if</span>(slotXML.hasOption(<span class="stringliteral">&quot;Scaling&quot;</span>)){</div>
+<div class="line"><a name="l00804"></a><span class="lineno">  804</span>&#160;        input = slotXML.get(<span class="stringliteral">&quot;Scaling&quot;</span>);</div>
+<div class="line"><a name="l00805"></a><span class="lineno">  805</span>&#160;        <span class="keywordtype">double</span> value = 1.0;</div>
+<div class="line"><a name="l00806"></a><span class="lineno">  806</span>&#160;        <span class="keywordflow">if</span>(!input.empty()){</div>
+<div class="line"><a name="l00807"></a><span class="lineno">  807</span>&#160;            std::stringstream ss(bitpit::utils::trim(input));</div>
+<div class="line"><a name="l00808"></a><span class="lineno">  808</span>&#160;            ss &gt;&gt; value;</div>
+<div class="line"><a name="l00809"></a><span class="lineno">  809</span>&#160;        }</div>
+<div class="line"><a name="l00810"></a><span class="lineno">  810</span>&#160;        <a class="code" href="classmimmo_1_1IOOFOAM.html#ac8dae194e92fd09a7bfbc8f010f70405">setScaling</a>(value);</div>
+<div class="line"><a name="l00811"></a><span class="lineno">  811</span>&#160;    };</div>
+<div class="line"><a name="l00812"></a><span class="lineno">  812</span>&#160;</div>
+<div class="line"><a name="l00813"></a><span class="lineno">  813</span>&#160;};</div>
+<div class="line"><a name="l00814"></a><span class="lineno">  814</span>&#160;</div>
+<div class="line"><a name="l00820"></a><span class="lineno">  820</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00821"></a><span class="lineno"><a class="line" href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">  821</a></span>&#160;<a class="code" href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">IOOFOAM::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
 <div class="line"><a name="l00822"></a><span class="lineno">  822</span>&#160;</div>
-<div class="line"><a name="l00828"></a><span class="lineno">  828</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00829"></a><span class="lineno"><a class="line" href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">  829</a></span>&#160;<a class="code" href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">IOOFOAM::flushSectionXML</a>(bitpit::Config::Section &amp; slotXML, std::string name){</div>
-<div class="line"><a name="l00830"></a><span class="lineno">  830</span>&#160;</div>
-<div class="line"><a name="l00831"></a><span class="lineno">  831</span>&#160;    BITPIT_UNUSED(name);</div>
-<div class="line"><a name="l00832"></a><span class="lineno">  832</span>&#160;</div>
-<div class="line"><a name="l00833"></a><span class="lineno">  833</span>&#160;    slotXML.set(<span class="stringliteral">&quot;ClassName&quot;</span>, <a class="code" href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">m_name</a>);</div>
-<div class="line"><a name="l00834"></a><span class="lineno">  834</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Priority&quot;</span>, std::to_string(<a class="code" href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">getPriority</a>()));</div>
-<div class="line"><a name="l00835"></a><span class="lineno">  835</span>&#160;</div>
-<div class="line"><a name="l00836"></a><span class="lineno">  836</span>&#160;</div>
-<div class="line"><a name="l00837"></a><span class="lineno">  837</span>&#160;    std::string output;</div>
-<div class="line"><a name="l00838"></a><span class="lineno">  838</span>&#160;</div>
-<div class="line"><a name="l00839"></a><span class="lineno">  839</span>&#160;    output = std::to_string(m_read);</div>
-<div class="line"><a name="l00840"></a><span class="lineno">  840</span>&#160;    slotXML.set(<span class="stringliteral">&quot;ReadFlag&quot;</span>, output);</div>
-<div class="line"><a name="l00841"></a><span class="lineno">  841</span>&#160;</div>
-<div class="line"><a name="l00842"></a><span class="lineno">  842</span>&#160;    {</div>
-<div class="line"><a name="l00843"></a><span class="lineno">  843</span>&#160;        bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>);</div>
-<div class="line"><a name="l00844"></a><span class="lineno">  844</span>&#160;</div>
-<div class="line"><a name="l00845"></a><span class="lineno">  845</span>&#160;        <span class="keywordtype">int</span> counter = 0;</div>
-<div class="line"><a name="l00846"></a><span class="lineno">  846</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; dir : m_rdirS){</div>
-<div class="line"><a name="l00847"></a><span class="lineno">  847</span>&#160;            std::string name = <span class="stringliteral">&quot;dir&quot;</span>+std::to_string(counter);</div>
-<div class="line"><a name="l00848"></a><span class="lineno">  848</span>&#160;            bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
-<div class="line"><a name="l00849"></a><span class="lineno">  849</span>&#160;            local.set(<span class="stringliteral">&quot;dir&quot;</span>, dir);</div>
-<div class="line"><a name="l00850"></a><span class="lineno">  850</span>&#160;            ++counter;</div>
-<div class="line"><a name="l00851"></a><span class="lineno">  851</span>&#160;        }</div>
-<div class="line"><a name="l00852"></a><span class="lineno">  852</span>&#160;    }</div>
-<div class="line"><a name="l00853"></a><span class="lineno">  853</span>&#160;</div>
-<div class="line"><a name="l00854"></a><span class="lineno">  854</span>&#160;    {</div>
-<div class="line"><a name="l00855"></a><span class="lineno">  855</span>&#160;        bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>);</div>
-<div class="line"><a name="l00856"></a><span class="lineno">  856</span>&#160;</div>
-<div class="line"><a name="l00857"></a><span class="lineno">  857</span>&#160;        <span class="keywordtype">int</span> counter = 0;</div>
-<div class="line"><a name="l00858"></a><span class="lineno">  858</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; file : m_rfilenameS){</div>
-<div class="line"><a name="l00859"></a><span class="lineno">  859</span>&#160;            std::string name = <span class="stringliteral">&quot;file&quot;</span>+std::to_string(counter);</div>
-<div class="line"><a name="l00860"></a><span class="lineno">  860</span>&#160;            bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
-<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;            local.set(<span class="stringliteral">&quot;filename&quot;</span>, file);</div>
-<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;            ++counter;</div>
-<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160;        }</div>
-<div class="line"><a name="l00864"></a><span class="lineno">  864</span>&#160;    }</div>
-<div class="line"><a name="l00865"></a><span class="lineno">  865</span>&#160;</div>
-<div class="line"><a name="l00866"></a><span class="lineno">  866</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsReadDir&quot;</span>, m_rdirV);</div>
-<div class="line"><a name="l00867"></a><span class="lineno">  867</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>, m_rfilenameV);</div>
-<div class="line"><a name="l00868"></a><span class="lineno">  868</span>&#160;</div>
-<div class="line"><a name="l00869"></a><span class="lineno">  869</span>&#160;    output = std::to_string(m_write);</div>
-<div class="line"><a name="l00870"></a><span class="lineno">  870</span>&#160;    slotXML.set(<span class="stringliteral">&quot;WriteFlag&quot;</span>, output);</div>
-<div class="line"><a name="l00871"></a><span class="lineno">  871</span>&#160;</div>
-<div class="line"><a name="l00872"></a><span class="lineno">  872</span>&#160;    slotXML.set(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>, m_wdirS);</div>
-<div class="line"><a name="l00873"></a><span class="lineno">  873</span>&#160;    slotXML.set(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>, m_wfilenameS);</div>
-<div class="line"><a name="l00874"></a><span class="lineno">  874</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>, m_wdirV);</div>
-<div class="line"><a name="l00875"></a><span class="lineno">  875</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>, m_wfilenameV);</div>
-<div class="line"><a name="l00876"></a><span class="lineno">  876</span>&#160;</div>
-<div class="line"><a name="l00877"></a><span class="lineno">  877</span>&#160;    output = std::to_string(m_normalize);</div>
-<div class="line"><a name="l00878"></a><span class="lineno">  878</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Normalize&quot;</span>, output);</div>
-<div class="line"><a name="l00879"></a><span class="lineno">  879</span>&#160;</div>
-<div class="line"><a name="l00880"></a><span class="lineno">  880</span>&#160;    <span class="keywordflow">if</span> (m_scaling != 1.0){</div>
-<div class="line"><a name="l00881"></a><span class="lineno">  881</span>&#160;        std::stringstream ss;</div>
-<div class="line"><a name="l00882"></a><span class="lineno">  882</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;m_scaling;</div>
-<div class="line"><a name="l00883"></a><span class="lineno">  883</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Scaling&quot;</span>, ss.str());</div>
-<div class="line"><a name="l00884"></a><span class="lineno">  884</span>&#160;    }</div>
-<div class="line"><a name="l00885"></a><span class="lineno">  885</span>&#160;</div>
-<div class="line"><a name="l00886"></a><span class="lineno">  886</span>&#160;};</div>
-<div class="line"><a name="l00887"></a><span class="lineno">  887</span>&#160;</div>
-<div class="line"><a name="l00888"></a><span class="lineno">  888</span>&#160;</div>
-<div class="line"><a name="l00889"></a><span class="lineno">  889</span>&#160;}</div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a4361f6fec739ae70aee475575ec5bda1"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a4361f6fec739ae70aee475575ec5bda1">mimmo::MimmoObject::getNVertex</a></div><div class="ttdeci">long getNVertex() const </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00272">MimmoObject.cpp:272</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a1d029d1c9035d68bf9d357db801a1cb3"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a1d029d1c9035d68bf9d357db801a1cb3">mimmo::MimmoObject::addConnectedCell</a></div><div class="ttdeci">bool addConnectedCell(const livector1D &amp;locConn, bitpit::ElementInfo::Type type, long idtag=bitpit::Cell::NULL_ID)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00767">MimmoObject.cpp:767</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a911d85453147aab810ab948eadad8429"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a911d85453147aab810ab948eadad8429">mimmo::MimmoObject::cleanGeometry</a></div><div class="ttdeci">bool cleanGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01042">MimmoObject.cpp:1042</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a6ed60ec466fdaaadccce997530f7c323"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a6ed60ec466fdaaadccce997530f7c323">mimmo::MimmoObject::getPatch</a></div><div class="ttdeci">bitpit::PatchKernel * getPatch()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00422">MimmoObject.cpp:422</a></div></div>
+<div class="line"><a name="l00823"></a><span class="lineno">  823</span>&#160;    BITPIT_UNUSED(name);</div>
+<div class="line"><a name="l00824"></a><span class="lineno">  824</span>&#160;</div>
+<div class="line"><a name="l00825"></a><span class="lineno">  825</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">BaseManipulation::flushSectionXML</a>(slotXML, name);</div>
+<div class="line"><a name="l00826"></a><span class="lineno">  826</span>&#160;</div>
+<div class="line"><a name="l00827"></a><span class="lineno">  827</span>&#160;    std::string output;</div>
+<div class="line"><a name="l00828"></a><span class="lineno">  828</span>&#160;</div>
+<div class="line"><a name="l00829"></a><span class="lineno">  829</span>&#160;    output = std::to_string(m_read);</div>
+<div class="line"><a name="l00830"></a><span class="lineno">  830</span>&#160;    slotXML.set(<span class="stringliteral">&quot;ReadFlag&quot;</span>, output);</div>
+<div class="line"><a name="l00831"></a><span class="lineno">  831</span>&#160;</div>
+<div class="line"><a name="l00832"></a><span class="lineno">  832</span>&#160;    {</div>
+<div class="line"><a name="l00833"></a><span class="lineno">  833</span>&#160;        bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;VTKReadDirs&quot;</span>);</div>
+<div class="line"><a name="l00834"></a><span class="lineno">  834</span>&#160;</div>
+<div class="line"><a name="l00835"></a><span class="lineno">  835</span>&#160;        <span class="keywordtype">int</span> counter = 0;</div>
+<div class="line"><a name="l00836"></a><span class="lineno">  836</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; dir : m_rdirS){</div>
+<div class="line"><a name="l00837"></a><span class="lineno">  837</span>&#160;            std::string name = <span class="stringliteral">&quot;dir&quot;</span>+std::to_string(counter);</div>
+<div class="line"><a name="l00838"></a><span class="lineno">  838</span>&#160;            bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
+<div class="line"><a name="l00839"></a><span class="lineno">  839</span>&#160;            local.set(<span class="stringliteral">&quot;dir&quot;</span>, dir);</div>
+<div class="line"><a name="l00840"></a><span class="lineno">  840</span>&#160;            ++counter;</div>
+<div class="line"><a name="l00841"></a><span class="lineno">  841</span>&#160;        }</div>
+<div class="line"><a name="l00842"></a><span class="lineno">  842</span>&#160;    }</div>
+<div class="line"><a name="l00843"></a><span class="lineno">  843</span>&#160;</div>
+<div class="line"><a name="l00844"></a><span class="lineno">  844</span>&#160;    {</div>
+<div class="line"><a name="l00845"></a><span class="lineno">  845</span>&#160;        bitpit::Config::Section &amp; filesXML = slotXML.addSection(<span class="stringliteral">&quot;VTKReadFilenames&quot;</span>);</div>
+<div class="line"><a name="l00846"></a><span class="lineno">  846</span>&#160;</div>
+<div class="line"><a name="l00847"></a><span class="lineno">  847</span>&#160;        <span class="keywordtype">int</span> counter = 0;</div>
+<div class="line"><a name="l00848"></a><span class="lineno">  848</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; file : m_rfilenameS){</div>
+<div class="line"><a name="l00849"></a><span class="lineno">  849</span>&#160;            std::string name = <span class="stringliteral">&quot;file&quot;</span>+std::to_string(counter);</div>
+<div class="line"><a name="l00850"></a><span class="lineno">  850</span>&#160;            bitpit::Config::Section &amp; local = filesXML.addSection(name);</div>
+<div class="line"><a name="l00851"></a><span class="lineno">  851</span>&#160;            local.set(<span class="stringliteral">&quot;filename&quot;</span>, file);</div>
+<div class="line"><a name="l00852"></a><span class="lineno">  852</span>&#160;            ++counter;</div>
+<div class="line"><a name="l00853"></a><span class="lineno">  853</span>&#160;        }</div>
+<div class="line"><a name="l00854"></a><span class="lineno">  854</span>&#160;    }</div>
+<div class="line"><a name="l00855"></a><span class="lineno">  855</span>&#160;</div>
+<div class="line"><a name="l00856"></a><span class="lineno">  856</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsReadDir&quot;</span>, m_rdirV);</div>
+<div class="line"><a name="l00857"></a><span class="lineno">  857</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsReadFilename&quot;</span>, m_rfilenameV);</div>
+<div class="line"><a name="l00858"></a><span class="lineno">  858</span>&#160;</div>
+<div class="line"><a name="l00859"></a><span class="lineno">  859</span>&#160;    output = std::to_string(m_write);</div>
+<div class="line"><a name="l00860"></a><span class="lineno">  860</span>&#160;    slotXML.set(<span class="stringliteral">&quot;WriteFlag&quot;</span>, output);</div>
+<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;</div>
+<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;    slotXML.set(<span class="stringliteral">&quot;VTKWriteDir&quot;</span>, m_wdirS);</div>
+<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160;    slotXML.set(<span class="stringliteral">&quot;VTKWriteFilename&quot;</span>, m_wfilenameS);</div>
+<div class="line"><a name="l00864"></a><span class="lineno">  864</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsWriteDir&quot;</span>, m_wdirV);</div>
+<div class="line"><a name="l00865"></a><span class="lineno">  865</span>&#160;    slotXML.set(<span class="stringliteral">&quot;PointsWriteFilename&quot;</span>, m_wfilenameV);</div>
+<div class="line"><a name="l00866"></a><span class="lineno">  866</span>&#160;</div>
+<div class="line"><a name="l00867"></a><span class="lineno">  867</span>&#160;    output = std::to_string(m_normalize);</div>
+<div class="line"><a name="l00868"></a><span class="lineno">  868</span>&#160;    slotXML.set(<span class="stringliteral">&quot;Normalize&quot;</span>, output);</div>
+<div class="line"><a name="l00869"></a><span class="lineno">  869</span>&#160;</div>
+<div class="line"><a name="l00870"></a><span class="lineno">  870</span>&#160;    <span class="keywordflow">if</span> (m_scaling != 1.0){</div>
+<div class="line"><a name="l00871"></a><span class="lineno">  871</span>&#160;        std::stringstream ss;</div>
+<div class="line"><a name="l00872"></a><span class="lineno">  872</span>&#160;        ss&lt;&lt;std::scientific&lt;&lt;m_scaling;</div>
+<div class="line"><a name="l00873"></a><span class="lineno">  873</span>&#160;        slotXML.set(<span class="stringliteral">&quot;Scaling&quot;</span>, ss.str());</div>
+<div class="line"><a name="l00874"></a><span class="lineno">  874</span>&#160;    }</div>
+<div class="line"><a name="l00875"></a><span class="lineno">  875</span>&#160;</div>
+<div class="line"><a name="l00876"></a><span class="lineno">  876</span>&#160;};</div>
+<div class="line"><a name="l00877"></a><span class="lineno">  877</span>&#160;</div>
+<div class="line"><a name="l00878"></a><span class="lineno">  878</span>&#160;</div>
+<div class="line"><a name="l00879"></a><span class="lineno">  879</span>&#160;}</div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a4361f6fec739ae70aee475575ec5bda1"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a4361f6fec739ae70aee475575ec5bda1">mimmo::MimmoObject::getNVertex</a></div><div class="ttdeci">long getNVertex() const </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00284">MimmoObject.cpp:284</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a1d029d1c9035d68bf9d357db801a1cb3"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a1d029d1c9035d68bf9d357db801a1cb3">mimmo::MimmoObject::addConnectedCell</a></div><div class="ttdeci">bool addConnectedCell(const livector1D &amp;locConn, bitpit::ElementInfo::Type type, long idtag=bitpit::Cell::NULL_ID)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00792">MimmoObject.cpp:792</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a911d85453147aab810ab948eadad8429"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a911d85453147aab810ab948eadad8429">mimmo::MimmoObject::cleanGeometry</a></div><div class="ttdeci">bool cleanGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l01073">MimmoObject.cpp:1073</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a6ed60ec466fdaaadccce997530f7c323"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a6ed60ec466fdaaadccce997530f7c323">mimmo::MimmoObject::getPatch</a></div><div class="ttdeci">bitpit::PatchKernel * getPatch()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00434">MimmoObject.cpp:434</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a2f18f36d8db9c1aef6d979a092c147a6"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a2f18f36d8db9c1aef6d979a092c147a6">mimmo::IOOFOAM::readVTK</a></div><div class="ttdeci">bool readVTK(std::string &amp;inputDir, std::string &amp;surfaceName, short PID, MimmoObject *patchBnd)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00522">IOOFOAM.cpp:522</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a73bf4b8e3fce9cd16b2c904da67fb865"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a73bf4b8e3fce9cd16b2c904da67fb865">mimmo::IOOFOAM::buildPorts</a></div><div class="ttdeci">void buildPorts()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00105">IOOFOAM.cpp:105</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_ab2e9925f231c4c9cc65ee761e3c2da7c"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#ab2e9925f231c4c9cc65ee761e3c2da7c">mimmo::IOOFOAM::setVTKReadDir</a></div><div class="ttdeci">void setVTKReadDir(std::vector&lt; std::string &gt; dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00129">IOOFOAM.cpp:129</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_aac3e20ef217338fab9d2985ff5ae9ed0"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aac3e20ef217338fab9d2985ff5ae9ed0">mimmo::MimmoObject::getMapDataInv</a></div><div class="ttdeci">liimap &amp; getMapDataInv()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00454">MimmoObject.cpp:454</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a6dec9105fc241b9b8ab756fb524e8ac1"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a6dec9105fc241b9b8ab756fb524e8ac1">mimmo::BaseManipulation::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00525">BaseManipulation.cpp:525</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_aac3e20ef217338fab9d2985ff5ae9ed0"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aac3e20ef217338fab9d2985ff5ae9ed0">mimmo::MimmoObject::getMapDataInv</a></div><div class="ttdeci">liimap &amp; getMapDataInv()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00466">MimmoObject.cpp:466</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_af7c950fc6625fe2161ad166c652c8e69"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#af7c950fc6625fe2161ad166c652c8e69">mimmo::IOOFOAM::setPointsWriteDir</a></div><div class="ttdeci">void setPointsWriteDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00202">IOOFOAM.cpp:202</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a5540f80b4d77a8119cd2ca6f4ed6e316"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a5540f80b4d77a8119cd2ca6f4ed6e316">mimmo::IOOFOAM::getField</a></div><div class="ttdeci">dvector1D getField()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00298">IOOFOAM.cpp:298</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a3caa9afa9d69c4f723db99d0b1d2a57a"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a3caa9afa9d69c4f723db99d0b1d2a57a">mimmo::MimmoObject::getType</a></div><div class="ttdeci">int getType()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00263">MimmoObject.cpp:263</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a3caa9afa9d69c4f723db99d0b1d2a57a"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a3caa9afa9d69c4f723db99d0b1d2a57a">mimmo::MimmoObject::getType</a></div><div class="ttdeci">int getType()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00275">MimmoObject.cpp:275</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga66d951d058466791a17bc45d019a4442"><div class="ttname"><a href="group__typedefs.html#ga66d951d058466791a17bc45d019a4442">dvecarr3E</a></div><div class="ttdeci">std::vector&lt; darray3E &gt; dvecarr3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00056">mimmoTypeDef.hpp:56</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a05dfb18b5dbe9dfb843092bd5520296b"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a05dfb18b5dbe9dfb843092bd5520296b">mimmo::IOOFOAM::execute</a></div><div class="ttdeci">void execute()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00646">IOOFOAM.cpp:646</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a8dc844ccf9c13d1c5de4637cf0da47ec"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a8dc844ccf9c13d1c5de4637cf0da47ec">mimmo::IOOFOAM::setSurfaceBoundary</a></div><div class="ttdeci">void setSurfaceBoundary(MimmoObject *surf)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00234">IOOFOAM.cpp:234</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00116">BaseManipulation.cpp:116</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a8fee7dd17168998fead56d74327496d0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a8fee7dd17168998fead56d74327496d0">mimmo::BaseManipulation::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00150">BaseManipulation.cpp:150</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda87752381b583740610f1dfeb07fdad7e"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda87752381b583740610f1dfeb07fdad7e">mimmo::pin::containerTAG::VECTOR</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aacd9fb277eee9d7c65e043c78c477fa2d">mimmo::pin::dataTAG::MIMMO_</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00050">MimmoObject.hpp:50</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_ab672d44515c7ce71718953e1790598c9"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#ab672d44515c7ce71718953e1790598c9">mimmo::MimmoObject::addVertex</a></div><div class="ttdeci">bool addVertex(const darray3E &amp;vertex, const long idtag=bitpit::Vertex::NULL_ID)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00663">MimmoObject.cpp:663</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html">mimmo::MimmoObject</a></div><div class="ttdoc">MimmoObject is the basic geometry container for mimmo library. </div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8hpp_source.html#l00051">MimmoObject.hpp:51</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_ab672d44515c7ce71718953e1790598c9"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#ab672d44515c7ce71718953e1790598c9">mimmo::MimmoObject::addVertex</a></div><div class="ttdeci">bool addVertex(const darray3E &amp;vertex, const long idtag=bitpit::Vertex::NULL_ID)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00685">MimmoObject.cpp:685</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a45f86f7b7824bfa814a9ca98f7f76907"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a45f86f7b7824bfa814a9ca98f7f76907">mimmo::IOOFOAM::addVTKReadFilename</a></div><div class="ttdeci">void addVTKReadFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00153">IOOFOAM.cpp:153</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a85d32de7740996f2fb667d64507b86ae"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a85d32de7740996f2fb667d64507b86ae">mimmo::IOOFOAM::writeOFP</a></div><div class="ttdeci">void writeOFP(std::string &amp;outputDir, std::string &amp;pointsName, bitpit::PiercedVector&lt; bitpit::Vertex &gt; &amp;vertices)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00448">IOOFOAM.cpp:448</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dda8f3d9a4b6a7b7f2c7afa61ca113d0db9">mimmo::pin::containerTAG::SCALAR</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a91597232a8450fb21f5b5b5cb6f72fec"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a91597232a8450fb21f5b5b5cb6f72fec">mimmo::BaseManipulation::getPriority</a></div><div class="ttdeci">uint getPriority()</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00098">BaseManipulation.cpp:98</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a9e77dd561cf53901d090121b334d172e"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a9e77dd561cf53901d090121b334d172e">mimmo::IOOFOAM::setVTKReadFilename</a></div><div class="ttdeci">void setVTKReadFilename(std::vector&lt; std::string &gt; filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00137">IOOFOAM.cpp:137</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00112">BaseManipulation.hpp:112</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac52b89aed9f8e66409278ba74be9abc9"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac52b89aed9f8e66409278ba74be9abc9">mimmo::BaseManipulation::m_name</a></div><div class="ttdeci">std::string m_name</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_aaa30109b15c6a4848bf395ca0cc2a55d"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#aaa30109b15c6a4848bf395ca0cc2a55d">mimmo::IOOFOAM::setPointsReadDir</a></div><div class="ttdeci">void setPointsReadDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00161">IOOFOAM.cpp:161</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga0eb880e478ea7de170904ecc286d3873"><div class="ttname"><a href="group__typedefs.html#ga0eb880e478ea7de170904ecc286d3873">livector1D</a></div><div class="ttdeci">std::vector&lt; long &gt; livector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00040">mimmoTypeDef.hpp:40</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html">mimmo::BaseManipulation</a></div><div class="ttdoc">BaseManipulation is the base class of any manipulation object of the library. </div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00081">BaseManipulation.hpp:81</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html">mimmo::BaseManipulation</a></div><div class="ttdoc">BaseManipulation is the base class of any manipulation object of the library. </div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00089">BaseManipulation.hpp:89</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a3112b01eebd6402f57898db61f8bd85e"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a3112b01eebd6402f57898db61f8bd85e">mimmo::IOOFOAM::read</a></div><div class="ttdeci">bool read()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00307">IOOFOAM.cpp:307</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_ac639019d9f65cbdeaa4a574ee2c97af6"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#ac639019d9f65cbdeaa4a574ee2c97af6">mimmo::BaseManipulation::setPriority</a></div><div class="ttdeci">void setPriority(uint priority)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00278">BaseManipulation.cpp:278</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0aae738c26bf4ce1037fa81b039a915cbf6">mimmo::pin::dataTAG::FLOAT</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga700e3f9fb7ca166ccdae122be74fc91c"><div class="ttname"><a href="group__typedefs.html#ga700e3f9fb7ca166ccdae122be74fc91c">dvector1D</a></div><div class="ttdeci">std::vector&lt; double &gt; dvector1D</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00037">mimmoTypeDef.hpp:37</a></div></div>
-<div class="ttc" id="classmimmo_1_1IOOFOAM_html_abc32abc28b56d451dd5bfcbecc7a7c3e"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">mimmo::IOOFOAM::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00829">IOOFOAM.cpp:829</a></div></div>
+<div class="ttc" id="namespacemimmo_html_ac06db59436387b5a00d2b9f375c1f62d"><div class="ttname"><a href="namespacemimmo.html#ac06db59436387b5a00d2b9f375c1f62d">mimmo::warningXML</a></div><div class="ttdeci">void warningXML(bitpit::Logger *log, std::string name)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00173">MimmoNamespace.cpp:173</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOOFOAM_html_abc32abc28b56d451dd5bfcbecc7a7c3e"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#abc32abc28b56d451dd5bfcbecc7a7c3e">mimmo::IOOFOAM::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00821">IOOFOAM.cpp:821</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a3ef7f3e5cd2274f70726090ece75b09b"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a3ef7f3e5cd2274f70726090ece75b09b">mimmo::IOOFOAM::setDefaults</a></div><div class="ttdeci">void setDefaults()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00088">IOOFOAM.cpp:88</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a15f18b0f01b39e26c75ee20c0ad45330"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a15f18b0f01b39e26c75ee20c0ad45330">mimmo::IOOFOAM::operator=</a></div><div class="ttdeci">IOOFOAM &amp; operator=(const IOOFOAM &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00074">IOOFOAM.cpp:74</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_ac8dae194e92fd09a7bfbc8f010f70405"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#ac8dae194e92fd09a7bfbc8f010f70405">mimmo::IOOFOAM::setScaling</a></div><div class="ttdeci">void setScaling(double scaling)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00248">IOOFOAM.cpp:248</a></div></div>
-<div class="ttc" id="classmimmo_1_1IOOFOAM_html"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html">mimmo::IOOFOAM</a></div><div class="ttdoc">IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f...</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8hpp_source.html#l00113">IOOFOAM.hpp:113</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOOFOAM_html"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html">mimmo::IOOFOAM</a></div><div class="ttdoc">IOOFOAM is the class to import/export and modify an OpenFOAM mesh in format of surface vtk Polydata f...</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8hpp_source.html#l00116">IOOFOAM.hpp:116</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_acbcbe7496af3449e5a2ac2d97931c77b"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#acbcbe7496af3449e5a2ac2d97931c77b">mimmo::IOOFOAM::absorbSectionXML</a></div><div class="ttdeci">virtual void absorbSectionXML(const bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00676">IOOFOAM.cpp:676</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a555d30e0b59d8fc8ebcbd8d1b05228aa"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a555d30e0b59d8fc8ebcbd8d1b05228aa">mimmo::IOOFOAM::addVTKReadDir</a></div><div class="ttdeci">void addVTKReadDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00145">IOOFOAM.cpp:145</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a3225427aeefb1792c3def858b142e0e0"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a3225427aeefb1792c3def858b142e0e0">mimmo::IOOFOAM::setNormalize</a></div><div class="ttdeci">void setNormalize(bool normalize)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00265">IOOFOAM.cpp:265</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a1003e7d854cb8e9726dd608a50e6dba3"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a1003e7d854cb8e9726dd608a50e6dba3">mimmo::IOOFOAM::setVTKWriteDir</a></div><div class="ttdeci">void setVTKWriteDir(std::string dir)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00186">IOOFOAM.cpp:186</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_a33abd69e62ef5d3fbc471f9b67a6af69"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a33abd69e62ef5d3fbc471f9b67a6af69">mimmo::MimmoObject::getVertices</a></div><div class="ttdeci">bitpit::PiercedVector&lt; bitpit::Vertex &gt; &amp; getVertices()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00318">MimmoObject.cpp:318</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_a33abd69e62ef5d3fbc471f9b67a6af69"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#a33abd69e62ef5d3fbc471f9b67a6af69">mimmo::MimmoObject::getVertices</a></div><div class="ttdeci">bitpit::PiercedVector&lt; bitpit::Vertex &gt; &amp; getVertices()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00330">MimmoObject.cpp:330</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a379910fb36f3a2af4a6ea4306117c3ae"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a379910fb36f3a2af4a6ea4306117c3ae">mimmo::BaseManipulation::flushSectionXML</a></div><div class="ttdeci">virtual void flushSectionXML(bitpit::Config::Section &amp;slotXML, std::string name=&quot;&quot;)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00579">BaseManipulation.cpp:579</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_aba2345403dbd97df1079ca49e628c733"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#aba2345403dbd97df1079ca49e628c733">mimmo::IOOFOAM::setVTKWriteFilename</a></div><div class="ttdeci">void setVTKWriteFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00194">IOOFOAM.cpp:194</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_acd597e6e0260fbdd10570c0eb607a785"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#acd597e6e0260fbdd10570c0eb607a785">mimmo::IOOFOAM::setWrite</a></div><div class="ttdeci">void setWrite(bool write)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00178">IOOFOAM.cpp:178</a></div></div>
 <div class="ttc" id="group__typedefs_html_ga5df63afb31922e8b4ada0a5cc96ad765"><div class="ttname"><a href="group__typedefs.html#ga5df63afb31922e8b4ada0a5cc96ad765">darray3E</a></div><div class="ttdeci">std::array&lt; double, 3 &gt; darray3E</div><div class="ttdef"><b>Definition:</b> <a href="mimmoTypeDef_8hpp_source.html#l00048">mimmoTypeDef.hpp:48</a></div></div>
@@ -956,9 +947,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_abb2a47ba513db26c9fadc7e640d96a08"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#abb2a47ba513db26c9fadc7e640d96a08">mimmo::IOOFOAM::getGeometry</a></div><div class="ttdeci">MimmoObject * getGeometry()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00288">IOOFOAM.cpp:288</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a6779de8b38ad28f7c4317179bca374d0"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a6779de8b38ad28f7c4317179bca374d0">mimmo::IOOFOAM::getSurfaceBoundary</a></div><div class="ttdeci">MimmoObject * getSurfaceBoundary()</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00276">IOOFOAM.cpp:276</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a5046446ceec7240577e57411a51d33fa"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a5046446ceec7240577e57411a51d33fa">mimmo::IOOFOAM::setRead</a></div><div class="ttdeci">void setRead(bool read)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00121">IOOFOAM.cpp:121</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00124">BaseManipulation.hpp:124</a></div></div>
-<div class="ttc" id="classmimmo_1_1MimmoObject_html_aaa873f60f33badf2087d6b2462b3b144"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aaa873f60f33badf2087d6b2462b3b144">mimmo::MimmoObject::isEmpty</a></div><div class="ttdeci">bool isEmpty()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00243">MimmoObject.cpp:243</a></div></div>
-<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a6d123a0872c4a922b1b9589e6d47f520"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a6d123a0872c4a922b1b9589e6d47f520">mimmo::BaseManipulation::setGeometry</a></div><div class="ttdeci">void setGeometry(MimmoObject *geometry)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00295">BaseManipulation.cpp:295</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a556cf652bfebb0616b94fc6e8690384b"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a556cf652bfebb0616b94fc6e8690384b">mimmo::BaseManipulation::m_arePortsBuilt</a></div><div class="ttdeci">bool m_arePortsBuilt</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00136">BaseManipulation.hpp:136</a></div></div>
+<div class="ttc" id="classmimmo_1_1MimmoObject_html_aaa873f60f33badf2087d6b2462b3b144"><div class="ttname"><a href="classmimmo_1_1MimmoObject.html#aaa873f60f33badf2087d6b2462b3b144">mimmo::MimmoObject::isEmpty</a></div><div class="ttdeci">bool isEmpty()</div><div class="ttdef"><b>Definition:</b> <a href="MimmoObject_8cpp_source.html#l00255">MimmoObject.cpp:255</a></div></div>
+<div class="ttc" id="classmimmo_1_1BaseManipulation_html_a6d123a0872c4a922b1b9589e6d47f520"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a6d123a0872c4a922b1b9589e6d47f520">mimmo::BaseManipulation::setGeometry</a></div><div class="ttdeci">void setGeometry(MimmoObject *geometry)</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8cpp_source.html#l00337">BaseManipulation.cpp:337</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_ac5c07940683611a1d784e6e3f2264112"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#ac5c07940683611a1d784e6e3f2264112">mimmo::IOOFOAM::setField</a></div><div class="ttdeci">void setField(dvector1D field)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00257">IOOFOAM.cpp:257</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a2bd6d2541f94179e937bc74fa46be4dc"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a2bd6d2541f94179e937bc74fa46be4dc">mimmo::IOOFOAM::setPointsWriteFilename</a></div><div class="ttdeci">void setPointsWriteFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00210">IOOFOAM.cpp:210</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOOFOAM_html_a9cb4276aa0fdfdc0c2833cec94e85da8"><div class="ttname"><a href="classmimmo_1_1IOOFOAM.html#a9cb4276aa0fdfdc0c2833cec94e85da8">mimmo::IOOFOAM::setPointsReadFilename</a></div><div class="ttdeci">void setPointsReadFilename(std::string filename)</div><div class="ttdef"><b>Definition:</b> <a href="IOOFOAM_8cpp_source.html#l00169">IOOFOAM.cpp:169</a></div></div>
@@ -969,7 +960,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri May 19 2017 10:57:47 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>
