@@ -226,109 +226,110 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> &amp; other);</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> &amp; operator=(<span class="keyword">const</span> <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> &amp; other);</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">void</span> initializeLogger(<span class="keywordtype">bool</span> logexists);</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    bitpit::Logger&amp; getLog();</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">bool</span>                arePortsBuilt();</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    uint                 getPriority();</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    std::string            getName();</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <a class="code" href="classmimmo_1_1MimmoObject.html">MimmoObject</a>*        getGeometry();</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">int</span>                    getNParent();</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>*    getParent(<span class="keywordtype">int</span> i = 0);</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">bool</span>                isParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> *, <span class="keywordtype">int</span>&amp;);</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keywordtype">int</span>                    getNChild();</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>*    getChild(<span class="keywordtype">int</span> i = 0);</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordtype">bool</span>                isChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> *, <span class="keywordtype">int</span>&amp;);</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="namespacemimmo_1_1pin.html#a3032fea9ced9f094118e1e20dcc57927">ConnectionType</a>        getConnectionType();</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">int</span>                 getNPortsIn();</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordtype">int</span>                 getNPortsOut();</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    std::map&lt;PortID, PortIn*&gt; getPortsIn();</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    std::map&lt;PortID, PortOut*&gt;getPortsOut();</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">bool</span>    isPlotInExecution();</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">bool</span>    isActive();</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">bool</span>    isApply();</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">int</span>     getClassCounter();</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">int</span>     getId();</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">void</span>     setPriority(uint priority);</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">void</span>    setName(std::string name);</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">void</span>     setGeometry(<a class="code" href="classmimmo_1_1MimmoObject.html">MimmoObject</a>* geometry);</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">void</span>    setPlotInExecution(<span class="keywordtype">bool</span>);</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">void</span>    setOutputPlot(std::string path);</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">void</span>    setClassCounter(<span class="keywordtype">int</span> );</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">void</span>    setId(<span class="keywordtype">int</span> );</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">void</span>    setApply(<span class="keywordtype">bool</span> flag = <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">void</span>    activate();</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">void</span>    disable();</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordtype">void</span>     unsetGeometry();</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordtype">void</span>     removePins();</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">void</span>     removePinsIn();</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">void</span>     removePinsOut();</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keywordtype">void</span>    clear();</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keywordtype">void</span>     exec();</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> absorbSectionXML(<span class="keyword">const</span> bitpit::Config::Section &amp; slotXML, std::string name = <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> flushSectionXML(bitpit::Config::Section &amp; slotXML, std::string name= <span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keyword">virtual</span> std::vector&lt;BaseManipulation*&gt; getSubBlocksEmbedded();</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     buildPorts() = 0;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keywordtype">void</span>            deletePorts();</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <span class="keywordtype">bool</span>    createPortOut(O* obj, T (O::*getVar_)(), <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType);</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keywordtype">bool</span>    createPortOut(T* var_, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType);</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordtype">bool</span>    createPortIn(T* var_, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType, <span class="keywordtype">bool</span> mandatory = <span class="keyword">false</span>, <span class="keywordtype">int</span> family = 0);</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keywordtype">bool</span>    createPortIn(O* obj, <span class="keywordtype">void</span> (O::*setVar_)(T), <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType, <span class="keywordtype">bool</span> mandatory = <span class="keyword">false</span>, <span class="keywordtype">int</span> family = 0);</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordtype">void</span>    setBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port, bitpit::IBinaryStream&amp; input);</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="keywordtype">void</span>    readBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port);</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordtype">void</span>    cleanBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port);</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordtype">void</span>    addParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* parent);</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">void</span>    addChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* child);</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="keywordtype">void</span>     unsetParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> * parent);</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordtype">void</span>     unsetChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> * child);</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a>    findPinIn(<a class="code" href="classmimmo_1_1PortIn.html">PortIn</a>&amp; pin);</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a>    findPinOut(<a class="code" href="classmimmo_1_1PortOut.html">PortOut</a>&amp; pin);</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordtype">void</span>    addPinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objIn, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keywordtype">void</span>    addPinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objOut, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="keywordtype">void</span>    removePinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objIn, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordtype">void</span>    removePinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objOut, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS);</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordtype">void</span>     removePinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <span class="keywordtype">int</span> j);</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keywordtype">void</span>     removePinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <span class="keywordtype">int</span> j);</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     execute() = 0;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     plotOptionalResults();</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     apply();</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;};</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    bitpit::Logger&amp; getLog();</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">bool</span>                arePortsBuilt();</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    uint                 getPriority();</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    std::string            getName();</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <a class="code" href="classmimmo_1_1MimmoObject.html">MimmoObject</a>*        getGeometry();</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordtype">int</span>                    getNParent();</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>*    getParent(<span class="keywordtype">int</span> i = 0);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">bool</span>                isParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> *, <span class="keywordtype">int</span>&amp;);</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">int</span>                    getNChild();</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>*    getChild(<span class="keywordtype">int</span> i = 0);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordtype">bool</span>                isChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> *, <span class="keywordtype">int</span>&amp;);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <a class="code" href="namespacemimmo_1_1pin.html#a3032fea9ced9f094118e1e20dcc57927">ConnectionType</a>        getConnectionType();</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">int</span>                 getNPortsIn();</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">int</span>                 getNPortsOut();</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    std::map&lt;PortID, PortIn*&gt; getPortsIn();</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    std::map&lt;PortID, PortOut*&gt;getPortsOut();</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">bool</span>    isPlotInExecution();</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">bool</span>    isActive();</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">bool</span>    isApply();</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">int</span>     getClassCounter();</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">int</span>     getId();</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordtype">void</span>     setPriority(uint priority);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">void</span>    setName(std::string name);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">void</span>     setGeometry(<a class="code" href="classmimmo_1_1MimmoObject.html">MimmoObject</a>* geometry);</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">void</span>    setPlotInExecution(<span class="keywordtype">bool</span>);</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">void</span>    setOutputPlot(std::string path);</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">void</span>    setClassCounter(<span class="keywordtype">int</span> );</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">void</span>    setId(<span class="keywordtype">int</span> );</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">void</span>    setApply(<span class="keywordtype">bool</span> flag = <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">void</span>    activate();</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">void</span>    disable();</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">void</span>     unsetGeometry();</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordtype">void</span>     removePins();</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordtype">void</span>     removePinsIn();</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">void</span>     removePinsOut();</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">void</span>    clear();</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">void</span>     exec();</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> absorbSectionXML(<span class="keyword">const</span> bitpit::Config::Section &amp; slotXML, std::string name = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> flushSectionXML(bitpit::Config::Section &amp; slotXML, std::string name= <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    </div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keyword">virtual</span> std::vector&lt;BaseManipulation*&gt; getSubBlocksEmbedded();</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">void</span> initializeLogger(<span class="keywordtype">bool</span> logexists);</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     buildPorts() = 0;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">void</span>            deletePorts();</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keywordtype">bool</span>    createPortOut(O* obj, T (O::*getVar_)(), <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType);</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordtype">bool</span>    createPortOut(T* var_, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType);</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">bool</span>    createPortIn(T* var_, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType, <span class="keywordtype">bool</span> mandatory = <span class="keyword">false</span>, <span class="keywordtype">int</span> family = 0);</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> O&gt;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="keywordtype">bool</span>    createPortIn(O* obj, <span class="keywordtype">void</span> (O::*setVar_)(T), <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <a class="code" href="namespacemimmo_1_1pin.html#a70e7e4d476743349762939aecccc22dd">containerTAG</a> conType, <a class="code" href="namespacemimmo_1_1pin.html#a28e92d990ef829ef12d644783e2baf0a">dataTAG</a> dataType, <span class="keywordtype">bool</span> mandatory = <span class="keyword">false</span>, <span class="keywordtype">int</span> family = 0);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="keywordtype">void</span>    setBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port, bitpit::IBinaryStream&amp; input);</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordtype">void</span>    readBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port);</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordtype">void</span>    cleanBufferIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> port);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">void</span>    addParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* parent);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="keywordtype">void</span>    addChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* child);</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordtype">void</span>     unsetParent(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> * parent);</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keywordtype">void</span>     unsetChild(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a> * child);</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a>    findPinIn(<a class="code" href="classmimmo_1_1PortIn.html">PortIn</a>&amp; pin);</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a>    findPinOut(<a class="code" href="classmimmo_1_1PortOut.html">PortOut</a>&amp; pin);</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keywordtype">void</span>    addPinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objIn, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="keywordtype">void</span>    addPinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objOut, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordtype">void</span>    removePinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objIn, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR);</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keywordtype">void</span>    removePinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html">BaseManipulation</a>* objOut, <a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS);</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keywordtype">void</span>     removePinIn(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portR, <span class="keywordtype">int</span> j);</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keywordtype">void</span>     removePinOut(<a class="code" href="classmimmo_1_1BaseManipulation.html#ae1aad55662740e38e6bdedfda2096e6c">PortID</a> portS, <span class="keywordtype">int</span> j);</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     execute() = 0;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     plotOptionalResults();</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span>     apply();</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;};</div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;};</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="preprocessor">#include &quot;BaseManipulation.tpp&quot;</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;};</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="preprocessor">#include &quot;BaseManipulation.tpp&quot;</span></div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __BASEMANIPULATION_HPP__ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __BASEMANIPULATION_HPP__ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="classmimmo_1_1PortOut_html_aafaece709ca0b103dfb5015a686eeda7"><div class="ttname"><a href="classmimmo_1_1PortOut.html#aafaece709ca0b103dfb5015a686eeda7">mimmo::PortOut::exec</a></div><div class="ttdeci">void exec()</div><div class="ttdef"><b>Definition:</b> <a href="InOut_8cpp_source.html#l00978">InOut.cpp:978</a></div></div>
 <div class="ttc" id="classmimmo_1_1BaseManipulation_html_a86babf191e5ec0030be98984eb4702b0"><div class="ttname"><a href="classmimmo_1_1BaseManipulation.html#a86babf191e5ec0030be98984eb4702b0">mimmo::BaseManipulation::m_active</a></div><div class="ttdeci">bool m_active</div><div class="ttdef"><b>Definition:</b> <a href="BaseManipulation_8hpp_source.html#l00138">BaseManipulation.hpp:138</a></div></div>
 <div class="ttc" id="namespacemimmo_html_a8c0c8888443317129394f973f458b6d0"><div class="ttname"><a href="namespacemimmo.html#a8c0c8888443317129394f973f458b6d0">mimmo::setLogger</a></div><div class="ttdeci">void setLogger(std::string log)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00160">MimmoNamespace.cpp:160</a></div></div>
@@ -367,7 +368,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Jun 7 2017 12:14:36 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 7 2017 12:19:43 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>
