@@ -1,49 +1,51 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- xml interface to replicate .cpp example : manipulators_example_00003.cpp -->
 <mimmoXML version="1">
-	<Geom0>
-		<ClassName>mimmo.Geometry</ClassName>
-        <IOMode>2</IOMode>
-		<ReadDir>./geodata</ReadDir>
-		<ReadFilename>catpipe</ReadFilename>
-		<ReadFileType>STL</ReadFileType>
-		<WriteDir>./</WriteDir>
-		<WriteFilename>manipulators_output_00003.0000</WriteFilename>
-		<WriteFileType>STL</WriteFileType>
-	</Geom0>
-	<Geom1>
-		<ClassName>mimmo.Geometry</ClassName>
-        <IOMode>1</IOMode>
-		<WriteDir>./</WriteDir>
-		<WriteFilename>manipulators_output_00003.0001</WriteFilename>
-		<WriteFileType>STL</WriteFileType>
-	</Geom1>
-	<FFD>
-		<ClassName>mimmo.FFDLattice</ClassName>
-		<Origin>-1537.5 -500.0 3352.5</Origin>
-		<Span>100.0 6.28 1000.0</Span>
-		<Dimension>2 15 20</Dimension>
-		<Degrees>1 2 10</Degrees>
-		<Shape>CYLINDER</Shape>
-		<RefSystem>
-			<axis0>1.0 0.0 0.0</axis0>
-			<axis1>0.0 0.0 -1.0</axis1>
-			<axis2>0.0 -1.0 0.0</axis2>
-		</RefSystem>
-		<DisplGlobal>0</DisplGlobal>
-		<PlotInExecution>1</PlotInExecution>
-	</FFD>
-	<InputDispl>
-		<ClassName>mimmo.GenericInput</ClassName>
-       <ReadFromFile>1</ReadFromFile>
-       <CSV>1</CSV>
-       <ReadDir>input</ReadDir>
-		<Filename>manipulators_input_00003.csv</Filename>
-	</InputDispl>
-	<Applier>
-		<ClassName>mimmo.Apply</ClassName>
-	</Applier>
-	<Connections>
+    <Blocks>
+        <Geom0>
+            <ClassName>mimmo.Geometry</ClassName>
+            <IOMode>2</IOMode>
+            <ReadDir>./geodata</ReadDir>
+            <ReadFilename>catpipe</ReadFilename>
+            <ReadFileType>STL</ReadFileType>
+            <WriteDir>./</WriteDir>
+            <WriteFilename>manipulators_output_00003.0000</WriteFilename>
+            <WriteFileType>STL</WriteFileType>
+        </Geom0>
+        <Geom1>
+            <ClassName>mimmo.Geometry</ClassName>
+            <IOMode>1</IOMode>
+            <WriteDir>./</WriteDir>
+            <WriteFilename>manipulators_output_00003.0001</WriteFilename>
+            <WriteFileType>STL</WriteFileType>
+        </Geom1>
+        <FFD>
+            <ClassName>mimmo.FFDLattice</ClassName>
+            <Origin>-1537.5 -500.0 3352.5</Origin>
+            <Span>100.0 6.28 1000.0</Span>
+            <Dimension>2 15 20</Dimension>
+            <Degrees>1 2 10</Degrees>
+            <Shape>CYLINDER</Shape>
+            <RefSystem>
+                <axis0>1.0 0.0 0.0</axis0>
+                <axis1>0.0 0.0 -1.0</axis1>
+                <axis2>0.0 -1.0 0.0</axis2>
+            </RefSystem>
+            <DisplGlobal>0</DisplGlobal>
+            <PlotInExecution>1</PlotInExecution>
+        </FFD>
+        <InputDispl>
+            <ClassName>mimmo.GenericInput</ClassName>
+            <ReadFromFile>1</ReadFromFile>
+            <CSV>1</CSV>
+            <ReadDir>input</ReadDir>
+            <Filename>manipulators_input_00003.csv</Filename>
+        </InputDispl>
+        <Applier>
+            <ClassName>mimmo.Apply</ClassName>
+        </Applier>
+    </Blocks>
+    <Connections>
 		<c0>
 			<sender>Geom0</sender>
 			<senderPort>M_GEOM</senderPort>

@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- xml interface to replicate .cpp example : geohandlers_example_00001.cpp -->
 <mimmoXML version="1">
-	<Geom0>
-		<ClassName>mimmo.Geometry</ClassName>
-		<IOMode>2</IOMode>
-		<ReadDir>./geodata</ReadDir>
-		<ReadFilename>sphere2</ReadFilename>
-		<ReadFileType>STL</ReadFileType>
-		<WriteDir>./</WriteDir>
-		<WriteFilename>geohandlers_output_00001.0000</WriteFilename>
-		<WriteFileType>STL</WriteFileType>
-	</Geom0>
-	<Geom1>
-		<ClassName>mimmo.Geometry</ClassName>
-        <IOMode>1</IOMode>
-		<WriteDir>./</WriteDir>
-		<WriteFilename>geohandlers_output_00001.0001</WriteFilename>
-		<WriteFileType>STL</WriteFileType>
-	</Geom1>
-	<Geom2>
-		<ClassName>mimmo.Geometry</ClassName>
-        <IOMode>1</IOMode>
-		<WriteDir>./</WriteDir>
-		<WriteFilename>geohandlers_output_00001.0002</WriteFilename>
-		<WriteFileType>STL</WriteFileType>
-	</Geom2>
-	<SelBox>
-		<ClassName>mimmo.SelectionByBox</ClassName>
-		<PlotInExecution>1</PlotInExecution>
-       <Origin>-0.5 -0.5 0.2</Origin>
-       <Span>0.6 0.6 0.6</Span>
-	</SelBox>
-   <SelSphere>
-       <ClassName>mimmo.SelectionBySphere</ClassName>
-       <PlotInExecution>1</PlotInExecution>
-       <Origin>-0.5 0.5 0.2</Origin>
-       <Span>0.34 6.28 3.14</Span>
-   </SelSphere>
+    <Blocks>
+        <Geom0>
+            <ClassName>mimmo.Geometry</ClassName>
+            <IOMode>2</IOMode>
+            <ReadDir>./geodata</ReadDir>
+            <ReadFilename>sphere2</ReadFilename>
+            <ReadFileType>STL</ReadFileType>
+            <WriteDir>./</WriteDir>
+            <WriteFilename>geohandlers_output_00001.0000</WriteFilename>
+            <WriteFileType>STL</WriteFileType>
+        </Geom0>
+        <Geom1>
+            <ClassName>mimmo.Geometry</ClassName>
+            <IOMode>1</IOMode>
+            <WriteDir>./</WriteDir>
+            <WriteFilename>geohandlers_output_00001.0001</WriteFilename>
+            <WriteFileType>STL</WriteFileType>
+        </Geom1>
+        <Geom2>
+            <ClassName>mimmo.Geometry</ClassName>
+            <IOMode>1</IOMode>
+            <WriteDir>./</WriteDir>
+            <WriteFilename>geohandlers_output_00001.0002</WriteFilename>
+            <WriteFileType>STL</WriteFileType>
+        </Geom2>
+        <SelBox>
+            <ClassName>mimmo.SelectionByBox</ClassName>
+            <PlotInExecution>1</PlotInExecution>
+            <Origin>-0.5 -0.5 0.2</Origin>
+            <Span>0.6 0.6 0.6</Span>
+        </SelBox>
+        <SelSphere>
+            <ClassName>mimmo.SelectionBySphere</ClassName>
+            <PlotInExecution>1</PlotInExecution>
+            <Origin>-0.5 0.5 0.2</Origin>
+            <Span>0.34 6.28 3.14</Span>
+        </SelSphere>
+   </Blocks>
 	<Connections>
 		<c0>
 			<sender>Geom0</sender>
