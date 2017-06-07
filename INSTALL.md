@@ -12,6 +12,7 @@ mimmo depends on
 * (optionally) MPI implementation. It has been tested with OpenMPI >= 1.6.5. 
 * (optionally) vtk. It has been tested with vtk >= 6.3. 
 * (optionally) cgns. It has been tested with cgns = 3.2.1. 
+* (optionally) hdf5. It has been tested with hdf5 = 1.8.15. 
 
 ## Configuring mimmo
 mimmo uses ccmake as building tool.
@@ -39,7 +40,8 @@ The `ENABLE_MPI` variable can be used to compile the parallel implementation of 
 
 The `BUILD_EXAMPLES` can be used to compile examples sources in `mimmo/examples`. Note that the tests sources in `mimmo/test`are necessarily compiled and successively available at `mimmo/build/test/` as well as the compiled examples are available at `mimmo/build/examples/`.
 
-The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible `ON/OFF` (MIMMO_MODULE_IOVTK, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_UTILS...). Possible dependencies between mimmo modules are automatically resolved. 
+The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible `ON/OFF`. `MIMMO_MODULE_CORE` is always compiled, while for `MIMMO_MODULE_GEOHANDLERS`, `MIMMO_MODULE_IOCGNS`, `MIMMO_MODULE_IOOFOAM`, `MIMMO_MODULE_IOVTK` and `MIMMO_MODULE_UTILS` the compilation can be toggled. Possible dependencies between mimmo modules are automatically resolved.
+Dependencies on external libraries when possible are automatically resolved  through find package command.
 
 Finally, you can choose the installation folder setting the cmake variable `CMAKE_INSTALL_PREFIX`. The default installation folder is `/usr/local/`.
 
@@ -61,6 +63,8 @@ If you have just built mimmo, its headers will be available at `mimmo/include/` 
 If you have also installed mimmo, its headers will be available at `/my/installation/folder/mimmo/include/` folder and a static library `libmimmo.a` will be available at `/my/installation/folder/lib/` folder.
 
 A shared version of the library is provided setting the cmake variable `BUILD_SHARED_LIBS` to ON, during the ccmake settings.
+
+You can test the compilation by run the command `ctest` from the building folder.
 
 ## Building Documentation
 In order to build properly the documentation Doxygen (>=1.8.6) and Graphviz (>=2.20.2) are needed.
