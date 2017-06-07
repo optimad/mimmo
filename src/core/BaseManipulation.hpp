@@ -153,7 +153,6 @@ public:
     BaseManipulation(const BaseManipulation & other);
     BaseManipulation & operator=(const BaseManipulation & other);
 
-    void initializeLogger(bool logexists);
     bitpit::Logger& getLog();
 
     bool                arePortsBuilt();
@@ -204,6 +203,8 @@ public:
     
     virtual std::vector<BaseManipulation*> getSubBlocksEmbedded();
 protected:
+
+    void initializeLogger(bool logexists);
 
     /*!
      * Build ports of the class.
