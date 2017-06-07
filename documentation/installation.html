@@ -113,11 +113,28 @@ be used to complete.
 <dl>
     <dt><strong>CMAKE_BUILD_TYPE</strong></dt>
     <dd>
-    Sets the build type. The possible options are : <i>None</i>, the environment compiler flags are used; <i>Release</i>, using compiler optimization flag <i>-O2</i>; 
-    <i>Debug</i>, related to compiler flags <i>-O0 -fmessage-length=0</i>, <i>RelWithDebInfo</i>, that uses compilation flags <i>-O2 -g</i> and 
+    Sets the build type.<br> The possible options are:
+    <ul>
+    <li>
+    <i>None</i>, the environment compiler flags are used;
+    </li>
+    <li>
+    <i>Release</i>, using compiler optimization flag <i>-O2</i>; 
+    </li>
+    <li>
+    <i>Debug</i>, related to compiler flags <i>-O0 -fmessage-length=0</i>;
+    </li>
+    <li>
+    <i>RelWithDebInfo</i>, that uses compilation flags <i>-O2 -g</i>; 
+    </li>
+    <li>
     <i>MinSizeRel</i> to have the smallest binary size.
+    </li>
+    </ul>
     </dd>
 
+    <br />
+    
     <dt><strong>ENABLE_PROFILING</strong></dt>
     <dd>
     Set to ON in order to add profiling flag <i>-pg</i> during the compilation.
