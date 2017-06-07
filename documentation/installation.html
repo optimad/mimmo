@@ -113,7 +113,7 @@ be used to complete.
 <dl>
     <dt><strong>CMAKE_BUILD_TYPE</strong></dt>
     <dd>
-    Sets the build type.<br> The possible options are:
+    Sets the build type. The possible options are:
     <ul>
     <li>
     <i>None</i>, the environment compiler flags are used;
@@ -133,36 +133,41 @@ be used to complete.
     </ul>
     </dd>
 
-    <br />
-    
     <dt><strong>ENABLE_PROFILING</strong></dt>
     <dd>
     Set to ON in order to add profiling flag <i>-pg</i> during the compilation.
     </dd>
+
+    <br />    
 
     <dt><strong>BITPIT_DIR</strong></dt>
     <dd>
     Sets the installation directory of bitpit library (<i>i.e.</i> the directory where the files for findPackage utility reside).
     </dd>
 
-   <dt><strong>BUILD_EXAMPLES</strong></dt>
+    <br />    
+
+    <dt><strong>BUILD_EXAMPLES</strong></dt>
    <dd>
    Controls the examples will be build (examples can be build built if all
-   mimmo are compiled). Note that the tests sources in mimmo/test are necessarily compiled and successively 
+   mimmo are compiled). <br> Note that the tests sources in mimmo/test are necessarily compiled and successively 
    available at $HOME/projects/mimmo-build/test/ as well as the compiled examples are available at $HOME/projects/mimmo-build/examples/.
-
    </dd>
+
+   <br />    
 
    <dt><strong>ENABLE_MPI</strong></dt>
     <dd>
     Controls if mimmo will be compiled with parallel support and allow the dependency on MPI libraries.
     </dd>
+
+    <br />    
     
    <dt><strong>MIMMO_MODULES</strong></dt>
     <dd>
     The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible ON/OFF.
-    MIMMO_MODULE_CORE is always compiled, while for MIMMO_MODULE_GEOHANDLERS, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_IOOFOAM, MIMMO_MODULE_IOVTK
-    and MIMMO_MODULE_UTILS the compilation can be toggled. Possible dependencies between mimmo modules are automatically resolved.
+    <br>MIMMO_MODULE_CORE is always compiled, while for MIMMO_MODULE_GEOHANDLERS, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_IOOFOAM, MIMMO_MODULE_IOVTK
+    and MIMMO_MODULE_UTILS the compilation can be toggled. <br>Possible dependencies between mimmo modules are automatically resolved.
     Dependencies on external libraries when possible are automatically resolved  through find package command.
     </dd>
 
@@ -198,8 +203,8 @@ This will install all the relevant files in directories under the
 CMAKE_INSTALL_PREFIX. The executables are installed in ${CMAKE_INSTALL_PREFIX}/bin, the headers files are available
 at ${CMAKE_INSTALL_PREFIX}/include
 and the libraries are installed in ${CMAKE_INSTALL_PREFIX}/lib/mimmo-${major}.${minor}.${revision}.
-
+</p>
+<p>
 Remember that if you choose the default installation path or another path without write permission 
 you will need administration privileges to install mimmo in.
-
 </p>
