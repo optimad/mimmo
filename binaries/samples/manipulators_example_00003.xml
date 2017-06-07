@@ -4,7 +4,7 @@
     <Blocks>
         <Geom0>
             <ClassName>mimmo.Geometry</ClassName>
-            <IOMode>2</IOMode>
+            <IOMode>CONVERT</IOMode>
             <ReadDir>./geodata</ReadDir>
             <ReadFilename>catpipe</ReadFilename>
             <ReadFileType>STL</ReadFileType>
@@ -14,7 +14,7 @@
         </Geom0>
         <Geom1>
             <ClassName>mimmo.Geometry</ClassName>
-            <IOMode>1</IOMode>
+            <IOMode>WRITE</IOMode>
             <WriteDir>./</WriteDir>
             <WriteFilename>manipulators_output_00003.0001</WriteFilename>
             <WriteFileType>STL</WriteFileType>

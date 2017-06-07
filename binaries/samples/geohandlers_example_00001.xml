@@ -4,7 +4,7 @@
     <Blocks>
         <Geom0>
             <ClassName>mimmo.Geometry</ClassName>
-            <IOMode>2</IOMode>
+            <IOMode>CONVERT</IOMode>
             <ReadDir>./geodata</ReadDir>
             <ReadFilename>sphere2</ReadFilename>
             <ReadFileType>STL</ReadFileType>
@@ -14,14 +14,14 @@
         </Geom0>
         <Geom1>
             <ClassName>mimmo.Geometry</ClassName>
-            <IOMode>1</IOMode>
+            <IOMode>WRITE</IOMode>
             <WriteDir>./</WriteDir>
             <WriteFilename>geohandlers_output_00001.0001</WriteFilename>
             <WriteFileType>STL</WriteFileType>
         </Geom1>
         <Geom2>
             <ClassName>mimmo.Geometry</ClassName>
-            <IOMode>1</IOMode>
+            <IOMode>WRITE</IOMode>
             <WriteDir>./</WriteDir>
             <WriteFilename>geohandlers_output_00001.0002</WriteFilename>
             <WriteFileType>STL</WriteFileType>
