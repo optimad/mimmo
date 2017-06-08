@@ -262,71 +262,73 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;            <span class="keywordflow">continue</span>;</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        }</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        <span class="keywordtype">bool</span> check = <a class="code" href="namespacemimmo_1_1pin.html#a498190655e41517971ce0003eb6d5d7b">pin::addPin</a>(itSend-&gt;second, itRece-&gt;second, itSPort-&gt;second, itRPort-&gt;second);</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        <span class="keywordflow">if</span>(!check){</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;---------------------------------------------&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;sender: &quot;</span>&lt;&lt;snd_str&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;receiver: &quot;</span>&lt;&lt;rcv_str&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;senderPort: &quot;</span>&lt;&lt;sndP_str&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;receiverPort: &quot;</span>&lt;&lt;rcvP_str&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;---------------------------------------------&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::absorbConnections failed creating connection.&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::NORMAL);</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;        <span class="keywordtype">bool</span> check = <a class="code" href="namespacemimmo_1_1pin.html#a498190655e41517971ce0003eb6d5d7b">pin::addPin</a>(itSend-&gt;second, itRece-&gt;second, itSPort-&gt;second, itRPort-&gt;second);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        <span class="keywordflow">if</span>(!debug)  <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::DEBUG);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;            </div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        <span class="keywordflow">if</span>(!check){</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;---------------------------------------------&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;sender: &quot;</span>&lt;&lt;snd_str&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;receiver: &quot;</span>&lt;&lt;rcv_str&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;senderPort: &quot;</span>&lt;&lt;sndP_str&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;receiverPort: &quot;</span>&lt;&lt;rcvP_str&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;---------------------------------------------&quot;</span>&lt;&lt;std::endl;</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        }   </div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        <span class="keywordflow">else</span>{</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::absorbConnections successfully created connection.&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        }</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    }</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::DEBUG);</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;};</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno"><a class="line" href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">  184</a></span>&#160;<a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">IOConnections_MIMMO::flushConnections</a>(bitpit::Config &amp; slotXML, <span class="keywordtype">bool</span> debug ){</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">int</span> counterGlob = 0;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordflow">for</span>( <span class="keyword">auto</span> <span class="keywordtype">object</span> : <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#ad06ff1767bdf735caf31423730910f2d">m_mapConn</a>){</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        std::string sender = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a26a8d49894996e35fdec70c9739e66aa">m_invMapConn</a>[<span class="keywordtype">object</span>.second]; <span class="comment">//recover sender name</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        <span class="keyword">auto</span> mapPOut = (<span class="keywordtype">object</span>.second)-&gt;getPortsOut(); <span class="comment">//get its slot of output port</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; pOut : mapPOut ){</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::absorbConnections failed creating connection.&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;        }   </div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        <span class="keywordflow">else</span>{</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;            (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::absorbConnections successfully created connection.&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        }</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    }</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::DEBUG);</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;};</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno"><a class="line" href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">  186</a></span>&#160;<a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">IOConnections_MIMMO::flushConnections</a>(bitpit::Config &amp; slotXML, <span class="keywordtype">bool</span> debug ){</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">int</span> counterGlob = 0;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordflow">for</span>( <span class="keyword">auto</span> <span class="keywordtype">object</span> : <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#ad06ff1767bdf735caf31423730910f2d">m_mapConn</a>){</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        std::string sender = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a26a8d49894996e35fdec70c9739e66aa">m_invMapConn</a>[<span class="keywordtype">object</span>.second]; <span class="comment">//recover sender name</span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;        <span class="keyword">auto</span> mapPOut = (<span class="keywordtype">object</span>.second)-&gt;getPortsOut(); <span class="comment">//get its slot of output port</span></div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            std::string senderPort = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a066f2f61220fa45b28df5f87348e5f65">m_invMapPorts</a>[pOut.first]; <span class="comment">//gets the Port Type of sender</span></div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp; pOut : mapPOut ){</div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;            std::vector&lt;BaseManipulation * &gt; links = (pOut.second)-&gt;getLink(); <span class="comment">//get all possible links to this specific port</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;            std::vector&lt;short int&gt;          lids = (pOut.second)-&gt;getPortLink();</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;            <span class="keywordtype">int</span> counter = 0;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;            <span class="keywordflow">for</span>( <span class="keyword">auto</span> &amp; val : links){</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;                std::string receiver = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a26a8d49894996e35fdec70c9739e66aa">m_invMapConn</a>[val];</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;                std::string receiverPort = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a066f2f61220fa45b28df5f87348e5f65">m_invMapPorts</a>[lids[counter]];</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                std::string title = <span class="stringliteral">&quot;conn&quot;</span> + std::to_string(counter+counterGlob);</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;                bitpit::Config::Section &amp; conn = slotXML.addSection(title);</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;                conn.set(<span class="stringliteral">&quot;sender&quot;</span>, sender);</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                conn.set(<span class="stringliteral">&quot;senderPort&quot;</span>, senderPort);</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;                conn.set(<span class="stringliteral">&quot;receiver&quot;</span>, receiver);</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;                conn.set(<span class="stringliteral">&quot;receiverPort&quot;</span>, receiverPort);</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;                ++counter;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;            }<span class="comment">//loop on possible links on the same port  </span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;            counterGlob += counter;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;        }<span class="comment">//loop on all the port of the single object</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    }<span class="comment">//loop on all instantiated object.</span></div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordflow">if</span>(debug)</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::NORMAL);</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::flushConnections wrote &quot;</span>&lt;&lt; slotXML.getSectionCount()&lt;&lt; <span class="stringliteral">&quot; active connections.&quot;</span>&lt;&lt;std::endl;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::DEBUG);</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;};</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;}</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;            std::string senderPort = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a066f2f61220fa45b28df5f87348e5f65">m_invMapPorts</a>[pOut.first]; <span class="comment">//gets the Port Type of sender</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            std::vector&lt;BaseManipulation * &gt; links = (pOut.second)-&gt;getLink(); <span class="comment">//get all possible links to this specific port</span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;            std::vector&lt;short int&gt;          lids = (pOut.second)-&gt;getPortLink();</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;            <span class="keywordtype">int</span> counter = 0;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;            <span class="keywordflow">for</span>( <span class="keyword">auto</span> &amp; val : links){</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;                std::string receiver = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a26a8d49894996e35fdec70c9739e66aa">m_invMapConn</a>[val];</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                std::string receiverPort = <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#a066f2f61220fa45b28df5f87348e5f65">m_invMapPorts</a>[lids[counter]];</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;                std::string title = <span class="stringliteral">&quot;conn&quot;</span> + std::to_string(counter+counterGlob);</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                bitpit::Config::Section &amp; conn = slotXML.addSection(title);</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;                conn.set(<span class="stringliteral">&quot;sender&quot;</span>, sender);</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;                conn.set(<span class="stringliteral">&quot;senderPort&quot;</span>, senderPort);</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;                conn.set(<span class="stringliteral">&quot;receiver&quot;</span>, receiver);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;                conn.set(<span class="stringliteral">&quot;receiverPort&quot;</span>, receiverPort);</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;                ++counter;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;            }<span class="comment">//loop on possible links on the same port  </span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;            counterGlob += counter;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        }<span class="comment">//loop on all the port of the single object</span></div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    }<span class="comment">//loop on all instantiated object.</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordflow">if</span>(debug)</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;        <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::NORMAL);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    (*m_log)&lt;&lt;<span class="stringliteral">&quot;IOConnections::flushConnections wrote &quot;</span>&lt;&lt; slotXML.getSectionCount()&lt;&lt; <span class="stringliteral">&quot; active connections.&quot;</span>&lt;&lt;std::endl;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <a class="code" href="classmimmo_1_1IOConnections__MIMMO.html#afa8f8b1e0a756eb552b2d68ea896c36e">m_log</a>-&gt;setPriority(bitpit::log::DEBUG);</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;};</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;}</div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_a885b35d0d0448aa5e19eb1587026b128"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#a885b35d0d0448aa5e19eb1587026b128">mimmo::IOConnections_MIMMO::operator=</a></div><div class="ttdeci">IOConnections_MIMMO &amp; operator=(const IOConnections_MIMMO &amp;other)</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8cpp_source.html#l00067">IOConnections.cpp:67</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_a26a8d49894996e35fdec70c9739e66aa"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#a26a8d49894996e35fdec70c9739e66aa">mimmo::IOConnections_MIMMO::m_invMapConn</a></div><div class="ttdeci">std::unordered_map&lt; BaseManipulation *, std::string &gt; m_invMapConn</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8hpp_source.html#l00055">IOConnections.hpp:55</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html">mimmo::IOConnections_MIMMO</a></div><div class="ttdoc">IOConnections_MIMMO is a class to read/write mimmo pin connections from XML IO/parser defined in bitp...</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8hpp_source.html#l00051">IOConnections.hpp:51</a></div></div>
@@ -334,7 +336,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="namespacemimmo_html_a557036e604fa249b1c44e459314cae30"><div class="ttname"><a href="namespacemimmo.html#a557036e604fa249b1c44e459314cae30">mimmo::MIMMO_LOG_FILE</a></div><div class="ttdeci">std::string MIMMO_LOG_FILE</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00004">MimmoNamespace.cpp:4</a></div></div>
 <div class="ttc" id="namespacemimmo_1_1pin_html_a498190655e41517971ce0003eb6d5d7b"><div class="ttname"><a href="namespacemimmo_1_1pin.html#a498190655e41517971ce0003eb6d5d7b">mimmo::pin::addPin</a></div><div class="ttdeci">bool addPin(BaseManipulation *objSend, BaseManipulation *objRec, PortID portS, PortID portR, bool forced)</div><div class="ttdef"><b>Definition:</b> <a href="MimmoNamespace_8cpp_source.html#l00047">MimmoNamespace.cpp:47</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_a44f507f2ace7d54b5e335bef582e47ac"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#a44f507f2ace7d54b5e335bef582e47ac">mimmo::IOConnections_MIMMO::getMapPorts</a></div><div class="ttdeci">std::unordered_map&lt; std::string, short int &gt; getMapPorts()</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8cpp_source.html#l00080">IOConnections.cpp:80</a></div></div>
-<div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_abab0dd74418f544be8f95f9ad4ea087d"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">mimmo::IOConnections_MIMMO::flushConnections</a></div><div class="ttdeci">void flushConnections(bitpit::Config &amp;slotXML, bool debug=false)</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8cpp_source.html#l00184">IOConnections.cpp:184</a></div></div>
+<div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_abab0dd74418f544be8f95f9ad4ea087d"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#abab0dd74418f544be8f95f9ad4ea087d">mimmo::IOConnections_MIMMO::flushConnections</a></div><div class="ttdeci">void flushConnections(bitpit::Config &amp;slotXML, bool debug=false)</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8cpp_source.html#l00186">IOConnections.cpp:186</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_a289e93f63982d383133e571255266f7b"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#a289e93f63982d383133e571255266f7b">mimmo::IOConnections_MIMMO::~IOConnections_MIMMO</a></div><div class="ttdeci">virtual ~IOConnections_MIMMO()</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8cpp_source.html#l00055">IOConnections.cpp:55</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_a6f237481a218a9c69e798bcce0e96f7f"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#a6f237481a218a9c69e798bcce0e96f7f">mimmo::IOConnections_MIMMO::m_mapPorts</a></div><div class="ttdeci">std::unordered_map&lt; std::string, short int &gt; m_mapPorts</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8hpp_source.html#l00056">IOConnections.hpp:56</a></div></div>
 <div class="ttc" id="classmimmo_1_1IOConnections__MIMMO_html_ad06ff1767bdf735caf31423730910f2d"><div class="ttname"><a href="classmimmo_1_1IOConnections__MIMMO.html#ad06ff1767bdf735caf31423730910f2d">mimmo::IOConnections_MIMMO::m_mapConn</a></div><div class="ttdeci">std::unordered_map&lt; std::string, BaseManipulation * &gt; m_mapConn</div><div class="ttdef"><b>Definition:</b> <a href="IOConnections_8hpp_source.html#l00054">IOConnections.hpp:54</a></div></div>
@@ -348,7 +350,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Jun 8 2017 17:20:44 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 8 2017 17:25:46 for mimmo by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.5
 </small></address>
