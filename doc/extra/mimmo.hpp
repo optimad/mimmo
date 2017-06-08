@@ -67,7 +67,7 @@ Main executable blocks are:
 
 - <B>mimmo::FFDLattice</B> provides extended Free Form Deformation based manipulation tools
 - <B>mimmo::MRBF</B> provides Radial Basis Functions based manipulation tools
-- <B>mimmo::RotationGeometry</B>, <B>mimmo::ScalingGeometry</B>, <B>mimmo::TranslationGeometry</B> and <B>mimmo::TwistGeometry</B> provide global direct transformation
+- <B>mimmo::RotationGeometry</B>, <B>mimmo::ScaleGeometry</B>, <B>mimmo::TranslationGeometry</B> and <B>mimmo::TwistGeometry</B> provide global direct transformation
 
 ## utils
 <B>utils</B> provides miscellaneous features for morphing workflow
