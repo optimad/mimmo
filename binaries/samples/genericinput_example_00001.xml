@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- xml interface to replicate .cpp example : genericinput_example_00001.cpp -->
 <mimmoXML version="1">
-	<InputNode>
-		<ClassName>mimmo.GenericInput</ClassName>
-       <ReadFromFile>1</ReadFromFile>
-       <CSV>1</CSV>
-       <ReadDir>input</ReadDir>
-       <Filename>generic_input_00001.csv</Filename>
-	</InputNode>
-	<OutputNode>
-		<ClassName>mimmo.GenericOutput</ClassName>
-       <CSV>1</CSV>
-		<Filename>generic_output_00001.csv</Filename>
-	</OutputNode>
+    <Blocks>
+        <InputNode>
+            <ClassName>mimmo.GenericInput</ClassName>
+            <ReadFromFile>1</ReadFromFile>
+            <CSV>1</CSV>
+            <ReadDir>input</ReadDir>
+            <Filename>generic_input_00001.csv</Filename>
+        </InputNode>
+        <OutputNode>
+            <ClassName>mimmo.GenericOutput</ClassName>
+            <CSV>1</CSV>
+            <Filename>generic_output_00001.csv</Filename>
+        </OutputNode>
+    </Blocks>
    <Connections>
 		<c0>
 			<sender>InputNode</sender>

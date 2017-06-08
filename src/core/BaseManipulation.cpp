@@ -516,8 +516,9 @@ BaseManipulation::exec(){
 }
 
 /*!
- * Base method to absorb parameter infos from an XML parser class of bitpit. Need to be coded for each
- * class derived from BaseManipulation. At this level, do nothing.
+ * Base method to absorb parameter infos from an XML parser class of bitpit.This method
+ * absorbs only the base attributes specified in the BaseManipulation class general documentation.
+ * Derived classes using their own attributes, need to write a personal absorbSectionXML.
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name      string name associated to the slot. OPTIONAL
  */
@@ -570,8 +571,9 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 }
 
 /*!
- * Base method to flush parameter infos to an XML parser class of bitpit. Need to be coded for each
- * class derived from BaseManipulation. At this level, do nothing.
+ * Base method to flush parameter infos to an XML parser class of bitpit. This method
+ * flushes only the base attributes specified in the BaseManipulation class general documentation.
+ * Derived classes using their own attributes, need to write a personal flushSectionXML.
  * \param[in] slotXML	reference to a Section slot of bitpit::Config class.
  * \param[in] name      string name associated to the slot.OPTIONAL
  */

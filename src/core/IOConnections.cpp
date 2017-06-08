@@ -148,8 +148,10 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
             continue;
         }
 
+        m_log->setPriority(bitpit::log::NORMAL);
         bool check = pin::addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
-
+        if(!debug)  m_log->setPriority(bitpit::log::DEBUG);
+            
         if(!check){
             (*m_log)<<"---------------------------------------------"<<std::endl;
             (*m_log)<<"sender: "<<snd_str<<std::endl;
