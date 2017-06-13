@@ -78,6 +78,12 @@ void test00005() {
             rbfNodes[i][j] = 1.0*( (double) (rand()) / RAND_MAX ) - 0.5;
     }
 
+    /* Set Generic input block with the
+     * nodes defined above.
+     */
+    GenericInput* inputn = new GenericInput();
+    inputn->setInput(rbfNodes);
+
     /* Creation of a projection block aimed to project
      * the point cloud previously defined over the input geometry.
      * The rbf control nodes will be defined on the surface of the
@@ -85,7 +91,6 @@ void test00005() {
      *
      */
     ProjectCloud* proj = new ProjectCloud();
-    proj->setCoords(rbfNodes);
 
     /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
      * ont he input surface.
@@ -138,6 +143,7 @@ void test00005() {
     addPin(mimmo0, mrbf, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mimmo0, proj, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(inputn, proj, PortType::M_COORDS, PortType::M_COORDS);
     addPin(proj, mrbf, PortType::M_COORDS, PortType::M_COORDS);
     addPin(proj, outputn, PortType::M_COORDS, PortType::M_COORDS);
     addPin(input, mrbf, PortType::M_DISPLS, PortType::M_DISPLS);
@@ -152,6 +158,7 @@ void test00005() {
      */
     Chain ch0;
     ch0.addObject(input);
+    ch0.addObject(inputn);
     ch0.addObject(outputn);
     ch0.addObject(outputd);
     ch0.addObject(mimmo0);
