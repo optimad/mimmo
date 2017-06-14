@@ -43,6 +43,9 @@ The `BUILD_EXAMPLES` can be used to compile examples sources in `mimmo/examples`
 The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible `ON/OFF`. `MIMMO_MODULE_CORE` is always compiled, while for `MIMMO_MODULE_GEOHANDLERS`, `MIMMO_MODULE_IOCGNS`, `MIMMO_MODULE_IOOFOAM`, `MIMMO_MODULE_IOVTK` and `MIMMO_MODULE_UTILS` the compilation can be toggled. Possible dependencies between mimmo modules are automatically resolved.
 Dependencies on external libraries when possible are automatically resolved  through find package command.
 
+
+The `BUILD_XMLTUI` variable defines if the executable binary has to be compiled. The compiled executable `mimmo++` is available at `mimmo/build/binaries/`.
+
 Finally, you can choose the installation folder setting the cmake variable `CMAKE_INSTALL_PREFIX`. The default installation folder is `/usr/local/`.
 
 Remember that if you choose the default installation path or another path without write permission you will need administration privileges to install mimmo in.
@@ -60,7 +63,7 @@ to install.
 
 If you have just built mimmo, its headers will be available at `mimmo/include/` folder and a static library `libmimmo.a` (or `libmimmo_MPI.a` in case of parallel compilation) will be available at `mimmo/build/lib/` folder.
 
-If you have also installed mimmo, its headers will be available at `/my/installation/folder/mimmo/include/` folder and a static library `libmimmo.a` will be available at `/my/installation/folder/lib/` folder.
+If you have also installed mimmo, its headers will be available at `/my/installation/folder/mimmo/include/` folder and a static library `libmimmo.a` will be available at `/my/installation/folder/lib/` folder. The `mimmo++` executable will be installed in `/my/installation/folder/bin/`.
 
 A shared version of the library is provided setting the cmake variable `BUILD_SHARED_LIBS` to ON, during the ccmake settings.
 
