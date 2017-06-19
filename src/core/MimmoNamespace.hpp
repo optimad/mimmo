@@ -223,14 +223,16 @@ enum class containerTAG{
     ARRAY3			/**< TAG related to std::array< . , 3 > container.*/,
     ARRAY4			/**< TAG related to std::array< . , 4 > container.*/,
     VECVEC			/**< TAG related to std::vector< std::vector< . > > container.*/,
-    VECARR3			/**< TAG related to std::vector< std::array< . , 3 > > container.*/,
+    VECARR3         /**< TAG related to std::vector< std::array< . , 3 > > container.*/,
     VECARR2			/**< TAG related to std::vector< std::array< . , 2 > > container */,	
     VECVECARR2		/**< TAG related to std::vector< std::vector< std::array< . , 2 > > > container */,	
     ARR3ARR3		/**< TAG related to std::array< std::array< . , 3 > , 3 > container.*/,
     ARR3ARR3VEC		/**< TAG related to std::array< std::array< std::array< . , 3 > , 3 > , 3 > container.*/,
     MAP				/**< TAG related to std::map< . , . > container.*/,
     UN_MAP			/**< TAG related to std::unordered_map< . , . > container.*/,
-    PAIR			/**< TAG related to std::pair< . , . > container.*/
+    PAIR			/**< TAG related to std::pair< . , . > container.*/,
+    PVECTOR         /**< TAG related to bitpit::PiercedVector< . > container.*/,
+    PVECARR3        /**< TAG related to bitpit::PiercedVector< std::array< . , 3 > > container.*/
 
 };
 
