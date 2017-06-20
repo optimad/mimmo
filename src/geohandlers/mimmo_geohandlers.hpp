@@ -36,7 +36,6 @@
 
 #include "ClipGeometry.hpp"
 #include "MeshSelection.hpp"
-#include "OverlappingFields.hpp"
 #include "ReconstructFields.hpp"
 #include "SplitFields.hpp"
 #include "StitchGeometry.hpp"

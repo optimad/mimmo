@@ -39,7 +39,6 @@
 #include "Apply.hpp"
 #include "FFDLattice.hpp"
 #include "MRBF.hpp"
-#include "MultiApply.hpp"
 #include "RotationGeometry.hpp"
 #include "TranslationGeometry.hpp"
 #include "ScaleGeometry.hpp"

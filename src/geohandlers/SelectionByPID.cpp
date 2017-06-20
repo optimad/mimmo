@@ -228,7 +228,7 @@ SelectionByPID::extractSelection(){
     //check if dual selection is triggered
 
     if(m_dual){
-        livector1D totID = getGeometry()->getMapCell();
+        livector1D totID = getGeometry()->getCellsIds();
         result.resize(totID.size() - extraction.size());
         if(result.size() == 0) return result;
 

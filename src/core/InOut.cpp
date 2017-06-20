@@ -814,8 +814,14 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 * \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, bitpit::PiercedVector<double>& element){
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dmpvector1D& element){
 
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    element.setGeometry(geo);
+    std::string name;
+    buffer >> name;
+    element.setName(name);
     int nP;
     buffer >> nP;
     double val;
@@ -834,8 +840,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, bitpit::Pierced
 * \param[in] element is the element to be streamed
 * \result Returns the same output stream received in input.
 */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const bitpit::PiercedVector<double>& element){
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const dmpvector1D& element){
 
+    mimmo::MimmoObject* geo = element.getGeometry();
+    buffer << geo;
+    std::string name = element.getName();
+    buffer << name;
     int nP = element.size();
     std::vector<long int> Ids = element.getIds();
     buffer << nP;
@@ -847,6 +857,60 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const bitpit::P
     }
     return buffer;
 };
+
+/*!
+    Output stream operator for dmpvecarr3E
+    \param[in] buffer is the output stream
+    \param[in] var is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dmpvecarr3E &var)
+{
+    mimmo::MimmoObject* geo = var.getGeometry();
+    buffer << geo;
+    std::string name = var.getName();
+    buffer << name;
+    int nP = var.size();
+    std::vector<long int> Ids = var.getIds();
+    buffer << nP;
+    long int Id;
+    for (int i = 0; i < nP; ++i) {
+        Id = Ids[i];
+        for (int j = 0; j < 3; ++j) {
+            buffer << var[Id][j];
+        }
+        buffer << Id;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for dmpvecarr3E
+    \param[in] buffer is the input stream
+    \param[in] var is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dmpvecarr3E &var)
+{
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    var.setGeometry(geo);
+    std::string name;
+    buffer >> name;
+    var.setName(name);
+    int nP;
+    buffer >> nP;
+    darray3E val;
+    long int Id;
+    for (int i = 0; i < nP; ++i) {
+        buffer >> Id;
+        for (int j = 0; j < 3; ++j) {
+            buffer >> val[j];
+        }
+        var.insert(Id, val);
+    }
+    return buffer;
+}
 
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//

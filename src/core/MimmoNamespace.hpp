@@ -138,12 +138,12 @@ struct FileDataInfo{
 * - <B>M_GLOBAL        </B>= 1    Port dedicated to communicate coordinates of points in a global reference system [vector<array<double,3>>].,
 * - <B>M_LOCAL         </B>= 2    Port dedicated to communicate coordinates of points in a local reference system. [vector<array<double,3>>].,
 * - <B>M_DISPLS        </B>= 10   Port dedicated to communicate displacements of points [vector<array<double,3>>].,
-* - <B>M_GDISPLS       </B>= 11   Port dedicated to communicate displacements of geometry vertex [vector<array<double,3>>].,
-* - <B>M_FILTER        </B>= 12   Port dedicated to communicate a scalar field used as filter function [vector<double>].,
-* - <B>M_FILTER_       </B>= 13   Port dedicated to communicate a pointer to a scalar field used as filter function [vector<double>*].,
+* - <B>M_GDISPLS       </B>= 11   Port dedicated to communicate displacements of geometry vertex [MimmoPiercedVector<array<double,3>>].,
+* - <B>M_FILTER        </B>= 12   Port dedicated to communicate a scalar field used as filter function [MimmoPiercedVector<double>].,
+* - <B>M_FILTER_       </B>= 13   Port dedicated to communicate a pointer to a scalar field used as filter function [MimmoPiercedVector<double>*].,
 * - <B>M_VECTORSI      </B>= 17   Port dedicated to communicate a generic list of short integers [vector<short int>].,
 * - <B>M_VECTORLI      </B>= 18   Port dedicated to communicate a generic list of long integers [vector<long int>].,
-* - <B>M_SCALARFIELD   </B>= 19   Port dedicated to communicate a generic scalar field [vector<double>].,
+* - <B>M_SCALARFIELD   </B>= 19   Port dedicated to communicate a generic scalar field [MimmoPiercedVector<double>].,
 * - <B>M_POINT         </B>= 20   Port dedicated to communicate the coordinate of a point field [array<double,3>].,
 * - <B>M_AXIS          </B>= 21   Port dedicated to communicate the direction of an axis [array<double,3>].,
 * - <B>M_AXES          </B>= 22   Port dedicated to communicate a reference system [array<array<double,3>,3>].,
@@ -232,8 +232,8 @@ enum class containerTAG{
     MAP				/**< TAG related to std::map< . , . > container.*/,
     UN_MAP			/**< TAG related to std::unordered_map< . , . > container.*/,
     PAIR			/**< TAG related to std::pair< . , . > container.*/,
-    PVECTOR         /**< TAG related to bitpit::PiercedVector< . > container.*/,
-    PVECARR3        /**< TAG related to bitpit::PiercedVector< std::array< . , 3 > > container.*/
+    MPVECTOR        /**< TAG related to mimmo::MimmoPiercedVector< . > container.*/,
+    MPVECARR3       /**< TAG related to mimmo::MimmoPiercedVector< std::array< . , 3 > > container.*/
 
 };
 
@@ -259,7 +259,7 @@ enum class dataTAG{
     STRING_						/**< TAG related to a string pointer data.*/,
     PVECFLOAT_                  /**< TAG related to a bitpit::PiercedVector<double>* data.*/,
     MIMMO_VECFLOAT_             /**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/,
-    MIMMO_VECARR3FLOAT_			/**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
+    MIMMO_VECARR3FLOAT_         /**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
     LONGSHORT					/**< TAG related to a couple (normally used in pair or map containers) of a long and a short element data*/,
     STRINGPAIRINTMIMMO_			/**< TAG related to a couple (normally used in pair or map containers) of a std::string and a pair of int and mimmo::MimmoObject* */,
     LONGPAIRINTLONG				/**< TAG related to a couple (normally used in pair or map containers) of a long and a pair of int and long */,

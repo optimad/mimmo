@@ -63,7 +63,7 @@ enum class MRBFSol{
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
      | 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
-     | 12    | M_FILTER  | setFilter             | (VECTOR, FLOAT)       |
+     | 12    | M_FILTER  | setFilter             | (MPVECTOR, FLOAT)       |
      | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
      | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
      | 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
@@ -71,8 +71,7 @@ enum class MRBFSol{
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS      | getDisplacements  | (VECARR3, FLOAT)             |
-     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 11    | M_GDISPLS      | getDisplacements  | (MPVECARR3, FLOAT)             |
      | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
 
  *    =========================================================
@@ -102,10 +101,10 @@ class MRBF: public BaseManipulation, public bitpit::RBF {
 private:
     double         m_tol;            /**< Tolerance for greedy algorithm.*/
     MRBFSol        m_solver;       /**<Type of solver specified for the class as default in execution*/
-    dvector1D    m_filter;       /**<Filter field for displacements modulation */
+    dmpvector1D    m_filter;       /**<Filter field for displacements modulation */
     bool        m_bfilter;      /**<boolean to recognize if a filter field is applied */
     double        m_SRRatio;        /**<support Radius ratio */
-    dvecarr3E    m_displ;        /**<Resulting displacements of geometry vertex.*/
+    dmpvecarr3E    m_displ;        /**<Resulting displacements of geometry vertex.*/
     bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
 
 public:
@@ -124,13 +123,12 @@ public:
     MRBFSol            getMode();
     void            setMode(MRBFSol);
     void            setMode(int);
-    dvector1D        getFilter();
+    dmpvector1D        getFilter();
     double            getSupportRadius();
     double            getSupportRadiusValue();
     bool            getIsSupportRadiusValue();
 
-    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
-    dvecarr3E        getDisplacements();
+    dmpvecarr3E        getDisplacements();
 
     int             addNode(darray3E);
     ivector1D        addNode(dvecarr3E);
@@ -139,7 +137,7 @@ public:
     void             setNode(darray3E);
     void            setNode(dvecarr3E);
     void             setNode(MimmoObject* geometry);
-    void            setFilter(dvector1D );
+    void            setFilter(dmpvector1D );
 
     ivector1D        checkDuplicatedNodes(double tol=1.0E-12);
     bool             removeDuplicatedNodes(ivector1D * list=NULL);

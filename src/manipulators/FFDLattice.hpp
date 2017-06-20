@@ -49,7 +49,7 @@ namespace mimmo{
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 10    | M_DISPLS         | m_displ                       | (VECARR3, FLOAT)    |
-     | 12    | M_FILTER         | m_filter                      | (VECTOR, FLOAT)     |
+     | 12    | M_FILTER         | m_filter                      | (MPVECTOR, FLOAT)     |
      | 40    | M_DEG            | setDegrees                    | (ARRAY3, INT)       |
      | 44    | M_NURBSWEIGHTS   | setNodalWeight                | (VECTOR, FLOAT)     |
      | 43    | M_NURBSCOORDTYPE | setCoordType                  | (ARRAY3, COORDT)    |
@@ -58,10 +58,9 @@ namespace mimmo{
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS         | getDeformation    | (VECARR3, FLOAT)              |
-     | 80    | M_PAIRVECFIELD    | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)   |
+     | 11    | M_GDISPLS         | getDeformation    | (MPVECARR3, FLOAT)              |
      | 40    | M_DEG             | getDegrees        | (ARRAY3, INT)                 |
-     | 12    | M_FILTER          | getFilter         | (VECTOR, FLOAT)               |
+     | 12    | M_FILTER          | getFilter         | (MPVECTOR, FLOAT)               |
      | 44    | M_NURBSWEIGHTS    | getWeights        | (VECTOR, FLOAT)               |
      | 43    | M_NURBSCOORDTYPE  | getCoordType      | (ARRAY3, COORDT)              |
 
@@ -137,12 +136,12 @@ protected:
     dvector1D    m_weights;        /**< Weights of each control node*/
     dvecarr3E    m_displ;        /**< Displacements of control nodes.*/
     ivector2D     m_mapNodes;        /**< Internal map to access node index w/ knots structure theoretical indexing */
-    dvecarr3E    m_gdispl;        /**< Displacements of geometry vertex.*/
+    dmpvecarr3E    m_gdispl;        /**< Displacements of geometry vertex.*/
 private:
     iarray3E    m_mapdeg;        /**< Map of curves degrees. Increasing order of curves degrees. */
     bool        m_globalDispl;     /**< Choose type of displacements passed to lattice TRUE/Global XYZ displacement, False/local shape ref sys*/
     std::unordered_map<int, double> m_collect_wg; /**< temporary collector of nodal weights passed as parameter. Nodal weight can be applied by build() method */
-    dvector1D   m_filter;        /**< Filter scalar field defined on geometry nodes for displacements modulation*/
+    dmpvector1D   m_filter;        /**< Filter scalar field defined on geometry nodes for displacements modulation*/
     bool         m_bfilter;        /**< Boolean to recognize if a filter field for for displacements modulation is set or not */
 
 public:
@@ -165,9 +164,8 @@ public:
     void         returnKnotsStructure(dvector2D &, ivector2D &);
     void         returnKnotsStructure( int, dvector1D &, ivector1D &);
     dvecarr3E*     getDisplacements();
-    dvector1D   getFilter();
-    std::pair<MimmoObject *, dvecarr3E * >    getDeformedField();
-    dvecarr3E     getDeformation();
+    dmpvector1D   getFilter();
+    dmpvecarr3E     getDeformation();
     bool         isDisplGlobal();
     iarray3E    getDegrees();
 
@@ -183,7 +181,7 @@ public:
     void         setNodalWeight(double , int, int, int);
     void         setNodalWeight(dvector1D );
 
-    void        setFilter(dvector1D );
+    void        setFilter(dmpvector1D );
 
     //plotting wrappers
     void        plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);

@@ -94,17 +94,16 @@ FFDLattice::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
 
     //output
-    built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<MimmoObject *, dvecarr3E *>, FFDLattice>(this, &mimmo::FFDLattice::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<dmpvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-    built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights,PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
     m_arePortsBuilt = built;
@@ -210,30 +209,16 @@ FFDLattice::getDisplacements(){
 /*! It gets current set filter field. See FFDLattice::setFilter
  * \return filter field.
  */
-dvector1D
+dmpvector1D
 FFDLattice::getFilter(){
     return(m_filter);
 };
 
 /*!
  * Return actual computed deformation field (if any) for the geometry linked.
- * If no field is actually present, return null pointers;
- * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
- */
-std::pair<MimmoObject *, dvecarr3E * >
-FFDLattice::getDeformedField(){
-
-    std::pair<MimmoObject *, dvecarr3E * > pairField;
-    pairField.first = getGeometry();
-    pairField.second = &m_gdispl;
-    return pairField;
-};
-
-/*!
- * Return actual computed deformation field (if any) for the geometry linked.
  * \return deformation field
  */
-dvecarr3E
+dmpvecarr3E
 FFDLattice::getDeformation(){
     return m_gdispl;
 };
@@ -458,7 +443,7 @@ FFDLattice::setNodalWeight(dvector1D wg){
  * \param[in] filter fields.
  */
 void
-FFDLattice::setFilter(dvector1D filter){
+FFDLattice::setFilter(dmpvector1D filter){
     m_filter.clear();
     m_bfilter = !(filter.empty());
     m_filter = filter;
@@ -554,12 +539,11 @@ FFDLattice::execute(){
 
     //reset displacement in a unique vector
     int size = container->getNVertex();
-    m_gdispl.resize(size, darray3E{0,0,0});
-    auto convMap = container->getMapDataInv();
+    m_gdispl.clear();
     {
         int counter = 0;
-        for(auto mapp: map){
-            m_gdispl[convMap[mapp]] = localdef[counter];
+        for(auto &mapp: map){
+            m_gdispl.insert(mapp, localdef[counter]);
             ++counter;
         }
     }
@@ -600,12 +584,17 @@ FFDLattice::apply(livector1D & list){
     dvecarr3E result = nurbsEvaluator(list);
     if(m_bfilter){
 
-        m_filter.resize(container->getNVertex(),0.0);
+        int nV = m_geometry->getNVertex();
+        if (m_filter.size() != nV){
+            m_filter.clear();
+            for (auto vertex : m_geometry->getVertices()){
+                m_filter.insert(vertex.getId(), 1.0);
+            }
+        }
 
         dvecarr3E::iterator itL= result.begin();
-        liimap & vMap = container->getMapDataInv();
         for ( auto && vID : list){
-            *itL = (*itL) * m_filter[vMap[vID]];
+            *itL = (*itL) * m_filter[vID];
             ++itL;
         }
     }
@@ -641,14 +630,14 @@ FFDLattice::apply(dvecarr3E * point){
 void
 FFDLattice::apply(){
 
-    if (getGeometry() == NULL || !isBuilt()) return;
-    dvecarr3E vertex = getGeometry()->getVertexCoords();
-    long nv = getGeometry()->getNVertex();
-    nv = long(std::min(int(nv), int(m_gdispl.size())));
-    livector1D & idmap = getGeometry()->getMapData();
-    for (long i=0; i<nv; i++){
-        vertex[i] += m_gdispl[i];
-        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    if (getGeometry() == NULL) return;
+    darray3E vertexcoords;
+    long int ID;
+    for (auto vertex : m_geometry->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        vertexcoords += m_displ[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
 }

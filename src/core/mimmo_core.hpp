@@ -48,5 +48,6 @@
 #include "Lattice.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
+#include "MimmoPiercedVector.hpp"
 
 #endif

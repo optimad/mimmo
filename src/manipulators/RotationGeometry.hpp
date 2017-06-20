@@ -47,14 +47,13 @@ namespace mimmo{
      | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
      | 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
      | 30    | M_VALUED | setRotation       | (SCALAR, FLOAT)       |
-     | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+     | 12    | M_FILTER | setFilter         | (MPVECTOR, FLOAT)       |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
  
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
-     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 11    | M_GDISPLS | getDisplacements  | (MPVECARR3, FLOAT)      |
      | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
@@ -82,8 +81,8 @@ private:
     darray3E    m_origin;        /**<Origin of the rotation axis.*/
     darray3E    m_direction;    /**<Components of the rotation axis.*/
     double        m_alpha;        /**<Angle of rotation in radiant. */
-    dvector1D   m_filter;       /**<Filter field for displacements modulation. */
-    dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
+    dmpvector1D   m_filter;       /**<Filter field for displacements modulation. */
+    dmpvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
     RotationGeometry(darray3E origin = { {0, 0, 0} }, darray3E direction = { {0, 0, 0} });
@@ -98,10 +97,9 @@ public:
     void        setOrigin(darray3E origin);
     void        setDirection(darray3E direction);
     void        setRotation(double alpha);
-    void        setFilter(dvector1D filter);
+    void        setFilter(dmpvector1D filter);
 
-    dvecarr3E   getDisplacements();
-    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
+    dmpvecarr3E   getDisplacements();
 
     void         execute();
     void         apply();

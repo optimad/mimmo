@@ -28,7 +28,6 @@
 #include <vector>
 #include <array>
 #include <map>
-#include <piercedVector.hpp>
 
 /*!
  * \ingroup typedefs
@@ -44,8 +43,6 @@ typedef std::vector<short int>      shivector1D; /**< mimmo custom typedef*/
 typedef std::vector<bool>           bvector1D;   /**< mimmo custom typedef*/
 typedef std::vector<char>           cvector1D;   /**< mimmo custom typedef*/
 typedef std::vector<std::string>    svector1D;   /**< mimmo custom typedef*/
-
-typedef bitpit::PiercedVector<double>  dpvector1D;   /**< mimmo custom typedef*/
 
 typedef std::array<double,2>        darray2E;   /**< mimmo custom typedef*/ 
 typedef std::array<double,3>        darray3E;   /**< mimmo custom typedef*/

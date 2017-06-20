@@ -47,14 +47,13 @@ namespace mimmo{
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
      | 23    | M_SPAN   | setScaling        | (ARRAY3, FLOAT)       |
-     | 12    | M_FILTER | setFilter         | (VECTOR, FLOAT)       |
+     | 12    | M_FILTER | setFilter         | (MPVECTOR, FLOAT)       |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
  
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS | getDisplacements  | (VECARR3, FLOAT)      |
-     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 11    | M_GDISPLS | getDisplacements  | (MPVECARR3, FLOAT)      |
      | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
@@ -80,8 +79,8 @@ class ScaleGeometry: public BaseManipulation{
 private:
     darray3E    m_origin;        /**<Center point of scaling.*/
     darray3E    m_scaling;        /**<Values of the three fundamental scaling factors (1 = original geometry).*/
-    dvector1D   m_filter;       /**<Filter field for displacements modulation. */
-    dvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
+    dmpvector1D   m_filter;       /**<Filter field for displacements modulation. */
+    dmpvecarr3E   m_displ;        /**<Resulting displacements of geometry vertex.*/
     bool        m_meanP;       /**<Use mean point as center of scaling.*/
 
 public:
@@ -94,12 +93,11 @@ public:
     void        buildPorts();
 
     void        setScaling(darray3E scaling);
-    void        setFilter(dvector1D filter);
+    void        setFilter(dmpvector1D filter);
     void        setOrigin(darray3E origin);
     void        setMeanPoint(bool meanP);
 
-    dvecarr3E   getDisplacements();
-    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
+    dmpvecarr3E   getDisplacements();
 
     void         execute();
     void         apply();

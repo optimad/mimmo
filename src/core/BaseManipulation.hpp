@@ -27,6 +27,7 @@
 #include "factory.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
+#include "MimmoPiercedVector.hpp"
 #include "InOut.hpp"
 
 #include <string>

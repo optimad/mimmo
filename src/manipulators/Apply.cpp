@@ -66,7 +66,7 @@ Apply::Apply(const Apply & other):BaseManipulation(other){
 void
 Apply::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT, true));
+    built = (built && createPortIn<dmpvecarr3E, Apply>(this, &Apply::setInput, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true));
     built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
     built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
@@ -76,7 +76,7 @@ Apply::buildPorts(){
  * \param[in] input Input displacements of the geometry vertices.
  */
 void
-Apply::setInput(dvecarr3E input){
+Apply::setInput(dmpvecarr3E input){
     m_input = input;
 }
 
@@ -89,13 +89,13 @@ void
 Apply::execute(){
     if (getGeometry() == NULL) return;
 
-    dvecarr3E vertex = getGeometry()->getVertexCoords();
-    long nv = getGeometry()->getNVertex();
-    nv = long(std::min(int(nv), int(m_input.size())));
-    livector1D & idmap = getGeometry()->getMapData();
-    for (long i=0; i<nv; i++){
-        vertex[i] += m_input[i];
-        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    darray3E vertexcoords;
+    long int ID;
+    for (auto vertex : m_geometry->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        vertexcoords += m_input[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
 };

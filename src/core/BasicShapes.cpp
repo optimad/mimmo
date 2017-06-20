@@ -283,7 +283,7 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 	livector1D internals = includeGeometry(geo);
 	std::sort(internals.begin(), internals.end());
 	
-	livector1D originals = geo->getMapCell();
+	livector1D originals = geo->getCellsIds();
 	std::sort(originals.begin(), originals.end());
 	
 	livector1D result(originals.size() - internals.size());
@@ -302,8 +302,6 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
 	}
 	return result;
 };
-
-
 
 /*! 
  * Given a bitpit class bitpit::PatchKernel tessellation, return cell identifiers of those simplex inside the volume of
@@ -481,7 +479,7 @@ livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
 	livector1D internals = includeCloudPoints(geo);
 	std::sort(internals.begin(), internals.end());
 	
-	livector1D originals = geo->getMapData();
+	livector1D originals = geo->getCellsIds();
 	std::sort(originals.begin(), originals.end());
 	
 	livector1D result(originals.size() - internals.size());

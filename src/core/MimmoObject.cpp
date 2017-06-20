@@ -471,6 +471,18 @@ MimmoObject::getCells()  const{
 }
 
 /*!
+ * Return a compact vector with the Ids of cells given by
+ * bitpit::PatchKernel unique-labeled indexing
+ * \return id of cells
+ */
+livector1D
+MimmoObject::getCellsIds(){
+    return m_patch->getCells().getIds();
+};
+
+
+
+/*!
  * \return pointer to bitpit::PatchKernel structure hold by the class.
  */
 PatchKernel*

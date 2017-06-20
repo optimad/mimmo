@@ -49,7 +49,7 @@ namespace mimmo{
      |Port Input | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 12    | M_FILTER  | setFilter         | (VECTOR, FLOAT)       |
+     | 12    | M_FILTER  | setFilter         | (MPVECTOR, FLOAT)       |
      | 20    | M_POINT   | setOrigin         | (ARRAY3, FLOAT)       |
      | 22    | M_AXES    | setRefSystem      | (ARR3ARR3, FLOAT)     |
      | 31    | M_BMATRIX | setDegree         | (ARR3ARR3, INT)       |
@@ -59,8 +59,7 @@ namespace mimmo{
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 11    | M_GDISPLS| getDisplacements  | (VECARR3, FLOAT)    |
-     | 80    | M_PAIRVECFIELD | getDeformedField  | (PAIR, MIMMO_VECARR3FLOAT_)  |
+     | 11    | M_GDISPLS| getDisplacements  | (MPVECARR3, FLOAT)    |
      | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
@@ -115,8 +114,8 @@ private:
                                             (each componentns of displacement is
                                             f(x,y,z) with no mixed terms)*/
     dmat33Evec          m_coeffs;        /**<Coeffs of polynomial law for each coordinate.*/
-    dvector1D           m_filter;       /**<Filter field for displacements modulation. */
-    dvecarr3E           m_displ;        /**<Resulting displacements of geometry vertex.*/
+    dmpvector1D           m_filter;       /**<Filter field for displacements modulation. */
+    dmpvecarr3E           m_displ;        /**<Resulting displacements of geometry vertex.*/
 
 public:
     BendGeometry();
@@ -131,10 +130,9 @@ public:
     dmatrix33E  getRefSystem();
     umatrix33E    getDegree();
     dmat33Evec    getCoeffs();
-    dvecarr3E    getDisplacements();
-    std::pair<MimmoObject * , dvecarr3E * >    getDeformedField();
+    dmpvecarr3E    getDisplacements();
 
-    void    setFilter(dvector1D filter);
+    void    setFilter(dmpvector1D filter);
     void    setOrigin(darray3E origin);
     void    setRefSystem(dmatrix33E axes);
     void    setDegree(umatrix33E degree);

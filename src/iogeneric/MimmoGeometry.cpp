@@ -625,11 +625,13 @@ MimmoGeometry::write(){
     }
     break;
 
+
     case FileType::STVTU :
         //Export Triangulation Surface VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         shivector1D pids = getGeometry()->getCompactPID();
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
@@ -646,8 +648,9 @@ MimmoGeometry::write(){
     case FileType::SQVTU :
         //Export Quadrilateral Surface VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         shivector1D pids = getGeometry()->getCompactPID();
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
@@ -664,8 +667,9 @@ MimmoGeometry::write(){
     case FileType::VTVTU :
         //Export Tetra Volume VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         shivector1D pids = getGeometry()->getCompactPID();
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
@@ -682,8 +686,9 @@ MimmoGeometry::write(){
     case FileType::VHVTU :
         //Export Hexa Volume VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         shivector1D pids = getGeometry()->getCompactPID();
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
@@ -700,8 +705,9 @@ MimmoGeometry::write(){
     case FileType::NAS :
         //Export Nastran file
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
         shivector1D pids = getGeometry()->getCompactPID();
@@ -748,8 +754,9 @@ MimmoGeometry::write(){
     case FileType::CURVEVTU :
         //Export 3DCurve in VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity();
+        liimap mapDataInv;
+        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         shivector1D pids = getGeometry()->getCompactPID();
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;

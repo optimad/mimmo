@@ -79,10 +79,9 @@ RotationGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_direction, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<double, RotationGeometry>(&m_alpha, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, RotationGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortOut<dvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , RotationGeometry>(this, &mimmo::RotationGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<dmpvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject*, RotationGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
@@ -129,7 +128,7 @@ RotationGeometry::setRotation(double alpha){
  * \param[in] filter filter field defined on geometry vertices.
  */
 void
-RotationGeometry::setFilter(dvector1D filter){
+RotationGeometry::setFilter(dmpvector1D filter){
     m_filter = filter;
 }
 
@@ -137,23 +136,9 @@ RotationGeometry::setFilter(dvector1D filter){
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dvecarr3E
+dmpvecarr3E
 RotationGeometry::getDisplacements(){
     return m_displ;
-};
-
-/*!
- * Return actual computed deformation field (if any) for the geometry linked.
- * If no field is actually present, return null pointers;
- * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
- */
-std::pair<MimmoObject * , dvecarr3E * >
-RotationGeometry::getDeformedField(){
-
-    std::pair<MimmoObject *, dvecarr3E * > pairField;
-    pairField.first = getGeometry();
-    pairField.second = &m_displ;
-    return pairField;
 };
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the
@@ -166,8 +151,14 @@ RotationGeometry::execute(){
     if (getGeometry() == NULL) return;
 
     int nV = m_geometry->getNVertex();
-    m_displ.resize(nV);
-    m_filter.resize(nV, 1.0);
+    if (m_filter.size() != nV){
+        m_filter.clear();
+        for (auto vertex : m_geometry->getVertices()){
+            m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
+
+    m_displ.clear();
 
     //compute coefficients and constant vectors of rodriguez formula
     double a = cos(m_alpha);
@@ -176,13 +167,10 @@ RotationGeometry::execute(){
 
     darray3E point, rotated;
     long ID;
-    int idx;
-    liimap mapID = m_geometry->getMapDataInv();
-
+    darray3E value;
     for (auto vertex : m_geometry->getVertices()){
         point = vertex.getCoords();
         ID = vertex.getId();
-        idx = mapID[ID];
 
         point -= m_origin;
         //rodrigues formula
@@ -193,7 +181,8 @@ RotationGeometry::execute(){
         rotated += m_origin;
         point += m_origin;
 
-        m_displ[idx] = (rotated-point)*m_filter[idx];
+        value = (rotated-point)*m_filter[ID];
+        m_displ.insert(ID, value);
 
     }
 
@@ -206,13 +195,13 @@ void
 RotationGeometry::apply(){
 
     if (getGeometry() == NULL) return;
-    dvecarr3E vertex = getGeometry()->getVertexCoords();
-    long nv = getGeometry()->getNVertex();
-    nv = long(std::min(int(nv), int(m_displ.size())));
-    livector1D & idmap = getGeometry()->getMapData();
-    for (long i=0; i<nv; i++){
-        vertex[i] += m_displ[i];
-        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    darray3E vertexcoords;
+    long int ID;
+    for (auto vertex : m_geometry->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        vertexcoords += m_displ[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
 }
@@ -228,7 +217,7 @@ RotationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
     BITPIT_UNUSED(name);
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
         input = bitpit::utils::string::trim(input);

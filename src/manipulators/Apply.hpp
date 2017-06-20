@@ -47,7 +47,7 @@ namespace mimmo{
      | Port Input | | | |                                                              
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-     | 11    | M_GDISPLS | setInput          | (VECARR3,FLOAT) |
+     | 11    | M_GDISPLS | setInput          | (MPVECARR3,FLOAT) |
      | 99    | M_GEOM    | setGeometry       | (SCALAR,MIMMO_) |
  
      |Port Output | | | |
@@ -69,7 +69,7 @@ namespace mimmo{
 class Apply: public BaseManipulation{
 public:
 
-    dvecarr3E    m_input; /**< storing vector fields of floats */
+    dmpvecarr3E    m_input; /**< storing vector fields of floats */
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -80,7 +80,7 @@ public:
 
     void buildPorts();
 
-    void setInput(dvecarr3E input);
+    void setInput(dmpvecarr3E input);
 
     void execute();
 

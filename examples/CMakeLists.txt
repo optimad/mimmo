@@ -60,11 +60,15 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "manipulators_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")
     list(APPEND EXAMPLE_LIST "manipulators_example_00004")
-    list(APPEND EXAMPLE_LIST "manipulators_example_00005")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00001")
+
+    #Add examples of enabled modules
+    isModuleEnabled("geohandlers" MODULE_ENABLED0)
+    if (MODULE_ENABLED0)
     list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
-    list(APPEND EXAMPLE_LIST "genericinput_example_00001")
+    endif ()
 
     #Add examples of enabled modules
     isModuleEnabled("iocgns" MODULE_ENABLED1)
@@ -76,6 +80,12 @@ if(BUILD_EXAMPLES)
     isModuleEnabled("iovtk" MODULE_ENABLED2)
     if (MODULE_ENABLED2)
         list(APPEND EXAMPLE_LIST "iovtk_example_00001")
+    endif ()
+
+    #Add examples of enabled modules
+    isModuleEnabled("utils" MODULE_ENABLED3)
+    if (MODULE_ENABLED3)
+        list(APPEND EXAMPLE_LIST "manipulators_example_00005")
     endif ()
     
 	#Rules to build the examples
@@ -112,25 +122,29 @@ if(BUILD_EXAMPLES)
         TARGET "manipulators_example_00004" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
     )
-    add_custom_command(
-        TARGET "manipulators_example_00005" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-    )
-    add_custom_command(
-        TARGET "geohandlers_example_00001" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-    )
-    add_custom_command(
-        TARGET "geohandlers_example_00002" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
-    )
-    add_custom_command(
-        TARGET "geohandlers_example_00003" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane1.stl"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane2.stl"
-    )
+    if (MODULE_ENABLED3)
+        add_custom_command(
+            TARGET "manipulators_example_00005" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+    endif()
+    if (MODULE_ENABLED0)
+        add_custom_command(
+            TARGET "geohandlers_example_00001" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+        add_custom_command(
+            TARGET "geohandlers_example_00002" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+        )
+        add_custom_command(
+            TARGET "geohandlers_example_00003" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane1.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane1.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane2.stl"
+        )
+    endif()
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"

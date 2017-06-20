@@ -84,10 +84,9 @@ TwistGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, TwistGeometry>(&m_direction, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<double, TwistGeometry>(&m_alpha, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<double, TwistGeometry>(&m_distance, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, TwistGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortOut<dvecarr3E, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , TwistGeometry>(this, &mimmo::TwistGeometry::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<dmpvecarr3E, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject*, TwistGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
@@ -150,7 +149,7 @@ TwistGeometry::setMaxDistance(double distance){
  * \param[in] filter Filter field defined on geometry vertices.
  */
 void
-TwistGeometry::setFilter(dvector1D filter){
+TwistGeometry::setFilter(dmpvector1D filter){
     m_filter = filter;
 }
 
@@ -158,23 +157,9 @@ TwistGeometry::setFilter(dvector1D filter){
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dvecarr3E
+dmpvecarr3E
 TwistGeometry::getDisplacements(){
     return m_displ;
-};
-
-/*!
- * Return actual computed deformation field (if any) for the geometry linked.
- * If no field is actually present, return null pointers;
- * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
- */
-std::pair<MimmoObject * , dvecarr3E * >
-TwistGeometry::getDeformedField(){
-
-    std::pair<MimmoObject *, dvecarr3E * > pairField;
-    pairField.first = getGeometry();
-    pairField.second = &m_displ;
-    return pairField;
 };
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the
@@ -187,23 +172,26 @@ TwistGeometry::execute(){
     if (getGeometry() == NULL) return;
 
     int nV = m_geometry->getNVertex();
-    m_displ.resize(nV);
-    m_filter.resize(nV, 1.0);
+    if (m_filter.size() != nV){
+        m_filter.clear();
+        for (auto vertex : m_geometry->getVertices()){
+            m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
 
+    m_displ.clear();
 
     darray3E point, rotated;
     long ID;
-    int idx;
-    liimap mapID = m_geometry->getMapDataInv();
     darray3E projected;
     double distance;
     //double sign;
     double rot;
+    darray3E value;
 
     for (auto vertex : m_geometry->getVertices()){
         point = vertex.getCoords();
         ID = vertex.getId();
-        idx = mapID[ID];
 
         //signed distance from origin
         distance = dotProduct((point-m_origin),m_direction);
@@ -228,7 +216,8 @@ TwistGeometry::execute(){
         rotated += projected;
         point += projected;
 
-        m_displ[idx] = (rotated-point)*m_filter[idx];
+        value = (rotated-point)*m_filter[ID];
+        m_displ.insert(ID, value);
 
     }
 
@@ -241,13 +230,13 @@ void
 TwistGeometry::apply(){
 
     if (getGeometry() == NULL) return;
-    dvecarr3E vertex = getGeometry()->getVertexCoords();
-    long nv = getGeometry()->getNVertex();
-    nv = long(std::min(int(nv), int(m_displ.size())));
-    livector1D & idmap = getGeometry()->getMapData();
-    for (long i=0; i<nv; i++){
-        vertex[i] += m_displ[i];
-        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    darray3E vertexcoords;
+    long int ID;
+    for (auto vertex : m_geometry->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        vertexcoords += m_displ[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
 }
@@ -263,7 +252,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     BITPIT_UNUSED(name);
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
         input = bitpit::utils::string::trim(input);

@@ -84,13 +84,12 @@ MRBF::buildPorts(){
     bool built = true;
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, MRBF>(this, &mimmo::MRBF::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
 
-    built = (built && createPortOut<dvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
+    built = (built && createPortOut<dmpvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
@@ -144,7 +143,7 @@ MRBF::setMode(int type){
 /*! It gets current set filter field. See MRBF::setFilter
  * \return filter field.
  */
-dvector1D
+dmpvector1D
 MRBF::getFilter(){
     return(m_filter);
 };
@@ -186,24 +185,10 @@ MRBF::getIsSupportRadiusValue(){
 }
 
 /*!
- * Return actual computed deformation field (if any) for the geometry linked.
- * If no field is actually present, return null pointers;
- * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
- */
-std::pair<MimmoObject * , dvecarr3E * >
-MRBF::getDeformedField(){
-
-    std::pair<MimmoObject *, dvecarr3E * > pairField;
-    pairField.first = getGeometry();
-    pairField.second = &m_displ;
-    return pairField;
-};
-
-/*!
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return     The computed deformation field on the vertices of the linked geometry
  */
-dvecarr3E
+dmpvecarr3E
 MRBF::getDisplacements(){
     return m_displ;
 };
@@ -282,7 +267,7 @@ MRBF::setNode(MimmoObject* geometry){
  * \param[in] filter fields.
  */
 void
-MRBF::setFilter(dvector1D filter){
+MRBF::setFilter(dmpvector1D filter){
     m_filter.clear();
     m_bfilter = !(filter.empty());
     m_filter = filter;
@@ -383,9 +368,9 @@ MRBF::setTol(double tol){
 void
 MRBF::setDisplacements(dvecarr3E displ){
     int size = displ.size();
-    if(size != getTotalNodesCount()){
-        (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-    }
+    //    if(size != getTotalNodesCount()){
+    //        (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+    //    }
 
     removeAllData();
 
@@ -426,9 +411,9 @@ MRBF::setWeight(dvector2D value){
     if(m_solver != MRBFSol::NONE)    return;
 
     int size = value.size();
-    if(size != getTotalNodesCount()){
-        (*m_log) << "warning: " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-    }
+    //    if(size != getTotalNodesCount()){
+    //        (*m_log) << "warning: " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+    //    }
 
     removeAllData();
 
@@ -513,23 +498,30 @@ MRBF::execute(){
     if (m_solver == MRBFSol::WHOLE)    solve();
     if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
-    int nv = container->getNVertex();
-    dvecarr3E vertex = container->getVertexCoords();
-
-    m_displ.resize(nv, darray3E{0,0,0});
+    m_displ.clear();
     dvector1D displ;
-    for(int i=0; i<nv; ++i){
-        displ = RBF::evalRBF(vertex[i]);
-        for (int j=0; j<3; j++) m_displ[i][j] = displ[j];
+    darray3E adispl;
+    for(auto vertex : container->getVertices()){
+        displ = RBF::evalRBF(vertex.getCoords());
+        for (int j=0; j<3; ++j)
+            adispl[j] = displ[j];
+        m_displ.insert(vertex.getId(), adispl);
     }
 
     //if m_filter is active;
     if(m_bfilter){
-        m_filter.resize(nv,1.0);
-        int counter = 0;
-        for (auto && vec : m_displ){
-            vec = vec * m_filter[counter];
-            ++counter;
+        int nV = m_geometry->getNVertex();
+        if (m_filter.size() != nV){
+            m_filter.clear();
+            for (auto vertex : m_geometry->getVertices()){
+                m_filter.insert(vertex.getId(), 1.0);
+            }
+        }
+
+        long int ID;
+        for (auto & vertex : m_geometry->getVertices()){
+            ID = vertex.getId();
+            m_displ[ID] = m_displ[ID] * m_filter[ID];
         }
     }
 
@@ -542,13 +534,13 @@ void
 MRBF::apply(){
 
     if (getGeometry() == NULL) return;
-    dvecarr3E vertex = getGeometry()->getVertexCoords();
-    long nv = getGeometry()->getNVertex();
-    nv = long(std::min(int(nv), int(m_displ.size())));
-    livector1D & idmap = getGeometry()->getMapData();
-    for (long i=0; i<nv; i++){
-        vertex[i] += m_displ[i];
-        getGeometry()->modifyVertex(vertex[i], idmap[i]);
+    darray3E vertexcoords;
+    long int ID;
+    for (auto vertex : m_geometry->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        vertexcoords += m_displ[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
 }
@@ -703,7 +695,7 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     std::string input;
     input = std::to_string(static_cast<int>(m_solver));
     slotXML.set("Mode", input);
@@ -732,7 +724,7 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
         slotXML.set("Tolerance", ss.str());
     }
 
- 
+
 }
 
 }
