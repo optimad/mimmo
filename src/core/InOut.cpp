@@ -808,6 +808,46 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
     return buffer;
 };
 
+/*!
+* Input stream operator for bitpit::PiercedVector\< double \>
+* \param[in] buffer is the input stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, bitpit::PiercedVector<double>& element){
+
+    int nP;
+    buffer >> nP;
+    double val;
+    long int Id;
+    for (int i = 0; i < nP; ++i) {
+        buffer >> val;
+        buffer >> Id;
+        element.insert(Id, val);
+    }
+    return buffer;
+};
+
+/*!
+* Output stream operator for bitpit::PiercedVector\< double \>
+* \param[in] buffer is the output stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const bitpit::PiercedVector<double>& element){
+
+    int nP = element.size();
+    std::vector<long int> Ids = element.getIds();
+    buffer << nP;
+    long int Id;
+    for (int i=0; i<nP; ++i){
+        Id = Ids[i];
+        buffer << element[Id];
+        buffer << Id;
+    }
+    return buffer;
+};
+
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 //==============================================================//

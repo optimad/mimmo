@@ -98,8 +98,10 @@ class ReconstructScalar: public mimmo::BaseManipulation {
 private:
 
     OverlapMethod m_overlapCriterium;                                      /**<Overlap Method */
-    std::unordered_map < mimmo::MimmoObject*, dvector1D * > m_subpatch;   /**<List of input geometries and related field pointers. */
-    dvector1D m_result;                                                   /**<Output reconstructed field. */
+//    std::unordered_map < mimmo::MimmoObject*, dvector1D * > m_subpatch;   /**<List of input geometries and related field pointers. */
+//    dvector1D m_result;                                                   /**<Output reconstructed field. */
+    vector<dpvector1D*> m_subpatch;                                         /**<Vector of pointers to fields of sub-patches. */
+    dpvector1D m_result;                                                   /**<Output reconstructed field. */
 
 public:
     typedef std::pair<mimmo::MimmoObject*, dvector1D *>  pField;           /**< Internal definition of the class for the list of input geometries and related field pointers. */

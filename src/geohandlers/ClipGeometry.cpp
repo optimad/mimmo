@@ -303,7 +303,8 @@ ClipGeometry::plotOptionalResults(){
     if(getClippedPatch() == NULL) return;
     if(getClippedPatch()->isEmpty()) return;
 
-    dvecarr3E points = getClippedPatch()->getVertexCoords();
+    liimap mapDataInv;
+    dvecarr3E points = getClippedPatch()->getVertexCoords(&mapDataInv);
     ivector2D connectivity;
     bitpit::VTKElementType cellType;
 
@@ -312,7 +313,7 @@ ClipGeometry::plotOptionalResults(){
 
 
     if (getClippedPatch()->getType() != 3){
-        connectivity = getClippedPatch()->getCompactConnectivity();
+        connectivity = getClippedPatch()->getCompactConnectivity(mapDataInv);
     }
     else{
         int np = points.size();
