@@ -193,6 +193,7 @@ public:
     darray3E     apply(darray3E & point);
     dvecarr3E     apply(dvecarr3E * point);
     dvecarr3E     apply(livector1D & map);
+    void         checkFilter();
     virtual void         build();
 
     void     apply();

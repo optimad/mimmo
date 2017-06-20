@@ -87,7 +87,7 @@ Apply::setInput(dmpvecarr3E input){
  */
 void
 Apply::execute(){
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL || m_input.getGeometry() != getGeometry()) return;
 
     darray3E vertexcoords;
     long int ID;

@@ -218,13 +218,7 @@ BendGeometry::execute(){
         }
     }
 
-    int nV = m_geometry->getNVertex();
-    if (m_filter.size() != nV){
-        m_filter.clear();
-        for (auto vertex : m_geometry->getVertices()){
-            m_filter.insert(vertex.getId(), 1.0);
-        }
-    }
+    checkFilter();
 
     m_displ.clear();
 
@@ -255,6 +249,8 @@ BendGeometry::execute(){
         value = point - point0;
         m_displ.insert(ID, value);
     }
+    m_displ.setGeometry(m_geometry);
+    m_displ.setName("M_GDISPLS");
     return;
 };
 
@@ -264,7 +260,7 @@ BendGeometry::execute(){
 void
 BendGeometry::apply(){
 
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
     darray3E vertexcoords;
     long int ID;
     for (auto vertex : m_geometry->getVertices()){
@@ -274,6 +270,22 @@ BendGeometry::apply(){
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
+}
+
+/*!
+ * Check if the filter is related to the target geometry.
+ * If not create a unitary filter field.
+ */
+void
+BendGeometry::checkFilter(){
+    if (m_filter.getGeometry() != getGeometry()){
+        m_filter.clear();
+        m_filter.setGeometry(m_geometry);
+        m_filter.setName("M_FILTER");
+        for (auto vertex : m_geometry->getVertices()){
+            m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
 }
 
 /*! It gets the local coordinates of a point wrt the local reference system
@@ -328,7 +340,7 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
     std::string input;
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasSection("DegreesMatrix")){
         auto & subslot = slotXML.getSection("DegreesMatrix");
         umatrix33E temp;

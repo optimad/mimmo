@@ -547,6 +547,8 @@ FFDLattice::execute(){
             ++counter;
         }
     }
+    m_gdispl.setGeometry(getGeometry());
+    m_gdispl.setName("M_GDISPLS");
 
 };
 
@@ -584,13 +586,7 @@ FFDLattice::apply(livector1D & list){
     dvecarr3E result = nurbsEvaluator(list);
     if(m_bfilter){
 
-        int nV = m_geometry->getNVertex();
-        if (m_filter.size() != nV){
-            m_filter.clear();
-            for (auto vertex : m_geometry->getVertices()){
-                m_filter.insert(vertex.getId(), 1.0);
-            }
-        }
+        checkFilter();
 
         dvecarr3E::iterator itL= result.begin();
         for ( auto && vID : list){
@@ -630,16 +626,32 @@ FFDLattice::apply(dvecarr3E * point){
 void
 FFDLattice::apply(){
 
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL || m_gdispl.getGeometry() != getGeometry()) return;
     darray3E vertexcoords;
     long int ID;
     for (auto vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
-        vertexcoords += m_displ[ID];
+        vertexcoords += m_gdispl[ID];
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
+}
+
+/*!
+ * Check if the filter is related to the target geometry.
+ * If not create a unitary filter field.
+ */
+void
+FFDLattice::checkFilter(){
+    if (m_filter.getGeometry() != getGeometry()){
+        m_filter.clear();
+        m_filter.setGeometry(m_geometry);
+        m_filter.setName("M_FILTER");
+        for (auto vertex : m_geometry->getVertices()){
+            m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
 }
 
 /*! Convert a target displacement (expressed in local shape ref frame) in XYZ frame
