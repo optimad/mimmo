@@ -76,9 +76,9 @@ ScaleGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmpvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortOut<dmpvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
 };
@@ -133,19 +133,14 @@ ScaleGeometry::execute(){
 
     if (getGeometry() == NULL) return;
 
-    int nV = m_geometry->getNVertex();
-    if (m_filter.size() != nV){
-        m_filter.clear();
-        for (auto vertex : m_geometry->getVertices()){
-            m_filter.insert(vertex.getId(), 1.0);
-        }
-    }
+    checkFilter();
 
     m_displ.clear();
 
     long ID;
     darray3E value;
     //computing centroid
+    int nV = m_geometry->getNVertex();
     darray3E center = m_origin;
     if (m_meanP){
         center.fill(0.0);
@@ -161,6 +156,8 @@ ScaleGeometry::execute(){
         value = ( m_scaling*(coords - center) + center ) * m_filter[ID] - coords;
         m_displ.insert(ID, value);
     }
+    m_displ.setGeometry(getGeometry());
+    m_displ.setName("M_GDISPLS");
 };
 
 /*!
@@ -169,7 +166,7 @@ ScaleGeometry::execute(){
 void
 ScaleGeometry::apply(){
 
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
     darray3E vertexcoords;
     long int ID;
     for (auto vertex : m_geometry->getVertices()){
@@ -179,6 +176,22 @@ ScaleGeometry::apply(){
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
+}
+
+/*!
+ * Check if the filter is related to the target geometry.
+ * If not create a unitary filter field.
+ */
+void
+ScaleGeometry::checkFilter(){
+    if (m_filter.getGeometry() != getGeometry()){
+        m_filter.clear();
+        m_filter.setGeometry(m_geometry);
+        m_filter.setName("M_FILTER");
+        for (auto vertex : m_geometry->getVertices()){
+            m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
 }
 
 /*!

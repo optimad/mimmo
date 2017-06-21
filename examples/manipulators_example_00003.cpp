@@ -177,8 +177,8 @@ void test00003() {
 
     /* Clean up & exit;
      */
-    delete lattice;
     delete applier;
+    delete lattice;
     delete input;
     delete output;
     delete mimmo0;

@@ -242,11 +242,11 @@ BendGeometry::execute(){
                 }
             }
         }
-        point += value;
         if (m_local){
+            point += value;
             point = toGlobalCoord(point);
+            value = point - point0;
         }
-        value = point - point0;
         m_displ.insert(ID, value);
     }
     m_displ.setGeometry(m_geometry);

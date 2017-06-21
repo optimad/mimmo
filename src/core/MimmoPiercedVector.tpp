@@ -41,10 +41,10 @@ MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(MimmoObject* geo, std::str
 /*!
  * Default destructor of MimmoPiercedVector.
  */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
-    clear();
-}
+//template<typename value_t, typename id_t>
+//MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
+////    clear();
+//}
 
 /*!
  * Clear MimmoPiercedVector.
@@ -52,7 +52,6 @@ MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
 template<typename value_t, typename id_t>
 void
 MimmoPiercedVector<value_t, id_t>::clear(){
-    PiercedVector<value_t, id_t>::clear();
     m_geometry = NULL;
     m_name = "";
 }
@@ -64,7 +63,7 @@ MimmoPiercedVector<value_t, id_t>::clear(){
 template<typename value_t, typename id_t>
 MimmoObject*
 MimmoPiercedVector<value_t, id_t>::getGeometry() const{
-    return(m_geometry);
+    return m_geometry;
 }
 
 /*!
@@ -74,7 +73,7 @@ MimmoPiercedVector<value_t, id_t>::getGeometry() const{
 template<typename value_t, typename id_t>
 std::string
 MimmoPiercedVector<value_t, id_t>::getName() const{
-    return(m_name);
+    return m_name;
 }
 
 /*!

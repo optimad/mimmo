@@ -53,7 +53,7 @@ class MimmoPiercedVector : public bitpit::PiercedVector<value_t, id_t> {
 public:
 
     MimmoPiercedVector(MimmoObject* geo = NULL, std::string name = "");
-    ~MimmoPiercedVector();
+    ~MimmoPiercedVector(){};
 
     void            clear();
 
@@ -68,9 +68,6 @@ public:
 };
 
 #include "MimmoPiercedVector.tpp"
-
-typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
 
 #endif /* __MIMMOPIERCEDVECTOR_HPP__ */
 

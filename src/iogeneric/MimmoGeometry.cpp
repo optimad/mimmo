@@ -1653,8 +1653,7 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
     }
     default:
     {
-        cout << "Unknown writeFormat enumeration" << endl;
-        throw std::runtime_error ("Unknown writeFormat enumeration");
+        throw std::runtime_error ("NastranInterface : Unknown writeFormat enumeration");
     }
     }
     os.unsetf(ios_base::right);

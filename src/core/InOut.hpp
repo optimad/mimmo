@@ -29,6 +29,7 @@
 #include "MimmoNamespace.hpp"
 #include "BasicShapes.hpp"
 #include "MimmoObject.hpp"
+#include "MimmoPiercedVector.hpp"
 #include "TrackingPointer.hpp"
 #include <functional>
 
@@ -40,6 +41,8 @@ typedef short int                   PortID; /**< port ID typedef */
 typedef mimmo::pin::containerTAG    containerTAG; /**< containerTAG enum typedef*/
 typedef mimmo::pin::dataTAG         dataTAG; /**< dataTAG enum typedef */
 
+typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
 
 /*!
 * \class DataType
@@ -354,6 +357,12 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::dmpvector1D& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::dmpvector1D& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::dmpvecarr3E& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::dmpvecarr3E& element);
 
 /*!
  *\}

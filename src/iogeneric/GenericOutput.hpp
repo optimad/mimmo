@@ -51,17 +51,12 @@ namespace mimmo{
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  	| 0     | M_COORDS    | setResult         | (VECARR3, FLOAT)        |
  	| 10    | M_DISPLS    | setResult         | (VECARR3, FLOAT)        |
- 	| 12    | M_FILTER    | setResult         | (VECTOR, FLOAT)         |
  	| 20    | M_POINT     | setResult         | (ARRAY3, FLOAT)         |
  	| 24    | M_DIMENSION | setResult         | (ARRAY3, INT)           |
  	| 30    | M_VALUED    | setResult         | (SCALAR, FLOAT)         |
  	| 31    | M_VALUEI    | setResult         | (SCALAR, INT)           |
  	| 32    | M_VALUEB    | setResult         | (SCALAR, BOOL)          |
  	| 40    | M_DEG       | setResult         | (ARRAY3, INT)           |
- 	| 50    | M_FILENAME  | setResult         | (SCALAR, STRING)        |
- 	| 51    | M_DIR       | setResult         | (SCALAR, STRING)        |
-
-
 
 
  	|              Port Output  |||              |
