@@ -142,17 +142,32 @@ int test2() {
     sel2->exec();
     
     
-    dvector1D field1(clip2->getGeometry()->getNVertex(), 1.0);
-    dvector1D field2(sel1->getPatch()->getNVertex(), 1.0);
-    dvector1D field3(sel2->getPatch()->getNVertex(), 1.0);
+    dmpvector1D field1(clip2->getGeometry());
+    dmpvector1D field2(sel1->getPatch());
+    dmpvector1D field3(sel2->getPatch());
     
+    for (auto vertex : clip2->getGeometry()->getVertices()){
+        long int ID = vertex.getId();
+        field1.insert(ID, 1.0);
+    }
+
+    for (auto vertex : sel1->getGeometry()->getVertices()){
+        long int ID = vertex.getId();
+        field2.insert(ID, 1.0);
+    }
+
+    for (auto vertex : sel2->getGeometry()->getVertices()){
+        long int ID = vertex.getId();
+        field3.insert(ID, 1.0);
+    }
+
     ReconstructScalar * recon = new ReconstructScalar();
     
     recon->setGeometry(m1);
     recon->setOverlapCriterium(3);
-    recon->setData(std::make_pair(clip2->getGeometry(), &field1));
-    recon->setData(std::make_pair(sel1->getPatch(), &field2));
-    recon->setData(std::make_pair(sel2->getPatch(), &field3));
+    recon->addData(field1);
+    recon->addData(field2);
+    recon->addData(field3);
     
     recon->exec();
     
@@ -162,12 +177,26 @@ int test2() {
     for(auto & val : finalfield){
         check = check && (val == 1.0);
     }
+
+
+    SwitchScalarField * swtch = new SwitchScalarField();
+
+    swtch->setFields(recon->getResultFields());
+    swtch->setGeometry(sel1->getPatch());
+
+    swtch->exec();
+
+    for(auto & val : swtch->getSwitchedField()){
+        check = check && (val == 1.0);
+    }
+
     delete m1;
     delete clip;
     delete clip2;
     delete sel1;
     delete sel2;
     delete recon;
+    delete swtch;
     
     std::cout<<"test passed :"<<check<<std::endl; 
     

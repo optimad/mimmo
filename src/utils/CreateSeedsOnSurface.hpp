@@ -113,7 +113,7 @@ private:
     
     //utility members
     std::unique_ptr<mimmo::OBBox> bbox;        /**<pointer to an oriented Bounding box */
-    ivector1D m_deads; /**< inactive ids */
+    livector1D m_deads; /**< inactive ids */
 
 public:
 
@@ -165,11 +165,11 @@ private:
 
     dvecarr3E decimatePoints(dvecarr3E &);
 
-    void solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dvector1D & field);
-    double updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dvector1D & field);
+    void solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dmpvector1D & field);
+    double updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dmpvector1D & field);
 
     std::unordered_map<long,long>    getInverseConn();
-    bool            isDeadFront(const int label);
+    bool            isDeadFront(const long int label);
     std::set<long>    findVertexVertexOneRing(const long &, const long & );
     
     double interpolateSensitivity(darray3E & point);

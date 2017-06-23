@@ -401,7 +401,6 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     if(!(getGeometry()->isKdTreeBuilt())) getGeometry()->buildKdTree();
 
     bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
-    auto map    = getGeometry()->getMapData();
 
     double distance = 0.0;
     for(auto &cell : tri->getCells()){
@@ -430,7 +429,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         }
     }
 
-    m_deads.push_back(getGeometry()->getMapDataInv(candidate));
+    m_deads.push_back(candidate);
     int deadSize = m_deads.size();
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
 
@@ -439,21 +438,16 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
     while(deadSize < m_nPoints){
 
-        dvector1D field(tri->getVertexCount(), 1.0E18);
+        dmpvector1D field;
+        for (auto v : tri->getVertices()){
+            field.insert(v.getId(), 1.0E18);
+        }
         for(auto & dd : m_deads)    field[dd] = 0.0;
 
         solveEikonal(1.0,1.0, invConn, field);
 
-        //modulate field with sensitivity field
-        int countF = 0;
-        for( auto &val: field){
-            val *= m_sensitivity[countF];
-            ++countF;
-        }
-        
-        double maxField;
-        maxval(field, maxField);
-        dvector1D::iterator itF = std::find(field.begin(), field.end(), maxField);
+        double maxField = mimmo::maxvalmp(field);
+        dmpvector1D::iterator itF = std::find(field.begin(), field.end(), maxField);
 
         m_deads.push_back(std::distance(field.begin(), itF));
 
@@ -464,7 +458,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     //store result in m_points.
     m_points.reserve(deadSize);
     for(auto val: m_deads){
-        m_points.push_back(tri->getVertexCoords(map[val]));
+        m_points.push_back(tri->getVertexCoords(val));
     }
 
     m_minDist = 1.E18;
@@ -831,11 +825,10 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
  * \return    updated value of the m_sdf distance field on the target node.
  */
 double
-CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dvector1D & field){
+CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dmpvector1D & field){
 
     BITPIT_UNUSED(s);
     //get the pointer to reference geometry
-    liimap & vmap = getGeometry()->getMapDataInv();
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
 
     //todo get dimension? of Simplex. Get a check for non triangular cell or generalize it
@@ -859,7 +852,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
     double                    tempVal1, tempVal2;
 
     //get current field value of the node;
-    value = std::abs(field[vmap[tVert]]);
+    value = std::abs(field[tVert]);
 
     V = tVert;
 
@@ -906,7 +899,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
         case 1 : //  with 1 dead node
             eVU = tri->getVertexCoords(V) - tri->getVertexCoords(U);
             dVU = norm2(eVU);
-            value = std::min(value, std::abs(field[vmap[U]]) + g*dVU); ///??????????????????????????????????????????
+            value = std::min(value, std::abs(field[U]) + g*dVU); ///??????????????????????????????????????????
             break;
 
         case 2 : // with 2 dead nodes
@@ -922,8 +915,8 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
             eWU = eWU/dWU;
 
             // Coeffs -------------------------------------------------------------------- //
-            phi_U = std::abs(field[vmap[U]]);
-            phi_W = std::abs(field[vmap[W]]);
+            phi_U = std::abs(field[U]);
+            phi_W = std::abs(field[W]);
             K = phi_W - phi_U;
             a = pow(dWU, 2);
             b = -dWU*dVU*dotProduct(eWU, eVU);
@@ -1015,14 +1008,17 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
  * \param[in] g Propagation speed.
  * \param[in] s Velocity sign (+1 --> propagate outwards, -1 --> propagate inwards).
  * \param[in] invConn inverse connectivity of yout current geometry
- * \param[out] field field to be computed, already allocated.
+ * \param[in/out] field field to be computed, already allocated.
  */
 void
-CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dvector1D & field ){
+CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dmpvector1D & field ){
     //recover bitpit::PatchKernel
-    liimap & vmap = getGeometry()->getMapDataInv();
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
 
+    bitpit::PatchKernel * tri = getGeometry()->getPatch();
+    liimap vmap;
+    {
+        dvecarr3E points = getGeometry()->getVertexCoords(&vmap);
+    }
 
     // declare total size and support structure
     long     N(tri->getVertexCount());
@@ -1047,7 +1043,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
             myId     =    vertex.getId();
 
             // Dead vertices
-            if( isDeadFront(vmap[myId]) ){
+            if( isDeadFront(myId) ){
                 active[myId] = 0;
 
             }else{
@@ -1059,7 +1055,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
                 itend = neighs.end();
                 while(!check && it !=itend){
 
-                    check = s*field[vmap[*it]] >= 0.0 && field[vmap[*it]] < 1.0E+18;
+                    check = s*field[*it] >= 0.0 && field[*it] < 1.0E+18;
                     ++it;
                 };
 
@@ -1115,7 +1111,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
 
             // Update level set value
             //value =  s*updateEikonal(s, g, myId, invConn[myId], active);
-            field[vmap[myId]] = value;
+            field[myId] = value;
 
             // Update flag to dead;
             active[myId] = 0;
@@ -1189,17 +1185,19 @@ CreateSeedsOnSurface::getInverseConn(){
 
     return(invConn);
 };
+
 /*!
  * Return true if a given vertex belongs to the current constrained boundary front of your patch
  * \param[in]    label index of vertex, in sequential mimmo::MimmoObject notation
  * \return boolean, true if vertex belongs to constrained set, false if not 
  */
-bool CreateSeedsOnSurface::isDeadFront(const int label){
+bool CreateSeedsOnSurface::isDeadFront(const long int label){
 
-    ivector1D::iterator got = std::find(m_deads.begin(), m_deads.end(), label);
+    livector1D::iterator got = std::find(m_deads.begin(), m_deads.end(), label);
     if(got == m_deads.end()) return false;
     return true;
 }
+
 /*!
  * Return VertexVertex One Ring of a specified target vertex
  * \param[in]    cellId     bitpit::PatchKernel Id of a cell which target belongs to

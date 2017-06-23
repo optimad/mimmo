@@ -899,7 +899,6 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
     element.setGeometry(geo);
     std::string name;
     buffer >> name;
-    std::cout << "name " << name << std::endl;
     element.setName(name);
     int nP;
     buffer >> nP;

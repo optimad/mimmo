@@ -480,8 +480,6 @@ MimmoObject::getCellsIds(){
     return m_patch->getCells().getIds();
 };
 
-
-
 /*!
  * \return pointer to bitpit::PatchKernel structure hold by the class.
  */
@@ -658,6 +656,7 @@ MimmoObject::isKdTreeBuilt(){
  */
 bitpit::KdTree<3, bitpit::Vertex, long >*
 MimmoObject::getKdTree(){
+    if (!m_kdTreeBuilt) buildKdTree();
     return &m_kdTree;
 }
 
@@ -738,15 +737,16 @@ bool
 MimmoObject::addVertex(const darray3E & vertex, const long idtag){
     if (isEmpty()) return false;
     if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
-    long checkedID;
+
+//    long checkedID;
 
     bitpit::PatchKernel::VertexIterator it;
     if(idtag == bitpit::Vertex::NULL_ID){
         it = m_patch->addVertex(vertex);
-        checkedID = it->getId();
+//        checkedID = it->getId();
     }else{
         it =m_patch->addVertex(vertex, idtag);
-        checkedID = idtag;
+//        checkedID = idtag;
     }
 
 //    m_mapData.push_back(checkedID);
@@ -855,13 +855,13 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     livector1D conn_dum = conn;
     conn_dum.resize(sizeElement, 0);
 
-    long checkedID;
+//    long checkedID;
     if(idtag == bitpit::Cell::NULL_ID){
         it = m_patch->addCell(type, true, conn_dum);
-        checkedID = it->getId();
+//        checkedID = it->getId();
     }else{
         it = m_patch->addCell(type, true,conn_dum, idtag);
-        checkedID = idtag;
+//        checkedID = idtag;
     }
 
     m_pidsType.insert(0);		

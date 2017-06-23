@@ -64,18 +64,16 @@ enum class OverlapMethod{
      |                   Port Input    |||                                               |
      |-------|----------------|--------------------|----------------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 81    | M_PAIRSCAFIELD | setData            | (PAIR, MIMMO_VECFLOAT_)          |
+     | 19    | M_SCALARFIELD  | addData            | (MPVECTOR, FLOAT)          |
      | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                 |
-     | 200   | M_VECPAIRSF    | setData            | (VECTOR, PAIRMIMMO_VECFLOAT_)    |
-
 
 
      |             Port Output   |||                                          |
      |-------|----------------|--------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD  | getResultField     | (VECTOR, FLOAT)       |
+     | 19    | M_SCALARFIELD  | getResultField     | (MPVECTOR, FLOAT)       |
+     | 60    | M_VECFIELDS    | getResultFields    | (VECTOR, MPVECFLOAT)       |
      | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
-     | 81    | M_PAIRSCAFIELD | getResultFieldPair | (PAIR,MIMMO_VECFLOAT_)|
 
  *    =========================================================
  *
@@ -98,32 +96,26 @@ class ReconstructScalar: public mimmo::BaseManipulation {
 private:
 
     OverlapMethod m_overlapCriterium;                                      /**<Overlap Method */
-//    std::unordered_map < mimmo::MimmoObject*, dvector1D * > m_subpatch;   /**<List of input geometries and related field pointers. */
-//    dvector1D m_result;                                                   /**<Output reconstructed field. */
-    vector<dmpvector1D*> m_subpatch;                                         /**<Vector of pointers to fields of sub-patches. */
+    vector<dmpvector1D> m_subpatch;                                         /**<Vector of pointers to fields of sub-patches. */
+    vector<dmpvector1D> m_subresults;                                         /**<Vector of overlapped fields of sub-patches. */
     dmpvector1D m_result;                                                   /**<Output reconstructed field. */
 
 public:
-    typedef std::pair<mimmo::MimmoObject*, dvector1D *>  pField;           /**< Internal definition of the class for the list of input geometries and related field pointers. */
     ReconstructScalar();
     ReconstructScalar(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructScalar();
     ReconstructScalar(const ReconstructScalar & other);
 
     //get-set methods
-    OverlapMethod            getOverlapCriteriumENUM();
+    OverlapMethod           getOverlapCriteriumENUM();
     int                     getOverlapCriterium();
-    dvector1D                 getData(mimmo::MimmoObject * patch );
     int                     getNData();
-    dvector1D                getResultField();
-    pField                    getResultFieldPair();
+    dmpvector1D             getResultField();
+    vector<dmpvector1D>     getResultFields();
 
-    std::vector< mimmo::MimmoObject    * >    whichSubMeshes();
-
-    void         setOverlapCriteriumENUM( OverlapMethod);
-    void         setOverlapCriterium( int);
-    void        setData( pField );
-    void         setData(std::vector<pField> );
+    void        setOverlapCriteriumENUM( OverlapMethod);
+    void        setOverlapCriterium( int);
+    void        addData( dmpvector1D );
     void        removeData(mimmo::MimmoObject* );
     void        removeAllData();
     void        buildPorts();
@@ -133,6 +125,7 @@ public:
     //plotting
 
     void    plotData(std::string dir, std::string name, bool flag, int counter);
+    void    plotSubData(std::string dir, std::string name, int i, bool flag, int counter);
 
     //execute
     void        execute();
@@ -144,8 +137,7 @@ protected:
     virtual void plotOptionalResults();
 
 private:
-    double     overlapFields(dvector1D & locField);
-    std::unordered_map<long, dvector1D>        checkOverlapping();
+    void     overlapFields(long int ID, double & locField);
 };
 
 /*!
@@ -164,16 +156,15 @@ private:
      |                   Port Input   |||                                                  |
      |-------|----------------|--------------------|------------------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 80    | M_PAIRVECFIELD | setData            | (PAIR, MIMMO_VECARR3FLOAT_)        |
+     | 11    | M_GDISPL       | addData     | (MPVECARR3, FLOAT)           |
      | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                   |
-     | 201   | M_VECPAIRVF    | setData            | (VECTOR, PAIRMIMMO_VECARR3FLOAT_)  |
 
      |             Port Output  |||                                                |
      |-------|----------------|--------------------|----------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 11    | M_GDISPL       | getResultField     | (VECARR3, FLOAT)           |
+     | 11    | M_GDISPL       | getResultField     | (MPVECARR3, FLOAT)           |
+     | 61    | M_VECGDISPLS   | getResultFields    | (VECTOR, MPVECARR3)       |
      | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
-     | 80    | M_PAIRVECFIELD | getResultFieldPair | (PAIR, MIMMO_VECARR3FLOAT_)|
 
  *    =========================================================
  *
@@ -195,31 +186,27 @@ class ReconstructVector: public mimmo::BaseManipulation {
 
 private:
 
-    OverlapMethod m_overlapCriterium;                                     /**<Overlap Method */
-    std::unordered_map < mimmo::MimmoObject*, dvecarr3E * > m_subpatch;   /**<List of input geometries and related field pointers. */
-    dvecarr3E m_result;                                                   /**<Output reconstructed field. */
+    OverlapMethod m_overlapCriterium;   /**<Overlap Method */
+    vector<dmpvecarr3E> m_subpatch;    /**<Vector of pointers to fields of sub-patches. */
+    vector<dmpvecarr3E>  m_subresults;   /**<Vector of overlapped fields of sub-patches. */
+    dmpvecarr3E m_result;               /**<Output reconstructed field. */
 
 public:
-    typedef std::pair<mimmo::MimmoObject*, dvecarr3E *>  pVector;         /**< Internal definition of the class for the list of input geometries and related field pointers. */
     ReconstructVector();
     ReconstructVector(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructVector();
     ReconstructVector(const ReconstructVector & other);
 
     //get-set methods
-    OverlapMethod            getOverlapCriteriumENUM();
-    int                        getOverlapCriterium();
-    dvecarr3E                 getData(mimmo::MimmoObject * patch);
-    int                     getNData();
-    dvecarr3E                getResultField();
-    pVector                    getResultFieldPair();
+    OverlapMethod               getOverlapCriteriumENUM();
+    int                         getOverlapCriterium();
+    int                         getNData();
+    dmpvecarr3E                 getResultField();
+    std::vector<dmpvecarr3E>    getResultFields();
 
-    std::vector< mimmo::MimmoObject    * >    whichSubMeshes();
-
-    void         setOverlapCriteriumENUM( OverlapMethod);
+    void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium(int );
-    void        setData( pVector );
-    void         setData(std::vector<pVector> );
+    void        addData( dmpvecarr3E );
     void        removeData(mimmo::MimmoObject* );
     void        removeAllData();
     void        buildPorts();
@@ -229,9 +216,10 @@ public:
 
     //plotting
     void    plotData(std::string dir, std::string name, bool flag, int counter);
+    void    plotSubData(std::string dir, std::string name, int i, bool flag, int counter);
 
     //execute
-    void        execute();
+    void    execute();
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -241,8 +229,7 @@ protected:
     virtual void plotOptionalResults();
 
 private:
-    darray3E    overlapFields(dvecarr3E & locField);
-    std::unordered_map<long, dvecarr3E>        checkOverlapping();
+    void    overlapFields(long int ID, darray3E & locField);
 };
 
 REGISTER(BaseManipulation, ReconstructScalar,"mimmo.ReconstructScalar")

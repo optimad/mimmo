@@ -66,6 +66,8 @@ ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipu
     m_overlapCriterium = other.m_overlapCriterium;
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;
+    m_subresults = other.m_subresults;
+    return *this;
 }
 
 /*!
@@ -86,67 +88,30 @@ int    ReconstructScalar::getOverlapCriterium(){
 }
 
 /*!
- * Return data pointed for a given subpatch mesh
- * \param[in] patch    pointer to a subpatch
- * \return Data of scalar field associated to the patch, if any.
- */
-dvector1D
-ReconstructScalar::getData(MimmoObject * patch ){
-
-    std::unordered_map<MimmoObject *, dvector1D *>::iterator it = m_subpatch.find(patch);
-
-    dvector1D result;
-    if(it == m_subpatch.end())    return result;
-
-    return *(it->second);
-}
-
-/*!
  * Return number of fields data actually set in your class
  * \return number of fields
  */
 int
 ReconstructScalar::getNData(){
-
     return m_subpatch.size();
 }
 
 /*!
  * Return your result field
- * \return result fields
+ * \return result field
  */
-dvector1D
+dmpvector1D
 ReconstructScalar::getResultField(){
     return(m_result);
 }; 
 
 /*!
- * Return actual computed scalar field (if any) for the geometry linked.
- * If no field is actually present, return null pointers;
- * \return     std::pair of pointers linking to actual geometry pointed by the class, and the computed deformation field on its vertices
+ * Return your result fields
+ * \return result fields
  */
-std::pair<MimmoObject * , dvector1D * >
-ReconstructScalar::getResultFieldPair(){
-
-    std::pair<MimmoObject *, dvector1D * > pairField;
-    pairField.first = getGeometry();
-    pairField.second = &m_result;
-    return pairField;
-};
-
-/*!
- * Return list of sub-patch meshes actually stored in the class as a vector of copied pointers.
- * \return list of sub-patch meshes
- */
-std::vector<MimmoObject    *>
-ReconstructScalar::whichSubMeshes(){
-    std::vector<MimmoObject    *> result(getNData());
-    int counter=0;
-    for (auto && pairInd : m_subpatch){
-        result[counter] = pairInd.first;
-        ++counter;
-    }
-    return result;
+std::vector<dmpvector1D>
+ReconstructScalar::getResultFields(){
+    return(m_subresults);
 };
 
 /*!
@@ -177,20 +142,8 @@ ReconstructScalar::setOverlapCriterium( int funct){
  * \param[in] field    Sub-patch to be inserted
  */
 void
-ReconstructScalar::setData( pField  field){
-    m_subpatch.insert(field);
-};
-
-/*!
- * Insert in the list data field of a sub-patch, as typedef pField
- * (pointer to the sub-patch mesh, pointer to the sub-patch field)
- * \param[in] fieldList    Vector of sub-patch to be inserted
- */
-void
-ReconstructScalar::setData(std::vector<pField>  fieldList){
-    for(auto && data : fieldList){
-        setData(data);
-    }
+ReconstructScalar::addData( dmpvector1D  field){
+    m_subpatch.push_back(field);
 };
 
 /*!
@@ -199,9 +152,14 @@ ReconstructScalar::setData(std::vector<pField>  fieldList){
  */
 void
 ReconstructScalar::removeData(MimmoObject * patch){
-    std::unordered_map<MimmoObject *, dvector1D *>::iterator it = m_subpatch.find(patch);
-    if(it != m_subpatch.end()){
-        m_subpatch.erase(it);
+    std::vector<dmpvector1D>::iterator it = m_subpatch.begin();
+    while(it != m_subpatch.end()){
+        if (it->getGeometry() == patch){
+            m_subpatch.erase(it);
+        }
+        else{
+            ++it;
+        }
     }
 };
 
@@ -212,6 +170,7 @@ void
 ReconstructScalar::removeAllData(){
     m_subpatch.clear();
     m_result.clear();
+    m_subresults.clear();
 };
 
 /*!
@@ -221,7 +180,7 @@ void
 ReconstructScalar::clear(){
     BaseManipulation::clear();
     removeAllData();
-    m_overlapCriterium = OverlapMethod::MAX;
+    m_overlapCriterium = OverlapMethod::AVERAGE;
 }
 
 /*!
@@ -235,12 +194,13 @@ void
 ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int counter){
 
     if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
-    dvecarr3E points = getGeometry()->getVertexCoords();
+    liimap mapData;
+    dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
     ivector2D connectivity;
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
 
     if (getGeometry()->getType() != 3){
-        connectivity = getGeometry()->getCompactConnectivity();
+        connectivity = getGeometry()->getCompactConnectivity(mapData);
     }
     else{
         int np = points.size();
@@ -255,16 +215,18 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
     output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
     output.setDimensions(connectivity.size(), points.size());
 
-    output.addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_result);
 
+    dvector1D field(points.size());
     std::vector<long> ids(points.size());
     long ID;
     auto convMap = getGeometry()->getMapDataInv(); 
     for (auto vertex : getGeometry()->getVertices()){
         ID = vertex.getId();
-        ids[convMap[ID]] = ID;
+        ids[mapData[ID]] = ID;
+        field[mapData[ID]] = m_result[ID];
     }
 
+    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
     output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
 
     output.setCounter(counter);
@@ -275,25 +237,124 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
 };
 
 /*!
+ * Plot sub data (resulting field data) on vtu unstructured grid file
+ * \param[in]    dir        Output directory
+ * \param[in]    name    Output filename (the function will add SubPatch-i to this name)
+ * \param[in]    i       index of the sub-patch
+ * \param[in]    flag    Writing codex flag, false ascii, binary true
+ * \param[in]    counter Counter identifying your output name
+ */
+void
+ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag, int counter){
+    if(m_subresults[i].getGeometry() == NULL || m_subresults[i].getGeometry()->isEmpty()) return;
+
+    name = name+"SubPatch"+to_string(i);
+
+    liimap mapData;
+    dvecarr3E points = m_subresults[i].getGeometry()->getVertexCoords(&mapData);
+    ivector2D connectivity;
+    bitpit::VTKElementType cellType = m_subresults[i].getGeometry()->desumeElement();
+
+    if (m_subresults[i].getGeometry()->getType() != 3){
+        connectivity = m_subresults[i].getGeometry()->getCompactConnectivity(mapData);
+    }
+    else{
+        int np = points.size();
+        connectivity.resize(np);
+        for (int i=0; i<np; i++){
+            connectivity[i].resize(1);
+            connectivity[i][0] = i;
+        }
+    }
+    bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+    output.setGeomData(bitpit::VTKUnstructuredField::POINTS, points);
+    output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+    output.setDimensions(connectivity.size(), points.size());
+
+    dvector1D field(points.size());
+    std::vector<long> ids(points.size());
+    long ID;
+    for (auto vertex : m_subresults[i].getGeometry()->getVertices()){
+        ID = vertex.getId();
+        ids[mapData[ID]] = ID;
+        field[mapData[ID]] = m_subresults[i][ID];
+    }
+
+    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
+    output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
+
+    output.setCounter(counter);
+    output.setCodex(bitpit::VTKFormat::APPENDED);
+    if(!flag) output.setCodex(bitpit::VTKFormat::ASCII);
+    output.write();
+};
+
+/*!
  * Execution command.
  * Reconstruct fields and save result in m_results member.
  */
 void
 ReconstructScalar::execute(){
 
-    if(getGeometry() == NULL)    return;
 
-    liimap & vMotherMap = getGeometry()->getMapDataInv();
+    //Overlap fields
+    m_result.clear();
+    m_subresults.clear();
+    bitpit::PiercedVector<int> counter;
+    for (int i=0; i<getNData(); i++){
+        dmpvector1D* pv = &m_subpatch[i];
+        long int ID;
+        for (auto vertex : pv->getGeometry()->getVertices()){
+            ID = vertex.getId();
+            if (!m_result.exists(ID)){
+                m_result.insert(ID, (*pv)[ID]);
+                counter.insert(ID, 1);
+            }
+            else{
+                overlapFields(ID, (*pv)[ID]);
+                counter[ID]++;
+            }
+        }
+    }
+    if (m_overlapCriterium == OverlapMethod::AVERAGE){
+        long int ID;
+        MimmoPiercedVector<double>::iterator it;
+        MimmoPiercedVector<double>::iterator itend = m_result.end();
+        for (it=m_result.begin(); it!=itend; ++it){
+            ID = it.getId();
+            (*it) = (*it) / counter[ID];
+        }
+    }
 
-    m_result.resize(getGeometry()->getPatch()->getVertexCount(), 0.0);
+    //Create subresults
+    m_subresults.resize(getNData());
+    for (int i=0; i<getNData(); i++){
+        dmpvector1D* pv = &m_subpatch[i];
+        m_subresults[i].setGeometry(pv->getGeometry());
+        m_subresults[i].setName(pv->getName());
+        long int ID;
+        for (auto vertex : pv->getGeometry()->getVertices()){
+            ID = vertex.getId();
+            m_subresults[i].insert(ID, m_result[ID]);
+        }
+    }
 
-    if(m_subpatch.empty()) return;
-
-    std::unordered_map<long, dvector1D> map = checkOverlapping();
-
-    for(auto && obj : map){
-        m_result[vMotherMap[obj.first]] = overlapFields(obj.second);
-        obj.second.clear();
+    //Update field on whole geometry
+    if(getGeometry() != NULL){
+        m_result.setGeometry(getGeometry());
+        if (m_subresults.size() != 0)
+            m_result.setName(m_subresults[0].getName());
+        double zero = 0.0;
+        long int ID;
+        for (auto vertex : getGeometry()->getVertices()){
+            ID = vertex.getId();
+            if (!m_result.exists(ID)){
+                m_result.insert(ID, zero);
+            }
+        }
+    }
+    else{
+        m_result.clear();
     }
 
 }
@@ -305,6 +366,9 @@ void     ReconstructScalar::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string name = m_name;
     plotData(dir, name, true, getClassCounter());
+    for (int i=0; i<getNData(); i++){
+        plotSubData(dir, name, i, true, getClassCounter());
+    }
 }
 
 /*!
@@ -314,70 +378,39 @@ void     ReconstructScalar::plotOptionalResults(){
  *\return    assigned value
  */
 //DEVELOPERS REMIND if more overlap methods are added refer to this method to implement them
-double
-ReconstructScalar::overlapFields(dvector1D & locField){
-    int size  = locField.size();
-    if(size < 1) return 0.0;
-
-    double value = locField[0];
-    if(size ==1 )return value;
+void
+ReconstructScalar::overlapFields(long int ID, double & locField){
 
     switch(m_overlapCriterium){
     case OverlapMethod::MAX :
-        for(auto && loc : locField){
-            value = std::fmax(loc,value);
-        }
-        break;
+    {
+        double actual = m_result[ID];
+        double dummy = locField;
+
+        if (actual < dummy)
+            m_result[ID] = locField;
+    }
+    break;
     case OverlapMethod::MIN :
-        for(auto && loc : locField){
-            value = std::fmin(loc,value);
-        }
-        break;
+    {
+        double actual = m_result[ID];
+        double dummy = locField;
+
+        if (actual > dummy)
+            m_result[ID] = locField;
+    }
+    break;
     case OverlapMethod::AVERAGE :
-        value = 0.0;
-        for(auto && loc : locField){
-            value += loc/double(size);
-        }
+        m_result[ID] += locField;
         break;
     case OverlapMethod::SUM :
-        value = 0.0;
-        for(auto && loc : locField){
-            value += loc;
-        }
+        m_result[ID] += locField;
         break;
     default : //never been reached
         break;
     }
 
-    return value;
 };
-
-/*!
- * Check your sub-patch fields and reorder them in an unordered map carrying as
- * key the bitpit::PatchKernel ID of the mother mesh vertex and as value a vector
- * of doubles with all different field values concurring in that vertex
- *\return reordered map
- */
-std::unordered_map<long, dvector1D>
-ReconstructScalar::checkOverlapping(){
-
-    std::unordered_map<long, dvector1D> result;
-    int counter;
-
-    for(auto && pairInd : m_subpatch){
-
-        livector1D & vMap = pairInd.first->getMapData();
-        counter = 0;
-        dvector1D field = *(pairInd.second);
-        for(int i=0; i<(int)field.size(); ++i){
-            result[vMap[counter]].push_back(field[i]);
-            ++counter;
-        }
-    }
-
-    return(result);
-};
-
 
 /*! 
  * It builds the input/output ports of the object
@@ -389,13 +422,12 @@ ReconstructScalar::buildPorts(){
 
     //input
     built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortIn<std::pair<MimmoObject *, dvector1D *>,ReconstructScalar>(this, &mimmo::ReconstructScalar::setData, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_, true, 1));
-    built = (built && createPortIn<std::vector<std::pair<MimmoObject *, dvector1D *>>,ReconstructScalar>(this, &mimmo::ReconstructScalar::setData, PortType::M_VECPAIRSF, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::PAIRMIMMO_VECFLOAT_, true, 1));
+    built = (built && createPortIn<dmpvector1D, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
     //output
-    built = (built && createPortOut<dvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<std::pair<MimmoObject *, dvector1D *>,ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFieldPair, PortType::M_PAIRSCAFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECFLOAT_));
+    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, PortType::M_VECFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT));
     m_arePortsBuilt = built;
 };
 
@@ -436,7 +468,7 @@ ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     int value = static_cast<int>(m_overlapCriterium);
     slotXML.set("OverlapCriterium", std::to_string(value));
 

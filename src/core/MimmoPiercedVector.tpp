@@ -41,10 +41,30 @@ MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(MimmoObject* geo, std::str
 /*!
  * Default destructor of MimmoPiercedVector.
  */
-//template<typename value_t, typename id_t>
-//MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
-////    clear();
-//}
+template<typename value_t, typename id_t>
+MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
+    clear();
+}
+
+/*! Copy Constructor
+ *\param[in] other MimmoPiercedVector object
+ */
+template<typename value_t, typename id_t>
+MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(const MimmoPiercedVector & other):bitpit::PiercedVector<value_t, id_t>(){
+    *this = other;
+};
+
+/*! Copy Operator
+ * \param[in] other MimmoPiercedVector object
+ */
+template<typename value_t, typename id_t>
+MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator=(const MimmoPiercedVector & other){
+
+    *(static_cast<bitpit::PiercedVector<value_t, id_t> *>(this))  = *(static_cast<const bitpit::PiercedVector<value_t, id_t> *>(&other));
+    m_geometry = other.m_geometry;
+    m_name = other.m_name;
+    return(*this);
+};
 
 /*!
  * Clear MimmoPiercedVector.

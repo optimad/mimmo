@@ -62,7 +62,9 @@ BETTER_ENUM(PortType, int,
             M_DIR				= 51,
             M_FILENAMEPTR		= 52,
             M_DIRPTR			= 53,
-            M_PAIRVECFIELD 		= 80,
+            M_VECFIELDS         = 60,
+            M_VECGDISPLS        = 61,
+            M_PAIRVECFIELD      = 80,
             M_PAIRSCAFIELD 		= 81,
             M_VIOLATION			= 82,
             M_GEOM2				= 98,
@@ -93,6 +95,9 @@ BETTER_ENUM(PortType, int,
 namespace mimmo{
 
 class BaseManipulation;
+
+template<typename value_t, typename id_t>
+class MimmoPiercedVector;
 
 /*!
  * \class FileDataInfo
@@ -138,7 +143,7 @@ struct FileDataInfo{
 * - <B>M_GLOBAL        </B>= 1    Port dedicated to communicate coordinates of points in a global reference system [vector<array<double,3>>].,
 * - <B>M_LOCAL         </B>= 2    Port dedicated to communicate coordinates of points in a local reference system. [vector<array<double,3>>].,
 * - <B>M_DISPLS        </B>= 10   Port dedicated to communicate displacements of points [vector<array<double,3>>].,
-* - <B>M_GDISPLS       </B>= 11   Port dedicated to communicate displacements of geometry vertex [MimmoPiercedVector<array<double,3>>].,
+* - <B>M_GDISPLS       </B>= 11   Port dedicated to communicate displacements (or a generic field of array<double,3>) of geometry vertex [MimmoPiercedVector<array<double,3>>].,
 * - <B>M_FILTER        </B>= 12   Port dedicated to communicate a scalar field used as filter function [MimmoPiercedVector<double>].,
 * - <B>M_FILTER_       </B>= 13   Port dedicated to communicate a pointer to a scalar field used as filter function [MimmoPiercedVector<double>*].,
 * - <B>M_VECTORSI      </B>= 17   Port dedicated to communicate a generic list of short integers [vector<short int>].,
@@ -167,6 +172,8 @@ struct FileDataInfo{
 * - <B>M_NURBSWEIGHTS  </B>= 44   Port dedicated to communicate condition to exchange NURBS weights on FFDLattice [vector<double>],
 * - <B>M_FILENAME      </B>= 50   Port dedicated to communicate a filename [string].,
 * - <B>M_DIR           </B>= 51   Port dedicated to communicate a directory path [string].,
+* - <B>M_VECFIELDS     </B>= 60   Port dedicated to communicate a vector of scalar fields [vector<mimm::MimmoPiercedVector<double>].,
+* - <B>M_VECGDISPLS    </B>= 61   Port dedicated to communicate a vector of vector (displacements) fields related to a geometry [vector<mimm::MimmoPiercedVector<double>].,
 * - <B>M_PAIRVECFIELD  </B>= 80   Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair<MimmoObject *, vector<array<double,3>>> ,
 * - <B>M_PAIRSCAFIELD  </B>= 81   Port dedicated to communicate a scalar field on a MimmoObject geometry as std::pair<MimmoObject *, vector<double>> ,
 * - <B>M_VIOLATION     </B>= 82   Port dedicated to communicate a double value, with a BaseManipulation object which refers to as std::pair<BaseManipulation *, double>,
@@ -257,7 +264,9 @@ enum class dataTAG{
     BOOL						/**< TAG related to a bool data.*/,
     STRING						/**< TAG related to a string data.*/,
     STRING_						/**< TAG related to a string pointer data.*/,
-    PVECFLOAT_                  /**< TAG related to a bitpit::PiercedVector<double>* data.*/,
+    MPVECFLOAT                  /**< TAG related to a std::vector of bitpit::PiercedVector<double> data.*/,
+    MPVECARR3FLOAT              /**< TAG related to a std::vector of bitpit::PiercedVector<std::array<double,3> > data.*/,
+    PVECFLOAT_                  /**< TAG related to a bitpit::PiercedVector<double>* data pointer.*/,
     MIMMO_VECFLOAT_             /**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<double>* data.*/,
     MIMMO_VECARR3FLOAT_         /**< TAG related to a couple (normally used in pair container) of mimmo::MimmoObject* and std::vector<std::array<double,3> >* data.*/,
     LONGSHORT					/**< TAG related to a couple (normally used in pair or map containers) of a long and a short element data*/,
@@ -298,6 +307,9 @@ extern bool MIMMO_EXPERT; /**<Flag that defines expert mode (true) or safe mode 
                                 In case of expert mode active the mandatory ports are not checked. */
 
 void setExpertMode(bool flag = true);
+
+//miscellanea
+double  maxvalmp(const MimmoPiercedVector<double, long int> & field);
 
 }//end namespace mimmo
 

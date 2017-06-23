@@ -72,73 +72,25 @@ int test1() {
     StitchGeometry * stitch1 = new StitchGeometry(1);
     StitchGeometry * stitch2 = new StitchGeometry(1);
     
-    stitch1->setAddGeometry(m1);
-    stitch1->setAddGeometry(m2);
+    stitch1->addGeometry(m1);
+    stitch1->addGeometry(m2);
     
-    stitch2->setAddGeometry(m2);
-    stitch2->setAddGeometry(m3);
+    stitch2->addGeometry(m2);
+    stitch2->addGeometry(m3);
     
     stitch1->exec();
     stitch2->exec();
     
-    if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2){
-        delete m1;
-        delete m2;
-        delete m3;
-        delete stitch1;
-        delete stitch2;
-        return 1;
-    }
-    //define to fake fields on stitched geometries
-    dvector1D field1(2, 1.0);
-    dvector1D field2(2, 2.0);
-    
-    //Split fields
-    SplitScalarField * split1 = new SplitScalarField();
-    SplitScalarField * split2 = new SplitScalarField();
-    
-    split1->setGeometry(stitch1->getGeometry());
-    split1->setField(field1);
-    split1->setSplittedGeometries(stitch1->getOriginalGeometries());
-    split1->setCellDivisionMap(stitch1->getCellDivisionMap());
-    
-    split2->setGeometry(stitch2->getGeometry());
-    split2->setField(field2);
-    split2->setSplittedGeometries(stitch2->getOriginalGeometries());
-    split2->setCellDivisionMap(stitch2->getCellDivisionMap());
-    
-    split1->exec();
-    split2->exec();
-    
-    //overlap Fields
-    OverlapScalarFields * olap = new OverlapScalarFields();
-    
-    olap->setOverlapCriterium(4);
-    olap->setDataFieldMap(split1->getSplittedData());
-    olap->setDataFieldMap(split2->getSplittedData());
-    
-    olap->exec();
-    
-    auto datafield = olap->getDataFieldMap();
-    
+    if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2) return 1;
+
     bool check = true;
-    for(auto &val: datafield ){
-        
-        if(val.first == m1) check = check && ( (*(val.second))[0] == 1.0);
-        if(val.first == m2) check = check && ( (*(val.second))[0] == 3.0);
-        if(val.first == m3) check = check && ( (*(val.second))[0] == 2.0);
-        
-    }
+    
     std::cout<<"test passed :"<<check<<std::endl; 
     delete m1;
     delete m2;
     delete m3;
     delete stitch1;
     delete stitch2;
-    delete split1;
-    delete split2;
-    delete olap;
-    
     
     return int(!check);
 }

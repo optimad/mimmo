@@ -81,12 +81,12 @@ void
 ControlDeformMaxDistance::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setDefField, PortType::M_GDISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT, true));
+    built = (built && createPortIn<dmpvecarr3E, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setDefField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true));
     built = (built && createPortIn<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setLimitDistance, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<MimmoObject*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
 
     built = (built && createPortOut<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolation, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvector1D, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvector1D, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<std::pair<BaseManipulation*, double>, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_OBJFLOAT_));
     m_arePortsBuilt = built;
 };
@@ -143,7 +143,7 @@ ControlDeformMaxDistance::getViolationPair(){
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return violation field values
  */
-dvector1D 
+dmpvector1D
 ControlDeformMaxDistance::getViolationField(){
     return(m_violationField);
 };
@@ -154,11 +154,10 @@ ControlDeformMaxDistance::getViolationField(){
  * \param[in]    field of deformation
  */
 void
-ControlDeformMaxDistance::setDefField(dvecarr3E field){
+ControlDeformMaxDistance::setDefField(dmpvecarr3E field){
     m_defField.clear();
     m_violationField.clear();
     m_defField = field;
-    m_violationField.resize(field.size(),-1.E+18);
 };
 
 /*! Set limit distance d of the constraint surface. Must be a positive definite value (>= 0).
@@ -177,22 +176,22 @@ void
 ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
-    if(geo->isEmpty()) return;
+    if(geo->isEmpty() || m_defField.getGeometry() != geo) return;
     if(!(geo->isBvTreeSupported())) return;
 
-    m_defField.resize(getGeometry()->getNVertex(),darray3E{{0.0,0.0,0.0}});
-    m_violationField.resize(m_defField.size());
+    m_violationField.clear();
+
 
     if(!(geo->isBvTreeBuilt()))    geo->buildBvTree();
 
-    dvecarr3E points = geo->getVertexCoords();
-    points+= m_defField;
-    dvector1D normDef(m_defField.size());
-
-    int count=0;
-    for(auto & def : m_defField){
-        normDef[count] = norm2(def);
-        ++count;
+    dmpvecarr3E points;
+    dmpvector1D normDef;
+    long int ID;
+    for (auto & v : geo->getVertices()){
+        ID = v.getId();
+        points.insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
+        normDef.insert(ID, norm2(m_defField[ID]));
+        m_violationField.insert(ID, -1.0e+18);
     }
 
     double dist;
@@ -201,14 +200,12 @@ ControlDeformMaxDistance::execute(){
     int kmax = 200;
     int kiter;
     bool flag;
-    long id;
-    count = 0;
-
-    for(auto &p : points){
+    long int IDC;
+    for(auto &ID : points.getIds()){
         dist =1.0E+18;
         kiter = 0;
         flag = true;
-        radius = std::fmax(1.0E-8, normDef[count]);
+        radius = std::fmax(1.0E-8, normDef[ID]);
         while(flag && kiter < kmax){
             dist = skdTreeUtils::distance(&p, geo->getBvTree(), id, radius);
             flag = (dist == 1.0E+18);
@@ -216,8 +213,7 @@ ControlDeformMaxDistance::execute(){
             kiter++;
         }
         if(kiter == kmax)    dist = m_maxDist - dist;
-        m_violationField[count] =  (dist - m_maxDist);
-        count++;
+        m_violationField[ID] =  (dist - m_maxDist);
     }
 };
 
@@ -270,10 +266,16 @@ void
 ControlDeformMaxDistance::plotOptionalResults(){
     if(getGeometry()->isEmpty())    return;
 
-    dvecarr3E  points = getGeometry()->getVertexCoords();
-    m_defField.resize(points.size());
-    points+=m_defField;
-    ivector2D connectivity = getGeometry()->getCompactConnectivity();
+    liimap map;
+    dvecarr3E  points = getGeometry()->getVertexCoords(&map);
+    dvecarr3E deff(m_defField.size());
+    int count = 0;
+    for (auto f : m_defField){
+        deff[count] = f;
+        ++count;
+    }
+    points+=deff;
+    ivector2D connectivity = getGeometry()->getCompactConnectivity(map);
 
     bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
 
@@ -283,9 +285,14 @@ ControlDeformMaxDistance::plotOptionalResults(){
     output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
     output.setDimensions(connectivity.size(), points.size());
 
-    m_violationField.resize(points.size(), -1.e+18);
+    dvector1D viol(m_violationField.size());
+    count = 0;
+    for (auto f : m_violationField){
+        viol[count] = f;
+        ++count;
+    }
     std::string sdfstr = "Violation Distance Field";
-    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_violationField);
+    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
     output.write();
 }
 

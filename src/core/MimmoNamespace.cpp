@@ -185,4 +185,16 @@ void setExpertMode(bool flag){
     MIMMO_EXPERT = flag;
 }
 
+/*!Maximum value function for MimmoPiercedVector<double>.
+ * \param[in] field MimmoPiercedVector<double>
+ * \return Maximum value
+ */
+double  maxvalmp(const MimmoPiercedVector<double, long int> & field){
+    double val = 1.0e-18;
+    for (auto v : field){
+        val = std::max(val,v);
+    }
+    return val;
+}
+
 }//end mimmo namespace

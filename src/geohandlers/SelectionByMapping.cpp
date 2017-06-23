@@ -306,7 +306,7 @@ SelectionByMapping::extractSelection(){
 /* check if dual */
     livector1D result;
     if(m_dual){
-        livector1D totID = getGeometry()->getMapCell();
+        livector1D totID = getGeometry()->getCellsIds();
         result.resize(totID.size() - cellList.size());
         if(result.size() == 0) return result;
 

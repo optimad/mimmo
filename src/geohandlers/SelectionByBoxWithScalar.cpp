@@ -95,9 +95,9 @@ SelectionByBoxWithScalar::buildPorts(){
 
     SelectionByBox::buildPorts();
 
-    built = (built && createPortIn<dvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
-    built = (built && createPortOut<dvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
     m_arePortsBuilt = built;
 };
@@ -115,14 +115,14 @@ SelectionByBoxWithScalar::clear(){
  * \param[in] field Scalar field.
  */
 void
-SelectionByBoxWithScalar::setField(dvector1D field){
+SelectionByBoxWithScalar::setField(dmpvector1D field){
     m_field = field;
 }
 
 /*! It gets the scalar field attached to the extracted patch.
  * \return Scalar field.
  */
-dvector1D
+dmpvector1D
 SelectionByBoxWithScalar::getField(){
     return (m_field);
 }
@@ -141,15 +141,15 @@ SelectionByBoxWithScalar::execute(){
     SelectionByBox::execute();
 
     if (m_field.size() != 0){
-        m_field.resize(getGeometry()->getNVertex(), 0.0);
+        MimmoPiercedVector<double> temp;
+        temp.setGeometry(m_subpatch.get());
+        temp.setName(m_field.getName());
         bitpit::PiercedVector<bitpit::Vertex> vertices = m_subpatch->getVertices();
-        dvector1D field_tmp(vertices.size());
-        auto convPMap = m_subpatch->getMapDataInv();
-        auto convGMap = getGeometry()->getMapDataInv();
         for (auto vertex : vertices){
-            field_tmp[convPMap[vertex.getId()]] = m_field[convGMap[vertex.getId()]];
+            temp[vertex.getId()] = m_field[vertex.getId()];
         }
-        m_field = field_tmp;
+        m_field.clear();
+        m_field = temp;
     }
 }
 
@@ -163,7 +163,12 @@ SelectionByBoxWithScalar::plotOptionalResults(){
     if(getPatch()->isEmpty()) return;
     std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 
-    getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_field);
+    dvector1D temp;
+    for (auto vertex : getPatch()->getVertices()){
+        temp.push_back(m_field[vertex.getId()]);
+    }
+
+    getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, temp);
 
     getPatch()->getPatch()->write(name);
 }

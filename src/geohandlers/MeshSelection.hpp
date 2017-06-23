@@ -608,13 +608,13 @@ protected:
    |                   Port Input      |||                                   |
    |-------|----------------|---------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD  | setField            | (VECTOR, FLOAT)       |
+   | 19    | M_SCALARFIELD  | setField            | (MPVECTOR, FLOAT)       |
 
 
    |             Port Output    |||                                          |
    |-------|----------------|---------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD  | getField            | (VECTOR, FLOAT)       |
+   | 19    | M_SCALARFIELD  | getField            | (MPVECTOR, FLOAT)       |
 
    Inherited from SelectionByBox
 
@@ -672,7 +672,7 @@ protected:
  */
 class SelectionByBoxWithScalar: public SelectionByBox{
 protected:
-    dvector1D     m_field;          /**<Scalar field attached to the patch
+    dmpvector1D     m_field;          /**<Scalar field attached to the patch
                                         (related to the whole patch before execution,
                                         related to the selected patch after execution).*/
 
@@ -688,8 +688,8 @@ public:
 
     void clear();
 
-    void        setField(dvector1D);
-    dvector1D   getField();
+    void        setField(dmpvector1D);
+    dmpvector1D   getField();
 
     void execute();
 

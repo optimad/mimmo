@@ -52,14 +52,14 @@ namespace mimmo{
      |Port Input | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 11    | M_GDISPLS| setDefField       | (VECARR3E, FLOAT)       |
+     | 11    | M_GDISPLS| setDefField       | (MPVECARR3E, FLOAT)       |
      | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
      | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
 
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
-     | 19    | M_SCALARFIELD | getViolationField | (VECTOR, FLOAT)             |
+     | 19    | M_SCALARFIELD | getViolationField | (MPVECTOR, FLOAT)             |
      | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
      | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
 
@@ -83,8 +83,8 @@ namespace mimmo{
 class ControlDeformMaxDistance: public BaseManipulation{
 private:
     double                        m_maxDist;        /**<Limit Distance*/
-    dvector1D                    m_violationField;    /**<Violation Distance Field */
-    dvecarr3E                    m_defField;     /**<Deformation field*/
+    dmpvector1D                    m_violationField;    /**<Violation Distance Field */
+    dmpvecarr3E                    m_defField;     /**<Deformation field*/
 
 public:
     ControlDeformMaxDistance();
@@ -97,10 +97,10 @@ public:
     void    buildPorts();
 
     double                                     getViolation();
-    dvector1D                                getViolationField();
+    dmpvector1D                                getViolationField();
     std::pair<BaseManipulation*, double>    getViolationPair();
 
-    void    setDefField(dvecarr3E field);
+    void    setDefField(dmpvecarr3E field);
     void    setLimitDistance(double dist);
 
     void     execute();

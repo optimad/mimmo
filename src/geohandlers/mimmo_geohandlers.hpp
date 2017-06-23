@@ -37,7 +37,8 @@
 #include "ClipGeometry.hpp"
 #include "MeshSelection.hpp"
 #include "ReconstructFields.hpp"
-#include "SplitFields.hpp"
+#include "SwitchFields.hpp"
+#include "ExtractFields.hpp"
 #include "StitchGeometry.hpp"
 
 #endif

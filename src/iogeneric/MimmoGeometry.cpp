@@ -1354,7 +1354,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     std::string input;
 
-   BaseManipulation::absorbSectionXML(slotXML, name);
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
     if(slotXML.hasOption("IOMode")){
         input = slotXML.get("IOMode");
