@@ -215,6 +215,10 @@ ControlDeformMaxDistance::execute(){
         if(kiter == kmax)    dist = m_maxDist - dist;
         m_violationField[ID] =  (dist - m_maxDist);
     }
+
+    m_violationField.setGeometry(getGeometry());
+    m_violationField.setName("violation");
+
 };
 
 /*!

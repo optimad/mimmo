@@ -32,7 +32,6 @@
 #include <vtkPolyDataWriter.h>
 
 using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!Default constructor of IOVTKScalar.
@@ -386,7 +385,7 @@ IOVTKScalar::write(){
         points = NULL;
 
         /* Set polydata cells. */
-        PiercedVector<Cell> cells = getGeometry()->getCells();
+        bitpit::PiercedVector<bitpit::Cell> cells = getGeometry()->getCells();
         for (auto & cell : cells){
             long int *conn = (cell.getConnect());
             int nV = cell.getVertexCount();

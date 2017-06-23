@@ -57,7 +57,7 @@ namespace mimmo{
    |                     Port Input   |||                                     |
    |-------|------------------|---------------------|----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD    | setField            | (VECTOR, FLOAT)      |
+   | 19    | M_SCALARFIELD    | setField            | (MPVECTOR, FLOAT)      |
    | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
    | 98    | M_GEOM2          | setSurfaceBoundary  | (SCALAR, MIMMO_)     |
 
@@ -65,7 +65,7 @@ namespace mimmo{
    |               Port Output    |||                                         |
    |-------|------------------|--------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD    | getField           | (VECTOR, FLOAT)       |
+   | 19    | M_SCALARFIELD    | getField           | (MPVECTOR, FLOAT)       |
    | 99    | M_GEOM           | getGeometry        | (SCALAR, MIMMO_)      |
    | 98    | M_GEOM2          | getSurfaceBoundary | (SCALAR, MIMMO_)      |
 
@@ -133,7 +133,7 @@ private:
     std::unique_ptr<MimmoObject>    m_surfmesh;     /**<Original boundary mesh, instantiated in reading */
     MimmoObject*                    m_surfmesh_ext; /**<Pointed external boundary mesh */
 
-    dvector1D                       m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
+    dmpvector1D                     m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
     bool                            m_normalize;    /**<If true the field is normalized with the maximum absolute value after reading.*/
     double                          m_maxf;         /**<Max value of the read scalar field.*/
     double                          m_scaling;      /**<Value used to scale the scalar field (default m_scaling = 1). */
@@ -165,11 +165,11 @@ public:
     void            setSurfaceBoundary(MimmoObject* surf);
     void            setNormalize(bool normalize);
     void            setScaling(double scaling);
-    void            setField(dvector1D field);
+    void            setField(dmpvector1D field);
 
     MimmoObject*    getSurfaceBoundary();
     MimmoObject*    getGeometry();
-    dvector1D       getField();
+    dmpvector1D       getField();
 
     void            readOFP(std::string& inputDir, std::string& pointsName, dvecarr3E& points);
     void            writeOFP(std::string& outputDir, std::string& pointsName, bitpit::PiercedVector<bitpit::Vertex> &vertices);

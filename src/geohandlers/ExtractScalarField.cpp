@@ -148,7 +148,6 @@ ExtractScalarField::plotOptionalResults(){
 
 }
 
-
 /*!
  * Extract your original field along the extract original geometries provided
  * \return true if extract without errors

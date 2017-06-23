@@ -23,7 +23,6 @@
 \*---------------------------------------------------------------------------*/
 
 using namespace std;
-using namespace bitpit;
 
 namespace mimmo{
 
