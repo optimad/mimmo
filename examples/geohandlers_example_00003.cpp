@@ -86,6 +86,18 @@ void test00003() {
     mimmo3->setWriteFileType(FileType::STL);
     mimmo3->setWriteFilename("geohandlers_output_00003.0001");
 
+    MimmoGeometry * mimmo4 = new MimmoGeometry();
+    mimmo4->setIOMode(IOMode::WRITE);
+    mimmo4->setWriteDir(".");
+    mimmo4->setWriteFileType(FileType::STL);
+    mimmo4->setWriteFilename("geohandlers_output_00003.0002");
+
+    MimmoGeometry * mimmo5 = new MimmoGeometry();
+    mimmo5->setIOMode(IOMode::WRITE);
+    mimmo5->setWriteDir(".");
+    mimmo5->setWriteFileType(FileType::STL);
+    mimmo5->setWriteFilename("geohandlers_output_00003.0003");
+
 
     /* Instantiation of two Selection By Map block.
      * The planes are used as selection objects with an offset
@@ -132,11 +144,36 @@ void test00003() {
      */
     ReconstructVector* recon = new ReconstructVector();
 
-
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
     Apply* applier = new Apply();
+
+    /* Create extract vector field block and set to extract by ID over an
+     * input geometry the displacements fields
+     * given by the two reconstruction block on two unified patches.
+     */
+    ExtractVectorField* extr = new ExtractVectorField();
+    extr->setMode(ExtractMode::ID);
+
+    /* Create applier extraction block.
+     * It applies the extracted deformation displacements
+     * to the selected input geometry.
+     */
+    Apply* applierextr = new Apply();
+
+    /* Create extract vector field block and set to extract by MAPPING over an
+     * input geometry the displacements fields
+     * given by the two reconstruction block on two unified patches.
+     */
+    ExtractVectorField* extr2 = new ExtractVectorField();
+    extr2->setMode(ExtractMode::MAPPING);
+
+    /* Create applier extraction2 block.
+     * It applies the extracted deformation displacements
+     * to the selected input geometry.
+     */
+    Apply* applierextr2 = new Apply();
 
     /* Setup pin connections.
      */
@@ -153,6 +190,18 @@ void test00003() {
     addPin(recon, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
     addPin(applier, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
 
+    addPin(mapSel1, extr, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(recon, extr, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(mapSel1, applierextr, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(extr, applierextr, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(applierextr, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
+
+    addPin(mapSel2, extr2, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(recon, extr2, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(mapSel2, applierextr2, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(extr2, applierextr2, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(applierextr2, mimmo5, PortType::M_GEOM, PortType::M_GEOM);
+
 
     /* Setup execution chain.
      */
@@ -167,6 +216,12 @@ void test00003() {
     ch0.addObject(recon);
     ch0.addObject(applier);
     ch0.addObject(mimmo3);
+    ch0.addObject(extr);
+    ch0.addObject(applierextr);
+    ch0.addObject(mimmo4);
+    ch0.addObject(extr2);
+    ch0.addObject(applierextr2);
+    ch0.addObject(mimmo5);
 
     /* Execution of chain.
      * Use debug flag true to to print out the execution steps.
@@ -179,23 +234,35 @@ void test00003() {
     delete mimmo1;
     delete mimmo2;
     delete mimmo3;
+    delete mimmo4;
+    delete mimmo5;
     delete mapSel1;
     delete mapSel2;
     delete mrbf1;
     delete mrbf2;
     delete recon;
+    delete extr;
+    delete extr2;
     delete applier;
+    delete applierextr;
+    delete applierextr2;
 
     mimmo0 = NULL;
     mimmo1 = NULL;
     mimmo2 = NULL;
     mimmo3 = NULL;
+    mimmo4 = NULL;
+    mimmo5 = NULL;
     mapSel1 = NULL;
     mapSel2 = NULL;
     mrbf1 = NULL;
     mrbf2 = NULL;
     recon = NULL;
+    extr = NULL;
+    extr2 = NULL;
     applier = NULL;
+    applierextr = NULL;
+    applierextr2 = NULL;
 
 	return;
 }
