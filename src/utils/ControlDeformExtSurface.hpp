@@ -112,7 +112,6 @@ public:
     void    buildPorts();
 
     double                                     getViolation();
-    std::pair<BaseManipulation*, double>    getViolationPair();
     dmpvector1D                                getViolationField();
     double                                     getToleranceWithinViolation(std::string);
     int                                     getBackgroundDetails();

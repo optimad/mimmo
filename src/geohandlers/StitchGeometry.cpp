@@ -228,9 +228,8 @@ StitchGeometry::execute(){
         }
     }//scope for optional vars;
 
-    dum->cleanGeometry();
-
     m_patch = std::move(dum);
+    m_patch->cleanGeometry();
 }
 
 /*!

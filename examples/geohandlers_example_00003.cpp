@@ -148,8 +148,8 @@ void test00003() {
     addPin(mapSel1, mrbf1, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mapSel2, mrbf2, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mimmo0, recon, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mrbf1, recon, PortType::M_PAIRVECFIELD, PortType::M_PAIRVECFIELD);
-    addPin(mrbf2, recon, PortType::M_PAIRVECFIELD, PortType::M_PAIRVECFIELD);
+    addPin(mrbf1, recon, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
+    addPin(mrbf2, recon, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
     addPin(recon, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
     addPin(applier, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
 

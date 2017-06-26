@@ -99,7 +99,6 @@ ControlDeformExtSurface::buildPorts(){
 
     built = (built && createPortOut<double, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolation, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dmpvector1D, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::pair<BaseManipulation*, double>, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationPair, PortType::M_VIOLATION, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::PAIRMIMMO_OBJFLOAT_));
     m_arePortsBuilt = built;
 };
 
@@ -121,32 +120,31 @@ ControlDeformExtSurface::getViolation(){
     return    result;
 };
 
-
-/*! 
- *  Return the value of violation of deformed geometry, after class execution. 
- *  A BaseManipulation object pointer, representing the sender of geometry to which violation is referred, 
- *  is attached to violation value; 
- *  See getViolation method doc for further details. 
- * \return std::pair structure reporting geometry sender pointer and violation value.
- */
-std::pair<BaseManipulation*, double> 
-ControlDeformExtSurface::getViolationPair(){
-
-    //get map of Input ports of the class.
-    std::map<short int, mimmo::PortIn*> mapPorts = getPortsIn();
-
-    //get class who send geometry here - portID = 99 -> M_GEOM
-
-    std::vector<BaseManipulation*> senders = mapPorts[99]->getLink();
-
-    std::string etiq;
-    if(senders.size() == 0){
-        return    std::make_pair(this, getViolation());
-    }else{
-        return    std::make_pair(senders[0], getViolation());
-    }
-
-};
+///*!
+// *  Return the value of violation of deformed geometry, after class execution.
+// *  A BaseManipulation object pointer, representing the sender of geometry to which violation is referred,
+// *  is attached to violation value;
+// *  See getViolation method doc for further details.
+// * \return std::pair structure reporting geometry sender pointer and violation value.
+// */
+//std::pair<BaseManipulation*, double>
+//ControlDeformExtSurface::getViolationPair(){
+//
+//    //get map of Input ports of the class.
+//    std::map<short int, mimmo::PortIn*> mapPorts = getPortsIn();
+//
+//    //get class who send geometry here - portID = 99 -> M_GEOM
+//
+//    std::vector<BaseManipulation*> senders = mapPorts[99]->getLink();
+//
+//    std::string etiq;
+//    if(senders.size() == 0){
+//        return    std::make_pair(this, getViolation());
+//    }else{
+//        return    std::make_pair(senders[0], getViolation());
+//    }
+//
+//};
 
 /*! 
  * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution. 
@@ -550,6 +548,8 @@ ControlDeformExtSurface::execute(){
 
     m_violationField.setGeometry(getGeometry());
     m_violationField.setName("violation");
+
+    //TODO logger on violation file
 
 };
 
