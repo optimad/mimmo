@@ -1195,6 +1195,7 @@ MimmoGeometry::read(){
             m_intgeo->getPatch()->restore(in);
             buffer.close();
         }
+        return true;
     }
     break;
 
