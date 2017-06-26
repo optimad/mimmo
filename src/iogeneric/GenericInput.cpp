@@ -40,6 +40,7 @@ GenericInput::GenericInput(bool readFromFile, bool csv){
     m_portsType     = BaseManipulation::ConnectionType::FORWARD;
     m_name          = "mimmo.GenericInput";
     m_dir           = "./";
+    m_binary        = false;
 };
 
 /*!
@@ -54,6 +55,7 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
     m_name             = "mimmo.GenericInput";
     m_dir       = "./";
     m_filename  = "input.txt";
+    m_binary        = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -90,6 +92,7 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
     m_csv           = other.m_csv;
     m_dir           = other.m_dir;
     m_filename      = other.m_filename;
+    m_binary        = other.m_binary;
 };
 
 /*!
@@ -107,6 +110,14 @@ GenericInput::setReadFromFile(bool readFromFile){
 void
 GenericInput::setCSV(bool csv){
     m_csv = csv;
+};
+
+/*!It sets if the input file is in Binary format.
+ * \param[in] binary Is the input file in Binary format?
+ */
+void
+GenericInput::setBinary(bool binary){
+    m_binary = binary;
 };
 
 /*!It sets the name of the input file.
@@ -132,8 +143,6 @@ GenericInput::buildPorts(){
     bool built = true;
     built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<dvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dvecarr3E>, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-//    built = (built && createPortOut<dvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dvector1D>, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-//    built = (built && createPortOut<dvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dvector1D>, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<darray3E, GenericInput>(this, &mimmo::GenericInput::getResult<darray3E>, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, PortType::M_DIMENSION, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));;
@@ -143,6 +152,8 @@ GenericInput::buildPorts(){
     built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
     built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, PortType::M_FILENAME, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
     built = (built && createPortOut<string, GenericInput>(this, &mimmo::GenericInput::getResult<string>, PortType::M_DIR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING));
+    built = (built && createPortOut<dmpvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dmpvector1D>, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dmpvecarr3E>, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
 //    built = (built && createPortOut<string*, GenericInput>(this, &mimmo::GenericInput::getResult<string*>, PortType::M_FILENAMEPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
 //    built = (built && createPortOut<string*, GenericInput>(this, &mimmo::GenericInput::getResult<string*>, PortType::M_DIRPTR, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::STRING_));
 
@@ -218,6 +229,17 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         setReadDir(input);
     };
 
+    if(slotXML.hasOption("Binary")){
+        std::string input = slotXML.get("Binary");
+        input = bitpit::utils::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setBinary(temp);
+    };
+
 }
 
 /*!
@@ -236,7 +258,89 @@ GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
     slotXML.set("CSV", std::to_string((int)m_csv));
     slotXML.set("ReadDir", m_dir);
     slotXML.set("Filename", m_filename);
+    slotXML.set("Binary", std::to_string((int)m_binary));
 };
+
+
+
+//specializations of getResult
+/*!
+ * Overloaded function of base class getResult.
+ * It gets the result of the object, equal to the input.
+ * In the case it reads the input from file before to set and to get the result.
+ * \return Pointer to data stored in result member.
+ */
+template <>
+dmpvector1D
+GenericInput::getResult(){
+    dmpvector1D data;
+    if (getGeometry() == NULL) return data;
+    int nv = getGeometry()->getNVertex();
+    if (m_readFromFile){
+        std::fstream file;
+        file.open(m_dir+"/"+m_filename);
+        bitpit::PiercedVector<double> pvdata;
+        if (file.is_open()){
+            if (m_binary){
+                bitpit::genericIO::absorbBINARY(file, pvdata, nv);
+            }
+            else{
+                bitpit::genericIO::absorbASCII(file, pvdata, nv);
+            }
+            file.close();
+        }else{
+            (*m_log) << "file not open --> exit" << std::endl;
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+        }
+        static_cast<bitpit::PiercedVector<double> >(data) = pvdata;
+        _setResult(data);
+    }
+    dmpvector1D temp = (*static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData());
+
+    temp.setGeometry(getGeometry());
+
+    return(temp);
+}
+
+
+//specializations of getResult
+/*!
+ * Overloaded function of base class getResult.
+ * It gets the result of the object, equal to the input.
+ * In the case it reads the input from file before to set and to get the result.
+ * \return Pointer to data stored in result member.
+ */
+template <>
+dmpvecarr3E
+GenericInput::getResult(){
+    dmpvecarr3E data;
+    if (getGeometry() == NULL) return data;
+    int nv = getGeometry()->getNVertex();
+    if (m_readFromFile){
+        std::fstream file;
+        file.open(m_dir+"/"+m_filename);
+        bitpit::PiercedVector<array<double,3> > pvdata;
+        if (file.is_open()){
+            if (m_binary){
+                bitpit::genericIO::absorbBINARY(file, pvdata, nv);
+            }
+            else{
+                bitpit::genericIO::absorbASCII(file, pvdata, nv);
+            }
+            file.close();
+        }else{
+            (*m_log) << "file not open --> exit" << std::endl;
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+        }
+        static_cast<bitpit::PiercedVector<array<double, 3> > >(data) = pvdata;
+        _setResult(data);
+    }
+    dmpvecarr3E temp = (*static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData());
+
+    temp.setGeometry(getGeometry());
+
+    return(temp);
+}
 
 }
 

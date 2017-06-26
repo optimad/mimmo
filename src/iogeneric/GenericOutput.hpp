@@ -51,6 +51,8 @@ namespace mimmo{
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  	| 0     | M_COORDS    | setResult         | (VECARR3, FLOAT)        |
  	| 10    | M_DISPLS    | setResult         | (VECARR3, FLOAT)        |
+    | 18    | M_SCALARFIELD | setResult         | (MPVECTOR, FLOAT)     |
+    | 19    | M_VECTORFIELD | setResult         | (MPVECARR3, FLOAT)     |
  	| 20    | M_POINT     | setResult         | (ARRAY3, FLOAT)         |
  	| 24    | M_DIMENSION | setResult         | (ARRAY3, INT)           |
  	| 30    | M_VALUED    | setResult         | (SCALAR, FLOAT)         |
@@ -76,6 +78,7 @@ namespace mimmo{
  * - <B>Filename</B>: name of file to write data;
  * - <B>WriteDir</B>: name of directory to write data;
  * - <B>CSV</B>: true if write in csv format;
+ * - <B>Binary</B>: 0/1 set write a BINARY file (default ASCII);
  *
  */
 class GenericOutput: public BaseManipulation{
@@ -87,6 +90,8 @@ private:
 	bool                    m_csv;          /**<True if write output file in csv format.*/
 	std::unique_ptr<IOData>	m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
 	std::unique_ptr<IOData>	m_result;		/**<Pointer to a base class object Result (derived class is template).*/
+
+    bool            m_binary;       /**<Output binary files (used only for MimmoPiercedVector structures).*/
 
 public:
 	GenericOutput(std::string dir = "./", std::string filename = "output.txt", bool csv = false);
@@ -120,6 +125,7 @@ public:
     void setWriteDir(std::string dir);
     void setFilename(std::string filename);
     void setCSV(bool csv);
+    void setBinary(bool binary);
 
 	void 	execute();
 	
@@ -158,6 +164,12 @@ private:
     std::ofstream&  ofstreamcsvend(std::ofstream &in, const std::array< T,d > &x);
 
 };
+
+template <>
+void  GenericOutput::setResult(dmpvector1D data);
+
+template <>
+void  GenericOutput::setResult(dmpvecarr3E data);
 
 REGISTER(BaseManipulation, GenericOutput, "mimmo.GenericOutput")
 }

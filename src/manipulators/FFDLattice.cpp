@@ -449,8 +449,6 @@ FFDLattice::setFilter(dmpvector1D filter){
     m_filter = filter;
 };
 
-
-
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag

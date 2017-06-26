@@ -206,11 +206,14 @@ StitchGeometry::execute(){
 
         for(auto &obj : m_extgeo){
 
+            std::unordered_map<long,long> mapVloc;
+
             //start extracting/reversing vertices of the current obj
             for(auto & vv : obj.first->getVertices()){
                 vId = vv.getId();
                 dum->addVertex(obj.first->getVertexCoords(vId), cV);
                 //update map;
+                mapVloc[vId] = cV;
                 cV++;
             }
 
@@ -221,7 +224,13 @@ StitchGeometry::execute(){
                 eltype = cc.getType();
                 //get the local connectivity and update with new vertex numbering;
                 livector1D conn = obj.first->getCellConnectivity(cId);
-                dum->addConnectedCell(conn, eltype, PID, cC);
+                livector1D connloc(conn.size());
+                int ic = 0;
+                for (auto v : conn){
+                    connloc[ic] = mapVloc[v];
+                    ++ic;
+                }
+                dum->addConnectedCell(connloc, eltype, PID, cC);
                 //update map;
                 cC++;
             }
