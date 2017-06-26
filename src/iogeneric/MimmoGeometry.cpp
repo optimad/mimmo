@@ -747,6 +747,21 @@ MimmoGeometry::write(){
     }
     break;
 
+    case FileType::MIMMO :
+        //Export in mimmo (bitpit) restore format
+    {
+        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+        std::filebuf buffer;
+        std::ostream out(&buffer);
+        buffer.open(name, std::ios::out);
+        if (buffer.is_open()){
+            out << (getGeometry()->getType());
+            getGeometry()->getPatch()->dump(out);
+            buffer.close();
+        }
+        return true;
+    }
+    break;
 
     default: //never been reached
         break;
@@ -1143,6 +1158,23 @@ MimmoGeometry::read(){
     }
     break;
 
+    case FileType::MIMMO :
+        //Import in mimmo (bitpit) restore format
+    {
+        int type;
+        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+        std::filebuf buffer;
+        std::istream in(&buffer);
+        buffer.open(name, std::ios::in);
+        if (buffer.is_open()){
+            in >> type;
+            setGeometry(type);
+            m_intgeo->getPatch()->restore(in);
+            buffer.close();
+        }
+        return true;
+    }
+    break;
 
     default: //never been reached
         break;
