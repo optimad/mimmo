@@ -51,6 +51,7 @@ namespace mimmo{
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  	| 0     | M_COORDS    | setResult         | (VECARR3, FLOAT)        |
  	| 10    | M_DISPLS    | setResult         | (VECARR3, FLOAT)        |
+    | 14    | M_DATAFIELD | setResult         | (VECTOR, FLOAT)     |
     | 18    | M_SCALARFIELD | setResult         | (MPVECTOR, FLOAT)     |
     | 19    | M_VECTORFIELD | setResult         | (MPVECARR3, FLOAT)     |
  	| 20    | M_POINT     | setResult         | (ARRAY3, FLOAT)         |

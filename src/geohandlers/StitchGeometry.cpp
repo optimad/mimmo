@@ -102,7 +102,6 @@ StitchGeometry & StitchGeometry::operator=(const StitchGeometry & other){
 void
 StitchGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<MimmoObject*>, StitchGeometry>(this, &mimmo::StitchGeometry::setGeometries, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_, true, 1));
     built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true, 1));
 
     built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
@@ -140,19 +139,6 @@ StitchGeometry::addGeometry(MimmoObject* geo){
 
     m_extgeo.insert(std::make_pair(geo,m_geocount) );
     m_geocount++;
-};
-
-/*!
- * Set geometries to be stitched. List will be saved as is, replacing any other saved list. 
- * Reimplementation of BaseManipulation::setGeometry
- * \param[in] external Pointer to stitched geometry.
- */
-void
-StitchGeometry::setGeometries(std::vector<MimmoObject *> external){
-
-    for(auto & obj: external){
-        addGeometry(obj);
-    }
 };
 
 /*!

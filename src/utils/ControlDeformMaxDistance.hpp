@@ -61,7 +61,6 @@ namespace mimmo{
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
      | 19    | M_SCALARFIELD | getViolationField | (MPVECTOR, FLOAT)             |
      | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
-     | 82    | M_VIOLATION   | getViolationPair  | (PAIR,PAIRMIMMO_OBJFLOAT_)  |
 
  *    =========================================================
  * \n
@@ -98,7 +97,6 @@ public:
 
     double                                     getViolation();
     dmpvector1D                                getViolationField();
-    std::pair<BaseManipulation*, double>    getViolationPair();
 
     void    setDefField(dmpvecarr3E field);
     void    setLimitDistance(double dist);

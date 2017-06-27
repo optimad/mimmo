@@ -46,7 +46,6 @@ namespace mimmo{
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | 99    | M_GEOM   | addGeometry                     | (SCALAR, MIMMO_)      |
-     | 100   | M_VECGEOM| setGeometries                   | (VECTOR, MIMMO_)      |
 
 
      |Port Output | | | |
@@ -97,7 +96,6 @@ public:
     MimmoObject *                   getGeometry();
 
     void        addGeometry(MimmoObject * geo);
-    void        setGeometries( std::vector<MimmoObject *> list);
 
     bool         isEmpty();
 
