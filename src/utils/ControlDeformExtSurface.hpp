@@ -140,6 +140,7 @@ private:
     void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
     svector1D extractInfo(std::string file);
     double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
+    void writeLog();
 };
 
 REGISTER(BaseManipulation, ControlDeformExtSurface,"mimmo.ControlDeformExtSurface")

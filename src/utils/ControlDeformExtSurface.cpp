@@ -120,32 +120,6 @@ ControlDeformExtSurface::getViolation(){
     return    result;
 };
 
-///*!
-// *  Return the value of violation of deformed geometry, after class execution.
-// *  A BaseManipulation object pointer, representing the sender of geometry to which violation is referred,
-// *  is attached to violation value;
-// *  See getViolation method doc for further details.
-// * \return std::pair structure reporting geometry sender pointer and violation value.
-// */
-//std::pair<BaseManipulation*, double>
-//ControlDeformExtSurface::getViolationPair(){
-//
-//    //get map of Input ports of the class.
-//    std::map<short int, mimmo::PortIn*> mapPorts = getPortsIn();
-//
-//    //get class who send geometry here - portID = 99 -> M_GEOM
-//
-//    std::vector<BaseManipulation*> senders = mapPorts[99]->getLink();
-//
-//    std::string etiq;
-//    if(senders.size() == 0){
-//        return    std::make_pair(this, getViolation());
-//    }else{
-//        return    std::make_pair(senders[0], getViolation());
-//    }
-//
-//};
-
 /*! 
  * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution. 
  *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the 
@@ -549,7 +523,7 @@ ControlDeformExtSurface::execute(){
     m_violationField.setGeometry(getGeometry());
     m_violationField.setName("violation");
 
-    //TODO logger on violation file
+    writeLog();
 
 };
 
@@ -791,5 +765,26 @@ ControlDeformExtSurface::plotOptionalResults(){
     output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
     output.write();
 }
+
+/*!
+ * Write log file
+ */
+void
+ControlDeformExtSurface::writeLog(){
+
+    std::string logname = m_name+"_violation";
+    bitpit::Logger* log = &bitpit::log::cout(logname);
+    log->setPriority(bitpit::log::DEBUG);
+
+    (*log)<<" violation value : " << getViolation() << std::endl;
+
+    (*log)<<" constraint geometries files : " ;
+    for (auto ig : m_geolist){
+        (*log)<< ig.first << "  " ;
+    }
+    (*log)<<endl;
+
+
+};
 
 }
