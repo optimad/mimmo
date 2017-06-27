@@ -73,7 +73,7 @@ enum class SelectionType{
      |             Port Output     |||                                      |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *    =========================================================
@@ -156,7 +156,7 @@ protected:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *    ===============================================================================
@@ -242,7 +242,7 @@ protected:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *    =========================================================
@@ -329,7 +329,7 @@ protected:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
 
@@ -419,7 +419,7 @@ protected:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *    =========================================================
@@ -532,7 +532,7 @@ private:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *    =========================================================
@@ -608,13 +608,13 @@ protected:
    |                   Port Input      |||                                   |
    |-------|----------------|---------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD  | setField            | (MPVECTOR, FLOAT)       |
+   | 18    | M_SCALARFIELD  | setField            | (MPVECTOR, FLOAT)       |
 
 
    |             Port Output    |||                                          |
    |-------|----------------|---------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD  | getField            | (MPVECTOR, FLOAT)       |
+   | 18    | M_SCALARFIELD  | getField            | (MPVECTOR, FLOAT)       |
 
    Inherited from SelectionByBox
 
@@ -643,7 +643,7 @@ protected:
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
+     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
      | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
 
  *  ===============================================================================

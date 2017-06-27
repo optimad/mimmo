@@ -37,7 +37,7 @@ namespace mimmo {
 GenericInput::GenericInput(bool readFromFile, bool csv){
     m_readFromFile  = readFromFile;
     m_csv           = csv;
-    m_portsType     = BaseManipulation::ConnectionType::FORWARD;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
     m_name          = "mimmo.GenericInput";
     m_dir           = "./";
     m_binary        = false;
@@ -51,7 +51,7 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
 
     m_readFromFile  = false;
     m_csv           = false;
-    m_portsType     = BaseManipulation::ConnectionType::FORWARD;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
     m_name             = "mimmo.GenericInput";
     m_dir       = "./";
     m_filename  = "input.txt";
@@ -79,7 +79,7 @@ GenericInput::GenericInput(std::string dir, std::string filename, bool csv){
     m_csv           = csv;
     m_dir           = dir;
     m_filename      = filename;
-    m_portsType     = BaseManipulation::ConnectionType::FORWARD;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
 };
 
 GenericInput::~GenericInput(){};

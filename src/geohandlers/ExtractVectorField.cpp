@@ -68,8 +68,8 @@ ExtractVectorField::~ExtractVectorField(){
 void
 ExtractVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
+    built = (built && createPortOut<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
 
     ExtractField::buildPorts();
     m_arePortsBuilt = built;
@@ -86,7 +86,7 @@ ExtractVectorField::getExtractedField(){
 
 /*!
  * Set input field for extraction.
- * \param[in]    field vector field of array at 3 double elements
+ * \param[in] field input field related to whole geometry
  */
 void
 ExtractVectorField::setField(dmpvecarr3E field){
@@ -104,7 +104,7 @@ ExtractVectorField::clear(){
 }
 
 /*!
- * Plot extracted field alongside its geometries ;
+ * Plot extracted field over the target geometry
  */
 void 
 ExtractVectorField::plotOptionalResults(){
@@ -150,7 +150,7 @@ ExtractVectorField::plotOptionalResults(){
 
 
 /*!
- * Extract your original field along the extract original geometries provided
+ * Extract field from your original field by using the provided target geometry
  * \return true if extract without errors
  */
 bool

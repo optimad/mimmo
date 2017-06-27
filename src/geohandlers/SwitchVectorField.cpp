@@ -68,16 +68,16 @@ SwitchVectorField::~SwitchVectorField(){
 void
 SwitchVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvecarr3E>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, PortType::M_VECGDISPLS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECARR3FLOAT, true, 1));
-    built = (built && createPortIn<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<std::vector<dmpvecarr3E>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, PortType::M_VECVFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECARR3FLOAT, true, 1));
+    built = (built && createPortIn<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
+    built = (built && createPortOut<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
 
     SwitchField::buildPorts();
     m_arePortsBuilt = built;
 }
 
 /*!
- * Get switchted field.
+ * Get switched field.
  * \return switched field
  */
 dmpvecarr3E
@@ -86,11 +86,8 @@ SwitchVectorField::getSwitchedField(){
 }
 
 /*!
- * Set Field associated to the target geometry and that need to switchted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or 
- * setVertDivisionMap methods.  
- * \param[in]    field vector field of array at 3 double elements
+ * Set list of input fields.
+ * \param[in] fields scalar fields
  */
 void
 SwitchVectorField::setFields(vector<dmpvecarr3E> fields){
@@ -98,11 +95,8 @@ SwitchVectorField::setFields(vector<dmpvecarr3E> fields){
 }
 
 /*!
- * Set Field associated to the target geometry and that need to switchted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or
- * setVertDivisionMap methods.
- * \param[in]    field vector field of array at 3 double elements
+ * Add a field to the list of input fields.
+ * \param[in] field scalar field
  */
 void
 SwitchVectorField::addField(dmpvecarr3E field){
@@ -120,7 +114,7 @@ SwitchVectorField::clear(){
 }
 
 /*!
- * Plot switchted field alongside its geometries ;
+ * Plot switched field on its geometry.
  */
 void 
 SwitchVectorField::plotOptionalResults(){
@@ -164,9 +158,8 @@ SwitchVectorField::plotOptionalResults(){
 
 }
 
-
 /*!
- * Switch your original field along the switch original geometries provided
+ * Switch your original field along the input geometry provided
  * \return true if switch without errors
  */
 bool

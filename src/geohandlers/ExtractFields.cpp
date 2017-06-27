@@ -68,7 +68,7 @@ ExtractField::buildPorts(){
 }
 
 /*!
- * Set the target geometry where your target extracted field is defined.
+ * Set the target geometry where your target extracted field will be defined.
  * \param[in] geo  Pointer to MimmoObject
  */
 void
@@ -92,7 +92,7 @@ ExtractField::setMode(ExtractMode mode){
  */
 void
 ExtractField::setMode(int mode){
-    if(mode <1 ||mode > 3)    return;
+    if(mode < 1 ||mode > 3)    return;
     m_mode = static_cast<ExtractMode>(mode);
 };
 

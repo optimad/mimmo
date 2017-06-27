@@ -86,7 +86,7 @@ ExtractScalarField::getExtractedField(){
 
 /*!
  * Set input field for extraction.
- * \param[in]    field vector field of array at 3 double elements
+ * \param[in] field input field related to whole geometry
  */
 void
 ExtractScalarField::setField(dmpvector1D field){
@@ -104,7 +104,7 @@ ExtractScalarField::clear(){
 }
 
 /*!
- * Plot extracted field alongside its geometries ;
+ * Plot extracted field over the target geometry
  */
 void 
 ExtractScalarField::plotOptionalResults(){
@@ -149,7 +149,7 @@ ExtractScalarField::plotOptionalResults(){
 }
 
 /*!
- * Extract your original field along the extract original geometries provided
+ * Extract field from your original field by using the provided target geometry
  * \return true if extract without errors
  */
 bool

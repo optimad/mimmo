@@ -29,7 +29,7 @@ namespace mimmo{
 /*!
  * Default constructor of MimmoPiercedVector.
  * \param[in] geo pointer to related geometry
- * \param[in] name field's name
+ * \param[in] name field name
  */
 template<typename value_t, typename id_t>
 MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(MimmoObject* geo, std::string name){
@@ -77,7 +77,7 @@ MimmoPiercedVector<value_t, id_t>::clear(){
 
 /*!
  * Get the linked MimmoObject.
- * return pointer to linked geometry.
+ * \return pointer to linked geometry.
  */
 template<typename value_t, typename id_t>
 MimmoObject*
@@ -87,7 +87,7 @@ MimmoPiercedVector<value_t, id_t>::getGeometry() const{
 
 /*!
  * Get the name of the field.
- * return name of the data field.
+ * \return name of the data field.
  */
 template<typename value_t, typename id_t>
 std::string

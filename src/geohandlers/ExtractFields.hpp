@@ -32,27 +32,27 @@ namespace mimmo{
 enum class ExtractMode{
     ID = 1 /**< Extract via ID*/,
             PID = 2 /**< Extract via PID*/,
-            MAPPING = 3 /**< Extract by proximity mapping*/
+            MAPPING = 3 /**< Extract by proximity mapping.*/
 };
 
 /*!
  * \class ExtractField
  * \ingroup geohandlers
  * \brief ExtractField is an abstract executable block class capable of
- *         extractting a field from a list of fields.
+ *         extracting a portion of an input field related to a geometry
+ *         sub-portion of the geometry linked to the input field .
  *
  *
  * ExtractField takes as input the target geometry used to extract a portion of
  * an input field linked to another geometry.
  * Three methods are available:
  * - <B>ID  = 0</B> : extraction of data on vertices with the same IDs between target and input geometries;
- * - <B>PID = 1</B> : extraction of data on vertices of cells with the same PIDs between target and input geometries;
+ * - <B>PID = 1</B> : extraction of data on vertices of cells with the PIDs found in the target geometry;
  * - <B>MAPPING = 2<B> : extraction of data on vertices of cells identified by a proximity mapping.
  *
  * ExtractField is an abstract class. To use its features take a look to its specializations,
  *  here presented as derived class, ExtractScalarField and ExtractVectorField.
  *
- * 
  * Ports available in ExtractField Class :
  *
  *    =========================================================
@@ -127,13 +127,13 @@ private:
      |                 Port Input   |||                              |
      |-------|--------------|--------------------|----------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD| setField           | (MPVECTOR, FLOAT)|
+     | 18    | M_SCALARFIELD| setField           | (MPVECTOR, FLOAT)|
 
 
      |            Port Output   |||                                        |
      |-------|-----------|-------------------|--------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD  | getExtractedField     | (MPVECTOR, FLOAT)       |
+     | 18    | M_SCALARFIELD  | getExtractedField     | (MPVECTOR, FLOAT)       |
 
 
   Inherited from ExtractField
@@ -182,41 +182,41 @@ private:
  * Ports available in ExtractVectorField Class :
  *
  *    =========================================================
- * ~~~
- *    |------------------------------------------------------------------|
- *    |                 Port Input                                       |
- *    |-------|--------------|-------------------|-----------------------|
- *    |PortID | PortType     | variable/function | DataType              |
- *    |-------|--------------|-------------------|-----------------------|
-      | 11    | M_GDISPL     | setField     | (MPVECARR3, FLOAT)        |
- *
- *
- *    |-----------------------------------------------------------------------|
- *    |            Port Output                                                |
- *    |-------|-----------|-------------------|-------------------------------|
- *    |PortID | PortType  | variable/function | DataType                      |
- *    |-------|-----------|-------------------|-------------------------------|
-      | 11    | M_GDISPL   | getExtractedField     | (MPVECARR3, FLOAT)        |
- *    |-------|-----------|-------------------|-------------------------------|
- * 
- * 
- *  Inherited from ExtractField
- * 
- *    |---------------------------------------------------------------------------------------|
- *    |                 Port Input                                                            |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    |PortID | PortType   | variable/function                  | DataType                    |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
- *
- *
- *    |--------------------------------------------------------|-----------------------|
- *    |            Port Output                                 |                       |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |PortID | PortType  | variable/function                  | DataType              |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |-------|-----------|------------------------------------|-----------------------|
- * ~~~
+
+    |------------------------------------------------------------------|
+    |                 Port Input                                       |
+     |-------|--------------|-------------------|-----------------------|
+     |PortID | PortType     | variable/function | DataType              |
+     |-------|--------------|-------------------|-----------------------|
+      | 19    | M_VECTORFIELD     | setField     | (MPVECARR3, FLOAT)        |
+
+
+     |-----------------------------------------------------------------------|
+     |            Port Output                                                |
+     |-------|-----------|-------------------|-------------------------------|
+     |PortID | PortType  | variable/function | DataType                      |
+     |-------|-----------|-------------------|-------------------------------|
+      | 19    | M_VECTORFIELD   | getExtractedField     | (MPVECARR3, FLOAT)        |
+     |-------|-----------|-------------------|-------------------------------|
+
+
+   Inherited from ExtractField
+
+     |---------------------------------------------------------------------------------------|
+     |                 Port Input                                                            |
+     |-------|------------|------------------------------------|-----------------------------|
+     |PortID | PortType   | variable/function                  | DataType                    |
+     |-------|------------|------------------------------------|-----------------------------|
+     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+
+
+     |--------------------------------------------------------|-----------------------|
+     |            Port Output                                 |                       |
+     |-------|-----------|------------------------------------|-----------------------|
+     |PortID | PortType  | variable/function                  | DataType              |
+     |-------|-----------|------------------------------------|-----------------------|
+     |-------|-----------|------------------------------------|-----------------------|
+
  *    =========================================================
  *
  */

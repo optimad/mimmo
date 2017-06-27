@@ -427,7 +427,7 @@ ReconstructScalar::buildPorts(){
     //output
     built = (built && createPortOut<dmpvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, PortType::M_VECFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT));
+    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, PortType::M_VECSFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT));
     m_arePortsBuilt = built;
 };
 

@@ -68,7 +68,7 @@ SwitchScalarField::~SwitchScalarField(){
 void
 SwitchScalarField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvector1D>, SwitchScalarField>(this, &mimmo::SwitchScalarField::setFields, PortType::M_VECFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT, true, 1));
+    built = (built && createPortIn<std::vector<dmpvector1D>, SwitchScalarField>(this, &mimmo::SwitchScalarField::setFields, PortType::M_VECSFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT, true, 1));
     built = (built && createPortIn<dmpvector1D, SwitchScalarField>(this, &mimmo::SwitchScalarField::addField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT, true, 1));
     built = (built && createPortOut<dmpvector1D, SwitchScalarField>(this, &mimmo::SwitchScalarField::getSwitchedField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
@@ -77,7 +77,7 @@ SwitchScalarField::buildPorts(){
 }
 
 /*!
- * Get switchted field.
+ * Get switched field.
  * \return switched field
  */
 dmpvector1D
@@ -85,13 +85,9 @@ SwitchScalarField::getSwitchedField(){
     return m_result;
 }
 
-
 /*!
- * Set Field associated to the target geometry and that need to switchted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or 
- * setVertDivisionMap methods.  
- * \param[in]    field vector field of array at 3 double elements
+ * Set list of input fields.
+ * \param[in] fields scalar fields
  */
 void
 SwitchScalarField::setFields(vector<dmpvector1D> fields){
@@ -99,11 +95,8 @@ SwitchScalarField::setFields(vector<dmpvector1D> fields){
 }
 
 /*!
- * Set Field associated to the target geometry and that need to switchted.
- * If the field is associated to the cells or to points of the target geometry,
- * please set this info, choosing the correct division map between setCellDivisionMap or
- * setVertDivisionMap methods.
- * \param[in]    field vector field of array at 3 double elements
+ * Add a field to the list of input fields.
+ * \param[in] field scalar field
  */
 void
 SwitchScalarField::addField(dmpvector1D field){
@@ -121,7 +114,7 @@ SwitchScalarField::clear(){
 }
 
 /*!
- * Plot switchted field alongside its geometries ;
+ * Plot switched field on its geometry
  */
 void 
 SwitchScalarField::plotOptionalResults(){
@@ -167,7 +160,7 @@ SwitchScalarField::plotOptionalResults(){
 
 
 /*!
- * Switch your original field along the switch original geometries provided
+ * Switch your original field along the input geometry provided
  * \return true if switch without errors
  */
 bool

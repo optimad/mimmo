@@ -65,7 +65,7 @@ using namespace pin;
  * See mimmo::pin namespace and examples for further
  * information about the linking procedure of BaseManipulation derived objects. \n
  * Please note, when copying a derived object by operators/constructors of the base class,
- * ports, linking as well as custom input/result slots are not
+ * ports and linking are not
  * copied and left empty. Copy of BaseManipulation members in itself
  * or in its derivations retains only the following parameters of
  * BaseManipulation:
@@ -117,8 +117,8 @@ class BaseManipulation{
 public:
     //type definitions
     typedef std::unordered_map<BaseManipulation*, int>    bmumap;            /**<Unordered map type used for parent/child storing.*/
-    typedef pin::ConnectionType                            ConnectionType;    /**<Connection type specification for Manipulation object.*/
-    typedef    short int                                    PortID;            /**<Port ID (identifier of the port).*/
+    typedef pin::ConnectionType                           ConnectionType;    /**<Connection type specification for Manipulation object.*/
+    typedef short int                                     PortID;            /**<Port ID (identifier of the port).*/
 
 protected:
     uint                        m_priority;         /**<Flag marking priority of execution of the object (0 - highest priority) >*/

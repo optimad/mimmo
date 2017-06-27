@@ -33,10 +33,10 @@ namespace mimmo{
  * \class SwitchField
  * \ingroup geohandlers
  * \brief SwitchField is an abstract executable block class capable of
- *         switchting a field from a list of fields.
+ *         switching a field from a list of fields.
  *
  *
- * SwitchField takes as input the target geometry used to indentify the field to choose from
+ * SwitchField takes as input the target geometry used to identify the field to choose from
  * the input list. First it tries to switch the field by investigating the linked geometries
  * in the MimmoPiercedVector input fields and by extracting the first corresponding field.
  * In case of none of the input fields is linked to the target geometry
@@ -113,23 +113,23 @@ private:
  * \class SwitchScalarField
  * \ingroup geohandlers
  * \brief SwitchScalarField is specialized derived class of SwitchField to switch a
- *         scalar field of doubles.
+ *         scalar field.
  * 
  * Ports available in SwitchScalarField Class :
  *
  *    =========================================================
- *
+
      |                 Port Input   |||                              |
      |-------|--------------|--------------------|----------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 60    | M_VECFIELDS| setFields           | (VECTOR, MPVECFLOAT)|
-     | 19    | M_SCALARFIELD| addField           | (MPVECTOR, FLOAT)|
+     | 60    | M_VECSFIELDS| setFields           | (VECTOR, MPVECFLOAT)|
+     | 18    | M_SCALARFIELD| addField           | (MPVECTOR, FLOAT)|
 
 
      |            Port Output   |||                                        |
      |-------|-----------|-------------------|--------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD  | getSwitchedField     | (MPVECTOR, FLOAT)       |
+     | 18    | M_SCALARFIELD  | getSwitchedField     | (MPVECTOR, FLOAT)       |
 
 
   Inherited from SwitchField
@@ -174,47 +174,47 @@ private:
 /*!
  *  \class SwitchVectorField
  *    \brief SwitchVectorField is specialized derived class of SwitchField to switch a
- *         scalar field of array<double,3>.
+ *         vector field.
  * 
  * Ports available in SwitchVectorField Class :
  *
  *    =========================================================
- * ~~~
- *    |------------------------------------------------------------------|
- *    |                 Port Input                                       |
- *    |-------|--------------|-------------------|-----------------------|
- *    |PortID | PortType     | variable/function | DataType              |
- *    |-------|--------------|-------------------|-----------------------|
-      | 61    | M_VECGDISPLS | setFields    | (VECTOR, MPVECARR3)       |
-      | 11    | M_GDISPL     | addField     | (MPVECARR3, FLOAT)        |
- *
- *
- *    |-----------------------------------------------------------------------|
- *    |            Port Output                                                |
- *    |-------|-----------|-------------------|-------------------------------|
- *    |PortID | PortType  | variable/function | DataType                      |
- *    |-------|-----------|-------------------|-------------------------------|
-      | 11    | M_GDISPL   | getSwitchedField     | (MPVECARR3, FLOAT)        |
- *    |-------|-----------|-------------------|-------------------------------|
- * 
- * 
- *  Inherited from SwitchField
- * 
- *    |---------------------------------------------------------------------------------------|
- *    |                 Port Input                                                            |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    |PortID | PortType   | variable/function                  | DataType                    |
- *    |-------|------------|------------------------------------|-----------------------------|
- *    | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
- *
- *
- *    |--------------------------------------------------------|-----------------------|
- *    |            Port Output                                 |                       |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |PortID | PortType  | variable/function                  | DataType              |
- *    |-------|-----------|------------------------------------|-----------------------|
- *    |-------|-----------|------------------------------------|-----------------------|
- * ~~~
+
+     |------------------------------------------------------------------|
+     |                 Port Input                                       |
+     |-------|--------------|-------------------|-----------------------|
+     |PortID | PortType     | variable/function | DataType              |
+     |-------|--------------|-------------------|-----------------------|
+      | 61    | M_VECVFIELDS | setFields    | (VECTOR, MPVECARR3)       |
+      | 19    | M_VECTORFIELD     | addField     | (MPVECARR3, FLOAT)        |
+
+
+     |-----------------------------------------------------------------------|
+     |            Port Output                                                |
+     |-------|-----------|-------------------|-------------------------------|
+     |PortID | PortType  | variable/function | DataType                      |
+     |-------|-----------|-------------------|-------------------------------|
+      | 19    | M_VECTORFIELD   | getSwitchedField     | (MPVECARR3, FLOAT)        |
+     |-------|-----------|-------------------|-------------------------------|
+
+
+   Inherited from SwitchField
+
+     |---------------------------------------------------------------------------------------|
+     |                 Port Input                                                            |
+     |-------|------------|------------------------------------|-----------------------------|
+     |PortID | PortType   | variable/function                  | DataType                    |
+     |-------|------------|------------------------------------|-----------------------------|
+     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+
+
+     |--------------------------------------------------------|-----------------------|
+     |            Port Output                                 |                       |
+     |-------|-----------|------------------------------------|-----------------------|
+     |PortID | PortType  | variable/function                  | DataType              |
+     |-------|-----------|------------------------------------|-----------------------|
+     |-------|-----------|------------------------------------|-----------------------|
+
  *    =========================================================
  *
  */

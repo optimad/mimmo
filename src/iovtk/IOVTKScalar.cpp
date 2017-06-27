@@ -108,11 +108,11 @@ IOVTKScalar::buildPorts(){
     built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, PortType::M_POLYDATA_, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::POLYDATA_));
-    built = (built && createPortIn<dvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
     built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, PortType::M_POLYDATA_, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::POLYDATA_));
-    built = (built && createPortOut<dvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
     m_arePortsBuilt = built;
 };
 
@@ -138,7 +138,7 @@ IOVTKScalar::getScaling(){
  * Returning field associated to the class
  * \return scalar field
  */
-dvector1D
+dmpvector1D
 IOVTKScalar::getField(){
     return m_field;
 }
@@ -166,7 +166,7 @@ IOVTKScalar::setScaling(double scaling){
  * \param[in] field scalar field of doubles
  */
 void
-IOVTKScalar::setField(dvector1D field){
+IOVTKScalar::setField(dmpvector1D field){
     m_field = field;
 }
 
@@ -303,10 +303,10 @@ IOVTKScalar::read(){
 
         np = getGeometry()->getNVertex();
         vtkDataArray* data = pdata->GetArray(0);
-        m_field.resize(np);
+        m_field.clear();
         if (data != NULL){
             double maxf = 0.0;
-            for (int i=0; i<np; i++){
+            for (long int i=0; i<np; i++){
                 vtkIdType id = i;
                 m_field[i] = (data->GetComponent(id,0));
                 maxf = max(maxf, abs(m_field[i]));
@@ -323,6 +323,7 @@ IOVTKScalar::read(){
                 }
             }
         }
+        m_field.setGeometry(getGeometry());
     }
     else{
         (*m_log) << m_name << " error: polydata not found in : "<< m_rfilename << std::endl;
@@ -409,7 +410,6 @@ IOVTKScalar::write(){
         vtkDoubleArray* data = vtkDoubleArray::New();
         data->SetName( "mimmo.field" );
         data->SetNumberOfComponents( 1 );
-        m_field.resize(np, 0.0);
         for (int i=0; i<np; i++){
             data->InsertNextTuple( &m_field[i]);
         }

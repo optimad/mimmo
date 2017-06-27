@@ -54,7 +54,7 @@ namespace mimmo{
    |                     Port Input    |||                                    |
    |-------|------------------|---------------------|----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD    | setField            | (VECTOR, FLOAT)      |
+   | 18    | M_SCALARFIELD    | setField            | (MPVECTOR, FLOAT)      |
    | 30    | M_VALUED         | setScaling          | (SCALAR, FLOAT)      |
    | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
    | 1100  | M_POLYDATA_      | setPolyData         | (SCALAR, POLYDATA_)  |
@@ -63,7 +63,7 @@ namespace mimmo{
    |               Port Output    |||                                         |
    |-------|------------------|-------------------|------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 19    | M_SCALARFIELD    | getField          | (VECTOR, FLOAT)        |
+   | 18    | M_SCALARFIELD    | getField          | (MPVECTOR, FLOAT)        |
    | 99    | M_GEOM           | getGeometry       | (SCALAR, MIMMO_)       |
    | 1100  | M_POLYDATA_      | getPolyData       | (SCALAR, POLYDATA_)    |
 
@@ -101,7 +101,7 @@ private:
 
     vtkPolyData*    m_polydata;     /**<VTK Polydata geometry member.*/
 
-    dvector1D       m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
+    dmpvector1D     m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
     bool            m_normalize;    /**<If true the field is normalized with the maximum absolute value after reading.*/
     double          m_scaling;      /**<Value used to scale the scalar field (default m_scaling = 1). */
 
@@ -116,7 +116,7 @@ public:
 
     vtkPolyData*    getPolyData();
     double          getScaling();
-    dvector1D       getField();
+    dmpvector1D       getField();
 
     void            setReadDir(std::string dir);
     void            setRead(bool read);
@@ -127,7 +127,7 @@ public:
     void            setPolyData(vtkPolyData* polydata);
     void            setNormalize(bool normalize);
     void            setScaling(double scaling);
-    void            setField(dvector1D field);
+    void            setField(dmpvector1D field);
 
     bool            write();
     bool            read();

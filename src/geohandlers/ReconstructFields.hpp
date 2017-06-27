@@ -50,12 +50,14 @@ enum class OverlapMethod{
 /*!
  * \class ReconstructScalar
  * \ingroup geohandlers
- * \brief Reconstruct a scalar field from daughter mesh to mother mesh
+ * \brief Reconstruct a scalar field from daughter meshes to mother mesh
  * 
  * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObject mesh, from several
  * scalar fields defined on sub-patches of the target mesh.
  * Field values are defined on nodes.
- * Reconstructed field is provided in m_result member of the class.
+ * Reconstructed field on the whole geometry is provided as result as well as
+ * the reconstructed fields on the input sub-patches separately.
+ *
  * 
  * Ports available in ReconstructScalar Class :
  * 
@@ -64,15 +66,15 @@ enum class OverlapMethod{
      |                   Port Input    |||                                               |
      |-------|----------------|--------------------|----------------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD  | addData            | (MPVECTOR, FLOAT)          |
+     | 18    | M_SCALARFIELD  | addData            | (MPVECTOR, FLOAT)          |
      | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                 |
 
 
      |             Port Output   |||                                          |
      |-------|----------------|--------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 19    | M_SCALARFIELD  | getResultField     | (MPVECTOR, FLOAT)       |
-     | 60    | M_VECFIELDS    | getResultFields    | (VECTOR, MPVECFLOAT)       |
+     | 18    | M_SCALARFIELD  | getResultField     | (MPVECTOR, FLOAT)       |
+     | 60    | M_VECSFIELDS    | getResultFields    | (VECTOR, MPVECFLOAT)       |
      | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)      |
 
  *    =========================================================
@@ -147,7 +149,8 @@ private:
  * 
  * Class/BaseManipulation Object reconstructing a vector field on a mimmo::MimmoObject mesh, from several
  * vector fields defined on sub-patches of the target mesh. Field values are defined on nodes.
- * Reconstructed field is provided in m_result member of the class.
+ * Reconstructed field on the whole geometry is provided as result as well as
+ * the reconstructed fields on the input sub-patches separately.
  * 
  * Ports available in ReconstructVector Class :
  * 
@@ -156,14 +159,14 @@ private:
      |                   Port Input   |||                                                  |
      |-------|----------------|--------------------|------------------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 11    | M_GDISPL       | addData     | (MPVECARR3, FLOAT)           |
+     | 19    | M_VECTORFIELD       | addData     | (MPVECARR3, FLOAT)           |
      | 99    | M_GEOM         | m_geometry         | (SCALAR, MIMMO_)                   |
 
      |             Port Output  |||                                                |
      |-------|----------------|--------------------|----------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 11    | M_GDISPL       | getResultField     | (MPVECARR3, FLOAT)           |
-     | 61    | M_VECGDISPLS   | getResultFields    | (VECTOR, MPVECARR3)       |
+     | 19    | M_VECTORFIELD       | getResultField     | (MPVECARR3, FLOAT)           |
+     | 61    | M_VECVFIELDS   | getResultFields    | (VECTOR, MPVECARR3)       |
      | 99    | M_GEOM         | getGeometry        | (SCALAR, MIMMO_)           |
 
  *    =========================================================
