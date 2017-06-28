@@ -117,6 +117,8 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>Codex</B>: boolean to write ascii/binary;
  * - <B>BvTree</B>: evaluate bvTree true 1/false 0;
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
+ * - <B>AssignRefPID</B>: assign a reference PID on the whole geometry, after reading or just before writing. If the geometry is already pidded,
+ *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0. 
  *
  * In case of writing mode Geometry has to be mandatorily passed through port.
  *
@@ -137,7 +139,7 @@ private:
 
     bool        m_buildBvTree;                /**<If true the simplex ordered BvTree of the geometry is built in execution, whenever geometry support simplicies. */
     bool        m_buildKdTree;                /**<If true the vertex ordered KdTree of the geometry is built in execution*/
-
+    short int   m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
 public:
     MimmoGeometry();
     MimmoGeometry(const bitpit::Config::Section & rootXML);
@@ -186,12 +188,13 @@ public:
 
     void        setPID(shivector1D pids);
     void        setPID(std::unordered_map<long,short> pidsMap);
-
+    void        setReferencePID(short int pid);
+    
     void        setFormatNAS(WFORMAT wform);
 
     void        setBuildBvTree(bool build);
     void        setBuildKdTree(bool build);
-
+    
     bool         isEmpty();
     bool        isInternal();
     void         clear();

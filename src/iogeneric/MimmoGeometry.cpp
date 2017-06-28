@@ -82,7 +82,8 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
     m_codex = other.m_codex;
     m_buildBvTree = other.m_buildBvTree;
     m_buildKdTree = other.m_buildKdTree;
-
+    m_refPID = other.m_refPID;
+    
     if(other.m_isInternal){
         m_geometry = other.m_intgeo.get();
     }
@@ -146,6 +147,7 @@ MimmoGeometry::setDefaults(){
     m_codex            = true;
     m_buildBvTree    = false;
     m_buildKdTree    = false;
+    m_refPID = 0;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -400,6 +402,7 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
     m_codex = other->m_codex;
     m_buildBvTree = other->m_buildBvTree;
     m_buildKdTree = other->m_buildKdTree;
+    m_refPID = other->m_refPID;
 }
 
 /*!
@@ -499,6 +502,18 @@ MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
     getGeometry()->setPID(pidsMap);
 };
 
+/*!
+ * Set a reference PID for the whole geometry cell. If the geometry is already pidded, all existent pid's 
+ * will be translated w.r.t. the value of the reference pid. Default value is 0. Maximum value allowed is 30000.
+ * The effect of reference pidding will be available only after the execution of the class. After execution, reference PID will 
+ * be reset ot zero.
+ * \param[in] pid reference pid to assign to the geometry cells
+ */
+void
+MimmoGeometry::setReferencePID(short int pid){
+    m_refPID = std::min(short(0), std::max(pid, short(30000)));
+}
+
 /*!It sets if the BvTree of the patch has to be built during execution.
  * \param[in] build If true the BvTree is built in execution and stored in
  * the related MimmoObject member.
@@ -561,6 +576,14 @@ MimmoGeometry::write(){
 
     if (isEmpty()) return false;
 
+    //adjusting with reference pid;
+    auto locpids = getGeometry()->getCompactPID();
+    for( auto & val: locpids) val+=m_refPID;
+    setPID(locpids);
+    //action completed, reset m_refPID to zero.
+    m_refPID = 0;
+    
+    //writing
     switch(FileType::_from_integral(m_winfo.ftype)){
 
     case FileType::STL :
@@ -1112,6 +1135,13 @@ MimmoGeometry::read(){
 
     }
 
+    //adjusting with reference pid;
+    auto locpids = getGeometry()->getCompactPID();
+    for( auto & val: locpids) val+=m_refPID;
+    setPID(locpids);
+    //action completed, reset m_refPID to zero.
+    m_refPID = 0;
+
     return true;
 };
 
@@ -1386,6 +1416,17 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setBuildKdTree(value);
     };
 
+    if(slotXML.hasOption("AssignRefPID")){
+        input = slotXML.get("AssignRefPID");
+        short int value = 0;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setReferencePID(value);
+    };
+    
+    
 };
 
 /*!
@@ -1440,7 +1481,7 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     output = std::to_string(m_buildKdTree);
     slotXML.set("KdTree", output);
-
+    slotXML.set("AssignRefPID", std::to_string(m_refPID));
 };
 
 
