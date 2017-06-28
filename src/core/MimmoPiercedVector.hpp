@@ -58,6 +58,7 @@ public:
     //copy operators/constructors
     MimmoPiercedVector(const MimmoPiercedVector & other);
     MimmoPiercedVector & operator=(const MimmoPiercedVector & other);
+    MimmoPiercedVector & operator*(double val);
 
     void            clear();
 
