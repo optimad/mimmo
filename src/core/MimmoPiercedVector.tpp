@@ -71,11 +71,11 @@ MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator=
 template<typename value_t, typename id_t>
 MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator*(double val){
 
-    for (auto & i : this){
+    for (auto & i : (*this)){
         i = i*val;
     }
 
-    return(this);
+    return(*this);
 
 };
 
