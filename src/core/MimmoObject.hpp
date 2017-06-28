@@ -141,10 +141,10 @@ public:
     livector1D  extractPIDCells(short);
     livector1D  extractPIDCells(shivector1D);
 
-    livector1D&                                     getMapData();
-    liimap&                                         getMapDataInv();
-    livector1D&                                     getMapCell();
-    liimap&                                         getMapCellInv();
+    livector1D  getMapData();
+    liimap      getMapDataInv();
+    livector1D  getMapCell();
+    liimap      getMapCellInv();
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     void        buildBvTree(int value = 1);

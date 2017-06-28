@@ -228,10 +228,6 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     m_patch 		= other.m_patch;
     m_internalPatch = false;
 
-    //    m_mapData		= other.m_mapData;
-    //    m_mapCell		= other.m_mapCell;
-    //    m_mapDataInv	= other.m_mapDataInv;
-    //    m_mapCellInv	= other.m_mapCellInv;
     m_pidsType		= other.m_pidsType;
 
     m_bvTreeSupported = other.m_bvTreeSupported;
@@ -261,10 +257,6 @@ MimmoObject::clear(){
         if (m_internalPatch)    delete m_patch;
         m_patch = NULL;
     }    
-    //    m_mapData.clear();
-    //    m_mapCell.clear();
-    //    m_mapDataInv.clear();
-    //    m_mapCellInv.clear();
     m_pidsType.clear();
     m_bvTree->clear();
     cleanKdTree();
@@ -488,89 +480,71 @@ MimmoObject::getPatch(){
     return m_patch;
 };
 
-///*!
-// * Return the indexing vertex map, to pass from local, compact indexing
-// * to bitpit::PatchKernel unique-labeled indexing
-// * \return local/unique-id map
-// */
-//livector1D&
-//MimmoObject::getMapData(){
-//    return m_mapData;
-//};
-//
-///*!
-// * Return the unique id label of a vertex, given its local, compact index i.
-// * \param[in] i index in a sequential vector of target vertex.
-// * \return unique-id of target vertex. Return -1 if index is not found.
-// */
-//long
-//MimmoObject::getMapData(int i){
-//    if(i<0 || i>=getNVertex())	return -1;
-//    return m_mapData[i];
-//};
-//
-///*!
-// * Return the indexing vertex map, to pass from bitpit::PatchKernel unique-labeled indexing
-// * to local, compact indexing;
-// * \return unique-id/local map
-// */
-//liimap&
-//MimmoObject::getMapDataInv(){
-//    return m_mapDataInv;
-//};
-//
-///*!
-// * Return the const reference to the indexing vertex map, to pass from
-// * bitpit::PatchKernel unique-labeled indexing to local, compact indexing.
-// * \return unique-id/local map as const reference
-// */
-//const liimap&
-//MimmoObject::getMapDataInv()const{
-//    return m_mapDataInv;
-//};
-//
-///*!
-// * Return the local compact index i of a vertex, given its unique id label.
-// * \param[in] id unique-id of the vertex.
-// * \return local index of the vertex. Return -1 if index is not found.
-// */
-//int
-//MimmoObject::getMapDataInv(long id){
-//    if(!(getVertices().exists(id)))	return -1;
-//    return m_mapDataInv[id];
-//};
-//
-///*!
-// * Return the indexing cell map, to pass from local, compact indexing
-// * to bitpit::PatchKernel unique-labeled indexing
-// * \return local/unique-id map
-// */
-//livector1D&
-//MimmoObject::getMapCell(){
-//    return m_mapCell;
-//};
-//
-///*!
-// * Return the unique id label of a cell, given its local, compact index i.
-// * \param[in] i index in a sequential vector of target cells.
-// * \return unique-id of target cell. Return -1 if index is not found.
-// */
-//long
-//MimmoObject::getMapCell(int i){
-//    if(i<0 || i>=getNCells())	return -1;
-//    return m_mapCell[i];
-//};
-//
-///*!
-// * Return the indexing cell map, to pass from bitpit::PatchKernel unique-labeled indexing
-// * to local, compact indexing;
-// * \return unique-id/local map
-// */
-//liimap&
-//MimmoObject::getMapCellInv(){
-//    return m_mapCellInv;
-//};
-//
+/*!
+ * Return the indexing vertex map, to pass from local, compact indexing
+ * to bitpit::PatchKernel unique-labeled indexing
+ * \return local/unique-id map
+ */
+livector1D
+MimmoObject::getMapData(){
+    livector1D mapData(getNVertex());
+    int i = 0;
+    for (auto & vertex : m_patch->getVertices()){
+        mapData[i] = vertex.getId();
+        ++i;
+    }
+    return mapData;
+};
+
+/*!
+ * Return the indexing vertex map, to pass from bitpit::PatchKernel unique-labeled indexing
+ * to local, compact indexing;
+ * \return unique-id/local map
+ */
+liimap
+MimmoObject::getMapDataInv(){
+    liimap mapDataInv;
+    int i = 0;
+    for (auto & vertex : m_patch->getVertices()){
+        mapDataInv[vertex.getId()] = i;
+        ++i;
+    }
+    return mapDataInv;
+};
+
+/*!
+ * Return the indexing cell map, to pass from local, compact indexing
+ * to bitpit::PatchKernel unique-labeled indexing
+ * \return local/unique-id map
+ */
+livector1D
+MimmoObject::getMapCell(){
+    livector1D mapCell(getNCells());
+    int i = 0;
+    for (auto & cell : m_patch->getCells()){
+        mapCell[i] = cell.getId();
+        ++i;
+    }
+    return mapCell;
+};
+
+/*!
+ * Return the indexing cell map, to pass from bitpit::PatchKernel unique-labeled indexing
+ * to local, compact indexing;
+ * \return unique-id/local map
+ */
+liimap
+MimmoObject::getMapCellInv(){
+    liimap mapCellInv;
+    int i = 0;
+    for (auto & cell : m_patch->getCells()){
+        mapCellInv[cell.getId()] = i;
+        ++i;
+    }
+    return mapCellInv;
+};
+
+
 ///*!
 // * Return the local compact index i of a cell, given its unique id label.
 // * \param[in] id unique-id of the cell.
@@ -701,8 +675,8 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 
     if (vertices.empty()) return false;
 
-//    m_mapData.clear();
-//    m_mapDataInv.clear();
+    //    m_mapData.clear();
+    //    m_mapDataInv.clear();
     m_patch->resetVertices();
 
     int sizeVert = vertices.size();
@@ -738,19 +712,19 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
     if (isEmpty()) return false;
     if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
 
-//    long checkedID;
+    //    long checkedID;
 
     bitpit::PatchKernel::VertexIterator it;
     if(idtag == bitpit::Vertex::NULL_ID){
         it = m_patch->addVertex(vertex);
-//        checkedID = it->getId();
+        //        checkedID = it->getId();
     }else{
         it =m_patch->addVertex(vertex, idtag);
-//        checkedID = idtag;
+        //        checkedID = idtag;
     }
 
-//    m_mapData.push_back(checkedID);
-//    m_mapDataInv[checkedID] = m_mapData.size()-1;
+    //    m_mapData.push_back(checkedID);
+    //    m_mapDataInv[checkedID] = m_mapData.size()-1;
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSync = false;
@@ -791,8 +765,8 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 
     if (cells.empty() || !m_bvTreeSupported) return false;
 
-//    m_mapCell.clear();
-//    m_mapCellInv.clear();
+    //    m_mapCell.clear();
+    //    m_mapCellInv.clear();
     m_pidsType.clear();
 
     getPatch()->resetCells();
@@ -855,20 +829,20 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     livector1D conn_dum = conn;
     conn_dum.resize(sizeElement, 0);
 
-//    long checkedID;
+    //    long checkedID;
     if(idtag == bitpit::Cell::NULL_ID){
         it = m_patch->addCell(type, true, conn_dum);
-//        checkedID = it->getId();
+        //        checkedID = it->getId();
     }else{
         it = m_patch->addCell(type, true,conn_dum, idtag);
-//        checkedID = idtag;
+        //        checkedID = idtag;
     }
 
     m_pidsType.insert(0);		
 
     //create inverse map of cells
-//    m_mapCell.push_back(checkedID);
-//    m_mapCellInv[checkedID] = m_mapCell.size()-1;
+    //    m_mapCell.push_back(checkedID);
+    //    m_mapCellInv[checkedID] = m_mapCell.size()-1;
     m_bvTreeBuilt = false;
     m_bvTreeSync = false;
     m_AdjBuilt = false;
@@ -916,8 +890,8 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 
     setPIDCell(checkedID, PID);
     //create inverse map of cells
-//    m_mapCell.push_back(checkedID);
-//    m_mapCellInv[checkedID] = m_mapCell.size()-1;
+    //    m_mapCell.push_back(checkedID);
+    //    m_mapCellInv[checkedID] = m_mapCell.size()-1;
     m_bvTreeBuilt = false;
     m_bvTreeSync = false;
     m_AdjBuilt = false;
@@ -946,7 +920,7 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
     m_patch 		= geometry;
     m_internalPatch = false;
 
-//    setMapData();
+    //    setMapData();
 
     m_pidsType.clear();
 
@@ -1140,8 +1114,8 @@ MimmoObject::cleanGeometry(){
     m_patch->deleteCoincidentVertices();
     if(m_bvTreeSupported)	m_patch->deleteOrphanVertices();
 
-//    setMapData();
-//    setMapCell();
+    //    setMapData();
+    //    setMapCell();
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSync = false;
