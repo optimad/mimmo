@@ -511,7 +511,7 @@ MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
  */
 void
 MimmoGeometry::setReferencePID(short int pid){
-    m_refPID = std::min(short(0), std::max(pid, short(30000)));
+    m_refPID = std::max(short(0), std::min(pid, short(30000)));
 }
 
 /*!It sets if the BvTree of the patch has to be built during execution.
