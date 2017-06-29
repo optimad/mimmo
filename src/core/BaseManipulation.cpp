@@ -465,42 +465,44 @@ BaseManipulation::clear(){
 void
 BaseManipulation::exec(){
 
-    map<int, vector<PortIn*> > families;
-    map<int, vector<PortID> > familiesID;
-    for (map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
-        if (i->second->isMandatory()){
-            families[i->second->getFamily()].push_back(i->second);
-            familiesID[i->second->getFamily()].push_back(i->first);
+    if (!MIMMO_EXPERT){
+        map<int, vector<PortIn*> > families;
+        map<int, vector<PortID> > familiesID;
+        for (map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+            if (i->second->isMandatory()){
+                families[i->second->getFamily()].push_back(i->second);
+                familiesID[i->second->getFamily()].push_back(i->first);
+            }
         }
-    }
-    map<int, vector<PortID> >::iterator itID = familiesID.begin();
-    for (map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
-        if (i->first == 0){
-            int count = 0;
-            for (auto ip : i->second){
-                std::vector<BaseManipulation*>  linked = ip->getLink();
-                if (linked.size() == 0){
-                    (*m_log) << "error: " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
-                    throw std::runtime_error (m_name + " mandatory port " + std::to_string(itID->second[count]) + " not linked");
+        map<int, vector<PortID> >::iterator itID = familiesID.begin();
+        for (map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
+            if (i->first == 0){
+                int count = 0;
+                for (auto ip : i->second){
+                    std::vector<BaseManipulation*>  linked = ip->getLink();
+                    if (linked.size() == 0){
+                        (*m_log) << "error: " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
+                        throw std::runtime_error (m_name + " mandatory port " + std::to_string(itID->second[count]) + " not linked");
+                    }
+                    count++;
                 }
-                count++;
             }
+            else{
+                bool check = false;
+                for (auto ip : i->second){
+                    std::vector<BaseManipulation*>  linked = ip->getLink();
+                    check = check || linked.size();
+                }
+                if (!check){
+                    (*m_log) << "error: " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
+                    std::string ports;
+                    for (auto p : itID->second)
+                        ports += " " + std::to_string(p) + " ";
+                    throw std::runtime_error (m_name + " none of mandatory ports " + ports + " linked");
+                }
+            }
+            itID++;
         }
-        else{
-            bool check = false;
-            for (auto ip : i->second){
-                std::vector<BaseManipulation*>  linked = ip->getLink();
-                check = check || linked.size();
-            }
-            if (!check){
-                (*m_log) << "error: " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
-                std::string ports;
-                for (auto p : itID->second)
-                    ports += " " + std::to_string(p) + " ";
-                throw std::runtime_error (m_name + " none of mandatory ports " + ports + " linked");
-            }
-        }
-        itID++;
     }
 
     if (m_active) execute();

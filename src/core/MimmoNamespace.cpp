@@ -2,6 +2,8 @@
 #include "BaseManipulation.hpp"
 
 std::string mimmo::MIMMO_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
+bool        mimmo::MIMMO_EXPERT = false;    /**<Flag that defines expert mode (true) or safe mode (false).
+                                                In case of expert mode active the mandatory ports are not checked. */
 
 namespace mimmo{
 
@@ -174,6 +176,13 @@ void    setLogger(std::string log){
  */
 void    warningXML(bitpit::Logger* log, std::string name){
     (*log)<<"warning in custom xml " << name << " constructor. No valid xml data found"<<std::endl;
+}
+
+/*!
+ * Active/inactive the expert mode for mimmo.
+ */
+void setExpertMode(bool flag){
+    MIMMO_EXPERT = flag;
 }
 
 }//end mimmo namespace

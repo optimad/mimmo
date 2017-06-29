@@ -289,6 +289,12 @@ void    setLogger(std::string log);
 
 void    warningXML(bitpit::Logger* log, std::string name);
 
+//expert variable
+extern bool MIMMO_EXPERT; /**<Flag that defines expert mode (true) or safe mode (false).
+                                In case of expert mode active the mandatory ports are not checked. */
+
+void setExpertMode(bool flag = true);
+
 }//end namespace mimmo
 
 #endif
