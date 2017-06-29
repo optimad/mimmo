@@ -86,6 +86,7 @@ MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator*
 template<typename value_t, typename id_t>
 void
 MimmoPiercedVector<value_t, id_t>::clear(){
+    bitpit::PiercedVector<value_t, id_t>::clear(true);
     m_geometry = NULL;
     m_name = "";
 }
