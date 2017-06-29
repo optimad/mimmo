@@ -185,6 +185,7 @@ void setExpertMode(bool flag){
     MIMMO_EXPERT = flag;
 }
 
+
 /*!Maximum value function for MimmoPiercedVector<double>.
  * \param[in] field MimmoPiercedVector<double>
  * \return Maximum value
