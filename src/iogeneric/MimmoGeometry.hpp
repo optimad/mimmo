@@ -110,6 +110,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>FileType</B>: file type identifier;
  * - <B>ReadFileType</B>: file type identifier for reader (to be used in case of converter mode);
  * - <B>WriteFileType</B>: file type identifier for writer (to be used in case of converter mode);
+ * - <B>WriteMultiSolidSTL<B>: 0-false/1-true, if WriteFileType is STL, MultiSolid STL writing can be activated or not 
  * - <B>ReadDir</B>: directory path (to be used in case of converter mode and different paths);
  * - <B>ReadFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
  * - <B>WriteDir</B>: directory path (to be used in case of converter mode and different paths);
@@ -140,6 +141,8 @@ private:
     bool        m_buildBvTree;                /**<If true the simplex ordered BvTree of the geometry is built in execution, whenever geometry support simplicies. */
     bool        m_buildKdTree;                /**<If true the vertex ordered KdTree of the geometry is built in execution*/
     short int   m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
+    bool        m_multiSolidSTL;            /**< activate or not MultiSolid STL writing if STL writing Filetype is selected */
+
 public:
     MimmoGeometry();
     MimmoGeometry(const bitpit::Config::Section & rootXML);
@@ -173,7 +176,8 @@ public:
     void        setFileType(FileType type);
     void        setFileType(int type);
     void        setCodex(bool binary = true);
-
+    void        setMultiSolidSTL(bool multi = true);
+    
     void        setHARDCopy( const MimmoGeometry * other);
     void        setSOFTCopy( const MimmoGeometry * other);
 

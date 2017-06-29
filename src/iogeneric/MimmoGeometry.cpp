@@ -83,6 +83,7 @@ MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
     m_buildBvTree = other.m_buildBvTree;
     m_buildKdTree = other.m_buildKdTree;
     m_refPID = other.m_refPID;
+    m_multiSolidSTL = other.m_multiSolidSTL;
     
     if(other.m_isInternal){
         m_geometry = other.m_intgeo.get();
@@ -148,6 +149,7 @@ MimmoGeometry::setDefaults(){
     m_buildBvTree    = false;
     m_buildKdTree    = false;
     m_refPID = 0;
+    m_multiSolidSTL = true;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
@@ -363,6 +365,17 @@ void MimmoGeometry::setCodex(bool binary){
     m_codex = binary;
 }
 
+/*!
+ * Set ASCII Multi Solid STL writing. The method has effect only while writing 
+ * standard surface triangulations in STL format type.
+ * .
+ * \param[in] multi boolean, true activate Multi Solid STL writing.
+ */
+void MimmoGeometry::setMultiSolidSTL(bool multi){
+    m_multiSolidSTL = multi;
+}
+
+
 /*!Sets your current class as a "soft" copy of the argument.
  * Soft copy means that only your current geometric object MimmoObject is
  * copied only through its pointer and stored in the internal member m_geometry
@@ -403,6 +416,7 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
     m_buildBvTree = other->m_buildBvTree;
     m_buildKdTree = other->m_buildKdTree;
     m_refPID = other->m_refPID;
+    m_multiSolidSTL = other->m_multiSolidSTL;
 }
 
 /*!
@@ -590,7 +604,7 @@ MimmoGeometry::write(){
         //Export STL
     {
         string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex);
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false);
         return true;
     }
     break;
@@ -1426,6 +1440,15 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setReferencePID(value);
     };
     
+    if(slotXML.hasOption("WriteMultiSolidSTL")){
+        input = slotXML.get("WriteMultiSolidSTL");
+        bool value = true;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::trim(input));
+            ss >> value;
+        }
+        setMultiSolidSTL(value);
+    };
     
 };
 
@@ -1482,6 +1505,7 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     output = std::to_string(m_buildKdTree);
     slotXML.set("KdTree", output);
     slotXML.set("AssignRefPID", std::to_string(m_refPID));
+    slotXML.set("WriteMultiSolidSTL", std::to_string(m_multiSolidSTL));
 };
 
 
