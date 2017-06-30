@@ -295,6 +295,7 @@ ReconstructVector::execute(){
 
     //Overlap fields
     m_result.clear();
+    m_result.reserve(getGeometry()->getNVertex());
     m_subresults.clear();
     bitpit::PiercedVector<int> counter;
     for (int i=0; i<getNData(); i++){
@@ -329,6 +330,7 @@ ReconstructVector::execute(){
         dmpvecarr3E* pv = &m_subpatch[i];
         m_subresults[i].setGeometry(pv->getGeometry());
         m_subresults[i].setName(pv->getName());
+        m_subresults[i].reserve(pv->getGeometry()->getNVertex());
         long int ID;
         for (const auto & vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
