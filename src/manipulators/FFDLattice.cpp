@@ -104,7 +104,7 @@ FFDLattice::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::setDisplacements, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
