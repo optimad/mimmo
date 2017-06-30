@@ -164,7 +164,7 @@ ExtractScalarField::extract(){
     {
         //Extract by IDs
         for (const auto & ID : getGeometry()->getVertices().getIds()){
-            if (!m_field.exists(ID)){
+            if (m_field.exists(ID)){
                 m_result.insert(ID, m_field[ID]);
             }
         }

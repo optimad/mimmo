@@ -185,21 +185,21 @@ void test00003() {
     addPin(mapSel1, mrbf1, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mapSel2, mrbf2, PortType::M_GEOM, PortType::M_GEOM);
     addPin(mimmo0, recon, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mrbf1, recon, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(mrbf2, recon, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(recon, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(mrbf1, recon, PortType::M_GDISPLS, PortType::M_VECTORFIELD);
+    addPin(mrbf2, recon, PortType::M_GDISPLS, PortType::M_VECTORFIELD);
+    addPin(recon, applier, PortType::M_VECTORFIELD, PortType::M_GDISPLS);
     addPin(applier, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
 
     addPin(mapSel1, extr, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(recon, extr, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(recon, extr, PortType::M_VECTORFIELD, PortType::M_VECTORFIELD);
     addPin(mapSel1, applierextr, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(extr, applierextr, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(extr, applierextr, PortType::M_VECTORFIELD, PortType::M_GDISPLS);
     addPin(applierextr, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
 
     addPin(mapSel2, extr2, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(recon, extr2, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(recon, extr2, PortType::M_VECTORFIELD, PortType::M_VECTORFIELD);
     addPin(mapSel2, applierextr2, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(extr2, applierextr2, PortType::M_GDISPLS, PortType::M_GDISPLS);
+    addPin(extr2, applierextr2, PortType::M_VECTORFIELD, PortType::M_GDISPLS);
     addPin(applierextr2, mimmo5, PortType::M_GEOM, PortType::M_GEOM);
 
 

@@ -448,7 +448,7 @@ ReconstructVector::buildPorts(){
     built = (built && createPortIn<dmpvecarr3E, ReconstructVector>(this, &mimmo::ReconstructVector::addData, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
 
     //output
-    built = (built && createPortOut<dmpvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dmpvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
     built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     built = (built && createPortOut<std::vector<dmpvecarr3E>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, PortType::M_VECVFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECARR3FLOAT));
     m_arePortsBuilt = built;
