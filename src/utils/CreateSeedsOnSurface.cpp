@@ -403,7 +403,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
 
     double distance = 0.0;
-    for(auto &cell : tri->getCells()){
+    for(const auto &cell : tri->getCells()){
         distance += tri->evalCellArea(cell.getId());
     }
     distance /= double(tri->getCellCount());
@@ -439,10 +439,10 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     while(deadSize < m_nPoints){
 
         dmpvector1D field;
-        for (auto v : tri->getVertices()){
+        for (const auto & v : tri->getVertices()){
             field.insert(v.getId(), 1.0E18);
         }
-        for(auto & dd : m_deads)    field[dd] = 0.0;
+        for(const auto & dd : m_deads)    field[dd] = 0.0;
 
         solveEikonal(1.0,1.0, invConn, field);
 
@@ -457,7 +457,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
     //store result in m_points.
     m_points.reserve(deadSize);
-    for(auto val: m_deads){
+    for(const auto & val: m_deads){
         m_points.push_back(tri->getVertexCoords(val));
     }
 
@@ -761,7 +761,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
             m_minDist *= 0.9;
             visited.clear();
             visited.insert(finalCandidates.begin(), finalCandidates.end());
-            for(auto ind : finalCandidates){
+            for(const auto & ind : finalCandidates){
                 excl.insert(excl.end(), visited.begin(), visited.end());
                 kdT.hNeighbors(&listRefer[ind], m_minDist, &neighs, & excl );
                 visited.insert(neighs.begin(), neighs.end());
@@ -778,11 +778,11 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
                 effective.push_back(i);
         }
 
-        for(auto & ind : effective){
+        for(const auto & ind : effective){
             dvector1D norms(finalCandidates.size());
             int countNorms=0;
-            for(auto indEx: finalCandidates){
-                norms[countNorms] = norm2(listRefer[ind] - listRefer[indEx]);
+            for(const auto & indEx: finalCandidates){
+                norms[countNorms] = norm2(list[ind] - list[indEx]);
                 ++countNorms;
             }
 
@@ -803,7 +803,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
     }
 
     int counter = 0;
-    for(auto index : finalCandidates){
+    for(const auto & index : finalCandidates){
         result[counter] = list[index];
         ++counter;
     }

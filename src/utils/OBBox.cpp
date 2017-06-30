@@ -304,14 +304,12 @@ OBBox::execute(){
     }
 
 
-    for(auto ptr : getGeometries()){
-        for(auto & vert: ptr->getVertices()){
-            darray3E coord = vert.getCoords();
-            for(int i=0;i<3; ++i){
-                val = dotProduct(coord, m_axes[i]);
-                pmin[i] = std::fmin(pmin[i], val);
-                pmax[i] = std::fmax(pmax[i], val);
-            }
+    for(const auto & vert: getGeometry()->getVertices()){
+        darray3E coord = vert.getCoords();
+        for(int i=0;i<3; ++i){
+            val = dotProduct(coord, m_axes[i]);
+            pmin[i] = std::fmin(pmin[i], val);
+            pmax[i] = std::fmax(pmax[i], val);
         }
     }
     
@@ -333,29 +331,22 @@ OBBox::execute(){
     
     double volOBB = m_span[0]*m_span[1]*m_span[2];
 
-    if(!m_forceAABB){ //check if AABB get a better result
-        pmin.fill(1.e18);
-        pmax.fill(-1.e18);
-       
-        for(auto ptr : getGeometries()){
-            for(auto & vert: ptr->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    pmin[i] = std::fmin(pmin[i], coord[i]);
-                    pmax[i] = std::fmax(pmax[i], coord[i]);
-                }
-            }
-        }
-        
-        darray3E span2 = pmax - pmin;
-        darray3E orig = 0.5*(pmin+pmax);
-        //check if one of the span goes to 0;
-        avg_span = 0.0;
-        for(auto & val: span2)    avg_span+=val;
-        avg_span /= 3.0;
+    //check the axis aligned bounding box if volume is lesser then obb
+    //take it instead of the oriented.
 
-        for(auto &val : span2)    {
-            val = std::fmax(val, 1.E-04*avg_span);
+    pmin.fill(1.e18);
+    pmax.fill(-1.e18);
+    for(int i=0; i<3; ++i){
+        trasp[i].fill(0.0);
+        trasp[i][i] = 1.0;
+    }
+
+    for(const auto & vert: getGeometry()->getVertices()){
+        darray3E coord = vert.getCoords();
+        for(int i=0;i<3; ++i){
+            val = dotProduct(coord, trasp[i]);
+            pmin[i] = std::fmin(pmin[i], val);
+            pmax[i] = std::fmax(pmax[i], val);
         }
 
         double volAAA =span2[0]*span2[1]*span2[2];
@@ -461,6 +452,25 @@ OBBox::assemblyCovContributes(std::vector<MimmoObject*> list, bool flag, dmatrix
     dvector1D area;
     darray3E temp;
     double areaTot = 0.0;
+    double maxVal= 1.e-18;
+
+    if(getGeometry()->getType() == 3){
+        size = getGeometry()->getNVertex();
+        //evaluate eta;
+        for(const auto & vert: getGeometry()->getVertices()){
+            eta += vert.getCoords();
+        }
+        eta /= (double)size;
+
+        //evaluate covariance
+        for(const auto & vert: getGeometry()->getVertices()){
+            temp = vert.getCoords() - eta;
+
+            for(int j=0; j<3; ++j){
+                for(int k=j; k<3; ++k){
+                    covariance[j][k] += temp[j]*temp[k];
+                }
+            }
 
     if(flag){
         for(auto geo: list){
@@ -476,26 +486,46 @@ OBBox::assemblyCovContributes(std::vector<MimmoObject*> list, bool flag, dmatrix
                     }
                 }
             }
-            //store temporarely in covContributes
-            counter = 0;
-            for(auto & val: covContributes){
-                val += loc[counter];
-                ++counter;
+
+        }
+
+    }else{
+        size = getGeometry()->getNCells();
+
+        bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
+        area.resize(size);
+        counter = 0;
+        for(const auto &cell : tri->getCells()){
+            area[counter] = tri->evalCellArea(cell.getId());
+            areaTot +=area[counter];
+            ++counter;
+        }
+        for(auto & val: area)    val /= areaTot;
+
+        //evaluate eta;
+        counter = 0;
+        darray3E pp;
+        long vCount;
+        for(const auto & cell: tri->getCells()){
+            vCount = cell.getVertexCount();
+            pp.fill(0.0);
+            for(int kk=0; kk<vCount; ++kk){
+                pp += tri->getVertexCoords(cell.getVertex(kk));
             }
             
             areaTot += double(size);
         }
-    }else{    
-        for(auto geo: list){
-            for(auto & val:loc)    val.fill(0.0);
-            size = geo->getNCells();
-            bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(geo->getPatch());
-            area.resize(size);
-            counter = 0;
-            for(auto &cell : tri->getCells()){
-                area[counter] = tri->evalCellArea(cell.getId());
-                areaTot +=area[counter];
-                ++counter;
+
+        eta /= (3.0);
+
+
+        counter = 0;
+        dvecarr3E p2;
+        for(const auto & cell: tri->getCells()){
+            vCount = cell.getVertexCount();
+            p2.resize(vCount);
+            for(int kk=0; kk<vCount; ++kk){
+                p2[kk] = tri->getVertexCoords(cell.getVertex(kk)) - eta;
             }
 
             counter = 0;
@@ -676,7 +706,7 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 
     dmatrix33E axes; //, trasp;
     int counter=0;
-    for(auto & val: eigVec){
+    for(const auto & val: eigVec){
         axes[counter] = val;
         ++counter;
     }
@@ -702,14 +732,14 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         pmin.fill(1.e18);
         pmax.fill(-1.e18);
 
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
+        //trasp = bitpit::linearalgebra::transpose(axes);
+
+        for(const auto & vert: getGeometry()->getVertices()){
+            darray3E coord = vert.getCoords();
+            for(int i=0;i<3; ++i){
+                val = dotProduct(coord, axes[i]); //trasp[i]);
+                pmin[i] = std::fmin(pmin[i], val);
+                pmax[i] = std::fmax(pmax[i], val);
             }
         }
 
@@ -739,14 +769,12 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         //trasp = bitpit::linearalgebra::transpose(axes);
         pmin.fill(1.e18);
         pmax.fill(-1.e18);
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
+        for(const auto & vert: getGeometry()->getVertices()){
+            darray3E coord = vert.getCoords();
+            for(int i=0;i<3; ++i){
+                val = dotProduct(coord,axes[i]); // trasp[i]);
+                pmin[i] = std::fmin(pmin[i], val);
+                pmax[i] = std::fmax(pmax[i], val);
             }
         }
 
@@ -762,14 +790,12 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         
         pmin.fill(1.e18);
         pmax.fill(-1.e18);
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
+        for(const auto & vert: getGeometry()->getVertices()){
+            darray3E coord = vert.getCoords();
+            for(int i=0;i<3; ++i){
+                val = dotProduct(coord,axes[i]); // trasp[i]);
+                pmin[i] = std::fmin(pmin[i], val);
+                pmax[i] = std::fmax(pmax[i], val);
             }
         }
 

@@ -131,7 +131,7 @@ CGNSPidExtractor::addPID( short val){
  */
 void
 CGNSPidExtractor::setPID( std::vector<short int> vval){
-    for(auto & val : vval) addPID(val);
+    for(const auto & val : vval) addPID(val);
 }
 
 /*!
@@ -166,7 +166,7 @@ CGNSPidExtractor::execute(){
 
     livector1D extracted;
 
-    for(auto & val: m_targetpid){
+    for(const auto & val: m_targetpid){
         livector1D temp= getGeometry()->extractPIDCells(val);
         extracted.insert(extracted.end(), temp.begin(), temp.end());
     }
@@ -180,7 +180,7 @@ CGNSPidExtractor::execute(){
 
     }else{
 
-        for(auto &val: extracted){
+        for(const auto &val: extracted){
 
             livector1D conn = mother->getCellConnectivity(val);
             bitpit::ElementInfo::Type eletype = mother->getPatch()->getCell(val).getType();
@@ -192,13 +192,13 @@ CGNSPidExtractor::execute(){
             livector2D tempConn = patchTemp->getConnectivity();
             std::map<long,long> ordIndex;
 
-            for(auto & val2: tempConn){
+            for(const auto & val2: tempConn){
                 for (auto val22 : val2){
                     ordIndex[val22] = val22;
                 }
             }
 
-            for(auto & val3: ordIndex){
+            for(const auto & val3: ordIndex){
                 temp = mother->getVertexCoords(val3.second);
                 patchTemp->addVertex(temp,val3.second);
             }
@@ -211,12 +211,12 @@ CGNSPidExtractor::execute(){
 
         long maxID, newID;
 
-        auto orderedCellID = patchTemp->getCells().getIds(true);
+        const auto orderedCellID = patchTemp->getCells().getIds(true);
         maxID = orderedCellID[(int)orderedCellID.size()-1];
         newID = maxID+1;
         bitpit::ElementInfo::Type eletype, eletri = bitpit::ElementInfo::Type::TRIANGLE;
 
-        for(auto &idcell : orderedCellID){
+        for(const auto &idcell : orderedCellID){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
             eletype = mother->getPatch()->getCell(idcell).getType();

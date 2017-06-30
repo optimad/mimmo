@@ -540,13 +540,13 @@ FFDLattice::execute(){
     long int ID;
     darray3E zero;
     zero.fill(0.0);
-    for (auto vertex : container->getVertices()){
+    for (const auto & vertex : container->getVertices()){
         ID = vertex.getId();
         m_gdispl.insert(ID, zero);
     }
     {
         int counter = 0;
-        for(auto &mapp: map){
+        for(const auto &mapp: map){
             m_gdispl[mapp] = localdef[counter];
             ++counter;
         }
@@ -616,7 +616,7 @@ FFDLattice::apply(dvecarr3E * point){
     result.resize(point->size(), darray3E{{0,0,0}});
     livector1D list = getShape()->includeCloudPoints(*point);
 
-    for(auto & index : list){
+    for(const auto & index : list){
         darray3E target = (*point)[index];
         result[index] = nurbsEvaluator(target);
     }
@@ -633,7 +633,7 @@ FFDLattice::apply(){
     if (getGeometry() == NULL || m_gdispl.getGeometry() != getGeometry()) return;
     darray3E vertexcoords;
     long int ID;
-    for (auto vertex : m_geometry->getVertices()){
+    for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
         vertexcoords += m_gdispl[ID];
@@ -652,7 +652,7 @@ FFDLattice::checkFilter(){
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setName("M_FILTER");
-        for (auto vertex : m_geometry->getVertices()){
+        for (const auto & vertex : m_geometry->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
         }
     }

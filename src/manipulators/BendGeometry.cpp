@@ -225,7 +225,7 @@ BendGeometry::execute(){
     long ID;
     darray3E value;
     darray3E point, point0;
-    for (auto vertex : m_geometry->getVertices()){
+    for (const auto & vertex : m_geometry->getVertices()){
         point = vertex.getCoords();
         if (m_local){
             point0 = point;
@@ -263,7 +263,7 @@ BendGeometry::apply(){
     if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
     darray3E vertexcoords;
     long int ID;
-    for (auto vertex : m_geometry->getVertices()){
+    for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
         vertexcoords += m_displ[ID];
@@ -282,7 +282,7 @@ BendGeometry::checkFilter(){
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setName("M_FILTER");
-        for (auto vertex : m_geometry->getVertices()){
+        for (const auto & vertex : m_geometry->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
         }
     }

@@ -455,11 +455,9 @@ IOCGNS::read(){
             return false;
         }
 
-//        conns[type].resize(connlocal.size());
         conns[sec].resize(connlocal.size());
         int count=0;
-        for(auto &val: connlocal){
-//            conns[type][count] = (int)val;
+        for(const auto &val: connlocal){
             conns[sec][count] = (int)val;
             ++count;
         }
@@ -532,7 +530,7 @@ IOCGNS::read(){
 
             bcLists[bc-1].resize(localbc.size());
             int count=0;
-            for(auto &val: localbc){
+            for(const auto &val: localbc){
                 // WHY INT AND NOT LONG INT (IT IS A BITPIT PID) ??
                 bcLists[bc-1][count] = (int)val;
                 ++count;
@@ -571,7 +569,7 @@ IOCGNS::read(){
     id = 1;
     int idsection = 0;
     //Unpack 3D elements connectivities and store it in volume grid. Label same species elements w PID.
-    for(auto & val: orderedConns){
+    for(const auto & val: orderedConns){
 
         idsection++;
 
@@ -689,10 +687,10 @@ IOCGNS::read(){
 
     //divide patchBnd in subpatch if any bc is present.
     if(bcLists.size() > 0)    {
-        for(auto & sel: bcLists){
+        for(const auto & sel: bcLists){
             if(sel.second.size() > 0){
                 short PID = sel.first + 1;
-                for(auto &ind : sel.second){
+                for(const auto &ind : sel.second){
                     id = ind;
                     patchBnd->setPIDCell(id,PID);
                 }
@@ -707,11 +705,11 @@ IOCGNS::read(){
         livector2D tempConn = patchBnd->getConnectivity();
         std::set<long> ordIndex;
 
-        for(auto & val: tempConn){
+        for(const auto & val: tempConn){
             ordIndex.insert(val.begin(), val.end());
         }
 
-        for(auto & val: ordIndex){
+        for(const auto & val: ordIndex){
             temp = patchVol->getVertexCoords(val);
             patchBnd->addVertex(temp,val);
         }
@@ -764,7 +762,7 @@ IOCGNS::write(){
     {
         dvecarr3E vert = vol->getVertexCoords();
         int count=0;
-        for(auto &val:vert){
+        for(const auto &val:vert){
             for(int j=0; j<3; ++j)    coords[j][count] = val[j];
             ++count;
         }
@@ -820,7 +818,7 @@ IOCGNS::write(){
     int sec = 0;
     cgsize_t eBeg = 1, eEnd;
     int nbdry = 0;
-    for(auto &connMap : m_storedInfo->mcg_typetoconn){
+    for(const auto &connMap : m_storedInfo->mcg_typetoconn){
         sec++;
         if(connMap.second.size() == 0) continue;
 
@@ -836,7 +834,7 @@ IOCGNS::write(){
     }
 
     /* Write surface elements */
-    for(auto &connMap : m_storedInfo->mcg_bndtypetoconn){
+    for(const auto &connMap : m_storedInfo->mcg_bndtypetoconn){
         sec++;
         if(connMap.second.size() == 0) continue;
 
@@ -854,7 +852,7 @@ IOCGNS::write(){
     /* Write boundary conditions if thay are present.
      */
     int bcid;
-    for(auto & bc: m_storedBC->mcg_bndpidtoindex){
+    for(const auto & bc: m_storedBC->mcg_bndpidtoindex){
 
         /* Default tag for boundary conditions = Wall.
          * Default name for boundary conditions = wall_PID.

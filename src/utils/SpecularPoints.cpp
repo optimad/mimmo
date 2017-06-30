@@ -284,7 +284,7 @@ SpecularPoints::execute(){
         double aTot = 0.0;
         int cellSize = getGeometry()->getNCells();
         bitpit::SurfaceKernel * tri = static_cast<bitpit::SurfaceKernel * >(getGeometry()->getPatch());
-        for(auto &cell: tri->getCells()){
+        for(const auto &cell: tri->getCells()){
             aTot += tri->evalCellArea(cell.getId());
         }
 
@@ -294,7 +294,7 @@ SpecularPoints::execute(){
         double vTot = 0.0;
         int cellSize = getGeometry()->getNCells();
         bitpit::VolumeKernel * tetra = static_cast<bitpit::VolumeKernel * >(getGeometry()->getPatch());
-        for(auto &cell: tetra->getCells()){
+        for(const auto &cell: tetra->getCells()){
             vTot += tetra->evalCellVolume(cell.getId());
         }
 
@@ -320,7 +320,7 @@ SpecularPoints::execute(){
     m_scalarMirrored.resize(2*counterProj);
     m_vectorMirrored.resize(2*counterProj);
 
-    for(auto &val: m_points){
+    for(const auto &val: m_points){
         distance = sig*(dotProduct(norm, val) + offset);
         if(distance > margin || m_force){
             m_proj[counterProj] = val - 2.0*distance*sig*norm;

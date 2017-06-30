@@ -145,7 +145,7 @@ SelectionByBoxWithScalar::execute(){
         temp.setGeometry(m_subpatch.get());
         temp.setName(m_field.getName());
         bitpit::PiercedVector<bitpit::Vertex> vertices = m_subpatch->getVertices();
-        for (auto vertex : vertices){
+        for (const auto & vertex : vertices){
             temp[vertex.getId()] = m_field[vertex.getId()];
         }
         m_field.clear();
@@ -164,7 +164,7 @@ SelectionByBoxWithScalar::plotOptionalResults(){
     std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 
     dvector1D temp;
-    for (auto vertex : getPatch()->getVertices()){
+    for (const auto & vertex : getPatch()->getVertices()){
         temp.push_back(m_field[vertex.getId()]);
     }
 

@@ -195,7 +195,7 @@ StitchGeometry::execute(){
             std::unordered_map<long,long> mapVloc;
 
             //start extracting/reversing vertices of the current obj
-            for(auto & vv : obj.first->getVertices()){
+            for(const auto & vv : obj.first->getVertices()){
                 vId = vv.getId();
                 dum->addVertex(obj.first->getVertexCoords(vId), cV);
                 //update map;
@@ -204,7 +204,7 @@ StitchGeometry::execute(){
             }
 
             //start extracting/reversing cells of the current obj
-            for(auto & cc : obj.first->getCells()){
+            for(const auto & cc : obj.first->getCells()){
                 cId = cc.getId();
                 PID = cc.getPID();
                 eltype = cc.getType();
@@ -212,7 +212,7 @@ StitchGeometry::execute(){
                 livector1D conn = obj.first->getCellConnectivity(cId);
                 livector1D connloc(conn.size());
                 int ic = 0;
-                for (auto v : conn){
+                for (const auto & v : conn){
                     connloc[ic] = mapVloc[v];
                     ++ic;
                 }

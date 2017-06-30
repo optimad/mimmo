@@ -124,7 +124,7 @@ SwitchVectorField::plotOptionalResults(){
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 
     dvecarr3E field;
-    for (auto & v : getGeometry()->getVertices()){
+    for (const auto & v : getGeometry()->getVertices()){
         field.push_back(m_result[v.getId()]);
     }
 
@@ -170,7 +170,7 @@ SwitchVectorField::mswitch(){
     m_result.clear();
 
     //Extract by link to geometry
-    for (auto field : m_fields){
+    for (const auto & field : m_fields){
 
         if (field.getGeometry() == NULL ) return false;
 
@@ -185,11 +185,11 @@ SwitchVectorField::mswitch(){
     //Extract by geometric mapping
     if (m_mapping){
         double tol = 1.0e-08;
-        for (auto field : m_fields){
+        for (const auto & field : m_fields){
             livector1D result = mimmo::bvTreeUtils::selectByPatch(field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), tol);
             if (result.size() != 0) m_result.setName(field.getName());
-            for (auto idC : result){
-                for (auto id : getGeometry()->getCellConnectivity(idC)){
+            for (const auto & idC : result){
+                for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                     if (!m_result.exists(id))
                         m_result.insert(id, field[id]);
                 }

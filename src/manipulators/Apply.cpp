@@ -91,7 +91,7 @@ Apply::execute(){
 
     darray3E vertexcoords;
     long int ID;
-    for (auto vertex : m_geometry->getVertices()){
+    for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
         vertexcoords += m_input[ID];

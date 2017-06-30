@@ -219,8 +219,7 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
     dvector1D field(points.size());
     std::vector<long> ids(points.size());
     long ID;
-    auto convMap = getGeometry()->getMapDataInv(); 
-    for (auto vertex : getGeometry()->getVertices()){
+    for (const auto vertex : getGeometry()->getVertices()){
         ID = vertex.getId();
         ids[mapData[ID]] = ID;
         field[mapData[ID]] = m_result[ID];
@@ -274,7 +273,7 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
     dvector1D field(points.size());
     std::vector<long> ids(points.size());
     long ID;
-    for (auto vertex : m_subresults[i].getGeometry()->getVertices()){
+    for (const auto vertex : m_subresults[i].getGeometry()->getVertices()){
         ID = vertex.getId();
         ids[mapData[ID]] = ID;
         field[mapData[ID]] = m_subresults[i][ID];
@@ -304,7 +303,7 @@ ReconstructScalar::execute(){
     for (int i=0; i<getNData(); i++){
         dmpvector1D* pv = &m_subpatch[i];
         long int ID;
-        for (auto vertex : pv->getGeometry()->getVertices()){
+        for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
                 m_result.insert(ID, (*pv)[ID]);
@@ -333,7 +332,7 @@ ReconstructScalar::execute(){
         m_subresults[i].setGeometry(pv->getGeometry());
         m_subresults[i].setName(pv->getName());
         long int ID;
-        for (auto vertex : pv->getGeometry()->getVertices()){
+        for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
             m_subresults[i].insert(ID, m_result[ID]);
         }
@@ -346,7 +345,7 @@ ReconstructScalar::execute(){
             m_result.setName(m_subresults[0].getName());
         double zero = 0.0;
         long int ID;
-        for (auto vertex : getGeometry()->getVertices()){
+        for (const auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
                 m_result.insert(ID, zero);

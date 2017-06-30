@@ -417,7 +417,7 @@ void GenericDispls::write(){
     //assessing data;
     int sizelabels = m_labels.size();
     long maxlabel = 0;
-    for(auto & val: m_labels){
+    for(const auto & val: m_labels){
         maxlabel = std::max(maxlabel,val);
     }
 
@@ -445,7 +445,7 @@ void GenericDispls::write(){
     if(writing.is_open()){
 
         int counter = 0;
-        for(auto & dd : m_displ){
+        for(const auto & dd : m_displ){
             if(m_template){
                 std::string str1 = keyT1+"x"+std::to_string(m_labels[counter])+keyT2;
                 std::string str2 = keyT1+"y"+std::to_string(m_labels[counter])+keyT2;

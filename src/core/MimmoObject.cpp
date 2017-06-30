@@ -100,7 +100,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     sizeVert = vertex.size();
     m_patch->reserveVertices(sizeVert);
 
-    for(auto & vv : vertex)	addVertex(vv);
+    for(const auto & vv : vertex)	addVertex(vv);
 
     if(connectivity == NULL)	m_type = 3;
     if (m_type != 3){
@@ -128,7 +128,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 
             m_patch->reserveCells(sizeCell);
 
-            for(auto & cc : *connectivity){
+            for(auto const & cc : *connectivity){
 
                 livector1D temp(cc.size());
                 int counter=0;
@@ -326,14 +326,14 @@ MimmoObject::getVertexCoords(liimap* mapDataInv){
     dvecarr3E result(getNVertex());
     int  i = 0;
     if (mapDataInv != NULL){
-        for (auto & vertex : m_patch->getVertices()){
+        for (auto const & vertex : m_patch->getVertices()){
             result[i] = vertex.getCoords();
             (*mapDataInv)[vertex.getId()] = i;
             ++i;
         }
     }
     else{
-        for (auto & vertex : m_patch->getVertices()){
+        for (auto const & vertex : m_patch->getVertices()){
             result[i] = vertex.getCoords();
             ++i;
         }
@@ -387,8 +387,8 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
     livector2D conn  =	getConnectivity();
     ivector2D result(conn.size());
     int counter = 0;
-    for(auto & vv : conn){
-        for (auto & iv : vv){
+    for(auto const & vv : conn){
+        for (auto const & iv : vv){
             result[counter].push_back(mapDataInv[iv]);
         }
         ++counter;
@@ -409,7 +409,7 @@ MimmoObject::getConnectivity(){
     livector2D connecti(getNCells());
     int np, counter =0;
 
-    for(auto & cell : getCells()){
+    for(auto const & cell : getCells()){
         np = cell.getVertexCount();
         connecti[counter].resize(np);
         for (int i=0; i<np; ++i){
@@ -489,7 +489,7 @@ livector1D
 MimmoObject::getMapData(){
     livector1D mapData(getNVertex());
     int i = 0;
-    for (auto & vertex : m_patch->getVertices()){
+    for (auto const & vertex : m_patch->getVertices()){
         mapData[i] = vertex.getId();
         ++i;
     }
@@ -505,7 +505,7 @@ liimap
 MimmoObject::getMapDataInv(){
     liimap mapDataInv;
     int i = 0;
-    for (auto & vertex : m_patch->getVertices()){
+    for (auto const & vertex : m_patch->getVertices()){
         mapDataInv[vertex.getId()] = i;
         ++i;
     }
@@ -521,7 +521,7 @@ livector1D
 MimmoObject::getMapCell(){
     livector1D mapCell(getNCells());
     int i = 0;
-    for (auto & cell : m_patch->getCells()){
+    for (auto const & cell : m_patch->getCells()){
         mapCell[i] = cell.getId();
         ++i;
     }
@@ -537,7 +537,7 @@ liimap
 MimmoObject::getMapCellInv(){
     liimap mapCellInv;
     int i = 0;
-    for (auto & cell : m_patch->getCells()){
+    for (auto const & cell : m_patch->getCells()){
         mapCellInv[cell.getId()] = i;
         ++i;
     }
@@ -575,7 +575,7 @@ MimmoObject::getCompactPID() {
     if(!m_bvTreeSupported || m_pidsType.empty())	return shivector1D(0);
     shivector1D result(getNCells());
     int counter=0;
-    for(auto & cell : getCells()){
+    for(auto const & cell : getCells()){
         result[counter] = (short)cell.getPID();
         ++counter;
     }
@@ -590,7 +590,7 @@ std::unordered_map<long,short>
 MimmoObject::getPID() {
     if(!m_bvTreeSupported || m_pidsType.empty())	return std::unordered_map<long,short>();
     std::unordered_map<long,short> 	result;
-    for(auto & cell : getCells()){
+    for(auto const & cell : getCells()){
         result[cell.getId()] = (short) cell.getPID();
     }
     return(result);
@@ -790,7 +790,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
         pid = (short)cell.getPID();
         nVert = cell.getVertexCount();
         connectivity.resize(nVert);
-        auto conn = cell.getConnect();
+        auto const conn = cell.getConnect();
         for(int i=0; i<nVert; ++i){
             connectivity[i] = conn[i];
         }
@@ -935,7 +935,7 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
             m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
         }
         
-        for(auto & cell : geometry->getCells()){
+        for(auto const & cell : geometry->getCells()){
             m_pidsType.insert(cell.getPID());
         }
         m_AdjBuilt = false;
@@ -1027,7 +1027,7 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
 
     m_pidsType.clear();
     auto & cells = getCells();
-    for(auto & val: pidsMap){
+    for(auto const & val: pidsMap){
         if(cells.exists(val.first)){
             cells[val.first].setPID(val.second);
             m_pidsType.insert(val.second);
@@ -1172,7 +1172,7 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
     //get conn from each cell of the list
-    for(auto & cell : m_patch->getCells()){
+    for(auto const & cell : m_patch->getCells()){
         int nVloc = cell.getVertexCount();
         int i=0;
         bool check = false;
@@ -1316,7 +1316,7 @@ livector1D	MimmoObject::extractPIDCells(short flag){
 
     livector1D result(getNCells());
     int counter = 0;
-    for(auto & cell : getCells()){
+    for(auto const & cell : getCells()){
         if ( cell.getPID() == flag)	{
             result[counter] = cell.getId();	 
             ++counter;

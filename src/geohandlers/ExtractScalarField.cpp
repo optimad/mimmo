@@ -114,7 +114,7 @@ ExtractScalarField::plotOptionalResults(){
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 
     dvector1D field;
-    for (auto & v : getGeometry()->getVertices()){
+    for (const auto & v : getGeometry()->getVertices()){
         field.push_back(m_result[v.getId()]);
     }
 
@@ -163,8 +163,8 @@ ExtractScalarField::extract(){
     case ExtractMode::ID :
     {
         //Extract by IDs
-        for (auto ID : getGeometry()->getVertices().getIds()){
-            if (m_field.exists(ID)){
+        for (const auto & ID : getGeometry()->getVertices().getIds()){
+            if (!m_field.exists(ID)){
                 m_result.insert(ID, m_field[ID]);
             }
         }
@@ -175,12 +175,12 @@ ExtractScalarField::extract(){
     {
         //Extract by PIDs
         std::set<int> pids;
-        for (auto cell : getGeometry()->getCells()){
+        for (const auto & cell : getGeometry()->getCells()){
             pids.insert(cell.getPID());
         }
-        for (auto cell : m_field.getGeometry()->getCells()){
+        for (const auto & cell : m_field.getGeometry()->getCells()){
             if (pids.count(cell.getPID())){
-                for (auto id : m_field.getGeometry()->getCellConnectivity(cell.getId())){
+                for (const auto & id : m_field.getGeometry()->getCellConnectivity(cell.getId())){
                     if (!m_result.exists(id))
                         m_result.insert(id, m_field[id]);
                 }
@@ -194,8 +194,8 @@ ExtractScalarField::extract(){
         //Extract by geometric mapping
         double tol = 1.0e-08;
         livector1D result = mimmo::bvTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), tol);
-        for (auto idC : result){
-            for (auto id : getGeometry()->getCellConnectivity(idC)){
+        for (const auto & idC : result){
+            for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                 if (!m_result.exists(id))
                     m_result.insert(id, m_field[id]);
             }
