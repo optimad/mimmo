@@ -650,7 +650,7 @@ FFDLattice::apply(dvecarr3E * point){
 void
 FFDLattice::apply(){
 
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL || !isBuilt()) return;
     dvecarr3E vertex = getGeometry()->getVertexCoords();
     long nv = getGeometry()->getNVertex();
     nv = long(std::min(int(nv), int(m_gdispl.size())));
@@ -1495,6 +1495,8 @@ FFDLattice::build(){
 
     m_weights.clear();
     m_weights.resize(m_np, 1.0);
+    
+    m_displ.resize(m_np, {{0.0,0.0,0.0}});
 
     std::unordered_map<int, double>::iterator it;
     //transfer data from collector of weights m_collect_wg
