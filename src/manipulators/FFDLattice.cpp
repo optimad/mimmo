@@ -274,7 +274,6 @@ FFDLattice::setDegrees(iarray3E degrees){
  */
 void
 FFDLattice::setDisplacements(dvecarr3E displacements){
-    if(getShape() == NULL) return;
     m_displ = displacements;
 };
 
