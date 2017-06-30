@@ -77,23 +77,21 @@
         </SelMap2>
         <MRBF1>
             <ClassName>mimmo.MRBF</ClassName>
-            <SupportRadiusReal>0.3</SupportRadiusReal>
+            <SupportRadius>0.4</SupportRadius>
             <PlotInExecution>1</PlotInExecution>
             <Mode>0</Mode>
         </MRBF1>
         <MRBF2>
             <ClassName>mimmo.MRBF</ClassName>
-            <SupportRadiusReal>0.3</SupportRadiusReal>
+            <SupportRadius>0.4</SupportRadius>
             <PlotInExecution>1</PlotInExecution>
             <Mode>0</Mode>
         </MRBF2>
         <Recon>
             <ClassName>mimmo.ReconstructVector</ClassName>
-            <Scaling>1.0 0.5 0.5</Scaling>
         </Recon>
         <Applier>
             <ClassName>mimmo.Apply</ClassName>
-            <RefreshGeometryTrees>1</RefreshGeometryTrees>
             <PlotInExecution>1</PlotInExecution>
         </Applier>
     </Blocks>
@@ -172,19 +170,19 @@
 		</c11>
 		<c12>
 			<sender>MRBF1</sender>
-			<senderPort>M_PAIRVECFIELD</senderPort>
+			<senderPort>M_GDISPLS</senderPort>
 			<receiver>Recon</receiver>
-			<receiverPort>M_PAIRVECFIELD</receiverPort>
+			<receiverPort>M_VECTORFIELD</receiverPort>
 		</c12>
 		<c13>
 			<sender>MRBF2</sender>
-			<senderPort>M_PAIRVECFIELD</senderPort>
+			<senderPort>M_GDISPLS</senderPort>
 			<receiver>Recon</receiver>
-			<receiverPort>M_PAIRVECFIELD</receiverPort>
+			<receiverPort>M_VECTORFIELD</receiverPort>
 		</c13>
 		<c14>
 			<sender>Recon</sender>
-			<senderPort>M_GDISPLS</senderPort>
+			<senderPort>M_VECTORFIELD</senderPort>
 			<receiver>Applier</receiver>
 			<receiverPort>M_GDISPLS</receiverPort>
 		</c14>

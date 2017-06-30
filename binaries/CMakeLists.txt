@@ -98,10 +98,10 @@ if(BUILD_XMLTUI)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00004.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00004.csv"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005n.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005n.csv"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005d.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005d.csv"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003n1.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003d1.txt"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003n2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003d2.txt"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003d1.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n1.txt"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003d2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n2.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003n1.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n1.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003n2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003n2.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003d1.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003d1.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/geohandlers_input_00003d2.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/geohandlers_input_00003d2.txt"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
 	)
 
