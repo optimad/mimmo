@@ -4,6 +4,11 @@ All notable changes to **mimmo** project will be documented in this file.
 This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- added new option to assign a reference PID to a geometry by MimmoGeometry execution
+- added new option to write pidded 3D surfaces in MultiSolid ASCII (MimmoGeometry)
+- fixed minor bugs in FFDLattice manipulator
+- added new features to OBBox utility (multi geometry in input, option to switch from Oriented to Axis Aligned box calculation)
+
 ### Added
 - This CHANGELOG file.
 - Unique logger for **mimmo** added.
