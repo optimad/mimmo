@@ -32,6 +32,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 set(TESTS "")
 list(APPEND TESTS "test_utils_00001")
 list(APPEND TESTS "test_utils_00002")
+list(APPEND TESTS "test_utils_00003")
 
 # if (ENABLE_MPI)
 # 	list(APPEND TESTS "test_utils_parallel_00001:3") ##:x number of procs
@@ -44,8 +45,9 @@ set(TEST_EXTRA_LIBRARIES "")
 addModuleTests(${MODULE_NAME} "${TESTS}" "${TEST_EXTRA_LIBRARIES}")
 unset(TESTS)
 
-# add_custom_command(
-#     TARGET "name test in the list" PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
-#     )
+ add_custom_command(
+     TARGET "test_utils_00003" PRE_BUILD
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+     )
 

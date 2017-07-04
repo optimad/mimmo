@@ -45,6 +45,7 @@ namespace mimmo{
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | 99    | M_GEOM      | m_geometry                            |(SCALAR, MIMMO_)       |
+     | 100   | M_VECGEOM   | setGeometries                         |(VECTOR, MIMMO_)       |
 
      |Port Output | | | |
      |-|-|-|-|
@@ -63,7 +64,9 @@ namespace mimmo{
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
- * Geometry has to be mandatorily passed through port.
+ * Proper of the class:
+ * - <B>ForceAABB</B>: if true calculate the simple AABB of the union of target geometries linked
+ * Geometries have to be mandatorily added/passed through ports.
  *
  */
 class OBBox: public BaseManipulation {
@@ -73,6 +76,8 @@ protected:
     darray3E    m_span;         /**< Span of the OBB. */
     dmatrix33E    m_axes;       /**< reference system of the bbox, ordered aaccording maximum shape variance */
 
+    std::unordered_map<MimmoObject*, int> m_listgeo; /**< list of geometries linked in input, according to type */
+    bool m_forceAABB; /**< force class to evaluate a simple AABB, not oriented */
 public:
     OBBox();
     OBBox(const bitpit::Config::Section & rootXML);
@@ -88,10 +93,15 @@ public:
     void         clearOBBox();
 
     //internal methods
-    darray3E    getOrigin();
-    darray3E    getSpan();
-    dmatrix33E    getAxes();
-    void        setGeometry(MimmoObject*);
+    std::vector<MimmoObject*>        getGeometries();
+    darray3E                         getOrigin();
+    darray3E                         getSpan();
+    dmatrix33E                       getAxes();
+    bool                             isForcedAABB();
+    
+    void        setGeometry(MimmoObject* geo);
+    void        setGeometries(std::vector<MimmoObject*> listgeo);
+    void        setForceAABB(bool flag);
     //plotting wrappers
     void        plot(std::string directory, std::string filename, int counter, bool binary);
 
@@ -106,11 +116,11 @@ protected:
     virtual void plotOptionalResults();
 
 private:
-    dmatrix33E         eigenVectors( dmatrix33E &, darray3E & eigenValues);
-    void            evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
-    dmatrix33E        evalCovTriangle(dvecarr3E & vv);
-    dmatrix33E         createMatrix(darray3E v1, darray3E v2);
-    void             adjustBasis( dmatrix33E &, darray3E & eigenValues);
+    dmatrix33E      evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
+    void            assemblyCovContributes(std::vector<MimmoObject *> list, bool flag, dmatrix33E &);
+    darray3E        evaluateMassCenter(std::vector<MimmoObject *> list, bool flag );
+    dmatrix33E      eigenVectors( dmatrix33E &, darray3E & eigenValues);
+    void            adjustBasis( dmatrix33E &, darray3E & eigenValues);
 };
 
 REGISTER(BaseManipulation, OBBox, "mimmo.OBBox")
