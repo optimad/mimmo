@@ -48,7 +48,7 @@ MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.Geometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -604,7 +604,7 @@ MimmoGeometry::write(){
         //Export STL
     {
         string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false);
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, false); // m_multiSolidSTL, false);
         return true;
     }
     break;
@@ -1304,7 +1304,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("IOMode")){
         input = slotXML.get("IOMode");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             for(auto c: IOMode::_values()){
                 if(input == c._to_string()){
@@ -1318,7 +1318,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("FileType")){
         input = slotXML.get("FileType");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             for(auto c: FileType::_values()){
                 if(input == c._to_string()){
@@ -1332,7 +1332,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("ReadFileType")){
         input = slotXML.get("ReadFileType");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             for(auto c: FileType::_values()){
                 if(input == c._to_string()){
@@ -1344,7 +1344,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("WriteFileType")){
         input = slotXML.get("WriteFileType");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             for(auto c: FileType::_values()){
                 if(input == c._to_string()){
@@ -1356,7 +1356,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Dir")){
         input = slotXML.get("Dir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())    input = "./";
         setDir(input);
     };
@@ -1364,14 +1364,14 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Filename")){
         input = slotXML.get("Filename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())    input = "mimmoGeometry";
         setFilename(input);
     };
 
     if(slotXML.hasOption("ReadDir")){
         input = slotXML.get("ReadDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty())
             setReadDir(input);
     };
@@ -1379,14 +1379,14 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("ReadFilename")){
         input = slotXML.get("ReadFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty())
             setReadFilename(input);
     };
 
     if(slotXML.hasOption("WriteDir")){
         input = slotXML.get("WriteDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty())
             setWriteDir(input);
     };
@@ -1394,7 +1394,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("WriteFilename")){
         input = slotXML.get("WriteFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty())
             setWriteFilename(input);
     };
@@ -1403,7 +1403,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("Codex");
         bool value = true;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setCodex(value);
@@ -1414,7 +1414,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("BvTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildBvTree(value);
@@ -1424,7 +1424,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("KdTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildKdTree(value);
@@ -1434,7 +1434,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("AssignRefPID");
         short int value = 0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setReferencePID(value);
@@ -1444,7 +1444,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("WriteMultiSolidSTL");
         bool value = true;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setMultiSolidSTL(value);

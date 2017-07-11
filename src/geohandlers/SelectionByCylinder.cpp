@@ -46,7 +46,7 @@ SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.SelectionByCylinder"){
         absorbSectionXML(rootXML);
     }else{
@@ -157,7 +157,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -168,7 +168,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -181,7 +181,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     if(slotXML.hasOption("Span")){
         std::string input = slotXML.get("Span");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{1.0,2.0*M_PI,1.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -203,7 +203,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
         if(axesXML.hasOption("axis0")){
             std::string input = axesXML.get("axis0");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 ss>>axes[0][0]>>axes[0][1]>>axes[0][2];
@@ -212,7 +212,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
         if(axesXML.hasOption("axis1")){
             std::string input = axesXML.get("axis1");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 ss>>axes[1][0]>>axes[1][1]>>axes[1][2];
@@ -221,7 +221,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
         if(axesXML.hasOption("axis2")){
             std::string input = axesXML.get("axis2");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 ss>>axes[2][0]>>axes[2][1]>>axes[2][2];
@@ -232,7 +232,7 @@ SelectionByCylinder::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     if(slotXML.hasOption("InfLimits")){
         std::string input = slotXML.get("InfLimits");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);

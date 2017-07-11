@@ -65,10 +65,10 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
     std::string fallback_name = "ClassNONE";
     std::string fallback_topo = "-1";
     std::string input_name = rootXML.get("ClassName", fallback_name);
-    input_name = bitpit::utils::trim(input_name);
+    input_name = bitpit::utils::string::trim(input_name);
 
     std::string input_topo = rootXML.get("Topology", fallback_topo);
-    input_topo = bitpit::utils::trim(input_topo);
+    input_topo = bitpit::utils::string::trim(input_topo);
 
     int topo = std::stoi(input_topo);
     topo = std::min(1,topo);
@@ -418,7 +418,7 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
     //checking topology
     if(slotXML.hasOption("Topology")){
         std::string input = slotXML.get("Topology");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int temp = -1;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -431,7 +431,7 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
     //start absorbing
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -442,7 +442,7 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 
     if(slotXML.hasOption("Tolerance")){
         std::string input = slotXML.get("Tolerance");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double temp = 1.0E-8;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -463,11 +463,11 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
 
             if(subfile.second->hasOption("fullpath"))    {
                 path = subfile.second->get("fullpath");
-                path = bitpit::utils::trim(path);
+                path = bitpit::utils::string::trim(path);
             }
             if(subfile.second->hasOption("tag")){
                 tag = subfile.second->get("tag");
-                tag = bitpit::utils::trim(tag);
+                tag = bitpit::utils::string::trim(tag);
                 //check tag;
                 auto maybe_tag = FileType::_from_string_nothrow(tag.c_str());
                 if(!maybe_tag)    tag.clear();

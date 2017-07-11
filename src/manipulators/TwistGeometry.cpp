@@ -49,7 +49,7 @@ TwistGeometry::TwistGeometry(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.TwistGeometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -275,7 +275,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -286,7 +286,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Direction")){
         std::string input = slotXML.get("Direction");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -297,7 +297,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Twist")){
         std::string input = slotXML.get("Twist");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double temp = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -308,7 +308,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Distance")){
         std::string input = slotXML.get("Distance");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double temp = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -319,7 +319,7 @@ TwistGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Symmetric")){
         std::string input = slotXML.get("Symmetric");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);

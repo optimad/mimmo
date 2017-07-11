@@ -54,7 +54,7 @@ BendGeometry::BendGeometry(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.BendGeometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -363,19 +363,19 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
         if(subslot.hasOption("xDispl")){
             input = subslot.get("xDispl");
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             for(int i=0; i<3; ++i)    ss>>temp[0][i];
         }
 
         if(subslot.hasOption("yDispl")){
             input = subslot.get("yDispl");
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             for(int i=0; i<3; ++i)    ss>>temp[1][i];
         }
 
         if(subslot.hasOption("zDispl")){
             input = subslot.get("zDispl");
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             for(int i=0; i<3; ++i)    ss>>temp[2][i];
         }
 
@@ -392,7 +392,7 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             locPoly = rootPoly + std::to_string(k);
             if(subslot.hasOption(locPoly)){
                 input = subslot.get(locPoly);
-                std::stringstream ss(bitpit::utils::trim(input));
+                std::stringstream ss(bitpit::utils::string::trim(input));
                 ik = (int)(k/3);
                 jk = k%3;
                 for(auto & val: temp[ik][jk])    ss>>val;
@@ -403,7 +403,7 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -423,7 +423,7 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         for(int i=0; i<3; ++i){
             axis = rootAxis + std::to_string(i);
             std::string input = rfXML.get(axis);
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 for(auto &val : temp[i]) ss>>val;

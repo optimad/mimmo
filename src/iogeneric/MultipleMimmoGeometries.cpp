@@ -51,8 +51,8 @@ MultipleMimmoGeometries::MultipleMimmoGeometries(const bitpit::Config::Section &
     std::string input_name = rootXML.get("ClassName", fallback_name);
     std::string input_topo = rootXML.get("Topology", fallback_topo);
 
-    input_name = bitpit::utils::trim(input_name);
-    input_topo = bitpit::utils::trim(input_topo);
+    input_name = bitpit::utils::string::trim(input_name);
+    input_topo = bitpit::utils::string::trim(input_topo);
 
     int topo = std::stoi(input_topo);
 
@@ -699,7 +699,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
     //checking topology
     if(slotXML.hasOption("Topology")){
         std::string input = slotXML.get("Topology");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int temptop = -1;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -714,7 +714,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
         input = slotXML.get("ReadFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setRead(value);
@@ -730,7 +730,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
 
             if(!file.second->hasOption("tag") || !file.second->hasOption("dir") || !file.second->hasOption("name")) continue;
             input = file.second->get("tag");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
 
             if(!maybe_tag)    continue;
@@ -739,12 +739,12 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
                 temp[counter].ftype = maybe_tag->_to_integral();
 
                 input = file.second->get("dir");
-                input = bitpit::utils::trim(input);
+                input = bitpit::utils::string::trim(input);
                 if(input.empty())    input = "./";
                 temp[counter].fdir = input;
 
                 input = file.second->get("name");
-                input = bitpit::utils::trim(input);
+                input = bitpit::utils::string::trim(input);
                 if(input.empty())    input = "MultipleMimmoGeometries";
                 temp[counter].fname = input;
 
@@ -760,7 +760,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
         input = slotXML.get("WriteFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setWrite(value);
@@ -777,7 +777,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
             if(!file.second->hasOption("tag") || !file.second->hasOption("dir") || !file.second->hasOption("name")) continue;
 
             input = file.second->get("tag");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             auto maybe_tag = FileType::_from_string_nothrow(input.c_str());
 
             if(!maybe_tag)    continue;
@@ -786,12 +786,12 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
                 temp[counter].ftype = maybe_tag->_to_integral();
 
                 input = file.second->get("dir");
-                input = bitpit::utils::trim(input);
+                input = bitpit::utils::string::trim(input);
                 if(input.empty())    input = "./";
                 temp[counter].fdir = input;
 
                 input = file.second->get("name");
-                input = bitpit::utils::trim(input);
+                input = bitpit::utils::string::trim(input);
                 if(input.empty())    input = "MultipleMimmoGeometries";
                 temp[counter].fname = input;
                 counter++;
@@ -805,7 +805,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
         input = slotXML.get("Codex");
         bool value = true;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setCodex(value);
@@ -816,7 +816,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
         input = slotXML.get("BvTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildBvTree(value);
@@ -826,7 +826,7 @@ MultipleMimmoGeometries::absorbSectionXML(const bitpit::Config::Section & slotXM
         input = slotXML.get("KdTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildKdTree(value);

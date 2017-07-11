@@ -102,7 +102,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     std::unordered_set<std::string> input;
     for(int i=1; i<argc; ++i){
         std::string temp = argv[i];
-        input.insert(bitpit::utils::trim(temp));
+        input.insert(bitpit::utils::string::trim(temp));
     }
     
     if(input.count("--help")>0){
@@ -223,9 +223,9 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
             std::string fallback_name = "ClassNONE";
             
             std::string className = sect.second->get("ClassName", fallback_name);
-            className = bitpit::utils::trim(className);
+            className = bitpit::utils::string::trim(className);
             std::string idstring = sect.first;
-            idstring = bitpit::utils::trim(idstring);
+            idstring = bitpit::utils::string::trim(idstring);
             
             
             if(rootFactory.containsCreator(className)){

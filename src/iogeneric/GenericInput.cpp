@@ -57,7 +57,7 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.GenericInput"){
         absorbSectionXML(rootXML);
     }else{
@@ -198,7 +198,7 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("ReadFromFile")){
         std::string input = slotXML.get("ReadFromFile");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -209,7 +209,7 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("CSV")){
         std::string input = slotXML.get("CSV");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -220,13 +220,13 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Filename") && m_readFromFile){
         std::string input = slotXML.get("Filename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         setFilename(input);
     };
 
     if(slotXML.hasOption("ReadDir") && m_readFromFile){
         std::string input = slotXML.get("ReadDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         setReadDir(input);
     };
 

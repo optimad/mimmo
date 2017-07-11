@@ -42,7 +42,7 @@ MultiApply::MultiApply(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.MultiApply"){
         absorbSectionXML(rootXML);
     }else{

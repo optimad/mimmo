@@ -51,7 +51,7 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.IOOFOAM"){
         absorbSectionXML(rootXML);
     }else{
@@ -685,7 +685,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         input = slotXML.get("ReadFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setRead(value);
@@ -732,7 +732,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("PointsReadDir")){
         input = slotXML.get("PointsReadDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setPointsReadDir(input);
     };
@@ -740,7 +740,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("PointsReadFilename")){
         input = slotXML.get("PointsReadFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setPointsReadFilename(input);
     };
@@ -750,7 +750,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         input = slotXML.get("WriteFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setWrite(value);
@@ -759,7 +759,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("PointsWriteDir")){
         input = slotXML.get("PointsWriteDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setPointsWriteDir(input);
     };
@@ -767,7 +767,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("PointsWriteFilename")){
         input = slotXML.get("PointsWriteFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setPointsWriteFilename(input);
     };
@@ -775,7 +775,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("VTKWriteDir")){
         input = slotXML.get("VTKWriteDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setVTKWriteDir(input);
     };
@@ -783,7 +783,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 
     if(slotXML.hasOption("VTKWriteFilename")){
         input = slotXML.get("VTKWriteFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setVTKWriteFilename(input);
     };
@@ -793,7 +793,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         input = slotXML.get("Normalize");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setNormalize(value);
@@ -804,7 +804,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         input = slotXML.get("Scaling");
         double value = 1.0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setScaling(value);

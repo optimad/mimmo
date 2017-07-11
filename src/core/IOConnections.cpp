@@ -123,10 +123,10 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         if(sect.second->hasOption("senderPort"))	sndP_str = sect.second->get("senderPort");
         if(sect.second->hasOption("receiverPort"))	rcvP_str = sect.second->get("receiverPort");
 
-        snd_str = bitpit::utils::trim(snd_str);
-        rcv_str = bitpit::utils::trim(rcv_str);
-        sndP_str = bitpit::utils::trim(sndP_str);
-        rcvP_str = bitpit::utils::trim(rcvP_str);
+        snd_str = bitpit::utils::string::trim(snd_str);
+        rcv_str = bitpit::utils::string::trim(rcv_str);
+        sndP_str = bitpit::utils::string::trim(sndP_str);
+        rcvP_str = bitpit::utils::string::trim(rcvP_str);
 
 
         auto itSend = m_mapConn.find(snd_str);

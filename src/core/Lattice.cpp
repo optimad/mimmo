@@ -49,7 +49,7 @@ Lattice::Lattice(const bitpit::Config::Section & rootXML){
     m_name = "mimmo.Lattice";
     std::string fallback_name = "ClassNONE";	
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.Lattice"){
         absorbSectionXML(rootXML);
     }else{	
@@ -378,7 +378,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
     
     if(slotXML.hasOption("Shape")){
         std::string input = slotXML.get("Shape");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
 
         if(input == "CYLINDER"){
             setShape(ShapeType::CYLINDER);
@@ -391,7 +391,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -402,7 +402,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Span")){
         std::string input = slotXML.get("Span");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -422,7 +422,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         for(int i=0; i<3; ++i){			
             axis = rootAxis + std::to_string(i);
             std::string input = rfXML.get(axis);
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 for(auto &val : temp[i]) ss>>val;
@@ -433,7 +433,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("InfLimits")){
         std::string input = slotXML.get("InfLimits");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -444,7 +444,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Dimension")){
         std::string input = slotXML.get("Dimension");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         iarray3E temp = {{2,2,2}};
         if(!input.empty()){
             std::stringstream ss(input);

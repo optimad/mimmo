@@ -51,7 +51,7 @@ IOCGNS::IOCGNS(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.IOCGNS"){
         absorbSectionXML(rootXML);
     }else{
@@ -1129,7 +1129,7 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
         input = slotXML.get("ReadFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setRead(value);
@@ -1137,28 +1137,28 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
 
     if(slotXML.hasOption("ReadDir")){
         input = slotXML.get("ReadDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setReadDir(input);
     };
 
     if(slotXML.hasOption("ReadFilename")){
         input = slotXML.get("ReadFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "mimmoGeometry";
         setReadFilename(input);
     };
 
     if(slotXML.hasOption("WriteDir")){
         input = slotXML.get("WriteDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
         setWriteDir(input);
     };
 
     if(slotXML.hasOption("WriteFilename")){
         input = slotXML.get("WriteFilename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "mimmoGeometry";
         setWriteFilename(input);
     };

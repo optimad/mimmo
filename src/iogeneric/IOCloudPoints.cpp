@@ -55,11 +55,11 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
 
     std::string fallback_name2 = "1";
     std::string input2 = rootXML.get("IOmode", fallback_name2);
-    input2 = bitpit::utils::trim(input2);
+    input2 = bitpit::utils::string::trim(input2);
 
     m_read = bool(std::atoi(input2.c_str()));
 
@@ -304,7 +304,7 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         input = slotXML.get("IOmode");
         bool value = true;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss>>value;
         }
         if (m_read != value){
@@ -318,25 +318,25 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     if(m_read){
         if(slotXML.hasOption("ReadDir")){
             std::string input = slotXML.get("ReadDir");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             setReadDir(input);
         }; 
 
         if(slotXML.hasOption("ReadFilename")){
             std::string input = slotXML.get("ReadFilename");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             setReadFilename(input);
         }; 
     }else{    
         if(slotXML.hasOption("WriteDir")){
             std::string input = slotXML.get("WriteDir");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             setWriteDir(input);
         }; 
 
         if(slotXML.hasOption("WriteFilename")){
             std::string input = slotXML.get("WriteFilename");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             setWriteFilename(input);
         };
     }
@@ -344,7 +344,7 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Template")){
         std::string input = slotXML.get("Template");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -437,10 +437,10 @@ IOCloudPoints::read(){
             line.clear();
             keyword.clear();
             std::getline(reading,line);
-            line = bitpit::utils::trim(line);
+            line = bitpit::utils::string::trim(line);
             std::stringstream ss(line);
             ss>>keyword;
-            keyword = bitpit::utils::trim(keyword);
+            keyword = bitpit::utils::string::trim(keyword);
             if(keyword == "$POINT")    {
 
                 ss>>label;
@@ -469,10 +469,10 @@ IOCloudPoints::read(){
             line.clear();
             keyword.clear();
             std::getline(reading,line);
-            line = bitpit::utils::trim(line);
+            line = bitpit::utils::string::trim(line);
             std::stringstream ss(line);
             ss>>keyword;
-            keyword = bitpit::utils::trim(keyword);
+            keyword = bitpit::utils::string::trim(keyword);
             if(keyword == "$SCALARF")    {
 
                 ss>>label>>temp;

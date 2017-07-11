@@ -54,7 +54,7 @@ GenericOutput::GenericOutput(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.GenericOutput"){
         absorbSectionXML(rootXML);
     }else{
@@ -179,19 +179,19 @@ GenericOutput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         setFilename(input);
     };
 
     if(slotXML.hasOption("WriteDir")){
         std::string input = slotXML.get("WriteDir");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         setWriteDir(input);
     };
 
     if(slotXML.hasOption("CSV")){
         std::string input = slotXML.get("CSV");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);

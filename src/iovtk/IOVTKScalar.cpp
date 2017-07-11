@@ -72,7 +72,7 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.IOVTKScalar"){
         absorbSectionXML(rootXML);
     }else{
@@ -479,7 +479,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         input = slotXML.get("ReadFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setRead(value);
@@ -489,7 +489,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         input = slotXML.get("WriteFlag");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setWrite(value);
@@ -499,14 +499,14 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
     if (m_read){
         if(slotXML.hasOption("ReadDir")){
             input = slotXML.get("ReadDir");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(input.empty())   input = "./";
             setReadDir(input);
         };
 
         if(slotXML.hasOption("ReadFilename")){
             input = slotXML.get("ReadFilename");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(input.empty())   input = "mimmoGeometry";
             setReadFilename(input);
         };
@@ -515,14 +515,14 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
     if(m_write){
         if(slotXML.hasOption("WriteDir")){
             input = slotXML.get("WriteDir");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(input.empty())   input = "./";
             setWriteDir(input);
         };
 
         if(slotXML.hasOption("WriteFilename")){
             input = slotXML.get("WriteFilename");
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(input.empty())   input = "mimmoGeometry";
             setWriteFilename(input);
         };
@@ -532,7 +532,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         input = slotXML.get("Normalize");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setNormalize(value);
@@ -542,7 +542,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
         input = slotXML.get("Scaling");
         double value = 1.0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setScaling(value);

@@ -43,7 +43,7 @@ OverlapVectorFields::OverlapVectorFields(const bitpit::Config::Section & rootXML
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.OverlapVectorFields"){
         absorbSectionXML(rootXML);
     }else{
@@ -499,7 +499,7 @@ OverlapVectorFields::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     
     if(slotXML.hasOption("OverlapCriterium")){
         std::string input = slotXML.get("OverlapCriterium");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 1;
         if(!input.empty()){
             std::stringstream ss(input);

@@ -44,7 +44,7 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.ReconstructScalar"){
         absorbSectionXML(rootXML);
     }else{
@@ -422,7 +422,7 @@ ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 
     if(slotXML.hasOption("OverlapCriterium")){
         std::string input = slotXML.get("OverlapCriterium");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 1;
         if(!input.empty()){
             std::stringstream ss(input);

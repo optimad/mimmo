@@ -54,7 +54,7 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.SpecularPoints"){
         absorbSectionXML(rootXML);
     }else{
@@ -383,7 +383,7 @@ SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
     
     if(slotXML.hasOption("Force")){
         std::string input = slotXML.get("Force");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -394,7 +394,7 @@ SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
     if(slotXML.hasOption("InsideOut")){
         std::string input = slotXML.get("InsideOut");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -408,8 +408,8 @@ SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
         std::string input1 = planeXML.get("Point");
         std::string input2 = planeXML.get("Normal");
-        input1 = bitpit::utils::trim(input1);
-        input2 = bitpit::utils::trim(input2);
+        input1 = bitpit::utils::string::trim(input1);
+        input2 = bitpit::utils::string::trim(input2);
 
         darray3E temp1 = {{0.0,0.0,0.0}};
         darray3E temp2 = {{0.0,0.0,0.0}};

@@ -196,7 +196,7 @@ void SplitField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::
     //checking topology
     if(slotXML.hasOption("Topology")){
         std::string input = slotXML.get("Topology");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int temptop = -1;
         if(!input.empty()){
             std::stringstream ss(input);

@@ -70,7 +70,7 @@ RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.RBFBox"){
         absorbSectionXML(rootXML);
     }else{
@@ -282,7 +282,7 @@ RBFBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
 
     if(slotXML.hasOption("SupportRadius")){
         std::string input = slotXML.get("SupportRadius");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double value = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);

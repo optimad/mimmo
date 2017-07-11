@@ -50,7 +50,7 @@ CGNSPidExtractor::CGNSPidExtractor(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.CGNSPidExtractor"){
         absorbSectionXML(rootXML);
     }else{
@@ -284,7 +284,7 @@ CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         input = slotXML.get("nPID");
         int value = 0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
             value = std::max(0, value);
         }
@@ -294,7 +294,7 @@ CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
     if(slotXML.hasOption("PID") && !temp.empty()){
         input = slotXML.get("PID");
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             for(auto & val: temp){
                 ss >> val;
             }
@@ -304,7 +304,7 @@ CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     if(slotXML.hasOption("ForcedToTriangulate")){
         input = slotXML.get("ForcedToTriangulate");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);

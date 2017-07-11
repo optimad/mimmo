@@ -45,7 +45,7 @@ TranslationGeometry::TranslationGeometry(const bitpit::Config::Section & rootXML
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.TranslationGeometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -198,7 +198,7 @@ TranslationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     
     if(slotXML.hasOption("Direction")){
         std::string input = slotXML.get("Direction");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -209,7 +209,7 @@ TranslationGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     if(slotXML.hasOption("Translation")){
         std::string input = slotXML.get("Translation");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double temp = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);

@@ -47,7 +47,7 @@ RotationAxes::RotationAxes(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.RotationAxes"){
         absorbSectionXML(rootXML);
     }else{
@@ -203,7 +203,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
     
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -214,7 +214,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Direction")){
         std::string input = slotXML.get("Direction");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -225,7 +225,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Rotation")){
         std::string input = slotXML.get("Rotation");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double temp = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -245,7 +245,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         for(int i=0; i<3; ++i){
             axis = rootAxis + std::to_string(i);
             std::string input = rfXML.get(axis);
-            input = bitpit::utils::trim(input);
+            input = bitpit::utils::string::trim(input);
             if(!input.empty()){
                 std::stringstream ss(input);
                 for(auto &val : temp[i]) ss>>val;
@@ -256,7 +256,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("OriginRS")){
         std::string input = slotXML.get("OriginRS");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);

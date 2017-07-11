@@ -54,7 +54,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.ControlDeformExtSurface"){
         absorbSectionXML(rootXML);
     }else{
@@ -557,11 +557,11 @@ ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
 
             if(subfile.second->hasOption("fullpath"))    {
                 path = subfile.second->get("fullpath");
-                path = bitpit::utils::trim(path);
+                path = bitpit::utils::string::trim(path);
             }
             if(subfile.second->hasOption("tag")){
                 tag = subfile.second->get("tag");
-                tag = bitpit::utils::trim(tag);
+                tag = bitpit::utils::string::trim(tag);
                 //check tag;
                 auto maybe_tag = FileType::_from_string_nothrow(tag.c_str());
                 if(!maybe_tag)    tag.clear();
@@ -570,7 +570,7 @@ ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
 
             if(subfile.second->hasOption("tolerance"))    {
                 tolstring = subfile.second->get("tolerance");
-                tolstring = bitpit::utils::trim(tolstring);
+                tolstring = bitpit::utils::string::trim(tolstring);
                 if(!tolstring.empty()){
                     std::stringstream ss(tolstring);
                     ss >> value;
@@ -588,7 +588,7 @@ ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
 
     if(slotXML.hasOption("BGDetails")){
         std::string input = slotXML.get("BGDetails");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 50;
         if(!input.empty()){
             std::stringstream ss(input);

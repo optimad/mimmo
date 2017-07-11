@@ -69,7 +69,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.CreateSeedsOnSurface"){
         absorbSectionXML(rootXML);
     }else{
@@ -1200,7 +1200,7 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
     
     if(slotXML.hasOption("NPoints")){
         std::string input = slotXML.get("NPoints");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 0;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -1212,7 +1212,7 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
 
     if(slotXML.hasOption("Engine")){
         std::string input = slotXML.get("Engine");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 2;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -1225,7 +1225,7 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
 
     if(slotXML.hasOption("Seed")){
         std::string input = slotXML.get("Seed");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp;
         temp.fill(0.0);
         if(!input.empty()){
@@ -1237,7 +1237,7 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
 
     if(slotXML.hasOption("MassCenterAsSeed")){
         std::string input = slotXML.get("MassCenterAsSeed");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -1248,7 +1248,7 @@ CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, 
 
     if(slotXML.hasOption("RandomFixed")){
         std::string input = slotXML.get("RandomFixed");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = -1;
         if(!input.empty()){
             std::stringstream ss(input);

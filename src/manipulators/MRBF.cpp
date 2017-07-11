@@ -54,7 +54,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.MRBF"){
         absorbSectionXML(rootXML);
     }else{
@@ -649,7 +649,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         input = slotXML.get("RBFShape");
         int value =1;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss>>value;
         }
         value = std::max(1, value);
@@ -662,7 +662,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         input = slotXML.get("Mode");
         int value = 0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
             value = std::max(value, 0);
             if(value > 2) value = 0;
@@ -674,7 +674,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         input = slotXML.get("SupportRadius");
         double value = -1.0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
             setSupportRadius(value);
         }
@@ -684,7 +684,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         input = slotXML.get("SupportRadiusReal");
         double value = -1.0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
             setSupportRadiusValue(value);
         }
@@ -693,10 +693,10 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
     m_tol = 1.0E-6;
     if(slotXML.hasOption("Tolerance")){
         input = slotXML.get("Tolerance");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double value = m_tol;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
             if(value > 0.0)    setTol(value);
         }

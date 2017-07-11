@@ -49,7 +49,7 @@ ScaleGeometry::ScaleGeometry(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.ScaleGeometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -221,7 +221,7 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         std::string input = slotXML.get("MeanPoint");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setMeanPoint(value);
@@ -230,7 +230,7 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -241,7 +241,7 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("Scaling")){
         std::string input = slotXML.get("Scaling");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         darray3E temp = {{0.0,0.0,0.0}};
         if(!input.empty()){
             std::stringstream ss(input);

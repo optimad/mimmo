@@ -45,8 +45,8 @@ SplitVectorField::SplitVectorField(const bitpit::Config::Section & rootXML){
     std::string fallback_topo = "-1";
     std::string input_name = rootXML.get("ClassName", fallback_name);
     std::string input_topo = rootXML.get("Topology", fallback_topo);
-    input_name = bitpit::utils::trim(input_name);
-    input_topo = bitpit::utils::trim(input_topo);
+    input_name = bitpit::utils::string::trim(input_name);
+    input_topo = bitpit::utils::string::trim(input_topo);
 
     int topo = std::stoi(input_topo);
     m_topo = std::max(1,topo);

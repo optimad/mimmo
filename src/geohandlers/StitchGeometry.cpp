@@ -50,8 +50,8 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
     std::string fallback_topo = "-1";
     std::string input_name = rootXML.get("ClassName", fallback_name);
     std::string input_topo = rootXML.get("Topology", fallback_topo);
-    input_name = bitpit::utils::trim(input_name);
-    input_topo = bitpit::utils::trim(input_topo);
+    input_name = bitpit::utils::string::trim(input_name);
+    input_topo = bitpit::utils::string::trim(input_topo);
 
     int topo = std::stoi(input_topo);
     m_topo = std::max(1,topo);
@@ -328,7 +328,7 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     //checking topology
     if(slotXML.hasOption("Topology")){
         std::string input = slotXML.get("Topology");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int temptop = -1;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -343,7 +343,7 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         input = slotXML.get("BvTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildBvTree(value);
@@ -353,7 +353,7 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         input = slotXML.get("KdTree");
         bool value = false;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setBuildKdTree(value);

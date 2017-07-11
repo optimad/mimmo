@@ -57,7 +57,7 @@ FFDLattice::FFDLattice(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.FFDLattice"){
         absorbSectionXML(rootXML);
     }else{
@@ -1525,11 +1525,11 @@ FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 
     if(slotXML.hasOption("CoordType")){
         std::string input = slotXML.get("CoordType");
-        std::stringstream ss(bitpit::utils::trim(input));
+        std::stringstream ss(bitpit::utils::string::trim(input));
         std::string temp;
         for(int i=0; i<3; ++i){
             ss>>temp;
-            temp = bitpit::utils::trim(temp);
+            temp = bitpit::utils::string::trim(temp);
             if(temp == "SYMMETRIC"){
                 setCoordType(CoordType::SYMMETRIC,i);
             }else if(temp =="UNCLAMPED"){
@@ -1544,7 +1544,7 @@ FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 
     if(slotXML.hasOption("Degrees")){
         std::string input = slotXML.get("Degrees");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         iarray3E temp = {{1,1,1}};
         if(!input.empty()){
             std::stringstream ss(input);
@@ -1555,7 +1555,7 @@ FFDLattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::strin
 
     if(slotXML.hasOption("DisplGlobal")){
         std::string input = slotXML.get("DisplGlobal");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);

@@ -44,7 +44,7 @@ SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.SelectionByPID"){
         absorbSectionXML(rootXML);
     }else{
@@ -298,7 +298,7 @@ SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -310,7 +310,7 @@ SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
     int nPID = 0;
     if(slotXML.hasOption("nPID")){
         std::string input = slotXML.get("nPID");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         nPID = 0;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -322,7 +322,7 @@ SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
     if(slotXML.hasOption("PID")){
         std::string input = slotXML.get("PID");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             std::stringstream ss(input);
             for(int i=0; i<nPID; ++i){

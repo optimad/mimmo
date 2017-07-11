@@ -45,7 +45,7 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::trim(input);
+    input = bitpit::utils::string::trim(input);
     if(input == "mimmo.ControlDeformMaxDistance"){
         absorbSectionXML(rootXML);
     }else{
@@ -235,7 +235,7 @@ ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & slotX
     
     if(slotXML.hasOption("LimitDistance")){
         std::string input = slotXML.get("LimitDistance");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         double value = 0.0;
         if(!input.empty()){
             std::stringstream ss(input);

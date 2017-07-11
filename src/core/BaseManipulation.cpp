@@ -531,7 +531,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         input = slotXML.get("Priority");
         int value =0;
         if(!input.empty()){
-            std::stringstream ss(bitpit::utils::trim(input));
+            std::stringstream ss(bitpit::utils::string::trim(input));
             ss>>value;
         }
         setPriority(value);
@@ -540,7 +540,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     if(slotXML.hasOption("Apply")){
         std::string input = slotXML.get("Apply");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -551,7 +551,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     if(slotXML.hasOption("PlotInExecution")){
         std::string input = slotXML.get("PlotInExecution");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
@@ -562,7 +562,7 @@ BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     if(slotXML.hasOption("OutputPlot")){
         std::string input = slotXML.get("OutputPlot");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         std::string temp = ".";
         if(!input.empty())  setOutputPlot(input);
         else                setOutputPlot(temp);
