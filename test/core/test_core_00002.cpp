@@ -229,7 +229,9 @@ int test2() {
 
 	if(!check){
 		std::cout<<"ERROR.Not able to extract boundary of the sub-patch of MimmoObject mesh"<<std::endl;
-		return 1;
+		delete mesh;
+        delete mesh_2;
+        return 1;
 	}else{
 		std::cout<<"Sub-Patch boundary extraction successfully"<<std::endl;
 	}
