@@ -344,7 +344,8 @@ ControlDeformExtSurface::execute(){
     if(extgeo.size() < 1)    return;
 
     //evaluating bounding box of deformation*************************
-    darray3E bbMinDef, bbMaxDef, bbMin, bbMax;
+    darray3E bbMinDef = {{0,0,0}}, bbMaxDef={{0,0,0}};
+    darray3E bbMin, bbMax;
     {
         int count2 = 0;
         for(auto & p : points){
