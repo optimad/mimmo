@@ -595,7 +595,7 @@ bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
  */
 darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax){
 	
-	darray3E result;
+	darray3E result = {{0,0,0}};
 	int counter=0;
 	for (auto && val: point){
 		result[counter] = std::fmin(bMax[counter], std::fmax(val,bMin[counter]));
