@@ -470,7 +470,6 @@ OBBox::assemblyCovContributes(std::vector<MimmoObject*> list, bool flag, dmatrix
     dvector1D area;
     darray3E temp;
     double areaTot = 0.0;
-    double maxVal= 1.e-18;
 
     if(flag){
         for(auto geo: list){
@@ -552,7 +551,7 @@ OBBox::evaluateMassCenter(std::vector<MimmoObject *> list, bool flag){
 
     long size = 0;
     darray3E centermass = {{0,0,0}}, eta;
-    double areaTot;
+    double areaTot = 0.0;
     int counter;
 
     if(flag){
@@ -684,7 +683,7 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         stable= 1;
     }
 
-    dmatrix33E axes, trasp;
+    dmatrix33E axes; //, trasp;
     int counter=0;
     for(auto & val: eigVec){
         axes[counter] = val;

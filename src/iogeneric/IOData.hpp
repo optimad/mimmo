@@ -107,7 +107,7 @@ public:
 
     /*!Default destructor of IODataT.
      */
-    ~IODataT();
+    ~IODataT(){};
 
     /*!Copy constructor of IODataT.
      */
