@@ -82,6 +82,7 @@ MimmoObject::MimmoObject(int type){
 */
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
     m_type = max(1,type);
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_internalPatch = true;
     const int id = 0;
     if (m_type == 2){
@@ -153,7 +154,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     m_bvTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*!
