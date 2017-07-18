@@ -33,6 +33,8 @@ TwistGeometry::TwistGeometry(darray3E origin, darray3E direction){
     m_origin = origin;
     m_direction = direction;
     m_sym = false;
+    m_alpha = 0.0;
+    m_distance = 0.0;
     m_name = "mimmo.TwistGeometry";
 };
 
@@ -44,6 +46,8 @@ TwistGeometry::TwistGeometry(const bitpit::Config::Section & rootXML){
 
     m_origin.fill(0.0);
     m_direction.fill(0.0);
+    m_alpha = 0.0;
+    m_distance = 0.0;
     m_sym = false;
     m_name = "mimmo.TwistGeometry";
 
@@ -64,11 +68,7 @@ TwistGeometry::~TwistGeometry(){};
 /*!Copy constructor of TwistGeometry.
  */
 TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other){
-    m_origin = other.m_origin;
-    m_direction = other.m_direction;
-    m_alpha = other.m_alpha;
-    m_sym = other.m_sym;
-    m_distance = other.m_distance;
+    *this = other;
 };
 
 /*!Assignement operator of TwistGeometry.

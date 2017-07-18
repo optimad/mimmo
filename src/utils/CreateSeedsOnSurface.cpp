@@ -233,7 +233,7 @@ CreateSeedsOnSurface::setEngineENUM(CSeedSurf eng){
  */
 void
 CreateSeedsOnSurface::setEngine(int eng){
-    if(eng <0 && eng >2)    eng = 2;
+    if(eng <0 || eng >2)    eng = 2;
     setEngineENUM(static_cast<CSeedSurf>(eng));
 }
 
@@ -731,10 +731,8 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
         effective.reserve(list.size() - visited.size());
         std::set<long>::iterator it1 = visited.begin();
         for(int i=0; i< listS; ++i){
-            if(it1 != visited.end() || i != *it1 ){
+            if( !visited.count(i) )
                 effective.push_back(i);
-
-            }else{ ++it1;}
         }
 
         for(auto & ind : effective){

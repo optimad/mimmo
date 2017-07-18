@@ -338,9 +338,10 @@ OverlapVectorFields::plotData(std::string dir, std::string name, bool flag, int 
 
     std::vector<long> ids(points.size());
     long ID;
+    auto convMap = geo->getMapDataInv();
     for (auto vertex : geo->getVertices()){
         ID = vertex.getId();
-        ids[geo->getMapDataInv(ID)] = ID;
+        ids[convMap[ID]] = ID;
     }
 
     output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);

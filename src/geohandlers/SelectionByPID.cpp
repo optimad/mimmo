@@ -325,8 +325,8 @@ SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
         input = bitpit::utils::string::trim(input);
         if(!input.empty()){
             std::stringstream ss(input);
-            for(int i=0; i<nPID; ++i){
-                ss>>pidlist[i];
+            for(auto &val: pidlist){
+                ss>>val;
             }
         }
     }

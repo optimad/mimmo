@@ -37,7 +37,7 @@ SelectionByMapping::SelectionByMapping(int topo){
     m_type = SelectionType::MAPPING;
     m_tolerance = 1.E-08;
 
-    topo = std::min(1,topo);
+    topo = std::max(1,topo);
     if(topo > 2)    topo=1;
     m_topo = topo;
 
@@ -71,7 +71,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
     input_topo = bitpit::utils::string::trim(input_topo);
 
     int topo = std::stoi(input_topo);
-    topo = std::min(1,topo);
+    topo = std::max(1,topo);
     if(topo > 2)    topo=1;
     m_topo = topo;
 

@@ -164,6 +164,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
 * \param[in] geometry pointer to a geometry of class PatchKernel to be linked.
 */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
+    m_patch = NULL;
     setPatch(type,geometry);
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
@@ -215,7 +216,8 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     if(m_kdTreeBuilt)	buildKdTree();
 
     m_AdjBuilt = other.m_AdjBuilt;
-
+    
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     return *this;
 };
 
@@ -885,6 +887,11 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
     if (geometry == NULL ) return false;
     if (type<1 || type >4 ) return false;
     m_type 			= type;
+    
+    if(m_patch != NULL){
+        if (m_internalPatch)    delete m_patch;
+        m_patch = NULL;
+    }    
     m_patch 		= geometry;
     m_internalPatch = false;
     
@@ -1325,6 +1332,7 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
             break;
         case 3:
             if (type == bitpit::ElementInfo::VERTEX)        check = 1;
+            break;
         case 4:
             if	(type == bitpit::ElementInfo::LINE)         check = 2;
             break;
@@ -1426,7 +1434,7 @@ bool MimmoObject::isClosedLoop(){
     auto itp = getCells().cbegin();
     auto itend = getCells().cend();
     
-    while(itp != itend && !check){
+    while(itp != itend && check){
         
         int cAdj = itp->getAdjacencyCount();
         const long * adj = itp->getAdjacencies();
@@ -1472,6 +1480,7 @@ bitpit::VTKElementType	MimmoObject::desumeElement(){
             conn = getCellConnectivity((*(getCells().begin())).getId());
             if(conn.size() == 4)		result = bitpit::VTKElementType::TETRA;
             if(conn.size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
+            break;
         case	3:
             result = bitpit::VTKElementType::VERTEX;
             break;

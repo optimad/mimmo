@@ -269,9 +269,10 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag, int co
 
     std::vector<long> ids(points.size());
     long ID;
+    auto convMap = getGeometry()->getMapDataInv();
     for (auto vertex : getGeometry()->getVertices()){
         ID = vertex.getId();
-        ids[getGeometry()->getMapDataInv(ID)] = ID;
+        ids[convMap[ID]] = ID;
     }
 
     output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);

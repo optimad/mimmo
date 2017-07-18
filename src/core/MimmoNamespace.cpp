@@ -8,7 +8,9 @@ namespace mimmo{
 /*!
  * Default constructor od FileDataInfo
  */
-FileDataInfo::FileDataInfo(){};
+FileDataInfo::FileDataInfo(){
+    ftype = 0;
+};
 
 /*!
  * Default destructor of FileDataInfo.

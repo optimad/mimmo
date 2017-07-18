@@ -31,6 +31,7 @@ namespace mimmo{
  */
 TranslationGeometry::TranslationGeometry(darray3E direction){
     m_direction = direction;
+    m_alpha = 0.0;
     m_name = "mimmo.TranslationGeometry";
 };
 
@@ -41,6 +42,7 @@ TranslationGeometry::TranslationGeometry(darray3E direction){
 TranslationGeometry::TranslationGeometry(const bitpit::Config::Section & rootXML){
 
     m_direction.fill(0.0);
+    m_alpha = 0.0;
     m_name = "mimmo.TranslationGeometry";
 
     std::string fallback_name = "ClassNONE";
@@ -60,8 +62,7 @@ TranslationGeometry::~TranslationGeometry(){};
 /*!Copy constructor of TranslationGeometry.
  */
 TranslationGeometry::TranslationGeometry(const TranslationGeometry & other):BaseManipulation(other){
-    m_direction = other.m_direction;
-    m_alpha = other.m_alpha;
+    *this = other;
 };
 
 /*!Assignement operator of TranslationGeometry.

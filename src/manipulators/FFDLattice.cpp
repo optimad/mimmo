@@ -90,6 +90,7 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
     m_mapNodes = other.m_mapNodes;
     m_mapdeg = other.m_mapdeg;
     m_globalDispl = other.m_globalDispl;
+    m_bfilter = other.m_bfilter;
     m_filter = other.m_filter;
     return(*this);
 };
@@ -565,10 +566,11 @@ FFDLattice::execute(){
     //reset displacement in a unique vector
     int size = container->getNVertex();
     m_gdispl.resize(size, darray3E{0,0,0});
+    auto convMap = container->getMapDataInv();
     {
         int counter = 0;
-        for(auto &mapp: map){
-            m_gdispl[container->getMapDataInv(mapp)] = localdef[counter];
+        for(auto mapp: map){
+            m_gdispl[convMap[mapp]] = localdef[counter];
             ++counter;
         }
     }

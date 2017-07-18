@@ -115,7 +115,8 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	m_setspan = other.m_setspan;
 	m_setInfLimits = other.m_setInfLimits;
 	m_setRefSys = other.m_setRefSys;
-	
+	m_isBuild = other.m_isBuild;
+    
 	return(*this); 
 };
 
@@ -699,14 +700,23 @@ void UStructMesh::setShape(const BasicShape * shape){
 	
 	switch(shape->getShapeType()){
 		case ShapeType::CYLINDER :
-			m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(dynamic_cast<const Cylinder*>(shape))));
-			break;
+            {
+                const Cylinder * pp = dynamic_cast<const Cylinder*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+            }
+            break;
 		case ShapeType::SPHERE :
-			m_shape = std::unique_ptr<BasicShape>(new Sphere(*(dynamic_cast<const Sphere*>(shape))));
-			break;
+            {
+                const Sphere * pp = dynamic_cast<const Sphere*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+            }
+            break;
 		default://CUBE
-			m_shape = std::unique_ptr<BasicShape>(new Cube(*(dynamic_cast<const Cube*>(shape))));
-			break;
+            {
+                const Cube * pp = dynamic_cast<const Cube*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+            }
+            break;
 	}
 
 	m_isBuild = false;

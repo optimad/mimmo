@@ -246,7 +246,7 @@ RBFBox::execute(){
     max.fill(-1.0e+18);
 
     for(int i=0; i<np; i++){
-        for(int j=0; i<3; j++){
+        for(int j=0; j<3; j++){
             if (m_nodes[i][j] - m_suppR*1.01 < min[j]) min[j] = m_nodes[i][j];
             if (m_nodes[i][j] + m_suppR*1.01 > max[j]) max[j] = m_nodes[i][j];
         }

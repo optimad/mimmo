@@ -69,6 +69,7 @@ IOConnections_MIMMO & IOConnections_MIMMO::operator=(const IOConnections_MIMMO &
     m_mapPorts 		= other.m_mapPorts;
     m_invMapConn	= other.m_invMapConn;
     m_invMapPorts 	= other.m_invMapPorts;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     return (*this);
 };
 

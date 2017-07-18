@@ -108,7 +108,7 @@ void test00003() {
      */
     int ndof = lattice->getNNodes();
     dvecarr3E displ(ndof, darray3E{0,0,0});
-    double lt = 2*dim[2]/3;
+    int lt = 2*dim[2]/3;
     double lx;
     double a, b, c, max;
     c = 6;
@@ -119,8 +119,8 @@ void test00003() {
         int l1,l2,l3;
         int index = lattice->accessGridFromDOF(i);
         lattice->accessPointIndex(index,l1,l2,l3);
-        if (l3 < int(lt) && l1 > 0){
-            lx = double(l3)/lt;
+        if (l3 < lt && l1 > 0){
+            lx = double(l3)/double(lt);
             displ[i][0] = max*(c*pow(lx,5) + b*pow(lx,4) + a*pow(lx,3));
         }
         else if (l1 > 0){

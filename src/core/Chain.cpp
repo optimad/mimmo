@@ -41,6 +41,7 @@ Chain::Chain(){
     sm_chaincounter++;
     m_plotDebRes = false;
     m_outputDebRes = ".";
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 
@@ -69,6 +70,7 @@ Chain & Chain::operator=(const Chain & other){
     m_objcounter   = other.m_objcounter;
     m_plotDebRes   = other.m_plotDebRes;
     m_outputDebRes = other.m_outputDebRes;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     return (*this);
 };
 

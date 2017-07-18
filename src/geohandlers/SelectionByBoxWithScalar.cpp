@@ -145,8 +145,10 @@ SelectionByBoxWithScalar::execute(){
         m_field.resize(getGeometry()->getNVertex(), 0.0);
         bitpit::PiercedVector<bitpit::Vertex> vertices = m_subpatch->getVertices();
         dvector1D field_tmp(vertices.size());
+        auto convPMap = m_subpatch->getMapDataInv();
+        auto convGMap = getGeometry()->getMapDataInv();
         for (auto vertex : vertices){
-            field_tmp[m_subpatch->getMapDataInv(vertex.getId())] = m_field[getGeometry()->getMapDataInv(vertex.getId())];
+            field_tmp[convPMap[vertex.getId()]] = m_field[convGMap[vertex.getId()]];
         }
         m_field = field_tmp;
     }

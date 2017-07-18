@@ -83,8 +83,10 @@ int test1() {
 	ManipA * objA = new ManipA();
 	ManipB * objB = new ManipB();
 	
-	if(objA->m_member != 1 || objA->m_member != 1){ 
+	if(objA->m_member != 1 || objB->m_member != 1){ 
 		std::cout<<"Failed instantiation"<<std::endl;
+        delete objA;
+        delete objB;
 		return 1;
 	}else{
 		std::cout<<"Correct instantiation"<<std::endl;

@@ -126,16 +126,14 @@ livector1D
 SelectionByBox::extractSelection(){
     switch(m_topo){
     case 3:
-        if(m_dual)    return  excludeCloudPoints(getGeometry());
-        else        return    includeCloudPoints(getGeometry());
+        if(m_dual)    return    excludeCloudPoints(getGeometry());
+        else          return    includeCloudPoints(getGeometry());
         break;
     default:
-        if(m_dual)    return  excludeGeometry(getGeometry());
-        else        return    includeGeometry(getGeometry());
+        if(m_dual)    return    excludeGeometry(getGeometry());
+        else          return    includeGeometry(getGeometry());
         break;
     }
-
-    return livector1D(0); /*never been reached*/
 };
 
 

@@ -161,7 +161,10 @@ GenericOutput::clearResult(){
  */
 void
 GenericOutput::execute(){
-    rename("output.txt", m_filename.c_str());
+
+    bool ok = rename("output.txt", m_filename.c_str());
+    if (!ok)
+        (*m_log)<<"Generic Output execution failed renaming..."<<std::endl;
 };
 
 /*!

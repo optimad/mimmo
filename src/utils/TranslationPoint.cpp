@@ -30,6 +30,7 @@ namespace mimmo{
  */
 TranslationPoint::TranslationPoint(darray3E direction){
     m_direction = direction;
+    m_alpha = 0.0;
     m_name = "mimmo.TranslationPoint";
 };
 
@@ -40,6 +41,7 @@ TranslationPoint::TranslationPoint(darray3E direction){
 TranslationPoint::TranslationPoint(const bitpit::Config::Section & rootXML){
 
     m_direction.fill(0.0);
+    m_alpha = 0.0;
     m_name = "mimmo.TranslationPoint";
 
     std::string fallback_name = "ClassNONE";
@@ -59,7 +61,8 @@ TranslationPoint::~TranslationPoint(){};
 /*!Copy constructor of TranslationPoint.
  */
 TranslationPoint::TranslationPoint(const TranslationPoint & other):BaseManipulation(other){
-    m_direction = other.m_direction;
+    m_alpha = 0.0;
+    *this=other;
 };
 
 /*!Assignement operator of TranslationPoint.

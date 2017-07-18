@@ -36,8 +36,10 @@ namespace mimmo{
 StitchGeometry::StitchGeometry(int topo){
     m_name         = "mimmo.StitchGeometry";
     m_geocount = 0;
-    m_topo     = std::min(1, topo);
+    m_topo     = std::max(1, topo);
     if(m_topo > 3)    m_topo = 1;
+    m_buildBvTree = false;
+    m_buildKdTree = false;
 }
 
 /*!
@@ -56,7 +58,9 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
     int topo = std::stoi(input_topo);
     m_topo = std::max(1,topo);
     if (m_topo >3) m_topo = 1;
-
+    m_buildBvTree = false;
+    m_buildKdTree = false;
+    
     m_geocount = 0;
     m_name = "mimmo.StitchGeometry";
 

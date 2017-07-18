@@ -816,7 +816,10 @@ namespace mimmo{
 /*!
  * Default constructor of DataType
  */
-DataType::DataType(){};
+DataType::DataType(){
+    m_conType = containerTAG::SCALAR;
+    m_dataType = dataTAG::INT;
+};
 
 /*!
  * Custom constructor of DataType.
@@ -992,7 +995,10 @@ mimmo::PortOut::exec(){
 /*!
  * Default constructor of PortIn
  */
-PortIn::PortIn(){};
+PortIn::PortIn(){
+    m_mandatory =false;
+    m_familym = 0;
+};
 
 /*!
  * Default destructor of PortIn

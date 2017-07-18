@@ -32,6 +32,21 @@ namespace mimmo{
 RotationAxes::RotationAxes(darray3E origin, darray3E direction){
     m_origin = origin;
     m_direction = direction;
+    
+    for(auto & val: m_axes)val.fill(0.0);
+    m_axes[0][0] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes_origin = {{0,0,0}}; 
+    
+    for(auto & val: m_rotax)val.fill(0.0);
+    m_rotax[0][0] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax_origin = {{0,0,0}}; 
+
+    m_alpha=0.0;
+
     m_name = "mimmo.RotationAxes";
 };
 
@@ -43,6 +58,23 @@ RotationAxes::RotationAxes(const bitpit::Config::Section & rootXML){
 
     m_origin.fill(0.0);
     m_direction.fill(0.0);
+    
+    for(auto & val: m_axes) 
+        val.fill(0.0);
+    m_axes[0][0] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes_origin = {{0,0,0}}; 
+    
+    for(auto & val: m_rotax)    
+        val.fill(0.0);
+    m_rotax[0][0] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax_origin = {{0,0,0}}; 
+    
+    m_alpha=0.0;
+    
     m_name = "mimmo.RotationAxes";
 
     std::string fallback_name = "ClassNONE";
@@ -62,8 +94,23 @@ RotationAxes::~RotationAxes(){};
 /*!Copy constructor of RotationAxes.
  */
 RotationAxes::RotationAxes(const RotationAxes & other):BaseManipulation(other){
-    m_origin = other.m_origin;
-    m_direction = other.m_direction;
+    for(auto & val: m_axes) 
+        val.fill(0.0);
+    m_axes[0][0] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes[1][1] = 1.0; 
+    m_axes_origin = {{0,0,0}}; 
+    
+    for(auto & val: m_rotax)    
+        val.fill(0.0);
+    m_rotax[0][0] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax_origin = {{0,0,0}}; 
+    
+    m_alpha=0.0;
+    
+    *this = other;
 };
 
 /*!Assignement operator of RotationAxes.

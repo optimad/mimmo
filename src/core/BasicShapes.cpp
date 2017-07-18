@@ -507,8 +507,8 @@ livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
 bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
   
   bool check = true;
-  for(auto && val : simplexVert){
-   check = check || isPointIncluded(val); 
+  for(auto & val : simplexVert){
+    check = check && isPointIncluded(val); 
   }
   return(check);
 };

@@ -83,6 +83,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
     m_counter       = other.m_counter;
     m_priority      = other.m_priority;
     m_apply         = other.m_apply;
+    m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
     return (*this);
 };
 

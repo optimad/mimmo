@@ -34,6 +34,7 @@ namespace mimmo{
 RotationGeometry::RotationGeometry(darray3E origin, darray3E direction){
     m_origin = origin;
     m_direction = direction;
+    m_alpha=  0.0;
     m_name = "mimmo.RotationGeometry";
 };
 
@@ -45,6 +46,7 @@ RotationGeometry::RotationGeometry(const bitpit::Config::Section & rootXML){
 
     m_origin.fill(0.0);
     m_direction.fill(0.0);
+    m_alpha = 0.0;
     m_name = "mimmo.RotationGeometry";
 
     std::string fallback_name = "ClassNONE";
@@ -64,9 +66,7 @@ RotationGeometry::~RotationGeometry(){};
 /*!Copy constructor of RotationGeometry.
  */
 RotationGeometry::RotationGeometry(const RotationGeometry & other):BaseManipulation(other){
-    m_origin = other.m_origin;
-    m_direction = other.m_direction;
-    m_alpha = other.m_alpha;
+    *this = other;
 };
 
 /*!Assignement operator of RotationGeometry.
