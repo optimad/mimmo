@@ -89,24 +89,26 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	m_zedge = other.m_zedge;
 
 	if(other.m_shape){
-        case ShapeType::CYLINDER :
-            {
-                const Cylinder * pp = dynamic_cast<const Cylinder*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
-            }
-            break;
-        case ShapeType::SPHERE :
-            {
-                const Sphere * pp = dynamic_cast<const Sphere*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
-            }
-            break;
-        default://CUBE
-            {
-                const Cube * pp = dynamic_cast<const Cube*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
-            }
-            break;
+        switch(other.m_shape->getShapeType()){
+            case ShapeType::CYLINDER :
+                {
+                    const Cylinder * pp = dynamic_cast<const Cylinder*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                }
+                break;
+            case ShapeType::SPHERE :
+                {
+                    const Sphere * pp = dynamic_cast<const Sphere*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                }
+                break;
+            default://CUBE
+                {
+                    const Cube * pp = dynamic_cast<const Cube*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                }
+                break;
+        }
     }
 	
 	//copy temporary members
