@@ -89,22 +89,26 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
 	m_zedge = other.m_zedge;
 
 	if(other.m_shape){
-		switch(other.getShape()->getShapeType()){
-			case ShapeType::CUBE :
-				m_shape = std::unique_ptr<BasicShape>(new Cube(*(dynamic_cast<const Cube *> (other.getShape()))));
-				break;
-			case ShapeType::CYLINDER :
-				m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(dynamic_cast<const Cylinder*> (other.getShape()))));
-				break;
-			case ShapeType::SPHERE :
-				m_shape = std::unique_ptr<BasicShape>(new Sphere(*(dynamic_cast<const Sphere*> (other.getShape()))));
-				break;
-			default:
-				//never been reached
-				break;
-		}
-	}
-
+        case ShapeType::CYLINDER :
+            {
+                const Cylinder * pp = dynamic_cast<const Cylinder*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+            }
+            break;
+        case ShapeType::SPHERE :
+            {
+                const Sphere * pp = dynamic_cast<const Sphere*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+            }
+            break;
+        default://CUBE
+            {
+                const Cube * pp = dynamic_cast<const Cube*>(shape);
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+            }
+            break;
+    }
+	
 	//copy temporary members
 	m_origin_temp = other.m_origin_temp;
 	m_span_temp = other.m_span_temp;
