@@ -187,7 +187,9 @@ int test3() {
 	std::unique_ptr<MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch included in the cylindrical shape w/ bvTree"<<std::endl;
-		return 1;
+        delete mesh;
+        delete shape;
+        return 1;
 	}else{
 		subPatch = std::move(createSubMesh(mesh, listex));
 		subPatch->getPatch()->write("subpatch_t3");
