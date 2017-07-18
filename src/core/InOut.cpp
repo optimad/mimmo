@@ -940,12 +940,11 @@ PortOut::getDataType(){
 }
 
 /*!
- * It releases the memory occupied by the output buffer.
+ * It empties the output buffer.
  */
 void
 mimmo::PortOut::cleanBuffer(){
-    m_obuffer.setCapacity(0);
-    m_obuffer.eof();
+    m_obuffer.seekg(0);
 }
 
 /*!
@@ -978,7 +977,7 @@ void
 mimmo::PortOut::exec(){
     if (m_objLink.size() > 0){
         writeBuffer();
-        bitpit::IBinaryStream input(m_obuffer.data());
+        bitpit::IBinaryStream input(m_obuffer.data(), m_obuffer.getSize());
         cleanBuffer();
         for (int j=0; j<(int)m_objLink.size(); j++){
             if (m_objLink[j] != NULL){
@@ -1097,8 +1096,7 @@ mimmo::PortIn::clear(int j){
  */
 void
 mimmo::PortIn::cleanBuffer(){
-    m_ibuffer.setCapacity(0);
-    m_ibuffer.eof();
+    m_ibuffer.seekg(0);
 }
 
 }
