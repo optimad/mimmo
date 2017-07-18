@@ -8,6 +8,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added new option to write pidded 3D surfaces in MultiSolid ASCII (MimmoGeometry)
 - fixed minor bugs in FFDLattice manipulator
 - added new features to OBBox utility (multi geometry in input, option to switch from Oriented to Axis Aligned box calculation)
+- fixed coverity issues
 
 ### Added
 - This CHANGELOG file.
