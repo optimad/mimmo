@@ -471,9 +471,9 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
     int nP2;
     buffer << nP;
     for (int i = 0; i < nP; ++i) {
+        nP2 = var[i].size();
+        buffer << nP2;
         for (int j = 0; j < nP2; ++j) {
-            nP2 = var[i].size();
-            buffer << nP2;
             for(int k=0; k<2; ++k){
                 buffer << var[i][j][k];
             }
