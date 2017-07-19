@@ -72,7 +72,8 @@ enum class CSeedSurf{
      | 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)        |
      | 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      |
      | 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)         |
-
+     | 12    | M_FILTER       | setSensitivityField                   | (VECTOR, FLOAT)       |
+    
      |Port Output | | | |
      |-|-|-|-|
      |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
@@ -94,20 +95,22 @@ enum class CSeedSurf{
  * - <B>Seed</B>: initial seed point;
  * - <B>MassCenterAsSeed</B>: boolean, if true use geometry mass center sa seed;
  * - <B>RandomFixedSeed</B>: get signature to fix distribution pattern when 0:RANDOM engine is selected;
-
+ *
  *
  */
 class CreateSeedsOnSurface: public mimmo::BaseManipulation {
 
 private:
 
-    dvecarr3E     m_points;        /**< resulting points of class computation */
-    int          m_nPoints;        /**< total number of desired points */
-    double         m_minDist;        /**< minimum distance of tolerance */
+    dvecarr3E   m_points;        /**< resulting points of class computation */
+    int         m_nPoints;        /**< total number of desired points */
+    double      m_minDist;        /**< minimum distance of tolerance */
     darray3E    m_seed;            /**< inital seed point */
     CSeedSurf   m_engine;        /**< choose kernel type for points positioning computation */
     bool        m_seedbaricenter; /**< bool activate mass center as starting seed */
     int         m_randomFixed;    /**< signature for freezing random engine result*/
+    dvector1D   m_sensitivity;    /**< sensitivity map, defined on target geometry to drive placement of seeds*/
+    
     //utility members
     std::unique_ptr<mimmo::OBBox> bbox;        /**<pointer to an oriented Bounding box */
     ivector1D m_deads; /**< inactive ids */
@@ -123,30 +126,31 @@ public:
     void    buildPorts();
 
     //get methods
-    int            getNPoints();
+    int          getNPoints();
     dvecarr3E    getPoints();
     CSeedSurf    getEngineENUM();
-    int            getEngine();
-    darray3E    getSeed();
-    bool        isSeedMassCenter();
-    double         getMinDistance();
-    int            getRandomSignature();
-
+    int          getEngine();
+    darray3E     getSeed();
+    bool         isSeedMassCenter();
+    double       getMinDistance();
+    int          getRandomSignature();
+    
     //set methods
-    void        setNPoints( int);
-    void        setEngineENUM( CSeedSurf);
-    void        setEngine(int);
-    void        setSeed(darray3E);
-    void        setMassCenterAsSeed(bool );
-    void        setGeometry(MimmoObject *);
-    void        setRandomFixed(int signature = -1);
+    void         setNPoints( int);
+    void         setEngineENUM( CSeedSurf);
+    void         setEngine(int);
+    void         setSeed(darray3E);
+    void         setMassCenterAsSeed(bool );
+    void         setGeometry(MimmoObject *);
+    void         setRandomFixed(int signature = -1);
+    void         setSensitivityMap(dvector1D field);
+    
+    void         clear();
 
-    void clear();
+    void         solve(bool debug = false);
+    void         plotCloud(std::string dir, std::string file, int counter, bool binary);
 
-    void     solve(bool debug = false);
-    void     plotCloud(std::string dir, std::string file, int counter, bool binary);
-
-    void        execute();
+    void         execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -168,6 +172,8 @@ private:
     std::unordered_map<long,long>    getInverseConn();
     bool            isDeadFront(const int label);
     std::set<long>    findVertexVertexOneRing(const long &, const long & );
+    
+    double interpolateSensitivity(darray3E & point);
 };
 
 REGISTER(BaseManipulation, CreateSeedsOnSurface, "mimmo.CreateSeedsOnSurface")

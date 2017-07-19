@@ -97,6 +97,7 @@ bool createMimmoMesh(MimmoObject * mesh){
     bool check = (mesh->getNCells() == 48) && (mesh->getNVertex() == 35);
     
     mesh->buildAdjacencies();
+    mesh->getPatch()->write("support");
     return check;
 }
 // =================================================================================== //
@@ -118,6 +119,7 @@ int test2() {
     cseed->setNPoints(2);
     cseed->setEngine(0);
     cseed->exec();
+    cseed->setPlotInExecution(true);
     
     bool check = std::abs(dotProduct(cseed->getPoints()[1], normal)) < 1.e-18;
     

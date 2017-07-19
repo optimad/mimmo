@@ -163,8 +163,6 @@ namespace bvTreeUtils{
 
     std::vector<long> selectByPatch(BvTree *selection, BvTree *target, double tol = 1.0e-04);
     void extractTarget(BvTree *target, std::vector<BvNode*> leafSelection, std::vector<long> &extracted, double tol, int next = 0);
-
-
 }; //end namespace bvTreeUtils
 
 } //end namespace mimmo

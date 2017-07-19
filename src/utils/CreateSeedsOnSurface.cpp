@@ -32,6 +32,7 @@
 #include <set>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 namespace mimmo{
 
@@ -105,6 +106,7 @@ CreateSeedsOnSurface & CreateSeedsOnSurface::operator=(const CreateSeedsOnSurfac
     m_seedbaricenter = other.m_seedbaricenter;
     m_randomFixed = other.m_randomFixed;
     m_deads = other.m_deads;
+    m_sensitivity = other.m_sensitivity;
     return(*this);
 };
 
@@ -123,7 +125,8 @@ CreateSeedsOnSurface::buildPorts(){
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setNPoints, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, PortType::M_VALUEI2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
     built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setMassCenterAsSeed, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-
+    built = (built && createPortIn<dvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, PortType::M_FILTER, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
 
@@ -288,6 +291,16 @@ CreateSeedsOnSurface::setRandomFixed( int signature){
 }
 
 /*!
+ * Set a sensitivity scalar field, referred to the target geometry linked, to drive placement of the seeds points
+ * on the most sensitive part of the geometry. The sensitivity filed MUST be defined on geometry vertices.  
+ *\param[in] field sensitivity  
+ */
+void
+CreateSeedsOnSurface::setSensitivityMap( dvector1D field){
+    m_sensitivity = field;
+}
+
+/*!
  * Clear contents of the class
  */
 void
@@ -300,6 +313,7 @@ CreateSeedsOnSurface::clear(){
     m_seedbaricenter = false;
     m_randomFixed = -1;
     m_deads.clear();
+    m_sensitivity.clear();
 
 }
 
@@ -331,13 +345,36 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == NULL || m_nPoints< 1){
-        if(debug)    (*m_log)<<"No geometry linked, or not enough total point set in "<<m_name<<" object. Doing Nothing"<<std::endl;
+        (*m_log)<<"No geometry linked, or not enough total point set in "<<m_name<<" object. Doing Nothing"<<std::endl;
         return;
     }
     m_points.clear();
     bbox->execute();
     if(m_seedbaricenter)    m_seed = bbox->getOrigin();
+    
+    //normalize m_sensitivity and resize eventually.
+    m_sensitivity.resize(getGeometry()->getNVertex(), 1.0);
 
+    double minSense=0.0,maxSense=0.0;
+    minval(m_sensitivity, minSense);
+    //operate translation.
+    if (!isnan(minSense)){
+        for(auto &val: m_sensitivity){
+            val += -1.0*minSense;
+        }
+    }
+    maxval(m_sensitivity, maxSense);
+    //operate normalization.
+    if (!isnan(maxSense) || maxSense != 0.0){
+        m_sensitivity /= maxSense;
+    }
+    
+    if(isnan(minSense) || isnan(maxSense) || maxSense == 0.0){
+        (*m_log)<<"Not valid sensitivity field detected in "<<m_name<<" object. No sensitivity will be taken into account"<<std::endl;
+        m_sensitivity.clear();
+        m_sensitivity.resize(getGeometry()->getNVertex(), 1.0);
+    }
+    
     switch(m_engine){
     case CSeedSurf::RANDOM :
         solveRandom(debug);
@@ -417,6 +454,13 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
         solveEikonal(1.0,1.0, invConn, field);
 
+        //modulate field with sensitivity field
+        int countF = 0;
+        for( auto &val: field){
+            val *= m_sensitivity[countF];
+            ++countF;
+        }
+        
         double maxField;
         maxval(field, maxField);
         dvector1D::iterator itF = std::find(field.begin(), field.end(), maxField);
@@ -648,6 +692,8 @@ CreateSeedsOnSurface::solveRandom(bool debug){
 void
 CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, bool binary){
 
+    if(m_points.empty())    return;
+    
     bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
     if(binary){codex=bitpit::VTKFormat::APPENDED;}
 
@@ -656,10 +702,16 @@ CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, 
         conn[i] = i;
     }
 
+    dvector1D sens(m_nPoints, 1.0);
+    for(int i=0; i<m_nPoints; ++i){
+        sens[i] = interpolateSensitivity(m_points[i]);
+    }
+    
     bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_points) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
     vtk.setDimensions( m_nPoints, m_nPoints);
+    vtk.addData("sensitivity", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,sens);
     vtk.setCodex(codex);
     if(counter>=0){vtk.setCounter(counter);}
 
@@ -668,7 +720,7 @@ CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, 
 
 /*!
  * Decimate a cloud of points with number greater than m_nPoints, to desired value.
- * Regularize distribution of nodes to meet minimum distance requirements of the class.
+ * Regularize distribution of nodes to meet minimum distance & max sensitivity possible requirements of the class.
  * First point of the list is meant as the starting seed of decimation.
  * \param[in] list of 3D points in space, with size > m_nPoints
  * \return decimated list of points
@@ -679,11 +731,18 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
     dvecarr3E result(m_nPoints);
     int listS = list.size();
 
+    //reference all coordinate list to the seed candidate 0;
+    // modulate the coordinate of each point with its respective sensitivity.
+    dvecarr3E listRefer(listS, {{0.0,0.0,0.0}});
+    for(int j=0; j<listS; ++j){
+        listRefer[j] = (list[j] - list[0])*interpolateSensitivity(list[j]);
+    }
+
     bitpit::KdTree<3,darray3E,long>    kdT;
     //build a kdtree of points
-    kdT.nodes.resize(list.size() + kdT.MAXSTK);
+    kdT.nodes.resize(listS + kdT.MAXSTK);
     long label=0;
-    for(auto & val : list ){
+    for(auto & val : listRefer ){
         kdT.insert(&val, label);
         ++label;
     }
@@ -705,7 +764,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
         candSize++;
         visited.insert(candidate);
         excl.insert(excl.end(), visited.begin(), visited.end());
-        kdT.hNeighbors(&list[candidate], m_minDist, &neighs, & excl );
+        kdT.hNeighbors(&listRefer[candidate], m_minDist, &neighs, & excl );
 
         visited.insert(neighs.begin(), neighs.end());
 
@@ -720,7 +779,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
             visited.insert(finalCandidates.begin(), finalCandidates.end());
             for(auto ind : finalCandidates){
                 excl.insert(excl.end(), visited.begin(), visited.end());
-                kdT.hNeighbors(&list[ind], m_minDist, &neighs, & excl );
+                kdT.hNeighbors(&listRefer[ind], m_minDist, &neighs, & excl );
                 visited.insert(neighs.begin(), neighs.end());
             }
             sizeN = visited.size();
@@ -739,7 +798,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
             dvector1D norms(finalCandidates.size());
             int countNorms=0;
             for(auto indEx: finalCandidates){
-                norms[countNorms] = norm2(list[ind] - list[indEx]);
+                norms[countNorms] = norm2(listRefer[ind] - listRefer[indEx]);
                 ++countNorms;
             }
 
@@ -1298,5 +1357,54 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
 
 
 };
+
+/*!
+ * Interpolate sensitivity field on a 3D point
+ * \param[in] point belonging to the target geometry surface.
+ */
+double
+CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
+    
+    long supportCell;
+    double radius = 1.0E-03;
+    MimmoObject* geo = getGeometry();
+    
+    bvTreeUtils::distance(&point, getGeometry()->getBvTree(), supportCell, radius, 1);
+    
+    auto convMap = getGeometry()->getMapDataInv();
+    
+    auto cell = geo->getPatch()->getCell(supportCell);
+    int nV = cell.getVertexCount();
+    long * conn = cell.getConnect();
+    dvector1D weights(nV, 0), val(nV,0);
+    double wtot = 0.0;
+    for(int i=0; i<nV; ++i){
+
+        val[i] = m_sensitivity[convMap[conn[i]]];
+        
+        double valdist = norm2(geo->getVertexCoords(conn[i]) - point);
+        if ( valdist< 1.E-18){ 
+            return val[i];
+        }
+        
+        weights[i] = 1.0/valdist;
+        wtot += weights[i];
+        
+    }
+    
+    weights /= wtot;
+    
+    double result = 0.0;
+    for(int i=0; i<nV; ++i){
+        result +=  weights[i]*val[i];
+    }
+    
+    
+    return result;
+}
+
+
+
+
 
 }
