@@ -436,7 +436,6 @@ protected:
  * - <B>Topology</B>: number indentifying topology of tesselated mesh. 1-surfaces, 2-voume. no other types are supported;
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
  * - <B>Tolerance</B>: proximity threshold to activate mapping;
- * - <B>Span</B>: span of the cylinder (base radius, angular azimuthal width, height);
  * - <B>Files</B>: list of external files to map on the target surface: \n
  *                <tt>\<Files\> \n
  *                      \<file0\> \n
