@@ -95,8 +95,8 @@ namespace mimmo{
  * - <B>ReadFilename</B>: name of input file with tag extension in read mode;
  * - <B>WriteDir</B>: path to output directory in write mode;
  * - <B>WriteFilename</B>: name of output file with tag extension in write mode;
- * - <B>NDispl</B>: path to your current file dataTAG;
- * - <B>Template</B>: path to your current file data;
+ * - <B>NDispl</B>: fixed number of displacements to write on file, from those available in the class ;
+ * - <B>Template</B>: 0/1 activate writing in template mode;
  *
  */
 class GenericDispls: public BaseManipulation{

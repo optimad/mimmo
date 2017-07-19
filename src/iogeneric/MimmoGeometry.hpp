@@ -104,7 +104,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.Geometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>IOMode</B>: activate read, write or convert mode;
+ * - <B>IOMode</B>: activate READ, WRITE or CONVERT mode;
  * - <B>Dir</B>: directory path;
  * - <B>Filename</B>: name of file for reading/writing;
  * - <B>FileType</B>: file type identifier;

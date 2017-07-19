@@ -116,7 +116,7 @@ namespace mimmo{
  * - <B>ReadFilename</B>: name of input file with tag extension in read mode;
  * - <B>WriteDir</B>: path to output directory in write mode;
  * - <B>WriteFilename</B>: name of output file with tag extension in write mode;
- * - <B>Template</B>: path to your current file data;
+ * - <B>Template</B>: 0/1 option to activate writing file in template mode;
  *
  */
 class IOCloudPoints: public BaseManipulation{

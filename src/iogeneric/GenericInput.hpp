@@ -81,8 +81,8 @@ namespace mimmo{
  * Proper of the class:
  * - <B>ReadFromFile</B>: 0/1 set class to read from a file;
  * - <B>CSV</B>: 0/1 set class to read a CSV format;
- * - <B>ReadDir</B>: path to your current file data;
- * - <B>Filename</B>: path to your current file data.
+ * - <B>ReadDir</B>: directory path to your current file data;
+ * - <B>Filename</B>: name of your current file data.
  *
  */
 class GenericInput: public BaseManipulation{
