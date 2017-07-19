@@ -171,7 +171,8 @@ int test2() {
 	
 	if(!check){
 		std::cout<<"ERROR.Not able to create MimmoObject mesh"<<std::endl;
-		return 1;
+		delete mesh;
+        return 1;
 	}else{
 		mesh->getPatch()->write("original_t2");
 		std::cout<<"Target Mesh written to file original_t2.vtu"<<std::endl;
@@ -196,7 +197,8 @@ int test2() {
 	std::unique_ptr<MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch of MimmoObject mesh"<<std::endl;
-		return 1;
+        delete mesh;
+        return 1;
 	}else{
 		subPatch = std::move(createSubMesh(mesh, listpid));
 		subPatch->getPatch()->write("subpatch_t2");

@@ -398,21 +398,19 @@ IOVTKScalar::write(){
         for (auto & cell : cells){
             long int *conn = (cell.getConnect());
             int nV = cell.getVertexCount();
-            vtkIdType *c = new vtkIdType;
+            std::vector<vtkIdType> c (nV, 0);
             for (int iV=0; iV<nV; iV++){
                 c[iV] =  vtkIdType(conn[iV]);
             }
             if (nV == 3){
-                m_polydata->InsertNextCell(VTK_TRIANGLE, 3, c);
+                m_polydata->InsertNextCell(VTK_TRIANGLE, 3, c.data());
             }
             else if (nV == 4 ){
-                m_polydata->InsertNextCell(VTK_QUAD, 4, c);
+                m_polydata->InsertNextCell(VTK_QUAD, 4, c.data());
             }
             else{
-                m_polydata->InsertNextCell(VTK_POLYGON, nV, c);
+                m_polydata->InsertNextCell(VTK_POLYGON, nV, c.data());
             }
-            delete c;
-            c = NULL;
         }
 
         /* Set polydata field. */

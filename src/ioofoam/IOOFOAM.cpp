@@ -66,6 +66,7 @@ IOOFOAM::~IOOFOAM(){};
 /*!Copy constructor of IOOFOAM.
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(){
+    setDefaults();
     *this = other;
 };
 
@@ -97,6 +98,7 @@ IOOFOAM::setDefaults(){
     m_maxf      = 0.0;
     m_scaling   = 1.0;
     m_normalize = true;
+    m_stopat = -1;
 }
 
 /*! It builds the input/output ports of the object
@@ -350,16 +352,16 @@ IOOFOAM::read(){
         check = readVTK(m_rdirS[iPID], m_rfilenameS[iPID], iPID, patchBnd.get());
         if (!check) return check;
     }
-
+    auto convMap = patchBnd->getMapDataInv();
     if (m_normalize && m_maxf > 0.0){
         for (auto vertex : patchBnd->getVertices()){
-            m_field[patchBnd->getMapDataInv(vertex.getId())] /= m_maxf;
-            m_field[patchBnd->getMapDataInv(vertex.getId())] *= m_scaling;
+            m_field[convMap[vertex.getId()]] /= m_maxf;
+            m_field[convMap[vertex.getId()]] *= m_scaling;
         }
     }
     else{
         for (auto vertex : patchBnd->getVertices()){
-            m_field[patchBnd->getMapDataInv(vertex.getId())] *= m_scaling;
+            m_field[convMap[vertex.getId()]] *= m_scaling;
         }
     }
 
@@ -385,12 +387,17 @@ IOOFOAM::write(){
         //write surface mesh
         string outputFilename = m_wdirS+"/"+m_wfilenameS;
         getSurfaceBoundary()->getPatch()->write(outputFilename);
+    }else{
+        m_stopat = 0;
     }
 
     if (getGeometry() != NULL){
         //write point cloud mesh
         writeOFP(m_wdirV, m_wfilenameV, getGeometry()->getVertices());
+    }else{
+        m_stopat = 1;
     }
+    
     return true;
 }
 

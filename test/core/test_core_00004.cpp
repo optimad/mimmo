@@ -68,7 +68,8 @@ int test4() {
 	
 	if(!check){
 		std::cout<<"ERROR.Not able to build Lattice Structured Mesh"<<std::endl;
-		return 1;
+		delete mesh;
+        return 1;
 	}else{
 		mesh->plotGrid(".","lattice_t4", 0, 0 );
 		std::cout<<"Successfully built Lattice Structured Mesh and written to file lattice_t4.0000.vtu"<<std::endl;

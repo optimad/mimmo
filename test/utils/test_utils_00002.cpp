@@ -106,7 +106,10 @@ bool createMimmoMesh(MimmoObject * mesh){
 int test2() {
 	
     MimmoObject * m1 = new MimmoObject();
-    if(!createMimmoMesh(m1))    return 1;
+    if(!createMimmoMesh(m1)) {
+        delete m1;
+        return 1;
+    }    
     darray3E normal = {{0,0,1}};
     
     CreateSeedsOnSurface * cseed = new CreateSeedsOnSurface();

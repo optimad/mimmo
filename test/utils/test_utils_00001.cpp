@@ -48,8 +48,10 @@ int test1() {
     auto datas = sp->getCloudVectorData();
     
     bool check = ((coords.size() ==2 ) && (datas.size() ==2) ); 
-    if(!check)  return 1;
-    
+    if(!check)  {
+        delete sp;
+        return 1;
+    }
     check  = ( std::abs(coords[0][1] + coords[1][1])  < 1.E-18 );
     check  = check && ( std::abs(datas[1][0] - datas[0][0])  < 1.E-18 ); 
     check  = check && ( std::abs(datas[1][2] - datas[0][2])  < 1.E-18 ); 

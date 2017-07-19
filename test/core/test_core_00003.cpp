@@ -156,7 +156,8 @@ int test3() {
 	
 	if(!check){
 		std::cout<<"ERROR.Not able to create MimmoObject mesh"<<std::endl;
-		return 1;
+		delete mesh;
+        return 1;
 	}else{
 		mesh->getPatch()->write("original_t3");
 		std::cout<<"Target Mesh written to file original_t3.vtu"<<std::endl;

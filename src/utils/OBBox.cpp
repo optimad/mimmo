@@ -62,7 +62,8 @@ OBBox::OBBox(const bitpit::Config::Section & rootXML){
         val[counter] = 1.0;
         ++counter;
     }
-
+    m_forceAABB = false;
+    
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
