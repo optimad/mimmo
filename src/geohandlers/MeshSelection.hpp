@@ -346,7 +346,7 @@ protected:
  * Proper of the class:
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
  * - <B>Origin</B>: array of 3 doubles identifying origin of sphere;
- * - <B>Span</B>: span of the cylinder (radius, angular azimuthal width, angular polar width);
+ * - <B>Span</B>: span of the sphere (radius, angular azimuthal width, angular polar width);
  * - <B>RefSystem</B>: reference system of the sphere: \n
  *                <tt>\<RefSystem\> \n
  *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
