@@ -57,7 +57,8 @@ struct InfoMimmoPP{
     std::string dictName;       /**< target name of xml dictionary */
     Verbose vconsole;           /**< type of console verbosity.*/
     Verbose vlog;               /**< type of log file verbosity */
-    bool optres;                /**< boolean to activate writing of execution optional results */  
+    bool optres;                /**< boolean to activate writing of execution optional results */
+    bool expert;                /**< boolean to override mandatory ports checking */
     std::string optres_path;    /**< path to store optional results */
     
     /*! Base constructor*/
@@ -67,6 +68,7 @@ struct InfoMimmoPP{
         vconsole    = Verbose::NORMAL;
         optres      = false;
         optres_path = ".";
+        expert      = false;
     }
     /*! Destructor */
     ~InfoMimmoPP(){};
@@ -83,6 +85,7 @@ struct InfoMimmoPP{
         vconsole = other.vconsole;
         optres = other.optres;
         optres_path = other.optres_path;
+        expert = other.expert;
         return *this;
     }
 };
@@ -139,6 +142,8 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
         std::cout<<"    --opt-res-path=<path>          : specify directory to store optional results.               "<<std::endl;
         std::cout<<"                                     Default directory is the current one ./                    "<<std::endl;
         std::cout<<" "<<std::endl;
+        std::cout<<"    --expert=yes                   : override mandatory ports connection checking.              "<<std::endl;
+        std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
         std::cout<<"    For any problem, bug and malfunction please contact mimmo developers.                       "<<std::endl;
@@ -152,6 +157,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     keymap[2] = "vconsole=";
     keymap[3] = "opt-res=";
     keymap[4] = "opt-res-path=";
+    keymap[5] = "expert=";
     
     std::map<int, std::string> final_map;
     //visit input list and search for each key string  in key map. If an input string positively match a key, 
@@ -160,7 +166,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     for(auto val: input){
         std::size_t pos = std::string::npos;
         int counter=0;
-        while (pos == std::string::npos && counter <5){
+        while (pos == std::string::npos && counter <6){
             pos = val.find(keymap[counter]);
             ++counter;
         }  
@@ -180,6 +186,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     result.dictName = final_map[0];
     if(final_map.count(4)) result.optres_path = final_map[4];
     if(final_map.count(3)) result.optres = (final_map[3]=="yes");
+    if(final_map.count(5)) result.expert = (final_map[5]=="yes");
     
     if(final_map.count(1)){
         int check = -1 + int(final_map[1]=="quiet") + 2*int(final_map[1]=="normal") + 3*int(final_map[1]=="full");
@@ -323,6 +330,8 @@ int main( int argc, char *argv[] ) {
                 
         }
         
+        mimmo::setExpertMode(info.expert);
+        
         //print resume args info.
         m_log->setPriority(bitpit::log::NORMAL);
         { 
@@ -338,6 +347,7 @@ int main( int argc, char *argv[] ) {
             (*m_log)<< "log file verbosity: "<<verb[static_cast<int>(info.vlog)]<<std::endl;
             (*m_log)<< "debug results:      "<<yesno[int(info.optres)]<<std::endl;
             (*m_log)<< "debug results path: "<<info.optres_path<<std::endl;
+            (*m_log)<< "expert mode:        "<<yesno[int(info.expert)]<<std::endl;
             (*m_log)<< " "<<std::endl;
             (*m_log)<< " "<<std::endl;
         }

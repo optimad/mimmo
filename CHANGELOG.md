@@ -6,10 +6,12 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 - added new option to assign a reference PID to a geometry by MimmoGeometry execution
 - added new option to write pidded 3D surfaces in MultiSolid ASCII (MimmoGeometry)
+- added mimmo native dump/restore format *.geomimmo (MimmoGeometry)
 - fixed minor bugs in FFDLattice manipulator
 - added new features to OBBox utility (multi geometry in input, option to switch from Oriented to Axis Aligned box calculation)
 - fixed coverity issues
 - update CreateSeedOnSurface block: added sensitivity map option to drive the seeding. 
+- added global expert mode MIMMO_EXPERT to override mandatory ports checking in execution of chains
 
 ### Added
 - This CHANGELOG file.
