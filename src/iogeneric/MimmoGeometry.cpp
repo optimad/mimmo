@@ -748,7 +748,7 @@ MimmoGeometry::write(){
     break;
 
     case FileType::MIMMO :
-        //Export in mimmo (bitpit) restore format
+        //Export in mimmo (bitpit) dump format
     {
         string name = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
         std::filebuf buffer;
@@ -1162,7 +1162,7 @@ MimmoGeometry::read(){
         //Import in mimmo (bitpit) restore format
     {
         int type;
-        string name = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
+        string name = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
         std::filebuf buffer;
         std::istream in(&buffer);
         buffer.open(name, std::ios::in);
@@ -1172,7 +1172,6 @@ MimmoGeometry::read(){
             m_intgeo->getPatch()->restore(in);
             buffer.close();
         }
-        return true;
     }
     break;
 
