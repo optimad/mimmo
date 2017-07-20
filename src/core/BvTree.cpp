@@ -613,8 +613,7 @@ namespace bvTreeUtils{
  * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \param[in] spatch_ Pointer to bitpit::SurfUnstructured patch related to the bv-tree (optional).
  * \param[in] next Index of the starting node to perform the searching (optional).
- * \param[in] h Initial minimum distance (if no value find below the initial value, this
- * it returns this value as result) (optional).
+ * \param[in] h Initial minimum distance (if no value find below the initial value, it returns this value as result) (optional).
  * \return Signed distance of the input point from the patch in the bv-tree.
  */
 double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::array<double,3> &n, double &r, int method, bitpit::SurfUnstructured *spatch_, int next, double h)
@@ -810,14 +809,11 @@ double signedDistance(std::array<double,3> *P_, BvTree *bvtree_, long &id, std::
  * \param[in] P_ Pointer to coordinates of input point.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
  * \param[out] id Label of the element found as minimum distance element in the bv-tree.
- * \param[in] r Length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
  * \param[in] next Index of the starting node to perform the searching (optional).
- * \param[in] h Initial minimum distance (if no value find below the initial value, this
- * it returns this value as result) (optional).
+ * \param[in] h Initial minimum distance (if no value find below the initial value, returns this value as result) (optional).
  * \return Unsigned distance of the input point from the patch in the bv-tree.
  */
 double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, int method, int next, double h)
@@ -935,12 +931,12 @@ double distance(std::array<double,3> *P_, BvTree* bvtree_, long &id, double &r, 
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
- * recursively in a box of length 2*r, by increasing the size r at each step
+ * recursively in a sphere of radius r, by increasing the size r at each step
  * until at least one element is found.
  * \param[in] P_ Pointer to coordinates of input point.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[in] r Initial length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
+ * \param[in] r Initial length of the sphere radius used to search. (The algorithm checks
+ * every element encountered inside the sphere).
  * \return Coordinates of the projected point.
  */
 darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
@@ -969,7 +965,7 @@ darray3E projectPoint( std::array<double,3> *P_, BvTree *bvtree_, double r )
  * The sign of the distance is provided by the normal to the geometry locally
  * computed. A positive distance means that a point is located, in respect to the
  * surface mesh, on the same side of the outer normal vector.
- * It searches the elements with minimum distance in a box of length 2*r, if none
+ * It searches the elements with minimum distance in a box of length 2*r or sphere of radius r alternatively. If none
  * is found return a default value of distance equal to 1.0e+18;
  * \param[in] P_ Pointer to a vector with the coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -1000,7 +996,7 @@ dvector1D signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_
  * It computes the unsigned distance of a set of points to a geometry linked in a BvTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * It searches the elements with minimum distance in a box of length 2*r, if none
+ * It searches the elements with minimum distance in a box of length 2*r or sphere of radius r alternatively. If none
  * is found return a default value of distance equal to 1.0e+18;
  * \param[in] P_ Pointer to vector with the coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -1028,12 +1024,12 @@ dvector1D distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std:
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
- * recursively in a box of length 2*r, by increasing the size r at each step
+ * recursively in a box of length 2*r or sphere of radius r, by increasing the size r at each step
  * until at least one element is found.
  * \param[in] P_ Pointer to vector with coordinates of input points.
  * \param[in] bvtree_ Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[in] r_ Initial length of the side of the box used to search. (The algorithm checks
- * every element encountered inside the box).
+ * \param[in] r_ Initial length of the sphere radius used to search. (The algorithm checks
+ * every element encountered inside the sphere).
  * \return Vector with coordinates of the projected points.
  */
 dvecarr3E projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_)
