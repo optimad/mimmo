@@ -75,7 +75,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>OFP     = 6</B> Ascii OpenFoam point cloud.
  * - <B>PCVTU   = 7</B> Point Cloud VTU
  * - <B>CURVEVTU= 8</B> 3D Curve in VTU
- * - <B>MIMMO   = 99</B> mimmo restore format
+ * - <B>MIMMO   = 99</B> mimmo dump/restore format *.geomimmo
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
  * The smart enum can be recalled in every moment in your code, just using <tt>mimmo::FileType</tt>

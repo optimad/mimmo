@@ -750,7 +750,7 @@ MimmoGeometry::write(){
     case FileType::MIMMO :
         //Export in mimmo (bitpit) restore format
     {
-        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+        string name = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
         std::filebuf buffer;
         std::ostream out(&buffer);
         buffer.open(name, std::ios::out);
@@ -1162,7 +1162,7 @@ MimmoGeometry::read(){
         //Import in mimmo (bitpit) restore format
     {
         int type;
-        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+        string name = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
         std::filebuf buffer;
         std::istream in(&buffer);
         buffer.open(name, std::ios::in);
