@@ -51,13 +51,11 @@ class MimmoPiercedVector : public bitpit::PiercedVector<value_t, id_t> {
     std::string                 m_name;                /**<Name of the field.*/
 
 public:
-
     MimmoPiercedVector(MimmoObject* geo = NULL, std::string name = "");
     ~MimmoPiercedVector();
 
     //copy operators/constructors
     MimmoPiercedVector(const MimmoPiercedVector & other);
-    MimmoPiercedVector & operator=(const MimmoPiercedVector & other);
     MimmoPiercedVector & operator*(double val);
 
     void            clear();

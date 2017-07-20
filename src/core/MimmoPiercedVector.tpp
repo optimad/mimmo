@@ -50,20 +50,12 @@ MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
  */
 template<typename value_t, typename id_t>
 MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(const MimmoPiercedVector & other):bitpit::PiercedVector<value_t, id_t>(){
-    *this = other;
-};
 
-/*! Copy Operator
- * \param[in] other MimmoPiercedVector object
- */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator=(const MimmoPiercedVector & other){
-
-    *(static_cast<bitpit::PiercedVector<value_t, id_t> *>(this))  = *(static_cast<const bitpit::PiercedVector<value_t, id_t> *>(&other));
+    //value of the PiercedVector?
     m_geometry = other.m_geometry;
     m_name = other.m_name;
-    return(*this);
 };
+
 
 /*! Product with double Operator
  * \param[in] val double value

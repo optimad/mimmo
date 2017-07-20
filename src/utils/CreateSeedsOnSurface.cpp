@@ -348,18 +348,18 @@ CreateSeedsOnSurface::solve(bool debug){
     double minSense=0.0,maxSense=0.0;
     minval(m_sensitivity, minSense);
     //operate translation.
-    if (!isnan(minSense)){
+    if (!std::isnan(minSense)){
         for(auto &val: m_sensitivity){
             val += -1.0*minSense;
         }
     }
     maxval(m_sensitivity, maxSense);
     //operate normalization.
-    if (!isnan(maxSense) || maxSense != 0.0){
+    if (!std::isnan(maxSense) || maxSense != 0.0){
         m_sensitivity /= maxSense;
     }
     
-    if(isnan(minSense) || isnan(maxSense) || maxSense == 0.0){
+    if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
         (*m_log)<<"Not valid sensitivity field detected in "<<m_name<<" object. No sensitivity will be taken into account"<<std::endl;
         m_sensitivity.clear();
         m_sensitivity.resize(getGeometry()->getNVertex(), 1.0);
@@ -446,10 +446,24 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
         solveEikonal(1.0,1.0, invConn, field);
 
-        double maxField = mimmo::maxvalmp(field);
-        dmpvector1D::iterator itF = std::find(field.begin(), field.end(), maxField);
-
-        m_deads.push_back(std::distance(field.begin(), itF));
+        //modulate field with sensitivity field
+        int countF = 0;
+        for( auto &val: field){
+            val *= m_sensitivity[countF];
+            ++countF;
+        }
+        
+        double maxField= 0.0;
+        long candMax;
+        dmpvector1D::iterator itX, itE=field.end();
+        for(itX =field.begin(); itX != itE; ++itX){
+            if(*itX > maxField){
+              maxField = *itX;
+              candMax = itX.getId();
+            }
+        }
+        
+        m_deads.push_back(candMax);
 
         deadSize = m_deads.size();
         if(debug)    (*m_log)<<m_name<<" : geodesic distance field for point "<<deadSize-1<<" found"<<std::endl;
