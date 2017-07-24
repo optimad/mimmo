@@ -31,65 +31,148 @@ namespace mimmo{
  * \param[in] geo pointer to related geometry
  * \param[in] name field name
  */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(MimmoObject* geo, std::string name){
+template<typename value_t>
+MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, std::string name, MPVLocation loc){
     m_geometry = geo;
+    m_loc = loc;
     m_name = name;
 }
 
 /*!
  * Default destructor of MimmoPiercedVector.
  */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t>::~MimmoPiercedVector(){
+template<typename value_t>
+MimmoPiercedVector<value_t>::~MimmoPiercedVector(){
     clear();
 }
 
-/*! Copy Constructor
+/*! 
+ * Copy Constructor
  *\param[in] other MimmoPiercedVector object
  */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t>::MimmoPiercedVector(const MimmoPiercedVector & other):bitpit::PiercedVector<value_t, id_t>(){
-
-    //value of the PiercedVector?
-    m_geometry = other.m_geometry;
-    m_name = other.m_name;
+template<typename value_t>
+MimmoPiercedVector<value_t>::MimmoPiercedVector(const MimmoPiercedVector & other){
+    *this = other;
 };
 
-
-/*! Product with double Operator
- * \param[in] val double value
+/*! 
+ * Copy Operator. Values of the Pierced will be copied without holes.
+ * \param[in] other MimmoPiercedVector object
  */
-template<typename value_t, typename id_t>
-MimmoPiercedVector<value_t, id_t> & MimmoPiercedVector<value_t, id_t>::operator*(double val){
-
-    for (auto & i : (*this)){
-        i = i*val;
+template<typename value_t>
+MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(const MimmoPiercedVector & other){
+    this->m_geometry = other.m_geometry;
+    this->m_loc = other.m_loc;
+    this->m_name = other.m_name;
+    //copy entirely the data in internal pierced vector->
+    auto itE = other.m_data.end();
+    for(auto it  = other.m_data.begin(); it!=itE; ++it){
+        this->m_data.insert(it.getId(),*it);
     }
-
-    return(*this);
-
+    return (*this);
+    
 };
-
 
 /*!
- * Clear MimmoPiercedVector.
+ * Clear the whole MimmoPiercedVector.
  */
-template<typename value_t, typename id_t>
+template<typename value_t>
 void
-MimmoPiercedVector<value_t, id_t>::clear(){
-    bitpit::PiercedVector<value_t, id_t>::clear(true);
+MimmoPiercedVector<value_t>::clear(){
     m_geometry = NULL;
     m_name = "";
+    m_loc = MPVLocation::POINT;
+    clearData();
+}
+
+/*!
+ * Clear internal Pierced Vector data only
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::clearData(){
+    m_data.clear(true);
+}
+
+/*!
+ * \return reference to internal bitpit::PiercedVector<value_t, long int> data
+ */
+template<typename value_t>
+bitpit::PiercedVector<value_t, long int>&
+MimmoPiercedVector<value_t>::data(){
+    return m_data;
+}
+
+/*!
+ * \return size of the internal PiercedVector data, which are not necessarily equal 
+ * to its current capacity.
+ */
+template<typename value_t>
+std::size_t
+MimmoPiercedVector<value_t>::size() const{
+    return m_data.size();
+}
+
+/*!
+ * \return true if an element flagged by id is present in the data stock.
+ * \param[in] id, long int marker
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::exists(long int id) const{
+    return m_data.exists(id);
+}
+
+/*!
+ * Const access operator
+ * \return const reference to the element marked as id in internal pv data.
+ * \param[in] id, long int marker
+ */
+template<typename value_t>
+__MPV_CONST_REFERENCE__
+MimmoPiercedVector<value_t>::operator[](long int id) const{
+    return m_data[id];
+}
+
+/*!
+ * Access operator
+ * \return reference to the element marked as id in internal pv data.
+ * \param[in] id, long int marker
+ */
+template<typename value_t>
+__MPV_REFERENCE__
+MimmoPiercedVector<value_t>::operator[](long int id){
+    return m_data[id];
+}
+
+/*!
+ * Reserve stock of memory for internal data. This method do not size your internal data.
+ * Use resize method instead.
+ * \param[in] n, number of value_t elements to reserve.
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::reserve(std::size_t n){
+    return m_data.reserve(n);
+}
+
+/*!
+ * Resize for internal data pierced vector.
+ * \param[in] n, number of value_t elements to resize.
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::resize(std::size_t n){
+    return m_data.resize(n);
 }
 
 /*!
  * Get the linked MimmoObject.
  * \return pointer to linked geometry.
  */
-template<typename value_t, typename id_t>
+template<typename value_t>
 MimmoObject*
-MimmoPiercedVector<value_t, id_t>::getGeometry() const{
+MimmoPiercedVector<value_t>::getGeometry() const{
     return m_geometry;
 }
 
@@ -97,19 +180,74 @@ MimmoPiercedVector<value_t, id_t>::getGeometry() const{
  * Get the name of the field.
  * \return name of the data field.
  */
-template<typename value_t, typename id_t>
+template<typename value_t>
 std::string
-MimmoPiercedVector<value_t, id_t>::getName() const{
+MimmoPiercedVector<value_t>::getName() const{
     return m_name;
+}
+
+/*!
+ * Get data location w.r.t geometry inner structures.
+ * \return MPVLocation enum
+ */
+template<typename value_t>
+MPVLocation
+MimmoPiercedVector<value_t>::getDataLocation() const{
+    return m_loc;
+}
+
+/*!
+ * Get Id-etiquettes attached to each value store in inner data. 
+ * \param[in] ordered, if true ids will be returned in ascending order, otherwise they will be returned as 
+ * you get iterating the internal m_data PiercedVector from the beginning.
+ * \return list of id
+ * 
+ */
+template<typename value_t>
+std::vector<long int>
+MimmoPiercedVector<value_t>::getIds(bool ordered){
+    if(ordered) return m_data.getIds(ordered);
+    
+    std::vector<long int> result(m_data.size());
+    auto it = m_data.begin();
+    auto itE= m_data.end();
+    int counter= 0;
+    for(it; it != itE; ++it){
+        result[counter] = it.getId();
+        ++counter;
+    }
+    return result;
+}
+
+/*!
+ * Return data contained in inner pierced vector
+ * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * you get iterating the internal m_data PiercedVector from the beginning.
+ * \return list of data 
+ * 
+ */
+template<typename value_t>
+std::vector<value_t>
+MimmoPiercedVector<value_t>::getDataAsVector(bool ordered){
+    
+     auto ids = getIds(ordered);
+     std::vector<value_t> result(ids.size());
+     int counter= 0;
+     for(const auto val: ids){
+         result[counter] = m_data[val];
+         ++counter;
+     }
+     
+     return result;
 }
 
 /*!
  * Set the linked MimmoObject.
  * \param[in] geo pointer to linked geometry.
  */
-template<typename value_t, typename id_t>
+template<typename value_t>
 void
-MimmoPiercedVector<value_t, id_t>::setGeometry(MimmoObject* geo){
+MimmoPiercedVector<value_t>::setGeometry(MimmoObject* geo){
     m_geometry = geo;
 }
 
@@ -117,11 +255,111 @@ MimmoPiercedVector<value_t, id_t>::setGeometry(MimmoObject* geo){
  * Set the name of the field.
  * \param[in] name name of the data field.
  */
-template<typename value_t, typename id_t>
+template<typename value_t>
 void
-MimmoPiercedVector<value_t, id_t>::setName(std::string name){
+MimmoPiercedVector<value_t>::setName(std::string name){
     m_name = name;
 }
 
+/*!
+ * Set the data Location
+ * \param[in] loc MPVLocation enum
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::setDataLocation(MPVLocation loc){
+    m_loc = loc;
+}
+
+/*!
+ * Set the data of the inner PiercedVector. Data will be copied and stored internally.
+ * All precedent inner data will be cleared.
+ * \param[in] data Pierced Vector to copy data form
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::setData(bitpit::PiercedVector<value_t, long int>& data){
+    m_data.clear();
+    auto it = data.begin();
+    auto itE= data.end();
+    for(it; it !=itE; ++it){
+        m_data.insert(*it, it.getId());
+    }
+}
+
+/*!
+ * Set the data of the inner PiercedVector from a row data compound.
+ * Ids will be automatically assigned.
+ * \param[in] data vector to copy from
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::setData(std::vector<value_t>& data){
+    m_data.clear();
+    long int  id = 0; 
+    for(const auto val: data){
+        m_data.insert(val, id);
+        id++;
+    }
+}
+
+/*!
+ * Check data coherence with the geometry linked. Return a coherence boolean flag which is 
+ * false if:
+ *  - internal m_data does not match the size of the relative geometry reference structure: vertex, cell or interfaces 
+ *  - no geometry is linked 
+ * \return boolean coherence flag
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::checkDataSizeCoherence(){
+    if(getGeometry()==NULL) return false;
+    bool check = true;
+    switch(m_loc){
+        case 1:
+            check = (m_data.size()==m_geometry->getPatch()->getCells().size());
+            break;
+        case 2:
+            check = (m_data.size()==m_geometry->getPatch()->getInterfaces().size());
+            break;
+        default:
+            check = (m_data.size()==m_geometry->getPatch()->getVertices().size());
+            break;
+    }
+    return check;
+}
+
+/*!
+ * Check data coherence with the geometry linked. Return a coherence boolean flag which is 
+ * false if:
+ *  - all internal m_data ids does not match those available in the relative geometry reference structure: vertex, cell or interfaces 
+ *  - empty inner data structure
+ *  - no geometry is linked 
+ * \return boolean coherence flag
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
+    if(getGeometry()==NULL) return false;
+    bool check = m_data.size() != std::size_t(0);
+    switch(m_loc){
+        case 1:
+            for(auto &el : m_geometry->getPatch()->getCells()){
+                check =check && m_data.exists(el.getId());
+            }    
+            break;
+        case 2:
+            for(auto &el : m_geometry->getPatch()->getInterfaces()){
+                check =check && m_data.exists(el.getId());
+            }    
+            break;
+        default:
+            for(auto &el : m_geometry->getPatch()->getVertices()){
+                check =check && m_data.exists(el.getId());
+            }    
+            break;
+    }
+    return check;
+}
 
 }

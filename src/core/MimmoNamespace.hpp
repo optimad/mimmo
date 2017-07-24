@@ -84,7 +84,7 @@ namespace mimmo{
 
 class BaseManipulation;
 
-template<typename value_t, typename id_t>
+template<typename value_t>
 class MimmoPiercedVector;
 
 /*!
@@ -278,7 +278,7 @@ extern bool MIMMO_EXPERT; /**<Flag that defines expert mode (true) or safe mode 
 void setExpertMode(bool flag = true);
 
 //miscellanea
-double  maxvalmp(const MimmoPiercedVector<double, long int> & field);
+double  maxvalmp(const MimmoPiercedVector<double> & field);
 
 }//end namespace mimmo
 

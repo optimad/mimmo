@@ -238,13 +238,12 @@ GenericOutput::setResult(dmpvector1D data){
     _setResult(data);
     std::fstream file;
     file.open(m_dir+"/"+m_filename);
-    bitpit::PiercedVector<double> pvdata = static_cast<dmpvector1D>(data);
     if (file.is_open()){
         if (m_binary){
-            bitpit::genericIO::flushBINARY(file, pvdata, true);
+            bitpit::genericIO::flushBINARY(file, data.data(), true);
         }
         else{
-            bitpit::genericIO::flushASCII(file, 1, pvdata, true);
+            bitpit::genericIO::flushASCII(file, 1, data.data(), true);
         }
         file.close();
     }
@@ -262,13 +261,12 @@ GenericOutput::setResult(dmpvecarr3E data){
     _setResult(data);
     std::fstream file;
     file.open(m_dir+"/"+m_filename);
-    bitpit::PiercedVector<array<double, 3> > pvdata = static_cast<dmpvecarr3E>(data);
     if (file.is_open()){
         if (m_binary){
-            bitpit::genericIO::flushBINARY(file, pvdata, true);
+            bitpit::genericIO::flushBINARY(file, data.data(), true);
         }
         else{
-            bitpit::genericIO::flushASCII(file, 3, pvdata, true);
+            bitpit::genericIO::flushASCII(file, 3, data.data(), true);
         }
         file.close();
     }
