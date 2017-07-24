@@ -141,7 +141,7 @@ int test2() {
     sel2->setPlotInExecution(false);
     sel2->exec();
     
-    
+ 
     dmpvector1D field1(clip2->getGeometry());
     dmpvector1D field2(sel1->getPatch());
     dmpvector1D field3(sel2->getPatch());
@@ -161,6 +161,7 @@ int test2() {
         field3.data().insert(ID, 1.0);
     }
 
+	
     ReconstructScalar * recon = new ReconstructScalar();
     
     recon->setGeometry(m1);
@@ -171,6 +172,7 @@ int test2() {
     
     recon->exec();
     
+
     auto finalfield = recon->getResultField();
     
     bool check= true;
@@ -183,13 +185,15 @@ int test2() {
 
     swtch->setFields(recon->getResultFields());
     swtch->setGeometry(sel1->getPatch());
-
+    swtch->setPlotInExecution(true);
     swtch->exec();
 
-    for(auto & val : swtch->getSwitchedField().data()){
-        check = check && (val == 1.0);
+    
+    for(auto & val : swtch->getSwitchedField().getDataAsVector()){
+       	check = check && (val == 1.0);
     }
 
+    std::cout<<"plotting check"<<std::endl;	
     delete m1;
     delete clip;
     delete clip2;
