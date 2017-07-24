@@ -830,7 +830,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     for (int i = 0; i < nP; ++i) {
         buffer >> Id;
         buffer >> val;
-        element.insert(Id, val);
+        element.data().insert(Id, val);
     }
     return buffer;
 };
@@ -909,7 +909,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
         for (int j = 0; j < 3; ++j) {
             buffer >> val[j];
         }
-        element.insert(Id, val);
+        element.data().insert(Id, val);
     }
     return buffer;
 }

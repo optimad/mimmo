@@ -96,7 +96,7 @@ public:
     MimmoObject*            getGeometry() const;
     std::string             getName() const;
     MPVLocation             getDataLocation() const;
-    std::vector<long>       getIds(bool ordered=false);
+    std::vector<long>       getIds(bool ordered=false) const;
     std::vector<value_t>    getDataAsVector(bool ordered=false);
     
     void                   setGeometry(MimmoObject* geo);

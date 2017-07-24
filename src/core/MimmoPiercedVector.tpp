@@ -205,14 +205,13 @@ MimmoPiercedVector<value_t>::getDataLocation() const{
  */
 template<typename value_t>
 std::vector<long int>
-MimmoPiercedVector<value_t>::getIds(bool ordered){
+MimmoPiercedVector<value_t>::getIds(bool ordered)const {
     if(ordered) return m_data.getIds(ordered);
     
     std::vector<long int> result(m_data.size());
-    auto it = m_data.begin();
     auto itE= m_data.end();
     int counter= 0;
-    for(it; it != itE; ++it){
+    for(auto it = m_data.begin(); it != itE; ++it){
         result[counter] = it.getId();
         ++counter;
     }
