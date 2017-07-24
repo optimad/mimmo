@@ -280,10 +280,9 @@ template<typename value_t>
 void
 MimmoPiercedVector<value_t>::setData(bitpit::PiercedVector<value_t, long int>& data){
     m_data.clear();
-    auto it = data.begin();
     auto itE= data.end();
-    for(it; it !=itE; ++it){
-        m_data.insert(*it, it.getId());
+    for(auto it = data.begin(); it !=itE; ++it){
+        m_data.insert(it.getId(),*it);
     }
 }
 
@@ -298,7 +297,7 @@ MimmoPiercedVector<value_t>::setData(std::vector<value_t>& data){
     m_data.clear();
     long int  id = 0; 
     for(const auto val: data){
-        m_data.insert(val, id);
+        m_data.insert( id, val);
         id++;
     }
 }

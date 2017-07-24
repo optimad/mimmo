@@ -288,13 +288,15 @@ GenericInput::getResult(){
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        static_cast<bitpit::PiercedVector<double> >(data) = pvdata;
+        data.setData(pvdata);
         _setResult(data);
     }
     dmpvector1D temp = (*static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData());
-
     temp.setGeometry(getGeometry());
-
+    
+    auto loc = temp.recoverGeometryReferenceLocation();
+    temp.setDataLocation(loc);
+    
     return(temp);
 }
 
@@ -328,13 +330,15 @@ GenericInput::getResult(){
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        static_cast<bitpit::PiercedVector<array<double, 3> > >(data) = pvdata;
+        data.setData(pvdata);
         _setResult(data);
     }
     dmpvecarr3E temp = (*static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData());
-
     temp.setGeometry(getGeometry());
-
+    
+    auto loc = temp.recoverGeometryReferenceLocation();
+    temp.setDataLocation(loc);
+    
     return(temp);
 }
 
