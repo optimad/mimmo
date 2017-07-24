@@ -227,7 +227,7 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
 
     if(slotXML.hasOption("Binary")){
         std::string input = slotXML.get("Binary");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool temp = false;
         if(!input.empty()){
             std::stringstream ss(input);
