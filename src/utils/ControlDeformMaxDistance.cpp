@@ -101,7 +101,7 @@ double
 ControlDeformMaxDistance::getViolation(){
 
     double result = -1.0E+18;
-    for(const auto & val : m_violationField){
+    for(const auto & val : m_violationField.data()){
         result = std::fmax(result, val);
     }
 
@@ -162,9 +162,9 @@ ControlDeformMaxDistance::execute(){
     long int ID;
     for (const auto & v : geo->getVertices()){
         ID = v.getId();
-        points.insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
-        normDef.insert(ID, norm2(m_defField[ID]));
-        m_violationField.insert(ID, -1.0e+18);
+        points.data().insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
+        normDef.data().insert(ID, norm2(m_defField[ID]));
+        m_violationField.data().insert(ID, -1.0e+18);
     }
 
     double dist;
@@ -253,7 +253,7 @@ ControlDeformMaxDistance::plotOptionalResults(){
     dvecarr3E  points = getGeometry()->getVertexCoords(&map);
     dvecarr3E deff(m_defField.size());
     int count = 0;
-    for (const auto & f : m_defField){
+    for (const auto & f : m_defField.data()){
         deff[count] = f;
         ++count;
     }
@@ -270,7 +270,7 @@ ControlDeformMaxDistance::plotOptionalResults(){
 
     dvector1D viol(m_violationField.size());
     count = 0;
-    for (const auto & f : m_violationField){
+    for (const auto & f : m_violationField.data()){
         viol[count] = f;
         ++count;
     }

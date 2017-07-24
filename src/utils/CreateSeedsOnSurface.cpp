@@ -440,7 +440,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
         dmpvector1D field;
         for (const auto & v : tri->getVertices()){
-            field.insert(v.getId(), 1.0E18);
+            field.data().insert(v.getId(), 1.0E+18);
         }
         for(const auto & dd : m_deads)    field[dd] = 0.0;
 
@@ -448,15 +448,15 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
         //modulate field with sensitivity field
         int countF = 0;
-        for( auto &val: field){
+        for( auto &val: field.data()){
             val *= m_sensitivity[countF];
             ++countF;
         }
         
         double maxField= 0.0;
-        long candMax;
-        dmpvector1D::iterator itX, itE=field.end();
-        for(itX =field.begin(); itX != itE; ++itX){
+        long candMax =0;
+        auto itE=field.data().end();
+        for(auto itX =field.data().begin(); itX != itE; ++itX){
             if(*itX > maxField){
               maxField = *itX;
               candMax = itX.getId();
