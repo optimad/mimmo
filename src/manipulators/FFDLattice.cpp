@@ -445,7 +445,7 @@ FFDLattice::setNodalWeight(dvector1D wg){
 void
 FFDLattice::setFilter(dmpvector1D filter){
     m_filter.clear();
-    m_bfilter = !(filter.empty());
+    m_bfilter = !(filter.data().empty());
     m_filter = filter;
 };
 
@@ -542,7 +542,7 @@ FFDLattice::execute(){
     zero.fill(0.0);
     for (const auto & vertex : container->getVertices()){
         ID = vertex.getId();
-        m_gdispl.insert(ID, zero);
+        m_gdispl.data().insert(ID, zero);
     }
     {
         int counter = 0;
@@ -653,7 +653,7 @@ FFDLattice::checkFilter(){
         m_filter.setGeometry(m_geometry);
         m_filter.setName("M_FILTER");
         for (const auto & vertex : m_geometry->getVertices()){
-            m_filter.insert(vertex.getId(), 1.0);
+            m_filter.data().insert(vertex.getId(), 1.0);
         }
     }
 }
