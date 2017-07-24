@@ -190,9 +190,9 @@ void setExpertMode(bool flag){
  * \param[in] field MimmoPiercedVector<double>
  * \return Maximum value
  */
-double  maxvalmp(const MimmoPiercedVector<double, long int> & field){
+double  maxvalmp(MimmoPiercedVector<double> & field){
     double val = 1.0e-18;
-    for (auto v : field){
+    for (const auto v : field.data()){
         val = std::max(val,v);
     }
     return val;

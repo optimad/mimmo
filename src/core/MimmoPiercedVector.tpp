@@ -99,7 +99,7 @@ MimmoPiercedVector<value_t>::clearData(){
  */
 template<typename value_t>
 bitpit::PiercedVector<value_t, long int>&
-MimmoPiercedVector<value_t>::data(){
+MimmoPiercedVector<value_t>::data() {
     return m_data;
 }
 
