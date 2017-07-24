@@ -166,7 +166,7 @@ ExtractVectorField::extract(){
         //Extract by IDs
         for (const auto & ID : getGeometry()->getVertices().getIds()){
             if (m_field.exists(ID)){
-                m_result.insert(ID, m_field[ID]);
+                m_result.data().insert(ID, m_field[ID]);
             }
         }
     }
@@ -183,7 +183,7 @@ ExtractVectorField::extract(){
             if (pids.count(cell.getPID())){
                 for (const auto & id : m_field.getGeometry()->getCellConnectivity(cell.getId())){
                     if (!m_result.exists(id))
-                        m_result.insert(id, m_field[id]);
+                        m_result.data().insert(id, m_field[id]);
                 }
             }
         }
@@ -198,7 +198,7 @@ ExtractVectorField::extract(){
         for (const auto & idC : result){
             for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                 if (!m_result.exists(id))
-                    m_result.insert(id, m_field[id]);
+                    m_result.data().insert(id, m_field[id]);
             }
         }
     }
