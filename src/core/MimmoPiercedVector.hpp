@@ -46,9 +46,10 @@ namespace mimmo{
  *  - 2-INTERFACE on geometry interfaces
  */
 enum class MPVLocation{
-    POINT=0,
-    CELL=1,
-    INTERFACE=2
+    UNDEFINED=0,
+    POINT=1,
+    CELL=2,
+    INTERFACE=3
 };
 
 /*!
@@ -60,7 +61,7 @@ enum class MPVLocation{
  * It is based on bitpit::PiercedVector container.
  * It supports interface methods to recover the related geometric object.
  * It supports a string name attribute to mark the field as well as a location enum to 
- * understand to which structures of geometry refers the data (POINT-vertices, 
+ * understand to which structures of geometry refers the data (UNDEFINED no-info, POINT-vertices, 
  * CELL-simplicies, INTERFACE-interfaces).
  */
 template<typename value_t>
@@ -73,7 +74,7 @@ private:
 
     
 public:
-    MimmoPiercedVector(MimmoObject* geo = NULL, std::string name = "", MPVLocation loc = MPVLocation::POINT);
+    MimmoPiercedVector(MimmoObject* geo = NULL, std::string name = "", MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
     MimmoPiercedVector(const MimmoPiercedVector & other);
@@ -104,6 +105,7 @@ public:
     void                   setData(bitpit::PiercedVector<value_t, long int >& data);
     void                   setData(std::vector<value_t> &rawdata);
 
+    MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     
