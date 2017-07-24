@@ -81,7 +81,14 @@ int test1() {
     stitch1->exec();
     stitch2->exec();
     
-    if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2) return 1;
+    if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2){
+        delete m1;
+        delete m2;
+        delete m3;
+        delete stitch1;
+        delete stitch2;
+        return 1;
+   }	
 
     bool check = true;
     

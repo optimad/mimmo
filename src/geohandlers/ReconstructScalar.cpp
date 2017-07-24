@@ -306,7 +306,7 @@ ReconstructScalar::execute(){
         for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
-                m_result.insert(ID, (*pv)[ID]);
+                m_result.data().insert(ID, (*pv)[ID]);
                 counter.insert(ID, 1);
             }
             else{
@@ -317,9 +317,8 @@ ReconstructScalar::execute(){
     }
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
-        MimmoPiercedVector<double>::iterator it;
-        MimmoPiercedVector<double>::iterator itend = m_result.end();
-        for (it=m_result.begin(); it!=itend; ++it){
+        auto itend = m_result.data().end();
+        for (auto it=m_result.data().begin(); it!=itend; ++it){
             ID = it.getId();
             (*it) = (*it) / counter[ID];
         }
@@ -334,7 +333,7 @@ ReconstructScalar::execute(){
         long int ID;
         for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
-            m_subresults[i].insert(ID, m_result[ID]);
+            m_subresults[i].data().insert(ID, m_result[ID]);
         }
     }
 
@@ -348,7 +347,7 @@ ReconstructScalar::execute(){
         for (const auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
-                m_result.insert(ID, zero);
+                m_result.data().insert(ID, zero);
             }
         }
     }

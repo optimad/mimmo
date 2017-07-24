@@ -56,7 +56,6 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
     int topo = std::stoi(input_topo);
     m_topo = std::max(1,topo);
     if (m_topo >3) m_topo = 1;
-
     m_geocount = 0;
     m_name = "mimmo.StitchGeometry";
 
