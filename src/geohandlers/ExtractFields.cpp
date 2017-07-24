@@ -132,7 +132,7 @@ void ExtractField::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 
     if(slotXML.hasOption("ExtractMode")){
         input = slotXML.get("ExtractMode");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         int value = 1;
         if(!input.empty()){
             std::stringstream ss(input);

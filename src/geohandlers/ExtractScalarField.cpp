@@ -43,7 +43,7 @@ ExtractScalarField::ExtractScalarField(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input_name = rootXML.get("ClassName", fallback_name);
-    input_name = bitpit::utils::trim(input_name);
+    input_name = bitpit::utils::string::trim(input_name);
 
     m_name = "mimmo.ExtractScalarField";
 
