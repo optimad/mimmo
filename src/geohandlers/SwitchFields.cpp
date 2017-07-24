@@ -122,7 +122,7 @@ void SwitchField::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
 
     if(slotXML.hasOption("Mapping")){
         std::string input = slotXML.get("Mapping");
-        input = bitpit::utils::trim(input);
+        input = bitpit::utils::string::trim(input);
         bool value = false;
         if(!input.empty()){
             std::stringstream ss(input);
