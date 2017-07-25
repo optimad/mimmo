@@ -12,6 +12,14 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - fixed coverity issues
 - update CreateSeedOnSurface block: added sensitivity map option to drive the seeding. 
 - added global expert mode MIMMO_EXPERT to override mandatory ports checking in execution of chains
+- introducing new MimmoPiercedVector container for data fields attached to a MimmoObject.
+- Added new ports for MimmoPiercedVector / Dismissed some ports no more useful.
+- Dismissed geohandlers:Overlap classes, wrapped in new geohandlers:Reconstruct classes
+- Added new geohandlers:Switch classes
+- Dismissed geohandlers:Split classes, substituted by new geohandlers: Extract classes
+- Dismissed iogeneric:MultipleMimmoGeometries
+- Dismissed manipulators:MultiApply
+
 
 ### Added
 - This CHANGELOG file.
