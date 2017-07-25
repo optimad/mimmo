@@ -521,7 +521,7 @@ ControlDeformExtSurface::execute(){
     }
 
     m_violationField.setGeometry(getGeometry());
-    m_violationField.setName("violation");
+//     m_violationField.setName("violation");
 
     writeLog();
 

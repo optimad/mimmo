@@ -32,10 +32,10 @@ namespace mimmo{
  * \param[in] name field name
  */
 template<typename value_t>
-MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, std::string name, MPVLocation loc){
+MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc){
     m_geometry = geo;
     m_loc = loc;
-    m_name = name;
+//     m_name = name;
 }
 
 /*!
@@ -63,7 +63,7 @@ template<typename value_t>
 MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(const MimmoPiercedVector & other){
     this->m_geometry = other.m_geometry;
     this->m_loc = other.m_loc;
-    this->m_name = other.m_name;
+//     this->m_name = other.m_name;
     //copy entirely the data in internal pierced vector->
     auto itE = other.m_data.end();
     for(auto it  = other.m_data.begin(); it!=itE; ++it){
@@ -80,7 +80,7 @@ template<typename value_t>
 void
 MimmoPiercedVector<value_t>::clear(){
     m_geometry = NULL;
-    m_name = "";
+//     m_name = "";
     m_loc = MPVLocation::POINT;
     clearData();
 }
@@ -100,6 +100,15 @@ MimmoPiercedVector<value_t>::clearData(){
 template<typename value_t>
 bitpit::PiercedVector<value_t, long int>&
 MimmoPiercedVector<value_t>::data() {
+    return m_data;
+}
+
+/*!
+ * \return const reference to internal bitpit::PiercedVector<value_t, long int> data
+ */
+template<typename value_t>
+const bitpit::PiercedVector<value_t, long int>&
+MimmoPiercedVector<value_t>::data() const  {
     return m_data;
 }
 
@@ -176,15 +185,15 @@ MimmoPiercedVector<value_t>::getGeometry() const{
     return m_geometry;
 }
 
-/*!
- * Get the name of the field.
- * \return name of the data field.
- */
-template<typename value_t>
-std::string
-MimmoPiercedVector<value_t>::getName() const{
-    return m_name;
-}
+// /*!
+//  * Get the name of the field.
+//  * \return name of the data field.
+//  */
+// template<typename value_t>
+// std::string
+// MimmoPiercedVector<value_t>::getName() const{
+//     return m_name;
+// }
 
 /*!
  * Get data location w.r.t geometry inner structures.
@@ -250,15 +259,15 @@ MimmoPiercedVector<value_t>::setGeometry(MimmoObject* geo){
     m_geometry = geo;
 }
 
-/*!
- * Set the name of the field.
- * \param[in] name name of the data field.
- */
-template<typename value_t>
-void
-MimmoPiercedVector<value_t>::setName(std::string name){
-    m_name = name;
-}
+// /*!
+//  * Set the name of the field.
+//  * \param[in] name name of the data field.
+//  */
+// template<typename value_t>
+// void
+// MimmoPiercedVector<value_t>::setName(std::string name){
+//     m_name = name;
+// }
 
 /*!
  * Set the data Location

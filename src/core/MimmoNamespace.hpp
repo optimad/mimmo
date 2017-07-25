@@ -280,7 +280,7 @@ extern bool MIMMO_EXPERT; /**<Flag that defines expert mode (true) or safe mode 
 void setExpertMode(bool flag = true);
 
 //miscellanea
-double  maxvalmp(MimmoPiercedVector<double> & field);
+double  maxvalmp(const MimmoPiercedVector<double> & field);
 
 }//end namespace mimmo
 

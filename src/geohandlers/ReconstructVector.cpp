@@ -328,7 +328,7 @@ ReconstructVector::execute(){
     for (int i=0; i<getNData(); i++){
         dmpvecarr3E* pv = &m_subpatch[i];
         m_subresults[i].setGeometry(pv->getGeometry());
-        m_subresults[i].setName(pv->getName());
+//         m_subresults[i].setName(pv->getName());
         m_subresults[i].reserve(pv->getGeometry()->getNVertex());
         long int ID;
         for (const auto & vertex : pv->getGeometry()->getVertices()){
@@ -340,8 +340,8 @@ ReconstructVector::execute(){
     //Update field on whole geometry
     if(getGeometry() != NULL){
         m_result.setGeometry(getGeometry());
-        if (m_subresults.size() != 0)
-            m_result.setName(m_subresults[0].getName());
+//         if (m_subresults.size() != 0)
+//             m_result.setName(m_subresults[0].getName());
         darray3E zero;
         zero.fill(0.0);
         long int ID;

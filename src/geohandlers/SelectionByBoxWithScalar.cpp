@@ -143,7 +143,7 @@ SelectionByBoxWithScalar::execute(){
     if (m_field.size() != 0){
         MimmoPiercedVector<double> temp;
         temp.setGeometry(m_subpatch.get());
-        temp.setName(m_field.getName());
+//         temp.setName(m_field.getName());
         bitpit::PiercedVector<bitpit::Vertex> vertices = m_subpatch->getVertices();
         for (const auto & vertex : vertices){
             temp[vertex.getId()] = m_field[vertex.getId()];

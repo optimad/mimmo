@@ -68,13 +68,13 @@ template<typename value_t>
 class MimmoPiercedVector{
 private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
-    std::string                              m_name;                /**<Name of the field.*/
+//     std::string                              m_name;                /**<Name of the field.*/
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
     bitpit::PiercedVector<value_t, long int> m_data;                /**<real data */
 
     
 public:
-    MimmoPiercedVector(MimmoObject* geo = NULL, std::string name = "", MPVLocation loc = MPVLocation::UNDEFINED);
+    MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
     MimmoPiercedVector(const MimmoPiercedVector & other);
@@ -84,7 +84,9 @@ public:
     void            clearData();
     
     //functional interfaces to inner PiercedVector
-    bitpit::PiercedVector<value_t, long int> & data();
+    bitpit::PiercedVector<value_t, long int> &       data();
+    const bitpit::PiercedVector<value_t, long int> & data() const ;
+    
     std::size_t            size() const;
     bool                   exists(long int id) const;
     __MPV_CONST_REFERENCE__ operator[](long int id) const;
@@ -94,13 +96,13 @@ public:
     
     // get/set methods of the class;
     MimmoObject*            getGeometry() const;
-    std::string             getName() const;
+//     std::string             getName() const;
     MPVLocation             getDataLocation() const;
     std::vector<long>       getIds(bool ordered=false) const;
     std::vector<value_t>    getDataAsVector(bool ordered=false);
     
     void                   setGeometry(MimmoObject* geo);
-    void                   setName(std::string name);
+//     void                   setName(std::string name);
     void                   setDataLocation(MPVLocation loc);
     void                   setData(bitpit::PiercedVector<value_t, long int >& data);
     void                   setData(std::vector<value_t> &rawdata);

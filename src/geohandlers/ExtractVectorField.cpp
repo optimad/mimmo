@@ -211,7 +211,7 @@ ExtractVectorField::extract(){
     if (m_result.size() == 0) return false;
 
     m_result.setGeometry(getGeometry());
-    m_result.setName(m_field.getName());
+//     m_result.setName(m_field.getName());
 
     return true;
 

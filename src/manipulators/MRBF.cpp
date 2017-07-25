@@ -520,7 +520,7 @@ MRBF::execute(){
     }
 
     m_displ.setGeometry(getGeometry());
-    m_displ.setName("M_GDISPLS");
+//     m_displ.setName("M_GDISPLS");
 
 };
 
@@ -551,7 +551,7 @@ MRBF::checkFilter(){
     if (m_filter.getGeometry() != getGeometry()){
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
-        m_filter.setName("M_FILTER");
+//         m_filter.setName("M_FILTER");
         for (const auto & vertex : m_geometry->getVertices()){
             m_filter.data().insert(vertex.getId(), 1.0);
         }

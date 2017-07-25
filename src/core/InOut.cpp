@@ -820,9 +820,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
-    std::string name;
-    buffer >> name;
-    element.setName(name);
+//     std::string name;
+//     buffer >> name;
+//     element.setName(name);
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
     int nP;
     buffer >> nP;
     double val;
@@ -843,18 +846,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dmpvector1D& element){
 
-    mimmo::MimmoObject* geo = element.getGeometry();
-    buffer << geo;
-    std::string name = element.getName();
-    buffer << name;
-    int nP = element.size();
-    std::vector<long int> Ids = element.getIds();
-    buffer << nP;
-    long int Id;
-    for (int i=0; i<nP; ++i){
-        Id = Ids[i];
-        buffer << Id;
-        buffer << element[Id];
+    buffer << element.getGeometry();
+//     buffer << element.getName();
+    buffer << static_cast<int>(element.getDataLocation());
+    buffer << (int)element.size();
+    auto itE = element.data().cend();
+    for (auto it=element.data().cbegin(); it!=itE; it++){
+        buffer << it.getId()<<*it;
     }
     return buffer;
 };
@@ -867,19 +865,15 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::dmpvecarr3E &element)
 {
-    mimmo::MimmoObject* geo = element.getGeometry();
-    buffer << geo;
-    std::string name = element.getName();
-    buffer << name;
-    std::vector<long int> Ids = element.getIds();
-    int nP = Ids.size();
-    buffer << nP;
-    long int Id;
-    for (int i = 0; i < nP; ++i) {
-        Id = Ids[i];
-        buffer << Id;
+    buffer << element.getGeometry();
+//     buffer << element.getName();
+    buffer << static_cast<int>(element.getDataLocation());
+    buffer << (int)element.size();
+    auto itE = element.data().cend();
+    for (auto it=element.data().cbegin(); it!=itE; it++){
+        buffer<<it.getId();
         for (int j = 0; j < 3; ++j) {
-            buffer << element[Id][j];
+            buffer << (*it)[j];
         }
     }
     return buffer;
@@ -897,9 +891,15 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
-    std::string name;
-    buffer >> name;
-    element.setName(name);
+//     std::string name;
+//     buffer >> name;
+//     std::cout<<"mpv name"<<name<<std::endl;
+//     element.setName(name);
+    
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+    
     int nP;
     buffer >> nP;
     darray3E val;
@@ -911,12 +911,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
         }
         element.data().insert(Id, val);
     }
+    
     return buffer;
 }
 
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
-//==============================================================//
+// //==============================================================//
 namespace mimmo{
 
 /*!

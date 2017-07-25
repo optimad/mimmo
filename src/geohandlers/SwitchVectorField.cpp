@@ -177,7 +177,7 @@ SwitchVectorField::mswitch(){
         if (field.getGeometry() == getGeometry()){
             m_result = field;
             m_result.setGeometry(getGeometry());
-            m_result.setName(field.getName());
+//             m_result.setName(field.getName());
             return true;
         }
     }
@@ -187,7 +187,7 @@ SwitchVectorField::mswitch(){
         double tol = 1.0e-08;
         for (const auto & field : m_fields){
             livector1D result = mimmo::bvTreeUtils::selectByPatch(field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), tol);
-            if (result.size() != 0) m_result.setName(field.getName());
+//             if (result.size() != 0) m_result.setName(field.getName());
             for (const auto & idC : result){
                 for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                     if (!m_result.exists(id))
