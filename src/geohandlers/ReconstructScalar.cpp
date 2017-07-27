@@ -216,14 +216,8 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
     output.setDimensions(connectivity.size(), points.size());
 
 
-    dvector1D field(points.size());
-    std::vector<long> ids(points.size());
-    long ID;
-    for (const auto vertex : getGeometry()->getVertices()){
-        ID = vertex.getId();
-        ids[mapData[ID]] = ID;
-        field[mapData[ID]] = m_result[ID];
-    }
+    dvector1D field = m_result.getDataAsVector();
+    std::vector<long> ids = m_result.getIds();
 
     output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
     output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
@@ -270,14 +264,8 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
     output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
     output.setDimensions(connectivity.size(), points.size());
 
-    dvector1D field(points.size());
-    std::vector<long> ids(points.size());
-    long ID;
-    for (const auto vertex : m_subresults[i].getGeometry()->getVertices()){
-        ID = vertex.getId();
-        ids[mapData[ID]] = ID;
-        field[mapData[ID]] = m_subresults[i][ID];
-    }
+    dvector1D field = m_subresults[i].getDataAsVector();
+    std::vector<long> ids = m_subresults[i].getIds();
 
     output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
     output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
@@ -306,7 +294,7 @@ ReconstructScalar::execute(){
         for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
-                m_result.data().insert(ID, (*pv)[ID]);
+                m_result.insert(ID, (*pv)[ID]);
                 counter.insert(ID, 1);
             }
             else{
@@ -317,8 +305,8 @@ ReconstructScalar::execute(){
     }
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
-        auto itend = m_result.data().end();
-        for (auto it=m_result.data().begin(); it!=itend; ++it){
+        auto itend = m_result.end();
+        for (auto it=m_result.begin(); it!=itend; ++it){
             ID = it.getId();
             (*it) = (*it) / counter[ID];
         }
@@ -333,7 +321,7 @@ ReconstructScalar::execute(){
         long int ID;
         for (const auto vertex : pv->getGeometry()->getVertices()){
             ID = vertex.getId();
-            m_subresults[i].data().insert(ID, m_result[ID]);
+            m_subresults[i].insert(ID, m_result[ID]);
         }
     }
 
@@ -347,7 +335,7 @@ ReconstructScalar::execute(){
         for (const auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
             if (!m_result.exists(ID)){
-                m_result.data().insert(ID, zero);
+                m_result.insert(ID, zero);
             }
         }
     }

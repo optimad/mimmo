@@ -123,10 +123,7 @@ SwitchVectorField::plotOptionalResults(){
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 
-    dvecarr3E field;
-    for (const auto & v : getGeometry()->getVertices()){
-        field.push_back(m_result[v.getId()]);
-    }
+    dvecarr3E field = m_result.getDataAsVector();
 
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
     liimap mapDataInv;
@@ -191,7 +188,7 @@ SwitchVectorField::mswitch(){
             for (const auto & idC : result){
                 for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                     if (!m_result.exists(id))
-                        m_result.data().insert(id, field[id]);
+                        m_result.insert(id, field[id]);
                 }
             }
         }

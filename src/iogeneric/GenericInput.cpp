@@ -288,7 +288,7 @@ GenericInput::getResult(){
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        data.setData(pvdata);
+        data = pvdata;
         _setResult(data);
     }
     dmpvector1D temp = (*static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData());
@@ -330,7 +330,7 @@ GenericInput::getResult(){
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        data.setData(pvdata);
+        data = pvdata;
         _setResult(data);
     }
     dmpvecarr3E temp = (*static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData());

@@ -211,7 +211,7 @@ TwistGeometry::execute(){
         point += projected;
 
         value = (rotated-point)*m_filter[ID];
-        m_displ.data().insert(ID, value);
+        m_displ.insert(ID, value);
 
     }
     m_displ.setGeometry(getGeometry());
@@ -248,7 +248,7 @@ TwistGeometry::checkFilter(){
         m_filter.setGeometry(m_geometry);
 //         m_filter.setName("M_FILTER");
         for (const auto & vertex : m_geometry->getVertices()){
-            m_filter.data().insert(vertex.getId(), 1.0);
+            m_filter.insert(vertex.getId(), 1.0);
         }
     }
 }

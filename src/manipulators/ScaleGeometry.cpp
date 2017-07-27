@@ -154,7 +154,7 @@ ScaleGeometry::execute(){
 
         darray3E coords = vertex.getCoords();
         value = ( m_scaling*(coords - center) + center ) * m_filter[ID] - coords;
-        m_displ.data().insert(ID, value);
+        m_displ.insert(ID, value);
     }
     m_displ.setGeometry(getGeometry());
 //     m_displ.setName("M_GDISPLS");
@@ -189,7 +189,7 @@ ScaleGeometry::checkFilter(){
         m_filter.setGeometry(m_geometry);
 //         m_filter.setName("M_FILTER");
         for (const auto & vertex : m_geometry->getVertices()){
-            m_filter.data().insert(vertex.getId(), 1.0);
+            m_filter.insert(vertex.getId(), 1.0);
         }
     }
 }

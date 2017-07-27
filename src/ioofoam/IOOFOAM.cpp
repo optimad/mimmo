@@ -615,13 +615,13 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
         m_field.clear();
         if (data != NULL){
             for (vtkIdType id=0; id<points->GetNumberOfPoints(); id++){
-                m_field.data().insert(id, data->GetComponent(id,0));
+                m_field.insert(id, data->GetComponent(id,0));
                 m_maxf = max(m_maxf, abs(m_field[id]));
             }
         }
         else{
             for (vtkIdType id=0; id<points->GetNumberOfPoints(); id++){
-                m_field.data().insert(id, 0.0);
+                m_field.insert(id, 0.0);
             }
         }
     }

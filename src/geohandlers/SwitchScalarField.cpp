@@ -123,10 +123,7 @@ SwitchScalarField::plotOptionalResults(){
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
 
-    dvector1D field;
-    for (const auto & v : getGeometry()->getVertices()){
-        field.push_back(m_result[v.getId()]);
-    }
+    dvector1D field = m_result.getDataAsVector();
 
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
     liimap mapDataInv;
@@ -192,7 +189,7 @@ SwitchScalarField::mswitch(){
             for (const auto & idC : result){
                 for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                     if (!m_result.exists(id))
-                        m_result.data().insert(id, field[id]);
+                        m_result.insert(id, field[id]);
                 }
             }
         }

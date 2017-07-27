@@ -308,7 +308,7 @@ IOVTKScalar::read(){
             double maxf = 0.0;
             for (long int i=0; i<np; i++){
                 vtkIdType id = i;
-                m_field.data().insert(i, data->GetComponent(id,0));
+                m_field.insert(i, data->GetComponent(id,0));
                 maxf = max(maxf, abs(m_field[i]));
             }
             if (m_normalize){

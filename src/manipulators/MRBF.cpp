@@ -268,7 +268,7 @@ MRBF::setNode(MimmoObject* geometry){
 void
 MRBF::setFilter(dmpvector1D filter){
     m_filter.clear();
-    m_bfilter = !(filter.data().empty());
+    m_bfilter = !(filter.empty());
     m_filter = filter;
 };
 
@@ -504,7 +504,7 @@ MRBF::execute(){
         displ = RBF::evalRBF(vertex.getCoords());
         for (int j=0; j<3; ++j)
             adispl[j] = displ[j];
-        m_displ.data().insert(vertex.getId(), adispl);
+        m_displ.insert(vertex.getId(), adispl);
     }
 
     //if m_filter is active;
@@ -553,7 +553,7 @@ MRBF::checkFilter(){
         m_filter.setGeometry(m_geometry);
 //         m_filter.setName("M_FILTER");
         for (const auto & vertex : m_geometry->getVertices()){
-            m_filter.data().insert(vertex.getId(), 1.0);
+            m_filter.insert(vertex.getId(), 1.0);
         }
     }
 }

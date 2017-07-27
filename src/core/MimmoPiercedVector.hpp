@@ -28,9 +28,6 @@
 #include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
 
-#define __MPV_CONST_REFERENCE__ typename bitpit::PiercedVector<value_t, long int>::const_reference
-#define __MPV_REFERENCE__ typename bitpit::PiercedVector<value_t, long int>::reference
-
 namespace mimmo{
 
 /*!
@@ -65,46 +62,31 @@ enum class MPVLocation{
  * CELL-simplicies, INTERFACE-interfaces).
  */
 template<typename value_t>
-class MimmoPiercedVector{
+class MimmoPiercedVector: public bitpit::PiercedVector<value_t, long int> {
 private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
 //     std::string                              m_name;                /**<Name of the field.*/
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
-    bitpit::PiercedVector<value_t, long int> m_data;                /**<real data */
 
     
 public:
     MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
-    MimmoPiercedVector(const MimmoPiercedVector & other);
-    MimmoPiercedVector & operator=(const MimmoPiercedVector & other);
-    
+    MimmoPiercedVector(const MimmoPiercedVector<value_t> & other);
+    MimmoPiercedVector & operator=(const MimmoPiercedVector<value_t> & other);
+    MimmoPiercedVector & operator=(const bitpit::PiercedVector<value_t, long int> & other);
     void            clear();
-    void            clearData();
-    
-    //functional interfaces to inner PiercedVector
-    bitpit::PiercedVector<value_t, long int> &       data();
-    const bitpit::PiercedVector<value_t, long int> & data() const ;
-    
-    std::size_t            size() const;
-    bool                   exists(long int id) const;
-    __MPV_CONST_REFERENCE__ operator[](long int id) const;
-    __MPV_REFERENCE__       operator[](long int id);
-    void                   reserve(std::size_t n);
-    void                   resize(std::size_t n);
     
     // get/set methods of the class;
     MimmoObject*            getGeometry() const;
 //     std::string             getName() const;
     MPVLocation             getDataLocation() const;
-    std::vector<long>       getIds(bool ordered=false) const;
     std::vector<value_t>    getDataAsVector(bool ordered=false);
     
     void                   setGeometry(MimmoObject* geo);
 //     void                   setName(std::string name);
     void                   setDataLocation(MPVLocation loc);
-    void                   setData(bitpit::PiercedVector<value_t, long int >& data);
     void                   setData(std::vector<value_t> &rawdata);
 
     MPVLocation recoverGeometryReferenceLocation();

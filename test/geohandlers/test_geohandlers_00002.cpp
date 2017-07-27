@@ -148,17 +148,17 @@ int test2() {
     
     for (auto vertex : clip2->getGeometry()->getVertices()){
         long int ID = vertex.getId();
-        field1.data().insert(ID, 1.0);
+        field1.insert(ID, 1.0);
     }
 
     for (auto vertex : sel1->getGeometry()->getVertices()){
         long int ID = vertex.getId();
-        field2.data().insert(ID, 1.0);
+        field2.insert(ID, 1.0);
     }
 
     for (auto vertex : sel2->getGeometry()->getVertices()){
         long int ID = vertex.getId();
-        field3.data().insert(ID, 1.0);
+        field3.insert(ID, 1.0);
     }
 
 	
@@ -176,7 +176,7 @@ int test2() {
     auto finalfield = recon->getResultField();
     
     bool check= true;
-    for(auto & val : finalfield.data()){
+    for(auto & val : finalfield){
         check = check && (val == 1.0);
     }
 

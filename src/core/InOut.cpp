@@ -833,7 +833,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     for (int i = 0; i < nP; ++i) {
         buffer >> Id;
         buffer >> val;
-        element.data().insert(Id, val);
+        element.insert(Id, val);
     }
     return buffer;
 };
@@ -850,8 +850,8 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 //     buffer << element.getName();
     buffer << static_cast<int>(element.getDataLocation());
     buffer << (int)element.size();
-    auto itE = element.data().cend();
-    for (auto it=element.data().cbegin(); it!=itE; it++){
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
         buffer << it.getId()<<*it;
     }
     return buffer;
@@ -869,8 +869,8 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::d
 //     buffer << element.getName();
     buffer << static_cast<int>(element.getDataLocation());
     buffer << (int)element.size();
-    auto itE = element.data().cend();
-    for (auto it=element.data().cbegin(); it!=itE; it++){
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
         buffer<<it.getId();
         for (int j = 0; j < 3; ++j) {
             buffer << (*it)[j];
@@ -909,7 +909,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
         for (int j = 0; j < 3; ++j) {
             buffer >> val[j];
         }
-        element.data().insert(Id, val);
+        element.insert(Id, val);
     }
     
     return buffer;

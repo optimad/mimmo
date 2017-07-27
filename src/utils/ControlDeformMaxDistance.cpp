@@ -101,7 +101,7 @@ double
 ControlDeformMaxDistance::getViolation(){
 
     double result = -1.0E+18;
-    for(const auto & val : m_violationField.data()){
+    for(const auto & val : m_violationField){
         result = std::fmax(result, val);
     }
 
@@ -162,9 +162,9 @@ ControlDeformMaxDistance::execute(){
     long int ID;
     for (const auto & v : geo->getVertices()){
         ID = v.getId();
-        points.data().insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
-        normDef.data().insert(ID, norm2(m_defField[ID]));
-        m_violationField.data().insert(ID, -1.0e+18);
+        points.insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
+        normDef.insert(ID, norm2(m_defField[ID]));
+        m_violationField.insert(ID, -1.0e+18);
     }
 
     double dist;
@@ -251,12 +251,7 @@ ControlDeformMaxDistance::plotOptionalResults(){
 
     liimap map;
     dvecarr3E  points = getGeometry()->getVertexCoords(&map);
-    dvecarr3E deff(m_defField.size());
-    int count = 0;
-    for (const auto & f : m_defField.data()){
-        deff[count] = f;
-        ++count;
-    }
+    dvecarr3E deff = m_defField.getDataAsVector();
     points+=deff;
     ivector2D connectivity = getGeometry()->getCompactConnectivity(map);
 
@@ -268,12 +263,7 @@ ControlDeformMaxDistance::plotOptionalResults(){
     output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
     output.setDimensions(connectivity.size(), points.size());
 
-    dvector1D viol(m_violationField.size());
-    count = 0;
-    for (const auto & f : m_violationField.data()){
-        viol[count] = f;
-        ++count;
-    }
+    dvector1D viol = m_violationField.getDataAsVector();
     std::string sdfstr = "Violation Distance Field";
     output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
     output.write();
