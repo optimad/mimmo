@@ -41,6 +41,26 @@
  * \{
  * \}
  * 
+ * \defgroup Ports ports
+ * Collection of all port types actually available in mimmo.
+ * Each port is declared as a costant string M_\<xxx\>, where M_ prefix identifies the mimmo port.
+ * Please refer to each Manipulation Block documentation for port usage examples.
+ * \{
+ * \}
+ * 
+ * \defgroup PortContainers port_containers
+ * Collection of all possible containers for mimmo ports.
+ * Each port container is declared as a costant string MC_\<xxx\>, where MC_ prefix identifies the mimmo port container.
+ * \{
+ * \}
+ * 
+ * \defgroup PortData port_data
+ * Collection of all possible data type contained in mimmo ports.
+ * Each port data type is declared as a costant string MD_\<xxx\>, where MD_ prefix identifies the mimmo port data type.
+ * 
+ * \{
+ * \}
+ * 
  */
 
 
@@ -51,6 +71,7 @@
 
 #include "enum.hpp"
 #include "factory.hpp"
+#include "portManager.hpp"
 #include "mimmoTypeDef.hpp"
 #include "TrackingPointer.hpp"
 #include "customOperators.hpp"

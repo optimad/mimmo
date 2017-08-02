@@ -27,6 +27,73 @@
 #include "BasicMeshes.hpp"
 #include "BaseManipulation.hpp"
 
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+#ifndef M_GEOMX
+/*!
+ * \def M_GEOMX 
+ * port to exchange pointers to MimmoObject geometries
+ */
+#define M_GEOMX 
+#endif
+
+/*!
+ * \def M_SHAPEIX 
+ * port to set Lattice Shape through an integer index matching th ShapeType enum
+ */
+#define M_SHAPEIX 
+
+#ifndef M_GEOMX
+
+/*!
+* \def M_GEOMX 
+* port to exchange pointers to MimmoObject geometries
+*/
+#define M_GEOMX 
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+/*!
+ * \def SCALARX
+ * custom single-valued scalar container
+ */
+#define SCALARX 
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#define MIMMOX_ /**< pointer to a MimmoObject */ 
+
+/*!
+ * \def INTX 
+ * integer value
+ */
+#define INTX 
+
+
+/*!
+ * \}
+ */
+
+
+
 namespace mimmo{
 
 /*!

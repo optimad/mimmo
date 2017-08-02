@@ -213,7 +213,7 @@ public:
  */
 #define REGISTER_NO_UNUSED(Base, Derived, name) \
 /* register a Derived class with its xml default constructor that will be instantiate as Base. Return is unused*/ \
-static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
+static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
 BITPIT_UNUSED(factory_##Base##_##Derived);
 
 
@@ -242,7 +242,7 @@ static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCrea
  */
 #define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
 /* register a Derived class a custom xml constructor/creator method that will be instantiate as Base*/ \
-static int factory_##Base##_##Derived = Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
+static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 /*!
  * \def IS_REGISTERED(Base, name)
