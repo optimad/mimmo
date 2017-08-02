@@ -37,9 +37,9 @@ namespace mimmo{
 
 class BaseManipulation;
 
-typedef short int                   PortID; /**< port ID typedef */
-typedef mimmo::pin::containerTAG    containerTAG; /**< containerTAG enum typedef*/
-typedef mimmo::pin::dataTAG         dataTAG; /**< dataTAG enum typedef */
+typedef std::string                 PortID; /**< port ID typedef */
+typedef std::string                 containerTAG; /**< containerTAG typedef*/
+typedef std::string                 dataTAG; /**< dataTAG typedef */
 
 typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
 typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
@@ -50,7 +50,7 @@ typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom ty
 * \ingroup core
 * 
 * Class retains two members, m_conType and m_dataType to indentify container and data type,
-* respectively(see containerTAG and dataTAG enums). 
+* respectively, of a given target Port. See mimmo::PortManager. 
 */
 class DataType{
 public:
@@ -81,7 +81,7 @@ public:
 * 
 * - a buffer to communicate output data (m_obuffer)
 * - a list of pointer to BaseManipulation receivers (m_objLink)
-* - a list of Ports integer identifiers, marking the input ports of receivers, where the data will be sent (m_portLink)
+* - a list of Ports identifiers (string basically), marking the input ports of receivers, where the data will be sent (m_portLink)
 * - information on the container and data type exchanged (m_datatype)
 *  
 * In general, a set of data (still not specified in this abstract class) of type m_datatype, written in a buffer stream m_obuffer, 

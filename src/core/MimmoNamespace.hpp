@@ -74,7 +74,7 @@ enum class ConnectionType{
     FORWARD 	/**<Uni-directional forwadr object. It allows only output connections.*/
 };
 
-typedef	const std::string	PortID; /**< mimmo custom definition */
+typedef	std::string	PortID; /**< mimmo custom definition */
 
 
 bool addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID portR, bool forced = false);

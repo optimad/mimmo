@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "InOut.hpp"
 #include "BaseManipulation.hpp"
+#include "portManager.hpp"
 
 using namespace std;
 
@@ -924,14 +925,14 @@ namespace mimmo{
  * Default constructor of DataType
  */
 DataType::DataType(){
-    m_conType = containerTAG::SCALAR;
-    m_dataType = dataTAG::INT;
+    m_conType = "MC_SCALAR";
+    m_dataType = "MD_INT";
 };
 
 /*!
  * Custom constructor of DataType.
-* \param[in] conType TAG of type of container.
-* \param[in] dataType TAG of type of data.
+* \param[in] conType string of type of port container.
+* \param[in] dataType string of type of port data.
 */
 DataType::DataType(containerTAG conType, dataTAG dataType){
     m_conType 	= conType;
@@ -1012,7 +1013,7 @@ PortOut::getLink(){
 }
 
 /*!
- * It gets the input port ID of the objects linked by this port.
+ * It gets the input port Markers of the objects linked by this port.
 * \return Vector of PortID.
 */
 std::vector<PortID>
@@ -1021,8 +1022,8 @@ PortOut::getPortLink(){
 }
 
 /*!
- * It gets the TAG of data type communicated by this port.
-* \return TAG of datat type communicated.
+ * It gets the TAG of container/data types communicated by this port.
+* \return TAG of container/data types communicated.
 */
 DataType
 PortOut::getDataType(){
@@ -1047,7 +1048,7 @@ mimmo::PortOut::clear(){
 }
 
 /*!
- * It removes the link to an object and the related port ID.
+ * It removes the link to an object and the related port Marker.
 * \param[in] j Index of the linked object in the links vector of this port.
 */
 void
@@ -1126,8 +1127,8 @@ PortIn::getLink(){
 }
 
 /*!
- * It gets the TAG of data type communicated by this port.
- * \return TAG of datat type communicated.
+ * It gets the TAG of container/data types communicated by this port.
+ * \return TAG of container/data type communicated.
  */
 DataType
 PortIn::getDataType(){
