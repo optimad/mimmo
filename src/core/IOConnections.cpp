@@ -22,7 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "IOConnections.hpp"
-
+#include "portManager.hpp"
 namespace mimmo{
 
 /*!
@@ -42,11 +42,6 @@ IOConnections_MIMMO::IOConnections_MIMMO(std::unordered_map<std::string, BaseMan
         m_mapConn[val.first] = val.second;
         m_invMapConn[val.second] =  val.first;
     }
-
-    for(auto enumVal : PortType::_values()){
-        m_mapPorts[enumVal._to_string()] = (short int) enumVal._to_integral();
-        m_invMapPorts[(short int) enumVal._to_integral()] = enumVal._to_string();
-    }
 };
 
 /*!
@@ -63,24 +58,6 @@ IOConnections_MIMMO::IOConnections_MIMMO(const IOConnections_MIMMO & other){
     m_invMapConn    = other.m_invMapConn;
     m_invMapPorts   = other.m_invMapPorts;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-};
-
-/*!
- * \return the map of all ports available in the mimmo API as string key (name of the ports)
- * and corrispective special enum PortType (in its integer form) as argument.
- */
-std::unordered_map<std::string, short int>
-IOConnections_MIMMO::getMapPorts(){
-    return m_mapPorts;
-};
-
-/*!
- * \return the inverse map of all ports available in the mimmo API as a PortType enum 
- * (in its integer form) as key and the name (as string) of the port as argument.
- */
-std::unordered_map<short int, std::string >
-IOConnections_MIMMO::getInvMapPorts(){
-    return m_invMapPorts;
 };
 
 /*!
@@ -104,6 +81,8 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         return;
     }	
 
+    auto manager = mimmo::PortManager::instance();
+    
     for( auto & sect : slotXML.getSections()){
 
         std::string snd_str; 
@@ -124,10 +103,10 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
 
         auto itSend = m_mapConn.find(snd_str);
         auto itRece = m_mapConn.find(rcv_str);
-        auto itSPort = m_mapPorts.find(sndP_str);
-        auto itRPort = m_mapPorts.find(rcvP_str);
+        bool checkSP = manager.containsPort(sndP_str);
+        bool checkRP = manager.containsPort(rcvP_str);
 
-        if(itSend == m_mapConn.end() || itRece == m_mapConn.end() || itSPort == m_mapPorts.end() || itRPort == m_mapPorts.end()){
+        if(itSend == m_mapConn.end() || itRece == m_mapConn.end() || !checkSP || !checkRP ){
             (*m_log)<<"---------------------------------------------"<<std::endl;
             (*m_log)<<"sender: "<<snd_str<<std::endl;
             (*m_log)<<"receiver: "<<rcv_str<<std::endl;
@@ -142,7 +121,7 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         }
 
         m_log->setPriority(bitpit::log::NORMAL);
-        bool check = pin::addPin(itSend->second, itRece->second, itSPort->second, itRPort->second);
+        bool check = pin::addPin(itSend->second, itRece->second, sndP_str, rcvP_str);
         if(!debug)  m_log->setPriority(bitpit::log::DEBUG);
             
         if(!check){
@@ -187,15 +166,15 @@ IOConnections_MIMMO::flushConnections(bitpit::Config & slotXML, bool debug ){
 
         for(auto & pOut : mapPOut ){
 
-            std::string senderPort = m_invMapPorts[pOut.first]; //gets the Port Type of sender
+            std::string senderPort = pOut.first; //gets the Port Type of sender
 
             std::vector<BaseManipulation * > links = (pOut.second)->getLink(); //get all possible links to this specific port
-            std::vector<short int>			lids = (pOut.second)->getPortLink();
+            std::vector<PortID>              lids = (pOut.second)->getPortLink();
 
             int counter = 0;
             for( auto & val : links){
                 std::string receiver = m_invMapConn[val];
-                std::string receiverPort = m_invMapPorts[lids[counter]];
+                std::string receiverPort = lids[counter];
 
                 std::string title = "conn" + std::to_string(counter+counterGlob);
                 bitpit::Config::Section & conn = slotXML.addSection(title);

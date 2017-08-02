@@ -23,7 +23,6 @@
 \*---------------------------------------------------------------------------*/
 #include "InOut.hpp"
 #include "BaseManipulation.hpp"
-#include "portManager.hpp"
 
 using namespace std;
 

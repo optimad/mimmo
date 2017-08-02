@@ -294,7 +294,7 @@ BaseManipulation::getNPortsOut(){
  * It gets all the input ports of the object
  * \return Map with PortID as key and pointer to input ports as value.
  */
-map<PortID, PortIn*>
+std::unordered_map<PortID, PortIn*>
 BaseManipulation::getPortsIn(){
     return (m_portIn);
 }
@@ -303,7 +303,7 @@ BaseManipulation::getPortsIn(){
  * It gets all the output ports of the object
  * \return Map with PortID as key and pointer to output ports as value.
  */
-map<PortID, PortOut*>
+std::unordered_map<PortID, PortOut*>
 BaseManipulation::getPortsOut(){
     return (m_portOut);
 }
@@ -503,16 +503,16 @@ void
 BaseManipulation::exec(){
 
     if (!MIMMO_EXPERT){
-        map<int, vector<PortIn*> > families;
-        map<int, vector<PortID> > familiesID;
-        for (map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+        std::map<int, vector<PortIn*> > families;
+        std::map<int, vector<PortID> > familiesID;
+        for (std::unordered_map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
             if (i->second->isMandatory()){
                 families[i->second->getFamily()].push_back(i->second);
                 familiesID[i->second->getFamily()].push_back(i->first);
             }
         }
-        map<int, vector<PortID> >::iterator itID = familiesID.begin();
-        for (map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
+        std::map<int, vector<PortID> >::iterator itID = familiesID.begin();
+        for (std::map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
             if (i->first == 0){
                 int count = 0;
                 for (auto ip : i->second){
@@ -544,7 +544,7 @@ BaseManipulation::exec(){
 
     if (m_active) execute();
 
-    for (map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+    for (std::unordered_map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
         std::vector<BaseManipulation*>	linked = i->second->getLink();
         if (linked.size() > 0){
             i->second->exec();
@@ -639,11 +639,11 @@ BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string
  */
 void
 BaseManipulation::deletePorts(){
-    for (map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
+    for (std::unordered_map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
         delete i->second;
         i->second = NULL;
     }
-    for (map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
+    for (std::unordered_map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
         delete i->second;
         i->second = NULL;
     }
@@ -744,7 +744,7 @@ BaseManipulation::unsetChild(BaseManipulation * child){
  */
 PortID
 BaseManipulation::findPinIn(PortIn& pin){
-    for (std::map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
+    for (std::unordered_map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
         if (pin == *(i->second)) return(i->first);
     }
     return(-1);
@@ -758,7 +758,7 @@ BaseManipulation::findPinIn(PortIn& pin){
  */
 PortID
 BaseManipulation::findPinOut(PortOut& pin){
-    for (std::map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
+    for (std::unordered_map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
         if (pin == *(i->second)) return(i->first);
     }
     return(-1);

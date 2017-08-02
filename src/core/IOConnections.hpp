@@ -53,8 +53,6 @@ class IOConnections_MIMMO{
 protected:	
     std::unordered_map<std::string, BaseManipulation * > m_mapConn;         /**< direct map of connectable object */
     std::unordered_map<BaseManipulation *, std::string > m_invMapConn;      /**< inverse map of connectable object */
-    std::unordered_map<std::string, short int> m_mapPorts;                  /**< map of ports available in mimmo */
-    std::unordered_map<short int, std::string> m_invMapPorts;               /**< inverse map of ports available in mimmo */
 
     bitpit::Logger*             m_log;             /**<Pointer to logger.*/
 
@@ -64,10 +62,6 @@ public:
 
     IOConnections_MIMMO(const IOConnections_MIMMO & other);
 
-    //get methods
-    std::unordered_map<std::string, short int> getMapPorts();
-    std::unordered_map<short int, std::string> getInvMapPorts();
-    
     //execution utils
     void 	absorbConnections(const bitpit::Config & slotXML, bool debug = false);
     void 	flushConnections(bitpit::Config & slotXML, bool debug = false);
