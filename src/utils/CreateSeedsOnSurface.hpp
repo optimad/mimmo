@@ -28,6 +28,100 @@
 #include "BaseManipulation.hpp"
 #include "OBBox.hpp"
 
+
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+#ifndef M_GEOM
+#define M_GEOM "M_GEOM" /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#endif
+
+#ifndef M_VALUEI
+#define M_VALUEI "M_VALUEI" /**< Port dedicated to communication of a integer scalar value*/
+#endif
+
+#ifndef M_VALUEI2
+#define M_VALUEI2 "M_VALUEI2" /**< Port dedicated to communication of a integer scalar value*/
+#endif
+
+#ifndef M_VALUEB
+#define M_VALUEB "M_VALUEB" /**< Port dedicated to communication of a boolean scalar value*/
+#endif
+
+#ifndef M_POINT
+#define M_POINT "M_POINT" /**< Port dedicated to communication of a 3D point coordinates*/
+#endif
+
+#ifndef M_FILTER
+#define M_FILTER "M_FILTER" /**< Port dedicated to communication of a filter field associated to a geometry (float scalar field)*/
+#endif
+
+#ifndef M_COORDS 
+#define M_COORDS "M_COORDS" /**< Port dedicated to communication  of a list of point 3D coordinates.*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
+#endif
+
+#ifndef MC_VECTOR
+#define MC_VECTOR "MC_VECTOR" /**< std::vector< . > container identifier*/
+#endif
+
+#ifndef MC_VECARR3 
+#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3> > container identifier*/
+#endif
+
+#ifndef MC_ARRAY3
+#define MC_ARRAY3 "MC_ARRAY3" /**< std::array< ., 3> container identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#ifndef MD_MIMMO_ 
+#define MD_MIMMO_ "MD_MIMMO_" /**< MimmoObject pointer data identifier*/
+#endif
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
+#endif
+
+#ifndef MD_INT
+#define MD_INT "MD_INT" /**< integer data identifier*/
+#endif
+
+#ifndef MD_BOOL
+#define MD_BOOL "MD_BOOL" /**< boolean data identifier*/
+#endif
+
+
+/*!
+ * \}
+ */
+
+
+
+
+
 namespace mimmo{
 
 /*!
@@ -64,20 +158,20 @@ enum class CSeedSurf{
  *
  *    =========================================================
  * 
-     | Port Input | | | |                                                             
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT        | setSeed                               | (ARRAY3, FLOAT)       |
-     | 31    | M_VALUEI       | setNPoints                            | (SCALAR, INT)         |
-     | 32    | M_VALUEB       | setMassCenterAsSeed                   | (SCALAR, BOOL)        |
-     | 99    | M_GEOM         | setGeometry                           | (SCALAR, MIMMO_)      |
-     | 150   | M_VALUEI2      | setRandomFixed                        | (SCALAR, INT)         |
-     | 12    | M_FILTER       | setSensitivityField                   | (VECTOR, FLOAT)       |
+     | Port Input | | |                                                             
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_POINT        | setSeed                               | (MC_ARRAY3, MD_FLOAT)       |
+     | M_VALUEI       | setNPoints                            | (MC_SCALAR, MD_INT)         |
+     | M_VALUEB       | setMassCenterAsSeed                   | (MC_SCALAR, MD_BOOL)        |
+     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
+     | M_VALUEI2      | setRandomFixed                        | (MC_SCALAR, MD_INT)         |
+     | M_FILTER       | setSensitivityField                   | (MC_VECTOR, MD_FLOAT)       |
     
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 0     | M_COORDS       | getPoints          | (VECARR3E, FLOAT)       |
+     |Port Output  | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | M_COORDS       | getPoints          | (MC_VECARR3, MD_FLOAT)       |
 
  *    =========================================================
  * \n
@@ -176,6 +270,16 @@ private:
     double interpolateSensitivity(darray3E & point);
 };
 
+//Ports
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT)
+REGISTER_PORT(M_VALUEI2, MC_SCALAR, MD_INT)
+REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT)
+REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT)
+
+//ManipBlocks
 REGISTER(BaseManipulation, CreateSeedsOnSurface, "mimmo.CreateSeedsOnSurface")
 };
 
