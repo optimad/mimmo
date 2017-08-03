@@ -113,12 +113,12 @@ RBFBox::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<double, RBFBox>(this, &mimmo::RBFBox::setSupportRadius, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, M_COORDS));
+    built = (built && createPortIn<double, RBFBox>(this, &mimmo::RBFBox::setSupportRadius, M_VALUED));
 
-    built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dmatrix33E, RBFBox>(this, &mimmo::RBFBox::getAxes, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getOrigin, M_POINT));
+    built = (built && createPortOut<dmatrix33E, RBFBox>(this, &mimmo::RBFBox::getAxes, M_AXES));
+    built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getSpan, M_SPAN));
 
     m_arePortsBuilt = built;
 };

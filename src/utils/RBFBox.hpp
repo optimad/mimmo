@@ -26,6 +26,76 @@
 
 #include "BaseManipulation.hpp"
 
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+
+#ifndef M_VALUED 
+#define M_VALUED "M_VALUED" /**< Port dedicated to communication  of a scalar float/double value*/
+#endif
+
+#ifndef M_POINT 
+#define M_POINT "M_POINT" /**< Port dedicated to communication of a 3D point coordinates [array < double,3 > ]*/
+#endif
+
+#ifndef M_AXES 
+#define M_AXES "M_AXES" /**< Port dedicated to communication  of a reference system of axis [ array < array < double,3 >,3 > ].*/
+#endif
+
+#ifndef M_SPAN 
+#define M_SPAN "M_SPAN" /**< Port dedicated to communication of dimensions of an elemental object (width, lenght etc...) [array < double,3 > ]*/
+#endif
+
+#ifndef M_COORDS 
+#define M_COORDS "M_COORDS" /**< Port dedicated to communication of a a list of 3D point coordinates */
+#endif
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
+#endif
+
+#ifndef MC_VECARR3 
+#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3 > container identifier*/
+#endif
+
+#ifndef MC_ARRAY3 
+#define MC_ARRAY3 "MC_ARRAY3" /**< std::array< . , 3> container identifier*/
+#endif
+
+#ifndef MC_ARR3ARR3
+#define MC_ARR3ARR3 "MC_ARR3ARR3" /**< std::array< std::array< . , 3 > , 3 > container identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
+#endif
+
+
+/*!
+ * \}
+ */
+
+
 namespace mimmo{
 
 /*!
@@ -40,20 +110,20 @@ namespace mimmo{
  *
  *    =========================================================
  * 
-     | Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 0     | M_COORDS    | setNode                               | (VECARR3, FLOAT)      |
-     | 30    | M_VALUED    | setSupportRadius                      | (SCALAR, FLOAT)       |
+     | Port Input |  | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_COORDS    | setNode                               | (MC_VECARR3, MD_FLOAT)      |
+     | M_VALUED    | setSupportRadius                      | (MC_SCALAR, MD_FLOAT)       |
 
      
      
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>        |
-     | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
-     | 22    | M_AXES      | getAxes           | (ARR3ARR3, FLOAT)   |
-     | 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>        |
+     | M_POINT     | getOrigin         | (MC_ARRAY3, MD_FLOAT)     |
+     | M_AXES      | getAxes           | (MC_ARR3ARR3, MD_FLOAT)   |
+     | M_SPAN      | getSpan           | (MC_ARRAY3, MD_FLOAT)     |
 
  *    =========================================================
  * \n
@@ -116,6 +186,14 @@ protected:
     void swap(RBFBox & x) noexcept;
 };
 
+//Ports
+REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT)
+REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT)
+
+//ManipBlocks
 REGISTER(BaseManipulation,RBFBox, "mimmo.RBFBox")
 };
 
