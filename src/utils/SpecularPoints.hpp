@@ -26,6 +26,94 @@
 
 #include "ProjectCloud.hpp"
 
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+
+#ifndef M_VALUEB 
+#define M_VALUEB "M_VALUEB" /**< Port dedicated to communication  of conditional value [bool]*/
+#endif
+
+#ifndef M_VALUEB2 
+#define M_VALUEB2 "M_VALUEB2" /**< Port dedicated to communication  of conditional value [bool]*/
+#endif
+
+#ifndef M_POINT 
+#define M_POINT "M_POINT" /**< Port dedicated to communication of a 3D point coordinates [array < double,3 > ]*/
+#endif
+
+#ifndef M_AXIS 
+#define M_AXIS "M_AXIS" /**< Port dedicated to communication  of a single axis direction [ array < double,3 > ].*/
+#endif
+
+#ifndef M_PLANE 
+#define M_PLANE "M_PLANE" /**< Port dedicated to communication of an implicit plane (ax+by+cz+d=0) coefficients [array < double,4 > ]*/
+#endif
+
+#ifndef M_DISPLS 
+#define M_DISPLS "M_DISPLS" /**< Port dedicated to communication of a a list of displacements of 3D points */
+#endif
+
+#ifndef M_SCALARFIELD 
+#define M_SCALARFIELD "M_SCALARFIELD" /**< Port dedicated to communication of a generic scalar field of floats/doubles [std::vector< double >] */
+#endif
+
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
+#endif
+
+#ifndef MC_VECTOR
+#define MC_VECTOR "MC_VECTOR" /**< std::vector< . > container identifier*/
+#endif
+
+#ifndef MC_VECARR3 
+#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3 > container identifier*/
+#endif
+
+#ifndef MC_ARRAY3 
+#define MC_ARRAY3 "MC_ARRAY3" /**< std::array< . , 3> container identifier*/
+#endif
+
+#ifndef MC_ARRAY4
+#define MC_ARRAY4 "MC_ARRAY4" /**< std::array< . , 4 > container identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
+#endif
+
+#ifndef MD_BOOL
+#define MD_BOOL "MD_BOOL" /**< boolean data identifier*/
+#endif
+
+
+/*!
+ * \}
+ */
+
+
 namespace mimmo{
 
 /*!
@@ -43,36 +131,37 @@ namespace mimmo{
  *
  *    =========================================================
 
-   |Port Input | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 10    | M_DISPLS      | setVectorData     | (VECARR3, FLOAT)          |
-   | 14    | M_DATAFIELD   | setScalarData     | (VECTOR, FLOAT)           |
-   | 29    | M_PLANE       | setPlane          | (ARRAY4, FLOAT)           |
-   | 20    | M_POINT       | setOrigin         | (ARRAY3, FLOAT)           |
-   | 21    | M_AXIS        | setNormal         | (ARRAY3, FLOAT)           |
-   | 32    | M_VALUEB      | setInsideOut      | (SCALAR, BOOL)            |
-   | 140   | M_VALUEB      | setForce          | (SCALAR, BOOL)            |
 
-   |Port Output | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-   | 10    | M_DISPLS      | getCloudVectorData| (VECARR3, FLOAT)       |
-   | 14    | M_DATAFIELD   | getCloudScalarData| (VECTOR, FLOAT)        |
+   |Port Input | | |
+   |-|-|-|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_DISPLS      | setVectorData     | (MC_VECARR3, MD_FLOAT)          |
+   | M_SCALARFIELD | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
+   | M_PLANE       | setPlane          | (MC_ARRAY4, MD_FLOAT)           |
+   | M_POINT       | setOrigin         | (MC_ARRAY3, MD_FLOAT)           |
+   | M_AXIS        | setNormal         | (MC_ARRAY3, MD_FLOAT)           |
+   | M_VALUEB      | setInsideOut      | (MC_SCALAR, MD_BOOL)            |
+   | M_VALUEB      | setForce          | (MC_SCALAR, MD_BOOL)            |
+
+   |Port Output | | |
+   |-|-|-|
+   | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+   | M_DISPLS      | getCloudVectorData| (MC_VECARR3, MD_FLOAT)       |
+   | M_SCALARFIELD | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
 
 
   Inherited from ProjectCloud
 
-   |Port Input | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 0     | M_COORDS | setCoords         | (VECARR3, FLOAT)    |
-   | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)    |
+   |Port Input | | |
+   |-|-|-|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
+   | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 
-   |Port Output | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-   | 0     | M_COORDS | getCloudResult    | (VECARR3, FLOAT)    |
+   |Port Output | | |
+   |-|-|-|
+   | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+   | M_COORDS | getCloudResult    | (MC_VECARR3, MD_FLOAT)    |
 
 
  *    =========================================================
@@ -151,6 +240,16 @@ protected:
     void swap(SpecularPoints & x) noexcept;
 };
 
+//Ports
+REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT)
+REGISTER_PORT(M_PLANE, MC_ARRAY4, MD_FLOAT)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL)
+REGISTER_PORT(M_VALUEB2, MC_SCALAR, MD_BOOL)
+
+//ManipBlocks
 REGISTER(BaseManipulation, SpecularPoints, "mimmo.SpecularPoints")
 };
 

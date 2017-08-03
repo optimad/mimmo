@@ -112,19 +112,19 @@ void
 SpecularPoints::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this,&mimmo::SpecularPoints::setCoords, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::setVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, PortType::M_DATAFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setNormal, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setForce, PortType::M_VALUEB2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this,&mimmo::SpecularPoints::setCoords, M_COORDS));
+    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::setVectorData, M_DISPLS));
+    built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, M_SCALARFIELD));
+    built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, M_PLANE));
+    built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setOrigin, M_POINT));
+    built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setNormal, M_AXIS));
+    built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, M_GEOM));
+    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setInsideOut, M_VALUEB));
+    built = (built && createPortIn<bool, SpecularPoints>(this, &mimmo::SpecularPoints::setForce, M_VALUEB2));
 
-    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudResult, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudScalarData, PortType::M_DATAFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudResult, M_COORDS));
+    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, M_DISPLS));
+    built = (built && createPortOut<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudScalarData, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
