@@ -27,6 +27,87 @@
 #include "BaseManipulation.hpp"
 #include "MimmoObject.hpp"
 
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+
+#ifndef M_VALUED 
+#define M_VALUED "M_VALUED" /**< Port dedicated to communication  of a float/double scalar value */
+#endif
+
+#ifndef M_GEOM 
+#define M_GEOM "M_GEOM" /**< Port dedicated to communication  of a MimmoObject pointer*/
+#endif
+
+#ifndef M_VIOLATION 
+#define M_VIOLATION "M_VIOLATION" /**< Port dedicated to communication of a double value(violation) as std::pair< BaseManipulation*, double >. The BaseManipulation pointer retrack the Manipulation Block who trigger the violation.*/
+#endif
+
+#ifndef M_GDISPLS 
+#define M_GDISPLS "M_GDISPLS" /**< Port dedicated to communication of a a list of displacements referred to geometry vertices*/
+#endif
+
+#ifndef M_SCALARFIELD 
+#define M_SCALARFIELD "M_SCALARFIELD" /**< Port dedicated to communication of a generic scalar field of floats/doubles [std::vector< double >] */
+#endif
+
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
+#endif
+
+#ifndef MC_VECTOR
+#define MC_VECTOR "MC_VECTOR" /**< std::vector< . > container identifier*/
+#endif
+
+#ifndef MC_VECARR3 
+#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3 > container identifier*/
+#endif
+
+#ifndef MC_PAIR 
+#define MC_PAIR "MC_PAIR" /**< std::pair< . , .> container identifier. Needs tuple data*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
+#endif
+
+#ifndef MD_MIMMO_
+#define MD_MIMMO_ "MD_MIMMO_" /**< MimmoObject pointer data identifier*/
+#endif
+
+#ifndef MD_PAIRMIMMO_OBJFLOAT_
+#define MD_PAIRMIMMO_OBJFLOAT_ "MD_PAIRMIMMO_OBJFLOAT_" /**< tuple (BaseManipulation*, double) data identifier*/
+#endif
+
+
+
+/*!
+ * \}
+ */
+
+
 namespace mimmo{
 
 /*!
@@ -49,18 +130,19 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 11    | M_GDISPLS| setDefField       | (MPVECARR3E, FLOAT)       |
-     | 30    | M_VALUED | setLimitDistance  | (SCALAR, FLOAT)         |
-     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
 
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
-     | 18    | M_SCALARFIELD | getViolationField | (MPVECTOR, FLOAT)             |
-     | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+     |Port Input  | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GDISPLS| setDefField       | (MC_VECARR3, MD_FLOAT)       |
+     | M_VALUED | setLimitDistance  | (MC_SCALAR, MD_FLOAT)         |
+     | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
+
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
+     | M_SCALARFIELD | getViolationField | (MC_VECTOR, MD_FLOAT)             |
+     | M_VALUED      | getViolation      | (MC_SCALAR, MD_FLOAT)             |
 
  *    =========================================================
  * \n
@@ -112,6 +194,15 @@ protected:
 
 };
 
+//Ports
+REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT)
+REGISTER_PORT(M_VIOLATION, MC_PAIR, MD_PAIRMIMMO_OBJFLOAT_)
+
+
+//ManipBlocks
 REGISTER(BaseManipulation, ControlDeformMaxDistance, "mimmo.ControlDeformMaxDistance")
 }
 
