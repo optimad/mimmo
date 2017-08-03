@@ -112,10 +112,10 @@ SelectionByCylinder::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmatrix33E, SelectionByCylinder>(this, &SelectionByCylinder::setRefSystem, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setInfLimits, PortType::M_INFLIMITS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setOrigin,M_POINT));
+    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setSpan, M_SPAN));
+    built = (built && createPortIn<dmatrix33E, SelectionByCylinder>(this, &SelectionByCylinder::setRefSystem, M_AXES));
+    built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setInfLimits, M_INFLIMITS));
 
     m_arePortsBuilt = built;
 };

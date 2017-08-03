@@ -30,9 +30,119 @@
 #include "BasicShapes.hpp"
 #include "MimmoGeometry.hpp"
 #include "SkdTreeUtils.hpp"
+#include "mimmo_common.hpp"
 
 #include <memory>
 #include <utility>
+
+
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+#ifndef M_GEOM
+#define M_GEOM "M_GEOM" /**!< Port dedicated to communication of pointers to a MimmoObject object*/
+#endif
+
+#ifndef M_VALUEB 
+#define M_VALUEB "M_VALUEB" /**!< Port dedicated to communication  of a conditional value [bool].*/
+#endif
+
+#ifndef M_VECTORLI
+#define M_VECTORLI "M_VECTORLI" /**!< Port dedicated to communication of a generic list of long integers [vector < long int > ]*/
+#endif
+
+#ifndef M_POINT 
+#define M_POINT "M_POINT" /**!< Port dedicated to communication of a 3D point coordinates [array < double,3 > ]*/
+#endif
+
+#ifndef M_GEOM2
+#define M_GEOM2 "M_GEOM2" /**!< Port dedicated to communication of pointers to a MimmoObject object*/
+#endif
+
+#ifndef M_AXES 
+#define M_AXES "M_AXES" /**!< Port dedicated to communication  of a reference system of axis [ array < array < double,3 >,3 > ].*/
+#endif
+
+#ifndef M_INFLIMITS
+#define M_INFLIMITS "M_INFLIMITS" /**!< Port dedicated to communication of inferior limits for building an elemental shape [array < double,3 > ]*/
+#endif
+
+#ifndef M_SPAN 
+#define M_SPAN "M_SPAN" /**!< Port dedicated to communication of dimensions of an elemental object (width, lenght etc...) [array < double,3 > ]*/
+#endif
+
+#ifndef M_VECTORSI 
+#define M_VECTORSI "M_VECTORSI" /**!< Port dedicated to communication  of a generic list of short integers [vector < short int > ].*/
+#endif
+
+#ifndef M_VALUESI
+#define M_VALUESI "M_VALUESI" /**!< Port dedicated to communication of a scalar short integer value [short int].*/
+#endif
+
+#ifndef M_SCALARFIELD 
+#define M_SCALARFIELD "M_SCALARFIELD" /**!< Port dedicated to communication of a generic scalar field [ vector < double > ].*/
+#endif
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**!< Single value container identifier*/
+#endif
+
+#ifndef MC_VECTOR 
+#define MC_VECTOR "MC_VECTOR" /**!< std::vector< . > container identifier*/
+#endif
+
+#ifndef MC_ARRAY3 
+#define MC_ARRAY3 "MC_ARRAY3" /**!< std::array< . , 3> container identifier*/
+#endif
+
+#ifndef MC_ARR3ARR3
+#define MC_ARR3ARR3 "MC_ARR3ARR3" /**!< std::array< std::array< . , 3 > , 3 > container identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+#ifndef MD_BOOL
+#define MD_BOOL "MD_BOOL" /**!< boolean data identifier*/
+#endif
+
+#ifndef MD_LONG 
+#define MD_LONG "MD_LONG" /**!< long integer data identifier*/
+#endif
+
+#ifndef MD_MIMMO_ 
+#define MD_MIMMO_ "MD_MIMMO_" /**!< MimmoObject pointer data identifier*/
+#endif
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**!< float/double data identifier*/
+#endif
+
+#ifndef MD_SHORT
+#define MD_SHORT "MD_SHORT" /**!< short integer data identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+
 namespace mimmo{
 
 /*!
@@ -43,12 +153,12 @@ namespace mimmo{
  */
 enum class SelectionType{
     UNDEFINED    = 0,
-            BOX            = 1,
-            CYLINDER    = 2,
-            SPHERE        = 3,
-            MAPPING        = 4,
-            PID            = 5,
-            BOXwSCALAR  = 11
+    BOX          = 1,
+    CYLINDER     = 2,
+    SPHERE       = 3,
+    MAPPING      = 4,
+    PID          = 5,
+    BOXwSCALAR   = 11
 };
 
 /*!
@@ -66,15 +176,15 @@ enum class SelectionType{
      |                   Port Input       |||                               |
      |-------|----------------|----------------------|-------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output     |||                                      |
      |-------|----------------|---------------------|--------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *    =========================================================
  *
@@ -133,31 +243,31 @@ protected:
 
      |                   Port Input  |||                                       |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
-     | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
-     | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin           | (MC_ARRAY3, MD_FLOAT)       |
+     | 22    | M_AXES         | setRefSystem        | (MC_ARR3ARR3, MD_FLOAT)     |
+     | 23    | M_SPAN         | setSpan             | (MC_ARRAY3, MD_FLOAT)       |
 
 
      |             Port Output        |||                                      |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *    ===============================================================================
  *
@@ -220,31 +330,31 @@ protected:
 
      |                   Port Input  |||                                       |
      |-------|----------------|----------------------|----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
-     | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
-     | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
-     | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin            | (MC_ARRAY3, MD_FLOAT)      |
+     | 22    | M_AXES         | setRefSystem         | (MC_ARR3ARR3, MD_FLOAT)    |
+     | 23    | M_SPAN         | setSpan              | (MC_ARRAY3, MD_FLOAT)      |
+     | 25    | M_INFLIMITS    | setInfLimits         | (MC_ARRAY3, MD_FLOAT)      |
 
      |             Port Output        |||                                      |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *    =========================================================
  *
@@ -308,31 +418,31 @@ protected:
  *
      |                   Port Input  |||                                       |
      |-------|----------------|----------------------|----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT        | setOrigin            | (ARRAY3, FLOAT)      |
-     | 22    | M_AXES         | setRefSystem         | (ARR3ARR3, FLOAT)    |
-     | 23    | M_SPAN         | setSpan              | (ARRAY3, FLOAT)      |
-     | 25    | M_INFLIMITS    | setInfLimits         | (ARRAY3, FLOAT)      |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin            | (MC_ARRAY3, MD_FLOAT)      |
+     | 22    | M_AXES         | setRefSystem         | (MC_ARR3ARR3, MD_FLOAT)    |
+     | 23    | M_SPAN         | setSpan              | (MC_ARRAY3, MD_FLOAT)      |
+     | 25    | M_INFLIMITS    | setInfLimits         | (MC_ARRAY3, MD_FLOAT)      |
 
      |             Port Output    |||                                          |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
 
  *    =========================================================
@@ -402,28 +512,28 @@ protected:
  *
      |                   Port Input     |||                                                     |
      |-------|----------------|--------------------------|----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 98    | M_GEOM2        | addMappingGeometry       | (SCALAR, MIMMO_)     |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 98    | M_GEOM2        | addMappingGeometry       | (MC_SCALAR, MD_MIMMO_)     |
 
      |             Port Output       |||                                       |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *    =========================================================
  *
@@ -515,29 +625,29 @@ private:
  *
      |                   Port Input   |||                                      |
      |-------|----------------|----------------------|----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORSI     | setPID               | (VECTOR, SHORT)      |
-     | 35    | M_VALUESI      | setPID               | (SCALAR, SHORT)      |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 17    | M_VECTORSI     | setPID               | (MC_VECTOR, MD_SHORT)      |
+     | 35    | M_VALUESI      | setPID               | (MC_SCALAR, MD_SHORT)      |
 
      |             Port Output     |||                                         |
      |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *    =========================================================
  *
@@ -610,46 +720,46 @@ protected:
  *
  *  =========================================================
  *
-   |                   Port Input      |||                                   |
-   |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 18    | M_SCALARFIELD  | setField            | (MPVECTOR, FLOAT)       |
+     |                   Port Input      |||                                   |
+     |-------|----------------|---------------------|-----------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 19    | M_SCALARFIELD  | setField            | (MC_VECTOR, MD_FLOAT)       |
 
 
-   |             Port Output    |||                                          |
-   |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 18    | M_SCALARFIELD  | getField            | (MPVECTOR, FLOAT)       |
+     |             Port Output    |||                                          |
+     |-------|----------------|---------------------|-----------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 19    | M_SCALARFIELD  | getField            | (MC_VECTOR, MD_FLOAT)       |
 
    Inherited from SelectionByBox
 
-   |                   Port Input  |||                                       |
-   |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 20    | M_POINT        | setOrigin           | (ARRAY3, FLOAT)       |
-   | 22    | M_AXES         | setRefSystem        | (ARR3ARR3, FLOAT)     |
-   | 23    | M_SPAN         | setSpan             | (ARRAY3, FLOAT)       |
+     |                   Port Input  |||                                       |
+     |-------|----------------|---------------------|-----------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 20    | M_POINT        | setOrigin           | (MC_ARRAY3, MD_FLOAT)       |
+     | 22    | M_AXES         | setRefSystem        | (MC_ARR3ARR3, MD_FLOAT)     |
+     | 23    | M_SPAN         | setSpan             | (MC_ARRAY3, MD_FLOAT)       |
 
 
-   |             Port Output       |||                                       |
-   |-------|----------------|---------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |             Port Output       |||                                       |
+     |-------|----------------|---------------------|-----------------------|
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
      Inherited from GenericSelection
 
      |                   Port Input   |||                                   |
      |-------|----------------|----------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 32    | M_VALUEB       | setDual              | (SCALAR, BOOL)    |
-     | 99    | M_GEOM         | setGeometry          | (SCALAR, MIMMO_)  |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 32    | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | 99    | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
 
 
      |             Port Output          |||                                 |
      |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 17    | M_VECTORLI     | constrainedBoundary | (VECTOR, LONG)     |
-     | 99    | M_GEOM         | getPatch            | (SCALAR, MIMMO_)   |
+     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | 18    | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | 99    | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
 
  *  ===============================================================================
  *
@@ -708,6 +818,21 @@ protected:
 };
 
 
+
+//Ports registration
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL)
+REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT)
+REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_INFLIMITS, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_VECTORSI, MC_VECTOR, MD_SHORT)
+REGISTER_PORT(M_VALUESI, MC_SCALAR, MD_SHORT)
+REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT)
+
+//ManipBlocks registration
 REGISTER(BaseManipulation, SelectionByBox,"mimmo.SelectionByBox")
 REGISTER(BaseManipulation, SelectionByCylinder, "mimmo.SelectionByCylinder")
 REGISTER(BaseManipulation, SelectionBySphere,"mimmo.SelectionBySphere")

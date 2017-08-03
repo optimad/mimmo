@@ -26,6 +26,7 @@
 
 #include "BaseManipulation.hpp"
 #include "MimmoNamespace.hpp"
+#include "enum.hpp"
 
 BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6, PCVTU = 7, CURVEVTU = 8, MIMMO = 99);
 BETTER_ENUM(IOMode, int, READ = 0, WRITE = 1, CONVERT = 2);

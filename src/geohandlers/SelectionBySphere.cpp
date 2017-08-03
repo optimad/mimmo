@@ -113,10 +113,10 @@ SelectionBySphere::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmatrix33E, SelectionBySphere>(this, &SelectionBySphere::setRefSystem, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setInfLimits, PortType::M_INFLIMITS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setOrigin,M_POINT));
+    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setSpan, M_SPAN));
+    built = (built && createPortIn<dmatrix33E, SelectionBySphere>(this, &SelectionBySphere::setRefSystem, M_AXES));
+    built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setInfLimits, M_INFLIMITS));
 
     m_arePortsBuilt = built;
 };

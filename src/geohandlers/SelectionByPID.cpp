@@ -106,8 +106,8 @@ SelectionByPID::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<short, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VALUESI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::SHORT));
-    built = (built && createPortIn<std::vector<short>, SelectionByPID>(this, &SelectionByPID::setPID, PortType::M_VECTORSI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::SHORT));
+    built = (built && createPortIn<short, SelectionByPID>(this, &SelectionByPID::setPID, M_VALUESI));
+    built = (built && createPortIn<std::vector<short>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORSI));
 
     m_arePortsBuilt = built;
 };

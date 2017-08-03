@@ -169,7 +169,7 @@ SelectionByMapping::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<MimmoObject *, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject *, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry,M_GEOM2));
 
     m_arePortsBuilt = built;
 };

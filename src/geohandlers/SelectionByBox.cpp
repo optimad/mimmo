@@ -108,9 +108,9 @@ SelectionByBox::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmatrix33E, SelectionByBox>(this, &SelectionByBox::setRefSystem, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setOrigin, M_POINT ));
+    built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setSpan, M_SPAN));
+    built = (built && createPortIn<dmatrix33E, SelectionByBox>(this, &SelectionByBox::setRefSystem, M_AXES));
 
     m_arePortsBuilt = built;
 };

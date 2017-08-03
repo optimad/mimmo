@@ -85,11 +85,11 @@ GenericSelection::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortIn<bool, GenericSelection>(this, &GenericSelection::setDual, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
+    built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<bool, GenericSelection>(this, &GenericSelection::setDual,M_VALUEB));
 
-    built = (built && createPortOut<MimmoObject *, GenericSelection>(this, &GenericSelection::getPatch, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<livector1D, GenericSelection>(this, &GenericSelection::constrainedBoundary, PortType::M_VECTORLI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::LONG));
+    built = (built && createPortOut<MimmoObject *, GenericSelection>(this, &GenericSelection::getPatch,M_GEOM));
+    built = (built && createPortOut<livector1D, GenericSelection>(this, &GenericSelection::constrainedBoundary, M_VECTORLI));
     m_arePortsBuilt = built;
 };
 

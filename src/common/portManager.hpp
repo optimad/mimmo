@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <vector>
 #include "bitpit_common.hpp"
+#include <cassert>
 
 namespace mimmo{
 
@@ -68,9 +69,9 @@ struct InfoPort{
         id = other.id;
         container = other.container;
         datatype = other.datatype;
-        return this;
+        return *this;
     };
-}
+};
 
 /*!
  * \class PortManager
@@ -172,9 +173,19 @@ public:
     
     /*!\return the whole list of registered datatypes for ports
      */
-    std::unordered_map<std::string, InfoPort> mapRegisteredDataTypes(){
+    std::unordered_map<std::string, long> mapRegisteredDataTypes(){
         return datatypes;
     }
+    
+    /*!
+     * Return data attached to a Port in a InfoData struct
+     * \param[in] name of the Port 
+     * \return copy of InfoData struct associated to the Port
+     */
+     InfoPort getPortData(const std::string name){
+        assert(containsPort(name));
+        return ports[name];
+    } 
     
     
 private:
