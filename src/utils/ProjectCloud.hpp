@@ -27,59 +27,6 @@
 #include "BaseManipulation.hpp"
 
 
-/*!
- * \ingroup Ports
- * \{
- */
-
-//PORTS DEFINITION AS CONSTANTS
-#ifndef M_GEOM
-#define M_GEOM "M_GEOM" /**< Port dedicated to communication of pointers to a MimmoObject object*/
-#endif
-
-#ifndef M_COORDS 
-#define M_COORDS "M_COORDS" /**< Port dedicated to communication  of a list of point 3D coordinates.*/
-#endif
-
-/*!
- * \}
- */
-
-/*!
- * \ingroup PortContainers
- * \{
- */
-
-#ifndef MC_SCALAR
-#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
-#endif
-
-#ifndef MC_VECARR3 
-#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3> > container identifier*/
-#endif
-
-/*!
- * \}
- */
-
-/*!
- * \ingroup PortData
- * \{
- */
-
-#ifndef MD_MIMMO_ 
-#define MD_MIMMO_ "MD_MIMMO_" /**< MimmoObject pointer data identifier*/
-#endif
-
-#ifndef MD_FLOAT
-#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
-#endif
-
-/*!
- * \}
- */
-
-
 
 namespace mimmo{
 
