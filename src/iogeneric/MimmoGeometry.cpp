@@ -391,7 +391,6 @@ void MimmoGeometry::setCodex(bool binary){
 /*!
  * Set ASCII Multi Solid STL writing. The method has effect only while writing 
  * standard surface triangulations in STL format type.
- * .
  * \param[in] multi boolean, true activate Multi Solid STL writing.
  */
 void MimmoGeometry::setMultiSolidSTL(bool multi){

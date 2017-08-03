@@ -26,6 +26,61 @@
 
 #include "BaseManipulation.hpp"
 
+
+/*!
+ * \ingroup Ports
+ * \{
+ */
+
+//PORTS DEFINITION AS CONSTANTS
+#ifndef M_GEOM
+#define M_GEOM "M_GEOM" /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#endif
+
+#ifndef M_COORDS 
+#define M_COORDS "M_COORDS" /**< Port dedicated to communication  of a list of point 3D coordinates.*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortContainers
+ * \{
+ */
+
+#ifndef MC_SCALAR
+#define MC_SCALAR "MC_SCALAR" /**< Single value container identifier*/
+#endif
+
+#ifndef MC_VECARR3 
+#define MC_VECARR3 "MC_VECARR3" /**< std::vector< std::array< ., 3> > container identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+/*!
+ * \ingroup PortData
+ * \{
+ */
+
+#ifndef MD_MIMMO_ 
+#define MD_MIMMO_ "MD_MIMMO_" /**< MimmoObject pointer data identifier*/
+#endif
+
+#ifndef MD_FLOAT
+#define MD_FLOAT "MD_FLOAT" /**< float/double data identifier*/
+#endif
+
+/*!
+ * \}
+ */
+
+
+
 namespace mimmo{
 
 /*!
@@ -38,16 +93,16 @@ namespace mimmo{
  *
  *  =========================================================
 
-   |Port Input | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-   | 0     | M_COORDS | setCoords         | (VECARR3, FLOAT)    |
-   | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)    |
+   |Port Input | | |
+   |-|-|-|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+   | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
+   | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 
-   |Port Output | | | |
-   |-|-|-|-|
-   |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>   |
-   | 0     | M_COORDS | getCloudResult    | (VECARR3, FLOAT)    |
+   |Port Output  | | |
+   |-|-|-|
+   | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>   |
+   | M_COORDS | getCloudResult    | (MC_VECARR3, MD_FLOAT)    |
 
  *    =========================================================
  * \n
@@ -94,6 +149,11 @@ protected:
     void swap(ProjectCloud & x) noexcept;
 };
 
+//Ports registration
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT)
+
+//ManipBlock registration
 REGISTER(BaseManipulation, ProjectCloud,"mimmo.ProjectCloud")
 
 };
