@@ -134,6 +134,15 @@ void CreateSeedsOnSurface::swap(CreateSeedsOnSurface & x) noexcept
 void
 CreateSeedsOnSurface::buildPorts(){
 
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUEI, MC_SCALAR, MD_INT);
+    PortManager::instance().addPort(M_VALUEI2, MC_SCALAR, MD_INT);
+    PortManager::instance().addPort(M_VALUEB, MC_SCALAR, MD_BOOL);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_FILTER, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
+    
+    
     bool built = true;
 
     //input

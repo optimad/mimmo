@@ -44,19 +44,19 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT  | m_origin          | (ARRAY3, FLOAT)        |
-     | 21    | M_AXIS   | m_direction       | (ARRAY3, FLOAT)        |
-     | 30    | M_VALUED | m_alpha           | (SCALAR, FLOAT)        |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_POINT  | m_origin          | (MC_ARRAY3, MD_FLOAT)        |
+     | M_AXIS   | m_direction       | (MC_ARRAY3, MD_FLOAT)        |
+     | M_VALUED | m_alpha           | (MC_SCALAR, MD_FLOAT)        |
 
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 20    | M_POINT   | getOrigin         | (ARRAY3, FLOAT)       |
-     | 22    | M_AXIS    | getDirection      | (ARRAY3, FLOAT)       |
-     | 30    | M_VALUED  | getTranslation    | (SCALAR, FLOAT)       |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | M_POINT   | getOrigin         | (MC_ARRAY3, MD_FLOAT)       |
+     | M_AXIS    | getDirection      | (MC_ARRAY3, MD_FLOAT)       |
+     | M_VALUED  | getTranslation    | (MC_SCALAR, MD_FLOAT)       |
 
  *    =========================================================
  * \n

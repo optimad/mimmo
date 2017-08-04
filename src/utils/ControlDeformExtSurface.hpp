@@ -48,18 +48,18 @@ namespace mimmo{
  *
  *    =========================================================
 
-    | Port Input | | | |
-    |-|-|-|-|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | 11    | M_GDISPLS| setDefField       | (MPVECARR3E, FLOAT)       |
-    | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
+    | Port Input | | |
+    |-|-|-|
+    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+    | M_GDISPLS| setDefField       | (MC_VECARR3, MD_FLOAT)       |
+    | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
 
-    |Port Output | | | |
-    |-|-|-|-|
-    |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-    | 18    | M_SCALARFIELD | getViolationField | (MPVECTOR, FLOAT)             |
-    | 30    | M_VALUED      | getViolation      | (SCALAR, FLOAT)             |
+    |Port Output | | |
+    |-|-|-|
+    | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+    | M_SCALARFIELD | getViolationField | (MC_VECTOR, MD_FLOAT)             |
+    | M_VALUED      | getViolation      | (MC_SCALAR, MD_FLOAT)             |
 
  *    =========================================================
  * \n

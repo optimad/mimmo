@@ -96,11 +96,6 @@ protected:
     void swap(ProjectCloud & x) noexcept;
 };
 
-//Ports registration
-REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
-REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT)
-
-//ManipBlock registration
 REGISTER(BaseManipulation, ProjectCloud,"mimmo.ProjectCloud")
 
 };

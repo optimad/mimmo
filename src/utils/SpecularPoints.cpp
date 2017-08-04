@@ -110,6 +110,15 @@ void SpecularPoints::swap(SpecularPoints & x) noexcept
  */
 void
 SpecularPoints::buildPorts(){
+    
+    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_PLANE, MC_ARRAY4, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXIS, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUEB, MC_SCALAR, MD_BOOL);
+    PortManager::instance().addPort(M_VALUEB2, MC_SCALAR, MD_BOOL);
+    
     bool built = true;
 
     built = (built && createPortIn<dvecarr3E, SpecularPoints>(this,&mimmo::SpecularPoints::setCoords, M_COORDS));

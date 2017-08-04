@@ -82,13 +82,18 @@ void TranslationPoint::swap(TranslationPoint & x) noexcept
  */
 void
 TranslationPoint::buildPorts(){
+    
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXIS, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
+    
     bool built = true;
-    built = (built && createPortIn<darray3E, TranslationPoint>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, TranslationPoint>(&m_direction, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<double, TranslationPoint>(&m_alpha, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getDirection, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<double, TranslationPoint>(this, &mimmo::TranslationPoint::getTranslation, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, TranslationPoint>(&m_origin, M_POINT));
+    built = (built && createPortIn<darray3E, TranslationPoint>(&m_direction, M_AXIS));
+    built = (built && createPortIn<double, TranslationPoint>(&m_alpha, M_VALUED));
+    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getOrigin, M_POINT));
+    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getDirection, M_AXIS));
+    built = (built && createPortOut<double, TranslationPoint>(this, &mimmo::TranslationPoint::getTranslation, M_VALUED));
     m_arePortsBuilt = built;
 };
 

@@ -41,18 +41,18 @@ namespace mimmo{
  *    =========================================================
  
  
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-     | 99    | M_GEOM      | m_geometry                            |(SCALAR, MIMMO_)       |
-     | 100   | M_VECGEOM   | setGeometries                         |(VECTOR, MIMMO_)       |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+     | M_GEOM      | m_geometry                            |(MC_SCALAR, MD_MIMMO_)       |
+     | M_VECGEOM   | setGeometries                         |(MC_VECTOR, MD_MIMMO_)       |
 
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
-     | 22    | M_AXES      | getAxes           | (ARR3ARR3, FLOAT)   |
-     | 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | M_POINT     | getOrigin         | (MC_ARRAY3, MD_FLOAT)     |
+     | M_AXES      | getAxes           | (MC_ARR3ARR3, MD_FLOAT)   |
+     | M_SPAN      | getSpan           | (MC_ARRAY3, MD_FLOAT)     |
 
  *    =========================================================
  * \n

@@ -111,6 +111,12 @@ void RBFBox::swap(RBFBox & x) noexcept
 void
 RBFBox::buildPorts(){
 
+    PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
+    
     bool built = true;
 
     built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, M_COORDS));

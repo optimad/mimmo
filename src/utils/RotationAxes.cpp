@@ -126,14 +126,21 @@ void RotationAxes::swap(RotationAxes & x) noexcept
  */
 void
 RotationAxes::buildPorts(){
+    
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXIS, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT2, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    
     bool built = true;
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_direction, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<double, RotationAxes>(&m_alpha, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_axes_origin, PortType::M_POINT2, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmatrix33E, RotationAxes>(&m_axes, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<darray3E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dmatrix33E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedAxes, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<darray3E, RotationAxes>(&m_origin, M_POINT));
+    built = (built && createPortIn<darray3E, RotationAxes>(&m_direction, M_AXIS));
+    built = (built && createPortIn<double, RotationAxes>(&m_alpha, M_VALUED));
+    built = (built && createPortIn<darray3E, RotationAxes>(&m_axes_origin, M_POINT2));
+    built = (built && createPortIn<dmatrix33E, RotationAxes>(&m_axes, M_AXES));
+    built = (built && createPortOut<darray3E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedOrigin, M_POINT));
+    built = (built && createPortOut<dmatrix33E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedAxes, M_AXES));
     m_arePortsBuilt = built;
 };
 

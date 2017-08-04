@@ -106,12 +106,18 @@ void OBBox::swap(OBBox & x) noexcept
 void
 OBBox::buildPorts(){
 
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_VECGEOM, MC_VECTOR, MD_MIMMO_);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
+    
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, OBBox>(this, &mimmo::OBBox::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortIn<std::vector<MimmoObject*>, OBBox>(this, &mimmo::OBBox::setGeometries, PortType::M_VECGEOM, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, PortType::M_AXES, mimmo::pin::containerTAG::ARR3ARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject*, OBBox>(this, &mimmo::OBBox::setGeometry, M_GEOM,true,1));
+    built = (built && createPortIn<std::vector<MimmoObject*>, OBBox>(this, &mimmo::OBBox::setGeometries, M_VECGEOM, true,1));
+    built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, M_POINT));
+    built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, M_AXES));
+    built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, M_SPAN));
 
     m_arePortsBuilt = built;
 };
