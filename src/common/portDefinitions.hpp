@@ -63,12 +63,12 @@
 #define M_BCOEFFS         "M_BCOEFFS"           /**< Port dedicated to communication of a 3x3 matrix of float vector values [array < array< vector< double>,3>,3>] */
 #define M_VALUESI         "M_VALUESI"           /**< Port dedicated to communication of a single scalar value [short int] */
 #define M_DEG             "M_DEG"               /**< Port dedicated to communication of degrees of freedom numbers in each of 3D space dimensions [array< int,3 >] */
-#define M_RANGE           "M_RANGE"             /**< Port dedicated to communication of range intervals for each 3D dimensions [array < array< double,2>,3>] */
-#define M_BOOLS3          "M_BOOLS3"            /**< Port dedicated to communication of a boolean conditions set [array< bool,3>]*/
 #define M_NURBSCOORDTYPE  "M_NURBSCOORDTYPE"    /**< Port dedicated to communicate NURBS design boundary condition on FFDLattice [array < mimmo::CoordType,3> ] */
 #define M_NURBSWEIGHTS    "M_NURBSWEIGHTS"      /**< Port dedicated to communicate NURBS weights on FFDLattice nodes [ vector < double > ] */
 #define M_FILENAME        "M_FILENAME"          /**< Port dedicated to communicate a filename [string] */
 #define M_DIR             "M_DIR"               /**< Port dedicated to communicate a directory path [string] */
+#define M_FILENAMEPTR     "M_FILENAMEPTR"       /**< Port dedicated to communicate a filename [string pointer] */
+#define M_DIRPTR          "M_DIRPTR"            /**< Port dedicated to communicate a directory path [string pointer] */
 #define M_PAIRVECFIELD    "M_PAIRVECFIELD"      /**< Port dedicated to communicate a vector field on a MimmoObject geometry as std::pair< MimmoObject *, vector < array< double,3> > > */
 #define M_PAIRSCAFIELD    "M_PAIRSCAFIELD"      /**< Port dedicated to communicate a scalar field on a MimmoObject geometry as std::pair < MimmoObject *, vector< double > > */
 #define M_VIOLATION       "M_VIOLATION"         /**< Port dedicated to communicate a double value with a BaseManipulation object which refers to [std::pair< BaseManipulation *, double >] */
@@ -82,9 +82,6 @@
 #define M_POINT2          "M_POINT2"            /**< Port dedicated to communication of 3D point coordinates [ array < double,3 > ] */
 #define M_VALUED2         "M_VALUED2"           /**< Port dedicated to communication of a single scalar value [double] */
 #define M_VALUEB2         "M_VALUEB2"           /**< Port dedicated to communication of a single scalar value [bool] */
-#define M_VALUEB3         "M_VALUEB3"           /**< Port dedicated to communication of a single scalar value [bool] */
-#define M_VALUEB4         "M_VALUEB4"           /**< Port dedicated to communication of a single scalar value [bool] */
-#define M_VALUEB5         "M_VALUEB5"           /**< Port dedicated to communication of a single scalar value [bool] */
 #define M_VALUEI2         "M_VALUEI2"           /**< Port dedicated to communication of a single scalar value [int] */
 #define M_VECPAIRSF       "M_VECPAIRSF"         /**< Port dedicated to communicate a std::vector< std::pair< MimmoObject*, std::vector< double >*  >  > */
 #define M_VECPAIRVF       "M_VECPAIRVF"         /**< Port dedicated to communicate a std::vector< std::pair< MimmoObject*, std::vector< std::array< double,3> >*  >  > */
@@ -103,13 +100,9 @@
 #define  MC_VECTOR      "MC_VECTOR"         /**< std::vector< . > container identifier */
 #define  MC_ARRAY3      "MC_ARRAY3"         /**< std::array< . , 3 > container identifier */
 #define  MC_ARRAY4      "MC_ARRAY4"         /**< std::array< . , 4 > container identifier */
-#define  MC_VECVEC      "MC_VECVEC"         /**< std::vector< std::vector< . > > container identifier */
 #define  MC_VECARR3     "MC_VECARR3"        /**< std::vector< std::array< . , 3 > > container identifier */
-#define  MC_VECARR2     "MC_VECARR2"        /**< std::vector< std::array< . , 2 > > container identifier */
-#define  MC_VECVECARR2  "MC_VECVECARR2"     /**< std::vector< std::vector< std::array< . , 2 > > > container identifier */ 
 #define  MC_ARR3ARR3    "MC_ARR3ARR3"       /**< std::array< std::array< . , 3 > , 3 > container identifier */
 #define  MC_ARR3ARR3VEC "MC_ARR3ARR3VEC"    /**< std::array< std::array< std::array< . , 3 > , 3 > , 3 > container identifier */
-#define  MC_MAP         "MC_MAP"            /**< std::map< . , . > container identifier */
 #define  MC_UN_MAP      "MC_UN_MAP"         /**< std::unordered_map< . , . > container identifier */
 #define  MC_PAIR        "MC_PAIR"           /**< std::pair< . , . > container identifier */
 
@@ -132,7 +125,6 @@
 #define  MD_STRING_                 "MD_STRING_"                 /**< std::string data pointer data identifier*/
 #define  MD_MIMMO_VECFLOAT_         "MD_MIMMO_VECFLOAT_"         /**< tuple of mimmo::MimmoObject pointer and std::vector< double> pointer data identifier*/
 #define  MD_MIMMO_VECARR3FLOAT_     "MD_MIMMO_VECARR3FLOAT_"     /**< tuple of mimmo::MimmoObject pointer and std::vector< std::array < double, 3 > > pointer data identifier*/
-#define  MD_LONGSHORT               "MD_LONGSHORT"               /**< tuple of a long integer and a short integer data identifier*/
 #define  MD_STRINGPAIRINTMIMMO_     "MD_STRINGPAIRINTMIMMO_"     /**< tuple of a std::string and a std::pair< int,mimmo::MimmoObject*> data identifier */
 #define  MD_LONGPAIRINTLONG         "MD_LONGPAIRINTLONG"         /**< tuple of a long integer and a std::pair< int,long> data identifier */
 #define  MD_PAIRMIMMO_VECFLOAT_     "MD_PAIRMIMMO_VECFLOAT_"     /**< std::pair< mimmo::MimmoObject*, std::vector< double >* > data identifier*/
@@ -142,7 +134,6 @@
 #define  MD_SHAPE_                  "MD_SHAPE_"                  /**< mimmo::BasicShape pointer data identifier*/
 #define  MD_COORDT                  "MD_COORDT"                  /**< mimmo::CoordType data identifier*/
 #define  MD_POLYDATA_               "MD_POLYDATA_"               /**< VTK::vtkPolyData* data identifier*/
-#define  MD_TRACKINGPTR_            "MD_TRACKINGPTR_"            /**< mimmo::TrackingPointer data idientifier */
 #define  MD_BCCGNS_                 "MD_BCCGNS_"                 /**< mimmo::BCCGNS (Boundary Conditions Info for CGNS export class) pointer data identifier */
 
 /*!

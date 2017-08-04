@@ -519,7 +519,7 @@ BaseManipulation::exec(){
                     std::vector<BaseManipulation*>  linked = ip->getLink();
                     if (linked.size() == 0){
                         (*m_log) << "error: " << m_name << " mandatory port " << itID->second[count] << " not linked -> exit! " << std::endl;
-                        throw std::runtime_error (m_name + " mandatory port " + std::to_string(itID->second[count]) + " not linked");
+                        throw std::runtime_error (m_name + " mandatory port " + itID->second[count] + " not linked");
                     }
                     count++;
                 }
@@ -534,7 +534,7 @@ BaseManipulation::exec(){
                     (*m_log) << "error: " << m_name << " none of mandatory ports " << itID->second << " linked -> exit! " << std::endl;
                     std::string ports;
                     for (auto p : itID->second)
-                        ports += " " + std::to_string(p) + " ";
+                        ports += " " + p + " ";
                     throw std::runtime_error (m_name + " none of mandatory ports " + ports + " linked");
                 }
             }
@@ -740,28 +740,28 @@ BaseManipulation::unsetChild(BaseManipulation * child){
  * It finds an input pin (connection) of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the input pins structure.
- * Return -1 if pin (connection) not found.
+ * Return "NONE" if pin (connection) not found.
  */
 PortID
 BaseManipulation::findPinIn(PortIn& pin){
     for (std::unordered_map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
         if (pin == *(i->second)) return(i->first);
     }
-    return(-1);
+    return("NONE");
 }
 
 /*!
  * It finds an output pin (connection)  of the object
  * \param[in] pin Target pin (connection).
  * \return Index of target pin in the output pins structure.
- * Return -1 if pin (connection) not found.
+ * Return "NONE" if pin (connection) not found.
  */
 PortID
 BaseManipulation::findPinOut(PortOut& pin){
     for (std::unordered_map<PortID, PortOut*>::iterator i=m_portOut.begin(); i!=m_portOut.end(); i++){
         if (pin == *(i->second)) return(i->first);
     }
-    return(-1);
+    return("NONE");
 }
 
 /*!It adds an input pin (connection) of the object.

@@ -83,8 +83,8 @@ addPin(BaseManipulation* objSend, BaseManipulation* objRec, PortID portS, PortID
 void
 removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
 
-    std::map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
-    for (std::map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
+    std::unordered_map<PortID, PortOut*> pinsOut = objSend->getPortsOut();
+    for (std::unordered_map<PortID, PortOut*>::iterator i = pinsOut.begin(); i != pinsOut.end(); i++){
         if (i->second != NULL){
             std::vector<BaseManipulation*> linked = i->second->getLink();
             for (int j=0; j<(int)linked.size(); j++){
@@ -96,8 +96,8 @@ removeAllPins(BaseManipulation* objSend, BaseManipulation* objRec){
         }
     }
 
-    std::map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
-    for (std::map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
+    std::unordered_map<PortID, PortIn*> pinsIn = objRec->getPortsIn();
+    for (std::unordered_map<PortID, PortIn*>::iterator i = pinsIn.begin(); i != pinsIn.end(); i++){
         std::vector<BaseManipulation*> linked = i->second->getLink();
         if (i->second != NULL){
             for (int j=0; j<(int)linked.size(); j++){
