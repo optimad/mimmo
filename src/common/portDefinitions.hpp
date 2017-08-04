@@ -25,8 +25,6 @@
 #ifndef PORT_DEFINITIONS_HPP
 #define PORT_DEFINITIONS_HPP
 
-#include "mimmo_common.hpp"
-
 /*!
  * \ingroup Ports
  * \{
@@ -39,7 +37,7 @@
 #define M_MAPGEOM         "M_MAPGEOM"           /**< Port dedicated to communication of a map std::unordered_map < std::string, std::pair< int, MimmoObject*> > */
 #define M_COORDS          "M_COORDS"            /**< Port dedicated to communication of coordinates of points [vector < array < double,3 > > ] */
 #define M_GLOBAL          "M_GLOBAL"            /**< Port dedicated to communication of coordinates of points in a global reference system [ vector < array < double,3 > > ] */
-#define M_LOCAL           "M_LOCAL"             /**< Port dedicated to communication of coordinates of points in a local reference system [ vector < array < double,3 > > ] */,
+#define M_LOCAL           "M_LOCAL"             /**< Port dedicated to communication of coordinates of points in a local reference system [ vector < array < double,3 > > ] */
 #define M_DISPLS          "M_DISPLS"            /**< Port dedicated to communication of displacements of 3D points [ vector < array < double,3 > > ] */
 #define M_GDISPLS         "M_GDISPLS"           /**< Port dedicated to communication of displacements relative to geometry vertices [ vector < array < double,3 > > ] */
 #define M_FILTER          "M_FILTER"            /**< Port dedicated to communication of a scalar field used as a filter function [ vector < double > ] */

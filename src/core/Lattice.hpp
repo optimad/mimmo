@@ -27,8 +27,6 @@
 #include "BasicMeshes.hpp"
 #include "BaseManipulation.hpp"
 
-
-
 namespace mimmo{
 
 /*!
@@ -47,33 +45,33 @@ namespace mimmo{
  * =========================================================
  *  
  *  
- *  |Port Input  | | | |
-    |-|-|-|-|
-    |<B>PortID</B>|<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
-    | 99    | M_GEOM      | m_geometry                            | (SCALAR, MIMMO_)      |
-    | 24    | M_DIMENSION | setDimension                          | (ARRAY3, INT)         |
-    | 25    | M_INFLIMITS | setInfLimits                          | (ARRAY3, FLOAT)       |
-    | 22    | M_AXES      | setRefSystem                          | (ARR3ARR3, FLOAT)     |
-    | 23    | M_SPAN      | setSpan                               | (ARRAY3, FLOAT)       |
-    | 20    | M_POINT     | setOrigin                             | (ARRAY3, FLOAT)       |
-    | 26    | M_SHAPE     | setShape(mimmo::ShapeType)            | (SCALAR, SHAPET)      |
-    | 27    | M_COPYSHAPE | setShape(const BasicShape*  )         | (SCALAR, SHAPE_)      |
-    | 28    | M_SHAPEI    | setShape(int)                         | (SCALAR, INT)         |
+ *  |Port Input  | | |
+    |-|-|-|
+    |<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
+    | M_GEOM      | m_geometry                            | (MC_SCALAR, MD_MIMMO_)      |
+    | M_DIMENSION | setDimension                          | (MC_ARRAY3, MD_INT)         |
+    | M_INFLIMITS | setInfLimits                          | (MC_ARRAY3, MD_FLOAT)       |
+    | M_AXES      | setRefSystem                          | (MC_ARR3ARR3, MD_FLOAT)     |
+    | M_SPAN      | setSpan                               | (MC_ARRAY3, MD_FLOAT)       |
+    | M_POINT     | setOrigin                             | (MC_ARRAY3, MD_FLOAT)       |
+    | M_SHAPE     | setShape(mimmo::ShapeType)            | (MC_SCALAR, MD_SHAPET)      |
+    | M_COPYSHAPE | setShape(const BasicShape*  )         | (MC_SCALAR, MD_SHAPE_)      |
+    | M_SHAPEI    | setShape(int)                         | (MC_SCALAR, MD_INT)         |
 
 
 
-    | Port Output | | | |
-    |-|-|-|-|
-    |<B>PortID</B>|<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
-    | 1     | M_GLOBAL    | getGlobalCoords   | (VECARR3, FLOAT)    |
-    | 2     | M_LOCAL     | getLocalCoords    | (VECARR3, FLOAT)    |
-    | 20    | M_POINT     | getOrigin         | (ARRAY3, FLOAT)     |
-    | 22    | M_AXES      | getRefSystem      | (ARR3ARR3, FLOAT)   |
-    | 25    | M_INFLIMITS | getInfLimits      | (ARRAY3, FLOAT)     |
-    | 23    | M_SPAN      | getSpan           | (ARRAY3, FLOAT)     |
-    | 24    | M_DIMENSION | getDimension      | (ARRAY3, INT)       |
-    | 27    | M_COPYSHAPE | getShape          | (SCALAR, SHAPE_)    |
-    | 99    | M_GEOM      | getGeometry       | (SCALAR, MIMMO_)    |
+    | Port Output | | |
+    |-|-|-|
+    |<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
+    | M_GLOBAL    | getGlobalCoords   | (MC_VECARR3, MD_FLOAT)    |
+    | M_LOCAL     | getLocalCoords    | (MC_VECARR3, MD_FLOAT)    |
+    | M_POINT     | getOrigin         | (MC_ARRAY3, MD_FLOAT)     |
+    | M_AXES      | getRefSystem      | (MC_ARR3ARR3, MD_FLOAT)   |
+    | M_INFLIMITS | getInfLimits      | (MC_ARRAY3, MD_FLOAT)     |
+    | M_SPAN      | getSpan           | (MC_ARRAY3, MD_FLOAT)     |
+    | M_DIMENSION | getDimension      | (MC_ARRAY3, MD_INT)       |
+    | M_COPYSHAPE | getShape          | (MC_SCALAR, MD_SHAPE_)    |
+    | M_GEOM      | getGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 
 * =========================================================
 * 
@@ -144,6 +142,21 @@ private:
 
 };
 
+//Ports
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_DIMENSION, MC_ARRAY3, MD_INT)
+REGISTER_PORT(M_INFLIMITS, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT)
+REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_SHAPE, MC_SCALAR, MD_SHAPET)
+REGISTER_PORT(M_COPYSHAPE, MC_SCALAR, MD_SHAPE_)
+REGISTER_PORT(M_SHAPEI, MC_SCALAR, MD_INT)
+REGISTER_PORT(M_GLOBAL, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_LOCAL, MC_VECARR3, MD_FLOAT)
+
+
+//ManipBlocks
 REGISTER(BaseManipulation, Lattice, "mimmo.Lattice")
 
 }

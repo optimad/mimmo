@@ -71,6 +71,7 @@
 
 #include "enum.hpp"
 #include "factory.hpp"
+#include "portDefinitions.hpp"
 #include "portManager.hpp"
 #include "mimmoTypeDef.hpp"
 #include "TrackingPointer.hpp"

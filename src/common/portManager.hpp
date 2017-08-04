@@ -25,9 +25,10 @@
 #ifndef PORT_MANAGER_HPP
 #define PORT_MANAGER_HPP
 
+#include "portDefinitions.hpp"
+#include "bitpit_common.hpp"
 #include <unordered_map>
 #include <vector>
-#include "bitpit_common.hpp"
 #include <cassert>
 
 namespace mimmo{
