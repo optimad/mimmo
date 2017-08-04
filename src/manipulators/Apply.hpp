@@ -50,10 +50,10 @@ namespace mimmo{
      | 11    | M_GDISPLS | setInput          | (MPVECARR3,FLOAT) |
      | 99    | M_GEOM    | setGeometry       | (SCALAR,MIMMO_) |
  
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |    
-     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |    
+     | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
  
  *    =========================================================
  * \n
@@ -91,6 +91,11 @@ protected:
     
 };
 
+//Ports
+REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+
+//ManipBlocks
 REGISTER(BaseManipulation, Apply, "mimmo.Apply")
 
 };
