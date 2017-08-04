@@ -81,8 +81,6 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         return;
     }	
 
-    auto manager = mimmo::PortManager::instance();
-    
     for( auto & sect : slotXML.getSections()){
 
         std::string snd_str; 
@@ -103,8 +101,8 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
 
         auto itSend = m_mapConn.find(snd_str);
         auto itRece = m_mapConn.find(rcv_str);
-        bool checkSP = manager.containsPort(sndP_str);
-        bool checkRP = manager.containsPort(rcvP_str);
+        bool checkSP = mimmo::PortManager::instance().containsPort(sndP_str);
+        bool checkRP = mimmo::PortManager::instance().containsPort(rcvP_str);
 
         if(itSend == m_mapConn.end() || itRece == m_mapConn.end() || !checkSP || !checkRP ){
             (*m_log)<<"---------------------------------------------"<<std::endl;
