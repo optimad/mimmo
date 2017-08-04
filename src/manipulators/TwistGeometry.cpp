@@ -104,14 +104,14 @@ void TwistGeometry::swap(TwistGeometry & x) noexcept
 void
 TwistGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<darray3E, TwistGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, TwistGeometry>(&m_direction, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<double, TwistGeometry>(&m_alpha, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<double, TwistGeometry>(&m_distance, PortType::M_VALUED2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmpvector1D, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<MimmoObject*, TwistGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortOut<dmpvecarr3E, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<MimmoObject*, TwistGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<darray3E, TwistGeometry>(&m_origin, M_POINT));
+    built = (built && createPortIn<darray3E, TwistGeometry>(&m_direction, M_AXIS));
+    built = (built && createPortIn<double, TwistGeometry>(&m_alpha, M_VALUED));
+    built = (built && createPortIn<double, TwistGeometry>(&m_distance, M_VALUED2));
+    built = (built && createPortIn<dvector1D, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<MimmoObject*, TwistGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortOut<dvecarr3E, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<MimmoObject*, TwistGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 

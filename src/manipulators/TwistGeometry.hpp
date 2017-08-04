@@ -44,21 +44,21 @@ namespace mimmo{
  *
  *    =========================================================
  
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)       |
-     | 21    | M_AXIS   | setDirection      | (ARRAY3, FLOAT)       |
-     | 30    | M_VALUED | setTwist          | (SCALAR, FLOAT)       |
-     | 130   | M_VALUED2| setMaxDistance    | (SCALAR, FLOAT)       |
-     | 12    | M_FILTER | setFilter         | (MPVECTOR, FLOAT)      |
-     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)      |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_POINT  | setOrigin         | (MC_ARRAY3, MD_FLOAT)       |
+     | M_AXIS   | setDirection      | (MC_ARRAY3, MD_FLOAT)       |
+     | M_VALUED | setTwist          | (MC_SCALAR, MD_FLOAT)       |
+     | M_VALUED2| setMaxDistance    | (MC_SCALAR, MD_FLOAT)       |
+     | M_FILTER | setFilter         | (MC_VECTOR, MD_FLOAT)       |
+     | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
  
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS | getDisplacements  | (MPVECARR3, FLOAT)      |
-     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
+     | M_GDISPLS       | getDisplacements  | (MC_VECARR3, MD_FLOAT) |
+     | M_GEOM          | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
  *    =========================================================
  * \n
@@ -122,6 +122,17 @@ protected:
     void swap(TwistGeometry & x) noexcept;
 };
 
+//Ports
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT)
+REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT)
+REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_)
+
+//ManipBlocks
 REGISTER(BaseManipulation, TwistGeometry, "mimmo.TwistGeometry")
 
 };
