@@ -98,12 +98,12 @@ void ScaleGeometry::swap(ScaleGeometry & x) noexcept
 void
 ScaleGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, PortType::M_SPAN, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmpvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortOut<dmpvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, M_POINT));
+    built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, M_SPAN));
+    built = (built && createPortIn<dvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortOut<dvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
