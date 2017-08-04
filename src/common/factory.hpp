@@ -32,6 +32,7 @@
 
 namespace mimmo{
 
+    
 /*!
  *   \ingroup common
  *   \{
@@ -204,20 +205,6 @@ public:
  */
 
 /*!
- * \def REGISTER_NO_UNUSED(Base, Derived, name)
- * Register an executable mimmo class in the Factory singleton, use unused bipit option 
- * internally on the counter of the already registered class to avoid compiler warnings.
- * \param[in]   Base name of Derived's base class
- * \param[in]   Derived name of the class
- * \param[in]   name string to register the creator's name
- */
-#define REGISTER_NO_UNUSED(Base, Derived, name) \
-/* register a Derived class with its xml default constructor that will be instantiate as Base. Return is unused*/ \
-static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>()); \
-BITPIT_UNUSED(factory_##Base##_##Derived);
-
-
-/*!
  * \def REGISTER(Base, Derived, name)
  *  Register an executable mimmo class in the Factory singleton.
  * \param[in]   Base name of Derived's base class
@@ -245,16 +232,14 @@ static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCrea
 static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 /*!
- * \def IS_REGISTERED(Base, name)
  * Return if a creator name referencing to a Base class is already registered or not.
- * \param[in]   Base name of Derived's base class
  * \param[in]   name string to register the creator's name
  * \return boolean true/false if the creator name is already registered
  */
-#define IS_REGISTERED(Base, name) \
-/* find if a class creator is already registered*/ \
-mimmo::Factory<Base>::instance().containsCreator(name);
-
+template<class Base>
+inline bool isREGISTERED(const std::string name){
+    return mimmo::Factory<Base>::instance().containsCreator(name);
+}
 
 /*!
  * \}

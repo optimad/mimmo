@@ -86,6 +86,21 @@ void Lattice::swap(Lattice & x) noexcept
  */
 void Lattice::buildPorts(){
 
+    //Registering ports first
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_DIMENSION, MC_ARRAY3, MD_INT);
+    PortManager::instance().addPort(M_INFLIMITS, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_SHAPE, MC_SCALAR, MD_SHAPET);
+    PortManager::instance().addPort(M_COPYSHAPE, MC_SCALAR, MD_SHAPE_);
+    PortManager::instance().addPort(M_SHAPEI, MC_SCALAR, MD_INT);
+    PortManager::instance().addPort(M_GLOBAL, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_LOCAL, MC_VECARR3, MD_FLOAT);
+    
+    //thus build them
+    
     bool built = true;
     built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, M_DIMENSION));

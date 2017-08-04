@@ -46,21 +46,21 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 12    | M_FILTER  | setFilter         | (MPVECTOR, FLOAT)       |
-     | 20    | M_POINT   | setOrigin         | (ARRAY3, FLOAT)       |
-     | 22    | M_AXES    | setRefSystem      | (ARR3ARR3, FLOAT)     |
-     | 31    | M_BMATRIX | setDegree         | (ARR3ARR3, INT)       |
-     | 32    | M_BCOEFFS | setCoeffs         | (ARR3ARR3VEC, FLOAT)  |
-     | 99    | M_GEOM    | setGeometry       | (SCALAR, MIMMO_)      |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_FILTER  | setFilter         | (MC_VECTOR, MD_FLOAT)       |
+     | M_POINT   | setOrigin         | (MC_ARRAY3, MD_FLOAT)       |
+     | M_AXES    | setRefSystem      | (MC_ARR3ARR3, MD_FLOAT)     |
+     | M_BMATRIX | setDegree         | (MC_ARR3ARR3, MD_INT)       |
+     | M_BCOEFFS | setCoeffs         | (MC_ARR3ARR3VEC, MD_FLOAT)  |
+     | M_GEOM    | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
  
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 11    | M_GDISPLS| getDisplacements  | (MPVECARR3, FLOAT)    |
-     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | M_GDISPLS| getDisplacements  | (MC_VECARR3, MD_FLOAT)    |
+     | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
  *    =========================================================
  * \n
@@ -157,6 +157,18 @@ private:
 
 };
 
+
+//Ports
+REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT)
+REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT)
+REGISTER_PORT(M_BMATRIX, MC_ARR3ARR3, MD_INT)
+REGISTER_PORT(M_BCOEFFS, MC_ARR3ARR3VEC, MD_FLOAT)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
+REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT)
+REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_)
+
+//ManipBlocks
 REGISTER(BaseManipulation, BendGeometry, "mimmo.BendGeometry")
 
 }

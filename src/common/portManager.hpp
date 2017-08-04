@@ -135,7 +135,7 @@ public:
         
         return (int) ports.size() + 1;
     }
-
+    
     /*! Check if a port name is already registered 
      * \param[in] name name of the port
      * \return true if the port already exists
@@ -197,7 +197,6 @@ private:
     static long sm_idPort, sm_idContainer, sm_idDatatype;
 };
 
-
 long PortManager::sm_idPort(0);
 long PortManager::sm_idContainer(0);
 long PortManager::sm_idDatatype(0);
@@ -207,60 +206,6 @@ long PortManager::sm_idDatatype(0);
 /*!
  * \}
  */
-
-/*!
- * \ingroup macro
- * \{
- */
-
-/*!
- * \def REGISTER_PORT(Name, Container, Datatype)
- * Register a mimmo port in the PortManager singleton, specifying the type of container and the type of data 
- * managed by the port. Mutual compatibility between mimmo ports is verified assuring that they are sharing the 
- * same type of container and data.
- * \param[in]   Name string name of the port
- * \param[in]   Container string name of the port container
- * \param[in]   Datatype string name of the port data type
- */
-#define REGISTER_PORT(Name, Container, Datatype) \
-/* register a port in mimmo::PortManager together its container and data type*/ \
-static int factory_##Name##_##Container##_##Datatype = mimmo::PortManager::instance().addPort(Name,Container,Datatype); \
-
-
-/*!
- * \def IS_PORT_REGISTERED(Name)
- * Return if a port name is already registered or not.
- * \param[in]   Name string of allegedely registered port
- * \return boolean true/false if the port is already registered
- */
-#define IS_PORT_REGISTERED(Name) \
-/* find if a port is already registered*/ \
-mimmo::PortManager::instance().containsPort(Name);
-
-/*!
- * \def IS_CONTAINER_REGISTERED(Name)
- * Return if a port container name is already registered or not.
- * \param[in]   Name string of allegedely registered port container
- * \return boolean true/false if the port container is already registered
- */
-#define IS_CONTAINER_REGISTERED(Name) \
-/* find if a port container is already registered*/ \
-mimmo::PortManager::instance().containsContainer(Name);
-
-/*!
- * \def IS_DATATYPE_REGISTERED(Name)
- * Return if a port data type is already registered or not.
- * \param[in]   Name string of allegedely registered port data type
- * \return boolean true/false if the port data type is already registered
- */
-#define IS_DATATYPE_REGISTERED(Name) \
-/* find if a port data type is already registered*/ \
-mimmo::PortManager::instance().containsDatatype(Name);
-
-
-/*!
- * \}
- */ 
 
 #endif
 
