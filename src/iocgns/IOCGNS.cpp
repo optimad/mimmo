@@ -149,14 +149,20 @@ IOCGNS::setDefaults(){
  */
 void
 IOCGNS::buildPorts(){
+ 
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_GEOM2, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_BCCGNS, MC_SCALAR, MD_BCCGNS_);
+    
+    
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<BCCGNS*, IOCGNS>(this, &IOCGNS::setBoundaryConditions, PortType::M_BCCGNS, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BCCGNS_));
+    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2));
+    built = (built && createPortIn<BCCGNS*, IOCGNS>(this, &IOCGNS::setBoundaryConditions, M_BCCGNS));
 
-    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getSurfaceBoundary, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<BCCGNS*, IOCGNS>(this, &IOCGNS::getBoundaryConditions, PortType::M_BCCGNS, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BCCGNS_));
+    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getSurfaceBoundary, M_GEOM2));
+    built = (built && createPortOut<BCCGNS*, IOCGNS>(this, &IOCGNS::getBoundaryConditions, M_BCCGNS));
     m_arePortsBuilt = built;
 };
 

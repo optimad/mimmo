@@ -132,20 +132,20 @@ public:
  *
  *  =========================================================
 
-   |                     Port Input  |||                                      |
-   |-------|------------------|------------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 99    | M_GEOM           | setGeometry            | (SCALAR, MIMMO_)  |
-   | 98    | M_GEOM2          | setSurfaceBoundary     | (SCALAR, MIMMO_)  |
-   | 108   | M_BCCGNS         | setBoundaryConditions  | (SCALAR, MIMMO_)  |
+   |                     Port Input  ||                                      |
+   |------------------|------------------------|-------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_GEOM           | setGeometry            | (MC_SCALAR, MD_MIMMO_)  |
+   | M_GEOM2          | setSurfaceBoundary     | (MC_SCALAR, MD_MIMMO_)  |
+   | M_BCCGNS         | setBoundaryConditions  | (MC_SCALAR, MD_BCCGNS_)  |
 
 
-   |               Port Output   |||                                          |
-   |-------|------------------|------------------------|-------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 99    | M_GEOM           | getGeometry            | (SCALAR, MIMMO_)  |
-   | 98    | M_GEOM2          | getSurfaceBoundary     | (SCALAR, MIMMO_)  |
-   | 108   | M_BCCGNS         | getBoundaryConditions  | (SCALAR, MIMMO_)  |
+   |               Port Output   ||                                          |
+   |------------------|------------------------|-------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_GEOM           | getGeometry            | (MC_SCALAR, MD_MIMMO_)  |
+   | M_GEOM2          | getSurfaceBoundary     | (MC_SCALAR, MD_MIMMO_)  |
+   | M_BCCGNS         | getBoundaryConditions  | (MC_SCALAR, MD_BCCGNS_)  |
 
  *    =========================================================
  *
