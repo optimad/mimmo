@@ -142,15 +142,23 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
  */
 void
 IOVTKScalar::buildPorts(){
+    
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
+    PortManager::instance().addPort(M_POLYDATA_, MC_SCALAR, MD_POLYDATA_);
+    
+    
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, PortType::M_VALUED, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, PortType::M_POLYDATA_, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::POLYDATA_));
-    built = (built && createPortIn<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
-    built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, PortType::M_POLYDATA_, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::POLYDATA_));
-    built = (built && createPortOut<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));
+    built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, M_VALUED));
+    built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, M_POLYDATA_));
+    built = (built && createPortIn<dvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
+
+    built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, M_GEOM));
+    built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, M_POLYDATA_));
+    built = (built && createPortOut<dvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
