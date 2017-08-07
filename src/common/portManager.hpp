@@ -119,21 +119,21 @@ public:
         InfoPort temp;
         temp.container = container_name;
         temp.datatype = datatype_name;
-        sm_idPort++;
-        temp.id = sm_idPort;
+        long idC=long(containers.size()), idD=long(datatypes.size());
+        
+        
+        temp.id = long(ports.size());
         ports[name]= temp;
         
         if(!containsContainer(container_name)){
-            sm_idContainer++;
-            containers[container_name]= sm_idContainer;
+            containers[container_name]= idC;
         }
         
         if(!containsDatatype(datatype_name)){
-            sm_idDatatype++;
-            datatypes[datatype_name]= sm_idDatatype;
+            datatypes[datatype_name]= idD;
         }
         
-        return (int) ports.size() + 1;
+        return (int) ports.size();
     }
     
     /*! Check if a port name is already registered 
@@ -194,12 +194,7 @@ private:
     std::unordered_map<std::string, long> containers; /**< list of registered port containers */
     std::unordered_map<std::string, long> datatypes;  /**< list of registered port data types */
     
-    static long sm_idPort, sm_idContainer, sm_idDatatype;
 };
-
-long PortManager::sm_idPort(0);
-long PortManager::sm_idContainer(0);
-long PortManager::sm_idDatatype(0);
 
 };
 
