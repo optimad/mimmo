@@ -91,11 +91,6 @@ protected:
     
 };
 
-//Ports
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT)
-REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_)
-
-//ManipBlocks
 REGISTER(BaseManipulation, Apply, "mimmo.Apply")
 
 };

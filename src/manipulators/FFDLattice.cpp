@@ -122,21 +122,29 @@ FFDLattice::buildPorts(){
 
     Lattice::buildPorts();
 
+    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_FILTER, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_DEG, MC_ARRAY3, MD_INT);
+    PortManager::instance().addPort(M_NURBSWEIGHTS, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_NURBSCOORDTYPE, MC_ARRAY3, MD_COORDT);
+    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_);
+    
     bool built = true;
 
     //input
-    built = (built && createPortIn<dvecarr3E, FFDLattice>(&m_displ, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-    built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
+    built = (built && createPortIn<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::setDisplacements, M_DISPLS));
+    built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,M_FILTER));
+    built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, M_DEG));
+    built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, M_NURBSWEIGHTS));
+    built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, M_NURBSCOORDTYPE));
 
     //output
-    built = (built && createPortOut<dmpvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, PortType::M_GDISPLS, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, PortType::M_DEG, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::INT));
-    built = (built && createPortOut<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, PortType::M_FILTER, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights,PortType::M_NURBSWEIGHTS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, PortType::M_NURBSCOORDTYPE, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::COORDT));
+    built = (built && createPortOut<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, M_GDISPLS));
+    built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, M_DEG));
+    built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, M_FILTER));
+    built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights,M_NURBSWEIGHTS));
+    built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, M_NURBSCOORDTYPE));
     m_arePortsBuilt = built;
 };
 

@@ -75,6 +75,10 @@ void Apply::swap(Apply & x) noexcept
  */
 void
 Apply::buildPorts(){
+    
+    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    
     bool built = true;
     built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true));
     built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));

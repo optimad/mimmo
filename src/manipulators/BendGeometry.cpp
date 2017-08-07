@@ -104,6 +104,17 @@ void BendGeometry::swap(BendGeometry & x) noexcept
  */
 void
 BendGeometry::buildPorts(){
+    
+    PortManager::instance().addPort(M_FILTER, MC_VECTOR, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_BMATRIX, MC_ARR3ARR3, MD_INT);
+    PortManager::instance().addPort(M_BCOEFFS, MC_ARR3ARR3VEC, MD_FLOAT);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_);
+    
+    
     bool built = true;
     built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));

@@ -58,21 +58,21 @@ enum class MRBFSol{
  *
  *    =========================================================
  
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-     | 0     | M_COORDS  | setNode               | (VECARR3, FLOAT)      |
-     | 10    | M_DISPLS  | setDisplacements      | (VECARR3, FLOAT)      |
-     | 12    | M_FILTER  | setFilter             | (MPVECTOR, FLOAT)       |
-     | 30    | M_VALUED  | setSupportRadius      | (SCALAR, FLOAT)       |
-     | 130   | M_VALUED2 | setSupportRadiusValue | (SCALAR, FLOAT)       |
-     | 99    | M_GEOM    | m_geometry            | (SCALAR, MIMMO_)      |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+     | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
+     | M_FILTER  | setFilter             | (MC_VECTOR, MD_FLOAT)       |
+     | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
+     | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
+     | M_GEOM    | m_geometry            | (MC_SCALAR, MD_MIMMO_)      |
 
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | 11    | M_GDISPLS      | getDisplacements  | (MPVECARR3, FLOAT)             |
-     | 99    | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
+     | M_GDISPLS      | getDisplacements  | (MC_VECARR3, MD_FLOAT)             |
+     | M_GEOM   | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
  * \n
