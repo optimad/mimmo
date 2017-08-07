@@ -91,10 +91,10 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    pin::addPin(mimmo0, boxSel, PortType::M_GEOM, PortType::M_GEOM);
-    pin::addPin(mimmo0, sphSel, PortType::M_GEOM, PortType::M_GEOM);
-    pin::addPin(boxSel, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
-    pin::addPin(sphSel, mimmo2, PortType::M_GEOM, PortType::M_GEOM);
+    pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
+    pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
+    pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
+    pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */

@@ -85,9 +85,9 @@ void test00002() {
 	
     /* Setup pin connections.
      */
-	addPin(mimmo0, stitcher, PortType::M_GEOM, PortType::M_GEOM);
-	addPin(mimmo1, stitcher, PortType::M_GEOM, PortType::M_GEOM);
-	addPin(stitcher, mimmo2, PortType::M_GEOM, PortType::M_GEOM);
+	addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
+	addPin(mimmo1, stitcher, M_GEOM, M_GEOM);
+	addPin(stitcher, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */

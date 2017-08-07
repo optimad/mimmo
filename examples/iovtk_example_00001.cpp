@@ -52,11 +52,11 @@ void test00001() {
     iovtk3->setWriteFilename("iovtk_output_00002");
 
     /* Create PINs. */
-    addPin(iovtk,iovtk2, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(iovtk,iovtk2, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
-    addPin(iovtk,iovtk2, PortType::M_POLYDATA_, PortType::M_POLYDATA_);
-    addPin(iovtk,iovtk3, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(iovtk,iovtk3, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
+    addPin(iovtk,iovtk2, M_GEOM, M_GEOM);
+    addPin(iovtk,iovtk2, M_SCALARFIELD, M_SCALARFIELD);
+    addPin(iovtk,iovtk2, M_POLYDATA_, M_POLYDATA_);
+    addPin(iovtk,iovtk3, M_GEOM, M_GEOM);
+    addPin(iovtk,iovtk3, M_SCALARFIELD, M_SCALARFIELD);
 
     /* Create and execute chain. */
     Chain ch0;

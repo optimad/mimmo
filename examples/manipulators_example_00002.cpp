@@ -109,15 +109,14 @@ void test00002() {
      */
     cout << " --- create pin ---" << endl;
     cout << " " << endl;
-    /* Add pin with port ID
+    /* Add pin with port TAG ONLY
      */
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, 99, 99) << endl;
-    cout << " add pin info : " << boolalpha << addPin(input, lattice, 10, 10) << endl;
-    /* Add pin with port TAG
-     */
-    cout << " add pin info : " << boolalpha << addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS) << endl;
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM) << endl;
-    cout << " add pin info : " << boolalpha << addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM) << endl;
+    
+    cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, M_GEOM, M_GEOM) << endl;
+    cout << " add pin info : " << boolalpha << addPin(input, lattice, M_DISPLS, M_DISPLS) << endl;
+    cout << " add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
+    cout << " add pin info : " << boolalpha << addPin(mimmo0, applier, M_GEOM, M_GEOM) << endl;
+    cout << " add pin info : " << boolalpha << addPin(applier, mimmo1, M_GEOM, M_GEOM) << endl;
     cout << " " << endl;
 
     /* Setup execution chain.

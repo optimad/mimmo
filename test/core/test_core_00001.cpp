@@ -45,9 +45,12 @@ public:
 	dvecarr3E getCoords(){ return m_coords;};
 	dvector1D getField(){ return m_field; };
 	void buildPorts(){
-		bool built = true;
-		built = built && createPortOut<dvecarr3E, ManipA>(this, &ManipA::getCoords, PortType::M_COORDS, pin::containerTAG::VECARR3, pin::dataTAG::FLOAT);
-		built = built && createPortOut<dvector1D, ManipA>(this, &ManipA::getField, PortType::M_SCALARFIELD, pin::containerTAG::VECTOR, pin::dataTAG::FLOAT);
+		
+        //Register a custom port
+        PortManager::instance().addPort("M_MYPERSONALFIELD", "MC_VECTOR", "MD_FLOAT");
+        bool built = true;
+		built = built && createPortOut<dvecarr3E, ManipA>(this, &ManipA::getCoords, M_COORDS);
+		built = built && createPortOut<dvector1D, ManipA>(this, &ManipA::getField, "M_MYPERSONALFIELD");
 		m_arePortsBuilt = built;
 	};
 	void execute(){m_member = 4;};
@@ -67,8 +70,8 @@ public:
 	void buildPorts(){
 
 		bool built = true;
-		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, PortType::M_COORDS, pin::containerTAG::VECARR3, pin::dataTAG::FLOAT);
-		built = built && createPortIn<dvector1D, ManipB>(this, &ManipB::setField, PortType::M_SCALARFIELD, pin::containerTAG::VECTOR, pin::dataTAG::FLOAT);
+		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, M_COORDS);
+		built = built && createPortIn<dvector1D, ManipB>(this, &ManipB::setField, M_SCALARFIELD);
 		m_arePortsBuilt = built;
 	};
 	void execute(){m_member = 4;};
@@ -100,8 +103,8 @@ int test1() {
 	objA->m_coords = points;
 	objA->m_field = field;
 	
-	checkPin = checkPin && addPin(objA, objB, PortType::M_COORDS, PortType::M_COORDS);
-	checkPin = checkPin && addPin(objA, objB, PortType::M_SCALARFIELD, PortType::M_SCALARFIELD);
+	checkPin = checkPin && addPin(objA, objB, M_COORDS, M_COORDS);
+	checkPin = checkPin && addPin(objA, objB, M_SCALARFIELD, "M_MYPERSONALFIELD");
 	
 	if(!checkPin){ 
 		std::cout<<"Failed getting connections"<<std::endl;

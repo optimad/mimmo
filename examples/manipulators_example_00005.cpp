@@ -140,16 +140,16 @@ void test00005() {
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, mrbf, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mimmo0, proj, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(inputn, proj, PortType::M_COORDS, PortType::M_COORDS);
-    addPin(proj, mrbf, PortType::M_COORDS, PortType::M_COORDS);
-    addPin(proj, outputn, PortType::M_COORDS, PortType::M_COORDS);
-    addPin(input, mrbf, PortType::M_DISPLS, PortType::M_DISPLS);
-    addPin(input, outputd, PortType::M_DISPLS, PortType::M_DISPLS);
-    addPin(mrbf, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
+    addPin(mimmo0, proj, M_GEOM, M_GEOM);
+    addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    addPin(inputn, proj, M_COORDS, M_COORDS);
+    addPin(proj, mrbf, M_COORDS, M_COORDS);
+    addPin(proj, outputn, M_COORDS, M_COORDS);
+    addPin(input, mrbf, M_DISPLS, M_DISPLS);
+    addPin(input, outputd, M_DISPLS, M_DISPLS);
+    addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
+    addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      * The object can be insert in the chain in random order.

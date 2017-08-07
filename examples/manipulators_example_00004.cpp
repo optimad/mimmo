@@ -144,12 +144,12 @@ void test00004() {
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, lattice, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(input, lattice, PortType::M_DISPLS, PortType::M_DISPLS);
-    addPin(input, output, PortType::M_DISPLS, PortType::M_DISPLS);
-    addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(mimmo0, lattice, M_GEOM, M_GEOM);
+    addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    addPin(input, lattice, M_DISPLS, M_DISPLS);
+    addPin(input, output, M_DISPLS, M_DISPLS);
+    addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      * The object can be insert in the chain in random order.

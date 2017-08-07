@@ -50,10 +50,10 @@ void example00001() {
     cgnsExtr->setPlotInExecution(true);
 
     /* Create PINs. */
-    addPin(cgnsI,cgnsO, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(cgnsI,cgnsExtr, PortType::M_GEOM2, PortType::M_GEOM);
-    addPin(cgnsI,cgnsO, PortType::M_GEOM2, PortType::M_GEOM2);
-    addPin(cgnsI,cgnsO, PortType::M_BCCGNS, PortType::M_BCCGNS);
+    addPin(cgnsI,cgnsO, M_GEOM, M_GEOM);
+    addPin(cgnsI,cgnsExtr, M_GEOM2, M_GEOM);
+    addPin(cgnsI,cgnsO, M_GEOM2, M_GEOM2);
+    addPin(cgnsI,cgnsO, M_BCCGNS, M_BCCGNS);
 
     /* Create and execute chain. */
     Chain ch0;

@@ -52,7 +52,7 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    addPin(read, write, PortType::M_COORDS, PortType::M_COORDS);
+    addPin(read, write, M_COORDS, M_COORDS);
 
     /* Setup execution chain.
      */

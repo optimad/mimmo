@@ -164,28 +164,28 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, translation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(mimmo0, applierTranslation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(translation, applierTranslation, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierTranslation, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(mimmo0, translation, M_GEOM, M_GEOM);
+    addPin(mimmo0, applierTranslation, M_GEOM, M_GEOM);
+    addPin(translation, applierTranslation, M_GDISPLS, M_GDISPLS);
+    addPin(applierTranslation, mimmo1, M_GEOM, M_GEOM);
 
-    addPin(applierTranslation, scaling, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(applierTranslation, applierScaling, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(scaling, applierScaling, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierScaling, mimmo2, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierTranslation, scaling, M_GEOM, M_GEOM);
+    addPin(applierTranslation, applierScaling, M_GEOM, M_GEOM);
+    addPin(scaling, applierScaling, M_GDISPLS, M_GDISPLS);
+    addPin(applierScaling, mimmo2, M_GEOM, M_GEOM);
 
-    addPin(applierScaling, twist, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(applierScaling, applierTwist, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(twist, applierTwist, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierTwist, mimmo3, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierScaling, twist, M_GEOM, M_GEOM);
+    addPin(applierScaling, applierTwist, M_GEOM, M_GEOM);
+    addPin(twist, applierTwist, M_GDISPLS, M_GDISPLS);
+    addPin(applierTwist, mimmo3, M_GEOM, M_GEOM);
 
-    addPin(applierTwist, bend, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(bend, mimmo4, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(applierTwist, bend, M_GEOM, M_GEOM);
+    addPin(bend, mimmo4, M_GEOM, M_GEOM);
 
-    addPin(bend, rotation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(bend, applierRotation, PortType::M_GEOM, PortType::M_GEOM);
-    addPin(rotation, applierRotation, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    addPin(applierRotation, mimmo5, PortType::M_GEOM, PortType::M_GEOM);
+    addPin(bend, rotation, M_GEOM, M_GEOM);
+    addPin(bend, applierRotation, M_GEOM, M_GEOM);
+    addPin(rotation, applierRotation, M_GDISPLS, M_GDISPLS);
+    addPin(applierRotation, mimmo5, M_GEOM, M_GEOM);
 
 
     /* Setup execution chain.

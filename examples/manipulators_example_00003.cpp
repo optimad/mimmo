@@ -149,12 +149,12 @@ void test00003() {
 
     /* Setup pin connections.
      */
-    pin::addPin(mimmo0, lattice, PortType::M_GEOM, PortType::M_GEOM);
-    pin::addPin(input, lattice, PortType::M_DISPLS, PortType::M_DISPLS);
-    pin::addPin(input, output, PortType::M_DISPLS, PortType::M_DISPLS);
-    pin::addPin(mimmo0, applier, PortType::M_GEOM, PortType::M_GEOM);
-    pin::addPin(lattice, applier, PortType::M_GDISPLS, PortType::M_GDISPLS);
-    pin::addPin(applier, mimmo1, PortType::M_GEOM, PortType::M_GEOM);
+    pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
+    pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
+    pin::addPin(input, output, M_DISPLS, M_DISPLS);
+    pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
