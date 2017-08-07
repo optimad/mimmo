@@ -109,15 +109,20 @@ void GenericDispls::swap(GenericDispls & x )noexcept
  */
 void
 GenericDispls::buildPorts(){
+
+    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_VECTORLI, MC_VECTOR, MD_LONG);
+    PortManager::instance().addPort(M_VALUEI, MC_SCALAR, MD_INT);
+    
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::setDispl, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<livector1D, GenericDispls>(this, &mimmo::GenericDispls::setLabels, PortType::M_VECTORLI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::LONG));
-    built = (built && createPortIn<int, GenericDispls>(this, &mimmo::GenericDispls::setNDispl, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+    built = (built && createPortIn<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::setDispl, M_DISPLS));
+    built = (built && createPortIn<livector1D, GenericDispls>(this, &mimmo::GenericDispls::setLabels, M_VECTORLI));
+    built = (built && createPortIn<int, GenericDispls>(this, &mimmo::GenericDispls::setNDispl, M_VALUEI));
 
-    built = (built && createPortOut<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::getDispl, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<livector1D, GenericDispls>(this, &mimmo::GenericDispls::getLabels, PortType::M_VECTORLI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::LONG));
-    built = (built && createPortOut<int, GenericDispls>(this, &mimmo::GenericDispls::getNDispl, PortType::M_VALUEI, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::INT));
+    built = (built && createPortOut<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::getDispl, M_DISPLS));
+    built = (built && createPortOut<livector1D, GenericDispls>(this, &mimmo::GenericDispls::getLabels, M_VECTORLI));
+    built = (built && createPortOut<int, GenericDispls>(this, &mimmo::GenericDispls::getNDispl, M_VALUEI));
 
     m_arePortsBuilt = built;
 }

@@ -113,17 +113,23 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
  */
 void
 IOCloudPoints::buildPorts(){
+    
+    PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_VECTORLI, MC_VECTOR, MD_LONG);
+    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+    
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setLabels, PortType::M_VECTORLI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::LONG));
+    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS));
+    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_DISPLS));
+    built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_SCALARFIELD));
+    built = (built && createPortIn<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setLabels, M_VECTORLI));
 
-    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getPoints, PortType::M_COORDS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, PortType::M_DISPLS, mimmo::pin::containerTAG::VECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getLabels, PortType::M_VECTORLI, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::LONG));
+    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getPoints, M_COORDS));
+    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, M_DISPLS));
+    built = (built && createPortOut<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_SCALARFIELD));
+    built = (built && createPortOut<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getLabels, M_VECTORLI));
 
     m_arePortsBuilt = built;
 }

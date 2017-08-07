@@ -46,25 +46,26 @@ namespace mimmo{
  *
  *	=========================================================
 
- 	|                    Port Input  |||                                   |
+ 	|                    Port Input  |||                                |
  	|-------|-------------|-------------------|-------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- 	| 0     | M_COORDS    | setResult         | (VECARR3, FLOAT)        |
- 	| 10    | M_DISPLS    | setResult         | (VECARR3, FLOAT)        |
-    | 14    | M_DATAFIELD | setResult         | (VECTOR, FLOAT)     |
-    | 18    | M_SCALARFIELD | setResult         | (MPVECTOR, FLOAT)     |
-    | 19    | M_VECTORFIELD | setResult         | (MPVECARR3, FLOAT)     |
- 	| 20    | M_POINT     | setResult         | (ARRAY3, FLOAT)         |
- 	| 24    | M_DIMENSION | setResult         | (ARRAY3, INT)           |
- 	| 30    | M_VALUED    | setResult         | (SCALAR, FLOAT)         |
- 	| 31    | M_VALUEI    | setResult         | (SCALAR, INT)           |
- 	| 32    | M_VALUEB    | setResult         | (SCALAR, BOOL)          |
- 	| 40    | M_DEG       | setResult         | (ARRAY3, INT)           |
+    | 0     | M_COORDS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
+ 	| 10    | M_DISPLS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
+ 	| 14    | M_DATAFIELD | setResult         | (MC_VECTOR, MD_FLOAT)      |
+    | 18    | M_SCALARFIELD | setResult       | (MC_MPVECTOR, MD_FLOAT)    |
+    | 19    | M_VECTORFIELD | setResult       | (MC_MPVECARR3, MD_FLOAT)   |
+    | 20    | M_POINT     | setResult         | (MC_ARRAY3, MD_FLOAT)         |
+ 	| 24    | M_DIMENSION | setResult         | (MC_ARRAY3, MD_INT)           |
+ 	| 30    | M_VALUED    | setResult         | (MC_SCALAR, MD_FLOAT)         |
+ 	| 31    | M_VALUEI    | setResult         | (MC_SCALAR, MD_INT)           |
+ 	| 32    | M_VALUEB    | setResult         | (MC_SCALAR, MD_BOOL)          |
+ 	| 40    | M_DEG       | setResult         | (MC_ARRAY3, MD_INT)           |
 
 
  	|              Port Output  |||              |
  	|-------|-------------|---------|----------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
 
  *	=========================================================
  *

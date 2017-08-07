@@ -82,22 +82,22 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |                 Port Input   |||                                     |
-     |-------|---------------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 0     | M_COORDS      | setPoints         | (VECARR3, FLOAT)      |
-     | 10    | M_DISPLS      | setVectorField    | (VECARR3, FLOAT)      |
-     | 18    | M_VECTORLI    | setLabels         | (VECTOR, LONG)        |
-     | 19    | M_SCALARFIELD | setScalarField    | (VECTOR, FLOAT)       |
+     |                 Port Input   ||                                     |
+     |---------------|-------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_COORDS      | setPoints         | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS      | setVectorField    | (MC_VECARR3, MD_FLOAT)      |
+     | M_VECTORLI    | setLabels         | (MC_VECTOR, MD_LONG)        |
+     | M_SCALARFIELD | setScalarField    | (MC_VECTOR, MD_FLOAT)       |
 
 
-     |              Port Output  |||                                        |
-     |-------|---------------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 0     | M_COORDS      | getPoints         | (VECARR3, FLOAT)      |
-     | 10    | M_DISPLS      | getVectorField    | (VECARR3, FLOAT)      |
-     | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        |
-     | 19    | M_SCALARFIELD | getScalarField    | (VECTOR, FLOAT)       |
+     |              Port Output  ||                                        |
+     |---------------|-------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_COORDS      | getPoints         | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS      | getVectorField    | (MC_VECARR3, MD_FLOAT)      |
+     | M_VECTORLI    | getLabels         | (MC_VECTOR, MD_LONG)        |
+     | M_SCALARFIELD | getScalarField    | (MC_VECTOR, MD_FLOAT)       |
 
  *    =========================================================
  * \n

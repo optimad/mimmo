@@ -64,20 +64,20 @@ namespace mimmo{
  *
  * =========================================================
 
-   |                 Port Input   |||                                  |
-   |-------|------------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 10    | M_DISPLS   | setDispl          | (VECARR3, FLOAT)      |
-   | 18    | M_VECTORLI | setLabels         | (VECTOR, LONG)        |
-   | 31    | M_VALUEI   | setNDispl         | (SCALAR, INT)         |
+   |                 Port Input   ||                                  |
+   |------------|-------------------|-----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_DISPLS   | setDispl          | (MC_VECARR3, MD_FLOAT)      |
+   | M_VECTORLI | setLabels         | (MC_VECTOR, MD_LONG)        |
+   | M_VALUEI   | setNDispl         | (MC_SCALAR, MD_INT)         |
 
 
-   |              Port Output  |||                                        |
-   |-------|---------------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 10    | M_DISPLS      | getDispl          | (VECARR3, FLOAT)      |
-   | 18    | M_VECTORLI    | getLabels         | (VECTOR, LONG)        |
-   | 31    | M_VALUEI      | getNDispl         | (SCALAR, INT)         |
+   |              Port Output  ||                                        |
+   |---------------|-------------------|-----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_DISPLS      | getDispl          | (MC_VECARR3, MD_FLOAT)      |
+   | M_VECTORLI    | getLabels         | (MC_VECTOR, MD_LONG)        |
+   | M_VALUEI      | getNDispl         | (MC_SCALAR, MD_INT)         |
 
  *
  *=========================================================

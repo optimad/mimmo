@@ -51,23 +51,23 @@ namespace mimmo{
      |                 Port Input  |||                                 |
      |-------|----------|-------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM         | setGeometry         | (SCALAR, MIMMO_)                   |
+    | 99    | M_GEOM         | setGeometry         | (MC_SCALAR, MD_MIMMO_)                   |
 
 
      |              Port Output   ||               |                       |
      |-------|---------------|-------------------|-----------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 0     | M_COORDS      | getResult         | (VECARR3, FLOAT)      |
-     | 10    | M_DISPLS      | getResult         | (VECARR3, FLOAT)      |
-     | 18    | M_SCALARFIELD | getResult         | (MPVECTOR, FLOAT)     |
-     | 19    | M_VECTORFIELD | getResult         | (MPVECARR3, FLOAT)     |
-     | 20    | M_POINT       | getResult         | (ARRAY3, FLOAT)       |
-     | 23    | M_SPAN        | getResult         | (ARRAY3, FLOAT)       |
-     | 24    | M_DIMENSION   | getResult         | (ARRAY3, INT)         |
-     | 30    | M_VALUED      | getResult         | (SCALAR, FLOAT)       |
-     | 31    | M_VALUEI      | getResult         | (SCALAR, INT)         |
-     | 32    | M_VALUEB      | getResult         | (SCALAR, BOOL)        |
-     | 40    | M_DEG         | getResult         | (ARRAY3, INT)         |
+     | 0     | M_COORDS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
+     | 10    | M_DISPLS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
+     | 18    | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
+     | 19    | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)     |
+     | 20    | M_POINT       | getResult         | (MC_ARRAY3, MD_FLOAT)       |
+     | 23    | M_SPAN        | getResult         | (MC_ARRAY3, MD_FLOAT)       |
+     | 24    | M_DIMENSION   | getResult         | (MC_ARRAY3, MD_INT)         |
+     | 30    | M_VALUED      | getResult         | (MC_SCALAR, MD_FLOAT)       |
+     | 31    | M_VALUEI      | getResult         | (MC_SCALAR, MD_INT)         |
+     | 32    | M_VALUEB      | getResult         | (MC_SCALAR, MD_BOOL)        |
+     | 40    | M_DEG         | getResult         | (MC_ARRAY3, MD_INT)         |
 
  *    =========================================================
  * \n
