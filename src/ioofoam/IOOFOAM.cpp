@@ -147,14 +147,19 @@ IOOFOAM::setDefaults(){
  */
 void
 IOOFOAM::buildPorts(){
-    bool built = true;
-    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<dmpvector1D, IOOFOAM>(this, &IOOFOAM::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
 
-    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getSurfaceBoundary, PortType::M_GEOM2, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<dmpvector1D, IOOFOAM>(this, &IOOFOAM::getField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_GEOM2, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+    
+    bool built = true;
+    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, M_GEOM2));
+    built = (built && createPortIn<dvector1D, IOOFOAM>(this, &IOOFOAM::setField, M_SCALARFIELD));
+
+    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getSurfaceBoundary, M_GEOM2));
+    built = (built && createPortOut<dvector1D, IOOFOAM>(this, &IOOFOAM::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 

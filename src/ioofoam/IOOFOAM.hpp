@@ -54,20 +54,20 @@ namespace mimmo{
  *
  *    =========================================================
 
-   |                     Port Input   |||                                     |
-   |-------|------------------|---------------------|----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 18    | M_SCALARFIELD    | setField            | (MPVECTOR, FLOAT)      |
-   | 99    | M_GEOM           | setGeometry         | (SCALAR, MIMMO_)     |
-   | 98    | M_GEOM2          | setSurfaceBoundary  | (SCALAR, MIMMO_)     |
+   |                     Port Input   ||                                     |
+   |------------------|---------------------|----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_SCALARFIELD    | setField            | (MC_VECTOR, MD_FLOAT)      |
+   | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
+   | M_GEOM2          | setSurfaceBoundary  | (MC_SCALAR, MD_MIMMO_)     |
 
 
-   |               Port Output    |||                                         |
-   |-------|------------------|--------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | 18    | M_SCALARFIELD    | getField           | (MPVECTOR, FLOAT)       |
-   | 99    | M_GEOM           | getGeometry        | (SCALAR, MIMMO_)      |
-   | 98    | M_GEOM2          | getSurfaceBoundary | (SCALAR, MIMMO_)      |
+   |               Port Output    ||                                         |
+   |------------------|--------------------|-----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_SCALARFIELD    | getField           | (MC_VECTOR, MD_FLOAT)       |
+   | M_GEOM           | getGeometry        | (MC_SCALAR, MD_MIMMO_)      |
+   | M_GEOM2          | getSurfaceBoundary | (MC_SCALAR, MD_MIMMO_)      |
 
  * =========================================================
  * \n
