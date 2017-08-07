@@ -79,15 +79,22 @@ ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(other){
  */
 void
 ClipGeometry::buildPorts(){
+   
+    PortManager::instance().addPort(M_PLANE, MC_ARRAY4, MD_FLOAT);
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXIS, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_VALUEB, MC_SCALAR, MD_BOOL);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    
     bool built = true;
 
-    built = (built && createPortIn<darray4E, ClipGeometry>(this, &mimmo::ClipGeometry::setClipPlane, PortType::M_PLANE, mimmo::pin::containerTAG::ARRAY4, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setOrigin, PortType::M_POINT, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setNormal, PortType::M_AXIS, mimmo::pin::containerTAG::ARRAY3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortIn<bool, ClipGeometry>(this, &mimmo::ClipGeometry::setInsideOut, PortType::M_VALUEB, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::BOOL));
-    built = (built && createPortIn<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
+    built = (built && createPortIn<darray4E, ClipGeometry>(this, &mimmo::ClipGeometry::setClipPlane, M_PLANE));
+    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setOrigin, M_POINT));
+    built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setNormal, M_AXIS));
+    built = (built && createPortIn<bool, ClipGeometry>(this, &mimmo::ClipGeometry::setInsideOut, M_VALUEB));
+    built = (built && createPortIn<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::setGeometry, M_GEOM, true));
 
-    built = (built && createPortOut<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::getClippedPatch, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortOut<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::getClippedPatch, M_GEOM));
     m_arePortsBuilt = built;
 };
 

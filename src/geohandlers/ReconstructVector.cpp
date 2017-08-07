@@ -444,16 +444,22 @@ ReconstructVector::overlapFields(long int ID, darray3E & locField){
 void
 ReconstructVector::buildPorts(){
 
+    PortManager::instance().addPort(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_VECPAIRVF, MC_VECTOR, MD_PAIRMIMMO_VECARR3FLOAT_);
+    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
+    
+    
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortIn<dmpvecarr3E, ReconstructVector>(this, &mimmo::ReconstructVector::addData, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, true,1));
+    built = (built && createPortIn<dmpvecarr3E, ReconstructVector>(this, &mimmo::ReconstructVector::addData, PortType::M_VECTORFIELD));
 
     //output
-    built = (built && createPortOut<dmpvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<std::vector<dmpvecarr3E>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, PortType::M_VECVFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECARR3FLOAT));
+    built = (built && createPortOut<dmpvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, PortType::M_VECTORFIELD));
+    built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, PortType::M_GEOM));
+    built = (built && createPortOut<std::vector<dmpvecarr3E>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, PortType::M_VECVFIELDS));
     m_arePortsBuilt = built;
 };
 

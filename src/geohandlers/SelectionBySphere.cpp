@@ -109,6 +109,12 @@ void SelectionBySphere::swap(SelectionBySphere & x) noexcept
 void
 SelectionBySphere::buildPorts(){
 
+    
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_INFLIMITS, MC_ARRAY3, MD_FLOAT);
+    
     bool built = true;
 
     GenericSelection::buildPorts();

@@ -165,6 +165,8 @@ void SelectionByMapping::swap(SelectionByMapping & x) noexcept
 void
 SelectionByMapping::buildPorts(){
 
+    PortManager::instance().addPort(M_GEOM2, MC_SCALAR, MD_MIMMO_);
+    
     bool built = true;
 
     GenericSelection::buildPorts();

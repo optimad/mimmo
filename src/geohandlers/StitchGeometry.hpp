@@ -42,16 +42,16 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |Port Input | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM   | addGeometry                     | (SCALAR, MIMMO_)      |
+     |Port Input | | |
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM   | addGeometry                     | (MC_SCALAR, MD_MIMMO_)      |
 
 
-     |Port Output | | | |
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | 99    | M_GEOM    | getGeometry                        | (SCALAR, MIMMO_)         |
+     |Port Output | | |
+     |-|-|-|
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+     | M_GEOM    | getGeometry                        | (MC_SCALAR, MD_MIMMO_)         |
 
  *    =========================================================
  *

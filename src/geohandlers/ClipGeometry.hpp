@@ -46,20 +46,20 @@ namespace mimmo{
  *
  *    =========================================================
  *
-     |                 Port Input    |||                              |
-     |-------|----------|-------------------|-------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 29    | M_PLANE  | setClipPlane      | (ARRAY4, FLOAT)         |
-     | 20    | M_POINT  | setOrigin         | (ARRAY3, FLOAT)         |
-     | 21    | M_AXIS   | setNormal         | (ARRAY3, FLOAT)         |
-     | 32    | M_VALUEB | setInsideOut      | (SCALAR, BOOL)          |
-     | 99    | M_GEOM   | setGeometry       | (SCALAR, MIMMO_)        |
+     |                 Port Input    ||                              |
+     |----------|-------------------|-------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_PLANE  | setClipPlane      | (MC_ARRAY4, MD_FLOAT)         |
+     | M_POINT  | setOrigin         | (MC_ARRAY3, MD_FLOAT)         |
+     | M_AXIS   | setNormal         | (MC_ARRAY3, MD_FLOAT)         |
+     | M_VALUEB | setInsideOut      | (MC_SCALAR, MD_BOOL)          |
+     | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
 
-     |            Port Output           |||                           |
-     |-------|----------|-------------------|-------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM   | getClippedPatch   | (SCALAR, MIMMO_)        |
+     |            Port Output           ||                           |
+     |----------|-------------------|-------------------------|
+     |<B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM   | getClippedPatch   | (MC_SCALAR, MD_MIMMO_)        |
 
  *    =========================================================
  *

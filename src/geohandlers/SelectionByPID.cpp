@@ -102,6 +102,9 @@ void SelectionByPID::swap(SelectionByPID & x) noexcept
 void
 SelectionByPID::buildPorts(){
 
+    PortManager::instance().addPort(M_VECTORSI, MC_VECTOR, MD_SHORT);
+    PortManager::instance().addPort(M_VALUESI, MC_SCALAR, MD_SHORT);
+    
     bool built = true;
 
     GenericSelection::buildPorts();

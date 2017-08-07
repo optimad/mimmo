@@ -419,16 +419,21 @@ ReconstructScalar::overlapFields(long int ID, double & locField){
 void
 ReconstructScalar::buildPorts(){
 
+    PortManager::instance().addPort(M_PAIRSCAFIELD, MC_PAIR, MD_MIMMO_VECFLOAT_);
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_VECPAIRSF, MC_VECTOR, MD_PAIRMIMMO_VECFLOAT_);
+    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+    
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
-    built = (built && createPortIn<dmpvector1D, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, true));
+    built = (built && createPortIn<dmpvector1D, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, PortType::M_SCALARFIELD));
 
     //output
-    built = (built && createPortOut<dmpvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
-    built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
-    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, PortType::M_VECSFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECFLOAT));
+    built = (built && createPortOut<dmpvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, PortType::M_SCALARFIELD));
+    built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR));
+    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, PortType::M_VECSFIELDS));
     m_arePortsBuilt = built;
 };
 

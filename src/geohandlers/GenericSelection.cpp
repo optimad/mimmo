@@ -83,6 +83,11 @@ void GenericSelection::swap(GenericSelection & x) noexcept
 void
 GenericSelection::buildPorts(){
 
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_VALUEB, MC_SCALAR, MD_BOOL);
+    PortManager::instance().addPort(M_VECTORLI, MC_VECTOR, MD_LONG);
+    
+    
     bool built = true;
 
     built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, M_GEOM, true));

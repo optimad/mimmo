@@ -113,10 +113,17 @@ void StitchGeometry::swap(StitchGeometry & x ) noexcept
  */
 void
 StitchGeometry::buildPorts(){
+    
+    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
+    PortManager::instance().addPort(M_VECGEOM, MC_VECTOR, MD_MIMMO_);
+    PortManager::instance().addPort(M_MAPDCELL, MC_UN_MAP, MD_LONGPAIRINTLONG);
+    PortManager::instance().addPort(M_MAPDVERT, MC_UN_MAP, MD_LONGPAIRINTLONG);
+    
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true, 1));
 
-    built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
+    built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::AddGeometry, M_GEOM));
+
+    built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
 

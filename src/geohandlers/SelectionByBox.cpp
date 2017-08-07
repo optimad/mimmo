@@ -104,6 +104,10 @@ void SelectionByBox::swap(SelectionByBox & x) noexcept
 void
 SelectionByBox::buildPorts(){
 
+    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
+    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
+    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
+    
     bool built = true;
 
     GenericSelection::buildPorts();
