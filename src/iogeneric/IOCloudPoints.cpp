@@ -113,12 +113,6 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
  */
 void
 IOCloudPoints::buildPorts(){
-    
-    PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_VECTORLI, MC_VECTOR, MD_LONG);
-    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
-    
     bool built = true;
 
     built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS));

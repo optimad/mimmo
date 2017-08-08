@@ -142,13 +142,6 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
  */
 void
 IOVTKScalar::buildPorts(){
-    
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
-    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
-    PortManager::instance().addPort(M_POLYDATA_, MC_SCALAR, MD_POLYDATA_);
-    
-    
     bool built = true;
 
     built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));

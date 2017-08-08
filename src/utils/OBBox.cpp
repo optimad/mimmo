@@ -106,12 +106,6 @@ void OBBox::swap(OBBox & x) noexcept
 void
 OBBox::buildPorts(){
 
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_VECGEOM, MC_VECTOR, MD_MIMMO_);
-    PortManager::instance().addPort(M_POINT, MC_ARRAY3, MD_FLOAT);
-    PortManager::instance().addPort(M_AXES, MC_ARR3ARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_SPAN, MC_ARRAY3, MD_FLOAT);
-    
     bool built = true;
     built = (built && createPortIn<MimmoObject*, OBBox>(this, &mimmo::OBBox::setGeometry, M_GEOM,true,1));
     built = (built && createPortIn<std::vector<MimmoObject*>, OBBox>(this, &mimmo::OBBox::setGeometries, M_VECGEOM, true,1));

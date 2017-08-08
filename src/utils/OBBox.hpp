@@ -122,6 +122,13 @@ private:
     void            adjustBasis( dmatrix33E &, darray3E & eigenValues);
 };
 
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__OBBox_HPP__)
+REGISTER_PORT(M_VECGEOM, MC_VECTOR, MD_MIMMO_,__OBBox_HPP__)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__OBBox_HPP__)
+REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT,__OBBox_HPP__)
+REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__OBBox_HPP__)
+
+
 REGISTER(BaseManipulation, OBBox, "mimmo.OBBox")
 
 };

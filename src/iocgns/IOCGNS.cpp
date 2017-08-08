@@ -150,11 +150,6 @@ IOCGNS::setDefaults(){
 void
 IOCGNS::buildPorts(){
  
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_GEOM2, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_BCCGNS, MC_SCALAR, MD_BCCGNS_);
-    
-    
     bool built = true;
     built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM));
     built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2));

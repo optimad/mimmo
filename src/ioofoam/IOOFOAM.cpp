@@ -148,10 +148,6 @@ IOOFOAM::setDefaults(){
 void
 IOOFOAM::buildPorts(){
 
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_GEOM2, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
-    
     bool built = true;
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, M_GEOM));
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, M_GEOM2));

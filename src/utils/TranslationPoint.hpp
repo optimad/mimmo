@@ -104,6 +104,11 @@ protected:
     void swap(TranslationPoint & x) noexcept;
 };
 
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__TRANSLATIONPOINT_HPP__)
+REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__TRANSLATIONPOINT_HPP__)
+REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__TRANSLATIONPOINT_HPP__)
+
+
 REGISTER(BaseManipulation, TranslationPoint, "mimmo.TranslationPoint")
 };
 

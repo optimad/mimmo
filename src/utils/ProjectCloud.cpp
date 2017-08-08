@@ -86,10 +86,6 @@ void ProjectCloud::swap(ProjectCloud & x) noexcept
  */
 void
 ProjectCloud::buildPorts(){
-    
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
-    
     bool built = true;
 
 <<<<<<< HEAD

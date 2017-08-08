@@ -122,14 +122,6 @@ FFDLattice::buildPorts(){
 
     Lattice::buildPorts();
 
-    PortManager::instance().addPort(M_DISPLS, MC_VECARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_FILTER, MC_VECTOR, MD_FLOAT);
-    PortManager::instance().addPort(M_DEG, MC_ARRAY3, MD_INT);
-    PortManager::instance().addPort(M_NURBSWEIGHTS, MC_VECTOR, MD_FLOAT);
-    PortManager::instance().addPort(M_NURBSCOORDTYPE, MC_ARRAY3, MD_COORDT);
-    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_);
-    
     bool built = true;
 
     //input

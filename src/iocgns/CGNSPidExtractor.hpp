@@ -107,6 +107,8 @@ protected:
 
 };
 
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CGNSPIDEXTRACTOR_HPP__)
+
 REGISTER(BaseManipulation, CGNSPidExtractor,"mimmo.CGNSPidExtractor")
 }
 

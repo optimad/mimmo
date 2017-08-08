@@ -102,13 +102,6 @@ void ControlDeformExtSurface::swap(ControlDeformExtSurface & x) noexcept
  */
 void
 ControlDeformExtSurface::buildPorts(){
-    
-    PortManager::instance().addPort(M_GDISPLS, MC_VECARR3, MD_FLOAT);
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_VALUED, MC_SCALAR, MD_FLOAT);
-    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
-    PortManager::instance().addPort(M_VIOLATION, MC_PAIR, MD_PAIRMIMMO_OBJFLOAT_);
-    
     bool built = true;
 
     built = (built && createPortIn<dvecarr3E, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS, true));

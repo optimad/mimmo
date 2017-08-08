@@ -419,11 +419,6 @@ ReconstructScalar::overlapFields(long int ID, double & locField){
 void
 ReconstructScalar::buildPorts(){
 
-    PortManager::instance().addPort(M_PAIRSCAFIELD, MC_PAIR, MD_MIMMO_VECFLOAT_);
-    PortManager::instance().addPort(M_GEOM, MC_SCALAR, MD_MIMMO_);
-    PortManager::instance().addPort(M_VECPAIRSF, MC_VECTOR, MD_PAIRMIMMO_VECFLOAT_);
-    PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
-    
     bool built = true;
 
     //input

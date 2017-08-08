@@ -111,11 +111,9 @@ public:
      * \param[in] datatype_name name of the datatype associated to the port
      * \return current size of ports registered in the list
      */ 
-    int addPort(const std::string name, const std::string container_name, const std::string datatype_name){
+    long addPort(const std::string name, const std::string container_name, const std::string datatype_name){
         
-        if (containsPort(name) ){
-            return (int) ports.size(); 
-        }
+        if(containsPort(name) > 0)  return ports[name].id;
         InfoPort temp;
         temp.container = container_name;
         temp.datatype = datatype_name;
@@ -132,8 +130,8 @@ public:
         if(!containsDatatype(datatype_name)){
             datatypes[datatype_name]= idD;
         }
-        
-        return (int) ports.size();
+
+        return (long) ports.size();
     }
     
     /*! Check if a port name is already registered 
@@ -193,7 +191,6 @@ private:
     std::unordered_map<std::string, InfoPort> ports;  /**< list of registered ports */
     std::unordered_map<std::string, long> containers; /**< list of registered port containers */
     std::unordered_map<std::string, long> datatypes;  /**< list of registered port data types */
-    
 };
 
 };
@@ -201,6 +198,42 @@ private:
 /*!
  * \}
  */
+
+/*!
+ * \ingroup macro
+ * \{
+ */
+
+/*!
+ * \def REGISTER_PORT(Name, Container, Datatype, ManipBlock)
+ *  Macro to register a port directly on PortManager singleton.
+ *  If the port does not exist create it, assign a unique id and return the latter.
+ *  If the port already exists, does nothing.
+ * \param[in]   Name name of Derived's base class
+ * \param[in]   Container name of the class
+ * \param[in]   Datatype string to register the creator's name
+ * \param[in]   ManipBlock name of the mimmo class header where ports are declared. 
+ * \return counter of the already registered classes
+ */
+#define REGISTER_PORT(Name, Container, Datatype, ManipBlock) \
+/* Register a Port in the mimmo::portManager*/ \
+ static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype); \
+
+
+/*!
+ * Return if a port Name is already registered or not.
+ * \param[in]   name string of the port's name
+ * \return boolean true/false if the port name is already registered
+ */
+inline bool isREGISTERED(const std::string name){
+    return mimmo::PortManager::instance().containsPort(name);
+}
+
+/*!
+ * \}
+ */ 
+
+
 
 #endif
 
