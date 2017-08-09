@@ -19,7 +19,9 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - Dismissed geohandlers:Split classes, substituted by new geohandlers: Extract classes
 - Dismissed iogeneric:MultipleMimmoGeometries
 - Dismissed manipulators:MultiApply
-
+- Ports management: enum PortType, containerTAG and datatypeTAG are dissmissed
+- Ports management: created new static singleton PortManager for on-the fly ports registration.
+- Ports management: added a C macro REGISTER_PORT for compile-time ports registration.
 
 ### Added
 - This CHANGELOG file.
