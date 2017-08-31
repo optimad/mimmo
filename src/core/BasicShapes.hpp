@@ -28,7 +28,8 @@
 #include "bitpit.hpp"
 #include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
-#include "SortAlgorithms.hpp"
+#include "surface_skd_tree.hpp"
+#include "volume_skd_tree.hpp"
 #include <unordered_set>
 
 namespace mimmo{
@@ -213,8 +214,8 @@ private:
     virtual void		setScaling(double &s0, double &s1, double &s2)=0;
 
     void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
-    void				searchBvTreeMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
-    void				searchBvTreeNotMatches(mimmo::BvTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
+    void				searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
+    void				searchBvTreeNotMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
 
     /*!
      * Pure virtual method to get the Axis Aligned Bounding Box of the current shape

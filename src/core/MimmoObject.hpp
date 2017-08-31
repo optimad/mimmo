@@ -28,7 +28,9 @@
 #include "bitpit_volunstructured.hpp"
 #include "bitpit_surfunstructured.hpp"
 #include "bitpit_SA.hpp"
-#include "BvTree.hpp"
+//#include "BvTree.hpp"
+#include "surface_skd_tree.hpp"
+#include "volume_skd_tree.hpp"
 #include "mimmoTypeDef.hpp"
 #include "MimmoNamespace.hpp"
 
@@ -62,7 +64,7 @@ protected:
 
     std::unordered_set<short>               m_pidsType;        /**<pid type available for your geometry */
 
-    BvTree                                  m_bvTree;          /**< ordered tree of geometry simplicies for fast searching purposes */
+    bitpit::PatchSkdTree*                   m_bvTree;          /**< ordered tree of geometry simplicies for fast searching purposes */
     bool                                    m_bvTreeBuilt;     /**< track correct building of bvtree along with geometry modifications */
     bitpit::KdTree<3,bitpit::Vertex,long>   m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
     bool                                    m_kdTreeBuilt;     /**< track correct building of kdtree along eith geometry modifications */
@@ -119,7 +121,7 @@ public:
     std::unordered_map<long, short>                 getPID();
 
     bool                                            isBvTreeBuilt();
-    BvTree*                                         getBvTree();
+    bitpit::PatchSkdTree*                           getBvTree();
     bool                                            isKdTreeBuilt();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
     bool                                            isBvTreeSync();

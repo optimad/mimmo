@@ -48,12 +48,13 @@ MimmoObject::MimmoObject(int type){
     if (m_type == 2){
         m_patch = new VolUnstructured(id, 3);
         dynamic_cast<VolUnstructured*>(m_patch)->setExpert(true);
+        m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
     }else{
         m_patch = new SurfUnstructured(id);
         dynamic_cast<SurfUnstructured*>(m_patch)->setExpert(true);
+        m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
     }
     m_internalPatch = true;
-    m_bvTree.setPatch(m_patch);
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSupported = (m_type != 3);
@@ -147,7 +148,13 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
             (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
         }	
     }
-    m_bvTree.setPatch(m_patch);
+
+    if (m_type == 2){
+        m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
+    }else{
+        m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
+    }
+
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
     m_bvTreeSupported = (m_type != 3);
@@ -238,7 +245,7 @@ MimmoObject::clear(){
     m_mapDataInv.clear();
     m_mapCellInv.clear();
     m_pidsType.clear();
-    m_bvTree.clean();
+    m_bvTree->clear();
     cleanKdTree();
     m_bvTreeBuilt = false;
     m_kdTreeBuilt = false;
@@ -586,10 +593,10 @@ MimmoObject::isBvTreeBuilt(){
 /*!
  * \return pointer to geometry BvTree internal structure
  */
-BvTree*
+bitpit::PatchSkdTree*
 MimmoObject::getBvTree(){
     if (!m_bvTreeSupported) return NULL;
-    return &m_bvTree;
+    return m_bvTree;
 }
 
 /*!
@@ -901,7 +908,14 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
 
     if(m_patch->getCellCount() != 0){
         m_bvTreeSupported = true;
-        m_bvTree.setPatch(m_patch);
+
+        m_bvTree->clear();
+        delete m_bvTree;
+        if (m_type == 2){
+            m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
+        }else{
+            m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
+        }
         
         for(auto & cell : geometry->getCells()){
             m_pidsType.insert(cell.getPID());
@@ -1361,10 +1375,9 @@ void MimmoObject::buildBvTree(int value){
     if(!m_bvTreeSupported || m_patch == NULL)	return;
     
     if (!m_bvTreeBuilt || !m_bvTreeSync){
-        m_bvTree.clean();
-        m_bvTree.setup();
-        m_bvTree.setMaxLeafSize(value);
-        m_bvTree.buildTree();
+        m_bvTree->clear();
+//        m_bvTree->setup();
+        m_bvTree->build(value);
         m_bvTreeBuilt = true;
         m_bvTreeSync = true;
     }

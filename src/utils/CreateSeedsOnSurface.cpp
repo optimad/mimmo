@@ -24,6 +24,7 @@
 
 #include "CreateSeedsOnSurface.hpp"
 #include "Lattice.hpp"
+#include "SkdTreeUtils.hpp"
 
 #include <stdlib.h>
 #include <time.h>
@@ -421,7 +422,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     distance = std::pow(distance, 0.5);
 
     livector1D neighs, excl;
-    darray3E projSeed = bvTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
     bitpit::Vertex vertSeed(0, projSeed);
     int nSize = 0;
     while( nSize < 1){
@@ -502,7 +503,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     iarray3E dim;
 
     //get the seed and project it on surface
-    darray3E projSeed = bvTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
@@ -568,7 +569,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     darray3E normal;
     for(auto & p : centroids){
         dummy=distR;
-        dist =  mimmo::bvTreeUtils::signedDistance(&p,getGeometry()->getBvTree(),id, normal, dummy);
+        dist =  mimmo::skdTreeUtils::signedDistance(&p,getGeometry()->getBvTree(),id, normal, dummy);
         if(std::abs(dist) < distR){
             initList.push_back(p-dist*normal);
         }
@@ -626,7 +627,7 @@ CreateSeedsOnSurface::solveRandom(bool debug){
     dvecarr3E initList(getNPoints());
 
     //get the seed and project it on surface
-    initList[0] = bvTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
@@ -665,7 +666,7 @@ CreateSeedsOnSurface::solveRandom(bool debug){
 
         //project tentative points on surface.
         for(int i = 0; i<nTent; ++i){
-            minP = bvTreeUtils::projectPoint(&tentative[i+1], getGeometry()->getBvTree());
+            minP = skdTreeUtils::projectPoint(&tentative[i+1], getGeometry()->getBvTree());
             tentative[i+1] = minP;
         }
     }
@@ -1369,7 +1370,7 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     double radius = 1.0E-03;
     MimmoObject* geo = getGeometry();
     
-    bvTreeUtils::distance(&point, getGeometry()->getBvTree(), supportCell, radius, 1);
+    skdTreeUtils::distance(&point, getGeometry()->getBvTree(), supportCell, radius);
     
     auto convMap = getGeometry()->getMapDataInv();
     

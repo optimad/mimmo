@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformMaxDistance.hpp"
+#include "SkdTreeUtils.hpp"
 
 namespace mimmo{
 
@@ -209,7 +210,7 @@ ControlDeformMaxDistance::execute(){
         flag = true;
         radius = std::fmax(1.0E-8, normDef[count]);
         while(flag && kiter < kmax){
-            dist = bvTreeUtils::distance(&p, geo->getBvTree(), id, radius);
+            dist = skdTreeUtils::distance(&p, geo->getBvTree(), id, radius);
             flag = (dist == 1.0E+18);
             if(flag)    radius *= (1.0+ rate*((double)flag));
             kiter++;

@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ProjectCloud.hpp"
+#include "SkdTreeUtils.hpp"
 
 namespace mimmo{
 
@@ -130,7 +131,7 @@ ProjectCloud::execute(){
     int counter = 0;
     m_proj.resize(m_points.size());
     for(auto &val : m_points){
-        m_proj[counter]= bvTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
+        m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
         ++counter;
     }
     return;

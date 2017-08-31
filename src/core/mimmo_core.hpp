@@ -41,7 +41,7 @@
 #include "BaseManipulation.hpp"
 #include "BasicMeshes.hpp"
 #include "BasicShapes.hpp"
-#include "BvTree.hpp"
+#include "SkdTreeUtils.hpp"
 #include "Chain.hpp"
 #include "InOut.hpp"
 #include "IOConnections.hpp"

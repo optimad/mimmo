@@ -29,6 +29,7 @@
 #include "MimmoObject.hpp"
 #include "BasicShapes.hpp"
 #include "MimmoGeometry.hpp"
+#include "SkdTreeUtils.hpp"
 
 #include <memory>
 #include <utility>

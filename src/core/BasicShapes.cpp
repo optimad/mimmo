@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
+#include "SortAlgorithms.hpp"
 #include <algorithm>
 
 using namespace bitpit;
@@ -655,41 +656,57 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
  *\param[in,out] counter	last filled position of result vector.
  * 
  */
-void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
+void	BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
 	
 	//check indexBvNode admissible.
-	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
-	   
+	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
+
+    std::vector<std::size_t> cellRawIds = tree.getPatchInfo().getCellRawIds();
+    bitpit::SkdNode node = tree.getNode(indexBvNode);
+    const bitpit::PiercedVector<Cell> &cells = geo->getCells();
+
 	//1st step get data and control if it's leaf or if shape contain bounding box
-	if(containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint)){
+	if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
 	
-		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			result[counter] = tree.m_elements[i].m_label;
+        std::array<size_t, 2> elements;
+        elements[0] = node.getCellBegin();
+        elements[1] = node.getCellEnd();
+
+        for(int i = elements[0]; i<elements[1]; ++i){
+            std::size_t cellRawId = cellRawIds[i];
+            const bitpit::Cell &cell = cells.rawAt(cellRawId);
+            long cellId = cell.getId();
+			result[counter] = cellId;
 			++counter;
 		}	
 		return;
 	};
 	
-	if(tree.m_nodes[indexBvNode].m_leaf){
-		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			if(isSimplexIncluded(geo, tree.m_elements[i].m_label)){
-				result[counter] = tree.m_elements[i].m_label;		
-				++counter;
-			}					
-		}
-		return;
+	if(node.isLeaf()){
+	    std::array<size_t, 2> elements;
+	    elements[0] = node.getCellBegin();
+	    elements[1] = node.getCellEnd();
+
+	    for(int i = elements[0]; i<elements[1]; ++i){
+	        std::size_t cellRawId = cellRawIds[i];
+	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
+	        long cellId = cell.getId();
+	        if(isSimplexIncluded(geo, cellId)){
+	            result[counter] = cellId;
+	            ++counter;
+	        }
+	    }
+	    return;
 	}
-	
-	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
-		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result, counter);
-	}
-	
-	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
-		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result,counter);
-	}
-	
+
+    for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
+        SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+        if(node.getChildId(childLocation) != SkdNode::NULL_ID)   {
+            if( intersectShapeAABBox(tree.getNode(node.getChildId(childLocation)).getBoxMin(), tree.getNode(node.getChildId(childLocation)).getBoxMax()) )
+                searchBvTreeMatches(tree, geo, node.getChildId(childLocation), result, counter);
+        }
+    }
+
 	return;
 };
 
@@ -704,40 +721,57 @@ void	BasicShape::searchBvTreeMatches(mimmo::BvTree & tree,  bitpit::PatchKernel 
  *\param[in,out] counter	last filled position of result vector.
  * 
  */
-void	BasicShape::searchBvTreeNotMatches(mimmo::BvTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
+void	BasicShape::searchBvTreeNotMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
 	
 	//check indexBvNode admissible.
-	if(indexBvNode <0 || indexBvNode > tree.m_nnodes)	return;
-	
+	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
+
+    std::vector<std::size_t> cellRawIds = tree.getPatchInfo().getCellRawIds();
+	bitpit::SkdNode node = tree.getNode(indexBvNode);
+    const bitpit::PiercedVector<Cell> &cells = geo->getCells();
+
 	//1st step get data and control if it's leaf or if shape contain bounding box
-	if(containShapeAABBox(tree.m_nodes[indexBvNode].m_minPoint, tree.m_nodes[indexBvNode].m_maxPoint)){
+	if(!containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
+
+	    std::array<size_t, 2> elements;
+        elements[0] = node.getCellBegin();
+        elements[1] = node.getCellEnd();
 		
-		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			result[counter] = tree.m_elements[i].m_label;
+		for(int i = elements[0]; i<elements[1]; ++i){
+	        std::size_t cellRawId = cellRawIds[i];
+	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
+	        long cellId = cell.getId();
+			result[counter] = cellId;
 			++counter;
 		}	
 		return;
 	};
 	
-	if(tree.m_nodes[indexBvNode].m_leaf){
-		for(int i = tree.m_nodes[indexBvNode].m_element[0]; i<tree.m_nodes[indexBvNode].m_element[1]; ++i){
-			if(isSimplexIncluded(geo, tree.m_elements[i].m_label)){
-				result[counter] = tree.m_elements[i].m_label;		
-				++counter;
-			}					
-		}
+	if(node.isLeaf()){
+	    std::array<size_t, 2> elements;
+	    elements[0] = node.getCellBegin();
+	    elements[1] = node.getCellEnd();
+
+	    for(int i = elements[0]; i<elements[1]; ++i){
+	        std::size_t cellRawId = cellRawIds[i];
+	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
+	        long cellId = cell.getId();
+	        if(!isSimplexIncluded(geo, cellId)){
+	            result[counter] = cellId;
+	            ++counter;
+	        }
+	    }
 		return;
 	}
-	
-	if(tree.m_nodes[indexBvNode].m_lchild >= 0)	{
-		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_lchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_lchild, result, counter);
+
+	for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
+	    SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+	    if(node.getChildId(childLocation) != SkdNode::NULL_ID)   {
+//	        if( intersectShapeAABBox(tree.getNode(node.getChildId(childLocation)).getBoxMin(), tree.getNode(node.getChildId(childLocation)).getBoxMax()) )
+	            searchBvTreeNotMatches(tree, geo, node.getChildId(childLocation), result, counter);
+	    }
 	}
-	
-	if(tree.m_nodes[indexBvNode].m_rchild >= 0)	{
-		if( intersectShapeAABBox(tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_minPoint, tree.m_nodes[tree.m_nodes[indexBvNode].m_rchild].m_maxPoint) )
-			searchBvTreeMatches(tree, geo, tree.m_nodes[indexBvNode].m_rchild, result,counter);
-	}
+
 	
 	return;
 };

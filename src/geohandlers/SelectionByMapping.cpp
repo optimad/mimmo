@@ -352,7 +352,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
-    livector1D result = mimmo::bvTreeUtils::selectByPatch(geo->getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
+    livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
     delete geo;
     geo=NULL;
 
@@ -374,7 +374,7 @@ SelectionByMapping::getProximity(MimmoObject* obj){
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
-    livector1D result = mimmo::bvTreeUtils::selectByPatch(obj->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
+    livector1D result = mimmo::skdTreeUtils::selectByPatch(obj->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
 
     return    result;
 };

@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "SpecularPoints.hpp"
+#include "SkdTreeUtils.hpp"
 
 namespace mimmo{
 
@@ -348,7 +349,7 @@ SpecularPoints::execute(){
         //project points on surface.
         int counter = 0;
         for(auto &val : m_proj){
-            m_proj[counter]= bvTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
+            m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
             ++counter;
         }
     }

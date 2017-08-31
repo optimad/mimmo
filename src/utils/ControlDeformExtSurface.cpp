@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformExtSurface.hpp"
+#include "SkdTreeUtils.hpp"
 #include <cmath>
 
 namespace mimmo{
@@ -725,7 +726,7 @@ ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObj
     if(!geo->isBvTreeBuilt())    geo->buildBvTree();
 
     while(flag && kiter < kmax){
-        dist = bvTreeUtils::signedDistance(&point, geo->getBvTree(), id, normal, initRadius);
+        dist = skdTreeUtils::signedDistance(&point, geo->getBvTree(), id, normal, initRadius);
         flag = (dist == 1.0E+18);
         if(flag)    initRadius *= (1.0+ rate*((double)flag));
         kiter++;
