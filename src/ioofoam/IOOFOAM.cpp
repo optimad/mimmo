@@ -65,7 +65,7 @@ IOOFOAM::~IOOFOAM(){};
 
 /*!Copy constructor of IOOFOAM.
  */
-IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(){
+IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(other){
     setDefaults();
     m_read = other.m_read;
     m_rfilenameS= other.m_rfilenameS;

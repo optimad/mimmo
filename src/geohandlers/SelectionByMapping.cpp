@@ -129,7 +129,7 @@ SelectionByMapping::~SelectionByMapping(){};
 /*!
  * copy Constructor
  */
-SelectionByMapping::SelectionByMapping(const SelectionByMapping & other):GenericSelection(){
+SelectionByMapping::SelectionByMapping(const SelectionByMapping & other):GenericSelection(other){
     m_tolerance = other.m_tolerance;
     m_geolist = other.m_geolist;
     m_allowedType = other.m_allowedType;

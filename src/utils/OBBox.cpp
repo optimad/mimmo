@@ -80,7 +80,7 @@ OBBox::~OBBox(){};
 /*! Copy Constructor
  *\param[in] other OBBox where copy from
  */
-OBBox::OBBox(const OBBox & other):BaseManipulation(){
+OBBox::OBBox(const OBBox & other):BaseManipulation(other){
     m_origin = other.m_origin;
     m_span   = other.m_span;
     m_axes = other.m_axes;

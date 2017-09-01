@@ -61,7 +61,7 @@ OverlapVectorFields::~OverlapVectorFields(){
 /*!
  * Copy Constructor
  */
-OverlapVectorFields::OverlapVectorFields(const OverlapVectorFields & other):BaseManipulation(){
+OverlapVectorFields::OverlapVectorFields(const OverlapVectorFields & other):BaseManipulation(other){
     m_overlapCriterium = other.m_overlapCriterium;
     m_originals = other.m_originals;
 }

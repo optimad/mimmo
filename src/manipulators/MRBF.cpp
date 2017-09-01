@@ -68,7 +68,7 @@ MRBF::~MRBF(){};
 /*! Copy Constructor
  *\param[in] other MRBF where copy from
  */
-MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
+MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
     m_tol = other.m_tol;
     m_solver = other.m_solver;
     m_SRRatio  = other.m_SRRatio;

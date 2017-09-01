@@ -47,7 +47,7 @@ SplitField::~SplitField(){
 
 /*!Copy constructor of SplitField.Soft Copy of MimmoObject;
  */
-SplitField::SplitField(const SplitField & other):BaseManipulation(){
+SplitField::SplitField(const SplitField & other):BaseManipulation(other){
     m_topo = other.m_topo;
     m_originals = other.m_originals;
     m_mapCellDivision = other.m_mapCellDivision;

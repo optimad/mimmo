@@ -88,7 +88,7 @@ IOVTKScalar::~IOVTKScalar(){
 
 /*!Copy constructor of IOVTKScalar.
  */
-IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(){
+IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_read = other.m_read;
     m_rfilename = other.m_rfilename;
     m_write = other.m_write;

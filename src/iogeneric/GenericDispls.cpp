@@ -79,7 +79,7 @@ GenericDispls::~GenericDispls(){};
 /*!
  * Copy constructor of GenericDispls.
  */
-GenericDispls::GenericDispls(const GenericDispls & other):BaseManipulation(){
+GenericDispls::GenericDispls(const GenericDispls & other):BaseManipulation(other){
     m_read      = other.m_read;
     m_dir       = other.m_dir;
     m_filename  = other.m_filename;

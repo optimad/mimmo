@@ -69,7 +69,7 @@ SpecularPoints::~SpecularPoints(){};
 
 /*!Copy constructor of SpecularPoints.
  */
-SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(){
+SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(other){
     m_plane = other.m_plane;
     m_scalar = other.m_scalar;
     m_vector = other.m_vector;

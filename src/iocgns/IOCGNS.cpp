@@ -67,7 +67,7 @@ IOCGNS::~IOCGNS(){};
 /*!
  * Copy constructor of IOCGNS.
  */
-IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(){
+IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(other){
     m_read = other.m_read;
     m_rfilename = other.m_rfilename;
     m_write = other.m_write;

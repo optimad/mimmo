@@ -102,19 +102,10 @@ PortOutT<T,O>::~PortOutT(){
  * Copy constructor of PortOutT.
  */
 template<typename T, typename O>
-PortOutT<T,O>::PortOutT(const PortOutT<T,O> & other){
-    *this = other;
-};
-
-/*!
- * Assignement operator of PortOutT.
- */
-template<typename T, typename O>
-PortOutT<T,O> &  PortOutT<T,O>::operator=(const PortOutT<T,O> & other){
-    m_obj_ 		= other.m_obj_;
-    m_var_ 		= other.m_var_;
-    m_getVar_ 	= other.m_getVar_;
-    return (*this);
+PortOutT<T,O>::PortOutT(const PortOutT<T,O> & other):PortOut(other){
+    m_obj_      = other.m_obj_;
+    m_var_      = other.m_var_;
+    m_getVar_   = other.m_getVar_;
 };
 
 /*!
@@ -237,19 +228,10 @@ PortInT<T, O>::~PortInT(){
  * Copy constructor of PortInT.
  */
 template<typename T, typename O>
-PortInT<T, O>::PortInT(const PortInT<T, O> & other){
-    *this = other;
-};
-
-/*!
- * Assignement operator of PortInT.
- */
-template<typename T, typename O>
-PortInT<T, O> &  PortInT<T, O>::operator=(const PortInT<T, O> & other){
-    m_obj_ 		= other.m_obj_;
-    m_var_ 		= other.m_var_;
-    m_setVar_	= other.m_setVar_;
-    return (*this);
+PortInT<T, O>::PortInT(const PortInT<T, O> & other):PortIn(other){
+    m_obj_      = other.m_obj_;
+    m_var_      = other.m_var_;
+    m_setVar_   = other.m_setVar_;
 };
 
 /*!

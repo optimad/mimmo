@@ -89,7 +89,7 @@ CreateSeedsOnSurface::~CreateSeedsOnSurface(){
 /*!
  * Copy constructor
  */
-CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):BaseManipulation(){
+CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):BaseManipulation(other){
     m_points = other.m_points;
     m_nPoints = other.m_nPoints;
     m_minDist = other.m_minDist;

@@ -67,7 +67,7 @@ ClipGeometry::~ClipGeometry(){};
 
 /*!Copy constructor of ClipGeometry.
  */
-ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(){
+ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(other){
     m_plane = other.m_plane;
     m_insideout = other.m_insideout;
     m_origin = other.m_origin;

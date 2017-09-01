@@ -84,7 +84,7 @@ RBFBox::~RBFBox(){};
 /*! Copy Constructor
  *\param[in] other RBFBox where copy from
  */
-RBFBox::RBFBox(const RBFBox & other):BaseManipulation(){
+RBFBox::RBFBox(const RBFBox & other):BaseManipulation(other){
     m_origin = other.m_origin;
     m_span   = other.m_span;
     m_axes = other.m_axes;

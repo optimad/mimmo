@@ -66,7 +66,7 @@ CGNSPidExtractor::~CGNSPidExtractor(){};
 /*!
  * Copy constructor of CGNSPidExtractor.
  */
-CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other):BaseManipulation(){
+CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other):BaseManipulation(other){
     m_force = other.m_force;
     m_targetpid = other.m_targetpid;
 };

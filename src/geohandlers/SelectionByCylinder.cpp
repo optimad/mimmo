@@ -80,7 +80,7 @@ SelectionByCylinder::~SelectionByCylinder(){};
 /*!
  * Copy Constructor
  */
-SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other):GenericSelection(), Cylinder(){
+SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other):GenericSelection(other), Cylinder(other){
 };
 
 /*!

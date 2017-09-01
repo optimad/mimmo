@@ -76,7 +76,7 @@ IOCloudPoints::~IOCloudPoints(){};
 /*!
  * Copy constructor of IOCloudPoints.
  */
-IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(){
+IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(other){
     m_read         = other.m_read;
     m_dir       = other.m_dir;
     m_filename     = other.m_filename;

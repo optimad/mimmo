@@ -62,7 +62,7 @@ ReconstructVector::~ReconstructVector(){
 /*!
  * Copy Constructor
  */
-ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipulation(){
+ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipulation(other){
     m_overlapCriterium = other.m_overlapCriterium;
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;

@@ -58,7 +58,7 @@ ProjectCloud::~ProjectCloud(){};
 
 /*!Copy constructor of ProjectCloud.
  */
-ProjectCloud::ProjectCloud(const ProjectCloud & other):BaseManipulation(){
+ProjectCloud::ProjectCloud(const ProjectCloud & other):BaseManipulation(other){
     m_points = other.m_points;
 };
 

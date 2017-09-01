@@ -885,17 +885,6 @@ PortOut::PortOut(const PortOut & other){
 };
 
 /*!
- * Assignement operator of PortOut.
- */
-PortOut & PortOut::operator=(const PortOut & other){
-    m_objLink 	= other.m_objLink;
-    m_obuffer	= other.m_obuffer;
-    m_portLink	= other.m_portLink;
-    m_datatype	= other.m_datatype;
-    return (*this);
-};
-
-/*!
  * Compare operator of PortOut.
  */
 bool PortOut::operator==(const PortOut & other){
@@ -1006,18 +995,6 @@ PortIn::PortIn(const PortIn & other){
     m_mandatory = other.m_mandatory;
     m_familym   = other.m_familym;
     return;
-};
-
-/*!
- * Assignement operator of PortIn.
- */
-PortIn & PortIn::operator=(const PortIn & other){
-    m_objLink 	= other.m_objLink;
-    m_ibuffer	= other.m_ibuffer;
-    m_datatype	= other.m_datatype;
-    m_mandatory = other.m_mandatory;
-    m_familym   = other.m_familym;
-    return (*this);
 };
 
 /*!

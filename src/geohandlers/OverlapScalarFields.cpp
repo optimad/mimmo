@@ -61,7 +61,7 @@ OverlapScalarFields::~OverlapScalarFields(){
 /*!
  * Copy Constructor
  */
-OverlapScalarFields::OverlapScalarFields(const OverlapScalarFields & other):BaseManipulation(){
+OverlapScalarFields::OverlapScalarFields(const OverlapScalarFields & other):BaseManipulation(other){
     m_overlapCriterium = other.m_overlapCriterium;
     m_originals = other.m_originals;
 }

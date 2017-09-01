@@ -57,7 +57,7 @@ Apply::~Apply(){};
 
 /*!Copy constructor of Apply.
  */
-Apply::Apply(const Apply & other):BaseManipulation(){
+Apply::Apply(const Apply & other):BaseManipulation(other){
     m_input = other.m_input;
 };
 

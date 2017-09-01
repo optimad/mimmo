@@ -71,7 +71,7 @@ FFDLattice::~FFDLattice(){};
 /*! Copy Constructor
  *\param[in] other FFDLattice where copy from
  */ 
-FFDLattice::FFDLattice(const FFDLattice & other):Lattice(){
+FFDLattice::FFDLattice(const FFDLattice & other):Lattice(other){
     m_deg = other.m_deg;
     m_knots = other.m_knots;
     m_mapEff = other.m_mapEff;

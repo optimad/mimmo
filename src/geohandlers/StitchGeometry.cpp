@@ -81,7 +81,7 @@ StitchGeometry::~StitchGeometry(){
 
 /*!Copy constructor of StitchGeometry.Soft Copy of MimmoObject;
  */
-StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(){
+StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(other){
     clear();
     m_topo = other.m_topo;
     m_extgeo = other.m_extgeo;

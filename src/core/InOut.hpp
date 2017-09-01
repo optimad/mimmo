@@ -101,7 +101,6 @@ public:
     virtual ~PortOut();
 
     PortOut(const PortOut & other);
-    PortOut & operator=(const PortOut & other);
     bool operator==(const PortOut & other);
 
     std::vector<BaseManipulation*>	getLink();
@@ -165,7 +164,6 @@ public:
     virtual ~PortOutT();
 
     PortOutT(const PortOutT & other);
-    PortOutT & operator=(const PortOutT & other);
     bool operator==(const PortOutT & other);
 
     void writeBuffer();
@@ -211,7 +209,6 @@ public:
     virtual ~PortIn();
 
     PortIn(const PortIn & other);
-    PortIn & operator=(const PortIn & other);
     bool operator==(const PortIn & other);
 
     std::vector<mimmo::BaseManipulation*>   getLink();
@@ -276,7 +273,6 @@ public:
     virtual ~PortInT();
 
     PortInT(const PortInT & other);
-    PortInT & operator=(const PortInT & other);
     bool operator==(const PortInT & other);
 
     void readBuffer();

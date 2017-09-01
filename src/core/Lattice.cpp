@@ -63,8 +63,7 @@ Lattice::~Lattice(){};
 /*! Copy Constructor
  *\param[in] other Lattice object
  */
-Lattice::Lattice(const Lattice & other):BaseManipulation(), UStructMesh(){
-    *(static_cast<UStructMesh *>(this))  = *(static_cast<const UStructMesh *>(&other));
+Lattice::Lattice(const Lattice & other):BaseManipulation(other), UStructMesh(other){
     m_intMapDOF = other.m_intMapDOF;
     m_np = other.m_np;
 };
