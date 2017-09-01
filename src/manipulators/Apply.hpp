@@ -77,7 +77,6 @@ public:
     ~Apply();
 
     Apply(const Apply & other);
-    Apply & operator=(const Apply & other);
 
     void buildPorts();
 

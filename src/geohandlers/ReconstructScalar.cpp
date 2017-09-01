@@ -63,18 +63,9 @@ ReconstructScalar::~ReconstructScalar(){
  * Copy Constructor
  */
 ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipulation(){
-    *this = other;
-}
-
-/*!
- * Copy Operator
- */
-ReconstructScalar & ReconstructScalar::operator=(const ReconstructScalar & other){
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
     m_overlapCriterium = other.m_overlapCriterium;
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;
-    return *this;
 }
 
 /*!

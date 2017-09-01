@@ -111,10 +111,8 @@ public:
     ~GenericInput();
 
     GenericInput(const GenericInput & other);
-    GenericInput & operator=(const GenericInput & other);
 
     void buildPorts();
-
 
     BITPIT_DEPRECATED( template<typename T> T* getInput());
 

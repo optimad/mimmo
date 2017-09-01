@@ -99,7 +99,6 @@ public:
 	~GenericOutput();
 
 	GenericOutput(const GenericOutput & other);
-	GenericOutput & operator=(const GenericOutput & other);
 
 	void buildPorts();
 

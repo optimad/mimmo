@@ -79,17 +79,6 @@ GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other
 };
 
 /*!
- * Assignement operator of GenericOutput.
- */
-GenericOutput & GenericOutput::operator=(const GenericOutput & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_dir           = other.m_dir;
-    m_filename         = other.m_filename;
-    m_csv           = other.m_csv;
-    return *this;
-};
-
-/*!
  * It builds the input/output ports of the object
  */
 void

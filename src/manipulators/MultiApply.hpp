@@ -76,7 +76,6 @@ public:
     ~MultiApply();
 
     MultiApply(const MultiApply & other);
-    MultiApply & operator=(const MultiApply & other);
 
     void buildPorts();
 

@@ -188,12 +188,33 @@ MimmoObject::~MimmoObject(){
  */
 MimmoObject::MimmoObject(const MimmoObject & other){
     m_patch = NULL;
-    *this = other;
+    m_type          = other.m_type;
+    m_patch         = other.m_patch;
+    m_internalPatch = false;
+
+    m_mapData       = other.m_mapData;
+    m_mapCell       = other.m_mapCell;
+    m_mapDataInv    = other.m_mapDataInv;
+    m_mapCellInv    = other.m_mapCellInv;
+    m_pidsType      = other.m_pidsType;
+
+    m_bvTreeSupported = other.m_bvTreeSupported;
+    m_bvTreeBuilt   = other.m_bvTreeBuilt;
+    m_kdTreeBuilt   = other.m_kdTreeBuilt;
+    m_bvTreeSync   = other.m_bvTreeSync;
+    m_kdTreeSync   = other.m_kdTreeSync;
+
+    if(m_bvTreeSupported && m_bvTreeBuilt)  buildBvTree();
+    if(m_kdTreeBuilt)   buildKdTree();
+
+    m_AdjBuilt = other.m_AdjBuilt;
+
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*!
-* Assignement operator of MimmoObject. 
-* Please be careful when using it, because internal bitpit::PatchKernel structure 
+* Assignement operator of MimmoObject.
+* Please be careful when using it, because internal bitpit::PatchKernel structure
 * is only copied by their pointer (soft copy). If you destroy the original MimmoObject
 * the copied class will have an internal patch pointing to nullptr.
 * \param[in] other reference to another MimmoObject
@@ -206,13 +227,13 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     }
     m_patch 		= other.m_patch;
     m_internalPatch = false;
-    
+
     m_mapData		= other.m_mapData;
     m_mapCell		= other.m_mapCell;
     m_mapDataInv	= other.m_mapDataInv;
     m_mapCellInv	= other.m_mapCellInv;
     m_pidsType		= other.m_pidsType;
-    
+
     m_bvTreeSupported = other.m_bvTreeSupported;
     m_bvTreeBuilt   = other.m_bvTreeBuilt;
     m_kdTreeBuilt   = other.m_kdTreeBuilt;
@@ -223,7 +244,7 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     if(m_kdTreeBuilt)	buildKdTree();
 
     m_AdjBuilt = other.m_AdjBuilt;
-    
+
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     return *this;
 };

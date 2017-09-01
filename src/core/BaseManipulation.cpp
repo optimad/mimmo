@@ -66,7 +66,16 @@ BaseManipulation::~BaseManipulation(){
  * \param[in] other class of type BaseManipulation
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
-    *this = other;
+    m_geometry      = other.m_geometry;
+    m_portsType     = other.m_portsType;
+    m_name          = other.m_name;
+    m_active        = other.m_active;
+    m_arePortsBuilt = false;
+    m_execPlot      = other.m_execPlot;
+    m_counter       = other.m_counter;
+    m_priority      = other.m_priority;
+    m_apply         = other.m_apply;
+    m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*!

@@ -117,7 +117,6 @@ public:
     ~SpecularPoints();
 
     SpecularPoints(const SpecularPoints & other);
-    SpecularPoints & operator=(const SpecularPoints & other);
 
     void    buildPorts();
 

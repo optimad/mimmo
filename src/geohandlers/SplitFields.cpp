@@ -48,21 +48,10 @@ SplitField::~SplitField(){
 /*!Copy constructor of SplitField.Soft Copy of MimmoObject;
  */
 SplitField::SplitField(const SplitField & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!
- * Assignement operator of SplitField. Soft copy of MimmoObject
- */
-SplitField & SplitField::operator=(const SplitField & other){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
     m_topo = other.m_topo;
     m_originals = other.m_originals;
     m_mapCellDivision = other.m_mapCellDivision;
     m_mapVertDivision = other.m_mapVertDivision;
-
-    return *this;
 };
 
 /*!

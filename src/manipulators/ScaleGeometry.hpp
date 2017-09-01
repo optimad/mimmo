@@ -90,7 +90,6 @@ public:
     ~ScaleGeometry();
 
     ScaleGeometry(const ScaleGeometry & other);
-    ScaleGeometry & operator=(const ScaleGeometry & other);
 
     void        buildPorts();
 

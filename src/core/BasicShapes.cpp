@@ -832,23 +832,13 @@ Cube::~Cube(){};
  * \param[in] other Cube object where copy from
  */
 Cube::Cube(const Cube & other){
-	*this = other;
-};
-
-/*! 
- * Assignement Operator 
- * \param[in] other Cube object where copy from
- */
-Cube & Cube::operator=(const Cube & other){
-	
-	m_shape = other.m_shape;
-	m_origin = other.m_origin;
-	m_span = other.m_span;
-	m_infLimits = other.m_infLimits;
-	m_sdr = other.m_sdr;
-	m_typeCoord = other.m_typeCoord;
-	m_scaling = other.m_scaling;
-	return(*this);
+    m_shape = other.m_shape;
+    m_origin = other.m_origin;
+    m_span = other.m_span;
+    m_infLimits = other.m_infLimits;
+    m_sdr = other.m_sdr;
+    m_typeCoord = other.m_typeCoord;
+    m_scaling = other.m_scaling;
 };
 
 
@@ -1078,25 +1068,14 @@ Cylinder::~Cylinder(){};
  * \param[in] other Cylinder object where copy from
  */
 Cylinder::Cylinder(const Cylinder & other){
-	*this = other;
+    m_shape = other.m_shape;
+    m_origin = other.m_origin;
+    m_span = other.m_span;
+    m_infLimits = other.m_infLimits;
+    m_sdr = other.m_sdr;
+    m_typeCoord = other.m_typeCoord;
+    m_scaling = other.m_scaling;
 };
-
-/*!
- *Assignement Operator 
- * \param[in] other Cylinder object where copy from
- */
-Cylinder & Cylinder::operator=(const Cylinder & other){
-	
-	m_shape = other.m_shape;
-	m_origin = other.m_origin;
-	m_span = other.m_span;
-	m_infLimits = other.m_infLimits;
-	m_sdr = other.m_sdr;
-	m_typeCoord = other.m_typeCoord;
-	m_scaling = other.m_scaling;
-	return(*this);
-};
-
 
 /*!
  * Transform point from local reference system of the shape,
@@ -1370,23 +1349,13 @@ Sphere::~Sphere(){};
  * \param[in] other Sphere object where copy from
  */
 Sphere::Sphere(const Sphere & other){
-	*this = other;
-};
-
-/*! 
- * Assignement Operator 
- * \param[in] other Sphere object where copy from
- */
-Sphere & Sphere::operator=(const Sphere & other){
-	
-	m_shape = other.m_shape;
-	m_origin = other.m_origin;
-	m_span = other.m_span;
-	m_infLimits = other.m_infLimits;
-	m_sdr = other.m_sdr;
-	m_typeCoord = other.m_typeCoord;
-	m_scaling = other.m_scaling;
-	return(*this);
+    m_shape = other.m_shape;
+    m_origin = other.m_origin;
+    m_span = other.m_span;
+    m_infLimits = other.m_infLimits;
+    m_sdr = other.m_sdr;
+    m_typeCoord = other.m_typeCoord;
+    m_scaling = other.m_scaling;
 };
 
 /*! 

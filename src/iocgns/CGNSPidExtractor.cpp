@@ -67,18 +67,8 @@ CGNSPidExtractor::~CGNSPidExtractor(){};
  * Copy constructor of CGNSPidExtractor.
  */
 CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!
- * Assignement operator of CGNSPidExtractor.
- */
-CGNSPidExtractor & CGNSPidExtractor::operator=(const CGNSPidExtractor & other){
-
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
     m_force = other.m_force;
     m_targetpid = other.m_targetpid;
-    return *this;
 };
 
 /*!

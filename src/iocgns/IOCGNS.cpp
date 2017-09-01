@@ -68,7 +68,15 @@ IOCGNS::~IOCGNS(){};
  * Copy constructor of IOCGNS.
  */
 IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(){
-    *this = other;
+    m_read = other.m_read;
+    m_rfilename = other.m_rfilename;
+    m_write = other.m_write;
+    m_wfilename = other.m_wfilename;
+    m_rdir = other.m_rdir;
+    m_wdir = other.m_wdir;
+    m_surfmesh_not = other.m_surfmesh_not;
+    m_storedInfo = new InfoCGNS((*other.m_storedInfo));
+    m_storedBC = new BCCGNS((*other.m_storedBC));
 };
 
 /*!

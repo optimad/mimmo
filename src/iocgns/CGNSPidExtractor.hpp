@@ -83,7 +83,6 @@ public:
     ~CGNSPidExtractor();
 
     CGNSPidExtractor(const CGNSPidExtractor & other);
-    CGNSPidExtractor & operator=(const CGNSPidExtractor & other);
 
     void            buildPorts();
 

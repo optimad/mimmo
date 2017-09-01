@@ -85,7 +85,6 @@ public:
 
     //copy operators/constructors
     OBBox(const OBBox & other);
-    OBBox & operator=(const OBBox & other);
 
     void buildPorts();
 

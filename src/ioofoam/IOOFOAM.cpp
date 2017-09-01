@@ -67,12 +67,6 @@ IOOFOAM::~IOOFOAM(){};
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(){
     setDefaults();
-    *this = other;
-};
-
-/*!Assignement operator of IOOFOAM.
- */
-IOOFOAM & IOOFOAM::operator=(const IOOFOAM & other){
     m_read = other.m_read;
     m_rfilenameS= other.m_rfilenameS;
     m_write = other.m_write;
@@ -80,7 +74,6 @@ IOOFOAM & IOOFOAM::operator=(const IOOFOAM & other){
     m_rdirS = other.m_rdirS;
     m_wdirV = other.m_wdirV;
     m_surfmesh_ext = other.m_surfmesh_ext;
-    return *this;
 };
 
 /*!Default values for IOOFOAM.

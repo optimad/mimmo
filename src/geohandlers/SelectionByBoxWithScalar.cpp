@@ -75,7 +75,6 @@ SelectionByBoxWithScalar::~SelectionByBoxWithScalar(){};
  * Copy Constructor
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other):SelectionByBox(){
-    *this = other;
 };
 
 /*!

@@ -77,7 +77,11 @@ IOCloudPoints::~IOCloudPoints(){};
  * Copy constructor of IOCloudPoints.
  */
 IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(){
-    *this = other;
+    m_read         = other.m_read;
+    m_dir       = other.m_dir;
+    m_filename     = other.m_filename;
+    m_template = other.m_template;
+
 };
 
 /*!Assignement operator of IOCloudPoints.

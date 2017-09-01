@@ -58,19 +58,11 @@ IOConnections_MIMMO::~IOConnections_MIMMO(){};
  * Copy constructor
  */
 IOConnections_MIMMO::IOConnections_MIMMO(const IOConnections_MIMMO & other){
-    *this = other;
-};
-
-/*!
- * Assignement operator
- */ 
-IOConnections_MIMMO & IOConnections_MIMMO::operator=(const IOConnections_MIMMO & other){
-    m_mapConn		= other.m_mapConn;
-    m_mapPorts 		= other.m_mapPorts;
-    m_invMapConn	= other.m_invMapConn;
-    m_invMapPorts 	= other.m_invMapPorts;
+    m_mapConn       = other.m_mapConn;
+    m_mapPorts      = other.m_mapPorts;
+    m_invMapConn    = other.m_invMapConn;
+    m_invMapPorts   = other.m_invMapPorts;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    return (*this);
 };
 
 /*!

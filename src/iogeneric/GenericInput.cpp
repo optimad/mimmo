@@ -93,18 +93,6 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
 };
 
 /*!
- * Assignement operator of GenericInput.
- */
-GenericInput & GenericInput::operator=(const GenericInput & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_readFromFile     = other.m_readFromFile;
-    m_csv           = other.m_csv;
-    m_dir           = other.m_dir;
-    m_filename         = other.m_filename;
-    return *this;
-};
-
-/*!
  * It sets if the object imports the displacements from an input file.
  * \param[in] readFromFile True if the object reads the values from file.
  */

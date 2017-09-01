@@ -69,17 +69,6 @@ ScaleGeometry::ScaleGeometry(const ScaleGeometry & other):BaseManipulation(other
     m_meanP = other.m_meanP;;
 };
 
-/*!Assignement operator of ScaleGeometry.
- */
-ScaleGeometry & ScaleGeometry::operator=(const ScaleGeometry & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_scaling = other.m_scaling;
-    m_origin = other.m_origin;
-    m_meanP = other.m_meanP;;
-    return(*this);
-};
-
-
 /*! It builds the input/output ports of the object
  */
 void

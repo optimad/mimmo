@@ -63,18 +63,9 @@ ReconstructVector::~ReconstructVector(){
  * Copy Constructor
  */
 ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipulation(){
-    *this = other;
-}
-
-/*!
- * Copy Operator
- */
-ReconstructVector & ReconstructVector::operator=(const ReconstructVector & other){
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
     m_overlapCriterium = other.m_overlapCriterium;
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;
-    return *this;
 }
 
 /*!

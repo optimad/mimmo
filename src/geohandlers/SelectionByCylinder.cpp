@@ -81,7 +81,6 @@ SelectionByCylinder::~SelectionByCylinder(){};
  * Copy Constructor
  */
 SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other):GenericSelection(), Cylinder(){
-    *this = other;
 };
 
 /*!

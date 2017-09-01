@@ -77,19 +77,6 @@ BendGeometry::BendGeometry(const BendGeometry & other):BaseManipulation(other){
     m_coeffs = other.m_coeffs;
 };
 
-/*!Assignement operator of BendGeometry.
- */
-BendGeometry & BendGeometry::operator=(const BendGeometry & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_origin = other.m_origin;
-    m_system = other.m_system;
-    m_local  = other.m_local;
-    m_filter = other.m_filter;
-    m_degree = other.m_degree;
-    m_coeffs = other.m_coeffs;
-    return    *this;
-};
-
 /*! It builds the input/output ports of the object
  */
 void

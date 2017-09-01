@@ -70,13 +70,6 @@ SpecularPoints::~SpecularPoints(){};
 /*!Copy constructor of SpecularPoints.
  */
 SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(){
-    *this = other;
-};
-
-/*!Assignement operator of SpecularPoints.
- */
-SpecularPoints & SpecularPoints::operator=(const SpecularPoints & other){
-    *(static_cast<ProjectCloud*> (this)) = *(static_cast<const ProjectCloud*> (&other));
     m_plane = other.m_plane;
     m_scalar = other.m_scalar;
     m_vector = other.m_vector;
@@ -85,7 +78,6 @@ SpecularPoints & SpecularPoints::operator=(const SpecularPoints & other){
     m_origin = other.m_origin;
     m_normal = other.m_normal;
     m_implicit = other.m_implicit;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

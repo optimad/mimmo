@@ -61,7 +61,7 @@ ControlDeformMaxDistance::~ControlDeformMaxDistance(){};
 /*!Copy constructor of ControlDeformMaxDistance.
  */
 ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistance & other):BaseManipulation(){
-    *this = other;
+    m_maxDist = other.m_maxDist;
 };
 
 /*!

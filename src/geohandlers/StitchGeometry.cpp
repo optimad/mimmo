@@ -82,7 +82,12 @@ StitchGeometry::~StitchGeometry(){
 /*!Copy constructor of StitchGeometry.Soft Copy of MimmoObject;
  */
 StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(){
-    *this = other;
+    clear();
+    m_topo = other.m_topo;
+    m_extgeo = other.m_extgeo;
+    m_buildBvTree = other.m_buildBvTree;
+    m_buildKdTree = other.m_buildKdTree;
+    m_geocount = other.m_geocount;
 };
 
 /*!
@@ -91,10 +96,8 @@ StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(){
 StitchGeometry & StitchGeometry::operator=(const StitchGeometry & other){
     clear();
     *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-
     m_topo = other.m_topo;
     m_extgeo = other.m_extgeo;
-
     m_buildBvTree = other.m_buildBvTree;
     m_buildKdTree = other.m_buildKdTree;
     m_geocount = other.m_geocount;

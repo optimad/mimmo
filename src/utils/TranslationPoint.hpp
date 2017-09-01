@@ -85,7 +85,6 @@ public:
     ~TranslationPoint();
 
     TranslationPoint(const TranslationPoint & other);
-    TranslationPoint & operator=(const TranslationPoint & other);
 
     void        buildPorts();
 

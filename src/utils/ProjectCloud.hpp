@@ -74,7 +74,6 @@ public:
     ~ProjectCloud();
 
     ProjectCloud(const ProjectCloud & other);
-    ProjectCloud & operator=(const ProjectCloud & other);
 
     void    buildPorts();
 

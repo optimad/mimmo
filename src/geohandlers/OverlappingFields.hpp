@@ -87,7 +87,6 @@ public:
     OverlapScalarFields(const bitpit::Config::Section & rootXML);
     virtual ~OverlapScalarFields();
     OverlapScalarFields(const OverlapScalarFields & other);
-    OverlapScalarFields & operator=(const OverlapScalarFields & other);
 
     OverlapMethod            getOverlapCriteriumENUM();
     int                     getOverlapCriterium();
@@ -185,7 +184,6 @@ public:
     OverlapVectorFields(const bitpit::Config::Section & rootXML);
     virtual ~OverlapVectorFields();
     OverlapVectorFields(const OverlapVectorFields & other);
-    OverlapVectorFields & operator=(const OverlapVectorFields & other);
 
     OverlapMethod            getOverlapCriteriumENUM();
     int                     getOverlapCriterium();

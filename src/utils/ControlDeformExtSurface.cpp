@@ -70,7 +70,9 @@ ControlDeformExtSurface::~ControlDeformExtSurface(){};
 /*!Copy constructor of ControlDeformExtSurface.
  */
 ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface & other):BaseManipulation(){
-    *this = other;
+    m_allowed = other.m_allowed;
+    m_geolist = other.m_geolist;
+    m_cellBackground = other.m_cellBackground;
 };
 
 /*!

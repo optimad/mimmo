@@ -72,16 +72,6 @@ FFDLattice::~FFDLattice(){};
  *\param[in] other FFDLattice where copy from
  */ 
 FFDLattice::FFDLattice(const FFDLattice & other):Lattice(){
-    *this = other;
-};
-
-/*! Copy Operator
- * \param[in] other FFDLattice where copy from
- */ 
-FFDLattice & FFDLattice::operator=(const FFDLattice & other){
-
-    *(static_cast<Lattice *>(this))  = *(static_cast<const Lattice *>(&other));
-
     m_deg = other.m_deg;
     m_knots = other.m_knots;
     m_mapEff = other.m_mapEff;
@@ -92,7 +82,6 @@ FFDLattice & FFDLattice::operator=(const FFDLattice & other){
     m_globalDispl = other.m_globalDispl;
     m_bfilter = other.m_bfilter;
     m_filter = other.m_filter;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

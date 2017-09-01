@@ -152,7 +152,6 @@ public:
 
     //copy operators/constructors
     FFDLattice(const FFDLattice & other);
-    FFDLattice & operator=(const FFDLattice & other);
 
     void buildPorts();
 

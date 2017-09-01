@@ -90,15 +90,6 @@ CreateSeedsOnSurface::~CreateSeedsOnSurface(){
  * Copy constructor
  */
 CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):BaseManipulation(){
-    *this=other;
-};
-
-/*!
- * Copy operator of the class
- */
-CreateSeedsOnSurface & CreateSeedsOnSurface::operator=(const CreateSeedsOnSurface & other){
-
-    *(static_cast<BaseManipulation *> (this)) = *(static_cast<const BaseManipulation *> (&other));
     m_points = other.m_points;
     m_nPoints = other.m_nPoints;
     m_minDist = other.m_minDist;
@@ -108,9 +99,7 @@ CreateSeedsOnSurface & CreateSeedsOnSurface::operator=(const CreateSeedsOnSurfac
     m_randomFixed = other.m_randomFixed;
     m_deads = other.m_deads;
     m_sensitivity = other.m_sensitivity;
-    return(*this);
 };
-
 
 /*!
  * It builds the input/output ports of the object

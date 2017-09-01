@@ -86,7 +86,6 @@ public:
     virtual ~SplitField();
 
     SplitField(const SplitField & other);
-    SplitField & operator=(const SplitField & other);
 
     void buildPorts();
 

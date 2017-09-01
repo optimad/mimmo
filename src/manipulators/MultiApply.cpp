@@ -57,15 +57,7 @@ MultiApply::~MultiApply(){};
 /*!Copy constructor of Apply.
  */
 MultiApply::MultiApply(const MultiApply & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!Assignement operator of Apply.
- */
-MultiApply & MultiApply::operator=(const MultiApply & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_input = other.m_input;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

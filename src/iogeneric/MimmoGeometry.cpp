@@ -65,7 +65,23 @@ MimmoGeometry::~MimmoGeometry(){
 /*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
  */
 MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(){
-    *this = other;
+    clear();
+    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+    m_rinfo = other.m_rinfo;
+    m_winfo = other.m_winfo;
+    m_read = other.m_read;
+    m_write = other.m_write;
+    m_wformat = other.m_wformat;
+    m_codex = other.m_codex;
+    m_buildBvTree = other.m_buildBvTree;
+    m_buildKdTree = other.m_buildKdTree;
+    m_refPID = other.m_refPID;
+    m_multiSolidSTL = other.m_multiSolidSTL;
+
+    if(other.m_isInternal){
+        m_geometry = other.m_intgeo.get();
+    }
+    m_isInternal = false;
 };
 
 /*!

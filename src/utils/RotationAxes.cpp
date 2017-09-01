@@ -98,19 +98,20 @@ RotationAxes::RotationAxes(const RotationAxes & other):BaseManipulation(other){
         val.fill(0.0);
     m_axes[0][0] = 1.0; 
     m_axes[1][1] = 1.0; 
-    m_axes[1][1] = 1.0; 
+    m_axes[2][2] = 1.0;
     m_axes_origin = {{0,0,0}}; 
     
     for(auto & val: m_rotax)    
         val.fill(0.0);
     m_rotax[0][0] = 1.0; 
     m_rotax[1][1] = 1.0; 
-    m_rotax[1][1] = 1.0; 
+    m_rotax[2][2] = 1.0;
     m_rotax_origin = {{0,0,0}}; 
     
     m_alpha=0.0;
     
-    *this = other;
+    m_origin = other.m_origin;
+    m_direction = other.m_direction;
 };
 
 /*!Assignement operator of RotationAxes.

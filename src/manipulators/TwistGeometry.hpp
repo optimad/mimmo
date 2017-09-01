@@ -98,7 +98,6 @@ public:
     ~TwistGeometry();
 
     TwistGeometry(const TwistGeometry & other);
-    TwistGeometry & operator=(const TwistGeometry & other);
 
     void        buildPorts();
 

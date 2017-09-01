@@ -121,7 +121,6 @@ public:
     CreateSeedsOnSurface(const bitpit::Config::Section & rootXML);
     virtual ~CreateSeedsOnSurface();
     CreateSeedsOnSurface(const CreateSeedsOnSurface & other);
-    CreateSeedsOnSurface & operator=(const CreateSeedsOnSurface & other);
 
     void    buildPorts();
 

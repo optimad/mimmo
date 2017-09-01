@@ -62,17 +62,8 @@ OverlapScalarFields::~OverlapScalarFields(){
  * Copy Constructor
  */
 OverlapScalarFields::OverlapScalarFields(const OverlapScalarFields & other):BaseManipulation(){
-    *this = other;
-}
-
-/*!
- * Copy Operator
- */
-OverlapScalarFields & OverlapScalarFields::operator=(const OverlapScalarFields & other){
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
     m_overlapCriterium = other.m_overlapCriterium;
     m_originals = other.m_originals;
-    return *this;
 }
 
 /*!

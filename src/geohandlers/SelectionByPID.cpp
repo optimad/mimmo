@@ -72,7 +72,7 @@ SelectionByPID::~SelectionByPID(){};
  * Copy constructor
  */
 SelectionByPID::SelectionByPID(const SelectionByPID & other):GenericSelection(){
-    *this = other;
+    m_activePID = other.m_activePID;
 };
 
 /*!

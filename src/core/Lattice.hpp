@@ -111,7 +111,6 @@ public:
 
     //copy operators/constructors
     Lattice(const Lattice & other);
-    Lattice & operator=(const Lattice & other);
 
     void        buildPorts();
     void        clearLattice();

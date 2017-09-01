@@ -57,13 +57,6 @@ Chain::~Chain(){
  * Copy constructor of Chain.
  */
 Chain::Chain(const Chain & other){
-    *this = other;
-};
-
-/*!
- * Assignement operator of Chain.
- */
-Chain & Chain::operator=(const Chain & other){
     m_id           = other.m_id;
     m_objects      = other.m_objects;
     m_idObjects    = other.m_idObjects;
@@ -71,7 +64,6 @@ Chain & Chain::operator=(const Chain & other){
     m_plotDebRes   = other.m_plotDebRes;
     m_outputDebRes = other.m_outputDebRes;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    return (*this);
 };
 
 /*!

@@ -98,7 +98,6 @@ public:
     ~ClipGeometry();
 
     ClipGeometry(const ClipGeometry & other);
-    ClipGeometry & operator=(const ClipGeometry & other);
 
     void    buildPorts();
 

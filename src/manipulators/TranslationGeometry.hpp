@@ -87,7 +87,6 @@ public:
     ~TranslationGeometry();
 
     TranslationGeometry(const TranslationGeometry & other);
-    TranslationGeometry & operator=(const TranslationGeometry & other);
 
     void        buildPorts();
 

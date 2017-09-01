@@ -66,19 +66,10 @@ RotationGeometry::~RotationGeometry(){};
 /*!Copy constructor of RotationGeometry.
  */
 RotationGeometry::RotationGeometry(const RotationGeometry & other):BaseManipulation(other){
-    *this = other;
-};
-
-/*!Assignement operator of RotationGeometry.
- */
-RotationGeometry & RotationGeometry::operator=(const RotationGeometry & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_origin = other.m_origin;
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
-    return(*this);
 };
-
 
 /*! It builds the input/output ports of the object
  */

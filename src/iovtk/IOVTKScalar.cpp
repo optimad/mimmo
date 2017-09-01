@@ -89,13 +89,6 @@ IOVTKScalar::~IOVTKScalar(){
 /*!Copy constructor of IOVTKScalar.
  */
 IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!Assignement operator of IOVTKScalar.
- */
-IOVTKScalar & IOVTKScalar::operator=(const IOVTKScalar & other){
-    *(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation *>(&other));
     m_read = other.m_read;
     m_rfilename = other.m_rfilename;
     m_write = other.m_write;
@@ -106,7 +99,6 @@ IOVTKScalar & IOVTKScalar::operator=(const IOVTKScalar & other){
     m_local = other.m_local;
     m_normalize = other.m_normalize;
     m_scaling = other.m_scaling;
-    return *this;
 };
 
 /*! It builds the input/output ports of the object

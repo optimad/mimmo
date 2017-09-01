@@ -124,7 +124,6 @@ public:
     ~BendGeometry();
 
     BendGeometry(const BendGeometry & other);
-    BendGeometry & operator=(const BendGeometry & other);
 
     void buildPorts();
 

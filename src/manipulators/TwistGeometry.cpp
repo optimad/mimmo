@@ -68,21 +68,12 @@ TwistGeometry::~TwistGeometry(){};
 /*!Copy constructor of TwistGeometry.
  */
 TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other){
-    *this = other;
-};
-
-/*!Assignement operator of TwistGeometry.
- */
-TwistGeometry & TwistGeometry::operator=(const TwistGeometry & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_origin = other.m_origin;
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
     m_distance = other.m_distance;
     m_sym = other.m_sym;
-    return(*this);
 };
-
 
 /*! It builds the input/output ports of the object
  */

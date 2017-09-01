@@ -69,7 +69,12 @@ MRBF::~MRBF(){};
  *\param[in] other MRBF where copy from
  */
 MRBF::MRBF(const MRBF & other):BaseManipulation(), bitpit::RBF(){
-    *this = other;
+    m_tol = other.m_tol;
+    m_solver = other.m_solver;
+    m_SRRatio  = other.m_SRRatio;
+    m_supRIsValue = other.m_supRIsValue;
+    m_bfilter = other.m_bfilter;
+    if(m_bfilter)    m_filter = other.m_filter;
 };
 
 /*! It builds the input/output ports of the object
@@ -88,22 +93,6 @@ MRBF::buildPorts(){
     built = (built && createPortOut<std::pair<MimmoObject*, dvecarr3E*> , MRBF>(this, &mimmo::MRBF::getDeformedField, PortType::M_PAIRVECFIELD, mimmo::pin::containerTAG::PAIR, mimmo::pin::dataTAG::MIMMO_VECARR3FLOAT_));
     built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_));
     m_arePortsBuilt = built;
-};
-
-/*! Copy Operator
- * \param[in] other MRBF where copy from
- */
-MRBF & MRBF::operator=(const MRBF & other){
-    *(static_cast<RBF * > (this)) = *(static_cast <const RBF*>(&other));
-    *(static_cast<BaseManipulation * > (this)) = *(static_cast <const BaseManipulation * >(&other));
-    m_tol = other.m_tol;
-    m_solver = other.m_solver;
-    m_SRRatio  = other.m_SRRatio;
-    m_supRIsValue = other.m_supRIsValue;
-    m_bfilter = other.m_bfilter;
-    if(m_bfilter)    m_filter = other.m_filter;
-
-    return(*this);
 };
 
 /*!It returns a pointer to the RBF node stored in the object.

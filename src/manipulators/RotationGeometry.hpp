@@ -91,7 +91,6 @@ public:
     ~RotationGeometry();
 
     RotationGeometry(const RotationGeometry & other);
-    RotationGeometry & operator=(const RotationGeometry & other);
 
     void        buildPorts();
 

@@ -114,7 +114,6 @@ public:
     virtual ~GenericDispls();
     GenericDispls(const bitpit::Config::Section & rootXML);
     GenericDispls(const GenericDispls & other);
-    GenericDispls & operator=(const GenericDispls & other);
 
     void buildPorts();
 

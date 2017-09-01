@@ -81,20 +81,10 @@ OBBox::~OBBox(){};
  *\param[in] other OBBox where copy from
  */
 OBBox::OBBox(const OBBox & other):BaseManipulation(){
-    *this = other;
-};
-
-/*! Copy Operator
- * \param[in] other OBBox where copy from
- */
-OBBox & OBBox::operator=(const OBBox & other){
-
-    *(static_cast<BaseManipulation *>(this))  = *(static_cast<const BaseManipulation *>(&other));
     m_origin = other.m_origin;
     m_span   = other.m_span;
     m_axes = other.m_axes;
     m_forceAABB = other.m_forceAABB;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

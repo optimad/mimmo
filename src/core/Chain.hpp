@@ -66,7 +66,6 @@ public:
 	~Chain();
 
 	Chain(const Chain & other);
-	Chain & operator=(const Chain & other);
 
     //get/set methods
 	uint32_t	getNObjects();

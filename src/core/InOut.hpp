@@ -60,7 +60,6 @@ public:
     virtual ~DataType();
 
     DataType(const DataType & other);
-    DataType & operator=(const DataType & other);
     bool operator==(const DataType & other);
 
 };

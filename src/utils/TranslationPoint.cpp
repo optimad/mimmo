@@ -61,16 +61,9 @@ TranslationPoint::~TranslationPoint(){};
 /*!Copy constructor of TranslationPoint.
  */
 TranslationPoint::TranslationPoint(const TranslationPoint & other):BaseManipulation(other){
-    m_alpha = 0.0;
-    *this=other;
-};
-
-/*!Assignement operator of TranslationPoint.
- */
-TranslationPoint & TranslationPoint::operator=(const TranslationPoint & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
+    m_origin = other.m_origin;
+    m_alpha = other.m_alpha;
     m_direction = other.m_direction;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

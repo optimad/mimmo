@@ -847,15 +847,6 @@ DataType::DataType(const DataType & other){
 };
 
 /*!
- * Assignement operator of DataType.
- */
-DataType & DataType::operator=(const DataType & other){
-    m_conType 	= other.m_conType;
-    m_dataType	= other.m_dataType;
-    return (*this);
-};
-
-/*!
  * Compare operator of DataType.
  */
 bool DataType::operator==(const DataType & other){

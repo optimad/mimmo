@@ -59,15 +59,7 @@ ProjectCloud::~ProjectCloud(){};
 /*!Copy constructor of ProjectCloud.
  */
 ProjectCloud::ProjectCloud(const ProjectCloud & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!Assignement operator of ProjectCloud.
- */
-ProjectCloud & ProjectCloud::operator=(const ProjectCloud & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_points = other.m_points;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

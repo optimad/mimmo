@@ -83,7 +83,20 @@ MultipleMimmoGeometries::~MultipleMimmoGeometries(){
 /*!Copy constructor of MultipleMimmoGeometries.Soft Copy of MimmoObject;
  */
 MultipleMimmoGeometries::MultipleMimmoGeometries(const MultipleMimmoGeometries & other):BaseManipulation(){
-    *this = other;
+    clear();
+    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+    m_rinfo = other.m_rinfo;
+    m_winfo = other.m_winfo;
+    m_read = other.m_read;
+    m_write = other.m_write;
+    m_wformat = other.m_wformat;
+    m_codex = other.m_codex;
+    m_buildBvTree = other.m_buildBvTree;
+    m_buildKdTree = other.m_buildKdTree;
+    m_topo = other.m_topo;
+    m_ftype_allow = other.m_ftype_allow;
+    m_isInternal = other.m_isInternal;
+    m_extgeo = other.m_extgeo;
 };
 
 /*!

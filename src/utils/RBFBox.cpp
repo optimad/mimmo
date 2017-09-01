@@ -85,21 +85,11 @@ RBFBox::~RBFBox(){};
  *\param[in] other RBFBox where copy from
  */
 RBFBox::RBFBox(const RBFBox & other):BaseManipulation(){
-    *this = other;
-};
-
-/*! Copy Operator
- * \param[in] other RBFBox where copy from
- */
-RBFBox & RBFBox::operator=(const RBFBox & other){
-
-    *(static_cast<BaseManipulation *>(this))  = *(static_cast<const BaseManipulation *>(&other));
     m_origin = other.m_origin;
     m_span   = other.m_span;
     m_axes = other.m_axes;
     m_nodes = other.m_nodes;
     m_suppR = other.m_suppR;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

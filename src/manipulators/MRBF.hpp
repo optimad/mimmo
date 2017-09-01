@@ -116,7 +116,6 @@ public:
 
     //copy operators/constructors
     MRBF(const MRBF & other);
-    MRBF & operator=(const MRBF & other);
 
     void buildPorts();
 

@@ -111,7 +111,6 @@ public:
     ~IOVTKScalar();
 
     IOVTKScalar(const IOVTKScalar & other);
-    IOVTKScalar & operator=(const IOVTKScalar & other);
 
     void            buildPorts();
 

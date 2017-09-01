@@ -62,33 +62,26 @@ UStructMesh::~UStructMesh(){
  * \param[in] other UStructMesh object where copy from
  */
 UStructMesh::UStructMesh(const UStructMesh & other){
-	*this = other;
-};
 
-/*! Assignement Operator.
- * \param[in] other UStructMesh object where copy from
- */
-UStructMesh & UStructMesh::operator=(const UStructMesh & other){
-	
-	// Number of cells
-	m_nx = other.m_nx;
-	m_ny = other.m_ny;
-	m_nz = other.m_nz;
-	
-	// Cell Spacing
-	m_dx = other.m_dx;
-	m_dy = other.m_dy;
-	m_dz = other.m_dz;
+    // Number of cells
+    m_nx = other.m_nx;
+    m_ny = other.m_ny;
+    m_nz = other.m_nz;
 
-	// Copy cell edges and cell centers ----------------------------------------- //
-	m_xnode = other.m_xnode;
-	m_ynode = other.m_ynode;
-	m_znode = other.m_znode;
-	m_xedge = other.m_xedge;
-	m_yedge = other.m_yedge;
-	m_zedge = other.m_zedge;
+    // Cell Spacing
+    m_dx = other.m_dx;
+    m_dy = other.m_dy;
+    m_dz = other.m_dz;
 
-	if(other.m_shape){
+    // Copy cell edges and cell centers ----------------------------------------- //
+    m_xnode = other.m_xnode;
+    m_ynode = other.m_ynode;
+    m_znode = other.m_znode;
+    m_xedge = other.m_xedge;
+    m_yedge = other.m_yedge;
+    m_zedge = other.m_zedge;
+
+    if(other.m_shape){
         switch(other.m_shape->getShapeType()){
             case ShapeType::CYLINDER :
                 {
@@ -110,20 +103,78 @@ UStructMesh & UStructMesh::operator=(const UStructMesh & other){
                 break;
         }
     }
-	
-	//copy temporary members
-	m_origin_temp = other.m_origin_temp;
-	m_span_temp = other.m_span_temp;
-	m_inflimits_temp = other.m_inflimits_temp;
-	m_refsystem_temp = other.m_refsystem_temp;
-	m_shapetype_temp = other.m_shapetype_temp;
-	m_setorigin = other.m_setorigin;
-	m_setspan = other.m_setspan;
-	m_setInfLimits = other.m_setInfLimits;
-	m_setRefSys = other.m_setRefSys;
-	m_isBuild = other.m_isBuild;
-    
-	return(*this); 
+
+    //copy temporary members
+    m_origin_temp = other.m_origin_temp;
+    m_span_temp = other.m_span_temp;
+    m_inflimits_temp = other.m_inflimits_temp;
+    m_refsystem_temp = other.m_refsystem_temp;
+    m_shapetype_temp = other.m_shapetype_temp;
+    m_setorigin = other.m_setorigin;
+    m_setspan = other.m_setspan;
+    m_setInfLimits = other.m_setInfLimits;
+    m_setRefSys = other.m_setRefSys;
+    m_isBuild = other.m_isBuild;
+
+};
+
+/*! Assignement Operator.
+ * \param[in] other UStructMesh object where copy from
+ */
+UStructMesh & UStructMesh::operator=(const UStructMesh & other){
+    // Number of cells
+    m_nx = other.m_nx;
+    m_ny = other.m_ny;
+    m_nz = other.m_nz;
+
+    // Cell Spacing
+    m_dx = other.m_dx;
+    m_dy = other.m_dy;
+    m_dz = other.m_dz;
+
+    // Copy cell edges and cell centers ----------------------------------------- //
+    m_xnode = other.m_xnode;
+    m_ynode = other.m_ynode;
+    m_znode = other.m_znode;
+    m_xedge = other.m_xedge;
+    m_yedge = other.m_yedge;
+    m_zedge = other.m_zedge;
+
+    if(other.m_shape){
+        switch(other.m_shape->getShapeType()){
+            case ShapeType::CYLINDER :
+                {
+                    const Cylinder * pp = dynamic_cast<const Cylinder*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                }
+                break;
+            case ShapeType::SPHERE :
+                {
+                    const Sphere * pp = dynamic_cast<const Sphere*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                }
+                break;
+            default://CUBE
+                {
+                    const Cube * pp = dynamic_cast<const Cube*>(other.m_shape.get());
+                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                }
+                break;
+        }
+    }
+
+    //copy temporary members
+    m_origin_temp = other.m_origin_temp;
+    m_span_temp = other.m_span_temp;
+    m_inflimits_temp = other.m_inflimits_temp;
+    m_refsystem_temp = other.m_refsystem_temp;
+    m_shapetype_temp = other.m_shapetype_temp;
+    m_setorigin = other.m_setorigin;
+    m_setspan = other.m_setspan;
+    m_setInfLimits = other.m_setInfLimits;
+    m_setRefSys = other.m_setRefSys;
+    m_isBuild = other.m_isBuild;
+	return(*this);
 };
 
 /*! 

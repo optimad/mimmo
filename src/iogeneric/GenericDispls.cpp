@@ -80,15 +80,6 @@ GenericDispls::~GenericDispls(){};
  * Copy constructor of GenericDispls.
  */
 GenericDispls::GenericDispls(const GenericDispls & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!
- * Assignement operator of GenericDispls.
- */
-GenericDispls & GenericDispls::operator=(const GenericDispls & other){
-
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_read      = other.m_read;
     m_dir       = other.m_dir;
     m_filename  = other.m_filename;
@@ -96,9 +87,7 @@ GenericDispls & GenericDispls::operator=(const GenericDispls & other){
     m_displ = other.m_displ;
     m_labels = other.m_labels;
     m_template = other.m_template;
-    return *this;
 };
-
 
 /*! 
  * It builds the input/output ports of the object

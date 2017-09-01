@@ -63,7 +63,6 @@ public:
     virtual ~IOConnections_MIMMO();
 
     IOConnections_MIMMO(const IOConnections_MIMMO & other);
-    IOConnections_MIMMO & operator=(const IOConnections_MIMMO & other);
 
     //get methods
     std::unordered_map<std::string, short int> getMapPorts();

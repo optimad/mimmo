@@ -82,7 +82,6 @@ SelectionBySphere::~SelectionBySphere(){};
  * Copy Constructor
  */
 SelectionBySphere::SelectionBySphere(const SelectionBySphere & other):GenericSelection(), Sphere(){
-    *this = other;
 };
 
 /*!

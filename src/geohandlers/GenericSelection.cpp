@@ -47,7 +47,10 @@ GenericSelection::~GenericSelection(){
  * Copy Constructor, any already calculated selection is not copied. 
  */
 GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulation(){
-    *this = other;
+    m_type = other.m_type;
+    m_topo = other.m_topo;
+    m_dual = other.m_dual;
+    m_subpatch.reset(nullptr);
 };
 
 /*!

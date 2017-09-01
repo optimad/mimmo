@@ -43,19 +43,6 @@ public:
      */
     IOData(){};
 
-    /*!Copy constructor of IOData.
-     */
-    IOData(const IOData & other){
-        *this = other;
-    }
-
-    /*!Assignement operator of IOData.
-     */
-    IOData & operator=(const IOData & other){
-        BITPIT_UNUSED(other);
-        return (*this);
-    }
-
     /*!
      * Destructor
      */
@@ -112,14 +99,7 @@ public:
     /*!Copy constructor of IODataT.
      */
     IODataT(const IODataT & other){
-        *this = other;
-    }
-
-    /*!Assignement operator of IODataT.
-     */
-    IODataT & operator=(const IODataT & other){
         this->m_data     = other.m_data;
-        return (*this);
     }
 
     /*!It sets the data stored in the object.

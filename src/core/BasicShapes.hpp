@@ -242,7 +242,6 @@ public:
     ~Cube();
 
     Cube(const Cube &);
-    Cube & operator=(const Cube &);
 
     //reimplementing pure virtuals
 
@@ -277,8 +276,6 @@ public:
     ~Cylinder();
 
     Cylinder(const Cylinder &);
-    Cylinder & operator=(const Cylinder &);
-
 
     //reimplementing pure virtuals
     darray3E	toWorldCoord(darray3E  point);
@@ -313,8 +310,6 @@ public:
     ~Sphere();
 
     Sphere(const Sphere &);
-    Sphere & operator=(const Sphere &);
-
 
     //reimplementing pure virtuals
     darray3E	toWorldCoord(darray3E  point);

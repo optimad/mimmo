@@ -68,19 +68,11 @@ ClipGeometry::~ClipGeometry(){};
 /*!Copy constructor of ClipGeometry.
  */
 ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!Assignement operator of ClipGeometry.
- */
-ClipGeometry & ClipGeometry::operator=(const ClipGeometry & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
     m_plane = other.m_plane;
     m_insideout = other.m_insideout;
     m_origin = other.m_origin;
     m_normal = other.m_normal;
     m_implicit = other.m_implicit;
-    return(*this);
 };
 
 /*! It builds the input/output ports of the object

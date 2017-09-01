@@ -145,7 +145,6 @@ public:
     ~IOOFOAM();
 
     IOOFOAM(const IOOFOAM & other);
-    IOOFOAM & operator=(const IOOFOAM & other);
 
     void            buildPorts();
     void            setDefaults();

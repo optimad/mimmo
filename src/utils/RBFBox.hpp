@@ -88,7 +88,6 @@ public:
 
     //copy operators/constructors
     RBFBox(const RBFBox & other);
-    RBFBox & operator=(const RBFBox & other);
 
     void buildPorts();
 

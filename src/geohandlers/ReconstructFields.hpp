@@ -107,7 +107,6 @@ public:
     ReconstructScalar(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructScalar();
     ReconstructScalar(const ReconstructScalar & other);
-    ReconstructScalar & operator=(const ReconstructScalar & other);
 
     //get-set methods
     OverlapMethod            getOverlapCriteriumENUM();
@@ -204,7 +203,6 @@ public:
     ReconstructVector(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructVector();
     ReconstructVector(const ReconstructVector & other);
-    ReconstructVector & operator=(const ReconstructVector & other);
 
     //get-set methods
     OverlapMethod            getOverlapCriteriumENUM();
