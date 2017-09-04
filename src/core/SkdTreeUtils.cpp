@@ -782,17 +782,11 @@ void extractTarget(bitpit::PatchSkdTree *target, std::vector<const bitpit::SkdNo
     int nextl, nextr;
     if (check){
         bitpit::SkdNode node = target->getNode(next);
-        std::vector<std::size_t> cellRawIds = target->getPatchInfo().getCellRawIds();
         const bitpit::PiercedVector<bitpit::Cell> &cells = target->getPatch().getCells();
         if (node.isLeaf()){
-            std::array<size_t, 2> elements;
-            elements[0] = node.getCellBegin();
-            elements[1] = node.getCellEnd();
-            for(int i = elements[0]; i<elements[1]; ++i){
-                std::size_t cellRawId = cellRawIds[i];
-                const bitpit::Cell &cell = cells.rawAt(cellRawId);
-                long cellId = cell.getId();
-                extracted.push_back(cellId);
+            std::vector<long> cellids = node.getCells();
+            for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
+                extracted.push_back(*it);
             }
         }
         else{

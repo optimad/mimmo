@@ -661,38 +661,24 @@ void	BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Patch
 	//check indexBvNode admissible.
 	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
 
-    std::vector<std::size_t> cellRawIds = tree.getPatchInfo().getCellRawIds();
     bitpit::SkdNode node = tree.getNode(indexBvNode);
     const bitpit::PiercedVector<Cell> &cells = geo->getCells();
 
 	//1st step get data and control if it's leaf or if shape contain bounding box
 	if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
-	
-        std::array<size_t, 2> elements;
-        elements[0] = node.getCellBegin();
-        elements[1] = node.getCellEnd();
-
-        for(int i = elements[0]; i<elements[1]; ++i){
-            std::size_t cellRawId = cellRawIds[i];
-            const bitpit::Cell &cell = cells.rawAt(cellRawId);
-            long cellId = cell.getId();
-			result[counter] = cellId;
+	    std::vector<long> cellids = node.getCells();
+        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
+			result[counter] = *it;
 			++counter;
 		}	
 		return;
 	};
 	
 	if(node.isLeaf()){
-	    std::array<size_t, 2> elements;
-	    elements[0] = node.getCellBegin();
-	    elements[1] = node.getCellEnd();
-
-	    for(int i = elements[0]; i<elements[1]; ++i){
-	        std::size_t cellRawId = cellRawIds[i];
-	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
-	        long cellId = cell.getId();
-	        if(isSimplexIncluded(geo, cellId)){
-	            result[counter] = cellId;
+        std::vector<long> cellids = node.getCells();
+        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
+	        if(isSimplexIncluded(geo, *it)){
+	            result[counter] = *it;
 	            ++counter;
 	        }
 	    }
@@ -726,38 +712,24 @@ void	BasicShape::searchBvTreeNotMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
 	//check indexBvNode admissible.
 	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
 
-    std::vector<std::size_t> cellRawIds = tree.getPatchInfo().getCellRawIds();
 	bitpit::SkdNode node = tree.getNode(indexBvNode);
     const bitpit::PiercedVector<Cell> &cells = geo->getCells();
 
 	//1st step get data and control if it's leaf or if shape contain bounding box
 	if(!containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
-
-	    std::array<size_t, 2> elements;
-        elements[0] = node.getCellBegin();
-        elements[1] = node.getCellEnd();
-		
-		for(int i = elements[0]; i<elements[1]; ++i){
-	        std::size_t cellRawId = cellRawIds[i];
-	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
-	        long cellId = cell.getId();
-			result[counter] = cellId;
+        std::vector<long> cellids = node.getCells();
+        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
+			result[counter] = *it;
 			++counter;
 		}	
 		return;
 	};
 	
 	if(node.isLeaf()){
-	    std::array<size_t, 2> elements;
-	    elements[0] = node.getCellBegin();
-	    elements[1] = node.getCellEnd();
-
-	    for(int i = elements[0]; i<elements[1]; ++i){
-	        std::size_t cellRawId = cellRawIds[i];
-	        const bitpit::Cell &cell = cells.rawAt(cellRawId);
-	        long cellId = cell.getId();
-	        if(!isSimplexIncluded(geo, cellId)){
-	            result[counter] = cellId;
+        std::vector<long> cellids = node.getCells();
+        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
+	        if(!isSimplexIncluded(geo, *it)){
+	            result[counter] = *it;
 	            ++counter;
 	        }
 	    }
