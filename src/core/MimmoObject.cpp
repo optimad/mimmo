@@ -192,10 +192,10 @@ MimmoObject::MimmoObject(const MimmoObject & other){
     m_patch         = other.m_patch;
     m_internalPatch = false;
 
-    m_mapData       = other.m_mapData;
-    m_mapCell       = other.m_mapCell;
-    m_mapDataInv    = other.m_mapDataInv;
-    m_mapCellInv    = other.m_mapCellInv;
+//    m_mapData       = other.m_mapData;
+//    m_mapCell       = other.m_mapCell;
+//    m_mapDataInv    = other.m_mapDataInv;
+//    m_mapCellInv    = other.m_mapCellInv;
     m_pidsType      = other.m_pidsType;
 
     m_bvTreeSupported = other.m_bvTreeSupported;
