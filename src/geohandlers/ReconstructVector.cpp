@@ -67,7 +67,6 @@ ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipu
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;
     m_subresults = other.m_subresults;
-    return *this;
 }
 
 /*!
