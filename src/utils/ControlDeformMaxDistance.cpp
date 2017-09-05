@@ -180,7 +180,7 @@ ControlDeformMaxDistance::execute(){
         flag = true;
         radius = std::fmax(1.0E-8, normDef[ID]);
         while(flag && kiter < kmax){
-            dist = skdTreeUtils::distance(&p, geo->getBvTree(), id, radius);
+            dist = skdTreeUtils::distance(&points[ID], geo->getBvTree(), IDC, radius);
             flag = (dist == 1.0E+18);
             if(flag)    radius *= (1.0+ rate*((double)flag));
             kiter++;
