@@ -43,18 +43,9 @@ SwitchField::~SwitchField(){
 
 /*!Copy constructor of SwitchField.Soft Copy of MimmoObject;
  */
-SwitchField::SwitchField(const SwitchField & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!
- * Assignement operator of SwitchField. Soft copy of MimmoObject
- */
-SwitchField & SwitchField::operator=(const SwitchField & other){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+SwitchField::SwitchField(const SwitchField & other):BaseManipulation(other){
     m_mapping = other.m_mapping;
-    return *this;
+    m_tol = other.m_tol;
 };
 
 /*!
@@ -85,6 +76,15 @@ SwitchField::setGeometry(MimmoObject* geo){
 void
 SwitchField::setMapping(bool flag){
     m_mapping = flag;
+};
+
+/*!
+ * Set tolerance for extraction by patch.
+ * \param[in] tol Tolerance
+ */
+void
+SwitchField::setTolerance(double tol){
+    m_tol = std::max(1.0e-12, tol);
 };
 
 /*!
@@ -131,6 +131,17 @@ void SwitchField::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
         setMapping(value);
     }
 
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
+        input = bitpit::utils::string::trim(input);
+        double temp = 0.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setTolerance(temp);
+    }
+
 };
 
 /*!
@@ -145,6 +156,7 @@ void SwitchField::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
     if(m_mapping){
         slotXML.set("Mapping", std::to_string(1));
+        slotXML.set("Tolerance", std::to_string(m_tol));
     }
 
 };

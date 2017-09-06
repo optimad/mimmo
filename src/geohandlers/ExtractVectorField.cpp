@@ -194,8 +194,7 @@ ExtractVectorField::extract(){
     case ExtractMode::MAPPING :
     {
         //Extract by geometric mapping
-        double tol = 1.0e-08;
-        livector1D result = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), tol);
+        livector1D result = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
         for (const auto & idC : result){
             for (const auto & id : getGeometry()->getCellConnectivity(idC)){
                 if (!m_result.exists(id))

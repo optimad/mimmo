@@ -82,6 +82,7 @@ namespace mimmo{
 class SwitchField: public BaseManipulation{
 protected:
     bool m_mapping; /*< If true force the second research by mapping.*/
+    double m_tol;  /*< Tolerance for extraction by patch.*/
 
 public:
     SwitchField();
@@ -94,6 +95,7 @@ public:
 
     void        setGeometry(MimmoObject * geo);
     void        setMapping(bool flag = true);
+    void        setTolerance(double tol);
 
     void         clear();
     void         execute();

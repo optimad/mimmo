@@ -79,6 +79,7 @@ enum class ExtractMode{
  *
  * Proper of the class:
  * - <B>ExtractMode</B>: activate extraction mode by ID, PID or Mapping;
+ * - <B>Tolerance</B>: tolerance for extraction by patch.
  *
  * Geometries and fields have to be mandatorily passed through port.
  *
@@ -86,6 +87,7 @@ enum class ExtractMode{
 class ExtractField: public BaseManipulation{
 protected:
     ExtractMode m_mode; /*< Extraction mode.*/
+    double      m_tol;  /*< Tolerance for extraction by patch.*/
 
 public:
     ExtractField();
@@ -99,6 +101,7 @@ public:
     void        setGeometry(MimmoObject * geo);
     void        setMode(ExtractMode mode);
     void        setMode(int mode);
+    void        setTolerance(double tol);
 
     void         clear();
     void         execute();

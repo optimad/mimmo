@@ -183,9 +183,8 @@ SwitchScalarField::mswitch(){
 
     //Extract by geometric mapping
     if (m_mapping){
-        double tol = 1.0e-08;
         for (const auto & field : m_fields){
-            livector1D result = mimmo::skdTreeUtils::selectByPatch(field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), tol);
+            livector1D result = mimmo::skdTreeUtils::selectByPatch(field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
 //             if (result.size() != 0) m_result.setName(field.getName());
             for (const auto & idC : result){
                 for (const auto & id : getGeometry()->getCellConnectivity(idC)){

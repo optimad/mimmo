@@ -32,6 +32,7 @@ namespace mimmo{
  */
 ExtractField::ExtractField(){
     m_mode = ExtractMode::ID;
+    m_tol  = 1.0e-08;
 }
 
 /*!
@@ -43,18 +44,9 @@ ExtractField::~ExtractField(){
 
 /*!Copy constructor of ExtractField.Soft Copy of MimmoObject;
  */
-ExtractField::ExtractField(const ExtractField & other):BaseManipulation(){
-    *this = other;
-};
-
-/*!
- * Assignement operator of ExtractField. Soft copy of MimmoObject
- */
-ExtractField & ExtractField::operator=(const ExtractField & other){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+ExtractField::ExtractField(const ExtractField & other):BaseManipulation(other){
     m_mode = other.m_mode;
-    return *this;
+    m_tol  = 1.0e-08;
 };
 
 /*!
@@ -94,6 +86,15 @@ void
 ExtractField::setMode(int mode){
     if(mode < 1 ||mode > 3)    return;
     m_mode = static_cast<ExtractMode>(mode);
+};
+
+/*!
+ * Set tolerance for extraction by patch.
+ * \param[in] tol Tolerance
+ */
+void
+ExtractField::setTolerance(double tol){
+    m_tol = std::max(1.0e-12, tol);
 };
 
 /*!
@@ -141,6 +142,17 @@ void ExtractField::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         }
     };
 
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
+        input = bitpit::utils::string::trim(input);
+        double temp = 0.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setTolerance(temp);
+    }
+
 };
 
 /*!
@@ -156,6 +168,8 @@ void ExtractField::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 
     int value = static_cast<int>(m_mode);
     slotXML.set("ExtractMode", std::to_string(value));
+    if (m_mode == ExtractMode::MAPPING)
+        slotXML.set("Tolerance", std::to_string(m_tol));
 
 };
 

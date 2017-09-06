@@ -168,6 +168,7 @@ void test00003() {
      */
     ExtractVectorField* extr2 = new ExtractVectorField();
     extr2->setMode(ExtractMode::MAPPING);
+    extr2->setTolerance(1.0e-01);
 
     /* Create applier extraction2 block.
      * It applies the extracted deformation displacements

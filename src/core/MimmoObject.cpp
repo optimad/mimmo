@@ -612,6 +612,7 @@ MimmoObject::isBvTreeBuilt(){
 bitpit::PatchSkdTree*
 MimmoObject::getBvTree(){
     if (!m_bvTreeSupported) return NULL;
+    if (!isBvTreeBuilt()) buildBvTree();
     return m_bvTree;
 }
 
