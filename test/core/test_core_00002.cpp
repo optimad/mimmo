@@ -264,7 +264,7 @@ int main( int argc, char *argv[] ) {
 		/**<Calling mimmo Test routines*/
 
         int val = test2() ;
-
+  
 #if ENABLE_MPI==1
 	}
 
