@@ -36,14 +36,14 @@ int BaseManipulation::sm_baseManipulationCounter(1);
  * It sets to zero/null each member/pointer.
  */
 BaseManipulation::BaseManipulation(){
-    m_geometry 		= NULL;
-    m_portsType		= ConnectionType::BOTH;
-    m_name			= "mimmo";
-    m_active		= true;
+    m_geometry      = NULL;
+    m_portsType     = ConnectionType::BOTH;
+    m_name          = "mimmo";
+    m_active        = true;
     m_arePortsBuilt = false;
     m_execPlot      = false;
-    m_outputPlot	= "./";
-    m_counter		= sm_baseManipulationCounter;
+    m_outputPlot    = "./";
+    m_counter       = sm_baseManipulationCounter;
     m_priority      = 0;
     m_apply         = false;
     sm_baseManipulationCounter++;
@@ -62,7 +62,7 @@ BaseManipulation::~BaseManipulation(){
 };
 
 /*!
- * Copy constructor of BaseManipulation.
+ * Copy constructor of BaseManipulation. Preexistent port connections will not be copied.
  * \param[in] other class of type BaseManipulation
  */
 BaseManipulation::BaseManipulation(const BaseManipulation & other){
@@ -72,9 +72,16 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
     m_active        = other.m_active;
     m_arePortsBuilt = false;
     m_execPlot      = other.m_execPlot;
-    m_counter       = other.m_counter;
+    m_outputPlot    = other.m_outputPlot;
+
+    //only for copy construction
+    m_counter       = sm_baseManipulationCounter;
+    sm_baseManipulationCounter++;
+
     m_priority      = other.m_priority;
     m_apply         = other.m_apply;
+
+    //logger is ready, since another BaseManipulation other, is instantiated.
     m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
@@ -83,18 +90,39 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
  * \param[in] other class of type BaseManipulation
  */
 BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
-    m_geometry 		= other.m_geometry;
-    m_portsType		= other.m_portsType;
-    m_name 			= other.m_name;
-    m_active		= other.m_active;
-    m_arePortsBuilt = false;
-    m_execPlot 		= other.m_execPlot;
-    m_counter       = other.m_counter;
+
+    //NOT CAS type, since the class is abstract.
+    //Please note static members or link to static members are not copied.
+    //Port connection and port building members are not copied.
+    m_geometry      = other.m_geometry;
+    m_portsType     = other.m_portsType;
+    m_name          = other.m_name;
+    m_active        = other.m_active;
+    m_execPlot      = other.m_execPlot;
+    m_outputPlot    = other.m_outputPlot;
     m_priority      = other.m_priority;
     m_apply         = other.m_apply;
-    m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
-    return (*this);
+
+    return  *this;
 };
+
+/*!
+ * Exchange data between the current class and an external BaseManipulation object. 
+ * Data will be swapped (data of A assigned to B and vice versa). Port connections/building info
+ * will not be exchanged, as well as class unique-id.
+ * \param[in] x BaseManipulation object to be swapped with current class.
+ */
+void BaseManipulation::swap(BaseManipulation & x) noexcept
+{
+    std::swap(m_priority, x.m_priority);
+    std::swap(m_name, x.m_name);
+    std::swap(m_geometry, x.m_geometry);
+    std::swap(m_portsType, x.m_portsType);
+    std::swap(m_active, x.m_active);
+    std::swap(m_execPlot, x.m_execPlot);
+    std::swap(m_apply, x.m_apply);
+    std::swap(m_outputPlot, x.m_outputPlot);
+}
 
 /*! Initialize the logger.
  *  \param[in] logexist does a logger already exist?

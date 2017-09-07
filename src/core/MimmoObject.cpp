@@ -220,6 +220,8 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 * \param[in] other reference to another MimmoObject
 */
 MimmoObject & MimmoObject::operator=(const MimmoObject & other){
+
+if(this != &other){
     m_type 			= other.m_type;
     if(m_patch != NULL){
         if (m_internalPatch)    delete m_patch;
@@ -242,6 +244,7 @@ MimmoObject & MimmoObject::operator=(const MimmoObject & other){
     m_AdjBuilt = other.m_AdjBuilt;
 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+}    
     return *this;
 };
 

@@ -657,10 +657,9 @@ void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tre
 void	BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
 	
 	//check indexBvNode admissible.
-	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
+	if(indexBvNode <0 || indexBvNode > (int)tree.getNodeCount())	return;
 
     bitpit::SkdNode node = tree.getNode(indexBvNode);
-    const bitpit::PiercedVector<Cell> &cells = geo->getCells();
 
 	//1st step get data and control if it's leaf or if shape contain bounding box
 	if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
@@ -693,59 +692,6 @@ void	BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Patch
 
 	return;
 };
-
-
-/*!
- * Visit recursively BvTree relative to a PatchKernel structure and extract possible simplex candidates NOT included in the current shape.
- * Identifiers of extracted matches are collected in result structure
- *\param[in] tree			BvTree of PatchKernel simplicies
- *\param[in] geo            pointer to tessellation the tree refers to. 
- *\param[in] indexBvNode	BvTree node index of tree, which start seaching from  
- *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
- *\param[in,out] counter	last filled position of result vector.
- * 
- */
-void	BasicShape::searchBvTreeNotMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
-	
-	//check indexBvNode admissible.
-	if(indexBvNode <0 || indexBvNode > tree.getNodeCount())	return;
-
-	bitpit::SkdNode node = tree.getNode(indexBvNode);
-    const bitpit::PiercedVector<Cell> &cells = geo->getCells();
-
-	//1st step get data and control if it's leaf or if shape contain bounding box
-	if(!containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
-        std::vector<long> cellids = node.getCells();
-        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
-			result[counter] = *it;
-			++counter;
-		}	
-		return;
-	};
-	
-	if(node.isLeaf()){
-        std::vector<long> cellids = node.getCells();
-        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
-	        if(!isSimplexIncluded(geo, *it)){
-	            result[counter] = *it;
-	            ++counter;
-	        }
-	    }
-		return;
-	}
-
-	for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
-	    SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
-	    if(node.getChildId(childLocation) != SkdNode::NULL_ID)   {
-//	        if( intersectShapeAABBox(tree.getNode(node.getChildId(childLocation)).getBoxMin(), tree.getNode(node.getChildId(childLocation)).getBoxMax()) )
-	            searchBvTreeNotMatches(tree, geo, node.getChildId(childLocation), result, counter);
-	    }
-	}
-
-	
-	return;
-};
-
 
 
 /*!
@@ -787,7 +733,7 @@ Cube::Cube(){
   * \param[in] origin point origin in global reference system
   * \param[in] span span in each shape local coordinate x,y,z;
   */
- Cube::Cube(darray3E &origin, darray3E & span): Cube(){
+ Cube::Cube(const darray3E &origin, const darray3E & span): Cube(){
 	      
 	setOrigin(origin);
 	setSpan(span[0], span[1], span[2]);
@@ -801,15 +747,7 @@ Cube::~Cube(){};
  * Copy Constructor 
  * \param[in] other Cube object where copy from
  */
-Cube::Cube(const Cube & other){
-    m_shape = other.m_shape;
-    m_origin = other.m_origin;
-    m_span = other.m_span;
-    m_infLimits = other.m_infLimits;
-    m_sdr = other.m_sdr;
-    m_typeCoord = other.m_typeCoord;
-    m_scaling = other.m_scaling;
-};
+Cube::Cube(const Cube & other):BasicShape(other){};
 
 
 /*! 
@@ -1024,7 +962,7 @@ Cylinder::Cylinder(){
  * \param[in] origin point origin in global reference system
  * \param[in] span  characteristic dimension of your cylinder;
  */
-Cylinder::Cylinder(darray3E &origin, darray3E & span): Cylinder(){
+Cylinder::Cylinder(const darray3E &origin, const darray3E & span): Cylinder(){
 	
 	setOrigin(origin);
 	setSpan(span[0], span[1], span[2]);
@@ -1037,15 +975,7 @@ Cylinder::~Cylinder(){};
  * Copy Constructor 
  * \param[in] other Cylinder object where copy from
  */
-Cylinder::Cylinder(const Cylinder & other){
-    m_shape = other.m_shape;
-    m_origin = other.m_origin;
-    m_span = other.m_span;
-    m_infLimits = other.m_infLimits;
-    m_sdr = other.m_sdr;
-    m_typeCoord = other.m_typeCoord;
-    m_scaling = other.m_scaling;
-};
+Cylinder::Cylinder(const Cylinder & other):BasicShape(other){};
 
 /*!
  * Transform point from local reference system of the shape,
@@ -1305,7 +1235,7 @@ Sphere::Sphere(){
  * \param[in] origin point origin in global reference system
  * \param[in] span  characteristic dimension of your sphere/ portion of;
  */
-Sphere::Sphere(darray3E &origin, darray3E & span): Sphere(){
+Sphere::Sphere(const darray3E &origin, const darray3E & span): Sphere(){
 	
 	setOrigin(origin);
 	setSpan(span[0], span[1], span[2]);
@@ -1318,15 +1248,7 @@ Sphere::~Sphere(){};
  * Copy Constructor 
  * \param[in] other Sphere object where copy from
  */
-Sphere::Sphere(const Sphere & other){
-    m_shape = other.m_shape;
-    m_origin = other.m_origin;
-    m_span = other.m_span;
-    m_infLimits = other.m_infLimits;
-    m_sdr = other.m_sdr;
-    m_typeCoord = other.m_typeCoord;
-    m_scaling = other.m_scaling;
-};
+Sphere::Sphere(const Sphere & other):BasicShape(other){};
 
 /*! 
  * Transform point from local reference system of the shape,

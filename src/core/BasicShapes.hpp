@@ -77,74 +77,74 @@ enum class CoordType{
 class BasicShape {
 
 protected:
-    ShapeType	m_shape; 		/**< shape identifier, see BasicShape::ShapeType enum */
-    darray3E	m_origin; 		/**< origin of your shape. May change according to the shape type*/
-    darray3E	m_span;			/**< coordinate span of your current shape, in its local reference system*/
-    darray3E    m_infLimits;	/**< inferior limits of coordinate of your current shape */
-    dmatrix33E	m_sdr;			/**< axis position of the local reference system w.r.t absolute one*/
-    darray3E 	m_scaling; 		/**< scaling vector of dimensional coordinates */
+    ShapeType	m_shape;        /**< shape identifier, see BasicShape::ShapeType enum */
+    darray3E	m_origin;       /**< origin of your shape. May change according to the shape type*/
+    darray3E	m_span;         /**< coordinate span of your current shape, in its local reference system*/
+    darray3E    m_infLimits;    /**< inferior limits of coordinate of your current shape */
+    dmatrix33E	m_sdr;          /**< axis position of the local reference system w.r.t absolute one*/
+    darray3E 	m_scaling;      /**< scaling vector of dimensional coordinates */
 
-    std::array<CoordType,3>		m_typeCoord;	/**< identifiers for coordinate type definition.DEFAULT is clamped*/
+    std::array<CoordType,3>     m_typeCoord;    /**< identifiers for coordinate type definition.DEFAULT is clamped*/
 
-    dvecarr3E m_bbox;	/**<points of bounding box of the shape */  //temporary not copied build with get bounding box !!!
+    dvecarr3E m_bbox;   /**<points of bounding box of the shape */  //temporary not copied build with get bounding box !!!
 
 public:
 
-    //Costructors, Destructor, Copy/Assignment operators
+    //Costructors, Destructor
     BasicShape();
     virtual ~BasicShape();
 
     //set-get methods
-    void		setOrigin(darray3E);
-    void		setSpan(double, double, double);
-    void		setSpan(darray3E);
-    void		setInfLimits(double val, int dir);
-    void		setInfLimits(darray3E val);
-    void		setRefSystem(darray3E, darray3E, darray3E);
-    void		setRefSystem(int, darray3E);
-    void		setRefSystem(dmatrix33E axes);
-    void		setCoordinateType(CoordType, int dir);
+    void        setOrigin(darray3E);
+    void        setSpan(double, double, double);
+    void        setSpan(darray3E);
+    void        setInfLimits(double val, int dir);
+    void        setInfLimits(darray3E val);
+    void        setRefSystem(darray3E, darray3E, darray3E);
+    void        setRefSystem(int, darray3E);
+    void        setRefSystem(dmatrix33E axes);
+    void        setCoordinateType(CoordType, int dir);
 
-    darray3E			getOrigin();
-    darray3E			getSpan();
-    darray3E			getInfLimits();
-    dmatrix33E			getRefSystem();
-    CoordType			getCoordinateType(int dir);
-    ShapeType   		getShapeType();
-    ShapeType			getShapeType() const;
+    darray3E    getOrigin();
+    darray3E    getSpan();
+    darray3E    getInfLimits();
+    dmatrix33E  getRefSystem();
+    CoordType   getCoordinateType(int dir);
+    ShapeType   getShapeType();
+    ShapeType   getShapeType() const;
 
-    darray3E	getScaling();
-    darray3E	getLocalSpan();
+    darray3E    getScaling();
+    darray3E    getLocalSpan();
 
 
     //functionalities
-    livector1D	includeGeometry(mimmo::MimmoObject * );
-    livector1D	excludeGeometry(mimmo::MimmoObject * );
+    livector1D  includeGeometry(mimmo::MimmoObject * );
+    livector1D  excludeGeometry(mimmo::MimmoObject * );
 
-    livector1D	includeGeometry(bitpit::PatchKernel * );
-    livector1D	excludeGeometry(bitpit::PatchKernel * );
+    livector1D  includeGeometry(bitpit::PatchKernel * );
+    livector1D  excludeGeometry(bitpit::PatchKernel * );
 
-    livector1D	includeCloudPoints(dvecarr3E &);
-    livector1D	excludeCloudPoints(dvecarr3E &);
+    livector1D  includeCloudPoints(dvecarr3E &);
+    livector1D  excludeCloudPoints(dvecarr3E &);
 
-    livector1D	includeCloudPoints(bitpit::PatchKernel * );
-    livector1D	excludeCloudPoints(bitpit::PatchKernel * );
+    livector1D  includeCloudPoints(bitpit::PatchKernel * );
+    livector1D  excludeCloudPoints(bitpit::PatchKernel * );
 
-    livector1D	includeCloudPoints(mimmo::MimmoObject * );
-    livector1D	excludeCloudPoints(mimmo::MimmoObject * );
+    livector1D  includeCloudPoints(mimmo::MimmoObject * );
+    livector1D  excludeCloudPoints(mimmo::MimmoObject * );
 
-    bool		isSimplexIncluded(dvecarr3E &);
-    bool		isSimplexIncluded(bitpit::PatchKernel * , long int indexT);
-    bool		isPointIncluded(darray3E);
-    bool		isPointIncluded(bitpit::PatchKernel * , long int indexV);
+    bool        isSimplexIncluded(dvecarr3E &);
+    bool        isSimplexIncluded(bitpit::PatchKernel * , long int indexT);
+    bool        isPointIncluded(darray3E);
+    bool        isPointIncluded(bitpit::PatchKernel * , long int indexV);
 
     /*!
      * Pure virtual method to get if the current shape an a given Axis Aligned Bounding Box intersects
      * \param[in] bMin min point of AABB
      * \param[in] bMax max point of AABB
      */
-    virtual bool	intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
-    bool		containShapeAABBox(darray3E bMin, darray3E bMax);
+    virtual bool    intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
+    bool            containShapeAABBox(darray3E bMin, darray3E bMax);
 
 
     /*!
@@ -152,7 +152,7 @@ public:
      * \param[in] point 3D point in local shape coordinates
      * \return point in world global coordinate
      */
-    virtual	darray3E	toWorldCoord(darray3E  point)=0;
+    virtual	darray3E    toWorldCoord(darray3E  point)=0;
 
     /*! 
      * Pure virtual method to convert from World to Local Coordinates
@@ -160,17 +160,17 @@ public:
      * \return point in local world coordinate
      * 
      */
-    virtual	darray3E	toLocalCoord(darray3E  point)=0;
+    virtual	darray3E    toLocalCoord(darray3E  point)=0;
 
     /*!
      * Pure virtual method to get local Coordinate inferior limits of primitive shape
      * \return local origin
      */
-    virtual darray3E	getLocalOrigin()=0;
+    virtual darray3E    getLocalOrigin()=0;
 
 protected:
-    uint32_t 	intersectShapePlane(int level, darray3E target);
-    darray3E	checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
+    uint32_t    intersectShapePlane(int level, darray3E target);
+    darray3E    checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
 
 private:	
     /*!
@@ -178,14 +178,14 @@ private:
      * \param[in] point mapped in basic elemental shape coordinates
      * \return point in local reference system coordinates
      */
-    virtual	darray3E	basicToLocal(darray3E  point)=0;
+    virtual darray3E    basicToLocal(darray3E  point)=0;
 
     /*!
      * Pure Virtual method to transform a 3D point from local shape coordinate in basic elemental ones
      * \param[in] point mapped in local shape coordinates
      * \return point in basic elemental shape reference system coordinate
      */
-    virtual	darray3E	localToBasic(darray3E  point)=0;
+    virtual darray3E    localToBasic(darray3E  point)=0;
 
     /*! 
      * Pure virtual method to check if your new span values fit your current shape set up
@@ -194,7 +194,7 @@ private:
      * \param[in] s1 second span dimension
      * \param[in] s2 third span dimension
      */
-    virtual void 		checkSpan(double &s0, double &s1, double &s2)=0;
+    virtual void    checkSpan(double &s0, double &s1, double &s2)=0;
 
     /*! 
      * Pure virtual method to check if your inf limits origin values fit your current shape set up
@@ -203,7 +203,7 @@ private:
      * \param[in] dir coordinate index
      * \return true, if valid new value is set.
      */
-    virtual bool 		checkInfLimits(double & orig, int &dir)=0;
+    virtual bool    checkInfLimits(double & orig, int &dir)=0;
 
     /*! 
      * Pure virtual method to set local span & scaling vectors of your shape
@@ -211,17 +211,16 @@ private:
      * \param[in] s1 second span dimension
      * \param[in] s2 third span dimension
      */
-    virtual void		setScaling(double &s0, double &s1, double &s2)=0;
+    virtual void    setScaling(double &s0, double &s1, double &s2)=0;
 
-    void				searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
-    void				searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
-    void				searchBvTreeNotMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
+    void        searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
+    void        searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
 
     /*!
      * Pure virtual method to get the Axis Aligned Bounding Box of the current shape
      * and return it in m_bbox member.
      */
-    virtual void		getTempBBox()=0;
+    virtual void    getTempBBox()=0;
 };
 
 /*!
@@ -238,25 +237,25 @@ public:
 
     //Costructors, Destructor, Copy/Assignment operators
     Cube();
-    Cube(darray3E &origin, darray3E &span);
+    Cube(const darray3E &origin, const darray3E &span);
     ~Cube();
 
     Cube(const Cube &);
 
     //reimplementing pure virtuals
 
-    darray3E	toWorldCoord(darray3E  point);
-    darray3E	toLocalCoord(darray3E  point);
-    darray3E	getLocalOrigin();
-    bool	intersectShapeAABBox(darray3E bMin, darray3E bMax);
+    darray3E    toWorldCoord(darray3E  point);
+    darray3E    toLocalCoord(darray3E  point);
+    darray3E    getLocalOrigin();
+    bool    intersectShapeAABBox(darray3E bMin, darray3E bMax);
 
-private:	
-    darray3E	basicToLocal(darray3E  point);
-    darray3E	localToBasic(darray3E  point);
-    void 		checkSpan(double &, double &, double &);
-    bool 		checkInfLimits(double &, int & dir);
-    void 		setScaling(double &, double &, double &);
-    void		getTempBBox();
+private:
+    darray3E    basicToLocal(darray3E  point);
+    darray3E    localToBasic(darray3E  point);
+    void        checkSpan(double &, double &, double &);
+    bool        checkInfLimits(double &, int & dir);
+    void        setScaling(double &, double &, double &);
+    void        getTempBBox();
 };
 
 /*!
@@ -272,7 +271,7 @@ class Cylinder: public BasicShape {
 public:
     //Costructors, Destructor, Copy/Assignment operators
     Cylinder();
-    Cylinder(darray3E &origin, darray3E &span);
+    Cylinder(const darray3E &origin, const darray3E &span);
     ~Cylinder();
 
     Cylinder(const Cylinder &);
@@ -306,7 +305,7 @@ class Sphere: public BasicShape {
 public:
     //Costructors, Destructor, Copy/Assignment operators
     Sphere();
-    Sphere(darray3E &origin, darray3E &span);
+    Sphere(const darray3E &origin, const darray3E &span);
     ~Sphere();
 
     Sphere(const Sphere &);

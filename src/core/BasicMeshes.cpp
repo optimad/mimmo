@@ -121,61 +121,77 @@ UStructMesh::UStructMesh(const UStructMesh & other){
 /*! Assignement Operator.
  * \param[in] other UStructMesh object where copy from
  */
-UStructMesh & UStructMesh::operator=(const UStructMesh & other){
-    // Number of cells
-    m_nx = other.m_nx;
-    m_ny = other.m_ny;
-    m_nz = other.m_nz;
-
-    // Cell Spacing
-    m_dx = other.m_dx;
-    m_dy = other.m_dy;
-    m_dz = other.m_dz;
-
-    // Copy cell edges and cell centers ----------------------------------------- //
-    m_xnode = other.m_xnode;
-    m_ynode = other.m_ynode;
-    m_znode = other.m_znode;
-    m_xedge = other.m_xedge;
-    m_yedge = other.m_yedge;
-    m_zedge = other.m_zedge;
-
-    if(other.m_shape){
-        switch(other.m_shape->getShapeType()){
-            case ShapeType::CYLINDER :
-                {
-                    const Cylinder * pp = dynamic_cast<const Cylinder*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
-                }
-                break;
-            case ShapeType::SPHERE :
-                {
-                    const Sphere * pp = dynamic_cast<const Sphere*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
-                }
-                break;
-            default://CUBE
-                {
-                    const Cube * pp = dynamic_cast<const Cube*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
-                }
-                break;
-        }
-    }
-
-    //copy temporary members
-    m_origin_temp = other.m_origin_temp;
-    m_span_temp = other.m_span_temp;
-    m_inflimits_temp = other.m_inflimits_temp;
-    m_refsystem_temp = other.m_refsystem_temp;
-    m_shapetype_temp = other.m_shapetype_temp;
-    m_setorigin = other.m_setorigin;
-    m_setspan = other.m_setspan;
-    m_setInfLimits = other.m_setInfLimits;
-    m_setRefSys = other.m_setRefSys;
-    m_isBuild = other.m_isBuild;
-	return(*this);
+UStructMesh & UStructMesh::operator=(UStructMesh other){
+    swap(other);
+    return  *this;
 };
+
+/*!
+ * Swap method, exchange data between the current class and another of the same type. 
+ * Data of one class will be assigned to the other and vice versa.
+ * 
+ * \param[in] x UstructMesh object to be swapped.
+ */
+void UStructMesh::swap(UStructMesh & x) noexcept
+{
+        // Number of cells
+        std::swap(m_nx, x.m_nx);
+        std::swap(m_ny, x.m_ny);
+        std::swap(m_nz, x.m_nz);
+        
+        // Cell Spacing
+        std::swap(m_dx, x.m_dx);
+        std::swap(m_dy, x.m_dy);
+        std::swap(m_dz, x.m_dz);
+        
+        // Copy cell edges and cell centers ----------------------------------------- //
+        std::swap(m_xnode, x.m_xnode);
+        std::swap(m_ynode, x.m_ynode);
+        std::swap(m_znode, x.m_znode);
+        std::swap(m_xedge, x.m_xedge);
+        std::swap(m_yedge, x.m_yedge);
+        std::swap(m_zedge, x.m_zedge);
+
+        std::swap(m_origin_temp,x.m_origin_temp);
+        std::swap(m_span_temp,x.m_span_temp);
+        std::swap(m_inflimits_temp,x.m_inflimits_temp);
+        std::swap(m_refsystem_temp,x.m_refsystem_temp);
+        std::swap(m_shapetype_temp,x.m_shapetype_temp);
+        
+        std::swap(m_setorigin,x.m_setorigin);
+        std::swap(m_setspan,x.m_setspan);
+        std::swap(m_setInfLimits,x.m_setInfLimits);
+        std::swap(m_setRefSys,x.m_setRefSys);
+        std::swap(m_isBuild,x.m_isBuild);
+        
+        if(x.m_shape){
+            std::unique_ptr<BasicShape> tempshape;
+            switch(x.m_shape->getShapeType()){
+                case ShapeType::CYLINDER :
+                {
+                    const Cylinder * pp = dynamic_cast<const Cylinder*>(x.m_shape.get());
+                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                }
+                break;
+                case ShapeType::SPHERE :
+                {
+                    const Sphere * pp = dynamic_cast<const Sphere*>(x.m_shape.get());
+                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                }
+                break;
+                default://CUBE
+                {
+                    const Cube * pp = dynamic_cast<const Cube*>(x.m_shape.get());
+                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                }
+                break;
+            }
+            
+            x.m_shape = std::move(m_shape);
+            m_shape = std::move(tempshape);
+        }
+}
+
 
 /*! 
  * \return a const pointer to the inner BasicShape object the current mesh is built on. Const method 

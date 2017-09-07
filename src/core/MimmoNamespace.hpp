@@ -106,7 +106,6 @@ struct FileDataInfo{
     FileDataInfo();
     virtual ~FileDataInfo();
     FileDataInfo(const FileDataInfo & other);
-    FileDataInfo & operator=(const FileDataInfo & other);
 };
 
 

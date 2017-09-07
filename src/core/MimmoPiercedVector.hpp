@@ -74,10 +74,11 @@ public:
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
     MimmoPiercedVector(const MimmoPiercedVector<value_t> & other);
-    MimmoPiercedVector & operator=(const MimmoPiercedVector<value_t> & other);
-    MimmoPiercedVector & operator=(const bitpit::PiercedVector<value_t, long int> & other);
-    void            clear();
+    MimmoPiercedVector & operator=(MimmoPiercedVector<value_t> other);
+    MimmoPiercedVector & operator=(bitpit::PiercedVector<value_t, long int> other);
     
+    void  clear();
+
     // get/set methods of the class;
     MimmoObject*            getGeometry() const;
 //     std::string             getName() const;
@@ -92,6 +93,9 @@ public:
     MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
+
+protected:
+    void  swap(MimmoPiercedVector<value_t>& x) noexcept;
     
 };
 

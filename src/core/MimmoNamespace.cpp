@@ -23,18 +23,11 @@ FileDataInfo::~FileDataInfo(){};
  * Copy constructor of FileDataInfo;
  */
 FileDataInfo::FileDataInfo(const FileDataInfo & other){
-    *this = other;
-};
-
-/*!
- * Assignement operator of FileDataInfo.
- */
-FileDataInfo & FileDataInfo::operator=(const FileDataInfo & other){
     ftype = other.ftype;
     fname = other.fname;
     fdir = other.fdir;
-    return *this;
 };
+
 
 namespace pin{
 

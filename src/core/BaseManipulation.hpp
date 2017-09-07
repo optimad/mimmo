@@ -24,6 +24,7 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
+#include "bitpit_common.hpp"
 #include "factory.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
@@ -158,16 +159,16 @@ public:
 
     bool                arePortsBuilt();
 
-    uint                 getPriority();
-    std::string            getName();
+    uint                getPriority();
+    std::string         getName();
     MimmoObject*        getGeometry();
-    int                    getNParent();
-    BaseManipulation*    getParent(int i = 0);
+    int                 getNParent();
+    BaseManipulation*   getParent(int i = 0);
     bool                isParent(BaseManipulation *, int&);
-    int                    getNChild();
-    BaseManipulation*    getChild(int i = 0);
+    int                 getNChild();
+    BaseManipulation*   getChild(int i = 0);
     bool                isChild(BaseManipulation *, int&);
-    ConnectionType        getConnectionType();
+    ConnectionType      getConnectionType();
     int                 getNPortsIn();
     int                 getNPortsOut();
     std::map<PortID, PortIn*> getPortsIn();
@@ -176,15 +177,15 @@ public:
     bool    isPlotInExecution();
     bool    isActive();
     bool    isApply();
-    int     getClassCounter();
+    BITPIT_DEPRECATED(int     getClassCounter());
     int     getId();
 
-    void     setPriority(uint priority);
+    void    setPriority(uint priority);
     void    setName(std::string name);
-    void     setGeometry(MimmoObject* geometry);
+    void    setGeometry(MimmoObject* geometry);
     void    setPlotInExecution(bool);
     void    setOutputPlot(std::string path);
-    void    setClassCounter(int );
+    BITPIT_DEPRECATED(void    setClassCounter(int ));
     void    setId(int );
     void    setApply(bool flag = true);
 
@@ -195,7 +196,7 @@ public:
     void     removePins();
     void     removePinsIn();
     void     removePinsOut();
-    void    clear();
+    void     clear();
 
     void     exec();
 
@@ -205,6 +206,8 @@ public:
     virtual std::vector<BaseManipulation*> getSubBlocksEmbedded();
 protected:
 
+    
+    void swap(BaseManipulation & x) noexcept;
     void initializeLogger(bool logexists);
 
     /*!

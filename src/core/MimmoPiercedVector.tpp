@@ -51,39 +51,44 @@ MimmoPiercedVector<value_t>::~MimmoPiercedVector(){
  *\param[in] other MimmoPiercedVector object
  */
 template<typename value_t>
-MimmoPiercedVector<value_t>::MimmoPiercedVector(const MimmoPiercedVector<value_t> & other):bitpit::PiercedVector<value_t,long int>(){
-    *this = other;
+MimmoPiercedVector<value_t>::MimmoPiercedVector(const MimmoPiercedVector<value_t> & other):bitpit::PiercedVector<value_t,long int>(other){
+    this->m_geometry = other.m_geometry;
+    this->m_loc = other.m_loc;
 };
 
 /*! 
- * Copy Operator. Values of the Pierced will be copied without holes.
+ * Assignment Operator. 
  * \param[in] other MimmoPiercedVector object
  */
 template<typename value_t>
-MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(const MimmoPiercedVector<value_t> & other){
-    this->m_geometry = other.m_geometry;
-    this->m_loc = other.m_loc;
-//     this->m_name = other.m_name;
-    //copy entirely the data in internal pierced vector->
-    auto itE = other.end();
-    for(auto it  = other.begin(); it!=itE; ++it){
-        this->insert(it.getId(),*it);
-    }
-    return (*this);
+MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(MimmoPiercedVector<value_t> other){
+    this->swap(other);
+    return *this;
 };
 
 /*! 
- * Copy Operator for pierced data only. Only Values of the Pierced will be copied without holes.
+ * Copy Operator for pierced data only. Values will be stored as is in the inner PiercedVector of the class.
  * \param[in] other PiercedVector object
  */
 template<typename value_t>
-MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(const bitpit::PiercedVector<value_t, long int> & other){
-    auto itE = other.end();
-    for(auto it  = other.begin(); it!=itE; ++it){
-        this->insert(it.getId(),*it);
-    }
-    return (*this);
+MimmoPiercedVector<value_t> & MimmoPiercedVector<value_t>::operator =(bitpit::PiercedVector<value_t, long int> other){
+    
+    this->bitpit::PiercedVector<value_t, long int>::swap(other);
+    return *this;
 };
+
+/*!
+ * Attibutes data of an external object to the current class and vice versa. Containts of both objects will be swapped.
+ * Size of the two containers may differ.
+ * \param[in] x MimmoPiercedVector to be swapped. Data type of elements of the pierced vector must be of the same type of the current class.
+ */
+template<typename value_t>
+void MimmoPiercedVector<value_t>::swap(MimmoPiercedVector<value_t> & x) noexcept
+{
+  std::swap(this->m_geometry, x.m_geometry);
+  std::swap(this->m_loc, x.m_loc);
+  this->bitpit::PiercedVector<value_t, long int>::swap(x);	
+}
 
 
 /*!

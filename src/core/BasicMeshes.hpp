@@ -80,8 +80,10 @@ public:
 	
 	// Copy constructor & assignment operators
 	UStructMesh(const UStructMesh & other);
-	UStructMesh & operator=(const UStructMesh & other);
+	UStructMesh & operator=(UStructMesh other);
 
+    void swap(UStructMesh & x) noexcept;
+    
 	//get-set methods  
 	const BasicShape*		getShape() const;
 	BasicShape*				getShape();

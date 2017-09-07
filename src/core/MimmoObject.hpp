@@ -150,7 +150,7 @@ public:
     void        buildBvTree(int value = 1);
     void        buildKdTree();
     /*!
-     * Update BvTree (not available)
+     * Update Bounding Volume Tree - based on bitpit::SKD (not available)
      */
     void        updateBvTree();
     /*!
