@@ -64,6 +64,25 @@ SwitchScalarField::~SwitchScalarField(){
 }
 
 /*!
+ * Copy constructor
+ */
+SwitchScalarField::SwitchScalarField(const SwitchScalarField & other):SwitchField(other){
+    m_fields = other.m_fields;
+    m_result = other.m_result;
+}
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void SwitchScalarField::swap(SwitchScalarField & x) noexcept
+{
+    std::swap(m_fields, x.m_fields);
+    std::swap(m_result, x.m_result);
+    SwitchField::swap(x);
+}
+
+/*!
  * Build the ports of the class;
  */
 void

@@ -64,6 +64,25 @@ SwitchVectorField::~SwitchVectorField(){
 }
 
 /*!
+ * Copy constructor
+ */
+SwitchVectorField::SwitchVectorField(const SwitchVectorField & other):SwitchField(other){
+    m_fields = other.m_fields;
+    m_result = other.m_result;
+}
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void SwitchVectorField::swap(SwitchVectorField & x) noexcept
+{
+    std::swap(m_fields, x.m_fields);
+    std::swap(m_result, x.m_result);
+    SwitchField::swap(x);
+}
+
+/*!
  * Build the ports of the class;
  */
 void

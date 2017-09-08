@@ -74,26 +74,39 @@ StitchGeometry::~StitchGeometry(){
     clear();
 };
 
-/*!Copy constructor of StitchGeometry.Soft Copy of MimmoObject;
+/*!
+ * Copy constructor of StitchGeometry.
+ * Soft Copy of MimmoObject, division maps and resulting patch are not copied;
+ * Relaunch the execution to eventually restore it.
  */
-StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(){
-    *this = other;
+StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(other){
+    m_topo = other.m_topo;
+    m_extgeo = other.m_extgeo;
+    m_geocount = other.m_geocount;
+    m_patch.reset(nullptr);
 };
 
 /*!
  * Assignement operator of StitchGeometry. Soft copy of MimmoObject
  */
-StitchGeometry & StitchGeometry::operator=(const StitchGeometry & other){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-
-    m_topo = other.m_topo;
-    m_extgeo = other.m_extgeo;
-    m_geocount = other.m_geocount;
-
-    //warning the internal data structure and its division map is not copied. Relaunch the execution eventually to fill it.
+StitchGeometry & StitchGeometry::operator=(StitchGeometry other){
+    swap(other);
     return *this;
 };
+
+
+/*!
+ * Swap function of StitchGeometry. Division Maps and results are not swapped, ever.
+ * \param[in] x object to be swapped.
+ */
+void StitchGeometry::swap(StitchGeometry & x ) noexcept
+{
+    std::swap(m_topo,x.m_topo);
+    std::swap(m_extgeo, x.m_extgeo);
+    std::swap(m_geocount, x.m_geocount);
+    BaseManipulation::swap(x);
+};
+
 
 /*!
  * Building ports of the class

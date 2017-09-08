@@ -42,11 +42,15 @@ ExtractField::~ExtractField(){
     clear();
 };
 
-/*!Copy constructor of ExtractField.Soft Copy of MimmoObject;
+/*!
+ * Swap function of ExtractField
+ * \param[in] x object to be swapped.
  */
-ExtractField::ExtractField(const ExtractField & other):BaseManipulation(other){
-    m_mode = other.m_mode;
-    m_tol  = 1.0e-08;
+void ExtractField::swap(ExtractField & x ) noexcept
+{
+    std::swap(m_mode,x.m_mode);
+    std::swap(m_tol, x.m_tol);
+    BaseManipulation::swap(x);
 };
 
 /*!
@@ -95,6 +99,24 @@ ExtractField::setMode(int mode){
 void
 ExtractField::setTolerance(double tol){
     m_tol = std::max(1.0e-12, tol);
+};
+
+/*!
+ * Get tolerance for extraction by patch actually set in the class.
+ * \return tolerance
+ */
+double
+ExtractField::getTolerance(){
+    return m_tol;
+};
+
+/*!
+ * Get current extraction mode set on the class.
+ * \return type of extraction in enum ExtractMode
+ */
+ExtractMode
+ExtractField::getMode(){
+    return m_mode;
 };
 
 /*!

@@ -89,7 +89,6 @@ public:
     virtual ~SwitchField();
 
     SwitchField(const SwitchField & other);
-    SwitchField & operator=(const SwitchField & other);
 
     void buildPorts();
 
@@ -103,6 +102,8 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
+protected:
+    void swap(SwitchField &) noexcept;
 private:
     /*!
      * Pure virtual method
@@ -157,6 +158,7 @@ private:
 public:
     SwitchScalarField();
     SwitchScalarField(const bitpit::Config::Section & rootXMl);
+    SwitchScalarField(const SwitchScalarField & other);
     virtual ~SwitchScalarField();
 
     void buildPorts();
@@ -167,6 +169,9 @@ public:
     void clear();
 
     void     plotOptionalResults();
+
+protected:
+    void swap(SwitchScalarField &) noexcept;
 
 private:
     bool mswitch();
@@ -229,6 +234,7 @@ public:
 
     SwitchVectorField();
     SwitchVectorField(const bitpit::Config::Section & rootXMl);
+    SwitchVectorField(const SwitchVectorField & other);
     virtual ~SwitchVectorField();
 
     void buildPorts();
@@ -240,6 +246,9 @@ public:
 
     void     plotOptionalResults();
 
+protected:
+    void swap(SwitchVectorField &) noexcept;
+    
 private:
     bool mswitch();
 

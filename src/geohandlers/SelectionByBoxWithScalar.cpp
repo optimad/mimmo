@@ -75,15 +75,28 @@ SelectionByBoxWithScalar::~SelectionByBoxWithScalar(){};
  * Copy Constructor
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other):SelectionByBox(other){
+    m_field = other.m_field;
 };
 
 /*!
  * Copy operator
  */
-SelectionByBoxWithScalar & SelectionByBoxWithScalar::operator=(const SelectionByBoxWithScalar & other){
-    *(static_cast<SelectionByBox * >(this)) = *(static_cast<const SelectionByBox *>(&other));
+SelectionByBoxWithScalar & SelectionByBoxWithScalar::operator=(SelectionByBoxWithScalar other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionByBoxWithScalar object
+ */
+void SelectionByBoxWithScalar::swap(SelectionByBoxWithScalar & x) noexcept
+{
+    std::swap(m_field, x.m_field);
+    SelectionByBox::swap(x);
+    
+}
 
 /*!
  * It builds the input/output ports of the object

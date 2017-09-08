@@ -73,16 +73,28 @@ SelectionByPID::~SelectionByPID(){};
  */
 SelectionByPID::SelectionByPID(const SelectionByPID & other):GenericSelection(other){
     m_activePID = other.m_activePID;
+    m_setPID = other.m_setPID;
 };
 
 /*!
  * Copy Operator
  */
-SelectionByPID & SelectionByPID::operator=(const SelectionByPID & other){
-    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection * >(&other));
-    m_activePID = other.m_activePID;
+SelectionByPID & SelectionByPID::operator=(SelectionByPID other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionByPID object
+ */
+void SelectionByPID::swap(SelectionByPID & x) noexcept
+{
+    std::swap(m_setPID, x.m_setPID);
+    std::swap(m_activePID, x.m_activePID);
+    GenericSelection::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

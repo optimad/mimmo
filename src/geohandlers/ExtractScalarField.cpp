@@ -64,6 +64,18 @@ ExtractScalarField::~ExtractScalarField(){
 }
 
 /*!
+ * Swap function of ExtractScalarField
+ * \param[in] x object to be swapped.
+ */
+void ExtractScalarField::swap(ExtractScalarField & x ) noexcept
+{
+    std::swap(m_field,x.m_field);
+    std::swap(m_result, x.m_result);
+    BaseManipulation::swap(x);
+};
+
+
+/*!
  * Build the ports of the class;
  */
 void
@@ -83,6 +95,15 @@ ExtractScalarField::buildPorts(){
 dmpvector1D
 ExtractScalarField::getExtractedField(){
     return m_result;
+}
+
+/*!
+ * Get linked field where result need to be extracted from.
+ * \return original field
+ */
+dmpvector1D
+ExtractScalarField::getOriginalField(){
+    return m_field;
 }
 
 /*!

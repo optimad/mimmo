@@ -50,7 +50,6 @@ GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulat
     m_type = other.m_type;
     m_topo = other.m_topo;
     m_dual = other.m_dual;
-    m_subpatch.reset(nullptr);
 };
 
 /*!
@@ -61,10 +60,22 @@ GenericSelection & GenericSelection::operator=(const GenericSelection & other){
     m_type = other.m_type;
     m_topo = other.m_topo;
     m_dual = other.m_dual;
-    m_subpatch.reset(nullptr);
     /*m_subpatch is not copied and it is obtained in execution*/
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x GenericSelection object
+ */
+void GenericSelection::swap(GenericSelection & x) noexcept
+{
+    std::swap(m_type, x.m_type);
+    std::swap(m_topo, x.m_topo);
+    std::swap(m_dual, x.m_dual);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

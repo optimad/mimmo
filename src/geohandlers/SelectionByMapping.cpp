@@ -132,19 +132,32 @@ SelectionByMapping::~SelectionByMapping(){};
 SelectionByMapping::SelectionByMapping(const SelectionByMapping & other):GenericSelection(other){
     m_tolerance = other.m_tolerance;
     m_geolist = other.m_geolist;
+    m_mimmolist = other.m_mimmolist;
     m_allowedType = other.m_allowedType;
 };
 
 /*!
  * Copy Operator
  */
-SelectionByMapping & SelectionByMapping::operator=(const SelectionByMapping & other){
-    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection * >(&other));
-    m_tolerance = other.m_tolerance;
-    m_geolist = other.m_geolist;
-    m_allowedType = other.m_allowedType;
+SelectionByMapping & SelectionByMapping::operator=(SelectionByMapping other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionByMapping object
+ */
+void SelectionByMapping::swap(SelectionByMapping & x) noexcept
+{
+    std::swap(m_tolerance, x.m_tolerance);
+    std::swap(m_geolist, x.m_geolist);
+    std::swap(m_mimmolist, x.m_mimmolist);
+    std::swap(m_allowedType, x.m_allowedType);
+    GenericSelection::swap(x);
+}
+
 
 /*!
  * It builds the input/output ports of the object

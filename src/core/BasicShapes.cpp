@@ -51,6 +51,23 @@ BasicShape::BasicShape(){
 /*! Basic Destructor */
 BasicShape::~BasicShape(){};
 
+/*!
+ * Swap method, assign data of the current class to an external 
+ * one of the same type and vice-versa
+ * 
+ * \param[in] x BasicShape object to be swapped;
+ */
+void BasicShape::swap(BasicShape & x) noexcept
+{
+    std::swap(m_shape, x.m_shape);
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_span, x.m_span);
+    std::swap(m_infLimits, x.m_infLimits);
+    std::swap(m_sdr, x.m_sdr);
+    std::swap(m_scaling, x.m_scaling);
+    std::swap(m_typeCoord, x.m_typeCoord);
+}
+
 /*! 
  * Set origin of your shape. The origin is meant as the baricenter of your shape in 
  * absolute reference system.

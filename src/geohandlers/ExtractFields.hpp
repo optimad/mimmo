@@ -31,8 +31,8 @@ namespace mimmo{
 
 enum class ExtractMode{
     ID = 1 /**< Extract via ID*/,
-            PID = 2 /**< Extract via PID*/,
-            MAPPING = 3 /**< Extract by proximity mapping.*/
+    PID = 2 /**< Extract via PID*/,
+    MAPPING = 3 /**< Extract by proximity mapping.*/
 };
 
 /*!
@@ -93,8 +93,7 @@ public:
     ExtractField();
     virtual ~ExtractField();
 
-    ExtractField(const ExtractField & other);
-    ExtractField & operator=(const ExtractField & other);
+//    ExtractField(const ExtractField & other);
 
     void buildPorts();
 
@@ -103,12 +102,18 @@ public:
     void        setMode(int mode);
     void        setTolerance(double tol);
 
+    ExtractMode getMode();
+    double      getTolerance();
+    
     void         clear();
     void         execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
+protected:
+    void swap(ExtractField & x) noexcept;
+    
 private:
     /*!
      * Pure virtual method
@@ -168,10 +173,14 @@ public:
     dmpvector1D     getExtractedField();
     void     setField(dmpvector1D field);
 
+    dmpvector1D getOriginalField();
+    
     void clear();
 
     void     plotOptionalResults();
 
+protected:
+    void swap(ExtractScalarField & x) noexcept;
 private:
     bool extract();
 
@@ -238,9 +247,13 @@ public:
     dmpvecarr3E     getExtractedField();
     void     setField(dmpvecarr3E field);
 
+    dmpvecarr3E     getOriginalField();
     void clear();
 
     void     plotOptionalResults();
+
+protected:
+    void swap(ExtractVectorField & x) noexcept;
 
 private:
     bool extract();

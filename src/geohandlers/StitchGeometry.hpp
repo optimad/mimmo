@@ -88,7 +88,7 @@ public:
     virtual ~StitchGeometry();
 
     StitchGeometry(const StitchGeometry & other);
-    StitchGeometry & operator=(const StitchGeometry & other);
+    StitchGeometry & operator=(StitchGeometry other);
 
     void buildPorts();
 
@@ -106,6 +106,8 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
     void     plotOptionalResults();
+protected:
+    void swap(StitchGeometry & x) noexcept;
 };
 
 REGISTER(BaseManipulation, StitchGeometry, "mimmo.StitchGeometry")

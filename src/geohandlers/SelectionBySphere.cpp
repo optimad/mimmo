@@ -87,11 +87,21 @@ SelectionBySphere::SelectionBySphere(const SelectionBySphere & other):GenericSel
 /*!
  * Copy operator
  */
-SelectionBySphere & SelectionBySphere::operator=(const SelectionBySphere & other){
-    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection *>(&other));
-    *(static_cast<Sphere * >(this)) = *(static_cast<const Sphere *>(&other));
+SelectionBySphere & SelectionBySphere::operator=(SelectionBySphere other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionBySphere object
+ */
+void SelectionBySphere::swap(SelectionBySphere & x) noexcept
+{
+    GenericSelection::swap(x);
+    Sphere::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

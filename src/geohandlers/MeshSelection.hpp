@@ -115,7 +115,7 @@ protected:
      * Extract selection from target geometry
      */
     virtual livector1D extractSelection() = 0;
-
+    void swap(GenericSelection &x) noexcept;
 };
 
 
@@ -192,7 +192,7 @@ public:
     SelectionByBox(darray3E origin, darray3E span, MimmoObject * target);
     virtual ~SelectionByBox();
     SelectionByBox(const SelectionByBox & other);
-    SelectionByBox & operator=(const SelectionByBox & other);
+    SelectionByBox & operator=(SelectionByBox other);
 
     void buildPorts();
 
@@ -203,6 +203,7 @@ public:
 
 protected:
     livector1D extractSelection();
+    void swap(SelectionByBox &) noexcept;
 };
 
 /*!
@@ -279,7 +280,7 @@ public:
     SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target);
     virtual ~SelectionByCylinder();
     SelectionByCylinder(const SelectionByCylinder & other);
-    SelectionByCylinder & operator=(const SelectionByCylinder & other);
+    SelectionByCylinder & operator=(SelectionByCylinder other);
 
     void buildPorts();
 
@@ -290,6 +291,7 @@ public:
 
 protected:
     livector1D extractSelection();
+    void swap(SelectionByCylinder &) noexcept;
 };
 
 /*!
@@ -369,7 +371,7 @@ public:
     SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target);
     virtual ~SelectionBySphere();
     SelectionBySphere(const SelectionBySphere & other);
-    SelectionBySphere & operator=(const SelectionBySphere & other);
+    SelectionBySphere & operator=(SelectionBySphere other);
 
     void buildPorts();
 
@@ -380,6 +382,7 @@ public:
 
 protected:
     livector1D extractSelection();
+    void swap(SelectionBySphere &) noexcept;
 };
 
 /*!
@@ -465,7 +468,7 @@ public:
     SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance);
     virtual ~SelectionByMapping();
     SelectionByMapping(const SelectionByMapping & other);
-    SelectionByMapping & operator=(const SelectionByMapping & other);
+    SelectionByMapping & operator=(SelectionByMapping other);
 
     void    buildPorts();
 
@@ -489,6 +492,7 @@ public:
 
 protected:
     livector1D extractSelection();
+    void swap(SelectionByMapping &) noexcept;
 
 private:
     livector1D getProximity(std::pair<std::string, int> val);
@@ -566,7 +570,7 @@ public:
     SelectionByPID(shivector1D & pidlist, MimmoObject * target);
     virtual ~SelectionByPID();
     SelectionByPID(const SelectionByPID & other);
-    SelectionByPID & operator=(const SelectionByPID & other);
+    SelectionByPID & operator=(SelectionByPID other);
 
     void    buildPorts();
 
@@ -588,6 +592,7 @@ public:
 
 protected:
     livector1D extractSelection();
+    void swap(SelectionByPID &) noexcept;
 
 };
 
@@ -682,7 +687,7 @@ public:
     SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target);
     virtual ~SelectionByBoxWithScalar();
     SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other);
-    SelectionByBoxWithScalar & operator=(const SelectionByBoxWithScalar & other);
+    SelectionByBoxWithScalar & operator=(SelectionByBoxWithScalar other);
 
     void buildPorts();
 
@@ -697,7 +702,9 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
     void plotOptionalResults();
-
+protected:
+    void swap(SelectionByBoxWithScalar &) noexcept;
+    
 };
 
 

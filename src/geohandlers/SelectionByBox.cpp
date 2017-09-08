@@ -80,13 +80,23 @@ SelectionByBox::SelectionByBox(const SelectionByBox & other):GenericSelection(ot
 };
 
 /*!
- * Copy operator
+ * Copy operator- CAS idiom
  */
-SelectionByBox & SelectionByBox::operator=(const SelectionByBox & other){
-    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection *>(&other));
-    *(static_cast<Cube * >(this)) = *(static_cast<const Cube *>(&other));
+SelectionByBox & SelectionByBox::operator=(SelectionByBox other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionByBox object
+ */
+void SelectionByBox::swap(SelectionByBox & x) noexcept
+{
+   GenericSelection::swap(x);
+   Cube::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object.

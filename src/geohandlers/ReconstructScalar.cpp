@@ -60,7 +60,7 @@ ReconstructScalar::~ReconstructScalar(){
 }
 
 /*!
- * Copy Constructor
+ * Copy Constructor.
  */
 ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipulation(other){
     m_overlapCriterium = other.m_overlapCriterium;
@@ -68,6 +68,20 @@ ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipu
     m_result = other.m_result;
     m_subresults = other.m_subresults;
 }
+
+/*!
+ * Swap function of ReconstructScalar
+ * \param[in] x object to be swapped.
+ */
+void ReconstructScalar::swap(ReconstructScalar & x ) noexcept
+{
+    std::swap(m_overlapCriterium,x.m_overlapCriterium);
+    std::swap(m_subpatch, x.m_subpatch);
+    std::swap(m_subresults, x.m_subresults);
+    std::swap(m_result, x.m_result);
+    BaseManipulation::swap(x);
+};
+
 
 /*!
  * Get actually used criterium for overlap regions of given fields

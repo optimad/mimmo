@@ -70,6 +70,19 @@ ReconstructVector::ReconstructVector(const ReconstructVector & other):BaseManipu
 }
 
 /*!
+ * Swap function of ReconstructVector
+ * \param[in] x object to be swapped.
+ */
+void ReconstructVector::swap(ReconstructVector & x ) noexcept
+{
+    std::swap(m_overlapCriterium,x.m_overlapCriterium);
+    std::swap(m_subpatch, x.m_subpatch);
+    std::swap(m_subresults, x.m_subresults);
+    std::swap(m_result, x.m_result);
+    BaseManipulation::swap(x);
+};
+
+/*!
  * Get actually used criterium for overlap regions of given fields
  * \return criterium for overlap regions
  */

@@ -86,11 +86,21 @@ SelectionByCylinder::SelectionByCylinder(const SelectionByCylinder & other):Gene
 /*!
  * Copy operator
  */
-SelectionByCylinder & SelectionByCylinder::operator=(const SelectionByCylinder & other){
-    *(static_cast<GenericSelection * >(this)) = *(static_cast<const GenericSelection *>(&other));
-    *(static_cast<Cylinder * >(this)) = *(static_cast<const Cylinder *>(&other));
+SelectionByCylinder & SelectionByCylinder::operator=(SelectionByCylinder other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function. Assign data of this class to another of the same type and vice-versa.
+ * Resulting patch of selection is not swapped, ever.
+ * \param[in] x SelectionByCylinder object
+ */
+void SelectionByCylinder::swap(SelectionByCylinder & x) noexcept
+{
+    GenericSelection::swap(x);
+    Cylinder::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

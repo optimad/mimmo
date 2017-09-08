@@ -171,7 +171,8 @@ public:
 protected:
     uint32_t    intersectShapePlane(int level, darray3E target);
     darray3E    checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
-
+    void swap(BasicShape & ) noexcept;
+    
 private:	
     /*!
      * Pure Virtual method to transform a 3D point from basic elemental shape coordinate in local ones

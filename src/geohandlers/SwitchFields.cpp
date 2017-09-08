@@ -41,12 +41,23 @@ SwitchField::~SwitchField(){
     clear();
 };
 
-/*!Copy constructor of SwitchField.Soft Copy of MimmoObject;
+/*!Copy constructor of SwitchField.
  */
 SwitchField::SwitchField(const SwitchField & other):BaseManipulation(other){
     m_mapping = other.m_mapping;
     m_tol = other.m_tol;
 };
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void SwitchField::swap(SwitchField & x) noexcept
+{
+    std::swap(m_mapping, x.m_mapping);
+    std::swap(m_tol, x.m_tol);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * Build the ports of the class;

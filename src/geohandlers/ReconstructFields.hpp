@@ -137,6 +137,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 protected:
     virtual void plotOptionalResults();
+    void swap(ReconstructScalar &) noexcept;
 
 private:
     void     overlapFields(long int ID, double & locField);
@@ -230,7 +231,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-
+    void swap(ReconstructVector &) noexcept;
 private:
     void    overlapFields(long int ID, darray3E & locField);
 };
