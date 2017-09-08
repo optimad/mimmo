@@ -69,33 +69,46 @@ IOCGNS::~IOCGNS(){};
  */
 IOCGNS::IOCGNS(const IOCGNS & other):BaseManipulation(other){
     m_read = other.m_read;
-    m_rfilename = other.m_rfilename;
     m_write = other.m_write;
-    m_wfilename = other.m_wfilename;
     m_rdir = other.m_rdir;
+    m_rfilename = other.m_rfilename;
     m_wdir = other.m_wdir;
+    m_wfilename = other.m_wfilename;
     m_surfmesh_not = other.m_surfmesh_not;
-    m_storedInfo = new InfoCGNS((*other.m_storedInfo));
-    m_storedBC = new BCCGNS((*other.m_storedBC));
+
+    m_storedInfo = std::move(std::unique_ptr<InfoCGNS>(new InfoCGNS(*(other.m_storedInfo.get()))));
+    m_storedBC = std::move(std::unique_ptr<BCCGNS>(new BCCGNS(*(other.m_storedBC.get()))));
 };
 
 /*!
  * Assignement operator of IOCGNS.
  */
-IOCGNS & IOCGNS::operator=(const IOCGNS & other){
-
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-    m_read = other.m_read;
-    m_rfilename = other.m_rfilename;
-    m_write = other.m_write;
-    m_wfilename = other.m_wfilename;
-    m_rdir = other.m_rdir;
-    m_wdir = other.m_wdir;
-    m_surfmesh_not = other.m_surfmesh_not;
-    m_storedInfo = new InfoCGNS((*other.m_storedInfo));
-    m_storedBC = new BCCGNS((*other.m_storedBC));
+IOCGNS & IOCGNS::operator=(IOCGNS other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void IOCGNS::swap(IOCGNS & x) noexcept
+{
+    std::swap(m_read, x.m_read);
+    std::swap(m_write, x.m_write);
+    std::swap(m_rdir, x.m_rdir);
+    std::swap(m_rfilename, x.m_rfilename);
+    std::swap(m_wdir, x.m_wdir);
+    std::swap(m_wfilename, x.m_wfilename);
+    std::swap(m_surfmesh_not, x.m_surfmesh_not);
+    
+    std::swap(m_volmesh, x.m_volmesh);
+    std::swap(m_surfmesh, x.m_surfmesh);
+    std::swap(m_storedInfo, x.m_storedInfo);
+    std::swap(m_storedBC, x.m_storedBC);
+    
+    BaseManipulation::swap(x);
+}
 
 /*!
  * Default values for IOCGNS.
@@ -111,8 +124,8 @@ IOCGNS::setDefaults(){
     m_rdir      = "./";
     m_wdir      = "./";
     m_surfmesh_not = NULL;
-    m_storedInfo = new InfoCGNS;
-    m_storedBC  = new BCCGNS;
+    m_storedInfo = std::move(std::unique_ptr<InfoCGNS>(new InfoCGNS()));
+    m_storedBC  = std::move(std::unique_ptr<BCCGNS>(new BCCGNS()));
 
     //Fill converters
     m_storedInfo->mcg_typeconverter[bitpit::ElementInfo::Type::TRIANGLE] = CG_ElementType_t::CG_TRI_3;
@@ -156,7 +169,6 @@ IOCGNS::buildPorts(){
 MimmoObject*
 IOCGNS::getSurfaceBoundary(){
     if(m_read)    return m_surfmesh.get();
-    //    if(m_surfmesh != NULL) return m_surfmesh.get();
     else    return m_surfmesh_not;
 }
 
@@ -168,7 +180,6 @@ IOCGNS::getSurfaceBoundary(){
 MimmoObject*
 IOCGNS::getGeometry(){
     if(m_read) return m_volmesh.get();
-    //    if(m_volmesh != NULL) return m_volmesh.get();
     else return BaseManipulation::getGeometry();
 }
 
@@ -180,7 +191,7 @@ IOCGNS::getGeometry(){
  */
 BCCGNS*
 IOCGNS::getBoundaryConditions(){
-    return m_storedBC;
+    return m_storedBC.get();
 };
 
 /*!
@@ -263,7 +274,6 @@ IOCGNS::setGeometry(MimmoObject * geo){
     if(geo->getType() != 2)    return;
 
     BaseManipulation::setGeometry(geo);
-    //m_volmesh.reset(nullptr);
 }
 
 /*!
@@ -278,7 +288,6 @@ IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
     if(geosurf->getType() != 1)    return;
 
     m_surfmesh_not = geosurf;
-    //m_surfmesh.reset(nullptr);
 };
 
 /*!
@@ -289,9 +298,10 @@ IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
  */
 void
 IOCGNS::setBoundaryConditions(BCCGNS* bccgns){
-    delete m_storedBC;
-    m_storedBC = NULL;
-    m_storedBC = new BCCGNS(*bccgns);
+    if(bccgns != NULL){
+        std::unique_ptr<BCCGNS> temp(new BCCGNS(*bccgns));
+        m_storedBC = std::move(temp);
+    }
 };
 
 

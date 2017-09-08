@@ -61,7 +61,11 @@ private:
 
 public:
     InfoCGNS(){};
-    ~InfoCGNS();
+    ~InfoCGNS()
+    {
+        clear();
+    }
+    
 private:
     /*!
      * Clear members of the class.
@@ -99,7 +103,8 @@ private:
 
 public:
     BCCGNS(){};
-    ~BCCGNS(){
+    ~BCCGNS()
+    {
         mcg_pidtobc.clear();
         mcg_pidtoname.clear();
         mcg_bndpidtoindex.clear();
@@ -171,11 +176,11 @@ private:
     std::string     m_wfilename;    /**<Name of file to write the geometry.*/
 
     std::unique_ptr<MimmoObject>        m_volmesh;          /**<Original volume mesh, instantiated in reading */
-    std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiad in reading */
+    std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiated in reading */
     MimmoObject *                       m_surfmesh_not;     /**<Pointed external boundary mesh*/
 
-    InfoCGNS*                   m_storedInfo;       /**<Information of a CGNS read mesh.*/
-    BCCGNS*                     m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
+    std::unique_ptr<InfoCGNS>           m_storedInfo;       /**<Information of a CGNS read mesh.*/
+    std::unique_ptr<BCCGNS>             m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
 
 public:
     IOCGNS(bool read = false);
@@ -183,7 +188,7 @@ public:
     ~IOCGNS();
 
     IOCGNS(const IOCGNS & other);
-    IOCGNS & operator=(const IOCGNS & other);
+    IOCGNS & operator=(IOCGNS other);
 
     void            setDefaults();
     void            buildPorts();
@@ -211,7 +216,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
-
+    void            swap(IOCGNS &) noexcept;
     bool            write();
     bool            read();
 

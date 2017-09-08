@@ -65,11 +65,31 @@ CGNSPidExtractor::~CGNSPidExtractor(){};
 
 /*!
  * Copy constructor of CGNSPidExtractor.
+ * No result patch is copied.
  */
 CGNSPidExtractor::CGNSPidExtractor(const CGNSPidExtractor & other):BaseManipulation(other){
     m_force = other.m_force;
     m_targetpid = other.m_targetpid;
 };
+
+/*!
+ * Assignment operator. No result patch is copied.
+ */
+CGNSPidExtractor & CGNSPidExtractor::operator=(CGNSPidExtractor other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function. No result patch member is swapped.
+ * \param[in] x object to be swapped.
+ */
+void CGNSPidExtractor::swap(CGNSPidExtractor & x) noexcept
+{
+    std::swap(m_force, x.m_force);
+    std::swap(m_targetpid, x.m_targetpid);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

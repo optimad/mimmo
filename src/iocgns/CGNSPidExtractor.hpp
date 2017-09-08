@@ -83,7 +83,8 @@ public:
     ~CGNSPidExtractor();
 
     CGNSPidExtractor(const CGNSPidExtractor & other);
-
+    CGNSPidExtractor & operator=(CGNSPidExtractor other);
+    
     void            buildPorts();
 
     MimmoObject*    getPatch();
@@ -101,7 +102,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
-
+    void swap(CGNSPidExtractor & x) noexcept;
     void plotOptionalResults();
 
 };
