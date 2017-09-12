@@ -85,7 +85,9 @@ IOVTKScalar::~IOVTKScalar(){
     if (m_local) delete getGeometry();
 };
 
-/*!Copy constructor of IOVTKScalar.
+/*!Copy constructor of IOVTKScalar. If to-be-copied class has an internal MimmoObject
+ * locally instantiated, this will be soft linked (copied its pointer only)
+ * in the current class;
  */
 IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_read = other.m_read;
@@ -95,10 +97,41 @@ IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_rdir = other.m_rdir;
     m_wdir = other.m_wdir;
     m_polydata = other.m_polydata;
-    m_local = other.m_local;
+    m_field = other.m_field;
     m_normalize = other.m_normalize;
     m_scaling = other.m_scaling;
+    m_local = false;
+    
 };
+
+/*!Assignment operator. If to-be-copied class has an internal MimmoObject
+ * locally instantiated, this will be soft linked (copied its pointer only)
+ * in the current class;
+ */
+IOVTKScalar& IOVTKScalar::operator=(IOVTKScalar other){
+        swap(other);
+        return *this;
+};
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void IOVTKScalar::swap(IOVTKScalar & x) noexcept
+{
+   std::swap(m_read, x.m_read);
+   std::swap(m_rfilename, x.m_rfilename);
+   std::swap(m_write, x.m_write);
+   std::swap(m_wfilename, x.m_wfilename);
+   std::swap(m_rdir, x.m_rdir);
+   std::swap(m_wdir, x.m_wdir);
+   std::swap(m_polydata, x.m_polydata);
+   std::swap(m_field, x.m_field);
+   std::swap(m_normalize, x.m_normalize);
+   std::swap(m_scaling, x.m_scaling);
+   std::swap(m_local, x.m_local);
+    BaseManipulation::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */
@@ -253,6 +286,9 @@ IOVTKScalar::read(){
         setGeometry(mimmo0);
     }
 
+    //unlock m_polydata to NULL;
+    m_polydata = NULL;
+    
     string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
     int    np = 0;
     int    nt = 0;
@@ -324,6 +360,7 @@ IOVTKScalar::read(){
             }
         }
         m_field.setGeometry(getGeometry());
+        m_polydata->Delete();
     }
     else{
         (*m_log) << m_name << " error: polydata not found in : "<< m_rfilename << std::endl;
@@ -422,7 +459,7 @@ IOVTKScalar::write(){
         writer->SetFileName(outputFilename.c_str());
         writer->SetInputData(m_polydata);
         writer->Write();
-
+        m_polydata->Delete();
     }
     return true;
 }

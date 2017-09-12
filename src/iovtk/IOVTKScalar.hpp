@@ -111,7 +111,8 @@ public:
     ~IOVTKScalar();
 
     IOVTKScalar(const IOVTKScalar & other);
-
+    IOVTKScalar & operator=(IOVTKScalar other);
+    
     void            buildPorts();
 
     vtkPolyData*    getPolyData();
@@ -136,7 +137,8 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-
+protected:
+    void swap(IOVTKScalar & x) noexcept;
 };
 
 REGISTER(BaseManipulation, IOVTKScalar, "mimmo.IOVTKScalar")
