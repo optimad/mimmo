@@ -37,6 +37,19 @@ int test3_1() {
 
     ExtractScalarField *sca = new ExtractScalarField();
     MimmoObject * obj = new MimmoObject();
+    dvecarr3E pp(3,{{0,0,0}});
+    pp[0][0] =1;
+    pp[1][1] =1;
+    pp[2][2] =1;
+    livector1D conn(3,0);
+    conn[1] = 1;
+    conn[2] = 2;
+    
+    obj->addVertex(pp[0],0);
+    obj->addVertex(pp[1],1);
+    obj->addVertex(pp[2],2);
+    obj->addConnectedCell(conn, bitpit::ElementInfo::TRIANGLE, 0, 0);
+    
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);
     
@@ -50,13 +63,20 @@ int test3_1() {
     ExtractScalarField *scaAO = new ExtractScalarField();
     *scaAO = *sca;
     
+    auto fCC = scaCC->getOriginalField();
+
+    std::cout<<scaCC->getGeometry()<<'\t'<<obj<<std::endl;
+    std::cout<<scaCC->getId()<<'\t'<<sca->getId()<<std::endl;
+    std::cout<<(int)scaCC->getMode()<<'\t'<<(int)sca->getMode()<<std::endl;
+    std::cout<<scaCC->getTolerance()<<'\t'<<sca->getTolerance()<<std::endl;
+    std::cout<<fCC.exists(23)<<std::endl;
+    
     bool check= true;
     //verify copy constructor result content
     check = check && (scaCC->getGeometry() == obj);
     check = check && (scaCC->getId() != sca->getId());
     check = check && (scaCC->getMode() == sca->getMode());
     check = check && (scaCC->getTolerance() == sca->getTolerance());
-    auto fCC = scaCC->getOriginalField();
     check = check  && (fCC.exists(23));
 
     if(!check){
@@ -97,7 +117,21 @@ int test3_1() {
 int test3_2() {
     
     SelectionByBoxWithScalar * sca = new SelectionByBoxWithScalar();
+    
     MimmoObject * obj = new MimmoObject();
+    dvecarr3E pp(3,{{0,0,0}});
+    pp[0][0] =1;
+    pp[1][1] =1;
+    pp[2][2] =1;
+    livector1D conn(3,0);
+    conn[1] = 1;
+    conn[2] = 2;
+    
+    obj->addVertex(pp[0],0);
+    obj->addVertex(pp[1],1);
+    obj->addVertex(pp[2],2);
+    obj->addConnectedCell(conn, bitpit::ElementInfo::TRIANGLE, 0, 0);
+    
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);
     
@@ -113,6 +147,11 @@ int test3_2() {
     bool check= true;
     
     auto fCC = scaCC->getField();
+    
+        std::cout<<scaCC->getGeometry()<<'\t'<<obj<<std::endl;
+        std::cout<<scaCC->getOrigin()<<'\t'<<sca->getOrigin()<<std::endl;
+        std::cout<<scaCC->isDual()<<std::endl;
+        std::cout<<fCC.exists(23)<<std::endl;
     
     //verify copy constructor result content
     check = check && (scaCC->getGeometry() == obj);
