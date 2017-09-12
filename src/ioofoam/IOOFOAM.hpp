@@ -145,7 +145,8 @@ public:
     ~IOOFOAM();
 
     IOOFOAM(const IOOFOAM & other);
-
+    IOOFOAM & operator=(IOOFOAM other);
+    
     void            buildPorts();
     void            setDefaults();
 
@@ -183,6 +184,8 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
+protected:
+    void swap(IOOFOAM & x) noexcept;
 };
 
 REGISTER(BaseManipulation, IOOFOAM,"mimmo.IOOFOAM")

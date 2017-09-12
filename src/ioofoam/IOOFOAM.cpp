@@ -63,19 +63,68 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
  */
 IOOFOAM::~IOOFOAM(){};
 
-/*!Copy constructor of IOOFOAM.
+/*!Copy constructor of IOOFOAM. Internal volume and boundary mesh are not copied.
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(other){
-    setDefaults();
     m_read = other.m_read;
-    m_rfilenameS= other.m_rfilenameS;
-    m_write = other.m_write;
-    m_wfilenameV = other.m_wfilenameV;
     m_rdirS = other.m_rdirS;
+    m_rfilenameS= other.m_rfilenameS;
+    m_rdirV = other.m_rdirV;
+    m_rfilenameV = other.m_rfilenameV;
+    
+    m_write = other.m_write;
+    m_wdirS = other.m_wdirS;
+    m_wfilenameS= other.m_wfilenameS;
     m_wdirV = other.m_wdirV;
+    m_wfilenameV = other.m_wfilenameV;
+
+    m_stopat = other.m_stopat;
     m_surfmesh_ext = other.m_surfmesh_ext;
+    
+    m_field = other.m_field;
+    m_normalize = other.m_normalize;
+    m_maxf = other.m_maxf;
+    m_scaling = other.m_scaling;
 };
 
+/*!
+ * Assignment operator. Internal volume and boundary mesh are not copied.
+ */
+IOOFOAM & IOOFOAM::operator=(IOOFOAM other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void IOOFOAM::swap(IOOFOAM & x) noexcept
+{
+   std::swap(m_read, x.m_read);
+   std::swap(m_rdirS, x.m_rdirS);
+   std::swap(m_rfilenameS, x.m_rfilenameS);
+   std::swap(m_rdirV, x.m_rdirV);
+   std::swap(m_rfilenameV, x.m_rfilenameV);
+    
+   std::swap(m_write, x.m_write);
+   std::swap(m_wdirS, x.m_wdirS);
+   std::swap(m_wfilenameS, x.m_wfilenameS);
+   std::swap(m_wdirV, x.m_wdirV);
+   std::swap(m_wfilenameV, x.m_wfilenameV);
+    
+   std::swap(m_stopat, x.m_stopat);
+   std::swap(m_surfmesh_ext, x.m_surfmesh_ext);
+    
+   std::swap(m_field, x.m_field);
+   std::swap(m_normalize, x.m_normalize);
+   std::swap(m_maxf, x.m_maxf);
+   std::swap(m_scaling, x.m_scaling);
+   std::swap(m_volmesh, x.m_volmesh);
+   std::swap(m_surfmesh, x.m_surfmesh);
+    
+    BaseManipulation::swap(x);
+};
 /*!Default values for IOOFOAM.
  */
 void
