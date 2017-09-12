@@ -43,31 +43,38 @@ namespace mimmo{
  */
 MimmoObject::MimmoObject(int type){
 
-    m_type = max(type,1);
     const int id = 0;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    m_type = max(type,1);
+    if (m_type > 4){
+        (*m_log)<<"WARNING MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        m_type = 1;
+    }
+
     if (m_type == 2){
-        m_patch = new VolUnstructured(id, 3);
-        dynamic_cast<VolUnstructured*>(m_patch)->setExpert(true);
-        m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
+        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
     }else{
-        m_patch = new SurfUnstructured(id);
-        dynamic_cast<SurfUnstructured*>(m_patch)->setExpert(true);
-        m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
+        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
     }
     m_internalPatch = true;
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSupported = (m_type != 3);
-    m_bvTreeSync = false;
+    m_extpatch = NULL;
+    
+    m_skdTreeSupported = (m_type != 3);
+    m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
 /*!
  * Custom constructor of MimmoObject.
  * This constructor builds a generic mesh from given vertex list and its related
- * local connectivity. The type of mesh is desumed by local cell-vertices connectivity size.
+ * local connectivity. Mesh-element details are desumed by local cell-vertices connectivity size.
  * Connectivities supported must be homogeneus w/ a single element type, no mixed cell types are allowed.
  * Cell element types supported are:
  *  - triangles or quads for surface meshes
@@ -77,22 +84,13 @@ MimmoObject::MimmoObject(int type){
  *
  * Cloud points are always supported (no connectivity field must be provided)
  * Type of meshes supported are described in the default constructor MimmoObject(int type) documentation.
+ * Please note, despite type argument, if null connectivity structure is provided, MimmoObject will be built 
+ * as a standard cloud point of vertices provided by vertex.
  * \param[in] type type of meshes.
  * \param[in] vertex Coordinates of geometry vertices.
  * \param[in] connectivity pointer to mesh connectivity list (optional).
  */
-MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
-    m_type = max(1,type);
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    m_internalPatch = true;
-    const int id = 0;
-    if (m_type == 2){
-        m_patch = new VolUnstructured(id, 3);
-        dynamic_cast<VolUnstructured*> (m_patch)->setExpert(true);
-    }else{
-        m_patch = new SurfUnstructured(id);
-        dynamic_cast<SurfUnstructured*> (m_patch)->setExpert(true);
-    }
+MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity):MimmoObject(type){
 
     bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::UNDEFINED;
     int sizeVert, sizeCell;
@@ -100,21 +98,24 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     sizeVert = vertex.size();
     m_patch->reserveVertices(sizeVert);
 
-    for(const auto & vv : vertex)	addVertex(vv);
+    for(const auto & vv : vertex)   addVertex(vv);
 
-    if(connectivity == NULL)	m_type = 3;
+    if(connectivity == NULL)    m_type = 3;
+    
     if (m_type != 3){
         int sizeConn = (*connectivity)[0].size();
         sizeCell = connectivity->size();
 
         switch(m_type){
         case 1:
-            if(sizeConn == 3)	eltype = bitpit::ElementInfo::TRIANGLE;
-            if(sizeConn == 4)	eltype = bitpit::ElementInfo::QUAD;
+            if(sizeConn == 3)   eltype = bitpit::ElementInfo::TRIANGLE;
+            if(sizeConn == 4)   eltype = bitpit::ElementInfo::QUAD;
             break;
         case 2:
-            if(sizeConn == 4)	eltype = bitpit::ElementInfo::TETRA;
-            if(sizeConn == 8)	eltype = bitpit::ElementInfo::HEXAHEDRON;
+            if(sizeConn == 4)   eltype = bitpit::ElementInfo::TETRA;
+            if(sizeConn == 8)   eltype = bitpit::ElementInfo::HEXAHEDRON;
+            if(sizeConn == 5)   eltype = bitpit::ElementInfo::PYRAMID;
+            if(sizeConn == 6)   eltype = bitpit::ElementInfo::WEDGE;
             break;
         case 4:
             if(sizeConn == 2)	eltype = bitpit::ElementInfo::LINE;
@@ -148,68 +149,100 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
             (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
         }	
     }
-
-    if (m_type == 2){
-        m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
-    }else{
-        m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
-    }
-
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSupported = (m_type != 3);
-    m_bvTreeSync = false;
-    m_kdTreeSync = false;
-    m_AdjBuilt = false;
 };
 
 /*!
  * Custom constructor of MimmoObject.
- * This constructor builds a geometry data structure soft linking to an external bitpit::PatchKernel object.
+ * This constructor builds a geometry data structure soft linking to an external bitpit::PatchKernel object, that is
+ * it does not own the geometry data structure, but simple access it, while it is instantiated elsewhere.
+ * Search Trees will be referred to this linked geometry.
+ * If a null geometry patch is linked, a standard MimmoObject is built.
  * The mesh type needs to be specified (see default constructor MimmoObject(int type) doc).
  * \param[in] type type of mesh
  * \param[in] geometry pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
-    m_patch = NULL;
-    setPatch(type,geometry);
+
+    const int id = 0;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    m_type = max(type,1);
+    if (m_type > 4){
+        (*m_log)<<"WARNING MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        m_type = 1;
+    }
+
+    if(geometry == NULL){
+        if (m_type == 2){
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
+            dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+        }else{
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
+            dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+        }
+        m_internalPatch = true;
+        m_extpatch = NULL;
+    }else{
+        m_internalPatch = false;
+        m_extpatch = geometry;
+
+        if (m_type == 2){
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+        }else{
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+        }
+    }
+
+    m_skdTreeSupported = (m_type != 3);
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
 }
 
 /*!
  * Default destructor
  */
 MimmoObject::~MimmoObject(){
-    clear();
+
 };
 
 /*!
  * Copy constructor of MimmoObject. 
+ * Internal allocated PatchKernel is copied from the argument object as a soft link 
+ * (copied by its pointer only, geometry data structure is treated as external in the new copied class). 
+ * Search trees are instantiated, but their containts (if any) are not copied by default.
  */
 MimmoObject::MimmoObject(const MimmoObject & other){
-    m_patch = NULL;
-    m_type          = other.m_type;
-    m_patch         = other.m_patch;
-    m_internalPatch = false;
-
-//    m_mapData       = other.m_mapData;
-//    m_mapCell       = other.m_mapCell;
-//    m_mapDataInv    = other.m_mapDataInv;
-//    m_mapCellInv    = other.m_mapCellInv;
-    m_pidsType      = other.m_pidsType;
-
-    m_bvTreeSupported = other.m_bvTreeSupported;
-    m_bvTreeBuilt   = other.m_bvTreeBuilt;
-    m_kdTreeBuilt   = other.m_kdTreeBuilt;
-    m_bvTreeSync   = other.m_bvTreeSync;
-    m_kdTreeSync   = other.m_kdTreeSync;
-
-    if(m_bvTreeSupported && m_bvTreeBuilt)  buildBvTree();
-    if(m_kdTreeBuilt)   buildKdTree();
-
-    m_AdjBuilt = other.m_AdjBuilt;
 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    
+    m_extpatch = other.m_extpatch;
+    if(other.m_internalPatch){
+        m_extpatch      = other.m_patch.get();
+    }
+    m_internalPatch = false;
+    
+    m_type              = other.m_type;
+    m_pidsType          = other.m_pidsType;
+    m_skdTreeSupported  = other.m_skdTreeSupported;
+    m_AdjBuilt          = other.m_AdjBuilt;
+
+    m_skdTreeSync    = false;
+    m_kdTreeSync    = false;
+    
+    //instantiate empty trees:
+    if (m_type == 2){
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    }else{
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    }
 };
 
 /*!
@@ -217,78 +250,61 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 * Please be careful when using it, because internal bitpit::PatchKernel structure
 * is only copied by their pointer (soft copy). If you destroy the original MimmoObject
 * the copied class will have an internal patch pointing to nullptr.
+* Search trees are instantiated, but their containts (if any) are not copied by default.
 * \param[in] other reference to another MimmoObject
 */
-MimmoObject & MimmoObject::operator=(const MimmoObject & other){
-
-if(this != &other){
-    m_type 			= other.m_type;
-    if(m_patch != NULL){
-        if (m_internalPatch)    delete m_patch;
-        m_patch = NULL;
-    }
-    m_patch 		= other.m_patch;
-    m_internalPatch = false;
-
-    m_pidsType		= other.m_pidsType;
-
-    m_bvTreeSupported = other.m_bvTreeSupported;
-    m_bvTreeBuilt   = other.m_bvTreeBuilt;
-    m_kdTreeBuilt   = other.m_kdTreeBuilt;
-    m_bvTreeSync   = other.m_bvTreeSync;
-    m_kdTreeSync   = other.m_kdTreeSync;
-
-    if(m_bvTreeSupported && m_bvTreeBuilt)	buildBvTree();
-    if(m_kdTreeBuilt)	buildKdTree();
-
-    m_AdjBuilt = other.m_AdjBuilt;
-
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-}    
+MimmoObject & MimmoObject::operator=(MimmoObject other){
+    swap(other);
     return *this;
 };
 
 /*!
- * It clears all contents of the class. 
- * The internal pointer to bitpit::PatchKernel geometry is set to NULL and deleted eventually,
- * if it was internally created.
+ * Swap function. Swap data between current object and one of the same type. 
+ * \param[in] x object to be swapped.
  */
-void
-MimmoObject::clear(){
-    m_type=1;
-    if(m_patch != NULL){
-        if (m_internalPatch)    delete m_patch;
-        m_patch = NULL;
-    }    
-    m_pidsType.clear();
-    m_bvTree->clear();
-    cleanKdTree();
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSupported = true;
-    m_bvTreeSync = false;
-    m_kdTreeSync = false;
-    m_AdjBuilt = false;
+void MimmoObject::swap(MimmoObject & x) noexcept
+{
+    std::swap(m_patch, x.m_patch);
+    std::swap(m_extpatch, x.m_extpatch);
+    std::swap(m_internalPatch, x.m_internalPatch);
+    std::swap(m_type, x.m_type);
+    std::swap(m_pidsType, x.m_pidsType);
+    std::swap(m_skdTreeSupported, x.m_skdTreeSupported);
+    std::swap(m_AdjBuilt, x.m_AdjBuilt);
+    std::swap(m_skdTree, x.m_skdTree);
+    std::swap(m_kdTree, x.m_kdTree);
+    std::swap(m_skdTreeSync, x.m_skdTreeSync);
+    std::swap(m_kdTreeSync, x.m_kdTreeSync);
+}
 
-};
 
 /*!
  * Is the object empty?
- * \return True/false if the geometry data structure pointer is NULL.
+ * \return True/False if geometry data structure is empty.
  */
 bool
 MimmoObject::isEmpty(){
-    if(this == NULL)	return true;
-    return (m_patch == NULL);
+    bool check = getNVertex() > 0;
+    if(m_type != 3) check = check && (getNCells() > 0);
+    return !check;
 };
 
 /*! 
- * Is the bvTree ordering supported w/ the current geometry?
+ * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
  * \return True for connectivity-based meshes, false por point clouds
  */
 bool
 MimmoObject::isBvTreeSupported(){
-    return m_bvTreeSupported;
+    return isSkdTreeSupported();
+};
+
+/*! 
+ * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
+ * \return True for connectivity-based meshes, false por point clouds
+ */
+bool
+MimmoObject::isSkdTreeSupported(){
+    return m_skdTreeSupported;
 };
 
 /*!
@@ -307,7 +323,8 @@ MimmoObject::getType(){
  */
 long
 MimmoObject::getNVertex() const {
-    return m_patch->getVertexCount();
+    const auto p = getPatch();
+    return p->getVertexCount();
 };
 
 /*!
@@ -316,7 +333,8 @@ MimmoObject::getNVertex() const {
  */
 long
 MimmoObject::getNCells() const {
-    return m_patch->getCellCount();
+    const auto p = getPatch();
+    return p->getCellCount();
 };
 
 /*!
@@ -328,15 +346,18 @@ dvecarr3E
 MimmoObject::getVertexCoords(liimap* mapDataInv){
     dvecarr3E result(getNVertex());
     int  i = 0;
+
+    auto pvert = getVertices();
+
     if (mapDataInv != NULL){
-        for (auto const & vertex : m_patch->getVertices()){
+        for (auto const & vertex : pvert){
             result[i] = vertex.getCoords();
             (*mapDataInv)[vertex.getId()] = i;
             ++i;
         }
     }
     else{
-        for (auto const & vertex : m_patch->getVertices()){
+        for (auto const & vertex : pvert){
             result[i] = vertex.getCoords();
             ++i;
         }
@@ -353,7 +374,7 @@ MimmoObject::getVertexCoords(liimap* mapDataInv){
 darray3E
 MimmoObject::getVertexCoords(long i){
     if(!(getVertices().exists(i)))	return darray3E({{1.e18,1.e18,1.e18}});
-    return 	m_patch->getVertexCoords(i);
+    return 	getPatch()->getVertexCoords(i);
 };
 
 /*!
@@ -363,7 +384,7 @@ MimmoObject::getVertexCoords(long i){
  */
 bitpit::PiercedVector<bitpit::Vertex> &
 MimmoObject::getVertices(){
-    return m_patch->getVertices();
+    return getPatch()->getVertices();
 }
 
 /*!
@@ -373,7 +394,8 @@ MimmoObject::getVertices(){
  */
 const bitpit::PiercedVector<bitpit::Vertex> &
 MimmoObject::getVertices() const {
-    return m_patch->getVertices();
+    const auto p = getPatch();
+    return p->getVertices();
 }
 
 /*!
@@ -432,10 +454,9 @@ MimmoObject::getConnectivity(){
 livector1D
 MimmoObject::getCellConnectivity(long i){
 
-    if (isEmpty()) 					return livector1D(0);
-    if (!(getCells().exists(i)))	return livector1D(0);	
+    if (!(getCells().exists(i)))    return livector1D(0);
 
-    bitpit::Cell & cell = m_patch->getCell(i); 
+    bitpit::Cell & cell = getPatch()->getCell(i); 
     int np = cell.getVertexCount();
     livector1D connecti(np);
 
@@ -452,7 +473,7 @@ MimmoObject::getCellConnectivity(long i){
  */
 bitpit::PiercedVector<bitpit::Cell> &
 MimmoObject::getCells(){
-    return m_patch->getCells();
+    return getPatch()->getCells();
 }
 
 /*!
@@ -462,7 +483,8 @@ MimmoObject::getCells(){
  */
 const bitpit::PiercedVector<bitpit::Cell> &
 MimmoObject::getCells()  const{
-    return m_patch->getCells();
+    const auto p = getPatch();
+    return p->getCells();
 }
 
 /*!
@@ -472,7 +494,7 @@ MimmoObject::getCells()  const{
  */
 livector1D
 MimmoObject::getCellsIds(){
-    return m_patch->getCells().getIds();
+    return getPatch()->getCells().getIds();
 };
 
 /*!
@@ -480,7 +502,17 @@ MimmoObject::getCellsIds(){
  */
 PatchKernel*
 MimmoObject::getPatch(){
-    return m_patch;
+    if(!m_internalPatch) return m_extpatch;
+    else return m_patch.get();
+};
+
+/*!
+ * \return pointer to bitpit::PatchKernel structure hold by the class.
+ */
+const PatchKernel*
+MimmoObject::getPatch() const{
+    if(!m_internalPatch) return m_extpatch;
+    else return m_patch.get();
 };
 
 /*!
@@ -492,7 +524,7 @@ livector1D
 MimmoObject::getMapData(){
     livector1D mapData(getNVertex());
     int i = 0;
-    for (auto const & vertex : m_patch->getVertices()){
+    for (auto const & vertex : getVertices()){
         mapData[i] = vertex.getId();
         ++i;
     }
@@ -508,7 +540,7 @@ liimap
 MimmoObject::getMapDataInv(){
     liimap mapDataInv;
     int i = 0;
-    for (auto const & vertex : m_patch->getVertices()){
+    for (auto const & vertex : getVertices()){
         mapDataInv[vertex.getId()] = i;
         ++i;
     }
@@ -524,7 +556,7 @@ livector1D
 MimmoObject::getMapCell(){
     livector1D mapCell(getNCells());
     int i = 0;
-    for (auto const & cell : m_patch->getCells()){
+    for (auto const & cell : getCells()){
         mapCell[i] = cell.getId();
         ++i;
     }
@@ -540,7 +572,7 @@ liimap
 MimmoObject::getMapCellInv(){
     liimap mapCellInv;
     int i = 0;
-    for (auto const & cell : m_patch->getCells()){
+    for (auto const & cell : getCells()){
         mapCellInv[cell.getId()] = i;
         ++i;
     }
@@ -575,7 +607,7 @@ MimmoObject::getPIDTypeList(){
  */
 shivector1D 	
 MimmoObject::getCompactPID() {
-    if(!m_bvTreeSupported || m_pidsType.empty())	return shivector1D(0);
+    if(!m_skdTreeSupported || m_pidsType.empty())	return shivector1D(0);
     shivector1D result(getNCells());
     int counter=0;
     for(auto const & cell : getCells()){
@@ -591,7 +623,7 @@ MimmoObject::getCompactPID() {
  */
 std::unordered_map<long,short> 	
 MimmoObject::getPID() {
-    if(!m_bvTreeSupported || m_pidsType.empty())	return std::unordered_map<long,short>();
+    if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,short>();
     std::unordered_map<long,short> 	result;
     for(auto const & cell : getCells()){
         result[cell.getId()] = (short) cell.getPID();
@@ -600,24 +632,50 @@ MimmoObject::getPID() {
 };
 
 /*!
- * \return true if the bVTree ordering structure for cells is built/synchronized 
+ * \return true if the skdTree ordering structure for cells is built/synchronized 
  * with your current geometry
  */
 bool
 MimmoObject::isBvTreeBuilt(){
-    if (!m_bvTreeBuilt || !m_bvTreeSupported) return(false);
-    return (isBvTreeSync());
+    return isSkdTreeSync();
 }
 
 /*!
- * \return pointer to geometry BvTree internal structure
+ * \return true if the skdTree ordering structure for cells is built/synchronized 
+ * with your current geometry
+ */
+bool
+MimmoObject::isBvTreeSync(){
+    return isSkdTreeSync();
+}
+
+/*!
+ * \return true if the skdTree ordering structure for cells is built/synchronized 
+ * with your current geometry
+ */
+bool
+MimmoObject::isSkdTreeSync(){
+    return m_skdTreeSync;
+}
+
+/*!
+ * \return pointer to geometry skdTree search structure
  */
 bitpit::PatchSkdTree*
 MimmoObject::getBvTree(){
-    if (!m_bvTreeSupported) return NULL;
-    if (!isBvTreeBuilt()) buildBvTree();
-    return m_bvTree;
+    return getSkdTree();
 }
+
+/*!
+ * \return pointer to geometry skdTree search structure
+ */
+bitpit::PatchSkdTree*
+MimmoObject::getSkdTree(){
+    if (!m_skdTreeSupported) return NULL;
+    if (!isSkdTreeSync()) buildSkdTree();
+    return m_skdTree.get();
+}
+
 
 /*!
  * \return true if the kdTree vertices ordering structure is 
@@ -625,8 +683,16 @@ MimmoObject::getBvTree(){
  */
 bool
 MimmoObject::isKdTreeBuilt(){
-    if (!m_kdTreeBuilt ) return(false);
-    return (isKdTreeSync());
+    return isKdTreeSync();
+}
+
+/*!
+ * \return true if the kdTree vertices ordering structure is 
+ * built/synchronized with your current geometry
+ */
+bool
+MimmoObject::isKdTreeSync(){
+    return m_kdTreeSync;
 }
 
 /*!
@@ -634,29 +700,10 @@ MimmoObject::isKdTreeBuilt(){
  */
 bitpit::KdTree<3, bitpit::Vertex, long >*
 MimmoObject::getKdTree(){
-    if (!m_kdTreeBuilt) buildKdTree();
-    return &m_kdTree;
+    if (!m_kdTreeSync) buildKdTree();
+    return m_kdTree.get();
 }
 
-/*!
- * \return true if the bVTree is synchronized
- * with your current geometry
- */
-bool
-MimmoObject::isBvTreeSync(){
-    if (!m_bvTreeBuilt || !m_bvTreeSupported) return(false);
-    return (m_bvTreeSync);
-}
-
-/*!
- * \return true if the kdTree is synchronized
- * with your current geometry
- */
-bool
-MimmoObject::isKdTreeSync(){
-    if (!m_kdTreeBuilt) return(false);
-    return (m_kdTreeSync);
-}
 
 /*!
  * \return the pointer to the actual class, as constant one. 
@@ -679,12 +726,10 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 
     if (vertices.empty()) return false;
 
-    //    m_mapData.clear();
-    //    m_mapDataInv.clear();
-    m_patch->resetVertices();
+    getPatch()->resetVertices();
 
     int sizeVert = vertices.size();
-    m_patch->reserveVertices(sizeVert);
+    getPatch()->reserveVertices(sizeVert);
 
     long id;
     darray3E coords;
@@ -693,7 +738,7 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
         id = val.getId();
         coords = val.getCoords();
         checkTot = checkTot && addVertex(coords, id);
-    }	
+    }
 
     return checkTot;
 };
@@ -713,27 +758,19 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
  */
 bool
 MimmoObject::addVertex(const darray3E & vertex, const long idtag){
-    if (isEmpty()) return false;
-    if(idtag != bitpit::Vertex::NULL_ID && m_patch->getVertices().exists(idtag))	return false;
 
-    //    long checkedID;
+    if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return false;
 
     bitpit::PatchKernel::VertexIterator it;
+    auto patch = getPatch();
     if(idtag == bitpit::Vertex::NULL_ID){
-        it = m_patch->addVertex(vertex);
-        //        checkedID = it->getId();
+        it = patch->addVertex(vertex);
     }else{
-        it =m_patch->addVertex(vertex, idtag);
-        //        checkedID = idtag;
+        it = patch->addVertex(vertex, idtag);
     }
 
-    //    m_mapData.push_back(checkedID);
-    //    m_mapDataInv[checkedID] = m_mapData.size()-1;
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSync = false;
+    m_skdTreeSync = false;
     m_kdTreeSync = false;
-    m_AdjBuilt = false;
     return true;
 };
 
@@ -746,11 +783,11 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
  */
 bool
 MimmoObject::modifyVertex(const darray3E & vertex, long id){
-    if (isEmpty()) return false;
-    if(!(getVertices().exists(id)))	return false;
-    bitpit::Vertex &vert = m_patch->getVertex(id);
+
+    if(!(getVertices().exists(id))) return false;
+    bitpit::Vertex &vert = getPatch()->getVertex(id);
     vert.setCoords(vertex);
-    m_bvTreeSync = false;
+    m_skdTreeSync = false;
     m_kdTreeSync = false;
     return true;
 };
@@ -767,12 +804,9 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
 bool
 MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 
-    if (cells.empty() || !m_bvTreeSupported) return false;
+    if (cells.empty() || !m_skdTreeSupported) return false;
 
-    //    m_mapCell.clear();
-    //    m_mapCellInv.clear();
     m_pidsType.clear();
-
     getPatch()->resetCells();
 
     int sizeCell = cells.size();
@@ -822,33 +856,26 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 bool
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type type, long idtag){
 
-    if (isEmpty() || conn.empty() || !m_bvTreeSupported) return false;
-    if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
+    if (conn.empty() || !m_skdTreeSupported) return false;
+    if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
     int sizeElement = checkCellType(type); 
     if(sizeElement < 0)  return false;
 
     bitpit::PatchKernel::CellIterator it;
-
+    auto patch = getPatch();
+    
     livector1D conn_dum = conn;
     conn_dum.resize(sizeElement, 0);
 
-    //    long checkedID;
     if(idtag == bitpit::Cell::NULL_ID){
-        it = m_patch->addCell(type, true, conn_dum);
-        //        checkedID = it->getId();
+        it = patch->addCell(type, true, conn_dum);
     }else{
-        it = m_patch->addCell(type, true,conn_dum, idtag);
-        //        checkedID = idtag;
+        it = patch->addCell(type, true,conn_dum, idtag);
     }
 
     m_pidsType.insert(0);		
-
-    //create inverse map of cells
-    //    m_mapCell.push_back(checkedID);
-    //    m_mapCellInv[checkedID] = m_mapCell.size()-1;
-    m_bvTreeBuilt = false;
-    m_bvTreeSync = false;
+    m_skdTreeSync = false;
     m_AdjBuilt = false;
     return true;
 };
@@ -872,84 +899,82 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
 bool
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type type, short PID, long idtag){
 
-    if (isEmpty() || conn.empty() || !m_bvTreeSupported) return false;
-    if(idtag != bitpit::Cell::NULL_ID && m_patch->getCells().exists(idtag)) return false;
+    if (conn.empty() || !m_skdTreeSupported) return false;
+    if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
     int sizeElement = checkCellType(type); 
     if(sizeElement < 0)  return false;
 
     bitpit::PatchKernel::CellIterator it;
-
+    auto patch = getPatch();
+    
     livector1D conn_dum = conn;
     conn_dum.resize(sizeElement, 0);
 
     long checkedID;
     if(idtag == bitpit::Cell::NULL_ID){
-        it = m_patch->addCell(type, true, conn_dum);
+        it = patch->addCell(type, true, conn_dum);
         checkedID = it->getId();
     }else{
-        it = m_patch->addCell(type, true,conn_dum, idtag);
+        it = patch->addCell(type, true,conn_dum, idtag);
         checkedID = idtag;
     }
 
     setPIDCell(checkedID, PID);
-    //create inverse map of cells
-    //    m_mapCell.push_back(checkedID);
-    //    m_mapCellInv[checkedID] = m_mapCell.size()-1;
-    m_bvTreeBuilt = false;
-    m_bvTreeSync = false;
+    m_skdTreeSync = false;
     m_AdjBuilt = false;
     return true;
 };
 
-/*!
- *  Link as geometry an external bitpit::PatchKernel  data structure;
- *  If the external data structure is not compatible with the mesh type internally set, does not link anything.
- *  Through this method, the class only copy the pointer to the external geometry.
- * 
- * \param[in] type mesh type see MimmoObject(int type) constructor documentation
- * \param[in] geometry pointer to an external geoemtry data structure
- * \return false if the argument pointer is NULL or not compatible data structure
- */
-bool
-MimmoObject::setPatch(int type, PatchKernel* geometry){
-    if (geometry == NULL ) return false;
-    if (type<1 || type >4 ) return false;
-    m_type 			= type;
-    
-    if(m_patch != NULL){
-        if (m_internalPatch)    delete m_patch;
-        m_patch = NULL;
-    }    
-    m_patch 		= geometry;
-    m_internalPatch = false;
-
-    //    setMapData();
-
-    m_pidsType.clear();
-
-    if(m_patch->getCellCount() != 0){
-        m_bvTreeSupported = true;
-
-        m_bvTree->clear();
-        delete m_bvTree;
-        if (m_type == 2){
-            m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
-        }else{
-            m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
-        }
-        
-        for(auto const & cell : geometry->getCells()){
-            m_pidsType.insert(cell.getPID());
-        }
-        m_AdjBuilt = false;
-    }	
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSync = false;
-    m_kdTreeSync = false;
-    return true;
-};
+///*
+// *  Link as geometry an external bitpit::PatchKernel  data structure;
+// *  If the external data structure is not compatible with the mesh type internally set, does not link anything.
+// *  Through this method, the class only copy the pointer to the external geometry.
+// * 
+// * \param[in] type mesh type see MimmoObject(int type) constructor documentation
+// * \param[in] geometry pointer to an external geoemtry data structure
+// * \return false if the argument pointer is NULL or not compatible data structure
+// */
+// bool
+// MimmoObject::setPatch(int type, PatchKernel* geometry){
+//     if (geometry == NULL ) return false;
+//     if (type<1 || type >4 ) return false;
+//     m_type = type;
+//     
+//     m_extpatch      = geometry;
+//     m_internalPatch = false;
+//     
+//     if(m_patch != NULL){
+//         if (m_internalPatch)    delete m_patch;
+//         m_patch = NULL;
+//     }    
+// 
+//     //    setMapData();
+// 
+//     m_pidsType.clear();
+// 
+//     if(m_patch->getCellCount() != 0){
+//         m_bvTreeSupported = true;
+// 
+//         m_bvTree->clear();
+//         delete m_bvTree;
+//         if (m_type == 2){
+//             m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
+//         }else{
+//             m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
+//         }
+//         
+//         for(auto const & cell : geometry->getCells()){
+//             m_pidsType.insert(cell.getPID());
+//         }
+//         m_AdjBuilt = false;
+//     }	
+//     m_bvTreeBuilt = false;
+//     m_kdTreeBuilt = false;
+//     m_bvTreeSync = false;
+//     m_kdTreeSync = false;
+//     return true;
+// };
 
 ///*!
 // * It builds the vertex map of local/unique-id indexing and its inverse.
@@ -1009,7 +1034,7 @@ MimmoObject::setPatch(int type, PatchKernel* geometry){
  */
 void
 MimmoObject::setPID(shivector1D pids){
-    if((int)pids.size() != getNCells() || !m_bvTreeSupported)	return;
+    if((int)pids.size() != getNCells() || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
     int counter = 0;
@@ -1017,7 +1042,7 @@ MimmoObject::setPID(shivector1D pids){
         m_pidsType.insert(pids[counter]);
         cell.setPID(pids[counter]);
         ++counter;
-    }	
+    }
 };
 
 /*!
@@ -1027,7 +1052,7 @@ MimmoObject::setPID(shivector1D pids){
  */
 void
 MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
-    if(getNCells() == 0 || !m_bvTreeSupported)	return;
+    if(getNCells() == 0 || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
     auto & cells = getCells();
@@ -1035,8 +1060,8 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
         if(cells.exists(val.first)){
             cells[val.first].setPID(val.second);
             m_pidsType.insert(val.second);
-        }	
-    }	
+        }
+    }
 };
 
 /*!
@@ -1053,59 +1078,62 @@ MimmoObject::setPIDCell(long id, short pid){
     }	
 };
 
-/*!
- * Set your current class as a "soft" copy of another MimmoObject.
- * All data are replaced by those provided by the argument.
- * Soft means that the m_patch member of the class is copied only by its pointer
- * and not allocated internally. 
- * \param[in] other MimmoObject class .
- */
-void MimmoObject::setSOFTCopy(const MimmoObject * other){
-    clear();
-    *this = *other; 
-};
+// /*
+//  * Set your current class as a "soft" copy of another MimmoObject.
+//  * All data are replaced by those provided by the argument.
+//  * Soft means that the m_patch member of the class is copied only by its pointer
+//  * and not allocated internally. 
+//  * \param[in] other MimmoObject class .
+//  */
+// void MimmoObject::setSOFTCopy(const MimmoObject * other){
+//     clear();
+//     *this = *other; 
+// };
 
 /*!
  * Set your current class as a "hard" copy of another MimmoObject.
- * All data are replaced by those provided by the argument.
- * Hard means that the m_patch member of the class is allocated internally
- * as an exact and independent copy of the m_patch member of the argument. 
+ * All preexistent data are destroyed and replaced by those provided by the argument, except for search Trees,
+ * which are instantiated, but not filled/built/synchronized.
+ * Hard means that the geometry data structure is allocated internally 
+ * as an exact and stand-alone copy of the geometry data structure of the argument, 
+ * indipendently on how the argument owns or links it.
  * \param[in] other MimmoObject class.
  */
 void MimmoObject::setHARDCopy(const MimmoObject * other){
-    clear();
-    m_type 			= other->m_type;
 
+    m_type  = other->m_type;
     m_internalPatch = true;
+    m_extpatch = NULL;
+    
     const int id = 0;
     if (m_type == 2){
-        m_patch = new VolUnstructured(id, 3);
-        dynamic_cast<VolUnstructured*> (m_patch)->setExpert(true);
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
+        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
     }else{
-        m_patch = new SurfUnstructured(id);
-        dynamic_cast<SurfUnstructured*> (m_patch)->setExpert(true);
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
+        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
     }
+
+    m_skdTreeSupported = other->m_skdTreeSupported;
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
 
     //copy data 
     const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
     setVertices(pvert);
 
-    m_bvTreeSupported = other->m_bvTreeSupported;
-    m_bvTreeBuilt	= other->m_bvTreeBuilt;
-    m_kdTreeBuilt   = other->m_kdTreeBuilt;
-
-    if(m_bvTreeSupported){
+    if(m_skdTreeSupported){
         const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
         setCells(pcell);
-        if(m_bvTreeBuilt)	buildBvTree();
-    }	
-    if(m_kdTreeBuilt)	buildKdTree();
-    m_bvTreeSync = true;
-    m_kdTreeSync = true;
+    }
+    
+    if(other->m_AdjBuilt)   buildAdjacencies();
 
-    m_AdjBuilt = other->m_AdjBuilt;;
-
-    //it's all copied(maps are update in the loops, pids if exists), trees are rebuilt and sync'ed is they must be
+    //it's all copied(maps are update in the loops, pids if exists), except search trees.
 };
 
 /*!
@@ -1114,17 +1142,11 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
  */
 bool
 MimmoObject::cleanGeometry(){
-    if (isEmpty()) return false;
-    m_patch->deleteCoincidentVertices();
-    if(m_bvTreeSupported)	m_patch->deleteOrphanVertices();
+    auto patch = getPatch();
+    patch->deleteCoincidentVertices();
+    if(m_skdTreeSupported)  patch->deleteOrphanVertices();
 
-    //    setMapData();
-    //    setMapCell();
-    m_bvTreeBuilt = false;
-    m_kdTreeBuilt = false;
-    m_bvTreeSync = false;
-    m_bvTreeSync = false;
-    m_AdjBuilt = false;
+    m_kdTreeSync = false;
     return true;
 };
 
@@ -1134,24 +1156,24 @@ MimmoObject::cleanGeometry(){
  *\return the list of bitpit::PatchKernel ids of involved vertices.
  */  
 livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
-    if(isEmpty())	return livector1D(0);
-    if(getType() == 3)  return  livector1D(0);
+    if(isEmpty() || getType() == 3)   return livector1D(0);
 
     livector1D result;
     set<long int> ordV;
+    auto patch = getPatch();
     //get conn from each cell of the list
     for(auto && id : cellList){
         if(getCells().exists(id)){
-            Cell  & cell = m_patch->getCell(id);
+            Cell  & cell = patch->getCell(id);
             long * conn = cell.getConnect();
             int nVloc = cell.getVertexCount();
-            for(int i=0; i<nVloc; ++i)				ordV.insert(conn[i]);
-        }	
-    }	
+            for(int i=0; i<nVloc; ++i)  ordV.insert(conn[i]);
+        }
+    }
 
     result.resize(ordV.size());
     set<long int>::iterator itS;
-    set<long int>::iterator itSEnd=ordV.end();
+    set<long int>::iterator itSEnd = ordV.end();
 
     int counter =0;
     for(itS=ordV.begin(); itS != itSEnd; ++itS){
@@ -1169,14 +1191,13 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
  */
 
 livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
-    if(isEmpty())   return livector1D(0);
-    if(getType() == 3)  return  vertexList;
-
+    if(isEmpty() || getType() == 3)   return livector1D(0);
+   
     livector1D result;
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
     //get conn from each cell of the list
-    for(auto const & cell : m_patch->getCells()){
+    for(auto const & cell : getPatch()->getCells()){
         int nVloc = cell.getVertexCount();
         int i=0;
         bool check = false;
@@ -1189,7 +1210,7 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
 
     result.resize(ordC.size());
     std::unordered_set<long int>::iterator itS;
-    std::unordered_set<long int>::iterator itSEnd=ordC.end();
+    std::unordered_set<long int>::iterator itSEnd = ordC.end();
 
     int counter =0;
     for(itS=ordC.begin(); itS != itSEnd; ++itS){
@@ -1276,14 +1297,14 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
  */
 livector1D 	MimmoObject::extractBoundaryVertexID(){
 
-    if(isEmpty())	return livector1D(0);
-    getPatch()->buildAdjacencies();
+    if(isEmpty())   return livector1D(0);
+    if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
     std::unordered_set<long> container;
     std::unordered_set<long>::iterator it;
     std::unordered_set<long>::iterator itEnd;
 
-    for (const auto & cell : m_patch->getCells()){
+    for (const auto & cell : getPatch()->getCells()){
         const long * conn = cell.getConnect();
         int size = cell.getFaceCount();
 
@@ -1311,8 +1332,8 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 
 /*!
  * Extract all cells marked with a target PID flag.
- * \param[in]	flag	PID for extraction
- * \return		list of cells as unique-ids
+ * \param[in]   flag    PID for extraction
+ * \return  list of cells as unique-ids
  */
 livector1D	MimmoObject::extractPIDCells(short flag){
 
@@ -1322,12 +1343,12 @@ livector1D	MimmoObject::extractPIDCells(short flag){
     int counter = 0;
     for(auto const & cell : getCells()){
         if ( cell.getPID() == flag)	{
-            result[counter] = cell.getId();	 
+            result[counter] = cell.getId();
             ++counter;
-        }	
+        }
     }
     result.resize(counter);
-    return	result;
+    return  result;
 };
 
 /*!
@@ -1384,24 +1405,36 @@ int MimmoObject::checkCellType(bitpit::ElementInfo::Type type){
  * \param[out] pmax highest bounding box point
  */
 void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax){
-    if(m_patch == NULL)   return;
-    m_patch->getBoundingBox(pmin,pmax);
+    getPatch()->getBoundingBox(pmin,pmax);
     return;
 }
 
 /*!
- * Reset and build again simplex bvTree of your geometry (if supports connectivity elements).
+ * Reset and build again cell skdTree of your geometry (if supports connectivity elements).
  *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
  */
 void MimmoObject::buildBvTree(int value){
-    if(!m_bvTreeSupported || m_patch == NULL)	return;
+    if(!m_skdTreeSupported || isEmpty())   return;
 
-    if (!m_bvTreeBuilt || !m_bvTreeSync){
-        m_bvTree->clear();
-//        m_bvTree->setup();
-        m_bvTree->build(value);
-        m_bvTreeBuilt = true;
-        m_bvTreeSync = true;
+    if (!m_skdTreeSync){
+        m_skdTree->clear();
+        m_skdTree->build(value);
+        m_skdTreeSync = true;
+    }
+    return;
+}
+
+/*!
+ * Reset and build again cell skdTree of your geometry (if supports connectivity elements).
+ *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
+ */
+void MimmoObject::buildSkdTree(int value){
+    if(!m_skdTreeSupported || isEmpty())   return;
+    
+    if (!m_skdTreeSync){
+        m_skdTree->clear();
+        m_skdTree->build(value);
+        m_skdTreeSync = true;
     }
     return;
 }
@@ -1410,19 +1443,18 @@ void MimmoObject::buildBvTree(int value){
  * Reset and build again vertex kdTree of your geometry.
  */
 void MimmoObject::buildKdTree(){
-    if( m_patch == NULL)	return;
+    if( isEmpty())  return;
     long label;
-
-    if (!m_kdTreeBuilt || !m_bvTreeSync){
+    
+    if (!m_kdTreeSync){
         cleanKdTree();
-        m_kdTree.nodes.resize(getNVertex() + m_kdTree.MAXSTK);
+        m_kdTree->nodes.resize(getNVertex() + m_kdTree->MAXSTK);
 
         for(auto & val : getVertices()){
             label = val.getId();
-            m_kdTree.insert(&val, label);
+            m_kdTree->insert(&val, label);
         }
-        m_kdTreeBuilt = true;
-        m_bvTreeSync = true;
+        m_kdTreeSync = true;
     }
     return;
 }
@@ -1431,31 +1463,15 @@ void MimmoObject::buildKdTree(){
  * Clean the KdTree of the class
  */
 void	MimmoObject::cleanKdTree(){
-    m_kdTree.n_nodes = 0;
-    m_kdTree.nodes.clear();
+    m_kdTree->n_nodes = 0;
+    m_kdTree->nodes.clear();
 }
 
 /*!
  * \return true if cell-cell adjacency is built for your current mesh.
  */
 bool MimmoObject::areAdjacenciesBuilt(){
-
-    return(m_AdjBuilt);
-
-    /*
-    bool check = true;
-
-    auto itp = getCells().cbegin();
-
-    int cAdj = itp->getAdjacencyCount();
-    const long * adj = itp->getAdjacencies();
-
-    for(int i=0; i<cAdj; ++i){
-        check = check && (adj[i] == -1);
-    }
-
-    return !check;
-     */
+    return  m_AdjBuilt;
 };
 
 /*!
@@ -1505,17 +1521,19 @@ bitpit::VTKElementType	MimmoObject::desumeElement(){
     if(getPatch() == NULL)	return result;	
     livector1D conn;
     switch(m_type){
-        case	1:
-            if(getNCells() == 0) 		return result;
+        case    1:
+            if(getNCells() == 0)    return result;
             conn = getCellConnectivity((*(getCells().begin())).getId());
-            if(conn.size() == 3)		result = bitpit::VTKElementType::TRIANGLE;
-            if(conn.size() == 4)		result = bitpit::VTKElementType::QUAD;
+            if(conn.size() == 3)        result = bitpit::VTKElementType::TRIANGLE;
+            if(conn.size() == 4)        result = bitpit::VTKElementType::QUAD;
             break;
         case	2:
-            if(getNCells() == 0) 		return result;
+            if(getNCells() == 0)        return result;
             conn = getCellConnectivity((*(getCells().begin())).getId());
-            if(conn.size() == 4)		result = bitpit::VTKElementType::TETRA;
-            if(conn.size() == 8)		result = bitpit::VTKElementType::HEXAHEDRON;
+            if(conn.size() == 4)        result = bitpit::VTKElementType::TETRA;
+            if(conn.size() == 8)        result = bitpit::VTKElementType::HEXAHEDRON;
+            if(conn.size() == 5)        result = bitpit::VTKElementType::PYRAMID;
+            if(conn.size() == 6)        result = bitpit::VTKElementType::WEDGE;
             break;
         case	3:
             result = bitpit::VTKElementType::VERTEX;

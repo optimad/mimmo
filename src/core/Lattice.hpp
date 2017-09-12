@@ -133,6 +133,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 protected:
+    void            swap(Lattice & ) noexcept;
     void            resizeMapDof();
     virtual void    plotOptionalResults();
 

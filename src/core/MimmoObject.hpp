@@ -48,30 +48,28 @@ namespace mimmo{
 * based on bitpit::PatchKernel containers.
 * MimmoObject can handle unustructured surface meshes, unustructured volume meshes, 3D point clouds and 3D tessellated curves.
 * It supports interface methods to explore and handle the geometrical structure. It supports PID convention to mark subparts 
-* of geometry as well as building the search-trees KdTree and BvTree to quickly retrieve vertices and cells in the data structure.
+* of geometry as well as building the search-trees KdTree (3D point spatial ordering) and skdTree(Cell-AABB spatial ordering)
+* to quickly retrieve vertices and cells in the data structure.
 */
 class MimmoObject{
 
-protected:
-//members
-    int                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
-    bitpit::PatchKernel*                    m_patch;           /**<Reference to bitpit patch handling geometry. */
+private:
+    std::unique_ptr<bitpit::PatchKernel>    m_patch;           /**<Reference to INTERNAL bitpit patch handling geometry. */
+    bitpit::PatchKernel *                   m_extpatch;        /**<Reference to EXTERNALLY linked patch handling geometry. */
     bool                                    m_internalPatch;   /**<True if the geometry is internally created. */
 
-    std::unordered_set<short>               m_pidsType;        /**<pid type available for your geometry */
+protected:
+//members
+    int                                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
+    std::unordered_set<short>                               m_pidsType;        /**<pid type available for your geometry */
+    std::unique_ptr<bitpit::PatchSkdTree>                   m_skdTree;         /**< ordered tree of geometry simplicies for fast searching purposes */
+    std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> > m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
+    bool                                                    m_skdTreeSync;      /**< track correct building of bvtree. Set false if any geometry modifications occur */
+    bool                                                    m_kdTreeSync;     /**< track correct building of kdtree. Set false if any geometry modifications occur*/
+    bool                                                    m_skdTreeSupported; /**< Flag for geometries not supporting bvTree building*/
 
-    bitpit::PatchSkdTree*                   m_bvTree;          /**< ordered tree of geometry simplicies for fast searching purposes */
-    bool                                    m_bvTreeBuilt;     /**< track correct building of bvtree along with geometry modifications */
-    bitpit::KdTree<3,bitpit::Vertex,long>   m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
-    bool                                    m_kdTreeBuilt;     /**< track correct building of kdtree along eith geometry modifications */
-    bool                                    m_bvTreeSupported; /**< Flag for geometries not supporting bvTree building*/
-
-    bool                                    m_bvTreeSync;    /**< set false if Bv tree is not sync'd with geometry modifications */
-    bool                                    m_kdTreeSync;    /**< set false if Bv tree is not sync'd with geometry modifications */
-
-    bool                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
-
-    bitpit::Logger*                         m_log;          /**<Pointer to logger.*/
+    bool                                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
+    bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
 public:
     MimmoObject(int type = 1); 
@@ -80,11 +78,11 @@ public:
     ~MimmoObject();
 
     MimmoObject(const MimmoObject & other);
-    MimmoObject & operator=(const MimmoObject & other);
+    MimmoObject & operator=(MimmoObject other);
 
-    void                                            clear();
     bool                                            isEmpty();
-    bool                                            isBvTreeSupported();
+    BITPIT_DEPRECATED(bool                          isBvTreeSupported());
+    bool                                            isSkdTreeSupported();
     int                                             getType();
     long                                            getNVertex()const;
     long                                            getNCells()const;
@@ -100,19 +98,20 @@ public:
     const bitpit::PiercedVector<bitpit::Cell> &     getCells() const;
 
     livector1D                                      getCellsIds();
-
     bitpit::PatchKernel*                            getPatch();
-
+    const bitpit::PatchKernel*                      getPatch() const;
     std::unordered_set<short> &                     getPIDTypeList();
     shivector1D                                     getCompactPID();
     std::unordered_map<long, short>                 getPID();
 
-    bool                                            isBvTreeBuilt();
-    bitpit::PatchSkdTree*                           getBvTree();
-    bool                                            isKdTreeBuilt();
+    BITPIT_DEPRECATED(bitpit::PatchSkdTree*         getBvTree());
+    bitpit::PatchSkdTree*                           getSkdTree();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
-    bool                                            isBvTreeSync();
-    bool                                            isKdTreeSync();
+    BITPIT_DEPRECATED(bool                          isBvTreeBuilt());
+    BITPIT_DEPRECATED(bool                          isKdTreeBuilt());
+    BITPIT_DEPRECATED(bool                          isBvTreeSync());
+    bool                          isSkdTreeSync();
+    bool                          isKdTreeSync();
 
     const MimmoObject *                             getCopy();
 
@@ -123,13 +122,10 @@ public:
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, long idtag = bitpit::Cell::NULL_ID);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementInfo::Type type, short PID, long idtag = bitpit::Cell::NULL_ID);
 
-    bool        setPatch(int type, bitpit::PatchKernel* geometry);
-
     void        setPID(shivector1D ); 
     void        setPID(std::unordered_map<long, short>  ); 
     void        setPIDCell(long, short);
 
-    void        setSOFTCopy(const MimmoObject * other);
     void        setHARDCopy(const MimmoObject * other);
 
     bool        cleanGeometry();
@@ -147,16 +143,9 @@ public:
     liimap      getMapCellInv();
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
-    void        buildBvTree(int value = 1);
+    BITPIT_DEPRECATED(void        buildBvTree(int value = 1));
+    void        buildSkdTree(int value = 1);
     void        buildKdTree();
-    /*!
-     * Update Bounding Volume Tree - based on bitpit::SKD (not available)
-     */
-    void        updateBvTree();
-    /*!
-     * Update KdTree (not available)
-     */
-    void        updateKdTree();
     void        buildAdjacencies();
 
     bool        areAdjacenciesBuilt();
@@ -164,6 +153,9 @@ public:
     
     bitpit::VTKElementType	desumeElement();
 
+protected:
+    void    swap(MimmoObject & ) noexcept;
+    
 private:
     int     checkCellType(bitpit::ElementInfo::Type type);
     void    cleanKdTree();

@@ -69,6 +69,19 @@ Lattice::Lattice(const Lattice & other):BaseManipulation(other), UStructMesh(oth
 };
 
 /*!
+ * Swap function.
+ * \param[in] object to be swapped
+ */
+void Lattice::swap(Lattice & x) noexcept
+{
+    std::swap(m_intMapDOF, x.m_intMapDOF);
+    std::swap(m_np, x.m_np);
+    
+    UStructMesh::swap(x);
+    BaseManipulation::swap(x);
+}
+
+/*!
  * It builds the input/output ports of the object
  */
 void Lattice::buildPorts(){
