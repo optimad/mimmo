@@ -85,7 +85,7 @@ GenericInput::GenericInput(std::string dir, std::string filename, bool csv){
 GenericInput::~GenericInput(){};
 
 /*!
- * Copy constructor of GenericInput.
+ * Copy constructor of GenericInput. m_input and  m_result members are not copied.
  */
 GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
     m_readFromFile  = other.m_readFromFile;
@@ -94,6 +94,30 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
     m_filename      = other.m_filename;
     m_binary        = other.m_binary;
 };
+
+/*!
+ * Assignment operator. m_input and  m_result members are not copied. 
+ */
+GenericInput & GenericInput::operator=(GenericInput other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ *Swap method.
+ *\param[in] x objet to be swapped.
+ */
+void GenericInput::swap(GenericInput & x) noexcept
+{
+    std::swap(m_readFromFile, x.m_readFromFile);
+    std::swap(m_csv         , x.m_csv);
+    std::swap(m_dir         , x.m_dir);
+    std::swap(m_filename    , x.m_filename);
+    std::swap(m_binary      , x.m_binary);
+    std::swap(m_input       , x.m_input);
+    std::swap(m_result      , x.m_result);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * It sets if the object imports the displacements from an input file.

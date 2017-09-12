@@ -136,7 +136,7 @@ public:
     virtual ~IOCloudPoints();
     IOCloudPoints(const bitpit::Config::Section & rootXML);
     IOCloudPoints(const IOCloudPoints & other);
-    IOCloudPoints & operator=(const IOCloudPoints & other);
+    IOCloudPoints & operator=(IOCloudPoints other);
 
     void buildPorts();
 
@@ -164,6 +164,9 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
     void plotOptionalResults();
 
+protected:
+    void swap(IOCloudPoints & x) noexcept;
+    
 private:
     virtual void read();
     virtual void write();

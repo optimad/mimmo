@@ -113,7 +113,8 @@ public:
     ~GenericInput();
 
     GenericInput(const GenericInput & other);
-
+    GenericInput & operator=(GenericInput other);
+    
     void buildPorts();
 
     BITPIT_DEPRECATED( template<typename T> T* getInput());
@@ -145,6 +146,9 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
+protected:
+    void swap(GenericInput & x) noexcept;
+    
 private:
 
     template<typename T>

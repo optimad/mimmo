@@ -137,9 +137,13 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
+protected:
+    void swap(GenericDispls &) noexcept;
+    
 private:
     virtual void read();
     virtual void write();
+    
 };
 
 REGISTER(BaseManipulation, GenericDispls, "mimmo.GenericDispls")

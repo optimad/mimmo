@@ -89,6 +89,21 @@ GenericDispls::GenericDispls(const GenericDispls & other):BaseManipulation(other
     m_template = other.m_template;
 };
 
+/*!
+ * Swap method.
+ * \param[in] x object to be swapped
+ */
+void GenericDispls::swap(GenericDispls & x )noexcept
+{
+    std::swap(m_read, x.m_read);
+    std::swap(m_dir, x.m_dir);
+    std::swap(m_filename, x.m_filename);
+    std::swap(m_nDispl, x.m_nDispl);
+    std::swap(m_displ, x.m_displ);
+    std::swap(m_labels, x.m_labels);
+    std::swap(m_template, x.m_template);
+    BaseManipulation::swap(x);
+}
 /*! 
  * It builds the input/output ports of the object
  */

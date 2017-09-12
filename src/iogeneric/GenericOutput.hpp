@@ -100,7 +100,8 @@ public:
 	~GenericOutput();
 
 	GenericOutput(const GenericOutput & other);
-
+    GenericOutput& operator=(GenericOutput other);
+    
 	void buildPorts();
 
 	BITPIT_DEPRECATED( template<typename T>
@@ -132,7 +133,9 @@ public:
 	
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-
+protected:
+    void swap(GenericOutput & x) noexcept;
+    
 private:
 
 	template<typename T>

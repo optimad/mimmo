@@ -31,7 +31,7 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Reading a generic input from file with GenericInput
+ * Reading a generic input from file with GenericDispls
  */
 int test3() {
 	

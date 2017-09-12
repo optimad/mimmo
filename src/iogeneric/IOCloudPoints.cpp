@@ -74,7 +74,7 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
 IOCloudPoints::~IOCloudPoints(){};
 
 /*!
- * Copy constructor of IOCloudPoints.
+ * Copy constructor of IOCloudPoints. Labels, points and data attached are no copied.
  */
 IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(other){
     m_read         = other.m_read;
@@ -84,19 +84,29 @@ IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(other
 
 };
 
-/*!Assignement operator of IOCloudPoints.
+/*!Assignement operator of IOCloudPoints. Labels, points and data attached are no copied.
  */
-IOCloudPoints & IOCloudPoints::operator=(const IOCloudPoints & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_read         = other.m_read;
-    m_dir       = other.m_dir;
-    m_filename     = other.m_filename;
-    m_template = other.m_template;
-
-    //data structure is not copied
+IOCloudPoints & IOCloudPoints::operator=(IOCloudPoints other){
+    swap(other);
     return *this;
 };
 
+/*!
+ * Swap method
+ * \param[in] x object to be swapped
+ */
+void IOCloudPoints::swap(IOCloudPoints & x) noexcept
+{
+    std::swap(m_read        , x.m_read);
+    std::swap(m_dir         , x.m_dir);
+    std::swap(m_filename    , x.m_filename);
+    std::swap(m_template    , x.m_template);
+    std::swap(m_labels      , x.m_labels);
+    std::swap(m_points      , x.m_points);
+    std::swap(m_scalarfield , x.m_scalarfield);
+    std::swap(m_vectorfield , x.m_vectorfield);
+    BaseManipulation::swap(x);
+}
 
 /*! 
  * It builds the input/output ports of the object

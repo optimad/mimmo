@@ -72,7 +72,7 @@ GenericOutput::~GenericOutput(){
 };
 
 /*!
- * Copy constructor of GenericOutput.
+ * Copy constructor of GenericOutput. m_input and m_result member are not copied.
  */
 GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other){
     m_dir           = other.m_dir;
@@ -80,6 +80,29 @@ GenericOutput::GenericOutput(const GenericOutput & other):BaseManipulation(other
     m_csv           = other.m_csv;
     m_binary        = other.m_binary;
 };
+
+/*!
+ * Assignment operator
+ */
+GenericOutput & GenericOutput::operator=(GenericOutput other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap method
+ * \param[in] x object to be swapped
+ */
+void GenericOutput::swap(GenericOutput & x) noexcept
+{
+    std::swap(m_dir, x.m_dir);
+    std::swap(m_filename, x.m_filename);
+    std::swap(m_csv, x.m_csv);
+    std::swap(m_binary, x.m_binary);
+    std::swap(m_input, x.m_input);
+    std::swap(m_result, x.m_result);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * It builds the input/output ports of the object

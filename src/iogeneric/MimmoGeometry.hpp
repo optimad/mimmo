@@ -117,7 +117,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>WriteDir</B>: directory path (to be used in case of converter mode and different paths);
  * - <B>WriteFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
  * - <B>Codex</B>: boolean to write ascii/binary;
- * - <B>BvTree</B>: evaluate bvTree true 1/false 0;
+ * - <B>SkdTree</B>: evaluate SkdTree true 1/false 0;
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
  * - <B>AssignRefPID</B>: assign a reference PID on the whole geometry, after reading or just before writing. If the geometry is already pidded,
  *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0. 
@@ -139,7 +139,7 @@ private:
     bool        m_codex;                    /**< Set codex format for writing true binary, false ascii */
     WFORMAT        m_wformat;                    /**<Format for .nas import/export. (Short/Long).*/
 
-    bool        m_buildBvTree;                /**<If true the simplex ordered BvTree of the geometry is built in execution, whenever geometry support simplicies. */
+    bool        m_buildSkdTree;             /**<If true the simplex ordered SkdTree of the geometry is built in execution, whenever geometry support simplicies. */
     bool        m_buildKdTree;                /**<If true the vertex ordered KdTree of the geometry is built in execution*/
     short int   m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
     bool        m_multiSolidSTL;            /**< activate or not MultiSolid STL writing if STL writing Filetype is selected */
@@ -150,7 +150,7 @@ public:
     virtual ~MimmoGeometry();
 
     MimmoGeometry(const MimmoGeometry & other);
-    MimmoGeometry & operator=(const MimmoGeometry & other);
+    MimmoGeometry & operator=(MimmoGeometry other);
 
     void buildPorts();
 
@@ -180,8 +180,7 @@ public:
     void        setMultiSolidSTL(bool multi = true);
     
     void        setHARDCopy( const MimmoGeometry * other);
-    void        setSOFTCopy( const MimmoGeometry * other);
-
+   
     void        setGeometry( MimmoObject * external);
     void        setGeometry(int type=1);
 
@@ -197,10 +196,12 @@ public:
     
     void        setFormatNAS(WFORMAT wform);
 
-    void        setBuildBvTree(bool build);
+    BITPIT_DEPRECATED(void        setBuildBvTree(bool build));
+    void        setBuildSkdTree(bool build);
     void        setBuildKdTree(bool build);
     
     bool         isEmpty();
+    bool         isEmpty() const;
     bool        isInternal();
     void         clear();
     bool        write();
@@ -213,6 +214,9 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
+protected:
+    void swap(MimmoGeometry & x) noexcept;
 
 private:
     void    setDefaults();

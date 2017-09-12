@@ -45,9 +45,22 @@ int test1() {
     bool check = reader->getGeometry()->getNCells() == 12288;
     check = check && reader->getGeometry()->getNVertex() == 6146;
 
+    
+    MimmoGeometry * readerCopy = new MimmoGeometry();
+    *readerCopy = *reader;
+    check = check && (readerCopy->getGeometry() == reader->getGeometry());
+    
+    MimmoGeometry * readerHC = new MimmoGeometry();
+    readerHC->setHARDCopy(reader);
+    
+    check = check && readerHC->getGeometry()->getNCells() == 12288;
+    check = check && readerHC->getGeometry()->getNVertex() == 6146;
+    
     std::cout<<"test passed :"<<check<<std::endl;
     
     delete reader;
+    delete readerCopy;
+    delete readerHC;
     return int(!check);
 }
 

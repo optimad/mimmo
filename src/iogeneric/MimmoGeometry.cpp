@@ -62,18 +62,18 @@ MimmoGeometry::~MimmoGeometry(){
     clear();
 };
 
-/*!Copy constructor of MimmoGeometry.Soft Copy of MimmoObject;
+/*!Copy constructor of MimmoGeometry.If to-be-copied object has an 
+ * internal MimmoObject instantiated, it will be soft linked 
+ * in the current class (its pointer only will be copied in m_geometry member);
  */
-MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
+MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other){
     m_rinfo = other.m_rinfo;
     m_winfo = other.m_winfo;
     m_read = other.m_read;
     m_write = other.m_write;
     m_wformat = other.m_wformat;
     m_codex = other.m_codex;
-    m_buildBvTree = other.m_buildBvTree;
+    m_buildSkdTree = other.m_buildSkdTree;
     m_buildKdTree = other.m_buildKdTree;
     m_refPID = other.m_refPID;
     m_multiSolidSTL = other.m_multiSolidSTL;
@@ -85,28 +85,35 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(){
 };
 
 /*!
- * Assignement operator of MimmoGeometry. Soft copy of MimmoObject
+ * Assignement operator of MimmoGeometry.If to-be-copied object has an 
+ * internal MimmoObject instantiated, it will be soft linked 
+ * in the current class (its pointer only will be copied in m_geometry member);
  */
-MimmoGeometry & MimmoGeometry::operator=(const MimmoGeometry & other){
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(&other));
-    m_rinfo = other.m_rinfo;
-    m_winfo = other.m_winfo;
-    m_read = other.m_read;
-    m_write = other.m_write;
-    m_wformat = other.m_wformat;
-    m_codex = other.m_codex;
-    m_buildBvTree = other.m_buildBvTree;
-    m_buildKdTree = other.m_buildKdTree;
-    m_refPID = other.m_refPID;
-    m_multiSolidSTL = other.m_multiSolidSTL;
-    
-    if(other.m_isInternal){
-        m_geometry = other.m_intgeo.get();
-    }
-    m_isInternal = false;
+MimmoGeometry & MimmoGeometry::operator=(MimmoGeometry other){
+    swap(other);
     return *this;
 };
+
+/*!
+ * Swap method. 
+ * \param[in] x object to be swapped
+ */
+void MimmoGeometry::swap(MimmoGeometry & x) noexcept
+{
+    std::swap(m_rinfo, x.m_rinfo);
+    std::swap(m_winfo, x.m_winfo);
+    std::swap(m_read, x.m_read);
+    std::swap(m_write, x.m_write);
+    std::swap(m_wformat, x.m_wformat);
+    std::swap(m_codex, x.m_codex);
+    std::swap(m_buildSkdTree, x.m_buildSkdTree);
+    std::swap(m_buildKdTree, x.m_buildKdTree);
+    std::swap(m_refPID, x.m_refPID);
+    std::swap(m_multiSolidSTL, x.m_multiSolidSTL);
+    std::swap(m_isInternal, x.m_isInternal);
+    std::swap(m_intgeo, x.m_intgeo);
+    BaseManipulation::swap(x);
+}
 
 /*!
  * Building the ports available in the class
@@ -162,7 +169,7 @@ MimmoGeometry::setDefaults(){
     m_wformat        = Short;
     m_isInternal      = true;
     m_codex            = true;
-    m_buildBvTree    = false;
+    m_buildSkdTree    = false;
     m_buildKdTree    = false;
     m_refPID = 0;
     m_multiSolidSTL = true;
@@ -199,8 +206,8 @@ MimmoGeometry::setReadFileType(FileType type){
  */
 void
 MimmoGeometry::setReadFileType(int type){
-    type = std::max(0, type);
-    if(type > 8)    type = 0;
+    auto maybe_type = FileType::_from_integral_nothrow(type);
+    if(!maybe_type) type = 0;
     m_rinfo.ftype = type;
 }
 
@@ -237,8 +244,8 @@ MimmoGeometry::setWriteFileType(FileType type){
  */
 void
 MimmoGeometry::setWriteFileType(int type){
-    type = std::max(0, type);
-    if(type > 8)    type = 0;
+    auto maybe_type = FileType::_from_integral_nothrow(type);
+    if(!maybe_type) type = 0;
     m_winfo.ftype = type;
 }
 
@@ -365,8 +372,8 @@ MimmoGeometry::setFileType(FileType type){
  */
 void
 MimmoGeometry::setFileType(int type){
-    type = std::max(0, type);
-    if(type > 8)    type = 0;
+    auto maybe_type = FileType::_from_integral_nothrow(type);
+    if(!maybe_type) type = 0;
     m_winfo.ftype = type;
     m_rinfo.ftype = type;
 }
@@ -392,17 +399,17 @@ void MimmoGeometry::setMultiSolidSTL(bool multi){
 }
 
 
-/*!Sets your current class as a "soft" copy of the argument.
- * Soft copy means that only your current geometric object MimmoObject is
- * copied only through its pointer and stored in the internal member m_geometry
- * Other members are exactly copied
- * \param[in] other pointer to MimmoGeometry class.
- */
-void
-MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
-    clear();
-    *this = *other;
-}
+// /*!Sets your current class as a "soft" copy of the argument.
+//  * Soft copy means that only your current geometric object MimmoObject is
+//  * copied only through its pointer and stored in the internal member m_geometry
+//  * Other members are exactly copied
+//  * \param[in] other pointer to MimmoGeometry class.
+//  */
+// void
+// MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
+//     clear();
+//     *this = *other;
+// }
 
 /*!Sets your current class as a "HARD" copy of the argument.
  * Hard copy means that only your current geometric object MimmoObject is
@@ -413,26 +420,20 @@ MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
 void
 MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 
-    clear();
-    *(static_cast<BaseManipulation * >(this)) = *(static_cast<const BaseManipulation * >(other));
-
+    if(other->isEmpty()){
+        (*m_log)<<"WARNING MimmoGeometry::setHARDCopy() : attempt to set hard copy from an empty object.Do nothing"<<std::endl;
+        return;
+    }
+    //make a soft copy
+    MimmoGeometry temp = *other;
+    swap(temp);
+    
+    //hard copy the internal mimmoobject.
     std::unique_ptr<MimmoObject> dum (new MimmoObject());
     dum->setHARDCopy(other->getGeometry());
-
-    m_geometry = NULL;
-    m_isInternal = true;
     m_intgeo = std::move(dum);
-
-    m_rinfo = other->m_rinfo;
-    m_winfo = other->m_winfo;
-    m_read = other->m_read;
-    m_write = other->m_write;
-    m_wformat = other->m_wformat;
-    m_codex = other->m_codex;
-    m_buildBvTree = other->m_buildBvTree;
-    m_buildKdTree = other->m_buildKdTree;
-    m_refPID = other->m_refPID;
-    m_multiSolidSTL = other->m_multiSolidSTL;
+    m_isInternal = true;
+    m_geometry = NULL;
 }
 
 /*!
@@ -544,13 +545,22 @@ MimmoGeometry::setReferencePID(short int pid){
     m_refPID = std::max(short(0), std::min(pid, short(30000)));
 }
 
-/*!It sets if the BvTree of the patch has to be built during execution.
- * \param[in] build If true the BvTree is built in execution and stored in
+/*!It sets if the SkdTree of the patch has to be built during execution.
+ * \param[in] build If true the SkdTree is built in execution and stored in
  * the related MimmoObject member.
  */
 void
 MimmoGeometry::setBuildBvTree(bool build){
-    m_buildBvTree = build;
+    setBuildSkdTree(build);
+}
+
+/*!It sets if the SkdTree of the patch has to be built during execution.
+ * \param[in] build If true the SkdTree is built in execution and stored in
+ * the related MimmoObject member.
+ */
+void
+MimmoGeometry::setBuildSkdTree(bool build){
+    m_buildSkdTree = build;
 }
 
 /*!It sets if the KdTree of the patch has to be built during execution.
@@ -568,7 +578,16 @@ MimmoGeometry::setBuildKdTree(bool build){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty(){
-    return (m_geometry == NULL && (m_intgeo.get() == NULL));
+    return (getGeometry() == NULL);
+}
+
+/*!
+ * Check if geometry is not linked or not locally instantiated in your class.
+ * True - no geometry present, False otherwise. Const overloading.
+ * \return is the geometry empty?
+ */
+bool MimmoGeometry::isEmpty() const{
+    return (getGeometry() == NULL);
 }
 
 /*!
@@ -620,7 +639,7 @@ MimmoGeometry::write(){
         //Export STL
     {
         string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, false); // m_multiSolidSTL, false);
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false);
         return true;
     }
     break;
@@ -1234,7 +1253,7 @@ MimmoGeometry::execute(){
         (*m_log) << " " << std::endl;
         throw std::runtime_error (m_name + " : write not done : geometry not linked ");
     }
-    if (m_buildBvTree) getGeometry()->buildBvTree();
+    if (m_buildSkdTree) getGeometry()->buildSkdTree();
     if (m_buildKdTree) getGeometry()->buildKdTree();
 }
 
@@ -1464,7 +1483,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setCodex(value);
     };
 
-
+    //to be deprecated BvTree field option. Substituted by SkdTree.
     if(slotXML.hasOption("BvTree")){
         input = slotXML.get("BvTree");
         bool value = false;
@@ -1472,9 +1491,20 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
             std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
-        setBuildBvTree(value);
+        setBuildSkdTree(value);
     };
 
+    if(slotXML.hasOption("SkdTree")){
+        input = slotXML.get("SkdTree");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss >> value;
+        }
+        setBuildSkdTree(value);
+    };
+
+    
     if(slotXML.hasOption("KdTree")){
         input = slotXML.get("KdTree");
         bool value = false;
@@ -1554,8 +1584,8 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     output = std::to_string(m_codex);
     slotXML.set("Codex", output);
 
-    output = std::to_string(m_buildBvTree);
-    slotXML.set("BvTree", output);
+    output = std::to_string(m_buildSkdTree);
+    slotXML.set("SkdTree", output);
 
     output = std::to_string(m_buildKdTree);
     slotXML.set("KdTree", output);
