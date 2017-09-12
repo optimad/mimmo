@@ -240,12 +240,29 @@ int test2() {
 	
 	MimmoObject * mesh_2 = new MimmoObject();
     mesh_2->setHARDCopy(mesh);
+	
+    if(mesh_2->getNCells() != mesh->getNCells() && mesh_2->getPatch()==mesh->getPatch()){
+        delete mesh_2;
+        delete mesh;
+        std::cout<<"Hard copy method of MimmoObject failed"<<std::endl;
+        return 1;
+    }
     mesh_2->getPatch()->write("hardcopy");
-	
-	
-	delete mesh;
     delete mesh_2;
-	
+    
+    MimmoObject * mesh_3 = new MimmoObject();
+    *mesh_3 = *mesh;
+    if(mesh_3->getNCells() != mesh->getNCells() && mesh_3->getPatch()!= mesh->getPatch()){
+        delete mesh_3;
+        delete mesh;
+        std::cout<<"Soft assignment copy method of MimmoObject failed"<<std::endl;
+        return 1;
+    }
+    
+    mesh_3->getPatch()->write("softcopy");
+    
+	delete mesh;
+	delete mesh_3;
 	return 0;
 }
 

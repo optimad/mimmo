@@ -29,7 +29,7 @@ using namespace mimmo;
 
 /*
  * Test 00003
- * Testing BasicShapes and bvTree searching.
+ * Testing BasicShapes and skdTree searching.
  * extract sub-patch contained in a Cylinder 
  */
 
