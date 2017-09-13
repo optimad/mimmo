@@ -123,7 +123,7 @@ public:
     ~BendGeometry();
 
     BendGeometry(const BendGeometry & other);
-
+    BendGeometry & operator =(BendGeometry other);
     void buildPorts();
 
     darray3E    getOrigin();
@@ -148,7 +148,8 @@ public:
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-
+protected:
+    void swap(BendGeometry & x) noexcept;
 
 private:
     darray3E    toLocalCoord(darray3E point);

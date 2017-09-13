@@ -86,7 +86,8 @@ public:
     ~TranslationGeometry();
 
     TranslationGeometry(const TranslationGeometry & other);
-
+    TranslationGeometry & operator=(TranslationGeometry other);
+    
     void        buildPorts();
 
     void        setDirection(darray3E direction);
@@ -101,6 +102,9 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    
+protected:
+    void swap(TranslationGeometry & x) noexcept;
 };
 
 REGISTER(BaseManipulation, TranslationGeometry, "mimmo.TranslationGeometry")

@@ -63,13 +63,37 @@ RotationGeometry::RotationGeometry(const bitpit::Config::Section & rootXML){
  */
 RotationGeometry::~RotationGeometry(){};
 
-/*!Copy constructor of RotationGeometry.
+/*!
+ * Copy constructor of RotationGeometry. No result geometry displacements are copied.
  */
 RotationGeometry::RotationGeometry(const RotationGeometry & other):BaseManipulation(other){
     m_origin = other.m_origin;
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
+    m_filter = other.m_filter;
 };
+
+/*!
+ * Assignment operator. No result geometry displacements are copied.
+ */
+RotationGeometry & RotationGeometry::operator=(RotationGeometry other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function 
+ * \param[in] x object to be swapped
+ */
+void RotationGeometry::swap(RotationGeometry & x) noexcept
+{
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_direction, x.m_direction);
+    std::swap(m_alpha, x.m_alpha);
+    std::swap(m_filter, x.m_filter);
+    std::swap(m_displ, x.m_displ);
+    BaseManipulation::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */

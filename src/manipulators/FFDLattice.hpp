@@ -151,7 +151,8 @@ public:
 
     //copy operators/constructors
     FFDLattice(const FFDLattice & other);
-
+    FFDLattice & operator=(FFDLattice other);
+    
     void buildPorts();
 
     //clean structure
@@ -206,6 +207,7 @@ protected:
     dvecarr3E    convertDisplToXYZ();
     void         resizeMapDof();
     virtual void    plotOptionalResults();
+    void        swap(FFDLattice &) noexcept;
 private:
     //Nurbs Evaluators
     darray3E    nurbsEvaluator(darray3E &);

@@ -59,12 +59,33 @@ TranslationGeometry::TranslationGeometry(const bitpit::Config::Section & rootXML
  */
 TranslationGeometry::~TranslationGeometry(){};
 
-/*!Copy constructor of TranslationGeometry.
+/*!Copy constructor of TranslationGeometry.No result geometry displacements are copied.
  */
 TranslationGeometry::TranslationGeometry(const TranslationGeometry & other):BaseManipulation(other){
     m_direction = other.m_direction;
     m_alpha = other.m_alpha;
+    m_filter = other.m_filter;
 };
+
+/*!Assignment operator of TranslationGeometry.No result geometry displacements are copied.
+ */
+TranslationGeometry & TranslationGeometry::operator=(TranslationGeometry other){
+    swap(other);
+    return *this;
+};
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */ 
+void TranslationGeometry::swap(TranslationGeometry & x) noexcept
+{
+    std::swap(m_direction, x.m_direction);
+    std::swap(m_alpha, x.m_alpha);
+    std::swap(m_filter, x.m_filter);
+    std::swap(m_displ, x.m_displ);
+    BaseManipulation::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */

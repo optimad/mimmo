@@ -66,7 +66,7 @@ BendGeometry::BendGeometry(const bitpit::Config::Section & rootXML){
  */
 BendGeometry::~BendGeometry(){};
 
-/*!Copy constructor of BendGeometry.
+/*!Copy constructor of BendGeometry. Resulting displacements are not copied.
  */
 BendGeometry::BendGeometry(const BendGeometry & other):BaseManipulation(other){
     m_origin = other.m_origin;
@@ -77,6 +77,29 @@ BendGeometry::BendGeometry(const BendGeometry & other):BaseManipulation(other){
     m_coeffs = other.m_coeffs;
 };
 
+/*!
+ * Assignment operator. Resulting displacements are not copied.
+ */
+BendGeometry & BendGeometry::operator=(BendGeometry other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void BendGeometry::swap(BendGeometry & x) noexcept
+{
+   std::swap(m_origin, x.m_origin);
+   std::swap(m_system, x.m_system);
+   std::swap(m_local , x.m_local);
+   std::swap(m_filter, x.m_filter);
+   std::swap(m_degree, x.m_degree);
+   std::swap(m_coeffs, x.m_coeffs);
+   std::swap(m_displ, x.m_displ);
+    BaseManipulation::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void

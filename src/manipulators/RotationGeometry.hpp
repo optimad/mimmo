@@ -90,7 +90,8 @@ public:
     ~RotationGeometry();
 
     RotationGeometry(const RotationGeometry & other);
-
+    RotationGeometry & operator=(RotationGeometry other);
+    
     void        buildPorts();
 
     void        setAxis(darray3E origin, darray3E direction);
@@ -107,6 +108,9 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+protected:
+    void swap(RotationGeometry & x) noexcept;
 };
 
 REGISTER(BaseManipulation, RotationGeometry, "mimmo.RotationGeometry")

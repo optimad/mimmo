@@ -61,13 +61,37 @@ ScaleGeometry::ScaleGeometry(const bitpit::Config::Section & rootXML){
  */
 ScaleGeometry::~ScaleGeometry(){};
 
-/*!Copy constructor of ScaleGeometry.
+/*!Copy constructor of ScaleGeometry. No result geometry displacements are copied.
  */
 ScaleGeometry::ScaleGeometry(const ScaleGeometry & other):BaseManipulation(other){
     m_scaling = other.m_scaling;
     m_origin = other.m_origin;
-    m_meanP = other.m_meanP;;
+    m_meanP = other.m_meanP;
+    m_filter = other.m_filter;
 };
+
+/*!
+ * Assignment operator. No result geometry displacements are copied.
+ */
+ScaleGeometry & ScaleGeometry::operator=(ScaleGeometry other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */ 
+void ScaleGeometry::swap(ScaleGeometry & x) noexcept
+{
+    std::swap(m_scaling, x.m_scaling);
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_meanP, x.m_meanP);
+    std::swap(m_filter, x.m_filter);
+    std::swap(m_displ, x.m_displ);
+    BaseManipulation::swap(x);
+}
+
 
 /*! It builds the input/output ports of the object
  */

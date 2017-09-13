@@ -61,6 +61,16 @@ Apply::Apply(const Apply & other):BaseManipulation(other){
     m_input = other.m_input;
 };
 
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void Apply::swap(Apply & x) noexcept
+{
+    std::swap(m_input, x.m_input);
+    BaseManipulation::swap(x);
+}
+
 /*! It builds the input/output ports of the object
  */
 void

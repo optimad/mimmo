@@ -115,7 +115,8 @@ public:
 
     //copy operators/constructors
     MRBF(const MRBF & other);
-
+    MRBF& operator=(MRBF other);
+    
     void buildPorts();
 
     dvecarr3E*        getNodes();
@@ -161,6 +162,7 @@ protected:
     void            setWeight(dvector2D value);
     void            plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed);
     virtual void    plotOptionalResults();
+    void            swap(MRBF & x) noexcept;
 
 };
 

@@ -68,7 +68,7 @@ FFDLattice::FFDLattice(const bitpit::Config::Section & rootXML){
 /*! Destructor */
 FFDLattice::~FFDLattice(){};
 
-/*! Copy Constructor
+/*! Copy Constructor. Result displacements are never copied.
  *\param[in] other FFDLattice where copy from
  */ 
 FFDLattice::FFDLattice(const FFDLattice & other):Lattice(other){
@@ -82,7 +82,38 @@ FFDLattice::FFDLattice(const FFDLattice & other):Lattice(other){
     m_globalDispl = other.m_globalDispl;
     m_bfilter = other.m_bfilter;
     m_filter = other.m_filter;
+    m_collect_wg = other.m_collect_wg;
 };
+
+
+/*!
+ * Assignement operator.  Result displacements are never copied.
+ */
+FFDLattice & FFDLattice::operator=(FFDLattice other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void FFDLattice::swap(FFDLattice & x) noexcept
+{
+   std::swap(m_deg, x.m_deg);
+   std::swap(m_knots, x.m_knots);
+   std::swap(m_mapEff, x.m_mapEff);
+   std::swap(m_weights, x.m_weights);
+   std::swap(m_displ, x.m_displ);
+   std::swap(m_mapNodes, x.m_mapNodes);
+   std::swap(m_mapdeg, x.m_mapdeg);
+   std::swap(m_globalDispl, x.m_globalDispl);
+   std::swap(m_bfilter, x.m_bfilter);
+   std::swap(m_filter, x.m_filter);
+   std::swap(m_collect_wg, x.m_collect_wg);
+   std::swap(m_gdispl, x.m_gdispl);
+   Lattice::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */

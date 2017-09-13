@@ -65,7 +65,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 /*! Default Destructor */
 MRBF::~MRBF(){};
 
-/*! Copy Constructor
+/*! Copy Constructor. Result geometry displacement are not copied.
  *\param[in] other MRBF where copy from
  */
 MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
@@ -76,6 +76,31 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
     m_bfilter = other.m_bfilter;
     if(m_bfilter)    m_filter = other.m_filter;
 };
+
+/*! Assignment operator. Result geometry displacement are not copied.
+ * \param[in] other MRBF where copy from
+ */
+MRBF& MRBF::operator=(MRBF other){
+    swap(other);
+    return *this;
+};
+
+/*!
+ * Swap function. 
+ * \param[in] x object to be swapped
+ */
+void MRBF::swap(MRBF & x) noexcept
+{
+   std::swap(m_tol, x.m_tol);
+   std::swap(m_solver, x.m_solver);
+   std::swap(m_SRRatio , x.m_SRRatio);
+   std::swap(m_supRIsValue, x.m_supRIsValue);
+   std::swap(m_bfilter, x.m_bfilter);
+   std::swap(m_filter, x.m_filter);
+   std::swap(m_displ, x.m_displ);
+   RBFKernel::swap(x);
+   BaseManipulation::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */

@@ -65,7 +65,7 @@ TwistGeometry::TwistGeometry(const bitpit::Config::Section & rootXML){
  */
 TwistGeometry::~TwistGeometry(){};
 
-/*!Copy constructor of TwistGeometry.
+/*!Copy constructor of TwistGeometry. No result geometry displacements are copied.
  */
 TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other){
     m_origin = other.m_origin;
@@ -73,6 +73,30 @@ TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other
     m_alpha = other.m_alpha;
     m_distance = other.m_distance;
     m_sym = other.m_sym;
+    m_filter = other.m_filter;
+};
+
+/*!Assignment operator of TwistGeometry. No result geometry displacements are copied.
+ */
+TwistGeometry& TwistGeometry::operator=(TwistGeometry other){
+
+    swap(other);
+    return *this;
+};
+
+/*!Swap function
+ * \param[in] x object to be swapped
+ */
+void TwistGeometry::swap(TwistGeometry & x) noexcept
+{
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_direction, x.m_direction);
+    std::swap(m_alpha, x.m_alpha);
+    std::swap(m_distance, x.m_distance);
+    std::swap(m_sym, x.m_sym);
+    std::swap(m_filter, x.m_filter);
+    std::swap(m_displ, x.m_displ);
+    BaseManipulation::swap(x);
 };
 
 /*! It builds the input/output ports of the object

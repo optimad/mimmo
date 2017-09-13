@@ -89,7 +89,8 @@ public:
     ~ScaleGeometry();
 
     ScaleGeometry(const ScaleGeometry & other);
-
+    ScaleGeometry& operator=(ScaleGeometry other);
+    
     void        buildPorts();
 
     void        setScaling(darray3E scaling);
@@ -105,6 +106,9 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+protected:
+    void swap(ScaleGeometry & x) noexcept;
 };
 
 REGISTER(BaseManipulation, ScaleGeometry, "mimmo.ScaleGeometry")
