@@ -67,7 +67,8 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
  */
 ControlDeformExtSurface::~ControlDeformExtSurface(){};
 
-/*!Copy constructor of ControlDeformExtSurface.
+/*!Copy constructor of ControlDeformExtSurface. Deformation field referred to geometry 
+ * and result violation field are not copied.
  */
 ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface & other):BaseManipulation(other){
     m_allowed = other.m_allowed;
@@ -76,18 +77,27 @@ ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface &
 };
 
 /*!
- * Assignement operator of ControlDeformExtSurface. Create an exact copy of the class,
- * except for the deformation field referred to the target geometry.
+ * Assignment operator of ControlDeformExtSurface. Deformation field referred to geometry 
+ * and result violation field are not copied.
  */
-ControlDeformExtSurface & ControlDeformExtSurface::operator=(const ControlDeformExtSurface & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_allowed = other.m_allowed;
-    m_geolist = other.m_geolist;
-    m_cellBackground = other.m_cellBackground;
-    //deformation and violation field are not copied
+ControlDeformExtSurface & ControlDeformExtSurface::operator=(ControlDeformExtSurface other){
+    swap(other);
     return(*this);
 };
 
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void ControlDeformExtSurface::swap(ControlDeformExtSurface & x) noexcept
+{
+    std::swap(m_allowed, x.m_allowed);
+    std::swap(m_geolist, x.m_geolist);
+    std::swap(m_cellBackground, x.m_cellBackground);
+    std::swap(m_violationField, x.m_violationField);
+    std::swap(m_defField, x.m_defField);
+    BaseManipulation::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void
@@ -174,6 +184,7 @@ ControlDeformExtSurface::setDefField(dmpvecarr3E field){
  */
 void
 ControlDeformExtSurface::setGeometry( MimmoObject * target){
+    if(target == NULL)       return;
     if(target->isEmpty())    return;
 
     if(target->getType() != 1){
@@ -280,6 +291,7 @@ void
 ControlDeformExtSurface::execute(){
 
     MimmoObject * geo = getGeometry();
+    if(geo == NULL) return;
     if(geo->isEmpty() || m_defField.getGeometry() != geo) return;
 
     int nDFS = m_defField.size();
@@ -306,7 +318,7 @@ ControlDeformExtSurface::execute(){
     geoBary /= (double)geo->getNVertex();
 
     for(const auto & p: points){
-        distBary= std::fmax(distBary,norm2(p-geoBary));
+        distBary= std::fmax(distBary,norm2(p - geoBary));
     }
     //***************************************************************
 
@@ -733,6 +745,7 @@ ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObj
  */
 void
 ControlDeformExtSurface::plotOptionalResults(){
+    if(getGeometry() == NULL)       return;
     if(getGeometry()->isEmpty())    return;
 
     liimap map;

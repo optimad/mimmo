@@ -113,7 +113,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-
+    void swap(OBBox & x) noexcept;
 private:
     dmatrix33E      evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
     void            assemblyCovContributes(std::vector<MimmoObject *> list, bool flag, dmatrix33E &);

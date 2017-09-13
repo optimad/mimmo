@@ -58,22 +58,33 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section
  */
 ControlDeformMaxDistance::~ControlDeformMaxDistance(){};
 
-/*!Copy constructor of ControlDeformMaxDistance.
+/*!Copy constructor of ControlDeformMaxDistance.Deformation field referred to geometry 
+ * and result violation field are not copied.
  */
 ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistance & other):BaseManipulation(other){
     m_maxDist = other.m_maxDist;
 };
 
 /*!
- * Assignement operator of ControlDeformMaxDistance. Create an exact copy of the class,
- * except for the deformation field referred to the target geometry.
+ * Assignment operator of ControlDeformMaxDistance. Deformation field referred to geometry 
+ * and result violation field are not copied.
  */
-ControlDeformMaxDistance & ControlDeformMaxDistance::operator=(const ControlDeformMaxDistance & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_maxDist = other.m_maxDist;
-    //deformation field is not copied
+ControlDeformMaxDistance & ControlDeformMaxDistance::operator=(ControlDeformMaxDistance other){
+    swap(other);
     return(*this);
 };
+
+/*!
+ * Swap Function.
+ * \param[in] x object ot be swapped
+ */
+void ControlDeformMaxDistance::swap(ControlDeformMaxDistance & x) noexcept
+{
+    std::swap(m_maxDist, x.m_maxDist);
+    std::swap(m_violationField, x.m_violationField);
+    std::swap(m_defField, x.m_defField);
+    BaseManipulation::swap(x);
+}
 
 /*! It builds the input/output ports of the object
  */
@@ -149,6 +160,7 @@ void
 ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
+    if (geo == NULL) return;
     if(geo->isEmpty() || m_defField.getGeometry() != geo) return;
     if(!(geo->isBvTreeSupported())) return;
 
@@ -247,6 +259,7 @@ ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML, std
  */
 void
 ControlDeformMaxDistance::plotOptionalResults(){
+    if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
 
     liimap map;

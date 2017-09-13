@@ -66,6 +66,18 @@ TranslationPoint::TranslationPoint(const TranslationPoint & other):BaseManipulat
     m_direction = other.m_direction;
 };
 
+/*!
+ * Swap Function
+ * \param[in] x object to be swapped
+ */
+void TranslationPoint::swap(TranslationPoint & x) noexcept
+{
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_alpha, x.m_alpha);
+    std::swap(m_direction, x.m_direction);
+    BaseManipulation::swap(x);
+}
+
 /*! It builds the input/output ports of the object
  */
 void

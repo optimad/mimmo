@@ -461,6 +461,7 @@ void
 MRBF::execute(){
 
     MimmoObject * container = getGeometry();
+    if(container == NULL) return;
     if(container->isEmpty() ) return;
 
     int size = 0;

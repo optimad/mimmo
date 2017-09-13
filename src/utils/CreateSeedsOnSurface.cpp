@@ -99,8 +99,35 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):B
     m_randomFixed = other.m_randomFixed;
     m_deads = other.m_deads;
     m_sensitivity = other.m_sensitivity;
+    bbox = std::move(std::unique_ptr<mimmo::OBBox>(new mimmo::OBBox(*(other.bbox.get()))));
 };
 
+/*!
+ * Assignment operator
+ */
+CreateSeedsOnSurface & CreateSeedsOnSurface::operator=(CreateSeedsOnSurface other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void CreateSeedsOnSurface::swap(CreateSeedsOnSurface & x) noexcept
+{
+    std::swap(m_points, x.m_points);
+    std::swap(m_nPoints, x.m_nPoints);
+    std::swap(m_minDist, x.m_minDist);
+    std::swap(m_seed, x.m_seed);
+    std::swap(m_engine, x.m_engine);
+    std::swap(m_seedbaricenter, x.m_seedbaricenter);
+    std::swap(m_randomFixed, x.m_randomFixed);
+    std::swap(m_deads, x.m_deads);
+    std::swap(m_sensitivity, x.m_sensitivity);
+    std::swap(bbox, x.bbox);
+    BaseManipulation::swap(x);
+}
 /*!
  * It builds the input/output ports of the object
  */

@@ -76,6 +76,7 @@ SwitchField::buildPorts(){
  */
 void
 SwitchField::setGeometry(MimmoObject* geo){
+    if(geo == NULL)     return;
     if(geo->isEmpty()) return;
     m_geometry = geo;
 };

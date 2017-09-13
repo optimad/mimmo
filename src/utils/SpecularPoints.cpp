@@ -67,7 +67,7 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
  */
 SpecularPoints::~SpecularPoints(){};
 
-/*!Copy constructor of SpecularPoints.
+/*!Copy constructor of SpecularPoints. No result are copied.
  */
 SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(other){
     m_plane = other.m_plane;
@@ -80,6 +80,32 @@ SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(other)
     m_implicit = other.m_implicit;
 };
 
+/*!
+ * Assignment operator. No result are copied
+ */
+SpecularPoints & SpecularPoints::operator=(SpecularPoints other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void SpecularPoints::swap(SpecularPoints & x) noexcept
+{
+    std::swap(m_plane, x.m_plane);
+    std::swap(m_scalar, x.m_scalar);
+    std::swap(m_vector, x.m_vector);
+    std::swap(m_insideout, x.m_insideout);
+    std::swap(m_force, x.m_force);
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_normal, x.m_normal);
+    std::swap(m_implicit, x.m_implicit);
+    std::swap(m_scalarMirrored, x.m_scalarMirrored);
+    std::swap(m_vectorMirrored, x.m_vectorMirrored);
+    ProjectCloud::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void
@@ -275,8 +301,10 @@ SpecularPoints::execute(){
     double normPlane = norm2(norm);
     if(normPlane < 1.E-18 || m_points.empty())    return;
     norm /= normPlane;
-    bool project =!(getGeometry() == NULL || getGeometry()->isEmpty());
-
+    bool project = false;
+    if (getGeometry() != NULL){
+        if (!getGeometry()->isEmpty()) project = true;
+    } 
 
     //choosing margin for plane offset
     double margin = 1.e-12;

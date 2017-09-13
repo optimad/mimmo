@@ -159,7 +159,9 @@ StitchGeometry::addGeometry(MimmoObject* geo){
  */
 bool 
 StitchGeometry::isEmpty(){
-    return (m_patch.get() == NULL);
+    bool check = (m_patch.get() == NULL); 
+    if (!check)  check = check && m_patch->isEmpty();
+    return check;
 }
 
 /*!

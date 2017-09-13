@@ -80,10 +80,27 @@ OBBox::~OBBox(){};
 /*! Copy Constructor
  *\param[in] other OBBox where copy from
  */
-OBBox::OBBox(const OBBox & other):BaseManipulation(){
-    *this = other;
+OBBox::OBBox(const OBBox & other):BaseManipulation(other){
+    m_origin = other.m_origin;
+    m_span = other.m_span;
+    m_axes = other.m_axes;
+    m_listgeo = other.m_listgeo;
+    m_forceAABB = other.m_forceAABB;
 };
 
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void OBBox::swap(OBBox & x) noexcept
+{
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_span, x.m_span);
+    std::swap(m_axes, x.m_axes);
+    std::swap(m_listgeo, x.m_listgeo);
+    std::swap(m_forceAABB, x.m_forceAABB);
+    BaseManipulation::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void
@@ -183,6 +200,12 @@ OBBox::setGeometries(std::vector<MimmoObject *> listgeo){
  */
 void
 OBBox::setGeometry(MimmoObject * geo){
+    
+    if (geo == NULL)    {
+        (*m_log)<<"warning: "<<m_name<<" not valid Geometry pointer. Doing nothing"<<std::endl;
+        return;
+    }
+    
     if (geo->isEmpty())    {
         (*m_log)<<"warning: "<<m_name<<" empty Geometry set. Doing nothing"<<std::endl;
         return;

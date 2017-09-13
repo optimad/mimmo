@@ -100,6 +100,7 @@ private:
     bool            m_local;        /**<Is the geometry locally instantiated?.*/
 
     vtkPolyData*    m_polydata;     /**<VTK Polydata geometry member.*/
+    bool            m_polydataInternal; /**<flag to catch if m_polydata is allocated internally*/
 
     dmpvector1D     m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
     bool            m_normalize;    /**<If true the field is normalized with the maximum absolute value after reading.*/

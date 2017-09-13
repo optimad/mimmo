@@ -169,7 +169,7 @@ IOCGNS::buildPorts(){
 MimmoObject*
 IOCGNS::getSurfaceBoundary(){
     if(m_read)    return m_surfmesh.get();
-    else    return m_surfmesh_not;
+    else          return m_surfmesh_not;
 }
 
 /*!
@@ -180,7 +180,7 @@ IOCGNS::getSurfaceBoundary(){
 MimmoObject*
 IOCGNS::getGeometry(){
     if(m_read) return m_volmesh.get();
-    else return BaseManipulation::getGeometry();
+    else       return BaseManipulation::getGeometry();
 }
 
 /*!
@@ -270,9 +270,8 @@ IOCGNS::setWriteFilename(string filename){
 void
 IOCGNS::setGeometry(MimmoObject * geo){
     if(geo == NULL || m_read)    return;
-    if(geo->isEmpty())    return;
+    if(geo->isEmpty())          return;
     if(geo->getType() != 2)    return;
-
     BaseManipulation::setGeometry(geo);
 }
 
@@ -284,8 +283,8 @@ IOCGNS::setGeometry(MimmoObject * geo){
 void
 IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
     if(geosurf == NULL || m_read)    return;
-    if(geosurf->isEmpty())    return;
-    if(geosurf->getType() != 1)    return;
+    if(geosurf->isEmpty())           return;
+    if(geosurf->getType() != 1)      return;
 
     m_surfmesh_not = geosurf;
 };
@@ -712,7 +711,8 @@ IOCGNS::read(){
 
     //adding vstand alone vertices to boundary patches and release all structures
     {
-        livector2D tempConn = patchBnd->getConnectivity();
+        livector2D tempConn;
+        tempConn = patchBnd->getConnectivity();
         std::set<long> ordIndex;
 
         for(const auto & val: tempConn){
@@ -734,7 +734,7 @@ IOCGNS::read(){
 
 /*!It writes the mesh geometry on output .cgns file.
  * If boundary surface, PID subdivided, is available, write all patches as CGNS Wall boundary condition .
- *\return False if volume geometry at least is not linked .
+ *\return False if valid volume geometry or surface geometry is not found.
  */
 bool
 IOCGNS::write(){
@@ -754,8 +754,8 @@ IOCGNS::write(){
     MimmoObject * vol = getGeometry();
     MimmoObject * bnd = getSurfaceBoundary();
 
-    if( vol == NULL && bnd == NULL ) return false;
-    if( vol->isEmpty() && bnd->isEmpty() ) return false;
+    if( vol == NULL || bnd == NULL ) return false;
+    if( vol->isEmpty() || bnd->isEmpty() ) return false;
 
     /* Verify if a surface boundary mesh exists. */
     //bool flagBnd = (bnd != NULL);

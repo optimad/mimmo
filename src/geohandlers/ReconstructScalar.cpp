@@ -206,7 +206,8 @@ ReconstructScalar::clear(){
 void
 ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int counter){
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
+    if(getGeometry() == NULL) return;
+    if(getGeometry()->isEmpty())    return;
     liimap mapData;
     dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
     ivector2D connectivity;
@@ -252,7 +253,8 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
  */
 void
 ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag, int counter){
-    if(m_subresults[i].getGeometry() == NULL || m_subresults[i].getGeometry()->isEmpty()) return;
+    if(m_subresults[i].getGeometry() == NULL) return;
+    if(m_subresults[i].getGeometry()->isEmpty()) return;
 
     name = name+"SubPatch"+to_string(i);
 

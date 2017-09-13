@@ -69,6 +69,7 @@ ExtractField::buildPorts(){
  */
 void
 ExtractField::setGeometry(MimmoObject* geo){
+    if(geo == NULL)     return;
     if(geo->isEmpty()) return;
     m_geometry = geo;
 };

@@ -74,7 +74,8 @@ public:
     ~ProjectCloud();
 
     ProjectCloud(const ProjectCloud & other);
-
+    ProjectCloud& operator=(ProjectCloud other);
+    
     void    buildPorts();
 
     dvecarr3E    getCoords();
@@ -90,7 +91,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-
+    void swap(ProjectCloud & x) noexcept;
 };
 
 REGISTER(BaseManipulation, ProjectCloud,"mimmo.ProjectCloud")

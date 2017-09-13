@@ -121,6 +121,7 @@ public:
     CreateSeedsOnSurface(const bitpit::Config::Section & rootXML);
     virtual ~CreateSeedsOnSurface();
     CreateSeedsOnSurface(const CreateSeedsOnSurface & other);
+    CreateSeedsOnSurface & operator=(CreateSeedsOnSurface other);
 
     void    buildPorts();
 
@@ -156,7 +157,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-
+    void swap(CreateSeedsOnSurface & x) noexcept;
 private:
 
     void    solveLSet( bool debug = false);

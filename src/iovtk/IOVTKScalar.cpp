@@ -45,6 +45,7 @@ IOVTKScalar::IOVTKScalar(){
     m_rdir        = "./";
     m_wdir        = "./";
     m_polydata    = NULL;
+    m_polydataInternal = false;
     m_local        = false;
     m_normalize    = true;
     m_scaling    = 1.0;
@@ -83,6 +84,8 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
  */
 IOVTKScalar::~IOVTKScalar(){
     if (m_local) delete getGeometry();
+    if (m_polydataInternal) m_polydata->Delete();
+    m_polydataInternal = NULL;
 };
 
 /*!Copy constructor of IOVTKScalar. If to-be-copied class has an internal MimmoObject
@@ -97,6 +100,7 @@ IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_rdir = other.m_rdir;
     m_wdir = other.m_wdir;
     m_polydata = other.m_polydata;
+    m_polydataInternal = false;
     m_field = other.m_field;
     m_normalize = other.m_normalize;
     m_scaling = other.m_scaling;
@@ -126,6 +130,7 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
    std::swap(m_rdir, x.m_rdir);
    std::swap(m_wdir, x.m_wdir);
    std::swap(m_polydata, x.m_polydata);
+   std::swap(m_polydataInternal, x.m_polydataInternal);
    std::swap(m_field, x.m_field);
    std::swap(m_normalize, x.m_normalize);
    std::swap(m_scaling, x.m_scaling);
@@ -182,6 +187,10 @@ IOVTKScalar::getField(){
  */
 void
 IOVTKScalar::setPolyData(vtkPolyData* polydata){
+    if(m_polydataInternal) {
+        m_polydata->Delete();
+        m_polydataInternal = false;
+    }
     m_polydata = polydata;
 }
 
@@ -285,9 +294,6 @@ IOVTKScalar::read(){
         MimmoObject* mimmo0 = new MimmoObject(1);
         setGeometry(mimmo0);
     }
-
-    //unlock m_polydata to NULL;
-    m_polydata = NULL;
     
     string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
     int    np = 0;
@@ -303,8 +309,12 @@ IOVTKScalar::read(){
     // All of the standard data types can be checked and obtained like this:
     if(reader->IsFilePolyData())
     {
+        //unlock m_polydata to NULL;
+        if(m_polydataInternal) m_polydata->Delete();
+        m_polydata = NULL;
         m_polydata = vtkPolyData::New();
         m_polydata->DeepCopy(reader->GetPolyDataOutput());
+        m_polydataInternal = true;
         vtkPolyData* output = reader->GetPolyDataOutput();
 
         vtkSmartPointer<vtkTriangleFilter> tri= vtkSmartPointer<vtkTriangleFilter>::New();
@@ -360,7 +370,6 @@ IOVTKScalar::read(){
             }
         }
         m_field.setGeometry(getGeometry());
-        m_polydata->Delete();
     }
     else{
         (*m_log) << m_name << " error: polydata not found in : "<< m_rfilename << std::endl;
@@ -406,7 +415,8 @@ IOVTKScalar::write(){
 
         m_polydata = vtkPolyData::New();
         m_polydata->Allocate();
-
+        m_polydataInternal = true;
+        
         /* Set polydata points. */
         vtkPoints* points = vtkPoints::New() ;
         double point_[3];
@@ -459,7 +469,6 @@ IOVTKScalar::write(){
         writer->SetFileName(outputFilename.c_str());
         writer->SetInputData(m_polydata);
         writer->Write();
-        m_polydata->Delete();
     }
     return true;
 }

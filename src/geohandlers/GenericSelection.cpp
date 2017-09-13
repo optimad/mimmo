@@ -129,6 +129,7 @@ GenericSelection::getPatch() const{
  */
 void
 GenericSelection::setGeometry( MimmoObject * target){
+    if(target == NULL)  return;
     if(target->isEmpty()) return;
     m_geometry = target;
     /*set topology informations*/
@@ -172,6 +173,7 @@ GenericSelection::isDual(){
 livector1D
 GenericSelection::constrainedBoundary(){
 
+    if(getGeometry() == NULL || getPatch() == NULL)    return livector1D(0);
     if(getGeometry()->isEmpty() || getPatch()->isEmpty())    return livector1D(0);
     livector1D sonV, fatherV;
 
@@ -255,7 +257,7 @@ GenericSelection::constrainedBoundary(){
  */
 void
 GenericSelection::execute(){
-
+    if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty()) return;
 
     m_subpatch.reset(nullptr);

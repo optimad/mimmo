@@ -81,6 +81,7 @@ public:
     MimmoObject & operator=(MimmoObject other);
 
     bool                                            isEmpty();
+    bool                                            isEmpty() const;
     BITPIT_DEPRECATED(bool                          isBvTreeSupported());
     bool                                            isSkdTreeSupported();
     int                                             getType();

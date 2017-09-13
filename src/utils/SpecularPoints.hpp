@@ -117,7 +117,7 @@ public:
     ~SpecularPoints();
 
     SpecularPoints(const SpecularPoints & other);
-
+    SpecularPoints& operator=(SpecularPoints other);
     void    buildPorts();
 
     dvector1D getOriginalScalarData();
@@ -148,6 +148,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
+    void swap(SpecularPoints & x) noexcept;
 };
 
 REGISTER(BaseManipulation, SpecularPoints, "mimmo.SpecularPoints")

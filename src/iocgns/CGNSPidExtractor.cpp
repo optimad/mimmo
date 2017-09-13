@@ -183,7 +183,11 @@ CGNSPidExtractor::setGeometry(MimmoObject * geo){
  */
 void
 CGNSPidExtractor::execute(){
-
+    
+    if (getGeometry() == NULL) {
+        (*m_log)<<"Error in CGNSPidExtractor: found NULL linked geometry. Does not extract anything."<<std::endl;
+        return;
+    }
     livector1D extracted;
 
     for(const auto & val: m_targetpid){
@@ -270,6 +274,7 @@ CGNSPidExtractor::execute(){
  * as standard vtk unstructured grid.
  */
 void CGNSPidExtractor::plotOptionalResults(){
+    if(getPatch() == NULL)    return;
     if(getPatch()->isEmpty()) return;
     std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
     getPatch()->getPatch()->write(name);

@@ -94,36 +94,34 @@ RotationAxes::~RotationAxes(){};
 /*!Copy constructor of RotationAxes.
  */
 RotationAxes::RotationAxes(const RotationAxes & other):BaseManipulation(other){
-    for(auto & val: m_axes) 
-        val.fill(0.0);
-    m_axes[0][0] = 1.0; 
-    m_axes[1][1] = 1.0; 
-    m_axes[2][2] = 1.0;
-    m_axes_origin = {{0,0,0}}; 
-    
-    for(auto & val: m_rotax)    
-        val.fill(0.0);
-    m_rotax[0][0] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax[2][2] = 1.0;
-    m_rotax_origin = {{0,0,0}}; 
-    
-    m_alpha=0.0;
-    
+    m_axes = other.m_axes;
+    m_axes_origin = other.m_axes_origin;
+    m_alpha=other.m_alpha;
     m_origin = other.m_origin;
     m_direction = other.m_direction;
 };
 
 /*!Assignement operator of RotationAxes.
  */
-RotationAxes & RotationAxes::operator=(const RotationAxes & other){
-    *(static_cast<BaseManipulation*> (this)) = *(static_cast<const BaseManipulation*> (&other));
-    m_origin = other.m_origin;
-    m_direction = other.m_direction;
-    return(*this);
+RotationAxes & RotationAxes::operator=(RotationAxes other){
+    swap(other);
+    return *this;
 };
 
 
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void RotationAxes::swap(RotationAxes & x) noexcept
+{
+    std::swap(m_axes, x.m_axes);
+    std::swap(m_axes_origin, x.m_axes_origin);
+    std::swap(m_alpha, x.m_alpha);
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_direction, x.m_direction);
+    BaseManipulation::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void
@@ -217,7 +215,7 @@ RotationAxes::execute(){
 
     //Rotation of origin
     m_rotax_origin = {{0,0,0}};
-    m_axes_origin -= m_origin;
+    m_axes_origin += (-1.0)*m_origin;
     //rodrigues formula
     m_rotax_origin = m_axes_origin * cos(m_alpha) +
             dotProduct(m_direction, m_axes_origin) * (1 - cos(m_alpha)) * m_direction +

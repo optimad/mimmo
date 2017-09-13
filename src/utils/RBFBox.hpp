@@ -113,7 +113,7 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-
+    void swap(RBFBox & x) noexcept;
 };
 
 REGISTER(BaseManipulation,RBFBox, "mimmo.RBFBox")

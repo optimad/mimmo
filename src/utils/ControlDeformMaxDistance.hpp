@@ -91,7 +91,7 @@ public:
     ~ControlDeformMaxDistance();
 
     ControlDeformMaxDistance(const ControlDeformMaxDistance & other);
-    ControlDeformMaxDistance & operator=(const ControlDeformMaxDistance & other);
+    ControlDeformMaxDistance & operator=(ControlDeformMaxDistance other);
 
     void    buildPorts();
 
@@ -108,7 +108,7 @@ public:
 
 protected:
     void plotOptionalResults();
-
+    void swap(ControlDeformMaxDistance & x) noexcept;
 
 };
 

@@ -96,7 +96,7 @@ public:
 	~RotationAxes();
 
 	RotationAxes(const RotationAxes & other);
-	RotationAxes & operator=(const RotationAxes & other);
+	RotationAxes & operator=(RotationAxes other);
 
 	void buildPorts();
 
@@ -114,7 +114,9 @@ public:
 	
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-	
+
+protected:
+    void swap(RotationAxes & x) noexcept;
 
 };
 

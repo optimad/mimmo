@@ -92,6 +92,20 @@ RBFBox::RBFBox(const RBFBox & other):BaseManipulation(other){
     m_suppR = other.m_suppR;
 };
 
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void RBFBox::swap(RBFBox & x) noexcept
+{
+    std::swap(m_origin, x.m_origin);
+    std::swap(m_span  , x.m_span);
+    std::swap(m_axes, x.m_axes);
+    std::swap(m_nodes, x.m_nodes);
+    std::swap(m_suppR, x.m_suppR);
+    BaseManipulation::swap(x);
+}
+
 /*! It builds the input/output ports of the object
  */
 void

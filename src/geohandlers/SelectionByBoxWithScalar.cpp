@@ -173,6 +173,7 @@ SelectionByBoxWithScalar::execute(){
  */
 void
 SelectionByBoxWithScalar::plotOptionalResults(){
+    if(getPatch() == NULL)      return;
     if(getPatch()->isEmpty()) return;
     std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
 

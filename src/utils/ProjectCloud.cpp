@@ -56,12 +56,32 @@ ProjectCloud::ProjectCloud(const bitpit::Config::Section & rootXML){
  */
 ProjectCloud::~ProjectCloud(){};
 
-/*!Copy constructor of ProjectCloud.
+/*!
+ * Copy constructor of ProjectCloud. Result Projected points are not copied
  */
 ProjectCloud::ProjectCloud(const ProjectCloud & other):BaseManipulation(other){
     m_points = other.m_points;
 };
 
+
+/*!
+ * Assignment operator of ProjectCloud. Result Projected points are not copied
+ */
+ProjectCloud & ProjectCloud::operator=(ProjectCloud other){
+    swap(other);
+    return *this;
+};
+
+/*!
+ * Swap function.
+ * \param[in] x object to be swapped
+ */
+void ProjectCloud::swap(ProjectCloud & x) noexcept
+{
+    std::swap(m_points, x.m_points);
+    std::swap(m_proj, x.m_proj);
+    BaseManipulation::swap(x);
+}
 /*! It builds the input/output ports of the object
  */
 void
@@ -115,7 +135,8 @@ void ProjectCloud::clear(){
 void
 ProjectCloud::execute(){
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
+    if(getGeometry() == NULL) return;
+    if(getGeometry()->isEmpty())    return;
 
     if(!getGeometry()->isBvTreeBuilt())    getGeometry()->buildBvTree();
 

@@ -202,6 +202,11 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
+    
+    for(const auto cell : getPatch()->getCells()){
+        auto PID = cell.getPID();
+        m_pidsType.insert((short)PID);
+    }
 }
 
 /*!
@@ -288,6 +293,18 @@ MimmoObject::isEmpty(){
     if(m_type != 3) check = check && (getNCells() > 0);
     return !check;
 };
+
+/*!
+ * Is the object empty? const overloading.
+ * \return True/False if geometry data structure is empty.
+ */
+bool
+MimmoObject::isEmpty() const{
+    bool check = getNVertex() > 0;
+    if(m_type != 3) check = check && (getNCells() > 0);
+    return !check;
+};
+
 
 /*! 
  * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
@@ -428,8 +445,6 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
  */
 livector2D
 MimmoObject::getConnectivity(){
-
-    if (isEmpty()) return livector2D(0);
 
     livector2D connecti(getNCells());
     int np, counter =0;
@@ -1443,7 +1458,7 @@ void MimmoObject::buildSkdTree(int value){
  * Reset and build again vertex kdTree of your geometry.
  */
 void MimmoObject::buildKdTree(){
-    if( isEmpty())  return;
+    if( getNVertex() == 0)  return;
     long label;
     
     if (!m_kdTreeSync){

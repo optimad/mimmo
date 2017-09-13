@@ -106,7 +106,7 @@ public:
     ~ControlDeformExtSurface();
 
     ControlDeformExtSurface(const ControlDeformExtSurface & other);
-    ControlDeformExtSurface & operator=(const ControlDeformExtSurface & other);
+    ControlDeformExtSurface & operator=(ControlDeformExtSurface other);
 
     void    buildPorts();
 
@@ -134,6 +134,7 @@ public:
 
 protected:
     void plotOptionalResults();
+    void swap(ControlDeformExtSurface & x) noexcept;
 
 private:
     void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
