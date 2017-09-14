@@ -100,9 +100,9 @@ ScaleGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, M_POINT));
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, M_SPAN));
-    built = (built && createPortIn<dvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };

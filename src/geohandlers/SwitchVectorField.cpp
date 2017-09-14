@@ -88,9 +88,9 @@ void SwitchVectorField::swap(SwitchVectorField & x) noexcept
 void
 SwitchVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvecarr3E>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, PortType::M_VECVFIELDS, mimmo::pin::containerTAG::VECTOR, mimmo::pin::dataTAG::MPVECARR3FLOAT, true, 1));
-    built = (built && createPortIn<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<std::vector<dmpvecarr3E>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, M_VECVFIELDS, true, 1));
+    built = (built && createPortIn<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, M_VECTORFIELD, true, 1));
+    built = (built && createPortOut<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, M_VECTORFIELD));
 
     SwitchField::buildPorts();
     m_arePortsBuilt = built;

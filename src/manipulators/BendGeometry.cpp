@@ -106,12 +106,12 @@ void
 BendGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortIn<dvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<umatrix33E, BendGeometry>(&m_degree, M_BMATRIX));
     built = (built && createPortIn<dmat33Evec, BendGeometry>(&m_coeffs, M_BCOEFFS));
     built = (built && createPortIn<dmatrix33E, BendGeometry>(&m_system, M_AXES));
     built = (built && createPortIn<darray3E, BendGeometry>(&m_origin, M_POINT));
-    built = (built && createPortOut<dvecarr3E, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, BendGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };

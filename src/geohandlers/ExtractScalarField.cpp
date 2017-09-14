@@ -81,8 +81,8 @@ void ExtractScalarField::swap(ExtractScalarField & x ) noexcept
 void
 ExtractScalarField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT, true, 1));
-    built = (built && createPortOut<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, PortType::M_SCALARFIELD, mimmo::pin::containerTAG::MPVECTOR, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true, 1));
+    built = (built && createPortOut<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, M_SCALARFIELD));
 
     ExtractField::buildPorts();
     m_arePortsBuilt = built;

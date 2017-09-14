@@ -103,9 +103,9 @@ RotationGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_origin, M_POINT));
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, RotationGeometry>(&m_alpha, M_VALUED));
-    built = (built && createPortIn<dvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, RotationGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, RotationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };

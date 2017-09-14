@@ -81,8 +81,8 @@ void ExtractVectorField::swap(ExtractVectorField & x ) noexcept
 void
 ExtractVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, PortType::M_VECTORFIELD, mimmo::pin::containerTAG::MPVECARR3, mimmo::pin::dataTAG::FLOAT));
+    built = (built && createPortIn<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, M_VECTORFIELD, true, 1));
+    built = (built && createPortOut<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, M_VECTORFIELD));
 
     ExtractField::buildPorts();
     m_arePortsBuilt = built;

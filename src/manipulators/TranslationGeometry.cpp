@@ -94,9 +94,9 @@ TranslationGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<darray3E, TranslationGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, TranslationGeometry>(&m_alpha, M_VALUED));
-    built = (built && createPortIn<dvector1D, TranslationGeometry>(this, &mimmo::TranslationGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D, TranslationGeometry>(this, &mimmo::TranslationGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, TranslationGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dvecarr3E, TranslationGeometry>(this, &mimmo::TranslationGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E, TranslationGeometry>(this, &mimmo::TranslationGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, TranslationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };

@@ -59,7 +59,7 @@ void ExtractField::swap(ExtractField & x ) noexcept
 void
 ExtractField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, ExtractField>(this, &mimmo::ExtractField::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
+    built = (built && createPortIn<MimmoObject*, ExtractField>(this, &mimmo::ExtractField::setGeometry, M_GEOM, true));
     m_arePortsBuilt = built;
 }
 

@@ -151,11 +151,11 @@ IOOFOAM::buildPorts(){
     bool built = true;
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, M_GEOM));
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, M_GEOM2));
-    built = (built && createPortIn<dvector1D, IOOFOAM>(this, &IOOFOAM::setField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D, IOOFOAM>(this, &IOOFOAM::setField, M_SCALARFIELD));
 
     built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getGeometry, M_GEOM));
     built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getSurfaceBoundary, M_GEOM2));
-    built = (built && createPortOut<dvector1D, IOOFOAM>(this, &IOOFOAM::getField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D, IOOFOAM>(this, &IOOFOAM::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 

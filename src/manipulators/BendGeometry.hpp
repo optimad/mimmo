@@ -49,7 +49,7 @@ namespace mimmo{
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_FILTER  | setFilter         | (MC_VECTOR, MD_FLOAT)       |
+     | M_FILTER  | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
      | M_POINT   | setOrigin         | (MC_ARRAY3, MD_FLOAT)       |
      | M_AXES    | setRefSystem      | (MC_ARR3ARR3, MD_FLOAT)     |
      | M_BMATRIX | setDegree         | (MC_ARR3ARR3, MD_INT)       |
@@ -59,7 +59,7 @@ namespace mimmo{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | M_GDISPLS| getDisplacements  | (MC_VECARR3, MD_FLOAT)    |
+     | M_GDISPLS| getDisplacements  | (MC_MPVECARR3, MD_FLOAT)    |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
  *    =========================================================
@@ -157,14 +157,13 @@ private:
 
 };
 
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__BENDGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_BMATRIX, MC_ARR3ARR3, MD_INT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_BCOEFFS, MC_ARR3ARR3VEC, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__BENDGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT,__BENDGEOMETRY_HPP__)
-REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_,__BENDGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__BENDGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, BendGeometry, "mimmo.BendGeometry")

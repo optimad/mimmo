@@ -63,7 +63,7 @@ enum class MRBFSol{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
-     | M_FILTER  | setFilter             | (MC_VECTOR, MD_FLOAT)       |
+     | M_FILTER  | setFilter             | (MC_MPVECTOR, MD_FLOAT)       |
      | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
      | M_GEOM    | m_geometry            | (MC_SCALAR, MD_MIMMO_)      |
@@ -71,7 +71,7 @@ enum class MRBFSol{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS      | getDisplacements  | (MC_VECARR3, MD_FLOAT)             |
+     | M_GDISPLS      | getDisplacements  | (MC_MPVECARR3, MD_FLOAT)             |
      | M_GEOM   | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
@@ -168,12 +168,11 @@ protected:
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT ,__MRBF_HPP__)
+REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
-REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_ ,__MRBF_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT ,__MRBF_HPP__)
 
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")

@@ -76,7 +76,7 @@ void Apply::swap(Apply & x) noexcept
 void
 Apply::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true));
+    built = (built && createPortIn<dmpvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true));
     built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
     built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;

@@ -43,7 +43,10 @@
 #define M_FILTER          "M_FILTER"            /**< Port dedicated to communication of a scalar field used as a filter function [ vector < double > ] */
 #define M_VECTORSI        "M_VECTORSI"          /**< Port dedicated to communication of a generic list of short integers [ vector < short int > ] */
 #define M_VECTORLI        "M_VECTORLI"          /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
-#define M_SCALARFIELD     "M_SCALARFIELD"       /**< Port dedicated to communication of a generic scalar field [ vector < double > ] */
+#define M_SCALARFIELD     "M_SCALARFIELD"       /**< Port dedicated to communication of a generic scalar field [ MimmoPiercedvector < double > ] */
+#define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ MimmoPiercedvector < array< double,3> > ] */
+#define M_VECSFIELDS      "M_VECSFIELDS"        /**< Port dedicated to communication of a std::vector of generic scalar fields [ std::vector< MimmoPiercedvector < double > >] */
+#define M_VECVFIELDS      "M_VECVFIELDS"        /**< Port dedicated to communication of a std::vector of generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > >] */
 #define M_POINT           "M_POINT"             /**< Port dedicated to communication of 3D point coordinates [ array < double,3 > ] */
 #define M_AXIS            "M_AXIS"              /**< Port dedicated to communication of an axis direction [ array < double,3 > ] */
 #define M_AXES            "M_AXES"              /**< Port dedicated to communication of a 3 axis reference system [ array < array< double,3 >, 3>] */
@@ -102,6 +105,8 @@
 #define  MC_ARR3ARR3    "MC_ARR3ARR3"       /**< std::array< std::array< . , 3 > , 3 > container identifier */
 #define  MC_ARR3ARR3VEC "MC_ARR3ARR3VEC"    /**< std::array< std::array< std::array< . , 3 > , 3 > , 3 > container identifier */
 #define  MC_UN_MAP      "MC_UN_MAP"         /**< std::unordered_map< . , . > container identifier */
+#define  MC_MPVECTOR    "MC_MPVECTOR"       /**< MimmoPiercedVector< . > container identifier */
+#define  MC_MPVECARR3   "MC_MPVECARR3"      /**< MimmoPiercedVector< std::array< . , 3 > > container identifier */
 #define  MC_PAIR        "MC_PAIR"           /**< std::pair< . , . > container identifier */
 
 /*!
@@ -133,6 +138,8 @@
 #define  MD_COORDT                  "MD_COORDT"                  /**< mimmo::CoordType data identifier*/
 #define  MD_POLYDATA_               "MD_POLYDATA_"               /**< VTK::vtkPolyData* data identifier*/
 #define  MD_BCCGNS_                 "MD_BCCGNS_"                 /**< mimmo::BCCGNS (Boundary Conditions Info for CGNS export class) pointer data identifier */
+#define  MD_MPVECFLOAT              "MD_MPVECFLOAT"              /**< MimmoPiercedVector< double > data identifier */
+#define  MD_MPVECARR3FLOAT          "MD_MPVECARR3FLOAT"          /**< MimmoPiercedVector< std::array< double,3>  > data identifier */
 
 /*!
  * \}

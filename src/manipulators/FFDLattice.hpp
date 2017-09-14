@@ -49,7 +49,7 @@ namespace mimmo{
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
      | M_DISPLS         | m_displ                       | (MC_VECARR3, MD_FLOAT)    |
-     | M_FILTER         | m_filter                      | (MC_VECTOR, MD_FLOAT)     |
+     | M_FILTER         | m_filter                      | (MC_MPVECTOR, MD_FLOAT)     |
      | M_DEG            | setDegrees                    | (MC_ARRAY3, MD_INT)       |
      | M_NURBSWEIGHTS   | setNodalWeight                | (MC_VECTOR, MD_FLOAT)     |
      | M_NURBSCOORDTYPE | setCoordType                  | (MC_ARRAY3, MD_COORDT)    |
@@ -58,9 +58,9 @@ namespace mimmo{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS         | getDeformation    | (MC_VECARR3, MD_FLOAT)              |
+     | M_GDISPLS         | getDeformation    | (MC_MPVECARR3, MD_FLOAT)              |
      | M_DEG             | getDegrees        | (MC_ARRAY3, MD_INT)                 |
-     | M_FILTER          | getFilter         | (MC_VECTOR, MD_FLOAT)               |
+     | M_FILTER          | getFilter         | (MC_MPVECTOR, MD_FLOAT)               |
      | M_NURBSWEIGHTS    | getWeights        | (MC_VECTOR, MD_FLOAT)               |
      | M_NURBSCOORDTYPE  | getCoordType      | (MC_ARRAY3, MD_COORDT)              |
 
@@ -244,12 +244,11 @@ inline int FFDLattice::accessMapNodes(int i, int j, int k){
 };
 
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__FFDLATTICE_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__FFDLATTICE_HPP__)
+REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_NURBSWEIGHTS, MC_VECTOR, MD_FLOAT,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_NURBSCOORDTYPE, MC_ARRAY3, MD_COORDT,__FFDLATTICE_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT,__FFDLATTICE_HPP__)
-REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_,__FFDLATTICE_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__FFDLATTICE_HPP__)
 
 
 REGISTER(BaseManipulation, FFDLattice, "mimmo.FFDLattice")

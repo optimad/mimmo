@@ -65,7 +65,7 @@ void SwitchField::swap(SwitchField & x) noexcept
 void
 SwitchField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, SwitchField>(this, &mimmo::SwitchField::setGeometry, PortType::M_GEOM, mimmo::pin::containerTAG::SCALAR, mimmo::pin::dataTAG::MIMMO_, true));
+    built = (built && createPortIn<MimmoObject*, SwitchField>(this, &mimmo::SwitchField::setGeometry, M_GEOM, true));
     m_arePortsBuilt = built;
 }
 

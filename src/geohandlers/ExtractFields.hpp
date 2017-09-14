@@ -60,7 +60,7 @@ enum class ExtractMode{
      |                 Port Input     |||                                                     |
      |-------|------------|------------------------------------|-----------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+     | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
 
     |            Port Output         |||             |
@@ -135,13 +135,13 @@ private:
      |                 Port Input   |||                              |
      |-------|--------------|--------------------|----------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_SCALARFIELD| setField           | (MPVECTOR, FLOAT)|
+     | 18    | M_SCALARFIELD| setField           | (MC_MPVECTOR, MD_FLOAT)|
 
 
      |            Port Output   |||                                        |
      |-------|-----------|-------------------|--------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_SCALARFIELD  | getExtractedField     | (MPVECTOR, FLOAT)       |
+     | 18    | M_SCALARFIELD  | getExtractedField     | (MC_MPVECTOR, MD_FLOAT)       |
 
 
   Inherited from ExtractField
@@ -149,7 +149,7 @@ private:
      |                 Port Input   |||                                                         |
      |-------|------------|------------------------------------|-----------------------------|
     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
+     | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
      |            Port Output  |||                               |
      |-------|-----------|------------------------------------|-----------------------|
@@ -195,39 +195,29 @@ private:
  *
  *    =========================================================
 
-    |------------------------------------------------------------------|
-    |                 Port Input                                       |
-     |-------|--------------|-------------------|-----------------------|
-     |PortID | PortType     | variable/function | DataType              |
-     |-------|--------------|-------------------|-----------------------|
-      | 19    | M_VECTORFIELD     | setField     | (MPVECARR3, FLOAT)        |
-
-
-     |-----------------------------------------------------------------------|
-     |            Port Output                                                |
-     |-------|-----------|-------------------|-------------------------------|
-     |PortID | PortType  | variable/function | DataType                      |
-     |-------|-----------|-------------------|-------------------------------|
-      | 19    | M_VECTORFIELD   | getExtractedField     | (MPVECARR3, FLOAT)        |
-     |-------|-----------|-------------------|-------------------------------|
-
-
-   Inherited from ExtractField
-
-     |---------------------------------------------------------------------------------------|
-     |                 Port Input                                                            |
-     |-------|------------|------------------------------------|-----------------------------|
-     |PortID | PortType   | variable/function                  | DataType                    |
-     |-------|------------|------------------------------------|-----------------------------|
-     | 99    | M_GEOM     | setGeometry                        | (SCALAR, MIMMO_)            |
-
-
-     |--------------------------------------------------------|-----------------------|
-     |            Port Output                                 |                       |
-     |-------|-----------|------------------------------------|-----------------------|
-     |PortID | PortType  | variable/function                  | DataType              |
-     |-------|-----------|------------------------------------|-----------------------|
-     |-------|-----------|------------------------------------|-----------------------|
+ |                 Port Input   |||                              |
+ |-------|--------------|--------------------|----------------|
+ |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | 18    | M_VECTORFIELD| setField           | (MC_MPVECARR3, MD_FLOAT)|
+ 
+ 
+ |            Port Output   |||                                        |
+ |-------|-----------|-------------------|--------------------------|
+ |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | 18    | M_VECTORFIELD  | getExtractedField     | (MC_MPVECARR3, MD_FLOAT)       |
+ 
+ 
+ Inherited from ExtractField
+ 
+ |                 Port Input   |||                                                         |
+ |-------|------------|------------------------------------|-----------------------------|
+ |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+ 
+ |            Port Output  |||                               |
+ |-------|-----------|------------------------------------|-----------------------|
+ |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ 
 
  *    =========================================================
  *
@@ -259,6 +249,11 @@ private:
     bool extract();
 
 };
+
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __EXTRACTFIELDS_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__EXTRACTFIELDS_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__EXTRACTFIELDS_HPP__)
+
 
 REGISTER(BaseManipulation, ExtractScalarField, "mimmo.ExtractScalarField")
 REGISTER(BaseManipulation, ExtractVectorField, "mimmo.ExtractVectorField")

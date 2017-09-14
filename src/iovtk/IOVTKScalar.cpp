@@ -147,11 +147,11 @@ IOVTKScalar::buildPorts(){
     built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));
     built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, M_VALUED));
     built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, M_POLYDATA_));
-    built = (built && createPortIn<dvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
 
     built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, M_GEOM));
     built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, M_POLYDATA_));
-    built = (built && createPortOut<dvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 

@@ -51,13 +51,13 @@ namespace mimmo{
      | M_AXIS   | setDirection      | (MC_ARRAY3, MD_FLOAT)       |
      | M_VALUED | setTwist          | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2| setMaxDistance    | (MC_SCALAR, MD_FLOAT)       |
-     | M_FILTER | setFilter         | (MC_VECTOR, MD_FLOAT)       |
+     | M_FILTER | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
  
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS       | getDisplacements  | (MC_VECARR3, MD_FLOAT) |
+     | M_GDISPLS       | getDisplacements  | (MC_MPVECARR3, MD_FLOAT) |
      | M_GEOM          | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
  *    =========================================================
@@ -126,10 +126,9 @@ REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__TWISTGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
-REGISTER_PORT(M_PAIRVECFIELD, MC_PAIR, MD_MIMMO_VECARR3FLOAT_,__TWISTGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, TwistGeometry, "mimmo.TwistGeometry")
