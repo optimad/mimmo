@@ -93,7 +93,8 @@ public:
     MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
-
+    bool intIsValidLocation(int &);
+    
 protected:
     void  swap(MimmoPiercedVector<value_t>& x) noexcept;
     

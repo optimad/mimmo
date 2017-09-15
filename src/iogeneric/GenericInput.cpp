@@ -29,6 +29,8 @@
 using namespace std;
 namespace mimmo {
 
+////////GENERICINPUT///////////////////////////////////////
+    
 /*!
  * Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
@@ -40,7 +42,6 @@ GenericInput::GenericInput(bool readFromFile, bool csv){
     m_portsType     = BaseManipulation::ConnectionType::BOTH;
     m_name          = "mimmo.GenericInput";
     m_dir           = "./";
-    m_binary        = false;
 };
 
 /*!
@@ -55,7 +56,6 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
     m_name             = "mimmo.GenericInput";
     m_dir       = "./";
     m_filename  = "input.txt";
-    m_binary        = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -75,6 +75,7 @@ GenericInput::GenericInput(const bitpit::Config::Section & rootXML){
  * The m_readFromFile flag is set to true.
  */
 GenericInput::GenericInput(std::string dir, std::string filename, bool csv){
+    m_name          = "mimmo.GenericInput";
     m_readFromFile  = true;
     m_csv           = csv;
     m_dir           = dir;
@@ -92,7 +93,6 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
     m_csv           = other.m_csv;
     m_dir           = other.m_dir;
     m_filename      = other.m_filename;
-    m_binary        = other.m_binary;
 };
 
 /*!
@@ -113,7 +113,6 @@ void GenericInput::swap(GenericInput & x) noexcept
     std::swap(m_csv         , x.m_csv);
     std::swap(m_dir         , x.m_dir);
     std::swap(m_filename    , x.m_filename);
-    std::swap(m_binary      , x.m_binary);
     std::swap(m_input       , x.m_input);
     std::swap(m_result      , x.m_result);
     BaseManipulation::swap(x);
@@ -126,22 +125,6 @@ void GenericInput::swap(GenericInput & x) noexcept
 void
 GenericInput::setReadFromFile(bool readFromFile){
     m_readFromFile = readFromFile;
-};
-
-/*!It sets if the input file is in csv format.
- * \param[in] csv Is the input file write in comma separated value format?
- */
-void
-GenericInput::setCSV(bool csv){
-    m_csv = csv;
-};
-
-/*!It sets if the input file is in Binary format.
- * \param[in] binary Is the input file in Binary format?
- */
-void
-GenericInput::setBinary(bool binary){
-    m_binary = binary;
 };
 
 /*!It sets the name of the input file.
@@ -177,9 +160,6 @@ GenericInput::buildPorts(){
     built = (built && createPortOut<int, GenericInput>(this, &mimmo::GenericInput::getResult<int>, M_VALUEI));
     built = (built && createPortOut<bool, GenericInput>(this, &mimmo::GenericInput::getResult<bool>, M_VALUEB));
     built = (built && createPortOut<iarray3E, GenericInput>(this, &mimmo::GenericInput::getResult<iarray3E>, M_DEG));
-    built = (built && createPortOut<dmpvector1D, GenericInput>(this, &mimmo::GenericInput::getResult<dmpvector1D>, M_SCALARFIELD));
-    built = (built && createPortOut<dmpvecarr3E, GenericInput>(this, &mimmo::GenericInput::getResult<dmpvecarr3E>, M_VECTORFIELD));
-
 
     m_arePortsBuilt = built;
 }
@@ -253,17 +233,6 @@ GenericInput::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         setReadDir(input);
     };
 
-    if(slotXML.hasOption("Binary")){
-        std::string input = slotXML.get("Binary");
-        input = bitpit::utils::string::trim(input);
-        bool temp = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss>>temp;
-        }
-        setBinary(temp);
-    };
-
 }
 
 /*!
@@ -282,6 +251,230 @@ GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
     slotXML.set("CSV", std::to_string((int)m_csv));
     slotXML.set("ReadDir", m_dir);
     slotXML.set("Filename", m_filename);
+};
+
+
+/*!
+ * Default constructor of GenericInputMPVData.
+ * \param[in] readFromFile True if the object reads the values from file (default value false).
+ * \param[in] csv True if the input file is a csv format file (default value false).
+ */
+GenericInputMPVData::GenericInputMPVData(bool csv){
+    m_csv           = csv;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
+    m_name          = "mimmo.GenericInputMPVData";
+    m_dir           = "./";
+    m_binary        = false;
+};
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+GenericInputMPVData::GenericInputMPVData(const bitpit::Config::Section & rootXML){
+    
+    m_csv           = false;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
+    m_name             = "mimmo.GenericInputMPVData";
+    m_dir       = "./";
+    m_filename  = "input.txt";
+    m_binary        = false;
+    
+    std::string fallback_name = "ClassNONE";
+    std::string input = rootXML.get("ClassName", fallback_name);
+    input = bitpit::utils::string::trim(input);
+    if(input == "mimmo.GenericInputMPVData"){
+        absorbSectionXML(rootXML);
+    }else{
+        warningXML(m_log, m_name);
+    };
+}
+
+/*!
+ * Custom constructor of GenericInputMPVData.
+ * \param[in] dir Directory of the input file.
+ * \param[in] filename Name of the input file.
+ * \param[in] csv True if the input file is a csv format file (default value false).
+ * The m_readFromFile flag is set to true.
+ */
+GenericInputMPVData::GenericInputMPVData(std::string dir, std::string filename, bool csv){
+    m_csv           = csv;
+    m_dir           = dir;
+    m_filename      = filename;
+    m_name          = "mimmo.GenericInputMPVData";
+    m_binary        = false;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
+};
+
+GenericInputMPVData::~GenericInputMPVData(){};
+
+/*!
+ * Copy constructor of GenericInputMPVData. m_input and  m_result members are not copied.
+ */
+GenericInputMPVData::GenericInputMPVData(const GenericInputMPVData & other):BaseManipulation(other){
+    m_csv           = other.m_csv;
+    m_dir           = other.m_dir;
+    m_filename      = other.m_filename;
+    m_binary        = other.m_binary;
+};
+
+/*!
+ * Assignment operator. m_input and  m_result members are not copied. 
+ */
+GenericInputMPVData & GenericInputMPVData::operator=(GenericInputMPVData other){
+    swap(other);
+    return *this;
+}
+
+/*!
+ * Swap method.
+ *\param[in] x objet to be swapped.
+ */
+void GenericInputMPVData::swap(GenericInputMPVData & x) noexcept
+{
+    std::swap(m_csv         , x.m_csv);
+    std::swap(m_dir         , x.m_dir);
+    std::swap(m_filename    , x.m_filename);
+    std::swap(m_binary      , x.m_binary);
+    std::swap(m_input       , x.m_input);
+    std::swap(m_result      , x.m_result);
+    BaseManipulation::swap(x);
+}
+
+
+/*!It sets if the input file is in csv format.
+ * \param[in] csv Is the input file write in comma separated value format?
+ */
+void
+GenericInputMPVData::setCSV(bool csv){
+    m_csv = csv;
+};
+
+/*!It sets if the input file is in Binary format.
+ * \param[in] binary Is the input file in Binary format?
+ */
+void
+GenericInputMPVData::setBinary(bool binary){
+    m_binary = binary;
+};
+
+/*!It sets the name of the input file.
+ * \param[in] filename Name of the input file.
+ */
+void
+GenericInputMPVData::setFilename(std::string filename){
+    m_filename = filename;
+};
+
+/*!It sets the name of the directory of input file.
+ * \param[in] dir Name of the directory of input file.
+ */
+void
+GenericInputMPVData::setReadDir(std::string dir){
+    m_dir = dir;
+};
+
+/*! It builds the input/output ports of the object
+ */
+void
+GenericInputMPVData::buildPorts(){
+    
+    bool built = true;
+    
+    built = (built && createPortIn<MimmoObject*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::setGeometry, M_GEOM, true));
+    built = (built && createPortOut<dmpvector1D, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<dmpvector1D>, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvecarr3E, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<dmpvecarr3E>, M_VECTORFIELD));
+    
+    
+    m_arePortsBuilt = built;
+}
+
+/*!It clear the input member of the object
+ */
+void
+GenericInputMPVData::clearInput(){
+    m_input.reset(nullptr);
+}
+
+/*!It clear the result member of the object
+ */
+void
+GenericInputMPVData::clearResult(){
+    m_result.reset(nullptr);
+}
+
+/*!Execution command.
+ * It does nothing, the real execution of the object
+ * happens in setInput/getResult.
+ */
+void
+GenericInputMPVData::execute(){};
+
+/*!
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    std::string input;
+    
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
+    if(slotXML.hasOption("CSV")){
+        std::string input = slotXML.get("CSV");
+        input = bitpit::utils::string::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setCSV(temp);
+    };
+    
+    if(slotXML.hasOption("Filename") && m_readFromFile){
+        std::string input = slotXML.get("Filename");
+        input = bitpit::utils::string::trim(input);
+        setFilename(input);
+    };
+    
+    if(slotXML.hasOption("ReadDir") && m_readFromFile){
+        std::string input = slotXML.get("ReadDir");
+        input = bitpit::utils::string::trim(input);
+        setReadDir(input);
+    };
+    
+    if(slotXML.hasOption("Binary")){
+        std::string input = slotXML.get("Binary");
+        input = bitpit::utils::string::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        setBinary(temp);
+    };
+    
+}
+
+/*!
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+GenericInputMPVData::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
+    slotXML.set("CSV", std::to_string((int)m_csv));
+    slotXML.set("ReadDir", m_dir);
+    slotXML.set("Filename", m_filename);
     slotXML.set("Binary", std::to_string((int)m_binary));
 };
 
@@ -296,36 +489,39 @@ GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
  */
 template <>
 dmpvector1D
-GenericInput::getResult(){
+GenericInputMPVData::getResult(){
     dmpvector1D data;
     if (getGeometry() == NULL) return data;
-    int nv = getGeometry()->getNVertex();
-    if (m_readFromFile){
-        std::fstream file;
-        file.open(m_dir+"/"+m_filename);
+    int nEle;
+    if(m_csv)   m_binary = false;
+    std::fstream file;
+    file.open(m_dir+"/"+m_filename);
         bitpit::PiercedVector<double> pvdata;
         if (file.is_open()){
             if (m_binary){
-                bitpit::genericIO::absorbBINARY(file, pvdata, nv);
+                bitpit::genericIO::absorbBINARY(file, nEle);
+                bitpit::genericIO::absorbBINARY(file, pvdata, nEle);
             }
-            else{
-                bitpit::genericIO::absorbASCII(file, pvdata, nv);
+            else if (m_csv){
+                ifstreamcsv(file, data);
+            }else{
+                bitpit::genericIO::absorbASCII(file, nEle);
+                bitpit::genericIO::absorbASCII(file, pvdata, nEle);
             }
             file.close();
         }else{
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        data = pvdata;
-        _setResult(data);
-    }
-    dmpvector1D temp = (*static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData());
-    temp.setGeometry(getGeometry());
+        
+        data->setGeometry(getGeometry());
+        if(!m_csv){
+            data = pvdata;
+            data->setDataLocation(data.recoverGeometryReferenceLocation());
+        }    
+        if(data.checkDataIdsCoherence()) _setResult(data);
     
-    auto loc = temp.recoverGeometryReferenceLocation();
-    temp.setDataLocation(loc);
-    
-    return(temp);
+    return *static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData();
 }
 
 
@@ -338,37 +534,44 @@ GenericInput::getResult(){
  */
 template <>
 dmpvecarr3E
-GenericInput::getResult(){
+GenericInputMPVData::getResult(){
     dmpvecarr3E data;
     if (getGeometry() == NULL) return data;
-    int nv = getGeometry()->getNVertex();
-    if (m_readFromFile){
-        std::fstream file;
-        file.open(m_dir+"/"+m_filename);
-        bitpit::PiercedVector<array<double,3> > pvdata;
-        if (file.is_open()){
-            if (m_binary){
-                bitpit::genericIO::absorbBINARY(file, pvdata, nv);
-            }
-            else{
-                bitpit::genericIO::absorbASCII(file, pvdata, nv);
-            }
-            file.close();
-        }else{
-            (*m_log) << "file not open --> exit" << std::endl;
-            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+    int nEle;
+    if(m_csv)   m_binary = false;
+    std::fstream file;
+    file.open(m_dir+"/"+m_filename);
+    bitpit::PiercedVector<std::array<double,3> > pvdata;
+    if (file.is_open()){
+        if (m_binary){
+            bitpit::genericIO::absorbBINARY(file, nEle);
+            bitpit::genericIO::absorbBINARY(file, pvdata, nEle);
         }
-        data = pvdata;
-        _setResult(data);
+        else if (m_csv){
+            ifstreamcsv(file, data);
+        }else{
+            bitpit::genericIO::absorbASCII(file, nEle);
+            bitpit::genericIO::absorbASCII(file, pvdata, nEle);
+        }
+        file.close();
+    }else{
+        (*m_log) << "file not open --> exit" << std::endl;
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
     }
-    dmpvecarr3E temp = (*static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData());
-    temp.setGeometry(getGeometry());
     
-    auto loc = temp.recoverGeometryReferenceLocation();
-    temp.setDataLocation(loc);
-    
-    return(temp);
+    data->setGeometry(getGeometry());
+    if(!m_csv){
+        data = pvdata;
+        data->setDataLocation(data.recoverGeometryReferenceLocation());
+    }    
+    if(data.checkDataIdsCoherence()) _setResult(data);
+
+    return *static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData();
 }
+
+
+
+
 
 }
 

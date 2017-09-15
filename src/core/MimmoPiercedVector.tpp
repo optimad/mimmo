@@ -298,4 +298,15 @@ MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation(){
     return MPVLocation::UNDEFINED;
 }
 
+/*!
+ * Check if a random integer number is a valid MPVLocation for the current class.
+ * \return true if valid.
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::intIsValidLocation(int &value){
+    return !(value<0 && value>3) ;
+}
+
+
 }

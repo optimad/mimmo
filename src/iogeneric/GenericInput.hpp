@@ -31,6 +31,24 @@
 
 namespace mimmo{
 
+    
+/*!
+ * \brief Utilities to read CSV data from an input stream.
+ * \ingroup iogeneric
+ */
+namespace inputCSVStream{
+    template<typename T>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
+    template<typename T>
+    std::ifstream&  ifstreamcsvend(std::ifstream &in, T &x);
+    template<typename T>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, std::vector< T > &x);
+    template<typename T, size_t d>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, std::array< T,d > &x);
+    template<typename T>
+    std::ifstream&  ifstreamcsv(std::ifstream &in, MimmoPiercedVector< T > &x);
+}
+
 /*!
  * \class GenericInput
  * \ingroup iogeneric
@@ -59,8 +77,6 @@ namespace mimmo{
      | M_COORDS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
      | M_DATAFIELD   | getResult         | (MC_VECTOR, MD_FLOAT)       |
-     | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
-     | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)    |
      | M_POINT       | getResult         | (MC_ARRAY3, MD_FLOAT)       |
      | M_SPAN        | getResult         | (MC_ARRAY3, MD_FLOAT)       |
      | M_DIMENSION   | getResult         | (MC_ARRAY3, MD_INT)         |
@@ -82,7 +98,6 @@ namespace mimmo{
  * - <B>CSV</B>: 0/1 set class to read a CSV format;
  * - <B>ReadDir</B>: path to your current file data;
  * - <B>Filename</B>: path to your current file data.
- * - <B>Binary</B>: 0/1 set read a BINARY file (default ASCII);
  *
  */
 class GenericInput: public BaseManipulation{
@@ -94,8 +109,6 @@ private:
 
     std::unique_ptr<IOData>                m_input;        /**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
     std::unique_ptr<IOData>                m_result;        /**<Pointer to a base class object Result (derived class is template).*/
-
-    bool            m_binary;       /**<Input binary files (used only for MimmoPiercedVector structures).*/
 
 public:
     GenericInput(bool readFromFile = false, bool csv = false);
@@ -114,7 +127,7 @@ public:
 
     GenericInput(const GenericInput & other);
     GenericInput & operator=(GenericInput other);
-    
+
     void buildPorts();
 
     BITPIT_DEPRECATED( template<typename T> T* getInput());
@@ -126,7 +139,6 @@ public:
     void setCSV(bool csv);
     void setReadDir(std::string dir);
     void setFilename(std::string filename);
-    void setBinary(bool binary);
 
     template<typename T>
     void                 setInput(T* data);
@@ -148,7 +160,7 @@ public:
 
 protected:
     void swap(GenericInput & x) noexcept;
-    
+
 private:
 
     template<typename T>
@@ -167,28 +179,115 @@ private:
     template<typename T>
     T*                    _getResult();
 
+};
+
+/*!
+ * \class GenericInputMPVData
+ * \ingroup iogeneric
+ * \brief GenericInputMPVData is the class that set a generic input data as mimmo::MimmoPiercedVector.
+ *
+ * GenericInputMPVData is derived from BaseManipulation class. 
+ * GenericInput read MimmoPiercedVector data fields from file (unformatted/csv)
+ * When reading, the GenericInput object recognizes the type of data and
+ * it adapts the reading method in function of the output port used
+ * to build link (pin) with other objects.
+ * Can read binary data related to PiercedVector, activating the binary flag.
+ * 
+ * \n
+ * Ports available in GenericInput Class :
+ *
+ *    =========================================================
+ * 
+ *     |                 Port Input  ||                                 |
+ *     |----------|-------------------|-----------------------|
+ *     |<B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ *     |M_GEOM   |  setGeometry | (MC_SCALAR, MD_MIMMO_) |
+ * 
+ *     |              Port Output   |               |                       |
+ *     |---------------|-------------------|-----------------------|
+ *     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ *     | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
+ *     | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)    |
+ * 
+ *    =========================================================
+ * \n
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericInputMPVData</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
+ * - <B>CSV</B>: 0/1 set class to read a CSV format;
+ * - <B>ReadDir</B>: path to your current file data;
+ * - <B>Filename</B>: path to your current file data.
+ * - <B>Binary</B>: 0/1 set read a BINARY file (default ASCII);
+ *
+ */
+class GenericInputMPVData: public BaseManipulation{
+private:
+    bool            m_csv;          /**<True if the file is in csv format.*/
+    std::string     m_dir;          /**<Name of directory to read the input file.*/
+    std::string     m_filename;     /**<Name of the input file. The file has to be an ascii text file.*/
+    
+    std::unique_ptr<IOData>                m_input;        /**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+    std::unique_ptr<IOData>                m_result;        /**<Pointer to a base class object Result (derived class is template).*/
+    
+    bool            m_binary;       /**<Input binary files (used only for MimmoPiercedVector structures).*/
+    
+public:
+    GenericInputMPVData(bool csv = false);
+    GenericInputMPVData(const bitpit::Config::Section & rootXML);
+    GenericInputMPVData(std::string dir, std::string filename, bool csv = false);
+
+    ~GenericInputMPVData();
+
+    GenericInputMPVData(const GenericInputMPVData & other);
+    GenericInputMPVData & operator=(GenericInputMPVData other);
+
+    void buildPorts();
+
+    BITPIT_DEPRECATED( template<typename T> T* getInput());
+
     template<typename T>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
+    T  getResult();
+
+    void setCSV(bool csv);
+    void setReadDir(std::string dir);
+    void setFilename(std::string filename);
+    void setBinary(bool binary);
+
+    void    clearInput();
+    void    clearResult();
+    
+    void execute();
+    
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+    
+protected:
+    void swap(GenericInputMPVData & x) noexcept;
+    
+private:
+    
     template<typename T>
-    std::ifstream&  ifstreamcsvend(std::ifstream &in, T &x);
+    void                 _setResult(T* data);
     template<typename T>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, std::vector< T > &x);
-    template<typename T, size_t d>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, std::array< T,d > &x);
+    void                 _setResult(T& data);
+    template<typename T>
+    T*                    _getResult();
 
 };
 
 template <>
-dmpvector1D  GenericInput::getResult();
+dmpvector1D  GenericInputMPVData::getResult();
 
 template <>
-dmpvecarr3E  GenericInput::getResult();
+dmpvecarr3E  GenericInputMPVData::getResult();
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DIMENSION, MC_ARRAY3, MD_INT,__INPUTDOF_HPP__)
@@ -196,8 +295,13 @@ REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__INPUTDOF_HPP__)
 
 REGISTER(BaseManipulation, GenericInput, "mimmo.GenericInput")
+REGISTER(BaseManipulation, GenericInputMPVData, "mimmo.GenericInputMPVData")
+
 }
 
 #include "GenericInput.tpp"
