@@ -53,15 +53,15 @@ namespace mimmo{
  *
  *    =========================================================
  *
-     |                 Port Input     |||                                                     |
-     |-------|------------|------------------------------------|-----------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+     |                 Port Input     ||                                                     |
+     |------------|------------------------------------|-----------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
 
-    |            Port Output         |||             |
-     |-------|------------|------------------------------------|-----------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |            Port Output         ||             |
+     |------------|------------------------------------|-----------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  *    =========================================================
  *
@@ -122,29 +122,29 @@ private:
  *
  *    =========================================================
 
-     |                 Port Input   |||                              |
-     |-------|--------------|--------------------|----------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 60    | M_VECSFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT)|
-     | 18    | M_SCALARFIELD| addField           | (MC_MPVECTOR, MD_FLOAT)|
+     |                 Port Input   ||                              |
+     |--------------|--------------------|----------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_VECSFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT)|
+     | M_SCALARFIELD| addField           | (MC_MPVECTOR, MD_FLOAT)|
 
 
-     |            Port Output   |||                                        |
-     |-------|-----------|-------------------|--------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 18    | M_SCALARFIELD  | getSwitchedField     | (MC_MPVECTOR, MD_FLOAT)       |
+     |            Port Output   ||                                        |
+     |-----------|-------------------|--------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_SCALARFIELD  | getSwitchedField     | (MC_MPVECTOR, MD_FLOAT)       |
 
 
   Inherited from SwitchField
 
-     |                 Port Input   |||                                                         |
-     |-------|------------|------------------------------------|-----------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+     |                 Port Input   ||                                                         |
+     |------------|------------------------------------|-----------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
-     |            Port Output  |||                               |
-     |-------|-----------|------------------------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     |            Port Output  ||                               |
+     |-----------|------------------------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  *    =========================================================
  *
@@ -188,29 +188,29 @@ private:
  *    =========================================================
 
  
- |                 Port Input   |||                              |
- |-------|--------------|--------------------|----------------|
- |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | 60    | M_VECVFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT)|
- | 18    | M_VECTORFIELD| addField           | (MC_MPVECARR3, MD_FLOAT)|
+ |                 Port Input   ||                              |
+ |--------------|--------------------|----------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_VECVFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT)|
+ | M_VECTORFIELD| addField           | (MC_MPVECARR3, MD_FLOAT)|
  
  
- |            Port Output   |||                                        |
- |-------|-----------|-------------------|--------------------------|
- |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | 18    | M_VECTORFIELD  | getSwitchedField     | (MC_MPVECARR3, MD_FLOAT)       |
+ |            Port Output   ||                                        |
+ |-----------|-------------------|--------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_VECTORFIELD  | getSwitchedField     | (MC_MPVECARR3, MD_FLOAT)       |
  
  
  Inherited from SwitchField
  
- |                 Port Input   |||                                                         |
- |-------|------------|------------------------------------|-----------------------------|
- |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | 99    | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+ |                 Port Input   ||                                                         |
+ |------------|------------------------------------|-----------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
  
- |            Port Output  |||                               |
- |-------|-----------|------------------------------------|-----------------------|
- |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ |            Port Output  ||                               |
+ |-----------|------------------------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  *    =========================================================
  *

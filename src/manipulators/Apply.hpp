@@ -44,16 +44,16 @@ namespace mimmo{
  *
  *    =========================================================
  * 
-     | Port Input | | | |                                                              
-     |-|-|-|-|
-     |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-     | 11    | M_GDISPLS | setInput          | (MPVECARR3,FLOAT) |
-     | 99    | M_GEOM    | setGeometry       | (SCALAR,MIMMO_) |
+     | Port Input | | | 
+     |-|-|-|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GDISPLS | setInput          | (MC_MPVECARR3,MD_FLOAT) |
+     | M_GEOM    | setGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
      |Port Output | | |
      |-|-|-|
-     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |    
-     | M_GEOM   | getGeometry       | (SCALAR,MIMMO_) |
+     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>  |
+     | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
  *    =========================================================
  * \n
