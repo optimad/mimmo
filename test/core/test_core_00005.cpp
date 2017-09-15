@@ -66,7 +66,7 @@ int test5() {
 	}else{
 		std::cout<<"Copy and assignment of MimmoPiercedVector succeded"<<std::endl;
 	}
-	std::cout<<mpv1<<std::endl;
+	
 	delete obj;
     return 0;
 }
