@@ -36,6 +36,7 @@ MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation lo
     m_geometry = geo;
     m_loc = loc;
 //     m_name = name;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
 /*!
@@ -54,6 +55,7 @@ template<typename value_t>
 MimmoPiercedVector<value_t>::MimmoPiercedVector(const MimmoPiercedVector<value_t> & other):bitpit::PiercedVector<value_t,long int>(other){
     this->m_geometry = other.m_geometry;
     this->m_loc = other.m_loc;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*! 
@@ -215,17 +217,18 @@ MimmoPiercedVector<value_t>::checkDataSizeCoherence(){
     if(getGeometry()==NULL) return false;
     bool check = true;
     switch(m_loc){
-        case 2:
+        case MPVLocation::CELL:
             check = (this->size()==m_geometry->getPatch()->getCells().size());
             break;
-        case 3:
+        case MPVLocation::INTERFACE:
             check = (this->size()==m_geometry->getPatch()->getInterfaces().size());
             break;
-        case 1:
+        case MPVLocation::POINT:
             check = (this->size()==m_geometry->getPatch()->getVertices().size());
             break;
         default:
             check=false;
+            (*m_log)<<"NO suitable location data found to perform data size coherence check"<<std::endl;
             break;
     }
     return check;
@@ -246,23 +249,24 @@ MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
     if(getGeometry()==NULL) return false;
     bool check = this->size() != std::size_t(0);
     switch(m_loc){
-        case 2:
+        case MPVLocation::CELL:
             for(auto &el : m_geometry->getPatch()->getCells()){
                 check =check && this->exists(el.getId());
             }    
             break;
-        case 3:
+        case MPVLocation::INTERFACE:
             for(auto &el : m_geometry->getPatch()->getInterfaces()){
                 check =check && this->exists(el.getId());
             }    
             break;
-        case 1:
+        case MPVLocation::POINT:
             for(auto &el : m_geometry->getPatch()->getVertices()){
                 check =check && this->exists(el.getId());
             }    
             break;
         default:
             check = false;
+            (*m_log)<<"NO suitable location data found to perform ids coherence check"<<std::endl;
             break;
     }
     return check;

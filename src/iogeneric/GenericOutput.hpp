@@ -46,25 +46,26 @@ namespace mimmo{
  *
  *	=========================================================
 
- 	|                    Port Input  |||                                |
- 	|-------|-------------|-------------------|-------------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | 0     | M_COORDS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
- 	| 10    | M_DISPLS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
- 	| 14    | M_DATAFIELD | setResult         | (MC_VECTOR, MD_FLOAT)      |
-    | 18    | M_SCALARFIELD | setResult       | (MC_MPVECTOR, MD_FLOAT)    |
-    | 19    | M_VECTORFIELD | setResult       | (MC_MPVECARR3, MD_FLOAT)   |
-    | 20    | M_POINT     | setResult         | (MC_ARRAY3, MD_FLOAT)         |
- 	| 24    | M_DIMENSION | setResult         | (MC_ARRAY3, MD_INT)           |
- 	| 30    | M_VALUED    | setResult         | (MC_SCALAR, MD_FLOAT)         |
- 	| 31    | M_VALUEI    | setResult         | (MC_SCALAR, MD_INT)           |
- 	| 32    | M_VALUEB    | setResult         | (MC_SCALAR, MD_BOOL)          |
- 	| 40    | M_DEG       | setResult         | (MC_ARRAY3, MD_INT)           |
+ 	|                    Port Input  ||                                |
+ 	|-------------|-------------------|-------------------------|
+    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+    | M_COORDS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
+ 	| M_DISPLS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
+ 	| M_DATAFIELD | setResult         | (MC_VECTOR, MD_FLOAT)      |
+    | M_SCALARFIELD | setResult       | (MC_MPVECTOR, MD_FLOAT)    |
+    | M_VECTORFIELD | setResult       | (MC_MPVECARR3, MD_FLOAT)   |
+    | M_POINT     | setResult         | (MC_ARRAY3, MD_FLOAT)         |
+    | M_SPAN      | setResult         | (MC_ARRAY3, MD_FLOAT)         |
+ 	| M_DIMENSION | setResult         | (MC_ARRAY3, MD_INT)           |
+ 	| M_VALUED    | setResult         | (MC_SCALAR, MD_FLOAT)         |
+ 	| M_VALUEI    | setResult         | (MC_SCALAR, MD_INT)           |
+ 	| M_VALUEB    | setResult         | (MC_SCALAR, MD_BOOL)          |
+ 	| M_DEG       | setResult         | (MC_ARRAY3, MD_INT)           |
 
 
- 	|              Port Output  |||              |
- 	|-------|-------------|---------|----------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ 	|              Port Output  ||              |
+ 	|-------------|---------|----------|
+    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
  *	=========================================================
@@ -178,15 +179,16 @@ void  GenericOutput::setResult(dmpvecarr3E data);
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__OUTPUTDOF_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__OUTPUTDOF_HPP__)
-REGISTER_PORT(M_POINT,  MC_ARRAY3, MD_FLOAT,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_DIMENSION, MC_ARRAY3, MD_INT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__OUTPUTDOF_HPP__)
-REGISTER_PORT(M_DEG, MC_SCALAR, MD_INT,__OUTPUTDOF_HPP__)
-REGISTER_PORT(M_FILENAME, MC_SCALAR, MD_STRING,__OUTPUTDOF_HPP__)
-REGISTER_PORT(M_DIR, MC_SCALAR, MD_STRING,__OUTPUTDOF_HPP__)
+REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__OUTPUTDOF_HPP__)
 
 REGISTER(BaseManipulation, GenericOutput, "mimmo.GenericOutput")
 }

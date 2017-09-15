@@ -113,8 +113,9 @@ GenericOutput::buildPorts(){
     bool built = true;
     built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, M_COORDS, true, 1));
     built = (built && createPortIn<dvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvecarr3E>, M_DISPLS, true, 1));
-    built = (built && createPortIn<dvector1D, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvector1D>, M_FILTER, true, 1));
+    built = (built && createPortIn<dvector1D, GenericOutput>(this, &mimmo::GenericOutput::setInput<dvector1D>, M_DATAFIELD, true, 1));
     built = (built && createPortIn<darray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<darray3E>, M_POINT, true, 1));
+    built = (built && createPortIn<darray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<darray3E>, M_SPAN, true, 1));
     built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, M_DIMENSION, true, 1));
     built = (built && createPortIn<double, GenericOutput>(this, &mimmo::GenericOutput::setInput<double>, M_VALUED, true, 1));
     built = (built && createPortIn<int, GenericOutput>(this, &mimmo::GenericOutput::setInput<int>, M_VALUEI, true, 1));
@@ -122,8 +123,6 @@ GenericOutput::buildPorts(){
     built = (built && createPortIn<iarray3E, GenericOutput>(this, &mimmo::GenericOutput::setInput<iarray3E>, M_DEG, true, 1));
     built = (built && createPortIn<dmpvector1D, GenericOutput>(this, &mimmo::GenericOutput::setResult<dmpvector1D>, M_SCALARFIELD));
     built = (built && createPortIn<dmpvecarr3E, GenericOutput>(this, &mimmo::GenericOutput::setResult<dmpvecarr3E>, M_VECTORFIELD));
-//    built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, M_FILENAME, true, 1));
-//    built = (built && createPortIn<string, GenericOutput>(this, &mimmo::GenericOutput::setInput<string>, M_DIR, true, 1));
 
     m_arePortsBuilt = built;
 }

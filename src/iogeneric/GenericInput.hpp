@@ -48,26 +48,26 @@ namespace mimmo{
  *
  *    =========================================================
 
-     |                 Port Input  |||                                 |
-     |-------|----------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | 99    | M_GEOM         | setGeometry         | (MC_SCALAR, MD_MIMMO_)                   |
+     |                 Port Input  ||                                 |
+     |----------|-------------------|-----------------------|
+     |<B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+    
 
-
-     |              Port Output   ||               |                       |
-     |-------|---------------|-------------------|-----------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | 0     | M_COORDS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
-     | 10    | M_DISPLS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
-     | 18    | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
-     | 19    | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)     |
-     | 20    | M_POINT       | getResult         | (MC_ARRAY3, MD_FLOAT)       |
-     | 23    | M_SPAN        | getResult         | (MC_ARRAY3, MD_FLOAT)       |
-     | 24    | M_DIMENSION   | getResult         | (MC_ARRAY3, MD_INT)         |
-     | 30    | M_VALUED      | getResult         | (MC_SCALAR, MD_FLOAT)       |
-     | 31    | M_VALUEI      | getResult         | (MC_SCALAR, MD_INT)         |
-     | 32    | M_VALUEB      | getResult         | (MC_SCALAR, MD_BOOL)        |
-     | 40    | M_DEG         | getResult         | (MC_ARRAY3, MD_INT)         |
+     |              Port Output   |               |                       |
+     |---------------|-------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_COORDS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS      | getResult         | (MC_VECARR3, MD_FLOAT)      |
+     | M_DATAFIELD   | getResult         | (MC_VECTOR, MD_FLOAT)       |
+     | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
+     | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)    |
+     | M_POINT       | getResult         | (MC_ARRAY3, MD_FLOAT)       |
+     | M_SPAN        | getResult         | (MC_ARRAY3, MD_FLOAT)       |
+     | M_DIMENSION   | getResult         | (MC_ARRAY3, MD_INT)         |
+     | M_VALUED      | getResult         | (MC_SCALAR, MD_FLOAT)       |
+     | M_VALUEI      | getResult         | (MC_SCALAR, MD_INT)         |
+     | M_VALUEB      | getResult         | (MC_SCALAR, MD_BOOL)        |
+     | M_DEG         | getResult         | (MC_ARRAY3, MD_INT)         |
 
  *    =========================================================
  * \n
@@ -186,8 +186,9 @@ dmpvecarr3E  GenericInput::getResult();
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DIMENSION, MC_ARRAY3, MD_INT,__INPUTDOF_HPP__)
@@ -195,9 +196,6 @@ REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_FILENAME, MC_SCALAR, MD_STRING,__INPUTDOF_HPP__)
-REGISTER_PORT(M_DIR, MC_SCALAR, MD_STRING,__INPUTDOF_HPP__)
-
 
 REGISTER(BaseManipulation, GenericInput, "mimmo.GenericInput")
 }

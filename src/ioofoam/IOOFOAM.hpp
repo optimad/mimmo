@@ -57,7 +57,7 @@ namespace mimmo{
    |                     Port Input   ||                                     |
    |------------------|---------------------|----------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_SCALARFIELD    | setField            | (MC_VECTOR, MD_FLOAT)      |
+   | M_SCALARFIELD    | setField            | (MC_MPVECTOR, MD_FLOAT)      |
    | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
    | M_GEOM2          | setSurfaceBoundary  | (MC_SCALAR, MD_MIMMO_)     |
 
@@ -65,7 +65,7 @@ namespace mimmo{
    |               Port Output    ||                                         |
    |------------------|--------------------|-----------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_SCALARFIELD    | getField           | (MC_VECTOR, MD_FLOAT)       |
+   | M_SCALARFIELD    | getField           | (MC_MPVECTOR, MD_FLOAT)       |
    | M_GEOM           | getGeometry        | (MC_SCALAR, MD_MIMMO_)      |
    | M_GEOM2          | getSurfaceBoundary | (MC_SCALAR, MD_MIMMO_)      |
 
@@ -190,7 +190,7 @@ protected:
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT, __IOOFOAM_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
 
 
 REGISTER(BaseManipulation, IOOFOAM,"mimmo.IOOFOAM")

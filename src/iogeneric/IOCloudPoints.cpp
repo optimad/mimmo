@@ -117,12 +117,12 @@ IOCloudPoints::buildPorts(){
 
     built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS));
     built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_DISPLS));
-    built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_SCALARFIELD));
+    built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_DATAFIELD));
     built = (built && createPortIn<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setLabels, M_VECTORLI));
 
     built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getPoints, M_COORDS));
     built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, M_DISPLS));
-    built = (built && createPortOut<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_SCALARFIELD));
+    built = (built && createPortOut<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_DATAFIELD));
     built = (built && createPortOut<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getLabels, M_VECTORLI));
 
     m_arePortsBuilt = built;

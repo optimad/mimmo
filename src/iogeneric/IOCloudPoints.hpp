@@ -88,7 +88,7 @@ namespace mimmo{
      | M_COORDS      | setPoints         | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS      | setVectorField    | (MC_VECARR3, MD_FLOAT)      |
      | M_VECTORLI    | setLabels         | (MC_VECTOR, MD_LONG)        |
-     | M_SCALARFIELD | setScalarField    | (MC_VECTOR, MD_FLOAT)       |
+     | M_DATAFIELD   | setScalarField    | (MC_VECTOR, MD_FLOAT)       |
 
 
      |              Port Output  ||                                        |
@@ -97,7 +97,7 @@ namespace mimmo{
      | M_COORDS      | getPoints         | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS      | getVectorField    | (MC_VECARR3, MD_FLOAT)      |
      | M_VECTORLI    | getLabels         | (MC_VECTOR, MD_LONG)        |
-     | M_SCALARFIELD | getScalarField    | (MC_VECTOR, MD_FLOAT)       |
+     | M_DATAFIELD   | getScalarField    | (MC_VECTOR, MD_FLOAT)       |
 
  *    =========================================================
  * \n
@@ -175,7 +175,7 @@ private:
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
 REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG,__IOCLOUDPOINTS_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
 
 
 REGISTER(BaseManipulation, IOCloudPoints, "mimmo.IOCloudPoints")

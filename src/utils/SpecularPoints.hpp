@@ -49,7 +49,7 @@ namespace mimmo{
    |-|-|-|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | M_DISPLS      | setVectorData     | (MC_VECARR3, MD_FLOAT)          |
-   | M_SCALARFIELD | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
+   | M_DATAFIELD   | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
    | M_PLANE       | setPlane          | (MC_ARRAY4, MD_FLOAT)           |
    | M_POINT       | setOrigin         | (MC_ARRAY3, MD_FLOAT)           |
    | M_AXIS        | setNormal         | (MC_ARRAY3, MD_FLOAT)           |
@@ -60,7 +60,7 @@ namespace mimmo{
    |-|-|-|
    | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
    | M_DISPLS      | getCloudVectorData| (MC_VECARR3, MD_FLOAT)       |
-   | M_SCALARFIELD | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
+   | M_DATAFIELD   | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
 
 
   Inherited from ProjectCloud
@@ -154,7 +154,7 @@ protected:
 };
 
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__SPECULARPOINTS_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,__SPECULARPOINTS_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_PLANE, MC_ARRAY4, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)

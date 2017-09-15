@@ -53,14 +53,14 @@ namespace mimmo{
      |Port Input  | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_GDISPLS| setDefField       | (MC_VECARR3, MD_FLOAT)       |
+     | M_GDISPLS| setDefField       | (MC_MPVECARR3, MD_FLOAT)       |
      | M_VALUED | setLimitDistance  | (MC_SCALAR, MD_FLOAT)         |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
-     | M_SCALARFIELD | getViolationField | (MC_VECTOR, MD_FLOAT)             |
+     | M_SCALARFIELD | getViolationField | (MC_MPVECTOR, MD_FLOAT)             |
      | M_VALUED      | getViolation      | (MC_SCALAR, MD_FLOAT)             |
 
  *    =========================================================
@@ -113,11 +113,10 @@ protected:
 
 };
 
-REGISTER_PORT(M_GDISPLS, MC_VECARR3, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CONTROLDEFORMMAXDISTANCE_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
-REGISTER_PORT(M_VIOLATION, MC_PAIR, MD_PAIRMIMMO_OBJFLOAT_,__CONTROLDEFORMMAXDISTANCE_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
 
 
 REGISTER(BaseManipulation, ControlDeformMaxDistance, "mimmo.ControlDeformMaxDistance")

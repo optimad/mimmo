@@ -67,7 +67,7 @@ private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
 //     std::string                              m_name;                /**<Name of the field.*/
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
-
+    bitpit::Logger*                          m_log;          /**<Pointer to logger.*/
     
 public:
     MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
@@ -89,7 +89,7 @@ public:
 //     void                   setName(std::string name);
     void                   setDataLocation(MPVLocation loc);
     void                   setData(std::vector<value_t> &rawdata);
-
+    
     MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();

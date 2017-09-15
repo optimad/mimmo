@@ -60,9 +60,10 @@ enum class CSeedSurf{
  * trying to displace them at maximum euclidean distance possible on the surface. \n
  * 
  * Default engine is CARTESIANGRID
- *
+ * A Sensitivity field, defined on the target 3D surface can be linked, to drive the seeding procedure, i.e.
+ * displace points in the most sensible location according to the map.
  * \n
- * Ports available in GenericInput Class :
+ * Ports available in CreateSeedsOnSurface Class :
  *
  *    =========================================================
  * 
@@ -74,7 +75,7 @@ enum class CSeedSurf{
      | M_VALUEB       | setMassCenterAsSeed                   | (MC_SCALAR, MD_BOOL)        |
      | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
      | M_VALUEI2      | setRandomFixed                        | (MC_SCALAR, MD_INT)         |
-     | M_FILTER       | setSensitivityField                   | (MC_VECTOR, MD_FLOAT)       |
+     | M_FILTER       | setSensitivityField                   | (MC_MPVECTOR, MD_FLOAT)       |
     
      |Port Output  | | |
      |-|-|-|
@@ -111,7 +112,7 @@ private:
     CSeedSurf   m_engine;        /**< choose kernel type for points positioning computation */
     bool        m_seedbaricenter; /**< bool activate mass center as starting seed */
     int         m_randomFixed;    /**< signature for freezing random engine result*/
-    dvector1D   m_sensitivity;    /**< sensitivity map, defined on target geometry to drive placement of seeds*/
+    dmpvector1D m_sensitivity;    /**< sensitivity map, defined on target geometry to drive placement of seeds*/
     
     //utility members
     std::unique_ptr<mimmo::OBBox> bbox;        /**<pointer to an oriented Bounding box */
@@ -145,7 +146,7 @@ public:
     void         setMassCenterAsSeed(bool );
     void         setGeometry(MimmoObject *);
     void         setRandomFixed(int signature = -1);
-    void         setSensitivityMap(dvector1D field);
+    void         setSensitivityMap(dmpvector1D field);
     
     void         clear();
 
@@ -160,6 +161,7 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(CreateSeedsOnSurface & x) noexcept;
+    void    normalizeField();
 private:
 
     void    solveLSet( bool debug = false);
@@ -183,7 +185,7 @@ REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_VALUEI2, MC_SCALAR, MD_INT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CREATESEEDSONSURFACE_HPP__)
-REGISTER_PORT(M_FILTER, MC_VECTOR, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
+REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
 
 

@@ -142,7 +142,7 @@ CreateSeedsOnSurface::buildPorts(){
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setNPoints, M_VALUEI));
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, M_VALUEI2 ));
     built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setMassCenterAsSeed, M_VALUEB));
-    built = (built && createPortIn<dvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
+    built = (built && createPortIn<dmpvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
     
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, M_COORDS));
@@ -309,11 +309,11 @@ CreateSeedsOnSurface::setRandomFixed( int signature){
 
 /*!
  * Set a sensitivity scalar field, referred to the target geometry linked, to drive placement of the seeds points
- * on the most sensitive part of the geometry. The sensitivity filed MUST be defined on geometry vertices.  
+ * on the most sensitive part of the geometry. The sensitivity field MUST be defined on geometry vertices.  
  *\param[in] field sensitivity  
  */
 void
-CreateSeedsOnSurface::setSensitivityMap( dvector1D field){
+CreateSeedsOnSurface::setSensitivityMap( dmpvector1D field){
     m_sensitivity = field;
 }
 
@@ -369,28 +369,7 @@ CreateSeedsOnSurface::solve(bool debug){
     bbox->execute();
     if(m_seedbaricenter)    m_seed = bbox->getOrigin();
     
-    //normalize m_sensitivity and resize eventually.
-    m_sensitivity.resize(getGeometry()->getNVertex(), 1.0);
-
-    double minSense=0.0,maxSense=0.0;
-    minval(m_sensitivity, minSense);
-    //operate translation.
-    if (!std::isnan(minSense)){
-        for(auto &val: m_sensitivity){
-            val += -1.0*minSense;
-        }
-    }
-    maxval(m_sensitivity, maxSense);
-    //operate normalization.
-    if (!std::isnan(maxSense) || maxSense != 0.0){
-        m_sensitivity /= maxSense;
-    }
-    
-    if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
-        (*m_log)<<"Not valid sensitivity field detected in "<<m_name<<" object. No sensitivity will be taken into account"<<std::endl;
-        m_sensitivity.clear();
-        m_sensitivity.resize(getGeometry()->getNVertex(), 1.0);
-    }
+    normalizeField();
     
     switch(m_engine){
     case CSeedSurf::RANDOM :
@@ -1432,8 +1411,61 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     return result;
 }
 
+/*!
+ * Normalize your current point data seisitivity field associated to linked geometry. 
+ *  - If geometry is not linked, does nothing. 
+ *  - If a whole empty field is provided, default unity field on vertex ids of linked geometry is created. 
+ *  - If field is not coherent in data size and ids association to geometry, fill it default unity field on vertex ids.
+ */
+void CreateSeedsOnSurface::normalizeField(){
+    
+    if(getGeometry() == NULL)   return;
+    dmpvector1D defaultField;
+    //create unity field;
+    
+    for(const auto vert: getGeometry()->getVertices()){
+        defaultField.insert(vert.getId(), 1.0);
+    }
+    
+    if(getGeometry() != m_sensitivity.getGeometry()){
+        m_sensitivity = defaultField;
+        (*m_log)<<"WARNING in "<<m_name<<" : Not suitable data field connected. Reference geometry linked by the class and by MimmoPiercedvector field differs. Using default field"<<std::endl;
+        return;
+    }else if(m_sensitivity.recoverGeometryReferenceLocation() != MPVLocation::POINT){
+        m_sensitivity = defaultField;
+        (*m_log)<<"WARNING in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
+        return;
+    }else{    
+        if(!m_sensitivity.checkDataIdsCoherence()){
+            m_sensitivity = defaultField;
+            (*m_log)<<"WARNING in "<<m_name<<" : Not coherent data field connected. Data Ids of MimmoPiercedvector field are not aligned with geometry Vertex/Point field. Using default field"<<std::endl;
+            return;
+        }
+    }
 
-
+    double minSense=0.0,maxSense=0.0;
+    minval(m_sensitivity.getDataAsVector(), minSense);
+    //operate translation.
+    if (!std::isnan(minSense)){
+        for(auto &val: m_sensitivity){
+            val += -1.0*minSense;
+        }
+    }
+    maxval(m_sensitivity.getDataAsVector(), maxSense);
+    //operate normalization.
+    if (!std::isnan(maxSense) || maxSense != 0.0){
+        for(auto &val: m_sensitivity){
+            val /= maxSense;
+        }
+        
+    }
+    
+    if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
+        (*m_log)<<"Not valid data of sensitivity field detected in "<<m_name<<" object. Using default field"<<std::endl;
+        m_sensitivity = defaultField;
+    }
+    
+}
 
 
 }

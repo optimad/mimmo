@@ -67,7 +67,6 @@ namespace mimmo{
     | M_LOCAL     | getLocalCoords    | (MC_VECARR3, MD_FLOAT)    |
     | M_POINT     | getOrigin         | (MC_ARRAY3, MD_FLOAT)     |
     | M_AXES      | getRefSystem      | (MC_ARR3ARR3, MD_FLOAT)   |
-    | M_INFLIMITS | getInfLimits      | (MC_ARRAY3, MD_FLOAT)     |
     | M_SPAN      | getSpan           | (MC_ARRAY3, MD_FLOAT)     |
     | M_DIMENSION | getDimension      | (MC_ARRAY3, MD_INT)       |
     | M_COPYSHAPE | getShape          | (MC_SCALAR, MD_SHAPE_)    |
