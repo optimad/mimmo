@@ -513,14 +513,15 @@ GenericInputMPVData::getResult(){
             (*m_log) << "file not open --> exit" << std::endl;
             throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
         }
-        
+
         data->setGeometry(getGeometry());
         if(!m_csv){
             data = pvdata;
             data->setDataLocation(data.recoverGeometryReferenceLocation());
-        }    
+        }
+        //mandatory check:if field is id-uncoherent with current geometry, does not set anything
         if(data.checkDataIdsCoherence()) _setResult(data);
-    
+
     return *static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData();
 }
 
@@ -563,7 +564,8 @@ GenericInputMPVData::getResult(){
     if(!m_csv){
         data = pvdata;
         data->setDataLocation(data.recoverGeometryReferenceLocation());
-    }    
+    }
+    //mandatory check:if field is id-uncoherent with current geometry, does not set anything
     if(data.checkDataIdsCoherence()) _setResult(data);
 
     return *static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData();
