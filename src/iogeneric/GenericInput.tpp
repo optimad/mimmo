@@ -27,9 +27,9 @@
 
 namespace mimmo{
 
-    
+
 namespace inputCSVStream{
-    
+
 /*!
  * Recover a data from a stream when import in csv format.
  * \param[in] in import stream.
@@ -37,8 +37,8 @@ namespace inputCSVStream{
  * \return Reference to result import stream after data import.
  */
 template <typename T>
-std::ifstream&
-inputCSVStream::ifstreamcsv(std::ifstream &in, T &x){
+std::fstream&
+ifstreamcsv(std::fstream &in, T &x){
     T                   dummy{};
     char                delim;
     if ((in.good())) {
@@ -54,7 +54,7 @@ inputCSVStream::ifstreamcsv(std::ifstream &in, T &x){
  * \return Reference to result import stream after data import.
  */
 template <typename T>
-std::ifstream&  inputCSVStream::ifstreamcsvend(std::ifstream &in, T &x){
+std::fstream&  ifstreamcsvend(std::fstream &in, T &x){
     T                   dummy{};
     if ((in.good())) {
         if (in >> dummy) { x = dummy;}
@@ -69,7 +69,7 @@ std::ifstream&  inputCSVStream::ifstreamcsvend(std::ifstream &in, T &x){
  * \return Reference to result import stream after data import.
  */
 template <typename T>
-std::ifstream&  inputCSVStream::ifstreamcsv(std::ifstream &in, std::vector< T > &x){
+std::fstream&  ifstreamcsv(std::fstream &in, std::vector< T > &x){
 
     T       dummy;
 
@@ -80,13 +80,24 @@ std::ifstream&  inputCSVStream::ifstreamcsv(std::ifstream &in, std::vector< T > 
 }
 
 /*!
+ * Recover a data from a stream when import in csv format a vector of data.
+ * \param[in] in import stream.
+ * \param[out] x vector data read.
+ * \return Reference to result import stream after data import.
+ */
+template <typename T>
+std::fstream&  ifstreamcsvend(std::fstream &in, std::vector< T > &x){
+        return ifstreamcsv(in, x);
+}
+
+/*!
  * Recover a data from a stream when import in csv format an array of data of dimension d.
  * \param[in] in import stream.
  * \param[out] x array data read.
  * \return Reference to result import stream after data import.
  */
 template <typename T, size_t d>
-std::ifstream&  inputCSVStream::ifstreamcsv(std::ifstream &in, std::array< T, d> &x){
+std::fstream&  ifstreamcsv(std::fstream &in, std::array< T, d> &x){
 
     T       dummy{};
     int     i;
@@ -101,23 +112,41 @@ std::ifstream&  inputCSVStream::ifstreamcsv(std::ifstream &in, std::array< T, d>
 };
 
 /*!
+ * Recover a data from a stream when import in csv format an array of data of dimension d.
+ * \param[in] in import stream.
+ * \param[out] x array data read.
+ * \return Reference to result import stream after data import.
+ */
+template <typename T, size_t d>
+std::fstream&  ifstreamcsvend(std::fstream &in, std::array< T, d> &x){
+    return ifstreamcsvend(in, x);
+};
+
+/*!
  * Recover a data from a stream when import in csv format a MimmoPiercedVector of data.
  * \param[in] in import stream.
  * \param[out] x MimmoPiercedVector data read.
  * \return Reference to result import stream after data import.
  */
 template <typename T>
-std::ifstream&  inputCSVStream::ifstreamcsv(std::ifstream &in, MimmoPiercedVector< T > &x){
+std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x){
 
     T       dummy;
     long    id;
     int     location;
+    long    sizeData = 0;
 
-    if(istreamcsv(in, location)){
+    if(ifstreamcsvend(in, location)){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
-    while (in.good()) {
-        if (ifstreamcsv(in,id) && ifstreamcsv(in,dummy)) { x.insert(id,dummy); }
+    if(ifstreamcsvend(in, sizeData)){
+        x.reserve(sizeData);
+    }
+    
+    for(long count = 0; count<sizeData; ++count){
+        ifstreamcsv(in,id) ;
+        ifstreamcsvend(in,dummy);
+        x.insert(id,dummy); 
     }
     return(in);
 }
@@ -161,11 +190,11 @@ T
 GenericInput::getResult(){
     if (m_readFromFile){
         T data;
-        std::ifstream file;
-        file.open(m_dir+"/"+m_filename);
+        std::fstream file;
+        file.open(m_dir+"/"+m_filename, std::fstream::in);
         if (file.is_open()){
             if (m_csv){
-                ifstreamcsv(file, data);
+                inputCSVStream::ifstreamcsv(file, data);
             }
             else{
                 file >> data;
@@ -272,17 +301,81 @@ GenericInput::_getResult(){
 }
 
 //GENERICINPUTMPVDATA/////////////////////////////////////////////////////
-
 /*!
- * It gets the input member of the object.
- * \return Pointer to data stored in the input member.
+ * It gets the result of the object.
+ * Result may be empty both for failed reading or invalid read data. In that case, 
+ * return a NULL pointer.
+ * \return Pointer to data stored in the result member.
  */
 template<typename T>
-T*
-GenericInputMPVData::getInput(){
-    return(static_cast<IODataT<T>*>(m_input.get())->getData());
+MimmoPiercedVector< T >*
+GenericInputMPVData::_getResult(){
+    MimmoPiercedVector< T > data;
+    if (getGeometry() == NULL) return NULL;
+
+    int n_loc;
+    long nSize = 0;
+    long id;
+    T data_T;
+
+    if(m_csv)   m_binary = false;
+    data.setGeometry(getGeometry());
+
+    std::fstream file;
+    file.open(m_dir+"/"+m_filename, std::fstream::in);
+    if (file.is_open()){
+        if (m_binary){
+            bitpit::genericIO::absorbBINARY(file, n_loc);
+            bitpit::genericIO::absorbBINARY(file, nSize);
+            data.reserve(nSize);
+            for(int i=0; i<nSize; ++i){
+                bitpit::genericIO::absorbBINARY(file, id);
+                bitpit::genericIO::absorbBINARY(file, data_T);
+                data.insert(id,data_T);
+            }
+            data.setDataLocation(n_loc);
+        }
+        else if (m_csv){
+            inputCSVStream::ifstreamcsv(file, data);
+        }else{
+            bitpit::genericIO::absorbASCII(file, n_loc);
+            bitpit::genericIO::absorbASCII(file, nSize);
+            data.reserve(nSize);
+            for(int i=0; i<nSize; ++i){
+                bitpit::genericIO::absorbASCII(file, id);
+                bitpit::genericIO::absorbASCII(file, data_T);
+                data.insert(id,data_T);
+            }
+            data.setDataLocation(n_loc);
+        }
+        file.close();
+    }else{
+        (*m_log) << "file not open --> exit" << std::endl;
+        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+    }
+
+    //mandatory check:if field is id-uncoherent with current geometry, does not set anything
+    if(data.checkDataIdsCoherence()) _setResult(data);
+
+    return static_cast<IODataT<MimmoPiercedVector< T > >*>(m_result.get())->getData();
 }
 
+/*!
+ * It gets the result of the object.
+ * Result may be empty both for failed reading or invalid read data. In that case, 
+ * return an empty/default copy of the result data.
+ * \return copy of the data stored in result member.
+ */
+template < typename T>
+MimmoPiercedVector< T >
+GenericInputMPVData::getResult(){
+    MimmoPiercedVector< T > * pres = _getResult< T >() ;
+    if (pres != NULL){
+        return *pres;
+    }else{
+        return MimmoPiercedVector< T >();
+    }
+}
 
 /*!
  * It sets the result member of the object.
@@ -290,8 +383,8 @@ GenericInputMPVData::getInput(){
  */
 template<typename T>
 void
-GenericInputMPVData::_setResult(T* data){
-    m_result = std::move(std::unique_ptr<IOData>(new IODataT<T>(*data)));
+GenericInputMPVData::_setResult(MimmoPiercedVector< T > * data){
+    m_result = std::move(std::unique_ptr<IOData> (new IODataT<MimmoPiercedVector< T > >(*data)));
 }
 
 /*!
@@ -300,22 +393,8 @@ GenericInputMPVData::_setResult(T* data){
  */
 template<typename T>
 void
-GenericInputMPVData::_setResult(T& data){
-    m_result = std::move(std::unique_ptr<IOData>(new IODataT<T>(data)));
+GenericInputMPVData::_setResult(MimmoPiercedVector< T > & data){
+    m_result = std::move(std::unique_ptr<IOData> (new IODataT<MimmoPiercedVector < T > >(data)));
 }
-
-/*!
- * It gets the result member of the object.
- * \return Pointer to data stored in the result member.
- */
-template<typename T>
-T*
-GenericInputMPVData::_getResult(){
-    return(static_cast<IODataT<T>*>(m_result.get())->getData());
-}
-
-
-
-
 
 }

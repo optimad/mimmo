@@ -101,7 +101,7 @@ void
 MimmoPiercedVector<value_t>::clear(){
     m_geometry = NULL;
 //     m_name = "";
-    m_loc = MPVLocation::POINT;
+    m_loc = MPVLocation::UNDEFINED;
     bitpit::PiercedVector<value_t, long int>::clear();
 }
 
@@ -132,7 +132,11 @@ MimmoPiercedVector<value_t>::getGeometry() const{
 template<typename value_t>
 MPVLocation
 MimmoPiercedVector<value_t>::getDataLocation() const{
-    return m_loc;
+    if( m_loc == MPVLocation::UNDEFINED){
+        return recoverGeometryReferenceLocation();
+    }else{
+        return m_loc;
+    }
 }
 
 /*!
@@ -185,6 +189,19 @@ template<typename value_t>
 void
 MimmoPiercedVector<value_t>::setDataLocation(MPVLocation loc){
     m_loc = loc;
+}
+
+/*!
+ * Set the data Location through integer. If out of MPVLocation enum, 
+ * set MPVLocation::UNDEFINED by default.
+ * \param[in] loc int 0 to 3 to identify location.
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::setDataLocation(int loc){
+    loc = std::max(0, loc);
+    if (loc > 3) loc =0;
+    setDataLocation(static_cast<MPVLocation>(loc));
 }
 
 /*!
@@ -281,7 +298,7 @@ MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
  */
 template<typename value_t>
 MPVLocation
-MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation(){
+MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation() const {
     
     if(getGeometry()==NULL) return MPVLocation::UNDEFINED;
     std::size_t datasize = this->size();

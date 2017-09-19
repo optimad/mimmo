@@ -38,9 +38,10 @@ namespace mimmo{
 /*!
  * \enum MPVLocation
  * define location of the MimmoPiercedVector data:
- *  - 0-POINT on geometry vertex
- *  - 1-CELL on geometry cells
- *  - 2-INTERFACE on geometry interfaces
+ *  - 0-UNDEFINED no location provided
+ *  - 1-POINT on geometry vertex
+ *  - 2-CELL on geometry cells
+ *  - 3-INTERFACE on geometry interfaces
  */
 enum class MPVLocation{
     UNDEFINED=0,
@@ -88,9 +89,10 @@ public:
     void                   setGeometry(MimmoObject* geo);
 //     void                   setName(std::string name);
     void                   setDataLocation(MPVLocation loc);
+    void                   setDataLocation(int loc);
     void                   setData(std::vector<value_t> &rawdata);
     
-    MPVLocation recoverGeometryReferenceLocation();
+    MPVLocation recoverGeometryReferenceLocation() const;
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     bool intIsValidLocation(int &);

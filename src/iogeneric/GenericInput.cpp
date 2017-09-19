@@ -143,6 +143,14 @@ GenericInput::setReadDir(std::string dir){
     m_dir = dir;
 };
 
+/*!It sets if the input file is in csv format.
+ * \param[in] csv Is the input file write in comma separated value format?
+ */
+void
+GenericInput::setCSV(bool csv){
+    m_csv = csv;
+};
+
 /*! It builds the input/output ports of the object
  */
 void
@@ -303,7 +311,7 @@ GenericInputMPVData::GenericInputMPVData(std::string dir, std::string filename, 
     m_filename      = filename;
     m_name          = "mimmo.GenericInputMPVData";
     m_binary        = false;
-    m_portsType     = BaseManipulation::ConnectionType::BOTH;
+    m_portsType     = BaseManipulation::ConnectionType::FORWARD;
 };
 
 GenericInputMPVData::~GenericInputMPVData(){};
@@ -336,7 +344,6 @@ void GenericInputMPVData::swap(GenericInputMPVData & x) noexcept
     std::swap(m_dir         , x.m_dir);
     std::swap(m_filename    , x.m_filename);
     std::swap(m_binary      , x.m_binary);
-    std::swap(m_input       , x.m_input);
     std::swap(m_result      , x.m_result);
     BaseManipulation::swap(x);
 }
@@ -382,18 +389,11 @@ GenericInputMPVData::buildPorts(){
     bool built = true;
     
     built = (built && createPortIn<MimmoObject*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::setGeometry, M_GEOM, true));
-    built = (built && createPortOut<dmpvector1D, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<dmpvector1D>, M_SCALARFIELD));
-    built = (built && createPortOut<dmpvecarr3E, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<dmpvecarr3E>, M_VECTORFIELD));
+    built = (built && createPortOut<dmpvector1D, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<double>, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvecarr3E, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<darray3E>, M_VECTORFIELD));
     
     
     m_arePortsBuilt = built;
-}
-
-/*!It clear the input member of the object
- */
-void
-GenericInputMPVData::clearInput(){
-    m_input.reset(nullptr);
 }
 
 /*!It clear the result member of the object
@@ -435,13 +435,13 @@ GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         setCSV(temp);
     };
     
-    if(slotXML.hasOption("Filename") && m_readFromFile){
+    if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
         input = bitpit::utils::string::trim(input);
         setFilename(input);
     };
     
-    if(slotXML.hasOption("ReadDir") && m_readFromFile){
+    if(slotXML.hasOption("ReadDir")){
         std::string input = slotXML.get("ReadDir");
         input = bitpit::utils::string::trim(input);
         setReadDir(input);
@@ -477,103 +477,6 @@ GenericInputMPVData::flushSectionXML(bitpit::Config::Section & slotXML, std::str
     slotXML.set("Filename", m_filename);
     slotXML.set("Binary", std::to_string((int)m_binary));
 };
-
-
-
-//specializations of getResult
-/*!
- * Overloaded function of base class getResult.
- * It gets the result of the object, equal to the input.
- * In the case it reads the input from file before to set and to get the result.
- * \return Pointer to data stored in result member.
- */
-template <>
-dmpvector1D
-GenericInputMPVData::getResult(){
-    dmpvector1D data;
-    if (getGeometry() == NULL) return data;
-    int nEle;
-    if(m_csv)   m_binary = false;
-    std::fstream file;
-    file.open(m_dir+"/"+m_filename);
-        bitpit::PiercedVector<double> pvdata;
-        if (file.is_open()){
-            if (m_binary){
-                bitpit::genericIO::absorbBINARY(file, nEle);
-                bitpit::genericIO::absorbBINARY(file, pvdata, nEle);
-            }
-            else if (m_csv){
-                ifstreamcsv(file, data);
-            }else{
-                bitpit::genericIO::absorbASCII(file, nEle);
-                bitpit::genericIO::absorbASCII(file, pvdata, nEle);
-            }
-            file.close();
-        }else{
-            (*m_log) << "file not open --> exit" << std::endl;
-            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
-        }
-
-        data->setGeometry(getGeometry());
-        if(!m_csv){
-            data = pvdata;
-            data->setDataLocation(data.recoverGeometryReferenceLocation());
-        }
-        //mandatory check:if field is id-uncoherent with current geometry, does not set anything
-        if(data.checkDataIdsCoherence()) _setResult(data);
-
-    return *static_cast<IODataT<dmpvector1D>*>(m_result.get())->getData();
-}
-
-
-//specializations of getResult
-/*!
- * Overloaded function of base class getResult.
- * It gets the result of the object, equal to the input.
- * In the case it reads the input from file before to set and to get the result.
- * \return Pointer to data stored in result member.
- */
-template <>
-dmpvecarr3E
-GenericInputMPVData::getResult(){
-    dmpvecarr3E data;
-    if (getGeometry() == NULL) return data;
-    int nEle;
-    if(m_csv)   m_binary = false;
-    std::fstream file;
-    file.open(m_dir+"/"+m_filename);
-    bitpit::PiercedVector<std::array<double,3> > pvdata;
-    if (file.is_open()){
-        if (m_binary){
-            bitpit::genericIO::absorbBINARY(file, nEle);
-            bitpit::genericIO::absorbBINARY(file, pvdata, nEle);
-        }
-        else if (m_csv){
-            ifstreamcsv(file, data);
-        }else{
-            bitpit::genericIO::absorbASCII(file, nEle);
-            bitpit::genericIO::absorbASCII(file, pvdata, nEle);
-        }
-        file.close();
-    }else{
-        (*m_log) << "file not open --> exit" << std::endl;
-        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
-    }
-    
-    data->setGeometry(getGeometry());
-    if(!m_csv){
-        data = pvdata;
-        data->setDataLocation(data.recoverGeometryReferenceLocation());
-    }
-    //mandatory check:if field is id-uncoherent with current geometry, does not set anything
-    if(data.checkDataIdsCoherence()) _setResult(data);
-
-    return *static_cast<IODataT<dmpvecarr3E>*>(m_result.get())->getData();
-}
-
-
-
-
 
 }
 

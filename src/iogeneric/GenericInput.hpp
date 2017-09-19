@@ -31,22 +31,25 @@
 
 namespace mimmo{
 
-    
 /*!
  * \brief Utilities to read CSV data from an input stream.
  * \ingroup iogeneric
  */
 namespace inputCSVStream{
     template<typename T>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, T &x);
+    std::fstream&  ifstreamcsv(std::fstream &in, T &x);
     template<typename T>
-    std::ifstream&  ifstreamcsvend(std::ifstream &in, T &x);
+    std::fstream&  ifstreamcsvend(std::fstream &in, T &x);
     template<typename T>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, std::vector< T > &x);
+    std::fstream&  ifstreamcsv(std::fstream &in, std::vector< T > &x);
     template<typename T, size_t d>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, std::array< T,d > &x);
+    std::fstream&  ifstreamcsv(std::fstream &in, std::array< T,d > &x);
     template<typename T>
-    std::ifstream&  ifstreamcsv(std::ifstream &in, MimmoPiercedVector< T > &x);
+    std::fstream&  ifstreamcsvend(std::fstream &in, std::vector< T > &x);
+    template<typename T, size_t d>
+    std::fstream&  ifstreamcsvend(std::fstream &in, std::array< T,d > &x);
+    template<typename T>
+    std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x);
 }
 
 /*!
@@ -229,12 +232,11 @@ private:
     bool            m_csv;          /**<True if the file is in csv format.*/
     std::string     m_dir;          /**<Name of directory to read the input file.*/
     std::string     m_filename;     /**<Name of the input file. The file has to be an ascii text file.*/
-    
-    std::unique_ptr<IOData>                m_input;        /**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+
     std::unique_ptr<IOData>                m_result;        /**<Pointer to a base class object Result (derived class is template).*/
-    
+
     bool            m_binary;       /**<Input binary files (used only for MimmoPiercedVector structures).*/
-    
+
 public:
     GenericInputMPVData(bool csv = false);
     GenericInputMPVData(const bitpit::Config::Section & rootXML);
@@ -247,43 +249,35 @@ public:
 
     void buildPorts();
 
-    BITPIT_DEPRECATED( template<typename T> T* getInput());
-
     template<typename T>
-    T  getResult();
+    MimmoPiercedVector<T>  getResult();
 
     void setCSV(bool csv);
     void setReadDir(std::string dir);
     void setFilename(std::string filename);
     void setBinary(bool binary);
 
-    void    clearInput();
     void    clearResult();
-    
+
     void execute();
-    
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-    
+
 protected:
     void swap(GenericInputMPVData & x) noexcept;
-    
+
 private:
+
+    template<typename T>
+    MimmoPiercedVector< T >*         _getResult();
+    template<typename T>
+    void                             _setResult(MimmoPiercedVector< T >*);
+    template<typename T>
+    void                             _setResult(MimmoPiercedVector< T >&);
     
-    template<typename T>
-    void                 _setResult(T* data);
-    template<typename T>
-    void                 _setResult(T& data);
-    template<typename T>
-    T*                    _getResult();
 
 };
-
-template <>
-dmpvector1D  GenericInputMPVData::getResult();
-
-template <>
-dmpvecarr3E  GenericInputMPVData::getResult();
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__INPUTDOF_HPP__)

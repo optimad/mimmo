@@ -31,9 +31,31 @@
 namespace mimmo{
 
 /*!
+ *\brief Utilities to write CSV data to an output stream
+ *\ingroup iogeneric
+ */
+namespace outputCSVStream{
+    template<typename T>
+    std::fstream&  ofstreamcsv(std::fstream &in, const T &x);
+    template<typename T>
+    std::fstream&  ofstreamcsvend(std::fstream &in, const T &x);
+    template<typename T>
+    std::fstream&  ofstreamcsv(std::fstream &in, const std::vector< T > &x);
+    template<typename T, size_t d>
+    std::fstream&  ofstreamcsv(std::fstream &in, const std::array< T,d > &x);
+    template<typename T>
+    std::fstream&  ofstreamcsvend(std::fstream &in, const std::vector< T > &x);
+    template<typename T, size_t d>
+    std::fstream&  ofstreamcsvend(std::fstream &in, const std::array< T,d > &x);
+    template<typename T>
+    std::fstream&  ofstreamcsv(std::fstream &in, const MimmoPiercedVector< T > &x);
+    template<typename T, size_t d>
+    std::fstream&  ofstreamcsvend(std::fstream &in, const MimmoPiercedVector< T > &x);
+}
+/*!
  * \class GenericOutput
  * \ingroup iogeneric
- * \brief GenericOutput is the class that write data in an output on file.
+ * \brief GenericOutput is the class that write generic data in a file output.
  *
  * GenericOutput is derived from BaseManipulation class.
  * GenericOutput can write the output in a data file (unformatted/csv).
@@ -52,8 +74,6 @@ namespace mimmo{
     | M_COORDS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
  	| M_DISPLS    | setResult         | (MC_VECARR3, MD_FLOAT)     |
  	| M_DATAFIELD | setResult         | (MC_VECTOR, MD_FLOAT)      |
-    | M_SCALARFIELD | setResult       | (MC_MPVECTOR, MD_FLOAT)    |
-    | M_VECTORFIELD | setResult       | (MC_MPVECARR3, MD_FLOAT)   |
     | M_POINT     | setResult         | (MC_ARRAY3, MD_FLOAT)         |
     | M_SPAN      | setResult         | (MC_ARRAY3, MD_FLOAT)         |
  	| M_DIMENSION | setResult         | (MC_ARRAY3, MD_INT)           |
@@ -81,7 +101,6 @@ namespace mimmo{
  * - <B>Filename</B>: name of file to write data;
  * - <B>WriteDir</B>: name of directory to write data;
  * - <B>CSV</B>: true if write in csv format;
- * - <B>Binary</B>: 0/1 set write a BINARY file (default ASCII);
  *
  */
 class GenericOutput: public BaseManipulation{
@@ -92,9 +111,6 @@ private:
 
 	bool                    m_csv;          /**<True if write output file in csv format.*/
 	std::unique_ptr<IOData>	m_input;		/**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
-	std::unique_ptr<IOData>	m_result;		/**<Pointer to a base class object Result (derived class is template).*/
-
-    bool            m_binary;       /**<Output binary files (used only for MimmoPiercedVector structures).*/
 
 public:
 	GenericOutput(std::string dir = "./", std::string filename = "output.txt", bool csv = false);
@@ -107,10 +123,7 @@ public:
 	void buildPorts();
 
 	BITPIT_DEPRECATED( template<typename T>
-	T*					getInput());
-
-	BITPIT_DEPRECATED( template<typename T>
-	T* 					getResult());
+	T*      getInput());
 
 	template<typename T>
 	void 	setInput(T* data);
@@ -118,18 +131,11 @@ public:
 	template<typename T>
 	void 	setInput(T data);
 
-	BITPIT_DEPRECATED( template<typename T>
-	void 				setResult(T* data));
-	BITPIT_DEPRECATED( template<typename T>
-	void 				setResult(T data));
-
 	void	clearInput();
-	void	clearResult();
 
     void setWriteDir(std::string dir);
     void setFilename(std::string filename);
     void setCSV(bool csv);
-    void setBinary(bool binary);
 
 	void 	execute();
 	
@@ -137,45 +143,105 @@ public:
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 protected:
     void swap(GenericOutput & x) noexcept;
-    
 private:
-
-	template<typename T>
-    void                _setInput(T* data);
     template<typename T>
-    void                _setInput(T data);
-
-    template<typename T>
-    void                _setResult(T* data);
-    template<typename T>
-    void                _setResult(T data);
-
-    template<typename T>
-    T*                  _getInput();
-
-    template<typename T>
-    T*                  _getResult();
-
-    template<typename T>
-    std::ofstream&  ofstreamcsv(std::ofstream &in, const T &x);
-    template<typename T>
-    std::ofstream&  ofstreamcsv(std::ofstream &in, const std::vector< T > &x);
-    template<typename T, size_t d>
-    std::ofstream&  ofstreamcsv(std::ofstream &in, const std::array< T,d > &x);
-    template<typename T>
-    std::ofstream&  ofstreamcsvend(std::ofstream &in, const T &x);
-    template<typename T>
-    std::ofstream&  ofstreamcsvend(std::ofstream &in, const std::vector< T > &x);
-    template<typename T, size_t d>
-    std::ofstream&  ofstreamcsvend(std::ofstream &in, const std::array< T,d > &x);
-
+    void _setInput(T & data);
 };
 
-template <>
-void  GenericOutput::setResult(dmpvector1D data);
+/*!
+ * \class GenericOutputMPVData
+ * \ingroup iogeneric
+ * \brief GenericOutputMPVData is the class that write a generic data to file output as
+ * mimmo::MimmoPiercedVector.
+ *
+ * GenericOutputMPVData is derived from BaseManipulation class.
+ * GenericOutputMPVData write MimmoPiercedVector data fields to file (unformatted/csv).
+ * When writing, the GenericOutputMPVData object recognizes the type of data and
+ * it adapts the writing method in function of the input port used
+ * to build link (pin) with an other object.
+ * Can write binary data in raw format only, activating the binary flag.
+ *
+ * \n
+ * Ports available in GenericOutputMPVData Class :
+ *
+ *  =========================================================
+ * 
+ *  |                    Port Input  ||                                |
+ *  |-------------|-------------------|-------------------------|
+ *  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ *  | M_SCALARFIELD | setInput       | (MC_MPVECTOR, MD_FLOAT)    |
+ *  | M_VECTORFIELD | setInput       | (MC_MPVECARR3, MD_FLOAT)   |
+ * 
+ * 
+ *  |              Port Output  ||              |
+ *  |-------------|---------|----------|
+ *  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ * 
+ * 
+ *  =========================================================
+ *
+ * \n
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.GenericOutputMPVData</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
+ * - <B>Filename</B>: name of file to write data;
+ * - <B>WriteDir</B>: name of directory to write data;
+ * - <B>CSV</B>: true if write in csv format;
+ * - <B>Binary</B>: 0/1 set write a BINARY file (default ASCII).If CSV, only ASCII is available;
+ *
+ */
+class GenericOutputMPVData: public BaseManipulation{
+private:
+    std::string             m_dir;          /**<Name of directory to write the output file.*/
+    std::string             m_filename;     /**<Name of the output file.
+    The file will be an ascii text file.*/
+    
+    bool                    m_csv;          /**<True if write output file in csv format.*/
+    std::unique_ptr<IOData> m_input;        /**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
+    
+    bool            m_binary;       /**<Output unformatted binary files.*/
+    
+public:
+    GenericOutputMPVData(std::string dir = "./", std::string filename = "output.txt", bool csv = false);
+    GenericOutputMPVData(const bitpit::Config::Section & rootXML);
+    ~GenericOutputMPVData();
 
-template <>
-void  GenericOutput::setResult(dmpvecarr3E data);
+    GenericOutputMPVData(const GenericOutputMPVData & other);
+    GenericOutputMPVData& operator=(GenericOutputMPVData other);
+
+    void buildPorts();
+
+    BITPIT_DEPRECATED(template<typename T>
+    MimmoPiercedVector< T >*    getInput());
+    
+    template<typename T>
+    void    setInput(MimmoPiercedVector< T > *data);
+
+    template<typename T>
+    void    setInput(MimmoPiercedVector< T > data);
+
+    void    clearInput();
+
+    void setWriteDir(std::string dir);
+    void setFilename(std::string filename);
+    void setCSV(bool csv);
+    void setBinary(bool binary);
+    
+    void    execute();
+    
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+protected:
+    void swap(GenericOutputMPVData & x) noexcept;
+private:
+    template<typename T>
+    void _setInput(MimmoPiercedVector< T > & data);
+
+};
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__OUTPUTDOF_HPP__)
