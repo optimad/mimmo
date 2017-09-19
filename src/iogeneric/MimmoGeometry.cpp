@@ -800,8 +800,7 @@ MimmoGeometry::write(){
         std::ostream out(&buffer);
         buffer.open(name, std::ios::out);
         if (buffer.is_open()){
-            out << (getGeometry()->getType());
-            getGeometry()->getPatch()->dump(out);
+            getGeometry()->dump(out);
             buffer.close();
         }
         return true;
@@ -1212,9 +1211,7 @@ MimmoGeometry::read(){
         std::istream in(&buffer);
         buffer.open(name, std::ios::in);
         if (buffer.is_open()){
-            in >> type;
-            setGeometry(type);
-            m_intgeo->getPatch()->restore(in);
+            m_intgeo->restore(in);
             buffer.close();
         }
         return true;

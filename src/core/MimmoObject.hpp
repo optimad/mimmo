@@ -151,12 +151,16 @@ public:
 
     bool        areAdjacenciesBuilt();
     bool        isClosedLoop();
-    
+
     bitpit::VTKElementType	desumeElement();
+
+    void        dump(std::ostream & stream);
+    void        restore(std::istream & stream);
 
 protected:
     void    swap(MimmoObject & ) noexcept;
-    
+    void    reset(int type);
+
 private:
     int     checkCellType(bitpit::ElementInfo::Type type);
     void    cleanKdTree();

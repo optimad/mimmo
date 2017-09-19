@@ -1563,6 +1563,69 @@ bitpit::VTKElementType	MimmoObject::desumeElement(){
     return result;
 };
 
+/*!
+ * Reset class to default constructor set-up.
+ * \param[in] type type of mesh from 1 to 4; See default constructor.
+ */
+void MimmoObject::reset(int type){
+    const int id = 0;
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    m_type = std::max(0, type);
+    if (m_type > 4){
+        m_type = 1;
+    }
+
+    if (m_type == 2){
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
+        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    }else{
+        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
+        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
+        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    }
+    m_internalPatch = true;
+    m_extpatch = NULL;
+    
+    m_skdTreeSupported = (m_type != 3);
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    m_AdjBuilt = false;
+}
+
+/*!
+ * Dump contents of your current MimmoObject to a stream. 
+ * Search trees and adjacencies will not be dumped.
+ * Write all in a binary format.
+ * \param[in,out] stream to write on.
+ */
+void MimmoObject::dump(std::ostream & stream){
+    bitpit::utils::binary::write(stream,m_type);
+    getPatch()->dump(stream);
+}
+
+/*!
+ * Restore contents of a dumped MimmoObject from a stream in your current class.
+ * New restored data will be owned internally by the class.
+ * Every data previously stored will be lost.
+ * Read all in a binary format.
+ * \param[in,out] stream to write on.
+ */
+
+void MimmoObject::restore(std::istream & stream){
+    int type;
+    bitpit::utils::binary::read(stream,type);
+    reset(type);
+
+    getPatch()->restore(stream);
+
+    for (const auto cell: getCells()){
+        m_pidsType.insert(short(cell.getPID()));
+    }
+}
+
 
 }
 

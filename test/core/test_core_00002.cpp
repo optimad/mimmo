@@ -260,9 +260,33 @@ int test2() {
     }
     
     mesh_3->getPatch()->write("softcopy");
+    delete mesh_3;
     
+    //testing dump and restore
+    string Fname = ("./dump.geomimmo");
+    std::filebuf buffer;
+    std::ostream out(&buffer);
+    buffer.open(Fname, std::ios::out | std::ios::binary);
+    mesh->dump(out);
+    buffer.close();
+    
+    MimmoObject * mesh_4 = new MimmoObject();
+    std::filebuf buffer2;
+    std::istream in(&buffer2);
+    buffer2.open(Fname, std::ios::in | std::ios::binary);
+    mesh_4->restore(in);
+    buffer2.close();
+    
+    if(mesh_4->getNCells() != mesh->getNCells() && mesh_4->getNVertex()!= mesh->getNVertex()){
+        delete mesh_4;
+        delete mesh;
+        std::cout<<"Dump and Restore methods failed"<<std::endl;
+        return 1;
+    }
+    
+    delete mesh_4;
 	delete mesh;
-	delete mesh_3;
+	
 	return 0;
 }
 
