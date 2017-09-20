@@ -27,10 +27,13 @@ namespace mimmo{
 
 /*!
  * Constructor
+ * \param[in] loc MPVLocation of fields data: POINT or CELL.
  */
-ReconstructScalar::ReconstructScalar(){
+ReconstructScalar::ReconstructScalar(MPVLocation loc){
     m_name = "mimmo.ReconstructScalar";
     m_overlapCriterium = OverlapMethod::MAX;
+    m_loc = loc;
+    if(m_loc == MPVLocation::UNDEFINED || m_loc == MPVLocation::INTERFACE) m_loc= MPVLocation::POINT;
 }
 
 /*!
@@ -44,8 +47,20 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
+    std::string fallback_loc  = "-1";
+    std::string input_loc = rootXML.get("DataLocation", fallback_loc);
+    
     input = bitpit::utils::string::trim(input);
-    if(input == "mimmo.ReconstructScalar"){
+    input_loc = bitpit::utils::string::trim(input_loc);
+    
+    int loc = std::stoi(input_loc);
+    if(loc > 0 && loc < 3){
+        m_loc  =static_cast<MPVLocation>(loc);
+    }else{
+        loc = -1;
+    }
+    
+    if(input == "mimmo.ReconstructScalar" && loc != -1){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);
@@ -63,6 +78,7 @@ ReconstructScalar::~ReconstructScalar(){
  * Copy Constructor.
  */
 ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipulation(other){
+    m_loc = other.m_loc;
     m_overlapCriterium = other.m_overlapCriterium;
     m_subpatch = other.m_subpatch;
     m_result = other.m_result;
@@ -75,6 +91,7 @@ ReconstructScalar::ReconstructScalar(const ReconstructScalar & other):BaseManipu
  */
 void ReconstructScalar::swap(ReconstructScalar & x ) noexcept
 {
+    std::swap(m_loc, x.m_loc);
     std::swap(m_overlapCriterium,x.m_overlapCriterium);
     std::swap(m_subpatch, x.m_subpatch);
     std::swap(m_subresults, x.m_subresults);
@@ -156,7 +173,13 @@ ReconstructScalar::setOverlapCriterium( int funct){
  */
 void
 ReconstructScalar::addData( dmpvector1D  field){
+    if(field.getGeometry()== NULL && field.getDataLocation() != m_loc) return;
+    if(field.getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
+        (*m_log)<<"Warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
+        return;
+    }
     m_subpatch.push_back(field);
+        
 };
 
 /*!
@@ -193,7 +216,7 @@ void
 ReconstructScalar::clear(){
     BaseManipulation::clear();
     removeAllData();
-    m_overlapCriterium = OverlapMethod::AVERAGE;
+    m_overlapCriterium = OverlapMethod::MAX;
 }
 
 /*!
@@ -208,6 +231,12 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
 
     if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
+
+    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+    if(m_loc == MPVLocation::CELL){
+        loc = bitpit::VTKLocation::CELL;
+    }
+
     liimap mapData;
     dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
     ivector2D connectivity;
@@ -233,8 +262,8 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
     dvector1D field = m_result.getDataAsVector();
     std::vector<long> ids = m_result.getIds();
 
-    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
-    output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
+    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
+    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
 
     output.setCounter(counter);
     output.setCodex(bitpit::VTKFormat::APPENDED);
@@ -279,11 +308,27 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
     output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
     output.setDimensions(connectivity.size(), points.size());
 
-    dvector1D field = m_subresults[i].getDataAsVector();
-    std::vector<long> ids = m_subresults[i].getIds();
+    
+    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+    if(m_loc == MPVLocation::CELL){
+        loc = bitpit::VTKLocation::CELL;
+    }
+    
+    //check size of field and adjust missing values to zero for writing purposes only.
+    dmpvector1D field_supp = m_subresults[i];
+    if(!field_supp.checkDataSizeCoherence()){
+        livector1D ids = idsGeoDataLocation(field_supp.getGeometry());
+        for(auto id : ids){
+            if(!field_supp.exists(id)){
+                field_supp.insert(id,0.0);
+            } 
+        }
+    }
+    dvector1D field = field_supp.getDataAsVector();
+    std::vector<long> ids = field_supp.getIds();
 
-    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
-    output.addData("ID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, ids);
+    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
+    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
 
     output.setCounter(counter);
     output.setCodex(bitpit::VTKFormat::APPENDED);
@@ -298,16 +343,27 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
 void
 ReconstructScalar::execute(){
 
-
+    if(getGeometry() == NULL)   return; 
     //Overlap fields
     m_result.clear();
+    m_result.setGeometry(getGeometry());
+    m_result.setDataLocation(m_loc);
+
     m_subresults.clear();
+    
+    std::unordered_set<long> idsTarget;
+    {
+        livector1D ids = idsGeoDataLocation(getGeometry());
+        idsTarget.insert(ids.begin(), ids.end());
+    }
+    
     bitpit::PiercedVector<int> counter;
     for (int i=0; i<getNData(); i++){
         dmpvector1D* pv = &m_subpatch[i];
-        long int ID;
-        for (const auto vertex : pv->getGeometry()->getVertices()){
-            ID = vertex.getId();
+        livector1D ids = idsGeoDataLocation(pv->getGeometry());
+        for (auto ID: ids){
+            if(idsTarget.count(ID)==0) continue;
+            
             if (!m_result.exists(ID)){
                 m_result.insert(ID, (*pv)[ID]);
                 counter.insert(ID, 1);
@@ -318,46 +374,46 @@ ReconstructScalar::execute(){
             }
         }
     }
+    
+    if (m_result.size() == size_t(0)){
+        (*m_log)<<"Error in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
+        return;
+    }    
+    
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
         auto itend = m_result.end();
         for (auto it=m_result.begin(); it!=itend; ++it){
             ID = it.getId();
-            (*it) = (*it) / counter[ID];
+            (*it) = (*it) / double(counter[ID]);
         }
     }
 
+    //Update field on whole geometry
+    m_result.setGeometry(getGeometry());
+    double zero = 0.0;
+    long ID;
+    std::unordered_set<long>::iterator itB, itE=idsTarget.end();
+    for (itB=idsTarget.begin(); itB!=itE; ++itB){
+        ID = *itB;
+        if (!m_result.exists(ID)){
+            m_result.insert(ID, zero);
+        }
+    }
+    
     //Create subresults
     m_subresults.resize(getNData());
     for (int i=0; i<getNData(); i++){
         dmpvector1D* pv = &m_subpatch[i];
         m_subresults[i].setGeometry(pv->getGeometry());
-//         m_subresults[i].setName(pv->getName());
-        long int ID;
-        for (const auto vertex : pv->getGeometry()->getVertices()){
-            ID = vertex.getId();
-            m_subresults[i].insert(ID, m_result[ID]);
-        }
-    }
-
-    //Update field on whole geometry
-    if(getGeometry() != NULL){
-        m_result.setGeometry(getGeometry());
-//         if (m_subresults.size() != 0)
-//             m_result.setName(m_subresults[0].getName());
-        double zero = 0.0;
-        long int ID;
-        for (const auto vertex : getGeometry()->getVertices()){
-            ID = vertex.getId();
-            if (!m_result.exists(ID)){
-                m_result.insert(ID, zero);
+        m_subresults[i].setDataLocation(m_loc);
+        livector1D ids = idsGeoDataLocation(pv->getGeometry());
+        for (auto ID : ids){
+            if(idsTarget.count(ID)>0){
+                m_subresults[i].insert(ID, m_result[ID]);
             }
         }
     }
-    else{
-        m_result.clear();
-    }
-
 }
 
 /*!
@@ -442,9 +498,22 @@ ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 
     BITPIT_UNUSED(name);
 
+    if(slotXML.hasOption("DataLocation")){
+        std::string input = slotXML.get("DataLocation");
+        input = bitpit::utils::string::trim(input);
+        int temp = -1;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        if(int(m_loc) != temp){
+            (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
+            return;
+        }
+    }
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-
+    
     if(slotXML.hasOption("OverlapCriterium")){
         std::string input = slotXML.get("OverlapCriterium");
         input = bitpit::utils::string::trim(input);
@@ -467,13 +536,25 @@ void
 ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-
     BaseManipulation::flushSectionXML(slotXML, name);
-
+    
+    slotXML.set("DataLocation", std::to_string(int(m_loc)));
     int value = static_cast<int>(m_overlapCriterium);
     slotXML.set("OverlapCriterium", std::to_string(value));
 
 };
 
+/*!
+ * Given a reference geometry, return list of ids relative to geometry vertices or cells
+ * according to data location parameter m_loc of the class
+ *\param[in] geo valid pointer to a MimmoObject geometry
+ *\return list of ids relative to vertices or cells according to class m_loc.
+ */
+livector1D ReconstructScalar::idsGeoDataLocation(MimmoObject * geo){
+    
+    if (m_loc == MPVLocation::POINT) return geo->getVertices().getIds();
+    if (m_loc == MPVLocation::CELL)  return geo->getCells().getIds();
+    return livector1D(0);
+}
 
 }

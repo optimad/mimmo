@@ -53,8 +53,9 @@ enum class OverlapMethod{
  * \brief Reconstruct a scalar field from daughter meshes to mother mesh
  * 
  * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObject mesh, from several
- * scalar fields defined on sub-patches of the target mesh.
- * Field values are defined on nodes.
+ * scalar fields defined on sub-patches of the target mesh, where for sub-patches is meant portion 
+ * of target mesh, preserving their vertex/cell-ids, as in the case of mimmo::Selection Blocks.
+ * Field values can be defined on nodes or cells. No interfaces are supported up to now.
  * Reconstructed field on the whole geometry is provided as result as well as
  * the reconstructed fields on the input sub-patches separately.
  *
@@ -88,6 +89,7 @@ enum class OverlapMethod{
  * - <B>OutputPlot</B>: target directory for optional results writing;
  *
  * Proper of the class:
+ * - <B>DataLocation</B>: data location of fields 1-POINT, 2-CELL, 3-INTERFACE;
  * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
@@ -96,14 +98,14 @@ enum class OverlapMethod{
 class ReconstructScalar: public mimmo::BaseManipulation {
 
 private:
-
-    OverlapMethod m_overlapCriterium;                                      /**<Overlap Method */
-    vector<dmpvector1D> m_subpatch;                                         /**<Vector of pointers to fields of sub-patches. */
-    vector<dmpvector1D> m_subresults;                                         /**<Vector of overlapped fields of sub-patches. */
-    dmpvector1D m_result;                                                   /**<Output reconstructed field. */
+    MPVLocation m_loc;                  /**<Data reference Location */
+    OverlapMethod m_overlapCriterium;   /**<Overlap Method */
+    vector<dmpvector1D> m_subpatch;     /**<Vector of input fields on sub-patches. */
+    vector<dmpvector1D> m_subresults;   /**<Vector of processed/overlapped fields on sub-patches. */
+    dmpvector1D m_result;               /**<Output reconstructed field. */
 
 public:
-    ReconstructScalar();
+    ReconstructScalar(MPVLocation loc = MPVLocation::POINT);
     ReconstructScalar(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructScalar();
     ReconstructScalar(const ReconstructScalar & other);
@@ -141,6 +143,7 @@ protected:
 
 private:
     void     overlapFields(long int ID, double & locField);
+    livector1D idsGeoDataLocation(MimmoObject*);
 };
 
 /*!
@@ -149,7 +152,9 @@ private:
  * \brief Reconstruct a vector field from daughter mesh to mother mesh
  * 
  * Class/BaseManipulation Object reconstructing a vector field on a mimmo::MimmoObject mesh, from several
- * vector fields defined on sub-patches of the target mesh. Field values are defined on nodes.
+ * vector fields defined on sub-patches of the target mesh, where for sub-patches is meant portion 
+ * of target mesh, preserving their vertex/cell-ids, as in the case of mimmo::Selection Blocks.
+ * Field values can be defined on nodes or cells. No interfaces are supported up to now.
  * Reconstructed field on the whole geometry is provided as result as well as
  * the reconstructed fields on the input sub-patches separately.
  * 
@@ -181,6 +186,7 @@ private:
  * - <B>OutputPlot</B>: target directory for optional results writing;
  *
  * Proper of the class:
+ * - <B>DataLocation</B>: data location of fields 1-POINT, 2-CELL, 3-INTERFACE;
  * - <B>OverlapCriterium</B>: set how to treat fields in the overlapped region 1-MaxVal, 2-MinVal, 3-AverageVal, 4-Summing;
  *
  * Fields and Geometry have to be mandatorily passed through port.
@@ -189,14 +195,14 @@ private:
 class ReconstructVector: public mimmo::BaseManipulation {
 
 private:
-
+    MPVLocation m_loc;                  /**<Data reference Location */
     OverlapMethod m_overlapCriterium;   /**<Overlap Method */
-    vector<dmpvecarr3E> m_subpatch;    /**<Vector of pointers to fields of sub-patches. */
-    vector<dmpvecarr3E>  m_subresults;   /**<Vector of overlapped fields of sub-patches. */
+    vector<dmpvecarr3E> m_subpatch;     /**<Vector of input fields on sub-patches. */
+    vector<dmpvecarr3E>  m_subresults;  /**<Vector of processed/overlapped fields on sub-patches. */
     dmpvecarr3E m_result;               /**<Output reconstructed field. */
 
 public:
-    ReconstructVector();
+    ReconstructVector(MPVLocation loc = MPVLocation::POINT);
     ReconstructVector(const bitpit::Config::Section & rootXML);
     virtual ~ReconstructVector();
     ReconstructVector(const ReconstructVector & other);
@@ -234,6 +240,7 @@ protected:
     void swap(ReconstructVector &) noexcept;
 private:
     void    overlapFields(long int ID, darray3E & locField);
+    livector1D idsGeoDataLocation(MimmoObject*);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __RECONSTRUCTSCALAR_HPP__)
