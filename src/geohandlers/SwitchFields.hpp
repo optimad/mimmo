@@ -147,16 +147,29 @@ private:
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  *    =========================================================
+ * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from SwitchField:
+ * - <B>ClassName</B>: name of the class as "mimmo.SwitchScalarField"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
+ 
+ * Proper of the class:
+ * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
+ *
+ * Geometries and fields have to be mandatorily passed through port.
  */
 
 class SwitchScalarField: public SwitchField{
 private:
+    MPVLocation m_loc;  /**< field data reference location */
     vector<dmpvector1D> m_fields;   /**<Input fields to be switch. */
     dmpvector1D m_result;               /**<Result switch fields. */
 
 public:
-    SwitchScalarField();
+    SwitchScalarField(MPVLocation loc = MPVLocation::POINT);
     SwitchScalarField(const bitpit::Config::Section & rootXMl);
     SwitchScalarField(const SwitchScalarField & other);
     virtual ~SwitchScalarField();
@@ -169,6 +182,9 @@ public:
     void clear();
 
     void     plotOptionalResults();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
     void swap(SwitchScalarField &) noexcept;
@@ -213,16 +229,29 @@ private:
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  *    =========================================================
+ * The xml available parameters, sections and subsections are the following :
  *
+ * Inherited from SwitchField:
+ * - <B>ClassName</B>: name of the class as "mimmo.SwitchVectorField"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
+ 
+ * Proper of the class:
+ * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
+ *
+ * Geometries and fields have to be mandatorily passed through port.
  */
 class SwitchVectorField: public SwitchField{
 private:
+    MPVLocation m_loc;  /**< field data reference location */
     vector<dmpvecarr3E>  m_fields;   /**<Input fields to be switch. */
     dmpvecarr3E m_result;                /**<Result switch fields. */
 
 public:
 
-    SwitchVectorField();
+    SwitchVectorField(MPVLocation loc = MPVLocation::POINT);
     SwitchVectorField(const bitpit::Config::Section & rootXMl);
     SwitchVectorField(const SwitchVectorField & other);
     virtual ~SwitchVectorField();
@@ -235,6 +264,9 @@ public:
     void clear();
 
     void     plotOptionalResults();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
     void swap(SwitchVectorField &) noexcept;

@@ -333,6 +333,8 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
  */
 void ExtractVectorField::extractMapping(mimmo::MPVLocation loc){
     
+    if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
+    if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
     livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
     
     switch(loc){

@@ -24,6 +24,7 @@
 
 #include "SwitchFields.hpp"
 #include "SkdTreeUtils.hpp"
+#include "ExtractFields.hpp"
 
 using namespace std;
 using namespace bitpit;
@@ -31,9 +32,12 @@ namespace mimmo{
 
 /*!
  * Default constructor.
+ * \param[in] loc MPVLocation of fields data: POINT, CELL or INTERFACE.
  */
-SwitchScalarField::SwitchScalarField():SwitchField(){
+SwitchScalarField::SwitchScalarField(MPVLocation loc):SwitchField(){
     m_name = "mimmo.SwitchScalarField";
+    m_loc = loc;
+    if(m_loc == MPVLocation::UNDEFINED) m_loc= MPVLocation::POINT;
 }
 
 /*!
@@ -43,12 +47,24 @@ SwitchScalarField::SwitchScalarField():SwitchField(){
 SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
+    std::string fallback_loc  = "-1";
+    
     std::string input_name = rootXML.get("ClassName", fallback_name);
     input_name = bitpit::utils::string::trim(input_name);
-
+    
+    std::string input_loc = rootXML.get("DataLocation", fallback_loc);
+    input_loc = bitpit::utils::string::trim(input_loc);
+    
+    int loc = std::stoi(input_loc);
+    if(loc > 0 && loc < 4){
+        m_loc  =static_cast<MPVLocation>(loc);
+    }else{
+        loc = -1;
+    }
+    
     m_name = "mimmo.SwitchScalarField";
 
-    if(input_name == "mimmo.SwitchScalarField"){
+    if(input_name == "mimmo.SwitchScalarField" && loc != -1){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);
@@ -67,6 +83,7 @@ SwitchScalarField::~SwitchScalarField(){
  * Copy constructor
  */
 SwitchScalarField::SwitchScalarField(const SwitchScalarField & other):SwitchField(other){
+    m_loc = other.m_loc;
     m_fields = other.m_fields;
     m_result = other.m_result;
 }
@@ -77,6 +94,7 @@ SwitchScalarField::SwitchScalarField(const SwitchScalarField & other):SwitchFiel
  */
 void SwitchScalarField::swap(SwitchScalarField & x) noexcept
 {
+    std::swap(m_loc, x.m_loc);
     std::swap(m_fields, x.m_fields);
     std::swap(m_result, x.m_result);
     SwitchField::swap(x);
@@ -111,7 +129,12 @@ SwitchScalarField::getSwitchedField(){
  */
 void
 SwitchScalarField::setFields(vector<dmpvector1D> fields){
-    m_fields.insert(m_fields.end(), fields.begin(), fields.end());
+    
+    for(auto &ff : fields){
+        if(ff.getDataLocation() == m_loc && ff.getGeometry()!= NULL){
+            m_fields.push_back(ff);
+        }
+    }
 }
 
 /*!
@@ -120,7 +143,10 @@ SwitchScalarField::setFields(vector<dmpvector1D> fields){
  */
 void
 SwitchScalarField::addField(dmpvector1D field){
-    m_fields.push_back(field);
+    if(field.getDataLocation() == m_loc && field.getGeometry() != NULL){
+        m_fields.push_back(field);
+    }
+    
 }
 
 /*!
@@ -141,9 +167,35 @@ SwitchScalarField::plotOptionalResults(){
 
     if (m_result.size() == 0 || getGeometry() == NULL) return;
 
-    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+    bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
+    switch(m_loc){
+        case MPVLocation::POINT :
+            loc = bitpit::VTKLocation::POINT;
+            break;
+        case MPVLocation::CELL :
+            loc = bitpit::VTKLocation::CELL;
+            break;
+        default:
+            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"Interface locations are not supported in VTU writing." <<std::endl;
+            break;   
+    }
+    
+    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
-    dvector1D field = m_result.getDataAsVector();
+    //check size of field and adjust missing values to zero for writing purposes only.
+    dmpvector1D field_supp = m_result;
+    if(!field_supp.checkDataSizeCoherence()){
+        livector1D ids;
+        if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();
+        if(loc == bitpit::VTKLocation::CELL)   ids = field_supp.getGeometry()->getCells().getIds();
+        for(auto id : ids){
+            if(!field_supp.exists(id)){
+                field_supp.insert(id,0.0);
+            } 
+        }
+    }
+    dvector1D field = field_supp.getDataAsVector();
 
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
     liimap mapDataInv;
@@ -189,36 +241,108 @@ SwitchScalarField::mswitch(){
 
     //Extract by link to geometry
     for (const auto & field : m_fields){
-
-        if (field.getGeometry() == NULL ) return false;
-
         if (field.getGeometry() == getGeometry()){
             m_result = field;
-            m_result.setGeometry(getGeometry());
-//             m_result.setName(field.getName());
+            //geometry and location are copied from field.
             return true;
         }
     }
 
-    //Extract by geometric mapping
+    //Extract by geometric mapping if active and if no positive match is found.
     if (m_mapping){
+
+        m_result.setGeometry(getGeometry());
+        m_result.setDataLocation(m_loc);
+        
+        ExtractScalarField * ef = new ExtractScalarField();
+        ef->setGeometry(getGeometry());
+        ef->setMode(ExtractMode::MAPPING);
+        ef->setTolerance(m_tol);
+        
+        //create map for overlapping ids purpose;
+        std::unordered_map<long, int> idRepetition; 
+        
         for (const auto & field : m_fields){
-            livector1D result = mimmo::skdTreeUtils::selectByPatch(field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
-//             if (result.size() != 0) m_result.setName(field.getName());
-            for (const auto & idC : result){
-                for (const auto & id : getGeometry()->getCellConnectivity(idC)){
-                    if (!m_result.exists(id))
-                        m_result.insert(id, field[id]);
+            ef->setField(field);
+            ef->execute();
+            
+            auto temp = ef->getExtractedField();
+            auto itB = temp.begin();
+            auto itE = temp.end();
+            long id;
+            for(itB; itB != itE; ++itB){
+                id = itB.getId();
+                if(!m_result.exists(id)){
+                    m_result.insert(id, *itB);
+                }else{
+                    m_result[id] += *itB;
+                    if(idRepetition.count(id)>0){
+                        ++idRepetition[id];
+                    }else{
+                        idRepetition[id] = 2;
+                    }
                 }
             }
         }
+        
+        //resolve overlapping ids by averaging correspondent value;
+        
+        for(auto &itval : idRepetition){
+            m_result[itval.first] /= double(itval.second);
+        }
+        
+        delete ef;
     }
 
     if (m_result.size() == 0) return false;
-
-    m_result.setGeometry(getGeometry());
-
     return true;
 }
+
+/*!
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+
+    if(slotXML.hasOption("DataLocation")){
+        std::string input = slotXML.get("DataLocation");
+        input = bitpit::utils::string::trim(input);
+        int temp = -1;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        if(int(m_loc) != temp){
+            (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
+            return;
+        }
+    }
+
+    SwitchField::absorbSectionXML(slotXML, name);
+
+
+};
+
+/*!
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void SwitchScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    slotXML.set("DataLocation", std::to_string(int(m_loc)));
+    SwitchField::flushSectionXML(slotXML, name);
+    
+    if(m_mapping){
+        slotXML.set("Mapping", std::to_string(1));
+        slotXML.set("Tolerance", std::to_string(m_tol));
+    }
+    
+};
+
 
 }
