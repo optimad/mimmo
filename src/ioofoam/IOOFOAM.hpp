@@ -41,7 +41,8 @@ namespace mimmo{
  * meshes (input of multiple patches allowed) and insert together
  * in a unique pointer to MimmoObject objects (locally instantiated).
  *
- * A scalar field related to each surface mesh is read if it is present.
+ * A scalar field related to nodes of each surface mesh is read if it is present.
+ * No other data location are available for now.
  *
  * The volume points cloud (import of one "points" file allowed)
  * is insert in pointer to a MimmoObject (locally instantiated).

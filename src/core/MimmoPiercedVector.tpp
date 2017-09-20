@@ -154,22 +154,25 @@ MimmoPiercedVector<value_t>::getDataLocation(){
 }
 
 /*!
- * Return data contained in inner pierced vector
+ * Return data contained in inner pierced vector. Sequence follows that of reference location in
+ * geometry(vertices, cells or interfaces).
  * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
- * you get iterating the internal m_data PiercedVector from the beginning.
+ * you get iterating the internal location reference geometry PiercedVector from the beginning.
  * \return list of data 
  * 
  */
 template<typename value_t>
 std::vector<value_t>
 MimmoPiercedVector<value_t>::getDataAsVector(bool ordered){
-    
-     auto ids = this->getIds(ordered);
-     std::vector<value_t> result(ids.size());
+     if(getGeometry() == NULL) return std::vector<value_t>(0);
+     livector1D ids = getGeometryIds(ordered);
+     std::vector<value_t> result(this->size());
      int counter= 0;
      for(const auto val: ids){
-         result[counter] = (*this)[val];
-         ++counter;
+         if(this->exists(val)){
+            result[counter] = (*this)[val];
+            ++counter;
+         }   
      }
      
      return result;
@@ -365,5 +368,35 @@ bool
 MimmoPiercedVector<value_t>::intIsValidLocation(int &value){
     return !(value<0 && value>3) ;
 }
+
+/*!
+ * Return linked Geoemtry Ids of MPVLocation assigned: POINT-geometry vertices, CELL-geometry cells
+ * and INTERFACE-geometry interfaces if any.
+ * \param[in] ordered to force ascending ordering of ids.
+ * \return list of ids
+ */
+template<typename value_t>
+livector1D
+MimmoPiercedVector<value_t>::getGeometryIds(bool ordered){
+    if(getGeometry()==NULL) return livector1D(0);
+    switch(m_loc){
+        case MPVLocation::POINT:
+            return getGeometry()->getVertices().getIds(ordered);
+            break;
+        case MPVLocation::CELL:
+            return getGeometry()->getCells().getIds(ordered);
+            break;
+        case MPVLocation::INTERFACE:
+            if(!getGeometry()->areInterfacesBuilt()) getGeometry()->buildInterfaces();
+            return getGeometry()->getInterfaces().getIds(ordered);
+            break;
+        default:
+            return livector1D(0);
+        break;
+    }
+}
+
+
+
 
 }

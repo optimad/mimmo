@@ -345,7 +345,7 @@ IOOFOAM::getField(){
 }
 
 /*!It reads the mesh geometries from input file.
- * It reads even the scalar fields trelated to surface patches if they are present.
+ * It reads even the scalar fields related to surface patches if they are present.
  * \return False if files don't exist or are not a polydata (surface) or OpenFOAM points format (volume).
  */
 bool
@@ -429,6 +429,24 @@ IOOFOAM::write(){
     if (getSurfaceBoundary() != NULL){
         //write surface mesh
         string outputFilename = m_wdirS+"/"+m_wfilenameS;
+        
+        //check if a valid scalarfield is connected
+        bool check = m_field.size() ==size_t(0);
+        check = check && m_field.getGeometry()==getSurfaceBoundary();
+        check = check && m_field.getDataLocation()==MPVLocation::POINT;
+        check = check && m_field.checkDataIdsCoherence();
+        if(check){
+            dmpvector1D temp = m_field;
+            if(!temp.checkDataSizeCoherence()){
+                livector1D ids = temp.getGeometry()->getVertices().getIds();
+                for(auto id: ids){
+                    if(!temp.exists(id)) temp.insert(id, 0.0);
+                }
+            }
+            dvector1D field = temp.getDataAsVector(); 
+            getSurfaceBoundary()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
+        }
+        
         getSurfaceBoundary()->getPatch()->write(outputFilename);
     }else{
         m_stopat = 0;
@@ -682,6 +700,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
     }
 
     m_field.setGeometry(patchBnd);
+    m_field.setDataLocation(MPVLocation::POINT);
 
     return true;
 }

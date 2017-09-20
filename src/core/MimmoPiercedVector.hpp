@@ -100,7 +100,8 @@ public:
     
 protected:
     void  swap(MimmoPiercedVector<value_t>& x) noexcept;
-    
+private:
+    livector1D getGeometryIds(bool ordered);
 };
 
 };
