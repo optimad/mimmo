@@ -134,7 +134,7 @@ namespace outputCSVStream {
         if (n == 0) {
             return(out);
         }
-        int loc = static_cast<int>(x.getDataLocation());
+        int loc = static_cast<int>(x.getConstDataLocation());
         out << loc<< '\n';
         out << long(x.size())<<'\n';
         typename bitpit::PiercedVector<T>::const_iterator itB, itE = x.end();

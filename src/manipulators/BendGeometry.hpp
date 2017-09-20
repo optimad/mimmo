@@ -143,13 +143,12 @@ public:
     void     execute();
     void     apply();
 
-    void    checkFilter();
-
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 protected:
     void swap(BendGeometry & x) noexcept;
+    void    checkFilter();
 
 private:
     darray3E    toLocalCoord(darray3E point);

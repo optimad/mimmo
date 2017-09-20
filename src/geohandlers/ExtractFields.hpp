@@ -44,11 +44,16 @@ enum class ExtractMode{
  *
  *
  * ExtractField takes as input the target geometry used to extract a portion of
- * an input field linked to another geometry.
+ * an input field linked to the same or another geometry.
+ * Reference data location (POINT, CELLS or INTERFACES) of the input field is used to extract data
+ * on vertices, cells or interfaces of the target geometry.
  * Three methods are available:
- * - <B>ID  = 0</B> : extraction of data on vertices with the same IDs between target and input geometries;
- * - <B>PID = 1</B> : extraction of data on vertices of cells with the PIDs found in the target geometry;
- * - <B>MAPPING = 2<B> : extraction of data on vertices of cells identified by a proximity mapping.
+ * - <B>ID  = 0</B> : extraction of data on reference Location with the same IDs between target and input field linked geometry.
+ *                    Return an extracted field referred to the target geometry, with the same data location of the input field.
+ * - <B>PID = 1</B> : extraction of data on reference Location within common PIDs between target geometry and field linked geometry;
+ *                    Return an extracted field referred to the input field linked geometry, with the same data location of the input field.
+ * - <B>MAPPING = 2<B> : extraction of data on reference Location identified by a proximity mapping between target geometry and field linked geometry;
+ *                       Return an extracted field referred to the target geometry,with the same data location of the input field. 
  *
  * ExtractField is an abstract class. To use its features take a look to its specializations,
  *  here presented as derived class, ExtractScalarField and ExtractVectorField.
@@ -113,7 +118,7 @@ public:
 
 protected:
     void swap(ExtractField & x) noexcept;
-    
+
 private:
     /*!
      * Pure virtual method
@@ -181,8 +186,12 @@ public:
 
 protected:
     void swap(ExtractScalarField & x) noexcept;
+
 private:
     bool extract();
+    void extractID(mimmo::MPVLocation loc);
+    void extractPID(mimmo::MPVLocation loc);
+    void extractMapping(mimmo::MPVLocation loc);
 
 };
 
@@ -247,7 +256,10 @@ protected:
 
 private:
     bool extract();
-
+    void extractID(mimmo::MPVLocation loc);
+    void extractPID(mimmo::MPVLocation loc);
+    void extractMapping(mimmo::MPVLocation loc);
+    
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __EXTRACTFIELDS_HPP__)

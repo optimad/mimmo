@@ -244,6 +244,9 @@ BendGeometry::execute(){
     checkFilter();
 
     m_displ.clear();
+    m_displ.setDataLocation(mimmo::MPVLocation::POINT);
+    m_displ.reserve(getGeometry()->getNVertex());
+    m_displ.setGeometry(getGeometry());
 
     long ID;
     darray3E value;
@@ -272,9 +275,6 @@ BendGeometry::execute(){
         }
         m_displ.insert(ID, value);
     }
-    m_displ.setGeometry(m_geometry);
-//     m_displ.setName("M_GDISPLS");
-    return;
 };
 
 /*!
@@ -301,12 +301,28 @@ BendGeometry::apply(){
  */
 void
 BendGeometry::checkFilter(){
-    if (m_filter.getGeometry() != getGeometry()){
+    bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
+    check = check && m_filter.checkDataIdsCoherence();
+    check = check && m_filter.getGeometry() == getGeometry();
+    
+    if (!check){
+        (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
-//         m_filter.setName("M_FILTER");
-        for (const auto & vertex : m_geometry->getVertices()){
+        m_filter.setDataLocation(mimmo::MPVLocation::POINT);
+        m_filter.reserve(getGeometry()->getNVertex());
+        for (const auto & vertex : getGeometry()->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
+    //if size differs w.r.t to point of geometry, fill the uncovered id position with 0.
+    if(!m_filter.checkDataSizeCoherence()){
+        long id;
+        for (const auto & vertex : getGeometry()->getVertices()){
+            id = vertex.getId();
+            if(!m_filter.exists(id)){
+                m_filter.insert(id, 0.0);
+            }
         }
     }
 }

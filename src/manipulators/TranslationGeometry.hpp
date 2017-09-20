@@ -98,13 +98,13 @@ public:
 
     void         execute();
     void         apply();
-    void         checkFilter();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
     
 protected:
     void swap(TranslationGeometry & x) noexcept;
+    void         checkFilter();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__TRANSLATIONGEOMETRY_HPP__)

@@ -127,16 +127,30 @@ MimmoPiercedVector<value_t>::getGeometry() const{
 
 /*!
  * Get data location w.r.t geometry inner structures.
+ * It returns what is stored in the respective member, and does not attempt to
+ * recover the reference location from geometry eventually. 
  * \return MPVLocation enum
  */
 template<typename value_t>
 MPVLocation
-MimmoPiercedVector<value_t>::getDataLocation() const{
-    if( m_loc == MPVLocation::UNDEFINED){
+MimmoPiercedVector<value_t>::getConstDataLocation() const{
+    return m_loc;
+}
+
+/*!
+ * Get data location w.r.t geometry inner structures.
+ * If location is UNDEFINED, attempt to recover reference location from linked
+ * geometry employing recoverGeometryReferenceLocation() method.
+ * \return MPVLocation enum
+ */
+template<typename value_t>
+MPVLocation
+MimmoPiercedVector<value_t>::getDataLocation(){
+ /*   if( m_loc == MPVLocation::UNDEFINED){
         return recoverGeometryReferenceLocation();
     }else{
-        return m_loc;
-    }
+ */       return m_loc;
+ //   }
 }
 
 /*!
@@ -232,13 +246,19 @@ template<typename value_t>
 bool
 MimmoPiercedVector<value_t>::checkDataSizeCoherence(){
     if(getGeometry()==NULL) return false;
-    bool check = true;
+    bool check = false;
     switch(m_loc){
         case MPVLocation::CELL:
             check = (this->size()==m_geometry->getPatch()->getCells().size());
             break;
         case MPVLocation::INTERFACE:
-            check = (this->size()==m_geometry->getPatch()->getInterfaces().size());
+            {
+                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+                check = (this->size()==sizeInterfaces);
+                if(sizeInterfaces == 0){
+                    (*m_log)<<"Warning: Asked Data Size Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+                }
+            }
             break;
         case MPVLocation::POINT:
             check = (this->size()==m_geometry->getPatch()->getVertices().size());
@@ -256,7 +276,7 @@ MimmoPiercedVector<value_t>::checkDataSizeCoherence(){
  * false if:
  *  - UNDEFINED location is set for the current data.
  *  - all internal m_data ids does not match those available in the relative geometry reference structure: vertex, cell or interfaces 
- *  - empty inner data structure
+ *  - totally empty vector
  *  - no geometry is linked 
  * \return boolean coherence flag
  */
@@ -264,23 +284,37 @@ template<typename value_t>
 bool
 MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
     if(getGeometry()==NULL) return false;
-    bool check = this->size() != std::size_t(0);
+    auto ids = this->getIds();
+    bool check = this->size() > 0;
     switch(m_loc){
         case MPVLocation::CELL:
-            for(auto &el : m_geometry->getPatch()->getCells()){
-                check =check && this->exists(el.getId());
-            }    
+            {
+                auto vcell = m_geometry->getPatch()->getCells();
+                for(auto el : ids){
+                    check =check && vcell.exists(el);
+                }
+            }
             break;
         case MPVLocation::INTERFACE:
-            for(auto &el : m_geometry->getPatch()->getInterfaces()){
-                check =check && this->exists(el.getId());
-            }    
-            break;
+            {
+                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+                if(sizeInterfaces == 0){
+                    (*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+                }
+                auto vint = m_geometry->getPatch()->getInterfaces();
+                for(auto el : ids){
+                    check =check && vint.exists(el);
+                }
+            }
+        break;
         case MPVLocation::POINT:
-            for(auto &el : m_geometry->getPatch()->getVertices()){
-                check =check && this->exists(el.getId());
-            }    
-            break;
+            {
+                auto vvert = m_geometry->getPatch()->getVertices();
+                for(auto el : ids){
+                    check =check && vvert.exists(el);
+                }
+            }
+        break;
         default:
             check = false;
             (*m_log)<<"NO suitable location data found to perform ids coherence check"<<std::endl;
@@ -289,31 +323,38 @@ MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
     return check;
 }
 
-/*!
- * Recover the most probable location of your data with reference to the MimmoObject structures
- * available, i.e. vertices, cells or interfaces. If size does not match any of those structures, 
- * return an MPVLocation::UNDEFINED value.
- * 
- * \return MPVLocation enum value
- */
-template<typename value_t>
-MPVLocation
-MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation() const {
-    
-    if(getGeometry()==NULL) return MPVLocation::UNDEFINED;
-    std::size_t datasize = this->size();
-
-    if(datasize == getGeometry()->getPatch()->getVertexCount()){
-        return MPVLocation::POINT;
-    }
-    if(datasize == getGeometry()->getPatch()->getCellCount()){
-        return MPVLocation::CELL;
-    }
-    if(datasize == getGeometry()->getPatch()->getInterfaceCount()){
-        return MPVLocation::INTERFACE;
-    }
-    return MPVLocation::UNDEFINED;
-}
+///*!
+// * Recover the most probable location of your data with reference to the MimmoObject structures
+// * available, i.e. vertices, cells or interfaces. If size does not match any of those structures, 
+// * return an MPVLocation::UNDEFINED value.
+// * 
+// * \return MPVLocation enum value
+// */
+//template<typename value_t>
+// MPVLocation
+// MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation(){
+//     
+//     if(getGeometry()==NULL) {
+//         m_loc = MPVLocation::UNDEFINED;
+//         return MPVLocation::UNDEFINED;
+//     }    
+//     std::size_t datasize = this->size();
+// 
+//     if(datasize == getGeometry()->getPatch()->getVertexCount()){
+//         m_loc = MPVLocation::POINT;
+//         return MPVLocation::POINT;
+//     }
+//     if(datasize == getGeometry()->getPatch()->getCellCount()){
+//         m_loc = MPVLocation::CELL;
+//         return MPVLocation::CELL;
+//     }
+//     if(datasize == getGeometry()->getPatch()->getInterfaceCount()){
+//         m_loc = MPVLocation::INTERFACE;
+//         return MPVLocation::INTERFACE;
+//     }
+//     m_loc = MPVLocation::UNDEFINED;
+//     return MPVLocation::UNDEFINED;
+// }
 
 /*!
  * Check if a random integer number is a valid MPVLocation for the current class.
@@ -324,6 +365,5 @@ bool
 MimmoPiercedVector<value_t>::intIsValidLocation(int &value){
     return !(value<0 && value>3) ;
 }
-
 
 }

@@ -153,7 +153,6 @@ public:
 
     void             execute();
     void             apply();
-    void             checkFilter();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -163,6 +162,7 @@ protected:
     void            plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed);
     virtual void    plotOptionalResults();
     void            swap(MRBF & x) noexcept;
+    void            checkFilter();
 
 };
 

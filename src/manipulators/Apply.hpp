@@ -88,6 +88,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 protected:
     void swap(Apply & x) noexcept;
+    void    checkInput();
     
 };
 

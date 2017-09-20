@@ -79,7 +79,6 @@ TwistGeometry::TwistGeometry(const TwistGeometry & other):BaseManipulation(other
 /*!Assignment operator of TwistGeometry. No result geometry displacements are copied.
  */
 TwistGeometry& TwistGeometry::operator=(TwistGeometry other){
-
     swap(other);
     return *this;
 };
@@ -198,7 +197,10 @@ TwistGeometry::execute(){
     checkFilter();
 
     m_displ.clear();
-
+    m_displ.setDataLocation(mimmo::MPVLocation::POINT);
+    m_displ.reserve(getGeometry()->getNVertex());
+    m_displ.setGeometry(getGeometry());
+    
     darray3E point, rotated;
     long ID;
     darray3E projected;
@@ -238,9 +240,6 @@ TwistGeometry::execute(){
         m_displ.insert(ID, value);
 
     }
-    m_displ.setGeometry(getGeometry());
-//     m_displ.setName("M_GDISPLS");
-
 };
 
 /*!
@@ -267,12 +266,29 @@ TwistGeometry::apply(){
  */
 void
 TwistGeometry::checkFilter(){
-    if (m_filter.getGeometry() != getGeometry()){
+
+    bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
+    check = check && m_filter.checkDataIdsCoherence();
+    check = check && m_filter.getGeometry() == getGeometry();
+    
+    if (!check){
+        (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
-//         m_filter.setName("M_FILTER");
-        for (const auto & vertex : m_geometry->getVertices()){
+        m_filter.setDataLocation(mimmo::MPVLocation::POINT);
+        m_filter.reserve(getGeometry()->getNVertex());
+        for (const auto & vertex : getGeometry()->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
+        }
+    }
+    //if size differs w.r.t to point of geometry, fill the uncovered id position with 0.
+    if(!m_filter.checkDataSizeCoherence()){
+        long id;
+        for (const auto & vertex : getGeometry()->getVertices()){
+            id = vertex.getId();
+            if(!m_filter.exists(id)){
+                m_filter.insert(id, 0.0);
+            }
         }
     }
 }

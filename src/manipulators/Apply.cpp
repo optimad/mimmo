@@ -99,6 +99,8 @@ void
 Apply::execute(){
     if (getGeometry() == NULL || m_input.getGeometry() != getGeometry()) return;
 
+    checkInput();
+
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){
@@ -138,6 +140,39 @@ Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     
 };
 
+/*!
+ * Check if the input is related to the target geometry.
+ * If not create a zero input field.
+ */
+void
+Apply::checkInput(){
+    
+    bool check = m_input.getDataLocation() == mimmo::MPVLocation::POINT;
+    check = check && m_input.checkDataIdsCoherence();
+    check = check && m_input.getGeometry() == getGeometry();
+    if (!check){
+        (*m_log)<<"Not valid input found in "<<m_name<<". Proceeding with default zero field"<<std::endl;
+        m_input.clear();
+        m_input.setGeometry(m_geometry);
+        m_input.setDataLocation(mimmo::MPVLocation::POINT);
+        m_input.reserve(getGeometry()->getNVertex());
+        for (const auto & vertex : getGeometry()->getVertices()){
+            m_input.insert(vertex.getId(), {{0.0,0.0,0.0}});
+        }
+    }
+
+    //if size differs w.r.t to point of geometry, fill the uncovered id position with 0.
+    if(!m_input.checkDataSizeCoherence()){
+        long id;
+        for (const auto & vertex : getGeometry()->getVertices()){
+            id = vertex.getId();
+            if(!m_input.exists(id)){
+                m_input.insert(id, {{0.0,0.0,0.0}});
+            }    
+        }
+        
+    }
+}
 
 }
 

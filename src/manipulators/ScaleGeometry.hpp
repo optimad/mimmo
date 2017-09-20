@@ -102,13 +102,14 @@ public:
 
     void         execute();
     void         apply();
-    void         checkFilter();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
 protected:
     void swap(ScaleGeometry & x) noexcept;
+    void         checkFilter();
+
 };
 
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__SCALEGEOMETRY_HPP__)

@@ -848,7 +848,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 
     buffer << element.getGeometry();
 //     buffer << element.getName();
-    buffer << static_cast<int>(element.getDataLocation());
+    buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (int)element.size();
     auto itE = element.cend();
     for (auto it=element.cbegin(); it!=itE; it++){
@@ -867,7 +867,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::d
 {
     buffer << element.getGeometry();
 //     buffer << element.getName();
-    buffer << static_cast<int>(element.getDataLocation());
+    buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (int)element.size();
     auto itE = element.cend();
     for (auto it=element.cbegin(); it!=itE; it++){

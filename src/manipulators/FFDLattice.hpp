@@ -194,7 +194,7 @@ public:
     darray3E     apply(darray3E & point);
     dvecarr3E     apply(dvecarr3E * point);
     dvecarr3E     apply(livector1D & map);
-    void         checkFilter();
+
     virtual void         build();
 
     void     apply();
@@ -208,6 +208,8 @@ protected:
     void         resizeMapDof();
     virtual void    plotOptionalResults();
     void        swap(FFDLattice &) noexcept;
+    void         checkFilter();
+    
 private:
     //Nurbs Evaluators
     darray3E    nurbsEvaluator(darray3E &);

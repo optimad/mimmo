@@ -83,7 +83,8 @@ public:
     // get/set methods of the class;
     MimmoObject*            getGeometry() const;
 //     std::string             getName() const;
-    MPVLocation             getDataLocation() const;
+    MPVLocation             getConstDataLocation() const;
+    MPVLocation             getDataLocation();
     std::vector<value_t>    getDataAsVector(bool ordered=false);
     
     void                   setGeometry(MimmoObject* geo);
@@ -92,7 +93,7 @@ public:
     void                   setDataLocation(int loc);
     void                   setData(std::vector<value_t> &rawdata);
     
-    MPVLocation recoverGeometryReferenceLocation() const;
+//     MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     bool intIsValidLocation(int &);

@@ -98,6 +98,9 @@ public:
     bitpit::PiercedVector<bitpit::Cell> &           getCells();
     const bitpit::PiercedVector<bitpit::Cell> &     getCells() const;
 
+    bitpit::PiercedVector<bitpit::Interface> &           getInterfaces();
+    const bitpit::PiercedVector<bitpit::Interface> &     getInterfaces() const;
+    
     livector1D                                      getCellsIds();
     bitpit::PatchKernel*                            getPatch();
     const bitpit::PatchKernel*                      getPatch() const;
@@ -133,6 +136,7 @@ public:
 
     livector1D  getVertexFromCellList(livector1D cellList);
     livector1D  getCellFromVertexList(livector1D vertList);
+    livector1D  getInterfaceFromCellList(livector1D cellList);
 
     livector1D  extractBoundaryVertexID();
     livector1D  extractPIDCells(short);
@@ -148,8 +152,10 @@ public:
     void        buildSkdTree(int value = 1);
     void        buildKdTree();
     void        buildAdjacencies();
+    void        buildInterfaces();
 
     bool        areAdjacenciesBuilt();
+    bool        areInterfacesBuilt();
     bool        isClosedLoop();
 
     bitpit::VTKElementType	desumeElement();

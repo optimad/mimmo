@@ -130,22 +130,44 @@ ExtractVectorField::clear(){
  */
 void 
 ExtractVectorField::plotOptionalResults(){
-
-    if (m_result.size() == 0 || getGeometry() == NULL) return;
-
-    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-
-    dvecarr3E field;
-    for (const auto & v : getGeometry()->getVertices()){
-        field.push_back(m_result[v.getId()]);
+    
+    if (m_result.size() == 0 || m_result.getGeometry() == NULL) return;
+    
+    bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
+    switch(m_result.getDataLocation()){
+        case MPVLocation::POINT :
+            loc = bitpit::VTKLocation::POINT;
+            break;
+        case MPVLocation::CELL :
+            loc = bitpit::VTKLocation::CELL;
+            break;
+        default:
+            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
+            break;   
     }
+    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
+    
+    //check size of field and adjust missing values to zero for writing purposes only.
+    dmpvecarr3E field_supp = m_field;
+    if(!field_supp.checkDataSizeCoherence()){
+        livector1D ids;
+        if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();
+        if(loc == bitpit::VTKLocation::CELL)   ids = field_supp.getGeometry()->getCells().getIds();
+        for(auto id : ids){
+            if(!field_supp.exists(id)){
+                field_supp.insert(id,{{0.0,0.0,0.0}});
+            } 
+        }
+    }
+    dvecarr3E field = field_supp.getDataAsVector();
     
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
     liimap mapDataInv;
     dvecarr3E points = getGeometry()->getVertexCoords(&mapDataInv);
-
+    
     if (cellType == bitpit::VTKElementType::UNDEFINED) return;
-
+    
     if(cellType != bitpit::VTKElementType::VERTEX){
         ivector2D connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
@@ -167,7 +189,6 @@ ExtractVectorField::plotOptionalResults(){
         output.setCodex(bitpit::VTKFormat::APPENDED);
         output.write();
     }
-
 }
 
 
@@ -177,65 +198,176 @@ ExtractVectorField::plotOptionalResults(){
  */
 bool
 ExtractVectorField::extract(){
-
+    
     if (getGeometry() == NULL || m_field.getGeometry() == NULL) return false;
+    //checking internal ids coherence of the field.
+    if(!m_field.checkDataIdsCoherence()) return false;
+    
+    mimmo::MPVLocation refLoc = m_field.getDataLocation();
+    if(refLoc == mimmo::MPVLocation::UNDEFINED) refLoc = mimmo::MPVLocation::POINT;
 
     m_result.clear();
-
+    m_result.setDataLocation(refLoc);
+    
     switch(m_mode){
-    case ExtractMode::ID :
+        case ExtractMode::ID :
+            extractID(refLoc);
+            m_result.setGeometry(getGeometry());
+            break;
+            
+        case ExtractMode::PID :
+            extractPID(refLoc);
+            m_result.setGeometry(m_field.getGeometry());
+            break;
+            
+        case ExtractMode::MAPPING :
+            extractMapping(refLoc);
+            m_result.setGeometry(getGeometry());
+            break;
+            
+        default : //never been reached
+            break;
+    }
+    
+    if (m_result.size() == 0) return false;
+    
+    return true;
+    
+}
+
+/*!
+ * Perform extraction by ID mode and refer data to target geometry vertex, cell or interface,
+ * according to the location specified.
+ * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
+ */
+void ExtractVectorField::extractID(mimmo::MPVLocation loc){
+    
+    switch(loc){
+        case mimmo::MPVLocation::POINT:
+            for (const auto & ID : getGeometry()->getVertices().getIds()){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+            break;
+        case mimmo::MPVLocation::CELL:
+            for (const auto & ID : getGeometry()->getCells().getIds()){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+            break;
+        case mimmo::MPVLocation::INTERFACE:
+            if(!getGeometry()->areInterfacesBuilt()) getGeometry()->buildInterfaces();
+            for (const auto & ID : getGeometry()->getInterfaces().getIds()){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+            break;
+        default:
+            //do nothing
+            break;
+    }
+}
+
+/*!
+ * Perform extraction by PID mode and refer data to target geometry vertex, cell or interface,
+ * according to the location specified.
+ * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
+ */
+void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
+    //Extract by PIDs
+    shivector1D commonPID;
     {
-        //Extract by IDs
-        for (const auto & ID : getGeometry()->getVertices().getIds()){
-            if (m_field.exists(ID)){
-                m_result.insert(ID, m_field[ID]);
+        std::unordered_set<short> pidTarget = getGeometry()->getPIDTypeList();
+        std::unordered_set<short> pidLinked = m_field.getGeometry()->getPIDTypeList();
+        std::set<short> unionPID(pidTarget.begin(), pidTarget.end());
+        unionPID.insert(pidLinked.begin(), pidLinked.end());
+        for(auto val: unionPID){
+            if(pidLinked.count(val) && pidTarget.count(val)){
+                commonPID.push_back(val);
             }
         }
     }
-    break;
-
-    case ExtractMode::PID :
-    {
-        //Extract by PIDs
-        std::set<int> pids;
-        for (const auto & cell : getGeometry()->getCells()){
-            pids.insert(cell.getPID());
-        }
-        for (const auto & cell : m_field.getGeometry()->getCells()){
-            if (pids.count(cell.getPID())){
-                for (const auto & id : m_field.getGeometry()->getCellConnectivity(cell.getId())){
-                    if (!m_result.exists(id))
-                        m_result.insert(id, m_field[id]);
+    livector1D cellExtracted = m_field.getGeometry()->extractPIDCells(commonPID);
+    
+    switch(loc){
+        case mimmo::MPVLocation::POINT:
+        {
+            livector1D vertExtracted = m_field.getGeometry()->getVertexFromCellList(cellExtracted);
+            for (const auto & ID : vertExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+        }    
+        break;
+        case mimmo::MPVLocation::CELL:
+            for (const auto & ID : cellExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+            break;
+        case mimmo::MPVLocation::INTERFACE:
+        {
+            livector1D interfExtracted = m_field.getGeometry()->getInterfaceFromCellList(cellExtracted);
+            for (const auto & ID : interfExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
                 }
             }
         }
-    }
-    break;
+        break;
+        default:
+            //do nothing
+            break;
+    } 
+}
 
-    case ExtractMode::MAPPING :
-    {
-        //Extract by geometric mapping
-        livector1D result = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
-        for (const auto & idC : result){
-            for (const auto & id : getGeometry()->getCellConnectivity(idC)){
-                if (!m_result.exists(id))
-                    m_result.insert(id, m_field[id]);
+/*!
+ * Perform extraction by MAPPING mode and refer data to target geometry vertex, cell or interface,
+ * according to the location specified.
+ * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
+ */
+void ExtractVectorField::extractMapping(mimmo::MPVLocation loc){
+    
+    livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
+    
+    switch(loc){
+        case mimmo::MPVLocation::POINT:
+        {
+            livector1D vertExtracted = getGeometry()->getVertexFromCellList(cellExtracted);
+            for (const auto & ID : vertExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+        }    
+        break;
+        case mimmo::MPVLocation::CELL:
+            for (const auto & ID : cellExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
+            }
+            break;
+        case mimmo::MPVLocation::INTERFACE:
+        {
+            livector1D interfExtracted = getGeometry()->getInterfaceFromCellList(cellExtracted);
+            for (const auto & ID : interfExtracted){
+                if (m_field.exists(ID)){
+                    m_result.insert(ID, m_field[ID]);
+                }
             }
         }
-    }
-    break;
-
-    default : //never been reached
         break;
+        default:
+            //do nothing
+            break;
     }
-
-    if (m_result.size() == 0) return false;
-
-    m_result.setGeometry(getGeometry());
-//     m_result.setName(m_field.getName());
-
-    return true;
-
 }
+
 
 }

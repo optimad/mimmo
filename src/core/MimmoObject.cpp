@@ -503,6 +503,27 @@ MimmoObject::getCells()  const{
 }
 
 /*!
+ * Return reference to the PiercedVector structure of interfaces hold 
+ * by bitpit::PatchKernel class member
+ * \return  Pierced Vector structure of interfacess
+ */
+bitpit::PiercedVector<bitpit::Interface> &
+MimmoObject::getInterfaces(){
+    return getPatch()->getInterfaces();
+}
+
+/*!
+ * Return const reference to the PiercedVector structure of interfaces hold 
+ * by bitpit::PatchKernel class member
+ * \return  const Pierced Vector structure of interfaces
+ */
+const bitpit::PiercedVector<bitpit::Interface> &
+MimmoObject::getInterfaces()  const{
+    const auto p = getPatch();
+    return p->getInterfaces();
+}
+
+/*!
  * Return a compact vector with the Ids of cells given by
  * bitpit::PatchKernel unique-labeled indexing
  * \return id of cells
@@ -1200,6 +1221,42 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
 }
 
 /*! 
+ * Extract interfaces list from an ensamble of geometry cells.
+ *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
+ *\return the list of bitpit::PatchKernel ids of involved interfaces.
+ */  
+livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
+    if(isEmpty() || getType() == 3)   return livector1D(0);
+    
+    if(!areInterfacesBuilt())   buildInterfaces();
+    livector1D result;
+    set<long int> ordV;
+    auto patch = getPatch();
+    //get conn from each cell of the list
+    for(auto && id : cellList){
+        if(getCells().exists(id)){
+            Cell  & cell = patch->getCell(id);
+            long * interf = cell.getInterfaces();
+            int nIloc = cell.getInterfaceCount();
+            for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
+        }
+    }
+    
+    result.resize(ordV.size());
+    set<long int>::iterator itS;
+    set<long int>::iterator itSEnd = ordV.end();
+    
+    int counter =0;
+    for(itS=ordV.begin(); itS != itSEnd; ++itS){
+        result[counter] = *itS;
+        ++counter;
+    }
+    
+    return(result);
+}
+
+
+/*! 
  * Extract cell list from an ensamble of geometry vertices.
  * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
  * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
@@ -1490,6 +1547,13 @@ bool MimmoObject::areAdjacenciesBuilt(){
 };
 
 /*!
+ * \return true if Interfaces are built for your current mesh.
+ */
+bool MimmoObject::areInterfacesBuilt(){
+    return  getPatch()->getInterfaces().size() > size_t(0);
+};
+
+/*!
  * \return false if your mesh has open edges/faces. True otherwise
  */
 bool MimmoObject::isClosedLoop(){
@@ -1522,6 +1586,18 @@ void MimmoObject::buildAdjacencies(){
     getPatch()->buildAdjacencies();
     m_AdjBuilt = true;
 };
+
+/*!
+ * Force the class to build Interfaces connectivity.
+ * If MimmoObject does not support connectivity (as Point Clouds do) 
+ * does nothing. 
+ */
+void MimmoObject::buildInterfaces(){
+    if(m_type !=3){
+        getPatch()->buildInterfaces();
+    }
+};
+
 
 /*!
  * Desume Element type of your current mesh. 

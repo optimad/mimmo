@@ -1431,7 +1431,7 @@ void CreateSeedsOnSurface::normalizeField(){
         m_sensitivity = defaultField;
         (*m_log)<<"WARNING in "<<m_name<<" : Not suitable data field connected. Reference geometry linked by the class and by MimmoPiercedvector field differs. Using default field"<<std::endl;
         return;
-    }else if(m_sensitivity.recoverGeometryReferenceLocation() != MPVLocation::POINT){
+    }else if(m_sensitivity.getDataLocation() != MPVLocation::POINT){
         m_sensitivity = defaultField;
         (*m_log)<<"WARNING in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
         return;
