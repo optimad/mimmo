@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
+#include "ExtractFields.hpp"
 #include "levelSet.hpp"
 #include <cstddef>
 namespace mimmo{
@@ -151,19 +152,19 @@ SelectionByBoxWithScalar::getField(){
 void
 SelectionByBoxWithScalar::execute(){
 
+    //check m_field in input if coherent with the linked geometry
+    if(m_field.getGeometry() != getGeometry())  return;
+    
     SelectionByBox::execute();
-
-    if (m_field.size() != 0){
-        MimmoPiercedVector<double> temp;
-        temp.setGeometry(m_subpatch.get());
-//         temp.setName(m_field.getName());
-        bitpit::PiercedVector<bitpit::Vertex> vertices = m_subpatch->getVertices();
-        for (const auto & vertex : vertices){
-            temp[vertex.getId()] = m_field[vertex.getId()];
-        }
-        m_field.clear();
-        m_field = temp;
-    }
+    ExtractScalarField * extractorField = new ExtractScalarField();
+    extractorField->setGeometry(getPatch());
+    extractorField->setMode(ExtractMode::ID);
+    extractorField->setField(m_field);
+    extractorField->execute();
+    
+    m_field.clear();
+    m_field = extractorField->getExtractedField();
+    delete extractorField;
 }
 
 
@@ -175,15 +176,40 @@ void
 SelectionByBoxWithScalar::plotOptionalResults(){
     if(getPatch() == NULL)      return;
     if(getPatch()->isEmpty()) return;
-    std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
-
-    dvector1D temp;
-    for (const auto & vertex : getPatch()->getVertices()){
-        temp.push_back(m_field[vertex.getId()]);
+    if(m_field.size() == size_t(0))   return;
+    
+    bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
+    switch(m_field.getDataLocation()){
+        case MPVLocation::POINT :
+            loc = bitpit::VTKLocation::POINT;
+            break;
+        case MPVLocation::CELL :
+            loc = bitpit::VTKLocation::CELL;
+            break;
+        default:
+            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
+            break;   
     }
+    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
-    getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, temp);
-
+    std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
+    
+    //check size of field and adjust missing values to zero for writing purposes only.
+    dmpvector1D field_supp = m_field;
+    if(!field_supp.checkDataSizeCoherence()){
+        livector1D ids;
+        if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();
+        if(loc == bitpit::VTKLocation::CELL)   ids = field_supp.getGeometry()->getCells().getIds();
+        for(auto id : ids){
+            if(!field_supp.exists(id)){
+                field_supp.insert(id,0.0);
+            } 
+        }
+    }
+    dvector1D field = field_supp.getDataAsVector();
+    
+    getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
     getPatch()->getPatch()->write(name);
 }
 

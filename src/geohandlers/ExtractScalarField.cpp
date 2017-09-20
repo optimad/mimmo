@@ -149,7 +149,7 @@ ExtractScalarField::plotOptionalResults(){
      if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
     //check size of field and adjust missing values to zero for writing purposes only.
-     dmpvector1D field_supp = m_field;
+     dmpvector1D field_supp = m_result;
      if(!field_supp.checkDataSizeCoherence()){
         livector1D ids;
         if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();

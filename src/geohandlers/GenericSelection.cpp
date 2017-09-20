@@ -304,7 +304,6 @@ GenericSelection::execute(){
         }
     }
 
-
     m_subpatch = std::move(temp);
     tri = NULL;
 };
