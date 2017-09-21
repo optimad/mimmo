@@ -57,10 +57,10 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
     if(loc > 0 && loc < 3){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
-        loc = -1;
+        m_loc = 1;
     }
     
-    if(input == "mimmo.ReconstructScalar" && loc != -1){
+    if(input == "mimmo.ReconstructScalar"){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);

@@ -89,6 +89,7 @@
         </MRBF2>
         <Recon>
             <ClassName>mimmo.ReconstructVector</ClassName>
+            <DataLocation>1</DataLocation>
         </Recon>
         <Applier>
             <ClassName>mimmo.Apply</ClassName>

@@ -58,11 +58,11 @@ SwitchVectorField::SwitchVectorField(const bitpit::Config::Section & rootXML){
     if(loc > 0 && loc < 4){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
-        loc = -1;
+        m_loc = 1;
     }
     m_name = "mimmo.SwitchVectorField";
 
-    if(input_name == "mimmo.SwitchVectorField" && loc != -1){
+    if(input_name == "mimmo.SwitchVectorField" ){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);

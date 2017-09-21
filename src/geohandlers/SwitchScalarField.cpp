@@ -59,12 +59,12 @@ SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
     if(loc > 0 && loc < 4){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
-        loc = -1;
+        m_loc = 1;
     }
     
     m_name = "mimmo.SwitchScalarField";
 
-    if(input_name == "mimmo.SwitchScalarField" && loc != -1){
+    if(input_name == "mimmo.SwitchScalarField"){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);
