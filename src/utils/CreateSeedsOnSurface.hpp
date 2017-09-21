@@ -60,7 +60,7 @@ enum class CSeedSurf{
  * trying to displace them at maximum euclidean distance possible on the surface. \n
  * 
  * Default engine is CARTESIANGRID
- * A Sensitivity field, defined on the target 3D surface can be linked, to drive the seeding procedure, i.e.
+ * A Sensitivity field, defined on the target 3D surface Vertices can be linked, to drive the seeding procedure, i.e.
  * displace points in the most sensible location according to the map.
  * \n
  * Ports available in CreateSeedsOnSurface Class :

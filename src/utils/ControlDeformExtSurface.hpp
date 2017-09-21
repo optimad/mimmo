@@ -40,7 +40,8 @@ namespace mimmo{
  * Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points, 
  * reporting how much the current deformation field violate the constraint itself.
  * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
- * No optional result are plot. 
+ * Need to link the deformation field in examination, as MimmoPiercedVector referred to target geometry and defined
+ * to POINT as location.
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
  * \n

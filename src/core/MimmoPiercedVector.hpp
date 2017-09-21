@@ -66,7 +66,6 @@ template<typename value_t>
 class MimmoPiercedVector: public bitpit::PiercedVector<value_t, long int> {
 private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
-//     std::string                              m_name;                /**<Name of the field.*/
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
     bitpit::Logger*                          m_log;          /**<Pointer to logger.*/
     
@@ -82,18 +81,18 @@ public:
 
     // get/set methods of the class;
     MimmoObject*            getGeometry() const;
-//     std::string             getName() const;
     MPVLocation             getConstDataLocation() const;
     MPVLocation             getDataLocation();
     std::vector<value_t>    getDataAsVector(bool ordered=false);
+    std::vector<value_t>    getRawDataAsVector(bool ordered=false);
+    bool                    isEmpty();
     
+    bool                   completeMissingData(const value_t & defValue);
     void                   setGeometry(MimmoObject* geo);
-//     void                   setName(std::string name);
     void                   setDataLocation(MPVLocation loc);
     void                   setDataLocation(int loc);
     void                   setData(std::vector<value_t> &rawdata);
     
-//     MPVLocation recoverGeometryReferenceLocation();
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     bool intIsValidLocation(int &);
@@ -101,7 +100,7 @@ public:
 protected:
     void  swap(MimmoPiercedVector<value_t>& x) noexcept;
 private:
-    livector1D getGeometryIds(bool ordered);
+    livector1D getGeometryIds(bool ordered=false);
 };
 
 };

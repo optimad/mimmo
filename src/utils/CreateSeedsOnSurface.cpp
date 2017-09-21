@@ -1436,22 +1436,22 @@ void CreateSeedsOnSurface::normalizeField(){
         (*m_log)<<"WARNING in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
         return;
     }else{    
-        if(!m_sensitivity.checkDataIdsCoherence()){
+        if(!m_sensitivity.completeMissingData(0.0)){
             m_sensitivity = defaultField;
             (*m_log)<<"WARNING in "<<m_name<<" : Not coherent data field connected. Data Ids of MimmoPiercedvector field are not aligned with geometry Vertex/Point field. Using default field"<<std::endl;
             return;
         }
     }
-
+    
     double minSense=0.0,maxSense=0.0;
-    minval(m_sensitivity.getDataAsVector(), minSense);
+    minval(m_sensitivity.getRawDataAsVector(), minSense);
     //operate translation.
     if (!std::isnan(minSense)){
         for(auto &val: m_sensitivity){
             val += -1.0*minSense;
         }
     }
-    maxval(m_sensitivity.getDataAsVector(), maxSense);
+    maxval(m_sensitivity.getRawDataAsVector(), maxSense);
     //operate normalization.
     if (!std::isnan(maxSense) || maxSense != 0.0){
         for(auto &val: m_sensitivity){
@@ -1464,7 +1464,6 @@ void CreateSeedsOnSurface::normalizeField(){
         (*m_log)<<"Not valid data of sensitivity field detected in "<<m_name<<" object. Using default field"<<std::endl;
         m_sensitivity = defaultField;
     }
-    
 }
 
 

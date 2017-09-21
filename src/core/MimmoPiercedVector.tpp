@@ -35,7 +35,6 @@ template<typename value_t>
 MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc):bitpit::PiercedVector<value_t,long int>(){
     m_geometry = geo;
     m_loc = loc;
-//     m_name = name;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
@@ -115,16 +114,6 @@ MimmoPiercedVector<value_t>::getGeometry() const{
     return m_geometry;
 }
 
-// /*!
-//  * Get the name of the field.
-//  * \return name of the data field.
-//  */
-// template<typename value_t>
-// std::string
-// MimmoPiercedVector<value_t>::getName() const{
-//     return m_name;
-// }
-
 /*!
  * Get data location w.r.t geometry inner structures.
  * It returns what is stored in the respective member, and does not attempt to
@@ -146,16 +135,12 @@ MimmoPiercedVector<value_t>::getConstDataLocation() const{
 template<typename value_t>
 MPVLocation
 MimmoPiercedVector<value_t>::getDataLocation(){
- /*   if( m_loc == MPVLocation::UNDEFINED){
-        return recoverGeometryReferenceLocation();
-    }else{
- */       return m_loc;
- //   }
+        return m_loc;
 }
 
 /*!
  * Return data contained in inner pierced vector. Sequence follows that of reference location in
- * geometry(vertices, cells or interfaces).
+ * geometry(vertices, cells or interfaces). If no geometry is provided, return empty result.
  * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
  * you get iterating the internal location reference geometry PiercedVector from the beginning.
  * \return list of data 
@@ -179,6 +164,27 @@ MimmoPiercedVector<value_t>::getDataAsVector(bool ordered){
 }
 
 /*!
+ * Return only raw data contained in inner pierced vector. Sequence follows the internal pierced vector id-ing, 
+ * without any reference to geometry structure ordering.
+ * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * you get iterating the class object itself from the beginning.
+ * \return list of data 
+ * 
+ */
+template<typename value_t>
+std::vector<value_t>
+MimmoPiercedVector<value_t>::getRawDataAsVector(bool ordered){
+    livector1D ids = this->getIds(ordered);
+    std::vector<value_t> result(this->size());
+    int counter= 0;
+    for(const auto val: ids){
+            result[counter] = (*this)[val];
+            ++counter;
+    }
+    return result;
+}
+
+/*!
  * Set the linked MimmoObject.
  * \param[in] geo pointer to linked geometry.
  */
@@ -187,16 +193,6 @@ void
 MimmoPiercedVector<value_t>::setGeometry(MimmoObject* geo){
     m_geometry = geo;
 }
-
-// /*!
-//  * Set the name of the field.
-//  * \param[in] name name of the data field.
-//  */
-// template<typename value_t>
-// void
-// MimmoPiercedVector<value_t>::setName(std::string name){
-//     m_name = name;
-// }
 
 /*!
  * Set the data Location
@@ -288,7 +284,7 @@ bool
 MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
     if(getGeometry()==NULL) return false;
     auto ids = this->getIds();
-    bool check = this->size() > 0;
+    bool check = !this->isEmpty();
     switch(m_loc){
         case MPVLocation::CELL:
             {
@@ -326,39 +322,6 @@ MimmoPiercedVector<value_t>::checkDataIdsCoherence(){
     return check;
 }
 
-///*!
-// * Recover the most probable location of your data with reference to the MimmoObject structures
-// * available, i.e. vertices, cells or interfaces. If size does not match any of those structures, 
-// * return an MPVLocation::UNDEFINED value.
-// * 
-// * \return MPVLocation enum value
-// */
-//template<typename value_t>
-// MPVLocation
-// MimmoPiercedVector<value_t>::recoverGeometryReferenceLocation(){
-//     
-//     if(getGeometry()==NULL) {
-//         m_loc = MPVLocation::UNDEFINED;
-//         return MPVLocation::UNDEFINED;
-//     }    
-//     std::size_t datasize = this->size();
-// 
-//     if(datasize == getGeometry()->getPatch()->getVertexCount()){
-//         m_loc = MPVLocation::POINT;
-//         return MPVLocation::POINT;
-//     }
-//     if(datasize == getGeometry()->getPatch()->getCellCount()){
-//         m_loc = MPVLocation::CELL;
-//         return MPVLocation::CELL;
-//     }
-//     if(datasize == getGeometry()->getPatch()->getInterfaceCount()){
-//         m_loc = MPVLocation::INTERFACE;
-//         return MPVLocation::INTERFACE;
-//     }
-//     m_loc = MPVLocation::UNDEFINED;
-//     return MPVLocation::UNDEFINED;
-// }
-
 /*!
  * Check if a random integer number is a valid MPVLocation for the current class.
  * \return true if valid.
@@ -387,8 +350,13 @@ MimmoPiercedVector<value_t>::getGeometryIds(bool ordered){
             return getGeometry()->getCells().getIds(ordered);
             break;
         case MPVLocation::INTERFACE:
-            if(!getGeometry()->areInterfacesBuilt()) getGeometry()->buildInterfaces();
-            return getGeometry()->getInterfaces().getIds(ordered);
+            {
+                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+                if(sizeInterfaces == 0){
+                    (*m_log)<<"Warning: Asked list of geometry Ids in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+                }
+                return getGeometry()->getInterfaces().getIds(ordered);
+            }    
             break;
         default:
             return livector1D(0);
@@ -396,7 +364,37 @@ MimmoPiercedVector<value_t>::getGeometryIds(bool ordered){
     }
 }
 
+/*!
+ * \return true if current pierced container has no element in it.
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::isEmpty(){
+    return this->size() == size_t(0);
+}
 
+/*!
+ * Check if container current data are coherent with the geometry linked. If it is and
+ * current data size does not match the size of the reference geometry container,
+ * attempt to complete all values in the missing ids of reference location
+ * geometry structure with a User-assigned reference value. 
+ * \param[in] defValue User-assigned reference value
+ * \return true if the vector is coherent and full values aligned with geoemtry reference structure. 
+ */
+template<typename value_t>
+bool
+MimmoPiercedVector<value_t>::completeMissingData(const value_t & defValue){
+    
+    if(!this->checkDataIdsCoherence()) return false;
+    if(!this->checkDataSizeCoherence()){
+        
+        livector1D ids = this->getGeometryIds();
+        for(auto id: ids){
+            if(!this->exists(id)) this->insert(id, defValue);
+        }
+    }    
+    return true;
+}
 
 
 }

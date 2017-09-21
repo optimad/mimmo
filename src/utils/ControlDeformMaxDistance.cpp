@@ -161,11 +161,18 @@ ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
     if (geo == NULL) return;
-    if(geo->isEmpty() || m_defField.getGeometry() != geo) return;
+    if(geo->isEmpty() ) return;
     if(!(geo->isBvTreeSupported())) return;
 
-    m_violationField.clear();
+    bool check = m_defField.getGeometry() == geo;
+    check = check && m_defField.getDataLocation() == MPVLocation::POINT;
+    check = check && m_defField.completeMissingData({{0.0,0.0,0.0}});
+    if(!check){
+        (*m_log)<<"Warning in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
+        return;
+    }
 
+    m_violationField.clear();
 
     if(!(geo->isBvTreeBuilt()))    geo->buildBvTree();
 
@@ -202,7 +209,7 @@ ControlDeformMaxDistance::execute(){
     }
 
     m_violationField.setGeometry(getGeometry());
-//     m_violationField.setName("violation");
+    m_violationField.setDataLocation(MPVLocation::POINT);
 
     //write log
     std::string logname = m_name+"_violation";
@@ -261,7 +268,8 @@ void
 ControlDeformMaxDistance::plotOptionalResults(){
     if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
-
+    if(!m_defField.completeMissingData({{0,0,0}}) || !m_violationField.completeMissingData(0.0)) return;
+    
     liimap map;
     dvecarr3E  points = getGeometry()->getVertexCoords(&map);
     dvecarr3E deff = m_defField.getDataAsVector();
