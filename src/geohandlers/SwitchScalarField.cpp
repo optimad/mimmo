@@ -255,7 +255,8 @@ SwitchScalarField::mswitch(){
         
         for (const auto & field : m_fields){
             ef->setField(field);
-            ef->execute();
+            bool check = ef->extract();
+            if(!check) continue;
             
             auto temp = ef->getExtractedField();
             auto itB = temp.begin();
