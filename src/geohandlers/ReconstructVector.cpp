@@ -228,6 +228,7 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag, int co
     
     if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
+    if(!m_result.completeMissingData({{0.0,0.0,0.0}}))   return;
     
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
     if(m_loc == MPVLocation::CELL){
@@ -313,14 +314,7 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
     
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvecarr3E field_supp = m_subresults[i];
-    if(!field_supp.checkDataSizeCoherence()){
-        livector1D ids = idsGeoDataLocation(field_supp.getGeometry());
-        for(auto id : ids){
-            if(!field_supp.exists(id)){
-                field_supp.insert(id,{{0.0,0.0,0.0}});
-            } 
-        }
-    }
+    if(!field_supp.completeMissingData({{0.0,0.0,0.0}}))    return;
     dvecarr3E field = field_supp.getDataAsVector();
     std::vector<long> ids = field_supp.getIds();
     
@@ -342,7 +336,6 @@ ReconstructVector::execute(){
 
     if(getGeometry() == NULL)   return; 
     //Overlap fields
-    m_result.clear();
     m_result.clear();
     m_result.setGeometry(getGeometry());
     m_result.setDataLocation(m_loc);
@@ -373,7 +366,7 @@ ReconstructVector::execute(){
         }
     }
     
-    if (m_result.size() == size_t(0)){
+    if (m_result.isEmpty()){
         (*m_log)<<"Error in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
         return;
     }    
@@ -389,16 +382,8 @@ ReconstructVector::execute(){
     }
 
     //Update field on whole geometry
-    m_result.setGeometry(getGeometry());
     darray3E zero = {{0.0,0.0,0.0}};
-    long ID;
-    std::unordered_set<long>::iterator itB, itE=idsTarget.end();
-    for (itB=idsTarget.begin(); itB!=itE; ++itB){
-        ID = *itB;
-        if (!m_result.exists(ID)){
-            m_result.insert(ID, zero);
-        }
-    }
+    m_result.completeMissingData(zero);
     
     //Create subresults
     m_subresults.resize(getNData());

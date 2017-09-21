@@ -148,8 +148,8 @@ void
 Apply::checkInput(){
     
     bool check = m_input.getDataLocation() == mimmo::MPVLocation::POINT;
-    check = check && m_input.checkDataIdsCoherence();
     check = check && m_input.getGeometry() == getGeometry();
+    check = check && m_input.completeMissingData({{0.0,0.0,0.0}});
     if (!check){
         (*m_log)<<"Not valid input found in "<<m_name<<". Proceeding with default zero field"<<std::endl;
         m_input.clear();
@@ -161,17 +161,6 @@ Apply::checkInput(){
         }
     }
 
-    //if size differs w.r.t to point of geometry, fill the uncovered id position with 0.
-    if(!m_input.checkDataSizeCoherence()){
-        long id;
-        for (const auto & vertex : getGeometry()->getVertices()){
-            id = vertex.getId();
-            if(!m_input.exists(id)){
-                m_input.insert(id, {{0.0,0.0,0.0}});
-            }    
-        }
-        
-    }
 }
 
 }

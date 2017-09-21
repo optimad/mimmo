@@ -176,7 +176,7 @@ void
 SelectionByBoxWithScalar::plotOptionalResults(){
     if(getPatch() == NULL)      return;
     if(getPatch()->isEmpty()) return;
-    if(m_field.size() == size_t(0))   return;
+    if(m_field.getGeometry() != getPatch()) return;
     
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_field.getDataLocation()){
@@ -194,22 +194,13 @@ SelectionByBoxWithScalar::plotOptionalResults(){
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
     std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
-    
+        
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvector1D field_supp = m_field;
-    if(!field_supp.checkDataSizeCoherence()){
-        livector1D ids;
-        if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();
-        if(loc == bitpit::VTKLocation::CELL)   ids = field_supp.getGeometry()->getCells().getIds();
-        for(auto id : ids){
-            if(!field_supp.exists(id)){
-                field_supp.insert(id,0.0);
-            } 
-        }
-    }
-    dvector1D field = field_supp.getDataAsVector();
-    
-    getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+    if(field_supp.completeMissingData(0.0)){
+        dvector1D field = field_supp.getDataAsVector();
+        getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+    }    
     getPatch()->getPatch()->write(name);
 }
 

@@ -682,7 +682,7 @@ FFDLattice::apply(){
 void
 FFDLattice::checkFilter(){
     bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
-    check = check && m_filter.checkDataIdsCoherence();
+    check = check && m_filter.completeMissingData(0.0);
     check = check && m_filter.getGeometry() == getGeometry();
     
     if (!check){
@@ -693,16 +693,6 @@ FFDLattice::checkFilter(){
         m_filter.reserve(getGeometry()->getNVertex());
         for (const auto & vertex : getGeometry()->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
-        }
-    }
-    //if size differs w.r.t to point of geometry, fill the uncovered id position with 0.
-    if(!m_filter.checkDataSizeCoherence()){
-        long id;
-        for (const auto & vertex : getGeometry()->getVertices()){
-            id = vertex.getId();
-            if(!m_filter.exists(id)){
-                m_filter.insert(id, 0.0);
-            }
         }
     }
 }

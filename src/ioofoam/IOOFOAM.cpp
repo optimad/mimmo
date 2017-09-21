@@ -431,19 +431,11 @@ IOOFOAM::write(){
         string outputFilename = m_wdirS+"/"+m_wfilenameS;
         
         //check if a valid scalarfield is connected
-        bool check = m_field.size() ==size_t(0);
-        check = check && m_field.getGeometry()==getSurfaceBoundary();
+        bool check = m_field.getGeometry()==getSurfaceBoundary();
         check = check && m_field.getDataLocation()==MPVLocation::POINT;
-        check = check && m_field.checkDataIdsCoherence();
+        check = check && m_field.completeMissingData(0.0);
         if(check){
-            dmpvector1D temp = m_field;
-            if(!temp.checkDataSizeCoherence()){
-                livector1D ids = temp.getGeometry()->getVertices().getIds();
-                for(auto id: ids){
-                    if(!temp.exists(id)) temp.insert(id, 0.0);
-                }
-            }
-            dvector1D field = temp.getDataAsVector(); 
+            dvector1D field = m_field.getDataAsVector(); 
             getSurfaceBoundary()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
         }
         

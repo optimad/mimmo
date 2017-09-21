@@ -456,21 +456,12 @@ IOVTKScalar::write(){
 
         /* Set polydata field. */
         //check if a valid scalarfield is connected
-        bool check = m_field.size() ==size_t(0);
-        check = check && m_field.getGeometry()==getGeometry();
+        bool check = m_field.getGeometry()==getGeometry();
         check = check && m_field.getDataLocation()==MPVLocation::POINT;
-        check = check && m_field.checkDataIdsCoherence();
+        check = check && m_field.completeMissingData(0.0);
         if(check){
-            //check size coherence and add zero to missing data.
-            dmpvector1D temp = m_field;
-            if(!temp.checkDataSizeCoherence()){
-                livector1D ids = temp.getGeometry()->getVertices().getIds();
-                for(auto id: ids){
-                    if(!temp.exists(id)) temp.insert(id, 0.0);
-                }
-            }
             //get MPV as normal vector sequenced as geometry vertices actual ordering.
-            dvector1D field = temp.getDataAsVector();
+            dvector1D field = m_field.getDataAsVector();
             
             vtkSmartPointer<vtkPointData> pdata = m_polydata->GetPointData();
             vtkDoubleArray* data = vtkDoubleArray::New();

@@ -181,16 +181,7 @@ SwitchVectorField::plotOptionalResults(){
     
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvecarr3E field_supp = m_result;
-    if(!field_supp.checkDataSizeCoherence()){
-        livector1D ids;
-        if(loc == bitpit::VTKLocation::POINT)  ids = field_supp.getGeometry()->getVertices().getIds();
-        if(loc == bitpit::VTKLocation::CELL)   ids = field_supp.getGeometry()->getCells().getIds();
-        for(auto id : ids){
-            if(!field_supp.exists(id)){
-                field_supp.insert(id,{{0.0,0.0,0.0}});
-            } 
-        }
-    }
+    if(!field_supp.completeMissingData({{0.0,0.0,0.0}})) return;
     dvecarr3E field = field_supp.getDataAsVector();
     
     bitpit::VTKElementType cellType = getGeometry()->desumeElement();
@@ -289,7 +280,7 @@ SwitchVectorField::mswitch(){
         delete ef;
     }
     
-    if (m_result.size() == 0) return false;
+    if (m_result.isEmpty()) return false;
     return true;
 }
 
