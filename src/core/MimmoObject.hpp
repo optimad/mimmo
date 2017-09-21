@@ -69,6 +69,7 @@ protected:
     bool                                                    m_skdTreeSupported; /**< Flag for geometries not supporting bvTree building*/
 
     bool                                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
+    bool                                                    m_IntBuilt;     /**< track correct building of interfaces  along with geometry modifications */
     bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
 public:

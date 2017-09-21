@@ -69,6 +69,7 @@ MimmoObject::MimmoObject(int type){
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
+    m_IntBuilt = false;
 }
 
 /*!
@@ -202,6 +203,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
+    m_IntBuilt = false;
     
     for(const auto cell : getPatch()->getCells()){
         auto PID = cell.getPID();
@@ -236,7 +238,8 @@ MimmoObject::MimmoObject(const MimmoObject & other){
     m_pidsType          = other.m_pidsType;
     m_skdTreeSupported  = other.m_skdTreeSupported;
     m_AdjBuilt          = other.m_AdjBuilt;
-
+    m_IntBuilt          = other.m_IntBuilt;
+    
     m_skdTreeSync    = false;
     m_kdTreeSync    = false;
     
@@ -276,6 +279,7 @@ void MimmoObject::swap(MimmoObject & x) noexcept
     std::swap(m_pidsType, x.m_pidsType);
     std::swap(m_skdTreeSupported, x.m_skdTreeSupported);
     std::swap(m_AdjBuilt, x.m_AdjBuilt);
+    std::swap(m_IntBuilt, x.m_IntBuilt);
     std::swap(m_skdTree, x.m_skdTree);
     std::swap(m_kdTree, x.m_kdTree);
     std::swap(m_skdTreeSync, x.m_skdTreeSync);
@@ -913,6 +917,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     m_pidsType.insert(0);		
     m_skdTreeSync = false;
     m_AdjBuilt = false;
+    m_IntBuilt = false;
     return true;
 };
 
@@ -959,6 +964,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementInfo::Type
     setPIDCell(checkedID, PID);
     m_skdTreeSync = false;
     m_AdjBuilt = false;
+    m_IntBuilt = false;
     return true;
 };
 
@@ -1168,7 +1174,7 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
     }
     
     if(other->m_AdjBuilt)   buildAdjacencies();
-
+    if(other->m_IntBuilt)   buildInterfaces();
     //it's all copied(maps are update in the loops, pids if exists), except search trees.
 };
 
@@ -1550,7 +1556,7 @@ bool MimmoObject::areAdjacenciesBuilt(){
  * \return true if Interfaces are built for your current mesh.
  */
 bool MimmoObject::areInterfacesBuilt(){
-    return  getPatch()->getInterfaces().size() > size_t(0);
+    return  m_IntBuilt;
 };
 
 /*!
@@ -1583,8 +1589,10 @@ bool MimmoObject::isClosedLoop(){
  * Force the class to build cell-cell adjacency connectivity.
  */
 void MimmoObject::buildAdjacencies(){
-    getPatch()->buildAdjacencies();
-    m_AdjBuilt = true;
+    if(m_type !=3){
+        getPatch()->buildAdjacencies();
+        m_AdjBuilt = true;
+    }
 };
 
 /*!
@@ -1595,6 +1603,7 @@ void MimmoObject::buildAdjacencies(){
 void MimmoObject::buildInterfaces(){
     if(m_type !=3){
         getPatch()->buildInterfaces();
+        m_IntBuilt=  true;
     }
 };
 
@@ -1669,6 +1678,7 @@ void MimmoObject::reset(int type){
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
+    m_IntBuilt = false;
 }
 
 /*!
