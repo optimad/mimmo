@@ -692,15 +692,13 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
                 m_field.insert(id, 0.0);
             }
         }
-    }
-    else{
+        m_field.setGeometry(patchBnd);
+        m_field.setDataLocation(MPVLocation::POINT);
+    }else{
         (*m_log) << m_name << " error: polydata not found in : "<< inputFilename << std::endl;
         m_stopat = PID;
         return false;
     }
-
-    m_field.setGeometry(patchBnd);
-    m_field.setDataLocation(MPVLocation::POINT);
 
     return true;
 }

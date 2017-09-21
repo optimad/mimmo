@@ -371,6 +371,7 @@ IOVTKScalar::read(){
             }
         }
         m_field.setGeometry(getGeometry());
+        m_field.setDataLocation(MPVLocation::POINT);
     }
     else{
         (*m_log) << m_name << " error: polydata not found in : "<< m_rfilename << std::endl;
@@ -454,17 +455,35 @@ IOVTKScalar::write(){
         }
 
         /* Set polydata field. */
-        vtkSmartPointer<vtkPointData> pdata = m_polydata->GetPointData();
-        vtkDoubleArray* data = vtkDoubleArray::New();
-        data->SetName( "mimmo.field" );
-        data->SetNumberOfComponents( 1 );
-        for (int i=0; i<np; i++){
-            data->InsertNextTuple( &m_field[i]);
+        //check if a valid scalarfield is connected
+        bool check = m_field.size() ==size_t(0);
+        check = check && m_field.getGeometry()==getGeometry();
+        check = check && m_field.getDataLocation()==MPVLocation::POINT;
+        check = check && m_field.checkDataIdsCoherence();
+        if(check){
+            //check size coherence and add zero to missing data.
+            dmpvector1D temp = m_field;
+            if(!temp.checkDataSizeCoherence()){
+                livector1D ids = temp.getGeometry()->getVertices().getIds();
+                for(auto id: ids){
+                    if(!temp.exists(id)) temp.insert(id, 0.0);
+                }
+            }
+            //get MPV as normal vector sequenced as geometry vertices actual ordering.
+            dvector1D field = temp.getDataAsVector();
+            
+            vtkSmartPointer<vtkPointData> pdata = m_polydata->GetPointData();
+            vtkDoubleArray* data = vtkDoubleArray::New();
+            data->SetName( "mimmo.field" );
+            data->SetNumberOfComponents( 1 );
+            for (int i=0; i<np; i++){
+                data->InsertNextTuple( &field[i]);
+            }
+            pdata->AddArray(data);
+            data->Delete();
+            data = NULL;
         }
-        pdata->AddArray(data);
-        data->Delete();
-        data = NULL;
-
+        
         string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
         vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
         writer->SetFileName(outputFilename.c_str());
