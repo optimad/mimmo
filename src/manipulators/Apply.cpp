@@ -97,7 +97,13 @@ Apply::setInput(dmpvecarr3E input){
  */
 void
 Apply::execute(){
-    if (getGeometry() == NULL || m_input.getGeometry() != getGeometry()) return;
+    if (getGeometry() == NULL){
+        throw std::runtime_error (m_name + " : null pointer to linked geometry");
+    }
+    
+    if (getGeometry()->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
 
     checkInput();
 

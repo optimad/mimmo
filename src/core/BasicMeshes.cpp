@@ -1667,9 +1667,9 @@ void UStructMesh::resizeMesh(){
  * Apply stored mesh information and build the mesh. If no core shape is
  *  build, does nothing and exit.
  */
-void UStructMesh::build(){
+bool UStructMesh::build(){
 	
-	if(getShape() == NULL){return;}
+	if(getShape() == NULL){return false;}
 	
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.
@@ -1708,6 +1708,7 @@ void UStructMesh::build(){
 	for (int i = 0; i < m_nz; i++) {m_znode[i] = m_zedge[i] + 0.5 * m_dz;}
 	
 	m_isBuild = true;
+    return true;
 };
 
 

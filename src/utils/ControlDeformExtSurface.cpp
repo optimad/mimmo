@@ -291,15 +291,19 @@ void
 ControlDeformExtSurface::execute(){
 
     MimmoObject * geo = getGeometry();
-    if(geo == NULL) return;
-    if(geo->isEmpty() ) return;
+    if (geo == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (geo->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
 
     bool check = m_defField.getGeometry() == geo;
     check = check && m_defField.getDataLocation()== MPVLocation::POINT;
     check = check && m_defField.completeMissingData({{0.0,0.0,0.0}});
     if(!check){
-        (*m_log)<<"Warning in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
-        return;
+        (*m_log)<<"Error in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
+        throw std::runtime_error (m_name + " : Unsuitable deformation field linked.");
     }
 
     
@@ -347,7 +351,9 @@ ControlDeformExtSurface::execute(){
     readGeometries(extgeo, tols);
     //***************************************************************
 
-    if(extgeo.size() < 1)    return;
+    if(extgeo.size() < 1) {
+        throw std::runtime_error (m_name + " : read of all external geometries failed. Empty valid constraint geometries list.");
+    }
 
     //evaluating bounding box of deformation*************************
     darray3E bbMinDef = {{0,0,0}}, bbMaxDef={{0,0,0}};

@@ -355,7 +355,11 @@ GenericInputMPVData::_getResult(){
     }
 
     //mandatory check:if field is id-uncoherent with current geometry, does not set anything
-    if(data.checkDataIdsCoherence()) _setResult(data);
+    if(data.checkDataIdsCoherence()){ 
+        _setResult(data);
+    }else{
+        throw std::runtime_error (m_name + " : read data are not coherent with linked geometry");
+    }
 
     return static_cast<IODataT<MimmoPiercedVector< T > >*>(m_result.get())->getData();
 }

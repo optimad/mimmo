@@ -160,16 +160,19 @@ void
 ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
-    if (geo == NULL) return;
-    if(geo->isEmpty() ) return;
-    if(!(geo->isBvTreeSupported())) return;
+    if (geo == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (geo->isEmpty() || !(geo->isBvTreeSupported()) ){
+        throw std::runtime_error (m_name + " : linked geometry is empty or a point cloud mesh");
+    }
 
     bool check = m_defField.getGeometry() == geo;
     check = check && m_defField.getDataLocation() == MPVLocation::POINT;
     check = check && m_defField.completeMissingData({{0.0,0.0,0.0}});
     if(!check){
-        (*m_log)<<"Warning in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
-        return;
+        (*m_log)<<"Error in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
+        throw std::runtime_error (m_name + " : Unsuitable deformation field linked.");
     }
 
     m_violationField.clear();

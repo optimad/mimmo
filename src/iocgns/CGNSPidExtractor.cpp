@@ -185,9 +185,12 @@ void
 CGNSPidExtractor::execute(){
     
     if (getGeometry() == NULL) {
-        (*m_log)<<"Error in CGNSPidExtractor: found NULL linked geometry. Does not extract anything."<<std::endl;
-        return;
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry. Block can do nothing.");
     }
+    if (getGeometry()->isEmpty()) {
+        throw std::runtime_error (m_name + " : empty linked geometry. Block can do nothing.");
+    }
+    
     livector1D extracted;
 
     for(const auto & val: m_targetpid){

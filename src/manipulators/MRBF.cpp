@@ -461,8 +461,12 @@ void
 MRBF::execute(){
 
     MimmoObject * container = getGeometry();
-    if(container == NULL) return;
-    if(container->isEmpty() ) return;
+    if (container == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (container->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
 
     int size = 0;
     int sizeF = getDataCount();
@@ -557,7 +561,8 @@ MRBF::execute(){
 void
 MRBF::apply(){
 
-    if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
+    if (getGeometry() == NULL) return;
+    if (getGeometry()->isEmpty() || m_displ.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){

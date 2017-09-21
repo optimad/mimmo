@@ -115,15 +115,15 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-
-protected:
-    void swap(ExtractField & x) noexcept;
-
-private:
+    
     /*!
      * Pure virtual method
      */
     virtual bool extract() = 0;
+    
+protected:
+    void swap(ExtractField & x) noexcept;
+
 
 };
 
@@ -183,12 +183,13 @@ public:
     void clear();
 
     void     plotOptionalResults();
+    bool     extract();
 
 protected:
     void swap(ExtractScalarField & x) noexcept;
 
 private:
-    bool extract();
+
     void extractID(mimmo::MPVLocation loc);
     void extractPID(mimmo::MPVLocation loc);
     void extractMapping(mimmo::MPVLocation loc);
@@ -250,12 +251,12 @@ public:
     void clear();
 
     void     plotOptionalResults();
-
+    bool     extract();
+    
 protected:
     void swap(ExtractVectorField & x) noexcept;
 
 private:
-    bool extract();
     void extractID(mimmo::MPVLocation loc);
     void extractPID(mimmo::MPVLocation loc);
     void extractMapping(mimmo::MPVLocation loc);

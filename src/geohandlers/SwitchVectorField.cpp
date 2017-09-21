@@ -58,7 +58,7 @@ SwitchVectorField::SwitchVectorField(const bitpit::Config::Section & rootXML){
     if(loc > 0 && loc < 4){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
-        m_loc = 1;
+        m_loc = MPVLocation::POINT;
     }
     m_name = "mimmo.SwitchVectorField";
 
@@ -250,7 +250,8 @@ SwitchVectorField::mswitch(){
         
         for (const auto & field : m_fields){
             ef->setField(field);
-            ef->execute();
+            bool check = ef->extract();
+            if(!check) continue;
             
             auto temp = ef->getExtractedField();
             auto itB = temp.begin();
@@ -303,7 +304,7 @@ void SwitchVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML
         }
         if(int(m_loc) != temp){
             (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
-            return;
+            throw std::runtime_error (m_name + " : xml absorbing failed");
         }
     }
     

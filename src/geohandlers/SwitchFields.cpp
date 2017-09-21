@@ -115,8 +115,9 @@ SwitchField::execute(){
 
     bool check = mswitch();
     if(!check){
-        (*m_log)<<"error in class "<<m_name<<". Field cannot be switch"<<std::endl;
+        (*m_log)<<"Error in "<<m_name<<". Field cannot be switched"<<std::endl;
         (*m_log)<<"This could be due to not correct setting of geometries or division maps"<<std::endl;
+        throw std::runtime_error (m_name + " : field cannot be switched.");
     }
 }
 

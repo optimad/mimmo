@@ -57,7 +57,7 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
     if(loc > 0 && loc < 3){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
-        m_loc = 1;
+        m_loc = MPVLocation::POINT;
     }
     
     if(input == "mimmo.ReconstructScalar"){
@@ -175,7 +175,7 @@ void
 ReconstructScalar::addData( dmpvector1D  field){
     if(field.getGeometry()== NULL && field.getDataLocation() != m_loc) return;
     if(field.getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
-        (*m_log)<<"Warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
+        (*m_log)<<"warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
         return;
     }
     m_subpatch.push_back(field);
@@ -337,7 +337,13 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
 void
 ReconstructScalar::execute(){
 
-    if(getGeometry() == NULL)   return; 
+    if(getGeometry() == NULL){
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    }
+    
+    if(getGeometry()->isEmpty()){
+        throw std::runtime_error(m_name + "empty linked geometry found");
+    } 
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
@@ -371,8 +377,8 @@ ReconstructScalar::execute(){
     
     if (m_result.isEmpty()){
         (*m_log)<<"Error in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
-        return;
-    }    
+        throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
+    }
     
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
@@ -493,7 +499,7 @@ ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         }
         if(int(m_loc) != temp){
             (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
-            return;
+            throw std::runtime_error (m_name + " : xml absorbing failed.");
         }
     }
     //start absorbing

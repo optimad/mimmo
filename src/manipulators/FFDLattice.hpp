@@ -195,7 +195,7 @@ public:
     dvecarr3E     apply(dvecarr3E * point);
     dvecarr3E     apply(livector1D & map);
 
-    virtual void         build();
+    virtual bool         build();
 
     void     apply();
 

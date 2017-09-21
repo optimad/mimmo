@@ -47,8 +47,8 @@ MimmoObject::MimmoObject(int type){
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4){
-        (*m_log)<<"WARNING MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-        m_type = 1;
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
     }
 
     if (m_type == 2){
@@ -168,8 +168,8 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4){
-        (*m_log)<<"WARNING MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-        m_type = 1;
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
     }
 
     if(geometry == NULL){

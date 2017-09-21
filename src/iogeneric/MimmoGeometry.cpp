@@ -420,7 +420,7 @@ void
 MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
 
     if(other->isEmpty()){
-        (*m_log)<<"WARNING MimmoGeometry::setHARDCopy() : attempt to set hard copy from an empty object.Do nothing"<<std::endl;
+        (*m_log)<<"warning MimmoGeometry::setHARDCopy() : attempt to set hard copy from an empty object.Do nothing"<<std::endl;
         return;
     }
     //make a soft copy

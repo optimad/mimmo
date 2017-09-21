@@ -251,11 +251,13 @@ Lattice::plotCloud(std::string directory, std::string filename, int counter, boo
  * Build the structured mesh and create a wrapped map of effective degree of freedom 
  * of the current lattice mesh. Map is stored in internal member m_intMapDOF and accessible 
  * through methods accessDOFFromGrid and accessGridFromDOF. Reimplemented from UstructMesh::build();
+ * \return true if the mesh is built.
  */
-void 
+bool 
 Lattice::build(){
-    UStructMesh::build();
+    bool check = UStructMesh::build();
     resizeMapDof();
+    return check;
 };
 
 /*!
@@ -263,7 +265,9 @@ Lattice::build(){
  */
 void
 Lattice::execute(){
-    build();
+    if(!build()){
+        throw std::runtime_error (m_name + " : cannot build the current mesh.");
+    };
 };
 
 /*! 

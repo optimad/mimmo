@@ -299,7 +299,9 @@ SpecularPoints::execute(){
     for(int i=0; i<3; ++i)    norm[i] = m_plane[i];
     offset = m_plane[3];
     double normPlane = norm2(norm);
-    if(normPlane < 1.E-18 || m_points.empty())    return;
+    if(normPlane < 1.E-18 || m_points.empty()){
+        throw std::runtime_error (m_name + " : no valid plane normal or empty list of points to be mirrored");
+    }
     norm /= normPlane;
     bool project = false;
     if (getGeometry() != NULL){

@@ -187,7 +187,7 @@ public:
 	void 		execute();
 	bool		isBuilt();
 	
-	virtual void 		build();
+	virtual bool 		build();
 
 protected:
 	//internal maintenance of the mesh

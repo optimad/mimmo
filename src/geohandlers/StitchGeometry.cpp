@@ -181,7 +181,9 @@ StitchGeometry::clear(){
  */
 void
 StitchGeometry::execute(){
-    if(m_extgeo.empty())    return;
+    if(m_extgeo.empty()){
+        throw std::runtime_error(m_name + " : no source geometries to stich were found");
+    }
 
     std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
     long nCells = 0;
@@ -262,7 +264,10 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
             std::stringstream ss(input);
             ss>>temptop;
         }
-        if(m_topo != temptop)    return;
+        if(m_topo != temptop){
+            (*m_log)<<"Error in "<<m_name<<" : class Topology parameter mismatch from what is read in XML input"<<std::endl;
+            throw std::runtime_error(m_name + " : xml absorbing failed");
+        }
     }
 
     BaseManipulation::absorbSectionXML(slotXML, name);

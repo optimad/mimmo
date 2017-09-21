@@ -190,7 +190,9 @@ ClipGeometry::setInsideOut(bool flag){
 void
 ClipGeometry::execute(){
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty()) return;
+    if(getGeometry() == NULL || getGeometry()->isEmpty()){
+        throw std::runtime_error (m_name + " : empty geometry linked.");
+    };
 
     /* If an implicit definition is not present it has to be computed
      * by using origin and normal.
@@ -200,7 +202,9 @@ ClipGeometry::execute(){
     m_patch.reset(nullptr);
 
     livector1D extracted = clipPlane();
-    if(extracted.empty()) return;
+    if(extracted.empty()){
+        throw std::runtime_error (m_name + " : clipping failed, cannot extract anything in the half 3D-space");
+    }
 
     /* Create subpatch.*/
     std::unique_ptr<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));

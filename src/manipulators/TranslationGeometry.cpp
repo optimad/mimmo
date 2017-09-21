@@ -144,7 +144,12 @@ TranslationGeometry::getDisplacements(){
 void
 TranslationGeometry::execute(){
 
-    if (getGeometry() == NULL) return;
+    if (getGeometry() == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (getGeometry()->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
 
     checkFilter();
 
@@ -169,7 +174,8 @@ TranslationGeometry::execute(){
 void
 TranslationGeometry::apply(){
 
-    if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
+    if (getGeometry() == NULL) return;
+    if (getGeometry()->isEmpty() || m_displ.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){

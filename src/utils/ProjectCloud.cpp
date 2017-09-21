@@ -135,8 +135,12 @@ void ProjectCloud::clear(){
 void
 ProjectCloud::execute(){
 
-    if(getGeometry() == NULL) return;
-    if(getGeometry()->isEmpty())    return;
+    if (getGeometry() == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (getGeometry()->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
 
     if(!getGeometry()->isBvTreeBuilt())    getGeometry()->buildBvTree();
 

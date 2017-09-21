@@ -232,8 +232,13 @@ BendGeometry::setFilter(dmpvector1D filter){
 void
 BendGeometry::execute(){
 
-    if (getGeometry() == NULL) return;
-
+    if (getGeometry() == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (getGeometry()->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
+    
     //check coherence of degrees and coeffs;
     for(int i=0; i<3; ++i){
         for(int j=0; j<3; ++j){
@@ -283,7 +288,8 @@ BendGeometry::execute(){
 void
 BendGeometry::apply(){
 
-    if (getGeometry() == NULL || m_displ.getGeometry() != getGeometry()) return;
+    if (getGeometry() == NULL) return;
+    if (getGeometry()->isEmpty() || m_displ.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){

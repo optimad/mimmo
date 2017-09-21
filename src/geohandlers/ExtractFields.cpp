@@ -136,8 +136,9 @@ ExtractField::execute(){
 
     bool check = extract();
     if(!check){
-        (*m_log)<<"error in class "<<m_name<<". Field cannot be extract"<<std::endl;
+        (*m_log)<<"error in class "<<m_name<<". Field cannot be extracted"<<std::endl;
         (*m_log)<<"This could be due to not correct setting of geometries or division maps"<<std::endl;
+        throw std::runtime_error (m_name + " : field cannot be extracted.");
     }
 }
 

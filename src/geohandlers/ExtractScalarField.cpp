@@ -142,7 +142,7 @@ ExtractScalarField::plotOptionalResults(){
             loc = bitpit::VTKLocation::CELL;
         break;
         default:
-            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
         break;   
     }

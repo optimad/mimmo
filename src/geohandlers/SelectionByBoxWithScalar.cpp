@@ -152,19 +152,24 @@ SelectionByBoxWithScalar::getField(){
 void
 SelectionByBoxWithScalar::execute(){
 
-    //check m_field in input if coherent with the linked geometry
-    if(m_field.getGeometry() != getGeometry())  return;
-    
     SelectionByBox::execute();
-    ExtractScalarField * extractorField = new ExtractScalarField();
-    extractorField->setGeometry(getPatch());
-    extractorField->setMode(ExtractMode::ID);
-    extractorField->setField(m_field);
-    extractorField->execute();
     
-    m_field.clear();
-    m_field = extractorField->getExtractedField();
-    delete extractorField;
+    if(m_field.isEmpty()){
+        (*m_log)<<"warning in "<<m_name<<" : empty scalar field found"<<std::endl;
+    }else{
+        //check m_field in input if coherent with the linked geometry
+        if(m_field.getGeometry() != getGeometry())  {
+            throw std::runtime_error(m_name+" : linked scalar field is not referred to target geometry");
+        }
+    
+        ExtractScalarField * extractorField = new ExtractScalarField();
+        extractorField->setGeometry(getPatch());
+        extractorField->setMode(ExtractMode::ID);
+        extractorField->setField(m_field);
+        extractorField->execute();
+        m_field = extractorField->getExtractedField();
+        delete extractorField;
+    }
 }
 
 
@@ -187,7 +192,7 @@ SelectionByBoxWithScalar::plotOptionalResults(){
             loc = bitpit::VTKLocation::CELL;
             break;
         default:
-            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
             break;   
     }

@@ -125,7 +125,7 @@ public:
     void        plotGrid(std::string directory, std::string filename, int counter, bool binary);
     void        plotCloud(std::string directory, std::string filename, int counter, bool binary);
 
-    virtual     void build();
+    virtual     bool build();
     void        execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");

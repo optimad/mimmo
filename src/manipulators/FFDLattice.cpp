@@ -554,11 +554,18 @@ FFDLattice::plotCloud(std::string directory, std::string filename, int counter, 
 void
 FFDLattice::execute(){
 
-    if(!isBuilt()){build();}
-
     MimmoObject * container = getGeometry();
-    if(container == NULL ) return;
-
+    if (container == NULL){
+        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    }
+    if (container->isEmpty()){
+        throw std::runtime_error (m_name + " : empty linked geometry");
+    }
+    
+    if(!isBuilt()){
+        build();
+    }
+    
     //build trees
     if(container->isBvTreeSupported() && !container->isBvTreeBuilt())    container->buildBvTree();
     else if(!container->isKdTreeBuilt())                                container->buildKdTree();
@@ -612,7 +619,8 @@ dvecarr3E
 FFDLattice::apply(livector1D & list){
 
     MimmoObject * container = getGeometry();
-    if(container == NULL || !isBuilt()) return dvecarr3E(0);
+    if(container == NULL) return dvecarr3E(0);
+    if(container->isEmpty() || !isBuilt()) return dvecarr3E(0);
 
     list.clear();
 
@@ -663,7 +671,8 @@ FFDLattice::apply(dvecarr3E * point){
 void
 FFDLattice::apply(){
 
-    if (getGeometry() == NULL || m_gdispl.getGeometry() != getGeometry()) return;
+    if (getGeometry() == NULL) return;
+    if (getGeometry()->isEmpty() || m_gdispl.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){
@@ -1519,10 +1528,12 @@ FFDLattice::orderDimension(){
 };
 
 /*! Build your lattice and all your knot structures. Execute this method every 
- *  time a parameter modification is applied, in order to enable it */
-void
+ *  time a parameter modification is applied, in order to enable it 
+ *  \return id lattice is successfully built.
+ */
+bool
 FFDLattice::build(){
-    Lattice::build();
+    bool check = Lattice::build();
     //check degrees;
     m_deg[0] = std::min(m_nx, std::max(1, m_deg[0]));
     m_deg[1] = std::min(m_nx, std::max(1, m_deg[1]));
@@ -1543,7 +1554,7 @@ FFDLattice::build(){
 
     setKnotsStructure();
     orderDimension();
-
+    return check;
 };
 
 /*!

@@ -78,9 +78,9 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         (*m_log)<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
         return;
     }	
-
+    bool checkConnection = true;
+    
     for( auto & sect : slotXML.getSections()){
-
         std::string snd_str; 
         std::string rcv_str;
         std::string sndP_str;
@@ -130,13 +130,17 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
             (*m_log)<<""<<std::endl;
             (*m_log)<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
             (*m_log)<<""<<std::endl;
+            checkConnection = false;
         }	
         else{
             (*m_log)<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
         }
     }
-    m_log->setPriority(bitpit::log::DEBUG);
 
+    m_log->setPriority(bitpit::log::DEBUG);
+    if(!checkConnection){
+        throw std::runtime_error ("IOConnections : one or more failed pin connections found.");
+    }
     return;
 };
 

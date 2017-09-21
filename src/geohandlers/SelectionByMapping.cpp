@@ -439,7 +439,9 @@ SelectionByMapping::absorbSectionXML(const bitpit::Config::Section & slotXML, st
             std::stringstream ss(input);
             ss>>temp;
         }
-        if(m_topo != temp)    return;
+        if(m_topo != temp) {
+            throw std::runtime_error (m_name + " : xml absorbing failed.");
+        }
     }
 
     BaseManipulation::absorbSectionXML(slotXML, name);

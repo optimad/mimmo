@@ -203,7 +203,6 @@ OBBox::setGeometry(MimmoObject * geo){
     
     if (geo == NULL)    {
         (*m_log)<<"warning: "<<m_name<<" not valid Geometry pointer. Doing nothing"<<std::endl;
-        return;
     }
     
     if (geo->isEmpty())    {
@@ -285,7 +284,9 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
  */
 void
 OBBox::execute(){
-    if(m_listgeo.empty())    return;
+    if(m_listgeo.empty()){
+        throw std::runtime_error(m_name + " : found empty list of geometries");
+    };
 
     darray3E pmin, pmax;
     pmin.fill(1.e18);

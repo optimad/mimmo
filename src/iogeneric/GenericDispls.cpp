@@ -297,7 +297,7 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
         }
         if (m_read != value){
             (*m_log)<< "warning in class "<<m_name<<": cannot absorb xml parameters for class IOmode mismatching"<<std::endl;
-            return;
+            throw std::runtime_error (m_name + " : xml absorbing failed");
         }
     };
 
