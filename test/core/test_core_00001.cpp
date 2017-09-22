@@ -47,8 +47,8 @@ public:
 	void buildPorts(){
 		
         //Register ports
-        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
-        PortManager::instance().addPort("M_MYPERSONALFIELD", MC_VECTOR, MD_FLOAT);
+        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
+        PortManager::instance().addPort("M_MYPERSONALFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
         bool built = true;
 		built = built && createPortOut<dvecarr3E, ManipA>(this, &ManipA::getCoords, M_COORDS);
 		built = built && createPortOut<dvector1D, ManipA>(this, &ManipA::getField, "M_MYPERSONALFIELD");
@@ -71,8 +71,8 @@ public:
 	void buildPorts(){
 
         //Register ports
-        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT);
-        PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT);
+        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
+        PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
         
 		bool built = true;
 		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, M_COORDS);

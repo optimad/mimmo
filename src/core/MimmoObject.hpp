@@ -28,7 +28,6 @@
 #include "bitpit_volunstructured.hpp"
 #include "bitpit_surfunstructured.hpp"
 #include "bitpit_SA.hpp"
-//#include "BvTree.hpp"
 #include "surface_skd_tree.hpp"
 #include "volume_skd_tree.hpp"
 #include "mimmoTypeDef.hpp"

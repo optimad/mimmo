@@ -27,6 +27,7 @@
 
 #include "portDefinitions.hpp"
 #include "bitpit_common.hpp"
+#include "bitpit_IO.hpp"
 #include <unordered_map>
 #include <vector>
 #include <cassert>
@@ -50,28 +51,16 @@ struct InfoPort{
     long id;                 /**< integer label identifying the port*/
     std::string container;   /**< string label identifying the container associated to the port*/
     std::string datatype;    /**< string label identifying the data type associated to the port*/
-    
+    std::string file;        /**<file where the port is registrated */
     /*! Base constructor */
     InfoPort(){
         id=0; 
         container=""; 
         datatype="";
+        file = "";
     };
     /*! Base Destructor */
     virtual ~InfoPort(){};
-    /*! Copy constructor */
-    InfoPort(const InfoPort & other){
-        id = other.id;
-        container = other.container;
-        datatype = other.datatype;
-    };
-    /*! Copy operator */
-    InfoPort & operator=(const InfoPort & other){
-        id = other.id;
-        container = other.container;
-        datatype = other.datatype;
-        return *this;
-    };
 };
 
 /*!
@@ -93,8 +82,7 @@ private:
     /*!Prevent assignment for singleton*/
     PortManager& operator=(const PortManager&);
     /*! Destructor */
-    ~PortManager() { 
-    }; 
+    ~PortManager() {};
 
 public:
     /*! Instance the singleton */
@@ -109,14 +97,29 @@ public:
      * \param[in] name name of the port
      * \param[in] container_name name of the container associated to the port
      * \param[in] datatype_name name of the datatype associated to the port
-     * \return current size of ports registered in the list
+     * \param[in] fileregistration name of the file/location 
+     * \return current id of port registered in the list
      */ 
-    long addPort(const std::string name, const std::string container_name, const std::string datatype_name){
-        
-        if(containsPort(name) > 0)  return ports[name].id;
+    long addPort(const std::string name, const std::string container_name, const std::string datatype_name, const std::string fileregistration)
+    {
+   
+        if(containsPort(name) > 0)  {
+
+            std::string orcont =ports[name].container;
+            std::string ordata =ports[name].datatype;
+            if( orcont != container_name || ordata != datatype_name){
+                std::cerr<<"PORT REGISTRATION ERROR: ================"<<std::endl;
+                std::cerr<<"Failed Registration of Port "<<name<<" - "<<container_name<<" - "<<datatype_name<<" in file :"<<fileregistration<<std::endl;
+                std::cerr<<"It already exists as: "<<name<<" - "<<orcont<<" - "<<ordata<<" in file :"<<fileregistration<<std::endl;
+                std::cerr<<"========================================="<<std::endl;
+                assert(false && "Port is already registered with different container or datatype or both");
+            }
+            return ports[name].id;
+        }
         InfoPort temp;
         temp.container = container_name;
         temp.datatype = datatype_name;
+        temp.file = fileregistration;
         long idC=long(containers.size()), idD=long(datatypes.size());
         
         
@@ -131,7 +134,7 @@ public:
             datatypes[datatype_name]= idD;
         }
 
-        return (long) ports.size();
+        return (long) temp.id;
     }
     
     /*! Check if a port name is already registered 
@@ -191,6 +194,8 @@ private:
     std::unordered_map<std::string, InfoPort> ports;  /**< list of registered ports */
     std::unordered_map<std::string, long> containers; /**< list of registered port containers */
     std::unordered_map<std::string, long> datatypes;  /**< list of registered port data types */
+    bitpit::Logger*                           m_log;    /**<logger of mimmo */
+
 };
 
 };
@@ -217,7 +222,7 @@ private:
  */
 #define REGISTER_PORT(Name, Container, Datatype, ManipBlock) \
 /* Register a Port in the mimmo::portManager*/ \
- static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype); \
+static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype, __FILE__);\
 
 
 /*!
