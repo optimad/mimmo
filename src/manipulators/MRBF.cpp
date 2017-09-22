@@ -607,8 +607,8 @@ MRBF::plotOptionalResults(){
     std::string nameCloud = m_name;
     std::string nameCloudD = m_name+"_moved";
 
-    plotCloud(dir, nameCloud, getClassCounter(), true, false );
-    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
+    plotCloud(dir, nameCloud, getId(), true, false );
+    plotCloud(dir, nameCloudD, getId(), true, true );
 }
 
 

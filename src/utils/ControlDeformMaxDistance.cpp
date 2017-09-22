@@ -163,7 +163,7 @@ ControlDeformMaxDistance::execute(){
     if (geo == NULL){
         throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
     }
-    if (geo->isEmpty() || !(geo->isBvTreeSupported()) ){
+    if (geo->isEmpty() || !(geo->isSkdTreeSupported()) ){
         throw std::runtime_error (m_name + " : linked geometry is empty or a point cloud mesh");
     }
 
@@ -177,7 +177,7 @@ ControlDeformMaxDistance::execute(){
 
     m_violationField.clear();
 
-    if(!(geo->isBvTreeBuilt()))    geo->buildBvTree();
+    if(!(geo->isSkdTreeSync()))    geo->buildSkdTree();
 
     dmpvecarr3E points;
     dmpvector1D normDef;
@@ -202,7 +202,7 @@ ControlDeformMaxDistance::execute(){
         flag = true;
         radius = std::fmax(1.0E-8, normDef[ID]);
         while(flag && kiter < kmax){
-            dist = skdTreeUtils::distance(&points[ID], geo->getBvTree(), IDC, radius);
+            dist = skdTreeUtils::distance(&points[ID], geo->getSkdTree(), IDC, radius);
             flag = (dist == 1.0E+18);
             if(flag)    radius *= (1.0+ rate*((double)flag));
             kiter++;
@@ -281,7 +281,7 @@ ControlDeformMaxDistance::plotOptionalResults(){
 
     bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
 
-    std::string name = m_name +std::to_string(getClassCounter())+ "_ViolationField";
+    std::string name = m_name +std::to_string(getId())+ "_ViolationField";
     bitpit::VTKUnstructuredGrid output(m_outputPlot, name, elDM);
     output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
     output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;

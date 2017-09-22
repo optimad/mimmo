@@ -567,8 +567,8 @@ FFDLattice::execute(){
     }
     
     //build trees
-    if(container->isBvTreeSupported() && !container->isBvTreeBuilt())    container->buildBvTree();
-    else if(!container->isKdTreeBuilt())                                container->buildKdTree();
+    if(container->isSkdTreeSupported() && !container->isSkdTreeSync())    container->buildSkdTree();
+    else if(!container->isKdTreeSync())                                container->buildKdTree();
 
     livector1D map;
     dvecarr3E localdef = apply(map);
@@ -625,7 +625,7 @@ FFDLattice::apply(livector1D & list){
     list.clear();
 
     //check simplex included and extract their vertex in global IDs;
-    if(container->isBvTreeSupported()) list= container->getVertexFromCellList(getShape()->includeGeometry(container));
+    if(container->isSkdTreeSupported()) list= container->getVertexFromCellList(getShape()->includeGeometry(container));
     else                               list= getShape()->includeCloudPoints(container);
     //return deformation
     dvecarr3E result = nurbsEvaluator(list);
@@ -1409,9 +1409,9 @@ FFDLattice::plotOptionalResults(){
     //    std::string nameCloudD = m_name+"CLOUD_deformed";
 
 
-    plotGrid(dir, nameGrid, getClassCounter(), true, false );
+    plotGrid(dir, nameGrid, getId(), true, false );
     //    plotCloud(dir, nameCloud, getClassCounter(), true, false );
-    plotGrid(dir, nameGridD, getClassCounter(), true, true );
+    plotGrid(dir, nameGridD, getId(), true, true );
     //    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
 }
 

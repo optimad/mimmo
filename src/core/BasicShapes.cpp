@@ -274,14 +274,14 @@ darray3E BasicShape::getLocalSpan(){
  */
 livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 	if(geo == NULL)	return livector1D(0);
-	if(!(geo->isBvTreeSupported()))	return livector1D(0);
+	if(!(geo->isSkdTreeSupported()))	return livector1D(0);
 	
 	//create BvTree and fill it w/ cell list
-	if(!(geo->isBvTreeBuilt()))	geo->buildBvTree();
+	if(!(geo->isSkdTreeSync()))	geo->buildSkdTree();
 	//get recursively all the list element in the shape
 	livector1D elements(geo->getNCells());
 	int countElements = 0;
-	searchBvTreeMatches(*(geo->getBvTree()), geo->getPatch(), 0, elements, countElements);
+	searchBvTreeMatches(*(geo->getSkdTree()), geo->getPatch(), 0, elements, countElements);
 	elements.resize(countElements);
 	
 	return(elements);
@@ -473,7 +473,7 @@ livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 	
 	livector1D elements(geo->getNVertex()); 
 	//create BvTree and fill it w/ cell list
-	if(!(geo->isKdTreeBuilt()))	geo->buildKdTree();
+	if(!(geo->isKdTreeSync()))	geo->buildKdTree();
 	
 	getTempBBox();
 	int countVertex = 0;

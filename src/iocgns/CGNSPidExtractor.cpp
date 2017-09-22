@@ -279,7 +279,7 @@ CGNSPidExtractor::execute(){
 void CGNSPidExtractor::plotOptionalResults(){
     if(getPatch() == NULL)    return;
     if(getPatch()->isEmpty()) return;
-    std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
+    std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
     getPatch()->getPatch()->write(name);
 }
 

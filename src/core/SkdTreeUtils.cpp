@@ -607,9 +607,6 @@ namespace skdTreeUtils{
  * \param[out] id Label of the element found as minimum distance element in the bv-tree.
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
- * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
- * \param[in] next Index of the starting node to perform the searching (optional).
- * \param[in] h Initial minimum distance (if no value find below the initial value, returns this value as result) (optional).
  * \return Unsigned distance of the input point from the patch in the bv-tree.
  */
 double distance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &id, double &r)
@@ -639,10 +636,6 @@ double distance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &i
  * the projection of P on the plane of the simplex.
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
- * \param[in] method Method used to search the element (0=bounding box, 1=sphere).
- * \param[in] spatch_ Pointer to bitpit::SurfUnstructured patch related to the bv-tree (optional).
- * \param[in] next Index of the starting node to perform the searching (optional).
- * \param[in] h Initial minimum distance (if no value find below the initial value, it returns this value as result) (optional).
  * \return Signed distance of the input point from the patch in the bv-tree.
  */
 double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &id, std::array<double,3> &n, double &r)
@@ -664,12 +657,12 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
     if ( nV == 3 )
     {
         darray3E lambda ;
-        int flag;
         darray3E xP, normal;
-        h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2], xP, lambda, flag);
+        h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2],lambda);
         normal  = lambda[0] * spatch.evalVertexNormal(id,0) ;
         normal += lambda[1] * spatch.evalVertexNormal(id,1) ;
         normal += lambda[2] * spatch.evalVertexNormal(id,2) ;
+        xP = lambda[0]*VS[0] + lambda[1]*VS[1] + lambda[2]*VS[2];
         double s =  sign( dotProduct(normal, (*P_) - xP) );
         h = s * h;
         //pseudo-normal (direction P and xP closest point on triangle)
@@ -684,11 +677,11 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
     else if ( nV == 2 )
     {
         darray2E lambda ;
-        int flag;
         darray3E xP, normal;
-        h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], xP, lambda, flag);
+        h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], lambda);
         normal  = lambda[0] * spatch.evalVertexNormal(id,0) ;
         normal += lambda[1] * spatch.evalVertexNormal(id,1) ;
+        xP = lambda[0]*VS[0] + lambda[1]*VS[1];
         double s = sign( dotProduct(normal, (*P_) - xP) );
         h = s * h;
         //pseudo-normal (direction P and xP closest point on triangle)
@@ -779,7 +772,6 @@ void extractTarget(bitpit::PatchSkdTree *target, std::vector<const bitpit::SkdNo
     leafSelection.clear();
     leafSelection = tocheck;
 
-    int nextl, nextr;
     if (check){
         bitpit::SkdNode node = target->getNode(next);
         const bitpit::PiercedVector<bitpit::Cell> &cells = target->getPatch().getCells();

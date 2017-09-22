@@ -264,7 +264,6 @@ GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 
 /*!
  * Default constructor of GenericInputMPVData.
- * \param[in] readFromFile True if the object reads the values from file (default value false).
  * \param[in] csv True if the input file is a csv format file (default value false).
  */
 GenericInputMPVData::GenericInputMPVData(bool csv){

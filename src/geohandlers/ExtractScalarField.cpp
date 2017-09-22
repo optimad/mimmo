@@ -161,7 +161,7 @@ ExtractScalarField::plotOptionalResults(){
 
     if(cellType != bitpit::VTKElementType::VERTEX){
         ivector2D connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
+        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -172,7 +172,7 @@ ExtractScalarField::plotOptionalResults(){
         int size = points.size();
         ivector1D connectivity(size);
         for(int i=0; i<size; ++i)    connectivity[i]=i;
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),    cellType);
+        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),    cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -325,7 +325,7 @@ void ExtractScalarField::extractMapping(mimmo::MPVLocation loc){
     
     if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
     if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
-    livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tol);
+    livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
     
     switch(loc){
         case mimmo::MPVLocation::POINT:

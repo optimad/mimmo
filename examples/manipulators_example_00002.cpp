@@ -56,7 +56,7 @@ void test00002() {
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
-    mimmo0->setBuildBvTree(true);
+    mimmo0->setBuildSkdTree(true);
 
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);

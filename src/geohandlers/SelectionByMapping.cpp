@@ -303,7 +303,7 @@ SelectionByMapping::clear(){
 livector1D
 SelectionByMapping::extractSelection(){
 
-    if(!(getGeometry()->isBvTreeBuilt()))    getGeometry()->buildBvTree();
+    if(!(getGeometry()->isSkdTreeSync()))    getGeometry()->buildSkdTree();
     std::set<long> cellList;
 
     for (auto && file : m_geolist){
@@ -358,7 +358,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     geo->setDir(info[0]);
     geo->setFilename(info[1]);
     geo->setFileType(val.second);
-    geo->setBuildBvTree(true);
+    geo->setBuildSkdTree(true);
     geo->execute();
 
     if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 ){
@@ -367,7 +367,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
-    livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
+    livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
     delete geo;
     geo=NULL;
 
@@ -381,7 +381,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
 livector1D
 SelectionByMapping::getProximity(MimmoObject* obj){
 
-    obj->buildBvTree(true);
+    obj->buildSkdTree(true);
 
     if(obj->getNVertex() == 0 || obj->getNCells() == 0 ){
         m_log->setPriority(bitpit::log::NORMAL);
@@ -389,7 +389,7 @@ SelectionByMapping::getProximity(MimmoObject* obj){
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
-    livector1D result = mimmo::skdTreeUtils::selectByPatch(obj->getBvTree(), getGeometry()->getBvTree(), m_tolerance);
+    livector1D result = mimmo::skdTreeUtils::selectByPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
 
     return    result;
 };

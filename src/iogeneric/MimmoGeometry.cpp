@@ -1205,7 +1205,6 @@ MimmoGeometry::read(){
     case FileType::MIMMO :
         //Import in mimmo (bitpit) restore format
     {
-        int type;
         string name = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
         std::filebuf buffer;
         std::istream in(&buffer);

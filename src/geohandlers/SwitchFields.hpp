@@ -81,8 +81,8 @@ namespace mimmo{
  */
 class SwitchField: public BaseManipulation{
 protected:
-    bool m_mapping; /*< If true force the second research by mapping.*/
-    double m_tol;  /*< Tolerance for extraction by patch.*/
+    bool m_mapping; /**< If true force the second research by mapping.*/
+    double m_tol;  /**< Tolerance for extraction by patch.*/
 
 public:
     SwitchField();

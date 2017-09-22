@@ -340,7 +340,7 @@ ClipGeometry::plotOptionalResults(){
     auto pids = getClippedPatch()->getCompactPID();
     if(pids.size() > 0) output.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
 
-    output.setCounter(getClassCounter());
+    output.setCounter(getId());
     output.setCodex(bitpit::VTKFormat::APPENDED);
 
     output.write();

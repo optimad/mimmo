@@ -192,7 +192,7 @@ SwitchVectorField::plotOptionalResults(){
     
     if(cellType != bitpit::VTKElementType::VERTEX){
         ivector2D connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),cellType);
+        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -203,7 +203,7 @@ SwitchVectorField::plotOptionalResults(){
         int size = points.size();
         ivector1D connectivity(size);
         for(int i=0; i<size; ++i)    connectivity[i]=i;
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getClassCounter()),    cellType);
+        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),    cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -254,10 +254,10 @@ SwitchVectorField::mswitch(){
             if(!check) continue;
             
             auto temp = ef->getExtractedField();
-            auto itB = temp.begin();
+            dmpvecarr3E::iterator itB;
             auto itE = temp.end();
             long id;
-            for(itB; itB != itE; ++itB){
+            for(itB = temp.begin(); itB != itE; ++itB){
                 id = itB.getId();
                 if(!m_result.exists(id)){
                     m_result.insert(id, *itB);

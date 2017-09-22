@@ -112,7 +112,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>FileType</B>: file type identifier;
  * - <B>ReadFileType</B>: file type identifier for reader (to be used in case of converter mode);
  * - <B>WriteFileType</B>: file type identifier for writer (to be used in case of converter mode);
- * - <B>WriteMultiSolidSTL<B>: 0-false/1-true, if WriteFileType is STL, MultiSolid STL writing can be activated or not 
+ * - <B>WriteMultiSolidSTL</B>: 0-false/1-true, if WriteFileType is STL, MultiSolid STL writing can be activated or not 
  * - <B>ReadDir</B>: directory path (to be used in case of converter mode and different paths);
  * - <B>ReadFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
  * - <B>WriteDir</B>: directory path (to be used in case of converter mode and different paths);

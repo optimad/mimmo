@@ -294,7 +294,7 @@ void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 void 
 StitchGeometry::plotOptionalResults(){
     if(isEmpty()) return;
-    std::string name = m_name + "_" + std::to_string(getClassCounter()) +  "_Patch";
+    std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
     m_patch->getPatch()->write(name);
 }
 

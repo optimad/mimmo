@@ -165,9 +165,8 @@ ReconstructVector::setOverlapCriterium( int funct){
 };
 
 /*!
- * Insert in the list data field of a sub-patch, as typedef pVector
- * (pointer to the sub-patch mesh, pointer to the sub-patch field)
- * \param[in] vfield    Sub-patch to be inserted
+ * Insert in the list data field of a sub-patch.
+ * \param[in] field    Sub-patch to be inserted
  */
 void
 ReconstructVector::addData(dmpvecarr3E field){
@@ -414,9 +413,9 @@ void
 ReconstructVector::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string name = m_name;
-    plotData(dir, name, true, getClassCounter());
+    plotData(dir, name, true, getId());
     for (int i=0; i<getNData(); i++){
-        plotSubData(dir, name, i, true, getClassCounter());
+        plotSubData(dir, name, i, true, getId());
     }
 }
 
@@ -424,7 +423,7 @@ ReconstructVector::plotOptionalResults(){
  * Overlap concurrent value of different fields in the same node. Overlap Method is specified
  * in the class set
  * \param[in] ID of the vertex to be checked.
- *\param[in] value Value of concurrent field. It updates the value in result field by using the input value of actual concurrent field.
+ *\param[in] locField Value of concurrent field. It updates the value in result field by using the input value of actual concurrent field.
  */
 //DEVELOPERS REMIND if more overlap methods are added refer to this method to implement them
 void

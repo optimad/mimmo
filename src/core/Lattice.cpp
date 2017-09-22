@@ -70,7 +70,7 @@ Lattice::Lattice(const Lattice & other):BaseManipulation(other), UStructMesh(oth
 
 /*!
  * Swap function.
- * \param[in] object to be swapped
+ * \param[in] x object to be swapped
  */
 void Lattice::swap(Lattice & x) noexcept
 {
@@ -530,7 +530,7 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 void 	Lattice::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string nameGrid  = m_name+"GRID";
-    plotGrid(dir, nameGrid, getClassCounter(), true );
+    plotGrid(dir, nameGrid, getId(), true );
 }
 
 /*!

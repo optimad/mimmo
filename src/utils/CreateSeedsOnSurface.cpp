@@ -290,7 +290,7 @@ CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
     if(geo->getType() != 1)    return;
 
     BaseManipulation::setGeometry(geo);
-    if(!geo->isBvTreeBuilt())            getGeometry()->buildBvTree();
+    if(!geo->isSkdTreeSync())            getGeometry()->buildSkdTree();
     if(!geo->areAdjacenciesBuilt() )    getGeometry()->buildAdjacencies();
     bbox->setGeometry(geo);
 }
@@ -351,7 +351,7 @@ CreateSeedsOnSurface::plotOptionalResults(){
 
     std::string dir = m_outputPlot;
     std::string nameGrid  = m_name + "CLOUD";
-    plotCloud(dir, nameGrid, getClassCounter(), true );
+    plotCloud(dir, nameGrid, getId(), true );
 }
 
 /*!
@@ -407,7 +407,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
     if(!getGeometry()->areAdjacenciesBuilt() ) getGeometry()->buildAdjacencies();
     //find the nearest point of triagulation to the seed
-    if(!(getGeometry()->isKdTreeBuilt())) getGeometry()->buildKdTree();
+    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
 
     bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
 
@@ -419,7 +419,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     distance = std::pow(distance, 0.5);
 
     livector1D neighs, excl;
-    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     bitpit::Vertex vertSeed(0, projSeed);
     int nSize = 0;
     while( nSize < 1){
@@ -507,9 +507,11 @@ CreateSeedsOnSurface::solveGrid(bool debug){
 
     if(debug)    (*m_log)<<m_name<<" : started CartesianGrid engine"<<std::endl;
     iarray3E dim;
-
+    
+    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
+    
     //get the seed and project it on surface
-    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
@@ -575,7 +577,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     darray3E normal;
     for(auto & p : centroids){
         dummy=distR;
-        dist =  mimmo::skdTreeUtils::signedDistance(&p,getGeometry()->getBvTree(),id, normal, dummy);
+        dist =  mimmo::skdTreeUtils::signedDistance(&p,getGeometry()->getSkdTree(),id, normal, dummy);
         if(std::abs(dist) < distR){
             initList.push_back(p-dist*normal);
         }
@@ -632,8 +634,10 @@ CreateSeedsOnSurface::solveRandom(bool debug){
     if(debug)    (*m_log)<<m_name<<" : started Random engine"<<std::endl;
     dvecarr3E initList(getNPoints());
 
+    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
+    
     //get the seed and project it on surface
-    initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getBvTree());
+    initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
     if (m_nPoints == 1)    {
         m_points.clear();
@@ -672,7 +676,7 @@ CreateSeedsOnSurface::solveRandom(bool debug){
 
         //project tentative points on surface.
         for(int i = 0; i<nTent; ++i){
-            minP = skdTreeUtils::projectPoint(&tentative[i+1], getGeometry()->getBvTree());
+            minP = skdTreeUtils::projectPoint(&tentative[i+1], getGeometry()->getSkdTree());
             tentative[i+1] = minP;
         }
     }
@@ -1031,7 +1035,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
  * \param[in] g Propagation speed.
  * \param[in] s Velocity sign (+1 --> propagate outwards, -1 --> propagate inwards).
  * \param[in] invConn inverse connectivity of yout current geometry
- * \param[in/out] field field to be computed, already allocated.
+ * \param[in,out] field field to be computed, already allocated.
  */
 void
 CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dmpvector1D & field ){
@@ -1380,7 +1384,7 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     double radius = 1.0E-03;
     MimmoObject* geo = getGeometry();
     
-    skdTreeUtils::distance(&point, getGeometry()->getBvTree(), supportCell, radius);
+    skdTreeUtils::distance(&point, getGeometry()->getSkdTree(), supportCell, radius);
     
     auto convMap = getGeometry()->getMapDataInv();
     

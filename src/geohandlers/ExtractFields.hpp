@@ -28,7 +28,11 @@
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
-
+/*!
+ * \enum ExtractMode
+ * \ingroup geohandlers
+ * \brief Modes available to extract fields.See class ExtractField documentation.
+ */
 enum class ExtractMode{
     ID = 1 /**< Extract via ID*/,
     PID = 2 /**< Extract via PID*/,
@@ -52,7 +56,7 @@ enum class ExtractMode{
  *                    Return an extracted field referred to the target geometry, with the same data location of the input field.
  * - <B>PID = 1</B> : extraction of data on reference Location within common PIDs between target geometry and field linked geometry;
  *                    Return an extracted field referred to the input field linked geometry, with the same data location of the input field.
- * - <B>MAPPING = 2<B> : extraction of data on reference Location identified by a proximity mapping between target geometry and field linked geometry;
+ * - <B>MAPPING = 2</B> : extraction of data on reference Location identified by a proximity mapping between target geometry and field linked geometry;
  *                       Return an extracted field referred to the target geometry,with the same data location of the input field. 
  *
  * ExtractField is an abstract class. To use its features take a look to its specializations,
@@ -77,7 +81,7 @@ enum class ExtractMode{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract<Scalar/Vector>Fields"
+ * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Fields"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
@@ -91,8 +95,8 @@ enum class ExtractMode{
  */
 class ExtractField: public BaseManipulation{
 protected:
-    ExtractMode m_mode; /*< Extraction mode.*/
-    double      m_tol;  /*< Tolerance for extraction by patch.*/
+    ExtractMode m_mode; /**< Extraction mode.*/
+    double      m_tol;  /**< Tolerance for extraction by patch.*/
 
 public:
     ExtractField();

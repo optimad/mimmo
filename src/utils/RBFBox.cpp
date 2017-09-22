@@ -269,7 +269,7 @@ RBFBox::plotOptionalResults(){
 
     std::string dir = m_outputPlot ;
     std::string nameGrid  = m_name;
-    plot(dir, nameGrid, getClassCounter(), true );
+    plot(dir, nameGrid, getId(), true );
 }
 
 /*!

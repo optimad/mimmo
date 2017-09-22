@@ -860,7 +860,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 /*!
     Output stream operator for dmpvecarr3E
     \param[in] buffer is the output stream
-    \param[in] var is the element to be streamed
+    \param[in] element is the element to be streamed
     \result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::dmpvecarr3E &element)
@@ -882,7 +882,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::d
 /*!
     Input stream operator for dmpvecarr3E
     \param[in] buffer is the input stream
-    \param[in] var is the element to be streamed
+    \param[in] element is the element to be streamed
     \result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecarr3E &element)

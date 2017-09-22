@@ -167,9 +167,8 @@ ReconstructScalar::setOverlapCriterium( int funct){
 
 
 /*!
- * Insert in the list data field of a sub-patch, as typedef pField
- * (pointer to the sub-patch mesh, pointer to the sub-patch field)
- * \param[in] field    Sub-patch to be inserted
+ * Insert in the list data field referred to a sub-patch.
+ * \param[in] field    field to be inserted
  */
 void
 ReconstructScalar::addData( dmpvector1D  field){
@@ -413,16 +412,17 @@ ReconstructScalar::execute(){
 void     ReconstructScalar::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string name = m_name;
-    plotData(dir, name, true, getClassCounter());
+    plotData(dir, name, true, getId());
     for (int i=0; i<getNData(); i++){
-        plotSubData(dir, name, i, true, getClassCounter());
+        plotSubData(dir, name, i, true, getId());
     }
 }
 
 /*!
  * Overlap concurrent value of different fields in the same node. Overlap Method is specified
  * in the class set
- *\param[in] locField List of value of concurrent field. If value is unique, simply assigns it
+ *\param[in] ID id of m_result field to perform overlap
+ * \param[in] locField List of value of concurrent field. If value is unique, simply assigns it
  *\return    assigned value
  */
 //DEVELOPERS REMIND if more overlap methods are added refer to this method to implement them

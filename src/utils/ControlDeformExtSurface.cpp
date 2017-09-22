@@ -388,7 +388,7 @@ ControlDeformExtSurface::execute(){
 
         //check constraints properties ******************************
         MimmoObject * local = gg->getGeometry();
-        if(!(local->isBvTreeBuilt()))    local->buildBvTree();
+        if(!(local->isSkdTreeSync()))    local->buildSkdTree();
         bool checkOpen = local->isClosedLoop();
 
         double dist;
@@ -676,10 +676,10 @@ ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometr
         geo->setDir(info[0]);
         geo->setFilename(info[1]);
         geo->setFileType(geoinfo.second.second);
-        geo->setBuildBvTree(true);
+        geo->setBuildSkdTree(true);
         geo->execute();
 
-        if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isBvTreeSupported()){
+        if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isSkdTreeSupported()){
             (*m_log)<<"warning: failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
         }else{
             if (!geo->getGeometry()->areAdjacenciesBuilt()) geo->getGeometry()->getPatch()->buildAdjacencies();
@@ -742,10 +742,10 @@ ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObj
     int kiter = 0;
     bool flag = true;
 
-    if(!geo->isBvTreeBuilt())    geo->buildBvTree();
+    if(!geo->isSkdTreeSync())    geo->buildSkdTree();
 
     while(flag && kiter < kmax){
-        dist = skdTreeUtils::signedDistance(&point, geo->getBvTree(), id, normal, initRadius);
+        dist = skdTreeUtils::signedDistance(&point, geo->getSkdTree(), id, normal, initRadius);
         flag = (dist == 1.0E+18);
         if(flag)    initRadius *= (1.0+ rate*((double)flag));
         kiter++;
@@ -773,7 +773,7 @@ ControlDeformExtSurface::plotOptionalResults(){
 
     bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
 
-    std::string name = m_name +std::to_string(getClassCounter())+ "_ViolationField";
+    std::string name = m_name +std::to_string(getId())+ "_ViolationField";
     bitpit::VTKUnstructuredGrid output(m_outputPlot, name, elDM);
     output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
     output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;

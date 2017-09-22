@@ -402,7 +402,7 @@ void
 IOCloudPoints::plotOptionalResults(){
 
     std::string path = m_outputPlot;
-    std::string name = m_name +".Cloud_" + std::to_string(getClassCounter());
+    std::string name = m_name +".Cloud_" + std::to_string(getId());
     bitpit::VTKUnstructuredGrid output( path, name, bitpit::VTKElementType::VERTEX);
 
     int size = m_points.size();

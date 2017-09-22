@@ -366,12 +366,12 @@ SpecularPoints::execute(){
     m_vectorMirrored.resize(counterProj);
 
     if(project){
-        if(!getGeometry()->isBvTreeBuilt())    getGeometry()->buildBvTree();
+        if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
 
         //project points on surface.
         int counter = 0;
         for(auto &val : m_proj){
-            m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
+            m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
             ++counter;
         }
     }
@@ -509,7 +509,7 @@ SpecularPoints::plotOptionalResults(){
         conn[i] = i;
     }
     std::string dir = "./";
-    std::string file = m_name + "_" + std::to_string(getClassCounter());
+    std::string file = m_name + "_" + std::to_string(getId());
 
     bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_proj) ;

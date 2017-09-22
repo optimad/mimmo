@@ -29,7 +29,7 @@ namespace mimmo{
 /*!
  * Default constructor of MimmoPiercedVector.
  * \param[in] geo pointer to related geometry
- * \param[in] name field name
+ * \param[in] loc reference location of field. see MPVLocation.
  */
 template<typename value_t>
 MimmoPiercedVector<value_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc):bitpit::PiercedVector<value_t,long int>(){
@@ -141,7 +141,7 @@ MimmoPiercedVector<value_t>::getDataLocation(){
 /*!
  * Return data contained in inner pierced vector. Sequence follows that of reference location in
  * geometry(vertices, cells or interfaces). If no geometry is provided, return empty result.
- * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as 
  * you get iterating the internal location reference geometry PiercedVector from the beginning.
  * \return list of data 
  * 
@@ -166,7 +166,7 @@ MimmoPiercedVector<value_t>::getDataAsVector(bool ordered){
 /*!
  * Return only raw data contained in inner pierced vector. Sequence follows the internal pierced vector id-ing, 
  * without any reference to geometry structure ordering.
- * \param[in] ordered, if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as 
  * you get iterating the class object itself from the beginning.
  * \return list of data 
  * 

@@ -142,13 +142,13 @@ ProjectCloud::execute(){
         throw std::runtime_error (m_name + " : empty linked geometry");
     }
 
-    if(!getGeometry()->isBvTreeBuilt())    getGeometry()->buildBvTree();
+    if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
 
     //project points on surface.
     int counter = 0;
     m_proj.resize(m_points.size());
     for(auto &val : m_points){
-        m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getBvTree());
+        m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
         ++counter;
     }
     return;
@@ -168,7 +168,7 @@ ProjectCloud::plotOptionalResults(){
         conn[i] = i;
     }
     std::string dir = "./";
-    std::string file = m_name + "_" + std::to_string(getClassCounter());
+    std::string file = m_name + "_" + std::to_string(getId());
 
     bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_proj) ;
