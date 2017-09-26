@@ -37,12 +37,20 @@ namespace mimmo{
 
 class BaseManipulation;
 
+/*!
+ * \ingroup typedefs
+ * \{
+ */
 typedef std::string                 PortID; /**< port ID typedef */
 typedef std::string                 containerTAG; /**< containerTAG typedef*/
 typedef std::string                 dataTAG; /**< dataTAG typedef */
 
 typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
 typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
+
+/*!
+ * \}
+ */
 
 /*!
 * \class DataType
