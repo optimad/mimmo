@@ -98,7 +98,7 @@ void MRBF::swap(MRBF & x) noexcept
    std::swap(m_bfilter, x.m_bfilter);
    std::swap(m_filter, x.m_filter);
    std::swap(m_displ, x.m_displ);
-   RBFKernel::swap(x);
+   RBF::swap(x);
    BaseManipulation::swap(x);
 }
 
