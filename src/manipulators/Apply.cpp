@@ -157,7 +157,10 @@ Apply::checkInput(){
     check = check && m_input.getGeometry() == getGeometry();
     check = check && m_input.completeMissingData({{0.0,0.0,0.0}});
     if (!check){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Not valid input found in "<<m_name<<". Proceeding with default zero field"<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+        
         m_input.clear();
         m_input.setGeometry(m_geometry);
         m_input.setDataLocation(mimmo::MPVLocation::POINT);

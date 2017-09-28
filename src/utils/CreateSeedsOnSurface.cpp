@@ -1385,9 +1385,7 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     MimmoObject* geo = getGeometry();
     
     skdTreeUtils::distance(&point, getGeometry()->getSkdTree(), supportCell, radius);
-    
-    auto convMap = getGeometry()->getMapDataInv();
-    
+
     auto cell = geo->getPatch()->getCell(supportCell);
     int nV = cell.getVertexCount();
     long * conn = cell.getConnect();
@@ -1395,7 +1393,7 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     double wtot = 0.0;
     long idLoc;
     for(int i=0; i<nV; ++i){
-        idLoc = convMap[conn[i]];
+        idLoc = conn[i];
         if(m_sensitivity.exists(idLoc)){
             val[i] = m_sensitivity[idLoc];
         }else{

@@ -243,7 +243,10 @@ RotationGeometry::checkFilter(){
     check = check && m_filter.getGeometry() == getGeometry();
     
     if (!check){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+        
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
