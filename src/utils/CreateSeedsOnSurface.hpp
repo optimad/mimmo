@@ -161,6 +161,7 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(CreateSeedsOnSurface & x) noexcept;
+    void    checkField();
     void    normalizeField();
 private:
 

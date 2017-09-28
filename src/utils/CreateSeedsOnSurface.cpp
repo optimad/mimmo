@@ -372,6 +372,7 @@ CreateSeedsOnSurface::solve(bool debug){
     bbox->execute();
     if(m_seedbaricenter)    m_seed = bbox->getOrigin();
     
+    checkField();
     normalizeField();
     
     switch(m_engine){
@@ -1393,10 +1394,14 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
     long * conn = cell.getConnect();
     dvector1D weights(nV, 0), val(nV,0);
     double wtot = 0.0;
+    long idLoc;
     for(int i=0; i<nV; ++i){
-
-        val[i] = m_sensitivity[convMap[conn[i]]];
-        
+        idLoc = convMap[conn[i]];
+        if(m_sensitivity.exists(idLoc)){
+            val[i] = m_sensitivity[idLoc];
+        }else{
+            val[i] = 0.0;
+        }
         double valdist = norm2(geo->getVertexCoords(conn[i]) - point);
         if ( valdist< 1.E-18){ 
             return val[i];
@@ -1419,17 +1424,21 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
 }
 
 /*!
- * Normalize your current point data seisitivity field associated to linked geometry. 
- *  - If geometry is not linked, does nothing. 
- *  - If a whole empty field is provided, default unity field on vertex ids of linked geometry is created. 
- *  - If field is not coherent in data size and ids association to geometry, fill it default unity field on vertex ids.
+ * Check your current point data sensitivity field associated to linked geometry. 
+ * Do nothing if class linked geometry is a null pointer or empty.
+ * If field geometry is not linked or empty or if field geometry its uncoherent with class linked 
+ * geometry or not referred to MPVLocation point or if the field itself does not carry any value, create a default unitary field.
+ * If the field is still coherent but miss values on some geometry nodes, complete it assigning zero value on missing ids.
+ * If no exception occurs, leave the field as it is.
  */
-void CreateSeedsOnSurface::normalizeField(){
+void CreateSeedsOnSurface::checkField(){
     
     if(getGeometry() == NULL)   return;
+    if(getGeometry()->isEmpty()) return;
     dmpvector1D defaultField;
+    defaultField.setGeometry(getGeometry());
+    defaultField.setDataLocation(MPVLocation::POINT);
     //create unity field;
-    
     for(const auto vert: getGeometry()->getVertices()){
         defaultField.insert(vert.getId(), 1.0);
     }
@@ -1449,6 +1458,14 @@ void CreateSeedsOnSurface::normalizeField(){
             return;
         }
     }
+}
+
+
+/*!
+ * Normalize your current point data sensitivity field associated to linked geometry. 
+ * It is assumed at this point that the field is fully coeherent, as result of checkField method check.
+ */
+void CreateSeedsOnSurface::normalizeField(){
     
     double minSense=0.0,maxSense=0.0;
     minval(m_sensitivity.getRawDataAsVector(), minSense);
@@ -1464,11 +1481,17 @@ void CreateSeedsOnSurface::normalizeField(){
         for(auto &val: m_sensitivity){
             val /= maxSense;
         }
-        
     }
-    
+
     if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
-        (*m_log)<<"warning in "<<m_name<<" : Not valid data of sensitivity field detected. Using default field"<<std::endl;
+        (*m_log)<<"warning in "<<m_name<<" : Not valid data of sensitivity field detected. Using default unitary field"<<std::endl;
+        dmpvector1D defaultField;
+        defaultField.setGeometry(getGeometry());
+        defaultField.setDataLocation(MPVLocation::POINT);
+        //create unity field;
+        for(const auto vert: getGeometry()->getVertices()){
+            defaultField.insert(vert.getId(), 1.0);
+        }
         m_sensitivity = defaultField;
     }
 }
