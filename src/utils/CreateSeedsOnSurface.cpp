@@ -457,10 +457,9 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         solveEikonal(1.0,1.0, invConn, field);
 
         //modulate field with sensitivity field
-        int countF = 0;
-        for( auto &val: field){
-            val *= m_sensitivity[countF];
-            ++countF;
+        auto itSE=m_sensitivity.end();
+        for(auto itSX =m_sensitivity.begin(); itSX != itSE; ++itSX){
+            field[itSX.getId()] *= *itSX;
         }
         
         double maxField= 0.0;
@@ -1443,6 +1442,7 @@ void CreateSeedsOnSurface::checkField(){
         defaultField.insert(vert.getId(), 1.0);
     }
     
+    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
     if(getGeometry() != m_sensitivity.getGeometry()){
         m_sensitivity = defaultField;
         (*m_log)<<"warning in "<<m_name<<" : Not suitable data field connected. Reference geometry linked by the class and by MimmoPiercedvector field differs. Using default field"<<std::endl;
@@ -1458,6 +1458,8 @@ void CreateSeedsOnSurface::checkField(){
             return;
         }
     }
+    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+    
 }
 
 
@@ -1483,6 +1485,7 @@ void CreateSeedsOnSurface::normalizeField(){
         }
     }
 
+    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
     if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
         (*m_log)<<"warning in "<<m_name<<" : Not valid data of sensitivity field detected. Using default unitary field"<<std::endl;
         dmpvector1D defaultField;
@@ -1494,6 +1497,7 @@ void CreateSeedsOnSurface::normalizeField(){
         }
         m_sensitivity = defaultField;
     }
+    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 }
 
 
