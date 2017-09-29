@@ -260,7 +260,7 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag, int co
     std::vector<long> ids = m_result.getIds();
     
     output.addData("vectorfield", bitpit::VTKFieldType::VECTOR, loc, field);
-    output.addData("ID", bitpit::VTKFieldType::VECTOR, loc, ids);
+    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
     
     output.setCounter(counter);
     output.setCodex(bitpit::VTKFormat::APPENDED);
@@ -318,7 +318,7 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
     std::vector<long> ids = field_supp.getIds();
     
     output.addData("vectorfield", bitpit::VTKFieldType::VECTOR,loc, field);
-    output.addData("ID", bitpit::VTKFieldType::VECTOR, loc, ids);
+    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
     
     output.setCounter(counter);
     output.setCodex(bitpit::VTKFormat::APPENDED);

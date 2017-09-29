@@ -44,5 +44,6 @@
 #include "ScaleGeometry.hpp"
 #include "TwistGeometry.hpp"
 #include "BendGeometry.hpp"
+#include "PropagateField.hpp"
 
 #endif

@@ -91,7 +91,6 @@ typedef std::array<darr3Evec,3>     dmat33Evec; /**< mimmo custom typedef*/
 
 typedef std::map<long int, int>     liimap;     /**< mimmo custom typedef*/
 
-
 /*!
  * \}
  */

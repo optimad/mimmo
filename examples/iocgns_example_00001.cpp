@@ -22,6 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 #include "mimmo_iocgns.hpp"
+#include "mimmo_geohandlers.hpp"
+#include "mimmo_manipulators.hpp"
 
 using namespace mimmo;
 
@@ -41,7 +43,7 @@ void example00001() {
     cgnsO->setWriteDir(".");
     cgnsO->setWriteFilename("iocgns_output_00001");
 
-    /* Create CGNS PID excrator object to test input file.
+    /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 1 (Wing wall boundary in input file).
      */
     CGNSPidExtractor * cgnsExtr = new CGNSPidExtractor();
@@ -49,22 +51,49 @@ void example00001() {
     cgnsExtr->setForcedToTriangulate(false);
     cgnsExtr->setPlotInExecution(true);
 
+    /* Instantiation of a Selection By Box block.
+     * Setup of span and origin of cube.
+     */
+    SelectionByBox      * boxSel = new SelectionByBox();
+    boxSel->setOrigin({{700., 1500., 0.}});
+    boxSel->setSpan(1500.,700.,100.);
+    boxSel->setPlotInExecution(true);
+
+    /* Creation of rotation block.
+     */
+    RotationGeometry* rotation = new RotationGeometry();
+    rotation->setDirection(darray3E{0.,1.,0.});
+    rotation->setRotation((M_PI/4));
+    rotation->setPlotInExecution(true);
+
+    /* Create reconstruct vector block and set to recontruct over the whole
+     * input geometry the displacements field.
+     */
+    ReconstructVector* recon = new ReconstructVector();
+    recon->setPlotInExecution(true);
+
     /* Create PINs. */
-    addPin(cgnsI,cgnsO, M_GEOM, M_GEOM);
-    addPin(cgnsI,cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(cgnsI,cgnsO, M_GEOM2, M_GEOM2);
-    addPin(cgnsI,cgnsO, M_BCCGNS, M_BCCGNS);
+    addPin(cgnsI, cgnsO, M_GEOM, M_GEOM);
+    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
+    addPin(cgnsExtr, boxSel, M_GEOM, M_GEOM);
+    addPin(boxSel, rotation, M_GEOM, M_GEOM);
+    addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
+    addPin(cgnsI, recon, M_GEOM2, M_GEOM);
+
+    addPin(cgnsI, cgnsO, M_GEOM2, M_GEOM2);
+    addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS);
 
     /* Create and execute chain. */
     Chain ch0;
     ch0.addObject(cgnsI);
     ch0.addObject(cgnsExtr);
+    ch0.addObject(boxSel);
+    ch0.addObject(rotation);
+    ch0.addObject(recon);
     ch0.addObject(cgnsO);
     ch0.exec(true);
 
-
     cgnsI->getSurfaceBoundary()->getPatch()->write();
-
 
     /* Destroy objects. */
     delete cgnsI;
