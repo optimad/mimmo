@@ -897,12 +897,12 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
         // Cell data get id of vertex composing triangular cell
         I = oneIndex;
         bitpit::Cell & cellI = tri->getCell(I);
-
+        long * connCellI = cellI.getConnect();
         k = cellI.findVertex(V);
         k = (k + 1) % cellI.getVertexCount();
-        U = cellI.getVertex(k);
+        U = connCellI[k];
         m = (k + 1) % cellI.getVertexCount();
-        W = cellI.getVertex(m);
+        W = connCellI[m];
 
         // discriminate case, according to flag vector of deads, alives and far-aways
         if ((flag[U] == 0) && (flag[W] == 0)) {
@@ -1247,9 +1247,9 @@ CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId, const long & 
     for(auto && index : list){
         bitpit::Cell & cell = tri->getCell(index);
         connSize = cell.getVertexCount();
-
+        long * conn_ = cell.getConnect();
         for(int i=0; i<connSize; ++i){
-            result.insert(cell.getVertex(i));
+            result.insert(conn_[i]);
         }
     }
 

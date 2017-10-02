@@ -48,7 +48,7 @@ int test3_1() {
     obj->addVertex(pp[0],0);
     obj->addVertex(pp[1],1);
     obj->addVertex(pp[2],2);
-    obj->addConnectedCell(conn, bitpit::ElementInfo::TRIANGLE, 0, 0);
+    obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
     
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);
@@ -130,7 +130,7 @@ int test3_2() {
     obj->addVertex(pp[0],0);
     obj->addVertex(pp[1],1);
     obj->addVertex(pp[2],2);
-    obj->addConnectedCell(conn, bitpit::ElementInfo::TRIANGLE, 0, 0);
+    obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
     
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);

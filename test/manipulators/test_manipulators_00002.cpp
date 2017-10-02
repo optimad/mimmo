@@ -51,7 +51,7 @@ int test2() {
         mesh->addVertex(val, counter);
         ++counter;
     }
-    mesh->addConnectedCell(conn, bitpit::ElementInfo::Type::TRIANGLE, 0, 0);
+    mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
 //     mesh->getPatch()->write("undeformed");
     
     double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);

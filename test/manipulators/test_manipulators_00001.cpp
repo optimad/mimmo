@@ -51,7 +51,7 @@ int test1() {
         mesh->addVertex(val, counter);
         ++counter;
     }
-    mesh->addConnectedCell(conn, bitpit::ElementInfo::Type::TRIANGLE, 0, 0);
+    mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
     
     //recover normal of the triangle, and area;
     darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);

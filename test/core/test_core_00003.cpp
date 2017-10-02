@@ -97,7 +97,7 @@ bool createMimmoMesh(MimmoObject * mesh){
 	}
 	
 	long cC=0;
-	bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+	bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 	for(auto & val: conn){
 		mesh->addConnectedCell(val, eltype, cC);
 		cC++;
@@ -123,7 +123,7 @@ std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & 
 	
 	//fill the mimmoObject;
 	short pid;
-	bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+	bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 	
 	livector1D vertlist = original->getVertexFromCellList(list);
 	

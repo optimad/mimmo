@@ -216,7 +216,6 @@ CGNSPidExtractor::execute(){
             bitpit::ElementInfo::Type eletype = mother->getPatch()->getCell(val).getType();
             patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
             count++;
-
         }
 
         {
@@ -225,7 +224,7 @@ CGNSPidExtractor::execute(){
             std::map<long,long> ordIndex;
 
             for(const auto & val2: tempConn){
-                for (auto val22 : val2){
+                for (const auto val22 : val2){
                     ordIndex[val22] = val22;
                 }
             }
@@ -246,14 +245,15 @@ CGNSPidExtractor::execute(){
         const auto orderedCellID = patchTemp->getCells().getIds(true);
         maxID = orderedCellID[(int)orderedCellID.size()-1];
         newID = maxID+1;
-        bitpit::ElementInfo::Type eletype, eletri = bitpit::ElementInfo::Type::TRIANGLE;
+        bitpit::ElementType eletype;
+        bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 
         for(const auto &idcell : orderedCellID){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
             eletype = mother->getPatch()->getCell(idcell).getType();
 
-            if(eletype == bitpit::ElementInfo::Type::QUAD){
+            if(eletype == bitpit::ElementType::QUAD){
                 //create new triangle connectivity
                 livector1D conn1(3), conn2(3);
                 conn1[0] = conn[0];

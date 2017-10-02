@@ -882,7 +882,7 @@ MimmoGeometry::read(){
 
         vtk.read() ;
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 
         setGeometry(1);
 
@@ -933,7 +933,7 @@ MimmoGeometry::read(){
         vtk.addData("PID", pids);
         vtk.read() ;
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::QUAD;
+        bitpit::ElementType eltype = bitpit::ElementType::QUAD;
 
         setGeometry(1);
 
@@ -983,7 +983,7 @@ MimmoGeometry::read(){
         vtk.addData("PID", pids);
         vtk.read() ;
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TETRA;
+        bitpit::ElementType eltype = bitpit::ElementType::TETRA;
 
         setGeometry(2);
 
@@ -1034,7 +1034,7 @@ MimmoGeometry::read(){
         vtk.addData("PID", pids);
         vtk.read() ;
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::HEXAHEDRON;
+        bitpit::ElementType eltype = bitpit::ElementType::HEXAHEDRON;
 
         setGeometry(2);
 
@@ -1084,7 +1084,7 @@ MimmoGeometry::read(){
         shivector1D pids;
         nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, Iconnectivity, pids );
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 
         setGeometry(1);
 
@@ -1176,7 +1176,7 @@ MimmoGeometry::read(){
         vtk.addData("PID", pids);
         vtk.read() ;
 
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::LINE;
+        bitpit::ElementType eltype = bitpit::ElementType::LINE;
 
         setGeometry(4);
 

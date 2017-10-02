@@ -69,8 +69,8 @@ int test2_2() {
     
     MimmoObject * geo = new MimmoObject(1);
     for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
-    geo->addConnectedCell(conn[0], bitpit::ElementInfo::TRIANGLE, short(0), long(0));
-    geo->addConnectedCell(conn[1], bitpit::ElementInfo::TRIANGLE, short(0), long(1));
+    geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, short(0), long(0));
+    geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, short(0), long(1));
     
     //create a MPV vector of doubles and darray3E;
     MimmoPiercedVector<double> scalar(geo, mimmo::MPVLocation::CELL);

@@ -51,7 +51,7 @@ int test3() {
         mesh->addVertex(val, counter);
         ++counter;
     }
-    mesh->addConnectedCell(conn, bitpit::ElementInfo::Type::TRIANGLE, 0, 0);
+    mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
 //     mesh->getPatch()->write("undeformed");
     
     //recover normal of the triangle, and area;

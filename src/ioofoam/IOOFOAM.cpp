@@ -658,7 +658,7 @@ bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObj
         vtkIdType npts;
         nt = cells->GetNumberOfCells();
         livector1D connectivity(3);
-        bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
         cells->InitTraversal();
         for (vtkIdType id=0; id<nt; id++ ){
             cells->GetNextCell(npts, conn_);

@@ -213,32 +213,30 @@ ClipGeometry::execute(){
 
     livector1D TT;
 
-    long idV;
     int sizeCC;
-    bitpit::ElementInfo::Type eltype;
+    bitpit::ElementType eltype;
     int PID;
 
     if (getGeometry()->getType() != 3){
-        for(auto && idCell : extracted){
+        for(const auto & idCell : extracted){
 
             bitpit::Cell & cell = tri->getCell(idCell);
             eltype = cell.getType();
             sizeCC = cell.getVertexCount();
+            long * connCC_ = cell.getConnect();
             PID = cell.getPID();
             TT.resize(sizeCC);
-
+            
             for(int i=0; i<sizeCC; ++i){
-                idV = cell.getVertex(i);
-                TT[i] = idV;
-
-                if(!mapV.exists(idV))temp->addVertex(tri->getVertexCoords(idV),idV);
+                TT[i] = connCC_[i];
+                if(!mapV.exists(connCC_[i]))temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
             }
             temp->addConnectedCell(TT,eltype,short(PID), idCell);
             TT.clear();
         }
     }
     else{
-        for(auto && idV : extracted){
+        for(const auto & idV : extracted){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
     }

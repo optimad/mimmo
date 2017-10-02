@@ -44,7 +44,7 @@ class InfoCGNS{
     friend class IOCGNS;
 private:
 
-    std::map<bitpit::ElementInfo::Type, M_CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
+    std::map<bitpit::ElementType, M_CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
     std::map<M_CG_ElementType_t, std::string>                 mcg_typetostring;  /**<Element type conversion CGNS->sting.*/
 
     std::map<M_CG_ElementType_t, int>                         mcg_number;     /**<Number of elements in each volume section per type.*/

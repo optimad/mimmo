@@ -88,7 +88,7 @@ bool createMimmoMesh(MimmoObject * mesh){
     }
     
     long cC=0;
-    bitpit::ElementInfo::Type eltype = bitpit::ElementInfo::TRIANGLE;
+    bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
     for(auto & val: conn){
         mesh->addConnectedCell(val, eltype, cC);
         cC++;

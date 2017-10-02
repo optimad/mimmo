@@ -649,10 +649,11 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
     //signed distance only for patch with triangles or segments
     bitpit::Cell cell = spatch.getCell(id);
     int nV = cell.getVertexCount();
+    long * connCC_ = cell.getConnect();
     dvecarr3E VS(nV);
     for (int iV=0; iV<nV; ++iV)
     {
-        VS[iV] = spatch.getVertexCoords(cell.getVertex(iV));
+        VS[iV] = spatch.getVertexCoords(connCC_[iV]);
     }
     if ( nV == 3 )
     {
@@ -774,12 +775,9 @@ void extractTarget(bitpit::PatchSkdTree *target, std::vector<const bitpit::SkdNo
 
     if (check){
         bitpit::SkdNode node = target->getNode(next);
-        const bitpit::PiercedVector<bitpit::Cell> &cells = target->getPatch().getCells();
         if (node.isLeaf()){
             std::vector<long> cellids = node.getCells();
-            for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
-                extracted.push_back(*it);
-            }
+            extracted.insert(extracted.end(),cellids.begin(), cellids.end());
         }
         else{
             for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {

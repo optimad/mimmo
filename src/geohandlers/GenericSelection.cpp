@@ -188,23 +188,23 @@ GenericSelection::constrainedBoundary(){
 
     livector1D TT;
 
-    long idV,idC;
+    long idC;
     int sizeCC;
     int counter=0;
-    bitpit::ElementInfo::Type eltype;
+    bitpit::ElementType eltype;
 
-    for(auto && cell : tri->getCells()){
+    for(auto & cell : tri->getCells()){
 
         idC = cell.getId();
         if (!(existentCells.exists(idC))){
             eltype = cell.getType();
             sizeCC = cell.getVertexCount();
+            long * connCC_ = cell.getConnect();
             TT.resize(sizeCC);
 
             for(int i=0; i<sizeCC; ++i){
-                idV = cell.getVertex(i);
-                TT[i] = idV;
-                if(!mapV.exists(idV))    temp->addVertex(tri->getVertexCoords(idV),idV);
+                TT[i] = connCC_[i];
+                if(!mapV.exists(connCC_[i]))    temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
             }
             temp->addConnectedCell(TT,eltype,idC);
             TT.clear();
@@ -280,24 +280,23 @@ GenericSelection::execute(){
 
     livector1D TT;
 
-    long idV;
     int sizeCC;
-    bitpit::ElementInfo::Type eltype;
+    bitpit::ElementType eltype;
     short PID;
     if (m_topo != 3){
-        for(auto && idCell : extracted){
+        for(const auto & idCell : extracted){
 
             bitpit::Cell & cell = tri->getCell(idCell);
             eltype = cell.getType();
             sizeCC = cell.getVertexCount();
+            long * connCC_ = cell.getConnect();
             PID = (short)cell.getPID();
             TT.resize(sizeCC);
 
             for(int i=0; i<sizeCC; ++i){
-                idV = cell.getVertex(i);
-                TT[i] = idV;
+                TT[i] = connCC_[i];
 
-                if(!mapV.exists(idV))    temp->addVertex(tri->getVertexCoords(idV),idV);
+                if(!mapV.exists(connCC_[i]))    temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
             }
 
             temp->addConnectedCell(TT,eltype, PID, idCell);
@@ -305,7 +304,7 @@ GenericSelection::execute(){
         }
     }
     else{
-        for(auto && idV : extracted){
+        for(const auto & idV : extracted){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
     }
