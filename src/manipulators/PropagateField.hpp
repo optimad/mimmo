@@ -88,9 +88,10 @@ namespace mimmo{
  * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>WeightFactor</B> : coefficient used to get weights of the stencil points in function of distance (1.0 default);
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingFactor</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingRadius</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>Convergence</B> : number of steps the Smoother solver need to perform (1 default);
+ * - <B>DumpingFactor</B> : dumping exponential factor for weights computing ;
+ * - <B>DumpingRadius</B> : support radius of dumping function;
+ * - <B>Convergence</B> : convergence flag for smoothing solver;
+ * - <B>Tolerance</B> : convergence tolerance for smoothing solver;
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -107,8 +108,9 @@ protected:
     double        m_gamma;           /**< Coefficient used to weight the points with distance in stencil computing. */
     dmpvector2D   m_weights;         /**< Weights used in stencil computing. */
     bool          m_laplace;         /**<Set true for laplace solver, false for smoothing solver (Laplacian solver not implemented in this version).*/
-    int           m_sstep;           /**<Number of smoothing steps.*/
-    bool          m_convergence;     /**<Convergence flag. If true the laplacian os solved until convergences is reached [tol = 1.0e-08 on maximum differences of solution between two iterations].*/
+    int           m_sstep;           /**<Number of smoothing steps [default =10].*/
+    bool          m_convergence;     /**<Convergence flag. If true the laplacian smoothing is solved until convergences is reached [default false].  */
+    double        m_tol;             /**<Convergence tolerance. [default tol = 1.0e-05 on maximum differences (relative to maximum value on boundary conditions) of solution between two iterations].*/
     MimmoObject*  m_bsurface;        /**<Pointer to MimmoObject with boundaries vertices.*/
     bool          m_bPointsToCompute;/**<Auxiliary variable to compute bPoints at right time.*/
     double        m_dumpingFactor;   /**<Dumping exponential factor for weights computing (0.0 = dumping inactive).*/
@@ -138,6 +140,7 @@ public:
     void    setDumpingFactor(double dump);
     void    setDumpingRadius(double radius);
     void    setConvergence(bool convergence);
+    void    setTolerance(double tol);
 
 protected:
     //cleaners and setters
@@ -146,11 +149,11 @@ protected:
 
     //execute
     void        execute();
-    void        smoothing();
-    void        computeConnectivitySmoothing();
-    void        computeWeightsSmoothing();
+    void        computeConnectivity();
+    void        computeWeights();
     virtual void computeDumpingFunction() = 0;
     virtual void solveSmoothing(int nstep) = 0;
+    virtual void solveLaplace() = 0;
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -243,6 +246,7 @@ private:
     //execute
     void computeDumpingFunction();
     void solveSmoothing(int nstep);
+    void solveLaplace();
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -338,6 +342,7 @@ private:
     //execute
     void computeDumpingFunction();
     void solveSmoothing(int nstep);
+    void solveLaplace();
 
     void apply();
 

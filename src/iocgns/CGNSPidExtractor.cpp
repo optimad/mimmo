@@ -192,10 +192,12 @@ CGNSPidExtractor::execute(){
     }
     
     livector1D extracted;
+    std::vector<short> extractedpids;
 
     for(const auto & val: m_targetpid){
         livector1D temp= getGeometry()->extractPIDCells(val);
         extracted.insert(extracted.end(), temp.begin(), temp.end());
+        extractedpids.resize(extractedpids.size()+temp.size(), val);
     }
     std::unique_ptr<MimmoObject> patchTemp(new MimmoObject(1));
 
@@ -207,11 +209,14 @@ CGNSPidExtractor::execute(){
 
     }else{
 
+        int count = 0;
         for(const auto &val: extracted){
 
             livector1D conn = mother->getCellConnectivity(val);
             bitpit::ElementInfo::Type eletype = mother->getPatch()->getCell(val).getType();
-            patchTemp->addConnectedCell(conn, eletype, val);
+            patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
+            count++;
+
         }
 
         {
@@ -259,9 +264,10 @@ CGNSPidExtractor::execute(){
                 conn2[1] = conn[2];
                 conn2[2] = conn[3];
 
+                short pid = patchTemp->getPatch()->getCell(idcell).getPID();
                 patchTemp->getPatch()->deleteCell(idcell);
-                patchTemp->addConnectedCell(conn1, eletri, idcell);
-                patchTemp->addConnectedCell(conn2, eletri, newID);
+                patchTemp->addConnectedCell(conn1, eletri, pid, idcell);
+                patchTemp->addConnectedCell(conn2, eletri, pid, newID);
                 ++newID;
             }
         }

@@ -61,7 +61,6 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")
     list(APPEND EXAMPLE_LIST "manipulators_example_00004")
     list(APPEND EXAMPLE_LIST "genericinput_example_00001")
-    list(APPEND EXAMPLE_LIST "mm_testing")
 
     #Add examples of enabled modules
     isModuleEnabled("geohandlers" MODULE_ENABLED0)

@@ -34,6 +34,8 @@
 
 #include "PropagateField.hpp"
 #include "Operators.hpp"
+#include <lapacke.h>
+
 
 /*!
  * Custom Operator - for bitpit::Vertex
@@ -70,6 +72,7 @@ void PropagateField::setDefaults(){
     m_dumping.clear();
     m_dumpingFactor = 0.0;
     m_convergence = false;
+    m_tol = 1.0e-05;
 }
 
 /*!
@@ -248,6 +251,14 @@ void PropagateField::setConvergence(bool convergence){
 }
 
 /*!
+ * It sets the tolerance on residuals for solver convergence.
+ * \param[in] tol Convergence tolerance.
+ */
+void PropagateField::setTolerance(double tol){
+    m_tol = tol;
+}
+
+/*!
  * Clear all data actually stored in the class
  */
 void
@@ -262,13 +273,19 @@ PropagateField::clear(){
 void
 PropagateField::execute(){
 
+    if (m_geometry == NULL) return;
+
+    computeConnectivity();
+    computeDumpingFunction();
+    computeWeights();
+
     //Old algorithm to review....
     if (m_laplace)
     {
-        //TODO insert here your laplacian solver for connected meshes
+        solveLaplace();
     }
     else{
-        smoothing();
+        solveSmoothing(m_sstep);
     }
 
     //    m_conn.clear();
@@ -276,23 +293,11 @@ PropagateField::execute(){
 
 }
 
-/*!
- * Smoothing execution command
- */
-void
-PropagateField::smoothing(){
-    if (m_geometry == NULL) return;
-    computeConnectivitySmoothing();
-    computeDumpingFunction();
-    computeWeightsSmoothing();
-    solveSmoothing(m_sstep);
-}
-
 /*! 
  * It computes the connectivity structure between input points.
  */
 void
-PropagateField::computeConnectivitySmoothing(){
+PropagateField::computeConnectivity(){
 
     //DOESN'T WORK FOR POINTS CLOUD OR CURVES
 
@@ -356,7 +361,7 @@ PropagateField::computeConnectivitySmoothing(){
  * It computes the weight values used in stencil computation.
  */
 void
-PropagateField::computeWeightsSmoothing(){
+PropagateField::computeWeights(){
 
     if (m_geometry == NULL) return;
 
@@ -666,6 +671,13 @@ PropagateVectorField::computeDumpingFunction(){
 
     if (m_geometry == NULL ) return;
 
+    if (m_bc.getGeometry() != m_bsurface){
+        throw std::runtime_error (m_name + " : boundary conditions not linked to boundary surface");
+    }
+    if (m_bc.getDataLocation() != mimmo::MPVLocation::POINT){
+        throw std::runtime_error (m_name + " : boundary conditions not defined on points");
+    }
+
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
     if (m_conn.size() != patch_->getVertexCount()) return;
 
@@ -692,7 +704,10 @@ PropagateVectorField::computeDumpingFunction(){
     else{
 
 
-        bitpit::SurfUnstructured boundDef(999, 1, 2);
+        int dim = m_bsurface->getPatch()->getDimension();
+        int sdim = 3;
+
+        bitpit::SurfUnstructured boundDef(999, dim, sdim);
         boundDef.setExpert(true);
         for (auto const & vertex : m_bsurface->getVertices()){
             ID = vertex.getId();
@@ -706,11 +721,15 @@ PropagateVectorField::computeDumpingFunction(){
             std::vector<long> vconn(cell.getVertexCount());
             for (int i=0; i<cell.getVertexCount(); i++)
                 vconn[i] = conn[i];
+            bool toinsert = true;
             for (int i=0; i<cell.getVertexCount(); i++){
-                if (norm2(m_bc[vconn[i]]) >= 1.0e-12){
-                    boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
+                if (norm2(m_bc[vconn[i]]) < 1.0e-12){
+                    toinsert = false;
                     break;
                 }
+            }
+            if (toinsert){
+                boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
             }
         }
         boundDef.buildAdjacencies();
@@ -721,6 +740,7 @@ PropagateVectorField::computeDumpingFunction(){
             ID = vertex.getId();
             point = vertex.getCoords();
             dist = max(1.0e-08, tree.evalPointDistance(point));
+            //            dist = max(1.0e-08, norm2(point));
             //            val = 1.0 + m_dumpingFactor*bitpit::rbf::wendlandc2( dist/maxd );
             val = std::max(1.0, std::pow((maxd/dist), m_dumpingFactor));
             m_dumping.insert(ID, val);
@@ -742,14 +762,17 @@ PropagateVectorField::solveSmoothing(int nstep){
     long ID;
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+    int nV = patch_->getVertexCount();
 
     {
 
         m_field.clear();
+        double maxval = 0.0;
         for (auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
             if (m_isbp[ID]){
                 m_field.insert(ID, m_bc[ID]);
+                maxval = std::max(maxval, norm2(m_bc[ID]));
             }
             else{
                 m_field.insert(ID, darray3E({0.0, 0.0, 0.0}));
@@ -759,7 +782,7 @@ PropagateVectorField::solveSmoothing(int nstep){
         (*m_log)<< m_name <<" starts field propagation."<<std::endl;
         for (int istep = 0; istep < nstep; istep++){
 
-            (*m_log)<<"Smoothing step : " << istep+1 << " / " << nstep <<std::endl;
+            if (!m_convergence) (*m_log)<<m_name << " smoothing step : " << istep+1 << " / " << nstep <<std::endl;
 
             double maxdiff;
             maxdiff = 0.0;
@@ -778,20 +801,35 @@ PropagateVectorField::solveSmoothing(int nstep){
                     }
                 }
                 if (m_convergence)
-                    maxdiff = std::max(maxdiff, norm2(value - m_field[ID]));
+                    maxdiff = std::max(maxdiff, norm2(value - m_field[ID])/maxval);
             }//end for vertex
+
+            if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
 
             //convergence
             if (m_convergence){
-                if (maxdiff <= 1.0e-08)
+                if (maxdiff <= m_tol)
                     istep = nstep;
-                else
-                    istep = 0;
+                else{
+                    nstep = istep+2;
+                }
             }
 
         }// end step
         (*m_log)<< m_name<<" ends field propagation."<<std::endl;
+
+        m_field.setDataLocation(MPVLocation::POINT);
+        m_field.setGeometry(getGeometry());
+
     }
+}
+
+/*!
+ * It solves the laplacian problem.
+ */
+void
+PropagateVectorField::solveLaplace(){
+
 }
 
 /*!
@@ -804,14 +842,17 @@ PropagateVectorField::plotOptionalResults(){
     if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-    dvecarr3E data;
+    dvecarr3E data(m_field.size());
+    int count = 0;
+    int count2 = 0;
     for (auto val : m_field){
-        data.push_back(val);
+        data[count] = val;
+        count++;
     }
     vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
 
     dvector1D datad(m_dumping.size());
-    int count = 0;
+    count = 0;
     for (auto val : m_dumping){
         datad[count] = val;
         count++;
@@ -896,6 +937,18 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
         setConvergence(value);
     }
 
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0e-05;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setTolerance(value);
+    }
+
     if(slotXML.hasOption("DumpingFactor")){
         std::string input = slotXML.get("DumpingFactor");
         input = bitpit::utils::string::trim(input);
@@ -936,6 +989,7 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
     slotXML.set("WeightFactor",std::to_string(m_gamma));
     slotXML.set("SmoothingSteps",std::to_string(m_sstep));
     slotXML.set("Convergence",std::to_string(int(m_convergence)));
+    slotXML.set("Tolerance",std::to_string(m_tol));
     slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
     slotXML.set("DumpingRadius",std::to_string(m_radius));
 };
@@ -1064,6 +1118,13 @@ PropagateScalarField::computeDumpingFunction(){
 
     if (m_geometry == NULL ) return;
 
+    if (m_bc.getGeometry() != m_bsurface){
+        throw std::runtime_error (m_name + " : boundary conditions not linked to boundary surface");
+    }
+    if (m_bc.getDataLocation() != mimmo::MPVLocation::POINT){
+        throw std::runtime_error (m_name + " : boundary conditions not defined on points");
+    }
+
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
     if (m_conn.size() != patch_->getVertexCount()) return;
 
@@ -1089,8 +1150,10 @@ PropagateScalarField::computeDumpingFunction(){
     }
     else{
 
+        int dim = m_bsurface->getPatch()->getDimension();
+        int sdim = 3;
 
-        bitpit::SurfUnstructured boundDef(999, 1, 2);
+        bitpit::SurfUnstructured boundDef(999, dim, sdim);
         boundDef.setExpert(true);
         for (auto const & vertex : m_bsurface->getVertices()){
             ID = vertex.getId();
@@ -1104,11 +1167,15 @@ PropagateScalarField::computeDumpingFunction(){
             std::vector<long> vconn(cell.getVertexCount());
             for (int i=0; i<cell.getVertexCount(); i++)
                 vconn[i] = conn[i];
+            bool toinsert = true;
             for (int i=0; i<cell.getVertexCount(); i++){
-                if (std::abs(m_bc[vconn[i]]) >= 1.0e-12){
-                    boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
+                if (std::abs(m_bc[vconn[i]]) < 1.0e-12){
+                    toinsert = false;
                     break;
                 }
+            }
+            if (toinsert){
+                boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
             }
         }
         boundDef.buildAdjacencies();
@@ -1139,25 +1206,27 @@ PropagateScalarField::solveSmoothing(int nstep){
     long ID;
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+    int nV = patch_->getVertexCount();
 
     {
 
         m_field.clear();
+        double maxval = 0.0;
         for (auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
             if (m_isbp[ID]){
                 m_field.insert(ID, m_bc[ID]);
+                maxval = std::max(maxval, std::abs(m_bc[ID]));
             }
             else{
                 m_field.insert(ID, 0.0);
             }
         }
 
-        (*m_log)<< m_name <<" starts field propagation."<< std::endl;
-        nstep = std::max(1, nstep);
+        (*m_log)<< m_name <<" starts field propagation."<<std::endl;
         for (int istep = 0; istep < nstep; istep++){
 
-            (*m_log)<<"Smoothing step : " << istep+1 << " / " << nstep <<std::endl;
+            if (!m_convergence) (*m_log)<<"Smoothing step : " << istep+1 << " / " << nstep <<std::endl;
 
             double maxdiff;
             maxdiff = 0.0;
@@ -1176,22 +1245,34 @@ PropagateScalarField::solveSmoothing(int nstep){
                     }
                 }
                 if (m_convergence)
-                    maxdiff = std::max(maxdiff, std::abs(value - m_field[ID]));
+                    maxdiff = std::max(maxdiff, std::abs(value - m_field[ID])/maxval);
             }//end for vertex
+
+            if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
 
             //convergence
             if (m_convergence){
-                if (maxdiff <= 1.0e-08)
+                if (maxdiff <= m_tol)
                     istep = nstep;
-                else
-                    istep = 0;
-
-                std::cout << maxdiff << std::endl;
+                else{
+                    nstep = istep+2;
+                }
             }
 
         }// end step
         (*m_log)<< m_name<<" ends field propagation."<<std::endl;
+
+        m_field.setDataLocation(MPVLocation::POINT);
+        m_field.setGeometry(getGeometry());
+
     }
+}
+
+/*!
+ * It solves the laplacian problem.
+ */
+void
+PropagateScalarField::solveLaplace(){
 }
 
 /*!
@@ -1284,6 +1365,18 @@ void PropagateScalarField::absorbSectionXML(const bitpit::Config::Section & slot
         setConvergence(value);
     }
 
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0e-05;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setTolerance(value);
+    }
+
     if(slotXML.hasOption("DumpingFactor")){
         std::string input = slotXML.get("DumpingFactor");
         input = bitpit::utils::string::trim(input);
@@ -1325,6 +1418,7 @@ void PropagateScalarField::flushSectionXML(bitpit::Config::Section & slotXML, st
     slotXML.set("WeightFactor",std::to_string(m_gamma));
     slotXML.set("SmoothingSteps",std::to_string(m_sstep));
     slotXML.set("Convergence",std::to_string(int(m_convergence)));
+    slotXML.set("Tolerance",std::to_string(m_tol));
     slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
     slotXML.set("DumpingRadius",std::to_string(m_radius));
 };

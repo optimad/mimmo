@@ -44,64 +44,122 @@ void example00001() {
     cgnsO->setWriteFilename("iocgns_output_00001");
 
     /* Create CGNS PID extractor object to test input file.
-     * Extraction of PID = 1 (Wing wall boundary in input file).
+     * Extraction of PID = 1,2,3 (All boundaries in input file).
      */
     CGNSPidExtractor * cgnsExtr = new CGNSPidExtractor();
-    cgnsExtr->setPID({1});
+    cgnsExtr->setPID({1, 2, 3});
     cgnsExtr->setForcedToTriangulate(false);
     cgnsExtr->setPlotInExecution(true);
+
+    /* Create CGNS PID extractor object to test input file.
+     * Extraction of PID = 1,2 (Wing wall and symmetry plane boundaries
+     * in input file).
+     */
+    CGNSPidExtractor * cgnsExtr2 = new CGNSPidExtractor();
+    cgnsExtr2->setPID({1, 2});
+    cgnsExtr2->setForcedToTriangulate(false);
+    cgnsExtr2->setPlotInExecution(true);
 
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
      */
     SelectionByBox      * boxSel = new SelectionByBox();
-    boxSel->setOrigin({{700., 1500., 0.}});
-    boxSel->setSpan(1500.,700.,100.);
+    boxSel->setOrigin({{700., 800., 0.}});
+    boxSel->setSpan(1500.,1600.,100.);
     boxSel->setPlotInExecution(true);
 
     /* Creation of rotation block.
      */
     RotationGeometry* rotation = new RotationGeometry();
     rotation->setDirection(darray3E{0.,1.,0.});
-    rotation->setRotation((M_PI/4));
-    rotation->setPlotInExecution(true);
+    rotation->setRotation((M_PI/6));
 
-    /* Create reconstruct vector block and set to recontruct over the whole
-     * input geometry the displacements field.
+    /* Create reconstruct vector block and set to reconstruct over the whole
+     * input surface geometry the displacements field.
      */
     ReconstructVector* recon = new ReconstructVector();
-    recon->setPlotInExecution(true);
+
+    /* Create propagate vector block and set to propagate over the whole
+     * input volume geometry the displacements field.
+     */
+    PropagateVectorField* prop = new PropagateVectorField();
+    prop->setWeightConstant(1.0);
+//    prop->setSmoothingSteps(50);
+    prop->setPlotInExecution(true);
+    prop->setConvergence(true);
+    prop->setTolerance(1.0e-03);
+    prop->setDumpingFactor(1.0);
+    prop->setDumpingRadius(3000);
+    prop->setSolver(true);
+
+    /* Create propagate vector block and set to propagate over the whole
+     * input volume geometry the displacements field.
+     */
+    ExtractVectorField* extrF = new ExtractVectorField();
+    extrF->setMode(1);
+    extrF->setPlotInExecution(true);
+
+    /* Create applier block.
+     * It applies the deformation displacements
+     * to the selected input volume geometry.
+     */
+    Apply* applier = new Apply();
+
+    /* Create applier block.
+     * It applies the deformation displacements
+     * to the selected input surface geometry.
+     */
+    Apply* applierS = new Apply();
 
     /* Create PINs. */
-    addPin(cgnsI, cgnsO, M_GEOM, M_GEOM);
     addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(cgnsExtr, boxSel, M_GEOM, M_GEOM);
+    addPin(cgnsExtr2, boxSel, M_GEOM, M_GEOM);
     addPin(boxSel, rotation, M_GEOM, M_GEOM);
     addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
-    addPin(cgnsI, recon, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsExtr2, M_GEOM2, M_GEOM);
+    addPin(cgnsExtr2, recon, M_GEOM, M_GEOM);
+    addPin(cgnsI, prop, M_GEOM, M_GEOM);
+    addPin(cgnsExtr2, prop, M_GEOM, M_GEOM2);
+    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
+    addPin(prop, applier, M_GDISPLS, M_GDISPLS);
+    addPin(cgnsI, applier, M_GEOM, M_GEOM);
 
-    addPin(cgnsI, cgnsO, M_GEOM2, M_GEOM2);
+    addPin(cgnsExtr, extrF, M_GEOM, M_GEOM);
+    addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD);
+    addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS);
+    addPin(cgnsExtr, applierS, M_GEOM, M_GEOM);
+
+    addPin(applier, cgnsO, M_GEOM, M_GEOM);
+    addPin(applierS, cgnsO, M_GEOM, M_GEOM2);
     addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS);
 
     /* Create and execute chain. */
     Chain ch0;
     ch0.addObject(cgnsI);
     ch0.addObject(cgnsExtr);
+    ch0.addObject(cgnsExtr2);
     ch0.addObject(boxSel);
     ch0.addObject(rotation);
     ch0.addObject(recon);
+    ch0.addObject(prop);
+    ch0.addObject(extrF);
+    ch0.addObject(applier);
+    ch0.addObject(applierS);
     ch0.addObject(cgnsO);
     ch0.exec(true);
-
-    cgnsI->getSurfaceBoundary()->getPatch()->write();
 
     /* Destroy objects. */
     delete cgnsI;
     delete cgnsExtr;
+    delete cgnsExtr2;
     delete cgnsO;
-    cgnsI       = NULL;
-    cgnsExtr    = NULL;
-    cgnsO       = NULL;
+    delete boxSel;
+    delete rotation;
+    delete recon;
+    delete prop;
+    delete extrF;
+    delete applier;
+    delete applierS;
 
     return;
 }
