@@ -330,7 +330,7 @@ PropagateField::computeConnectivity(){
             edgecount = cell.getEdgeCount();
         }
         for (int ie=0; ie<edgecount; ie++){
-            livector1D econn;
+            bitpit::ConstProxyVector<long> econn;
             if (type == 1 || patch_->getDimension() == 2){
                 econn = cell.getFaceConnect(ie);
             }

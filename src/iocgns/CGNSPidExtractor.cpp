@@ -213,7 +213,7 @@ CGNSPidExtractor::execute(){
         for(const auto &val: extracted){
 
             livector1D conn = mother->getCellConnectivity(val);
-            bitpit::ElementInfo::Type eletype = mother->getPatch()->getCell(val).getType();
+            bitpit::ElementType eletype = mother->getPatch()->getCell(val).getType();
             patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
             count++;
         }
