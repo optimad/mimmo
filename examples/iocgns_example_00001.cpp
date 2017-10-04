@@ -97,7 +97,7 @@ void example00001() {
      */
     ExtractVectorField* extrF = new ExtractVectorField();
     extrF->setMode(1);
-    extrF->setPlotInExecution(true);
+    extrF->setPlotInExecution(false);
 
     /* Create applier block.
      * It applies the deformation displacements

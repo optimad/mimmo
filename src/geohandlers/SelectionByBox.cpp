@@ -80,7 +80,7 @@ SelectionByBox::SelectionByBox(const SelectionByBox & other):GenericSelection(ot
 };
 
 /*!
- * Copy operator- CAS idiom
+ * Copy operator - CAS idiom
  */
 SelectionByBox & SelectionByBox::operator=(SelectionByBox other){
     swap(other);

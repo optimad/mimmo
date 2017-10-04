@@ -22,8 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-#ifndef CUSTOMOPERATORS_HH
-#define CUSTOMOPERATORS_HH
+#ifndef __CUSTOMOPERATORS_HH__
+#define __CUSTOMOPERATORS_HH__
 
 #include <cmath>
 #include <queue>
@@ -33,7 +33,6 @@
 
 #include "mimmoTypeDef.hpp"
 #include "bitpit_patchkernel.hpp"
-#include "Operators.hpp"
 
 
 
@@ -42,6 +41,8 @@
  * \{
  */
 
+
+std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2);
 
 /*!
 * Template for freeing any std::vector container, by swap  
@@ -367,22 +368,9 @@ void fillVectorSubset(int i, int j, std::vector<T> & source, T cValue){
     return;
 }
 
-
-/*!
- * Custom Operator - for bitpit::Vertex
- * \param[in] V1 first vertex
- * \param[in] V2 second vertex
- * \return difference vertex coordinates V1-V2;
- */
-std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2){
-    std::array<double, 3> coords2 = v1.getCoords() - v2.getCoords();
-    return ( coords2 );
-};
-
-
 /*!
  * \}
  */
 
 
-#endif //CUSTOMOPERATORS_HH
+#endif //__CUSTOMOPERATORS_HH__

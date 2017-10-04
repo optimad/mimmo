@@ -204,9 +204,13 @@ SwitchScalarField::plotOptionalResults(){
         output.setCodex(bitpit::VTKFormat::APPENDED);
         output.write();
     }else{
+        if(loc == bitpit::VTKLocation::CELL){
+            (*m_log)<<"Warning: Attempt writing Cell data field on cloud point in plotOptionalResults of "<<m_name<<std::endl;
+            return;
+        }
         int size = points.size();
-        ivector1D connectivity(size);
-        for(int i=0; i<size; ++i)    connectivity[i]=i;
+        ivector2D connectivity(size, ivector1D(1));
+        for(int i=0; i<size; ++i)    connectivity[i][0]=i;
         bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),    cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
