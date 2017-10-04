@@ -33,17 +33,7 @@
 \*----------------------------------------------------------------------------*/
 
 #include "PropagateField.hpp"
-#include "Operators.hpp"
-#include <lapacke.h>
-
-
-/*!
- * Custom Operator - for bitpit::Vertex
- */
-std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2){
-    std::array<double, 3> coords2 = v1.getCoords() - v2.getCoords();
-    return ( coords2 );
-};
+#include "customOperators.hpp"
 
 
 namespace mimmo{

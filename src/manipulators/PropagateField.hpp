@@ -36,8 +36,6 @@
 
 #include "BaseManipulation.hpp"
 
-std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2);
-
 namespace mimmo{
 /*!
  * \class PropagateField
