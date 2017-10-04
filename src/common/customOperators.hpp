@@ -36,13 +36,12 @@
 
 
 
+std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2);
+
 /*!
  * \ingroup common_Utils
  * \{
  */
-
-
-std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &v2);
 
 /*!
 * Template for freeing any std::vector container, by swap  

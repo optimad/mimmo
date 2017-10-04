@@ -26,6 +26,7 @@
 
 /*!
  * Custom Operator - for bitpit::Vertex
+ * \ingroup common_Utils
  * \param[in] V1 first vertex
  * \param[in] V2 second vertex
  * \return difference vertex coordinates V1-V2;
@@ -35,10 +36,3 @@ std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &
     return ( coords2 );
 }
 
-
-/*!
- * \}
- */
-
-
-#endif //__CUSTOMOPERATORS_HH__
