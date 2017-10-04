@@ -25,6 +25,7 @@
 #define __PROPAGATEFIELD_HPP__
 
 #include "BaseManipulation.hpp"
+#include "system.hpp"
 
 namespace mimmo{
 /*!
@@ -105,6 +106,9 @@ protected:
     dmpvector1D   m_dumping;         /**<Dumping field used for weights computing.*/
     double        m_radius;          /**<Support radius of dumping function. At distance = m_radius from boundary with bc != 0
                                          the stencil during the laplacian computing is the original one.*/
+
+    std::unique_ptr<SystemSolver> m_solver;
+
 
 public:
 

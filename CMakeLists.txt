@@ -448,6 +448,16 @@ if (ENABLE_MPI)
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/PETSc/cmake")
+find_package(PETSc REQUIRED)
+if (NOT PETSC_FOUND)
+    set(PETSC_DIR "" CACHE PATH "Directory in which PETSc resides")
+    set(PETSC_ARCH "arch-linux2-c" CACHE STRING "Build architecture")
+endif ()
+list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PETSC_LIBRARIES}")
+list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${PETSC_INCLUDES}")
+
+
 # module further dependency
 isModuleEnabled("iovtk" MODULE_ENABLED1)
 isModuleEnabled("ioofoam" MODULE_ENABLED3)

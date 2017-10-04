@@ -655,6 +655,73 @@ PropagateVectorField::solveSmoothing(int nstep){
 void
 PropagateVectorField::solveLaplace(){
 
+    m_field.clear();
+
+    liimap  dataInv = m_geometry->getMapDataInv();
+
+    // Create the system for solving the pressure
+    std::cout << "SystemSolver pointer new" << std::endl;
+    bool debug = false;
+    m_solver = std::unique_ptr<SystemSolver>(new SystemSolver(debug));
+
+    // Initialize the system
+    std::cout << "KSP init" << std::endl;
+    KSPOptions &solverOptions = m_solver->getKSPOptions();
+    solverOptions.nullspace = false;
+    solverOptions.rtol      = 1e-12;
+    solverOptions.subrtol   = 1e-12;
+
+    {
+    localivector2D stencils(m_conn.size());
+    localdvector2D weights(m_conn.size());
+    localdvector1D rhs(m_conn.size());
+
+    //Create stencils for petsc
+    int ind = 0;
+    for (long ID : m_conn.getIds()){
+        if (m_isbp[ID]){
+            stencils[ind] = ivector1D(1, ind);
+            weights[ind] = dvector1D(1, 1.0);
+            rhs[ind] = m_bc[ID][0];
+        }
+        else{
+            for (long IDN : m_conn[ID]){
+                stencils[ind].push_back(dataInv[ID]);
+            }
+            stencils[ind].push_back(ind);
+            weights[ind] = -1.0*m_weights[ID];
+            weights[ind].push_back(1.0);
+            rhs[ind] = 0.0;
+        }
+        ++ind;
+    }
+
+
+#if ENABLE_MPI==1
+    m_solver->initialize(stencils, weights, rhs, ghosts);
+#else
+    m_solver->initialize(stencils, weights, rhs);
+#endif
+
+    }
+    // Solve the system
+    m_solver->solve();
+
+    // Get the solution
+    const double *solution = m_solver->getSolutionRawReadPtr();
+
+    int ind = 0;
+    for (auto ID : m_conn.getIds()){
+        m_field.insert(ID, {solution[dataInv[ID]], 0.0, 0.0});
+    }
+    // Destroies the pressure solver
+    m_solver.reset();
+
+    m_field.setDataLocation(MPVLocation::POINT);
+    m_field.setGeometry(getGeometry());
+
+
+
 }
 
 /*!
