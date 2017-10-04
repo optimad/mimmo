@@ -34,12 +34,18 @@ include(FindPackageHandleStandardArgs)
 #-----------------------------------------------------------------------------
 
 # Headers
+unset (MIMMO_INCLUDE_DIR CACHE)
+
 find_path(MIMMO_INCLUDE_DIR "@PROJECT_NAME@_version.hpp"
-          HINTS "${MIMMO_INSTALL_PREFIX}/include/@PROJECT_NAME@")
+          HINTS "${MIMMO_INSTALL_PREFIX}/include/mimmo")
 
 mark_as_advanced(MIMMO_INCLUDE_DIR)
 
 # Library
+
+unset (MIMMO_LIBRARY_RELEASE CACHE)
+unset (MIMMO_LIBRARY_DEBUG CACHE)
+
 find_library(MIMMO_LIBRARY_RELEASE
              NAMES @PROJECT_NAME@@MIMMO_RELEASE_POSTFIX@ @PROJECT_NAME@
              HINTS "${MIMMO_INSTALL_PREFIX}/lib")
@@ -89,9 +95,12 @@ endif ()
 set(MIMMO_DEFINITIONS "@MIMMO_DEFINITIONS_PUBLIC@")
 
 # mimmo optional modules boolean variables to retrack additional external libraries.
-set(MIMMO_IOVTK_ACTIVE @IOVTK_ACTIVE@)
-set(MIMMO_IOOFOAM_ACTIVE @IOOFOAM_ACTIVE@)
-set(MIMMO_IOCGNS_ACTIVE @IOCGNS_ACTIVE@)
+
+set(MIMMO_IOVTK_MODULE_ACTIVE @IOVTK_ACTIVE@)
+set(MIMMO_IOOFOAM_MODULE_ACTIVE @IOOFOAM_ACTIVE@)
+set(MIMMO_IOCGNS_MODULE_ACTIVE @IOCGNS_ACTIVE@)
+set(MIMMO_GEOHANDLERS_MODULE_ACTIVE @GEOHANDLERS_ACTIVE@)
+set(MIMMO_UTILS_MODULE_ACTIVE @GEOHANDLERS_ACTIVE@)
 
 # Let libfind_process initialize the appropriate variables
 libfind_process(MIMMO)

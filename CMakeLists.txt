@@ -22,11 +22,11 @@
 #
 #----------------------------------------------------------------------------
 
-
-#Specify the version being used as well as the language
+#------------------------------------------------------------------------------------#
+# CMake settings
+#------------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 2.8)
 
-#Name your project here
 project("mimmo")
 
 #------------------------------------------------------------------------------------#
@@ -117,6 +117,7 @@ function(addModuleIncludeDirectories MODULE_NAME)
 endfunction()
 
 #works only in linux systems ->suitable for libraries who does not own a find_package
+#/TODO need to make it work on windows systems also.
 function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV)
     if(DEFINED SHAREDV AND SHAREDV)
         SET(TAG ".so")
@@ -354,8 +355,6 @@ set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
 
-
-
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
 #------------------------------------------------------------------------------------#
@@ -416,43 +415,43 @@ set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulato
 set(MIMMO_EXTERNAL_LIBRARIES "")
 set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
 
+###     BITPIT      ###############################################
 find_package(BITPIT REQUIRED)
 include(${BITPIT_USE_FILE})
 
-find_package(LibXml2 REQUIRED)
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
-
-foreach (LAPACK_LIBRARY_PATH IN LISTS LAPACK_LIBRARIES)
-	set(LAPACKE_FORCE_STATIC 0 CACHE BOOL "Use LAPACKe static libraries")
-	mark_as_advanced(LAPACKE_FORCE_STATIC)
-
-	get_filename_component(FILE_NAME "${LAPACK_LIBRARY_PATH}" NAME_WE)
-	if ("${FILE_NAME}" STREQUAL "liblapack")
-		get_filename_component(FILE_DIR "${LAPACK_LIBRARY_PATH}" PATH)
-		if (LAPACKE_FORCE_STATIC)
-			SET(FILE_EXT ".a")
-		else ()
-			get_filename_component(FILE_EXT "${LAPACK_LIBRARY_PATH}" EXT)
-		endif ()
-
-		file(TO_NATIVE_PATH "${FILE_DIR}/liblapacke${FILE_EXT}" LAPACKE_LIB_PATH)
-		list (INSERT LAPACK_LIBRARIES 0 "${LAPACKE_LIB_PATH}")
-	endif ()
-endforeach ()
+##check almost essential bitpit modules are installed.
+if( NOT BITPIT_LEVELSET_MODULE_ACTIVE OR NOT BITPIT_SURFUNSTRUCTURED_MODULE_ACTIVE OR
+    NOT BITPIT_VOLUNSTRUCTURED_MODULE_ACTIVE OR NOT BITPIT_RBF_MODULE_ACTIVE OR
+    NOT BITPIT_CG_MODULE_ACTIVE)
+    message(FATAL_ERROR "Cannot find bitpit modules needed by mimmo in current featured bitpit installation. Required bitpit modules
+    are: surfunstructured, volustructured, levelset, RBF and CG.")
+endif()
 
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
 
-list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACK_LIBRARIES}")
-#list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACKE_INCLUDE_DIR}") #waiting official config by inria
+###      LAPACKE   ################################################
+# set(LAPACKE_STATIC 0 CACHE BOOL "Require LAPACKE static libraries")
+# mark_as_advanced(LAPACKE_STATIC)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/LAPACKE/cmake")
+
+find_package(LAPACK REQUIRED)
+find_package(LAPACKE REQUIRED)
+unset(LAPACKEXT_DIR CACHE)
+
+list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACKE_LIBRARIES}" "${LAPACK_LIBRARIES}")
+list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
+
+###     XML2      #################################################
+find_package(LibXml2 REQUIRED)
 
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
 list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIR}")
 
+###     MPI      #################################################
 if (ENABLE_MPI)
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
 endif()
-
 
 # module further dependency
 isModuleEnabled("iovtk" MODULE_ENABLED1)
