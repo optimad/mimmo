@@ -22,12 +22,14 @@
  *
 \*---------------------------------------------------------------------------*/
 
-//TODO PARALLEL DON'T CONSIDER CODE IN ENABLE_MPI !!
+//TODO PARALLEL !  DON'T CONSIDER CODE IN ENABLE_MPI (from gloria) !!
 
 #include <stdexcept>
 #include <string>
 
 #include "system.hpp"
+
+namespace mimmo{
 
 int SystemSolver::m_nInstances = 0;
 std::vector<std::string> SystemSolver::m_options = std::vector<std::string>(1, "bitpit");
@@ -86,11 +88,7 @@ SystemSolver::SystemSolver(bool debug)
             argv[i] = (char*) m_options[i].c_str();
         }
 
-        std::cout << "petsc init" << std::endl;
-        std::cout << "petsc argc " << argc << std::endl;
-
         PetscInitialize(&argc, &argv, 0, help);
-        std::cout << "petsc init done" << std::endl;
 
         delete[] argv;
     }
@@ -101,7 +99,11 @@ SystemSolver::SystemSolver(bool debug)
     // Create a communicator
 #if ENABLE_MPI==1
     MPI_Comm_dup(communicator, &m_communicator);
+#else
+    m_communicator = PETSC_COMM_SELF;
+
 #endif
+
 }
 
 /*!
@@ -113,11 +115,13 @@ SystemSolver::~SystemSolver()
     --m_nInstances;
 
     // Free the MPI communicator
+#if ENABLE_MPI==1
     int finalizedCalled;
     MPI_Finalized(&finalizedCalled);
     if (!finalizedCalled) {
         MPI_Comm_free(&m_communicator);
     }
+#endif
 
     // Finalize petsc
     if (m_nInstances == 0) {
@@ -173,13 +177,10 @@ void SystemSolver::initialize(localivector2D &stencils, localdvector2D &weights,
     clear();
 
     // Initialize matrix
-    std::cout << "matrixInit" << std::endl;
     matrixInit(stencils);
-    std::cout << "matrixFill" << std::endl;
     matrixFill(stencils, weights,rhs);
 
     // Initialize pivot
-    std::cout << "pivotInit" << std::endl;
     pivotInit(pivotType);
     if (getPivotType() != PIVOT_NONE) {
         matrixReorder();
@@ -214,9 +215,11 @@ void SystemSolver::solve()
     PetscScalar *raw_rhs;
     VecGetArray(m_rhs, &raw_rhs);
     for (int i = 0; i < nRows; ++i) {
-        raw_rhs[i] -= m_A_rhs.at(i);
+//        raw_rhs[i] -= m_A_rhs.at(i);
+        raw_rhs[i] = m_A_rhs.at(i);
     }
     VecRestoreArray(m_rhs, &raw_rhs);
+
 
     VecRestoreArrayRead(m_solution, &raw_solution);
 
@@ -460,6 +463,7 @@ void SystemSolver::vectorsFill(std::vector<double> &solution, std::vector<double
         raw_rhs[i] = rhs[i];
     }
     VecRestoreArray(m_rhs, &raw_rhs);
+
 }
 
 /*!
@@ -687,6 +691,7 @@ void SystemSolver::KSPInit()
 #endif
 
     KSPCreate(m_communicator, &m_KSP);
+
     KSPSetOperators(m_KSP, m_A, m_A);
 
     if (m_KSPOptions.nullspace) {
@@ -758,3 +763,4 @@ const KSPStatus & SystemSolver::getKSPStatus() const
     return m_KSPStatus;
 }
 
+}

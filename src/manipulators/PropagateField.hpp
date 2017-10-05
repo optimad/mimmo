@@ -107,7 +107,7 @@ protected:
     double        m_radius;          /**<Support radius of dumping function. At distance = m_radius from boundary with bc != 0
                                          the stencil during the laplacian computing is the original one.*/
 
-    std::unique_ptr<SystemSolver> m_solver;
+    std::unique_ptr<mimmo::SystemSolver> m_solver;
 
 
 public:

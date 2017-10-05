@@ -34,11 +34,11 @@
 #include <InOut.hpp>
 #include <petscksp.h>
 
+namespace mimmo{
 
 typedef std::vector<std::vector<int>>  localivector2D;   /**< mimmo custom typedef*/
 typedef std::vector<std::vector<double>>  localdvector2D;   /**< mimmo custom typedef*/
 typedef std::vector<double>  localdvector1D;   /**< mimmo custom typedef*/
-
 
 struct KSPOptions {
     PetscInt restart;
@@ -162,5 +162,5 @@ private:
 
 };
 
-
+}
 #endif
