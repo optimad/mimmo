@@ -43,28 +43,40 @@ namespace mimmo{
  */
 MimmoObject::MimmoObject(int type){
 
-    const int id = 0;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4){
         (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
         throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
     }
-
-    if (m_type == 2){
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
-        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-    }else{
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
-        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    switch(m_type){
+        case 1:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 2:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 3:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 4:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        default:
+            //never been reached
+            break;
     }
+
     m_internalPatch = true;
     m_extpatch = NULL;
-    
+
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
@@ -164,39 +176,36 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 
-    const int id = 0;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
-    if (m_type > 4){
-        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
+    if (m_type > 4 || geometry == NULL){
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type or NULL argument in class construction."<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type or NULL argument in class construction");
     }
 
-    if(geometry == NULL){
-        if (m_type == 2){
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
-            dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+    m_internalPatch = false;
+    m_extpatch = geometry;
+    switch(m_type){
+        case 1:
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-        }else{
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
-            dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            break;
+        case 2:
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-        }
-        m_internalPatch = true;
-        m_extpatch = NULL;
-    }else{
-        m_internalPatch = false;
-        m_extpatch = geometry;
-
-        if (m_type == 2){
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
+            break;
+        case 3:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-        }else{
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
+            break;
+        case 4:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-        }
+            break;
+        default:
+            //never been reached
+            break;
     }
 
     m_skdTreeSupported = (m_type != 3);
@@ -244,12 +253,27 @@ MimmoObject::MimmoObject(const MimmoObject & other){
     m_kdTreeSync    = false;
     
     //instantiate empty trees:
-    if (m_type == 2){
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-    }else{
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    switch(m_type){
+        case 1:
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 2:
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 3:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 4:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        default:
+            //never been reached
+            break;
     }
 };
 
@@ -1149,19 +1173,31 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
     m_internalPatch = true;
     m_extpatch = NULL;
     
-    const int id = 0;
-    if (m_type == 2){
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
-        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-    }else{
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
-        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    switch(m_type){
+        case 1:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 2:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 3:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 4:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        default:
+            //never been reached
+            break;
     }
-
+    
     m_skdTreeSupported = other->m_skdTreeSupported;
     m_skdTreeSync = false;
     m_kdTreeSync = false;
@@ -1664,20 +1700,34 @@ void MimmoObject::reset(int type){
         m_type = 1;
     }
 
-    if (m_type == 2){
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(id, 3)));
-        dynamic_cast<VolUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
-    }else{
-        m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(id)));
-        dynamic_cast<SurfUnstructured*>(m_patch.get())->setExpert(true);
-        m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-        m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+    switch(m_type){
+        case 1:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 2:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 3:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 4:
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        default:
+            //never been reached
+            break;
     }
+
     m_internalPatch = true;
     m_extpatch = NULL;
-    
+
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
