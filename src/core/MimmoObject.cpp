@@ -88,22 +88,30 @@ MimmoObject::MimmoObject(int type){
  * Custom constructor of MimmoObject.
  * This constructor builds a generic mesh from given vertex list and its related
  * local connectivity. Mesh-element details are desumed by local cell-vertices connectivity size.
- * Connectivities supported must be homogeneus w/ a single element type, no mixed cell types are allowed.
- * Cell element types supported are:
- *  - triangles or quads for surface meshes
- *  - tetrahedrons or hexahedrons for volume meshes
- *  - vertex for 3D point clouds
- *  - lines for 3D curves
+ * Connectivities supported can be of any kind. Mixed elements are allowed.
+ * Cell element types supported are all those of bitpit::ElementType list. In particular:
+ *  - any 2D cell for surface meshes 
+ *  - any 3D cell for volume meshes
+ *  - VERTEX only for 3D point clouds
+ *  - LINE cells only for 3D curves
  *
  * Cloud points are always supported (no connectivity field must be provided)
- * Type of meshes supported are described in the default constructor MimmoObject(int type) documentation.
+ * Type of meshes supported are described in the default MimmoObject constructor documentation.
  * Please note, despite type argument, if null connectivity structure is provided, MimmoObject will be built 
  * as a standard cloud point of vertices provided by vertex.
+ * Connectivity for each standard cell is simply defined as a list of vertex indices which compose it
+ * (indices are meant as positions in the provided vertex list argument).
+ * Polygonal and Polyhedral cells requires a special convention to define their connectivity:
+ * - polygons: require on top of the list the total number of vertices which compose it,
+ *             followed by the indices in the vertex list.(ex. polygon with 5 vertices: 5 i1 i2 i3 i4 i5)
+ * - polyhedra: require on top the total number of faces, followed by the number of vertices which composes the local face + the vertex 
+ *   indices which compose the faces, and so on for all the faces which compose the polyhedron (ex. polyhedron with 3 faces, 
+ *   first face is a triangle, second is a quad etc...  3 3 i1 i2 i3 4 i2 i3 i4 i5 ...)
  * \param[in] type type of meshes.
  * \param[in] vertex Coordinates of geometry vertices.
  * \param[in] connectivity pointer to mesh connectivity list (optional).
  */
-MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity){
+MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity){
 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     
@@ -144,68 +152,44 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity)
     
     m_internalPatch = true;
     m_extpatch = NULL;
-    
+
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_AdjBuilt = false;
     m_IntBuilt = false;
-    
-    bitpit::ElementType eltype = bitpit::ElementType::UNDEFINED;
-    int sizeVert, sizeCell;
 
-    sizeVert = vertex.size();
+    bitpit::ElementType eltype;
+    std::size_t sizeVert = vertex.size()
+
     m_patch->reserveVertices(sizeVert);
+
+
 
     for(const auto & vv : vertex)   addVertex(vv);
 
-    if (m_type != 3){
-        int sizeConn = (*connectivity)[0].size();
-        sizeCell = connectivity->size();
+    m_log->setPriority(biptit::log::Priority::DEBUG);
 
-        switch(m_type){
-        case 1:
-            if(sizeConn == 3)   eltype = bitpit::ElementType::TRIANGLE;
-            if(sizeConn == 4)   eltype = bitpit::ElementType::QUAD;
-            break;
-        case 2:
-            if(sizeConn == 4)   eltype = bitpit::ElementType::TETRA;
-            if(sizeConn == 8)   eltype = bitpit::ElementType::HEXAHEDRON;
-            if(sizeConn == 5)   eltype = bitpit::ElementType::PYRAMID;
-            if(sizeConn == 6)   eltype = bitpit::ElementType::WEDGE;
-            break;
-        case 4:
-            if(sizeConn == 2)	eltype = bitpit::ElementType::LINE;
-            break;
-        default:
-            // never been reached
-            break;
+    if(m_type != 3){
+        livector1D temp;
+        std::size_t sizeCell = connectivity->size();
+        m_patch->reserveCells(sizeCell);
+        for(auto const & cc : *connectivity){
+            eltype = desumeElement(cc);
+            if(eltype != bitpit::ElementType::UNDEFINED){
+                addConnectedCell(cc, eltype);
+            }else{
+                (*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl; 
+            }
         }
 
-        if(eltype != bitpit::ElementType::UNDEFINED){
+        m_pidsType.insert(0);
 
-            m_patch->reserveCells(sizeCell);
-
-            for(auto const & cc : *connectivity){
-
-                livector1D temp(cc.size());
-                int counter=0;
-
-                for(auto && val : cc)	{
-                    temp[counter] = val; 
-                    ++counter;
-                }	
-
-                addConnectedCell(temp, eltype);
-            }
-
-            m_pidsType.insert(0);
-
-        }else{
-            (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
-            (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
-        }	
-    }
+    }else{
+        (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
+        (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
+    }	
+    m_log->setPriority(biptit::log::Priority::NORMAL);
 };
 
 /*!
@@ -239,11 +223,9 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -307,11 +289,9 @@ MimmoObject::MimmoObject(const MimmoObject & other){
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -492,27 +472,54 @@ MimmoObject::getVertices() const {
  * "Compact" means that in the connectivity matrix the vertex indexing is referred to 
  * the local, compact and sequential numbering of vertices, as it 
  * gets them from the internal method getVertexCoords().
+ * Special connectivity is returned for polygons and polyhedra support. See getCellConnectivity
+ * doxy for further info.
  * \return local connectivity list 
  * \param[in] mapDataInv inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering
  */
-ivector2D
+livector2D
 MimmoObject::getCompactConnectivity(liimap & mapDataInv){
 
-    livector2D conn  =	getConnectivity();
-    ivector2D result(conn.size());
-    int counter = 0;
-    for(auto const & vv : conn){
-        for (auto const & iv : vv){
-            result[counter].push_back(mapDataInv[iv]);
+    livector2D connecti(getNCells());
+    int np, counter =0;
+
+    for(auto const & cell : getCells()){
+        np = cell.getConnectSize();
+        const long * conn_ = cell.getConnect();
+        connecti[counter].resize(np);
+        bitpit::ElementType eltype = cell.getType();
+        
+        if(eltype == bitpit::ElementType::POLYGON){
+            connecti[counter][0] = conn_[0];
+            for (int i=1; i<np; ++i){
+                connecti[counter][i] = mapDataInv[conn_[i]];
+            }
+        }else if(eltype == bitpit::ElementType::POLYHEDRON){
+            connecti[counter][0] = conn_[0];
+            for(int nF = 0; nF < conn_[0]-1; ++nF){
+                int facePos = getFaceStreamPosition(nF);
+                int beginVertexPos = facePos + 1;
+                int endVertexPos   = facePos + 1 + connecti[facePos];
+                connecti[counter][facePos] = conn_[facePos]; 
+                for (int i=beginVertexPos; i<endVertexPos; ++i){
+                    connecti[counter][i] = mapDataInv[conn_[i]];
+                }
+            }
+        }else{
+            for (int i=0; i<np; ++i){
+                connecti[counter][i] = mapDataInv[conn_[i]];
+            }
         }
         ++counter;
     }
-    return result;
+    return connecti;
 }
 
 /*!
  * It gets the connectivity of the cells of the linked geometry. Index of vertices in
- * connectivity matrix are returned acoording to bitpit::PatchKernel unique indexing.
+ * connectivity matrix are returned according to bitpit::PatchKernel unique indexing.
+ * Special connectivity is returned for polygons and polyhedra support. See getCellConnectivity
+ * doxy for further info.
  * \return cell-vertices connectivity 
  */
 livector2D
@@ -522,7 +529,7 @@ MimmoObject::getConnectivity(){
     int np, counter =0;
 
     for(auto const & cell : getCells()){
-        np = cell.getVertexCount();
+        np = cell.getConnectSize();
         const long * conn_ = cell.getConnect();
         connecti[counter].resize(np);
         for (int i=0; i<np; ++i){
@@ -536,16 +543,22 @@ MimmoObject::getConnectivity(){
 
 /*!
  * It gets the connectivity of a cell, with vertex id's in bitpit::PatchKernel unique indexing.
+ * Connectivity of polygons is returned as (nV,V1,V2,V3,V4,...) where nV is the number of vertices
+ * defining the polygon and V1,V2,V3... are indices of vertices.
+ * Connectivity of polyhedrons  is returned as (nF,nF1V, V1, V2, V3,..., nF2V, V2,V4,V5,V6,...,....)
+ * where nF is the total number of faces of polyhedros, nF1V is the number of vertices composing the face 1,
+ * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
+ * Any other standard cell element is uniquely defined by its list of vertex indices.
+ * if i cell does not exists, return an empty list.
  * \param[in] i bitpit::PatchKernel ID of the cell.
  * \return i-th cell-vertices connectivity, in bitpit::PatchKernel vertex indexing.
  */
 livector1D
 MimmoObject::getCellConnectivity(long i){
-
     if (!(getCells().exists(i)))    return livector1D(0);
 
     bitpit::Cell & cell = getPatch()->getCell(i); 
-    int np = cell.getVertexCount();
+    int np = cell.getConnectSize();
     const long * conn_ = cell.getConnect();
     livector1D connecti(np);
 
@@ -816,18 +829,9 @@ MimmoObject::getKdTree(){
 
 
 /*!
- * \return the pointer to the actual class, as constant one. 
- */
-const MimmoObject * 
-MimmoObject::getCopy(){
-    return this;
-}
-
-/*!
  * Set the vertices structure of the class, clearing any previous vertex list stored.
  * Be careful: any connectivity information stored in an existent cell list will be erased too.
  * The cell list will survive, but carrying no connectivity information.
- * Local/unique-id vertex maps are updated automatically. 
  * \param[in] vertices geometry vertex structure .
  * \return false if no geometry is linked, not all vertices inserted or empty argument.
  */
@@ -859,8 +863,6 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
  * to get a unique-id for the added vertex. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
  * 
- * Local/unique-id vertex maps are updated automatically. 
- * 
  * 
  * \param[in] vertex vertex coordinates to be added 
  * \param[in] idtag  unique id associated to the vertex	
@@ -889,8 +891,6 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
  * If unique-id is specified for the vertex, assign it, otherwise provide itself
  * to get a unique-id for the added vertex. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
- *
- * Local/unique-id vertex maps are updated automatically.
  *
  *
  * \param[in] vertex vertex to be added
@@ -923,7 +923,7 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
  * \return false if no geometry is present or vertex id does not exist.
  */
 bool
-MimmoObject::modifyVertex(const darray3E & vertex, long id){
+MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 
     if(!(getVertices().exists(id))) return false;
     bitpit::Vertex &vert = getPatch()->getVertex(id);
@@ -937,8 +937,6 @@ MimmoObject::modifyVertex(const darray3E & vertex, long id){
  * Sets the cell structure of the geometry, clearing any previous cell list stored.
  * Does not do anything if class type is a point cloud (mesh type 3).
  *
- * Local/unique-id cell maps are updated automatically. 
- * 
  * \param[in] cells cell structure of geometry mesh.
  * \return false if no geometry is linked, not all cells are inserted or empty argument.
  */
@@ -967,7 +965,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
         eltype = cell.getType();
         //check info PID 
         pid = (short)cell.getPID();
-        nVert = cell.getVertexCount();
+        nSize = cell.getConnectSize();
         connectivity.resize(nVert);
         auto const conn = cell.getConnect();
         for(int i=0; i<nVert; ++i){
@@ -982,13 +980,17 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 /*!
  * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
  * be added and its own unique id. If no id is specified, teh method assigns it automatically.
- * Cell type and connectivity dimension of the cell are cross-checked with the mesh type of the class: if mismatch, the method
- * does not add the cell and return false. 
- * The method does nothing, if class type is a pointcloud one (type 3).
- * 
- * Local/unique-id cell maps are updated automatically. 
- * 
- * 
+ * Any kind of cell in bitpit::ElementType enum can be added according to mesh dimensionality 
+ * (3D element in volume mesh, 2D in surface mesh, etc..). The method does nothing, if class type 
+ * is a pointcloud one (type 3).
+ * As a reminder for connectivity conn argument:
+ *  - Connectivity of polygons must be defined as (nV,V1,V2,V3,V4,...) where nV is the number of vertices
+ * defining the polygon and V1,V2,V3... are indices of vertices.
+ *  - Connectivity of polyhedrons must be defined as (nF,nF1V, V1, V2, V3,..., nF2V, V2,V4,V5,V6,...,....)
+ * where nF is the total number of faces of polyhedros, nF1V is the number of vertices composing the face 1,
+ * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
+ *  - Any other standard cell element is uniquely defined by its list of vertex indices.
+ *
  * \param[in] conn  connectivity of target cell of geometry mesh.
  * \param[in] type  type of element to be added, according to bitpit::ElementInfo enum.
  * \param[in] idtag id of the cell
@@ -1000,8 +1002,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
     if (conn.empty() || !m_skdTreeSupported) return false;
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
-    int sizeElement = checkCellType(type); 
-    if(sizeElement < 0)  return false;
+    if(!checkCellConnCoherence(type, conn))  return false; 
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
@@ -1029,8 +1030,14 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * does not add the cell and return false. 
  * The method does nothing, if class type is a pointcloud one (type 3).
  * A part identifier PID mark can be associated to the cell.
- * 
- * Local/unique-id cell maps are updated automatically. 
+ *
+ * As a reminder for connectivity conn argument:
+ *  - Connectivity of polygons must be defined as (nV,V1,V2,V3,V4,...) where nV is the number of vertices
+ * defining the polygon and V1,V2,V3... are indices of vertices.
+ *  - Connectivity of polyhedrons must be defined as (nF,nF1V, V1, V2, V3,..., nF2V, V2,V4,V5,V6,...,....)
+ * where nF is the total number of faces of polyhedros, nF1V is the number of vertices composing the face 1,
+ * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
+ *  - Any other standard cell element is uniquely defined by its list of vertex indices.
  * 
  * \param[in] conn  connectivity of target cell of geometry mesh.
  * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
@@ -1044,8 +1051,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
     if (conn.empty() || !m_skdTreeSupported) return false;
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
-    int sizeElement = checkCellType(type); 
-    if(sizeElement < 0)  return false;
+    if(!checkCellConnCoherence(type, conn))  return false; 
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
@@ -1068,107 +1074,6 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
     m_IntBuilt = false;
     return true;
 };
-
-///*
-// *  Link as geometry an external bitpit::PatchKernel  data structure;
-// *  If the external data structure is not compatible with the mesh type internally set, does not link anything.
-// *  Through this method, the class only copy the pointer to the external geometry.
-// * 
-// * \param[in] type mesh type see MimmoObject(int type) constructor documentation
-// * \param[in] geometry pointer to an external geoemtry data structure
-// * \return false if the argument pointer is NULL or not compatible data structure
-// */
-// bool
-// MimmoObject::setPatch(int type, PatchKernel* geometry){
-//     if (geometry == NULL ) return false;
-//     if (type<1 || type >4 ) return false;
-//     m_type = type;
-//     
-//     m_extpatch      = geometry;
-//     m_internalPatch = false;
-//     
-//     if(m_patch != NULL){
-//         if (m_internalPatch)    delete m_patch;
-//         m_patch = NULL;
-//     }    
-// 
-//     //    setMapData();
-// 
-//     m_pidsType.clear();
-// 
-//     if(m_patch->getCellCount() != 0){
-//         m_bvTreeSupported = true;
-// 
-//         m_bvTree->clear();
-//         delete m_bvTree;
-//         if (m_type == 2){
-//             m_bvTree = new bitpit::VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch));
-//         }else{
-//             m_bvTree = new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch));
-//         }
-//         
-//         for(auto const & cell : geometry->getCells()){
-//             m_pidsType.insert(cell.getPID());
-//         }
-//         m_AdjBuilt = false;
-//     }	
-//     m_bvTreeBuilt = false;
-//     m_kdTreeBuilt = false;
-//     m_bvTreeSync = false;
-//     m_kdTreeSync = false;
-//     return true;
-// };
-
-///*!
-// * It builds the vertex map of local/unique-id indexing and its inverse.
-// * \return false if no geometry is present in the class.
-// */
-//bool
-//MimmoObject::setMapData(){
-//
-//    if (isEmpty() ) return false;
-//
-//    long nv = getNVertex();
-//
-//    m_mapData.clear();
-//    m_mapData.resize(nv);
-//    m_mapDataInv.clear();
-//
-//    PatchKernel::VertexIterator it;
-//    PatchKernel::VertexIterator itend = m_patch->vertexEnd();
-//    int i = 0;
-//    for (it = m_patch->vertexBegin(); it != itend; ++it){
-//        m_mapData[i] = it->getId();
-//        m_mapDataInv[ it->getId()] = i;
-//        i++;
-//    }
-//    return true;
-//};
-//
-///*!
-// * It builds the cell map of local/unique-id indexing and its inverse.
-// * \return false if no geometry is present in the class.
-// */
-//bool
-//MimmoObject::setMapCell(){
-//
-//    if (isEmpty() || !m_bvTreeSupported) return false;
-//
-//    m_mapCell.clear();
-//    m_mapCell.resize(getNCells());
-//    m_mapCellInv.clear();
-//
-//    PatchKernel::CellIterator it;
-//    PatchKernel::CellIterator itend = m_patch->cellEnd();
-//
-//    int i = 0;
-//    for (it = m_patch->cellBegin(); it != itend; ++it){
-//        m_mapCell[i] = it->getId();
-//        m_mapCellInv[ it->getId()] = i;
-//        i++;
-//    }
-//    return true;
-//};
 
 /*!
  * Set PIDs for all geometry cells available. 
@@ -1220,18 +1125,6 @@ MimmoObject::setPIDCell(long id, short pid){
         m_pidsType.insert(pid);
     }	
 };
-
-// /*
-//  * Set your current class as a "soft" copy of another MimmoObject.
-//  * All data are replaced by those provided by the argument.
-//  * Soft means that the m_patch member of the class is copied only by its pointer
-//  * and not allocated internally. 
-//  * \param[in] other MimmoObject class .
-//  */
-// void MimmoObject::setSOFTCopy(const MimmoObject * other){
-//     clear();
-//     *this = *other; 
-// };
 
 /*!
  * Set your current class as a "hard" copy of another MimmoObject.
@@ -1285,10 +1178,31 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
         const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
         setCells(pcell);
     }
-    
+
     if(other->m_AdjBuilt)   buildAdjacencies();
     if(other->m_IntBuilt)   buildInterfaces();
-    //it's all copied(maps are update in the loops, pids if exists), except search trees.
+
+};
+
+/*!
+ * Clone your MimmoObject in a new indipendent MimmoObject. All data of the current class will be "hard" copied in a new
+ * MimmoObject class. Search Trees will be only instantiated but not filled/built/synchronized.
+ * Hard means that the geometry data structure will be allocated internally into the new object 
+ * as an exact and stand-alone copy of the geometry data structure of the current class, indipendently on how the current class
+ * owns or links it.
+ * \return cloned MimmoObject.
+ */
+std::unique_ptr<MimmoObject>::clone(){
+    std::unique_ptr<MimmoObject> result(new MimmoObject(getType()));
+    //copy data 
+    result->setVertices(getVertices());
+    if(m_kdTreeSupported()){
+        const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
+        result->setCells(getCells());
+    }
+    if(m_AdjBuilt)   result->buildAdjacencies();
+    if(m_IntBuilt)   result->buildInterfaces();
+    return std::move(result);
 };
 
 /*!
@@ -1319,25 +1233,15 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
     //get conn from each cell of the list
     for(const auto id : cellList){
         if(getCells().exists(id)){
-            Cell  & cell = patch->getCell(id);
-            long * conn = cell.getConnect();
-            int nVloc = cell.getVertexCount();
-            for(int i=0; i<nVloc; ++i)  ordV.insert(conn[i]);
+            bitpit::ConstProxyVector<long> ids = patch->getCell(id).getVertexIds();
+            for(const auto & val: ids){
+                ordV.insert(val);
+            }
         }
     }
 
     result.reserve(ordV.size());
     result.insert(result.end(), ordV.begin(), ordV.end());
-//     result.resize(ordV.size());
-//     set<long int>::iterator itS;
-//     set<long int>::iterator itSEnd = ordV.end();
-// 
-//     int counter =0;
-//     for(itS=ordV.begin(); itS != itSEnd; ++itS){
-//         result[counter] = *itS;
-//         ++counter;
-//     }
-
     return  result;
 }
 
@@ -1356,8 +1260,7 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
     //get conn from each cell of the list
     for(const auto id : cellList){
         if(getCells().exists(id)){
-            Cell  & cell = patch->getCell(id);
-            long * interf = cell.getInterfaces();
+            long * interf = patch->getCell(id).getInterfaces();
             int nIloc = cell.getInterfaceCount();
             for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
         }
@@ -1365,16 +1268,6 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
     
     result.reserve(ordV.size());
     result.insert(result.end(), ordV.begin(), ordV.end());
-    //     result.resize(ordV.size());
-    //     set<long int>::iterator itS;
-    //     set<long int>::iterator itSEnd = ordV.end();
-    // 
-    //     int counter =0;
-    //     for(itS=ordV.begin(); itS != itSEnd; ++itS){
-    //         result[counter] = *itS;
-    //         ++counter;
-    //     }
-    
     return  result;
 }
 
@@ -1394,11 +1287,10 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
     ordV.insert(vertexList.begin(), vertexList.end());
     //get conn from each cell of the list
     for(auto const & cell : getPatch()->getCells()){
-        int nVloc = cell.getVertexCount();
-        const long * conn_ = cell.getConnect();
+        bitpit::ConstProxyVector<long> vIds= cell.getVertexIds();
         bool check = true;
-        for(int i=0; i< nVloc; ++i){
-            check = check && ordV.count(conn_[i]);
+        for(const auto & id : vIds){
+            check = check && ordV.count(id);
             ++i;
         }
         if(check) ordC.insert(cell.getId());
@@ -1406,89 +1298,8 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
 
     result.reserve(ordC.size());
     result.insert(result.end(), ordC.begin(), ordC.end());
-    //     result.resize(ordC.size());
-    //     set<long int>::iterator itS;
-    //     set<long int>::iterator itSEnd = ordC.end();
-    // 
-    //     int counter =0;
-    //     for(itS=ordC.begin(); itS != itSEnd; ++itS){
-    //         result[counter] = *itS;
-    //         ++counter;
-    //     }
-    
     return  result;
-    
 }
-
-///*!
-// * Convert a list of bitpit::PatchKernel vertex ids to their local/compact index value.
-// * Unexistent vertex ids are marked in return vector as -1.
-// * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
-// * \return list of local index of vertices according to compact ordering
-// */
-//ivector1D MimmoObject::convertVertexIDToLocal(livector1D vertexList){
-//
-//    ivector1D result(vertexList.size());
-//    int counter=0;
-//    for(auto && id : vertexList){
-//        result[counter]=getMapDataInv(id);
-//        ++counter;
-//    }
-//    return result;
-//}
-//
-///*!
-// * Convert a list of local/compact vertex index in their bitpit::PatchKernel unique id value.
-// * Unexistent vertex index are marked in return vector as -1.
-// * \param[in] vList list of vertex index in local/compact ordering
-// * \return list bitpit::PatchKernel ids identifying vertices.
-// */
-//livector1D MimmoObject::convertLocalToVertexID(ivector1D vList){
-//
-//    livector1D result(vList.size());
-//    int counter=0;
-//    for(auto && i : vList){
-//        result[counter]=getMapData(i);
-//        ++counter;
-//    }
-//    return result;
-//}
-//
-///*!
-// * Convert a list of bitpit::PatchKernel cell ids to their local/compact index value.
-// * Unexistent cell ids are marked in return vector as -1.
-// * \param[in] cellList list of bitpit::PatchKernel IDs identifying cells.
-// * \return list of local index of cells according to compact ordering
-// */
-//ivector1D MimmoObject::convertCellIDToLocal(livector1D cellList){
-//
-//    ivector1D result(cellList.size());
-//
-//    int counter=0;
-//    for(auto && id : cellList){
-//        result[counter]=getMapCellInv(id);
-//        ++counter;
-//    }
-//    return result;
-//}
-//
-///*!
-// * Convert a list of local/compact cell index in their bitpit::PatchKernel unique id value.
-// * Unexistent cell index are marked in return vector as -1.
-// * \param[in] cList list of cell index in local/compact ordering
-// * \return list bitpit::PatchKernel ids identifying cells.
-// */
-//livector1D MimmoObject::convertLocalToCellID(ivector1D cList){
-//
-//    livector1D result(cList.size());
-//
-//    int counter=0;
-//    for(auto && i : cList){
-//        result[counter]=getMapCell(i);
-//        ++counter;
-//    }
-//    return result;
-//}
 
 /*!
  * Extract vertices at the mesh boundaries, if any.
@@ -1501,16 +1312,14 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 
     std::unordered_set<long> container;
     
-    for (const auto & cell : getPatch()->getCells()){
-        const long * conn = cell.getConnect();
+    for (const auto & cell : getCells()){
         int size = cell.getFaceCount();
 
         for(int face=0; face<size; ++face){
-
             if(cell.isFaceBorder(face)){
-                bitpit::ConstProxyVector<int> list = cell.getFaceLocalConnect(face);
-                for(const auto index : list ){
-                    container.insert(conn[index]);
+                bitpit::ConstProxyVector<int> list = cell.getFaceVertexIds(face);
+                for(const auto & index : list ){
+                    container.insert(index);
                 }
             }//endif
         }// end loop on face
@@ -1560,36 +1369,68 @@ livector1D	MimmoObject::extractPIDCells(shivector1D flag){
 };
 
 /*!
- * Check if a specified cell topology is currently supported by the class, and return the typical size of its connectivity.
+ * Check if a given connectivity list is coherent with a bitpit::ElementType type.
  * 
- * \param[in] type  cell type to check, as bitpit::ElementInfo enum
- * \return integer with the dimension of the element supported. -1 flag the unsupported element;
+ * \param[in] type cell type to check, as bitpit::ElementInfo enum
+ * \param[in] conn connectivity list.
+ * \return true if connectivity list is coherent with the specified cell type
  */
-int MimmoObject::checkCellType(bitpit::ElementType type){
-    int check = -1;
-    int patchType =getType();
+bool MimmoObject::checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & list){
 
-    switch(patchType){
-        case 1:
-            if  (type == bitpit::ElementType::TRIANGLE)     check = 3;
-            if  (type == bitpit::ElementType::QUAD)         check = 4;
+    switch(type){
+        case bitpit::ElementType::VERTEX:
+            return (list.size() == 1);
             break;
-        case 2:
-            if  (type == bitpit::ElementType::TETRA)        check = 4;
-            if  (type == bitpit::ElementType::PYRAMID)      check = 5;
-            if  (type == bitpit::ElementType::WEDGE)        check = 6;
-            if  (type == bitpit::ElementType::HEXAHEDRON)   check = 8;
+        case bitpit::ElementType::LINE:
+            return (list.size() == 2);
             break;
-        case 3:
-            if (type == bitpit::ElementType::VERTEX)        check = 1;
+        case bitpit::ElementType::TRIANGLE:
+            return (list.size() == 3);
             break;
-        case 4:
-            if	(type == bitpit::ElementType::LINE)         check = 2;
+        case bitpit::ElementType::PIXEL:
+            return (list.size() == 4);
             break;
-        default:	//do nothing
+        case bitpit::ElementType::QUAD:
+            return (list.size() == 4);
+            break;
+        case bitpit::ElementType::POLYGON:
+            if(list.size() < 5) return false;
+            return(list.size() == std::size_t(list[0]+1));
+            break;
+        case bitpit::ElementType::TETRA:
+            return (list.size() == 4);
+            break;
+        case bitpit::ElementType::VOXEL:
+            return (list.size() == 8);
+            break;
+        case bitpit::ElementType::HEXAHEDRON:
+            return (list.size() == 8);
+            break;
+        case bitpit::ElementType::WEDGE:
+            return (list.size() == 6);
+            break;
+        case bitpit::ElementType::PYRAMID:
+            return (list.size() == 5);
+            break;
+        case bitpit::ElementType::POLYHEDRON:
+            if(list.size() < 9) return false;
+            {
+                //check if the record is a polyhedron
+                long nFaces = list[0];
+                std::size_t pos = 1;
+                long countFaces = 0;
+                while(pos < list.size() && countFaces<nFaces){
+                    countFaces++;
+                    pos += locConn[pos]+1;
+                }
+                return(pos == list.size() && countFaces == nFaces);
+            }
+            break;
+        default:
+            std::assert(false, "reached uncovered case");
             break;
     }
-    return check;
+    return false;
 };
 
 /*!
@@ -1724,39 +1565,51 @@ void MimmoObject::buildInterfaces(){
 
 
 /*!
- * Desume Element type of your current mesh. 
- * Please note MimmoObject is handling meshes with homogeneous elements.
- * Return undefined type for unexistent or unsupported element, or mixed element type connectivity.
- * \return cell type hold by the mesh
+ * Desume Element given the vertex connectivity list associated. Polygons and Polyhedra require 
+ * a special writing for their connectivity list. Please read doxy of MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL)
+ * custom constructor for further information.
+ * Return undefined type for unexistent or unsupported element.
+ * \param[in] locConn list of vertex indices composing the cell.
+ * \return cell type hold by the current connectivity argument.
  */
 //TODO To review in order to implement new derived classes MimmoSurfUnstructured and MimmoVolUnstructured
-bitpit::VTKElementType	MimmoObject::desumeElement(){
-    bitpit::VTKElementType result = bitpit::VTKElementType::UNDEFINED;
+bitpit::ElementType	MimmoObject::desumeElement(livector1D & locConn){
+    bitpit::ElementType result = bitpit::ElementType::UNDEFINED;
 
-    if(getPatch() == NULL)	return result;	
-    livector1D conn;
+    std::size_t sizeConn = locConn.size();
     switch(m_type){
         case    1:
-            if(getNCells() == 0)    return result;
-            conn = getCellConnectivity((*(getCells().begin())).getId());
-            if(conn.size() == 3)        result = bitpit::VTKElementType::TRIANGLE;
-            if(conn.size() == 4)        result = bitpit::VTKElementType::QUAD;
+            if(sizeConn == 3)        result = bitpit::ElementType::TRIANGLE;
+            if(sizeConn == 4)        result = bitpit::ElementType::QUAD;
+            if(sizeConn > 4 && sizeConn == (locConn[0]+1))    result= bitpit::ElementType::POLYGON;
             break;
-        case	2:
-            if(getNCells() == 0)        return result;
-            conn = getCellConnectivity((*(getCells().begin())).getId());
-            if(conn.size() == 4)        result = bitpit::VTKElementType::TETRA;
-            if(conn.size() == 8)        result = bitpit::VTKElementType::HEXAHEDRON;
-            if(conn.size() == 5)        result = bitpit::VTKElementType::PYRAMID;
-            if(conn.size() == 6)        result = bitpit::VTKElementType::WEDGE;
+        case    2:
+            if(sizeConn == 4)        result = bitpit::ElementType::TETRA;
+            if(sizeConn == 8)        result = bitpit::ElementType::HEXAHEDRON;
+            if(sizeConn == 5)        result = bitpit::ElementType::PYRAMID;
+            if(sizeConn == 6)        result = bitpit::ElementType::WEDGE;
+            if(sizeConn > 8 ){
+                //check if the record is a polyhedron
+                long nFaces = locConn[0];
+                std::size_t pos = 1;
+                long countFaces = 0;
+                while(pos < sizeConn && countFaces<nFaces){
+                    countFaces++;
+                    pos += locConn[pos]+1;
+                }
+                if(pos == sizeConn && countFaces == nFaces){
+                    result= bitpit::ElementType::POLYHEDRON;
+                }
+            }
             break;
-        case	3:
+        case    3:
             result = bitpit::VTKElementType::VERTEX;
             break;
-        case	4:
+        case    4:
             result = bitpit::VTKElementType::LINE;
             break;
         default : 
+            std::assert(false, "reached uncovered case");
             break;
     }
 

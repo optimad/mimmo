@@ -73,7 +73,7 @@ protected:
 
 public:
     MimmoObject(int type = 1); 
-    MimmoObject(int type, dvecarr3E & vertex, ivector2D * connectivity = NULL);
+    MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
     MimmoObject(int type, bitpit::PatchKernel* geometry);
     ~MimmoObject();
 
@@ -92,7 +92,7 @@ public:
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
 
-    ivector2D                                       getCompactConnectivity(liimap & mapDataInv);
+    livector2D                                      getCompactConnectivity(liimap & mapDataInv);
     livector2D                                      getConnectivity();
     livector1D                                      getCellConnectivity(long id);
     bitpit::PiercedVector<bitpit::Cell> &           getCells();
@@ -117,12 +117,11 @@ public:
     bool                          isSkdTreeSync();
     bool                          isKdTreeSync();
 
-    const MimmoObject *                             getCopy();
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
     bool        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
     bool        addVertex(const bitpit::Vertex & vertex, const long idtag = bitpit::Vertex::NULL_ID);
-    bool        modifyVertex(const darray3E & vertex, long id);
+    bool        modifyVertex(const darray3E & vertex, const long & id);
     bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag = bitpit::Cell::NULL_ID);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, short PID, long idtag = bitpit::Cell::NULL_ID);
@@ -131,7 +130,8 @@ public:
     void        setPID(std::unordered_map<long, short>  ); 
     void        setPIDCell(long, short);
 
-    void        setHARDCopy(const MimmoObject * other);
+    BITPIT_DEPRECATED(void        setHARDCopy(const MimmoObject * other));
+    std::unique_ptr<MimmoObject>        clone();
 
     bool        cleanGeometry();
 
@@ -159,7 +159,7 @@ public:
     bool        areInterfacesBuilt();
     bool        isClosedLoop();
 
-    bitpit::VTKElementType	desumeElement();
+    bitpit::ElementType desumeElement(livector1D &);
 
     void        dump(std::ostream & stream);
     void        restore(std::istream & stream);
@@ -169,7 +169,7 @@ protected:
     void    reset(int type);
 
 private:
-    int     checkCellType(bitpit::ElementType type);
+    bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
     void    cleanKdTree();
 };
 
