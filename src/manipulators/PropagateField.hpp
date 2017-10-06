@@ -83,13 +83,13 @@ namespace mimmo{
  * - <B>OutputPlot</B> : path to store optional results.
  *
  * Proper of the class:
- * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>WeightFactor</B> : coefficient used to get weights of the stencil points in function of distance (1.0 default);
- * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>DumpingFactor</B> : dumping exponential factor for weights computing ;
  * - <B>DumpingRadius</B> : support radius of dumping function;
+ * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
+ * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
- * - <B>Tolerance</B> : convergence tolerance for smoothing solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -152,10 +152,6 @@ protected:
     virtual void computeDumpingFunction() = 0;
     virtual void solveSmoothing(int nstep) = 0;
     virtual void solveLaplace() = 0;
-
-    //XML utilities from reading writing settings to file
-    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 };
 
@@ -361,11 +357,5 @@ REGISTER(BaseManipulation, PropagateScalarField, "mimmo.PropagateScalarField")
 REGISTER(BaseManipulation, PropagateVectorField, "mimmo.PropagateVectorField")
 
 };
-
-
-
-
-
-
 
 #endif /* __PROPAGATEFIELD_HPP__ */

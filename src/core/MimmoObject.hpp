@@ -121,6 +121,7 @@ public:
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
     bool        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
+    bool        addVertex(const bitpit::Vertex & vertex, const long idtag = bitpit::Vertex::NULL_ID);
     bool        modifyVertex(const darray3E & vertex, long id);
     bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag = bitpit::Cell::NULL_ID);

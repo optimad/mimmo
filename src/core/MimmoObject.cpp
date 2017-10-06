@@ -840,6 +840,37 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
     return true;
 };
 
+/*!
+ *It adds one vertex to the mesh.
+ * If unique-id is specified for the vertex, assign it, otherwise provide itself
+ * to get a unique-id for the added vertex. The latter option is the default.
+ * If the unique-id is already assigned, return with unsuccessful insertion.
+ *
+ * Local/unique-id vertex maps are updated automatically.
+ *
+ *
+ * \param[in] vertex vertex to be added
+ * \param[in] idtag  unique id associated to the vertex
+ * \return true if the vertex is successful inserted.
+ */
+bool
+MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
+
+    if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return false;
+
+    bitpit::PatchKernel::VertexIterator it;
+    auto patch = getPatch();
+    if(idtag == bitpit::Vertex::NULL_ID){
+        it = patch->addVertex(vertex);
+    }else{
+        it = patch->addVertex(vertex, idtag);
+    }
+
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    return true;
+};
+
 
 /*!
  * It modifies the coordinates of a pre-existent vertex.
@@ -1693,7 +1724,6 @@ bitpit::VTKElementType	MimmoObject::desumeElement(){
  * \param[in] type type of mesh from 1 to 4; See default constructor.
  */
 void MimmoObject::reset(int type){
-    const int id = 0;
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = std::max(0, type);
     if (m_type > 4){

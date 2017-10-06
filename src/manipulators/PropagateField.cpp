@@ -35,7 +35,6 @@
 #include "PropagateField.hpp"
 #include "customOperators.hpp"
 
-
 namespace mimmo{
 
 /*!
@@ -269,7 +268,6 @@ PropagateField::execute(){
     computeDumpingFunction();
     computeWeights();
 
-    //Old algorithm to review....
     if (m_laplace)
     {
         solveLaplace();
@@ -277,9 +275,6 @@ PropagateField::execute(){
     else{
         solveSmoothing(m_sstep);
     }
-
-    //    m_conn.clear();
-    m_weights.clear();
 
 }
 
@@ -297,13 +292,6 @@ PropagateField::computeConnectivity(){
 
     int type = getGeometry()->getType();
 
-    double h;
-    int nsize;
-    livector1D ids;
-    livector1D noids;
-    long ID;
-    double dist;
-
     m_conn.resize(m_np);
     m_weights.resize(m_np);
 
@@ -311,7 +299,7 @@ PropagateField::computeConnectivity(){
     std::map<std::pair<long, long>, bool> visitedge;
 
     //compute connectivity between points
-    for (auto cell : patch_->getCells()){
+    for (auto & cell : patch_->getCells()){
         int edgecount;
         if (type == 1 || patch_->getDimension() == 2){
             edgecount = cell.getFaceCount();
@@ -356,13 +344,11 @@ PropagateField::computeWeights(){
     if (m_geometry == NULL) return;
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    if (m_conn.size() != patch_->getVertexCount()) return;
 
     int nsize;
     livector1D ids;
     double dist;
     double sumdist;
-    long ID;
 
     m_weights.clear();
     darray3E point;
@@ -375,9 +361,6 @@ PropagateField::computeWeights(){
         sumdist = 0.0;
         for (int j=0; j<nsize; j++){
             dist = norm2(point-patch_->getVertex(ids[j]).getCoords());
-            //            m_weights[m_mapID[ID]][j] = 1/((std::abs(m_gamma))*dist);
-            //            sumdist += 1/((std::abs(m_gamma))*dist);
-            //            //m_weights[m_mapID[ID]][j] = 1/dist;
             lweights[j] = 1/(std::pow(dist, m_gamma))*m_dumping[ids[j]];
             sumdist += lweights[j];
         }
@@ -385,158 +368,6 @@ PropagateField::computeWeights(){
         m_weights.insert(ID, lweights);
     }
 }
-
-/*!
- * It sets infos reading from a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
-    /*
-    BITPIT_UNUSED(name);
-
-    //start absorbing
-    BaseManipulation::absorbSectionXML(slotXML, name);
-
-    if(slotXML.hasOption("Solver")){
-        std::string input = slotXML.get("Solver");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setSolver(value);
-    }
-
-    if(slotXML.hasOption("minSearchRadius")){
-        std::string input = slotXML.get("minSearchRadius");
-        input = bitpit::utils::string::trim(input);
-        double value = 0.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setRmin(value);
-    }
-
-    if(slotXML.hasOption("maxSearchRadius")){
-        std::string input = slotXML.get("maxSearchRadius");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setRmax(value);
-    }
-
-    if(slotXML.hasOption("SearchSteps")){
-        std::string input = slotXML.get("SearchSteps");
-        int value =10000;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setNR(value);
-    };
-
-    if(slotXML.hasOption("MinimumNeighs")){
-        std::string input = slotXML.get("MinimumNeighs");
-        int value =6;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setMinimumNeighbors(value);
-    };
-
-    if(slotXML.hasOption("WeightConstant")){
-        std::string input = slotXML.get("WeightConstant");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setWeightConstant(value);
-    }
-
-    if(slotXML.hasOption("SmoothingSteps")){
-        std::string input = slotXML.get("SmoothingSteps");
-        int value =1;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setSmoothingSteps(value);
-    };
-
-    if(slotXML.hasOption("ComputeKdTree")){
-        std::string input = slotXML.get("ComputeKdTree");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setComputeKDTree(value);
-    }
-
-    if(slotXML.hasOption("ComputeConnectivity")){
-        std::string input = slotXML.get("ComputeConnectivity");
-        input = bitpit::utils::string::trim(input);
-        bool value = true;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setComputeConnectivity(value);
-    }
-
-    if(slotXML.hasOption("RBFSupportRadius")){
-        std::string input = slotXML.get("RBFSupportRadius");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e+18;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setSupportRadius(value);
-    }
-     */
-};
-
-/*!
- * It sets infos from class members in a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void PropagateField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-
-    /*
-    BITPIT_UNUSED(name);
-
-    BaseManipulation::flushSectionXML(slotXML, name);
-
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
-
-    slotXML.set("minSearchRadius",std::to_string(m_rmin));
-    slotXML.set("maxSearchRadius",std::to_string(m_rmax));
-    slotXML.set("SearchSteps",std::to_string(m_nr));
-    slotXML.set("MinimumNeighs",std::to_string(m_minNeigh));
-    slotXML.set("WeightConstant",std::to_string(m_gamma));
-    slotXML.set("SmoothingSteps",std::to_string(m_sstep));
-    slotXML.set("ComputeKdTree",std::to_string(int(m_kdtree)));
-    slotXML.set("ComputeConnectivity",std::to_string(int(m_neigh)));
-    slotXML.set("RBFSupportRadius",std::to_string(m_suppR));
-     */
-};
 
 
 //--------------------------------------
@@ -669,10 +500,7 @@ PropagateVectorField::computeDumpingFunction(){
     }
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    if (m_conn.size() != patch_->getVertexCount()) return;
 
-    int nsize;
-    livector1D ids;
     double dist;
     long ID;
 
@@ -693,16 +521,20 @@ PropagateVectorField::computeDumpingFunction(){
     }
     else{
 
-
         int dim = m_bsurface->getPatch()->getDimension();
-        int sdim = 3;
 
-        bitpit::SurfUnstructured boundDef(999, dim, sdim);
-        boundDef.setExpert(true);
+        std::unique_ptr<MimmoObject> activeBoundary;
+        if (dim == 2){
+            activeBoundary = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+        }
+        else if (dim == 1){
+            activeBoundary = std::unique_ptr<MimmoObject>(new MimmoObject(4));
+        }
+
         for (auto const & vertex : m_bsurface->getVertices()){
             ID = vertex.getId();
             if (norm2(m_bc[ID]) >= 1.0e-12){
-                boundDef.addVertex(vertex, ID);
+                activeBoundary->addVertex(vertex, ID);
             }
         }
         for (auto const & cell : m_bsurface->getCells()){
@@ -719,19 +551,17 @@ PropagateVectorField::computeDumpingFunction(){
                 }
             }
             if (toinsert){
-                boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
+                activeBoundary->addConnectedCell(vconn, cell.getType());
             }
         }
-        boundDef.buildAdjacencies();
-        bitpit::SurfaceSkdTree tree(&boundDef);
-        tree.build();
+        activeBoundary->buildAdjacencies();
+        activeBoundary->buildSkdTree();
+        bitpit::SurfaceSkdTree* tree = static_cast<bitpit::SurfaceSkdTree*>(activeBoundary->getSkdTree());
 
         for (auto const & vertex : patch_->getVertices()){
             ID = vertex.getId();
             point = vertex.getCoords();
-            dist = max(1.0e-08, tree.evalPointDistance(point));
-            //            dist = max(1.0e-08, norm2(point));
-            //            val = 1.0 + m_dumpingFactor*bitpit::rbf::wendlandc2( dist/maxd );
+            dist = max(1.0e-08, tree->evalPointDistance(point));
             val = std::max(1.0, std::pow((maxd/dist), m_dumpingFactor));
             m_dumping.insert(ID, val);
         }
@@ -745,14 +575,10 @@ PropagateVectorField::computeDumpingFunction(){
 void
 PropagateVectorField::solveSmoothing(int nstep){
 
-
     int nsize;
     livector1D ids;
     livector1D noids;
     long ID;
-
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    int nV = patch_->getVertexCount();
 
     {
 
@@ -812,6 +638,10 @@ PropagateVectorField::solveSmoothing(int nstep){
         m_field.setGeometry(getGeometry());
 
     }
+
+    m_conn.clear();
+    m_weights.clear();
+
 }
 
 /*!
@@ -834,7 +664,6 @@ PropagateVectorField::plotOptionalResults(){
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
     dvecarr3E data(m_field.size());
     int count = 0;
-    int count2 = 0;
     for (auto val : m_field){
         data[count] = val;
         count++;
@@ -882,6 +711,8 @@ PropagateVectorField::apply(){
  * \param[in] name   name associated to the slot
  */
 void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+    BITPIT_UNUSED(name);
 
     if(slotXML.hasOption("Solver")){
         std::string input = slotXML.get("Solver");
@@ -975,16 +806,14 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 
     BaseManipulation::flushSectionXML(slotXML, name);
 
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
     slotXML.set("WeightFactor",std::to_string(m_gamma));
+    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
+    slotXML.set("DumpingRadius",std::to_string(m_radius));
+    slotXML.set("Solver", std::to_string(int(m_laplace)));
     slotXML.set("SmoothingSteps",std::to_string(m_sstep));
     slotXML.set("Convergence",std::to_string(int(m_convergence)));
     slotXML.set("Tolerance",std::to_string(m_tol));
-    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
-    slotXML.set("DumpingRadius",std::to_string(m_radius));
 };
-
-
 
 //--------------------------------------
 //--------------------------------------
@@ -1116,10 +945,7 @@ PropagateScalarField::computeDumpingFunction(){
     }
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    if (m_conn.size() != patch_->getVertexCount()) return;
 
-    int nsize;
-    livector1D ids;
     double dist;
     long ID;
 
@@ -1141,14 +967,19 @@ PropagateScalarField::computeDumpingFunction(){
     else{
 
         int dim = m_bsurface->getPatch()->getDimension();
-        int sdim = 3;
 
-        bitpit::SurfUnstructured boundDef(999, dim, sdim);
-        boundDef.setExpert(true);
+        std::unique_ptr<MimmoObject> activeBoundary;
+        if (dim == 2){
+            activeBoundary = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+        }
+        else if (dim == 1){
+            activeBoundary = std::unique_ptr<MimmoObject>(new MimmoObject(4));
+        }
+
         for (auto const & vertex : m_bsurface->getVertices()){
             ID = vertex.getId();
             if (std::abs(m_bc[ID]) >= 1.0e-12){
-                boundDef.addVertex(vertex, ID);
+                activeBoundary->addVertex(vertex, ID);
             }
         }
         for (auto const & cell : m_bsurface->getCells()){
@@ -1165,17 +996,17 @@ PropagateScalarField::computeDumpingFunction(){
                 }
             }
             if (toinsert){
-                boundDef.addCell(cell.getType(), cell.isInterior(), vconn);
+                activeBoundary->addConnectedCell(vconn, cell.getType());
             }
         }
-        boundDef.buildAdjacencies();
-        bitpit::SurfaceSkdTree tree(&boundDef);
-        tree.build();
+        activeBoundary->buildAdjacencies();
+        activeBoundary->buildSkdTree();
+        bitpit::SurfaceSkdTree* tree = static_cast<bitpit::SurfaceSkdTree*>(activeBoundary->getSkdTree());
 
         for (auto const & vertex : patch_->getVertices()){
             ID = vertex.getId();
             point = vertex.getCoords();
-            dist = max(1.0e-08, tree.evalPointDistance(point));
+            dist = max(1.0e-08, tree->evalPointDistance(point));
             val = std::max(1.0, std::pow((maxd/dist), m_dumpingFactor));
             m_dumping.insert(ID, val);
         }
@@ -1189,17 +1020,11 @@ PropagateScalarField::computeDumpingFunction(){
 void
 PropagateScalarField::solveSmoothing(int nstep){
 
-
     int nsize;
     livector1D ids;
-    livector1D noids;
     long ID;
 
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    int nV = patch_->getVertexCount();
-
     {
-
         m_field.clear();
         double maxval = 0.0;
         for (auto vertex : getGeometry()->getVertices()){
@@ -1254,8 +1079,11 @@ PropagateScalarField::solveSmoothing(int nstep){
 
         m_field.setDataLocation(MPVLocation::POINT);
         m_field.setGeometry(getGeometry());
-
     }
+
+    m_conn.clear();
+    m_weights.clear();
+
 }
 
 /*!
@@ -1404,14 +1232,13 @@ void PropagateScalarField::flushSectionXML(bitpit::Config::Section & slotXML, st
 
     BaseManipulation::flushSectionXML(slotXML, name);
 
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
     slotXML.set("WeightFactor",std::to_string(m_gamma));
+    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
+    slotXML.set("DumpingRadius",std::to_string(m_radius));
+    slotXML.set("Solver", std::to_string(int(m_laplace)));
     slotXML.set("SmoothingSteps",std::to_string(m_sstep));
     slotXML.set("Convergence",std::to_string(int(m_convergence)));
     slotXML.set("Tolerance",std::to_string(m_tol));
-    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
-    slotXML.set("DumpingRadius",std::to_string(m_radius));
 };
-
 
 }
