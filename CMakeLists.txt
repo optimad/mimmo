@@ -373,9 +373,8 @@ while (${CHECK_DEPS} EQUAL 1)
 	set(CHECK_DEPS 0)
 	foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
 		isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
-        string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
-        set(${UPPER_MODULE_NAME}_ACTIVE ${MODULE_ENABLED})
-		if (MODULE_ENABLED)
+       if (MODULE_ENABLED)
+			string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
 			foreach (DEPENDENCY_NAME IN LISTS ${UPPER_MODULE_NAME}_DEPS)
 				isModuleEnabled(${DEPENDENCY_NAME} DEPENDENCY_ENABLED)
 				if (NOT DEPENDENCY_ENABLED)
@@ -416,16 +415,8 @@ set(MIMMO_EXTERNAL_LIBRARIES "")
 set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
 
 ###     BITPIT      ###############################################
-find_package(BITPIT REQUIRED)
+find_package(BITPIT REQUIRED COMPONENTS levelset surfunstructured volunstructured RBF CG )
 include(${BITPIT_USE_FILE})
-
-##check almost essential bitpit modules are installed.
-if( NOT BITPIT_LEVELSET_MODULE_ACTIVE OR NOT BITPIT_SURFUNSTRUCTURED_MODULE_ACTIVE OR
-    NOT BITPIT_VOLUNSTRUCTURED_MODULE_ACTIVE OR NOT BITPIT_RBF_MODULE_ACTIVE OR
-    NOT BITPIT_CG_MODULE_ACTIVE)
-    message(FATAL_ERROR "Cannot find bitpit modules needed by mimmo in current featured bitpit installation. Required bitpit modules
-    are: surfunstructured, volustructured, levelset, RBF and CG.")
-endif()
 
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
 

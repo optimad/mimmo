@@ -35,7 +35,7 @@ set(MIMMO_INSTALL_CMAKE_DIR "lib/cmake/${PROJECT_NAME}-${MIMMO_MAJOR_VERSION}.${
 #------------------------------------------------------------------------------------#
 # Generate MIMMOConfig.cmake
 #------------------------------------------------------------------------------------#
-set(MIMMO_CONFIG_CODE
+set(MIMMO_INSTALL_PREFIX_CODE
 "set(_mimmo_installed_prefix \"${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}\")
 set(_mimmo_requested_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")
 get_filename_component(_mimmo_installed_prefix_full \"\${_mimmo_installed_prefix}\" REALPATH)
@@ -49,16 +49,24 @@ else ()
 # calls to compute the installation prefix.
 string(REGEX REPLACE "/" ";" _count "${MIMMO_INSTALL_CMAKE_DIR}")
 foreach(p ${_count})
-    set(MIMMO_CONFIG_CODE "${MIMMO_CONFIG_CODE}
+    set(MIMMO_INSTALL_PREFIX_CODE "${MIMMO_INSTALL_PREFIX_CODE}
     get_filename_component(MIMMO_INSTALL_PREFIX \"\${MIMMO_INSTALL_PREFIX}\" PATH)")
 endforeach()
 
-set(MIMMO_CONFIG_CODE "${MIMMO_CONFIG_CODE}
+set(MIMMO_INSTALL_PREFIX_CODE "${MIMMO_INSTALL_PREFIX_CODE}
 endif ()")
 
 set(MIMMO_CONFIG_CMAKE_DIR "\${MIMMO_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 get_target_property(MIMMO_DEBUG_POSTFIX ${MIMMO_LIBRARY} DEBUG_POSTFIX)
 get_target_property(MIMMO_RELEASE_POSTFIX ${MIMMO_LIBRARY} RELEASE_POSTFIX)
+
+set(MIMMO_ENABLED_MODULE_LIST "" )
+foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+    isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+    if(MODULE_ENABLED)
+        list(APPEND MIMMO_ENABLED_MODULE_LIST ${MODULE_NAME})
+    endif()
+endforeach()
 
 configure_file("MIMMOConfig.cmake.in"  "${CMAKE_CURRENT_BINARY_DIR}/MIMMOConfig.cmake" @ONLY)
 

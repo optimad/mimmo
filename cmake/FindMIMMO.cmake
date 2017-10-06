@@ -10,14 +10,20 @@
 #  MIMMO_INCLUDE_DIRS  - The mimmo include directories
 #  MIMMO_LIBRARIES     - The libraries needed to use mimmo
 #  MIMMO_DEFINITIONS   - Compiler switches required for using patchman
-#  MIMMO_IOCGNS_ACTIVE - true if optional I/O CGNS module is compiled along with mimmo
-#  MIMMO_IOOFOAM_ACTIVE- true if optional I/O OpenFOAM interface module is compiled along with mimmo
-#  MIMMO_IOVTK_ACTIVE  - true if optional I/O VTK interface module is compiled along with mimmo
 #
 # The following cache entries must be set by the user to locate mimmo:
 #
 #  MIMMO_DIR - The directory containing MIMMOConfig.cmake.
 #
+# A list of required MIMMO modules may be specified when invoking the
+# find_package command after the COMPONENTS option (or after the REQUIRED
+# option if present). Additional optional components may be listed after
+# OPTIONAL_COMPONENTS. For each of the requested modules, a boolean variable
+# named BITPIT_<MODULE_NAME>_FOUND will be set telling if the corresponding
+# module is enabled in the corresponding MIMMO installation. If a required
+# module is not found a fatal error is generated and the configure step
+# stops executing.
+
 
 # Assume not found.
 set(MIMMO_FOUND 0)
@@ -25,7 +31,7 @@ set(MIMMO_FOUND 0)
 # Use the Config mode of the find_package() command to find MIMMOConfig.
 # If this succeeds (possibly because MIMMO_DIR is already set), the
 # command will have already loaded MIMMOConfig.cmake and set MIMMO_FOUND.
-find_package(MIMMO QUIET NO_MODULE)
+find_package(MIMMO QUIET NO_MODULE COMPONENTS ${MIMMO_FIND_COMPONENTS})
 
 # If mimmo was not found, explain to the user how to specify its location.
 if (NOT MIMMO_FOUND)
@@ -37,3 +43,16 @@ if (NOT MIMMO_FOUND)
         message(STATUS ${MIMMO_DIR_MESSAGE})
     endif ()
 endif ()
+
+# If If a required module is not found a fatal error is generated and the
+# configure step stops executing.
+foreach(COMPONENT ${MIMMO_FIND_COMPONENTS})
+    if(NOT MIMMO_${COMPONENT}_FOUND)
+        set(COMPONENT_NOT_FOUND_MESSAGE "${COMPONENT} module is not enabled in current MIMMO installation")
+        if(MIMMO_FIND_REQUIRED_${COMPONENT})
+           message(FATAL_ERROR "${COMPONENT_NOT_FOUND_MESSAGE}")
+        elseif (NOT MIMMO_FIND_QUIETLY)
+           message(STATUS "${COMPONENT_NOT_FOUND_MESSAGE}")
+        endif ()
+    endif()
+endforeach()
