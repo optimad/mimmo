@@ -267,7 +267,7 @@ darray3E BasicShape::getLocalSpan(){
 
 /*!
  * Given a geometry by MimmoObject class, return cell identifiers of those simplex inside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the BvTree 
+ * the BasicShape object. The methods implicitly use search algorithms based on the SkdTree 
  * of the class MimmoObject.  
  * \param[in] geo target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
@@ -289,7 +289,7 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 
 /*! 
  * Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
- * the BasicShape object. The methods implicitly use search algorithms based on the BvTree 
+ * the BasicShape object. The methods implicitly use search algorithms based on the SkdTree 
  * of the class MimmoObject.
  * \param[in] geo target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
@@ -537,12 +537,11 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
 bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
 
   Cell & cell = tri->getCell(indexT);
-  int nVertices = cell.getVertexCount();
-  long * connCC_ = cell.getConnect();
+  bitpit::ConstProxyVector<long> vIds = cell.getVertexIds();
   bool check = true;
-  for(int i=0; i<nVertices; ++i){ 
+  for(const auto & val: vIds){ 
 	//recover vertex index
-	check = check && isPointIncluded(tri, connCC_[i]); 
+	check = check && isPointIncluded(tri,val); 
   }
   return(check);
 };

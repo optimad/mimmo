@@ -159,7 +159,7 @@ public:
     bool        areInterfacesBuilt();
     bool        isClosedLoop();
 
-    bitpit::ElementType desumeElement(livector1D &);
+    bitpit::ElementType desumeElement(const livector1D &);
 
     void        dump(std::ostream & stream);
     void        restore(std::istream & stream);

@@ -160,7 +160,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
     m_IntBuilt = false;
 
     bitpit::ElementType eltype;
-    std::size_t sizeVert = vertex.size()
+    std::size_t sizeVert = vertex.size();
 
     m_patch->reserveVertices(sizeVert);
 
@@ -168,7 +168,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
     for(const auto & vv : vertex)   addVertex(vv);
 
-    m_log->setPriority(biptit::log::Priority::DEBUG);
+    m_log->setPriority(bitpit::log::Priority::DEBUG);
 
     if(m_type != 3){
         livector1D temp;
@@ -189,7 +189,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
         (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
         (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
     }	
-    m_log->setPriority(biptit::log::Priority::NORMAL);
+    m_log->setPriority(bitpit::log::Priority::NORMAL);
 };
 
 /*!
@@ -497,9 +497,9 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
         }else if(eltype == bitpit::ElementType::POLYHEDRON){
             connecti[counter][0] = conn_[0];
             for(int nF = 0; nF < conn_[0]-1; ++nF){
-                int facePos = getFaceStreamPosition(nF);
+                int facePos = cell.getFaceStreamPosition(nF);
                 int beginVertexPos = facePos + 1;
-                int endVertexPos   = facePos + 1 + connecti[facePos];
+                int endVertexPos   = facePos + 1 + conn_[facePos];
                 connecti[counter][facePos] = conn_[facePos]; 
                 for (int i=beginVertexPos; i<endVertexPos; ++i){
                     connecti[counter][i] = mapDataInv[conn_[i]];
@@ -952,7 +952,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
     getPatch()->reserveCells(sizeCell);
 
     long idc;
-    int nVert;
+    int  nSize;
     short pid;
     bitpit::ElementType eltype;
     bool checkTot = true;
@@ -966,9 +966,9 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
         //check info PID 
         pid = (short)cell.getPID();
         nSize = cell.getConnectSize();
-        connectivity.resize(nVert);
+        connectivity.resize(nSize);
         auto const conn = cell.getConnect();
-        for(int i=0; i<nVert; ++i){
+        for(int i=0; i<nSize; ++i){
             connectivity[i] = conn[i];
         }
         checkTot = checkTot && addConnectedCell(connectivity, eltype, pid, idc);
@@ -1006,14 +1006,11 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
-    
-    livector1D conn_dum = conn;
-    conn_dum.resize(sizeElement, 0);
 
     if(idtag == bitpit::Cell::NULL_ID){
-        it = patch->addCell(type, true, conn_dum);
+        it = patch->addCell(type, true, conn);
     }else{
-        it = patch->addCell(type, true,conn_dum, idtag);
+        it = patch->addCell(type, true,conn, idtag);
     }
 
     m_pidsType.insert(0);		
@@ -1055,16 +1052,13 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
-    
-    livector1D conn_dum = conn;
-    conn_dum.resize(sizeElement, 0);
 
     long checkedID;
     if(idtag == bitpit::Cell::NULL_ID){
-        it = patch->addCell(type, true, conn_dum);
+        it = patch->addCell(type, true, conn);
         checkedID = it->getId();
     }else{
-        it = patch->addCell(type, true,conn_dum, idtag);
+        it = patch->addCell(type, true,conn, idtag);
         checkedID = idtag;
     }
 
@@ -1192,12 +1186,11 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
  * owns or links it.
  * \return cloned MimmoObject.
  */
-std::unique_ptr<MimmoObject>::clone(){
+std::unique_ptr<MimmoObject> MimmoObject::clone(){
     std::unique_ptr<MimmoObject> result(new MimmoObject(getType()));
     //copy data 
     result->setVertices(getVertices());
-    if(m_kdTreeSupported()){
-        const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
+    if(m_skdTreeSupported){
         result->setCells(getCells());
     }
     if(m_AdjBuilt)   result->buildAdjacencies();
@@ -1261,7 +1254,7 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
     for(const auto id : cellList){
         if(getCells().exists(id)){
             long * interf = patch->getCell(id).getInterfaces();
-            int nIloc = cell.getInterfaceCount();
+            int nIloc = patch->getCell(id).getInterfaceCount();
             for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
         }
     }
@@ -1291,7 +1284,6 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
         bool check = true;
         for(const auto & id : vIds){
             check = check && ordV.count(id);
-            ++i;
         }
         if(check) ordC.insert(cell.getId());
     }
@@ -1307,20 +1299,17 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
  */
 livector1D 	MimmoObject::extractBoundaryVertexID(){
 
-    if(isEmpty())   return livector1D(0);
-    if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
+    std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID();
+    if(cellmap.empty()) return livector1D(0);
 
     std::unordered_set<long> container;
-    
-    for (const auto & cell : getCells()){
-        int size = cell.getFaceCount();
-
-        for(int face=0; face<size; ++face){
-            if(cell.isFaceBorder(face)){
-                bitpit::ConstProxyVector<int> list = cell.getFaceVertexIds(face);
+ 
+    for (const auto & val : cellmap){
+        bitpit::Cell & cell = getPatch()->getCell(val.first);
+        for(const auto face : val.second){
+            bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
                 for(const auto & index : list ){
                     container.insert(index);
-                }
             }//endif
         }// end loop on face
     }
@@ -1331,6 +1320,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 
     return result;
 };
+
 
 /*!
  * Extract all cells marked with a target PID flag.
@@ -1421,13 +1411,13 @@ bool MimmoObject::checkCellConnCoherence(const bitpit::ElementType & type, const
                 long countFaces = 0;
                 while(pos < list.size() && countFaces<nFaces){
                     countFaces++;
-                    pos += locConn[pos]+1;
+                    pos += list[pos]+1;
                 }
-                return(pos == list.size() && countFaces == nFaces);
+                return (pos == list.size() && countFaces == nFaces);
             }
             break;
         default:
-            std::assert(false, "reached uncovered case");
+            assert(false && "reached uncovered case");
             break;
     }
     return false;
@@ -1573,7 +1563,7 @@ void MimmoObject::buildInterfaces(){
  * \return cell type hold by the current connectivity argument.
  */
 //TODO To review in order to implement new derived classes MimmoSurfUnstructured and MimmoVolUnstructured
-bitpit::ElementType	MimmoObject::desumeElement(livector1D & locConn){
+bitpit::ElementType	MimmoObject::desumeElement(const livector1D & locConn){
     bitpit::ElementType result = bitpit::ElementType::UNDEFINED;
 
     std::size_t sizeConn = locConn.size();
@@ -1581,7 +1571,7 @@ bitpit::ElementType	MimmoObject::desumeElement(livector1D & locConn){
         case    1:
             if(sizeConn == 3)        result = bitpit::ElementType::TRIANGLE;
             if(sizeConn == 4)        result = bitpit::ElementType::QUAD;
-            if(sizeConn > 4 && sizeConn == (locConn[0]+1))    result= bitpit::ElementType::POLYGON;
+            if(sizeConn > 4 && sizeConn == std::size_t(locConn[0]+1))    result= bitpit::ElementType::POLYGON;
             break;
         case    2:
             if(sizeConn == 4)        result = bitpit::ElementType::TETRA;
@@ -1603,13 +1593,13 @@ bitpit::ElementType	MimmoObject::desumeElement(livector1D & locConn){
             }
             break;
         case    3:
-            result = bitpit::VTKElementType::VERTEX;
+            result = bitpit::ElementType::VERTEX;
             break;
         case    4:
-            result = bitpit::VTKElementType::LINE;
+            result = bitpit::ElementType::LINE;
             break;
         default : 
-            std::assert(false, "reached uncovered case");
+            assert(false && "reached uncovered case");
             break;
     }
 
