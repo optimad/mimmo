@@ -139,7 +139,10 @@ public:
     livector1D  getCellFromVertexList(livector1D vertList);
     livector1D  getInterfaceFromCellList(livector1D cellList);
 
-    livector1D  extractBoundaryVertexID();
+    livector1D                          extractBoundaryVertexID();
+    livector1D                          extractBoundaryCellID();
+    std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID();
+
     livector1D  extractPIDCells(short);
     livector1D  extractPIDCells(shivector1D);
 

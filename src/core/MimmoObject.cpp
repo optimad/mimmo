@@ -1294,7 +1294,8 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
 }
 
 /*!
- * Extract vertices at the mesh boundaries, if any.
+ * Extract vertices at the mesh boundaries, if any. The method is meant for connected mesh only,
+ * return empty list otherwise.
  * \return list of vertex unique-ids.
  */
 livector1D 	MimmoObject::extractBoundaryVertexID(){
@@ -1308,9 +1309,9 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
         bitpit::Cell & cell = getPatch()->getCell(val.first);
         for(const auto face : val.second){
             bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
-                for(const auto & index : list ){
-                    container.insert(index);
-            }//endif
+            for(const auto & index : list ){
+                container.insert(index);
+            }
         }// end loop on face
     }
 
@@ -1318,6 +1319,59 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
     result.reserve(container.size());
     result.insert(result.end(), container.begin(), container.end());
 
+    return result;
+};
+
+/*!
+ * Extract cells who have one face at the mesh boundaries at least, if any.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \return list of cell unique-ids.
+ */
+livector1D  MimmoObject::extractBoundaryCellID(){
+    
+    if(isEmpty() || m_type==3)   return livector1D(0);
+    if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
+    
+    std::unordered_set<long> container;
+    
+    for (const auto & cell : getCells()){
+        int size = cell.getFaceCount();
+        
+        for(int face=0; face<size; ++face){
+            if(cell.isFaceBorder(face)){
+                container.insert(cell.getId());
+            }//endif
+        }// end loop on face
+    }
+    
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+    
+    return result;
+};
+
+/*!
+ * Extract cells  who have one face at the mesh boundaries at least, if any.
+ * Return the list of the local faces per cell, which lie exactly on the boundary.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \return map of boundary cell unique-ids, with local boundary faces list.
+ */
+std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID(){
+
+    std::unordered_map<long, std::set<int> > result;
+    if(isEmpty() || m_type ==3)   return result;
+    if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
+
+    for (const auto & cell : getCells()){
+        int size = cell.getFaceCount();
+        long idC = cell.getId();
+        for(int face=0; face<size; ++face){
+            if(cell.isFaceBorder(face)){
+                result[idC].insert(face);
+            }//endif
+        }// end loop on face
+    }
     return result;
 };
 
