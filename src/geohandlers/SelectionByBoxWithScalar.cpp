@@ -153,23 +153,27 @@ void
 SelectionByBoxWithScalar::execute(){
 
     SelectionByBox::execute();
-    
+
     if(m_field.isEmpty()){
         (*m_log)<<"warning in "<<m_name<<" : empty scalar field found"<<std::endl;
-    }else{
-        //check m_field in input if coherent with the linked geometry
-        if(m_field.getGeometry() != getGeometry())  {
-            throw std::runtime_error(m_name+" : linked scalar field is not referred to target geometry");
-        }
-    
-        ExtractScalarField * extractorField = new ExtractScalarField();
-        extractorField->setGeometry(getPatch());
-        extractorField->setMode(ExtractMode::ID);
-        extractorField->setField(m_field);
-        extractorField->execute();
-        m_field = extractorField->getExtractedField();
-        delete extractorField;
+        return;
     }
+    //check m_field in input if coherent with the linked geometry
+    if(m_field.getGeometry() != getGeometry())  {
+        throw std::runtime_error(m_name+" : linked scalar field is not referred to target geometry");
+    }
+    if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation:POINT){
+        (*m_log)<<"warning in "<<m_name<<" : Attempting to extract a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
+        return;
+    }
+    
+    ExtractScalarField * extractorField = new ExtractScalarField();
+    extractorField->setGeometry(getPatch());
+    extractorField->setMode(ExtractMode::ID);
+    extractorField->setField(m_field);
+    extractorField->execute();
+    m_field = extractorField->getExtractedField();
+    delete extractorField;
 }
 
 
@@ -197,16 +201,51 @@ SelectionByBoxWithScalar::plotOptionalResults(){
             break;   
     }
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
-
-    std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
+    
+    if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation:POINT){
+        (*m_log)<<"warning in "<<m_name<<" : Attempting to plot a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
+        return;
+    }
+    
+    std::string dir  = m_outputPlot;
+    std::string name = m_name + "_Patch."+ std::to_string(getId());
         
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvector1D field_supp = m_field;
-    if(field_supp.completeMissingData(0.0)){
-        dvector1D field = field_supp.getDataAsVector();
-        getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
-    }    
-    getPatch()->getPatch()->write(name);
+    bool checkField = field_supp.completeMissingData(0.0);
+    
+    if(getPatch()->getType() != 3){
+        if(checkField){
+            dvector1D field = field_supp.getDataAsVector();
+            getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+        }
+        std::string totpath = dir +"/"+name;
+        getPatch()->getPatch()->write(totpath);
+        if(checkField)  getPatch()->getPatch()->getVTK().removeData("field");
+    }else{
+        liimap mapDataInv;
+        dvecarr3E points = getPatch()->getVertexCoords(&mapDataInv);
+        ivector2D connectivity;
+        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
+        
+        int np = points.size();
+        connectivity.resize(np);
+        for (int i=0; i<np; i++){
+            connectivity[i].resize(1);
+            connectivity[i][0] = i;
+            
+        }
+        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+        output.setDimensions(connectivity.size(), points.size());
+        output.setCodex(bitpit::VTKFormat::APPENDED);
+        if(checkField){
+            dvector1D field = field_supp.getDataAsVector();
+            output.addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+        }
+        output.write();
+    }
 }
 
 /*!

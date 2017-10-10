@@ -58,8 +58,7 @@ enum class SelectionType{
  * \ingroup geohandlers
  * \brief Abstract Interface for selection classes
  * 
- * Class/BaseManipulation Object managing selection of sub-patches of a 3D open 
- * unstructured surface/volume mesh.
+ * Class/BaseManipulation Object managing selection of sub-patches of MimmoObject Data structure.
  *
  * Ports available in GenericSelection Class :
  *
@@ -87,7 +86,7 @@ protected:
 
     SelectionType                   m_type;      /**< Type of enum class SelectionType for selection method */
     std::unique_ptr<MimmoObject>    m_subpatch;  /**< Pointer to result sub-patch */
-    int                             m_topo;      /**< 1 = surface (default value), 2 = volume, 3 = points cloud */
+    int                             m_topo;      /**< 1 = surface (default value), 2 = volume, 3 = points cloud, 4 = 3D-Curve */
     bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
 public:
 
@@ -99,7 +98,7 @@ public:
     void    buildPorts();
 
     SelectionType    whichMethod();
-    virtual void             setGeometry(MimmoObject *);
+    virtual void     setGeometry(MimmoObject *);
     void             setDual(bool flag=false);
 
     const MimmoObject*    getPatch()const;
@@ -125,10 +124,10 @@ protected:
  * \class SelectionByBox
  * \ingroup geohandlers
  * \brief Selection through volume box primitive.
- * 
- * Selection Object managing selection of sub-patches of a 3D open 
- * unstructured surface mesh. Select all simplex contained in a box.
- * 
+ *
+ * Selection Object managing selection of sub-patches oof a MimmoObject Data structure.
+ * Select all elements contained in a box.
+ *
  * Ports available in SelectionByBox Class :
  *
  *    =========================================================
@@ -213,8 +212,8 @@ protected:
  * \ingroup geohandlers
  * \brief Selection through cylinder primitive.
  * 
- * Selection Object managing selection of sub-patches of a 3D open 
- * unstructured surface mesh. Select all simplex contained in a cylinder.
+ * Selection Object managing selection of sub-patches oof a MimmoObject Data structure.
+ * Select all elements contained in a cylinder.
  *
  * Ports available in SelectionByCylinder Class :
  *
@@ -301,8 +300,8 @@ protected:
  * \ingroup geohandlers
  * \brief Selection through sphere primitive.
  * 
- * Selection Object managing selection of sub-patches of a 3D open 
- * unstructured surface mesh. Select all simplex contained in a sphere.
+ * Selection Object managing selection of sub-patches of a MimmoObject Data structure.
+ * Select all elements contained in a sphere.
  *
  * Ports available in SelectionBySphere Class :
  *
@@ -391,12 +390,14 @@ protected:
  * 
  * \class SelectionByMapping
  * \ingroup geohandlers
- * \brief Selection mapping external surfaces on the target mesh.
+ * \brief Selection mapping external surfaces/volume/3D curves on a target mesh
+ * of the same topology.
  * 
- * Selection Object managing selection of sub-patches of a 3D open 
- * unstructured surface mesh. Extract portion of mesh in common between 
- * a target geometry and a second one, provided externally. Extraction criterium
+ * Selection Object managing selection of sub-patches of a MimmoObject 
+ * unstructured surface mesh, unstructured volume mesh or 3D Curve mesh. Extract portion of mesh in common between 
+ * a target geometry and a second one of the same topology, provided externally. Extraction criterium
  * is based on euclidean nearness, within a prescribed tolerance.
+ * Point clouds are not suitable for this selection method.
  *
  * Ports available in SelectionByMapping Class :
  *
@@ -507,9 +508,9 @@ private:
  * \ingroup geohandlers
  * \brief Selection using target mesh Part Identifiers.
  * 
- * Selection Object managing selection of sub-patches of a 3D open 
- * unstructured surface mesh. Extract portion of mesh getting its PID in 
- * target geometry.
+ * Selection Object managing selection of sub-patches of MimmoObject data structure 
+ * supporting Part IDentifiers (PID). Extract portion of mesh getting its PID in 
+ * target geometry. Point clouds are not suitable for this selection method.
  *
  * Ports available in SelectionByPID Class :
  *
@@ -603,9 +604,8 @@ protected:
  * \ingroup geohandlers
  * \brief Selection through volume box primitive.
  * 
- * Selection Object managing selection of sub-patches
- * of a 3D unstructured surface mesh.
- * Select all simplex contained in a box and extract
+ * Selection Object managing selection of MimmoObject Data Structure.
+ * Select all elements contained in a box and extract
  * a scalar field if it is present.
  *
  * Ports available in SelectionByBoxWithScalar Class :

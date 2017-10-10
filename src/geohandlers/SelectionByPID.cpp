@@ -149,8 +149,11 @@ SelectionByPID::getActivePID(bool active){
 void
 SelectionByPID::setGeometry(MimmoObject * target ){
     if(target == NULL) return;
+    if(target->isEmpty())   return;
+    if(target->getType() == 3)  return; //does not work with point cloud for now.
     m_geometry = target;
-
+    m_topo = target->getType();
+    
     std::unordered_set<short> & pids =     target->getPIDTypeList();
     std::unordered_set<short>::iterator it, itE = pids.end();
 

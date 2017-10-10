@@ -175,79 +175,43 @@ GenericSelection::constrainedBoundary(){
 
     if(getGeometry() == NULL || getPatch() == NULL)    return livector1D(0);
     if(getGeometry()->isEmpty() || getPatch()->isEmpty())    return livector1D(0);
-    livector1D sonV, fatherV;
+    std::unordered_map<long, std::set<int> > sonV, fatherV;
 
-    sonV    = getPatch()->extractBoundaryVertexID();
-    bitpit::PiercedVector<bitpit::Cell> & existentCells = getPatch()->getCells();
+    auto daughterBCells  = getPatch()->extractBoundaryFaceCellID();
+    auto motherBCells = getGeometry()->extractBoundaryFaceCellID();
 
-    /*Create dual subpatch.*/
-    std::unique_ptr<MimmoObject> temp(new MimmoObject(m_topo));
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
-
-    bitpit::PiercedVector<bitpit::Vertex> & mapV = temp->getPatch()->getVertices();
-
-    livector1D TT;
-
-    long idC;
-    int sizeCC;
-    int counter=0;
-    bitpit::ElementType eltype;
-
-    for(auto & cell : tri->getCells()){
-
-        idC = cell.getId();
-        if (!(existentCells.exists(idC))){
-            eltype = cell.getType();
-            sizeCC = cell.getVertexCount();
-            long * connCC_ = cell.getConnect();
-            TT.resize(sizeCC);
-
-            for(int i=0; i<sizeCC; ++i){
-                TT[i] = connCC_[i];
-                if(!mapV.exists(connCC_[i]))    temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
+    //remove from daughterBCells all those local faces of Boundary cells
+    //marked as boundary also in motherBCells.
+    for(const auto & sT : daughterBCells){
+        if(motherBCells.count(sT.first) > 0){
+            ivector1D marked;
+            for(const auto & val: sT.second){
+                if(motherBCells[sT.first].count(val)){
+                    marked.push_back(val);
+                }
             }
-            temp->addConnectedCell(TT,eltype,idC);
-            TT.clear();
-            counter++;
+            for(auto beErased: marked){
+                daughterBCells[sT.first].erase(beErased);
+            }
+            if(daughterBCells[sT.first].empty())    daughterBCells.erase(sT.first);
         }
     }
-
-    if(counter == 0)    return sonV;
-
-    livector1D dualpV = temp->extractBoundaryVertexID();
-    if(dualpV.empty())    return sonV;
-
-    std::sort(sonV.begin(), sonV.end());
-    std::sort(dualpV.begin(), dualpV.end());
-
-    livector1D::iterator itS, itD;
-    livector1D matching(sonV.size());
-
-    counter = 0;
-    itS =  sonV.begin();
-    itD =  dualpV.begin();
-
-    while (itS != sonV.end()) {
-        if (itD != dualpV.end()){
-            long valS = *itS;
-            long valD = *itD;
-
-            if(valD == valS){
-                matching[counter] = valS;
-                ++counter;
-                ++itS;
-                ++itD;
-            }else if(valD > valS){
-                ++itS;
-            }else{
-                ++itD;
-            }
-        }else{
-            itS = sonV.end();
+    
+    //get vertex of the cleaned daughter boundary.
+    std::set<long> containerVert;
+    for(const auto & sT : daughterBCells){
+        const bitpit::Cell & cell = getPatch()->getPatch()->getCell(sT.first);
+        for(const auto & val: sT.second){
+            bitpit::ConstProxyVector<long> faceVertIds = cell.getFaceVertexIds(val);
+            containerVert.insert(faceVertIds.begin(), faceVertIds.end());
         }
     }
-    matching.resize(counter);
-    return matching;
+    //move up in livector1D container.
+    livector1D result;
+    result.reserve(containerVert.size());
+    result.insert(result.end(), containerVert.begin(), containerVert.end());
+    
+    return result;
 };
 
 
@@ -274,43 +238,34 @@ GenericSelection::execute(){
 
     /*Create subpatch.*/
     std::unique_ptr<MimmoObject> temp(new MimmoObject(m_topo));
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
 
-    bitpit::PiercedVector<bitpit::Vertex> & mapV = temp->getPatch()->getVertices();
 
     livector1D TT;
-
-    int sizeCC;
     bitpit::ElementType eltype;
     short PID;
     if (m_topo != 3){
+
+        livector1D vertExtracted = getGeometry()->getVertexFromCellList(extracted);
+        for(const auto & idV : vertExtracted){
+            temp->addVertex(getGeometry()->getVertexCoords(idV), idV);
+        }
+
         for(const auto & idCell : extracted){
 
-            bitpit::Cell & cell = tri->getCell(idCell);
+            bitpit::Cell & cell = getGeometry()->getPatch()->getCell(idCell);
             eltype = cell.getType();
-            sizeCC = cell.getVertexCount();
-            long * connCC_ = cell.getConnect();
             PID = (short)cell.getPID();
-            TT.resize(sizeCC);
-
-            for(int i=0; i<sizeCC; ++i){
-                TT[i] = connCC_[i];
-
-                if(!mapV.exists(connCC_[i]))    temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
-            }
-
+            TT = getGeometry()->getCellConnectivity(idCell);
             temp->addConnectedCell(TT,eltype, PID, idCell);
             TT.clear();
         }
-    }
-    else{
+    }else{
         for(const auto & idV : extracted){
-            temp->addVertex(tri->getVertexCoords(idV),idV);
+            temp->addVertex(getGeometry()->getVertexCoords(idV),idV);
         }
     }
 
     m_subpatch = std::move(temp);
-    tri = NULL;
 };
 
 /*!
@@ -322,43 +277,36 @@ GenericSelection::plotOptionalResults(){
     if(getPatch() == NULL) return;
     if(getPatch()->isEmpty()) return;
 
-    liimap mapDataInv;
-    dvecarr3E points = getPatch()->getVertexCoords(&mapDataInv);
-    ivector2D connectivity;
-    bitpit::VTKElementType cellType;
-
     std::string dir = m_outputPlot;
-    std::string name = m_name + "_Patch";
+    std::string name = m_name + "_Patch."+ std::to_string(getId());
 
 
-    if (getPatch()->getType() != 3){
-        connectivity = getPatch()->getCompactConnectivity(mapDataInv);
-    }
-    else{
+    if (m_topo != 3){
+
+        std::string fullpath = dir + "/" + name ;
+        getPatch()->getPatch()->write(fullpath);
+
+    }else{
+
+        liimap mapDataInv;
+        dvecarr3E points = getPatch()->getVertexCoords(&mapDataInv);
+        ivector2D connectivity;
+        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
+
         int np = points.size();
         connectivity.resize(np);
         for (int i=0; i<np; i++){
             connectivity[i].resize(1);
             connectivity[i][0] = i;
-
         }
+
+        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+        output.setDimensions(connectivity.size(), points.size());
+        output.setCodex(bitpit::VTKFormat::APPENDED);
+        output.write();
     }
-    cellType = getPatch()->desumeElement();
-
-
-    bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-    output.setDimensions(connectivity.size(), points.size());
-
-    auto pids = getPatch()->getCompactPID();
-    if(pids.size() > 0) output.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-
-    output.setCounter(getId());
-    output.setCodex(bitpit::VTKFormat::APPENDED);
-
-    output.write();
 }
-
 
 }

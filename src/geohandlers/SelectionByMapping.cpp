@@ -29,7 +29,7 @@ namespace mimmo{
 
 /*!
  * Basic Constructor. Need to know kind of topology chosen 1-3D surface,
- * 2-VolumeMesh. Other options are not available,
+ * 2-VolumeMesh, 4-3DCurve. Other options are not available,
  * if forced trigger default value of 1.
  */
 SelectionByMapping::SelectionByMapping(int topo){
@@ -38,18 +38,20 @@ SelectionByMapping::SelectionByMapping(int topo){
     m_tolerance = 1.E-08;
 
     topo = std::max(1,topo);
-    if(topo > 2)    topo=1;
+    if(topo > 4 || topo == 3)    topo=1;
     m_topo = topo;
 
-
-    m_allowedType.resize(3);
+    m_allowedType.resize(5);
     m_allowedType[1].insert(FileType::STL);
-    m_allowedType[1].insert(FileType::STVTU);
-    m_allowedType[1].insert(FileType::SQVTU);
+    m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
-    m_allowedType[2].insert(FileType::VTVTU);
-    m_allowedType[2].insert(FileType::VHVTU);
+    m_allowedType[1].insert(FileType::MIMMO);
 
+    m_allowedType[2].insert(FileType::VOLVTU);
+    m_allowedType[2].insert(FileType::MIMMO);
+    
+    m_allowedType[4].insert(FileType::CURVEVTU);
+    m_allowedType[4].insert(FileType::MIMMO);
 };
 
 /*!
@@ -72,16 +74,20 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 
     int topo = std::stoi(input_topo);
     topo = std::max(1,topo);
-    if(topo > 2)    topo=1;
+    if(topo > 4 || topo == 3)    topo=1;
     m_topo = topo;
-
-    m_allowedType.resize(3);
+    
+    m_allowedType.resize(5);
     m_allowedType[1].insert(FileType::STL);
-    m_allowedType[1].insert(FileType::STVTU);
-    m_allowedType[1].insert(FileType::SQVTU);
+    m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
-    m_allowedType[2].insert(FileType::VTVTU);
-    m_allowedType[2].insert(FileType::VHVTU);
+    m_allowedType[1].insert(FileType::MIMMO);
+    
+    m_allowedType[2].insert(FileType::VOLVTU);
+    m_allowedType[2].insert(FileType::MIMMO);
+    
+    m_allowedType[4].insert(FileType::CURVEVTU);
+    m_allowedType[4].insert(FileType::MIMMO);
 
 
     if(input_name == "mimmo.SelectionByMapping"){
@@ -92,7 +98,8 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
 }
 
 /*!
- * Custom Constructor. Non null geometry set also the topology allowed bu the class.
+ * Custom Constructor. Not empty geometry set also the topology allowed by the class.
+ * Point Clouds are skipped to default topology (3D surface mesh).
  * \param[in]    geolist    List of external files to read from, for comparison purposes
  * \param[in]    target    Pointer to target geometry
  * \param[in]    tolerance    Proximity criterium tolerance
@@ -102,22 +109,27 @@ SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & ge
     m_type = SelectionType::MAPPING;
     m_tolerance = 1.E-08;
 
-    m_allowedType.resize(3);
+    m_allowedType.resize(5);
     m_allowedType[1].insert(FileType::STL);
-    m_allowedType[1].insert(FileType::STVTU);
-    m_allowedType[1].insert(FileType::SQVTU);
+    m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
-    m_allowedType[2].insert(FileType::VTVTU);
-    m_allowedType[2].insert(FileType::VHVTU);
-
-    if(target != NULL){
-        m_topo = target->getType();
-        m_topo = std::min(1, m_topo);
-        if(m_topo > 2)    m_topo = 1;
-        setGeometry(target);
-        setFiles(geolist);
-        m_tolerance = tolerance;
-    }
+    m_allowedType[1].insert(FileType::MIMMO);
+    
+    m_allowedType[2].insert(FileType::VOLVTU);
+    m_allowedType[2].insert(FileType::MIMMO);
+    
+    m_allowedType[4].insert(FileType::CURVEVTU);
+    m_allowedType[4].insert(FileType::MIMMO);
+    
+    if(target == NULL) return;
+    if(target->isEmpty()) return;
+    
+    m_topo = target->getType();
+    m_topo = std::min(1, m_topo);
+    if(m_topo > 4 || m_topo == 3)    m_topo = 1;
+    setGeometry(target);
+    setFiles(geolist);
+    m_tolerance = tolerance;
 
 };
 
@@ -190,7 +202,7 @@ SelectionByMapping::getTolerance(){
  */
 void
 SelectionByMapping::setTolerance(double tol){
-    if(tol == 0.0){
+    if(tol < 0.0){
         tol = 1.e-8;
     }
     m_tolerance = tol;
@@ -204,14 +216,24 @@ SelectionByMapping::setTolerance(double tol){
 void
 SelectionByMapping::setGeometry( MimmoObject * target){
 
+    if(target == NULL){ 
+        (*m_log)<< m_name << " attempt to link null target geometry. Do nothing." << std::endl;
+        return;
+    }
+    if(target->isEmpty()){ 
+        (*m_log)<< m_name << " attempt to link empty geometry. Do nothing" << std::endl;
+        return;
+    }
+
     if(target->getType() != m_topo){
         (*m_log)<< " " << std::endl;
         (*m_log)<< m_name << " target Topology : "<< target->getType() << std::endl;
         (*m_log)<<" supported Topology : "<< m_topo << std::endl;
-        (*m_log)<<" selectionMapping cannot support current geometry. Topology not supported."<<std::endl;
+        (*m_log)<< m_name << " cannot support current geometry. Topology not supported."<<std::endl;
         (*m_log)<< " " << std::endl;
         return;
     }
+
     m_geometry = target;
 
 };
@@ -361,9 +383,9 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     geo->setBuildSkdTree(true);
     geo->execute();
 
-    if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 ){
+    if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || geo->getGeometry()->getType()==3 ){
         m_log->setPriority(bitpit::log::NORMAL);
-        (*m_log)<< m_name << " failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
+        (*m_log)<< m_name << " failed to read or unsuitable geometry in SelectionByMapping::getProximity"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
@@ -383,7 +405,7 @@ SelectionByMapping::getProximity(MimmoObject* obj){
 
     obj->buildSkdTree(true);
 
-    if(obj->getNVertex() == 0 || obj->getNCells() == 0 ){
+    if(obj->getNVertex() == 0 || obj->getNCells() == 0){
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<< m_name << " failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);

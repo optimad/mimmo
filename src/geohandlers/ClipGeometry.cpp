@@ -313,14 +313,12 @@ ClipGeometry::plotOptionalResults(){
     if(getClippedPatch()->isEmpty()) return;
 
     std::string dir = m_outputPlot;
-    std::string name = m_name + "_Patch_"+ std::to_string(getId());
+    std::string name = m_name + "_Patch."+ std::to_string(getId());
 
     std::cout<<getClippedPatch()->getNVertex()<<std::endl;
     std::cout<<getClippedPatch()->getNCells()<<std::endl;
     
     if (getClippedPatch()->getType() != 3){
-        auto pids = getClippedPatch()->getCompactPID();
-        getClippedPatch()->getPatch()->getVTK().addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
         std::string totPath = dir+"/"+name;
         getClippedPatch()->getPatch()->write(totPath);
     }
