@@ -190,10 +190,13 @@ ClipGeometry::setInsideOut(bool flag){
 void
 ClipGeometry::execute(){
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty()){
+    if(getGeometry() == NULL){
+        throw std::runtime_error (m_name + " : nullptr geometry linked.");
+    };
+    if(getGeometry()->isEmpty()){
         throw std::runtime_error (m_name + " : empty geometry linked.");
     };
-
+    
     /* If an implicit definition is not present it has to be computed
      * by using origin and normal.
      */
@@ -211,31 +214,34 @@ ClipGeometry::execute(){
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
     bitpit::PiercedVector<bitpit::Vertex> & mapV = temp->getPatch()->getVertices();
 
-    livector1D TT;
-
-    int sizeCC;
     bitpit::ElementType eltype;
     int PID;
 
     if (getGeometry()->getType() != 3){
+
+        auto idVertexList = getGeometry()->getVertexFromCellList(extracted);
+
+        temp->getPatch()->reserveVertices(idVertexList.size());
+        temp->getPatch()->reserveCells(extracted.size());
+
+        for(const auto & idV : idVertexList){
+            temp->addVertex(tri->getVertexCoords(idV),idV);
+        }
+
+        livector1D TT;
         for(const auto & idCell : extracted){
 
             bitpit::Cell & cell = tri->getCell(idCell);
             eltype = cell.getType();
-            sizeCC = cell.getVertexCount();
-            long * connCC_ = cell.getConnect();
             PID = cell.getPID();
-            TT.resize(sizeCC);
-            
-            for(int i=0; i<sizeCC; ++i){
-                TT[i] = connCC_[i];
-                if(!mapV.exists(connCC_[i]))temp->addVertex(tri->getVertexCoords(connCC_[i]),connCC_[i]);
-            }
+            TT = getGeometry()->getCellConnectivity(idCell);
             temp->addConnectedCell(TT,eltype,short(PID), idCell);
             TT.clear();
         }
     }
     else{
+        temp->getPatch()->reserveVertices(extracted.size());
+        
         for(const auto & idV : extracted){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
@@ -306,19 +312,24 @@ ClipGeometry::plotOptionalResults(){
     if(getClippedPatch() == NULL) return;
     if(getClippedPatch()->isEmpty()) return;
 
-    liimap mapDataInv;
-    dvecarr3E points = getClippedPatch()->getVertexCoords(&mapDataInv);
-    ivector2D connectivity;
-    bitpit::VTKElementType cellType;
-
     std::string dir = m_outputPlot;
-    std::string name = m_name + "_Patch";
+    std::string name = m_name + "_Patch_"+ std::to_string(getId());
 
-
+    std::cout<<getClippedPatch()->getNVertex()<<std::endl;
+    std::cout<<getClippedPatch()->getNCells()<<std::endl;
+    
     if (getClippedPatch()->getType() != 3){
-        connectivity = getClippedPatch()->getCompactConnectivity(mapDataInv);
+        auto pids = getClippedPatch()->getCompactPID();
+        getClippedPatch()->getPatch()->getVTK().addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
+        std::string totPath = dir+"/"+name;
+        getClippedPatch()->getPatch()->write(totPath);
     }
     else{
+        liimap mapDataInv;
+        dvecarr3E points = getClippedPatch()->getVertexCoords(&mapDataInv);
+        ivector2D connectivity;
+        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
+
         int np = points.size();
         connectivity.resize(np);
         for (int i=0; i<np; i++){
@@ -326,22 +337,14 @@ ClipGeometry::plotOptionalResults(){
             connectivity[i][0] = i;
 
         }
+        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
+        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+        output.setDimensions(connectivity.size(), points.size());
+        output.setCodex(bitpit::VTKFormat::APPENDED);
+        output.write();
     }
-    cellType = getClippedPatch()->desumeElement();
 
-
-    bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-    output.setDimensions(connectivity.size(), points.size());
-
-    auto pids = getClippedPatch()->getCompactPID();
-    if(pids.size() > 0) output.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-
-    output.setCounter(getId());
-    output.setCodex(bitpit::VTKFormat::APPENDED);
-
-    output.write();
 }
 
 /*!
