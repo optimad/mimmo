@@ -128,8 +128,8 @@ public:
 
     //plotting
 
-    void    plotData(std::string dir, std::string name, bool flag, int counter);
-    void    plotSubData(std::string dir, std::string name, int i, bool flag, int counter);
+    void    plotData(std::string dir, std::string name, bool flag);
+    void    plotSubData(std::string dir, std::string name, int i, bool flag);
 
     //execute
     void        execute();
@@ -225,8 +225,8 @@ public:
 
 
     //plotting
-    void    plotData(std::string dir, std::string name, bool flag, int counter);
-    void    plotSubData(std::string dir, std::string name, int i, bool flag, int counter);
+    void    plotData(std::string dir, std::string name, bool flag);
+    void    plotSubData(std::string dir, std::string name, int i, bool flag);
 
     //execute
     void    execute();

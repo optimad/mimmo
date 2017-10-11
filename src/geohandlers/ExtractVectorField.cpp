@@ -153,30 +153,22 @@ ExtractVectorField::plotOptionalResults(){
     if(!field_supp.completeMissingData({{0.0,0.0,0.0}})) return;
     dvecarr3E field = field_supp.getDataAsVector();
     
-    bitpit::VTKElementType cellType = getGeometry()->desumeElement();
-    liimap mapDataInv;
-    dvecarr3E points = getGeometry()->getVertexCoords(&mapDataInv);
     
-    if (cellType == bitpit::VTKElementType::UNDEFINED) return;
-    
-    if(cellType != bitpit::VTKElementType::VERTEX){
-        ivector2D connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),cellType);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        output.write();
+    if(m_result.getGeometry()->getType() != 3){
+        m_result.getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
+        m_result.getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+        m_result.getGeometry()->getPatch()->getVTK().removeData("field");
     }else{
         if(loc == bitpit::VTKLocation::CELL){
-            (*m_log)<<"Warning: Attempt writing Cell data field on cloud point in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"Warning: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;
             return;
         }
+        liimap mapDataInv;
+        dvecarr3E points = m_result.getGeometry()->getVertexCoords(&mapDataInv);
         int size = points.size();
         ivector2D connectivity(size, ivector1D(1));
         for(int i=0; i<size; ++i)    connectivity[i][0]=i;
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),    cellType);
+        bitpit::VTKUnstructuredGrid output(m_outputPlot,m_name+std::to_string(getId()),bitpit::VTKElementType::VERTEX);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -220,7 +212,8 @@ ExtractVectorField::extract(){
             m_result.setGeometry(getGeometry());
             break;
             
-        default : //never been reached
+        default : 
+            assert(false && "unrecognized field location");
             break;
     }
     
@@ -261,7 +254,6 @@ void ExtractVectorField::extractID(mimmo::MPVLocation loc){
             }
             break;
         default:
-            //do nothing
             break;
     }
 }
@@ -316,7 +308,6 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
         }
         break;
         default:
-            //do nothing
             break;
     } 
 }
@@ -361,7 +352,6 @@ void ExtractVectorField::extractMapping(mimmo::MPVLocation loc){
         }
         break;
         default:
-            //do nothing
             break;
     }
 }

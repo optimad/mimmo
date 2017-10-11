@@ -223,10 +223,9 @@ ReconstructScalar::clear(){
  * \param[in]    dir        Output directory
  * \param[in]    name    Output filename
  * \param[in]    flag    Writing codex flag, false ascii, binary true
- * \param[in]    counter Counter identifying your output name
  */
 void
-ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int counter){
+ReconstructScalar::plotData(std::string dir, std::string name, bool flag){
 
     if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
@@ -237,39 +236,33 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
         loc = bitpit::VTKLocation::CELL;
     }
 
-    liimap mapData;
-    dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
-    ivector2D connectivity;
-    bitpit::VTKElementType cellType = getGeometry()->desumeElement();
+    dvector1D field = m_result.getDataAsVector();
 
     if (getGeometry()->getType() != 3){
-        connectivity = getGeometry()->getCompactConnectivity(mapData);
-    }
-    else{
+        getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
+        getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
+        if(!flag) getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
+        getGeometry()->getPatch()->write(dir+"/"+name);
+        getGeometry()->getPatch()->getVTK().removeData("scalarfield");
+    }else{
+        liimap mapData;
+        dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
+        ivector2D connectivity;
         int np = points.size();
         connectivity.resize(np);
         for (int i=0; i<np; i++){
             connectivity[i].resize(1);
             connectivity[i][0] = i;
         }
+        bitpit::VTKUnstructuredGrid output(dir,name,bitpit::VTKElementType::VERTEX);
+        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+        output.setDimensions(connectivity.size(), points.size());
+        output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
+        output.setDataCodex(bitpit::VTKFormat::APPENDED);
+        if(!flag) output.setDataCodex(bitpit::VTKFormat::ASCII);
+        output.write();
     }
-    bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-    output.setDimensions(connectivity.size(), points.size());
-
-
-    dvector1D field = m_result.getDataAsVector();
-    std::vector<long> ids = m_result.getIds();
-
-    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
-    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
-
-    output.setCounter(counter);
-    output.setCodex(bitpit::VTKFormat::APPENDED);
-    if(!flag) output.setCodex(bitpit::VTKFormat::ASCII);
-
-    output.write();
 };
 
 /*!
@@ -278,55 +271,49 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag, int co
  * \param[in]    name    Output filename (the function will add SubPatch-i to this name)
  * \param[in]    i       index of the sub-patch
  * \param[in]    flag    Writing codex flag, false ascii, binary true
- * \param[in]    counter Counter identifying your output name
  */
 void
-ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag, int counter){
+ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag){
     if(m_subresults[i].getGeometry() == NULL) return;
     if(m_subresults[i].getGeometry()->isEmpty()) return;
 
-    name = name+"SubPatch"+to_string(i);
+    std::string nameX = name+"SubPatch"+to_string(i);
 
-    liimap mapData;
-    dvecarr3E points = m_subresults[i].getGeometry()->getVertexCoords(&mapData);
-    ivector2D connectivity;
-    bitpit::VTKElementType cellType = m_subresults[i].getGeometry()->desumeElement();
-
-    if (m_subresults[i].getGeometry()->getType() != 3){
-        connectivity = m_subresults[i].getGeometry()->getCompactConnectivity(mapData);
+    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+    if(m_loc == MPVLocation::CELL){
+        loc = bitpit::VTKLocation::CELL;
     }
-    else{
+
+    //check size of field and adjust missing values to zero for writing purposes only.
+    dmpvector1D field_supp = m_subresults[i];
+    if(!field_supp.completeMissingData(0.0))    return;
+    dvector1D field = field_supp.getDataAsVector();
+    
+    if (m_subresults[i].getGeometry()->getType() != 3){
+        m_subresults[i].getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
+        m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
+        if(!flag) m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
+        m_subresults[i].getGeometry()->getPatch()->write(dir+"/"+nameX);
+        m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("scalarfield");
+    }else{
+        liimap mapData;
+        dvecarr3E points = m_subresults[i].getGeometry()->getVertexCoords(&mapData);
+        ivector2D connectivity;
         int np = points.size();
         connectivity.resize(np);
         for (int i=0; i<np; i++){
             connectivity[i].resize(1);
             connectivity[i][0] = i;
         }
+        bitpit::VTKUnstructuredGrid output(dir,nameX,bitpit::VTKElementType::VERTEX);
+        output.setGeomData(bitpit::VTKUnstructuredField::POINTS, points);
+        output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+        output.setDimensions(connectivity.size(), points.size());
+        output.addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
+        output.setDataCodex(bitpit::VTKFormat::APPENDED);
+        if(!flag) output.setDataCodex(bitpit::VTKFormat::ASCII);
+        output.write();
     }
-    bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-    output.setGeomData(bitpit::VTKUnstructuredField::POINTS, points);
-    output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-    output.setDimensions(connectivity.size(), points.size());
-
-    
-    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-    if(m_loc == MPVLocation::CELL){
-        loc = bitpit::VTKLocation::CELL;
-    }
-    
-    //check size of field and adjust missing values to zero for writing purposes only.
-    dmpvector1D field_supp = m_subresults[i];
-    if(!field_supp.completeMissingData(0.0))    return;
-    dvector1D field = field_supp.getDataAsVector();
-    std::vector<long> ids = field_supp.getIds();
-
-    output.addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
-    output.addData("ID", bitpit::VTKFieldType::SCALAR, loc, ids);
-
-    output.setCounter(counter);
-    output.setCodex(bitpit::VTKFormat::APPENDED);
-    if(!flag) output.setCodex(bitpit::VTKFormat::ASCII);
-    output.write();
 };
 
 /*!
@@ -411,10 +398,10 @@ ReconstructScalar::execute(){
  */
 void     ReconstructScalar::plotOptionalResults(){
     std::string dir = m_outputPlot;
-    std::string name = m_name;
-    plotData(dir, name, true, getId());
+    std::string name = m_name + std::to_string(getId());
+    plotData(dir, name, true);
     for (int i=0; i<getNData(); i++){
-        plotSubData(dir, name, i, true, getId());
+        plotSubData(dir, name, i, true);
     }
 }
 
@@ -499,6 +486,8 @@ ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         }
         if(int(m_loc) != temp){
             (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
+            if (temp == 0) (*m_log)<<"XML DataLocation in "<<m_name<<" is set to 0-UNDEFINED"<<std::endl;
+            if (temp == 3) (*m_log)<<"XML DataLocation in "<<m_name<<" is set to 3-INTERFACE, not supported for now."<<std::endl;
             throw std::runtime_error (m_name + " : xml absorbing failed.");
         }
     }
