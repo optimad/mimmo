@@ -166,7 +166,8 @@ void
 SwitchScalarField::plotOptionalResults(){
 
     if (m_result.size() == 0 || getGeometry() == NULL) return;
-
+    if (getGeometry()->isEmpty()) return;
+    
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_loc){
         case MPVLocation::POINT :
@@ -188,30 +189,21 @@ SwitchScalarField::plotOptionalResults(){
     if(!field_supp.completeMissingData(0.0))    return;
     dvector1D field = field_supp.getDataAsVector();
 
-    bitpit::VTKElementType cellType = getGeometry()->desumeElement();
-    liimap mapDataInv;
-    dvecarr3E points = getGeometry()->getVertexCoords(&mapDataInv);
-
-    if (cellType == bitpit::VTKElementType::UNDEFINED) return;
-
-    if(cellType != bitpit::VTKElementType::VERTEX){
-        ivector2D connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),cellType);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        output.write();
+    if(getGeometry()->getType() != 3){
+        getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+        getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+        getGeometry()->getPatch()->getVTK().removeData("field");
     }else{
         if(loc == bitpit::VTKLocation::CELL){
             (*m_log)<<"Warning: Attempt writing Cell data field on cloud point in plotOptionalResults of "<<m_name<<std::endl;
             return;
         }
+        liimap mapDataInv;
+        dvecarr3E points = getGeometry()->getVertexCoords(&mapDataInv);
         int size = points.size();
         ivector2D connectivity(size, ivector1D(1));
         for(int i=0; i<size; ++i)    connectivity[i][0]=i;
-        bitpit::VTKUnstructuredGrid output(".",m_name+std::to_string(getId()),    cellType);
+        bitpit::VTKUnstructuredGrid output(m_outputPlot,m_name+std::to_string(getId()),   bitpit::VTKElementType::VERTEX);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
         output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
         output.setDimensions(connectivity.size(), points.size());
@@ -244,7 +236,7 @@ SwitchScalarField::mswitch(){
     }
 
     //Extract by geometric mapping if active and if no positive match is found.
-    if (m_mapping){
+    if (m_mapping && getGeometry()->getType() != 3){
 
         m_result.setGeometry(getGeometry());
         m_result.setDataLocation(m_loc);

@@ -30,14 +30,15 @@ namespace mimmo{
 
 /*!
  * Default constructor of StitchGeometry.
- * Format admissible are linked to your choice of topology. See FileType enum
- * \param[in] topo    Topology of your geometries (1-surface, 2-volume, 3-points cloud)
+ * Format admissible are linked to your choice of topology. See MimmoObject documentation.
+ * In case of unsuitable topology, default format(3D-surface) is forced
+ * \param[in] topo    Topology of your geometries (1-surface, 2-volume, 3-points cloud, 4-3DCurve)
  */
 StitchGeometry::StitchGeometry(int topo){
     m_name         = "mimmo.StitchGeometry";
     m_geocount = 0;
     m_topo     = std::min(1, topo);
-    if(m_topo > 3)    m_topo = 1;
+    if(m_topo > 4)    m_topo = 1;
 }
 
 /*!
@@ -55,7 +56,7 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
 
     int topo = std::stoi(input_topo);
     m_topo = std::max(1,topo);
-    if (m_topo >3) m_topo = 1;
+    if (m_topo >4) m_topo = 1;
     m_geocount = 0;
     m_name = "mimmo.StitchGeometry";
 
@@ -146,6 +147,7 @@ StitchGeometry::getGeometry(){
  */
 void
 StitchGeometry::addGeometry(MimmoObject* geo){
+    if(geo == NULL) return;
     if(geo->isEmpty()) return;
     if(geo->getType() != m_topo)    return;
     if(m_extgeo.count(geo)    > 0)    return;
@@ -160,9 +162,7 @@ StitchGeometry::addGeometry(MimmoObject* geo){
  */
 bool 
 StitchGeometry::isEmpty(){
-    bool check = (m_patch.get() == NULL); 
-    if (!check)  check = check && m_patch->isEmpty();
-    return check;
+    return m_patch->isEmpty();
 }
 
 /*!
@@ -228,11 +228,32 @@ StitchGeometry::execute(){
                 //get the local connectivity and update with new vertex numbering;
                 livector1D conn = obj.first->getCellConnectivity(cId);
                 livector1D connloc(conn.size());
-                int ic = 0;
-                for (const auto & v : conn){
-                    connloc[ic] = mapVloc[v];
-                    ++ic;
-                }
+                
+                if(eltype == bitpit::ElementType::POLYGON){
+                    std::size_t size = conn.size();
+                    connloc[0] = conn[0];
+                    for(std::size_t i = 1; i < size; ++i){
+                        connloc[i] = mapVloc[conn[i]];
+                    }
+                        
+                }else if(eltype == bitpit::ElementType::POLYHEDRON){
+                    connloc[0] = conn[0];
+                    for(int nF = 0; nF < conn[0]-1; ++nF){
+                        int facePos = cc.getFaceStreamPosition(nF);
+                        int beginVertexPos = facePos + 1;
+                        int endVertexPos   = facePos + 1 + conn[facePos];
+                        connloc[facePos] = conn[facePos]; 
+                        for (int i=beginVertexPos; i<endVertexPos; ++i){
+                            connloc[i] = mapVloc[conn[i]];
+                        }
+                    }
+                }else{    
+                    int ic = 0;
+                    for (const auto & v : conn){
+                        connloc[ic] = mapVloc[v];
+                        ++ic;
+                    }
+                }    
                 dum->addConnectedCell(connloc, eltype, PID, cC);
                 //update map;
                 cC++;
@@ -293,8 +314,9 @@ void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
  */
 void 
 StitchGeometry::plotOptionalResults(){
+    if(m_patch.get() == NULL) return;
     if(isEmpty()) return;
-    std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
+    std::string name = m_outputPlot +"/"+ m_name + "_" + std::to_string(getId()) +  "_Patch";
     m_patch->getPatch()->write(name);
 }
 

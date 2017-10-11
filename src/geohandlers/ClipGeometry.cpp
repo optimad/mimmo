@@ -212,7 +212,6 @@ ClipGeometry::execute(){
     /* Create subpatch.*/
     std::unique_ptr<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
-    bitpit::PiercedVector<bitpit::Vertex> & mapV = temp->getPatch()->getVertices();
 
     bitpit::ElementType eltype;
     int PID;
