@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "MimmoGeometry.hpp"
 #include "customOperators.hpp"
+#include "VTUGridReader.hpp"
 #include <iostream>
 
 using namespace std;
@@ -398,18 +399,6 @@ void MimmoGeometry::setMultiSolidSTL(bool multi){
 }
 
 
-// /*!Sets your current class as a "soft" copy of the argument.
-//  * Soft copy means that only your current geometric object MimmoObject is
-//  * copied only through its pointer and stored in the internal member m_geometry
-//  * Other members are exactly copied
-//  * \param[in] other pointer to MimmoGeometry class.
-//  */
-// void
-// MimmoGeometry::setSOFTCopy(const MimmoGeometry * other){
-//     clear();
-//     *this = *other;
-// }
-
 /*!Sets your current class as a "HARD" copy of the argument.
  * Hard copy means that only your current geometric object MimmoObject is
  * copied as a stand alone internal member and stored in the unique pointer member m_intgeo. 
@@ -417,7 +406,7 @@ void MimmoGeometry::setMultiSolidSTL(bool multi){
  * \param[in] other pointer to MimmoGeometry class.
  */
 void
-MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
+MimmoGeometry::setHARDCopy(MimmoGeometry * other){
 
     if(other->isEmpty()){
         (*m_log)<<"warning MimmoGeometry::setHARDCopy() : attempt to set hard copy from an empty object.Do nothing"<<std::endl;
@@ -428,9 +417,8 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
     swap(temp);
     
     //hard copy the internal mimmoobject.
-    std::unique_ptr<MimmoObject> dum (new MimmoObject());
-    dum->setHARDCopy(other->getGeometry());
-    m_intgeo = std::move(dum);
+    std::unique_ptr<MimmoObject> obj = other->getGeometry()->clone();
+    m_intgeo = std::move(obj);
     m_isInternal = true;
     m_geometry = NULL;
 }
@@ -442,7 +430,8 @@ MimmoGeometry::setHARDCopy(const MimmoGeometry * other){
  */
 void
 MimmoGeometry::setGeometry(MimmoObject * external){
-
+    if(external == NULL)    return;
+    if(external->isEmpty()) return;
     if(getGeometry() == external) return;
 
     m_intgeo.reset(nullptr);
@@ -648,78 +637,15 @@ MimmoGeometry::write(){
     break;
 
 
-    case FileType::STVTU :
-        //Export Triangulation Surface VTU
+    case FileType::SURFVTU :
+    case FileType::VOLVTU :
+    case FileType::CURVEVTU:
+        //Export Surface/Volume/3DCurve VTU
     {
-        liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        shivector1D pids = getGeometry()->getCompactPID();
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TRIANGLE);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(pids.size() > 0)    vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
-        return true;
-    }
-    break;
-
-    case FileType::SQVTU :
-        //Export Quadrilateral Surface VTU
-    {
-        liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        shivector1D pids = getGeometry()->getCompactPID();
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::QUAD);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
-        return true;
-    }
-    break;
-
-    case FileType::VTVTU :
-        //Export Tetra Volume VTU
-    {
-        liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        shivector1D pids = getGeometry()->getCompactPID();
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::TETRA);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
-        return true;
-    }
-    break;
-
-    case FileType::VHVTU :
-        //Export Hexa Volume VTU
-    {
-        liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        shivector1D pids = getGeometry()->getCompactPID();
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::HEXAHEDRON);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
+        if(!m_codex)    getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::ASCII);
+        else            getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
+        getGeometry()->getPatch()->write(m_winfo.fdir+"/"+m_winfo.fname);
+        getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
         return true;
     }
     break;
@@ -729,15 +655,17 @@ MimmoGeometry::write(){
     {
         liimap mapDataInv;
         dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
+        livector1D   pointsID = getGeometry()->getVertices().getIds(false);
+        livector2D   connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
+        livector1D   elementsID = getGeometry()->getCells().getIds(false);
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
         shivector1D pids = getGeometry()->getCompactPID();
         std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
         if (pids.size() == connectivity.size()){
-            nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity, &pids, &pidsset);
+            nastran.write(m_winfo.fdir,m_winfo.fname,points, pointsID, connectivity,elementsID, &pids, &pidsset);
         }else{
-            nastran.write(m_winfo.fdir,m_winfo.fname,points,connectivity);
+            nastran.write(m_winfo.fdir,m_winfo.fname,points, pointsID, connectivity, elementsID);
         }
         return true;
     }
@@ -756,35 +684,16 @@ MimmoGeometry::write(){
         //Export Point Cloud VTU
     {
         dvecarr3E    points = getGeometry()->getVertexCoords();
-        ivector1D    connectivity(points.size());
+        ivector2D    connectivity(points.size(), ivector1D(1,0));
         int counter = 0;
         for(auto & c:connectivity){
-            c = counter;
+            c[0] = counter;
             counter++;
         }
         bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
         vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
         vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
         vtk.setDimensions(connectivity.size(), points.size());
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
-        return true;
-    }
-    break;
-
-    case FileType::CURVEVTU :
-        //Export 3DCurve in VTU
-    {
-        liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
-        ivector2D    connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        shivector1D pids = getGeometry()->getCompactPID();
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::LINE);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(pids.size() > 0)        vtk.addData("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, pids);
         if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
         else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
         vtk.write() ;
@@ -864,227 +773,59 @@ MimmoGeometry::read(){
     }
     break;
 
-    case FileType::STVTU :
-        //Import Triangulation Surface VTU
+    case FileType::SURFVTU :
+        //Import Surface VTU meshes
     {
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
-        shivector1D pids;
-
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TRIANGLE);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.addData("PID", pids);
-
-        vtk.read() ;
-
-        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 
         setGeometry(1);
+        VTUGridStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        input.read() ;
 
-        int sizeV, sizeC, sizeP;
-        sizeV = Ipoints.size();
-        sizeC = Iconnectivity.size();
-        sizeP = pids.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
-
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-
-        int ccell = 0;
-        for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            if(sizeP == 0){
-                m_intgeo->addConnectedCell(temp, eltype);
-            }else{
-                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-            }
-            ccell++;
-        }
-
-        m_intgeo->cleanGeometry();
+        getGeometry()->resyncPID();
     }
     break;
-
-    case FileType::SQVTU :
-        //Import Quadrilateral Surface VTU
+    
+    case FileType::VOLVTU :
+        //Import Volume VTU meshes
     {
-
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
-        shivector1D pids;
-
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::QUAD);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.addData("PID", pids);
-        vtk.read() ;
-
-        bitpit::ElementType eltype = bitpit::ElementType::QUAD;
-
-        setGeometry(1);
-
-        int sizeV, sizeC, sizeP;
-        sizeV = Ipoints.size();
-        sizeC = Iconnectivity.size();
-        sizeP = pids.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
-
-        int ccell = 0;
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-        for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            if(sizeP == 0){
-                m_intgeo->addConnectedCell(temp, eltype);
-            }else{
-                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-            }
-            ccell++;
-        }
-
-        m_intgeo->cleanGeometry();
-    }
-    break;
-
-    case FileType::VTVTU :
-        //Import Tetra Volume VTU
-    {
-
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-        bool check = infile.good();
-        if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
-        shivector1D pids;
-
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::TETRA);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.addData("PID", pids);
-        vtk.read() ;
-
-        bitpit::ElementType eltype = bitpit::ElementType::TETRA;
-
+        
         setGeometry(2);
-
-        int sizeV, sizeC, sizeP;
-        sizeV = Ipoints.size();
-        sizeC = Iconnectivity.size();
-        sizeP = pids.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
-
-        int ccell = 0;
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-        for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            if(sizeP == 0){
-                m_intgeo->addConnectedCell(temp, eltype);
-            }else{
-                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-            }
-            ccell++;
-        }
-
-
-        m_intgeo->cleanGeometry();
+        VTUGridStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        input.read() ;
+        
+        getGeometry()->resyncPID();
+        
     }
     break;
-
-    case FileType::VHVTU :
-        //Import Hexa Volume VTU
-    {
-
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-        bool check = infile.good();
-        if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
-        shivector1D pids;
-
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::HEXAHEDRON);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.addData("PID", pids);
-        vtk.read() ;
-
-        bitpit::ElementType eltype = bitpit::ElementType::HEXAHEDRON;
-
-        setGeometry(2);
-
-        int sizeV, sizeC, sizeP;
-        sizeV = Ipoints.size();
-        sizeC = Iconnectivity.size();
-        sizeP = pids.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
-
-        int ccell = 0;
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-        for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            if(sizeP == 0){
-                m_intgeo->addConnectedCell(temp, eltype);
-            }else{
-                m_intgeo->addConnectedCell(temp, eltype, pids[ccell]);
-            }
-            ccell++;
-        }
-
-        m_intgeo->cleanGeometry();
-    }
-    break;
-
+    
     case FileType::NAS :
-        //Import Surface NAS
+        //Import Surface NAS 
     {
-
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
         bool check = infile.good();
         if (!check) return false;
         infile.close();
 
         dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
+        livector2D    Iconnectivity ;
+        livector1D    pointsID;
+        livector1D    cellsID;
 
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
 
         shivector1D pids;
-        nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, Iconnectivity, pids );
+        nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, pointsID, Iconnectivity, cellsID, pids );
 
-        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
+        bitpit::ElementType eltype;
 
         setGeometry(1);
 
@@ -1094,20 +835,21 @@ MimmoGeometry::read(){
         m_intgeo->getPatch()->reserveVertices(sizeV);
         m_intgeo->getPatch()->reserveCells(sizeC);
 
-
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        int counter = 0;
+        for(const auto & vv : Ipoints){
+            m_intgeo->addVertex(vv, pointsID[counter]);
+            ++counter;
+        }
+        counter = 0;
         for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            m_intgeo->addConnectedCell(temp, eltype);
-
+            eltype = bitpit::ElementType::UNDEFINED;
+            std::size_t ccsize = cc.size();
+            if(ccsize == 3)  eltype = bitpit::ElementType::TRIANGLE;
+            if(ccsize == 4)  eltype = bitpit::ElementType::QUAD;
+            m_intgeo->addConnectedCell(cc, eltype, cellsID[counter]);
+            ++counter;
         }
         m_intgeo->setPID(pids);
-        m_intgeo->cleanGeometry();
     }
 
     break;
@@ -1141,21 +883,11 @@ MimmoGeometry::read(){
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector1D    Iconnectivity ;
-
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::VERTEX);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.read() ;
-
+        
         setGeometry(3);
-
-        int sizeV;
-        sizeV = Ipoints.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        VTUPointCloudStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        input.read() ;
 
     }
     break;
@@ -1166,39 +898,13 @@ MimmoGeometry::read(){
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-
-        dvecarr3E    Ipoints ;
-        ivector2D    Iconnectivity ;
-        shivector1D pids;
-        bitpit::VTKUnstructuredGrid  vtk(m_rinfo.fdir, m_rinfo.fname, bitpit::VTKElementType::LINE);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, Ipoints) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, Iconnectivity) ;
-        vtk.addData("PID", pids);
-        vtk.read() ;
-
-        bitpit::ElementType eltype = bitpit::ElementType::LINE;
-
+        
         setGeometry(4);
-
-        int sizeV, sizeC;
-        sizeV = Ipoints.size();
-        sizeC = Iconnectivity.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
-
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-        for(const auto & cc : Iconnectivity)    {
-            livector1D temp(cc.size());
-            int counter = 0;
-            for(auto && val : cc){
-                temp[counter] = val;
-                ++counter;
-            }
-            m_intgeo->addConnectedCell(temp, eltype);
-
-        }
-        m_intgeo->setPID(pids);
-        m_intgeo->cleanGeometry();
+        VTUGridStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        input.read() ;
+        
+        getGeometry()->resyncPID();
     }
     break;
 
@@ -1635,7 +1341,7 @@ void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
  * \param[in]       pointI    point label
  * \param[in,out] os        ofstream where the point is written
  */
-void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
+void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::ofstream& os){
     // Fixed short/long formats:
     // 1 GRID
     // 2 ID : point ID - requires starting index of 1
@@ -1651,8 +1357,7 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
     writeKeyword(string("GRID"), os);
     os << separator_;
     os.setf(ios_base::right);
-    int pointI1 = pointI+1;
-    writeValue(pointI1, os);
+    writeValue(pointI, os);
     os << separator_;
     writeValue("", os);
     os << separator_;
@@ -1697,7 +1402,7 @@ void NastranInterface::writeCoord(darray3E& p, int& pointI, std::ofstream& os){
  * \param[in,out] os        ofstream where the face is written
  * \param[in]     PID       part identifier associated to the element
  */
-void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace, ofstream& os,int PID){
+void NastranInterface::writeFace(string faceType, const livector1D& facePts, const long& nFace, ofstream& os,int PID){
     // Only valid surface elements are CTRIA3 and CQUAD4
 
     // Fixed short/long formats:
@@ -1718,7 +1423,6 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
     writeKeyword(faceType, os);
     os << separator_;
     os.setf(ios_base::right);
-    nFace++;
     writeValue(nFace, os);
     os << separator_;
     writeValue(PID, os);
@@ -1765,37 +1469,41 @@ void NastranInterface::writeFace(string faceType, ivector1D& facePts, int& nFace
 /*!
  * Write a face to an ofstream 
  * \param[in]     points     list of vertices
- * \param[in]       faces        element points connectivity
+ * \param[in]     pointsID   list of vertices labels
+ * \param[in]     faces        element points connectivity
+ * \param[in]     facesID   list of element labels
  * \param[in,out] os        ofstream where the geometry is written
  * \param[in]     PIDS      list of Part Identifiers for each cells (optional)
+ * \return true if the geometry is correctly written.
  */
-void NastranInterface::writeGeometry(dvecarr3E& points, ivector2D& faces, ofstream& os, shivector1D* PIDS){
+bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D & facesID,
+                                     ofstream& os, shivector1D* PIDS){
 
-    for (int pointI=0; pointI< (int)points.size(); pointI++)
-    {
-        writeCoord(points[pointI], pointI, os);
-    }
-    int nFace = 0;
+    if(points.size() != pointsID.size())    return false;
+    if(faces.size() != facesID.size())    return false;
     bool flagpid = (PIDS != NULL);
-    for (int faceI=0; faceI< (int)faces.size(); faceI++)
-    {
-        const ivector1D& f = faces[faceI];
+    if(flagpid && (PIDS->size() != faces.size())) return false;
+    int counter =  0;
+    for (const auto & p: points){
+        writeCoord(p, pointsID[counter], os);
+        ++counter;
+    }
+
+    counter = 0;
+    for (const auto & f: faces){
         int PID = 1;
-        if (flagpid) PID = (*PIDS)[faceI];
-        if (f.size() == 3)
-        {
-            writeFace("CTRIA3", faces[faceI], nFace, os, PID);
+        if (flagpid) PID = (*PIDS)[counter];
+        if (f.size() == 3){
+            writeFace("CTRIA3", f, facesID[counter], os, PID);
         }
-        else if (f.size() == 4)
-        {
-            writeFace("CQUAD4", faces[faceI], nFace, os, PID);
-        }
-        else
-        {
-            cout << "Unknown face format" << endl;
-            throw std::runtime_error ("Unknown face format");
+        else if (f.size() == 4){
+            writeFace("CQUAD4", f, facesID[counter], os, PID);
+        }else{
+            throw std::runtime_error ("Error NastranInterface::writeGeometry : unknown face format");
         }
     }
+    
+    return true;
 }
 
 /*!
@@ -1856,17 +1564,23 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDS
  * \param[in] outputDir    output directory
  * \param[in] surfaceName    output filename
  * \param[in] points    reference of a point container that has to be written
+ * \param[in] pointsID  reference of a label point container
  * \param[in] faces     reference to element-point connectivity that has to be written 
+ * \param[in] facesID   reference to a label element container
  * \param[in] PIDS        reference to short int vector for Part Identifiers that need to be associated to elements
  * \param[in] PIDSSET    map of overall available Part Identifiers
  */
-void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
+void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
+                             livector2D& faces, livector1D & facesID, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
 
     ofstream os(outputDir +"/"+surfaceName + ".nas");
     os << "TITLE=mimmo " << surfaceName << " mesh" << nl
             << "$" << nl
             << "BEGIN BULK" << nl;
-    writeGeometry(points, faces, os, PIDS);
+    bool check = writeGeometry(points, pointsID,  faces, facesID, os, PIDS);
+    if(!check){
+        throw std::runtime_error ("Error in NastranInterface::write : geometry mesh cannot be written");
+    }
     writeFooter(os, PIDSSET);
     os << "ENDDATA" << endl;
 }
@@ -1877,23 +1591,26 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
  * \param[in] inputDir    input directory
  * \param[in] surfaceName    input filename
  * \param[out] points    reference of a point container that has to be filled
+ * \param[out] pointsID  reference to a label point container to be filled
  * \param[out] faces     reference to element-point connectivity that has to be filled
+ * \param[out] facesID  reference to a label element container to be filled
  * \param[out] PIDS        reference to short int vector for Part Identifier storage
  */
-void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS){
+void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
+                            livector2D& faces, livector1D & facesID, shivector1D& PIDS){
 
     ifstream is(inputDir +"/"+surfaceName + ".nas");
 
     points.clear();
+    pointsID.clear();
     faces.clear();
+    facesID.clear();
     PIDS.clear();
 
-    int ipoint = 0;
-    int iface  = 0;
+    long ipoint = 0;
+    long iface  = 0;
     darray3E point;
-    ivector1D face(3);
-    map<int,int> mapnodes;
-    int id;
+    livector1D face;
     int pid;
     string sread;
     string ssub = trim(sread.substr(0,8));
@@ -1903,6 +1620,8 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
                 ssub != "GRID*" &&
                 ssub != "CTRIA3" &&
                 ssub != "CTRIA3*" &&
+                ssub != "CQUAD4" &&
+                ssub != "CQUAD4*" &&
                 !is.eof()){
 
             getline(is,sread);
@@ -1910,50 +1629,79 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
 
         }
         if(ssub == "GRID"){
-            id = stoi(sread.substr(8,8));
-            mapnodes[id] = ipoint;
+            ipoint = stoi(sread.substr(8,8));
             point[0] = stod(convertVertex(trim(sread.substr(24,8))));
             point[1] = stod(convertVertex(trim(sread.substr(32,8))));
             point[2] = stod(convertVertex(trim(sread.substr(40,8))));
             points.push_back(point);
-            ipoint++;
+            pointsID.push_back(ipoint);
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "GRID*"){
-            id = stoi(sread.substr(16,16));
-            mapnodes[id] = ipoint;
+            ipoint = stoi(sread.substr(16,16));
             point[0] = stod(convertVertex(trim(sread.substr(48,16))));
             point[1] = stod(convertVertex(trim(sread.substr(64,16))));
             point[2] = stod(convertVertex(trim(sread.substr(80,16))));
             points.push_back(point);
-            ipoint++;
+            pointsID.push_back(ipoint);
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CTRIA3"){
-            pid = stoi(sread.substr(16,8));
-            face[0] = mapnodes[stoi(sread.substr(24,8))];
-            face[1] = mapnodes[stoi(sread.substr(32,8))];
-            face[2] = mapnodes[stoi(sread.substr(40,8))];
+            face.resize(3);
+            iface = stoi(sread.substr(8,8));
+            pid   = stoi(sread.substr(16,8));
+            face[0] = stoi(sread.substr(24,8));
+            face[1] = stoi(sread.substr(32,8));
+            face[2] = stoi(sread.substr(40,8));
             faces.push_back(face);
+            facesID.push_back(iface);
             PIDS.push_back(pid);
-            iface++;
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CTRIA3*"){
-            pid = stoi(sread.substr(32,16));
-            face[0] = mapnodes[stoi(sread.substr(48,16))];
-            face[1] = mapnodes[stoi(sread.substr(64,16))];
-            face[2] = mapnodes[stoi(sread.substr(80,16))];
+            face.resize(3);
+            iface = stoi(sread.substr(16,16));
+            pid   = stoi(sread.substr(32,16));
+            face[0] = stoi(sread.substr(48,16));
+            face[1] = stoi(sread.substr(64,16));
+            face[2] = stoi(sread.substr(80,16));
             faces.push_back(face);
+            facesID.push_back(iface);
             PIDS.push_back((short)pid);
-            iface++;
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
-
+        else if(ssub == "CQUAD4"){
+            face.resize(4);
+            iface = stoi(sread.substr(8,8));
+            pid = stoi(sread.substr(16,8));
+            face[0] = stoi(sread.substr(24,8));
+            face[1] = stoi(sread.substr(32,8));
+            face[2] = stoi(sread.substr(40,8));
+            face[3] = stoi(sread.substr(48,8));
+            faces.push_back(face);
+            facesID.push_back(iface);
+            PIDS.push_back(pid);
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
+        else if(ssub == "CQUAD4*"){
+            face.resize(3);
+            iface = stoi(sread.substr(16,16));
+            pid = stoi(sread.substr(32,16));
+            face[0] = stoi(sread.substr(48,16));
+            face[1] = stoi(sread.substr(64,16));
+            face[2] = stoi(sread.substr(80,16));
+            face[3] = stoi(sread.substr(96,16));
+            faces.push_back(face);
+            facesID.push_back(iface);
+            PIDS.push_back((short)pid);
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
     }
     is.close();
 }

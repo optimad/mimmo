@@ -28,7 +28,7 @@
 #include "MimmoNamespace.hpp"
 #include "enum.hpp"
 
-BETTER_ENUM(FileType, int, STL = 0, STVTU = 1, SQVTU = 2, VTVTU = 3, VHVTU = 4, NAS = 5, OFP = 6, PCVTU = 7, CURVEVTU = 8, MIMMO = 99);
+BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
 BETTER_ENUM(IOMode, int, READ = 0, WRITE = 1, CONVERT = 2);
 
 namespace mimmo{
@@ -68,14 +68,12 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * It uses smart enums FileType list of available geometry formats, which are:
  * 
  * - <B>STL     = 0</B>    Ascii/Binary triangulation stl.
- * - <B>STVTU     = 1</B> Surface triangulation vtu.
- * - <B>SQVTU     = 2</B> Surface quadrilateral vtu.
- * - <B>VTVTU     = 3</B> Volume tetrahedral VTU.
- * - <B>VHVTU     = 4</B> Volume hexahedral VTU.
- * - <B>NAS     = 5</B> Nastran triangulation nas.
- * - <B>OFP     = 6</B> Ascii OpenFoam point cloud.
- * - <B>PCVTU   = 7</B> Point Cloud VTU
- * - <B>CURVEVTU= 8</B> 3D Curve in VTU
+ * - <B>SURFVTU = 1</B> Surface mesh vtu, of any 2D bitpit::ElementType.
+ * - <B>VOLVTU  = 2</B> Volume mesh VTU, of any 3D bitpit::ElementType.
+ * - <B>NAS     = 3</B> Nastran surface triangular/quad surface meshes.
+ * - <B>OFP     = 4</B> Ascii OpenFoam point cloud.
+ * - <B>PCVTU   = 5</B> Point Cloud VTU, of only VERTEX elements
+ * - <B>CURVEVTU= 6</B> 3D Curve in VTU, of only LINE elements
  * - <B>MIMMO   = 99</B> mimmo dump/restore format *.geomimmo
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
@@ -180,7 +178,7 @@ public:
     void        setCodex(bool binary = true);
     void        setMultiSolidSTL(bool multi = true);
     
-    void        setHARDCopy( const MimmoGeometry * other);
+    BITPIT_DEPRECATED(void        setHARDCopy( MimmoGeometry * other));
    
     void        setGeometry( MimmoObject * external);
     void        setGeometry(int type=1);
@@ -240,12 +238,12 @@ public:
 
     void setWFormat(WFORMAT);
     void writeKeyword(std::string key, std::ofstream& os);
-    void writeCoord(darray3E & p, int& pointI, std::ofstream& os);
-    void writeFace(std::string faceType, ivector1D& facePts, int& nFace, std::ofstream& os, int PID);
-    void writeGeometry(dvecarr3E& points, ivector2D& faces, std::ofstream& os, shivector1D* PIDS = NULL);
+    void writeCoord(const darray3E & p, const long& pointI, std::ofstream& os);
+    void writeFace(std::string faceType, const livector1D& facePts, const long& nFace, std::ofstream& os, int PID);
+    bool writeGeometry(dvecarr3E &points,livector1D &pointsID, livector2D &faces, livector1D &facesID, std::ofstream &os, shivector1D *PIDS = NULL);
     void writeFooter(std::ofstream& os, std::unordered_set<short>* PIDSSET = NULL);
-    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D* PIDS = NULL, std::unordered_set<short>* PIDSSET = NULL);
-    void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, ivector2D& faces, shivector1D& PIDS);
+    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, shivector1D* PIDS = NULL, std::unordered_set<short>* PIDSSET = NULL);
+    void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, shivector1D& PIDS);
 
     std::string trim(std::string in);
     std::string convertVertex(std::string in);
