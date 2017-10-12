@@ -32,6 +32,106 @@ using namespace bitpit;
 namespace mimmo{
 
 /*!
+ * MimmoSurfUnstructured default constructor
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured():bitpit::SurfUnstructured(){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines) 
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
+                       bitpit::SurfUnstructured(int(patch_dim),int(3)){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines) 
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(const int & id, int patch_dim):
+                       bitpit::SurfUnstructured(id, int(patch_dim), int(3)){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] stream input stream where reading from
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
+                       bitpit::SurfUnstructured(stream){}
+
+
+/*!
+ * Basic Destructor
+ */
+MimmoSurfUnstructured::~MimmoSurfUnstructured(){}
+
+/*!
+ * Cloning a MimmoSurfUnstructured in an independent object of base type 
+ * bitpit::PatchKernel
+ */
+std::unique_ptr<bitpit::PatchKernel>
+MimmoSurfUnstructured::clone() const{
+    return std::unique_ptr<MimmoSurfUnstructured>(new MimmoSurfUnstructured(*this));
+}
+
+/*!
+ * MimmoVolUnstructured default constructor
+ * \param[in] dimension dimensionality of elements (3D - tetrahedra/hexahedra ..., 2D-triangles/quads/polygons)
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(const int& dimension):
+bitpit::VolUnstructured(dimension){}
+
+/*!
+ * MimmoVolUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] dimension dimensionality of elements (3D - tetrahedra/hexahedra ..., 2D-triangles/quads/polygons)
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(const int & id, const int & dimension):
+bitpit::VolUnstructured(id, dimension){}
+
+/*!
+ * Basic Destructor
+ */
+MimmoVolUnstructured::~MimmoVolUnstructured(){}
+
+/*!
+ * Cloning a MimmoVolUnstructured in an independent object of base type 
+ * bitpit::PatchKernel
+ */
+std::unique_ptr<bitpit::PatchKernel>
+MimmoVolUnstructured::clone() const{
+    return std::unique_ptr<MimmoVolUnstructured>(new MimmoVolUnstructured(*this));
+}
+
+/*!
+ * MimmoPointCloud basic constructor
+ */
+MimmoPointCloud::MimmoPointCloud():
+bitpit::SurfUnstructured(int(2),int(3)){}
+
+/*!
+ * MimmoPointCloud custom constructor
+ * \param[in] id custom identification label of the mesh
+ */
+MimmoPointCloud::MimmoPointCloud(const int & id):
+bitpit::SurfUnstructured(id, int(2), int(3)){}
+
+/*!
+ * Basic Destructor
+ */
+MimmoPointCloud::~MimmoPointCloud(){}
+
+/*!
+ * Cloning a MimmoPointCloud in an independent object of base type 
+ * bitpit::PatchKernel
+ */
+std::unique_ptr<bitpit::PatchKernel>
+MimmoPointCloud::clone() const{
+    return std::unique_ptr<MimmoPointCloud>(new MimmoPointCloud(*this));
+}
+
+
+
+/*!
  * Default constructor of MimmoObject.
  * It requires a int flag identifying the type of mesh meant to be created:
  *  - surface unstructured mesh = 1
@@ -51,21 +151,21 @@ MimmoObject::MimmoObject(int type){
     }
     switch(m_type){
         case 1:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -127,21 +227,21 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
     switch(m_type){
         case 1:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -219,7 +319,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(geometry))));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
@@ -285,7 +385,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_extpatch))));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_extpatch))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
@@ -1137,21 +1237,21 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
     
     switch(m_type){
         case 1:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -1673,21 +1773,21 @@ void MimmoObject::reset(int type){
 
     switch(m_type){
         case 1:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new VolUnstructured(3)));
-            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolUnstructured*>(m_patch.get()))));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 3:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(2,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
-            m_patch = std::move(std::unique_ptr<PatchKernel>(new SurfUnstructured(1,3)));
+            m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;

@@ -40,6 +40,60 @@ namespace mimmo{
  */
 
 /*!
+ * \class MimmoSurfUnstructured
+ * \brief Custom derivation of bitpit::SurfUnstructured class
+ */
+class MimmoSurfUnstructured: public bitpit::SurfUnstructured{
+public:
+    // Constructors
+    MimmoSurfUnstructured();
+    MimmoSurfUnstructured(int patch_dim);
+    MimmoSurfUnstructured(const int &id, int patch_dim);
+    MimmoSurfUnstructured(std::istream &stream);
+    virtual ~MimmoSurfUnstructured();
+    // Clone
+    std::unique_ptr<bitpit::PatchKernel> clone() const;
+
+protected:
+    MimmoSurfUnstructured(const MimmoSurfUnstructured &) = default;
+};
+
+/*!
+ * \class MimmoVolUnstructured
+ * \brief Custom derivation of bitpit::VolUnstructured class
+ */
+class MimmoVolUnstructured: public bitpit::VolUnstructured{
+public:
+    // Constructors
+    MimmoVolUnstructured(const int& dimension);
+    MimmoVolUnstructured(const int &id, const int& dimension);
+    virtual ~MimmoVolUnstructured();
+    // Clone
+    std::unique_ptr<bitpit::PatchKernel> clone() const;
+    
+protected:
+    MimmoVolUnstructured(const MimmoVolUnstructured &) = default;
+};
+
+/*!
+ * \class MimmoPointCloud
+ * \brief Custom derivation of bitpit::SurfUnstructured class, for Point Cloud handling only
+ */
+class MimmoPointCloud: public bitpit::SurfUnstructured{
+public:
+    // Constructors
+    MimmoPointCloud();
+    MimmoPointCloud(const int &id);
+    virtual ~MimmoPointCloud();
+    // Clone
+    std::unique_ptr<bitpit::PatchKernel> clone() const;
+    
+protected:
+    MimmoPointCloud(const MimmoPointCloud &) = default;
+};
+
+
+/*!
 * \class MimmoObject
 * \brief MimmoObject is the basic geometry container for mimmo library
 *
