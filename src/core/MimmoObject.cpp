@@ -1221,6 +1221,19 @@ MimmoObject::setPIDCell(long id, short pid){
 };
 
 /*!
+ * Update class member map m_pidsType with PIDs effectively contained 
+ * in the internal/linked geometry patch.
+ */
+void
+MimmoObject::resyncPID(){
+    m_pidsType.clear();
+    for(auto const & cell : getCells()){
+        m_pidsType.insert( (short)cell.getPID() );
+    }
+};
+
+
+/*!
  * Set your current class as a "hard" copy of another MimmoObject.
  * All preexistent data are destroyed and replaced by those provided by the argument, except for search Trees,
  * which are instantiated, but not filled/built/synchronized.

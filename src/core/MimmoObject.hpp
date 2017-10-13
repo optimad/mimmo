@@ -183,6 +183,7 @@ public:
     void        setPID(shivector1D ); 
     void        setPID(std::unordered_map<long, short>  ); 
     void        setPIDCell(long, short);
+    void        resyncPID();
 
     BITPIT_DEPRECATED(void        setHARDCopy(const MimmoObject * other));
     std::unique_ptr<MimmoObject>        clone();
