@@ -395,7 +395,6 @@ IOOFOAM::read(){
         check = readVTK(m_rdirS[iPID], m_rfilenameS[iPID], iPID, patchBnd.get());
         if (!check) return check;
     }
-    auto convMap = patchBnd->getMapDataInv();
     if (m_normalize && m_maxf > 0.0){
         for (const auto & vertex : patchBnd->getVertices()){
             m_field[vertex.getId()] /= m_maxf;
