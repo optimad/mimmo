@@ -32,11 +32,13 @@ namespace mimmo{
 /*!
  *  \class    CGNSPidExtractor
  *  \ingroup iocgns
- *  \brief CGNSPidExtractor is the class to extract a with pid (or pids) from
- *   a surface boundary mesh read form cgns file.
+ *  \brief CGNSPidExtractor is the class to extract a 3D surface by means of PIDs from
+ *   a whole surface boundary of a volume mesh read from cgns file.
  *
  * The object return the patch with a target pid (or pids) as an independent surface mesh.
- * It triangulates the patch if required (currently only for elements of type QUAD).
+ * It homogeneously triangulates the patch if required.
+ * Please notice if the extracted sub-patch is forced to be triangulated, 
+ * no link with the mother boundary surface mesh could be guaranteed anymore.
  *
  * Ports available in CGNSPidExtractor Class :
  *

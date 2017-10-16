@@ -712,6 +712,8 @@ IOCGNS::read(){
 
     //adding vstand alone vertices to boundary patches and release all structures
     {
+        //this is not the best way to get this. In case of polygonal meshes it does not work.
+        //Anyway CGNS does not support polygons for now. So be it.
         livector2D tempConn;
         tempConn = patchBnd->getConnectivity();
         std::set<long> ordIndex;

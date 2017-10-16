@@ -205,9 +205,15 @@ CGNSPidExtractor::execute(){
     MimmoObject * mother = getGeometry();
 
     if(extracted.empty()){
-        patchTemp->setHARDCopy(getGeometry());
-
+        patchTemp = mother->clone();
     }else{
+
+        livector1D vertExtracted = mother->getVertexFromCellList(extracted);
+        darray3E temp;
+        for(const auto & val: vertExtracted){
+            temp = mother->getVertexCoords(val);
+            patchTemp->addVertex(temp, val);
+        }
 
         int count = 0;
         for(const auto &val: extracted){
@@ -216,23 +222,6 @@ CGNSPidExtractor::execute(){
             bitpit::ElementType eletype = mother->getPatch()->getCell(val).getType();
             patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
             count++;
-        }
-
-        {
-            darray3E temp;
-            livector2D tempConn = patchTemp->getConnectivity();
-            std::map<long,long> ordIndex;
-
-            for(const auto & val2: tempConn){
-                for (const auto val22 : val2){
-                    ordIndex[val22] = val22;
-                }
-            }
-
-            for(const auto & val3: ordIndex){
-                temp = mother->getVertexCoords(val3.second);
-                patchTemp->addVertex(temp,val3.second);
-            }
         }
 
     }
@@ -247,34 +236,31 @@ CGNSPidExtractor::execute(){
         newID = maxID+1;
         bitpit::ElementType eletype;
         bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
-
+        livector1D connTriangle(3);
         for(const auto &idcell : orderedCellID){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
             eletype = mother->getPatch()->getCell(idcell).getType();
-
-            if(eletype == bitpit::ElementType::QUAD){
-                //create new triangle connectivity
-                livector1D conn1(3), conn2(3);
-                conn1[0] = conn[0];
-                conn1[1] = conn[1];
-                conn1[2] = conn[2];
-
-                conn2[0] = conn[0];
-                conn2[1] = conn[2];
-                conn2[2] = conn[3];
-
-                short pid = patchTemp->getPatch()->getCell(idcell).getPID();
+            short pid = patchTemp->getPatch()->getCell(idcell).getPID();
+            
+            if(eletype != bitpit::ElementType::TRIANGLE){
+                std::size_t startIndex = 0;
+                if(eletype == bitpit::ElementType::POLYGON) startIndex = 1;
+                std::size_t nnewTri = conn.size() - startIndex - 2;
+                
                 patchTemp->getPatch()->deleteCell(idcell);
-                patchTemp->addConnectedCell(conn1, eletri, pid, idcell);
-                patchTemp->addConnectedCell(conn2, eletri, pid, newID);
-                ++newID;
+                
+                for(std::size_t i=0; i<nnewTri; ++i){
+                    connTriangle[0] = conn[startIndex];
+                    connTriangle[1] = conn[startIndex+i+1];
+                    connTriangle[2] = conn[startIndex+i+2];
+                    patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
+                    ++newID;
+                }
             }
         }
     }
-
     m_patch = std::move(patchTemp);
-    mother=NULL;
 };
 
 

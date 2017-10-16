@@ -122,8 +122,6 @@ public:
  *
  * The class is in beta version and has the following limitations:
  * - When imported, a Volume mesh will be absorbed as Point Cloud MimmoObject;
- * - When imported boundary surface meshes will be absorbed as surface triangulations, even if the original
- *  CGNS allows mixed element types.
  * - Only unstructured mesh with single base and single zone supported.
  *
  * Dependencies : cgns libraries.
