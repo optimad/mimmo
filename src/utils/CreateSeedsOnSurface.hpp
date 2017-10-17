@@ -117,7 +117,8 @@ private:
     //utility members
     std::unique_ptr<mimmo::OBBox> bbox;        /**<pointer to an oriented Bounding box */
     livector1D m_deads; /**< inactive ids */
-
+    dmpvector1D m_sensitivity_triangulated; /**! internal member, adjust point-field if re-triangulation occurs*/
+    
 public:
 
     CreateSeedsOnSurface();
@@ -163,6 +164,9 @@ protected:
     void swap(CreateSeedsOnSurface & x) noexcept;
     void    checkField();
     void    normalizeField();
+    bool    checkTriangulation();
+    std::unique_ptr<MimmoObject> triangulate();
+    
 private:
 
     void    solveLSet( bool debug = false);
@@ -171,12 +175,12 @@ private:
 
     dvecarr3E decimatePoints(dvecarr3E &);
 
-    void solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dmpvector1D & field);
-    double updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dmpvector1D & field);
+    void solveEikonal(double g, double s, bitpit::PatchKernel &tri,std::unordered_map<long,long> & invConn, dmpvector1D & field);
+    double updateEikonal(double g, double s, long tVert,long tCell,bitpit::PatchKernel &tri, std::unordered_map<long int, short int> &flag, dmpvector1D & field);
 
-    std::unordered_map<long,long>    getInverseConn();
+    std::unordered_map<long,long>    getInverseConn(bitpit::PatchKernel &);
     bool            isDeadFront(const long int label);
-    std::set<long>    findVertexVertexOneRing(const long &, const long & );
+    std::set<long>    findVertexVertexOneRing(bitpit::PatchKernel &, const long &, const long & );
     
     double interpolateSensitivity(darray3E & point);
 };

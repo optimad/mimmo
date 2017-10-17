@@ -407,11 +407,23 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     dvecarr3E initList;
     m_deads.reserve(m_nPoints);
 
-    if(!getGeometry()->areAdjacenciesBuilt() ) getGeometry()->buildAdjacencies();
-    //find the nearest point of triagulation to the seed
-    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
+    //understand if the class is a pure triangulation or not
+    std::unique_ptr<MimmoObject> objTriangulated;
+    MimmoObject * workgeo;
+    dmpvector1D worksensitivity;
+    if(!checkTriangulation()){
+        objTriangulated = std::move(triangulate());
+        workgeo = objTriangulated.get();
+        worksensitivity = m_sensitivity;
+    }else{
+        workgeo   = getGeometry();
+        worksensitivity = m_sensitivity_triangulated;
+    }
 
-    bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(getGeometry()->getPatch());
+    if(!(workgeo->areAdjacenciesBuilt()) ) workgeo->buildAdjacencies();
+    if(!(workgeo->isSkdTreeSync())) workgeo->buildSkdTree();
+    if(!(workgeo->isKdTreeSync())) workgeo->buildKdTree();
+    bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(workgeo->getPatch());
 
     double distance = 0.0;
     for(const auto &cell : tri->getCells()){
@@ -421,11 +433,12 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     distance = std::pow(distance, 0.5);
 
     livector1D neighs, excl;
-    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
+    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, workgeo->getSkdTree());
     bitpit::Vertex vertSeed(0, projSeed);
+    //find the vertex of the mesh nearest to projSeed.
     int nSize = 0;
     while( nSize < 1){
-        getGeometry()->getKdTree()->hNeighbors(&vertSeed, distance, &neighs, & excl );
+        workgeo->getKdTree()->hNeighbors(&vertSeed, distance, &neighs, & excl );
         nSize = neighs.size();
         distance *= 1.1;
     }
@@ -444,7 +457,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     int deadSize = m_deads.size();
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
 
-    std::unordered_map<long,long> invConn = getInverseConn();
+    std::unordered_map<long,long> invConn = getInverseConn(*(workgeo->getPatch()));
     if(debug)    (*m_log)<<m_name<<" : created geometry inverse connectivity"<<std::endl;
 
     while(deadSize < m_nPoints){
@@ -455,11 +468,11 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         }
         for(const auto & dd : m_deads)    field[dd] = 0.0;
 
-        solveEikonal(1.0,1.0, invConn, field);
+        solveEikonal(1.0,1.0, *(workgeo->getPatch()), invConn, field);
 
-        //modulate field with sensitivity field
-        auto itSE=m_sensitivity.end();
-        for(auto itSX =m_sensitivity.begin(); itSX != itSE; ++itSX){
+        //modulate field with current working sensitivity field
+        auto itSE=worksensitivity.end();
+        for(auto itSX =worksensitivity.begin(); itSX != itSE; ++itSX){
             field[itSX.getId()] *= *itSX;
         }
         
@@ -844,22 +857,19 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
  * Update m_sdf distance field on a target node of a superficial tessellation solving 
  * the Eikonal equation |grad(u)| = g, using  a fast marching method. Tessellation must be
  * mandatorily a triangular one. 
- * \param[in] g            propagation speed of the Eikonal equation
- * \param[in] s            flag for inwards/outwards propagation (s = -+1)
+ * \param[in] g       propagation speed of the Eikonal equation
+ * \param[in] s       flag for inwards/outwards propagation (s = -+1)
  * \param[in] tVert   id of the target node in bitpit::PatchKernel indexing
  * \param[in] tCell   id of the cell which the Itarget belongs to in bitpit::PatchKernel indexing
- * \param[in] flag         flag vector reporting eikonal front advancing status on nodes. Using dead(= 0), alive(= 1),and far away(= 2) identifiers.
- * @param[in] field     reference distance field 
+ * \param[in] tri     reference to target triangulated surface.
+ * \param[in] flag    flag vector reporting eikonal front advancing status on nodes. Using dead(= 0), alive(= 1),and far away(= 2) identifiers.
+ * @param[in] field   reference distance field 
  * \return    updated value of the m_sdf distance field on the target node.
  */
 double
-CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, std::unordered_map<long int, short int> &flag, dmpvector1D & field){
+CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, bitpit::PatchKernel &tri, std::unordered_map<long int, short int> &flag, dmpvector1D & field){
 
     BITPIT_UNUSED(s);
-    //get the pointer to reference geometry
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
-
-    //todo get dimension? of Simplex. Get a check for non triangular cell or generalize it
 
     livector1D                oneRing;
     long                    I, U, V, W;
@@ -886,10 +896,10 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
 
     {
         // find 1-Ring cells around target node
-        bitpit::Cell & targetCell = tri->getCell(tCell);
+        bitpit::Cell & targetCell = tri.getCell(tCell);
         int locVert = targetCell.findVertex(tVert);
         if(locVert == bitpit::Vertex::NULL_ID) return value;
-        oneRing = tri->findCellVertexOneRing(tCell, locVert);
+        oneRing = tri.findCellVertexOneRing(tCell, locVert);
     }
 
     // Loop over cells in the 1-Ring --------------------------------------------------- //
@@ -897,7 +907,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
 
         // Cell data get id of vertex composing triangular cell
         I = oneIndex;
-        bitpit::Cell & cellI = tri->getCell(I);
+        bitpit::Cell & cellI = tri.getCell(I);
         long * connCellI = cellI.getConnect();
         k = cellI.findVertex(V);
         k = (k + 1) % cellI.getVertexCount();
@@ -925,20 +935,20 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
         switch (select){
 
         case 1 : //  with 1 dead node
-            eVU = tri->getVertexCoords(V) - tri->getVertexCoords(U);
+            eVU = tri.getVertexCoords(V) - tri.getVertexCoords(U);
             dVU = norm2(eVU);
             value = std::min(value, std::abs(field[U]) + g*dVU); ///??????????????????????????????????????????
             break;
 
         case 2 : // with 2 dead nodes
 
-            eVW = tri->getVertexCoords(V) - tri->getVertexCoords(W);
+            eVW = tri.getVertexCoords(V) - tri.getVertexCoords(W);
             dVW = norm2(eVW);
             eVW = eVW/dVW;
-            eVU = tri->getVertexCoords(V) - tri->getVertexCoords(U);
+            eVU = tri.getVertexCoords(V) - tri.getVertexCoords(U);
             dVU = norm2(eVU);
             eVU = eVU/dVU;
-            eWU = tri->getVertexCoords(W) - tri->getVertexCoords(U);
+            eWU = tri.getVertexCoords(W) - tri.getVertexCoords(U);
             dWU = norm2(eWU);
             eWU = eWU/dWU;
 
@@ -969,16 +979,16 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
                 xi2 = std::min(1.0, std::max(0.0, xi2));
 
                 // Solution #1
-                P = (1.0 - xi1) * tri->getVertexCoords(U)  +  xi1 * tri->getVertexCoords(W);
-                eVP = tri->getVertexCoords(V) - P;
+                P = (1.0 - xi1) * tri.getVertexCoords(U)  +  xi1 * tri.getVertexCoords(W);
+                eVP = tri.getVertexCoords(V) - P;
                 dVP = norm2(eVP);
                 eVP = eVP/dVP;
                 phi_P = (1.0 - xi1) * phi_U + xi1 * phi_W;
                 tempVal1 = phi_P + g * dVP;
 
                 // Solution #2
-                P = (1.0 - xi2) * tri->getVertexCoords(U)  +  xi2 * tri->getVertexCoords(W);
-                eVP = tri->getVertexCoords(V) - P;
+                P = (1.0 - xi2) * tri.getVertexCoords(U)  +  xi2 * tri.getVertexCoords(W);
+                eVP = tri.getVertexCoords(V) - P;
                 dVP = norm2(eVP);
                 eVP = eVP/dVP;
                 phi_P = (1.0 - xi2) * phi_U + xi2 * phi_W;
@@ -990,16 +1000,16 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
                 discr = std::abs(discr);
 
                 // Solution #1
-                P = tri->getVertexCoords(U);
-                eVP = tri->getVertexCoords(V) - P;
+                P = tri.getVertexCoords(U);
+                eVP = tri.getVertexCoords(V) - P;
                 dVP = norm2(eVP);
                 eVP = eVP/dVP;
                 phi_P = phi_U;
                 tempVal1 = phi_P + g*dVP;
 
                 // Solution #2
-                P = tri->getVertexCoords(W);
-                eVP = tri->getVertexCoords(V) - P;
+                P = tri.getVertexCoords(W);
+                eVP = tri.getVertexCoords(V) - P;
                 dVP = norm2(eVP);
                 eVP = eVP/dVP;
                 phi_P = phi_W;
@@ -1023,8 +1033,6 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
 
     } //loop on oneRing
 
-    tri = NULL;
-
     return(value);
 }; 
 
@@ -1035,23 +1043,24 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, s
  *  Dead vertices of front to be propagated must be set to zero, initially)
  * \param[in] g Propagation speed.
  * \param[in] s Velocity sign (+1 --> propagate outwards, -1 --> propagate inwards).
- * \param[in] invConn inverse connectivity of yout current geometry
+ * \param[in] tri reference to target triangulated surface.
+ * \param[in] invConn inverse connectivity of target triangulated surface
  * \param[in,out] field field to be computed, already allocated.
  */
 void
-CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,long> & invConn, dmpvector1D & field ){
-    //recover bitpit::PatchKernel
-
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
-    liimap vmap;
-    {
-        dvecarr3E points = getGeometry()->getVertexCoords(&vmap);
-    }
-
+CreateSeedsOnSurface::solveEikonal(double g, double s,bitpit::PatchKernel &tri, std::unordered_map<long,long> & invConn, dmpvector1D & field ){
+    
     // declare total size and support structure
-    long     N(tri->getVertexCount());
+    long     N(tri.getVertexCount());
     std::unordered_map<long int, short int> active;
 
+    std::unordered_map<long, int> vmap;
+    int countV = 0;
+    for(const auto & vert: tri.getVertices()){
+        vmap[vert.getId()] = countV;
+        ++countV;
+    }
+    
     { //FLAG DEAD/ALIVE/FAR-AWAY VERTICES
 
         long myId;
@@ -1061,13 +1070,13 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
 
         //set active vector size and mark its position  with original geometry ids
         active.reserve(N);
-        for ( const auto &vertex : tri->getVertices() ){
+        for ( const auto &vertex : tri.getVertices() ){
             myId           = vertex.getId() ;
             active[myId] = 2 ;
         }
 
         //fill active vector
-        for ( const auto &vertex : tri->getVertices() ){
+        for ( const auto &vertex : tri.getVertices() ){
             myId     =    vertex.getId();
 
             // Dead vertices
@@ -1078,7 +1087,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
 
                 //loop over neighbors
                 check = false;
-                neighs = findVertexVertexOneRing(invConn[myId], myId);
+                neighs = findVertexVertexOneRing(tri,invConn[myId], myId);
                 it = neighs.begin();
                 itend = neighs.end();
                 while(!check && it !=itend){
@@ -1106,12 +1115,12 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
 
         // Inserting alive vertices in  the heap
 
-        for(const auto & vertex : tri->getVertices()){
+        for(const auto & vertex : tri.getVertices()){
 
             myId = vertex.getId();
             if(active[myId] == 1) {
                 //assign a value to your actual vertex
-                value = updateEikonal(s, g, myId, invConn[myId], active, field);
+                value = updateEikonal(s, g, myId, invConn[myId], tri, active, field);
 
                 //store it into heap
                 map[m][0] = vmap[myId];
@@ -1145,7 +1154,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
             active[myId] = 0;
 
             //update neighbours
-            neighs = findVertexVertexOneRing(invConn[myId], myId);
+            neighs = findVertexVertexOneRing(tri, invConn[myId], myId);
             itbeg = neighs.begin();
             itend = neighs.end();
 
@@ -1155,7 +1164,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
                 if(active[J] == 1){
 
                     //update local value;
-                    value = updateEikonal(s,g,J,invConn[J],active, field);
+                    value = updateEikonal(s,g,J,invConn[J], tri, active, field);
 
                     //update its value in the min-heap
                     I = vmap[J];
@@ -1164,7 +1173,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
                 }else if( active[J] == 2){
 
                     //update local value;
-                    value = updateEikonal(s,g,J,invConn[J],active, field);
+                    value = updateEikonal(s,g,J, invConn[J],tri, active, field);
 
                     //reflag vertex as alive vertex
                     active[J] = 1;
@@ -1179,8 +1188,6 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
             }
         }//end while
     };
-
-    tri = NULL;
 };
 
 /*!
@@ -1189,27 +1196,20 @@ CreateSeedsOnSurface::solveEikonal(double g, double s, std::unordered_map<long,l
  * (passed by Id) which it belongs. This is returned in an unordered_map having as key the 
  * vertex Id and as value the Cell id. Id is meant as the unique label identifier associated
  * to bitpit::PatchKernel original geometry
+ * \param[in] geo reference to target surface geometry
  *\return    unordered_map of vertex ids (key) vs cell-belonging-to ids(value)
  */
 std::unordered_map<long,long>
-CreateSeedsOnSurface::getInverseConn(){
+CreateSeedsOnSurface::getInverseConn(bitpit::PatchKernel & geo){
 
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
     std::unordered_map<long,long> invConn ;
 
     long cellId;
-    const long * locConn;
-    int sizeConn, counter;
-
-    for(const auto &cell : tri->getCells()){
+    for(const auto &cell : geo.getCells()){
         cellId = cell.getId();
-        sizeConn = cell.getVertexCount();
-        locConn = cell.getConnect();
-        for(counter=0; counter<sizeConn; ++counter) invConn[locConn[counter]] = cellId;
+        auto vList = cell.getVertexIds();
+        for(const auto & idV : vList) invConn[idV] = cellId;
     }
-
-    locConn  = NULL;
-    tri = NULL;
 
     return(invConn);
 };
@@ -1228,34 +1228,32 @@ bool CreateSeedsOnSurface::isDeadFront(const long int label){
 
 /*!
  * Return VertexVertex One Ring of a specified target vertex
+ * \param[in]    geo        target surface geometry
  * \param[in]    cellId     bitpit::PatchKernel Id of a cell which target belongs to
  * \param[in]    vertexId    bitpit::PatchKernel Id of the target vertex
  * \return        list of all vertex in the One Ring of the target, by their bitpit::PatchKernel Ids
  */
 std::set<long>
-CreateSeedsOnSurface::findVertexVertexOneRing(const long & cellId, const long & vertexId){
+CreateSeedsOnSurface::findVertexVertexOneRing(bitpit::PatchKernel &geo, const long & cellId, const long & vertexId){
 
     std::set<long> result;
-    bitpit::PatchKernel * tri = getGeometry()->getPatch();
-    bitpit::Cell &cell =  tri->getCell(cellId);
+    bitpit::Cell &cell =  geo.getCell(cellId);
 
     int loc_target = cell.findVertex(vertexId);
-    if(loc_target ==bitpit::Vertex::NULL_ID) return result;
+    if(loc_target == bitpit::Vertex::NULL_ID) return result;
 
-    livector1D list = tri->findCellVertexOneRing(cellId, loc_target);
+    livector1D list = geo.findCellVertexOneRing(cellId, loc_target);
 
     long connSize;
-    for(auto && index : list){
-        bitpit::Cell & cell = tri->getCell(index);
-        connSize = cell.getVertexCount();
-        long * conn_ = cell.getConnect();
-        for(int i=0; i<connSize; ++i){
-            result.insert(conn_[i]);
+    for(const auto & index : list){
+        bitpit::Cell & cell = geo.getCell(index);
+        auto vList = cell.getVertexIds();
+        for(const auto & idV : vList){
+            result.insert(idV);
         }
     }
 
     result.erase(vertexId);
-    tri = NULL;
     return result;
 }
 
@@ -1380,44 +1378,39 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
  */
 double
 CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
-    
-    long supportCell;
-    double radius = 1.0E-03;
-    MimmoObject* geo = getGeometry();
-    
-    skdTreeUtils::distance(&point, getGeometry()->getSkdTree(), supportCell, radius);
 
-    auto cell = geo->getPatch()->getCell(supportCell);
-    int nV = cell.getVertexCount();
-    long * conn = cell.getConnect();
-    dvector1D weights(nV, 0), val(nV,0);
+    MimmoObject* geo = getGeometry();
+    long supportCell = skdTreeUtils::locatePointOnPatch(point, *(geo->getSkdTree()));
+    if(supportCell == bitpit::Cell::NULL_ID)    return 0.0;
+
+    bitpit::Cell & cell = geo->getPatch()->getCell(supportCell);
+    bitpit::ConstProxyVector<long> nVList = cell.getVertexIds();
+    dvector1D weights(nVList.size(), 0), val(nVList.size(),0);
     double wtot = 0.0;
-    long idLoc;
-    for(int i=0; i<nV; ++i){
-        idLoc = conn[i];
+    int countV = 0;
+    for(const auto & idLoc : nVList){
         if(m_sensitivity.exists(idLoc)){
-            val[i] = m_sensitivity[idLoc];
+            val[countV] = m_sensitivity[idLoc];
         }else{
-            val[i] = 0.0;
+            val[countV] = 0.0;
         }
-        double valdist = norm2(geo->getVertexCoords(conn[i]) - point);
+        double valdist = norm2(geo->getVertexCoords(idLoc) - point);
         if ( valdist< 1.E-18){ 
-            return val[i];
+            return val[countV];
         }
         
-        weights[i] = 1.0/valdist;
-        wtot += weights[i];
-        
+        weights[countV] = 1.0/valdist;
+        wtot += weights[countV];
+        ++countV;
     }
     
     weights /= wtot;
     
     double result = 0.0;
-    for(int i=0; i<nV; ++i){
+    for(int i=0; i<countV; ++i){
         result +=  weights[i]*val[i];
     }
-    
-    
+
     return result;
 }
 
@@ -1499,5 +1492,100 @@ void CreateSeedsOnSurface::normalizeField(){
     m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 }
 
+
+/*!
+ * \return true if the linked geometry is a homogeneous triangular 3D surface, false otherwise
+ */
+bool
+CreateSeedsOnSurface::checkTriangulation(){
+    if(getGeometry()->getType() != 1) return false;
+    bool check = true;
+    bitpit::PatchKernel::CellIterator it = getGeometry()->getPatch()->cellBegin();
+    bitpit::PatchKernel::CellIterator itEnd = getGeometry()->getPatch()->cellEnd();
+    while(check && it != itEnd){
+        check = ( (*it).getType() == bitpit::ElementType::TRIANGLE );
+        ++it;
+    }
+    return check;
+}
+
+/*!
+ * \return a homogeneous triangulated and indipendent clone of the current target geometry linked to the class.
+ */
+std::unique_ptr<MimmoObject>
+CreateSeedsOnSurface::triangulate(){
+
+    std::unique_ptr<MimmoObject> temp = getGeometry()->clone();
+    m_sensitivity_triangulated = m_sensitivity;
+    m_sensitivity_triangulated.setGeometry(temp.get());
+
+    long maxID, newID, newVertID;
+    
+    const auto orderedCellID = temp->getCells().getIds(true);
+    maxID = orderedCellID[(int)orderedCellID.size()-1];
+    newID = maxID+1;
+    {
+        const auto orderedVertID = temp->getVertices().getIds(true);
+        newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
+    }
+    
+    bitpit::ElementType eletype;
+    bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
+    livector1D connTriangle(3);
+    for(const auto &idcell : orderedCellID){
+        
+        livector1D conn = temp->getCellConnectivity(idcell);
+        eletype = temp->getPatch()->getCell(idcell).getType();
+        short pid = temp->getPatch()->getCell(idcell).getPID();
+        
+        switch (eletype){
+            case bitpit::ElementType::QUAD:
+            case bitpit::ElementType::PIXEL:
+            {
+                temp->getPatch()->deleteCell(idcell);
+                for(std::size_t i=0; i<2; ++i){
+                    connTriangle[0] = conn[0];
+                    connTriangle[1] = conn[i+1];
+                    connTriangle[2] = conn[i+2];
+                    temp->addConnectedCell(connTriangle, eletri, pid, newID);
+                    ++newID;
+                }
+            }
+                break;
+            case bitpit::ElementType::POLYGON:
+            {
+                std::size_t startIndex = 1;
+                std::size_t nnewTri = conn.size() - startIndex;
+                //calculate barycenter and add it as new vertex
+                darray3E barycenter = temp->getPatch()->evalCellCentroid(idcell);
+                temp->addVertex(barycenter, newVertID);
+                // adding new vertex, adding also a sensitivity exstimation on new point.
+                double sens_new = interpolateSensitivity(barycenter);
+                m_sensitivity_triangulated.insert(newVertID, sens_new);
+                //delete current polygon
+                temp->getPatch()->deleteCell(idcell);
+                //insert new triangles from polygon subdivision
+                for(std::size_t i=0; i<nnewTri; ++i){
+                    connTriangle[0] = newVertID;
+                    connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+                    connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+                    temp->addConnectedCell(connTriangle, eletri, pid, newID);
+                    ++newID;
+                }
+                //increment label of vertices
+                ++newVertID;
+                
+            }
+                break;
+            case bitpit::ElementType::TRIANGLE:
+                //do nothing
+                break;    
+            default:
+                throw std::runtime_error("unrecognized cell type in 3D surface mesh of CreateSeedsOnSurface");
+                break;
+        }
+    }
+    return std::move(temp);
+}
 
 }

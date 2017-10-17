@@ -86,6 +86,7 @@ if(BUILD_EXAMPLES)
     isModuleEnabled("utils" MODULE_ENABLED3)
     if (MODULE_ENABLED3)
         list(APPEND EXAMPLE_LIST "manipulators_example_00005")
+        list(APPEND EXAMPLE_LIST "utils_example_00001")
     endif ()
     
 	#Rules to build the examples
@@ -127,6 +128,10 @@ if(BUILD_EXAMPLES)
             TARGET "manipulators_example_00005" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         )
+        add_custom_command(
+            TARGET "utils_example_00001" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/mixedP2D.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/mixedP2D.vtu"
+        )
     endif()
     if (MODULE_ENABLED0)
         add_custom_command(
@@ -145,6 +150,7 @@ if(BUILD_EXAMPLES)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane2.stl"
         )
     endif()
+
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
