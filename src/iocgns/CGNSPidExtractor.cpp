@@ -226,37 +226,71 @@ CGNSPidExtractor::execute(){
 
     }
 
-    //check if patch is forced to be triangulated
+    //check if patch is forced to be triangulated in case of polygons (nVertices > 4) more
+    // nodes are added to the mesh.
     if(m_force){
 
-        long maxID, newID;
+        long maxID, newID, newVertID;
 
         const auto orderedCellID = patchTemp->getCells().getIds(true);
         maxID = orderedCellID[(int)orderedCellID.size()-1];
         newID = maxID+1;
+        {
+            const auto orderedVertID = patchTemp->getVertices().getIds(true);
+            newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
+        }
+        
         bitpit::ElementType eletype;
         bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
         livector1D connTriangle(3);
         for(const auto &idcell : orderedCellID){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
-            eletype = mother->getPatch()->getCell(idcell).getType();
+            eletype = patchTemp->getPatch()->getCell(idcell).getType();
             short pid = patchTemp->getPatch()->getCell(idcell).getPID();
             
-            if(eletype != bitpit::ElementType::TRIANGLE){
-                std::size_t startIndex = 0;
-                if(eletype == bitpit::ElementType::POLYGON) startIndex = 1;
-                std::size_t nnewTri = conn.size() - startIndex - 2;
-                
-                patchTemp->getPatch()->deleteCell(idcell);
-                
-                for(std::size_t i=0; i<nnewTri; ++i){
-                    connTriangle[0] = conn[startIndex];
-                    connTriangle[1] = conn[startIndex+i+1];
-                    connTriangle[2] = conn[startIndex+i+2];
-                    patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
-                    ++newID;
+            switch (eletype){
+                case bitpit::ElementType::QUAD:
+                case bitpit::ElementType::PIXEL:
+                {
+                    patchTemp->getPatch()->deleteCell(idcell);
+                    for(std::size_t i=0; i<2; ++i){
+                        connTriangle[0] = conn[0];
+                        connTriangle[1] = conn[i+1];
+                        connTriangle[2] = conn[i+2];
+                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
+                        ++newID;
+                    }
                 }
+                    break;
+                case bitpit::ElementType::POLYGON:
+                {
+                    std::size_t startIndex = 1;
+                    std::size_t nnewTri = conn.size() - startIndex;
+                    //calculate barycenter and add it as new vertex
+                    darray3E barycenter = patchTemp->getPatch()->evalCellCentroid(idcell);
+                    patchTemp->addVertex(barycenter, newVertID);
+                    //delete current polygon
+                    patchTemp->getPatch()->deleteCell(idcell);
+                    //insert new triangles from polygon subdivision
+                    for(std::size_t i=0; i<nnewTri; ++i){
+                        connTriangle[0] = newVertID;
+                        connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+                        connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
+                        ++newID;
+                    }
+                    //increment label of vertices
+                    ++newVertID;
+                    
+                }
+                    break;
+                case bitpit::ElementType::TRIANGLE:
+                        //do nothing
+                    break;
+                default:
+                    throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+                    break;
             }
         }
     }
