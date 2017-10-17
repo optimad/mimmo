@@ -68,6 +68,9 @@ A shared version of the library is provided setting the cmake variable `BUILD_SH
 
 You can test the compilation by run the command `ctest` from the building folder.
 
+For a complete guide to installation of mimmo please visit 
+<a href="http://www.optimad.github.io/mimmo/documentation/installation.html">mimmo installation webpage</a>.
+
 ## Building Documentation
 In order to build properly the documentation Doxygen (>=1.8.6) and Graphviz (>=2.20.2) are needed.
 
