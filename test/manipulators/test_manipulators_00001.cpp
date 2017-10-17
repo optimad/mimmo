@@ -57,9 +57,8 @@ int test1() {
     darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
     
-    MimmoObject * mesh2 = new MimmoObject(1);
-    mesh2->setHARDCopy(mesh);
-    
+    std::unique_ptr<MimmoObject> mesh2 = mesh->clone();
+
     RotationGeometry * rot = new RotationGeometry();
     rot->setGeometry(mesh);
     rot->setAxis({{0.0,0.0,0.0}},{{1.0,0.0,0.0}});
@@ -77,7 +76,7 @@ int test1() {
     applier->setInput(rot->getDisplacements());
     
     Apply * applier2 = new Apply();
-    applier2->setGeometry(mesh2);
+    applier2->setGeometry(mesh2.get());
     applier2->setInput(scale->getDisplacements());
     
     applier->exec();
@@ -99,7 +98,6 @@ int test1() {
 //     mesh2->getPatch()->write("scaled");
     
     delete mesh;
-    delete mesh2;
     delete rot;
     delete scale;
     delete applier;

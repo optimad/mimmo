@@ -238,18 +238,15 @@ int test2() {
 	}
 
 	
-	MimmoObject * mesh_2 = new MimmoObject();
-    mesh_2->setHARDCopy(mesh);
+	std::unique_ptr<MimmoObject> mesh_2 =mesh->clone();
 	
     if(mesh_2->getNCells() != mesh->getNCells() && mesh_2->getPatch()==mesh->getPatch()){
-        delete mesh_2;
         delete mesh;
         std::cout<<"Hard copy method of MimmoObject failed"<<std::endl;
         return 1;
     }
     mesh_2->getPatch()->write("hardcopy");
-    delete mesh_2;
-    
+
     MimmoObject * mesh_3 = new MimmoObject();
     *mesh_3 = *mesh;
     if(mesh_3->getNCells() != mesh->getNCells() && mesh_3->getPatch()!= mesh->getPatch()){

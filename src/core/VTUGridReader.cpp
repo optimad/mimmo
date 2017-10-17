@@ -385,6 +385,7 @@ void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
  * \param[in] dir   target directory of file to be read
  * \param[in] name  name fo the file to be read.
  * \param[in] patch reference to empty container for storing mesh data.
+ * \param[in] streamer streaming class to absorb VTK data.
  */
 VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch) : 
                               VTKUnstructuredGrid(dir, name, bitpit::VTKElementType::UNDEFINED), m_patch(patch), m_streamer(streamer)

@@ -55,6 +55,7 @@ public:
     std::unique_ptr<bitpit::PatchKernel> clone() const;
 
 protected:
+    /*! Copy Constructor*/
     MimmoSurfUnstructured(const MimmoSurfUnstructured &) = default;
 };
 
@@ -72,6 +73,7 @@ public:
     std::unique_ptr<bitpit::PatchKernel> clone() const;
     
 protected:
+    /*! Copy Constructor*/
     MimmoVolUnstructured(const MimmoVolUnstructured &) = default;
 };
 
@@ -89,6 +91,7 @@ public:
     std::unique_ptr<bitpit::PatchKernel> clone() const;
     
 protected:
+    /*! Copy Constructor*/
     MimmoPointCloud(const MimmoPointCloud &) = default;
 };
 

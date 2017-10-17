@@ -139,8 +139,11 @@ protected:
     void        execute();
     void        computeConnectivity();
     void        computeWeights();
+    /*!Compute dumping function.*/
     virtual void computeDumpingFunction() = 0;
+    /*!Propagate field with a "Laplacian smoothing" iterative solver*/
     virtual void solveSmoothing(int nstep) = 0;
+    /*!Propagate field solving directly the Laplace equation */ 
     virtual void solveLaplace() = 0;
 
 };

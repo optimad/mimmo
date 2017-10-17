@@ -17,12 +17,14 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added new option to write pidded 3D surfaces in MultiSolid ASCII (MimmoGeometry)
 - added new features to OBBox utility (multi geometry in input, option to switch from Oriented to Axis Aligned box calculation)
 - added global expert mode MIMMO_EXPERT to override mandatory ports checking in execution of chains
-- Ports management: created new static singleton PortManager for on-the fly ports registration.
-- Ports management: added a C macro REGISTER_PORT for compile-time ports registration.
+- Ports management: created new static singleton PortManager for on-the fly ports registration
+- Ports management: added a C macro REGISTER_PORT for compile-time ports registration
+- added full support to non-homogeneous unstructured meshes in MimmoObject
 
 ### Fixed
 - fixed minor bugs in FFDLattice manipulator
 - fixed bug in CGNSPIDExtractor (PID assignment) 
+- fixed bugs in MeshSelection classes
 - fixed warnings
 
 ### Changed
@@ -30,6 +32,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - modified ports : added new ports for MimmoPiercedVector / Dismissed some ports no more useful (eg. pair MimmoObject & data attached).
 - iocgns_example_00001 now applies volume mesh morphing by propagation of a deformation field defined on boundaries.
 - update bitpit objects and functions with bitipit 1.4 release
+- Changed types of file(FileType enum) handled in I/O by MimmoGeometry
 
 ### Removed
 - removed geohandlers:Overlap classes, wrapped in new added geohandlers: Reconstruct classes

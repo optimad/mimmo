@@ -802,18 +802,6 @@ MimmoObject::getMapCellInv(){
     return mapCellInv;
 };
 
-
-///*!
-// * Return the local compact index i of a cell, given its unique id label.
-// * \param[in] id unique-id of the cell.
-// * \return local index of the cell. Return -1 if index is not found.
-// */
-//int
-//MimmoObject::getMapCellInv(long id){
-//    if(!(getCells().exists(id)))	return -1;
-//    return m_mapCellInv[id];
-//};
-
 /*!
  * \return the list of PID types actually present in your geometry.
  * If empty list is returned, pidding is actually not supported for this geometry

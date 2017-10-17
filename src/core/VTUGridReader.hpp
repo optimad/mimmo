@@ -47,9 +47,11 @@ class VTUAbsorbStreamer : public bitpit::VTKBaseStreamer{
 public:
     VTUAbsorbStreamer();
     virtual ~VTUAbsorbStreamer();
+    /*!Copy Constructor */
     VTUAbsorbStreamer(const VTUAbsorbStreamer&) = default;
-    
+
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
+    /*! Decode read raw data and fill a bitpit::PatchKernel structure with them */
     virtual void decodeRawData(bitpit::PatchKernel &) = 0;
 };
 
@@ -76,6 +78,7 @@ protected:
 public:
     VTUGridStreamer();
     virtual ~VTUGridStreamer();
+    /*! Copy Constructor*/ 
     VTUGridStreamer(const VTUGridStreamer&) = default;
 
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
@@ -98,6 +101,7 @@ protected:
 public:
     VTUPointCloudStreamer();
     virtual ~VTUPointCloudStreamer();
+    /*!Copy Constructor */
     VTUPointCloudStreamer(const VTUPointCloudStreamer&) = default;
     
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
