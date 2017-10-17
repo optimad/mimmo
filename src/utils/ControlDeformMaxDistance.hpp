@@ -32,7 +32,7 @@ namespace mimmo{
 /*!
  * \class ControlDeformMaxDistance
  * \ingroup utils
- * \brief ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject geometry,
+ * \brief ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject surface geometry,
  *  once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
  *
  * ControlDeformMaxDistance is derived from BaseManipulation class.
@@ -101,7 +101,8 @@ public:
 
     void    setDefField(dmpvecarr3E field);
     void    setLimitDistance(double dist);
-
+    void    setGeometry(MimmoObject * geo);
+    
     void     execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");

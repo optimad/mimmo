@@ -34,8 +34,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(){
     m_name = "mimmo.ControlDeformExtSurface";
     m_cellBackground = 50;
     m_allowed.insert((FileType::_from_string("STL"))._to_integral());
-    m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
-    m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
+    m_allowed.insert((FileType::_from_string("SURFVTU"))._to_integral());
     m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
 
 };
@@ -49,8 +48,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
     m_name = "mimmo.ControlDeformExtSurface";
     m_cellBackground = 50;
     m_allowed.insert((FileType::_from_string("STL"))._to_integral());
-    m_allowed.insert((FileType::_from_string("STVTU"))._to_integral());
-    m_allowed.insert((FileType::_from_string("SQVTU"))._to_integral());
+    m_allowed.insert((FileType::_from_string("SURFVTU"))._to_integral());
     m_allowed.insert((FileType::_from_string("NAS"))._to_integral());
 
     std::string fallback_name = "ClassNONE";
@@ -470,7 +468,7 @@ ControlDeformExtSurface::execute(){
             //going to use background grid to evaluate distances
 
             //instantiate a VolCartesian;
-            bitpit::VolCartesian * mesh = new bitpit::VolCartesian(0,3,bbMin,span, dim);
+            bitpit::VolCartesian * mesh = new bitpit::VolCartesian(3,bbMin,span, dim);
             mesh->update();
 
             //calculate distance on point of background grid.
@@ -763,27 +761,22 @@ ControlDeformExtSurface::plotOptionalResults(){
     if(getGeometry() == NULL)       return;
     if(getGeometry()->isEmpty())    return;
     if(!m_defField.completeMissingData({{0,0,0}}) || !m_violationField.completeMissingData(0.0)) return;
-    
-    
-    liimap map;
-    dvecarr3E  points = getGeometry()->getVertexCoords(&map);
+
+
+    //get deformation on points
     dvecarr3E deff = m_defField.getDataAsVector();
-    points+=deff;
-    ivector2D connectivity = getGeometry()->getCompactConnectivity(map);
-
-    bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
-
-    std::string name = m_name +std::to_string(getId())+ "_ViolationField";
-    bitpit::VTKUnstructuredGrid output(m_outputPlot, name, elDM);
-    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-    output.setDimensions(connectivity.size(), points.size());
-
-
+    //get violation field
     dvector1D viol = m_violationField.getDataAsVector();
-    std::string sdfstr = "Violation Distance Field";
-    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
-    output.write();
+    
+    //add deformation field as vector field
+    getGeometry()->getPatch()->getVTK().addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
+    //add violation field as a custom data field of the original geometry
+    getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
+    getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+    
+    //reset geometry VTK to its original setup 
+    getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
+    getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
 }
 
 /*!
@@ -806,5 +799,6 @@ ControlDeformExtSurface::writeLog(){
 
 
 };
+
 
 }

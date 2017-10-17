@@ -287,6 +287,7 @@ CreateSeedsOnSurface::setMassCenterAsSeed(bool flag){
 void
 CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
     if(geo == NULL)    return;
+    if(geo->isEmpty())  return;
     if(geo->getType() != 1)    return;
 
     BaseManipulation::setGeometry(geo);

@@ -154,6 +154,20 @@ ControlDeformMaxDistance::setLimitDistance(double dist){
     m_maxDist = std::fmax(1.0E-12,dist);
 };
 
+/*!
+ * Set the link to MimmoObject target geometry. Geometry must be a 3D surface 
+ * (MimmoObject of type 1). Reimplemented from BaseManipulation::setGeometry().
+ * \param[in] geo pointer to target geometry
+ */
+void
+ControlDeformMaxDistance::setGeometry(MimmoObject * geo){
+    if (geo ==NULL) return;
+    if (geo->isEmpty()) return;
+    if (geo->getType() != 1 ) return;
+    
+    BaseManipulation::setGeometry(geo);
+}
+
 /*!Execution command. Calculate violation value and store it in the class member m_violation
  */
 void
@@ -163,7 +177,7 @@ ControlDeformMaxDistance::execute(){
     if (geo == NULL){
         throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
     }
-    if (geo->isEmpty() || !(geo->isSkdTreeSupported()) ){
+    if (geo->isEmpty() ){
         throw std::runtime_error (m_name + " : linked geometry is empty or a point cloud mesh");
     }
 
@@ -272,26 +286,23 @@ ControlDeformMaxDistance::plotOptionalResults(){
     if(getGeometry() == NULL) return;
     if(getGeometry()->isEmpty())    return;
     if(!m_defField.completeMissingData({{0,0,0}}) || !m_violationField.completeMissingData(0.0)) return;
-    
-    liimap map;
-    dvecarr3E  points = getGeometry()->getVertexCoords(&map);
+
+    //get deformation on points
     dvecarr3E deff = m_defField.getDataAsVector();
-    points+=deff;
-    ivector2D connectivity = getGeometry()->getCompactConnectivity(map);
-
-    bitpit::VTKElementType  elDM = bitpit::VTKElementType::TRIANGLE;
-
-    std::string name = m_name +std::to_string(getId())+ "_ViolationField";
-    bitpit::VTKUnstructuredGrid output(m_outputPlot, name, elDM);
-    output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-    output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-    output.setDimensions(connectivity.size(), points.size());
-
+    //get violation field
     dvector1D viol = m_violationField.getDataAsVector();
-    std::string sdfstr = "Violation Distance Field";
-    output.addData(sdfstr, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
-    output.write();
+
+    //add deformation field as vector field
+    getGeometry()->getPatch()->getVTK().addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
+    //add violation field as a custom data field of the original geometry
+    getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
+    getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+    
+    //reset geometry VTK to its original setup 
+    getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
+    getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
 }
+
 
 
 }
