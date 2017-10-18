@@ -712,7 +712,7 @@ IOCGNS::read(){
 
     //adding vstand alone vertices to boundary patches and release all structures
     {
-        //this is not the best way to get this. In case of polygonal meshes it does not work.
+        //TODO this is not the best way to get this. In case of polygonal meshes it does not work.
         //Anyway CGNS does not support polygons for now. So be it.
         livector2D tempConn;
         tempConn = patchBnd->getConnectivity();
@@ -989,7 +989,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         break;
 
         case CGNS_ENUMV(NODE):
-                                                                                    ++it;
+            ++it;
         break;
 
         case CGNS_ENUMV(BAR_2):
@@ -1066,9 +1066,9 @@ IOCGNS::recoverCGNSInfo(){
         ID = cell.getId();
         m_storedInfo->mcg_number[cgtype]++;
         m_storedInfo->mcg_typetoid[cgtype].push_back(ID);
-        long int * conn = cell.getConnect();
-        for (int iV=0; iV<cell.getVertexCount(); iV++){
-            m_storedInfo->mcg_typetoconn[cgtype].push_back(conn[iV]);
+        auto vList = cell.getVertexIds();
+        for (const auto & iV : vList){
+            m_storedInfo->mcg_typetoconn[cgtype].push_back(iV);
         }
     }
 
@@ -1102,9 +1102,9 @@ IOCGNS::recoverCGNSInfo(){
             ID = cell.getId();
             m_storedInfo->mcg_bndnumber[cgtype]++;
             m_storedInfo->mcg_bndtypetoid[cgtype].push_back(ID);
-            long int * conn = cell.getConnect();
-            for (int iV=0; iV<cell.getVertexCount(); iV++){
-                m_storedInfo->mcg_bndtypetoconn[cgtype].push_back(conn[iV]);
+            auto vList = cell.getVertexIds();
+            for (const auto &iV : vList){
+                m_storedInfo->mcg_bndtypetoconn[cgtype].push_back(iV);
             }
         }
 
