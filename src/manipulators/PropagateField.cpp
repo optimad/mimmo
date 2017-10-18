@@ -530,19 +530,17 @@ PropagateVectorField::computeDumpingFunction(){
         }
         for (auto const & cell : m_bsurface->getCells()){
             ID = cell.getId();
-            auto conn = cell.getConnect();
-            std::vector<long> vconn(cell.getVertexCount());
-            for (int i=0; i<cell.getVertexCount(); i++)
-                vconn[i] = conn[i];
+            bitpit::ConstProxyVector<long> vconn = cell.getVertexIds();
             bool toinsert = true;
-            for (int i=0; i<cell.getVertexCount(); i++){
-                if (norm2(m_bc[vconn[i]]) < 1.0e-12){
+            for (const auto & iV : vconn){
+                if (norm2(m_bc[iV]) < 1.0e-12){
                     toinsert = false;
                     break;
                 }
             }
             if (toinsert){
-                activeBoundary->addConnectedCell(vconn, cell.getType());
+                auto conn = m_bsurface->getCellConnectivity(ID);
+                activeBoundary->addConnectedCell(conn, cell.getType());
             }
         }
         activeBoundary->buildAdjacencies();
@@ -975,19 +973,17 @@ PropagateScalarField::computeDumpingFunction(){
         }
         for (auto const & cell : m_bsurface->getCells()){
             ID = cell.getId();
-            auto conn = cell.getConnect();
-            std::vector<long> vconn(cell.getVertexCount());
-            for (int i=0; i<cell.getVertexCount(); i++)
-                vconn[i] = conn[i];
+            bitpit::ConstProxyVector<long> vconn = cell.getVertexIds();
             bool toinsert = true;
-            for (int i=0; i<cell.getVertexCount(); i++){
-                if (std::abs(m_bc[vconn[i]]) < 1.0e-12){
+            for (const auto & iV : vconn){
+                if (std::abs(m_bc[iV]) < 1.0e-12){
                     toinsert = false;
                     break;
                 }
             }
             if (toinsert){
-                activeBoundary->addConnectedCell(vconn, cell.getType());
+                auto conn = m_bsurface->getCellConnectivity(ID);
+                activeBoundary->addConnectedCell(conn, cell.getType());
             }
         }
         activeBoundary->buildAdjacencies();
