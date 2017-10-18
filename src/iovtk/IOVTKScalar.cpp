@@ -435,22 +435,23 @@ IOVTKScalar::write(){
         points = NULL;
 
         /* Set polydata cells. */
-        bitpit::PiercedVector<bitpit::Cell> cells = getGeometry()->getCells();
+        bitpit::PiercedVector<bitpit::Cell> & cells = getGeometry()->getCells();
         for (auto & cell : cells){
-            long int *conn = (cell.getConnect());
-            int nV = cell.getVertexCount();
-            std::vector<vtkIdType> c (nV, 0);
-            for (int iV=0; iV<nV; iV++){
-                c[iV] =  vtkIdType(conn[iV]);
+            bitpit::ConstProxyVector<long> vList = cell.getVertexIds();
+            std::vector<vtkIdType> c (vList.size(), 0);
+            int countV = 0;
+            for (const auto & iV : vList){
+                c[countV] =  vtkIdType(iV);
+                ++countV;
             }
-            if (nV == 3){
+            if (vList.size() == 3){
                 m_polydata->InsertNextCell(VTK_TRIANGLE, 3, c.data());
             }
-            else if (nV == 4 ){
+            else if (vList.size() == 4 ){
                 m_polydata->InsertNextCell(VTK_QUAD, 4, c.data());
             }
             else{
-                m_polydata->InsertNextCell(VTK_POLYGON, nV, c.data());
+                m_polydata->InsertNextCell(VTK_POLYGON, vList.size(), c.data());
             }
         }
 
