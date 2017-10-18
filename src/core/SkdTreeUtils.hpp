@@ -21,8 +21,8 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-# ifndef __BVTREE_HPP__
-# define __BVTREE_HPP__
+# ifndef __SKDTREEUTILS_HPP__
+# define __SKDTREEUTILS_HPP__
 
 # include "bitpit_patchkernel.hpp"
 # include "bitpit_surfunstructured.hpp"
@@ -33,7 +33,7 @@ namespace mimmo{
 
 
 /*!
- * \brief Utilities employing bvTree.
+ * \brief Utilities employing SkdTree.
  * \ingroup core
  */
 namespace skdTreeUtils{
@@ -43,14 +43,9 @@ namespace skdTreeUtils{
     std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, std::vector<const bitpit::SkdNode*> leafSelection, std::vector<long> &extracted, double tol, int next = 0);
     std::array<double,3> projectPoint(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, double r_ = 1.0e+18);
-
-//
-//    std::vector<double> signedDistance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, std::vector<std::array<double,3> >  &n, double r_ = 1.0e+18, int method = 1);
-//    std::vector<double> distance(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, std::vector<long> &id, double r_ = 1.0e+18, int method = 1 );
-//    std::vector<std::array<double,3> > projectPoint(std::vector<std::array<double,3> > *P_, BvTree *bvtree_, double r_ = 1.0e+18);
-//
-
-}; //end namespace bvTreeUtils
+    long findPointClosestCell(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree, double maxDistance,long *id, double *distance);
+    long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree);
+}; //end namespace skdTreeUtils
 
 } //end namespace mimmo
 
