@@ -480,24 +480,26 @@ uint64_t VTUGridReader::readFaceStreamEntries( ){
     uint32_t                 nbytes32 ;
     uint64_t                 nbytes64 ;
 
-    str.open( m_fh.getPath( ), std::ios::in ) ;
 
     // Geometry id of the facestream
     int facestream_gid = VTKUnstructuredGrid::_findFieldIndex("faces", m_geometry);
     if(facestream_gid < 0 ) return nface;
     if(!m_geometry[facestream_gid].isEnabled()) return nface;
-    //Read appended data
-    //Go to the initial position of the appended section
-    while( getline(str, line) && (! bitpit::utils::string::keywordInString( line, "<AppendedData")) ){}
-    str >> c_;
-    while( c_ != '_') str >> c_;
-    position_appended = str.tellg();
-    str.close();
-    str.clear();
 
-    //Open in binary for read
-    str.open( m_fh.getPath( ), std::ios::in | std::ios::binary);
     if( m_geometry[facestream_gid].getCodification() == VTKFormat::APPENDED ){
+        str.open( m_fh.getPath( ), std::ios::in ) ;
+        //Go to the initial position of the appended section
+        while( getline(str, line) && (! bitpit::utils::string::keywordInString( line, "<AppendedData")) ){}
+        str >> c_;
+        while( c_ != '_') str >> c_;
+        position_appended = str.tellg();
+        str.close();
+        str.clear();
+    }
+    
+    //Open in binary for read
+    if( m_geometry[facestream_gid].getCodification() == VTKFormat::APPENDED ){
+        str.open( m_fh.getPath( ), std::ios::in | std::ios::binary);
         str.seekg( position_appended) ;
         str.seekg( m_geometry[facestream_gid].getOffset(), std::ios::cur) ;
 
@@ -513,10 +515,13 @@ uint64_t VTUGridReader::readFaceStreamEntries( ){
             genericIO::absorbBINARY( str, nbytes64 ) ;
             nface = nbytes64 / dataSize ;
         }
+        
+        str.close();
     }
 
     //Read geometry ASCII
     if(  m_geometry[facestream_gid].getCodification() == VTKFormat::ASCII ){
+        str.open( m_fh.getPath( ), std::ios::in );
         str.seekg( m_geometry[facestream_gid].getPosition() ) ;
 
         std::string              line ;
@@ -524,16 +529,18 @@ uint64_t VTUGridReader::readFaceStreamEntries( ){
 
         nface = 0 ;
 
-        
+        getline( str, line) ;
         while( ! bitpit::utils::string::keywordInString(line,"/DataArray") ) {
-            getline( str, line) ;
             temp.clear() ;
             bitpit::utils::string::convertString( line, temp) ;
             nface += temp.size() ;
+            getline( str, line) ;
         }
+        
+        str.close();
     }
 
-    str.close();
+    
     return nface ;
 }
 
@@ -550,24 +557,24 @@ uint64_t VTUGridReader::readConnectivityEntries( ){
     uint32_t                 nbytes32 ;
     uint64_t                 nbytes64 ;
     
-    str.open( m_fh.getPath( ), std::ios::in ) ;
-    
-    // Geometry id of the facestream
+    // Geometry id of the connectivity
     int connectivity_gid = VTKUnstructuredGrid::_findFieldIndex("connectivity", m_geometry);
     if(connectivity_gid < 0 ) return nconn;
     
-    //Read appended data
-    //Go to the initial position of the appended section
-    while( getline(str, line) && (! bitpit::utils::string::keywordInString( line, "<AppendedData")) ){}
-    str >> c_;
-    while( c_ != '_') str >> c_;
-    position_appended = str.tellg();
-    str.close();
-    str.clear();
+    if( m_geometry[connectivity_gid].getCodification() == VTKFormat::APPENDED ){
+        str.open( m_fh.getPath( ), std::ios::in ) ;
+        //Go to the initial position of the appended section
+        while( getline(str, line) && (! bitpit::utils::string::keywordInString( line, "<AppendedData")) ){}
+        str >> c_;
+        while( c_ != '_') str >> c_;
+        position_appended = str.tellg();
+        str.close();
+        str.clear();
+    }
     
     //Open in binary for read
-    str.open( m_fh.getPath( ), std::ios::in | std::ios::binary);
     if( m_geometry[connectivity_gid].getCodification() == VTKFormat::APPENDED ){
+        str.open( m_fh.getPath( ), std::ios::in | std::ios::binary);
         str.seekg( position_appended) ;
         str.seekg( m_geometry[connectivity_gid].getOffset(), std::ios::cur) ;
         
@@ -583,30 +590,34 @@ uint64_t VTUGridReader::readConnectivityEntries( ){
             genericIO::absorbBINARY( str, nbytes64 ) ;
             nconn = nbytes64 / dataSize ;
         }
+        str.close();
+        str.clear();
     }
     
     //Read geometry ASCII
     if(  m_geometry[connectivity_gid].getCodification() == VTKFormat::ASCII ){
+        str.open( m_fh.getPath( ), std::ios::in);
         str.seekg( m_geometry[connectivity_gid].getPosition() ) ;
-        
+
         std::string              line ;
         std::vector<uint64_t>    temp;
         
         nconn = 0 ;
         
-        
+        getline( str, line) ;
         while( ! bitpit::utils::string::keywordInString(line,"/DataArray") ) {
-            getline( str, line) ;
             temp.clear() ;
             bitpit::utils::string::convertString( line, temp) ;
             nconn += temp.size() ;
+            getline( str, line) ;
         }
+        
+        str.close();
+        str.clear();
     }
     
-    str.close();
     return nconn;
 }
-
 
 }
 

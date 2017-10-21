@@ -130,7 +130,7 @@ protected:
     virtual void readMetaInformation();
     virtual uint64_t readFaceStreamEntries();
     virtual uint64_t readConnectivityEntries();
-    
+
 private:
     bitpit::PatchKernel& m_patch;   /**< reference to patch kernel data structure to fill*/
     VTUAbsorbStreamer & m_streamer; /**< reference to streamer which knows how to read data from file */
