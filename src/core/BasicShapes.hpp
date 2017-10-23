@@ -214,8 +214,8 @@ private:
      */
     virtual void    setScaling(double &s0, double &s1, double &s2)=0;
 
-    void        searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree,  int indexKdNode, int level, livector1D & result, int &counter );
-    void        searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter);
+    void        searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, livector1D & result);
+    void        searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, livector1D & result);
 
     /*!
      * Pure virtual method to get the Axis Aligned Bounding Box of the current shape

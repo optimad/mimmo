@@ -279,10 +279,8 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
 	//create BvTree and fill it w/ cell list
 	if(!(geo->isSkdTreeSync()))	geo->buildSkdTree();
 	//get recursively all the list element in the shape
-	livector1D elements(geo->getNCells());
-	int countElements = 0;
-	searchBvTreeMatches(*(geo->getSkdTree()), geo->getPatch(), 0, elements, countElements);
-	elements.resize(countElements);
+	livector1D elements;
+	searchBvTreeMatches(*(geo->getSkdTree()), geo->getPatch(), elements);
 	
 	return(elements);
 };
@@ -471,15 +469,13 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
 	if(geo == NULL)	return livector1D(0);
 	
-	livector1D elements(geo->getNVertex()); 
+	livector1D elements; 
 	//create BvTree and fill it w/ cell list
 	if(!(geo->isKdTreeSync()))	geo->buildKdTree();
 	
 	getTempBBox();
-	int countVertex = 0;
 	//get recursively all the list element in the shape
-	searchKdTreeMatches(*(geo->getKdTree()), 0, 0, elements, countVertex);
-	elements.resize(countVertex);
+	searchKdTreeMatches(*(geo->getKdTree()), elements);
 	
 	return(elements);
 };
@@ -621,93 +617,114 @@ darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, da
 };
 
 /*!
- * Visit recursively KdTree relative to a cloud points and extract possible vertex candidates included in the current shape.
+ * Visit KdTree relative to a cloud points and extract possible vertex candidates included in the current shape.
  * Identifiers of extracted matches are collected in result structure
- *\param[in] tree			KdTree of cloud points
- *\param[in] indexKdNode	KdNode index of tree, which start seaching from  
- *\param[in] level 			leaf level of indexKdNode in the tree
- *\param[in,out] result		list of KdNode labels, which are included in the shape.
- *\param[in,out] counter	last filled position of result vector. 
+ *\param[in] tree           KdTree of cloud points
+ *\param[in,out] result     list of KdNode labels, which are included in the shape.
  * 
  */
-void	BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, int indexKdNode, int level, livector1D & result, int &counter ){
-	
-	//check indexKdNode admissible.
-	if(indexKdNode <0 || indexKdNode > tree.n_nodes)	return;
-	
-	//1st step get data
-	bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[indexKdNode];
-	//check target point is in the shape
-	if (bitpit::CGElem::intersectPointBox(target.object_->getCoords(), m_bbox[0], m_bbox[1], 3)){
-		if(isPointIncluded(target.object_->getCoords())){
-			result[counter] = target.label;
-			++counter;
-		}
-		searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
-		searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
-	}else{
-		
-		uint32_t check = intersectShapePlane(level%3, target.object_->getCoords());
-		bool right = (check > 0);
-		bool left = (check%2 == 0);
-		if (left && target.lchild_ >= 0){
-			searchKdTreeMatches(tree, target.lchild_, level+1, result, counter);
-		}
-		if (right && target.rchild_ >= 0){
-			searchKdTreeMatches(tree, target.rchild_, level+1, result, counter);
-		}
-	}	
-	
-	return;
-};
+void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, livector1D & result ){
 
-/*!
- * Visit recursively BvTree relative to a PatchKernel structure and extract possible simplex candidates included in the current shape.
- * Identifiers of extracted matches are collected in result structure
- *\param[in] tree			BvTree of PatchKernel simplicies
- *\param[in] geo            pointer to tessellation the tree refers to. 
- *\param[in] indexBvNode	BvTree node index of tree, which start seaching from  
- *\param[in,out] result		list of PatchKernel ids , which are included in the shape.
- *\param[in,out] counter	last filled position of result vector.
- * 
- */
-void	BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, int indexBvNode, livector1D & result, int &counter ){
-	
-	//check indexBvNode admissible.
-	if(indexBvNode <0 || indexBvNode > (int)tree.getNodeCount())	return;
+    //1st step get data
+    std::vector<int> candidates;
+    std::vector< std::pair<int, int> > nodeStackLoc; //cointains touple with kdNode id and level label.
 
-    bitpit::SkdNode node = tree.getNode(indexBvNode);
+    nodeStackLoc.push_back(std::make_pair(0, 0));
+    while(!nodeStackLoc.empty()){
+        std::pair<int, int> toupleId = nodeStackLoc.back();
+        bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[toupleId.first];
+        nodeStackLoc.pop_back();
 
-	//1st step get data and control if it's leaf or if shape contain bounding box
-	if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
-	    std::vector<long> cellids = node.getCells();
-        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
-			result[counter] = *it;
-			++counter;
-		}	
-		return;
-	};
-	
-	if(node.isLeaf()){
-        std::vector<long> cellids = node.getCells();
-        for(std::vector<long>::iterator it = cellids.begin(); it != cellids.end(); ++it){
-	        if(isSimplexIncluded(geo, *it)){
-	            result[counter] = *it;
-	            ++counter;
-	        }
-	    }
-	    return;
-	}
+        //add children to the stack, if node has any of them.
+        uint32_t check = intersectShapePlane((toupleId.second)%3, target.object_->getCoords());
+        if((check%2 == 0) && (target.lchild_ >= 0)){
+            nodeStackLoc.push_back(std::make_pair(target.lchild_, (toupleId.second) + 1));
+        }
+        if((check > 0) && (target.rchild_ >= 0)){
+            nodeStackLoc.push_back(std::make_pair(target.rchild_, (toupleId.second) + 1));
+        }
 
-    for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
-        SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
-        if(node.getChildId(childLocation) != SkdNode::NULL_ID)   {
-            if( intersectShapeAABBox(tree.getNode(node.getChildId(childLocation)).getBoxMin(), tree.getNode(node.getChildId(childLocation)).getBoxMax()) )
-                searchBvTreeMatches(tree, geo, node.getChildId(childLocation), result, counter);
+        //push node as candidate if is in the raw bounding box of the shape
+        if (bitpit::CGElem::intersectPointBox(target.object_->getCoords(), m_bbox[0], m_bbox[1], 3)){
+            candidates.push_back(toupleId.first);
         }
     }
 
-	return;
+    result.clear();
+    result.reserve(candidates.size());
+    for (const auto & idCand : candidates){
+        bitpit::KdNode<bitpit::Vertex, long> & target = tree.nodes[idCand];
+        if(isPointIncluded(target.object_->getCoords())){
+            result.push_back(target.label);
+        }
+    }
+};
+
+/*!
+ * Visit SkdTree relative to a PatchKernel structure and extract possible simplex candidates included in the current shape.
+ * Identifiers of extracted matches are collected in result structure
+ *\param[in] tree           SkdTree of PatchKernel simplicies
+ *\param[in] geo            pointer to tessellation the tree refers to. 
+ *\param[out] result        list of simplex-ids included in the shape.
+ * 
+ */
+void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, livector1D & result){
+
+    std::size_t rootId = 0;
+
+    std::vector<std::size_t> toBeCandidates;
+    std::vector<long> sureCells;
+    sureCells.reserve((geo->getCellCount()));
+
+    std::vector<size_t> nodeStack;
+    nodeStack.push_back(rootId);
+    while(!nodeStack.empty()){
+        std::size_t nodeId = nodeStack.back();
+        const SkdNode & node  = tree.getNode(nodeId);
+        nodeStack.pop_back();
+
+        //first step: check if node AABB is completely inside the shape.
+        //if it is, save all its cells and continue. 
+        if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
+            std::vector<long> cellids = node.getCells();
+            sureCells.insert(sureCells.end(),cellids.begin(), cellids.end());
+            continue;
+        };
+
+        //second step: if the current node AABB does not intersect or does not completely contains the Shape, then thrown it away and continue.
+        if(!intersectShapeAABBox(node.getBoxMin(), node.getBoxMax()) ){
+            continue;
+        }
+
+        //now the only option is to visit node's children. If node is not leaf, add children to the stack,
+        //otherwise add current node as a possible candidate in shape inclusion.
+        bool isLeaf = true;
+        for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
+            SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+            std::size_t childId = node.getChildId(childLocation);
+            if (childId != SkdNode::NULL_ID) {
+                isLeaf = false;
+                nodeStack.push_back(childId);
+            }
+        }
+
+        if (isLeaf) {
+            toBeCandidates.push_back(nodeId);
+        }
+    }
+
+    result.clear();
+    result.reserve(toBeCandidates.size() + sureCells.size());
+    for (const auto & idCand : toBeCandidates){
+        const SkdNode &node = tree.getNode(idCand);
+        std::vector<long> cellids = node.getCells();
+        for(const auto & id : cellids){
+            if(isSimplexIncluded(geo, id)){
+                result.push_back(id);
+            }
+        }
+    }
+    result.insert(result.end(), sureCells.begin(), sureCells.end());
 };
 
 
