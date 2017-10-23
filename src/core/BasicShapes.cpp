@@ -140,17 +140,31 @@ void BasicShape::setInfLimits(darray3E val){
  * if chosen axes are not orthogonal, doing nothing
  */
 void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
-	
-	axis0 = axis0/norm2(axis0);
-	axis1 = axis1/norm2(axis1);
-	axis2 = axis2/norm2(axis2);
-	
-	double tol = 1.0e-12;
-	double check = std::abs(dotProduct(axis0,axis1)) + std::abs(dotProduct(axis1,axis2)) + std::abs(dotProduct(axis0,axis2));
-	if(check > tol) return;
-	m_sdr[0] = axis0;
-	m_sdr[1] = axis1;
-	m_sdr[2] = axis2;
+
+    double a = norm2(axis0);
+    double b = norm2(axis1);
+    double c = norm2(axis2);
+    
+    bool check = ( a>0.0 && b >0.0 && c > 0.0);
+    if (! check){
+        assert(false && "one or more 0-vector passed as arguments in BasicShape::SetRefSystem method");
+        return;
+    }
+
+    axis0 /= a;
+    axis1 /= b;
+    axis2 /= c;
+
+    double tol = 1.0e-12;
+    check = std::abs(dotProduct(axis0,axis1)) + std::abs(dotProduct(axis1,axis2)) + std::abs(dotProduct(axis0,axis2));
+    if(check > tol) {
+        assert(false && "not orthogonal axes passed as arguments in BasicShape::SetRefSystem method");
+        return;
+    }
+    
+    m_sdr[0] = axis0;
+    m_sdr[1] = axis1;
+    m_sdr[2] = axis2;
 }
 
 /*! 
@@ -159,22 +173,31 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
  * \param[in] axis new direction of selected local axis.
  */
 void BasicShape::setRefSystem(int label, darray3E axis){
-	
-	if(label <0 || label >2 ) return;
-	
-	m_sdr[label] = axis/norm2(axis);
-	dvecarr3E point_mat(3,darray3E{0,0,0});
-	point_mat[0][0] = point_mat[1][1]= point_mat[2][2]=1.0;
-	
-	int next_label = (label + 1)%3;
-	int fin_label = (label + 2)%3;
-	
-	double pj = dotProduct(point_mat[next_label], m_sdr[label]);
-	m_sdr[next_label] = point_mat[next_label] - pj*m_sdr[label];
-	m_sdr[next_label] = m_sdr[next_label]/norm2(m_sdr[next_label]);
-	
-	m_sdr[fin_label] = crossProduct(m_sdr[label],m_sdr[next_label]);
-	m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
+    
+    if(label <0 || label >2 ){
+        assert(false && "no correct label passed as argument in BasicShape::setRefSystem");
+        return;
+    }
+    
+    double a = norm2(axis);
+    if (!(a > 0.0) ){
+        assert(false && "0-vector passed as axis argument in BasicShape::SetRefSystem method");
+        return;
+    }
+    
+    m_sdr[label] = axis/a;
+    dvecarr3E point_mat(3,darray3E{0,0,0});
+    point_mat[0][0] = point_mat[1][1]= point_mat[2][2]=1.0;
+    
+    int next_label = (label + 1)%3;
+    int fin_label = (label + 2)%3;
+    
+    double pj = dotProduct(point_mat[next_label], m_sdr[label]);
+    m_sdr[next_label] = point_mat[next_label] - pj*m_sdr[label];
+    m_sdr[next_label] = m_sdr[next_label]/norm2(m_sdr[next_label]);
+    
+    m_sdr[fin_label] = crossProduct(m_sdr[label],m_sdr[next_label]);
+    m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
 }
 
 /*! 
@@ -182,9 +205,7 @@ void BasicShape::setRefSystem(int label, darray3E axis){
  * \param[in] axes new direction of local axes.
  */
 void BasicShape::setRefSystem(dmatrix33E axes){
-	for (int i=0; i<3; i++){
-		m_sdr[i] = axes[i]/norm2(axes[i]);
-	}
+    setRefSystem(axes[0], axes[1], axes[2]);
 }
 
 /*! 
