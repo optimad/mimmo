@@ -109,9 +109,11 @@ void FFDLattice::swap(FFDLattice & x) noexcept
    std::swap(m_mapdeg, x.m_mapdeg);
    std::swap(m_globalDispl, x.m_globalDispl);
    std::swap(m_bfilter, x.m_bfilter);
-   std::swap(m_filter, x.m_filter);
+   //std::swap(m_filter, x.m_filter);
+   m_filter.swap(x.m_filter);
    std::swap(m_collect_wg, x.m_collect_wg);
-   std::swap(m_gdispl, x.m_gdispl);
+   //std::swap(m_gdispl, x.m_gdispl);
+   m_gdispl.swap(x.m_gdispl);
    Lattice::swap(x);
 }
 

@@ -566,9 +566,8 @@ MimmoGeometry::setBuildKdTree(bool build){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty(){
-    bool check = (getGeometry() == NULL); 
-    if (!check)  check = check && getGeometry()->isEmpty();
-    return check;
+    if(getGeometry() == NULL)   return true; 
+    return getGeometry()->isEmpty();
 }
 
 /*!
@@ -577,9 +576,8 @@ bool MimmoGeometry::isEmpty(){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty() const{
-    bool check = (getGeometry() == NULL); 
-    if (!check)  check = check && getGeometry()->isEmpty();
-    return check;
+    if(getGeometry() == NULL)   return true; 
+    return getGeometry()->isEmpty();
 }
 
 /*!

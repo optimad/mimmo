@@ -87,8 +87,10 @@ void ScaleGeometry::swap(ScaleGeometry & x) noexcept
     std::swap(m_scaling, x.m_scaling);
     std::swap(m_origin, x.m_origin);
     std::swap(m_meanP, x.m_meanP);
-    std::swap(m_filter, x.m_filter);
-    std::swap(m_displ, x.m_displ);
+//     std::swap(m_filter, x.m_filter);
+//     std::swap(m_displ, x.m_displ);
+    m_filter.swap(x.m_filter);
+    m_displ.swap(x.m_displ);
     BaseManipulation::swap(x);
 }
 
@@ -177,9 +179,9 @@ ScaleGeometry::execute(){
     if (m_meanP){
         center.fill(0.0);
         for (const auto & vertex : m_geometry->getVertices()){
-            ID = vertex.getId();
-            center += vertex.getCoords() / double(nV);
+            center += vertex.getCoords();
         }
+        center /=double(nV);
     }
     for (const auto & vertex : m_geometry->getVertices()){
         ID = vertex.getId();

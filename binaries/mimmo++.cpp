@@ -286,17 +286,9 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
 }
 
 // =================================================================================== //
+//core of xml handler
 
-int main( int argc, char *argv[] ) {
-
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
-#endif
-        //read the arguments
-        InfoMimmoPP info = readArguments(argc, argv);
-        
+void mimmocore(const InfoMimmoPP & info) {
         //set the logger and the verbosity of the output messages in execution
         std::string log = "mimmo";
         mimmo::setLogger(log);
@@ -397,12 +389,32 @@ int main( int argc, char *argv[] ) {
 		(*m_log)<<"Workflow DONE."<<std::endl;		
 		//Done, now exiting;
         m_log->setPriority(bitpit::log::DEBUG);
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
-#endif
-	
-	return 0;
 }
 
+
+//main program
+int main( int argc, char *argv[] ) {
+    
+    #if ENABLE_MPI==1
+    MPI::Init(argc, argv);
+    
+    {
+        #endif
+        try{
+            //read the arguments
+            InfoMimmoPP info = readArguments(argc, argv);
+            mimmocore(info);
+        }
+        catch(std::exception & e){
+            std::cout<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
+        
+        #if ENABLE_MPI==1
+    }
+    
+    MPI::Finalize();
+    #endif
+    
+    return 0;
+}

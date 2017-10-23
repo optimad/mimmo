@@ -116,7 +116,8 @@ void IOOFOAM::swap(IOOFOAM & x) noexcept
    std::swap(m_stopat, x.m_stopat);
    std::swap(m_surfmesh_ext, x.m_surfmesh_ext);
     
-   std::swap(m_field, x.m_field);
+   //std::swap(m_field, x.m_field);
+   m_field.swap(x.m_field);
    std::swap(m_normalize, x.m_normalize);
    std::swap(m_maxf, x.m_maxf);
    std::swap(m_scaling, x.m_scaling);

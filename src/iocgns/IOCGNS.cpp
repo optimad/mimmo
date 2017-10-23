@@ -1053,8 +1053,9 @@ IOCGNS::recoverCGNSInfo(){
     /* Verifiy if a surface mesh (boundary mesh) is set. */
     bool flagBnd = (bnd != NULL);
 
-    if( vol == NULL && bnd == NULL ) return;
-    if( vol->isEmpty() && bnd->isEmpty() ) return;
+    if( vol == NULL) return;
+    if( vol->isEmpty()) return;
+    if( flagBnd && bnd->isEmpty() ) return;
 
     int nVolElements = 0;
 

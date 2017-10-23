@@ -94,10 +94,12 @@ void BendGeometry::swap(BendGeometry & x) noexcept
    std::swap(m_origin, x.m_origin);
    std::swap(m_system, x.m_system);
    std::swap(m_local , x.m_local);
-   std::swap(m_filter, x.m_filter);
+   //std::swap(m_filter, x.m_filter);
+   m_filter.swap(x.m_filter);
    std::swap(m_degree, x.m_degree);
    std::swap(m_coeffs, x.m_coeffs);
-   std::swap(m_displ, x.m_displ);
+   //std::swap(m_displ, x.m_displ);
+   m_displ.swap(x.m_displ);
     BaseManipulation::swap(x);
 }
 /*! It builds the input/output ports of the object

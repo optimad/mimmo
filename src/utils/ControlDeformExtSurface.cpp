@@ -92,8 +92,10 @@ void ControlDeformExtSurface::swap(ControlDeformExtSurface & x) noexcept
     std::swap(m_allowed, x.m_allowed);
     std::swap(m_geolist, x.m_geolist);
     std::swap(m_cellBackground, x.m_cellBackground);
-    std::swap(m_violationField, x.m_violationField);
-    std::swap(m_defField, x.m_defField);
+//     std::swap(m_violationField, x.m_violationField);
+//     std::swap(m_defField, x.m_defField);
+    m_violationField.swap(x.m_violationField);
+    m_defField.swap(x.m_defField);
     BaseManipulation::swap(x);
 }
 /*! It builds the input/output ports of the object

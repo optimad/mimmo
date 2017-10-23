@@ -90,8 +90,10 @@ void RotationGeometry::swap(RotationGeometry & x) noexcept
     std::swap(m_origin, x.m_origin);
     std::swap(m_direction, x.m_direction);
     std::swap(m_alpha, x.m_alpha);
-    std::swap(m_filter, x.m_filter);
-    std::swap(m_displ, x.m_displ);
+//     std::swap(m_filter, x.m_filter);
+//     std::swap(m_displ, x.m_displ);
+    m_filter.swap(x.m_filter);
+    m_displ.swap(x.m_displ);
     BaseManipulation::swap(x);
 }
 

@@ -124,7 +124,8 @@ void CreateSeedsOnSurface::swap(CreateSeedsOnSurface & x) noexcept
     std::swap(m_seedbaricenter, x.m_seedbaricenter);
     std::swap(m_randomFixed, x.m_randomFixed);
     std::swap(m_deads, x.m_deads);
-    std::swap(m_sensitivity, x.m_sensitivity);
+//     std::swap(m_sensitivity, x.m_sensitivity);
+    m_sensitivity.swap(x.m_sensitivity);
     std::swap(bbox, x.bbox);
     BaseManipulation::swap(x);
 }

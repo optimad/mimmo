@@ -95,7 +95,8 @@ void SwitchVectorField::swap(SwitchVectorField & x) noexcept
 {
     std::swap(m_loc, x.m_loc);
     std::swap(m_fields, x.m_fields);
-    std::swap(m_result, x.m_result);
+    //std::swap(m_result, x.m_result);
+    m_result.swap(x.m_result);
     SwitchField::swap(x);
 }
 

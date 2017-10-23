@@ -94,7 +94,8 @@ SelectionByBoxWithScalar & SelectionByBoxWithScalar::operator=(SelectionByBoxWit
  */
 void SelectionByBoxWithScalar::swap(SelectionByBoxWithScalar & x) noexcept
 {
-    std::swap(m_field, x.m_field);
+    //std::swap(m_field, x.m_field);
+    m_field.swap(x.m_field);
     SelectionByBox::swap(x);
     
 }

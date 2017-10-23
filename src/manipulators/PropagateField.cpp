@@ -45,14 +45,15 @@ void PropagateField::setDefaults(){
     m_conn.clear();
     m_gamma        = 1.0;
     m_weights.clear();
-    m_bsurface  = NULL;
     m_laplace   = false;
     m_sstep     = 10;
-    m_bPointsToCompute = true;
-    m_dumping.clear();
-    m_dumpingFactor = 0.0;
     m_convergence = false;
     m_tol = 1.0e-05;
+    m_bsurface  = NULL;
+    m_bPointsToCompute = true;
+    m_dumpingFactor = 0.0;
+    m_dumping.clear();
+    m_radius = 0.0;
 }
 
 /*!
@@ -66,18 +67,21 @@ PropagateField::~PropagateField(){
  * Copy constructor
  */
 PropagateField::PropagateField(const PropagateField & other):BaseManipulation(other){
-    m_isbp        = other.m_isbp;
-    m_np        = other.m_np;
-    m_nbp        = other.m_nbp;
-    m_conn        = other.m_conn;
+    setDefaults();
+    m_isbp         = other.m_isbp;
+    m_np           = other.m_np;
+    m_nbp          = other.m_nbp;
+    m_conn         = other.m_conn;
     m_gamma        = other.m_gamma;
-    m_weights    = other.m_weights;
-    m_bsurface  = other.m_bsurface;
-    m_laplace   = other.m_laplace;
-    m_sstep     = other.m_sstep;
-    m_dumping     = other.m_dumping;
-    m_dumpingFactor  = other.m_dumpingFactor;
-    m_convergence     = other.m_convergence;
+    m_weights      = other.m_weights;
+    m_laplace      = other.m_laplace;
+    m_sstep        = other.m_sstep;
+    m_convergence  = other.m_convergence;
+    m_tol          = other.m_tol;
+    m_bsurface     = other.m_bsurface;
+    m_dumping      = other.m_dumping;
+    m_dumpingFactor= other.m_dumpingFactor;
+    m_radius       = other.m_radius;
 };
 
 /*!
@@ -85,17 +89,25 @@ PropagateField::PropagateField(const PropagateField & other):BaseManipulation(ot
  * \param[in] x object to be swapped
  */
 void PropagateField::swap(PropagateField & x) noexcept {
-    std::swap(m_isbp, x.m_isbp);
+//     std::swap(m_isbp, x.m_isbp);
+    m_isbp.swap(x.m_isbp);
     std::swap(m_np, x.m_np);
     std::swap(m_nbp, x.m_nbp);
-    std::swap(m_conn, x.m_conn);
+//     std::swap(m_conn, x.m_conn);
+    m_conn.swap(x.m_conn);
     std::swap(m_gamma, x.m_gamma);
-    std::swap(m_weights, x.m_weights);
-    std::swap(m_bsurface, x.m_bsurface);
+//     std::swap(m_weights, x.m_weights);
+    m_weights.swap(x.m_weights);
     std::swap(m_laplace, x.m_laplace);
     std::swap(m_sstep, x.m_sstep);
-    std::swap(m_dumping, x.m_dumping);
+    std::swap(m_convergence, x.m_convergence);
+    std::swap(m_tol, x.m_tol);
+    std::swap(m_bsurface, x.m_bsurface);
+    std::swap(m_bPointsToCompute, x.m_bPointsToCompute);
     std::swap(m_dumpingFactor, x.m_dumpingFactor);
+//     std::swap(m_dumping, x.m_dumping);
+    m_dumping.swap(x.m_dumping);
+    std::swap(m_radius, x.m_radius);
     BaseManipulation::swap(x);
 }
 
@@ -198,9 +210,11 @@ PropagateField::setSmoothingSteps(int ns){
  * \param[in] solveLaplacian true for Laplacian problem solver (not available); false for iterative smoothing technique.
  */
 void PropagateField::setSolver(bool solveLaplacian){
-    m_laplace = solveLaplacian;
+    //m_laplace = solveLaplacian;
+
     //TODO REMOVE IT WHEN LAPLACIAN SOLVER IMPLEMENTED !!!
     //Forced to smoothing
+    BITPIT_UNUSED(solveLaplacian);
     m_laplace = false;
 }
 
@@ -431,8 +445,10 @@ PropagateVectorField & PropagateVectorField::operator=(PropagateVectorField othe
  * \param[in] x object to be swapped
  */
 void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
-    std::swap(m_bc, x.m_bc);
-    std::swap(m_field, x.m_field);
+//     std::swap(m_bc, x.m_bc);
+//     std::swap(m_field, x.m_field);
+    m_bc.swap(x.m_bc);
+    m_field.swap(x.m_field);
     PropagateField::swap(x);
 }
 
@@ -874,8 +890,10 @@ PropagateScalarField & PropagateScalarField::operator=(PropagateScalarField othe
  * \param[in] x object to be swapped
  */
 void PropagateScalarField::swap(PropagateScalarField & x) noexcept {
-    std::swap(m_bc, x.m_bc);
-    std::swap(m_field, x.m_field);
+//     std::swap(m_bc, x.m_bc);
+//     std::swap(m_field, x.m_field);
+    m_bc.swap(x.m_bc);
+    m_field.swap(x.m_field);
     PropagateField::swap(x);
 }
 

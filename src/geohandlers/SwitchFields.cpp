@@ -32,6 +32,7 @@ namespace mimmo{
  */
 SwitchField::SwitchField(){
     m_mapping = false;
+    m_tol = 1.0e-12;
 }
 
 /*!

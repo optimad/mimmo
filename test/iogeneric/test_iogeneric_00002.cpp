@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -152,9 +153,15 @@ int main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling mimmo Test routines*/
-
-        int val = test2_1() ;
-        std::max(val, test2_2());
+        int val = 1;
+        try{
+            val = test2_1() ;
+            val = std::max(val, test2_2());
+        }
+        catch(std::exception & e){
+            std::cout<<"test_iogeneric_00002 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
 	}
 

@@ -95,7 +95,8 @@ void ReconstructScalar::swap(ReconstructScalar & x ) noexcept
     std::swap(m_overlapCriterium,x.m_overlapCriterium);
     std::swap(m_subpatch, x.m_subpatch);
     std::swap(m_subresults, x.m_subresults);
-    std::swap(m_result, x.m_result);
+    //std::swap(m_result, x.m_result);
+    m_result.swap(x.m_result);
     BaseManipulation::swap(x);
 };
 
@@ -187,14 +188,26 @@ ReconstructScalar::addData( dmpvector1D  field){
  */
 void
 ReconstructScalar::removeData(MimmoObject * patch){
+    //in m_subpatch remove progressively all pierced vector elements in last position
+    //which links towards a geometry of type patch.
+    while(m_subpatch.back().getGeometry() == patch){
+        m_subpatch.pop_back();
+    }
+    
+    //start searching from the begin on element linking patch
     std::vector<dmpvector1D>::iterator it = m_subpatch.begin();
+    
     while(it != m_subpatch.end()){
         if (it->getGeometry() == patch){
-            m_subpatch.erase(it);
+            *it = m_subpatch.back();
+            m_subpatch.pop_back();
+            //be always sure the last element is clean and does not link
+            // the patch
+            while(m_subpatch.back().getGeometry() == patch){
+                m_subpatch.pop_back();
+            }
         }
-        else{
-            ++it;
-        }
+        ++it; //forward the iterator.
     }
 };
 

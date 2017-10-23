@@ -24,6 +24,7 @@
 
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -88,9 +89,13 @@ int main( int argc, char *argv[] ) {
     {
 #endif
         /**<Calling mimmo Test routines*/
-
-        test00001();
-
+        try{
+            test00001();
+        }
+        catch(std::exception & e){
+            std::cout<<"genericinput_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
     }
 

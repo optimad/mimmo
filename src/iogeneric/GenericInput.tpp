@@ -134,15 +134,16 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x){
     T       dummy;
     long    id;
     int     location;
-    long    sizeData = 0;
+    long    sizeData = 0, readSizeData;
 
     if(ifstreamcsvend(in, location)){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
-    if(ifstreamcsvend(in, sizeData)){
-        x.reserve(sizeData);
+    if(ifstreamcsvend(in, readSizeData)){
+        sizeData = std::max(sizeData, readSizeData);
     }
-    
+
+    x.reserve(sizeData);
     for(long count = 0; count<sizeData; ++count){
         ifstreamcsv(in,id) ;
         ifstreamcsvend(in,dummy);
@@ -314,7 +315,7 @@ GenericInputMPVData::_getResult(){
     if (getGeometry() == NULL) return NULL;
 
     int n_loc;
-    long nSize = 0;
+    long nSize = 0, readNSize;
     long id;
     T data_T;
 
@@ -339,7 +340,8 @@ GenericInputMPVData::_getResult(){
             inputCSVStream::ifstreamcsv(file, data);
         }else{
             bitpit::genericIO::absorbASCII(file, n_loc);
-            bitpit::genericIO::absorbASCII(file, nSize);
+            bitpit::genericIO::absorbASCII(file, readNSize);
+            nSize = std::max(nSize,readNSize);
             data.reserve(nSize);
             for(int i=0; i<nSize; ++i){
                 bitpit::genericIO::absorbASCII(file, id);

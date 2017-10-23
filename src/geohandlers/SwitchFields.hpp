@@ -75,7 +75,8 @@ namespace mimmo{
  *
  * Proper of the class:
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping
- *
+ * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
+ 
  * Geometries and fields have to be mandatorily passed through port.
  *
  */
@@ -155,7 +156,8 @@ private:
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
- 
+ * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
+ *
  * Proper of the class:
  * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
  *
@@ -237,7 +239,8 @@ private:
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
- 
+ * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
+ *
  * Proper of the class:
  * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
  *

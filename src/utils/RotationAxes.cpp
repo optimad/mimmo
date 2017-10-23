@@ -99,6 +99,12 @@ RotationAxes::RotationAxes(const RotationAxes & other):BaseManipulation(other){
     m_alpha=other.m_alpha;
     m_origin = other.m_origin;
     m_direction = other.m_direction;
+    for(auto & val: m_rotax)    
+        val.fill(0.0);
+    m_rotax[0][0] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax[1][1] = 1.0; 
+    m_rotax_origin = {{0,0,0}}; 
 };
 
 /*!Assignement operator of RotationAxes.
@@ -120,6 +126,8 @@ void RotationAxes::swap(RotationAxes & x) noexcept
     std::swap(m_alpha, x.m_alpha);
     std::swap(m_origin, x.m_origin);
     std::swap(m_direction, x.m_direction);
+    std::swap(m_rotax, x.m_rotax);
+    std::swap(m_rotax_origin, x.m_rotax_origin);
     BaseManipulation::swap(x);
 }
 /*! It builds the input/output ports of the object

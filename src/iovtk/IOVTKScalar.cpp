@@ -66,6 +66,7 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
     m_rdir      = "./";
     m_wdir      = "./";
     m_polydata  = NULL;
+    m_polydataInternal = false;
     m_local     = false;
     m_normalize = true;
     m_scaling   = 1.0;
@@ -131,7 +132,8 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
    std::swap(m_wdir, x.m_wdir);
    std::swap(m_polydata, x.m_polydata);
    std::swap(m_polydataInternal, x.m_polydataInternal);
-   std::swap(m_field, x.m_field);
+   //std::swap(m_field, x.m_field);
+   m_field.swap(x.m_field);
    std::swap(m_normalize, x.m_normalize);
    std::swap(m_scaling, x.m_scaling);
    std::swap(m_local, x.m_local);

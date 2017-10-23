@@ -24,6 +24,7 @@
 #include "mimmo_iocgns.hpp"
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
+#include <exception>
 
 using namespace mimmo;
 
@@ -176,9 +177,14 @@ int main( int argc, char *argv[] ) {
 
     {
 #endif
-        /**< Call mimmo example routine. */
-        example00001();
-
+        try{
+            /**< Call mimmo example routine. */
+            example00001();
+        }
+        catch(std::exception & e){
+            std::cout<<"iocgns_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
     }
 

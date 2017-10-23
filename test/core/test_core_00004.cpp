@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -91,10 +92,15 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
+        int val = 1;
 		/**<Calling mimmo Test routines*/
-
-        int val = test4() ;
-
+        try{
+            val = test4() ;
+        }
+        catch(std::exception & e){
+            std::cout<<"test_core_00004 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
 	}
 

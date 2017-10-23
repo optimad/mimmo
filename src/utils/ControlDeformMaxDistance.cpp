@@ -81,8 +81,10 @@ ControlDeformMaxDistance & ControlDeformMaxDistance::operator=(ControlDeformMaxD
 void ControlDeformMaxDistance::swap(ControlDeformMaxDistance & x) noexcept
 {
     std::swap(m_maxDist, x.m_maxDist);
-    std::swap(m_violationField, x.m_violationField);
-    std::swap(m_defField, x.m_defField);
+//     std::swap(m_violationField, x.m_violationField);
+//     std::swap(m_defField, x.m_defField);
+    m_violationField.swap(x.m_violationField);
+    m_defField.swap(x.m_defField);
     BaseManipulation::swap(x);
 }
 

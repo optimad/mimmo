@@ -203,8 +203,9 @@ OBBox::setGeometry(MimmoObject * geo){
     
     if (geo == NULL)    {
         (*m_log)<<"warning: "<<m_name<<" not valid Geometry pointer. Doing nothing"<<std::endl;
+        return;
     }
-    
+
     if (geo->isEmpty())    {
         (*m_log)<<"warning: "<<m_name<<" empty Geometry set. Doing nothing"<<std::endl;
         return;

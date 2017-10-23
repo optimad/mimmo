@@ -194,8 +194,6 @@ private:
     std::unordered_map<std::string, InfoPort> ports;  /**< list of registered ports */
     std::unordered_map<std::string, long> containers; /**< list of registered port containers */
     std::unordered_map<std::string, long> datatypes;  /**< list of registered port data types */
-    bitpit::Logger*                           m_log;    /**<logger of mimmo */
-
 };
 
 };

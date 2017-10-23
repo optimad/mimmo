@@ -26,6 +26,7 @@
 #include "bitpit.hpp"
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
+#include <exception>
 
 using namespace std;
 using namespace bitpit;
@@ -281,7 +282,13 @@ int main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling mimmo Test routine*/
-		test00003();
+		try{
+            test00003();
+        }
+        catch(std::exception & e){
+            std::cout<<"geohandlers_example_00003 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 		
 #if ENABLE_MPI==1
 	}

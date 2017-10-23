@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -215,11 +216,17 @@ int main( int argc, char *argv[] ) {
 
 	{
 #endif
+        int val = 1;
+        
 		/**<Calling mimmo Test routines*/
-
-        int val = test3_1();
-        val = std::max(val, test3_2());
-
+        try{
+            val = test3_1();
+            val = std::max(val, test3_2());
+        }
+        catch(std::exception & e){
+            std::cout<<"test_geohandlers_00003 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
 	}
 

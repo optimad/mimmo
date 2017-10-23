@@ -26,6 +26,7 @@
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -265,10 +266,17 @@ int main(int argc, char *argv[]) {
         /**<Change the name of mimmo logger file (default mimmo.log)
          * before initialization of BaseManipulation objects*/
         mimmo::setLogger("mimmo");
-
-        /**<Calling mimmo Test routines*/
-        test00001() ;
-
+        
+        try{
+            /**<Calling mimmo Test routines*/
+            test00001() ;
+        }
+        
+        catch(std::exception & e){
+            std::cout<<"manipulators_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
+        
 #if BITPIT_ENABLE_MPI==1
     }
 

@@ -67,7 +67,8 @@ Apply::Apply(const Apply & other):BaseManipulation(other){
  */
 void Apply::swap(Apply & x) noexcept
 {
-    std::swap(m_input, x.m_input);
+    //std::swap(m_input, x.m_input);
+    m_input.swap(x.m_input);
     BaseManipulation::swap(x);
 }
 

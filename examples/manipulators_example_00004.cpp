@@ -26,6 +26,7 @@
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
+#include <exception>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -198,9 +199,14 @@ int	main( int argc, char *argv[] ) {
 
     {
 #endif
-        /**<Calling mimmo Test routine*/
-        test00004() ;
-
+        try{
+            /**<Calling mimmo Test routine*/
+            test00004() ;
+        }
+        catch(std::exception & e){
+            std::cout<<"manipulators_example_00004 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if ENABLE_MPI==1
     }
 

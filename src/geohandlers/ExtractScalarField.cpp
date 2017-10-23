@@ -69,8 +69,10 @@ ExtractScalarField::~ExtractScalarField(){
  */
 void ExtractScalarField::swap(ExtractScalarField & x ) noexcept
 {
-    std::swap(m_field,x.m_field);
-    std::swap(m_result, x.m_result);
+    //     std::swap(m_field,x.m_field);
+    //     std::swap(m_result, x.m_result);
+    m_field.swap(x.m_field);
+    m_result.swap(x.m_result);
     BaseManipulation::swap(x);
 };
 
