@@ -3,8 +3,10 @@ All notable changes to **mimmo** project will be documented in this file.
 
 This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
 
-## [Unreleased]
+
+## [1.2.0] - 2017-10-24
 ### Added
 - added new geohandlers:Reconstruct classes
 - added new geohandlers:Extract classes
