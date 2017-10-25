@@ -5,6 +5,10 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Fixed
+- fixed cmake retracking dependancies (as in case of bitpit)
+
+
 
 ## [1.2.0] - 2017-10-24
 ### Added
