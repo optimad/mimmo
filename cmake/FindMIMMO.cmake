@@ -19,7 +19,7 @@
 # find_package command after the COMPONENTS option (or after the REQUIRED
 # option if present). Additional optional components may be listed after
 # OPTIONAL_COMPONENTS. For each of the requested modules, a boolean variable
-# named BITPIT_<MODULE_NAME>_FOUND will be set telling if the corresponding
+# named MIMMO_<MODULE_NAME>_FOUND will be set telling if the corresponding
 # module is enabled in the corresponding MIMMO installation. If a required
 # module is not found a fatal error is generated and the configure step
 # stops executing.

@@ -35,8 +35,10 @@ set(MIMMO_INSTALL_CMAKE_DIR "lib/cmake/${PROJECT_NAME}-${MIMMO_MAJOR_VERSION}.${
 #------------------------------------------------------------------------------------#
 # Generate MIMMOConfig.cmake
 #------------------------------------------------------------------------------------#
+set(MIMMO_CMAKE_CONFIG_DIR "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
+
 set(MIMMO_INSTALL_PREFIX_CODE
-"set(_mimmo_installed_prefix \"${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}\")
+"set(_mimmo_installed_prefix \"${MIMMO_CMAKE_CONFIG_DIR}\")
 set(_mimmo_requested_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")
 get_filename_component(_mimmo_installed_prefix_full \"\${_mimmo_installed_prefix}\" REALPATH)
 get_filename_component(_mimmo_requested_prefix_full \"\${_mimmo_requested_prefix}\" REALPATH)
