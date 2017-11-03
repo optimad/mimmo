@@ -24,11 +24,9 @@
 #ifndef __INOUT_HPP__
 #define __INOUT_HPP__
 
-#include "mimmoTypeDef.hpp"
 #include "binary_stream.hpp"
 #include "MimmoNamespace.hpp"
 #include "BasicShapes.hpp"
-#include "MimmoObject.hpp"
 #include "MimmoPiercedVector.hpp"
 #include "TrackingPointer.hpp"
 #include <functional>

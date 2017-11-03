@@ -797,7 +797,7 @@ ControlDeformExtSurface::writeLog(){
     for (auto ig : m_geolist){
         (*log)<< ig.first << "  " ;
     }
-    (*log)<<endl;
+    (*log)<<std::endl;
 
 
 };

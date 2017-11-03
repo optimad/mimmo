@@ -100,8 +100,8 @@ class ReconstructScalar: public mimmo::BaseManipulation {
 private:
     MPVLocation m_loc;                  /**<Data reference Location */
     OverlapMethod m_overlapCriterium;   /**<Overlap Method */
-    vector<dmpvector1D> m_subpatch;     /**<Vector of input fields on sub-patches. */
-    vector<dmpvector1D> m_subresults;   /**<Vector of processed/overlapped fields on sub-patches. */
+    std::vector<dmpvector1D> m_subpatch;     /**<Vector of input fields on sub-patches. */
+    std::vector<dmpvector1D> m_subresults;   /**<Vector of processed/overlapped fields on sub-patches. */
     dmpvector1D m_result;               /**<Output reconstructed field. */
 
 public:
@@ -115,7 +115,7 @@ public:
     int                     getOverlapCriterium();
     int                     getNData();
     dmpvector1D             getResultField();
-    vector<dmpvector1D>     getResultFields();
+    std::vector<dmpvector1D>     getResultFields();
 
     void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium( int);
@@ -197,8 +197,8 @@ class ReconstructVector: public mimmo::BaseManipulation {
 private:
     MPVLocation m_loc;                  /**<Data reference Location */
     OverlapMethod m_overlapCriterium;   /**<Overlap Method */
-    vector<dmpvecarr3E> m_subpatch;     /**<Vector of input fields on sub-patches. */
-    vector<dmpvecarr3E>  m_subresults;  /**<Vector of processed/overlapped fields on sub-patches. */
+    std::vector<dmpvecarr3E> m_subpatch;     /**<Vector of input fields on sub-patches. */
+    std::vector<dmpvecarr3E>  m_subresults;  /**<Vector of processed/overlapped fields on sub-patches. */
     dmpvecarr3E m_result;               /**<Output reconstructed field. */
 
 public:

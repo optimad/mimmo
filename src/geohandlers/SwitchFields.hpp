@@ -167,7 +167,7 @@ private:
 class SwitchScalarField: public SwitchField{
 private:
     MPVLocation m_loc;  /**< field data reference location */
-    vector<dmpvector1D> m_fields;   /**<Input fields to be switch. */
+    std::vector<dmpvector1D> m_fields;   /**<Input fields to be switch. */
     dmpvector1D m_result;               /**<Result switch fields. */
 
 public:
@@ -178,7 +178,7 @@ public:
 
     void buildPorts();
     dmpvector1D     getSwitchedField();
-    void     setFields(vector<dmpvector1D> fields);
+    void     setFields(std::vector<dmpvector1D> fields);
     void     addField(dmpvector1D field);
 
     void clear();
@@ -249,7 +249,7 @@ private:
 class SwitchVectorField: public SwitchField{
 private:
     MPVLocation m_loc;  /**< field data reference location */
-    vector<dmpvecarr3E>  m_fields;   /**<Input fields to be switch. */
+    std::vector<dmpvecarr3E>  m_fields;   /**<Input fields to be switch. */
     dmpvecarr3E m_result;                /**<Result switch fields. */
 
 public:
@@ -261,7 +261,7 @@ public:
 
     void buildPorts();
     dmpvecarr3E     getSwitchedField();
-    void     setFields(vector<dmpvecarr3E> fields);
+    void     setFields(std::vector<dmpvecarr3E> fields);
     void     addField(dmpvecarr3E field);
 
     void clear();

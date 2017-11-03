@@ -287,7 +287,7 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
     if(m_subresults[i].getGeometry() == NULL) return;
     if(m_subresults[i].getGeometry()->isEmpty()) return;
     
-    std::string nameX = name+"SubPatch"+to_string(i);
+    std::string nameX = name+"SubPatch"+std::to_string(i);
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
     if(m_loc == MPVLocation::CELL){

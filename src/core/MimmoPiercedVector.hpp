@@ -62,8 +62,8 @@ enum class MPVLocation{
  * understand to which structures of geometry refers the data (UNDEFINED no-info, POINT-vertices, 
  * CELL-simplicies, INTERFACE-interfaces).
  */
-template<typename value_t>
-class MimmoPiercedVector: public bitpit::PiercedVector<value_t, long int> {
+template<typename mpv_t>
+class MimmoPiercedVector: public bitpit::PiercedVector<mpv_t, long int> {
 private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
@@ -73,9 +73,9 @@ public:
     MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
-    MimmoPiercedVector(const MimmoPiercedVector<value_t> & other);
-    MimmoPiercedVector & operator=(MimmoPiercedVector<value_t> other);
-    MimmoPiercedVector & operator=(bitpit::PiercedVector<value_t, long int> other);
+    MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & other);
+    MimmoPiercedVector & operator=(MimmoPiercedVector<mpv_t> other);
+    MimmoPiercedVector & operator=(bitpit::PiercedVector<mpv_t, long int> other);
     
     void  clear();
 
@@ -83,8 +83,8 @@ public:
     MimmoObject*            getGeometry() const;
     MPVLocation             getConstDataLocation() const;
     MPVLocation             getDataLocation();
-    std::vector<value_t>    getDataAsVector(bool ordered=false);
-    std::vector<value_t>    getRawDataAsVector(bool ordered=false);
+    std::vector<mpv_t>    getDataAsVector(bool ordered=false);
+    std::vector<mpv_t>    getRawDataAsVector(bool ordered=false);
     bool                    isEmpty();
     
     bool                   completeMissingData(const value_t & defValue);
@@ -92,13 +92,13 @@ public:
     void                   setGeometry(MimmoObject* geo);
     void                   setDataLocation(MPVLocation loc);
     void                   setDataLocation(int loc);
-    void                   setData(std::vector<value_t> &rawdata);
+    void                   setData(std::vector<mpv_t> &rawdata);
     
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     bool intIsValidLocation(int &);
 
-    void  swap(MimmoPiercedVector<value_t>& x) noexcept;
+    void  swap(MimmoPiercedVector<mpv_t>& x) noexcept;
 
 private:
     livector1D getGeometryIds(bool ordered=false);
