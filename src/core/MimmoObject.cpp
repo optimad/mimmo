@@ -296,29 +296,62 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  * Custom constructor of MimmoObject.
  * This constructor builds a geometry data structure soft linking to an external bitpit::PatchKernel object, that is
  * it does not own the geometry data structure, but simple access it, while it is instantiated elsewhere.
- * Search Trees will be referred to this linked geometry.
- * If a null geometry patch is linked, a standard MimmoObject is built.
- * The mesh type needs to be specified (see default constructor MimmoObject(int type) doc).
+ * If a null or empty or not coherent geometry patch is linked, throw an error exception.
  * \param[in] type type of mesh
  * \param[in] geometry pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
-
+    
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4 || geometry == NULL){
         (*m_log)<<"Error MimmoObject: unrecognized data structure type or NULL argument in class construction."<<std::endl;
         throw std::runtime_error ("MimmoObject : unrecognized mesh type or NULL argument in class construction");
     }
-
+    if (geometry->getVertexCount() ==0){
+        (*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
+        throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
+    }
+    if (geometry->getCellCount() ==0 && m_type != 3){
+        (*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+        throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
+    }
+    
     m_internalPatch = false;
     m_extpatch = geometry;
+    
+    //check among elements if they are coherent with the type currently hold by the linked mesh.
+    std::unordered_set<int> mapEle = elementsMap(*geometry);
     switch(m_type){
         case 1:
+            if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::LINE) > 0        ||
+                mapEle.count((int)bitpit::ElementType::TETRA) > 0       ||
+                mapEle.count((int)bitpit::ElementType::HEXAHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::VOXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::WEDGE) > 0       ||
+                mapEle.count((int)bitpit::ElementType::PYRAMID) > 0     ||
+                mapEle.count((int)bitpit::ElementType::POLYHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
+            }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 2:
+            if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::LINE) > 0        ||
+                mapEle.count((int)bitpit::ElementType::TRIANGLE) > 0    ||
+                mapEle.count((int)bitpit::ElementType::QUAD) > 0        ||
+                mapEle.count((int)bitpit::ElementType::PIXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::POLYGON) > 0     ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
+            }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -326,6 +359,22 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
         case 4:
+            if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::TRIANGLE) > 0    ||
+                mapEle.count((int)bitpit::ElementType::QUAD) > 0        ||
+                mapEle.count((int)bitpit::ElementType::PIXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::POLYGON) > 0     ||
+                mapEle.count((int)bitpit::ElementType::TETRA) > 0       ||
+                mapEle.count((int)bitpit::ElementType::HEXAHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::VOXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::WEDGE) > 0       ||
+                mapEle.count((int)bitpit::ElementType::PYRAMID) > 0     ||
+                mapEle.count((int)bitpit::ElementType::POLYHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported elements for required type in linked mesh.");
+            }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
             m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
             break;
@@ -333,13 +382,146 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
             //never been reached
             break;
     }
-
+    
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
-    m_AdjBuilt = false;
-    m_IntBuilt = false;
     
+    //check if adjacencies and interfaces are built.
+    {
+        long free = 0, facesCount=0;
+        for(const auto & cell : getPatch()->getCells()){
+            const long * adj = cell.getAdjacencies();
+            for(int i=0; i<cell.getAdjacencyCount(); ++i){
+                free += long(adj[i] == bitpit::Cell::NULL_ID);
+                facesCount++;
+            }
+        }
+        m_AdjBuilt = (free < facesCount);
+    }
+    
+    m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
+    
+    //recover cell PID
+    for(const auto &cell : getPatch()->getCells()){
+        auto PID = cell.getPID();
+        m_pidsType.insert((short)PID);
+    }
+}
+
+/*!
+ * Custom constructor of MimmoObject.
+ * This constructor builds a geometry data structure owning an external bitpit::PatchKernel object, that is
+ * it takes the ownership of the geometry data structure treting it as an internal structure, and it will 
+ * be responsible of its own destruction.
+ * If a null or empty or not coherent geometry patch is linked, throw an error exception.
+ * \param[in] type type of mesh
+ * \param[in] geometry unique pointer to a geometry of class PatchKernel to be linked.
+ */
+MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry){
+    
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    m_type = max(type,1);
+    if (m_type > 4 || !geometry){
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type or NULL argument in class construction."<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type or NULL argument in class construction");
+    }
+    if (geometry->getVertexCount() ==0){
+        (*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
+        throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
+    }
+    if (geometry->getCellCount() ==0 && m_type != 3){
+        (*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+        throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
+    }
+    
+    //check among elements if they are coherent with the type currently hold by the linked mesh.
+    std::unordered_set<int> mapEle = elementsMap(*(geometry.get()));
+    switch(m_type){
+        case 1:
+            if(mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::LINE) > 0        ||
+                mapEle.count((int)bitpit::ElementType::TETRA) > 0       ||
+                mapEle.count((int)bitpit::ElementType::HEXAHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::VOXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::WEDGE) > 0       ||
+                mapEle.count((int)bitpit::ElementType::PYRAMID) > 0     ||
+                mapEle.count((int)bitpit::ElementType::POLYHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
+            }
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 2:
+            if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::LINE) > 0        ||
+                mapEle.count((int)bitpit::ElementType::TRIANGLE) > 0    ||
+                mapEle.count((int)bitpit::ElementType::QUAD) > 0        ||
+                mapEle.count((int)bitpit::ElementType::PIXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::POLYGON) > 0     ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
+            }
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(geometry.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 3:
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        case 4:
+            if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
+                mapEle.count((int)bitpit::ElementType::TRIANGLE) > 0    ||
+                mapEle.count((int)bitpit::ElementType::QUAD) > 0        ||
+                mapEle.count((int)bitpit::ElementType::PIXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::POLYGON) > 0     ||
+                mapEle.count((int)bitpit::ElementType::TETRA) > 0       ||
+                mapEle.count((int)bitpit::ElementType::HEXAHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::VOXEL) > 0       ||
+                mapEle.count((int)bitpit::ElementType::WEDGE) > 0       ||
+                mapEle.count((int)bitpit::ElementType::PYRAMID) > 0     ||
+                mapEle.count((int)bitpit::ElementType::POLYHEDRON) > 0  ||
+                mapEle.count((int)bitpit::ElementType::UNDEFINED) > 0    )
+            {
+                (*m_log)<<"Error MimmoObject: unsupported elements for required type in linked mesh."<<std::endl;
+                throw std::runtime_error ("MimmoObject :unsupported elements for required type in linked mesh.");
+            }
+            m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry.get()))));
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            break;
+        default:
+            //never been reached
+            break;
+    }
+    
+    m_internalPatch = true;
+    m_extpatch = NULL;
+    m_patch = std::move(geometry);
+    
+    m_skdTreeSupported = (m_type != 3);
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    
+    //check if adjacencies and interfaces are built.
+    {
+        long free = 0, facesCount=0;
+        for(const auto & cell : getPatch()->getCells()){
+            const long * adj = cell.getAdjacencies();
+            for(int i=0; i<cell.getAdjacencyCount(); ++i){
+                free += long(adj[i] == bitpit::Cell::NULL_ID);
+                facesCount++;
+            }
+        }
+        m_AdjBuilt = (free < facesCount);
+    }
+    
+    m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
+    
+    //recover cell PID
     for(const auto &cell : getPatch()->getCells()){
         auto PID = cell.getPID();
         m_pidsType.insert((short)PID);
@@ -2039,6 +2221,21 @@ MimmoObject::evalCellAspectRatio(const long & id){
             break;
     }
 }
+
+/*!
+ * \return map of all bitpit::ElementType (casted as integers) hold by the current bitpit::PatchKernel obj.
+ * \param[in] obj target PatchKernel object.
+ */
+std::unordered_set<int>
+MimmoObject::elementsMap(bitpit::PatchKernel & obj){
+    
+    std::unordered_set<int> result;
+    
+    for(const auto & cell : obj.getCells()){
+        result.insert((int)cell.getType());
+    }
+    return result;
+};
 
 }
 

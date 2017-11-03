@@ -132,6 +132,7 @@ public:
     MimmoObject(int type = 1); 
     MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
     MimmoObject(int type, bitpit::PatchKernel* geometry);
+    MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry);
     ~MimmoObject();
 
     MimmoObject(const MimmoObject & other);
@@ -235,10 +236,13 @@ public:
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);
-
+    
+    std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
+    
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
     void    cleanKdTree();
+    
 };
 
 };
