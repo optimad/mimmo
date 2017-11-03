@@ -234,10 +234,8 @@ scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
 	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
 endif ()
 
-# Add the definitions
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
-
 #------------------------------------------------------------------------------------#
 # Customized build types
 #------------------------------------------------------------------------------------#
@@ -350,7 +348,7 @@ set(CORE_DEPS "common")
 set(IOGENERIC_DEPS "core;common")
 set(IOCGNS_DEPS "core;common;iogeneric")
 set(IOVTK_DEPS "iogeneric;core;common")
-set(IOOFOAM_DEPS "iogeneric;iovtk;core;common")
+set(IOOFOAM_DEPS "iogeneric;core;common")
 set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
@@ -413,6 +411,7 @@ set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulato
 
 set(MIMMO_EXTERNAL_LIBRARIES "")
 set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
+set(ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "")
 
 ###     BITPIT      ###############################################
 find_package(BITPIT REQUIRED COMPONENTS levelset surfunstructured volunstructured RBF CG )
@@ -460,8 +459,7 @@ list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${PETSC_INCLUDES}")
 
 # module further dependency
 isModuleEnabled("iovtk" MODULE_ENABLED1)
-isModuleEnabled("ioofoam" MODULE_ENABLED3)
-if (MODULE_ENABLED1 OR MODULE_ENABLED3)
+if (MODULE_ENABLED1)
 
     # ---- VTK forced ---
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
@@ -472,6 +470,57 @@ if (MODULE_ENABLED1 OR MODULE_ENABLED3)
 else()
     UNSET(VTK_DIR CACHE)
 endif ()
+
+isModuleEnabled("ioofoam" MODULE_ENABLED3)
+if (MODULE_ENABLED3)
+
+    # ---- OpenFOAM forced ---
+    if(NOT OPENFOAM_PREC)
+        # Set default precision for Openfoam in double
+        set(OPENFOAM_PREC "WM_DP" CACHE STRING
+            "Choose the type of Openfoam precision, options are: WM_SP for Single precision or WM_DP for Double precision."
+            FORCE)
+
+        # Set the possible values of build type for the GUI
+        set_property(CACHE OPENFOAM_PREC PROPERTY STRINGS "WM_DP" "WM_SP")
+    endif()
+    set(OPENFOAM_DIR "/opt/OpenFOAM/OpenFOAM-2.4.x" CACHE PATH "path to OpenFoam installation")
+
+    set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
+    set(OFOAM_LIBS finiteVolume triSurface fileFormats surfMesh meshTools OpenFOAM )
+    set(OFOAM_DUMMYLIBS Pstream)
+    
+    foreach(OFCOMP IN LISTS OFOAM_INCLUDES)
+        list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${OPENFOAM_DIR}/src/${OFCOMP}/lnInclude")
+    endforeach()
+
+    foreach(OFLIBS IN LISTS OFOAM_LIBS)
+        find_library(OFTEMPL NAMES ${OFLIBS} HINTS ENV FOAM_LIBBIN)
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "${OFTEMPL}")
+        if(NOT OFTEMPL)
+            message(FATAL_ERROR "Cannot found ${OFLIBS} in current OpenFOAM distribution")
+        endif()    
+        unset(OFTEMPL CACHE)
+    endforeach()
+    
+    foreach(OFDUMMYLIBS IN LISTS OFOAM_DUMMYLIBS)
+        set(DUMMYLIBBIN $ENV{FOAM_LIBBIN})
+        find_library(OFTEMPL NAMES ${OFDUMMYLIBS} HINTS "${DUMMYLIBBIN}/dummy")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "${OFTEMPL}")
+        if(NOT OFTEMPL)
+            message(FATAL_ERROR "Cannot found dummy ${OFLIBS} in current OpenFOAM distribution")
+        endif()
+        unset(OFTEMPL CACHE)
+    endforeach()
+    #      ---- 
+
+   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_PREC}" "NoRepository")
+
+else()
+    UNSET(OPENFOAM_DIR CACHE)
+    UNSET(OPENFOAM_PREC CACHE)
+endif ()
+
 
 # module further dependency
 isModuleEnabled("iocgns" MODULE_ENABLED2)
@@ -513,6 +562,7 @@ else()
     unset(HDF5_BUILD_TYPE CACHE)
 endif ()
 
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE})
 #------------------------------------------------------------------------------------#
 # Subdirectories
 #------------------------------------------------------------------------------------#
