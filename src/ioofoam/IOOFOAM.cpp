@@ -22,18 +22,12 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "IOOFOAM.hpp"
-#include <vtkSmartPointer.h>
-#include <vtkGenericDataObjectReader.h>
-#include <vtkTriangleFilter.h>
-#include <vtkCellArray.h>
-#include <vtkPointData.h>
-#include <vtkPolyDataWriter.h>
+#include "openFoamFiles_native.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
-/*!Default constructor of IOOFOAM.
+/*!
+ * Default constructor of IOOFOAM.
  */
 IOOFOAM::IOOFOAM(){
     m_name          = "mimmo.IOOFOAM";
@@ -67,24 +61,10 @@ IOOFOAM::~IOOFOAM(){};
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other):BaseManipulation(other){
     m_read = other.m_read;
-    m_rdirS = other.m_rdirS;
-    m_rfilenameS= other.m_rfilenameS;
-    m_rdirV = other.m_rdirV;
-    m_rfilenameV = other.m_rfilenameV;
-    
-    m_write = other.m_write;
-    m_wdirS = other.m_wdirS;
-    m_wfilenameS= other.m_wfilenameS;
-    m_wdirV = other.m_wdirV;
-    m_wfilenameV = other.m_wfilenameV;
+    m_readPath = other.m_readPath;
 
-    m_stopat = other.m_stopat;
-    m_surfmesh_ext = other.m_surfmesh_ext;
-    
-    m_field = other.m_field;
-    m_normalize = other.m_normalize;
-    m_maxf = other.m_maxf;
-    m_scaling = other.m_scaling;
+    m_write = other.m_write;
+    m_writePath = other.m_writePath;
 };
 
 /*!
@@ -102,46 +82,30 @@ IOOFOAM & IOOFOAM::operator=(IOOFOAM other){
 void IOOFOAM::swap(IOOFOAM & x) noexcept
 {
    std::swap(m_read, x.m_read);
-   std::swap(m_rdirS, x.m_rdirS);
-   std::swap(m_rfilenameS, x.m_rfilenameS);
-   std::swap(m_rdirV, x.m_rdirV);
-   std::swap(m_rfilenameV, x.m_rfilenameV);
-    
+   std::swap(m_readPath, x.m_readPath);
+
    std::swap(m_write, x.m_write);
-   std::swap(m_wdirS, x.m_wdirS);
-   std::swap(m_wfilenameS, x.m_wfilenameS);
-   std::swap(m_wdirV, x.m_wdirV);
-   std::swap(m_wfilenameV, x.m_wfilenameV);
-    
-   std::swap(m_stopat, x.m_stopat);
-   std::swap(m_surfmesh_ext, x.m_surfmesh_ext);
-    
-   //std::swap(m_field, x.m_field);
-   m_field.swap(x.m_field);
-   std::swap(m_normalize, x.m_normalize);
-   std::swap(m_maxf, x.m_maxf);
-   std::swap(m_scaling, x.m_scaling);
+   std::swap(m_writePath, x.m_writePath);
    std::swap(m_volmesh, x.m_volmesh);
-   std::swap(m_surfmesh, x.m_surfmesh);
-    
-    BaseManipulation::swap(x);
+
+   BaseManipulation::swap(x);
 };
-/*!Default values for IOOFOAM.
+
+/*!
+ * Default values for IOOFOAM.
  */
 void
 IOOFOAM::setDefaults(){
 
     m_read       = false;
-    m_rfilenameS.clear();
-    m_rdirS.clear();
+    m_readPath   = ".";
     m_write      = false;
-    m_wfilenameV = "mimmoPoints";
-    m_wdirV      = "./";
-    m_surfmesh_ext = NULL;
-    m_maxf      = 0.0;
-    m_scaling   = 1.0;
-    m_normalize = true;
-    m_stopat = -1;
+    m_writePath  = "./";
+    
+    m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
+    m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
+    m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
+    m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
 }
 
 /*! It builds the input/output ports of the object
@@ -151,16 +115,17 @@ IOOFOAM::buildPorts(){
 
     bool built = true;
     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setGeometry, M_GEOM));
-    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, M_GEOM2));
-    built = (built && createPortIn<dmpvector1D, IOOFOAM>(this, &IOOFOAM::setField, M_SCALARFIELD));
+//     built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM::setSurfaceBoundary, M_GEOM2));
+//     built = (built && createPortIn<dmpvector1D, IOOFOAM>(this, &IOOFOAM::setField, M_SCALARFIELD));
 
     built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getGeometry, M_GEOM));
-    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getSurfaceBoundary, M_GEOM2));
-    built = (built && createPortOut<dmpvector1D, IOOFOAM>(this, &IOOFOAM::getField, M_SCALARFIELD));
+//     built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &IOOFOAM::getSurfaceBoundary, M_GEOM2));
+//     built = (built && createPortOut<dmpvector1D, IOOFOAM>(this, &IOOFOAM::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
-/*!It sets the condition to read the geometries (both surface and volume patches) on file during the execution.
+/*!
+ * It sets to true to read the mesh during execution.
  * \param[in] read Does it read the geometry in execution?
  */
 void
@@ -168,56 +133,17 @@ IOOFOAM::setRead(bool read){
     m_read = read;
 }
 
-/*!It sets the name of directory to read the geometry (surface patches).
- * \param[in] dir Vector of names of input directories.
+/*!
+ * It sets the name of directory to read the OpenFOAM mesh.
+ * \param[in] dir mesh input directory.
  */
 void
-IOOFOAM::setVTKReadDir(vector<string> dir){
-    m_rdirS = dir;
+IOOFOAM::setReadDir(std::string dir){
+    m_readPath = dir;
 }
 
-/*!It sets the name of file to read the geometry (surface patches).
- * \param[in] filename Vector of names of input files.
- */
-void
-IOOFOAM::setVTKReadFilename(vector<string> filename){
-    m_rfilenameS = filename;
-}
-
-/*!It adds a name of directory to read a geometry (surface patch).
- * \param[in] dir Name of input directory.
- */
-void
-IOOFOAM::addVTKReadDir(string dir){
-    m_rdirS.push_back(dir);
-}
-
-/*!It adds a name of file to read a geometry (surface patch).
- * \param[in] filename Name of input file.
- */
-void
-IOOFOAM::addVTKReadFilename(string filename){
-    m_rfilenameS.push_back(filename);
-}
-
-/*!It sets the name of directory to read the points cloud (volume patch).
- * \param[in] dir Name of input directory.
- */
-void
-IOOFOAM::setPointsReadDir(string dir){
-    m_rdirV = dir;
-}
-
-/*!It sets the name of file to read the points cloud (volume patch).
- * \param[in] filename Name of input file.
- */
-void
-IOOFOAM::setPointsReadFilename(string filename){
-    m_rfilenameV = filename;
-}
-
-
-/*!It sets the condition to write the geometry (volume points cloud) on file during the execution.
+/*!
+ * It sets to true to write the mesh during execution.
  * \param[in] write Does it write the geometry in execution?
  */
 void
@@ -225,110 +151,36 @@ IOOFOAM::setWrite(bool write){
     m_write = write;
 }
 
-/*!It sets the name of directory to write the geometry (surface patch).
- * \param[in] dir Name of directory.
+/*!
+ * It sets the name of directory to write the OpenFOAM mesh.
+ * \param[in] dir mesh output directory
  */
 void
-IOOFOAM::setVTKWriteDir(string dir){
-    m_wdirS = dir;
-}
-
-/*!It sets the name of file to write the geometry (surface patch).
- * \param[in] filename Name of output file.
- */
-void
-IOOFOAM::setVTKWriteFilename(string filename){
-    m_wfilenameS = filename;
-}
-
-/*!It sets the name of directory to write the geometry (volume points cloud).
- * \param[in] dir Name of directory.
- */
-void
-IOOFOAM::setPointsWriteDir(string dir){
-    m_wdirV = dir;
-}
-
-/*!It sets the name of file to write the geometry (volume points cloud).
- * \param[in] filename Name of output file.
- */
-void
-IOOFOAM::setPointsWriteFilename(string filename){
-    m_wfilenameV = filename;
+IOOFOAM::setWriteDir(std::string dir){
+    m_writePath = dir;
 }
 
 
 /*!
- * Set current geometry to an external points cloud mesh.
+ * Set current geometry to a Volume Mesh MimmoObject.
+ * Method meant for writing class mode only.
+ * Any prevoius mesh internally allocated will be destroyed.
+ * \param[in] geom pointer to external volume mesh MimmoObject.
  */
 void
 IOOFOAM::setGeometry(MimmoObject * geom){
     if(geom == NULL || m_read)   return;
     if(geom->isEmpty())  return;
-    if(geom->getType() != 3) return;
+    if(geom->getType() != 2) return;
 
     BaseManipulation::setGeometry(geom);
-    //m_volmesh.reset(nullptr); //TODO clean local geometry if present?
-}
-
-/*!
- * Set boundary surface relative to the volume mesh.Option active only in writing mode.
- * Pre-existent boundary surfaces read from file, when class is set in read mode,  will be erased.
- * \param[in] geosurf pointer to surface boundary mesh
- */
-void
-IOOFOAM::setSurfaceBoundary(MimmoObject* geosurf){
-    if(geosurf == NULL || m_read)   return;
-    if(geosurf->isEmpty())  return;
-    if(geosurf->getType() != 1) return;
-
-    m_surfmesh_ext = geosurf;
-    //m_surfmesh.reset(nullptr); //TODO clean local geometry if present?
-};
-
-/*!It sets the scaling factor to be applied to the scalar field
- * related to surface boundary mesh.
- * \param[in] scaling Scaling factor.
- */
-void
-IOOFOAM::setScaling(double scaling){
-    m_scaling = scaling;
-}
-
-/*!It sets the scalar field
- * related to surface boundary mesh.
- * \param[in] field Scalar field.
- */
-void
-IOOFOAM::setField(dmpvector1D field){
-    m_field = field;
-}
-
-/*!It sets if the scalar field has to be normalized with its maximum absolute value.
- * \param[in] normalize Has the scalar field to be normalized?
- */
-void
-IOOFOAM::setNormalize(bool normalize){
-    m_normalize = normalize;
-}
-
-/*!
- * Return all the surface bounding the current volume mesh.
- * If reading mode is active returns info contained in vtk, marking with internal PID all the possible boundary patches,
- * otherwise refers to the actual object pointed by the User.
- * \return pointer to surface boundary mesh
- */
-MimmoObject*
-IOOFOAM::getSurfaceBoundary(){
-    if(m_read)  return m_surfmesh.get();
-    else    return m_surfmesh_ext;
 }
 
 
 /*!
  * Return current pointer to geometry.If read mode is active return local read volumetric mesh, else
  * otherwise return pointed externally geometry
- * \return pointer to volume points cloud mesh
+ * \return pointer to linked volume mesh
  */
 MimmoObject*
 IOOFOAM::getGeometry(){
@@ -336,365 +188,133 @@ IOOFOAM::getGeometry(){
     else return BaseManipulation::getGeometry();
 }
 
-/*!It gets the scalar field
- * related to surface boundary mesh.
- * \return Scalar field.
+/*!
+ * Clone actual internal mesh of the class, in an independent data structure.
+ * \return unique pointer of the cloned mesh.
  */
-dmpvector1D
-IOOFOAM::getField(){
-    return (m_field);
+std::unique_ptr<MimmoObject>
+IOOFOAM::cloneInternalMesh(){
+    return std::move(m_volmesh->clone());
 }
 
-/*!It reads the mesh geometries from input file.
- * It reads even the scalar fields related to surface patches if they are present.
- * \return False if files don't exist or are not a polydata (surface) or OpenFOAM points format (volume).
+/*!
+ * It reads the OpenFOAM mesh from input file and store in a volume mesh INTERNAL MimmoObject.
+ * \return false if errors occured during the reading.
  */
 bool
 IOOFOAM::read(){
 
+    Foam::Time *foamRunTime = 0;
+    Foam::fvMesh *foamMesh = 0;
 
-    //Read OpenFOAM Points
-    {
+    foamUtilsNative::initializeCase(m_readPath.c_str(), &foamRunTime, &foamMesh);
 
-        std::ifstream infile(m_rdirV+"/"+m_rfilenameV);
-        bool check = infile.good();
-        if (!check){
-            m_stopat = SHRT_MAX;
-            return false;
+   
+    std::unique_ptr<bitpit::PatchKernel> mesh(new mimmo::MimmoVolUnstructured(3));
+    mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
+    mesh->reserveCells(std::size_t(foamMesh->nCells()));
+    
+    //start absorbing mesh nodes/points.
+    Foam::pointField nodes = foamMesh->points();
+    darray3E coords;
+    forAll(nodes, in){
+        for (int k = 0; k < 3; k++) {
+            coords[k] = nodes[in][k];
         }
-        infile.close();
-
-        dvecarr3E   Ipoints;
-        readOFP(m_rdirV, m_rfilenameV, Ipoints);
-
-        //Reverse info in your grids.
-        std::unique_ptr<MimmoObject> patchVol(new MimmoObject(3));
-
-        int sizeV = Ipoints.size();
-        patchVol->getPatch()->reserveVertices(sizeV);
-
-        //  Stock vertices in volume grid
-        for(const auto & vv : Ipoints)    patchVol->addVertex(vv);
-
-        //release the points cloud mesh
-        m_volmesh = std::move(patchVol);
-
+        mesh->addVertex(coords, long(in));
     }
 
-    //compute kdtree for points cloud
-    m_volmesh->buildKdTree();
+       //absorbing cells.
+    const Foam::cellList & cells           = foamMesh->cells();
+    const Foam::cellShapeList & cellShapes = foamMesh->cellShapes();
+    const Foam::faceList & faces           = foamMesh->faces();
+    const Foam::labelList & faceOwner      = foamMesh->faceOwner();
+    const Foam::labelList & faceNeighbour  = foamMesh->faceNeighbour();
+    
+    Foam::label sizeNeighbours = faceNeighbour.size();
+    
+    std::string eleshape; 
+    bitpit::ElementType eltype;
+    long iDC;
+    short PID = 0;
+    livector1D conn, temp;
+    livector2D adjacency;
 
+    forAll(cells, iC){
 
-    //read vtk patches and assign ordered PID starting from 0
-    //TODO input PID for each patch has to be implemented.
+        iDC = long(iC);
+        eleshape = std::string(cellShapes[iC].model().name());
+        //first step verify the model in twin cellShapes list.
+        conn.clear();
+        adjacency.clear();
+        adjacency.resize(std::size_t(cells[iC].size()), livector1D(1, bitpit::Cell::NULL_ID));
+        
+        if(m_OFE_supp.count(eleshape) > 0){
 
-    std::unique_ptr<MimmoObject> patchBnd(new MimmoObject(1));
+            eltype = m_OFE_supp[eleshape];
+            temp.resize(cellShapes[iC].size());
+            forAll(cellShapes[iC], loc){
+                temp[loc] = (long)cellShapes[iC][loc];
+            }
+            conn = mapEleVConnectivity(temp, eltype);
 
-    short nPID = m_rfilenameS.size();
-    bool check;
-    for (short iPID = 0; iPID < nPID; iPID++){
-        check = readVTK(m_rdirS[iPID], m_rfilenameS[iPID], iPID, patchBnd.get());
-        if (!check) return check;
-    }
-    if (m_normalize && m_maxf > 0.0){
-        for (const auto & vertex : patchBnd->getVertices()){
-            m_field[vertex.getId()] /= m_maxf;
-            m_field[vertex.getId()] *= m_scaling;
+            auto ordFaceList = cellShapes[iC].meshFaces(faces, cells[iC]); 
+            Foam::label refFace;
+            forAll(ordFaceList, ofcount){
+                refFace = ordFaceList[ofcount];
+                if(refFace >= sizeNeighbours) continue;
+                if(iC == faceOwner[refFace]){
+                    adjacency[int(ofcount)][0] = faceNeighbour[refFace];
+                }else{
+                    adjacency[int(ofcount)][0] = faceOwner[refFace];
+                }
+            }
+            
+        }else{
+
+            eltype = bitpit::ElementType::POLYHEDRON;
+            //manually calculate connectivity.
+            conn.push_back((long)cells[iC].size()); //total number of faces on the top.
+            forAll(cells[iC], locC){
+                temp.clear();
+                Foam::label iFace = cells[iC][locC];
+                temp.push_back((long)faces[iFace].size());
+                forAll(faces[iFace], locF){
+                    temp.push_back((long)faces[iFace][locF]);
+                }
+                conn.insert(conn.end(), temp.begin(), temp.end());
+                
+                if(iFace >= sizeNeighbours) continue;
+                if(iC == faceOwner[iFace]){
+                    adjacency[int(locC)][0] = faceNeighbour[iFace];
+                }else{
+                    adjacency[int(locC)][0] = faceOwner[iFace];
+                }
+            }
         }
-    }
-    else{
-        for (const auto & vertex : patchBnd->getVertices()){
-            m_field[vertex.getId()] *= m_scaling;
-        }
+        bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, true, conn, iDC);
+        it->setPID(int(PID));
+        it->setAdjacencies(adjacency);
     }
 
-    //release the surface mesh
-    m_surfmesh = std::move(patchBnd);
+    m_volmesh = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(2, mesh)));
+    
+    
+    //boundary patch info.
 
     return true;
 
 }
 
-/*!It writes the mesh geometries on output .vtk (surface patche) and points format (points cloud) files.
- * It unifies the polydata input files with a unique surface patch.
- *\return False if one geometry is empty.
+/*!
+ * It writes the OpenFOAM mesh to an output file form an externally linked volume mesh MimmoObject.
+ * \return false if errors occured during the writing.
  */
 bool
 IOOFOAM::write(){
-
-    if (getGeometry() == NULL && getSurfaceBoundary() == NULL){
-        m_stopat = 2;
-        return false;
-    }
-    if (getSurfaceBoundary() != NULL){
-        //write surface mesh
-        string outputFilename = m_wdirS+"/"+m_wfilenameS;
-        
-        //check if a valid scalarfield is connected
-        bool check = m_field.getGeometry()==getSurfaceBoundary();
-        check = check && m_field.getDataLocation()==MPVLocation::POINT;
-        check = check && m_field.completeMissingData(0.0);
-        if(check){
-            dvector1D field = m_field.getDataAsVector(); 
-            getSurfaceBoundary()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
-        }
-        
-        getSurfaceBoundary()->getPatch()->write(outputFilename);
-    }else{
-        m_stopat = 0;
-    }
-
-    if (getGeometry() != NULL){
-        //write point cloud mesh
-        writeOFP(m_wdirV, m_wfilenameV, getGeometry()->getVertices());
-    }else{
-        m_stopat = 1;
-    }
-    
+    //do nothing for now
     return true;
 }
-
-
-//===============================//
-//====== OFOAM INTERFACE ========//
-//===============================//
-
-/*!
- *  Read openFoam format geometry file and absorb it as a point cloud ONLY.
- *\param[in]    inputDir    folder of file
- *\param[in]    pointsName  name of file
- *\param[out]   points      list of points in the cloud
- *
- */
-void IOOFOAM::readOFP(string& inputDir, string& pointsName, dvecarr3E& points){
-
-    ifstream is(inputDir +"/"+pointsName);
-
-    points.clear();
-    int ip = 0;
-    int np;
-    darray3E point;
-    string sread;
-    char par;
-
-    for (int i=0; i<18; i++){
-        getline(is,sread);
-    }
-    is >> np;
-    getline(is,sread);
-    getline(is,sread);
-
-    points.resize(np);
-    while(!is.eof() && ip<np){
-        is.get(par);
-        for (int i=0; i<3; i++) is >> point[i];
-        is.get(par);
-        getline(is,sread);
-        points[ip] = point;
-        ip++;
-    }
-    is.close();
-    return;
-
-}
-
-/*!
- *  Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]    outputDir    folder of file
- *\param[in]    pointsName  name of file
- *\param[out]   vertices    list of points in the cloud
- *
- */
-void IOOFOAM::writeOFP(string& outputDir, string& pointsName, PiercedVector<Vertex>& vertices){
-
-    ofstream os(outputDir +"/"+pointsName);
-    char nl = '\n';
-
-    string separator(" ");
-    string parl("("), parr(")");
-    string hline;
-
-    hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
-    os << hline << nl;
-    hline = "| =========                 |                                                 |";
-    os << hline << nl;
-    hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-    os << hline << nl;
-    hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
-    os << hline << nl;
-    hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-    os << hline << nl;
-    hline = "|    \\\\/     M anipulation  |                                                 |";
-    os << hline << nl;
-    hline = "\\*---------------------------------------------------------------------------*/";
-    os << hline << nl;
-    hline = "FoamFile";
-    os << hline << nl;
-    hline = "{";
-    os << hline << nl;
-    hline = "    version     2.0;";
-    os << hline << nl;
-    hline = "    format      ascii;";
-    os << hline << nl;
-    hline = "    class       vectorField;";
-    os << hline << nl;
-    hline = "    location    \"constant/polyMesh\";";
-    os << hline << nl;
-    hline = "    object      points;";
-    os << hline << nl;
-    hline = "}";
-    os << hline << nl;
-    hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-    os << hline << nl;
-    os << nl;
-    os << nl;
-    int np = vertices.size();
-    os << np << nl;
-    os << parl << nl;
-    for (const auto & vertex : vertices){
-        os << parl;
-        for (int j=0; j<2; j++){
-            os << setprecision(16) << vertex[j] << separator;
-        }
-        os << setprecision(16) << vertex[2] << parr << nl;
-    }
-    os << parr << nl;
-    os << nl;
-    os << nl;
-    hline = "// ************************************************************************* //";
-    os << hline << nl;
-
-    os.close();
-}
-
-//===============================//
-//===============================//
-
-
-/*!It reads a vtk surface patch from file. The structure is stored in a MimmoObject
- * by matching the IDs of the vertices wth the vertices stored in the local volume
- * points cloud patch (we are in reading modality).
- *\param[in]    inputDir    folder of file
- *\param[in]    surfaceName name of file
- *\param[in]    PID         PID of the patch
- *\param[in]    patchBnd    Actual boundary surface patch to be filled
- */
-bool IOOFOAM::readVTK(string& inputDir, string& surfaceName, short PID, MimmoObject* patchBnd){
-
-
-    std::ifstream infile(inputDir+"/"+surfaceName+".vtk");
-    bool check = infile.good();
-    if (!check) return false;
-    infile.close();
-
-
-    string inputFilename = inputDir+"/"+surfaceName+".vtk";
-    //int np = 0;
-    int nt = 0;
-    darray3E point;
-    bitpit::Vertex vertex;
-
-    //mapper for connectivity
-    map<vtkIdType, long> mapID;
-
-    // Get all data from the file
-    vtkSmartPointer<vtkGenericDataObjectReader> reader =
-            vtkSmartPointer<vtkGenericDataObjectReader>::New();
-    reader->SetFileName(inputFilename.c_str());
-    reader->Update();
-
-    // All of the standard data types can be checked and obtained like this:
-    if(reader->IsFilePolyData())
-    {
-        vtkPolyData* output = reader->GetPolyDataOutput();
-
-        vtkSmartPointer<vtkTriangleFilter> tri= vtkSmartPointer<vtkTriangleFilter>::New();
-        tri->SetInputData(output);
-        tri->Update();
-
-        vtkPolyData* output2 = tri->GetOutput();
-
-        vtkSmartPointer<vtkPoints> points = output2->GetPoints();
-        vtkCellArray *cells = output2->GetPolys();
-        //vtkCellData *cdata = output2->GetCellData();
-        vtkPointData *pdata = output2->GetPointData();
-
-
-        bitpit::KdTree<3, bitpit::Vertex, long> * kdtree = m_volmesh->getKdTree();
-        long ID;
-
-        double point_[3], tol = 1.0e-08;
-        livector1D ids;
-        livector1D noids;
-        bool check;
-
-        for (vtkIdType id=0; id<points->GetNumberOfPoints(); id++ ){
-            points->GetPoint(id, point_);
-            for (int i=0; i<3; i++) point[i] = point_[i];
-            vertex.setCoords(point);
-            check = false;
-            while(!check){
-                ids.clear();
-                kdtree->hNeighbors(&vertex, tol, &ids, &noids);
-                if (ids.size() == 0){
-                    tol *= 1.5;
-                }
-                else if (ids.size() > 1){
-                    tol /= 1.5;
-                }
-                else{
-                    ID = ids[0];
-                    check = true;
-                }
-            }
-
-            if (!(patchBnd->getVertices().exists(ID))){
-                patchBnd->addVertex(point, ID);
-            }
-            mapID[id] = ID;
-        }
-
-        vtkIdType* conn_;
-        vtkIdType npts;
-        nt = cells->GetNumberOfCells();
-        livector1D connectivity(3);
-        bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
-        cells->InitTraversal();
-        for (vtkIdType id=0; id<nt; id++ ){
-            cells->GetNextCell(npts, conn_);
-            for (int i=0; i<npts; i++) connectivity[i] = mapID[conn_[i]];
-            patchBnd->addConnectedCell(connectivity, eltype, PID);
-        }
-
-        patchBnd->cleanGeometry();
-
-
-        //IOOFOAM reads only a scalar field on each patch if present (if not add 0 values)
-        //If m_normalize is active the data are normalized with the maximum value on the patches
-        vtkDataArray* data = pdata->GetArray(0);
-        m_field.clear();
-        if (data != NULL){
-            for (vtkIdType id=0; id<points->GetNumberOfPoints(); id++){
-                m_field.insert(id, data->GetComponent(id,0));
-                m_maxf = max(m_maxf, abs(m_field[id]));
-            }
-        }
-        else{
-            for (vtkIdType id=0; id<points->GetNumberOfPoints(); id++){
-                m_field.insert(id, 0.0);
-            }
-        }
-        m_field.setGeometry(patchBnd);
-        m_field.setDataLocation(MPVLocation::POINT);
-    }else{
-        (*m_log) << m_name << " error: polydata not found in : "<< inputFilename << std::endl;
-        m_stopat = PID;
-        return false;
-    }
-
-    return true;
-}
-
 
 
 /*!Execution command.
@@ -706,22 +326,24 @@ IOOFOAM::execute(){
     bool check = true;
     if (m_read) check = read();
     if (!check){
-        if (m_stopat == SHRT_MAX){
-            (*m_log) << m_name << " error: file not found : "<< m_rfilenameV << std::endl;
-            (*m_log) << " " << std::endl;
-            throw std::runtime_error (m_name + ": file not found : " + m_rfilenameV);
-        }
-        (*m_log) << m_name << " error: file not found : "<< m_rfilenameS[m_stopat] << std::endl;
-        (*m_log) << " " << std::endl;
-        throw std::runtime_error (m_name + ": file not found : " + m_rfilenameS[m_stopat]);
+//         if (m_stopat == SHRT_MAX){
+//             (*m_log) << m_name << " error: file not found : "<< m_rfilenameV << std::endl;
+//             (*m_log) << " " << std::endl;
+//             throw std::runtime_error (m_name + ": file not found : " + m_rfilenameV);
+//         }
+//         (*m_log) << m_name << " error: file not found : "<< m_rfilenameS[m_stopat] << std::endl;
+//         (*m_log) << " " << std::endl;
+        throw std::runtime_error (m_name + ": an error occured while reading from files");
     }
     if (m_write) check = write();
     if (!check){
-        if (m_stopat == 2){
-            (*m_log) << m_name << " error: write not done : surface and volume geometry not linked " << std::endl;
-            (*m_log) << " " << std::endl;
-            throw std::runtime_error (m_name + ": write not done : surface and volume geometry not linked ");
-        }
+//         if (m_stopat == 2){
+//             (*m_log) << m_name << " error: write not done : surface and volume geometry not linked " << std::endl;
+//             (*m_log) << " " << std::endl;
+//             throw std::runtime_error (m_name + ": write not done : surface and volume geometry not linked ");
+//         }
+        throw std::runtime_error (m_name + ": an error occured while writing on files");
+        
     }
 }
 
@@ -750,60 +372,12 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         setRead(value);
     };
 
-    std::vector<std::string> temp_dirs;
-    if(slotXML.hasSection("VTKReadDirs")){
-
-        const bitpit::Config::Section & filesXML = slotXML.getSection("VTKReadDirs");
-
-        for(auto & subfile : filesXML.getSections()){
-            std::string dir;
-
-            if(subfile.second->hasOption("dir"))   {
-                dir = subfile.second->get("dir");
-            }
-
-            if(!dir.empty()){
-                temp_dirs.push_back(dir);
-            }
-        }
-        setVTKReadDir(temp_dirs);
-    }
-
-
-    std::vector<std::string> temp_files;
-    if(slotXML.hasSection("VTKReadFilenames")){
-
-        const bitpit::Config::Section & filesXML = slotXML.getSection("VTKReadFilenames");
-
-        for(auto & subfile : filesXML.getSections()){
-            std::string file;
-
-            if(subfile.second->hasOption("filename"))   {
-                file = subfile.second->get("filename");
-            }
-
-            if(!file.empty()){
-                temp_files.push_back(file);
-            }
-        }
-        setVTKReadFilename(temp_files);
-    }
-
-    if(slotXML.hasOption("PointsReadDir")){
-        input = slotXML.get("PointsReadDir");
+    if(slotXML.hasOption("ReadDir")){
+        input = slotXML.get("ReadDir");
         input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
-        setPointsReadDir(input);
+        setReadDir(input);
     };
-
-
-    if(slotXML.hasOption("PointsReadFilename")){
-        input = slotXML.get("PointsReadFilename");
-        input = bitpit::utils::string::trim(input);
-        if(input.empty())   input = "./";
-        setPointsReadFilename(input);
-    };
-
 
     if(slotXML.hasOption("WriteFlag")){
         input = slotXML.get("WriteFlag");
@@ -815,60 +389,12 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
         setWrite(value);
     };
 
-
-    if(slotXML.hasOption("PointsWriteDir")){
-        input = slotXML.get("PointsWriteDir");
+    if(slotXML.hasOption("WriteDir")){
+        input = slotXML.get("WriteDir");
         input = bitpit::utils::string::trim(input);
         if(input.empty())   input = "./";
-        setPointsWriteDir(input);
+        setWriteDir(input);
     };
-
-
-    if(slotXML.hasOption("PointsWriteFilename")){
-        input = slotXML.get("PointsWriteFilename");
-        input = bitpit::utils::string::trim(input);
-        if(input.empty())   input = "./";
-        setPointsWriteFilename(input);
-    };
-
-
-    if(slotXML.hasOption("VTKWriteDir")){
-        input = slotXML.get("VTKWriteDir");
-        input = bitpit::utils::string::trim(input);
-        if(input.empty())   input = "./";
-        setVTKWriteDir(input);
-    };
-
-
-    if(slotXML.hasOption("VTKWriteFilename")){
-        input = slotXML.get("VTKWriteFilename");
-        input = bitpit::utils::string::trim(input);
-        if(input.empty())   input = "./";
-        setVTKWriteFilename(input);
-    };
-
-
-    if(slotXML.hasOption("Normalize")){
-        input = slotXML.get("Normalize");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss >> value;
-        }
-        setNormalize(value);
-    };
-
-
-    if(slotXML.hasOption("Scaling")){
-        input = slotXML.get("Scaling");
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss >> value;
-        }
-        setScaling(value);
-    };
-
 };
 
 /*!
@@ -886,53 +412,65 @@ IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     std::string output;
 
     output = std::to_string(m_read);
-    slotXML.set("ReadFlag", output);
-
-    {
-        bitpit::Config::Section & filesXML = slotXML.addSection("VTKReadDirs");
-
-        int counter = 0;
-        for(auto & dir : m_rdirS){
-            std::string name = "dir"+std::to_string(counter);
-            bitpit::Config::Section & local = filesXML.addSection(name);
-            local.set("dir", dir);
-            ++counter;
-        }
-    }
-
-    {
-        bitpit::Config::Section & filesXML = slotXML.addSection("VTKReadFilenames");
-
-        int counter = 0;
-        for(auto & file : m_rfilenameS){
-            std::string name = "file"+std::to_string(counter);
-            bitpit::Config::Section & local = filesXML.addSection(name);
-            local.set("filename", file);
-            ++counter;
-        }
-    }
-
-    slotXML.set("PointsReadDir", m_rdirV);
-    slotXML.set("PointsReadFilename", m_rfilenameV);
-
-    output = std::to_string(m_write);
-    slotXML.set("WriteFlag", output);
-
-    slotXML.set("VTKWriteDir", m_wdirS);
-    slotXML.set("VTKWriteFilename", m_wfilenameS);
-    slotXML.set("PointsWriteDir", m_wdirV);
-    slotXML.set("PointsWriteFilename", m_wfilenameV);
-
-    output = std::to_string(m_normalize);
-    slotXML.set("Normalize", output);
-
-    if (m_scaling != 1.0){
-        std::stringstream ss;
-        ss<<std::scientific<<m_scaling;
-        slotXML.set("Scaling", ss.str());
-    }
-
+    slotXML.set("ReadFlag", std::to_string(m_read));
+    slotXML.set("ReadDir", m_readPath);
+    slotXML.set("WriteFlag", std::to_string(m_write));
+    slotXML.set("WriteDir", m_writePath);
 };
 
-
+/*!
+ * Reorder OpenFoam vertex-cell connectivity of an elementary shape in 
+ * a suitable one for corrispondent bitpit elementary shape. The reordering
+ * preserve the local enumeration of faces which is the same in both OpenFOAM and bitpit.
+ * \param[in] FoamConn ordered vertex connectivity of a shape cell
+ * \param[in] eltype   reference Bitpit::element type for reordering
+ */
+livector1D
+IOOFOAM::mapEleVConnectivity(const livector1D & FoamConn, const bitpit::ElementType & eltype){
+    livector1D conn;
+    
+    switch(eltype){
+        case bitpit::ElementType::TETRA:
+            conn.resize(4);
+            conn[0] = FoamConn[2];
+            conn[1] = FoamConn[1];
+            conn[2] = FoamConn[3];
+            conn[3] = FoamConn[0];
+            break;
+        case bitpit::ElementType::HEXAHEDRON:
+            conn.resize(8);
+            conn[0] = FoamConn[0];
+            conn[1] = FoamConn[3];
+            conn[2] = FoamConn[7];
+            conn[3] = FoamConn[4];
+            conn[4] = FoamConn[1];
+            conn[5] = FoamConn[2];
+            conn[6] = FoamConn[6];
+            conn[7] = FoamConn[5];
+            break;
+        case bitpit::ElementType::WEDGE:
+            conn.resize(6);
+            conn[0] = FoamConn[0];
+            conn[1] = FoamConn[2];
+            conn[2] = FoamConn[1];
+            conn[3] = FoamConn[3];
+            conn[4] = FoamConn[5];
+            conn[5] = FoamConn[4];
+            break;
+        case bitpit::ElementType::PYRAMID:
+            conn.resize(5);
+            conn[0] = FoamConn[3];
+            conn[1] = FoamConn[2];
+            conn[2] = FoamConn[1];
+            conn[3] = FoamConn[0];
+            conn[4] = FoamConn[4];
+            break;
+        default:
+            //do nothing
+            break;
+    }
+    
+    return conn;
+}
+    
 }
