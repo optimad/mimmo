@@ -58,7 +58,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  *  for volume mesh.
  *
  *  \n
- *  It can be used in three modes reader/writerconverter. To set the mode it uses an enum
+ *  It can be used in three modes reader/writer/converter. To set the mode it uses an enum
  *  IOMode list:
  *  - <B>READ    = 0</B>
  *  - <B>WRITE   = 1</B>
