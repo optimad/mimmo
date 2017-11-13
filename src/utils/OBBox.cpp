@@ -24,7 +24,7 @@
 
 #include "OBBox.hpp"
 #include "LinearAlgebra.hpp"
-#include "lapacke.h"
+#include "mimmo_private_lapacke.hpp"
 
 #include <chrono>
 
