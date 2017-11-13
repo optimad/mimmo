@@ -1,1 +1,1 @@
-#define MIMMO_VERSION "1.2.0"
+#define MIMMO_VERSION "1.2.1"
