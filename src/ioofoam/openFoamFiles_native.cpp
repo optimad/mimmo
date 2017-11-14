@@ -225,7 +225,6 @@ void readVectorField(const char *rootPath, const char *fileName, int patchIdx, s
  * \param[in] fileName name of the file where the field is contained
  * \param[in] patchIdx flag, if < 0 identify your field as an internal field. Otherwise, it identifies
  *                     the the field as relative to the pathIdx-th boundary patch.
- * \param[out] size    size of the written field
  * \param[out] field   data saved in a std::vector structure.
  */
 void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, std::vector<double> &field)
@@ -275,10 +274,9 @@ void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, 
  * \param[in] fileName name of the file where the field is contained
  * \param[in] patchIdx flag, if < 0 identify your field as an internal field. Otherwise, it identifies
  *                     the the field as relative to the pathIdx-th boundary patch.
- * \param[out] size    size of the written field
  * \param[out] field   data saved in a std::vector structure.
  */
-void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, int arrayLength, std::vector<std::array<double,3> > & field)
+void writeVectorField(const char *rootPath, const char *fileName, int patchIdx,  std::vector<std::array<double,3> > & field)
 {
     // Initialize case
     Foam::Time *foamRunTime = 0;
@@ -317,6 +315,7 @@ void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, 
                 }
             }
         }
+        foamField.write();
     }
 }
 
@@ -476,6 +475,62 @@ const word getFieldClass(const char *rootPath, const char *fileName)
     return fieldObject.headerClassName();
 
 }
+
+
+/*!
+ * Write a pointField to an OpenFoam pre-existent case. The method use the Foam::fvMesh method movePoints
+ * to update position of mesh points in the current case. Connectivity of the mesh elements remains the same.
+ * Dimension of pointField argument is checked out. If it does not correspond to actual size of points in the 
+ * target case do nothing and return false;
+ * \param[in] rootPath path to openfoam mesh directory.
+ * \param[in] points new pointField to substitute
+ * \param[in] overwriteStart if true new points set will be overwritten in the current case time, otherwise 
+ *                           a new time case incremented by one w.r.t the current one will be created.
+ */
+bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > & points, bool overwriteStart)
+{
+    // Initialize case
+    Foam::Time *foamRunTime = 0;
+    Foam::fvMesh *foamMesh = 0;
+
+    initializeCase(rootPath, &foamRunTime, &foamMesh);
+
+    if(std::size_t(foamMesh->points().size()) != points.size()){
+        return false;
+    }
+
+    Foam::pointField movedPoints(foamMesh->points());
+    
+    forAll(movedPoints, i){
+        for(Foam::label j=0; j<3; ++j){
+            movedPoints[i][j] = points[i][j];
+        }
+    }
+    
+    foamMesh->movePoints(movedPoints);
+
+    if(overwriteStart){
+
+        foamMesh->write();
+
+    }else{
+
+        Foam::dimensionedScalar fakeEndTime
+        (
+            "fakeEndTime",
+         dimensionSet(0,0,1,0,0,0,0),
+         scalar(1)
+        );
+        foamRunTime->setEndTime(foamRunTime->startTime()+fakeEndTime);
+
+        while(foamRunTime->loop()){
+            foamMesh->write();
+        }
+
+    }
+    return true;
+}
+
 
 
 } //end of namespace foamUtilsNative

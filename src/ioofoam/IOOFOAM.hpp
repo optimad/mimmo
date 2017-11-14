@@ -24,22 +24,36 @@
 #ifndef __IOOFOAM_HPP__
 #define __IOOFOAM_HPP__
 
-#include "BaseManipulation.hpp"
+#include "MimmoFvMesh.hpp"
+#include "enum.hpp"
+
+BETTER_ENUM(IOOFMode, int, READ = 0, WRITE = 1, WRITEPOINTSONLY = 2);
 
 namespace mimmo{
 
 /*!
  * \class IOOFOAM
  * \ingroup ioofoam
- * \brief IOOFOAM is the class to import/export and modify an OpenFOAM volume mesh as mimmo data structure MimmoObject.
+ * \brief IOOFOAM is the class to import/export an OpenFOAM volume mesh alongside its boundary information.
+ * 
+ * The class is derived from MimmoFvMesh interface.
  *
- * Data Field associated to the mesh and boundary information can be read or written/modified, directy using the class interface.
+ * It works as reader and writer. Its mode types are summarized in the following better enum
+ * IOOFMode list:
+ *  - <B>READ           </B> : import bulk and boundary mesh from an OpenFOAM case
+ *  - <B>WRITE          </B> : export bulk and boundary mesh to an OpenFOAM case from scratch
+ *  - <B>WRITEPOINTSONLY</B> : export only bulk mesh points coordinates to a pre-existent and compatible OpenFOAM case.
  *
+ * Warning: WRITE mode is not available yet. It triggers the WRITEPOINTSONLY mode, 
+ * which is a temporary mode to write only the coordinates of OpenFOAM mesh points.
+ * 
  * Dependencies : OpenFOAM libraries (tested with OpenFOAM 2.4.x version).
  *
  * \n
  *
  * Ports available in IOOFOAM Class :
+ *
+ * Inherited from MimmoFvMesh:
  *
  *    =========================================================
 
@@ -47,81 +61,73 @@ namespace mimmo{
    |------------------|---------------------|----------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
-   
- 
-   | M_SCALARFIELD    | setField            | (MC_MPVECTOR, MD_FLOAT)      |
-   | M_GEOM2          | setSurfaceBoundary  | (MC_SCALAR, MD_MIMMO_)     |
+   | M_GEOM2          | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
 
 
    |               Port Output    ||                                         |
    |------------------|--------------------|-----------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | M_GEOM           | getGeometry        | (MC_SCALAR, MD_MIMMO_)      |
-   
-   | M_SCALARFIELD    | getField           | (MC_MPVECTOR, MD_FLOAT)       |
-   | M_GEOM2          | getSurfaceBoundary | (MC_SCALAR, MD_MIMMO_)      |
+   | M_GEOM2          | getBoundaryGeometry| (MC_SCALAR, MD_MIMMO_)      |
+
+ * Proper of the class:
+ *
+ |                     Port Input   ||                                     |
+ |------------------|---------------------|----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+ |               Port Output    ||                                         |
+ |------------------|--------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
  * =========================================================
  * \n
  *
+ *
+ *
  * The xml available parameters, sections and subsections are the following :
  *
- * Inherited from BaseManipulation:
+ * Inherited from BaseManipulation/MimmoFvMesh:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.IOOFOAM</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  *
  * Proper of the class:
- * - <B>ReadFlag</B>: activate reading mode boolean;
- * - <B>ReadDir</B>: path to the current OpenFOAM mesh for reading purposes;
- * - <B>WriteFlag</B>: activate writing mode boolean;
- * - <B>WriteDir</B>: path to the current OpenFOAM mesh for writing purposes;
- *
+ * - <B>IOMode</B>: activate mode of the class: READ, WRITE, WRITEPOINTSONLY;
+ * - <B>Dir</B>: path to the current OpenFOAM mesh for reading/writing purposes;
+ * - <B>Overwrite</B>: option valid only in WRITEPOINTSONLY mode: if 1-true overwrite 
+                       points in the current OpenFoam case time of the mesh at WriteDir. 
+                       If 0-false (DEFAULT) save them in a newly created case time at current time + 1;
+                       
  * In case of writing mode Geometries have to be mandatorily passed by port.
  *
  */
-class IOOFOAM: public BaseManipulation{
+class IOOFOAM: public MimmoFvMesh{
 private:
-    bool                            m_read;         /**<If true it reads the geometry from files during the execution.*/
-    std::string                     m_readPath;     /**< path to current mesh for reading */
-    bool                            m_write;         /**<If true it writes the geometries on file during the execution*/
-    std::string                     m_writePath;     /**< path to current mesh for writing */
+    int                             m_type;         /**<mode type of the class 0-read, 1-write, 2-writepointsonly*/
+    std::string                     m_path;         /**< path to current mesh for reading/writing */
+    bool                            m_overwrite;    /**< Overwrite in time case when in mode WRITEPOINTSONLY */
 
-    std::unique_ptr<MimmoObject>    m_volmesh;      /**<Original volume mesh, instantiated in reading */
-//     std::unique_ptr<MimmoObject>    m_surfmesh;     /**<Original boundary mesh, instantiated in reading */
-//     MimmoObject*                    m_surfmesh_ext; /**<Pointed external boundary mesh */
-
-//     dmpvector1D                     m_field;        /**<Scalar field related to polydata mesh (pint located values).*/
-//     bool                            m_normalize;    /**<If true the field is normalized with the maximum absolute value after reading.*/
-//     double                          m_maxf;         /**<Max value of the read scalar field.*/
-//     double                          m_scaling;      /**<Value used to scale the scalar field (default m_scaling = 1). */
     std::unordered_map<std::string, bitpit::ElementType>    m_OFE_supp;     /**<list of openfoam shapes actually supported as it is, and not as generic polyhedron*/
- 
+
 public:
-    IOOFOAM();
+    IOOFOAM(int type = IOOFMode::READ);
+    IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type = IOOFMode::WRITE);
     IOOFOAM(const bitpit::Config::Section & rootXML);
-    ~IOOFOAM();
+    virtual ~IOOFOAM();
 
     IOOFOAM(const IOOFOAM & other);
     IOOFOAM & operator=(IOOFOAM other);
     
     void            buildPorts();
-    void            setDefaults();
 
-    void            setRead(bool read);
-    void            setReadDir(std::string dir);
-    void            setWrite(bool write);
-    void            setWriteDir(std::string dir);
-    void            setGeometry(MimmoObject* geom);
+    void            setDir(std::string dir);
+    void            setOverwrite(bool flag);
+    bool            getOverwrite();
+    void            execute();
 
-//     MimmoObject*    getSurfaceBoundary();
-    MimmoObject*    getGeometry();
-
-    std::unique_ptr<MimmoObject> cloneInternalMesh();
-
-    bool            write();
-    bool            read();
-
-    void             execute();
+    void            setGeometry(MimmoObject * bulk);
+    void            setBoundaryGeometry(MimmoObject * boundary);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -129,11 +135,13 @@ public:
 protected:
     void swap(IOOFOAM & x) noexcept;
     livector1D mapEleVConnectivity(const livector1D &, const bitpit::ElementType &);
+    void            setDefaults();
+    bool            write();
+    bool            read();
+    bool            writePointsOnly();
     
 };
 
-REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
-// REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 // REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
 
 

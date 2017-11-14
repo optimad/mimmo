@@ -54,6 +54,7 @@ namespace foamUtilsNative{
 
     void initializeCase(const char *rootPath, Foam::Time **runTime, Foam::fvMesh **mesh);
     const word getFieldClass(const char *rootPath, const char *fileName);
+    bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > &points, bool overwriteStart = false);
 };//end namespace foamUtilsNative
 
 }// end namespace mimmo.
