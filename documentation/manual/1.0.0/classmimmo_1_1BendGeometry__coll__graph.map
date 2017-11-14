@@ -1,5 +1,0 @@
-<map id="mimmo::BendGeometry" name="mimmo::BendGeometry">
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,187,181,213"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="16,96,171,123"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="36,5,151,32"/>
-</map>

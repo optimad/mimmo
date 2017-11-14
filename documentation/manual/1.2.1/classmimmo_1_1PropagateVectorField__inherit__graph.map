@@ -1,0 +1,4 @@
+<map id="mimmo::PropagateVectorField" name="mimmo::PropagateVectorField">
+<area shape="rect" id="node2" href="$classmimmo_1_1PropagateField.html" title="Executable block that provides the computation of a field over a 3D mesh. The field is calculated sol..." alt="" coords="24,80,184,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="16,5,192,32"/>
+</map>

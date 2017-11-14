@@ -1,4 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classmimmo_1_1PortOut.html" title="PortOut is the abstract PIN base class dedicated to exchange data from a target class to other ones (..." alt="" coords="6,5,125,32"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1PortOutT.html" title="PortOutT is the PIN class to exchange output data from an object to others.PortOutT is the template d..." alt="" coords="173,5,349,32"/>
-</map>

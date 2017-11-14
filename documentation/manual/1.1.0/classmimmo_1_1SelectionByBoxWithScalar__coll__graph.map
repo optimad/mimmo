@@ -1,9 +1,0 @@
-<map id="mimmo::SelectionByBoxWithScalar" name="mimmo::SelectionByBoxWithScalar">
-<area shape="rect" id="node2" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="121,341,287,368"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="15,264,187,291"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,187,181,213"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="16,96,171,123"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1BvTree.html" title="Bv&#45;Tree is the class to manage a Bounding Volume Hierarchy tree of a bitpit patch. " alt="" coords="36,5,151,32"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="223,264,327,291"/>
-<area shape="rect" id="node8" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="206,187,348,213"/>
-</map>

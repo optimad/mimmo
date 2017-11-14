@@ -1,0 +1,4 @@
+<map id="mimmo::VTUAbsorbStreamer" name="mimmo::VTUAbsorbStreamer">
+<area shape="rect" id="node3" href="$classmimmo_1_1VTUGridStreamer.html" title="Custom mesh/data absorber for unstructured grids given by external files *.vtu. " alt="" coords="5,155,181,181"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1VTUPointCloudStreamer.html" title="Custom mesh/data absorber for point clouds defined as an unstructured grid and given by external file..." alt="" coords="206,155,423,181"/>
+</map>

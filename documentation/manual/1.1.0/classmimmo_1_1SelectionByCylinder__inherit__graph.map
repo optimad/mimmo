@@ -1,6 +1,0 @@
-<map id="mimmo::SelectionByCylinder" name="mimmo::SelectionByCylinder">
-<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="10,80,181,107"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,5,181,32"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="213,80,333,107"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="206,5,348,32"/>
-</map>
