@@ -25,6 +25,7 @@
 
 #include "PropagateField.hpp"
 #include "customOperators.hpp"
+#include "SkdTreeUtils.hpp"
 
 namespace mimmo{
 
@@ -556,16 +557,19 @@ PropagateVectorField::computeDumpingFunction(){
                 activeBoundary->addConnectedCell(conn, cell.getType());
             }
         }
-        activeBoundary->buildAdjacencies();
-        activeBoundary->buildSkdTree();
+        if(!activeBoundary->areAdjacenciesBuilt())    activeBoundary->buildAdjacencies();
+        if(!activeBoundary->isSkdTreeSync())          activeBoundary->buildSkdTree();
         bitpit::SurfaceSkdTree* tree = static_cast<bitpit::SurfaceSkdTree*>(activeBoundary->getSkdTree());
 
         for (auto const & vertex : patch_->getVertices()){
-            ID = vertex.getId();
             point = vertex.getCoords();
-            dist = max(1.0e-08, tree->evalPointDistance(point));
-            val = std::max(1.0, std::pow((maxd/dist), m_dumpingFactor));
-            m_dumping.insert(ID, val);
+            long idsupp;
+            dist = std::max(1.0e-08, skdTreeUtils::distance(&point, tree, idsupp, m_radius));
+            val = 1.0;
+            if(dist < maxd){
+                val = std::pow((maxd/dist), m_dumpingFactor);
+            } 
+            m_dumping.insert(vertex.getId(), val);
         }
     }
 }
@@ -1090,16 +1094,19 @@ PropagateScalarField::computeDumpingFunction(){
                 activeBoundary->addConnectedCell(conn, cell.getType());
             }
         }
-        activeBoundary->buildAdjacencies();
-        activeBoundary->buildSkdTree();
+        if(!activeBoundary->areAdjacenciesBuilt())    activeBoundary->buildAdjacencies();
+        if(!activeBoundary->isSkdTreeSync())          activeBoundary->buildSkdTree();
         bitpit::SurfaceSkdTree* tree = static_cast<bitpit::SurfaceSkdTree*>(activeBoundary->getSkdTree());
 
         for (auto const & vertex : patch_->getVertices()){
-            ID = vertex.getId();
             point = vertex.getCoords();
-            dist = max(1.0e-08, tree->evalPointDistance(point));
-            val = std::max(1.0, std::pow((maxd/dist), m_dumpingFactor));
-            m_dumping.insert(ID, val);
+            long idsupp;
+            dist = std::max(1.0e-08, skdTreeUtils::distance(&point, tree, idsupp, m_radius));
+            val = 1.0;
+            if(dist < maxd){
+                val = std::pow((maxd/dist), m_dumpingFactor);
+            } 
+            m_dumping.insert(vertex.getId(), val);
         }
     }
 }
