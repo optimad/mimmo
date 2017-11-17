@@ -279,6 +279,122 @@ PropagateField::execute(){
 
 }
 
+/*!
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+    
+    
+    BITPIT_UNUSED(name);
+    
+    //start absorbing
+    BaseManipulation::absorbSectionXML(slotXML, name);
+    
+    if(slotXML.hasOption("Solver")){
+        std::string input = slotXML.get("Solver");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setSolver(value);
+    }
+    
+    if(slotXML.hasOption("WeightConstant")){
+        std::string input = slotXML.get("WeightConstant");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setWeightConstant(value);
+    }
+    
+    if(slotXML.hasOption("SmoothingSteps")){
+        std::string input = slotXML.get("SmoothingSteps");
+        int value =1;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss>>value;
+        }
+        setSmoothingSteps(value);
+    };
+    
+    if(slotXML.hasOption("Convergence")){
+        std::string input = slotXML.get("Convergence");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setConvergence(value);
+    }
+    
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0e-05;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setTolerance(value);
+    }
+    
+    if(slotXML.hasOption("DumpingFactor")){
+        std::string input = slotXML.get("DumpingFactor");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setDumpingFactor(value);
+    }
+    
+    if(slotXML.hasOption("DumpingRadius")){
+        std::string input = slotXML.get("DumpingRadius");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0e+18;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setDumpingRadius(value);
+    }
+    
+};
+
+/*!
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void PropagateField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+    
+    BITPIT_UNUSED(name);
+    
+    BaseManipulation::flushSectionXML(slotXML, name);
+    
+    slotXML.set("WeightConstant",std::to_string(m_gamma));
+    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
+    slotXML.set("DumpingRadius",std::to_string(m_radius));
+    slotXML.set("Solver", std::to_string(int(m_laplace)));
+    slotXML.set("SmoothingSteps",std::to_string(m_sstep));
+    slotXML.set("Convergence",std::to_string(int(m_convergence)));
+    slotXML.set("Tolerance",std::to_string(m_tol));
+};
+
+
 /*! 
  * It computes the connectivity structure between input points.
  */
@@ -806,88 +922,9 @@ PropagateVectorField::apply(){
  * \param[in] name   name associated to the slot
  */
 void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
     BITPIT_UNUSED(name);
-
-    if(slotXML.hasOption("Solver")){
-        std::string input = slotXML.get("Solver");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setSolver(value);
-    }
-
-    if(slotXML.hasOption("WeightFactor")){
-        std::string input = slotXML.get("WeightFactor");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setWeightConstant(value);
-    }
-
-    if(slotXML.hasOption("SmoothingSteps")){
-        std::string input = slotXML.get("SmoothingSteps");
-        int value =1;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setSmoothingSteps(value);
-    };
-
-    if(slotXML.hasOption("Convergence")){
-        std::string input = slotXML.get("Convergence");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setConvergence(value);
-    }
-
-    if(slotXML.hasOption("Tolerance")){
-        std::string input = slotXML.get("Tolerance");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e-05;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setTolerance(value);
-    }
-
-    if(slotXML.hasOption("DumpingFactor")){
-        std::string input = slotXML.get("DumpingFactor");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setDumpingFactor(value);
-    }
-
-    if(slotXML.hasOption("DumpingRadius")){
-        std::string input = slotXML.get("DumpingRadius");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e+18;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setDumpingRadius(value);
-    }
+    //start absorbing
+    PropagateField::absorbSectionXML(slotXML, name);
 };
 
 /*!
@@ -896,18 +933,9 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
  * \param[in] name   name associated to the slot
  */
 void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-
+    
     BITPIT_UNUSED(name);
-
-    BaseManipulation::flushSectionXML(slotXML, name);
-
-    slotXML.set("WeightFactor",std::to_string(m_gamma));
-    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
-    slotXML.set("DumpingRadius",std::to_string(m_radius));
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
-    slotXML.set("SmoothingSteps",std::to_string(m_sstep));
-    slotXML.set("Convergence",std::to_string(int(m_convergence)));
-    slotXML.set("Tolerance",std::to_string(m_tol));
+    PropagateField::flushSectionXML(slotXML, name);
 };
 
 //--------------------------------------
@@ -1310,93 +1338,9 @@ PropagateScalarField::plotOptionalResults(){
  * \param[in] name   name associated to the slot
  */
 void PropagateScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
-
     BITPIT_UNUSED(name);
-
     //start absorbing
-    BaseManipulation::absorbSectionXML(slotXML, name);
-
-    if(slotXML.hasOption("Solver")){
-        std::string input = slotXML.get("Solver");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setSolver(value);
-    }
-
-    if(slotXML.hasOption("WeightFactor")){
-        std::string input = slotXML.get("WeightFactor");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setWeightConstant(value);
-    }
-
-    if(slotXML.hasOption("SmoothingSteps")){
-        std::string input = slotXML.get("SmoothingSteps");
-        int value =1;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setSmoothingSteps(value);
-    };
-
-    if(slotXML.hasOption("Convergence")){
-        std::string input = slotXML.get("Convergence");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setConvergence(value);
-    }
-
-    if(slotXML.hasOption("Tolerance")){
-        std::string input = slotXML.get("Tolerance");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e-05;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setTolerance(value);
-    }
-
-    if(slotXML.hasOption("DumpingFactor")){
-        std::string input = slotXML.get("DumpingFactor");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setDumpingFactor(value);
-    }
-
-    if(slotXML.hasOption("DumpingRadius")){
-        std::string input = slotXML.get("DumpingRadius");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e+18;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setDumpingRadius(value);
-    }
-
+    PropagateField::absorbSectionXML(slotXML, name);
 };
 
 /*!
@@ -1407,16 +1351,7 @@ void PropagateScalarField::absorbSectionXML(const bitpit::Config::Section & slot
 void PropagateScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-
-    BaseManipulation::flushSectionXML(slotXML, name);
-
-    slotXML.set("WeightFactor",std::to_string(m_gamma));
-    slotXML.set("DumpingFactor",std::to_string(m_dumpingFactor));
-    slotXML.set("DumpingRadius",std::to_string(m_radius));
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
-    slotXML.set("SmoothingSteps",std::to_string(m_sstep));
-    slotXML.set("Convergence",std::to_string(int(m_convergence)));
-    slotXML.set("Tolerance",std::to_string(m_tol));
+    PropagateField::flushSectionXML(slotXML, name);
 };
 
 }

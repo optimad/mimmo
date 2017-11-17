@@ -30,7 +30,7 @@
 namespace mimmo{
 /*!
  * \class PropagateField
- * \ingroup core
+ * \ingroup manipulators
  * \brief Executable block that provides the computation of a field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
@@ -57,11 +57,11 @@ namespace mimmo{
  *
  *    =========================================================
  *
-    |                   Port Input       |||                               |
-    |-------|----------------|----------------------|-------------------|
-    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | setBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
+    |Port Input|||
+    ||||
+    | <B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
+    | M_GEOM         | setGeometry            | (MC_SCALAR, MD_MIMMO_) |
+    | M_GEOM2        | setBoundarySurface     | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
  *
@@ -74,10 +74,10 @@ namespace mimmo{
  * - <B>OutputPlot</B> : path to store optional results.
  *
  * Proper of the class:
- * - <B>WeightFactor</B> : coefficient used to get weights of the stencil points in function of distance (1.0 default);
+ * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
+ * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
  * - <B>DumpingFactor</B> : dumping exponential factor for weights computing ;
  * - <B>DumpingRadius</B> : support radius of dumping function;
- * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
@@ -134,6 +134,10 @@ public:
     void    setConvergence(bool convergence);
     void    setTolerance(double tol);
 
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+    
 protected:
     //cleaners and setters
     void clear();
@@ -154,6 +158,7 @@ protected:
 
 /*!
  * \class PropagateScalarField
+ * \ingroup manipulators
  * \brief Executable block that provides the computation of a scalar field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
@@ -165,21 +170,21 @@ protected:
  *
  *    =========================================================
  *
-    |                   Port Input       |||                               |
-    |-------|----------------|----------------------|-------------------|
+    |Port Input|||
+    ||||
+    | <B>PortType</B>| <B>variable/function</B>  |<B>DataType</B> |
+    | M_FILTER       | setBoundaryConditions     | (MC_MPVECTOR, MD_FLOAT) |
+
+
+    |Port Output|||
+    ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_FILTER       | setBoundaryConditions        | (MC_MPVECTOR, MD_FLOAT) |
-
-
-     |             Port Output     |||                                      |
-     |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_FILTER         | getDeformation    | (MC_MPVECTOR, MD_FLOAT)              |
 
   Inherited from PropagateField Class :
 
-    |                   Port Input       |||                               |
-    |-------|----------------|----------------------|-------------------|
+    |Port Input|||
+    ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM2        | setBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
@@ -190,18 +195,19 @@ protected:
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B> : name of the class as <tt>mimmo.PropagateField</tt>;
+ * - <B>ClassName</B> : name of the class as <tt>mimmo.PropagateScalarField</tt>;
  * - <B>Priority</B>  : uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B> : plot optional results in execution;
  * - <B>OutputPlot</B> : path to store optional results.
  *
  * Inherited from PropagateField:
- * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
- * - <B>WeightConstant</B> : coefficient used to get weights of the stencil points in function of distance (1.0 default);
+ * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
+ * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
+ * - <B>DumpingFactor</B> : dumping exponential factor for weights computing ;
+ * - <B>DumpingRadius</B> : support radius of dumping function;
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingFactor</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingRadius</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>Convergence</B> : number of steps the Smoother solver need to perform (1 default);
+ * - <B>Convergence</B> : convergence flag for smoothing solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -250,6 +256,7 @@ private:
 
 /*!
  * \class PropagateVectorField
+ * \ingroup manipulators
  * \brief Executable block that provides the computation of a 3D array field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
@@ -261,21 +268,21 @@ private:
  *
  *    =========================================================
  *
-    |                   Port Input       |||                               |
-    |-------|----------------|----------------------|-------------------|
+    | Port Input|||
+    ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GDISPLS       | setBoundaryConditions        | (MC_MPVECARR3, MD_FLOAT) |
 
 
-     |             Port Output     |||                                      |
-     |-------|----------------|---------------------|--------------------|
-    |<B>PortID</B> | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+    |Port Output|||
+    ||||
+    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GDISPLS         | getDeformation    | (MC_MPVECARR3, MD_FLOAT)              |
 
   Inherited from PropagateField Class :
 
-    |                   Port Input       |||                               |
-    |-------|----------------|----------------------|-------------------|
+    |Port Input|||
+    ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM2        | setBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
@@ -286,18 +293,19 @@ private:
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B> : name of the class as <tt>mimmo.PropagateField</tt>;
+ * - <B>ClassName</B> : name of the class as <tt>mimmo.PropagateVectorField</tt>;
  * - <B>Priority</B>  : uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B> : plot optional results in execution;
  * - <B>OutputPlot</B> : path to store optional results.
  *
  * Inherited from PropagateField:
- * - <B>Solver</B>  : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
- * - <B>WeightConstant</B> : coefficient used to get weights of the stencil points in function of distance (1.0 default);
+ * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
+ * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
+ * - <B>DumpingFactor</B> : dumping exponential factor for weights computing ;
+ * - <B>DumpingRadius</B> : support radius of dumping function;
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingFactor</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>DumpingRadius</B> : number of steps the Smoother solver need to perform (1 default);
- * - <B>Convergence</B> : number of steps the Smoother solver need to perform (1 default);
+ * - <B>Convergence</B> : convergence flag for smoothing solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
