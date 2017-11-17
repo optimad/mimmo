@@ -66,10 +66,10 @@ void OFOAM_manip(std::string & path) {
 
 
     dvecarr3E displ(8, {{0.0,0.0,0.0}});
-    displ[0][1] = -0.02;
-    displ[1][1] = -0.02;
-    displ[4][1] = -0.02;
-    displ[5][1] = -0.02;
+    displ[0][1] = 0.03;
+    displ[1][1] = 0.03;
+    displ[4][1] = 0.03;
+    displ[5][1] = 0.03;
     std::array<int,3> dim = {{2,2,2}};
     mimmo::FFDLattice * manip = new mimmo::FFDLattice();
     manip->setShape(mimmo::ShapeType::CUBE);
@@ -79,10 +79,13 @@ void OFOAM_manip(std::string & path) {
 
 
     mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
-    prop->setSolver(false);
-    prop->setSmoothingSteps(100);
-    prop->setDumpingRadius(0.01);
-    prop->setDumpingFactor(1.5);
+    prop->setSolver(true);
+//    prop->setSmoothingSteps(100);
+    prop->setDumping(true);
+    prop->setDumpingInnerDistance(0.08);
+    prop->setDumpingOuterDistance(0.3);
+    prop->setPlotInExecution(true);
+    
     
     mimmo::Apply * applyBulk = new mimmo::Apply();
     mimmo::Apply * applyBoundary = new mimmo::Apply();
@@ -117,6 +120,8 @@ void OFOAM_manip(std::string & path) {
     c0.addObject(box);
     c0.setPlotDebugResults(true);
     c0.exec(true);
+    
+    reader->getBoundaryGeometry()->getPatch()->write("boundary");
     
     darray3E spanBox = box->getSpan();
     spanBox *= 1.1;
