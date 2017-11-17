@@ -235,6 +235,10 @@ public:
 
     void    setBoundaryConditions(dmpvector1D bc);
 
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 private:
     //cleaners and setters
     void clear();
@@ -244,10 +248,6 @@ private:
     void computeDumpingFunction();
     void solveSmoothing(int nstep);
     void solveLaplace();
-
-    //XML utilities from reading writing settings to file
-    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
     virtual void plotOptionalResults();
 
@@ -333,6 +333,10 @@ public:
 
     void    setBoundaryConditions(dmpvecarr3E bc);
 
+    //XML utilities from reading writing settings to file
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 private:
     //cleaners and setters
     void clear();
@@ -344,10 +348,6 @@ private:
     void solveLaplace();
 
     void apply();
-
-    //XML utilities from reading writing settings to file
-    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
-    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
     virtual void plotOptionalResults();
 
