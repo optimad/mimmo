@@ -28,6 +28,20 @@
 
 using namespace mimmo;
 
+/*!
+ * \example iocgns_example_00001.cpp
+ * 
+ * \brief Manipulation of a CGNS volume mesh. 
+ * 
+ * Using: IOCGNS, CGNSPidExtractor, SelectionByBox, RotationGeometry, PropagateVectorField, ExtractVectorField, Apply
+ * 
+ * Depends on mimmo optional module geohandlers
+ * 
+ * <b>To run</b>: ./iocgns_example_00001 \n
+ * 
+ * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+ */
+
 // =================================================================================== //
 
 void example00001() {

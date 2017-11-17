@@ -30,6 +30,18 @@ using namespace bitpit;
 using namespace mimmo;
 
 
+/*!
+ * \example genericinput_example_00001.cpp
+ * 
+ * \brief Example of reading/writing a generic csv file of raw data. 
+
+ * Using: GenericInput, GenericOutput
+ * 
+ * <b>To run</b>: ./genericinput_example_00001 \n
+ * 
+ * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+ */
+
 // =================================================================================== //
 
 

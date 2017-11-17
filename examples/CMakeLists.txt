@@ -73,7 +73,7 @@ if(BUILD_EXAMPLES)
 
     #Add examples of enabled modules
     isModuleEnabled("iocgns" MODULE_ENABLED1)
-    if (MODULE_ENABLED1)
+    if (MODULE_ENABLED1 AND MODULE_ENABLED0)
         list(APPEND EXAMPLE_LIST "iocgns_example_00001")
     endif ()
     
@@ -84,10 +84,16 @@ if(BUILD_EXAMPLES)
     endif ()
 
     #Add examples of enabled modules
-    isModuleEnabled("utils" MODULE_ENABLED3)
-    if (MODULE_ENABLED3)
+    isModuleEnabled("utils" MODULE_ENABLED4)
+    if (MODULE_ENABLED4)
         list(APPEND EXAMPLE_LIST "manipulators_example_00005")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
+    endif ()
+
+    #Add examples of enabled modules
+    isModuleEnabled("ioofoam" MODULE_ENABLED3)
+    if (MODULE_ENABLED3 AND MODULE_ENABLED0 AND MODULE_ENABLED4)
+        list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
     endif ()
     
 	#Rules to build the examples
@@ -124,7 +130,7 @@ if(BUILD_EXAMPLES)
         TARGET "manipulators_example_00004" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
     )
-    if (MODULE_ENABLED3)
+    if (MODULE_ENABLED4)
         add_custom_command(
             TARGET "manipulators_example_00005" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"

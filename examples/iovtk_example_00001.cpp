@@ -27,6 +27,18 @@
 
 using namespace mimmo;
 
+/*!
+ * \example iovtk_example_00001.cpp
+ * 
+ * \brief Example of reading/writing a vtk polydata file w/ scalar field attached.
+ * 
+ * Using: IOVTKScalar
+ * 
+ * <b>To run</b>: ./iovtk_example_00001 \n
+ * 
+ * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+ */
+
 // =================================================================================== //
 
 void test00001() {
