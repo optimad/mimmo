@@ -634,6 +634,15 @@ IOCGNS::read(){
             for(int j=0; j<6; ++j){
                 lConn[j] = conns[idsection][i+j];
             }
+            //remap in bitpit conn. TODO complete ref element mapper for connectivity.
+            {
+                long temp = lConn[0];
+                lConn[0]= lConn[1];
+                lConn[1] = temp;
+                temp = lConn[3];
+                lConn[3] = lConn[4];
+                lConn[4] = temp;
+            }    
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
             id++;
@@ -966,7 +975,15 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
             lConn[i] = *it;
             ++it;
         }
-
+        //remap in bitpit conn. TODO complete ref element mapper for connectivity.
+        {
+            long temp = lConn[0];
+            lConn[0]= lConn[1];
+            lConn[1] = temp;
+            temp = lConn[3];
+            lConn[3] = lConn[4];
+            lConn[4] = temp;
+        }
         patchVol->addConnectedCell(lConn, btype, id );
         patchVol->setPIDCell(id,PID);
         id++;
@@ -1042,7 +1059,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
 /*! It recovers CGNS Info from linked Mimmo Objects.
  * It fills all the structures needed to export the volume and (eventually) surface
  * boundary meshes in CGNS format.
- *
+ *TODO stop writing if POLYHEDRAL mesh.
  */
 void
 IOCGNS::recoverCGNSInfo(){
@@ -1068,6 +1085,16 @@ IOCGNS::recoverCGNSInfo(){
         m_storedInfo->mcg_number[cgtype]++;
         m_storedInfo->mcg_typetoid[cgtype].push_back(ID);
         auto vList = cell.getVertexIds();
+        
+        //remap in bitpit conn. TODO complete ref element mapper for connectivity.
+        std::vector<long> lConn;
+        lConn.insert(lConn.end(), vList.begin(), vList.end());
+        long temp = lConn[0];
+        lConn[0]= lConn[1];
+        lConn[1] = temp;
+        temp = lConn[3];
+        lConn[3] = lConn[4];
+        lConn[4] = temp;
         for (const auto & iV : vList){
             m_storedInfo->mcg_typetoconn[cgtype].push_back(iV);
         }
