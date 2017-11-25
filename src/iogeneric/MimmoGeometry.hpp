@@ -85,14 +85,14 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  *
  *    =========================================================
 
-     |                 Port Input  ||                                 |
-     |----------|-------------------|-----------------------|
+     |Port Input|||
+     ||||
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM   | m_geometry        | (MC_SCALAR, MD_MIMMO_)      |
 
 
-     |            Port Output ||               |                       |
-     |-----------|-------------------|-----------------------|
+     |Port Output |||
+     ||||
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM    | getGeometry       | (MC_SCALAR, MD_MIMMO_)      |
 
