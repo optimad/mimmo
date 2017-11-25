@@ -88,6 +88,7 @@ public:
     bool                    isEmpty();
     
     bool                   completeMissingData(const value_t & defValue);
+    void                   initialize(MimmoObject *, MPVLocation, const value_t &);
     void                   setGeometry(MimmoObject* geo);
     void                   setDataLocation(MPVLocation loc);
     void                   setDataLocation(int loc);

@@ -396,5 +396,71 @@ MimmoPiercedVector<value_t>::completeMissingData(const value_t & defValue){
     return true;
 }
 
+/*!
+ * Initialize your container with reference data.
+ * \param[in] geo target geometry
+ * \param[in] loc  data location
+ * \param[in] data reference data
+ * 
+ * if a valid geometry and coherent location are specified, create 
+ * a container on all elements of specified location with constant reference data attached.
+ * Any pre-existent data will be destroyed.
+ */
+template<typename value_t>
+void
+MimmoPiercedVector<value_t>::initialize(MimmoObject * geo, MPVLocation loc, const value_t & data){
+    
+    switch(loc){
+        case MPVLocation::POINT :
+            if(geo->getNVertex() == 0){
+                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+                return;
+            }else{
+                this->clear();
+                this->reserve(geo->getNVertex());
+                m_geometry = geo;
+                m_loc = loc;
+                for(const auto & vertex: geo->getVertices()){
+                    this->insert(vertex.getId(), data);
+                }
+            }
+            break;
+        case MPVLocation::CELL :
+            if(geo->getNCells() == 0){
+                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+                return;
+            }else{
+                this->clear();
+                this->reserve(geo->getNCells());
+                m_geometry = geo;
+                m_loc = loc;
+                for(const auto & cell: geo->getCells()){
+                    this->insert(cell.getId(), data);
+                }
+            }
+            break;
+        case MPVLocation::INTERFACE :
+            if(!geo->areInterfacesBuilt()){
+                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+                return;
+            }else{
+                this->clear();
+                this->reserve(geo->getPatch()->getInterfaceCount());
+                m_geometry = geo;
+                m_loc = loc;
+                for(const auto & interf: geo->getInterfaces()){
+                    this->insert(interf.getId(), data);
+                }
+            }
+            break;
+        default:
+            //do nothing
+            break;
+    }
+}
+
+
+
+
 
 }
