@@ -53,14 +53,23 @@ void example00001() {
     cgnsExtr->setPlotInExecution(true);
 
     /* Create CGNS PID extractor object to test input file.
-     * Extraction of PID = 1,2 (Wing wall and symmetry plane boundaries
-     * in input file).
+     * Extraction of PID = 1,2 (Wing wall and outer part boundaries
+     * where imposing Dirichlet conditions).
      */
-    CGNSPidExtractor * cgnsExtr2 = new CGNSPidExtractor();
-    cgnsExtr2->setPID({1, 2});
-    cgnsExtr2->setForcedToTriangulate(false);
-    cgnsExtr2->setPlotInExecution(true);
+    CGNSPidExtractor * cgnsDirichlet = new CGNSPidExtractor();
+    cgnsDirichlet->setPID({1, 2});
+    cgnsDirichlet->setForcedToTriangulate(false);
+    cgnsDirichlet->setPlotInExecution(true);
 
+    /* Create CGNS PID extractor object to test input file.
+     * Extraction of PID = 3 (Simmetry plane
+     * where imposing Natural neumann conditions).
+     */
+    CGNSPidExtractor * cgnsNeumann = new CGNSPidExtractor();
+    cgnsNeumann->setPID({3});
+    cgnsNeumann->setForcedToTriangulate(false);
+    cgnsNeumann->setPlotInExecution(true);
+    
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
      */
@@ -75,8 +84,8 @@ void example00001() {
     rotation->setDirection(darray3E{0.,1.,0.});
     rotation->setRotation((M_PI/6));
 
-    /* Create reconstruct vector block and set to reconstruct over the whole
-     * input surface geometry the displacements field.
+    /* Create reconstruct vector block and set to reconstruct rotation 
+     * displacement field over the whole Dirichlet surface geometry 
      */
     ReconstructVector* recon = new ReconstructVector();
 
@@ -84,13 +93,15 @@ void example00001() {
      * input volume geometry the displacements field.
      */
     PropagateVectorField* prop = new PropagateVectorField();
-    prop->setWeightConstant(1.0);
-//    prop->setSmoothingSteps(50);
+    prop->setWeightConstant(3.0);
+//    prop->setSmoothingSteps(1000);
     prop->setPlotInExecution(true);
     prop->setConvergence(true);
-    prop->setTolerance(1.0e-03);
-    prop->setDumpingFactor(1.0);
-    prop->setDumpingRadius(3000);
+    prop->setTolerance(1.0e-07);
+    prop->setDumping(true);
+    prop->setDecayFactor(1.0);
+    prop->setDumpingInnerDistance(1000);
+    prop->setDumpingOuterDistance(3000);
     prop->setSolver(true);
 
     /* Create propagate vector block and set to propagate over the whole
@@ -114,14 +125,21 @@ void example00001() {
 
     /* Create PINs. */
     addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(cgnsExtr2, boxSel, M_GEOM, M_GEOM);
+    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsNeumann, M_GEOM2, M_GEOM);
+    
+    addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM);
     addPin(boxSel, rotation, M_GEOM, M_GEOM);
     addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
-    addPin(cgnsI, cgnsExtr2, M_GEOM2, M_GEOM);
-    addPin(cgnsExtr2, recon, M_GEOM, M_GEOM);
+    addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM);
+    
     addPin(cgnsI, prop, M_GEOM, M_GEOM);
-    addPin(cgnsExtr2, prop, M_GEOM, M_GEOM2);
+    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2);
+    addPin(cgnsNeumann, prop, M_GEOM, M_GEOM4);
+    addPin(boxSel, prop, M_GEOM, M_GEOM3);
+
     addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
+    
     addPin(prop, applier, M_GDISPLS, M_GDISPLS);
     addPin(cgnsI, applier, M_GEOM, M_GEOM);
 
@@ -138,7 +156,8 @@ void example00001() {
     Chain ch0;
     ch0.addObject(cgnsI);
     ch0.addObject(cgnsExtr);
-    ch0.addObject(cgnsExtr2);
+    ch0.addObject(cgnsDirichlet);
+    ch0.addObject(cgnsNeumann);
     ch0.addObject(boxSel);
     ch0.addObject(rotation);
     ch0.addObject(recon);
@@ -149,10 +168,13 @@ void example00001() {
     ch0.addObject(cgnsO);
     ch0.exec(true);
 
+    cgnsO->getGeometry()->getPatch()->write("bulk");
+    cgnsO->getSurfaceBoundary()->getPatch()->write("boundary");
     /* Destroy objects. */
     delete cgnsI;
     delete cgnsExtr;
-    delete cgnsExtr2;
+    delete cgnsDirichlet;
+    delete cgnsNeumann;
     delete cgnsO;
     delete boxSel;
     delete rotation;
