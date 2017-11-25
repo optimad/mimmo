@@ -33,13 +33,17 @@
 //PORTS DEFINITION AS CONSTANTS
 #define M_GEOM            "M_GEOM"              /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOM2           "M_GEOM2"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#define M_GEOM3           "M_GEOM3"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#define M_GEOM4           "M_GEOM4"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_VECGEOM         "M_VECGEOM"           /**< Port dedicated to communication of list of pointers to a MimmoObject object [ std::vector< MimmoObject* > ] */
 #define M_COORDS          "M_COORDS"            /**< Port dedicated to communication of coordinates of points [vector < array < double,3 > > ] */
 #define M_GLOBAL          "M_GLOBAL"            /**< Port dedicated to communication of coordinates of points in a global reference system [ vector < array < double,3 > > ] */
 #define M_LOCAL           "M_LOCAL"             /**< Port dedicated to communication of coordinates of points in a local reference system [ vector < array < double,3 > > ] */
 #define M_DISPLS          "M_DISPLS"            /**< Port dedicated to communication of displacements of 3D points [ vector < array < double,3 > > ] */
 #define M_GDISPLS         "M_GDISPLS"           /**< Port dedicated to communication of displacements relative to geometry vertices [ vector < array < double,3 > > ] */
+#define M_GDISPLS2        "M_GDISPLS2"           /**< Port dedicated to communication of displacements relative to geometry vertices [ vector < array < double,3 > > ] */
 #define M_FILTER          "M_FILTER"            /**< Port dedicated to communication of a scalar field used as a filter function [ vector < double > ] */
+#define M_FILTER2         "M_FILTER2"            /**< Port dedicated to communication of a scalar field used as a filter function [ vector < double > ] */
 #define M_DATAFIELD       "M_DATAFIELD"         /**< Port dedicated to communication of a scalar field used as a filter function [ vector < double > ] */
 #define M_VECTORSI        "M_VECTORSI"          /**< Port dedicated to communication of a generic list of short integers [ vector < short int > ] */
 #define M_VECTORLI        "M_VECTORLI"          /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
