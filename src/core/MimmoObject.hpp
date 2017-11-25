@@ -200,7 +200,8 @@ public:
     livector1D                          extractBoundaryVertexID();
     livector1D                          extractBoundaryCellID();
     std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID();
-
+    livector1D                          extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
+    
     livector1D  extractPIDCells(short);
     livector1D  extractPIDCells(shivector1D);
 
@@ -225,6 +226,12 @@ public:
     void        dump(std::ostream & stream);
     void        restore(std::istream & stream);
 
+    void   evalCellVolumes(bitpit::PiercedVector<double> &);
+    void   evalCellAspectRatio(bitpit::PiercedVector<double> &);
+    
+    double evalCellVolume(const long & id);
+    double evalCellAspectRatio(const long & id);
+    
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);

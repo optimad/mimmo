@@ -1477,6 +1477,34 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
     return result;
 };
 
+/*!
+ * Extract vertices at the mesh boundaries, provided the map of the cell faces at boundaries. 
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] cellmap map of border faces of the mesh written as cell-ID vs local cell face index.
+ * \return list of vertex unique-ids.
+ */
+livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &cellmap){
+    
+    if(cellmap.empty()) return livector1D(0);
+    
+    std::unordered_set<long> container;
+    
+    for (const auto & val : cellmap){
+        bitpit::Cell & cell = getPatch()->getCell(val.first);
+        for(const auto face : val.second){
+            bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
+            for(const auto & index : list ){
+                container.insert(index);
+            }
+        }// end loop on face
+    }
+    
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+    
+    return result;
+};
 
 /*!
  * Extract all cells marked with a target PID flag.
@@ -1704,6 +1732,7 @@ void MimmoObject::buildAdjacencies(){
  */
 void MimmoObject::buildInterfaces(){
     if(m_type !=3){
+        if(!areAdjacenciesBuilt()) buildAdjacencies();
         getPatch()->buildInterfaces();
         m_IntBuilt=  true;
     }
@@ -1839,6 +1868,177 @@ void MimmoObject::restore(std::istream & stream){
     }
 }
 
+/*!
+ * Evaluate general volume of each cell in the current mesh, 
+ * according to its topology.
+ * If no patch or empty patch or pointcloud patch is present 
+ * in the current MimmoObject return empty map as result.
+ * \param[out] volumes volume values referred to cell ids 
+ */
+void
+MimmoObject::evalCellVolumes(bitpit::PiercedVector<double> & volumes){
+    
+    if(getPatch() == NULL)   return;
+    if(isEmpty())       return ;
+
+    switch (getType()){
+        case 1:
+        case 4:
+            {
+                bitpit::SurfaceKernel * p = static_cast<bitpit::SurfaceKernel *>(getPatch());
+                for (const auto & cell: getCells()){
+                    volumes.insert(cell.getId(), p->evalCellArea(cell.getId()));
+                }
+            }
+            break;
+        case 2:
+            {
+                bitpit::VolumeKernel * p = static_cast<bitpit::VolumeKernel *>(getPatch());
+                for (const auto & cell: getCells()){
+                    volumes.insert(cell.getId(), p->evalCellVolume(cell.getId()));
+                }
+            }
+            break;
+        default:
+            //leave map empty
+            break;
+    }
+}
+
+/*!
+ * Evaluate Aspect Ratio of each cell in the current mesh, 
+ * according to its topology.
+ * VERTEX and LINE elements does not support a proper definition of Aspect Ratio 
+ * and will return always 0.0 as value. PointCloud and 3DCurve MimmoObject return an empty map.
+ * If no patch or empty patch or pointcloud patch is present 
+ * in the current MimmoObject return empty map as result.
+ * \param[out] ARs aspect ratio values referred to cell id
+ */
+void
+MimmoObject::evalCellAspectRatio(bitpit::PiercedVector<double> & ARs){
+
+    if(getPatch() == NULL)   return;
+    if(isEmpty())       return;
+    
+    switch (getType()){
+        case 1:
+        {
+            bitpit::SurfaceKernel * p = static_cast<bitpit::SurfaceKernel *>(getPatch());
+            int edge;
+            for (const auto & cell: getCells()){
+                ARs[cell.getId()] = p->evalAspectRatio(cell.getId(), edge);
+            }
+        }
+        break;
+        case 2:
+        {   //Following the example of OpenFoam, the AR index is calculated as
+            // the ratio S between total surface and hydraulic surface of an equilater
+            //   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
+            if(!areInterfacesBuilt())   buildInterfaces();
+            bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
+
+            //calculate interface area
+            std::unordered_map<long, double> interfaceAreas;
+            for (const auto & interf: getInterfaces()){
+                interfaceAreas[interf.getId()] = p->evalInterfaceArea(interf.getId());
+            }
+
+            double Svalue = 0.0;
+            double sumArea;
+            int size;
+            for (const auto & cell: getCells()){
+
+                sumArea = 0.0;
+
+                size = cell.getInterfaceCount();
+                const long * conInt = cell.getInterfaces();
+
+                for(int i=0; i<size; ++i){
+                    sumArea += interfaceAreas[conInt[i]];
+                }
+
+                double vol = p->evalCellVolume(cell.getId());
+                if(vol <= std::numeric_limits<double>::min()){
+                    Svalue = std::numeric_limits<double>::max();
+                }else{
+                    Svalue = sumArea/(6.0*std::pow(vol, 2.0/3.0));
+                }
+
+                ARs.insert(cell.getId(), Svalue);
+            }
+
+        }
+        break;
+        default:
+            //leave map empty
+            break;
+    }
+}
+
+/*!
+ * Evaluate volume of a target cell in the current mesh.
+ * \param[in] id cell id.
+ * \return cell volume
+ */
+double
+MimmoObject::evalCellVolume(const long & id){
+    switch (getType()){
+        case 1:
+        case 4:
+            return static_cast<bitpit::SurfaceKernel *>(getPatch())->evalCellArea(id);
+            break;
+        case 2:
+            return static_cast<bitpit::VolumeKernel *>(getPatch())->evalCellVolume(id);
+            break;
+        default:
+            return 0.0;
+            break;
+    }
+}
+
+/*!
+ * Evaluate Aspect Ratio of a target cell.
+ * VERTEX and LINE elements does not support a proper definition of Aspect Ratio 
+ * and will return always 0.0 as value.
+ * \param[in] id of the cell
+ * \return value of cell AR.
+ */
+double
+MimmoObject::evalCellAspectRatio(const long & id){
+    int edge;
+    switch (getType()){
+        case 1:
+            return static_cast<bitpit::SurfaceKernel *>(getPatch())->evalAspectRatio(id, edge);
+            break;
+        case 2:
+        {
+            //Following the example of OpenFoam, the AR index is calculated as
+            // the ratio S between total surface and hydraulic surface of an equilater
+            //   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
+            if(!areInterfacesBuilt())   buildInterfaces();
+            bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
+
+            double Svalue = 0.0;
+            double sumArea = 0.0;
+            int size = p->getCell(id).getInterfaceCount();
+            const long * conInt = p->getCell(id).getInterfaces();
+            for(int i=0; i<size; ++i){
+                sumArea += p->evalInterfaceArea(conInt[i]);
+            }
+
+            double vol = p->evalCellVolume(id);
+            if(vol <= std::numeric_limits<double>::min()){
+                return std::numeric_limits<double>::max();
+            }else{
+                return sumArea/(6.0*std::pow(vol, 2.0/3.0));
+            }
+        }
+            break;
+        default:
+            return 0.0;
+            break;
+    }
+}
 
 }
 
