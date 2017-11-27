@@ -641,7 +641,7 @@ void PropagateScalarField::setDefaults(){
     PropagateField::setDefaults();
     m_bc_dir.clear();
     m_field.clear();
-    m_neu_surface = NULL;
+   
 }
 
 /*!
@@ -676,7 +676,6 @@ PropagateScalarField::~PropagateScalarField(){
 PropagateScalarField::PropagateScalarField(const PropagateScalarField & other):PropagateField(other){
     m_bc_dir    = other.m_bc_dir;
     m_field     = other.m_field;
-    m_neu_surface = other.m_neu_surface;
 };
 
 /*!
@@ -694,7 +693,6 @@ PropagateScalarField & PropagateScalarField::operator=(PropagateScalarField othe
 void PropagateScalarField::swap(PropagateScalarField & x) noexcept {
     m_bc_dir.swap(x.m_bc_dir);
     m_field.swap(x.m_field);
-    std::swap(m_neu_surface, x.m_neu_surface);
     PropagateField::swap(x);
 }
 
@@ -705,7 +703,6 @@ void
 PropagateScalarField::buildPorts(){
     bool built = true;
     built = (built && createPortIn<dmpvector1D, PropagateScalarField>(this, &PropagateScalarField::setDirichletConditions, M_FILTER));
-    built = (built && createPortIn<MimmoObject*, PropagateScalarField>(this, &PropagateScalarField::setNeumannBoundarySurface, M_GEOM4));
     built = (built && createPortOut<dmpvector1D, PropagateScalarField>(this, &PropagateScalarField::getPropagatedField, M_FILTER));
     PropagateField::buildPorts();
     m_arePortsBuilt = built;
@@ -718,24 +715,6 @@ PropagateScalarField::buildPorts(){
 dmpvector1D
 PropagateScalarField::getPropagatedField(){
     return(m_field);
-}
-
-
-/*! 
-* Sets the portion of boundary mesh relative to geometry target
-* that must be constrained with zero gradient Neumann conditions.
-* This patch is optional. If nothing is linked, the relative boundary is 
-* solved free of any conditions.
-* \param[in] surface Boundary patch.
-*/
-void
-PropagateScalarField::setNeumannBoundarySurface(MimmoObject* surface){
-    if (surface == NULL)       return;
-    if (surface->isEmpty())    return;
-    if (surface->getType()!= 1 ) return;
-    
-    m_neu_surface = surface;
-    
 }
 
 /*!
@@ -817,71 +796,9 @@ bool PropagateScalarField::checkBoundariesCoherence(){
         return false;
     }
   
-   // verify if optional Neumann condition are set. If not, exit with true condition
-   if(m_neu_surface == NULL)    return true; //ok
-   
-   //neumann surface is not null, double step check as m_bsurface
-   //3rd step: verify boundary IDs of Neumann boundary patch and target are coherent
-   // and fill m_isbp with flag true and mark 2 for Neumann condition.
-   for(const auto & vert: m_neu_surface->getVertices()){
-        id= vert.getId();
-        if(!pVtarget.exists(id)) {
-            m_isbp.clear();
-            return false;
-        }
-        if(!m_isbp.exists(id)){
-            m_isbp[id].first = true;
-            m_isbp[id].second = 2;
-        }
-   }
-    //if it is survived, then it's all ok.
     return true;
 }
 
-/*!
- * Apply correction for Neumann Boundary condition. If m_neu_surface member is null
- * does not do anything. Correction is calculated multiplying the weights of a target border 
- * node i by a factor dotProduct(e_ij/||e_ij||, vNormal_i), where e_ij is the edge joining
- * the target node i with its neighbour j and vNormal_i is the surface normal evaluated in the node i.
- */
-void
-PropagateScalarField::correctStencilForNeumann(){
-    
-    if(m_neu_surface == NULL) return;
-    
-    bitpit::PiercedVector<darray3E> vNormals;
-    vNormals.reserve(m_neu_surface->getNVertex());
-    
-    bitpit::ConstProxyVector<long> verts;
-    std::size_t size;
-    long idN;
-    //save the vertex Normals using the boundary surface m_neu_surface;
-    for(const auto & cell: m_neu_surface->getCells()){
-        verts= cell.getVertexIds();
-        size = verts.size();
-        for(std::size_t i=0; i<size; ++i){
-            idN = verts[i];
-            if(m_isbp[idN].first && m_isbp[idN].second ==2 && !vNormals.exists(idN)){
-                vNormals.insert(idN, static_cast<bitpit::SurfaceKernel*>(m_neu_surface->getPatch())->evalVertexNormal(cell.getId(), i));
-            }
-        }
-    }
-    std::vector<long> neuVerts = vNormals.getIds();
-    
-    //proceed to force correction on stencil;
-    double sum;
-    darray3E edge;
-    for(const auto & id : neuVerts){
-        sum = 0.0;
-        size = m_conn[id].size();
-        for(std::size_t i=0; i<size; ++i){
-            edge = m_geometry->getVertexCoords(id) - m_geometry->getVertexCoords(m_conn[id][i]);
-            m_weights[id][i] *= std::abs(dotProduct(edge/norm2(edge), vNormals[id]));
-            sum += m_weights[id][i];
-        }
-        m_weights[id] /= sum;
-    }
-}
 
 /*!
  * It applies a smoothing filter for a defined number of step.
@@ -890,8 +807,7 @@ PropagateScalarField::correctStencilForNeumann(){
 void
 PropagateScalarField::solveSmoothing(int nstep){
     
-    correctStencilForNeumann();
-    
+       
     int nsize;
     livector1D ids;
     long ID;
@@ -901,7 +817,7 @@ PropagateScalarField::solveSmoothing(int nstep){
         double maxval = 0.0;
         for (auto vertex : getGeometry()->getVertices()){
             ID = vertex.getId();
-            if (m_isbp[ID].first && m_isbp[ID].second ==1){
+            if (m_isbp[ID].first){
                 m_field.insert(ID, m_bc_dir[ID]);
                 maxval = std::max(maxval, std::abs(m_bc_dir[ID]));
             }
@@ -922,7 +838,7 @@ PropagateScalarField::solveSmoothing(int nstep){
                 ID = vertex.getId();
                 double value = m_field[ID];
                 
-                if (m_isbp[ID].first && m_isbp[ID].second==1)    continue;
+                if (m_isbp[ID].first)    continue;
                 
                 m_field[ID] = 0.0;
                 nsize = m_conn[ID].size();
@@ -956,7 +872,7 @@ PropagateScalarField::solveSmoothing(int nstep){
     
     m_conn.clear();
     m_weights.clear();
-    m_bc_dir.clear();
+    //m_bc_dir.clear();
 }
 
 /*!
@@ -965,13 +881,12 @@ PropagateScalarField::solveSmoothing(int nstep){
 void
 PropagateScalarField::solveLaplace(){
     
-    correctStencilForNeumann();
-    
+  
     m_field.clear();
     //initialization
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
-        if (m_isbp[ID].first && m_isbp[ID].second ==1){
+        if (m_isbp[ID].first){
             m_field.insert(ID, m_bc_dir[ID]);
         }else{
             m_field.insert(ID, 0.0);
@@ -999,7 +914,7 @@ PropagateScalarField::solveLaplace(){
         for (auto vertex : getGeometry()->getVertices()){
             long int ID = vertex.getId();
             int ind = dataInv[ID];
-            if (m_isbp[ID].first && m_isbp[ID].second ==1){
+            if (m_isbp[ID].first ){
                 
                 stencils[ind] = ivector1D(1, ind);
                 weights[ind] = dvector1D(1, 1.0);
@@ -1019,7 +934,7 @@ PropagateScalarField::solveLaplace(){
         m_weights.clear();
         m_conn.clear();
         //WARNING releasing of boundary conditions! Done for memory saving
-        m_bc_dir.clear();
+        //m_bc_dir.clear();
         
         
         #if ENABLE_MPI==1
@@ -1108,7 +1023,7 @@ void PropagateVectorField::setDefaults(){
     PropagateField::setDefaults();
     m_bc_dir.clear();
     m_field.clear();
-    m_neu_surface = NULL;
+    m_slipsurface = NULL;
 }
 
 /*!
@@ -1142,7 +1057,7 @@ PropagateVectorField::~PropagateVectorField(){
  */
 PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):PropagateField(other){
     m_bc_dir    = other.m_bc_dir;
-    m_neu_surface = other.m_neu_surface;
+    m_slipsurface = other.m_slipsurface;
     m_field     = other.m_field;
 };
 
@@ -1161,7 +1076,7 @@ PropagateVectorField & PropagateVectorField::operator=(PropagateVectorField othe
 void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
     m_bc_dir.swap(x.m_bc_dir);
     m_field.swap(x.m_field);
-    std::swap(m_neu_surface, x.m_neu_surface);
+    std::swap(m_slipsurface, x.m_slipsurface);
     PropagateField::swap(x);
 }
 
@@ -1172,7 +1087,7 @@ void
 PropagateVectorField::buildPorts(){
     bool built = true;
     built = (built && createPortIn<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
-    built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setNeumannBoundarySurface, M_GEOM4));
+    built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipBoundarySurface, M_GEOM4));
     built = (built && createPortOut<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
     PropagateField::buildPorts();
     m_arePortsBuilt = built;
@@ -1189,18 +1104,18 @@ PropagateVectorField::getPropagatedField(){
 
 /*! 
  * Sets the portion of boundary mesh relative to geometry target
- * that must be constrained component-wise with zero gradient Neumann conditions.
+ * that must be constrained component-wise with zero normal field throughout boundary surface.
  * This patch is optional. If nothing is linked, the relative boundary is 
  * solved free of any conditions.
  * \param[in] surface Boundary patch.
  */
 void
-PropagateVectorField::setNeumannBoundarySurface(MimmoObject* surface){
+PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
     if (surface == NULL)       return;
     if (surface->isEmpty())    return;
     if (surface->getType()!= 1 ) return;
     
-    m_neu_surface = surface;
+    m_slipsurface = surface;
     
 }
 
@@ -1284,12 +1199,12 @@ bool PropagateVectorField::checkBoundariesCoherence(){
     }
     
     // verify if optional Neumann condition are set. If not, exit with true condition
-    if(m_neu_surface == NULL)    return true; //ok
+    if(m_slipsurface == NULL)    return true; //ok
     
     //neumann surface is not null, double step check as m_bsurface
     //3rd step: verify boundary IDs of Neumann boundary patch and target are coherent
     // and fill m_isbp with flag true and mark 2 for Neumann condition.
-    for(const auto & vert: m_neu_surface->getVertices()){
+    for(const auto & vert: m_slipsurface->getVertices()){
         id= vert.getId();
         if(!pVtarget.exists(id)) {
             m_isbp.clear();
@@ -1301,53 +1216,27 @@ bool PropagateVectorField::checkBoundariesCoherence(){
         }
     }
     
-    //if it is survived, then it's all ok.
-    return true;
-}
-
-/*!
- * Apply correction for Neumann Boundary condition. If m_neu_surface member is null
- * does not do anything. Correction is calculated multiplying the weights of a target border 
- * node i by a factor dotProduct(e_ij/||e_ij||, vNormal_i), where e_ij is the edge joining
- * the target node i with its neighbour j and vNormal_i is the surface normal evaluated in the node i.
- */
-void
-PropagateVectorField::correctStencilForNeumann(){
-    
-    if(m_neu_surface == NULL) return;
    
-    bitpit::PiercedVector<darray3E> vNormals;
-    vNormals.reserve(m_neu_surface->getNVertex());
+    m_vNormals.clear();
+    m_vNormals.reserve(m_slipsurface->getNVertex());
     
     bitpit::ConstProxyVector<long> verts;
     std::size_t size;
     long idN;
     //save the vertex Normals using the boundary surface m_neu_surface;
-    for(const auto & cell: m_neu_surface->getCells()){
+    for(const auto & cell: m_slipsurface->getCells()){
         verts= cell.getVertexIds();
         size = verts.size();
         for(std::size_t i=0; i<size; ++i){
             idN = verts[i];
-            if(m_isbp[idN].first && m_isbp[idN].second ==2 && !vNormals.exists(idN)){
-                vNormals.insert(idN, static_cast<bitpit::SurfaceKernel*>(m_neu_surface->getPatch())->evalVertexNormal(cell.getId(), i));
+            if(m_isbp[idN].second ==2 && !m_vNormals.exists(idN)){
+                m_vNormals.insert(idN, static_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch())->evalVertexNormal(cell.getId(), i));
             }
         }
     }
-    std::vector<long> neuVerts = vNormals.getIds();
-    
-    //proceed to force correction on stencil;
-    double sum;
-    darray3E edge;
-    for(const auto & id : neuVerts){
-        sum = 0.0;
-        size = m_conn[id].size();
-        for(std::size_t i=0; i<size; ++i){
-            edge = m_geometry->getVertexCoords(id) - m_geometry->getVertexCoords(m_conn[id][i]);
-            m_weights[id][i] *= std::abs(dotProduct(edge/norm2(edge), vNormals[id]));
-            sum += m_weights[id][i];
-        }
-        m_weights[id] /= sum;
-    }
+
+    //if it is survived, then it's all ok.
+    return true;
 }
 
 
@@ -1358,7 +1247,6 @@ PropagateVectorField::correctStencilForNeumann(){
 void
 PropagateVectorField::solveSmoothing(int nstep){
 
-    correctStencilForNeumann();
     int nsize;
     livector1D ids;
     livector1D noids;
@@ -1399,7 +1287,16 @@ PropagateVectorField::solveSmoothing(int nstep){
                 for (int j=0; j<nsize; j++){
                     m_field[ID] += m_field[ids[j]]*m_weights[ID][j];
                 }
-                
+
+		if(m_isbp[ID].first && m_isbp[ID].second == 2){
+		    int candidate = 0;
+		    if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][candidate])) candidate = 1;
+		    if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][candidate])) candidate = 2;
+
+		    m_field[ID][candidate] = -1.0*(m_vNormals[ID][(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
+                                                   m_vNormals[ID][(candidate+2)%3] * m_field[ID][(candidate+2)%3]) / m_vNormals[ID][candidate];	
+ 	
+		}                
                 if (m_convergence){
                     maxdiff = std::max(maxdiff, norm2(value - m_field[ID])/maxval);
                 }
@@ -1426,7 +1323,7 @@ PropagateVectorField::solveSmoothing(int nstep){
 
     m_conn.clear();
     m_weights.clear();
-    m_bc_dir.clear();
+    m_vNormals.clear();
 }
 
 /*!
@@ -1435,7 +1332,6 @@ PropagateVectorField::solveSmoothing(int nstep){
 void
 PropagateVectorField::solveLaplace(){
    
-    correctStencilForNeumann();
     m_field.clear();
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
@@ -1459,70 +1355,75 @@ PropagateVectorField::solveLaplace(){
     solverOptions.subrtol   = 1e-12;
 
     {
-        localivector2D stencils(m_conn.size());
-        localdvector2D weights(m_conn.size());
-        localdvector1D rhs(m_conn.size(),0.0);
+	int connSize = m_conn.size();
+        localivector2D stencils(3*connSize);
+        localdvector2D weights(3*connSize);
+        localdvector1D rhs(3*connSize,0.0);
         
         //Create stencils for petsc
         for (auto vertex : getGeometry()->getVertices()){
             long int ID = vertex.getId();
             int ind = dataInv[ID];
             if (m_isbp[ID].first && m_isbp[ID].second ==1){
-                stencils[ind] = ivector1D(1, ind);
-                weights[ind] = dvector1D(1, 1.0);
+                for(int comp=0; comp<3; ++comp){
+                    stencils[ind+comp*connSize] = ivector1D(1, ind+comp*connSize);
+                    weights[ind+comp*connSize] = dvector1D(1, 1.0);
+                    rhs[ind+comp*connSize] = m_bc_dir[ID][comp]; 
+                }
             }else{
+                for(int comp=0; comp<3; ++comp){
                     for (const long & IDN : m_conn[ID]){
-                        stencils[ind].push_back(dataInv[IDN]);
+                       stencils[ind+comp*connSize].push_back(dataInv[IDN]+comp*connSize);
                     }
-                    stencils[ind].push_back(ind);
-                    weights[ind] = -1.0*m_weights[ID];
-                    weights[ind].push_back(1.0);
+                    stencils[ind+comp*connSize].push_back(ind+comp*connSize);
+                    weights[ind+comp*connSize] = -1.0*m_weights[ID];
+                    weights[ind+comp*connSize].push_back(1.0);
+                }
+            }
+	
+            if(m_isbp[ID].first && m_isbp[ID].second == 2){
+	        int comp = 0;
+	        if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][comp])) comp = 1;
+	        if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][comp])) comp = 2;
+                
+                stencils[ind+comp*connSize].resize(3); 
+                stencils[ind+comp*connSize] = {{ind, ind+connSize, ind+2*connSize}};
+                weights[ind+comp*connSize].resize(3);
+	        for(int i=0; i<3; ++i) 
+                   weights[ind +comp*connSize][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
+	    }                
+        }
+        m_weights.clear();
+        m_conn.clear();
+        m_vNormals.clear();
+               
+#if ENABLE_MPI==1
+        m_solver->initialize(stencils, weights, rhs, ghosts);
+#else
+        m_solver->initialize(stencils, weights, rhs);
+#endif
+
+        // Solve the system
+        m_solver->solve();
+
+        // Get the solution
+        const double *solution = m_solver->getSolutionRawReadPtr();
+
+        for (auto vertex : getGeometry()->getVertices()){
+            for (int icomp=0; icomp<3; ++icomp ){ 
+                 long int ID = vertex.getId();
+                 int ind = dataInv[ID];
+                 m_field[ID][icomp] = solution[ind + icomp*connSize];
             }
         }
 
-        m_weights.clear();
-        m_conn.clear();
-
-        //Loop on components
-        for (int icomp = 0; icomp < 3; icomp++){
-
-            for (auto vertex : getGeometry()->getVertices()){
-                long int ID = vertex.getId();
-                int ind = dataInv[ID];
-                if (m_isbp[ID].first && m_isbp[ID].second==1){
-                    rhs[ind] = m_bc_dir[ID][icomp];
-                }
-            }
-
-#if ENABLE_MPI==1
-            m_solver->initialize(stencils, weights, rhs, ghosts);
-#else
-            m_solver->initialize(stencils, weights, rhs);
-#endif
-
-            // Solve the system
-            m_solver->solve();
-
-            // Get the solution
-            const double *solution = m_solver->getSolutionRawReadPtr();
-
-            for (auto vertex : getGeometry()->getVertices()){
-                long int ID = vertex.getId();
-                int ind = dataInv[ID];
-                m_field[ID][icomp] = solution[ind];
-            }
-
-            // Clear the solver
-             m_solver->clear();
-
-        }//end loop on components
-
-    }
+        // Clear the solver
+        m_solver->clear();
+   }
 
     m_field.setDataLocation(MPVLocation::POINT);
     m_field.setGeometry(getGeometry());
 
-    m_bc_dir.clear();
 }
 
 /*!

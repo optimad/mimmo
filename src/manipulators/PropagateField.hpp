@@ -188,12 +188,12 @@ private:
  * \ingroup manipulators
  * \brief Executable block that provides the computation of a scalar field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
- * the mesh with given Dirichlet/Neumann boundary conditions.
+ * the mesh with given Dirichlet boundary conditions.
  * 
- * Neumann and Dirichlet boundary conditions are explicitly provided by the User, identifying boundaries
- * through MimmoObject patches and associating to them the value of the field as Dirichlet condition, 
- * or the value of boundary normal flux as Neumann condition.
- * Dirichlet info are mandatory, Neumann ones are optional.
+ * Dirichlet boundary conditions are explicitly provided by the User, identifying boundaries
+ * through MimmoObject patches and associating to them the value of the field as Dirichlet condition. 
+ * A natural zero gradient like condition is automatically provided on unbounded borders.
+ * 
  *
  * Class/BaseManipulation Object specialization of class PropagateField
  * for the propagation in a volume mesh of a scalar field.
@@ -206,7 +206,6 @@ private:
     ||||
     | <B>PortType</B>| <B>variable/function</B>  |<B>DataType</B> |
     | M_FILTER       | setDirichletConditions    | (MC_MPVECTOR, MD_FLOAT) |
-    | M_GEOM4        | setNeumannBoundarySurface | (MC_SCALAR, MD_MIMMO_)  |
 
     |Port Output|||
     ||||
@@ -220,7 +219,7 @@ private:
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM2        | setDirichletBoundarySurface           | (MC_SCALAR, MD_MIMMO_) |
-
+    | M_GEOM3        | setDumpingBoundarySurface    | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
  *
@@ -252,7 +251,7 @@ private:
 
     dmpvector1D   m_bc_dir;              /**< Dirichlet Boundary conditions. */
     dmpvector1D   m_field;               /**< Resulting field.*/
-    MimmoObject * m_neu_surface;         /**< MimmoObject boundary patch identifying Neumann conditions */
+   
 public:
 
     PropagateScalarField();
@@ -266,8 +265,7 @@ public:
 
     dmpvector1D getPropagatedField();
     
-    void    setNeumannBoundarySurface(MimmoObject * );
-    
+  
     void    setDirichletConditions(dmpvector1D bc);
 
     //XML utilities from reading writing settings to file
@@ -280,7 +278,7 @@ private:
     void setDefaults();
 
     bool checkBoundariesCoherence();
-    void correctStencilForNeumann();
+
     //execute
     void solveSmoothing(int nstep);
     void solveLaplace();
@@ -297,12 +295,13 @@ private:
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given boundary conditions.
  * 
- * Neumann type or Prescribed (Dirichlet) field boundary conditions are explicitly provided by the User, 
+ * Prescribed (Dirichlet) field boundary conditions are explicitly provided by the User, 
  * identifying boundaries through MimmoObject patches and associating to them the value of each component 
- * of the field as Dirichlet condition, or Neumann condition for each component of the field at the boundary.
+ * of the field as Dirichlet condition.
+ * Optionally an inpermeability-like/slip condition (zero vector field normal to boundary surface) 
+ * can be imposed on chosen boundary patches.
  * 
- * Dirichlet info are mandatory, Neumann ones are optional.
- * 
+ *  
  * Class/BaseManipulation Object specialization of class PropagateField
  * for the propagation in a volume mesh of a 3D array field.
  *
@@ -314,7 +313,7 @@ private:
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GDISPLS      | setDirichletConditions    | (MC_MPVECARR3, MD_FLOAT)|
-    | M_GEOM4        | setNeumannBoundarySurface | (MC_SCALAR, MD_MIMMO_)  |
+    | M_GEOM4        | setSlipBoundarySurface | (MC_SCALAR, MD_MIMMO_)  |
 
     |Port Output|||
     ||||
@@ -327,8 +326,8 @@ private:
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | setBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
-
+    | M_GEOM2        | setDirichletBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
+    | M_GEOM3        | setDumpingBoundarySurface    | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
  *
@@ -362,10 +361,11 @@ private:
 
     dmpvecarr3E   m_bc_dir;              /**< Dirichlet Boundary conditions. */
     dmpvecarr3E   m_field;           /**< Resulting field.*/
-    MimmoObject * m_neu_surface;         /**< MimmoObject boundary patch identifying Neumann conditions */
+    MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
+
+    bitpit::PiercedVector<darray3E> m_vNormals; /**< temporary object to store vertex normals for slip condition */
 public:
 
-public:
 
     PropagateVectorField();
     PropagateVectorField(const bitpit::Config::Section & rootXML);
@@ -378,7 +378,7 @@ public:
 
     dmpvecarr3E getPropagatedField();
     
-    void    setNeumannBoundarySurface(MimmoObject *);
+    void    setSlipBoundarySurface(MimmoObject *);
     
     void    setDirichletConditions(dmpvecarr3E bc);
 
@@ -392,8 +392,7 @@ private:
     void setDefaults();
 
     bool checkBoundariesCoherence();
-    void correctStencilForNeumann();
-    
+       
     //execute
     void solveSmoothing(int nstep);
     void solveLaplace();
