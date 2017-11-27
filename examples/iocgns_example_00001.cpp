@@ -93,12 +93,12 @@ void example00001() {
      * input volume geometry the displacements field.
      */
     PropagateVectorField* prop = new PropagateVectorField();
-    prop->setWeightConstant(3.0);
+    prop->setWeightConstant(1.0);
     //prop->setSmoothingSteps(250);
     prop->setPlotInExecution(true);
     prop->setConvergence(true);
     prop->setTolerance(1.0e-07);
-    prop->setDumping(true);
+    prop->setDumping(false);
     prop->setDumpingInnerDistance(1000);
     prop->setDumpingOuterDistance(3000);
     prop->setSolver(true);

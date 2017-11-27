@@ -579,7 +579,7 @@ PropagateField::computeDumpingFunction(){
 
         
         for(auto it=volumes.begin(); it!=volumes.end(); ++it){
-            *it = 1.0 + (volmax - volmin)*AR[it.getId()]/(*it);
+            *it = (1.0 + (volmax - volmin)/(*it)); //*AR[it.getId()];
         }
 
         //MODULATING DUMPING WITH DISTANCE
