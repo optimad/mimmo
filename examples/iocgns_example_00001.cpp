@@ -63,12 +63,12 @@ void example00001() {
 
     /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 3 (Simmetry plane
-     * where imposing Natural neumann conditions).
+     * where imposing Slip/impermeability conditions).
      */
-    CGNSPidExtractor * cgnsNeumann = new CGNSPidExtractor();
-    cgnsNeumann->setPID({3});
-    cgnsNeumann->setForcedToTriangulate(false);
-    cgnsNeumann->setPlotInExecution(true);
+    CGNSPidExtractor * cgnsSlip = new CGNSPidExtractor();
+    cgnsSlip->setPID({3});
+    cgnsSlip->setForcedToTriangulate(false);
+    cgnsSlip->setPlotInExecution(true);
     
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
@@ -94,12 +94,11 @@ void example00001() {
      */
     PropagateVectorField* prop = new PropagateVectorField();
     prop->setWeightConstant(3.0);
-//    prop->setSmoothingSteps(1000);
+    //prop->setSmoothingSteps(250);
     prop->setPlotInExecution(true);
     prop->setConvergence(true);
     prop->setTolerance(1.0e-07);
     prop->setDumping(true);
-    prop->setDecayFactor(1.0);
     prop->setDumpingInnerDistance(1000);
     prop->setDumpingOuterDistance(3000);
     prop->setSolver(true);
@@ -126,7 +125,7 @@ void example00001() {
     /* Create PINs. */
     addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
     addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
-    addPin(cgnsI, cgnsNeumann, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
     
     addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM);
     addPin(boxSel, rotation, M_GEOM, M_GEOM);
@@ -135,7 +134,7 @@ void example00001() {
     
     addPin(cgnsI, prop, M_GEOM, M_GEOM);
     addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2);
-    addPin(cgnsNeumann, prop, M_GEOM, M_GEOM4);
+    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4);
     addPin(boxSel, prop, M_GEOM, M_GEOM3);
 
     addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
@@ -157,7 +156,7 @@ void example00001() {
     ch0.addObject(cgnsI);
     ch0.addObject(cgnsExtr);
     ch0.addObject(cgnsDirichlet);
-    ch0.addObject(cgnsNeumann);
+    ch0.addObject(cgnsSlip);
     ch0.addObject(boxSel);
     ch0.addObject(rotation);
     ch0.addObject(recon);
@@ -174,7 +173,7 @@ void example00001() {
     delete cgnsI;
     delete cgnsExtr;
     delete cgnsDirichlet;
-    delete cgnsNeumann;
+    delete cgnsSlip;
     delete cgnsO;
     delete boxSel;
     delete rotation;
