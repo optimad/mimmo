@@ -90,7 +90,7 @@ PropagateField::PropagateField(const PropagateField & other):BaseManipulation(ot
     m_radius       = other.m_radius;
     m_plateau      = other.m_plateau;
     m_dumpingActive= other.m_dumpingActive;
-    
+
 };
 
 /*!
@@ -173,7 +173,7 @@ PropagateField::setDirichletBoundarySurface(MimmoObject* bsurface){
     if (bsurface == NULL)       return;
     if (bsurface->isEmpty())    return;
     if (bsurface->getType()!= 1 ) return;
-    
+
     m_bsurface = bsurface;
 
 }
@@ -189,7 +189,7 @@ PropagateField::setDumpingBoundarySurface(MimmoObject* bdumping){
     if (bdumping == NULL)       return;
     if (bdumping->isEmpty())    return;
     if (bdumping->getType()!= 1 ) return;
-    
+
     m_dsurface = bdumping;
 }
 
@@ -281,13 +281,13 @@ void PropagateField::setTolerance(double tol){
  * \param[in] name   name associated to the slot
  */
 void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
-    
+
+
     BITPIT_UNUSED(name);
-    
+
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Solver")){
         std::string input = slotXML.get("Solver");
         input = bitpit::utils::string::trim(input);
@@ -298,7 +298,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setSolver(value);
     }
-    
+
     if(slotXML.hasOption("WeightConstant")){
         std::string input = slotXML.get("WeightConstant");
         input = bitpit::utils::string::trim(input);
@@ -310,7 +310,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setWeightConstant(value);
     }
-    
+
     if(slotXML.hasOption("SmoothingSteps")){
         std::string input = slotXML.get("SmoothingSteps");
         int value =1;
@@ -320,7 +320,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setSmoothingSteps(value);
     };
-    
+
     if(slotXML.hasOption("Convergence")){
         std::string input = slotXML.get("Convergence");
         input = bitpit::utils::string::trim(input);
@@ -331,7 +331,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setConvergence(value);
     }
-    
+
     if(slotXML.hasOption("Tolerance")){
         std::string input = slotXML.get("Tolerance");
         input = bitpit::utils::string::trim(input);
@@ -343,7 +343,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setTolerance(value);
     }
-    
+
     if(slotXML.hasOption("Dumping")){
         std::string input = slotXML.get("Dumping");
         input = bitpit::utils::string::trim(input);
@@ -354,9 +354,9 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setDumping(value);
     }
-    
+
     if(m_dumpingActive){
-        
+
         if(slotXML.hasOption("DumpingInnerDistance")){
             std::string input = slotXML.get("DumpingInnerDistance");
             input = bitpit::utils::string::trim(input);
@@ -368,7 +368,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
             }
             setDumpingInnerDistance(value);
         }
-        
+
         if(slotXML.hasOption("DumpingOuterDistance")){
             std::string input = slotXML.get("DumpingOuterDistance");
             input = bitpit::utils::string::trim(input);
@@ -389,11 +389,11 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  * \param[in] name   name associated to the slot
  */
 void PropagateField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("WeightConstant",std::to_string(m_gamma));
     slotXML.set("Solver", std::to_string(int(m_laplace)));
     slotXML.set("SmoothingSteps",std::to_string(m_sstep));
@@ -427,17 +427,17 @@ PropagateField::execute(){
         (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
         throw std::runtime_error("Error in PropagateField execute. No target volume mesh linked");
     }
-    
+
     if(m_bsurface == NULL ){
         (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
         throw std::runtime_error("Error in PropagateField execute. No Dirichlet Boundary patch linked");
     }
-    
+
     if(!checkBoundariesCoherence()){
         (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
-        "or bc-fields not coherent with boundary patches"<<std::endl;
+                "or bc-fields not coherent with boundary patches"<<std::endl;
         throw std::runtime_error("Error in PropagateField execute. Boundary patches linked are uncoherent" 
-        "with target bulk geometry or bc-fields not coherent with boundary patches");
+                "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
 
     computeConnectivity();
@@ -460,7 +460,7 @@ PropagateField::computeConnectivity(){
     //DOESN'T WORK FOR POINTS CLOUD OR CURVES
 
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-//     int type = getGeometry()->getType();
+    //     int type = getGeometry()->getType();
 
     m_conn.resize(m_np);
     m_weights.resize(m_np);
@@ -471,31 +471,31 @@ PropagateField::computeConnectivity(){
     //compute connectivity between points
     for (const auto & cell : patch_->getCells()){
         int edgecount;
-//         if (type == 1 || patch_->getDimension() == 2){
-//             edgecount = cell.getFaceCount();
-//         }
-//         else{
-            edgecount = cell.getEdgeCount();
-//         }
+        //         if (type == 1 || patch_->getDimension() == 2){
+        //             edgecount = cell.getFaceCount();
+        //         }
+        //         else{
+        edgecount = cell.getEdgeCount();
+        //         }
         for (int ie=0; ie<edgecount; ++ie){
             bitpit::ConstProxyVector<long> econn;
-//             if (type == 1 || patch_->getDimension() == 2){
-//                 econn = cell.getFaceConnect(ie);
-//             }
-//             else{
-                econn = cell.getEdgeConnect(ie);
-//             }
+            //             if (type == 1 || patch_->getDimension() == 2){
+            //                 econn = cell.getFaceConnect(ie);
+            //             }
+            //             else{
+            econn = cell.getEdgeConnect(ie);
+            //             }
             if (!visitedge[std::pair<long, long>(econn[0],econn[1])]){
-                
+
                 visitedge[std::pair<long, long>(econn[0],econn[1])] = true;
                 visitedge[std::pair<long, long>(econn[1],econn[0])] = true;
-                
+
                 if (!m_conn.exists(econn[0])){
                     m_conn.insert(econn[0], livector1D(1, econn[1]));
                 }else{
                     m_conn[econn[0]].push_back(econn[1]);
                 }
-                
+
                 if (!m_conn.exists(econn[1])){
                     m_conn.insert(econn[1], livector1D(1, econn[0]));
                 }else{
@@ -548,7 +548,7 @@ PropagateField::computeDumpingFunction(){
     bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
     double dist;
     long ID;
-    
+
     /* Maxdist should be the maximum distance between
      * boundaries with zero values and
      * boundaries with values different from zero.
@@ -567,30 +567,38 @@ PropagateField::computeDumpingFunction(){
 
         //prepare information on volumes and aspectRatio.
         bitpit::PiercedVector<double> volumes, AR;
+        bitpit::PiercedVector<double> arguments(getGeometry()->getNVertex());
         getGeometry()->evalCellVolumes(volumes);
         getGeometry()->evalCellAspectRatio(AR);
- 
+
         double volmax = 0.0;
         double volmin = 1.0E18;
+        double armax = 0.0;
+        double armin = 1.0E18;
         for(const auto & val : volumes){
             volmax = std::max(volmax, val);
             volmin = std::min(volmin, val);
         }
+        for(auto & val : AR){
+            armax = std::max(armax, val);
+            armin = std::min(armin, val);
+        }
 
-        
+        double min_max = (1./armin - 1./armax);
+
         for(auto it=volumes.begin(); it!=volumes.end(); ++it){
-            *it = (1.0 + (volmax - volmin)/(*it)); //*AR[it.getId()];
+            *it = (1.0 + (volmax - volmin)/(*it))*(1. + min_max*AR[it.getId()]); //*AR[it.getId()];
         }
 
         //MODULATING DUMPING WITH DISTANCE
         MimmoObject * dumptarget= m_dsurface;
         if(m_dsurface == NULL)  dumptarget = m_bsurface;
-        
+
         if(!dumptarget->isSkdTreeSync()){
             dumptarget->buildSkdTree();
         }
         auto tree = dumptarget->getSkdTree();
-        
+
         double valmax = std::pow((maxd/m_plateau), m_decayFactor);
         long idsupp;
         darray3E point;
@@ -601,21 +609,26 @@ PropagateField::computeDumpingFunction(){
             ID = vertex.getId();
             point = vertex.getCoords();
             dist = skdTreeUtils::distance(&point, tree, idsupp, maxd);
-            if(dist <= m_plateau){
-                eta[ID] = 1.0;
-            }else if(dist > m_plateau && dist < maxd){
-                eta[ID] = (std::pow(maxd/dist, m_decayFactor) -1.0)/valmax;
+            if (dist < maxd){
+                if(dist <= m_plateau){
+                    eta[ID] = 1.0;
+                }else{
+                    eta[ID] = (std::pow(maxd/dist, m_decayFactor) -1.0)/valmax;
+                }
             }
+            arguments.insert(ID, 0.0);
         }
-
 
         for(auto & cell : patch_->getCells()){
             bitpit::ConstProxyVector<long> vids = cell.getVertexIds();
             for(auto & idV : vids){
-               if(eta.count(idV)){
-                    m_dumping[idV] = std::max(m_dumping[idV], std::pow(volumes[cell.getId()],eta[idV]));
+                if(eta.count(idV)){
+                    arguments[idV] = std::max(arguments[idV], volumes[cell.getId()]);
                 }
             }
+        }
+        for(auto it=eta.begin(); it!=eta.end(); ++it){
+            m_dumping[it->first] = std::pow(arguments[it->first], it->second);
         }
     }
 }
@@ -641,7 +654,7 @@ void PropagateScalarField::setDefaults(){
     PropagateField::setDefaults();
     m_bc_dir.clear();
     m_field.clear();
-   
+
 }
 
 /*!
@@ -649,10 +662,10 @@ void PropagateScalarField::setDefaults(){
  * \param[in] rootXML reference to your xml tree section
  */
 PropagateScalarField::PropagateScalarField(const bitpit::Config::Section & rootXML){
-    
+
     m_name = "mimmo.PropagateScalarField";
     setDefaults();
-    
+
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
@@ -746,7 +759,7 @@ void PropagateScalarField::absorbSectionXML(const bitpit::Config::Section & slot
  * \param[in] name   name associated to the slot
  */
 void PropagateScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     PropagateField::flushSectionXML(slotXML, name);
 };
@@ -769,14 +782,14 @@ PropagateScalarField::clear(){
  * \return true if coherence is satisfied, false otherwise.
  */
 bool PropagateScalarField::checkBoundariesCoherence(){
-    
+
     //initialize m_isbp
     bitpit::PiercedVector<bitpit::Vertex> & pVtarget = m_geometry->getVertices();
 
     for(const auto & vert: pVtarget){
         m_isbp.insert(vert.getId(), std::make_pair(false, 0));
     }
-        
+
     //1st step: verify boundary IDs of Dirichlet boundary patch and target are coherent
     // and fill m_isbp with flag true and mark 1 for Dirichlet condition.
     long id;
@@ -789,13 +802,13 @@ bool PropagateScalarField::checkBoundariesCoherence(){
         m_isbp[id].first = true;
         m_isbp[id].second = 1;
     }
-    
+
     //2nd step verify coherence of the Dirichlet field with boundary surface
     if(m_bc_dir.getGeometry() != m_bsurface || !m_bc_dir.completeMissingData(0.0)){
         m_isbp.clear();
         return false;
     }
-  
+
     return true;
 }
 
@@ -806,12 +819,12 @@ bool PropagateScalarField::checkBoundariesCoherence(){
  */
 void
 PropagateScalarField::solveSmoothing(int nstep){
-    
-       
+
+
     int nsize;
     livector1D ids;
     long ID;
-    
+
     {
         m_field.clear();
         double maxval = 0.0;
@@ -825,35 +838,35 @@ PropagateScalarField::solveSmoothing(int nstep){
                 m_field.insert(ID, 0.0);
             }
         }
-        
+
         (*m_log)<< m_name <<" starts field propagation."<<std::endl;
         for (int istep = 0; istep < nstep; istep++){
-            
+
             if (!m_convergence) (*m_log)<<"Smoothing step : " << istep+1 << " / " << nstep <<std::endl;
-            
+
             double maxdiff;
             maxdiff = 0.0;
             for (auto vertex : getGeometry()->getVertices()){
-                
+
                 ID = vertex.getId();
                 double value = m_field[ID];
-                
+
                 if (m_isbp[ID].first)    continue;
-                
+
                 m_field[ID] = 0.0;
                 nsize = m_conn[ID].size();
                 ids = m_conn[ID];
                 for (int j=0; j<nsize; j++){
                     m_field[ID] += m_field[ids[j]]*m_weights[ID][j];
                 }
-                
+
                 if (m_convergence){
                     maxdiff = std::max(maxdiff, std::abs(value - m_field[ID])/maxval);
                 }
             }//end for vertex
-            
+
             if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
-            
+
             //convergence
             if (m_convergence){
                 if (maxdiff <= m_tol)
@@ -862,14 +875,14 @@ PropagateScalarField::solveSmoothing(int nstep){
                     nstep = istep+2;
                 }
             }
-            
+
         }// end step
         (*m_log)<< m_name<<" ends field propagation."<<std::endl;
-        
+
         m_field.setDataLocation(MPVLocation::POINT);
         m_field.setGeometry(getGeometry());
     }
-    
+
     m_conn.clear();
     m_weights.clear();
     //m_bc_dir.clear();
@@ -880,8 +893,8 @@ PropagateScalarField::solveSmoothing(int nstep){
  */
 void
 PropagateScalarField::solveLaplace(){
-    
-  
+
+
     m_field.clear();
     //initialization
     for (auto vertex : getGeometry()->getVertices()){
@@ -892,33 +905,33 @@ PropagateScalarField::solveLaplace(){
             m_field.insert(ID, 0.0);
         }
     }
-    
+
     liimap  dataInv = m_geometry->getMapDataInv();
-    
+
     // Create the system for solving the pressure
     bool debug = false;
     m_solver = std::unique_ptr<mimmo::SystemSolver>(new mimmo::SystemSolver(debug));
-    
+
     // Initialize the system
     KSPOptions &solverOptions = m_solver->getKSPOptions();
     solverOptions.nullspace = false;
     solverOptions.rtol      = 1e-12;
     solverOptions.subrtol   = 1e-12;
-    
+
     {
         localivector2D stencils(m_conn.size());
         localdvector2D weights(m_conn.size());
         localdvector1D rhs(m_conn.size());
-        
+
         //Create stencils for petsc and prepare RHS
         for (auto vertex : getGeometry()->getVertices()){
             long int ID = vertex.getId();
             int ind = dataInv[ID];
             if (m_isbp[ID].first ){
-                
+
                 stencils[ind] = ivector1D(1, ind);
                 weights[ind] = dvector1D(1, 1.0);
-                
+
                 rhs[ind] = m_bc_dir[ID];
             }else{
                 for (long IDN : m_conn[ID]){
@@ -930,39 +943,39 @@ PropagateScalarField::solveLaplace(){
                 rhs[ind] = 0.0;
             }
         }
-        
+
         m_weights.clear();
         m_conn.clear();
         //WARNING releasing of boundary conditions! Done for memory saving
         //m_bc_dir.clear();
-        
-        
-        #if ENABLE_MPI==1
+
+
+#if ENABLE_MPI==1
         m_solver->initialize(stencils, weights, rhs, ghosts);
-        #else
+#else
         m_solver->initialize(stencils, weights, rhs);
-        #endif
-        
+#endif
+
         // Solve the system
         m_solver->solve();
-        
+
         // Get the solution
         const double *solution = m_solver->getSolutionRawReadPtr();
-        
+
         for (auto vertex : getGeometry()->getVertices()){
             long int ID = vertex.getId();
             int ind = dataInv[ID];
             m_field[ID] = solution[ind];
         }
-        
+
         // Clear the solver
         m_solver->clear();
-        
+
     }
-    
+
     m_field.setDataLocation(MPVLocation::POINT);
     m_field.setGeometry(getGeometry());
-    
+
 }
 
 
@@ -971,17 +984,17 @@ PropagateScalarField::solveLaplace(){
  */
 void
 PropagateScalarField::plotOptionalResults(){
-    
-    
+
+
     if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
-    
+
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
     dvector1D data;
     for (auto val : m_field){
         data.push_back(val);
     }
     vtk.addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, data);
-    
+
     dvector1D datad(m_dumping.size());
     int count = 0;
     for (auto val : m_dumping){
@@ -989,13 +1002,13 @@ PropagateScalarField::plotOptionalResults(){
         count++;
     }
     vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, datad);
-    
+
     vtk.setCounter(getId());
     getGeometry()->getPatch()->write(m_name +"_field");
     vtk.removeData("field");
     vtk.removeData("dumping");
     vtk.unsetCounter();
-    
+
 };
 
 
@@ -1114,9 +1127,9 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
     if (surface == NULL)       return;
     if (surface->isEmpty())    return;
     if (surface->getType()!= 1 ) return;
-    
+
     m_slipsurface = surface;
-    
+
 }
 
 /*!
@@ -1148,7 +1161,7 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
  * \param[in] name   name associated to the slot
  */
 void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     PropagateField::flushSectionXML(slotXML, name);
 };
@@ -1171,14 +1184,14 @@ PropagateVectorField::clear(){
  * \return true if coherence is satisfied, false otherwise.
  */
 bool PropagateVectorField::checkBoundariesCoherence(){
-    
+
     //initialize m_isbp
     bitpit::PiercedVector<bitpit::Vertex> & pVtarget = m_geometry->getVertices();
-    
+
     for(const auto & vert: pVtarget){
         m_isbp.insert(vert.getId(), std::make_pair(false, 0));
     }
-    
+
     //1st step: verify boundary IDs of Dirichlet boundary patch and target are coherent
     // and fill m_isbp with flag true and mark 1 for Dirichlet condition.
     long id;
@@ -1191,16 +1204,16 @@ bool PropagateVectorField::checkBoundariesCoherence(){
         m_isbp[id].first = true;
         m_isbp[id].second = 1;
     }
-    
+
     //2nd step verify coherence of the Dirichlet field with boundary surface
     if(m_bc_dir.getGeometry() != m_bsurface || !m_bc_dir.completeMissingData({{0.0, 0.0,0.0}})){
         m_isbp.clear();
         return false;
     }
-    
+
     // verify if optional Neumann condition are set. If not, exit with true condition
     if(m_slipsurface == NULL)    return true; //ok
-    
+
     //neumann surface is not null, double step check as m_bsurface
     //3rd step: verify boundary IDs of Neumann boundary patch and target are coherent
     // and fill m_isbp with flag true and mark 2 for Neumann condition.
@@ -1215,11 +1228,11 @@ bool PropagateVectorField::checkBoundariesCoherence(){
             m_isbp[id].second = 2;
         }
     }
-    
-   
+
+
     m_vNormals.clear();
     m_vNormals.reserve(m_slipsurface->getNVertex());
-    
+
     bitpit::ConstProxyVector<long> verts;
     std::size_t size;
     long idN;
@@ -1280,7 +1293,7 @@ PropagateVectorField::solveSmoothing(int nstep){
                 darray3E value = m_field[ID];
 
                 if (m_isbp[ID].first && m_isbp[ID].second == 1) continue;
-                
+
                 m_field[ID] = {{0.0,0.0,0.0}};
                 nsize = m_conn[ID].size();
                 ids = m_conn[ID];
@@ -1288,15 +1301,15 @@ PropagateVectorField::solveSmoothing(int nstep){
                     m_field[ID] += m_field[ids[j]]*m_weights[ID][j];
                 }
 
-		if(m_isbp[ID].first && m_isbp[ID].second == 2){
-		    int candidate = 0;
-		    if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][candidate])) candidate = 1;
-		    if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][candidate])) candidate = 2;
+                if(m_isbp[ID].first && m_isbp[ID].second == 2){
+                    int candidate = 0;
+                    if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][candidate])) candidate = 1;
+                    if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][candidate])) candidate = 2;
 
-		    m_field[ID][candidate] = -1.0*(m_vNormals[ID][(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
-                                                   m_vNormals[ID][(candidate+2)%3] * m_field[ID][(candidate+2)%3]) / m_vNormals[ID][candidate];	
- 	
-		}                
+                    m_field[ID][candidate] = -1.0*(m_vNormals[ID][(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
+                            m_vNormals[ID][(candidate+2)%3] * m_field[ID][(candidate+2)%3]) / m_vNormals[ID][candidate];
+
+                }
                 if (m_convergence){
                     maxdiff = std::max(maxdiff, norm2(value - m_field[ID])/maxval);
                 }
@@ -1331,7 +1344,7 @@ PropagateVectorField::solveSmoothing(int nstep){
  */
 void
 PropagateVectorField::solveLaplace(){
-   
+
     m_field.clear();
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
@@ -1355,11 +1368,11 @@ PropagateVectorField::solveLaplace(){
     solverOptions.subrtol   = 1e-12;
 
     {
-	int connSize = m_conn.size();
+        int connSize = m_conn.size();
         localivector2D stencils(3*connSize);
         localdvector2D weights(3*connSize);
         localdvector1D rhs(3*connSize,0.0);
-        
+
         //Create stencils for petsc
         for (auto vertex : getGeometry()->getVertices()){
             long int ID = vertex.getId();
@@ -1373,30 +1386,30 @@ PropagateVectorField::solveLaplace(){
             }else{
                 for(int comp=0; comp<3; ++comp){
                     for (const long & IDN : m_conn[ID]){
-                       stencils[ind+comp*connSize].push_back(dataInv[IDN]+comp*connSize);
+                        stencils[ind+comp*connSize].push_back(dataInv[IDN]+comp*connSize);
                     }
                     stencils[ind+comp*connSize].push_back(ind+comp*connSize);
                     weights[ind+comp*connSize] = -1.0*m_weights[ID];
                     weights[ind+comp*connSize].push_back(1.0);
                 }
             }
-	
+
             if(m_isbp[ID].first && m_isbp[ID].second == 2){
-	        int comp = 0;
-	        if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][comp])) comp = 1;
-	        if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][comp])) comp = 2;
-                
+                int comp = 0;
+                if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][comp])) comp = 1;
+                if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][comp])) comp = 2;
+
                 stencils[ind+comp*connSize].resize(3); 
                 stencils[ind+comp*connSize] = {{ind, ind+connSize, ind+2*connSize}};
                 weights[ind+comp*connSize].resize(3);
-	        for(int i=0; i<3; ++i) 
-                   weights[ind +comp*connSize][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
-	    }                
+                for(int i=0; i<3; ++i)
+                    weights[ind +comp*connSize][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
+            }
         }
         m_weights.clear();
         m_conn.clear();
         m_vNormals.clear();
-               
+
 #if ENABLE_MPI==1
         m_solver->initialize(stencils, weights, rhs, ghosts);
 #else
@@ -1411,15 +1424,15 @@ PropagateVectorField::solveLaplace(){
 
         for (auto vertex : getGeometry()->getVertices()){
             for (int icomp=0; icomp<3; ++icomp ){ 
-                 long int ID = vertex.getId();
-                 int ind = dataInv[ID];
-                 m_field[ID][icomp] = solution[ind + icomp*connSize];
+                long int ID = vertex.getId();
+                int ind = dataInv[ID];
+                m_field[ID][icomp] = solution[ind + icomp*connSize];
             }
         }
 
         // Clear the solver
         m_solver->clear();
-   }
+    }
 
     m_field.setDataLocation(MPVLocation::POINT);
     m_field.setGeometry(getGeometry());
