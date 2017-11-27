@@ -405,9 +405,9 @@ MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
  * a container on all elements of specified location with constant reference data attached.
  * Any pre-existent data will be destroyed.
  */
-template<typename value_t>
+template<typename mpv_t>
 void
-MimmoPiercedVector<value_t>::initialize(MimmoObject * geo, MPVLocation loc, const value_t & data){
+MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const mpv_t & data){
     
     switch(loc){
         case MPVLocation::POINT :

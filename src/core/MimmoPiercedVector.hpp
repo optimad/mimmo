@@ -87,8 +87,8 @@ public:
     std::vector<mpv_t>    getRawDataAsVector(bool ordered=false);
     bool                    isEmpty();
     
-    bool                   completeMissingData(const value_t & defValue);
-    void                   initialize(MimmoObject *, MPVLocation, const value_t &);
+    bool                   completeMissingData(const mpv_t & defValue);
+    void                   initialize(MimmoObject *, MPVLocation, const mpv_t &);
     void                   setGeometry(MimmoObject* geo);
     void                   setDataLocation(MPVLocation loc);
     void                   setDataLocation(int loc);
