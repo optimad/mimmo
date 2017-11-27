@@ -175,31 +175,28 @@ GenericSelection::constrainedBoundary(){
 
     if(getGeometry() == NULL || getPatch() == NULL)    return livector1D(0);
     if(getGeometry()->isEmpty() || getPatch()->isEmpty())    return livector1D(0);
-    std::unordered_map<long, std::set<int> > sonV, fatherV;
+    std::unordered_map<long, std::set<int> > survivors;
 
     auto daughterBCells  = getPatch()->extractBoundaryFaceCellID();
     auto motherBCells = getGeometry()->extractBoundaryFaceCellID();
 
-    //remove from daughterBCells all those local faces of Boundary cells
-    //marked as boundary also in motherBCells.
+    //save all those daughter boundary faces not included in mother alse
     for(const auto & sT : daughterBCells){
         if(motherBCells.count(sT.first) > 0){
-            ivector1D marked;
             for(const auto & val: sT.second){
-                if(motherBCells[sT.first].count(val)){
-                    marked.push_back(val);
-                }
+                if(motherBCells[sT.first].count(val) > 0)   continue;
+                survivors[sT.first].insert(val);
             }
-            for(auto beErased: marked){
-                daughterBCells[sT.first].erase(beErased);
-            }
-            if(daughterBCells[sT.first].empty())    daughterBCells.erase(sT.first);
+        }else{
+            survivors[sT.first] = daughterBCells[sT.first];
         }
     }
+    motherBCells.clear();
+    daughterBCells.clear();
     
     //get vertex of the cleaned daughter boundary.
     std::set<long> containerVert;
-    for(const auto & sT : daughterBCells){
+    for(const auto & sT  :survivors){
         const bitpit::Cell & cell = getPatch()->getPatch()->getCell(sT.first);
         for(const auto & val: sT.second){
             bitpit::ConstProxyVector<long> faceVertIds = cell.getFaceVertexIds(val);

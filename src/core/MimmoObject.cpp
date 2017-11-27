@@ -1382,9 +1382,10 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
     //get conn from each cell of the list
     for(auto const & cell : getPatch()->getCells()){
         bitpit::ConstProxyVector<long> vIds= cell.getVertexIds();
-        bool check = true;
+        bool check;
         for(const auto & id : vIds){
-            check = check && ordV.count(id);
+            check = (ordV.count(id) > 0);
+            if(!check)  break ;
         }
         if(check) ordC.insert(cell.getId());
     }
