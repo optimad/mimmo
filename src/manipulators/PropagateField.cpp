@@ -565,31 +565,6 @@ PropagateField::computeDumpingFunction(){
 
     if (m_dumpingActive && m_decayFactor > 1.0e-12){
 
-        //prepare information on volumes and aspectRatio.
-        bitpit::PiercedVector<double> volumes, AR;
-        bitpit::PiercedVector<double> arguments(getGeometry()->getNVertex());
-        getGeometry()->evalCellVolumes(volumes);
-        getGeometry()->evalCellAspectRatio(AR);
-
-        double volmax = 0.0;
-        double volmin = 1.0E18;
-        double armax = 0.0;
-        double armin = 1.0E18;
-        for(const auto & val : volumes){
-            volmax = std::max(volmax, val);
-            volmin = std::min(volmin, val);
-        }
-        for(auto & val : AR){
-            armax = std::max(armax, val);
-            armin = std::min(armin, val);
-        }
-
-        double min_max = (1./armin - 1./armax);
-
-        for(auto it=volumes.begin(); it!=volumes.end(); ++it){
-            *it = (1.0 + (volmax - volmin)/(*it))*(1. + min_max*AR[it.getId()]); //*AR[it.getId()];
-        }
-
         //MODULATING DUMPING WITH DISTANCE
         MimmoObject * dumptarget= m_dsurface;
         if(m_dsurface == NULL)  dumptarget = m_bsurface;
@@ -599,12 +574,15 @@ PropagateField::computeDumpingFunction(){
         }
         auto tree = dumptarget->getSkdTree();
 
-        double valmax = std::pow((maxd/m_plateau), m_decayFactor);
+        double valmax1 = 1./std::pow((maxd/m_plateau), m_decayFactor);
         long idsupp;
         darray3E point;
         double val;
         double dist;
-        std::unordered_map<long, double> eta;
+        std::map<long, double> eta;
+        bitpit::PiercedVector<double> arguments;
+        std::vector<long> vertices;
+        vertices.reserve(patch_->getVertexCount());
         for(auto const & vertex: patch_->getVertices()){
             ID = vertex.getId();
             point = vertex.getCoords();
@@ -613,17 +591,48 @@ PropagateField::computeDumpingFunction(){
                 if(dist <= m_plateau){
                     eta[ID] = 1.0;
                 }else{
-                    eta[ID] = (std::pow(maxd/dist, m_decayFactor) -1.0)/valmax;
+                    eta[ID] = (std::pow(maxd/dist, m_decayFactor) -1.0)*valmax1;
                 }
+                vertices.push_back(ID);
+                arguments.insert(ID, 0.0);
             }
-            arguments.insert(ID, 0.0);
         }
+        vertices.resize(arguments.size());
+        std::vector<long> cellids = getGeometry()->getCellFromVertexList(vertices);
 
-        for(auto & cell : patch_->getCells()){
+        //prepare information on volumes and aspectRatio.
+         bitpit::PiercedVector<double> volumes, AR;
+         for (const long & idc : cellids){
+             volumes.insert(idc, getGeometry()->evalCellVolume(idc));
+             AR.insert(idc, getGeometry()->evalCellAspectRatio(idc));
+         }
+
+         double volmax = 0.0;
+         double volmin = 1.0E18;
+         double armax = 0.0;
+         double armin = 1.0E18;
+         for(const auto & val : volumes){
+             volmax = std::max(volmax, val);
+             volmin = std::min(volmin, val);
+         }
+         for(const auto & val : AR){
+             armax = std::max(armax, val);
+             armin = std::min(armin, val);
+         }
+
+         double volmaxmin = (volmax - volmin);
+         double armin_max = (1./armin - 1./armax);
+
+         for(auto it=volumes.begin(); it!=volumes.end(); ++it){
+             *it = (1.0 + volmaxmin/(*it)*armin_max*AR[it.getId()]); //*AR[it.getId()];
+         }
+
+        for(auto & id : cellids){
+            bitpit::Cell cell = patch_->getCell(id);
             bitpit::ConstProxyVector<long> vids = cell.getVertexIds();
             for(auto & idV : vids){
                 if(eta.count(idV)){
-                    arguments[idV] = std::max(arguments[idV], volumes[cell.getId()]);
+                    arguments[idV] = std::max(arguments[idV], volumes[id]);
                 }
             }
         }

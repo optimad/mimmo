@@ -82,7 +82,7 @@ void example00001() {
      */
     RotationGeometry* rotation = new RotationGeometry();
     rotation->setDirection(darray3E{0.,1.,0.});
-    rotation->setRotation((M_PI/6));
+    rotation->setRotation((M_PI/12));
 
     /* Create reconstruct vector block and set to reconstruct rotation 
      * displacement field over the whole Dirichlet surface geometry 
