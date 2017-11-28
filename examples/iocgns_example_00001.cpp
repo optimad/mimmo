@@ -81,7 +81,7 @@ void example00001() {
     /* Creation of rotation block.
      */
     RotationGeometry* rotation = new RotationGeometry();
-    rotation->setDirection(darray3E{0.,1.,0.});
+    rotation->setDirection(darray3E{0.1,1.,0.});
     rotation->setRotation((M_PI/12));
 
     /* Create reconstruct vector block and set to reconstruct rotation 

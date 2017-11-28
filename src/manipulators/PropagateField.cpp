@@ -1232,7 +1232,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
             m_isbp.clear();
             return false;
         }
-        if(!m_isbp.exists(id)){
+        if(!m_isbp[id].first){
             m_isbp[id].first = true;
             m_isbp[id].second = 2;
         }
@@ -1269,6 +1269,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 void
 PropagateVectorField::solveSmoothing(int nstep){
 
+    double tol = 1.e-8;
     int nsize;
     livector1D ids;
     livector1D noids;
@@ -1314,9 +1315,16 @@ PropagateVectorField::solveSmoothing(int nstep){
                     int candidate = 0;
                     if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][candidate])) candidate = 1;
                     if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][candidate])) candidate = 2;
-
-                    m_field[ID][candidate] = -1.0*(m_vNormals[ID][(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
-                            m_vNormals[ID][(candidate+2)%3] * m_field[ID][(candidate+2)%3]) / m_vNormals[ID][candidate];
+                    
+                    darray3E ww;
+                    for(int i=0; i<3; ++i){
+                        ww[i] = m_vNormals[ID][i]/m_vNormals[ID][candidate];
+                        if(std::abs(ww[i]) < tol) 
+                            ww[i] = 0.0;
+                    }
+                    
+                    m_field[ID][candidate] = -1.0*(ww[(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
+                                                   ww[(candidate+2)%3] * m_field[ID][(candidate+2)%3]);
 
                 }
                 if (m_convergence){
@@ -1354,6 +1362,7 @@ PropagateVectorField::solveSmoothing(int nstep){
 void
 PropagateVectorField::solveLaplace(){
 
+    double tol = 1.e-8;
     m_field.clear();
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
@@ -1411,8 +1420,11 @@ PropagateVectorField::solveLaplace(){
                 stencils[ind+comp*connSize].resize(3); 
                 stencils[ind+comp*connSize] = {{ind, ind+connSize, ind+2*connSize}};
                 weights[ind+comp*connSize].resize(3);
-                for(int i=0; i<3; ++i)
+                for(int i=0; i<3; ++i){
                     weights[ind +comp*connSize][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
+                    if(std::abs(weights[ind +comp*connSize][i]) < tol) 
+                        weights[ind +comp*connSize][i] = 0.0;
+                }
             }
         }
         m_weights.clear();
