@@ -339,12 +339,12 @@ FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, dvector
 
     switch(type){
     case ShapeType::CYLINDER :
-        dimLimit[1] = 5;
+        dimLimit[1] = 4;
         break;
     case ShapeType::SPHERE :
         dimLimit[1] = 5; dimLimit[2] = 3;
         break;
-    default://CUBE
+    default://CUBE //WEDGE
         break;
     }
 
@@ -407,12 +407,12 @@ FFDLattice::setLattice(BasicShape * shape, dvector1D & spacing, iarray3E & degre
 
     switch(shape->getShapeType()){
     case ShapeType::CYLINDER :
-        dimLimit[1] = 5;
+        dimLimit[1] = 4;
         break;
     case ShapeType::SPHERE :
         dimLimit[1] = 5; dimLimit[2] = 3;
         break;
-    default://CUBE
+    default://CUBE //WEDGE
         break;
     }
 
