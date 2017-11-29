@@ -95,6 +95,35 @@ int test4() {
 
 // =================================================================================== //
 
+int test5() {
+    
+    Lattice * mesh = new Lattice();
+    mesh->setShape(ShapeType::WEDGE);
+    mesh->setOrigin({{0.0,0.0,1.5}});
+    mesh->setSpan(1.2,0.5,3.0);
+    iarray3E dim = {{2,2,2}};
+    mesh->setDimension(dim);
+    mesh->execute();
+    
+    bool check = true;
+    
+    check = ((int)mesh->getGlobalCellCentroids().size() == 1);
+    
+    if(!check){
+        std::cout<<"ERROR.Not able to build Lattice Structured Mesh"<<std::endl;
+        delete mesh;
+        return 1;
+    }else{
+        mesh->plotGrid(".","lattice_t4", 1, 0 );
+        std::cout<<"Successfully built Lattice Structured Mesh and written to file lattice_t4.0001.vtu"<<std::endl;
+    }
+    
+    delete mesh;
+    return 0;
+}
+
+// =================================================================================== //
+
 int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
@@ -109,6 +138,7 @@ int main( int argc, char *argv[] ) {
 		/**<Calling mimmo Test routines*/
         try{
             val = test4() ;
+            std::max(val, test5());
         }
         catch(std::exception & e){
             std::cout<<"test_core_00004 exited with an error of type : "<<e.what()<<std::endl;
