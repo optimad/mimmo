@@ -393,13 +393,13 @@ livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices included in the volumetric patch
  */
-livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
+livector1D BasicShape::includeCloudPoints(const dvecarr3E & list){
 
 	if(list.empty())	return livector1D(0);
 	livector1D result(list.size());
 	int counter = 0;
 	long real = 0;
-	for(auto & vert : list){
+	for(const auto & vert : list){
 		if(isPointIncluded(vert)){
 			result[counter] = real;
 			++counter;
@@ -416,12 +416,12 @@ livector1D BasicShape::includeCloudPoints(dvecarr3E & list){
  * \param[in] list list of cloud points
  * \return list-by-indices of vertices outside the volumetric patch
  */
-livector1D BasicShape::excludeCloudPoints(dvecarr3E & list){
+livector1D BasicShape::excludeCloudPoints(const dvecarr3E & list){
 	if(list.empty())	return livector1D(0);
 	livector1D result(list.size());
 	long real = 0;
 	int counter = 0;
-	for(auto & vert : list){
+	for(const auto & vert : list){
 		if(!isPointIncluded(vert)){
 			result[counter] = real;
 			++counter;
@@ -537,10 +537,10 @@ livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
  * \return true if all vertices of a given simplex are included in the volume of the shape
  * \param[in] simplexVert 3 vertices of the given Triangle
  */   
-bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
+bool BasicShape::isSimplexIncluded(const dvecarr3E & simplexVert){
   
   bool check = true;
-  for(auto & val : simplexVert){
+  for(const auto & val : simplexVert){
     check = check && isPointIncluded(val); 
   }
   return(check);
@@ -551,7 +551,7 @@ bool BasicShape::isSimplexIncluded(dvecarr3E & simplexVert){
  * \param[in] tri pointer to a Class_SurfTri tesselation 
  * \param[in] indexT triangle index of tri.
  */ 
-bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
+bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, const long int &indexT){
 
   Cell & cell = tri->getCell(indexT);
   bitpit::ConstProxyVector<long> vIds = cell.getVertexIds();
@@ -567,11 +567,10 @@ bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, long int indexT){
  * \return true if the given point is included in the volume of the patch
  * \param[in] point given vertex
  */
-bool BasicShape::isPointIncluded(darray3E point){
+bool BasicShape::isPointIncluded(const darray3E & point){
 	
 	bool check = true;
-	darray3E temp = toLocalCoord(point);
-	darray3E temp2 = localToBasic(temp);
+    darray3E temp2 = localToBasic(toLocalCoord(point));
 	double tol = 1.0E-12;
 	
 	for(int i=0; i<3; ++i){  
@@ -586,11 +585,11 @@ bool BasicShape::isPointIncluded(darray3E point){
  * \param[in] tri pointer to a bitpit::Patch tesselation / point cloud
  * \param[in] indexV id of a vertex belonging to tri;
  */
-bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
-	
-	darray3E coords = tri->getVertex(indexV).getCoords();
-	return(isPointIncluded(coords));  
+bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, const long int & indexV){
+
+    return(isPointIncluded(tri->getVertex(indexV).getCoords()));
 };
+
 
 
 /*!
@@ -600,7 +599,7 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
  * \param[in]	bMin	inferior extremal point of the AABB	
  * \param[in]	bMax	superior extremal point of the AABB
  */
-darray3E BasicShape::checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax){
+darray3E BasicShape::checkNearestPointToAABBox(const darray3E &point, const darray3E &bMin, const darray3E &bMax){
 	
 	darray3E result = {{0,0,0}};
 	int counter=0;
@@ -729,7 +728,7 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
  * \param[in] target 3D point
  * \return	 unsigned integer flag between 0 and 2
  */
-uint32_t		BasicShape::intersectShapePlane(int level, darray3E target) {
+uint32_t		BasicShape::intersectShapePlane(int level, const darray3E &target) {
 	
 	if(target[level] < m_bbox[0][level])	return 1; //shape is on the right
 	if(target[level] > m_bbox[1][level])	return 0; //shape is on the left
@@ -778,10 +777,11 @@ Cube::Cube(const Cube & other):BasicShape(other){};
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::toWorldCoord(darray3E  point){
+darray3E	Cube::toWorldCoord(const darray3E &point){
 	
 	darray3E work, work2;
-	//unscale your local point
+
+    //unscale your local point
 	for(int i =0; i<3; ++i){
 		work[i] = point[i]*m_scaling[i];
 	}
@@ -791,10 +791,8 @@ darray3E	Cube::toWorldCoord(darray3E  point){
 	
 	//unapply change to local sdr transformation
 	linearalgebra::matmul(work, m_sdr, work2);
-	
 	//unapply origin translation
-	work = work2 + m_origin;
-	return(work);
+    return(work2 + m_origin);
 };
 
 /*!
@@ -803,7 +801,7 @@ darray3E	Cube::toWorldCoord(darray3E  point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::toLocalCoord(darray3E  point){
+darray3E	Cube::toLocalCoord(const darray3E &point){
 
 	darray3E work, work2;
 
@@ -839,7 +837,7 @@ darray3E	Cube::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::basicToLocal(darray3E point){
+darray3E	Cube::basicToLocal(const darray3E &point){
 	return(point + getLocalOrigin());
 };
 
@@ -849,21 +847,21 @@ darray3E	Cube::basicToLocal(darray3E point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cube::localToBasic(darray3E point){
+darray3E	Cube::localToBasic(const darray3E &point){
 	return(point - getLocalOrigin());
 };
 
 /*! 
  * Check if your new span values fit your current shape set up
  * and eventually return correct values.
- * \param[in] s0 first span dimension
- * \param[in] s1 second span dimension
- * \param[in] s2 third span dimension
+ * \param[in,out] s0 first span dimension
+ * \param[in,out] s1 second span dimension
+ * \param[in,out] s2 third span dimension
  */
-void 		Cube::checkSpan(double &s0, double &s1, double &s2){
-			s0 = std::abs(s0);
-			s1 = std::abs(s1);
-			s2 = std::abs(s2);
+void    Cube::checkSpan(double &s0, double &s1,double &s2){
+    s0 = std::abs(s0);
+    s1 = std::abs(s1);
+    s2 = std::abs(s2);
 };
 
 /*! 
@@ -887,7 +885,7 @@ bool 		Cube::checkInfLimits(double &o0, int &dir){
  * \param[in] s1 second span dimension
  * \param[in] s2 third span dimension
  */
-void 		Cube::setScaling( double &s0, double &s1, double &s2){
+void 		Cube::setScaling( const double &s0, const double &s1, const double &s2){
 			m_span.fill(1.0);
 			m_scaling[0] = s0;
 			m_scaling[1] = s1;
@@ -932,7 +930,7 @@ void Cube::getTempBBox(){
  * 
  * TODO NEED TO BE OPTIMIZED!
  */
-bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+bool Cube::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){
 	
 	dvecarr3E points(8, bMin);
 	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
@@ -1004,7 +1002,7 @@ Cylinder::Cylinder(const Cylinder & other):BasicShape(other){};
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::toWorldCoord(darray3E  point){
+darray3E	Cylinder::toWorldCoord(const darray3E &point){
 	
 	darray3E work, work2;
 	//unscale your local point
@@ -1022,9 +1020,7 @@ darray3E	Cylinder::toWorldCoord(darray3E  point){
 	linearalgebra::matmul(work2, m_sdr, work);
 	
 	//unapply origin translation
-	work2 = work + m_origin;
-	
-	return(work2);
+    return(work + m_origin);
 };
 
 /*! 
@@ -1033,7 +1029,7 @@ darray3E	Cylinder::toWorldCoord(darray3E  point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::toLocalCoord(darray3E  point){
+darray3E	Cylinder::toLocalCoord(const darray3E &point){
 	darray3E work, work2;
 	
 	//unapply origin translation
@@ -1080,10 +1076,11 @@ darray3E	Cylinder::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::basicToLocal(darray3E  point){
-    point[1] *= m_span[1];
-    point += getLocalOrigin();
-    return(point);
+darray3E	Cylinder::basicToLocal(const darray3E &point){
+	darray3E result = point;
+    result[1] *= m_span[1];
+    result += getLocalOrigin();
+	return(result);
 };
 
 /*!
@@ -1092,10 +1089,11 @@ darray3E	Cylinder::basicToLocal(darray3E  point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Cylinder::localToBasic(darray3E  point){
-    point += -1.0*getLocalOrigin();
-    point[1] /= m_span[1];
-	return(point);
+darray3E	Cylinder::localToBasic(const darray3E &point){
+	darray3E result = point;
+    result += -1.0*getLocalOrigin();
+    result[1] /= m_span[1];
+	return(result);
 };
 
 /*!
@@ -1147,7 +1145,7 @@ bool 	Cylinder::checkInfLimits(double &orig, int &dir){
  * \param[in] s1 second span dimension
  * \param[in] s2 third span dimension
  */
-void 		Cylinder::setScaling(double &s0, double &s1, double &s2){
+void 		Cylinder::setScaling(const double &s0, const double &s1, const double &s2){
 		m_span.fill(1.0);
 		m_scaling.fill(1.0);
 		m_span[1] = s1;
@@ -1197,7 +1195,7 @@ void Cylinder::getTempBBox(){
  * 
  * TODO NEED TO BE OPTIMIZED!
  */
-bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){	
+bool Cylinder::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){	
     dvecarr3E points(8, bMin);
     points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
     points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
@@ -1266,7 +1264,7 @@ Sphere::Sphere(const Sphere & other):BasicShape(other){};
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::toWorldCoord(darray3E  point){
+darray3E	Sphere::toWorldCoord(const darray3E &point){
 	
 	darray3E work, work2;
 	//unscale your local point
@@ -1294,7 +1292,7 @@ darray3E	Sphere::toWorldCoord(darray3E  point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::toLocalCoord(darray3E  point){
+darray3E	Sphere::toLocalCoord(const darray3E &point){
 	
 	darray3E work, work2;
 	//unapply origin translation
@@ -1347,10 +1345,11 @@ darray3E	Sphere::getLocalOrigin(){
  * \return transformed point
  */
 darray3E	Sphere::basicToLocal(darray3E  point){
-    point[1] *= m_span[1];
-	point[2] *= m_span[2];
-    point += getLocalOrigin();
- 	return(point);
+    darray3E result = point;
+    result[1] *= m_span[1];
+	result[2] *= m_span[2];
+    result += getLocalOrigin();
+ 	return(result);
 };
 
 /*! 
@@ -1360,10 +1359,11 @@ darray3E	Sphere::basicToLocal(darray3E  point){
  * \return transformed point
  */
 darray3E	Sphere::localToBasic(darray3E  point){
-    point += -1.0*getLocalOrigin();
-	point[1] /= m_span[1];
-	point[2] /= m_span[2];
-	return(point);
+    darray3E result = point;
+    result += -1.0*getLocalOrigin();
+	result[1] /= m_span[1];
+	result[2] /= m_span[2];
+	return(result);
 };
 
 /*! 
@@ -1373,7 +1373,7 @@ darray3E	Sphere::localToBasic(darray3E  point){
  * \param[in] s1 second span dimension
  * \param[in] s2 third span dimension
  */
-void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
+void 		Sphere::checkSpan( double &s0,  double &s1, double &s2){
 	s0 = std::abs(s0);
 	s1 = std::abs(s1);
 	s2 = std::abs(s2);
@@ -1397,7 +1397,7 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
  * \return true, if valid new value is set
  * 
  */
-bool 		Sphere::checkInfLimits(double &orig, int &dir){
+bool 		Sphere::checkInfLimits( double &orig,  int &dir){
 	
 	double thetalim = 2.0*M_PI;
 	double tol = 1.e-12;
@@ -1427,7 +1427,7 @@ bool 		Sphere::checkInfLimits(double &orig, int &dir){
  * \param[in] s1 second span dimension
  * \param[in] s2 third span dimension
  */
-void 		Sphere::setScaling(double &s0, double &s1, double &s2){
+void 		Sphere::setScaling(const double &s0, const double &s1, const double &s2){
 	m_span.fill(1.0);
 	m_scaling.fill(1.0);
 	
@@ -1476,7 +1476,7 @@ void Sphere::getTempBBox(){
  * \param[in]	bMax	superior extremal point of the AABB	
  * \return true if intersects, false otherwise
  */
-bool Sphere::intersectShapeAABBox(darray3E bMin,darray3E bMax){
+bool Sphere::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){
     
     dvecarr3E points(8, bMin);
     points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
@@ -1504,6 +1504,257 @@ bool Sphere::intersectShapeAABBox(darray3E bMin,darray3E bMax){
     
     return true;
     
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Wedge IMPLEMENTATION 
+
+/*! 
+ * Basic Constructor
+ */
+Wedge::Wedge(){
+    m_shape=ShapeType::WEDGE;
+    m_span = {{1.0, 1.0, 1.0}};
+};
+
+/*! 
+ * Custom Constructor. Set shape origin and its span,
+ * ordered as width of the triangular basis, height of triangular basis and depth. 
+ * \param[in] origin point origin in global reference system
+ * \param[in] span span in each shape local coordinate x,y,z;
+ */
+Wedge::Wedge(const darray3E &origin, const darray3E & span): Wedge(){
+    
+    setOrigin(origin);
+    setSpan(span[0], span[1], span[2]);
+}; 
+
+/*! Basic Destructor */
+Wedge::~Wedge(){};
+
+
+/*! 
+ * Copy Constructor 
+ * \param[in] other Wedge object where copy from
+ */
+Wedge::Wedge(const Wedge & other):BasicShape(other){};
+
+
+/*! 
+ * Transform point from local reference system of the shape,
+ * to world reference system. 
+ * \param[in] point target
+ * \return transformed point
+ */
+darray3E    Wedge::toWorldCoord(const darray3E &point){
+    
+    darray3E work, work2;
+
+    //Duffy transformation
+    work2 = point;
+    work2[1] *= (1.0-work2[0]);
+
+    //unscale your local point
+    for(int i =0; i<3; ++i){
+        work[i] = work2[i]*m_scaling[i];
+    }
+    
+    //return to local xyz system
+    // -> wedge, doing nothing
+    
+    //unapply change to local sdr transformation
+    linearalgebra::matmul(work, m_sdr, work2);
+    
+    //unapply origin translation
+    return(work2 + m_origin);
+};
+
+/*!
+ * Transform point from world coordinate system, to local reference system 
+ * of the shape.
+ * \param[in] point target
+ * \return transformed point
+ */
+darray3E    Wedge::toLocalCoord(const darray3E &point){
+    
+    darray3E work, work2 ;
+    
+   //unapply origin translation
+    work = point - m_origin;
+    
+    //apply change to local sdr transformation
+    dmatrix33E transp = linearalgebra::transpose(m_sdr);
+    linearalgebra::matmul(work, transp, work2);
+    
+    //get to proper local system
+    // -> wedge, doing nothing
+    
+    //scale your local point
+    for(int i =0; i<3; ++i){
+        work[i] = work2[i]/m_scaling[i];
+    }
+    
+    //reverse Duffy Transformation;
+    work2 = work;
+    if(std::abs(1.0-work2[0]) > 0.0){
+        work2[1] /= (1.0 - work2[0]);
+    }else{
+        if(std::abs(work2[1]) > 0.0 ) work2[1] = std::numeric_limits<double>::max();
+        else                          work2[1] = 0.0;
+    }
+
+    return(work2);
+    
+};
+
+/*! 
+ * \return local origin of your primitive shape
+ */
+darray3E    Wedge::getLocalOrigin(){
+    return(darray3E{0.0,0.0,-0.5});
+};
+
+/*!
+ * Transform point from unitary cube reference system, to local reference system 
+ * of the shape using Duffy transformation.
+ * \param[in] point target
+ * \return transformed point
+ */
+darray3E    Wedge::basicToLocal(const darray3E &point){
+    return point + getLocalOrigin();
+};
+
+/*!
+ * Transform point from local reference system of the shape,
+ * to unitary cube reference system using Duffy inverse transformation. 
+ * \param[in] point target
+ * \return transformed point
+ */
+darray3E    Wedge::localToBasic(const darray3E &point){
+    return  point - getLocalOrigin();
+};
+
+/*! 
+ * Check if your new span values fit your current shape set up
+ * and eventually return correct values.
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
+ */
+void        Wedge::checkSpan(double &s0, double &s1, double &s2){
+    s0 = std::abs(s0);
+    s1 = std::abs(s1);
+    s2 = std::abs(s2);
+};
+
+/*! 
+ * Check if your inf limits coords values fit your current shape set up
+ * and eventually return correct values.
+ * \param[in] o0 inf limits origin array
+ * \param[in] dir coordinate index
+ * \return true, if valid new value is set.
+ */
+bool        Wedge::checkInfLimits( double &o0, int &dir){
+    BITPIT_UNUSED(o0);
+    BITPIT_UNUSED(dir);
+    //really doing nothing here.
+    //whatever origin for whatever coordinate must return always 0 for cubic/cuboidal/wedge shape
+    return(false);
+};
+
+/*! 
+ * Set local span & scaling vectors of your object
+ * \param[in] s0 first span dimension
+ * \param[in] s1 second span dimension
+ * \param[in] s2 third span dimension
+ */
+void        Wedge::setScaling( const double &s0, const double &s1, const double &s2){
+    m_span.fill(1.0);
+    m_scaling[0] = s0;
+    m_scaling[1] = s1;
+    m_scaling[2] = s2;
+};
+
+/*!
+ * Evaluate temporary Axis Aligned Bounding Box of the shape and 
+ * store value in m_bbox protected member.
+ */
+void Wedge::getTempBBox(){
+    
+    m_bbox.clear();
+    m_bbox.resize(2);
+    m_bbox[0].fill(1.e18);
+    m_bbox[1].fill(-1.e18);
+    
+    dvecarr3E locals(8,darray3E{{0.0,0.0,0.0}});
+    darray3E temp;
+    locals[1].fill(1.0);
+    locals[2][0]= locals[2][1]=1.0;
+    locals[3][2]=1.0;
+    locals[4][0]= 1.0;
+    locals[5][1]= locals[5][2] = 1.0;
+    locals[6][1] = 1.0;
+    locals[7][0] = locals[7][2] = 1.0;
+    
+    for(auto &vv : locals){
+        temp = toWorldCoord(basicToLocal(vv));
+        for(int i=0; i<3; ++i)  {
+            m_bbox[0][i] = std::fmin(m_bbox[0][i], temp[i]);
+            m_bbox[1][i] = std::fmax(m_bbox[1][i], temp[i]);
+        }   
+    }
+}
+
+/*!
+ * Check if current shape intersects or is totally contained into the given Axis Aligned Bounding Box
+ * \param[in]   bMin    inferior extremal point of the AABB 
+ * \param[in]   bMax    superior extremal point of the AABB 
+ * \return true if intersects, false otherwise
+ * 
+ * TODO NEED TO BE OPTIMIZED!
+ */
+bool Wedge::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){
+    
+    dvecarr3E points(8, bMin);
+    points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
+    points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
+    points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
+    
+    for(auto &val:points)   val += -1.0*m_origin;
+       
+    double ref1, ref2;
+    ref1 = -0.5*m_scaling[2];
+    ref2 =  0.5*m_scaling[2];
+    
+    double tmin, tmax, t;
+    t= dotProduct(points[0],m_sdr[2]);
+    tmax=tmin=t;
+    points[0] += -1.0*t*m_sdr[2]; //project point on plane
+    
+    for(int i=1; i<8; ++i){
+        t= dotProduct(points[i],m_sdr[2]);
+        points[i] += -1.0*t*m_sdr[2];
+        
+        if(t<tmin){
+            tmin=t;
+        }else if(t>tmax){
+            tmax=t;
+        }
+        
+    }
+    
+    //check height dimension if overlaps;
+    if(tmin>ref2 || tmax<ref1)  return false;
+    darray3E bMin2, bMax2;
+    bMin2 = points[0]; bMax2=points[0];
+    for(int i=1; i<8; ++i){
+        for(int j=0; j<3; ++j){
+            bMin2[j] = std::fmin(bMin2[j], points[i][j]);
+            bMax2[j] = std::fmax(bMax2[j], points[i][j]);
+        }
+    }
+    
+    return(isPointIncluded(checkNearestPointToAABBox({{0.0,0.0,0.0}},bMin2,bMax2) + m_origin));
 };
 
 }

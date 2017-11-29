@@ -42,7 +42,8 @@ namespace mimmo{
 enum class ShapeType{
     CUBE        /**< Cubic or generic voxel-shaped objects.*/,
     CYLINDER    /**< Cylindrical objects.                  */,
-    SPHERE     /**< Spherical objects.                     */
+    SPHERE     /**< Spherical objects.                     */,
+    WEDGE      /**< Base triangular prism objects          */
 };
 
 /*!
@@ -124,8 +125,8 @@ public:
     livector1D  includeGeometry(bitpit::PatchKernel * );
     livector1D  excludeGeometry(bitpit::PatchKernel * );
 
-    livector1D  includeCloudPoints(dvecarr3E &);
-    livector1D  excludeCloudPoints(dvecarr3E &);
+    livector1D  includeCloudPoints(const dvecarr3E &);
+    livector1D  excludeCloudPoints(const dvecarr3E &);
 
     livector1D  includeCloudPoints(bitpit::PatchKernel * );
     livector1D  excludeCloudPoints(bitpit::PatchKernel * );
@@ -133,17 +134,17 @@ public:
     livector1D  includeCloudPoints(mimmo::MimmoObject * );
     livector1D  excludeCloudPoints(mimmo::MimmoObject * );
 
-    bool        isSimplexIncluded(dvecarr3E &);
-    bool        isSimplexIncluded(bitpit::PatchKernel * , long int indexT);
-    bool        isPointIncluded(darray3E);
-    bool        isPointIncluded(bitpit::PatchKernel * , long int indexV);
+    bool        isSimplexIncluded(const dvecarr3E &);
+    bool        isSimplexIncluded(bitpit::PatchKernel * , const long int &indexT);
+    bool        isPointIncluded(const darray3E &);
+    bool        isPointIncluded(bitpit::PatchKernel * , const long int &indexV);
 
     /*!
      * Pure virtual method to get if the current shape an a given Axis Aligned Bounding Box intersects
      * \param[in] bMin min point of AABB
      * \param[in] bMax max point of AABB
      */
-    virtual bool    intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
+    virtual bool    intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax)=0;
 
 
     /*!
@@ -151,7 +152,7 @@ public:
      * \param[in] point 3D point in local shape coordinates
      * \return point in world global coordinate
      */
-    virtual	darray3E    toWorldCoord(darray3E  point)=0;
+    virtual	darray3E    toWorldCoord(const darray3E & point)=0;
 
     /*! 
      * Pure virtual method to convert from World to Local Coordinates
@@ -159,7 +160,7 @@ public:
      * \return point in local world coordinate
      * 
      */
-    virtual	darray3E    toLocalCoord(darray3E  point)=0;
+    virtual	darray3E    toLocalCoord(const darray3E & point)=0;
 
     /*!
      * Pure virtual method to get local Coordinate inferior limits of primitive shape
@@ -168,8 +169,8 @@ public:
     virtual darray3E    getLocalOrigin()=0;
     
 protected:
-    uint32_t    intersectShapePlane(int level, darray3E target);
-    darray3E    checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);
+    uint32_t    intersectShapePlane(int level, const darray3E & target);
+    darray3E    checkNearestPointToAABBox(const darray3E &point, const darray3E &bMin, const darray3E &bMax);
     void swap(BasicShape & ) noexcept;
     
 private:	
@@ -178,14 +179,14 @@ private:
      * \param[in] point mapped in basic elemental shape coordinates
      * \return point in local reference system coordinates
      */
-    virtual darray3E    basicToLocal(darray3E  point)=0;
+    virtual darray3E    basicToLocal(const darray3E &point)=0;
 
     /*!
      * Pure Virtual method to transform a 3D point from local shape coordinate in basic elemental ones
      * \param[in] point mapped in local shape coordinates
      * \return point in basic elemental shape reference system coordinate
      */
-    virtual darray3E    localToBasic(darray3E  point)=0;
+    virtual darray3E    localToBasic(const darray3E &point)=0;
 
     /*! 
      * Pure virtual method to check if your new span values fit your current shape set up
@@ -211,7 +212,7 @@ private:
      * \param[in] s1 second span dimension
      * \param[in] s2 third span dimension
      */
-    virtual void    setScaling(double &s0, double &s1, double &s2)=0;
+    virtual void    setScaling(const double &s0, const double &s1, const double &s2)=0;
 
     void        searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, livector1D & result);
     void        searchBvTreeMatches(bitpit::PatchSkdTree & tree, bitpit::PatchKernel * geo, livector1D & result);
@@ -244,17 +245,17 @@ public:
 
     //reimplementing pure virtuals
 
-    darray3E    toWorldCoord(darray3E  point);
-    darray3E    toLocalCoord(darray3E  point);
+    darray3E    toWorldCoord(const darray3E &point);
+    darray3E    toLocalCoord(const darray3E &point);
     darray3E    getLocalOrigin();
-    bool    intersectShapeAABBox(darray3E bMin, darray3E bMax);
+    bool    intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
 
 private:
-    darray3E    basicToLocal(darray3E  point);
-    darray3E    localToBasic(darray3E  point);
+    darray3E    basicToLocal(const darray3E &point);
+    darray3E    localToBasic(const darray3E &point);
     void        checkSpan(double &, double &, double &);
     bool        checkInfLimits(double &, int & dir);
-    void        setScaling(double &, double &, double &);
+    void        setScaling(const double &, const double &, const double &);
     void        getTempBBox();
 };
 
@@ -277,17 +278,17 @@ public:
     Cylinder(const Cylinder &);
 
     //reimplementing pure virtuals
-    darray3E	toWorldCoord(darray3E  point);
-    darray3E	toLocalCoord(darray3E  point);
+    darray3E	toWorldCoord(const darray3E &point);
+    darray3E	toLocalCoord(const darray3E &point);
     darray3E	getLocalOrigin();
-    bool		intersectShapeAABBox(darray3E bMin, darray3E bMax);
+    bool		intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
 
 private:	
-    darray3E	basicToLocal(darray3E  point);
-    darray3E	localToBasic(darray3E  point);
+    darray3E	basicToLocal(const darray3E &point);
+    darray3E	localToBasic(const darray3E &point);
     void 		checkSpan(double &, double &, double &);
-    bool 		checkInfLimits(double &, int &);
-    void 		setScaling(double &, double &, double &);
+    bool 		checkInfLimits( double &, int &);
+    void 		setScaling(const double &, const double &, const double &);
     void		getTempBBox();
 };
 
@@ -311,19 +312,58 @@ public:
     Sphere(const Sphere &);
 
     //reimplementing pure virtuals
-    darray3E	toWorldCoord(darray3E  point);
-    darray3E	toLocalCoord(darray3E  point);
-    darray3E	getLocalOrigin();
-    bool		intersectShapeAABBox(darray3E bMin, darray3E bMax);
-
-private:	
-    darray3E	basicToLocal(darray3E  point);
-    darray3E	localToBasic(darray3E  point);
-    void 		checkSpan(double &, double &, double &);
-    bool 		checkInfLimits(double &, int &);
-    void 		setScaling(double &, double &, double &);
-    void		getTempBBox();
+    darray3E    toWorldCoord(const darray3E &point);
+    darray3E    toLocalCoord(const darray3E &point);
+    darray3E    getLocalOrigin();
+    bool        intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
+    
+private:    
+    darray3E    basicToLocal(const darray3E &point);
+    darray3E    localToBasic(const darray3E &point);
+    void        checkSpan(double &, double &, double &);
+    bool        checkInfLimits(double &, int &);
+    void        setScaling(const double &, const double &, const double &);
+    void        getTempBBox();
 };
+
+/*!
+ * \class Wedge
+ * \ingroup core
+ * \brief Elementary Shape Representation of a Prism with triangular basis
+ *
+ * Volumetric Core Element, shaped as a triangular prism, directly derived from BasicShape class.
+ * Local reference system is an elemental cube with x[0,1], y[0,1], z[-0.5,0.5] obtained by Duffy transformation.
+ * Basic reference system is the elemental cube x[0,1], y[0,1], z[0,1];
+ */
+
+class Wedge: public BasicShape {
+    
+public:
+    
+    //Costructors, Destructor, Copy/Assignment operators
+    Wedge();
+    Wedge(const darray3E &origin, const darray3E &span);
+    ~Wedge();
+    
+    Wedge(const Wedge &);
+    
+    //reimplementing pure virtuals
+    darray3E    toWorldCoord(const darray3E &point);
+    darray3E    toLocalCoord(const darray3E &point);
+    darray3E    getLocalOrigin();
+    bool        intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
+    
+private:    
+    darray3E    basicToLocal(const darray3E &point);
+    darray3E    localToBasic(const darray3E &point);
+    void        checkSpan( double &, double &, double &);
+    bool        checkInfLimits(double &, int &);
+    void        setScaling(const double &, const double &, const double &);
+    void        getTempBBox();
+    
+};
+
+
 
 }
 

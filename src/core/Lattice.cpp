@@ -446,47 +446,52 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
     double dval;
     switch(getShapeType()){
 
-    case ShapeType::CYLINDER :
-        if(!(getShape()->getLocalOrigin()[0] >0.0 )){
-            info.push_back(false);
-        }else{
-            delta += nz;
-            nx--;
+        case ShapeType::WEDGE :
+            delta = ny*(1 -nz);
             info.push_back(true);
-        }
-        if(getCoordType(1) == CoordType::PERIODIC)	ny--;
+            break;
+            
+        case ShapeType::CYLINDER :
+            if(!(getShape()->getLocalOrigin()[0] >0.0 )){
+                info.push_back(false);
+            }else{
+                delta += nz;
+                nx--;
+                info.push_back(true);
+            }
+            if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 
-        
-        info.push_back(getCoordType(1) == CoordType::PERIODIC);
-        break;
+            
+            info.push_back(getCoordType(1) == CoordType::PERIODIC);
+            break;
 
-    case ShapeType::SPHERE :
-        if(!(getShape()->getLocalOrigin()[0] >0.0 )){
-            info.push_back(false);
-        }else{
-            delta ++;
-            nx--;
-            info.push_back(true);
-        }
-        if(getCoordType(1) == CoordType::PERIODIC)	ny--;
-        dval = getInfLimits()[2];
-        if(dval == 0.0)	{
-            nz--;
-            delta += nx;
-        }
-        if((dval + getLocalSpan()[2]) == M_PI){
-            nz--;
-            delta += nx;
-        }
+        case ShapeType::SPHERE :
+            if(!(getShape()->getLocalOrigin()[0] >0.0 )){
+                info.push_back(false);
+            }else{
+                delta ++;
+                nx--;
+                info.push_back(true);
+            }
+            if(getCoordType(1) == CoordType::PERIODIC)	ny--;
+            dval = getInfLimits()[2];
+            if(dval == 0.0)	{
+                nz--;
+                delta += nx;
+            }
+            if((dval + getLocalSpan()[2]) == M_PI){
+                nz--;
+                delta += nx;
+            }
 
-        info.push_back(getCoordType(1) == CoordType::PERIODIC);
-        info.push_back(dval==0.0);
-        info.push_back((dval + getLocalSpan()[2]) == M_PI);
-        break;
+            info.push_back(getCoordType(1) == CoordType::PERIODIC);
+            info.push_back(dval==0.0);
+            info.push_back((dval + getLocalSpan()[2]) == M_PI);
+            break;
 
-    default:
-        //doing nothing
-        break;
+        default:
+            //doing nothing
+            break;
     }
 
     int result = nx*ny*nz + delta;
@@ -517,6 +522,26 @@ Lattice::resizeMapDof(){
     
     int i0,i1,i2;
     switch(getShapeType()){
+        
+        case ShapeType::WEDGE :
+            
+            target=0;
+            while(itMap != itMapEnd){
+                
+                *itMap = target;
+                index = std::distance(itMapBegin, itMap);
+                accessPointIndex(index,i0,i1,i2);
+                
+                if(info[0] && i0 == m_nx){
+                    for(int k=0; k<=m_nz;++k){
+                        m_intMapDOF[accessPointIndex(i0,i1,k)] = target;
+                    }
+                }
+                
+                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+                target++;
+            }
+        break;
         
         case ShapeType::CYLINDER :
             target=0;

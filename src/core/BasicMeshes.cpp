@@ -83,6 +83,12 @@ UStructMesh::UStructMesh(const UStructMesh & other){
 
     if(other.m_shape){
         switch(other.m_shape->getShapeType()){
+            case ShapeType::WEDGE :
+            {
+                const Wedge * pp = dynamic_cast<const Wedge*>(other.m_shape.get());
+                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+            }
+            break;
             case ShapeType::CYLINDER :
                 {
                     const Cylinder * pp = dynamic_cast<const Cylinder*>(other.m_shape.get());
@@ -167,6 +173,12 @@ void UStructMesh::swap(UStructMesh & x) noexcept
         if(x.m_shape){
             std::unique_ptr<BasicShape> tempshape;
             switch(x.m_shape->getShapeType()){
+                case ShapeType::WEDGE :
+                {
+                    const Wedge * pp = dynamic_cast<const Wedge*>(x.m_shape.get());
+                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+                }
+                break;
                 case ShapeType::CYLINDER :
                 {
                     const Cylinder * pp = dynamic_cast<const Cylinder*>(x.m_shape.get());
@@ -731,15 +743,18 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 		}
 		
   		switch(type){
-  		case ShapeType::CYLINDER :
-  			m_shape = std::unique_ptr<BasicShape>(new Cylinder(origin,spanMat[1]));
-			break;
-  		case ShapeType::SPHERE :
-  			m_shape = std::unique_ptr<BasicShape>(new Sphere(origin, spanMat[2]));
-  			break;
-  		default://CUBE
-  			m_shape = std::unique_ptr<BasicShape>(new Cube(origin, spanMat[0]));
-  			break;
+            case ShapeType::WEDGE :
+                m_shape = std::unique_ptr<BasicShape>(new Wedge(origin,spanMat[0]));
+                break;
+            case ShapeType::CYLINDER :
+                m_shape = std::unique_ptr<BasicShape>(new Cylinder(origin,spanMat[1]));
+                break;
+            case ShapeType::SPHERE :
+                m_shape = std::unique_ptr<BasicShape>(new Sphere(origin, spanMat[2]));
+                break;
+            default://CUBE
+                m_shape = std::unique_ptr<BasicShape>(new Cube(origin, spanMat[0]));
+                break;
 		}
 
 		if(m_setInfLimits){
@@ -772,7 +787,13 @@ void UStructMesh::setShape(const BasicShape * shape){
 	m_setRefSys = false;
 	
 	switch(shape->getShapeType()){
-		case ShapeType::CYLINDER :
+        case ShapeType::WEDGE :
+        {
+            const Wedge * pp = dynamic_cast<const Wedge*>(shape);
+            if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+        }
+        break;
+        case ShapeType::CYLINDER :
             {
                 const Cylinder * pp = dynamic_cast<const Cylinder*>(shape);
                 if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
@@ -850,7 +871,7 @@ void UStructMesh::setCoordType(std::array<CoordType, 3> types){
  * Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh
- * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+ * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE, WEDGE)
  * \param[in] dimensions number of mesh points for each coordinate.
  */
 void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, iarray3E & dimensions){
@@ -869,7 +890,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, iar
  * Set your mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh 
  * \param[in] span span for each coordinate defining your mesh
- * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
+ * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE,WEDGE)
  * \param[in] spacing fixed spacing for each coordinate
  */
 void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dvector1D & spacing){
@@ -880,12 +901,12 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dve
 	
 	switch(type){
 		case ShapeType::CYLINDER :
-			dimLimit[1] = 5;
+			dimLimit[1] = 4;
 			break;
 		case ShapeType::SPHERE :
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
-		default://CUBE
+		default://CUBE //WEDGE
 			break;
 	}
 	
@@ -935,12 +956,12 @@ void UStructMesh::setMesh(BasicShape * shape, dvector1D & spacing){
 	
 	switch(shape->getShapeType()){
 		case ShapeType::CYLINDER :
-			dimLimit[1] = 5;
+			dimLimit[1] = 4;
 			break;
 		case ShapeType::SPHERE :
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
-		default://CUBE
+		default://CUBE //WEDGE
 			break;
 	}
 	
@@ -1103,6 +1124,7 @@ dvecarr3E	UStructMesh::transfToGlobal( dvecarr3E & list_points){
 darray3E 	UStructMesh::transfToLocal( darray3E & point){
 	return(getShape()->toLocalCoord(point));
 };
+
 /*! Transform point from Global to Local ref system*/
 dvector1D 	UStructMesh::transfToLocal( dvector1D & point){
 	darray3E temp = conArray<double,3>(point);
@@ -1676,12 +1698,12 @@ bool UStructMesh::build(){
 	// unlink external shape eventually
 	switch(getShapeType()){
 		case ShapeType::CYLINDER :
-			dimLimit[1] = 5;
+			dimLimit[1] = 4;
 			break;
 		case ShapeType::SPHERE :
 			dimLimit[1] = 5; dimLimit[2] = 3;
 			break;
-		default://CUBE
+		default://CUBE //WEDGE
 			break;
 	}
 	
