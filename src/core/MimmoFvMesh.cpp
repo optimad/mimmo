@@ -295,25 +295,33 @@ void MimmoFvMesh::createBoundaryMesh(){
 bool  MimmoFvMesh::checkMeshCoherence(){
     
     MimmoObject * bulk = getGeometry();
+    if(bulk == NULL)  return false;
+    if(bulk->isEmpty())  return false;
+    
     MimmoObject * boundary = getBoundaryGeometry();
     
-    if(bulk == NULL || boundary == NULL)  return false;
-    if(bulk->isEmpty() || boundary->isEmpty())  return false;
+    bool checkBoundaries = true; 
+    if(boundary == NULL)  checkBoundaries = false;
+    if(boundary->isEmpty()) checkBoundaries = false;
     
-    std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
-    if(key !="21" && key !="14")    return false;
-    
-    if(!bulk->areInterfacesBuilt())  return false;    
-    
-    std::set<long> idBorderInterf;
-    for(const auto & interf : bulk->getInterfaces()){
-        if(interf.isBorder())   idBorderInterf.insert(interf.getId());
-    };
-    std::vector<long> idInterf;
-    idInterf.insert(idInterf.end(), idBorderInterf.begin(), idBorderInterf.end());
-    std::vector<long> idCell   = boundary->getCells().getIds(true);
-    
-    return idInterf == idCell;
+    if(checkBoundaries){
+        if(!bulk->areInterfacesBuilt())  return false;
+        std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
+        if(key !="21" && key !="14")    return false;
+        
+        std::set<long> idBorderInterf;
+        for(const auto & interf : bulk->getInterfaces()){
+            if(interf.isBorder())   idBorderInterf.insert(interf.getId());
+        };
+        std::vector<long> idInterf;
+        idInterf.insert(idInterf.end(), idBorderInterf.begin(), idBorderInterf.end());
+        std::vector<long> idCell   = boundary->getCells().getIds(true);
+        
+        return idInterf == idCell;
+    }else{
+        createBoundaryMesh();
+        return true;
+    }
 }
 
 }
