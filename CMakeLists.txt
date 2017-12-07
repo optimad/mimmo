@@ -480,11 +480,26 @@ if (MODULE_ENABLED3)
         set(OPENFOAM_PREC "WM_DP" CACHE STRING
             "Choose the type of Openfoam precision, options are: WM_SP for Single precision or WM_DP for Double precision."
             FORCE)
-
         # Set the possible values of build type for the GUI
         set_property(CACHE OPENFOAM_PREC PROPERTY STRINGS "WM_DP" "WM_SP")
     endif()
-    set(OPENFOAM_DIR "/opt/OpenFOAM/OpenFOAM-2.4.x" CACHE PATH "path to OpenFoam installation")
+    if(NOT OPENFOAM_LABEL)
+           # Set default precision for Openfoam in double
+        set(OPENFOAM_LABEL "" CACHE STRING
+            "Choose the size of Openfoam label, options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
+            FORCE)
+        set_property(CACHE OPENFOAM_LABEL PROPERTY STRINGS "WM_LABEL_SIZE=32" "WM_LABEL_SIZE=64" "")
+    endif()
+    if(NOT OPENFOAM_ARCH)
+        # Set default precision for Openfoam in double
+        set(OPENFOAM_ARCH "WM_ARCH_OPTION=64" CACHE STRING
+            "Choose the type of Openfoam Architecture, options are: WM_ARCH_OPTION=64 or WM_ARCH_OPTION=32"
+            FORCE)
+        # Set the possible values of build type for the GUI
+        set_property(CACHE OPENFOAM_ARCH PROPERTY STRINGS "WM_ARCH_OPTION=64" "WM_ARCH_OPTION=32")
+    endif()
+
+    set(OPENFOAM_DIR " " CACHE PATH "path to OpenFoam installation")
 
     set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
     set(OFOAM_LIBS finiteVolume triSurface fileFormats surfMesh meshTools OpenFOAM )
@@ -514,11 +529,15 @@ if (MODULE_ENABLED3)
     endforeach()
     #      ---- 
 
-   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_PREC}" "NoRepository")
+   string(SUBSTRING $ENV{WM_PROJECT_VERSION} 0 1 OFOAM_MAJOR_VER)
+  
+   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository" "OF_MAJOR_VER=${OFOAM_MAJOR_VER}")
 
 else()
     UNSET(OPENFOAM_DIR CACHE)
+    UNSET(OPENFOAM_ARCH CACHE)
     UNSET(OPENFOAM_PREC CACHE)
+    UNSET(OPENFOAM_LABEL CACHE)
 endif ()
 
 
