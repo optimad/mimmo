@@ -50,7 +50,7 @@ void PropagateField::setDefaults(){
     m_laplace   = true;
     m_sstep     = 10;
     m_convergence = false;
-    m_tol = 1.0e-05;
+    m_tol = 1.0e-12;
     m_bsurface  = NULL;
     m_dsurface  = NULL;
     m_geometry  = NULL;
@@ -260,7 +260,7 @@ PropagateField::setDecayFactor(double decay){
 }
 
 /*! 
- * It sets if the solver must reach the convergence with prescribed tolerance set by setTolerance method.
+ * It sets if the smoothing solver must reach the convergence with prescribed tolerance set by setTolerance method.
  * \param[in] convergence Convergence flag.
  */
 void PropagateField::setConvergence(bool convergence){
@@ -268,7 +268,7 @@ void PropagateField::setConvergence(bool convergence){
 }
 
 /*!
- * It sets the tolerance on residuals for solver convergence.
+ * It sets the tolerance on residuals for solver convergence on both smoothing and laplacian solver.
  * \param[in] tol Convergence tolerance.
  */
 void PropagateField::setTolerance(double tol){
@@ -335,7 +335,7 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     if(slotXML.hasOption("Tolerance")){
         std::string input = slotXML.get("Tolerance");
         input = bitpit::utils::string::trim(input);
-        double value = 1.0e-05;
+        double value = 1.0e-12;
         if(!input.empty()){
             std::stringstream ss(input);
             ss >> value;
@@ -609,6 +609,7 @@ PropagateField::computeDumpingFunction(){
 
          double volmax = 0.0;
          double volmin = 1.0E18;
+         double avg = 0.0;
          double armax = 0.0;
          double armin = 1.0E18;
          for(const auto & val : volumes){
@@ -924,8 +925,8 @@ PropagateScalarField::solveLaplace(){
     // Initialize the system
     KSPOptions &solverOptions = m_solver->getKSPOptions();
     solverOptions.nullspace = false;
-    solverOptions.rtol      = 1e-12;
-    solverOptions.subrtol   = 1e-12;
+    solverOptions.rtol      = m_tol;
+    solverOptions.subrtol   = m_tol;
 
     {
         localivector2D stencils(m_conn.size());
@@ -1269,7 +1270,6 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 void
 PropagateVectorField::solveSmoothing(int nstep){
 
-    double tol = 1.e-8;
     int nsize;
     livector1D ids;
     livector1D noids;
@@ -1319,7 +1319,7 @@ PropagateVectorField::solveSmoothing(int nstep){
                     darray3E ww;
                     for(int i=0; i<3; ++i){
                         ww[i] = m_vNormals[ID][i]/m_vNormals[ID][candidate];
-                        if(std::abs(ww[i]) < tol) 
+                        if(std::abs(ww[i]) < 1.e-8) 
                             ww[i] = 0.0;
                     }
                     
@@ -1362,7 +1362,7 @@ PropagateVectorField::solveSmoothing(int nstep){
 void
 PropagateVectorField::solveLaplace(){
 
-    double tol = 1.e-8;
+   
     m_field.clear();
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
@@ -1382,8 +1382,8 @@ PropagateVectorField::solveLaplace(){
     // Initialize the system
     KSPOptions &solverOptions = m_solver->getKSPOptions();
     solverOptions.nullspace = false;
-    solverOptions.rtol      = 1e-12;
-    solverOptions.subrtol   = 1e-12;
+    solverOptions.rtol      = m_tol;
+    solverOptions.subrtol   = m_tol;
 
     {
         int connSize = m_conn.size();
@@ -1422,7 +1422,7 @@ PropagateVectorField::solveLaplace(){
                 weights[ind+comp*connSize].resize(3);
                 for(int i=0; i<3; ++i){
                     weights[ind +comp*connSize][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
-                    if(std::abs(weights[ind +comp*connSize][i]) < tol) 
+                    if(std::abs(weights[ind +comp*connSize][i]) < 1.0e-8) 
                         weights[ind +comp*connSize][i] = 0.0;
                 }
             }
