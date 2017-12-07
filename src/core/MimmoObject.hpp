@@ -233,6 +233,8 @@ public:
     double evalCellVolume(const long & id);
     double evalCellAspectRatio(const long & id);
     
+    livector1D  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist);
+    
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);

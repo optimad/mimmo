@@ -24,6 +24,7 @@
 
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
+#include "SkdTreeUtils.hpp"
 #include <set>
 
 using namespace std;
@@ -2236,6 +2237,33 @@ MimmoObject::elementsMap(bitpit::PatchKernel & obj){
     }
     return result;
 };
+
+/*!
+ * Get all the cells of the current mesh whose center is within a prescribed distance maxdist w.r.t to a target surface body
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ */
+livector1D  
+MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist){
+    
+    if(surface.isEmpty() || surface.getType() != 1) return livector1D();
+    if(isEmpty() || getType() == 3)  return livector1D();
+    
+    livector1D result;
+    result.reserve(getNCells());
+    darray3E pp;
+    double distance, maxdistance(maxdist);
+    long idsuppsurf;
+    for(const auto & cell : getCells()){
+        pp = getPatch()->evalCellCentroid(cell.getId());
+        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        if(distance < maxdist)  result.push_back(cell.getId());
+    }
+    
+    return result;
+};
+
+
 
 }
 
