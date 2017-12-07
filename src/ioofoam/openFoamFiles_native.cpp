@@ -428,7 +428,7 @@ void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam:
     }
 
     *foamRunTime_retPtr = foamRunTime;
-
+    
     // Mesh
     static Foam::fvMesh *foamMesh = 0;
     if (!foamMesh) {
@@ -495,6 +495,9 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
 
     initializeCase(rootPath, &foamRunTime, &foamMesh);
 
+    functionObjectList & objfunctions = foamRunTime->functionObjects();
+    objfunctions.off();
+    
     if(std::size_t(foamMesh->points().size()) != points.size()){
         return false;
     }
@@ -508,11 +511,15 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
     }
     
     foamMesh->movePoints(movedPoints);
-
+    
     if(overwriteStart){
 
-        foamMesh->write();
-
+#if OF_MAJOR_VER == 2
+        const bool valid = true;
+        foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), valid);
+#else
+        foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
+#endif
     }else{
 
         Foam::dimensionedScalar fakeEndTime
@@ -524,7 +531,12 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
         foamRunTime->setEndTime(foamRunTime->startTime()+fakeEndTime);
 
         while(foamRunTime->loop()){
-            foamMesh->write();
+#if OF_MAJOR_VER == 2
+            const bool valid = true;
+            foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), valid);
+#else
+            foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
+#endif
         }
 
     }
