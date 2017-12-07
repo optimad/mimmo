@@ -233,16 +233,17 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
 
 /*!
- * Create boundary mesh starting from a valid bulk present in your current slot.
+ * Create boundary mesh starting from a valid bulk present in your current bulk slot(linked or owned).
  */
 void MimmoFvMesh::createBoundaryMesh(){
     
-    if (!m_bulk->areInterfacesBuilt()) m_bulk->buildInterfaces();
+    MimmoObject * bulk = getGeometry();
+    if (!bulk->areInterfacesBuilt()) bulk->buildInterfaces();
     
     std::set<long> boundaryInterfaces;
     std::set<long> boundaryVertices;
     bitpit::ConstProxyVector<long> vcount;
-    for(const auto & interf : m_bulk->getInterfaces()){
+    for(const auto & interf : bulk->getInterfaces()){
         if(interf.isBorder()){
             boundaryInterfaces.insert(interf.getId());
             vcount = interf.getVertexIds();
@@ -251,13 +252,13 @@ void MimmoFvMesh::createBoundaryMesh(){
     }
     
     //fill new boundary
-    int type = int(m_bulk->getType() == 2) + 4*int(m_bulk->getType() == 1);
+    int type = int(bulk->getType() == 2) + 4*int(bulk->getType() == 1);
     std::unique_ptr<MimmoObject> temp(new MimmoObject(type));
 
-    bitpit::PiercedVector<bitpit::Interface> & bulkInterf = m_bulk->getInterfaces();
+    bitpit::PiercedVector<bitpit::Interface> & bulkInterf = bulk->getInterfaces();
 
     for(const auto & idV: boundaryVertices){
-        temp->addVertex(m_bulk->getVertexCoords(idV),idV);
+        temp->addVertex(bulk->getVertexCoords(idV),idV);
     }
     
     
@@ -286,11 +287,14 @@ void MimmoFvMesh::createBoundaryMesh(){
 /*!
  * Check coeherence between bulk and boundary mesh, i.e.:
  * 
- * - both bulk and boundary non-null and non-empty
- * - bulk/boundary pair must be of MimmoObject types 2-Volume bulk and 1-Surface boundary or 1-Surface bulk and 4-3Dcurve boundary 
- * - ids tight matching between border interfaces on the bulk and cells of the boundary
+ * - bulk non-null and non-empty
+ * - if boundary non null and non empty, it checks out:
+ *   - bulk/boundary pair must be of MimmoObject types 2-Volume bulk and 1-Surface boundary or 1-Surface bulk and 4-3Dcurve boundary 
+ *   - ids tight matching between border interfaces on the bulk and cells of the boundary
+ * - otherwise:
+ *   - create internally a boundary patch, without pid segmentation informations, and return true.
  * 
- * \return false if at least one of the previous requisites is not satisfied.
+ * \return false if one of the check failed.
  */
 bool  MimmoFvMesh::checkMeshCoherence(){
     
@@ -302,7 +306,7 @@ bool  MimmoFvMesh::checkMeshCoherence(){
     
     bool checkBoundaries = true; 
     if(boundary == NULL)  checkBoundaries = false;
-    if(boundary->isEmpty()) checkBoundaries = false;
+    else if(boundary->isEmpty()) checkBoundaries = false;
     
     if(checkBoundaries){
         if(!bulk->areInterfacesBuilt())  return false;
