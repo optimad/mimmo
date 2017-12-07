@@ -42,31 +42,12 @@ namespace mimmo{
  * In Laplacian solver the weights used to compute the stencil are of the form:
  * w(x) = (1/d(x))^n, where d(x) is the distance of the neighbour point to the
  * center point of the stencil and n is the weight factor, that can be tuned by the User.
- * Quality of the mesh during deformation is controlled by introducing an artificial diffusivity D
- * in the laplacian calculation: div( D*grad(Phi)) = 0. Such diffusivity varies from cell to cell, according to 
- * their typical size and aspect ratio. The smaller and high-AR the cell, the lesser the boundary deformation is 
- * propagated in that cell, according to the formula:
- * 
- *          D_cell = 1.0/(1 + T_cell*AR_cell) ^ eta.
- * 
- * Where D_cell is the value of diffusivity in the cell, T_cell is the cell volume factor defined as:
- *         
- *         T_cell = (V_max - V_min) / V_cell,
- * 
- * where V_max and V_min are the maximum and minimum volume cell in the whole mesh, and V_cell 
- * is the current volume of the target cell. AR_cell is the Aspect Ratio of each cell, while eta is 
- * a dumping factor that can be imposed to control the effects of the artificial diffusivity D in 
- * the bulk mesh. In particular, eta is a function of the distance of a point x from mesh 
- * boundaries selected by the User (typically those boundaries which are deformed). 
- * The function is of the form: 
- * 
- *          eta(x) = r/p              d(x)<= p,
- *          eta(x) = (r/d(x))         p < d(x) < r ,
- *          eta(x) = 0.0              d(x) => r
- * 
- * where p and r are limit distances choosen by the User.
- * In general the effects of the artificial variable diffusivity are maximum in a the region with d(x) < p, 
- * and completely shut off at d(x)> r.
+ * Quality of the mesh during deformation is controlled by introducing an artificial diffusivity D (DUMPING)
+ * in the laplacian calculation: div( D*grad(Phi)) = 0. Such diffusivity can be defined alternatively 
+ * as variable with distance from a prescribed deforming surface (dumping surface), 
+ * or with cell volumes distribution, modulated with distance from the dumping surface.
+ * In the first case, cells more distant from dumping surfaces cells are forced to move more than nearer ones,
+ * in the second case, bigger volume cell far from dumping surface are forced to move more.
  * Result field is stored in m_field member and returned as data field through ports.
  *
  * Ports available in PropagateField Class :
@@ -93,12 +74,13 @@ namespace mimmo{
  * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
  * - <B>Dumping</B>         : 1-true activate dumping control, 0-false deactivate it. 
+ * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
- *
+ 
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
  *
@@ -127,9 +109,9 @@ protected:
     double        m_plateau;        /**<Inner limit distance of dumping function. At distance <= m_plateau from boundary with bc != 0
                                          the stencil during the laplacian computing account of the maximum artificial diffusivity.*/
     bool          m_dumpingActive;  /**< true the dumping control is active, false otherwise.*/
+    int           m_dumpingType;    /**< 0 distance-control, 1-volume control*/
 
     std::unique_ptr<mimmo::SystemSolver> m_solver; /**! linear system solver for laplace */
-
 
 public:
 
@@ -155,6 +137,7 @@ public:
     void    setDumping(bool flag);
     void    setDumpingOuterDistance(double radius);
     void    setDumpingInnerDistance(double plateau);
+    void    setDumpingType( int type=0);
     void    setDecayFactor(double decay);
     void    setConvergence(bool convergence);
     void    setTolerance(double tol);
@@ -168,8 +151,6 @@ protected:
     void clear();
     void setDefaults();
 
-    //execute
-    void        execute();
     void        computeConnectivity();
     void        computeWeights();
 
@@ -181,6 +162,7 @@ protected:
 
 private:
     virtual bool checkBoundariesCoherence() = 0;
+
 };
 
 /*!
@@ -235,6 +217,7 @@ private:
  * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
  * - <B>Dumping</B>         : 1-true activate dumping control, 0-false deactivate it. 
+ * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
@@ -251,7 +234,7 @@ private:
 
     dmpvector1D   m_bc_dir;              /**< Dirichlet Boundary conditions. */
     dmpvector1D   m_field;               /**< Resulting field.*/
-   
+    
 public:
 
     PropagateScalarField();
@@ -264,9 +247,11 @@ public:
     void buildPorts();
 
     dmpvector1D getPropagatedField();
-    
-  
+
     void    setDirichletConditions(dmpvector1D bc);
+
+    //execute
+    void        execute();
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -284,7 +269,6 @@ private:
     void solveLaplace();
 
     virtual void plotOptionalResults();
-
 };
 
 
@@ -301,6 +285,7 @@ private:
  * Optionally an inpermeability-like/slip condition (zero vector field normal to boundary surface) 
  * can be imposed on chosen boundary patches.
  * 
+ * The block can perform multistep evaluation to relax field propagation
  *  
  * Class/BaseManipulation Object specialization of class PropagateField
  * for the propagation in a volume mesh of a 3D array field.
@@ -344,12 +329,15 @@ private:
  * - <B>Solver</B>        : 1-true use direct Laplacian solver, 0-false use iterative Smoother (default 0);
  * - <B>WeightConstant</B>  : coefficient used to get weights of the stencil points in function of distance (1.0 default);
  * - <B>Dumping</B>         : 1-true activate dumping control, 0-false deactivate it. 
+ * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
- 
+ *
+ * Proper fo the class:
+ * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -362,7 +350,7 @@ private:
     dmpvecarr3E   m_bc_dir;              /**< Dirichlet Boundary conditions. */
     dmpvecarr3E   m_field;           /**< Resulting field.*/
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
-
+    int           m_nstep;               /**! multistep solver */
     bitpit::PiercedVector<darray3E> m_vNormals; /**< temporary object to store vertex normals for slip condition */
 public:
 
@@ -381,7 +369,12 @@ public:
     void    setSlipBoundarySurface(MimmoObject *);
     
     void    setDirichletConditions(dmpvecarr3E bc);
-
+    
+    void    setSolverMultiStep(unsigned int sstep);
+    
+    //execute
+    void        execute();
+    
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -400,6 +393,10 @@ private:
     void apply();
 
     virtual void plotOptionalResults();
+
+    void subdivideBC();
+    void restoreBC();
+    void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
 
 };
 

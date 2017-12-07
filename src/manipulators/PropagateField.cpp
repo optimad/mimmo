@@ -59,6 +59,7 @@ void PropagateField::setDefaults(){
     m_radius = 0.0;
     m_plateau = 0.0;
     m_dumpingActive = false;
+    m_dumpingType = 0;
 }
 
 /*!
@@ -90,7 +91,7 @@ PropagateField::PropagateField(const PropagateField & other):BaseManipulation(ot
     m_radius       = other.m_radius;
     m_plateau      = other.m_plateau;
     m_dumpingActive= other.m_dumpingActive;
-
+    m_dumpingType = other.m_dumpingType;
 };
 
 /*!
@@ -115,6 +116,7 @@ void PropagateField::swap(PropagateField & x) noexcept {
     std::swap(m_radius, x.m_radius);
     std::swap(m_plateau, x.m_plateau);
     std::swap(m_dumpingActive, x.m_dumpingActive);
+    std::swap(m_dumpingType, x.m_dumpingType);
     BaseManipulation::swap(x);
 }
 
@@ -251,6 +253,15 @@ PropagateField::setDumpingOuterDistance(double radius){
 }
 
 /*!
+ * If dumping is active, set the type of dumping, if distance control based (0) or volume cell control based (1).
+ * \param[in] type of control for dumping [0,1].
+ */
+void
+PropagateField::setDumpingType(int type){
+    m_dumpingType = std::max(0, std::min(1, type));
+}
+
+/*!
  * Set the dumping factor.
  * \param[in] dump Exponential of dumping function.
  */
@@ -274,6 +285,7 @@ void PropagateField::setConvergence(bool convergence){
 void PropagateField::setTolerance(double tol){
     m_tol = tol;
 }
+
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -380,6 +392,17 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
             }
             setDumpingOuterDistance(value);
         }
+        
+        if(slotXML.hasOption("DumpingType")){
+            std::string input = slotXML.get("DumpingType");
+            input = bitpit::utils::string::trim(input);
+            int value = 0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+            }
+            setDumpingType(value);
+        }
     }
 };
 
@@ -403,9 +426,9 @@ void PropagateField::flushSectionXML(bitpit::Config::Section & slotXML, std::str
     if(m_dumpingActive){
         slotXML.set("DumpingInnerDistance",std::to_string(m_plateau));
         slotXML.set("DumpingOuterDistance",std::to_string(m_radius));
+        slotXML.set("DumpingType",std::to_string(m_dumpingType));
     }
 };
-
 
 
 /*!
@@ -417,39 +440,6 @@ PropagateField::clear(){
     setDefaults();
 };
 
-/*!
- * Execution command. After the execution the result constraint field is stored in the class.
- */
-void
-PropagateField::execute(){
-
-    if(getGeometry() == NULL){
-        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateField execute. No target volume mesh linked");
-    }
-
-    if(m_bsurface == NULL ){
-        (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateField execute. No Dirichlet Boundary patch linked");
-    }
-
-    if(!checkBoundariesCoherence()){
-        (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
-                "or bc-fields not coherent with boundary patches"<<std::endl;
-        throw std::runtime_error("Error in PropagateField execute. Boundary patches linked are uncoherent" 
-                "with target bulk geometry or bc-fields not coherent with boundary patches");
-    }
-
-    computeConnectivity();
-    computeDumpingFunction();
-    computeWeights();
-
-    if (m_laplace){
-        solveLaplace();
-    }else{
-        solveSmoothing(m_sstep);
-    }
-}
 
 /*! 
  * It computes the connectivity structure between input points.
@@ -554,7 +544,7 @@ PropagateField::computeDumpingFunction(){
      * boundaries with values different from zero.
      */
     //TODO compute it
-    double maxd = m_radius;
+    const double maxd(m_radius);
 
     m_dumping.clear();
 
@@ -569,76 +559,60 @@ PropagateField::computeDumpingFunction(){
         MimmoObject * dumptarget= m_dsurface;
         if(m_dsurface == NULL)  dumptarget = m_bsurface;
 
-        if(!dumptarget->isSkdTreeSync()){
-            dumptarget->buildSkdTree();
-        }
-        auto tree = dumptarget->getSkdTree();
-
-        double valmax1 = 1./std::pow((maxd/m_plateau), m_decayFactor);
-        long idsupp;
-        darray3E point;
-        double val;
-        double dist;
-        std::map<long, double> eta;
-        bitpit::PiercedVector<double> arguments;
-        std::vector<long> vertices;
-        vertices.reserve(patch_->getVertexCount());
-        for(auto const & vertex: patch_->getVertices()){
-            ID = vertex.getId();
-            point = vertex.getCoords();
-            dist = skdTreeUtils::distance(&point, tree, idsupp, maxd);
-            if (dist < maxd){
-                if(dist <= m_plateau){
-                    eta[ID] = 1.0;
-                }else{
-                    eta[ID] = (std::pow(maxd/dist, m_decayFactor) -1.0)*valmax1;
-                }
-                vertices.push_back(ID);
-                arguments.insert(ID, 0.0);
+        bitpit::PiercedVector<double> distFactor;
+        getGeometry()->getVerticesNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
+        
+        double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
+        for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+            if(*it < m_plateau){
+                (*it) = 1.0;
+            }else{
+                (*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
             }
         }
-        vertices.resize(arguments.size());
-        std::vector<long> cellids = getGeometry()->getCellFromVertexList(vertices);
 
-        //prepare information on volumes and aspectRatio.
-         bitpit::PiercedVector<double> volumes, AR;
-         for (const long & idc : cellids){
-             volumes.insert(idc, getGeometry()->evalCellVolume(idc));
-             AR.insert(idc, getGeometry()->evalCellAspectRatio(idc));
-         }
+        //evaluating volume on each vertex
+        bitpit::PiercedVector<double> volFactor(distFactor);
+        volFactor.fill(1.0);
 
-         double volmax = 0.0;
-         double volmin = 1.0E18;
-         double avg = 0.0;
-         double armax = 0.0;
-         double armin = 1.0E18;
-         for(const auto & val : volumes){
-             volmax = std::max(volmax, val);
-             volmin = std::min(volmin, val);
-         }
-         for(const auto & val : AR){
-             armax = std::max(armax, val);
-             armin = std::min(armin, val);
-         }
-
-         double volmaxmin = (volmax - volmin);
-         double armin_max = (1./armin - 1./armax);
-
-         for(auto it=volumes.begin(); it!=volumes.end(); ++it){
-             *it = (1.0 + volmaxmin/(*it)*armin_max*AR[it.getId()]); //*AR[it.getId()];
-         }
-
-        for(auto & id : cellids){
-            bitpit::Cell cell = patch_->getCell(id);
-            bitpit::ConstProxyVector<long> vids = cell.getVertexIds();
-            for(auto & idV : vids){
-                if(eta.count(idV)){
-                    arguments[idV] = std::max(arguments[idV], volumes[id]);
+        if(m_dumpingType == 1){
+            //evaluating cell volumes
+            double volmax = 0.0, volmin=1.0E18;
+            livector1D cellList = getGeometry()->getCellFromVertexList(distFactor.getIds(), false);
+            bitpit::PiercedVector<double> volumes;
+            volumes.reserve(cellList.size());
+            //evaluate volumes on each cell and save it
+            for(const auto & idC: cellList){
+                auto it = volumes.insert(idC, getGeometry()->evalCellVolume(idC)); 
+                volmin = std::min(volmin,*it);
+                volmax = std::max(volmax,*it);
+            }
+            
+            //pass on vertices assigning the min value of volume for each vertices.
+            for(auto & id : cellList){
+                bitpit::ConstProxyVector<long> vids = patch_->getCell(id).getVertexIds();
+                for(auto & idV : vids){
+                    if(volFactor.exists(idV))   volFactor[idV] = std::min(volFactor[idV], volumes[id]);
                 }
             }
+            
+            //evaluate the volume normalized function
+            for(auto it = volFactor.begin(); it !=volFactor.end(); ++it){
+                (*it) = std::pow(1.0 + (volmax -volmin)/(*it), distFactor[it.getId()]);
+            }
         }
-        for(auto it=eta.begin(); it!=eta.end(); ++it){
-            m_dumping[it->first] = std::pow(arguments[it->first], it->second);
+
+        
+        //get an average of distance and volume functions.
+        for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+            long id = it.getId();
+            double val;
+            if(m_dumpingType == 1){
+                val = volFactor[id];
+            }else{
+                val = (distanceMax - 1.0)*distFactor[id] + 1.0;
+            }    
+            m_dumping[id] = val;
         }
     }
 }
@@ -1021,7 +995,39 @@ PropagateScalarField::plotOptionalResults(){
 
 };
 
-
+/*!
+ * Execution command. After the execution the result constraint field is stored in the class.
+ */
+void
+PropagateScalarField::execute(){
+    
+    if(getGeometry() == NULL){
+        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. No target volume mesh linked");
+    }
+    
+    if(m_bsurface == NULL ){
+        (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. No Dirichlet Boundary patch linked");
+    }
+    
+    if(!checkBoundariesCoherence()){
+        (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
+        "or bc-fields not coherent with boundary patches"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. Boundary patches linked are uncoherent" 
+        "with target bulk geometry or bc-fields not coherent with boundary patches");
+    }
+    
+    computeConnectivity();
+    computeDumpingFunction();
+    computeWeights();
+        
+    if (m_laplace){
+        solveLaplace();
+    }else{
+        solveSmoothing(m_sstep);
+    }
+}
 
 
 
@@ -1046,6 +1052,7 @@ void PropagateVectorField::setDefaults(){
     PropagateField::setDefaults();
     m_bc_dir.clear();
     m_field.clear();
+    m_nstep = 1;
     m_slipsurface = NULL;
 }
 
@@ -1082,6 +1089,7 @@ PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):P
     m_bc_dir    = other.m_bc_dir;
     m_slipsurface = other.m_slipsurface;
     m_field     = other.m_field;
+    m_nstep = other.m_nstep;
 };
 
 /*!
@@ -1100,6 +1108,7 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
     m_bc_dir.swap(x.m_bc_dir);
     m_field.swap(x.m_field);
     std::swap(m_slipsurface, x.m_slipsurface);
+    std::swap(m_nstep, x.m_nstep);
     PropagateField::swap(x);
 }
 
@@ -1163,6 +1172,17 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
     BITPIT_UNUSED(name);
     //start absorbing
     PropagateField::absorbSectionXML(slotXML, name);
+ 
+    if(slotXML.hasOption("MultiStep")){
+        std::string input = slotXML.get("MultiStep");
+        input = bitpit::utils::string::trim(input);
+        unsigned int value = 1;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setSolverMultiStep(value);
+    }
 };
 
 /*!
@@ -1174,6 +1194,7 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 
     BITPIT_UNUSED(name);
     PropagateField::flushSectionXML(slotXML, name);
+    slotXML.set("MultiStep", std::to_string(int(m_nstep)));
 };
 
 
@@ -1315,16 +1336,16 @@ PropagateVectorField::solveSmoothing(int nstep){
                     int candidate = 0;
                     if(std::abs(m_vNormals[ID][1]) > std::abs(m_vNormals[ID][candidate])) candidate = 1;
                     if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][candidate])) candidate = 2;
-                    
+
                     darray3E ww;
                     for(int i=0; i<3; ++i){
                         ww[i] = m_vNormals[ID][i]/m_vNormals[ID][candidate];
                         if(std::abs(ww[i]) < 1.e-8) 
                             ww[i] = 0.0;
                     }
-                    
+
                     m_field[ID][candidate] = -1.0*(ww[(candidate+1)%3] * m_field[ID][(candidate+1)%3] +
-                                                   ww[(candidate+2)%3] * m_field[ID][(candidate+2)%3]);
+                            ww[(candidate+2)%3] * m_field[ID][(candidate+2)%3]);
 
                 }
                 if (m_convergence){
@@ -1351,7 +1372,7 @@ PropagateVectorField::solveSmoothing(int nstep){
 
     }
 
-    m_conn.clear();
+    //m_conn.clear();
     m_weights.clear();
     m_vNormals.clear();
 }
@@ -1362,7 +1383,7 @@ PropagateVectorField::solveSmoothing(int nstep){
 void
 PropagateVectorField::solveLaplace(){
 
-   
+
     m_field.clear();
     for (auto vertex : getGeometry()->getVertices()){
         long int ID = vertex.getId();
@@ -1428,8 +1449,8 @@ PropagateVectorField::solveLaplace(){
             }
         }
         m_weights.clear();
-        m_conn.clear();
-        m_vNormals.clear();
+        //        m_conn.clear();
+        //        m_vNormals.clear();
 
 #if ENABLE_MPI==1
         m_solver->initialize(stencils, weights, rhs, ghosts);
@@ -1512,7 +1533,129 @@ PropagateVectorField::apply(){
 }
 
 
+/*! 
+ * Force solver to get deformation in a finite number of substep
+ * \param[in] sstep number of substep. Default is 1.
+ */
+void
+PropagateVectorField::setSolverMultiStep(unsigned int sstep){
+    unsigned int loc(1);
+    m_nstep = std::max(loc,sstep);
+}
 
+/*!
+ * subdivide dirichlet boundary conditions  for multi step purposes
+ */
+void
+PropagateVectorField::subdivideBC(){
+    for (auto & val : m_bc_dir){
+        val /= double(m_nstep);
+    }
+}
+
+/*!
+ * restore dirichlet boundary conditions for multi step purposes
+ */
+void
+PropagateVectorField::restoreBC(){
+    for (auto & val : m_bc_dir){
+        val *= double(m_nstep);
+    }
+}
+
+/*!
+ * restore geometry to target vertices
+ * \param[in] list of vertices to be restored
+ */
+
+void
+PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices){
+
+    for (bitpit::Vertex & vertex : vertices){
+        long ID = vertex.getId();
+        m_field[ID] = getGeometry()->getVertexCoords(ID) - vertex.getCoords();
+        getGeometry()->modifyVertex(vertex.getCoords(), ID);
+    }
+
+}
+
+/*!
+ * Execution command. After the execution the result constraint field is stored in the class.
+ */
+void
+PropagateVectorField::execute(){
+    
+    if(getGeometry() == NULL){
+        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. No target volume mesh linked");
+    }
+    
+    if(m_bsurface == NULL ){
+        (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. No Dirichlet Boundary patch linked");
+    }
+    
+    if(!checkBoundariesCoherence()){
+        (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
+        "or bc-fields not coherent with boundary patches"<<std::endl;
+        throw std::runtime_error("Error in PropagateField execute. Boundary patches linked are uncoherent" 
+        "with target bulk geometry or bc-fields not coherent with boundary patches");
+    }
+    
+    computeConnectivity();
+    
+    bitpit::PiercedVector<bitpit::Vertex> vertices0;
+    if (m_nstep > 1){
+        subdivideBC();
+        vertices0      = getGeometry()->getVertices();
+    }
+    
+    
+    for (int istep=0; istep<m_nstep; istep++){
+        
+        computeDumpingFunction();
+        computeWeights();
+        
+        if (m_laplace){
+            solveLaplace();
+        }else{
+            solveSmoothing(m_sstep);
+        }
+        
+        
+        if (m_nstep > 1){
+            apply();
+            if(m_dumpingActive){
+                //update vertices of candidate dumping surface
+                MimmoObject * dumptarget = m_dsurface;
+                if(dumptarget == NULL) dumptarget = m_bsurface;
+                for(const auto & vert: dumptarget->getVertices()){
+                    dumptarget->modifyVertex(getGeometry()->getVertexCoords(vert.getId()), vert.getId());
+                }
+            }
+            (*m_log)<<"                        "<<m_name<<" performing substep :"<<std::to_string(istep+1)<<std::endl;
+            
+        }
+    }//end loop step
+    
+    m_conn.clear();
+    m_vNormals.clear();
+    
+    if (m_nstep > 1){
+        restoreGeometry(vertices0);
+        if(m_dumpingActive){
+            //update vertices of candidate dumping surface
+            MimmoObject * dumptarget = m_dsurface;
+            if(dumptarget == NULL) dumptarget = m_bsurface;
+            for(const auto & vert: dumptarget->getVertices()){
+                dumptarget->modifyVertex(getGeometry()->getVertexCoords(vert.getId()), vert.getId());
+            }
+        }
+    }
+    
+    restoreBC();
+    
+}
 
 
 }
