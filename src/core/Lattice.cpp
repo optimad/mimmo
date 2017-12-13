@@ -446,7 +446,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             std::stringstream ss(input);
             for(auto &val : temp) ss>>val;
         }
-        setSpan(temp);
+        setInfLimits(temp);
     }; 
 
     if(slotXML.hasOption("Dimension")){
