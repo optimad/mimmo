@@ -77,6 +77,19 @@ int test4() {
 	}
 	
 	delete mesh;
+    
+    Lattice * mesh2 = new Lattice();
+    mesh2->setShape(ShapeType::CYLINDER);
+    mesh2->setOrigin({{-1920.0, 0.0, 0.0}});
+    mesh2->setSpan({{560.0, 6.28, 310.0}});
+    mesh2->setInfLimits({{220.0, 0.0, 0.0}});
+    iarray3E dim2 = {{2, 4, 2}};
+    mesh2->setDimension(dim2);
+    mesh2->setPlotInExecution(true);
+    mesh2->exec();
+    
+    delete mesh2;
+    
     return 0;
 }
 

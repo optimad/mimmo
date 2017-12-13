@@ -1048,7 +1048,7 @@ darray3E	Cylinder::toWorldCoord(darray3E  point){
 	
 	//return to local xyz system
 	work2[0] = work[0]*std::cos(work[1] + m_infLimits[1]); 
-	work2[1] = work[0]*std::sin(work[1] + m_infLimits[1]); 
+    work2[1] = work[0]*std::sin(work[1] + m_infLimits[1]); 
 	work2[2] = work[2];
 	
 	//unapply change to local sdr transformation
@@ -1103,7 +1103,7 @@ darray3E	Cylinder::toLocalCoord(darray3E  point){
  *\return local origin of your primitive shape
  */
 darray3E	Cylinder::getLocalOrigin(){
-	return(darray3E{0.0,0.0,-0.5});
+	return(darray3E{m_infLimits[0]/m_scaling[0],0.0,-0.5});
 };
 
 /*!
@@ -1113,8 +1113,9 @@ darray3E	Cylinder::getLocalOrigin(){
  * \return transformed point
  */
 darray3E	Cylinder::basicToLocal(darray3E  point){
-	point[1] = point[1]*m_span[1];
-	point[2] = point[2]-0.5;
+    point[0]  = point[0]*(1.0 - m_infLimits[0]/m_scaling[0]) + m_infLimits[0]/m_scaling[0];
+    point[1] *= m_span[1];
+	point[2] += -0.5*1.0;
 	return(point);
 };
 
@@ -1125,8 +1126,9 @@ darray3E	Cylinder::basicToLocal(darray3E  point){
  * \return transformed point
  */
 darray3E	Cylinder::localToBasic(darray3E  point){
-	point[1] = point[1]/m_span[1];
-	point[2] = point[2]+0.5;
+    point[0]  = (point[0] - m_infLimits[0]/m_scaling[0])/(1.0 - m_infLimits[0]/m_scaling[0]);
+    point[1] /= m_span[1];
+	point[2] += 0.5;
 	return(point);
 };
 
@@ -1157,9 +1159,13 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
  */
 bool 	Cylinder::checkInfLimits(double &orig, int &dir){
 	double thetalim = 8.0* std::atan(1.0);
-	bool check = false;
+    bool check = false;
 	switch(dir){
-		case 1: 
+        case 0: 
+            orig = std::max(0.0, std::min(orig, m_scaling[0]));
+            check = true;
+            break;
+        case 1: 
 			orig = std::min(thetalim, std::max(0.0, orig));
 			check = true;
 			break;
@@ -1380,7 +1386,7 @@ darray3E	Sphere::toLocalCoord(darray3E  point){
  * \return local origin of your primitive shape
  */
 darray3E	Sphere::getLocalOrigin(){
-	return(darray3E{0.0,0.0,0.0});
+	return(darray3E{m_infLimits[0]/m_scaling[0],0.0,0.0});
 };
 
 /*! 
@@ -1390,7 +1396,8 @@ darray3E	Sphere::getLocalOrigin(){
  * \return transformed point
  */
 darray3E	Sphere::basicToLocal(darray3E  point){
-	point[1] = point[1]*m_span[1];
+    point[0]  = point[0]*(1.0 - m_infLimits[0]/m_scaling[0]) + m_infLimits[0]/m_scaling[0];
+    point[1] = point[1]*m_span[1];
 	point[2] = point[2]*m_span[2];
 	return(point);
 };
@@ -1402,6 +1409,7 @@ darray3E	Sphere::basicToLocal(darray3E  point){
  * \return transformed point
  */
 darray3E	Sphere::localToBasic(darray3E  point){
+    point[0]  = (point[0] - m_infLimits[0]/m_scaling[0])/(1.0 - m_infLimits[0]/m_scaling[0]);
 	point[1] = point[1]/m_span[1];
 	point[2] = point[2]/m_span[2];
 	return(point);
@@ -1444,7 +1452,11 @@ bool 		Sphere::checkInfLimits(double &orig, int &dir){
 	double tol = 1.e-12;
 	bool check = false;
 	switch(dir){
-		case 1: 
+        case 0: 
+            orig = std::max(0.0, std::min(orig, m_scaling[0]));
+            check = true;
+            break;
+        case 1: 
 			orig = std::min(thetalim, std::max(0.0, orig));
 			check = true;
 			break;
