@@ -195,7 +195,7 @@ public:
     bool        cleanGeometry();
 
     livector1D  getVertexFromCellList(livector1D cellList);
-    livector1D  getCellFromVertexList(livector1D vertList);
+    livector1D  getCellFromVertexList(livector1D vertList, bool strict = true);
     livector1D  getInterfaceFromCellList(livector1D cellList);
 
     livector1D                          extractBoundaryVertexID();
@@ -233,7 +233,11 @@ public:
     double evalCellVolume(const long & id);
     double evalCellAspectRatio(const long & id);
     
-    livector1D  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist);
+    void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
+    void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
+    
+    void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
+    void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
     
 protected:
     void    swap(MimmoObject & ) noexcept;

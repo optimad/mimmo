@@ -1553,10 +1553,11 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
  * Extract cell list from an ensamble of geometry vertices. Ids of all those cells whose vertex are 
  * defined inside the selection will be returned.
  * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
+ * \param[in] strict boolean true to restrict search for cells having all vertices in the list, false to include all cells having at least 1 vertex in the list.
  * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
  */
 
-livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
+livector1D MimmoObject::getCellFromVertexList(livector1D vertexList, bool strict){
     if(isEmpty() || getType() == 3)   return livector1D(0);
    
     livector1D result;
@@ -1568,7 +1569,12 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList){
         bool check;
         for(const auto & id : vIds){
             check = (ordV.count(id) > 0);
-            if(!check)  break ;
+            if(!check && strict) {
+                break ;
+            }
+            if(check && !strict) {
+                break ;
+            }
         }
         if(check) ordC.insert(cell.getId());
     }
@@ -2242,27 +2248,95 @@ MimmoObject::elementsMap(bitpit::PatchKernel & obj){
  * Get all the cells of the current mesh whose center is within a prescribed distance maxdist w.r.t to a target surface body
  * \param[in] surface MimmoObject of type surface.
  * \param[in] maxdist threshold distance.
+ * \param[out] idList list of cell IDs within maxdistance
  */
-livector1D  
-MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist){
+void
+MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
     
-    if(surface.isEmpty() || surface.getType() != 1) return livector1D();
-    if(isEmpty() || getType() == 3)  return livector1D();
+    if(surface.isEmpty() || surface.getType() != 1) return;
+    if(isEmpty() || getType() == 3)  return ;
     
-    livector1D result;
-    result.reserve(getNCells());
+    idList.clear();
+    idList.reserve(getNCells());
     darray3E pp;
     double distance, maxdistance(maxdist);
     long idsuppsurf;
     for(const auto & cell : getCells()){
         pp = getPatch()->evalCellCentroid(cell.getId());
         distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-        if(distance < maxdist)  result.push_back(cell.getId());
+        if(distance < maxdist)  idList.push_back(cell.getId());
     }
-    
-    return result;
 };
 
+/*!
+ * Get all the cells of the current mesh whose center is within a prescribed distance maxdist w.r.t to a target surface body
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[out] distList distances of vertices positive matching within maxdistance
+ */
+void
+MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList){
+    if(surface.isEmpty() || surface.getType() != 1) return;
+    if(isEmpty() || getType() == 3)  return ;
+    
+    darray3E pp;
+    double distance, maxdistance(maxdist);
+    distList.clear();
+    distList.reserve(getNVertex());
+    long idsuppsurf;
+    for(const auto & cell : getCells()){
+        pp = getPatch()->evalCellCentroid(cell.getId());
+        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        if(distance < maxdist)  distList.insert(cell.getId(),distance);
+    }
+};
+
+/*!
+ * Get all the vertices of the current mesh within a prescribed distance maxdist w.r.t to a target surface body
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[out] idList list of vertex IDs within maxdistance
+ */
+void
+MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
+    
+    if(surface.isEmpty() || surface.getType() != 1) return;
+    if(isEmpty())  return ;
+    
+    idList.clear();
+    idList.reserve(getNVertex());
+    darray3E pp;
+    double distance, maxdistance(maxdist);
+    long idsuppsurf;
+    for(const auto & vertex : getVertices()){
+        pp = vertex.getCoords();
+        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        if(distance < maxdist)  idList.push_back(vertex.getId());
+    }
+};
+
+/*!
+ * Get all the vertices of the current mesh within a prescribed distance maxdist w.r.t to a target surface body
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[out] distList map of vertex IDs-distances positive matches within maxdistance
+ */
+void
+MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist,bitpit::PiercedVector<double> & distList){
+    if(surface.isEmpty() || surface.getType() != 1) return;
+    if(isEmpty())  return ;
+    
+    darray3E pp;
+    double distance, maxdistance(maxdist);
+    long idsuppsurf;
+    distList.clear();
+    distList.reserve(getNVertex());
+    for(const auto & vertex : getVertices()){
+        pp = vertex.getCoords();
+        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        if(distance < maxdist)  distList.insert(vertex.getId(),distance);
+    }
+};
 
 
 }
