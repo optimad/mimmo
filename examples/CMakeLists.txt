@@ -65,6 +65,7 @@ if(BUILD_EXAMPLES)
     #Add examples of enabled modules
     isModuleEnabled("geohandlers" MODULE_ENABLED0)
     if (MODULE_ENABLED0)
+    list(APPEND EXAMPLE_LIST "geohandlers_example_00000")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
     list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
@@ -134,6 +135,10 @@ if(BUILD_EXAMPLES)
         )
     endif()
     if (MODULE_ENABLED0)
+        add_custom_command(
+            TARGET "geohandlers_example_00000" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane3.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane3.stl"
+        )
         add_custom_command(
             TARGET "geohandlers_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"

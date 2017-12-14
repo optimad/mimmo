@@ -127,22 +127,29 @@ int test2() {
     clip2->setPlotInExecution(false);
     clip2->exec();
     
-    
+    Lattice * latt1 = new Lattice();
+    latt1->setShape(mimmo::ShapeType::SPHERE);
+    latt1->setOrigin({{1.5,0.5,0.0}});
+    latt1->setSpan({{0.6,2.0*M_PI, M_PI}});
+    latt1->setGeometry(clip->getClippedPatch());
+    iarray3E dim = {{2,31,15}};
+    latt1->setDimension(dim);
+    latt1->setPlotInExecution(true);
+    latt1->exec();
+
     SelectionBySphere * sel1 = new SelectionBySphere();
     sel1->setOrigin({{1.5,0.5,0.0}});
     sel1->setSpan({{0.6,2.0*M_PI, M_PI}});
     sel1->setDual(false);
     sel1->setGeometry(clip->getClippedPatch());
-    sel1->setPlotInExecution(false);
+    sel1->setPlotInExecution(true);
     sel1->exec();
-
 
     SelectionBySphere * sel2 = new SelectionBySphere((*sel1));
     sel2->setDual(true);
     sel2->setPlotInExecution(false);
     sel2->exec();
-    
- 
+
     dmpvector1D field1(clip2->getGeometry());
     dmpvector1D field2(sel1->getPatch());
     dmpvector1D field3(sel2->getPatch());
