@@ -144,7 +144,6 @@ public:
      * \param[in] bMax max point of AABB
      */
     virtual bool    intersectShapeAABBox(darray3E bMin, darray3E bMax)=0;
-    bool            containShapeAABBox(darray3E bMin, darray3E bMax);
 
 
     /*!

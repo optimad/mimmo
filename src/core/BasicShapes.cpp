@@ -592,42 +592,6 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
 	return(isPointIncluded(coords));  
 };
 
-/*!
- * Check if current shape totally contains the given Axis Aligned Bounding Box
- * \param[in]	bMin	inferior extremal point of the AABB	
- * \param[in]	bMax	superior extremal point of the AABB	
- * \return true if completely contains AABB, false otherwise
- */
-bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
-
-    dvecarr3E points(8);
-	points[0] = bMin;
-	points[1] = bMax;
-	points[2] = bMax; points[2][2] = bMin[2];
-	points[3] = bMin; points[3][2] = bMax[2];
-	points[4] = bMin; points[4][0] = bMax[0];
-	points[5] = bMax; points[5][0] = bMin[0];
-	points[6] = bMin; points[6][1] = bMax[1];
-	points[7] = bMax; points[7][1] = bMin[1];
-    
-    for(auto &point : points){
-        point = localToBasic(toLocalCoord(point));
-    }
-
-    for(int j=0; j<3; ++j){
-        double tmin = 1.E18, tmax= -1.E18;
-        
-        for(int i=0; i<8; ++i){
-            tmin=std::min(tmin,points[i][j]);
-            tmax=std::max(tmax,points[i][j]);
-        }
-        
-        //check height dimension if overlaps;
-        if(!(tmin>= 0 && tmax<=1))  return false;
-    }
-	return true;
-};
-
 
 /*!
  * \return the nearest point belonging to an Axis Aligned Bounding Box, given a target vertex.
@@ -714,13 +678,6 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
         const SkdNode & node  = tree.getNode(nodeId);
         nodeStack.pop_back();
 
-        //first step: check if node AABB is completely inside the shape.
-        //if it is, save all its cells and continue. 
-        if(containShapeAABBox(node.getBoxMin(), node.getBoxMax())){
-            std::vector<long> cellids = node.getCells();
-            sureCells.insert(sureCells.end(),cellids.begin(), cellids.end());
-            continue;
-        };
 
         //second step: if the current node AABB does not intersect or does not completely contains the Shape, then thrown it away and continue.
         if(!intersectShapeAABBox(node.getBoxMin(), node.getBoxMax()) ){
