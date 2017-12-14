@@ -270,107 +270,6 @@ Lattice::execute(){
     };
 };
 
-/*! 
- * Resize map of effective nodes of the lattice grid to fit 
- * a total number od degree of freedom nx*ny*nz. Old structure 
- * is deleted and reset to zero.
- */
-void
-Lattice::resizeMapDof(){
-    //reallocate your displacement node
-    m_intMapDOF.clear();
-    m_intMapDOF.resize((m_nx+1)*(m_ny+1)*(m_nz+1), -1);
-    ivector1D::iterator itMapBegin = m_intMapDOF.begin();
-    ivector1D::iterator itMap = itMapBegin;
-    ivector1D::iterator itMapEnd = m_intMapDOF.end();
-    bvector1D info;
-    m_np = reduceDimToDOF(m_nx+1,m_ny+1,m_nz+1, info);
-
-    //set m_intMapDOF
-
-    int target;
-    int index;
-    ivector1D dummy;
-
-    int i0,i1,i2;
-    switch(getShapeType()){
-
-    case ShapeType::CYLINDER :
-        target=0;
-        while(itMap != itMapEnd){
-
-            *itMap = target;
-            index = std::distance(itMapBegin, itMap);
-            accessPointIndex(index,i0,i1,i2);
-
-            if(info[0] && i0 == 0){
-                for(int k=0; k<=m_ny;++k){
-                    m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
-                }
-            }
-            if(info[1] && i1 == 0){
-                m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
-            }
-
-            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-            target++;
-        }
-        break;
-
-    case ShapeType::SPHERE :
-
-        target = 0;
-        while(itMap != itMapEnd){
-
-            *itMap = target;
-            index = std::distance(itMapBegin, itMap);
-            accessPointIndex(index,i0,i1,i2);
-
-            if(info[0] && i0 == 0){
-                for(int k1=0; k1<=m_ny;++k1){
-                    for(int k2=0; k2<=m_nz; ++k2){
-                        m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
-                    }
-                }
-            }
-
-            if(info[1] && i1 == 0){
-                m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
-            }
-
-            if(info[2] && i2 == 0){
-                for(int k1=0; k1<=m_ny; ++k1){
-                    m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
-                }
-            }
-
-            if(info[3] && i2 == (m_nz)){
-                for(int k1=0; k1<=m_ny;++k1){
-                    m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
-                }
-            }
-
-            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-            target++;
-        }
-        break;
-
-
-    case ShapeType::CUBE :
-        target = 0;
-        while(itMap != itMapEnd){
-
-            *itMap = target;
-            itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
-            target++;
-        }
-        break;
-
-    default: //doing nothing
-    break;
-    }//end switch
-
-}
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -548,17 +447,27 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
     switch(getShapeType()){
 
     case ShapeType::CYLINDER :
-        delta += nz;
-        nx--;
+        if(!(getShape()->getLocalOrigin()[0] >0.0 )){
+            info.push_back(false);
+        }else{
+            delta += nz;
+            nx--;
+            info.push_back(true);
+        }
         if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 
-        info.push_back(true);
+        
         info.push_back(getCoordType(1) == CoordType::PERIODIC);
         break;
 
     case ShapeType::SPHERE :
-        delta ++;
-        nx--;
+        if(!(getShape()->getLocalOrigin()[0] >0.0 )){
+            info.push_back(false);
+        }else{
+            delta ++;
+            nx--;
+            info.push_back(true);
+        }
         if(getCoordType(1) == CoordType::PERIODIC)	ny--;
         dval = getInfLimits()[2];
         if(dval == 0.0)	{
@@ -570,7 +479,6 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
             delta += nx;
         }
 
-        info.push_back(true);
         info.push_back(getCoordType(1) == CoordType::PERIODIC);
         info.push_back(dval==0.0);
         info.push_back((dval + getLocalSpan()[2]) == M_PI);
@@ -584,5 +492,108 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
     int result = nx*ny*nz + delta;
     return(result);
 };
+
+/*! 
+ * Resize map of effective nodes of the lattice grid to fit 
+ * a total number od degree of freedom nx*ny*nz. Old structure 
+ * is deleted and reset to zero.
+ */
+void
+Lattice::resizeMapDof(){
+    //reallocate your displacement node
+    m_intMapDOF.clear();
+    m_intMapDOF.resize((m_nx+1)*(m_ny+1)*(m_nz+1), -1);
+    ivector1D::iterator itMapBegin = m_intMapDOF.begin();
+    ivector1D::iterator itMap = itMapBegin;
+    ivector1D::iterator itMapEnd = m_intMapDOF.end();
+    bvector1D info;
+    m_np = reduceDimToDOF(m_nx+1,m_ny+1,m_nz+1, info);
+    
+    //set m_intMapDOF
+    
+    int target;
+    int index;
+    ivector1D dummy;
+    
+    int i0,i1,i2;
+    switch(getShapeType()){
+        
+        case ShapeType::CYLINDER :
+            target=0;
+            while(itMap != itMapEnd){
+                
+                *itMap = target;
+                index = std::distance(itMapBegin, itMap);
+                accessPointIndex(index,i0,i1,i2);
+                
+                if(info[0] && i0 == 0){
+                    for(int k=0; k<=m_ny;++k){
+                        m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
+                    }
+                }
+                if(info[1] && i1 == 0){
+                    m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
+                }
+                
+                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+                target++;
+            }
+            break;
+            
+        case ShapeType::SPHERE :
+            
+            target = 0;
+            while(itMap != itMapEnd){
+                
+                *itMap = target;
+                index = std::distance(itMapBegin, itMap);
+                accessPointIndex(index,i0,i1,i2);
+                
+                if(info[0] && i0 == 0){
+                    for(int k1=0; k1<=m_ny;++k1){
+                        for(int k2=0; k2<=m_nz; ++k2){
+                            m_intMapDOF[accessPointIndex(i0,k1,k2)] = target;
+                        }
+                    }
+                }
+                
+                if(info[1] && i1 == 0){
+                    m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
+                }
+                
+                if(info[2] && i2 == 0){
+                    for(int k1=0; k1<=m_ny; ++k1){
+                        m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+                    }
+                }
+                
+                if(info[3] && i2 == (m_nz)){
+                    for(int k1=0; k1<=m_ny;++k1){
+                        m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
+                    }
+                }
+                
+                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+                target++;
+            }
+            break;
+            
+            
+        case ShapeType::CUBE :
+            target = 0;
+            while(itMap != itMapEnd){
+                
+                *itMap = target;
+                itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
+                target++;
+            }
+            break;
+            
+        default: //doing nothing
+            break;
+    }//end switch
+    
+}
+
 
 }
