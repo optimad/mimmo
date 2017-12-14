@@ -167,7 +167,7 @@ public:
      * \return local origin
      */
     virtual darray3E    getLocalOrigin()=0;
-
+    
 protected:
     uint32_t    intersectShapePlane(int level, darray3E target);
     darray3E    checkNearestPointToAABBox(darray3E point, darray3E bMin, darray3E bMax);

@@ -575,7 +575,7 @@ bool BasicShape::isPointIncluded(darray3E point){
 	double tol = 1.0E-12;
 	
 	for(int i=0; i<3; ++i){  
-		check = check && ((temp2[i] >= -1.0*tol) && (temp2[i]<=(1.0+tol)));
+		check = check && ((temp2[i] > -1.0*tol) && (temp2[i]< (1.0+tol)));
 	}
 	
 	return(check);  
@@ -599,8 +599,8 @@ bool BasicShape::isPointIncluded(bitpit::PatchKernel * tri, long int indexV){
  * \return true if completely contains AABB, false otherwise
  */
 bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
-	bool check = true;
-	dvecarr3E points(8);
+
+    dvecarr3E points(8);
 	points[0] = bMin;
 	points[1] = bMax;
 	points[2] = bMax; points[2][2] = bMin[2];
@@ -609,13 +609,23 @@ bool BasicShape::containShapeAABBox(darray3E bMin,darray3E bMax){
 	points[5] = bMax; points[5][0] = bMin[0];
 	points[6] = bMin; points[6][1] = bMax[1];
 	points[7] = bMax; points[7][1] = bMin[1];
-	
-	int counter=0;
-	while (check && counter<8)	{
-		check = check && isPointIncluded(points[counter]);	
-		++counter;
-	}	
-	return check;
+    
+    for(auto &point : points){
+        point = localToBasic(toLocalCoord(point));
+    }
+
+    for(int j=0; j<3; ++j){
+        double tmin = 1.E18, tmax= -1.E18;
+        
+        for(int i=0; i<8; ++i){
+            tmin=std::min(tmin,points[i][j]);
+            tmax=std::max(tmax,points[i][j]);
+        }
+        
+        //check height dimension if overlaps;
+        if(!(tmin>= 0 && tmax<=1))  return false;
+    }
+	return true;
 };
 
 
@@ -777,7 +787,7 @@ uint32_t		BasicShape::intersectShapePlane(int level, darray3E target) {
 /*! 
  * Basic Constructor
  */
-Cube::Cube(){
+Cube::Cube():BasicShape(){
 	m_shape=ShapeType::CUBE;
 	m_span = {{1.0, 1.0, 1.0}};
 };
@@ -1005,7 +1015,7 @@ bool Cube::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 /*! 
  * Basic Constructor
  */
-Cylinder::Cylinder(){
+Cylinder::Cylinder():BasicShape(){
 	m_shape=ShapeType::CYLINDER;
 	m_span = {{1.0, 2*M_PI, 1.0}};
 	setCoordinateType(CoordType::PERIODIC, 1);
@@ -1018,7 +1028,6 @@ Cylinder::Cylinder(){
  * \param[in] span  characteristic dimension of your cylinder;
  */
 Cylinder::Cylinder(const darray3E &origin, const darray3E & span): Cylinder(){
-	
 	setOrigin(origin);
 	setSpan(span[0], span[1], span[2]);
 }; 
@@ -1047,8 +1056,8 @@ darray3E	Cylinder::toWorldCoord(darray3E  point){
 	}
 	
 	//return to local xyz system
-	work2[0] = work[0]*std::cos(work[1] + m_infLimits[1]); 
-    work2[1] = work[0]*std::sin(work[1] + m_infLimits[1]); 
+	work2[0] = (work[0]+m_infLimits[0])*std::cos(work[1] + m_infLimits[1]); 
+    work2[1] = (work[0]+m_infLimits[0])*std::sin(work[1] + m_infLimits[1]); 
 	work2[2] = work[2];
 	
 	//unapply change to local sdr transformation
@@ -1082,16 +1091,18 @@ darray3E	Cylinder::toLocalCoord(darray3E  point){
 	else{
 		work[0] = pow(work2[0]*work2[0] + work2[1]*work2[1],0.5);
 		double pdum = std::atan2(work2[1],work2[0]);
-		work[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+		work[1] = pdum - (getSign(pdum)-1.0)*M_PI; 
 	}
 	//get to the correct m_thetaOrigin mark
-	double param = 8*std::atan(1.0);
+	double param = 2*M_PI;
 	work[1] = work[1] - m_infLimits[1];
 	if(work[1] < 0) 		work[1] = param + work[1];
 	if(work[1] > param) 	work[1] = work[1] - param;
 	
 	work[2] = work2[2];
-	
+	//get the correct origin for radius
+    work[0] = work[0] - m_infLimits[0];
+    
 	//scale your local point
 	for(int i =0; i<3; ++i){
 		work2[i] = work[i]/m_scaling[i];
@@ -1103,7 +1114,7 @@ darray3E	Cylinder::toLocalCoord(darray3E  point){
  *\return local origin of your primitive shape
  */
 darray3E	Cylinder::getLocalOrigin(){
-	return(darray3E{m_infLimits[0]/m_scaling[0],0.0,-0.5});
+	return(darray3E{0.0,0.0,-0.5});
 };
 
 /*!
@@ -1113,10 +1124,9 @@ darray3E	Cylinder::getLocalOrigin(){
  * \return transformed point
  */
 darray3E	Cylinder::basicToLocal(darray3E  point){
-    point[0]  = point[0]*(1.0 - m_infLimits[0]/m_scaling[0]) + m_infLimits[0]/m_scaling[0];
     point[1] *= m_span[1];
-	point[2] += -0.5*1.0;
-	return(point);
+    point += getLocalOrigin();
+    return(point);
 };
 
 /*!
@@ -1126,9 +1136,8 @@ darray3E	Cylinder::basicToLocal(darray3E  point){
  * \return transformed point
  */
 darray3E	Cylinder::localToBasic(darray3E  point){
-    point[0]  = (point[0] - m_infLimits[0]/m_scaling[0])/(1.0 - m_infLimits[0]/m_scaling[0]);
+    point += -1.0*getLocalOrigin();
     point[1] /= m_span[1];
-	point[2] += 0.5;
 	return(point);
 };
 
@@ -1158,11 +1167,11 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
  * \return true, if valid new value is set.
  */
 bool 	Cylinder::checkInfLimits(double &orig, int &dir){
-	double thetalim = 8.0* std::atan(1.0);
+	double thetalim = 2.0*M_PI;
     bool check = false;
 	switch(dir){
         case 0: 
-            orig = std::max(0.0, std::min(orig, m_scaling[0]));
+            orig = std::max(0.0, orig);
             check = true;
             break;
         case 1: 
@@ -1231,48 +1240,31 @@ void Cylinder::getTempBBox(){
  * 
  * TODO NEED TO BE OPTIMIZED!
  */
-bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
-	
-	dvecarr3E points(8, bMin);
-	points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
-	points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
-	points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
-	
-	for(auto &val:points)	val += -1.0*m_origin;
-	
-	double ref1, ref2;
-	ref1 = -0.5*m_scaling[2];
-	ref2 =  0.5*m_scaling[2];
-	
-	double tmin, tmax, t;
-	t= dotProduct(points[0],m_sdr[2]);
-	tmax=tmin=t;
-	points[0] += -1.0*t*m_sdr[2]; //project point on plane
-	
-	for(int i=1; i<8; ++i){
-		t= dotProduct(points[i],m_sdr[2]);
-		points[i] += -1.0*t*m_sdr[2];
-		
-		if(t<tmin){
-			tmin=t;
-		}else if(t>tmax){
-			tmax=t;
-		}
-		
-	}
-	
-	//check height dimension if overlaps;
-	if(tmin>ref2 || tmax<ref1)	return false;
-	darray3E bMin2, bMax2;
-	bMin2 = points[0]; bMax2=points[0];
-	for(int i=1; i<8; ++i){
-		for(int j=0; j<3; ++j){
-			bMin2[j] = std::fmin(bMin2[j], points[i][j]);
-			bMax2[j] = std::fmax(bMax2[j], points[i][j]);
-		}
-	}
-	
-	return(isPointIncluded(checkNearestPointToAABBox({{0.0,0.0,0.0}},bMin2,bMax2) + m_origin));
+bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){	
+    dvecarr3E points(8, bMin);
+    points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
+    points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
+    points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
+    
+    for(auto &point : points){
+        point = localToBasic(toLocalCoord(point));
+    }
+    
+    for(int j=0; j<3; ++j){
+        double tmin = 1.E18, tmax= -1.E18;
+        
+        for(int i=0; i<8; ++i){
+            tmin=std::min(tmin,points[i][j]);
+            tmax=std::max(tmax,points[i][j]);
+        }
+        
+        if(j == 0){
+            if(tmax< 0.0 )    return false;
+        }else{
+            if(tmin> 1.0 || tmax< 0.0)  return false;
+        }
+    }
+    return true;
 };
 
 
@@ -1283,7 +1275,7 @@ bool Cylinder::intersectShapeAABBox(darray3E bMin,darray3E bMax){
 /*! 
  * Basic Constructor
  */
-Sphere::Sphere(){
+Sphere::Sphere():BasicShape(){
 	m_shape=ShapeType::SPHERE;
 	m_span = {{1.0, 2*M_PI, M_PI}};
 	setCoordinateType(CoordType::PERIODIC, 1);
@@ -1326,9 +1318,9 @@ darray3E	Sphere::toWorldCoord(darray3E  point){
 	}
 	
 	//return to local xyz system
-	work2[0] = work[0]*std::cos(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
-	work2[1] = work[0]*std::sin(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
-	work2[2] = work[0]*std::cos(work[2] + m_infLimits[2]);
+	work2[0] = (work[0]+m_infLimits[0])*std::cos(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
+    work2[1] = (work[0]+m_infLimits[0])*std::sin(work[1] + m_infLimits[1])*std::sin(work[2] + m_infLimits[2]); 
+    work2[2] = (work[0]+m_infLimits[0])*std::cos(work[2] + m_infLimits[2]);
 	
 	//unapply change to local sdr transformation
 	work.fill(0.0);
@@ -1363,10 +1355,10 @@ darray3E	Sphere::toLocalCoord(darray3E  point){
 			work[1] = 0.0;
 		}else{
 			double pdum = std::atan2(work2[1],work2[0]);
-			work[1] = pdum - 4.0*(getSign(pdum)-1.0)*std::atan(1.0); 
+			work[1] = pdum - (getSign(pdum)-1.0)*M_PI; 
 		}
 		//get to the correct m_thetaOrigin mark
-		double param = 8*std::atan(1.0);
+		double param = 2.0*M_PI;
 		work[1] = work[1] - m_infLimits[1];
 		if(work[1] < 0) 		work[1] = param + work[1];
 		if(work[1] > param) 	work[1] = work[1] - param;
@@ -1375,6 +1367,8 @@ darray3E	Sphere::toLocalCoord(darray3E  point){
 		work[2] = work[2] - m_infLimits[2];
 	}
 	
+	work[0] = work[0] - m_infLimits[0];
+    
 	//scale your local point
 	for(int i =0; i<3; ++i){
 		work2[i] = work[i]/m_scaling[i];
@@ -1386,7 +1380,7 @@ darray3E	Sphere::toLocalCoord(darray3E  point){
  * \return local origin of your primitive shape
  */
 darray3E	Sphere::getLocalOrigin(){
-	return(darray3E{m_infLimits[0]/m_scaling[0],0.0,0.0});
+	return(darray3E{0.0,0.0,0.0});
 };
 
 /*! 
@@ -1396,10 +1390,10 @@ darray3E	Sphere::getLocalOrigin(){
  * \return transformed point
  */
 darray3E	Sphere::basicToLocal(darray3E  point){
-    point[0]  = point[0]*(1.0 - m_infLimits[0]/m_scaling[0]) + m_infLimits[0]/m_scaling[0];
-    point[1] = point[1]*m_span[1];
-	point[2] = point[2]*m_span[2];
-	return(point);
+    point[1] *= m_span[1];
+	point[2] *= m_span[2];
+    point += getLocalOrigin();
+ 	return(point);
 };
 
 /*! 
@@ -1409,9 +1403,9 @@ darray3E	Sphere::basicToLocal(darray3E  point){
  * \return transformed point
  */
 darray3E	Sphere::localToBasic(darray3E  point){
-    point[0]  = (point[0] - m_infLimits[0]/m_scaling[0])/(1.0 - m_infLimits[0]/m_scaling[0]);
-	point[1] = point[1]/m_span[1];
-	point[2] = point[2]/m_span[2];
+    point += -1.0*getLocalOrigin();
+	point[1] /= m_span[1];
+	point[2] /= m_span[2];
 	return(point);
 };
 
@@ -1427,7 +1421,7 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
 	s1 = std::abs(s1);
 	s2 = std::abs(s2);
 	
-	double thetalim = 8.0* std::atan(1.0);
+	double thetalim = 2.0*M_PI;
 	s1 = std::min(s1, thetalim);
 	
 	double maxS2 = 0.5*thetalim - m_infLimits[2];
@@ -1448,12 +1442,12 @@ void 		Sphere::checkSpan(double &s0, double &s1, double &s2){
  */
 bool 		Sphere::checkInfLimits(double &orig, int &dir){
 	
-	double thetalim = 8.0* std::atan(1.0);
+	double thetalim = 2.0*M_PI;
 	double tol = 1.e-12;
 	bool check = false;
 	switch(dir){
         case 0: 
-            orig = std::max(0.0, std::min(orig, m_scaling[0]));
+            orig = std::max(0.0, orig);
             check = true;
             break;
         case 1: 
@@ -1526,7 +1520,33 @@ void Sphere::getTempBBox(){
  * \return true if intersects, false otherwise
  */
 bool Sphere::intersectShapeAABBox(darray3E bMin,darray3E bMax){
-	return isPointIncluded(checkNearestPointToAABBox(m_origin, bMin, bMax));
+    
+    dvecarr3E points(8, bMin);
+    points[1][0] = points[2][0] = points[5][0]=points[6][0]= bMax[0];
+    points[2][1] = points[3][1] = points[6][1]=points[7][1]= bMax[1];
+    points[4][2] = points[5][2] = points[6][2]=points[7][2]= bMax[2];
+    
+    for(auto &point : points){
+        point = localToBasic(toLocalCoord(point));
+    }
+    
+    for(int j=0; j<3; ++j){
+        double tmin = 1.E18, tmax= -1.E18;
+        
+        for(int i=0; i<8; ++i){
+            tmin=std::min(tmin,points[i][j]);
+            tmax=std::max(tmax,points[i][j]);
+        }
+        
+        if(j == 0){
+            if(tmax< 0.0 )    return false;
+        }else{
+            if(tmin> 1.0 || tmax< 0.0)  return false;
+        }
+    }
+    
+    return true;
+    
 };
 
 }
