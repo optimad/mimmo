@@ -2339,6 +2339,59 @@ MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const doub
 };
 
 
+/*!
+ * Get a minimal inverse connectivity of a target geometry mesh.
+ * Each vertex (passed by Id) is associated at list to one of the possible simplex 
+ * (passed by Id) which it belongs. This is returned in an unordered_map having as key the 
+ * vertex Id and as value the Cell id. Id is meant as the unique label identifier associated
+ * to bitpit::PatchKernel original geometry
+ *\return    unordered_map of vertex ids (key) vs cell-belonging-to ids(value)
+ */
+std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
+    
+    std::unordered_map<long,long> invConn ;
+    if(getType() == 3) return invConn;
+    
+    long cellId;
+    for(const auto &cell : getCells()){
+        cellId = cell.getId();
+        bitpit::ConstProxyVector<long> vList = cell.getVertexIds();
+        for(const auto & idV : vList){
+            invConn[idV] = cellId;
+        }
+    }
+    
+    return(invConn);
+};
+
+/*!
+ * Return Vertex-Vertex One Ring of a specified target vertex. Does not work with unconnected meshes (point clouds)
+ * \param[in]    cellId     bitpit::PatchKernel Id of a cell which target belongs to
+ * \param[in]    vertexId    bitpit::PatchKernel Id of the target vertex
+ * \return        list of all vertex in the One Ring of the target, by their bitpit::PatchKernel Ids
+ */
+std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const long & vertexId){
+    std::set<long> result;
+    if(getType() == 3)  return result;
+    
+    bitpit::PatchKernel * tri = getPatch();
+    bitpit::Cell &cell =  tri->getCell(cellId);
+    
+    int loc_target = cell.findVertex(vertexId);
+    if(loc_target ==bitpit::Vertex::NULL_ID) return result;
+    
+    livector1D list = tri->findCellVertexOneRing(cellId, loc_target);
+    
+    for(const auto & index : list){
+        bitpit::ConstProxyVector<long> ids = tri->getCell(index).getVertexIds();
+        result.insert(ids.begin(), ids.end());
+    }
+    result.erase(vertexId);
+    return result;
+}
+
+
+
 }
 
 

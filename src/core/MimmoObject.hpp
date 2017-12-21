@@ -239,6 +239,9 @@ public:
     void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
     void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
     
+    std::unordered_map<long,long>   getInverseConnectivity();
+    std::set<long>                  findVertexVertexOneRing(const long &, const long & );
+    
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);
