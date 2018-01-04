@@ -367,6 +367,18 @@ void PropagateField::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         setDumping(value);
     }
 
+    if(slotXML.hasOption("DecayFactor")){
+        std::string input = slotXML.get("DecayFactor");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setDecayFactor(value);
+    }	
+	
     if(m_dumpingActive){
 
         if(slotXML.hasOption("DumpingInnerDistance")){
@@ -423,11 +435,13 @@ void PropagateField::flushSectionXML(bitpit::Config::Section & slotXML, std::str
     slotXML.set("Convergence",std::to_string(int(m_convergence)));
     slotXML.set("Tolerance",std::to_string(m_tol));
     slotXML.set("Dumping", std::to_string(int(m_dumpingActive)));
-    if(m_dumpingActive){
+	if(m_dumpingActive){
         slotXML.set("DumpingInnerDistance",std::to_string(m_plateau));
         slotXML.set("DumpingOuterDistance",std::to_string(m_radius));
         slotXML.set("DumpingType",std::to_string(m_dumpingType));
     }
+	slotXML.set("DecayFactor",std::to_string(m_decayFactor));
+    
 };
 
 

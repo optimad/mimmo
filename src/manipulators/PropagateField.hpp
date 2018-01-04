@@ -77,6 +77,7 @@ namespace mimmo{
  * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
+ * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active 
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
@@ -220,6 +221,7 @@ private:
  * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
+ * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active 
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
@@ -316,6 +318,7 @@ private:
 
  *    =========================================================
  *
+ *
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
@@ -332,6 +335,7 @@ private:
  * - <B>DumpingType</B> : 0- distance control, 1-volume control.
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
+ * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active 
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
