@@ -31,7 +31,7 @@ set(MIMMO_FOUND 0)
 # Use the Config mode of the find_package() command to find MIMMOConfig.
 # If this succeeds (possibly because MIMMO_DIR is already set), the
 # command will have already loaded MIMMOConfig.cmake and set MIMMO_FOUND.
-find_package(MIMMO QUIET NO_MODULE COMPONENTS ${MIMMO_FIND_COMPONENTS})
+find_package(MIMMO QUIET NO_MODULE COMPONENTS ${MIMMO_FIND_COMPONENTS} OPTIONAL_COMPONENTS ${MIMMO_FIND_OPTIONAL_COMPONENTS})
 
 # If mimmo was not found, explain to the user how to specify its location.
 if (NOT MIMMO_FOUND)
@@ -44,7 +44,7 @@ if (NOT MIMMO_FOUND)
     endif ()
 endif ()
 
-# If If a required module is not found a fatal error is generated and the
+# If a required module is not found a fatal error is generated and the
 # configure step stops executing.
 foreach(COMPONENT ${MIMMO_FIND_COMPONENTS})
     if(NOT MIMMO_${COMPONENT}_FOUND)
@@ -54,5 +54,13 @@ foreach(COMPONENT ${MIMMO_FIND_COMPONENTS})
         elseif (NOT MIMMO_FIND_QUIETLY)
            message(STATUS "${COMPONENT_NOT_FOUND_MESSAGE}")
         endif ()
+    endif()
+endforeach()
+
+# If an optional module is not found a normal warning message is generated 
+foreach(COMPONENT ${MIMMO_FIND_OPTIONAL_COMPONENTS})
+    if(NOT MIMMO_${COMPONENT}_FOUND)
+        set(COMPONENT_NOT_FOUND_MESSAGE "${COMPONENT} optional module is not enabled in current MIMMO installation")
+        message(STATUS "${COMPONENT_NOT_FOUND_MESSAGE}")
     endif()
 endforeach()
