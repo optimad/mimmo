@@ -1068,6 +1068,7 @@ void PropagateVectorField::setDefaults(){
     m_field.clear();
     m_nstep = 1;
     m_slipsurface = NULL;
+    m_slipratio   = 100;
 }
 
 /*!
@@ -1104,6 +1105,7 @@ PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):P
     m_slipsurface = other.m_slipsurface;
     m_field     = other.m_field;
     m_nstep = other.m_nstep;
+    m_slipratio = other.m_slipratio;
 };
 
 /*!
@@ -1123,6 +1125,7 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
     m_field.swap(x.m_field);
     std::swap(m_slipsurface, x.m_slipsurface);
     std::swap(m_nstep, x.m_nstep);
+    std::swap(m_slipratio, x.m_slipratio);
     PropagateField::swap(x);
 }
 
@@ -1165,6 +1168,17 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
 
 }
 
+/*! 
+ * Sets a threshold > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between 
+ * the maximum component of the normal and the candidate component a is greater then this value, 
+ * the candidate component will be set to 0, and the normal will be recalculated.
+ * \param[in] thres threshold.
+ */
+void
+PropagateVectorField::setSlipNormalRatio(double thres){
+    m_slipratio = std::fmax(1.0, thres);
+}
+
 /*!
  * It sets the Dirichlet conditions for each component of the vector field on the previously linked
  * Dirichlet Boundary patch.
@@ -1190,13 +1204,27 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
     if(slotXML.hasOption("MultiStep")){
         std::string input = slotXML.get("MultiStep");
         input = bitpit::utils::string::trim(input);
-        unsigned int value = 1;
+        double value = 1.0;
         if(!input.empty()){
             std::stringstream ss(input);
             ss >> value;
         }
-        setSolverMultiStep(value);
+        unsigned int value2 = 1;
+        if(value >= 0.0) value2 = value;
+        setSolverMultiStep(value2);
     }
+ 
+    if(slotXML.hasOption("SlipNormalRatio")){
+        std::string input = slotXML.get("SlipNormalRatio");
+        input = bitpit::utils::string::trim(input);
+        double value = 100.0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setSlipNormalRatio(value);
+    }
+
 };
 
 /*!
@@ -1209,6 +1237,7 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
     BITPIT_UNUSED(name);
     PropagateField::flushSectionXML(slotXML, name);
     slotXML.set("MultiStep", std::to_string(int(m_nstep)));
+    slotXML.set("SlipNormalRatio", std::to_string(m_slipratio));
 };
 
 
@@ -1281,7 +1310,8 @@ bool PropagateVectorField::checkBoundariesCoherence(){
     bitpit::ConstProxyVector<long> verts;
     std::size_t size;
     long idN;
-    //save the vertex Normals using the boundary surface m_neu_surface;
+    //save the vertex Normals using the boundary surface m_slipsurface;
+    //check m_slipratio stuff and correct accordingly the normals.
     for(const auto & cell: m_slipsurface->getCells()){
         verts= cell.getVertexIds();
         size = verts.size();
@@ -1289,6 +1319,15 @@ bool PropagateVectorField::checkBoundariesCoherence(){
             idN = verts[i];
             if(m_isbp[idN].second ==2 && !m_vNormals.exists(idN)){
                 m_vNormals.insert(idN, static_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch())->evalVertexNormal(cell.getId(), i));
+                
+                int comp = 0;
+                if(std::abs(m_vNormals[idN][1]) > std::abs(m_vNormals[idN][comp])) comp = 1;
+                if(std::abs(m_vNormals[idN][2]) > std::abs(m_vNormals[idN][comp])) comp = 2;
+                
+                if(m_slipratio * std::abs(m_vNormals[idN][(comp+1)%3]/m_vNormals[idN][comp]) < 1.0)   m_vNormals[idN][(comp+1)%3] = 0.0;
+                if(m_slipratio * std::abs(m_vNormals[idN][(comp+2)%3]/m_vNormals[idN][comp]) < 1.0)   m_vNormals[idN][(comp+2)%3] = 0.0;
+                
+                m_vNormals[idN] /= norm2(m_vNormals[idN]);
             }
         }
     }

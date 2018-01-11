@@ -87,12 +87,11 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
     input_type = bitpit::utils::string::trim(input_type);
 
     auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-
-    setDefaults();
-
+	
     if(input == "mimmo.IOOFOAM" && maybeIOOFMode){
         m_type = maybeIOOFMode->_to_integral();
-        absorbSectionXML(rootXML);
+        setDefaults();
+		absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);
     };
@@ -247,30 +246,7 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
     std::string input;
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-
-    if(!slotXML.hasOption("IOMode")){
-        warningXML(m_log, m_name);
-        return;
-    }
-
-    input = slotXML.get("IOMode");
-    if(input.empty()){
-        warningXML(m_log, m_name);
-        return;
-    }
-    better_enums::optional<IOOFMode> maybeIOMode;
-    std::stringstream ss(bitpit::utils::string::trim(input));
-    maybeIOMode = IOOFMode::_from_string_nothrow(input.c_str());
-
-    if(!maybeIOMode) {
-        warningXML(m_log, m_name);
-        return;
-    }
-    if( m_type == maybeIOMode->_to_integral()){
-        warningXML(m_log, m_name);
-        return;
-    }
-
+   
     if(slotXML.hasOption("Dir")){
         input = slotXML.get("Dir");
         input = bitpit::utils::string::trim(input);

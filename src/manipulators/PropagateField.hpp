@@ -81,7 +81,6 @@ namespace mimmo{
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
- 
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
  *
@@ -111,7 +110,8 @@ protected:
                                          the stencil during the laplacian computing account of the maximum artificial diffusivity.*/
     bool          m_dumpingActive;  /**< true the dumping control is active, false otherwise.*/
     int           m_dumpingType;    /**< 0 distance-control, 1-volume control*/
-
+    
+    
     std::unique_ptr<mimmo::SystemSolver> m_solver; /**! linear system solver for laplace */
 
 public:
@@ -142,7 +142,8 @@ public:
     void    setDecayFactor(double decay);
     void    setConvergence(bool convergence);
     void    setTolerance(double tol);
-
+    
+    
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -339,6 +340,9 @@ private:
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
+ * - <B>SlipNormalRatio</B> : value > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between 
+ *                            the maximum component of the normal and the candidate component a is greater then this value, 
+ *                            the candidate component will be set to 0, and the normal will be recalculated.
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
@@ -356,6 +360,8 @@ private:
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
     int           m_nstep;               /**! multistep solver */
     bitpit::PiercedVector<darray3E> m_vNormals; /**< temporary object to store vertex normals for slip condition */
+    double m_slipratio;                         /**< ratio to correct normals of slip-surfaces*/
+    
 public:
 
 
@@ -371,6 +377,7 @@ public:
     dmpvecarr3E getPropagatedField();
     
     void    setSlipBoundarySurface(MimmoObject *);
+    void    setSlipNormalRatio(double thres);
     
     void    setDirichletConditions(dmpvecarr3E bc);
     
