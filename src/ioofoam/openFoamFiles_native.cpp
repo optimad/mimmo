@@ -469,7 +469,7 @@ const word getFieldClass(const char *rootPath, const char *fileName)
         IOobject::NO_WRITE
     );
 
-    Istream* headerStream = new IFstream(fieldObject.filePath());
+    Istream* headerStream = new IFstream(fieldObject.objectPath());
     fieldObject.readHeader(*headerStream);
 
     return fieldObject.headerClassName();
@@ -513,13 +513,7 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
     foamMesh->movePoints(movedPoints);
     
     if(overwriteStart){
-
-#if OF_MAJOR_VER == 2
-        const bool valid = true;
-        foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), valid);
-#else
         foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
-#endif
     }else{
 
         Foam::dimensionedScalar fakeEndTime
@@ -531,12 +525,7 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
         foamRunTime->setEndTime(foamRunTime->startTime()+fakeEndTime);
 
         while(foamRunTime->loop()){
-#if OF_MAJOR_VER == 2
-            const bool valid = true;
-            foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), valid);
-#else
             foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
-#endif
         }
 
     }
