@@ -4,10 +4,13 @@ All notable changes to **mimmo** project will be documented in this file.
 This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-
 ### Fixed
 - fixed cmake retracking dependancies (as in case of bitpit)
+- fixed BasicShape: XML interface
+- fixed BasicShape: selections method
 
+### Added
+- Variable radius inner limits added for cylindrical and spherical BasicShapes and Lattices.
 
 
 ## [1.2.0] - 2017-10-24
