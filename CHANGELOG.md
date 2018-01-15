@@ -8,12 +8,25 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - fixed cmake retracking dependancies (as in case of bitpit)
 - fixed BasicShape: XML interface
 - fixed BasicShape: selections method
+- fixed IOCGNS: prism element mapping from/to cgns data structure.
 
 ### Added
-- Variable radius inner limits added for cylindrical and spherical BasicShapes and Lattices.
+- added variable radius inner limits for cylindrical and spherical BasicShapes and Lattices.
+- added new elementary basic shape and lattice WEDGE (triangular prism)
+- added Linear System Solver Class based on PETSc
+- added Volume Mesh handler class MimmoFvMesh
+
+### Changed
+- PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
+                          also User Interface and parameters controlling field propagation.
+- MimmoPiercedVector: changes to class interface
+- IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK. 
+                  User interface has changed. Compatibility is ensured fro 2.x, 3.x and 4.x OpenFoam 
+                  Foundation versions.
 
 
-## [1.2.0] - 2017-10-24
+
+ ## [1.2.0] - 2017-10-24
 ### Added
 - added new geohandlers:Reconstruct classes
 - added new geohandlers:Extract classes
