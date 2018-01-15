@@ -1344,7 +1344,7 @@ darray3E	Sphere::getLocalOrigin(){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::basicToLocal(darray3E  point){
+darray3E	Sphere::basicToLocal(const darray3E & point){
     darray3E result = point;
     result[1] *= m_span[1];
 	result[2] *= m_span[2];
@@ -1358,7 +1358,7 @@ darray3E	Sphere::basicToLocal(darray3E  point){
  * \param[in] point target
  * \return transformed point
  */
-darray3E	Sphere::localToBasic(darray3E  point){
+darray3E	Sphere::localToBasic(const darray3E & point){
     darray3E result = point;
     result += -1.0*getLocalOrigin();
 	result[1] /= m_span[1];
