@@ -35,7 +35,7 @@
 /*!
  * \example ioofoam_example_00001.cpp
  * 
- * \brief Example of reading/writing of a Openfoam case mesh manipulation.
+ * \brief Example of reading/writing of a Openfoam case mesh.
  * 
  * Mesh is read from a path given by the User. A RBF point is created on a
  * randomly picked-patch boundary of the mesh and moved normally to the patch itself.
@@ -57,95 +57,19 @@ void OFOAM_manip(std::string & path) {
     mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
     reader->setDir(path);
 
-    mimmo::SelectionByPID * pidsel = new mimmo::SelectionByPID();
-    pidsel->setGeometry(reader->getBoundaryGeometry());
-    pidsel->setPID(3);
-
-    mimmo::OBBox * box = new mimmo::OBBox();
-    box->setForceAABB(true);
-
-
-    dvecarr3E displ(8, {{0.0,0.0,0.0}});
-    displ[0][1] = 0.03;
-    displ[1][1] = 0.03;
-    displ[4][1] = 0.03;
-    displ[5][1] = 0.03;
-    std::array<int,3> dim = {{2,2,2}};
-    mimmo::FFDLattice * manip = new mimmo::FFDLattice();
-    manip->setShape(mimmo::ShapeType::CUBE);
-    manip->setDimension(dim);
-    manip->setDegrees(dim);
-    manip->setDisplacements(displ);
-
-
-    mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
-    prop->setSolver(true);
-//    prop->setSmoothingSteps(100);
-    prop->setDumping(true);
-    prop->setDumpingInnerDistance(0.08);
-    prop->setDumpingOuterDistance(0.3);
-    prop->setPlotInExecution(true);
-    
-    
-    mimmo::Apply * applyBulk = new mimmo::Apply();
-    mimmo::Apply * applyBoundary = new mimmo::Apply();
-
     mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(IOOFMode::WRITEPOINTSONLY);
     writer->setDir(path);
     writer->setOverwrite(false);
 
-    
-    mimmo::pin::addPin(reader, pidsel, M_GEOM2, M_GEOM);
-    mimmo::pin::addPin(pidsel, box, M_GEOM, M_GEOM );
-    mimmo::pin::addPin(box, manip, M_POINT, M_POINT );
-    mimmo::pin::addPin(box, manip, M_AXES, M_AXES );
-    mimmo::pin::addPin(reader, manip, M_GEOM2, M_GEOM );
-    
-    mimmo::pin::addPin(reader, prop, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(reader, prop, M_GEOM2, M_GEOM2);
-    mimmo::pin::addPin(manip, prop, M_GDISPLS, M_GDISPLS);
-    
-    mimmo::pin::addPin(reader, applyBulk, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(prop,   applyBulk, M_GDISPLS, M_GDISPLS);
-    mimmo::pin::addPin(reader, applyBoundary, M_GEOM2, M_GEOM);
-    mimmo::pin::addPin(manip,  applyBoundary, M_GDISPLS, M_GDISPLS);
-
-    mimmo::pin::addPin(applyBulk, writer, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(applyBoundary, writer, M_GEOM, M_GEOM2);
-    
+    mimmo::pin::addPin(reader, writer, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(reader, writer, M_GEOM, M_GEOM2);
     
     mimmo::Chain c0;
     c0.addObject(reader);
-    c0.addObject(pidsel);
-    c0.addObject(box);
-    c0.setPlotDebugResults(true);
+    c0.addObject(writer);
     c0.exec(true);
-    
-    reader->getBoundaryGeometry()->getPatch()->write("boundary");
-    
-    darray3E spanBox = box->getSpan();
-    spanBox *= 1.1;
-    spanBox[1] = 0.1;
-    manip->setSpan(spanBox);
-    
-    //post process value of the box and create the manipulation chain
-    mimmo::Chain c1;
-    c1.addObject(manip);
-    c1.addObject(prop);
-    c1.addObject(applyBulk);
-    c1.addObject(applyBoundary);
-    c1.addObject(writer);
-
-    c1.setPlotDebugResults(true);
-    c1.exec(true);
 
     delete reader;
-    delete pidsel;
-    delete box;
-    delete manip;
-    delete prop;
-    delete applyBulk;
-    delete applyBoundary;
     delete writer;
 }
 
