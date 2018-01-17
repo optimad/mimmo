@@ -65,6 +65,7 @@ namespace mimmo{
  *
  * Proper of the class:
  * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
+ * - <B>RePID   </B>: 0/false 1/true force repidding of stitched parts. Default is 0.
  
  * Geometries have to be mandatorily passed through port.
  *
@@ -81,7 +82,8 @@ private:
     std::unordered_map<long, std::pair<int, long> > m_mapVertDivision; /**< division map of actual ID-vertex, part Id, original ID-vertex*/
 
     int m_geocount;                            /**<Internal geometry counter */
-
+    bool m_repid;                              /**< force repidding of geometry */
+    
 public:
     StitchGeometry(int topo);
     StitchGeometry(const bitpit::Config::Section & rootXML);
@@ -98,10 +100,11 @@ public:
     void        addGeometry(MimmoObject * geo);
 
     bool         isEmpty();
-
+    
     void         clear();
     void         execute();
-
+    void         forceRePID(bool flag);
+    
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 

@@ -51,26 +51,27 @@ int test1() {
     
     m1->addVertex(points[0],0);
     m1->addVertex(points[1],1);
-    m1->addVertex(points[4],4);
-    conn[0] = 0; conn[1] = 1; conn[2] = 4;
-    m1->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 4);
+    m1->addVertex(points[3],3);
+    conn[0] = 0; conn[1] = 1; conn[2] = 3;
+    m1->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 12, 4);
     
     m2->addVertex(points[1],1);
     m2->addVertex(points[3],3);
     m2->addVertex(points[4],4);
-    conn[0] = 1; conn[1] = 3; conn[2] = 4;
-    m2->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 1, 9);
+    conn[0] = 1; conn[1] = 4; conn[2] = 3;
+    m2->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 21, 9);
     
     
     m3->addVertex(points[1],1);
     m3->addVertex(points[2],2);
-    m3->addVertex(points[3],3);
-    conn[0] = 1; conn[1] = 2; conn[2] = 3;
-    m3->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 2, 12);
+    m3->addVertex(points[4],4);
+    conn[0] = 1; conn[1] = 2; conn[2] = 4;
+    m3->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 44, 12);
 
 
     //stitch geometries
     StitchGeometry * stitch1 = new StitchGeometry(1);
+    stitch1->forceRePID(true);
     StitchGeometry * stitch2 = new StitchGeometry(1);
     
     stitch1->addGeometry(m1);
@@ -94,6 +95,13 @@ int test1() {
     bool check = true;
     
     std::cout<<"test passed :"<<check<<std::endl; 
+    m1->getPatch()->write("t1");
+    m2->getPatch()->write("t2");
+    m3->getPatch()->write("t3");
+    
+    stitch1->getGeometry()->getPatch()->write("mesh1");
+    stitch2->getGeometry()->getPatch()->write("mesh2");
+    
     delete m1;
     delete m2;
     delete m3;

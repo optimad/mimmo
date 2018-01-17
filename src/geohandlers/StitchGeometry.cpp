@@ -39,6 +39,7 @@ StitchGeometry::StitchGeometry(int topo){
     m_geocount = 0;
     m_topo     = std::min(1, topo);
     if(m_topo > 4)    m_topo = 1;
+    m_repid = false;
 }
 
 /*!
@@ -59,7 +60,7 @@ StitchGeometry::StitchGeometry(const bitpit::Config::Section & rootXML){
     if (m_topo >4) m_topo = 1;
     m_geocount = 0;
     m_name = "mimmo.StitchGeometry";
-
+    m_repid = false;
 
     if(input_name == "mimmo.StitchGeometry"){
         absorbSectionXML(rootXML);
@@ -85,6 +86,7 @@ StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(ot
     m_extgeo = other.m_extgeo;
     m_geocount = other.m_geocount;
     m_patch.reset(nullptr);
+    m_repid = other.m_repid;
 };
 
 /*!
@@ -105,6 +107,7 @@ void StitchGeometry::swap(StitchGeometry & x ) noexcept
     std::swap(m_topo,x.m_topo);
     std::swap(m_extgeo, x.m_extgeo);
     std::swap(m_geocount, x.m_geocount);
+    std::swap(m_repid, x.m_repid);
     BaseManipulation::swap(x);
 };
 
@@ -176,6 +179,15 @@ StitchGeometry::clear(){
     BaseManipulation::clear();
 };
 
+/*!
+ * Force automatic repidding of all the patch stitched. If a patch has pid already, they will be 
+ * kept, with different pid number.
+ */
+void
+StitchGeometry::forceRePID(bool flag){
+    m_repid = flag;
+};
+
 /*!Execution command.
  * It stitches together multiple geometries in the same object.
  */
@@ -200,6 +212,24 @@ StitchGeometry::execute(){
 
     long cV = 0, cC = 0;
 
+    std::unordered_map<MimmoObject*,short>    map_pidstart;
+    //initialize map
+    for(auto & obj : m_extgeo){
+        map_pidstart[obj.first] = 0;
+    }
+    
+    if(m_repid){
+        short pidmax = -1;
+        for(auto & obj : m_extgeo){
+            auto pidlist = obj.first->getPIDTypeList();
+            std::vector<short> temp(pidlist.begin(), pidlist.end());
+            std::sort(temp.begin(), temp.end());
+            map_pidstart[obj.first] = pidmax + 1;
+            pidmax += (*(temp.rbegin())+1);
+        }
+    }
+    
+    
     //start filling your stitched object.
     {
         //optional vars;
@@ -223,7 +253,7 @@ StitchGeometry::execute(){
             //start extracting/reversing cells of the current obj
             for(const auto & cc : obj.first->getCells()){
                 cId = cc.getId();
-                PID = cc.getPID();
+                PID = cc.getPID() + map_pidstart[obj.first];
                 eltype = cc.getType();
                 //get the local connectivity and update with new vertex numbering;
                 livector1D conn = obj.first->getCellConnectivity(cId);
@@ -293,6 +323,19 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     BaseManipulation::absorbSectionXML(slotXML, name);
     
+    
+    if(slotXML.hasOption("RePID")){
+        std::string input = slotXML.get("RePID");
+        input = bitpit::utils::string::trim(input);
+        bool temp = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>temp;
+        }
+        forceRePID(temp);
+    }
+    
+    
 };
 
 /*!
@@ -306,6 +349,7 @@ void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 
     BaseManipulation::flushSectionXML(slotXML, name);
     slotXML.set("Topology", m_topo);
+    slotXML.set("RePID", std::to_string(int(m_repid)));
 
 };
 
