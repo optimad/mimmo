@@ -32,7 +32,7 @@
 namespace mimmo{
 
 int SystemSolver::m_nInstances = 0;
-std::vector<std::string> SystemSolver::m_options = std::vector<std::string>(1, "bitpit");
+std::vector<std::string> SystemSolver::m_options = std::vector<std::string>(1, "mimmo");
 
 /*!
  * Set initialization option
@@ -40,7 +40,7 @@ std::vector<std::string> SystemSolver::m_options = std::vector<std::string>(1, "
 void SystemSolver::addInitOption(std::string option)
 {
     if (m_nInstances != 0) {
-        throw std::runtime_error("Initialization opions can be set only before initializing the solver.");
+        throw std::runtime_error("Initialization options can be set only before initializing the solver.");
     }
 
     m_options.push_back(option);
@@ -52,7 +52,7 @@ void SystemSolver::addInitOption(std::string option)
 void SystemSolver::addInitOptions(const std::vector<std::string> &options)
 {
     if (m_nInstances != 0) {
-        throw std::runtime_error("Initialization opions can be set only before initializing the solver.");
+        throw std::runtime_error("Initialization options can be set only before initializing the solver.");
     }
 
     // The first option is the executable name and we set it to a dummy value.

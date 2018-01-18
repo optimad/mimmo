@@ -40,6 +40,11 @@ typedef std::vector<std::vector<int>>  localivector2D;   /**< mimmo custom typed
 typedef std::vector<std::vector<double>>  localdvector2D;   /**< mimmo custom typedef*/
 typedef std::vector<double>  localdvector1D;   /**< mimmo custom typedef*/
 
+/*!
+ * \struct KSPOptions
+ * \ingroup system
+ * \brief Info for PETSc linear system solution.
+ */
 struct KSPOptions {
     PetscInt restart;
     PetscInt levels;
@@ -57,6 +62,11 @@ struct KSPOptions {
     }
 };
 
+/*!
+ * \struct KSPStatus
+ * \ingroup system
+ * \brief Info for PETSc linear system execution output.
+ */
 struct KSPStatus {
     PetscErrorCode error;
     PetscInt its;
@@ -67,6 +77,13 @@ struct KSPStatus {
     {
     }
 };
+
+/*!
+ * \class SystemSolver
+ * \ingroup system
+ * \brief Class handling solution of a linear system with PETSc
+ * \TODO to be updated with new bitpit wrapper to Linear System Solver.
+ */
 
 class SystemSolver {
 

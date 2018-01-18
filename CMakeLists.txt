@@ -327,6 +327,8 @@ list(APPEND MIMMO_MODULE_LIST "ioofoam")
 list(APPEND MIMMO_MODULE_LIST "geohandlers")
 list(APPEND MIMMO_MODULE_LIST "manipulators")
 list(APPEND MIMMO_MODULE_LIST "utils")
+list(APPEND MIMMO_MODULE_LIST "system")
+list(APPEND MIMMO_MODULE_LIST "propagators")
 
 set(MIMMO_MODULEENABLED_LIST "")
 list(APPEND MIMMO_MODULEENABLED_LIST "common")
@@ -337,6 +339,8 @@ list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
 list(APPEND MIMMO_MODULEENABLED_LIST "utils")
 
 set(MIMMO_MODULEDISABLED_LIST "")
+list(APPEND MIMMO_MODULEDISABLED_LIST "system")
+list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iocgns")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iovtk")
 list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
@@ -352,7 +356,8 @@ set(IOOFOAM_DEPS "iogeneric;core;common")
 set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
-
+set(SYSTEM_DEPS "common;core")
+set(PROPAGATORS_DEPS "system")
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
 #------------------------------------------------------------------------------------#
@@ -447,20 +452,40 @@ if (ENABLE_MPI)
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/PETSc/cmake")
-find_package(PETSc REQUIRED)
-if (NOT PETSC_FOUND)
-    set(PETSC_DIR "" CACHE PATH "Directory in which PETSc resides")
-    set(PETSC_ARCH "arch-linux2-c" CACHE STRING "Build architecture")
-endif ()
-list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PETSC_LIBRARIES}")
-list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${PETSC_INCLUDES}")
 
+## search optional modules if activated
+isModuleEnabled("system" MODULE_ENABLED_SYSTEM)
+isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
+isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
+isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
 
-# module further dependency
-isModuleEnabled("iovtk" MODULE_ENABLED1)
-if (MODULE_ENABLED1)
+if(MODULE_ENABLED_SYSTEM)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/PETSc/cmake")
+    find_package(PETSc REQUIRED)
+    if (NOT PETSC_FOUND)
+        set(PETSC_DIR "" CACHE PATH "Directory in which PETSc resides")
+        set(PETSC_ARCH "arch-linux2-c" CACHE STRING "Build architecture")
+    endif ()
+    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PETSC_LIBRARIES}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${PETSC_INCLUDES}")
+else()
+    UNSET(PETSC_DIR CACHE)
+    UNSET(PETSC_ARCH CACHE)
+    UNSET(PETSC_FOUND CACHE)
+    UNSET(PETSC_CURRENT CACHE)
+    UNSET(MAKE_EXECUTABLE CACHE)
+    UNSET(PETSC_COMPILER CACHE)
+    UNSET(PETSC_DEFINITIONS CACHE)
+    UNSET(PETSC_EXECUTABLE_RUNS CACHE)
+    UNSET(PETSC_INCLUDES CACHE)
+    UNSET(PETSC_INCLUDES_CONF CACHE)
+    UNSET(PETSC_INCLUDE_DIR CACHE)
+    UNSET(PETSC_LIBRARIES CACHE)
+    UNSET(PETSC_LIBRARY_SINGLE CACHE)
+    UNSET(PETSC_MPIEXEC CACHE)
+endif()
 
+if (MODULE_ENABLED_IOVTK)
     # ---- VTK forced ---
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
     find_package(VTK REQUIRED)
@@ -471,8 +496,7 @@ else()
     UNSET(VTK_DIR CACHE)
 endif ()
 
-isModuleEnabled("ioofoam" MODULE_ENABLED3)
-if (MODULE_ENABLED3)
+if (MODULE_ENABLED_IOOFOAM)
 
     # ---- OpenFOAM forced ---
     if(NOT OPENFOAM_PREC)
@@ -542,8 +566,7 @@ endif ()
 
 
 # module further dependency
-isModuleEnabled("iocgns" MODULE_ENABLED2)
-if (MODULE_ENABLED2)
+if (MODULE_ENABLED_IOCGNS)
 
     # ---- CGNS forced ---
     set(CGNS_DIR "/opt/cgns/cgns_3.2.1" CACHE PATH "path to CGNS installation")

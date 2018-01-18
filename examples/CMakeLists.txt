@@ -92,7 +92,7 @@ if(BUILD_EXAMPLES)
 
     #Add examples of enabled modules
     isModuleEnabled("ioofoam" MODULE_ENABLED3)
-    if (MODULE_ENABLED3 AND MODULE_ENABLED0 AND MODULE_ENABLED4)
+    if (MODULE_ENABLED3)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
     endif ()
     

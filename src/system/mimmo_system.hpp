@@ -22,35 +22,18 @@
   ----------------------------------------------------------------------------*/
 
 /*!
- * \defgroup core core 
- * Executable Blocks basic features and data structures 
+ * \defgroup system system
+ * Utilities for linear system solution employing external library PETSc
  * \{
- *      \defgroup binaryStream BinaryStream
- *      List of significant binary streams used to exchange data through pin/ports
- *      \{
- *      \}
  * \}
  *
  */
 
-#ifndef __MIMMO_MODULE_CORE_HPP__
-#define __MIMMO_MODULE_CORE_HPP__
+#ifndef __MIMMO_MODULE_SYSTEM_HPP__
+#define __MIMMO_MODULE_SYSTEM_HPP__
 
-#include "mimmo_common.hpp"
+#include "mimmo_core.hpp"
 
-#include "BaseManipulation.hpp"
-#include "BasicMeshes.hpp"
-#include "BasicShapes.hpp"
-#include "SkdTreeUtils.hpp"
-#include "Chain.hpp"
-#include "InOut.hpp"
-#include "IOConnections.hpp"
-#include "Lattice.hpp"
-#include "MimmoNamespace.hpp"
-#include "MimmoObject.hpp"
-#include "MimmoPiercedVector.hpp"
-#include "MimmoCGUtils.hpp"
-#include "MimmoFvMesh.hpp"
-#include "VTUGridReader.hpp"
+#include "system.hpp"
 
 #endif

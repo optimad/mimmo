@@ -15,10 +15,12 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added new elementary basic shape and lattice WEDGE (triangular prism)
 - added Linear System Solver Class based on PETSc
 - added Volume Mesh handler class MimmoFvMesh
+- added new modules "system" and "propagators"
 
 ### Changed
 - PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
-                          also User Interface and parameters controlling field propagation.
+                          also User Interface and parameters controlling field propagation. Moved into the
+                          new module "propagators".
 - MimmoPiercedVector: changes to class interface
 - IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK. 
                   User interface has changed. Compatibility is ensured fro 2.x, 3.x and 4.x OpenFoam 

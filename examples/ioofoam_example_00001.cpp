@@ -23,10 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "IOOFOAM.hpp"
-#include "MeshSelection.hpp"
-#include "ReconstructFields.hpp"
 #include "mimmo_manipulators.hpp"
-#include "mimmo_utils.hpp"
 #include "openFoamFiles_native.hpp"
 #include <exception>
 
@@ -42,8 +39,7 @@
  * The bulk volume mesh is deformed accordingly.
  * In writing, moved bulk points update those on the target mesh.
  *
- * Using: IOOFOAM, FFDLattice, PropagateField, ReconstructVector, SelectionByPID, Apply, OBBox
- * Depends on geohandlers, utils
+ * Using: IOOFOAM
  * 
  * <b>To run</b>: ./ioofoam_example_00001  < path to OpenFoam case > \n
  * 

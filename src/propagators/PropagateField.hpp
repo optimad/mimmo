@@ -30,7 +30,7 @@
 namespace mimmo{
 /*!
  * \class PropagateField
- * \ingroup manipulators
+ * \ingroup propagators
  * \brief Executable block that provides the computation of a field
  * over a 3D volume mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
@@ -169,7 +169,7 @@ private:
 
 /*!
  * \class PropagateScalarField
- * \ingroup manipulators
+ * \ingroup propagators
  * \brief Executable block that provides the computation of a scalar field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
@@ -277,7 +277,7 @@ private:
 
 /*!
  * \class PropagateVectorField
- * \ingroup manipulators
+ * \ingroup propagators
  * \brief Executable block that provides the computation of a 3D array field
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given boundary conditions.

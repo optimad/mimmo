@@ -24,25 +24,18 @@
 
 
  /*!
- * \defgroup manipulators manipulators
+ * \defgroup propagators propagators
 * Collection of all executable blocks that provides a
-* deformation field for a target mesh and applies to it.
+* propagation of a boundary field into a target mesh and applies to it eventually.
  * \{
  * \}
  */
 
-#ifndef __MIMMO_MODULE_MANIPULATORS_HPP__
-#define __MIMMO_MODULE_MANIPULATORS_HPP__
+#ifndef __MIMMO_MODULE_PROPAGATORS_HPP__
+#define __MIMMO_MODULE_PROPAGATORS_HPP__
 
-#include "mimmo_core.hpp"
+#include "mimmo_system.hpp"
 
-#include "Apply.hpp"
-#include "FFDLattice.hpp"
-#include "MRBF.hpp"
-#include "RotationGeometry.hpp"
-#include "TranslationGeometry.hpp"
-#include "ScaleGeometry.hpp"
-#include "TwistGeometry.hpp"
-#include "BendGeometry.hpp"
+#include "PropagateField.hpp"
 
 #endif
