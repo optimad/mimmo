@@ -129,6 +129,7 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
     }
 
     double s =  sign( dotProduct(normal, (*P_) - xP) );
+    if(s == 0.0)    s =1.0;
     h = s * h;
     //pseudo-normal (direction P and xP closest point on triangle)
     n = s * ((*P_) - xP);
