@@ -17,6 +17,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added Volume Mesh handler class MimmoFvMesh
 - added new modules "system" and "propagators"
 - added new selectors FVSelectionBy (Box,Sphere,Cylinder) suitable for MimmoFvMesh objects.
+- added reading and writing STL solid names in multiSolid STL.
 
 ### Changed
 - PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
