@@ -262,6 +262,11 @@ GenericSelection::execute(){
         }
     }
 
+    auto originalmap = getGeometry()->getPIDTypeListWNames();
+    auto currentPIDmap = temp->getPIDTypeList();
+    for(const auto & val: currentPIDmap){
+        temp->setPIDName(val, originalmap[val]);
+    }
     m_subpatch = std::move(temp);
 };
 

@@ -616,20 +616,29 @@ MimmoGeometry::write(){
     if (isEmpty()) return false;
 
     //adjusting with reference pid;
-    auto locpids = getGeometry()->getCompactPID();
-    for( auto & val: locpids) val+=m_refPID;
-    setPID(locpids);
-    //action completed, reset m_refPID to zero.
-    m_refPID = 0;
-    
+    {
+        auto locpids = getGeometry()->getCompactPID();
+        auto pidsMap = getGeometry()->getPIDTypeListWNames();
+        for( auto & val: locpids) val+=m_refPID;
+        setPID(locpids);
+        auto pids = getGeometry()->getPIDTypeList();
+        for( auto & val: pids) getGeometry()->setPIDName(val, pidsMap[val - m_refPID]);
+        //action completed, reset m_refPID to zero.
+        m_refPID = 0;
+    }
     //writing
     switch(FileType::_from_integral(m_winfo.ftype)){
 
     case FileType::STL :
         //Export STL
     {
+        auto pidsMap = getGeometry()->getPIDTypeListWNames();
+        std::unordered_map<int, std::string> mpp;
+        for(const auto & touple : pidsMap){
+            mpp[touple.first] = touple.second;
+        }
         string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false);
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false, &mpp);
         return true;
     }
     break;
@@ -759,15 +768,22 @@ MimmoGeometry::read(){
         bool binary = true;
         if (sstype == "solid" || sstype == "SOLID") binary = false;
         in.close();
+        
+        std::unordered_map<int,std::string> mapPIDSolid;
+        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
 
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary);
         getGeometry()->cleanGeometry();
 
         //count PID if multi-solid
-        auto & map = getGeometry()->getPIDTypeList();
+        auto & mapset = getGeometry()->getPIDTypeList();
         for(const auto & cell : getGeometry()->getCells() ){
-            map.insert(cell.getPID());
+            mapset.insert(cell.getPID());
         }
+        std::unordered_map<short, std::string> & mapWNames = getGeometry()->getPIDTypeListWNames();
+        for(const auto & val :mapset ){
+            mapWNames[val] = mapPIDSolid[val];
+        }
+        
     }
     break;
 
@@ -928,8 +944,12 @@ MimmoGeometry::read(){
 
     //adjusting with reference pid;
     auto locpids = getGeometry()->getCompactPID();
+    auto pidsMap = getGeometry()->getPIDTypeListWNames();
     for( auto & val: locpids) val+=m_refPID;
     setPID(locpids);
+    auto pids = getGeometry()->getPIDTypeList();
+    for( auto & val: pids) getGeometry()->setPIDName(val, pidsMap[val - m_refPID]);
+
     //action completed, reset m_refPID to zero.
     m_refPID = 0;
 

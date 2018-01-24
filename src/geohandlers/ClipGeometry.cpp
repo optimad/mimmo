@@ -245,6 +245,12 @@ ClipGeometry::execute(){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
     }
+    
+    auto originalmap = getGeometry()->getPIDTypeListWNames();
+    auto currentPIDmap = temp->getPIDTypeList();
+    for(const auto & val: currentPIDmap){
+        temp->setPIDName(val, originalmap[val]);
+    }
 
     m_patch = std::move(temp);
     tri = NULL;

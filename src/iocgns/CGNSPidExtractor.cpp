@@ -223,6 +223,12 @@ CGNSPidExtractor::execute(){
             patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
             count++;
         }
+        
+        auto originalmap = mother->getPIDTypeListWNames();
+        auto currentPIDmap = patchTemp->getPIDTypeList();
+        for(const auto & val: currentPIDmap){
+            patchTemp->setPIDName(val, originalmap[val]);
+        }
 
     }
 

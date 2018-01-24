@@ -118,6 +118,7 @@ protected:
 //members
     int                                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
     std::unordered_set<short>                               m_pidsType;        /**<pid type available for your geometry */
+    std::unordered_map<short, std::string>                  m_pidsTypeWNames;   /**<pid type available for your geometry, with name attached */
     std::unique_ptr<bitpit::PatchSkdTree>                   m_skdTree;         /**< ordered tree of geometry simplicies for fast searching purposes */
     std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> > m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
     bool                                                    m_skdTreeSync;      /**< track correct building of bvtree. Set false if any geometry modifications occur */
@@ -163,6 +164,7 @@ public:
     bitpit::PatchKernel*                            getPatch();
     const bitpit::PatchKernel*                      getPatch() const;
     std::unordered_set<short> &                     getPIDTypeList();
+    std::unordered_map<short, std::string> &        getPIDTypeListWNames();
     shivector1D                                     getCompactPID();
     std::unordered_map<long, short>                 getPID();
 
@@ -187,6 +189,7 @@ public:
     void        setPID(shivector1D ); 
     void        setPID(std::unordered_map<long, short>  ); 
     void        setPIDCell(long, short);
+    bool        setPIDName(short, const std::string &);
     void        resyncPID();
 
     BITPIT_DEPRECATED(void        setHARDCopy(const MimmoObject * other));

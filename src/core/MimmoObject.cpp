@@ -285,6 +285,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
         }
 
         m_pidsType.insert(0);
+        m_pidsTypeWNames.insert(std::make_pair(0,""));
 
     }else{
         (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
@@ -407,6 +408,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     for(const auto &cell : getPatch()->getCells()){
         auto PID = cell.getPID();
         m_pidsType.insert((short)PID);
+        m_pidsTypeWNames.insert(std::make_pair( (short)PID , "") );
     }
 }
 
@@ -526,6 +528,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
     for(const auto &cell : getPatch()->getCells()){
         auto PID = cell.getPID();
         m_pidsType.insert((short)PID);
+        m_pidsTypeWNames.insert(std::make_pair( (short)PID , "") );
     }
 }
 
@@ -554,6 +557,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
     
     m_type              = other.m_type;
     m_pidsType          = other.m_pidsType;
+    m_pidsTypeWNames    = other.m_pidsTypeWNames;
     m_skdTreeSupported  = other.m_skdTreeSupported;
     m_AdjBuilt          = other.m_AdjBuilt;
     m_IntBuilt          = other.m_IntBuilt;
@@ -608,6 +612,7 @@ void MimmoObject::swap(MimmoObject & x) noexcept
     std::swap(m_internalPatch, x.m_internalPatch);
     std::swap(m_type, x.m_type);
     std::swap(m_pidsType, x.m_pidsType);
+    std::swap(m_pidsTypeWNames, x.m_pidsTypeWNames);
     std::swap(m_skdTreeSupported, x.m_skdTreeSupported);
     std::swap(m_AdjBuilt, x.m_AdjBuilt);
     std::swap(m_IntBuilt, x.m_IntBuilt);
@@ -995,6 +1000,16 @@ MimmoObject::getPIDTypeList(){
 };
 
 /*!
+ * \return the list of PID types actually present in your geometry with its custom names attached.
+ * If empty list is returned, pidding is actually not supported for this geometry
+ */
+std::unordered_map<short, std::string> &
+MimmoObject::getPIDTypeListWNames(){
+    return m_pidsTypeWNames;
+};
+
+
+/*!
  * \return the list of PID associated to each cell of tessellation in compact 
  * sequential ordering
  * If empty list is returned, pidding is not supported for this geometry
@@ -1207,6 +1222,7 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 /*!
  * Sets the cell structure of the geometry, clearing any previous cell list stored.
  * Does not do anything if class type is a point cloud (mesh type 3).
+ * Previous PID and name associated will be wiped out and replaced.
  *
  * \param[in] cells cell structure of geometry mesh.
  * \return false if no geometry is linked, not all cells are inserted or empty argument.
@@ -1217,6 +1233,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
     if (cells.empty() || !m_skdTreeSupported) return false;
 
     m_pidsType.clear();
+    m_pidsTypeWNames.clear();
     getPatch()->resetCells();
 
     int sizeCell = cells.size();
@@ -1284,7 +1301,9 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
         it = patch->addCell(type, true,conn, idtag);
     }
 
-    m_pidsType.insert(0);		
+    m_pidsType.insert(0);
+    m_pidsTypeWNames.insert(std::make_pair( 0, "") );
+    
     m_skdTreeSync = false;
     m_AdjBuilt = false;
     m_IntBuilt = false;
@@ -1342,6 +1361,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 
 /*!
  * Set PIDs for all geometry cells available. 
+ * Any previous PID subdivion with label name associated will be erased.
  * The PID list must be referred to the compact local/indexing of the cells in the class.
  * \param[in] pids PID list.
  */
@@ -1350,16 +1370,22 @@ MimmoObject::setPID(shivector1D pids){
     if((int)pids.size() != getNCells() || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
+    m_pidsTypeWNames.clear();
     int counter = 0;
     for(auto & cell: getCells()){
         m_pidsType.insert(pids[counter]);
         cell.setPID(pids[counter]);
         ++counter;
     }
+    
+    for(const auto & pid : m_pidsType){
+        m_pidsTypeWNames.insert(std::make_pair( pid, ""));
+    }
 };
 
 /*!
  * Set PIDs for all geometry cells available. 
+ * Any previous PID subdivion with label name associated will be erased.
  * The PID must be provided as a map with cell unique-id as key and pid associated to it as argument.
  * \param[in] pidsMap PID amp.
  */
@@ -1368,6 +1394,7 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
     if(getNCells() == 0 || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
+    m_pidsTypeWNames.clear();
     auto & cells = getCells();
     for(auto const & val: pidsMap){
         if(cells.exists(val.first)){
@@ -1375,10 +1402,15 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
             m_pidsType.insert(val.second);
         }
     }
+    
+    for(const auto & pid : m_pidsType){
+        m_pidsTypeWNames.insert(std::make_pair( pid, ""));
+    }
+    
 };
 
 /*!
- * Set the PID of a target cell
+ * Set the PID name, if PID exists
  * \param[in] id unique-id of the cell
  * \param[in] pid PID to assign on cell
  */
@@ -1388,18 +1420,38 @@ MimmoObject::setPIDCell(long id, short pid){
     if(cells.exists(id)){
         cells[id].setPID((int)pid);
         m_pidsType.insert(pid);
+        m_pidsTypeWNames.insert(std::make_pair( pid, "") );
     }	
 };
 
 /*!
- * Update class member map m_pidsType with PIDs effectively contained 
+ * Set the PID of a target cell
+ * \param[in] pid PID to assign on cell
+ * \param[in] name name to be assigned to the pid
+ * 
+ * \return true if name is assigned, false if not.
+ */
+bool
+MimmoObject::setPIDName(short pid, const std::string & name){
+    if(! bool(m_pidsTypeWNames.count(pid))) return false;
+    m_pidsTypeWNames[pid] = name;
+}
+
+/*!
+ * Update class member map m_pidsType with PIDs effectively contained.
+ * Beware any label name previously stored for pid will be lost.
  * in the internal/linked geometry patch.
  */
 void
 MimmoObject::resyncPID(){
     m_pidsType.clear();
+    std::unordered_map<short, std::string> copynames = m_pidsTypeWNames;
+    m_pidsTypeWNames.clear();
     for(auto const & cell : getCells()){
         m_pidsType.insert( (short)cell.getPID() );
+    }
+    for(const auto & pid : m_pidsType){
+        m_pidsTypeWNames.insert(std::make_pair( pid, copynames[pid]));
     }
 };
 
@@ -1479,6 +1531,12 @@ std::unique_ptr<MimmoObject> MimmoObject::clone(){
     }
     if(m_AdjBuilt)   result->buildAdjacencies();
     if(m_IntBuilt)   result->buildInterfaces();
+    
+    result->resyncPID();
+    auto mapPID = getPIDTypeListWNames();
+    for(const auto & touple: mapPID){
+        result->setPIDName(touple.first, touple.second);
+    }
     return std::move(result);
 };
 
@@ -2033,7 +2091,19 @@ void MimmoObject::reset(int type){
  * \param[in,out] stream to write on.
  */
 void MimmoObject::dump(std::ostream & stream){
+    auto mapPid = getPIDTypeListWNames();
+    std::vector<short> pid(mapPid.size());
+    std::vector<std::string> sspid(mapPid.size());
+    int counter = 0;
+    for(const auto & touple : mapPid){
+        pid[counter] = touple.first;
+        sspid[counter] = touple.second;
+        ++counter;
+    }
+
     bitpit::utils::binary::write(stream,m_type);
+    bitpit::utils::binary::write(stream,pid);
+    bitpit::utils::binary::write(stream,sspid);
     getPatch()->dump(stream);
 }
 
@@ -2047,13 +2117,21 @@ void MimmoObject::dump(std::ostream & stream){
 
 void MimmoObject::restore(std::istream & stream){
     int type;
+    std::vector<short> pid;
+    std::vector<std::string> sspid;
+    
     bitpit::utils::binary::read(stream,type);
+    bitpit::utils::binary::read(stream,pid);
+    bitpit::utils::binary::read(stream,sspid);
     reset(type);
 
     getPatch()->restore(stream);
 
-    for (const auto &cell: getCells()){
-        m_pidsType.insert(short(cell.getPID()));
+    int count = 0;
+    for (const auto &pp : pid){
+        m_pidsType.insert(pp);
+        m_pidsTypeWNames.insert( std::make_pair( pp, sspid[count]));
+        ++count;
     }
 }
 

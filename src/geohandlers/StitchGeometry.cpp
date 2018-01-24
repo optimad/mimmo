@@ -240,7 +240,11 @@ StitchGeometry::execute(){
         for(auto &obj : m_extgeo){
 
             std::unordered_map<long,long> mapVloc;
-
+            auto originalPidNames = obj.first->getPIDTypeListWNames();
+            std::unordered_map<short, short> newOldPid;
+            for(const auto & val : obj.first->getPIDTypeList()){
+                newOldPid[val + map_pidstart[obj.first]] = val;
+            }
             //start extracting/reversing vertices of the current obj
             for(const auto & vv : obj.first->getVertices()){
                 vId = vv.getId();
@@ -287,6 +291,11 @@ StitchGeometry::execute(){
                 dum->addConnectedCell(connloc, eltype, PID, cC);
                 //update map;
                 cC++;
+            }
+            
+            dum->resyncPID();
+            for(const auto & val: dum->getPIDTypeList()){
+                dum->setPIDName(val, originalPidNames[newOldPid[val]]);
             }
         }
     }//scope for optional vars;
