@@ -184,7 +184,7 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
 /*!
  * It extracts the elements of a leaf node of geometry stored in a bv-tree
  * by a distance criterion in respect to an other geometry stored
- * in a different bv-tree. It is a recursive method used in selectByPatch method.
+ * in a different bv-tree. It is a method used in selectByPatch method.
  * \param[in] target Pointer to bv-tree that store the target geometry.
  * \param[in,out] leafSelection Vector of pointers to the leaf nodes currently interesting
  * for the selection procedure.
@@ -195,44 +195,69 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
  * \param[in] next Index of the node of the bv-tree target to be checked. If
  * the next-th node is not a leaf node the method is recursively called.
  *
- * The leafSelection is (potentially) reduced during the procedure by deleting
- * from the vector the nodes that have a distance greater than tol from the bounding
- * volume of the next-th node.
  *
  */
-void extractTarget(bitpit::PatchSkdTree *target, std::vector<const bitpit::SkdNode*> leafSelection, std::vector<long> &extracted, double tol, int next){
+void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol){
 
-    bool check = false;
+    if(leafSelection.empty())   return;
+    std::size_t rootId  =0;
+    const SkdNode & root = target->getNode(rootId);
+    
+    std::vector<std::size_t> candidates;
+    std::vector<std::pair< std::size_t, std::vector<const bitpit::SkdNode*> > > nodeStack;
+    
     std::vector<const bitpit::SkdNode*> tocheck;
     for (int i=0; i<(int)leafSelection.size(); i++){
         if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->getBoxMin()-tol,
-                leafSelection[i]->getBoxMax()+tol,
-                target->getNode(next).getBoxMin(),
-                target->getNode(next).getBoxMax() ) ){
-            check = true;
+                                            leafSelection[i]->getBoxMax()+tol,
+                                            target->getNode(rootId).getBoxMin(),
+                                            target->getNode(rootId).getBoxMax() ) )
+        {
             tocheck.push_back(leafSelection[i]);
         }
     }
-
-    leafSelection.clear();
-    leafSelection = tocheck;
-
-    if (check){
-        bitpit::SkdNode node = target->getNode(next);
-        if (node.isLeaf()){
-            std::vector<long> cellids = node.getCells();
-            extracted.insert(extracted.end(),cellids.begin(), cellids.end());
-        }
-        else{
-            for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
-                bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-                if(node.getChildId(childLocation) != bitpit::SkdNode::NULL_ID)   {
-                    extractTarget(target, leafSelection, extracted, tol, node.getChildId(childLocation));
+    nodeStack.push_back(std::make_pair(rootId, tocheck) );
+    
+    while(!nodeStack.empty()){
+        
+        std::pair<std::size_t,  std::vector<const bitpit::SkdNode*> >  touple = nodeStack.back();
+        const SkdNode & node = target->getNode(touple.first);
+        nodeStack.pop_back();
+        
+        
+        bool isLeaf = true;
+        for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
+            SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+            std::size_t childId = node.getChildId(childLocation);
+            if (childId != SkdNode::NULL_ID) {
+                isLeaf = false;
+                tocheck.clear();
+                for (int i=0; i<(int)touple.second.size(); i++){
+                    if (bitpit::CGElem::intersectBoxBox(touple.second[i]->getBoxMin()-tol,
+                                                        touple.second[i]->getBoxMax()+tol,
+                                                        target->getNode(childId).getBoxMin(),
+                                                        target->getNode(childId).getBoxMax() ) )
+                    {
+                        tocheck.push_back(touple.second[i]);
+                    }
                 }
+                if(!tocheck.empty())    nodeStack.push_back(std::make_pair(childId, tocheck) );
             }
+        }
+
+        if (isLeaf) {
+            candidates.push_back(touple.first);
         }
     }
 
+    std::unordered_set<long> cellExtracted;
+    for(const auto & nodeId: candidates){
+        const SkdNode & node = target->getNode(nodeId);
+        std::vector<long> cellids = node.getCells();
+        cellExtracted.insert(cellids.begin(), cellids.end());
+    }
+
+    extracted.insert(extracted.end(), cellExtracted.begin(), cellExtracted.end());
 }
 
 /*!
