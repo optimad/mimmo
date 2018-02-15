@@ -187,7 +187,7 @@ ScaleGeometry::execute(){
         ID = vertex.getId();
 
         darray3E coords = vertex.getCoords();
-        value = ( m_scaling*(coords - center) + center ) * m_filter[ID] - coords;
+        value = (( m_scaling*(coords - center) + center ) - coords) * m_filter[ID] ;
         m_displ.insert(ID, value);
     }
 };
