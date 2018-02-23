@@ -50,17 +50,6 @@ namespace mimmo{
  * in the second case, bigger volume cell far from dumping surface are forced to move more.
  * Result field is stored in m_field member and returned as data field through ports.
  *
- * Ports available in PropagateField Class :
- *
- *    =========================================================
- *
-    |Port Input|||
-    ||||
-    | <B>PortType</B>|<B>variable/function</B>      |<B>DataType</B>|
-    | M_GEOM         | setGeometry                  | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | setDirichletBoundarySurface  | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM3        | setDumpingBoundarySurface    | (MC_SCALAR, MD_MIMMO_) |
- *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
  *
@@ -85,17 +74,19 @@ namespace mimmo{
  * for the target geometry have to be mandatorily passed through ports.
  *
  */
+template<std::size_t NCOMP>
 class PropagateField: public mimmo::BaseManipulation {
 
 protected:
 
-    btpvector1D   m_isbp;            /**< list of std::pair< bool, uint8_t> to mark points. bool true identifies boundary points, false internal points.
-                                          uint8_t marks as 1 Dirichlet condition on boundary points, 2 other boundary conditions, 0 no condition.*/
+    bitpit::PiercedVector<int>   m_isbp;  /**< list of int to mark boundary points.
+                                          int >0 marks boundary condition for type. For example 1 is a Dirichlet condition, 2 etc...*/
+    
+    MimmoPiercedVector<std::array<double, NCOMP> > m_bc_dir; /**< Dirichlet-type condition value of boundary nodes*/
+    MimmoPiercedVector<std::array<double, NCOMP> > m_field;  /**< Resulting Propagated Field */
+    
     int           m_np;              /**< Number of points of the cloud. */
-    int           m_nbp;             /**< Number of boundary points of the cloud. */
-    limpvector2D  m_conn;            /**< Neighbor points connectivity. */
     double        m_gamma;           /**< Coefficient used to weight the points with distance in stencil computing. */
-    dmpvector2D   m_weights;         /**< Weights used in stencil computing. */
     bool          m_laplace;         /**<Set true for laplace solver, false for smoothing solver (Laplacian solver not implemented in this version).*/
     int           m_sstep;           /**<Number of smoothing steps [default =10].*/
     bool          m_convergence;     /**<Convergence flag. If true the laplacian smoothing is solved until convergences is reached [default false].  */
@@ -121,12 +112,8 @@ public:
     PropagateField(const PropagateField & other);
     void swap(PropagateField & x) noexcept;
 
-    void buildPorts();
-
     //get-set methods
-    int         getNPoints();
-    int         getNBoundaryPoints();
-
+    void    buildPorts();
     void    setGeometry(MimmoObject * geometry_);
     void    setDirichletBoundarySurface(MimmoObject*);
     void    setDumpingBoundarySurface(MimmoObject*);
@@ -153,18 +140,31 @@ protected:
     void clear();
     void setDefaults();
 
-    void        computeConnectivity();
-    void        computeWeights();
-
     virtual void computeDumpingFunction();
-    /*!Propagate field with a "Laplacian smoothing" iterative solver*/
-    virtual void solveSmoothing(int nstep) = 0;
-    /*!Propagate field solving directly the Laplace equation */ 
-    virtual void solveLaplace() = 0;
+
+    void solveSmoothing(int nstep,
+                        ivector2D &stencils,
+                        dvector2D &weights,
+                        dvector1D &rhs,
+                        liimap &dataInv,
+                        MimmoPiercedVector<std::array<double, NCOMP> > & field);
+
+    void solveLaplace(ivector2D &stencils,
+                      dvector2D &weights,
+                      dvector1D &rhs,
+                      liimap &dataInv,
+                      MimmoPiercedVector<std::array<double, NCOMP> > & field);
+
+    void computeStencils  (liimap &dataInv,
+                           ivector2D &stencils,
+                           dvector2D &weights);
+
 
 private:
     virtual bool checkBoundariesCoherence() = 0;
 
+    void computeRingConnectivity(MimmoPiercedVector<livector1D> & conn);
+    void computeRingWeights(MimmoPiercedVector<livector1D> & conn, MimmoPiercedVector<dvector1D> & wgt);
 };
 
 /*!
@@ -189,21 +189,15 @@ private:
     |Port Input|||
     ||||
     | <B>PortType</B>| <B>variable/function</B>  |<B>DataType</B> |
-    | M_FILTER       | setDirichletConditions    | (MC_MPVECTOR, MD_FLOAT) |
+    | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
+    | M_GEOM2        | setDirichletBoundarySurface           | (MC_SCALAR, MD_MIMMO_) |
+    | M_GEOM3        | setDumpingBoundarySurface             | (MC_SCALAR, MD_MIMMO_) |
+    | M_FILTER       | setDirichletConditions                | (MC_MPVECTOR, MD_FLOAT)|
 
     |Port Output|||
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_FILTER         | getPropagatedField    | (MC_MPVECTOR, MD_FLOAT)              |
-
-  Inherited from PropagateField Class :
-
-    |Port Input|||
-    ||||
-    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | setDirichletBoundarySurface           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM3        | setDumpingBoundarySurface    | (MC_SCALAR, MD_MIMMO_) |
+    | M_FILTER         | getPropagatedField                  | (MC_MPVECTOR, MD_FLOAT) |
 
  *    =========================================================
  *
@@ -231,13 +225,8 @@ private:
  * for the target geometry have to be mandatorily passed through ports.
  *
  */
-class PropagateScalarField: public mimmo::PropagateField {
+class PropagateScalarField: public mimmo::PropagateField<1> {
 
-private:
-
-    dmpvector1D   m_bc_dir;              /**< Dirichlet Boundary conditions. */
-    dmpvector1D   m_field;               /**< Resulting field.*/
-    
 public:
 
     PropagateScalarField();
@@ -260,18 +249,24 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
-private:
+protected:
     //cleaners and setters
     void clear();
-    void setDefaults();
-
+    
     bool checkBoundariesCoherence();
 
-    //execute
-    void solveSmoothing(int nstep);
-    void solveLaplace();
-
     virtual void plotOptionalResults();
+
+private:
+    //execute
+    virtual void correctStencils(liimap & dataInv,
+                                 ivector2D &stencils,
+                                 dvector2D &weights);
+    
+    void computeRHS       (MimmoPiercedVector<std::array<double, 1> > & bcs,
+                           liimap &dataInv,
+                           dvector1D &rhs);
+    
 };
 
 
@@ -299,23 +294,17 @@ private:
  *
     | Port Input|||
     ||||
-    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GDISPLS      | setDirichletConditions    | (MC_MPVECARR3, MD_FLOAT)|
-    | M_GEOM4        | setSlipBoundarySurface | (MC_SCALAR, MD_MIMMO_)  |
+    | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>             |
+    | M_GEOM          | setGeometry                 | (MC_SCALAR, MD_MIMMO_)  |
+    | M_GEOM2         | setDirichletBoundarySurface |(MC_SCALAR, MD_MIMMO_)   |
+    | M_GEOM3         | setDumpingBoundarySurface   | (MC_SCALAR, MD_MIMMO_)  |
+    | M_GDISPLS       | setDirichletConditions      | (MC_MPVECARR3, MD_FLOAT)|
+    | M_GEOM4         | setSlipBoundarySurface      | (MC_SCALAR, MD_MIMMO_)  |
 
     |Port Output|||
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GDISPLS         | getPropagatedField   | (MC_MPVECARR3, MD_FLOAT)              |
-
-  Inherited from PropagateField Class :
-
-    |Port Input|||
-    ||||
-    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | setDirichletBoundarySurface                    | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM3        | setDumpingBoundarySurface    | (MC_SCALAR, MD_MIMMO_) |
+    | M_GDISPLS         | getPropagatedField   | (MC_MPVECARR3, MD_FLOAT) |
 
  *    =========================================================
  *
@@ -340,30 +329,27 @@ private:
  * - <B>SmoothingSteps</B> : number of steps the Smoother solver need to perform (1 default);
  * - <B>Convergence</B> : convergence flag for smoothing solver;
  * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
- * - <B>SlipNormalRatio</B> : value > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between 
- *                            the maximum component of the normal and the candidate component a is greater then this value, 
- *                            the candidate component will be set to 0, and the normal will be recalculated.
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
+ * - <B>SlipNormalRatio</B> : value > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between 
+ *                            the maximum component of the normal and the candidate component a is greater then this value, 
+ *                            the candidate component will be set to 0, and the normal will be recalculated.
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
  *
  */
-class PropagateVectorField: public mimmo::PropagateField {
+class PropagateVectorField: public mimmo::PropagateField<3> {
 
-private:
+protected:
 
-    dmpvecarr3E   m_bc_dir;              /**< Dirichlet Boundary conditions. */
-    dmpvecarr3E   m_field;           /**< Resulting field.*/
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
     int           m_nstep;               /**! multistep solver */
     bitpit::PiercedVector<darray3E> m_vNormals; /**< temporary object to store vertex normals for slip condition */
     double m_slipratio;                         /**< ratio to correct normals of slip-surfaces*/
-    
-public:
 
+public:
 
     PropagateVectorField();
     PropagateVectorField(const bitpit::Config::Section & rootXML);
@@ -390,16 +376,12 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
-private:
+protected:
     //cleaners and setters
     void clear();
     void setDefaults();
 
     bool checkBoundariesCoherence();
-       
-    //execute
-    void solveSmoothing(int nstep);
-    void solveLaplace();
 
     void apply();
 
@@ -408,6 +390,16 @@ private:
     void subdivideBC();
     void restoreBC();
     void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
+    
+private:
+    //execute
+    virtual void correctStencils(liimap & dataInv,
+                                 ivector2D &stencils, 
+                                 dvector2D &weights);
+    
+    virtual void computeRHS (MimmoPiercedVector<std::array<double, 3> > & bcs,
+                             liimap &dataInv,
+                             dvector1D &rhs);
 
 };
 
@@ -422,5 +414,7 @@ REGISTER(BaseManipulation, PropagateScalarField, "mimmo.PropagateScalarField")
 REGISTER(BaseManipulation, PropagateVectorField, "mimmo.PropagateVectorField")
 
 };
+
+#include "PropagateField.tpp"
 
 #endif /* __PROPAGATEFIELD_HPP__ */
