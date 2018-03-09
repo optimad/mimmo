@@ -412,7 +412,7 @@ ReconstructVector::execute(){
 void
 ReconstructVector::plotOptionalResults(){
     std::string dir = m_outputPlot;
-    std::string name = m_name;
+    std::string name = m_name + std::to_string(getId());
     plotData(dir, name, true);
     for (int i=0; i<getNData(); i++){
         plotSubData(dir, name, i, true);
