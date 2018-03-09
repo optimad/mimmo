@@ -40,5 +40,5 @@
 #include "SwitchFields.hpp"
 #include "ExtractFields.hpp"
 #include "StitchGeometry.hpp"
-
+#include "FVMeshSelection.hpp"
 #endif
