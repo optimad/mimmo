@@ -24,6 +24,7 @@
 
 #include "IOOFOAM.hpp"
 #include "mimmo_manipulators.hpp"
+#include "mimmo_propagators.hpp"
 #include "openFoamFiles_native.hpp"
 #include <exception>
 

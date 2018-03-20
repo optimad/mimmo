@@ -24,6 +24,7 @@
 #include "mimmo_iocgns.hpp"
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
+#include "mimmo_propagators.hpp"
 #include <exception>
 
 using namespace mimmo;
