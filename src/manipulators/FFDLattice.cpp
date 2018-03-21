@@ -1541,8 +1541,8 @@ FFDLattice::build(){
     bool check = Lattice::build();
     //check degrees;
     m_deg[0] = std::min(m_nx, std::max(1, m_deg[0]));
-    m_deg[1] = std::min(m_nx, std::max(1, m_deg[1]));
-    m_deg[2] = std::min(m_nx, std::max(1, m_deg[2]));
+    m_deg[1] = std::min(m_ny, std::max(1, m_deg[1]));
+    m_deg[2] = std::min(m_nz, std::max(1, m_deg[2]));
 
     m_weights.clear();
     m_weights.resize(m_np, 1.0);
