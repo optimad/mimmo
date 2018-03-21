@@ -50,7 +50,7 @@ public:
     /*!Copy Constructor */
     VTUAbsorbStreamer(const VTUAbsorbStreamer&) = default;
 
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
+    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     /*! Decode read raw data and fill a bitpit::PatchKernel structure with them */
     virtual void decodeRawData(bitpit::PatchKernel &) = 0;
 };
@@ -70,10 +70,10 @@ protected:
     livector1D pointsID;                         /**< labels of mesh nodes, if any*/
     livector1D cellsID;                          /**< labels of mesh cells, if any*/
     ivector1D pids;                              /**< cell pid, if any */
-    ivector1D offsets;                           /**< offset list for decoding connectivity list */
+    livector1D offsets;                           /**< offset list for decoding connectivity list */
     std::vector<bitpit::ElementType> types;      /**< list of cell types */
     livector1D faces;                             /**< list of face vertex connectivity - for 3D volume polyhedral support */
-    ivector1D faceoffsets;                       /**< list of offsets to read face vertex connectivity - for 3D volume polyhedral support */
+    livector1D faceoffsets;                       /**< list of offsets to read face vertex connectivity - for 3D volume polyhedral support */
 
 public:
     VTUGridStreamer();
@@ -81,7 +81,7 @@ public:
     /*! Copy Constructor*/ 
     VTUGridStreamer(const VTUGridStreamer&) = default;
 
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
+    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
 };
 
@@ -104,7 +104,7 @@ public:
     /*!Copy Constructor */
     VTUPointCloudStreamer(const VTUPointCloudStreamer&) = default;
     
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components);
+    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
 };
 
