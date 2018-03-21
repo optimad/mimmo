@@ -417,19 +417,35 @@ IOOFOAM::read(){
             //manually calculate connectivity.
             conn.push_back((long)cells[iC].size()); //total number of faces on the top.
             forAll(cells[iC], locC){
-                temp.clear();
                 Foam::label iFace = cells[iC][locC];
-                temp.push_back((long)faces[iFace].size());
+                long faceNVertex = (long)faces[iFace].size();
+                temp.resize(faceNVertex);
                 forAll(faces[iFace], locF){
-                    temp.push_back((long)faces[iFace][locF]);
+                    temp[locF] = (long)faces[iFace][locF];
                 }
-                conn.insert(conn.end(), temp.begin(), temp.end());
-                
-                if(iFace >= sizeNeighbours) continue;
+
+                 conn.push_back(faceNVertex);
+                if(iFace >= sizeNeighbours) {
+                    //border face, normal outwards, take as it is
+                    conn.insert(conn.end(), temp.begin(), temp.end());
+                    continue;
+                }
+                bool normalIsOut;
+                //recover right adjacency and check if face normal pointing outwards.
+                //OpenFoam policy wants the face normal between cell pointing towards
+                // the cell with greater id.
                 if(iC == faceOwner[iFace]){
                     adjacency[int(locC)][0] = faceNeighbour[iFace];
+                    normalIsOut = faceNeighbour[iFace] > iC;
                 }else{
                     adjacency[int(locC)][0] = faceOwner[iFace];
+                    normalIsOut = faceOwner[iFace] > iC;
+                }
+
+                if(normalIsOut){
+                    conn.insert(conn.end(), temp.begin(), temp.end());
+                }else{
+                    conn.insert(conn.end(), temp.rbegin(), temp.rend());
                 }
             }
         }
