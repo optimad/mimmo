@@ -25,7 +25,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
                           new module "propagators".
 - MimmoPiercedVector: changes to class interface
 - IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK. 
-                  User interface has changed. Compatibility is ensured fro 2.x, 3.x and 4.x OpenFoam 
+                  User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam 
                   Foundation versions.
 - SkdTreeUtils : extractTarget method changed in algorithm and interface.
 

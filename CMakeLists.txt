@@ -520,6 +520,10 @@ if (MODULE_ENABLED_IOOFOAM)
         # Set the possible values of build type for the GUI
         set_property(CACHE OPENFOAM_ARCH PROPERTY STRINGS "WM_ARCH_OPTION=64" "WM_ARCH_OPTION=32")
     endif()
+    if(NOT OPENFOAM_OLDVER)
+        # Set control versions of Openfoam
+        set(OPENFOAM_OLDVER 1 CACHE BOOL  "Set ON if your current Openfoam version is older then the Official Foundation 5.0.x release or its forks")
+    endif()
 
     set(OPENFOAM_DIR " " CACHE PATH "path to OpenFoam installation")
 
@@ -550,16 +554,20 @@ if (MODULE_ENABLED_IOOFOAM)
         unset(OFTEMPL CACHE)
     endforeach()
     #      ---- 
-
-   string(SUBSTRING $ENV{WM_PROJECT_VERSION} 0 1 OFOAM_MAJOR_VER)
-  
-   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository" "OF_MAJOR_VER=${OFOAM_MAJOR_VER}")
+   
+   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
+   if(OPENFOAM_OLDVER)
+        list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "OPENFOAM_OLDVER=1")
+    else()
+        list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "OPENFOAM_OLDVER=0")
+    endif()
 
 else()
     UNSET(OPENFOAM_DIR CACHE)
     UNSET(OPENFOAM_ARCH CACHE)
     UNSET(OPENFOAM_PREC CACHE)
     UNSET(OPENFOAM_LABEL CACHE)
+    UNSET(OPENFOAM_OLDVER CACHE)
 endif ()
 
 

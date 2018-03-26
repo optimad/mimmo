@@ -260,7 +260,11 @@ void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, 
         } else {
             field.resize(foamField.boundaryField()[patchIdx].size(),0.0);
             forAll(foamField.boundaryField()[patchIdx], n) {
+#if OPENFOAM_OLDVER
                 foamField.boundaryField()[patchIdx][n] = field[n];
+#else
+                foamField.boundaryFieldRef()[patchIdx][n] = field[n];
+#endif
             }
         }
         
@@ -311,7 +315,11 @@ void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, 
             field.resize(foamField.boundaryField()[patchIdx].size(),{{0.0,0.0,0.0}});
             forAll(foamField.boundaryField()[patchIdx], n) {
                 for (int k = 0; k < 3; k++) {
+#if OPENFOAM_OLDVER
                     foamField.boundaryField()[patchIdx][n][k] = field[n][k];
+#else
+                    foamField.boundaryFieldRef()[patchIdx][n][k] = field[n][k];
+#endif
                 }
             }
         }
@@ -513,7 +521,11 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
     foamMesh->movePoints(movedPoints);
     
     if(overwriteStart){
+#if OPENFOAM_OLDVER
         foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
+#else
+        foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), true);
+#endif
     }else{
 
         Foam::dimensionedScalar fakeEndTime
@@ -525,7 +537,11 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
         foamRunTime->setEndTime(foamRunTime->startTime()+fakeEndTime);
 
         while(foamRunTime->loop()){
+#if OPENFOAM_OLDVER
             foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());
+#else
+            foamMesh->writeObject(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression(), true);
+#endif
         }
 
     }
