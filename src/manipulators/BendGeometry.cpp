@@ -205,6 +205,7 @@ BendGeometry::setCoeffs(int i, int j, dvector1D coeffs){
 void
 BendGeometry::setOrigin(darray3E origin){
     m_origin = origin;
+    m_local = true;
 }
 
 /*! Set new axis orientation of the local reference system.
