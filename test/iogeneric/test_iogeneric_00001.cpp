@@ -92,6 +92,31 @@ int test2() {
     reader2->getGeometry()->getPatch()->write("volume");
     std::cout<<"test2 passed :"<<check<<std::endl;
     
+
+    MimmoGeometry * reader3 = new MimmoGeometry();
+    reader3->setIOMode(IOMode::READ);
+    reader3->setReadDir("geodata");
+    reader3->setReadFilename("spherep");
+    reader3->setReadFileType(FileType::PCVTU);
+    reader3->exec();
+
+//    check = reader3->getGeometry()->getNCells() == 20;
+//    check = check && reader3->getGeometry()->getNVertex() == 19;
+
+    //DO NOT USE PATCHKERNEL TO WRITE POINT CLOUD. THEY ARE NOT SUPPORTED.
+    //reader3->getGeometry()->getPatch()->write("pc");
+    
+    //USE MIMMO GEOMETRY EXPORTER
+    MimmoGeometry * writer1 = new MimmoGeometry();
+    writer1->setIOMode(IOMode::WRITE);
+    writer1->setWriteDir(".");
+    writer1->setWriteFilename("pc");
+    writer1->setWriteFileType(FileType::PCVTU);
+    writer1->setGeometry(reader3->getGeometry());
+    writer1->exec();
+
+    delete writer1;
+    
     delete reader1;
     delete reader2;
     return int(!check);

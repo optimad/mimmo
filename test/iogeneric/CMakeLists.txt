@@ -49,6 +49,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/prism.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/prism.stl"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/mixedP2D.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/mixedP2D.vtu"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/mixedP3D.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/mixedP3D.vtu"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/spherep.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherep.vtu"
     )
 
 add_custom_command(
