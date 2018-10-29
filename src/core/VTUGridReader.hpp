@@ -121,7 +121,8 @@ class VTUGridReader: protected bitpit::VTKUnstructuredGrid
 {
 
 public:
-    VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch);
+    VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, 
+                   bitpit::PatchKernel & patch, bitpit::VTKElementType eltype= bitpit::VTKElementType::UNDEFINED);
     ~VTUGridReader();
 
     void read();

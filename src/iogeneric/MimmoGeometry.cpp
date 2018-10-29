@@ -900,7 +900,7 @@ MimmoGeometry::read(){
         
         setGeometry(3);
         VTUPointCloudStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), bitpit::VTKElementType::VERTEX);
         input.read() ;
 
     }

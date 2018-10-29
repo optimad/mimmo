@@ -831,10 +831,10 @@ VTUPointCloudStreamer::~VTUPointCloudStreamer(){}
 void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, 
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
-    BITPIT_UNUSED(components);
-    
+    std::size_t sizeData = std::size_t(entries/components);
     if (name == "Points") {
-        points.resize(entries);
+        //get correct data type
+        points.resize(sizeData);
         for (auto & p :points) {
             for(auto &pval : p){
                 switch (datatype){
@@ -855,13 +855,14 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
                     }
                     break;
                     default:
-                        throw std::runtime_error("VTUPointCloudStreamer::absorbData : Points data format not available");
+                        throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
                         break;
                 }
+                
             }
         }
-    } else if (name == "vertexIndex") {
-        pointsID.resize(entries);
+    }else if (name == "vertexIndex") {
+        pointsID.resize(sizeData);
         for (auto & vpid : pointsID) {
             switch(datatype){
                 case bitpit::VTKDataType::Int8 :
@@ -973,9 +974,10 @@ void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
  * \param[in] name  name fo the file to be read.
  * \param[in] patch reference to empty container for storing mesh data.
  * \param[in] streamer streaming class to absorb VTK data.
+ * \param[in] eltype [optional] force the elementtype of the grid.
  */
-VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch) : 
-                              VTKUnstructuredGrid(dir, name, bitpit::VTKElementType::UNDEFINED), m_patch(patch), m_streamer(streamer)
+VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch, bitpit::VTKElementType eltype) : 
+                              VTKUnstructuredGrid(dir, name, eltype), m_patch(patch), m_streamer(streamer)
 {
     for(auto & field : m_geometry){
         field.enable();
