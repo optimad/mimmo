@@ -24,7 +24,6 @@
 
 
 #include "mimmo_manipulators.hpp"
-#include "mimmo_utils.hpp"
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
 #include <exception>
@@ -35,16 +34,15 @@ using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
-	\example manipulators_example_00005.cpp
+    \example manipulators_example_00005.cpp
 
-	\brief Example of usage of radial basis function block to manipulate an input geometry.
+    \brief Example of usage of free form deformation block to manipulate an input geometry defined by a point cloud.
 
-    Geometry deformation block used: MRBF.
-    Utils block used: ProjectCloud.
+    Geometry deformation block used: FFD (shape cube).
 
-	<b>To run</b>: ./manipulators_example_00005 \n
+    <b>To run</b>: ./manipulators_example_00005 \n
 
-	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+    <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 void test00005() {
@@ -54,85 +52,53 @@ void test00005() {
      * as two different objects (no loop in chain are permitted).
      */
     MimmoGeometry * mimmo0 = new MimmoGeometry();
+
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
-    mimmo0->setReadFileType(FileType::STL);
-    mimmo0->setReadFilename("sphere2");
-    mimmo0->setWriteDir(".");
-    mimmo0->setWriteFileType(FileType::STL);
+    mimmo0->setReadFileType(FileType::PCVTU);
+    mimmo0->setReadFilename("spherepc");
+    mimmo0->setBuildSkdTree(true);
+
+    mimmo0->setWriteDir("./");
+    mimmo0->setWriteFileType(FileType::PCVTU);
     mimmo0->setWriteFilename("manipulators_output_00005.0000");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
-    mimmo1->setWriteFileType(FileType::STL);
+    mimmo1->setWriteFileType(FileType::PCVTU);
     mimmo1->setWriteFilename("manipulators_output_00005.0001");
 
-    /* Creation of a random distribution of 10 points with coordinates between [-0.5, 0.5]
+    /* Instantiation of a FFDobject with default shape cube.
+     * Setup of span and origin of cube.
+     * Plot Optional results during execution active for FFD block.
      */
-    int np = 10;
-    dvecarr3E rbfNodes(10);
-    time_t Time = time(NULL);
-    srand(Time);
-    for (int i=0; i<np; i++){
-        for (int j=0; j<3; j++)
-            rbfNodes[i][j] = 1.0*( (double) (rand()) / RAND_MAX ) - 0.5;
-    }
+    FFDLattice* lattice = new FFDLattice();
+    darray3E origin = {0.0, 0.0, 0.0};
+    darray3E span;
+    span[0]= 1.2;
+    span[1]= 1.2;
+    span[2]= 1.2;
 
-    /* Set Generic input block with the
-     * nodes defined above.
+    /* Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
      */
-    GenericInput* inputn = new GenericInput();
-    inputn->setInput(rbfNodes);
+    iarray3E dim, deg;
+    dim[0] = 20;
+    dim[1] = 20;
+    dim[2] = 20;
+    deg[0] = 2;
+    deg[1] = 2;
+    deg[2] = 2;
 
-    /* Creation of a projection block aimed to project
-     * the point cloud previously defined over the input geometry.
-     * The rbf control nodes will be defined on the surface of the
-     * geometry as output of this block.
-     *
-     */
-    ProjectCloud* proj = new ProjectCloud();
+    lattice->setLattice(origin, span, ShapeType::CUBE, dim, deg);
 
-    /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
-     * ont he input surface.
-     * Plot Optional results during execution active for MRBF block.
-     */
-    MRBF* mrbf = new MRBF();
-    mrbf->setMode(MRBFSol::NONE);
-    mrbf->setSupportRadius(0.25);
-    mrbf->setPlotInExecution(true);
-
-
-    /* Creation of a set of displacements of the control nodes of the radial basis functions.
-     * Use a radial displacements from a center point placed in axes origin.
-     */
-    dvecarr3E displ(np, darray3E{0.0, 0.0, 0.0});
-    darray3E center({0.0, 0.0, 0.0});
-    for (int i=0; i<np; i++){
-        displ[i] = rbfNodes[i] - center;
-        displ[i] /= 2.0*norm2(displ[i]);
-    }
-
-
-    /* Set Generic input block with the
-     * displacements defined above.
+    /* Creation of Generic input block to read the
+     * displacements of the control nodes of the lattice.
      */
     GenericInput* input = new GenericInput();
-    input->setInput(displ);
-
-    /* Set Generic output block to write the
-     * nodes defined above.
-     */
-    GenericOutput * outputn = new GenericOutput();
-    outputn->setFilename("manipulators_output_00005n.csv");
-    outputn->setCSV(true);
-
-    /* Set Generic output block to write the
-     * displacements defined above.
-     */
-    GenericOutput * outputd = new GenericOutput();
-    outputd->setFilename("manipulators_output_00005d.csv");
-    outputd->setCSV(true);
+    input->setReadFromFile(true);
+    input->setReadDir("input");
+    input->setFilename("manipulators_input_00005.txt");
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
@@ -141,62 +107,58 @@ void test00005() {
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
-    addPin(mimmo0, proj, M_GEOM, M_GEOM);
-    addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    addPin(inputn, proj, M_COORDS, M_COORDS);
-    addPin(proj, mrbf, M_COORDS, M_COORDS);
-    addPin(proj, outputn, M_COORDS, M_COORDS);
-    addPin(input, mrbf, M_DISPLS, M_DISPLS);
-    addPin(input, outputd, M_DISPLS, M_DISPLS);
-    addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
-    addPin(applier, mimmo1, M_GEOM, M_GEOM);
+    cout << " --- create pin ---" << endl;
+    cout << " " << endl;
+    /* Add pin with port TAG ONLY
+     */
+
+    cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, M_GEOM, M_GEOM) << endl;
+    cout << " add pin info : " << boolalpha << addPin(input, lattice, M_DISPLS, M_DISPLS) << endl;
+    cout << " add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
+    cout << " add pin info : " << boolalpha << addPin(mimmo0, applier, M_GEOM, M_GEOM) << endl;
+    cout << " add pin info : " << boolalpha << addPin(applier, mimmo1, M_GEOM, M_GEOM) << endl;
+    cout << " " << endl;
 
     /* Setup execution chain.
-     * The object can be insert in the chain in random order.
-     * The chain object recover the correct order of execution from
-     * the pin connections.
      */
     Chain ch0;
-    ch0.addObject(input);
-    ch0.addObject(inputn);
-    ch0.addObject(outputn);
-    ch0.addObject(outputd);
     ch0.addObject(mimmo0);
-    ch0.addObject(proj);
+    ch0.addObject(input);
+    ch0.addObject(lattice);
     ch0.addObject(applier);
-    ch0.addObject(mrbf);
     ch0.addObject(mimmo1);
 
+    //force the chain to plot all the optional results of its children...
+    ch0.setPlotDebugResults(true);
+    //...in the path specified by the User.
+    ch0.setOutputDebugResults(".");
+
     /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+     * Use debug flag true to full print out the execution steps.
      */
+    cout << " " << endl;
+    cout << " --- execution start ---" << endl;
     ch0.exec(true);
+    cout << " --- execution done --- " << endl;
+    cout << " " << endl;
 
     /* Clean up & exit;
      */
-    delete mrbf;
-    delete proj;
+    delete lattice;
     delete applier;
     delete input;
-    delete outputn;
-    delete outputd;
     delete mimmo0;
     delete mimmo1;
 
-    proj    = NULL;
-    mrbf    = NULL;
+    lattice = NULL;
     applier = NULL;
     input   = NULL;
-    outputn = NULL;
-    outputd = NULL;
     mimmo0  = NULL;
     mimmo1  = NULL;
 
-    return;
 }
 
-int	main( int argc, char *argv[] ) {
+int main( int argc, char *argv[] ) {
 
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
@@ -206,8 +168,8 @@ int	main( int argc, char *argv[] ) {
 
     {
 #endif
+        /**<Calling mimmo Test routine*/
         try{
-            /**<Calling mimmo Test routine*/
             test00005() ;
         }
         catch(std::exception & e){

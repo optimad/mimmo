@@ -60,6 +60,7 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "manipulators_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")
     list(APPEND EXAMPLE_LIST "manipulators_example_00004")
+    list(APPEND EXAMPLE_LIST "manipulators_example_00005")
     list(APPEND EXAMPLE_LIST "genericinput_example_00001")
 
     #Add examples of enabled modules
@@ -86,7 +87,7 @@ if(BUILD_EXAMPLES)
     #Add examples of enabled modules
     isModuleEnabled("utils" MODULE_ENABLED4)
     if (MODULE_ENABLED4)
-        list(APPEND EXAMPLE_LIST "manipulators_example_00005")
+        list(APPEND EXAMPLE_LIST "manipulators_example_00006")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
     endif ()
 
@@ -130,9 +131,14 @@ if(BUILD_EXAMPLES)
         TARGET "manipulators_example_00004" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
     )
+    add_custom_command(
+        TARGET "manipulators_example_00005" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/spherepc.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherepc.vtu"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005.txt"
+    )
     if (MODULE_ENABLED4)
         add_custom_command(
-            TARGET "manipulators_example_00005" PRE_BUILD
+            TARGET "manipulators_example_00006" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         )
         add_custom_command(
