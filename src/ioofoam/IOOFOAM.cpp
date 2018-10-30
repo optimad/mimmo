@@ -532,7 +532,7 @@ IOOFOAM::writePointsOnly(){
     if(!checkMeshCoherence()) return false;
 
     dvecarr3E points = getGeometry()->getVertexCoords();
-    
+
     return foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
 }
 

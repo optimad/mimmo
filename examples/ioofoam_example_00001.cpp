@@ -24,7 +24,6 @@
 
 #include "IOOFOAM.hpp"
 #include "mimmo_manipulators.hpp"
-#include "mimmo_propagators.hpp"
 #include "openFoamFiles_native.hpp"
 #include <exception>
 
@@ -33,40 +32,62 @@
 /*!
  * \example ioofoam_example_00001.cpp
  * 
- * \brief Example of reading/writing of a Openfoam case mesh.
+ * \brief Example of reading/writing of a OpenFOAM case mesh.
  * 
- * Mesh is read from a path given by the User. A RBF point is created on a
- * randomly picked-patch boundary of the mesh and moved normally to the patch itself.
+ * Mesh is read from an OpenFOAM case. A FFD deformation is applied.
  * The bulk volume mesh is deformed accordingly.
  * In writing, moved bulk points update those on the target mesh.
  *
  * Using: IOOFOAM
  * 
- * <b>To run</b>: ./ioofoam_example_00001  < path to OpenFoam case > \n
+ * <b>To run</b>: ./ioofoam_example_00001 \n
  * 
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
-void OFOAM_manip(std::string & path) {
+void OFOAM_manip() {
 
-    //First Chain;
-    
     mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
-    reader->setDir(path);
+    reader->setDir("geodata/OFOAM");
+
+    mimmo::FFDLattice * ffd = new mimmo::FFDLattice();
+    ffd->setShape(mimmo::ShapeType::CUBE);
+
+    darray3E origin = {{0.367, 0., 0.}};
+    darray3E span   = {{0.2, 0.1, 0.1}};
+    dvecarr3E displ(12,{{0.0,0.0,0.0}});
+    displ[4][1] = 0.045;
+    displ[5][1] = 0.045;
+    displ[6][1] = -0.045;
+    displ[7][1] = -0.045;
+
+    ffd->setOrigin(origin);
+    ffd->setSpan(span);
+    ffd->setDimension(ivector1D({{3,2,2}}));
+    ffd->setDegrees(iarray3E({{2,2,2}}));
+    ffd->setDisplacements(displ);
+    ffd->setPlotInExecution(true);
+
+    mimmo::Apply * applier = new mimmo::Apply();
 
     mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(IOOFMode::WRITEPOINTSONLY);
-    writer->setDir(path);
     writer->setOverwrite(false);
 
-    mimmo::pin::addPin(reader, writer, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(reader, writer, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(reader, ffd, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(reader, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(ffd, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
     
     mimmo::Chain c0;
     c0.addObject(reader);
+    c0.addObject(ffd);
+    c0.addObject(applier);
     c0.addObject(writer);
     c0.exec(true);
 
     delete reader;
+    delete ffd;
+    delete applier;
     delete writer;
 }
 
@@ -83,17 +104,8 @@ int main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling mimmo Test routines*/
-        if (argc < 2) {
-            std::cout<<"please insert a valid path to OpenFoam case to manipulate the mesh"<<std::endl;
-            return 1;
-        }
-        if(argv[1] == "--help"){
-            std::cout<<"Insert after executable command a valid path to OpenFoam case to manipulate the mesh"<<std::endl;
-            return 1;
-        }
         try{
-            std::string path(argv[1]);
-             OFOAM_manip(path) ;
+             OFOAM_manip() ;
         }
         catch(std::exception & e){
             std::cout<<"test_ioofoam_00001 exit with the following errors :"<<e.what()<<std::endl;

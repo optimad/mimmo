@@ -184,7 +184,12 @@ if(BUILD_EXAMPLES)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/iovtk.vtk" "${CMAKE_CURRENT_BINARY_DIR}/geodata/iovtk.vtk"
         )
     endif()
-
+    if (MODULE_ENABLED3)
+        add_custom_command(
+            TARGET "ioofoam_example_00001" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/OFOAM" "${CMAKE_CURRENT_BINARY_DIR}/geodata/OFOAM"
+        )
+    endif()
 
 endif()
 
