@@ -1,0 +1,7 @@
+<map id="mimmo::FVSelectionBySphere" name="mimmo::FVSelectionBySphere">
+<area shape="rect" id="node2" href="$classmimmo_1_1FVGenericSelection.html" title="Abstract Interface for selection classes related to Volume Unstructured Mesh. " alt="" coords="135,173,324,200"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,96,181,123"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="93,5,248,32"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1Sphere.html" title="Elementary Shape Representation of a Sphere or portion of it. " alt="" coords="357,173,472,200"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="351,96,493,123"/>
+</map>

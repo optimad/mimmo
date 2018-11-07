@@ -1,8 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library. " alt="" coords="158,5,357,46"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; bool \&gt;" alt="" coords="158,70,357,111"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; darray3E \&gt;" alt="" coords="158,135,357,177"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; double \&gt;" alt="" coords="158,201,357,242"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; std::vector\&lt; double \&gt; \&gt;" alt="" coords="158,266,357,307"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; std::vector\&lt; long int \&gt; \&gt;" alt="" coords="158,331,357,373"/>
-</map>

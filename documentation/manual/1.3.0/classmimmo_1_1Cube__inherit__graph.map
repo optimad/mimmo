@@ -1,0 +1,6 @@
+<map id="mimmo::Cube" name="mimmo::Cube">
+<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="5,155,187,181"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="211,155,377,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="123,5,265,32"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selection through volume box primitive. " alt="" coords="198,230,391,271"/>
+</map>
