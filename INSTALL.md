@@ -9,6 +9,7 @@ mimmo depends on
 * lapacke/lapack libraries. It has been tested with Lapack >= 3.5.0
 * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
 * bitpit library. It has been tested with bitpit 1.5.0. Visit www.optimad.it/products/bitpit/ for further information.
+* (optionally) PETSc library. It has been tested with PETSc >= 3.10.3.
 * (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. 
 * (optionally) vtk. It has been tested with vtk >= 6.3. 
 * (optionally) cgns. It has been tested with cgns = 3.2.1. 
