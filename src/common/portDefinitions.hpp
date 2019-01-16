@@ -35,6 +35,8 @@
 #define M_GEOM2           "M_GEOM2"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOM3           "M_GEOM3"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOM4           "M_GEOM4"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#define M_GEOMOFOAM       "M_GEOMOFOAM"         /**< Port dedicated to communication of pointers to a MimmoObject object used as I/O between OFOAM blocks*/
+#define M_GEOMOFOAM2      "M_GEOMOFOAM2"        /**< Port dedicated to communication of pointers to a MimmoObject object used as I/O between OFOAM blocks*/
 #define M_VECGEOM         "M_VECGEOM"           /**< Port dedicated to communication of list of pointers to a MimmoObject object [ std::vector< MimmoObject* > ] */
 #define M_COORDS          "M_COORDS"            /**< Port dedicated to communication of coordinates of points [vector < array < double,3 > > ] */
 #define M_GLOBAL          "M_GLOBAL"            /**< Port dedicated to communication of coordinates of points in a global reference system [ vector < array < double,3 > > ] */
@@ -48,6 +50,7 @@
 #define M_VECTORSI        "M_VECTORSI"          /**< Port dedicated to communication of a generic list of short integers [ vector < short int > ] */
 #define M_VECTORLI        "M_VECTORLI"          /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
 #define M_SCALARFIELD     "M_SCALARFIELD"       /**< Port dedicated to communication of a generic scalar field [ MimmoPiercedvector < double > ] */
+#define M_SCALARFIELD2    "M_SCALARFIELD2"      /**< Port dedicated to communication of a generic scalar field [ MimmoPiercedvector < double > ] */
 #define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ MimmoPiercedvector < array< double,3> > ] */
 #define M_VECSFIELDS      "M_VECSFIELDS"        /**< Port dedicated to communication of a std::vector of generic scalar fields [ std::vector< MimmoPiercedvector < double > >] */
 #define M_VECVFIELDS      "M_VECVFIELDS"        /**< Port dedicated to communication of a std::vector of generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > >] */

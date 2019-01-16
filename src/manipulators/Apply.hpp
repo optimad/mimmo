@@ -48,6 +48,7 @@ namespace mimmo{
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GDISPLS | setInput          | (MC_MPVECARR3,MD_FLOAT) |
+     | M_SCALARFIELD | setScalarInput    | (MC_MPVECTOR,MD_FLOAT) |
      | M_GEOM    | setGeometry       | (MC_SCALAR,MD_MIMMO_) |
  
      |Port Output | | |
@@ -63,13 +64,14 @@ namespace mimmo{
  * - <B>ClassName</B> : name of the class as <tt>mimmo.Apply</tt>;
  * - <B>Priority</B>  : uint marking priority in multi-chain execution;
  *
- * Geometry and Input have to be mandatorily passed through port.
+ * Geometry and one of the Inputs have to be mandatorily passed through port.
  *
  */
 class Apply: public BaseManipulation{
 public:
 
     dmpvecarr3E    m_input; /**< storing vector fields of floats */
+    dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -81,6 +83,7 @@ public:
     void buildPorts();
 
     void setInput(dmpvecarr3E input);
+    void setScalarInput(dmpvector1D input);
 
     void execute();
 
@@ -93,6 +96,7 @@ protected:
 };
 
 REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __APPLYDEFORMATION_HPP__)
 
 REGISTER(BaseManipulation, Apply, "mimmo.Apply")

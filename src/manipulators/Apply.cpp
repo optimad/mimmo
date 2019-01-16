@@ -30,7 +30,9 @@ namespace mimmo{
  * Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){
-    m_name = "mimmo.Apply";
+	m_name = "mimmo.Apply";
+	m_input.clear();
+	m_scalarinput.clear();
 };
 
 /*!
@@ -39,16 +41,16 @@ Apply::Apply():BaseManipulation(){
  */
 Apply::Apply(const bitpit::Config::Section & rootXML){
 
-    m_name = "mimmo.Apply";
+	m_name = "mimmo.Apply";
 
-    std::string fallback_name = "ClassNONE";
-    std::string input = rootXML.get("ClassName", fallback_name);
-    input = bitpit::utils::string::trim(input);
-    if(input == "mimmo.Apply"){
-        absorbSectionXML(rootXML);
-    }else{
-        warningXML(m_log, m_name);
-    };
+	std::string fallback_name = "ClassNONE";
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::string::trim(input);
+	if(input == "mimmo.Apply"){
+		absorbSectionXML(rootXML);
+	}else{
+		warningXML(m_log, m_name);
+	};
 }
 
 /*!Default destructor of Apply
@@ -58,7 +60,7 @@ Apply::~Apply(){};
 /*!Copy constructor of Apply.
  */
 Apply::Apply(const Apply & other):BaseManipulation(other){
-    m_input = other.m_input;
+	m_input = other.m_input;
 };
 
 /*!
@@ -67,29 +69,40 @@ Apply::Apply(const Apply & other):BaseManipulation(other){
  */
 void Apply::swap(Apply & x) noexcept
 {
-    //std::swap(m_input, x.m_input);
-    m_input.swap(x.m_input);
-    BaseManipulation::swap(x);
+	//std::swap(m_input, x.m_input);
+	m_input.swap(x.m_input);
+	BaseManipulation::swap(x);
 }
 
 /*! It builds the input/output ports of the object
  */
 void
 Apply::buildPorts(){
-    bool built = true;
-    built = (built && createPortIn<dmpvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true));
-    built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
-    built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
-    m_arePortsBuilt = built;
+	bool built = true;
+	built = (built && createPortIn<dmpvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
+	built = (built && createPortIn<dmpvector1D, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
+	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
+	built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
+	m_arePortsBuilt = built;
 };
+
 
 /*!It sets the displacements input.
  * \param[in] input Input displacements of the geometry vertices.
  */
 void
 Apply::setInput(dmpvecarr3E input){
-    m_input = input;
-}
+	m_input = input;
+};
+
+/*!It sets the displacements given as scalar input. It makes sense only for surface gemetries.
+ * The displacements will be directed as the surface normals.
+ * \param[in] input Input displacements of the geometry vertices given as module of normal directed vectors.
+ */
+void
+Apply::setScalarInput(dmpvector1D input){
+	m_scalarinput = input;
+};
 
 /*!Execution command.
  * It applies the deformation stored in the input of base class (casting the input
@@ -98,25 +111,24 @@ Apply::setInput(dmpvecarr3E input){
  */
 void
 Apply::execute(){
-    if (getGeometry() == NULL){
-        throw std::runtime_error (m_name + " : null pointer to linked geometry");
-    }
-    
-    if (getGeometry()->isEmpty()){
-        throw std::runtime_error (m_name + " : empty linked geometry");
-    }
+	if (getGeometry() == NULL){
+		throw std::runtime_error (m_name + " : null pointer to linked geometry");
+	}
 
-    checkInput();
+	if (getGeometry()->isEmpty()){
+		throw std::runtime_error (m_name + " : empty linked geometry");
+	}
 
-    darray3E vertexcoords;
-    long int ID;
-    for (const auto & vertex : m_geometry->getVertices()){
-        vertexcoords = vertex.getCoords();
-        ID = vertex.getId();
-        vertexcoords += m_input[ID];
-        getGeometry()->modifyVertex(vertexcoords, ID);
-    }
+	checkInput();
 
+	darray3E vertexcoords;
+	long int ID;
+	for (const auto & vertex : m_geometry->getVertices()){
+		vertexcoords = vertex.getCoords();
+		ID = vertex.getId();
+		vertexcoords += m_input[ID];
+		getGeometry()->modifyVertex(vertexcoords, ID);
+	}
 };
 
 
@@ -128,8 +140,8 @@ Apply::execute(){
 void
 Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
-    BITPIT_UNUSED(name);
-    BaseManipulation::absorbSectionXML(slotXML, name);
+	BITPIT_UNUSED(name);
+	BaseManipulation::absorbSectionXML(slotXML, name);
 
 };
 
@@ -141,10 +153,10 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
 void
 Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
-    BITPIT_UNUSED(name);
+	BITPIT_UNUSED(name);
 
-    BaseManipulation::flushSectionXML(slotXML, name);
-    
+	BaseManipulation::flushSectionXML(slotXML, name);
+
 };
 
 /*!
@@ -153,26 +165,55 @@ Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
  */
 void
 Apply::checkInput(){
-    
-    bool check = m_input.getDataLocation() == mimmo::MPVLocation::POINT;
-    check = check && m_input.getGeometry() == getGeometry();
-    check = check && m_input.completeMissingData({{0.0,0.0,0.0}});
-    if (!check){
-        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
-        (*m_log)<<"Not valid input found in "<<m_name<<". Proceeding with default zero field"<<std::endl;
-        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
-        
-        m_input.clear();
-        m_input.setGeometry(m_geometry);
-        m_input.setDataLocation(mimmo::MPVLocation::POINT);
-        m_input.reserve(getGeometry()->getNVertex());
-        for (const auto & vertex : getGeometry()->getVertices()){
-            m_input.insert(vertex.getId(), {{0.0,0.0,0.0}});
-        }
-    }
+
+	bool check = false;
+	if (m_input.size()){
+		check = m_input.getDataLocation() == mimmo::MPVLocation::POINT;
+		check = check && m_input.getGeometry() == m_geometry;
+		check = check && m_input.completeMissingData({{0.0,0.0,0.0}});
+	}
+	if (m_scalarinput.size()){
+		check = m_scalarinput.getDataLocation() == mimmo::MPVLocation::POINT;
+		check = check && m_geometry->getType() == 1;
+		check = check && m_scalarinput.getGeometry() == m_geometry;
+		check = check && m_scalarinput.completeMissingData(0.0);
+		if (check){
+			bitpit::SurfaceKernel* skernel = static_cast<bitpit::SurfaceKernel*>(m_geometry->getPatch());
+			bitpit::PiercedVector<darray3E> vNormals;
+			bitpit::ConstProxyVector<long> verts;
+			std::size_t size;
+			long idN;
+			for(const auto & cell: m_geometry->getCells()){
+				verts = cell.getVertexIds();
+				size = verts.size();
+				for(std::size_t i=0; i<size; ++i){
+					idN = verts[i];
+					if(!vNormals.exists(idN)){
+						vNormals.insert(idN, skernel->evalVertexNormal(cell.getId(), i));
+					}
+				}
+			}
+			m_input.clear();
+			for(const auto & vertex: m_geometry->getVertices()){
+				m_input.setDataLocation(mimmo::MPVLocation::POINT);
+				m_input.setGeometry(m_geometry);
+				long id = vertex.getId();
+				m_input.insert(id, darray3E(m_scalarinput[id]*vNormals[id]));
+			}
+		}
+	}
+	if (!check){
+		m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+		(*m_log)<<"Not valid input found in "<<m_name<<". Proceeding with default zero field"<<std::endl;
+		m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+		m_input.clear();
+		m_input.setGeometry(m_geometry);
+		m_input.setDataLocation(mimmo::MPVLocation::POINT);
+		m_input.reserve(m_geometry->getNVertex());
+		for (const auto & vertex : m_geometry->getVertices()){
+			m_input.insert(vertex.getId(), {{0.0,0.0,0.0}});
+		}
+	}
+};
 
 }
-
-}
-
-

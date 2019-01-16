@@ -49,6 +49,8 @@ MimmoFvMesh::MimmoFvMesh(){
     m_boundaryext = nullptr;
     m_internalBulk = false;
     m_internalBoundary = false;
+    m_bulk.reset(nullptr);
+    m_boundary.reset(nullptr);
 }
 
 /*!

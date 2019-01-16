@@ -93,6 +93,43 @@ void OFOAM_manip() {
 
 // =================================================================================== //
 
+void OFOAM_sensi() {
+
+    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
+    reader->setDir("geodata/OFOAM");
+
+    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField();
+    fieldreader->setDir("geodata/OFOAM");
+    fieldreader->setField("p");
+
+    mimmo::Apply * applier = new mimmo::Apply();
+
+    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry();
+    writer->setIOMode(IOMode::WRITE);
+    writer->setWriteDir(".");
+    writer->setWriteFileType(FileType::SURFVTU);
+    writer->setWriteFilename("ofoam_sensi_output");
+
+    mimmo::pin::addPin(reader, fieldreader, M_GEOM2, M_GEOM2);
+    mimmo::pin::addPin(reader, applier, M_GEOM2, M_GEOM);
+    mimmo::pin::addPin(fieldreader, applier, M_SCALARFIELD2, M_SCALARFIELD);
+    mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
+
+    mimmo::Chain c0;
+    c0.addObject(reader);
+    c0.addObject(fieldreader);
+    c0.addObject(applier);
+    c0.addObject(writer);
+    c0.exec(true);
+
+    delete reader;
+    delete fieldreader;
+    delete applier;
+    delete writer;
+}
+
+// =================================================================================== //
+
 int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
@@ -104,6 +141,13 @@ int main( int argc, char *argv[] ) {
 	{
 #endif
 		/**<Calling mimmo Test routines*/
+        try{
+             OFOAM_sensi() ;
+        }
+        catch(std::exception & e){
+            std::cout<<"test_ioofoam_00001 exit with the following errors :"<<e.what()<<std::endl;
+            return 1;
+        }
         try{
              OFOAM_manip() ;
         }
