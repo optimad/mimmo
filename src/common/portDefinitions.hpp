@@ -52,6 +52,7 @@
 #define M_SCALARFIELD     "M_SCALARFIELD"       /**< Port dedicated to communication of a generic scalar field [ MimmoPiercedvector < double > ] */
 #define M_SCALARFIELD2    "M_SCALARFIELD2"      /**< Port dedicated to communication of a generic scalar field [ MimmoPiercedvector < double > ] */
 #define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ MimmoPiercedvector < array< double,3> > ] */
+#define M_VECTORFIELD2    "M_VECTORFIELD2"      /**< Port dedicated to communication of a generic vector field [ MimmoPiercedvector < array< double,3> > ] */
 #define M_VECSFIELDS      "M_VECSFIELDS"        /**< Port dedicated to communication of a std::vector of generic scalar fields [ std::vector< MimmoPiercedvector < double > >] */
 #define M_VECVFIELDS      "M_VECVFIELDS"        /**< Port dedicated to communication of a std::vector of generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > >] */
 #define M_POINT           "M_POINT"             /**< Port dedicated to communication of 3D point coordinates [ array < double,3 > ] */

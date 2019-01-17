@@ -768,13 +768,9 @@ IOOFOAMField::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 
 
 
-
-
-
 /*
  * ========================================================================================================
  */
-
 
 /*!
  * Default constructor of IOOFOAMScalarField.
@@ -884,7 +880,7 @@ IOOFOAMScalarField::getBoundaryField(){
 }
 
 /*!
- * It reads the OpenFOAM mesh from input file and store in a the class structures m_bulk and m_boundary.
+ * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryfield.
  * \return false if errors occured during the reading.
  */
 bool
@@ -927,16 +923,192 @@ IOOFOAMScalarField::read(){
 		m_boundaryField.setDataLocation(1);
 	}
 
+	//TODO exception for null or empty geometries and return false for error during reading
 	return true;
 
 }
 
 /*!
- * It writes the OpenFOAM mesh to an output file from internal structure m_bulk and m_boundary
+ * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryfield
  * \return false if errors occured during the writing.
  */
 bool
 IOOFOAMScalarField::write(){
+	if(!checkMeshCoherence()) return false;
+
+	//do nothing for now
+
+	return true;
+}
+
+
+
+/*
+ * ========================================================================================================
+ */
+
+/*!
+ * Default constructor of IOOFOAMVectorField.
+ * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
+ */
+IOOFOAMVectorField::IOOFOAMVectorField(int type):IOOFOAMField(){
+	m_name           = "mimmo.IOOFOAMVectorField";
+	IOOFOAMField::setDefaults();
+}
+
+
+/*!
+ * Custom constructor reading xml data
+ * \param[in] rootXML reference to your xml tree section
+ */
+IOOFOAMVectorField::IOOFOAMVectorField(const bitpit::Config::Section & rootXML){
+
+	m_name = "mimmo.IOOFOAMVectorField";
+	std::string fallback_name = "ClassNONE";
+	std::string input = rootXML.get("ClassName", fallback_name);
+	input = bitpit::utils::string::trim(input);
+
+	std::string fallback_type = "IOModeNONE";
+	std::string input_type = rootXML.get("IOMode", fallback_type);
+	input_type = bitpit::utils::string::trim(input_type);
+
+	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
+
+	if(input == "mimmo.IOOFOAMVectorField" && maybeIOOFMode){
+		m_type = maybeIOOFMode->_to_integral();
+		IOOFOAMField::setDefaults();
+		IOOFOAMField::absorbSectionXML(rootXML);
+	}else{
+		warningXML(m_log, m_name);
+	};
+}
+
+/*!Default destructor of IOOFOAMVectorField.
+ */
+IOOFOAMVectorField::~IOOFOAMVectorField(){};
+
+/*!Copy constructor of IOOFOAMVectorField. Internal volume and boundary mesh are not copied.
+ */
+IOOFOAMVectorField::IOOFOAMVectorField(const IOOFOAMVectorField & other):IOOFOAMField(other){
+	m_type = other.m_type;
+	m_path = other.m_path;
+	m_fieldname = other.m_fieldname;
+	m_field = other.m_field;
+	m_boundaryField = other.m_boundaryField;
+	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
+	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
+	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
+	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
+};
+
+/*!
+ * Assignment operator. Internal volume and boundary mesh are not copied.
+ */
+IOOFOAMVectorField & IOOFOAMVectorField::operator=(IOOFOAMVectorField other){
+	swap(other);
+	return *this;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void IOOFOAMVectorField::swap(IOOFOAMVectorField & x) noexcept
+{
+	MimmoFvMesh::swap(x);
+	std::swap(m_type, x.m_type);
+	std::swap(m_path, x.m_path);
+	std::swap(m_overwrite, x.m_overwrite);
+	std::swap(m_fieldname, x.m_fieldname);
+	std::swap(m_field, x.m_field);
+	std::swap(m_boundaryField, x.m_boundaryField);
+};
+
+/*! It builds the input/output ports of the object
+ */
+void
+IOOFOAMVectorField::buildPorts(){
+	IOOFOAMField::buildPorts();
+	bool built = m_arePortsBuilt;
+	// creating output ports
+	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
+	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
+	m_arePortsBuilt = built;
+};
+
+/*!
+ * It gets the internal vector field.
+ * \return internal vector field.
+ */
+dmpvecarr3E
+IOOFOAMVectorField::getField(){
+	return m_field;
+}
+
+/*!
+ * It gets the boundary vector field.
+ * \return boundary vector field.
+ */
+dmpvecarr3E
+IOOFOAMVectorField::getBoundaryField(){
+	return m_boundaryField;
+}
+
+/*!
+ * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryfield.
+ * \return false if errors occured during the reading.
+ */
+bool
+IOOFOAMVectorField::read(){
+
+	if ( getGeometry() != nullptr){
+		std::size_t size;
+		std::vector<std::array<double,3>> field;
+		foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
+		m_field.clear();
+		m_field.reserve(size);
+
+		auto itfield = field.begin();
+		for (bitpit::Cell & cell : getGeometry()->getCells()){
+			m_field.insert(cell.getId(), *itfield);
+			itfield++;
+		}
+		m_field.setGeometry(getGeometry());
+		m_field.setDataLocation(2);
+	}
+
+	//One unique field stored. No PID field classification.
+	if ( getBoundaryGeometry() != nullptr ){
+
+		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
+		m_boundaryField.clear();
+		bitpit::PatchKernel::CellIterator itcell = getBoundaryGeometry()->getPatch()->cellBegin();
+
+		for (short pid : pids){
+			std::size_t size;
+			std::vector<std::array<double,3>> field;
+			foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid, size, field);
+			m_boundaryField.reserve(m_boundaryField.size() + size);
+			for (std::array<double,3> val : field){
+				m_boundaryField.insert(itcell->getId(), val);
+				itcell++;
+			}
+		}
+		m_boundaryField.setGeometry(getBoundaryGeometry());
+		m_boundaryField.setDataLocation(1);
+	}
+
+	//TODO exception for null or empty geometries and return false for error during reading
+	return true;
+
+}
+
+/*!
+ * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryfield
+ * \return false if errors occured during the writing.
+ */
+bool
+IOOFOAMVectorField::write(){
 	if(!checkMeshCoherence()) return false;
 
 	//do nothing for now

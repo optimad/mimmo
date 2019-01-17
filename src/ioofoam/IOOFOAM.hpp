@@ -363,6 +363,112 @@ protected:
 
 
 
+/*!
+ * \class IOOFOAMVectorField
+ * \ingroup ioofoam
+ * \brief IOOFOAMVectorField is the class derived from IOOFOAMField to import/export an OpenFOAM vector field defined on a volume mesh and/or the related boundary fields.
+ *
+ * The read field can be an internal volume field or/and a surface field, in the latter case all the patches are read together.
+ * The field is read in function of which geometry is set.
+ *
+ * Dependencies : OpenFOAM libraries (tested with OpenFOAM 2.4.x version).
+ *
+ * \n
+ *
+ * Ports available in IOOFOAMVectorField Class :
+ *
+ * Inherited from MimmoFvMesh:
+ *
+ *    =========================================================
+
+   |                     Port Input   ||                                     |
+   |------------------|---------------------|----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
+   | M_GEOM2          | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
+
+
+   |               Port Output    ||                                         |
+   |------------------|--------------------|-----------------------|
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+   | M_GEOM           | getGeometry        | (MC_SCALAR, MD_MIMMO_)      |
+   | M_GEOM2          | getBoundaryGeometry| (MC_SCALAR, MD_MIMMO_)      |
+
+
+ * Inherited from IOOFOAMField:
+ *
+ |                     Port Input   ||                                     |
+ |------------------|---------------------|----------------------|
+ | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOMOFOAM       | setGeometry               | (MC_SCALAR, MD_MIMMO_)      |
+ | M_GEOMOFOAM2      | setBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)      |
+
+
+ |               Port Output    ||                                         |
+ |------------------|--------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+ * Proper of the class:
+ *
+ |                     Port Input   ||                                     |
+ |------------------|---------------------|----------------------|
+ | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B> |
+
+
+ |               Port Output    ||                                         |
+ |------------------|--------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_VECTORFIELD  | getField      		| (MC_MPVECARR3, MD_FLOAT)       |
+ | M_VECTORFIELD2 | getBoundaryField    | (MC_MPVECARR3, MD_FLOAT)       |
+
+ * =========================================================
+ * \n
+ *
+ *
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation/MimmoFvMesh:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.IOOFOAM</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ *
+ * Proper of the class:
+ * - <B>IOMode</B>: activate mode of the class: READ, WRITE;
+ * - <B>Dir</B>: path to the current OpenFOAM mesh for reading/writing purposes;
+ * - <B>Name</B>: name of the OpenFOAM field for reading/writing purposes;
+ * - <B>Overwrite</B>: if 1-true overwrite the field in the current OpenFoam case time at WriteDir.
+                       If 0-false (DEFAULT) save them in a newly created case time at current time + 1;
+ *
+ */
+class IOOFOAMVectorField: public IOOFOAMField{
+protected:
+    dmpvecarr3E m_field;        		/**<Internal volume field. */
+    dmpvecarr3E m_boundaryField;        /**<Surface boundary field. */
+
+public:
+    IOOFOAMVectorField(int type = IOOFMode::READ);
+    IOOFOAMVectorField(const bitpit::Config::Section & rootXML);
+    virtual ~IOOFOAMVectorField();
+
+    IOOFOAMVectorField(const IOOFOAMVectorField & other);
+    IOOFOAMVectorField & operator=(IOOFOAMVectorField other);
+
+    void            buildPorts();
+
+    dmpvecarr3E     getField();
+    dmpvecarr3E     getBoundaryField();
+
+protected:
+    void swap(IOOFOAMVectorField & x) noexcept;
+    void            setDefaults();
+    virtual bool    write();
+    virtual bool    read();
+
+};
+
+
+
+
 
 livector1D mapEleVConnectivity(const livector1D &, const bitpit::ElementType &);
 
@@ -371,6 +477,8 @@ REGISTER_PORT(M_GEOMOFOAM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_GEOMOFOAM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD2, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT, __IOOFOAM_HPP__)
+REGISTER_PORT(M_VECTORFIELD2, MC_MPVECARR3, MD_FLOAT, __IOOFOAM_HPP__)
 
 REGISTER(BaseManipulation, IOOFOAM, "mimmo.IOOFOAM")
 
