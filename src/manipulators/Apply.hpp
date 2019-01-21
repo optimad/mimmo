@@ -37,6 +37,7 @@ namespace mimmo{
  *    The deformation displacements have to be passed to the input member of base class through
  *    a pin linking or set by the user, i.e. one has to use setInput method to set
  *    the displacements to be applied to the geometry.
+ *    The displacements can be isotropically scaled by setting a scaling factor.
  *    After the execution of an object Apply, the original geometry will be modified.
  *
  * \n
@@ -72,6 +73,7 @@ public:
 
     dmpvecarr3E    m_input; /**< storing vector fields of floats */
     dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
+    double		   m_factor; /**< scaling factor of deformation field. */
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -84,6 +86,8 @@ public:
 
     void setInput(dmpvecarr3E input);
     void setScalarInput(dmpvector1D input);
+
+    void setScaling(double alpha);
 
     void execute();
 

@@ -104,6 +104,7 @@ void OFOAM_sensi() {
     fieldreader->setField("p");
 
     mimmo::Apply * applier = new mimmo::Apply();
+    applier->setScaling(0.1);
 
     mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry();
     writer->setIOMode(IOMode::WRITE);

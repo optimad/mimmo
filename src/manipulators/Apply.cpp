@@ -33,6 +33,7 @@ Apply::Apply():BaseManipulation(){
 	m_name = "mimmo.Apply";
 	m_input.clear();
 	m_scalarinput.clear();
+	m_factor = 1.;
 };
 
 /*!
@@ -61,6 +62,8 @@ Apply::~Apply(){};
  */
 Apply::Apply(const Apply & other):BaseManipulation(other){
 	m_input = other.m_input;
+	m_scalarinput = other.m_scalarinput;
+	m_factor = other.m_factor;
 };
 
 /*!
@@ -71,6 +74,8 @@ void Apply::swap(Apply & x) noexcept
 {
 	//std::swap(m_input, x.m_input);
 	m_input.swap(x.m_input);
+	m_scalarinput.swap(x.m_scalarinput);
+	std::swap(m_factor, x.m_factor);
 	BaseManipulation::swap(x);
 }
 
@@ -104,6 +109,15 @@ Apply::setScalarInput(dmpvector1D input){
 	m_scalarinput = input;
 };
 
+/*!It sets the displacements scalar factor.
+ * The displacements will be scaled by using this factor.
+ * \param[in] alpha Scale factor of displacements field.
+ */
+void
+Apply::setScaling(double alpha){
+	m_factor = alpha;
+};
+
 /*!Execution command.
  * It applies the deformation stored in the input of base class (casting the input
  * for apply object to dvecarr3E) to the linked geometry.
@@ -126,7 +140,7 @@ Apply::execute(){
 	for (const auto & vertex : m_geometry->getVertices()){
 		vertexcoords = vertex.getCoords();
 		ID = vertex.getId();
-		vertexcoords += m_input[ID];
+		vertexcoords += m_factor*m_input[ID];
 		getGeometry()->modifyVertex(vertexcoords, ID);
 	}
 };
@@ -143,6 +157,17 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
 	BITPIT_UNUSED(name);
 	BaseManipulation::absorbSectionXML(slotXML, name);
 
+    if(slotXML.hasOption("Scaling")){
+        std::string input = slotXML.get("Scaling");
+        input = bitpit::utils::string::trim(input);
+        double val;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>val;
+        }
+        setScaling(val);
+    }
+
 };
 
 /*!
@@ -154,8 +179,9 @@ void
 Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	BITPIT_UNUSED(name);
-
 	BaseManipulation::flushSectionXML(slotXML, name);
+
+    slotXML.set("Scaling", std::to_string(m_factor));
 
 };
 
