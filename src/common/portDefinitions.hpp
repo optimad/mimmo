@@ -80,6 +80,7 @@
 #define M_VALUEB2         "M_VALUEB2"           /**< Port dedicated to communication of a single scalar value [bool] */
 #define M_VALUEI2         "M_VALUEI2"           /**< Port dedicated to communication of a single scalar value [int] */
 #define M_POLYDATA_       "M_POLYDATA_"         /**< Port dedicated to communicate a pointer to a vtk polydata mesh [vtkPolyData *] */
+#define M_UMAPIDS      	  "M_UMAPIDS"           /**< Port dedicated to communicate a map between IDs [std::unordered_map<long, long> *] */
 
 /*!
  * \}
@@ -99,6 +100,7 @@
 #define  MC_ARR3ARR3VEC "MC_ARR3ARR3VEC"    /**< std::array< std::array< std::array< . , 3 > , 3 > , 3 > container identifier */
 #define  MC_MPVECTOR    "MC_MPVECTOR"       /**< MimmoPiercedVector< . > container identifier */
 #define  MC_MPVECARR3   "MC_MPVECARR3"      /**< MimmoPiercedVector< std::array< . , 3 > > container identifier */
+#define  MC_UMAP        "MC_UMAP"    		/**< std::unordered_map< . , . > container identifier */
 
 /*!
  * \}
@@ -121,6 +123,7 @@
 #define  MD_BCCGNS_                 "MD_BCCGNS_"                 /**< mimmo::BCCGNS (Boundary Conditions Info for CGNS export class) pointer data identifier */
 #define  MD_MPVECFLOAT              "MD_MPVECFLOAT"              /**< MimmoPiercedVector< double > data identifier */
 #define  MD_MPVECARR3FLOAT          "MD_MPVECARR3FLOAT"          /**< MimmoPiercedVector< std::array< double,3>  > data identifier */
+#define  MD_PAIRLONGLONG            "MD_PAIRLONGLONG"            /**< std::pair< long, long > data identifier */
 
 /*!
  * \}

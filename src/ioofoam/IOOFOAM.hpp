@@ -76,6 +76,7 @@ namespace mimmo{
  |                     Port Input   ||                                     |
  |------------------|---------------------|----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_UMAPIDS      | setFacesMap       | (MC_UMAP, MD_PAIRLONGLONG)      |
 
 
  |               Port Output    ||                                         |
@@ -83,6 +84,7 @@ namespace mimmo{
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  | M_GEOMOFOAM       | getGeometry               | (MC_SCALAR, MD_MIMMO_)      |
  | M_GEOMOFOAM2      | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)      |
+ | M_UMAPIDS      | getFacesMap       | (MC_UMAP, MD_PAIRLONGLONG)      |
 
  * =========================================================
  * \n
@@ -113,6 +115,10 @@ protected:
 
     std::unordered_map<std::string, bitpit::ElementType>    m_OFE_supp;     /**<list of openfoam shapes actually supported as it is, and not as generic polyhedron*/
 
+	std::unordered_map<long,long> 	m_OFbitpitmapfaces; /**< OpenFoam faces -> bitpit Interfaces map. Used to to detect boundaries correspondence. */
+
+
+
 public:
     IOOFOAM(int type = IOOFMode::READ);
     IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type = IOOFMode::WRITE);
@@ -131,6 +137,9 @@ public:
 
     void            setGeometry(MimmoObject * bulk);
     void            setBoundaryGeometry(MimmoObject * boundary);
+
+    void            				setFacesMap(std::unordered_map<long,long> mapFaces);
+    std::unordered_map<long,long>	getFacesMap();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -175,6 +184,7 @@ protected:
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
    | M_GEOM2          | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
+   | M_UMAPIDS      | setFacesMap       | (MC_UMAP, MD_PAIRLONGLONG)      |
 
 
    |               Port Output    ||                                         |
@@ -227,6 +237,8 @@ protected:
 
     std::unordered_map<std::string, bitpit::ElementType>    m_OFE_supp;     /**<list of openfoam shapes actually supported as it is, and not as generic polyhedron*/
 
+	std::unordered_map<long,long> 	m_OFbitpitmapfaces; /**< OpenFoam faces -> bitpit Interfaces map. Used to to detect boundaries correspondence. */
+
 public:
     IOOFOAMField(int type = IOOFMode::READ);
     virtual ~IOOFOAMField();
@@ -242,6 +254,7 @@ public:
     bool            getOverwrite();
     void			setType(int type);
     int				getType();
+    void            setFacesMap(std::unordered_map<long,long> mapFaces);
     void            execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -296,6 +309,7 @@ protected:
  | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B> |
  | M_GEOMOFOAM       | setGeometry               | (MC_SCALAR, MD_MIMMO_)      |
  | M_GEOMOFOAM2      | setBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)      |
+ | M_UMAPIDS      | setFacesMap       | (MC_UMAP, MD_PAIRLONGLONG)      |
 
 
  |               Port Output    ||                                         |
@@ -402,6 +416,7 @@ protected:
  | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B> |
  | M_GEOMOFOAM       | setGeometry               | (MC_SCALAR, MD_MIMMO_)      |
  | M_GEOMOFOAM2      | setBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)      |
+ | M_UMAPIDS      | setFacesMap       | (MC_UMAP, MD_PAIRLONGLONG)      |
 
 
  |               Port Output    ||                                         |
@@ -467,14 +482,14 @@ protected:
 };
 
 
-
-
-
 livector1D mapEleVConnectivity(const livector1D &, const bitpit::ElementType &);
 
+bool interpolateFaceToPoint(dmpvector1D & facefield, dmpvector1D & pointfield);
+bool interpolateFaceToPoint(dmpvecarr3E & facefield, dmpvecarr3E & pointfield);
 
 REGISTER_PORT(M_GEOMOFOAM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_GEOMOFOAM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_UMAPIDS, MC_UMAP, MD_PAIRLONGLONG, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD2, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
 REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT, __IOOFOAM_HPP__)

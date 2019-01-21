@@ -107,6 +107,7 @@ IOOFOAM::IOOFOAM(const IOOFOAM & other):MimmoFvMesh(other){
 	m_type = other.m_type;
 	m_path = other.m_path;
 	m_overwrite = other.m_overwrite;
+	m_OFbitpitmapfaces = other.m_OFbitpitmapfaces;
 	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
 	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
 	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
@@ -130,6 +131,7 @@ void IOOFOAM::swap(IOOFOAM & x) noexcept
 	std::swap(m_type, x.m_type);
 	std::swap(m_path, x.m_path);
 	std::swap(m_overwrite, x.m_overwrite);
+	std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
 
 	MimmoFvMesh::swap(x);
 };
@@ -155,9 +157,13 @@ void
 IOOFOAM::buildPorts(){
 	MimmoFvMesh::buildPorts();
 	bool built = m_arePortsBuilt;
+	// creating input ports
+	built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM::setFacesMap, M_UMAPIDS));
 	// creating output ports
 	built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
 	built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+	built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM::getFacesMap, M_UMAPIDS));
+
 	m_arePortsBuilt = built;
 };
 
@@ -210,6 +216,25 @@ void
 IOOFOAM::setBoundaryGeometry(MimmoObject * boundary){
 	if(m_type == IOOFMode::READ) return;
 	MimmoFvMesh::setBoundaryGeometry(boundary);
+}
+
+
+/*!
+ * Get current map between OFOAM faces -> bitpit interfaces.
+ * \return reference to interfaces map.
+ */
+std::unordered_map<long,long>
+IOOFOAM::getFacesMap(){
+	return m_OFbitpitmapfaces;
+}
+
+/*!
+ * Set current map between OFOAM faces -> bitpit interfaces.
+ * \param[in] reference to interfaces map.
+ */
+void
+IOOFOAM::setFacesMap(std::unordered_map<long,long> mapFaces){
+	m_OFbitpitmapfaces = mapFaces;
 }
 
 /*!Execution command.
@@ -461,9 +486,6 @@ IOOFOAM::read(){
 	//build as bitpit the Interfaces -> adjacency is automatically recoverd from openFoam info.
 	mesh->buildInterfaces();
 
-	//create OpenFoam faces - bitpit Interfaces local map to detect boundaries
-	std::unordered_map<long,long> mapBitOF_faces;
-
 	forAll(cells, iC){
 		iDC = long(iC);
 		eleshape = std::string(cellShapes[iC].model().name());
@@ -478,7 +500,7 @@ IOOFOAM::read(){
 		long * bitFaceList = mesh->getCell(iC).getInterfaces();
 		std::size_t sizeFList = mesh->getCell(iC).getInterfaceCount();
 		for(std::size_t i = 0; i<sizeFList; ++i){
-			mapBitOF_faces[ofFaceList[i]] = bitFaceList[i];
+			m_OFbitpitmapfaces[ofFaceList[i]] = bitFaceList[i];
 		}
 	}
 
@@ -505,9 +527,8 @@ IOOFOAM::read(){
 		startIndex = foamBMesh[iBoundary].start();
 		endIndex = startIndex + long(foamBMesh[iBoundary].size());
 		for(long ind=startIndex; ind<endIndex; ++ind){
-			m_boundary->setPIDCell(mapBitOF_faces[ind], PID);
+			m_boundary->setPIDCell(m_OFbitpitmapfaces[ind], PID);
 		}
-
 	}
 	m_boundary->resyncPID();
 	//minimo sindacale fatto.
@@ -625,8 +646,10 @@ void
 IOOFOAMField::buildPorts(){
 	MimmoFvMesh::buildPorts();
 	bool built = m_arePortsBuilt;
+	// creating input ports
 	built = (built && createPortIn<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::setGeometry, M_GEOMOFOAM ));
 	built = (built && createPortIn<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOMOFOAM2));
+	built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMField>(this, &IOOFOAMField::setFacesMap, M_UMAPIDS));
 	// creating output ports
 	built = (built && createPortOut<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
 	built = (built && createPortOut<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
@@ -687,6 +710,15 @@ IOOFOAMField::setType(int type){
 int
 IOOFOAMField::getType(){
 	return m_type;
+}
+
+/*!
+ * Set current map between OFOAM faces -> bitpit interfaces.
+ * \param[in] reference to interfaces map.
+ */
+void
+IOOFOAMField::setFacesMap(std::unordered_map<long,long> mapFaces){
+	m_OFbitpitmapfaces = mapFaces;
 }
 
 /*!Execution command.
@@ -886,6 +918,12 @@ IOOFOAMScalarField::getBoundaryField(){
 bool
 IOOFOAMScalarField::read(){
 
+	//read mesh from OpenFoam case directory (initialize)
+	Foam::Time *foamRunTime = 0;
+	Foam::fvMesh *foamMesh = 0;
+	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
+
+
 	if ( getGeometry() != nullptr){
 		std::size_t size;
 		std::vector<double> field;
@@ -899,28 +937,57 @@ IOOFOAMScalarField::read(){
 			itfield++;
 		}
 		m_field.setGeometry(getGeometry());
+		//Data on cells
 		m_field.setDataLocation(2);
+
+		//TODO ADD CELL TO POINT INTERPOLATION
+
 	}
 
-	//One unique field stored. No PID field classification.
+	//One field stored.
 	if ( getBoundaryGeometry() != nullptr ){
 
-		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
-		m_boundaryField.clear();
-		bitpit::PatchKernel::CellIterator itcell = getBoundaryGeometry()->getPatch()->cellBegin();
+		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
+		long startIndex;
+		long endIndex;
 
+		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
+		dmpvector1D boundaryFieldOnFace;
 		for (short pid : pids){
-			std::size_t size;
-			std::vector<double> field;
-			foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), pid, size, field);
-			m_boundaryField.reserve(m_boundaryField.size() + size);
-			for (double val : field){
-				m_boundaryField.insert(itcell->getId(), val);
-				itcell++;
+			if (pid > 0){
+				std::size_t size = 0;
+				std::vector<double> field;
+				foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
+				boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
+				if (size > 0){
+					long iBoundary = pid-1;
+					startIndex = foamBMesh[iBoundary].start();
+					endIndex = startIndex + long(foamBMesh[iBoundary].size());
+					long ind = startIndex;
+					for (double val : field){
+						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
+						ind++;
+					}
+				}
+				else{
+					for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+						if (cell.getPID() == pid)
+							boundaryFieldOnFace.insert(cell.getId(), 0.);
+					}
+				}
+			}
+			else{
+				for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+					if (cell.getPID() == pid){
+						if (!boundaryFieldOnFace.exists(cell.getId()))
+							boundaryFieldOnFace.insert(cell.getId(), 0.);
+					}
+				}
 			}
 		}
-		m_boundaryField.setGeometry(getBoundaryGeometry());
-		m_boundaryField.setDataLocation(1);
+		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+		boundaryFieldOnFace.setDataLocation(1);
+		interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 	}
 
 	//TODO exception for null or empty geometries and return false for error during reading
@@ -1061,6 +1128,12 @@ IOOFOAMVectorField::getBoundaryField(){
 bool
 IOOFOAMVectorField::read(){
 
+	Foam::Time *foamRunTime = 0;
+	Foam::fvMesh *foamMesh = 0;
+
+	//read mesh from OpenFoam case directory
+	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
+
 	if ( getGeometry() != nullptr){
 		std::size_t size;
 		std::vector<std::array<double,3>> field;
@@ -1077,25 +1150,42 @@ IOOFOAMVectorField::read(){
 		m_field.setDataLocation(2);
 	}
 
-	//One unique field stored. No PID field classification.
+	//One field stored.
 	if ( getBoundaryGeometry() != nullptr ){
 
-		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
-		m_boundaryField.clear();
-		bitpit::PatchKernel::CellIterator itcell = getBoundaryGeometry()->getPatch()->cellBegin();
+		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
+		long startIndex;
+		long endIndex;
 
+		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
+		dmpvecarr3E boundaryFieldOnFace;
 		for (short pid : pids){
-			std::size_t size;
-			std::vector<std::array<double,3>> field;
-			foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid, size, field);
-			m_boundaryField.reserve(m_boundaryField.size() + size);
-			for (std::array<double,3> val : field){
-				m_boundaryField.insert(itcell->getId(), val);
-				itcell++;
+			if (pid > 0){
+				std::size_t size = 0;
+				std::vector<std::array<double,3>> field;
+				foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
+				boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
+				if (size > 0){
+					long iBoundary = pid-1;
+					startIndex = foamBMesh[iBoundary].start();
+					endIndex = startIndex + long(foamBMesh[iBoundary].size());
+					long ind = startIndex;
+					for (std::array<double,3> val : field){
+						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
+						ind++;
+					}
+				}
+				else{
+					for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+						if (cell.getPID() == pid)
+							boundaryFieldOnFace.insert(cell.getId(), {{0.,0.,0.}});
+					}
+				}
 			}
 		}
-		m_boundaryField.setGeometry(getBoundaryGeometry());
-		m_boundaryField.setDataLocation(1);
+		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+		boundaryFieldOnFace.setDataLocation(1);
+		interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 	}
 
 	//TODO exception for null or empty geometries and return false for error during reading
@@ -1117,6 +1207,125 @@ IOOFOAMVectorField::write(){
 }
 
 
+
+
+/*!
+ * It interpolates a surface scalar field defined on cell centers of a surface mesh on the vertices of the same mesh.
+ * It uses the angles related to each vertex to define weight for each face value.
+ * \return false if errors occurred during the interpolation.
+ */
+bool interpolateFaceToPoint(dmpvector1D & facefield, dmpvector1D & pointfield){
+
+	if (facefield.getGeometry()->getType() != 1){
+		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
+
+	}
+
+	dmpvector1D sumAngles;
+	pointfield.clear();
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		sumAngles.insert(idV, 0.);
+		pointfield.insert(idV, 0.);
+	}
+
+	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
+
+		//Cell id
+		long id = cell.getId();
+
+		// Cell data
+		double cellData = facefield[id];
+
+		// Get vertex id
+		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
+
+		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
+
+			// Cell angle at vertex
+			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
+
+			//Update data vertex and sum angles
+			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
+			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
+
+		}
+
+	}
+
+	//Normalize data with sum angles
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		pointfield[idV] /= sumAngles[idV];
+	}
+
+	//Assign geometry and data location to pointfield
+	pointfield.setGeometry(facefield.getGeometry());
+	pointfield.setDataLocation(1);
+
+	return true;
+
+}
+
+
+
+/*!
+ * It interpolates a vector surface field defined on cell centers of a surface mesh on the vertices of the same mesh.
+ * It uses the angles related to each vertex to define weight for each face value.
+ * \return false if errors occurred during the interpolation.
+ */
+bool interpolateFaceToPoint(dmpvecarr3E & facefield, dmpvecarr3E & pointfield){
+
+	if (facefield.getGeometry()->getType() != 1){
+		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
+
+	}
+
+	dmpvecarr3E sumAngles;
+	pointfield.clear();
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		sumAngles.insert(idV, {{0.,0.,0.}});
+		pointfield.insert(idV, {{0.,0.,0.}});
+	}
+
+	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
+
+		//Cell id
+		long id = cell.getId();
+
+		// Cell data
+		std::array<double,3> cellData = facefield[id];
+
+		// Get vertex id
+		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
+
+		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
+
+			// Cell angle at vertex
+			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
+
+			//Update data vertex and sum angles
+			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
+			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
+
+		}
+
+	}
+
+	//Normalize data with sum angles
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		pointfield [idV] /= sumAngles[idV];
+	}
+
+	//Assign geometry and data location to pointfield
+	pointfield.setGeometry(facefield.getGeometry());
+	pointfield.setDataLocation(1);
+
+	return true;
+
+}
 
 
 

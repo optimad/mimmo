@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "IOOFOAM.hpp"
+#include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
 #include "openFoamFiles_native.hpp"
 #include <exception>
@@ -111,6 +112,7 @@ void OFOAM_sensi() {
     writer->setWriteFilename("ofoam_sensi_output");
 
     mimmo::pin::addPin(reader, fieldreader, M_GEOM2, M_GEOM2);
+    mimmo::pin::addPin(reader, fieldreader, M_UMAPIDS, M_UMAPIDS);
     mimmo::pin::addPin(reader, applier, M_GEOM2, M_GEOM);
     mimmo::pin::addPin(fieldreader, applier, M_SCALARFIELD2, M_SCALARFIELD);
     mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
