@@ -23,7 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "OBBox.hpp"
-#include "LinearAlgebra.hpp"
+#include "bitpit_LA.hpp"
 #include "mimmo_private_lapacke.hpp"
 
 #include <chrono>
