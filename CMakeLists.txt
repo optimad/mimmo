@@ -102,7 +102,7 @@ function(addModuleIncludeDirectories MODULE_NAME)
 
     # External includes
     if (INCLUDE_EXTERNAL)
-        include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRECTORIES}")
+        include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRS}")
     endif ()
 
     # Add dependiecies
@@ -414,14 +414,16 @@ set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulato
 # External modules dependecies
 #------------------------------------------------------------------------------------#
 
+set(MIMMO_EXTERNAL_DEPENDENCIES "")
 set(MIMMO_EXTERNAL_LIBRARIES "")
-set(MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "")
+set(MIMMO_EXTERNAL_INCLUDE_DIRS "")
 set(ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "")
 
 ###     BITPIT      ###############################################
 find_package(BITPIT REQUIRED COMPONENTS levelset surfunstructured volunstructured RBF CG )
 include(${BITPIT_USE_FILE})
 
+list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "BITPIT")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
 
 ###      LAPACKE   ################################################
@@ -436,18 +438,23 @@ find_package(LAPACKE REQUIRED)
 
 set(LAPACKE_PRIVATE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/external/LAPACKE/include")
 
+list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LAPACK")
+list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LAPACKE")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACKE_LIBRARIES}" "${LAPACK_LIBRARIES}")
-list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LAPACKE_PRIVATE_INCLUDE_DIR}" "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
+list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${LAPACKE_PRIVATE_INCLUDE_DIR}" "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
 
 ###     XML2      #################################################
 find_package(LibXml2 REQUIRED)
 
+list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LibXml2")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
-list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIR}")
+list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIRS}")
 
 ###     MPI      #################################################
 if (ENABLE_MPI)
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "MPI")
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
 endif()
 
 
@@ -464,8 +471,9 @@ if(MODULE_ENABLED_SYSTEM)
         set(PETSC_DIR "" CACHE PATH "Directory in which PETSc resides")
         set(PETSC_ARCH "arch-linux2-c" CACHE STRING "Build architecture")
     endif ()
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "PETSc")
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PETSC_LIBRARIES}")
-    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${PETSC_INCLUDES}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PETSC_INCLUDES}")
 else()
     UNSET(PETSC_DIR CACHE)
     UNSET(PETSC_ARCH CACHE)
@@ -488,6 +496,7 @@ if (MODULE_ENABLED_IOVTK)
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
     find_package(VTK REQUIRED)
     include(${VTK_USE_FILE})
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "VTK")
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
     #      ---- 
 else()
@@ -532,7 +541,7 @@ if (MODULE_ENABLED_IOOFOAM)
     set(OFOAM_DUMMYLIBS Pstream)
     
     foreach(OFCOMP IN LISTS OFOAM_INCLUDES)
-        list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
+        list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
     endforeach()
 
     foreach(OFLIBS IN LISTS OFOAM_LIBS)
@@ -554,7 +563,7 @@ if (MODULE_ENABLED_IOOFOAM)
         unset(OFTEMPL CACHE)
     endforeach()
     #      ---- 
-   
+
    list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
    if(OPENFOAM_OLDVER)
         list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "OPENFOAM_OLDVER=1")
@@ -575,28 +584,32 @@ endif ()
 if (MODULE_ENABLED_IOCGNS)
 
     # ---- CGNS forced ---
-    set(CGNS_DIR "/opt/cgns/cgns_3.2.1" CACHE PATH "path to CGNS installation")
-    set(HDF5_DIR "/opt/hdf5/hdf5_1.8.15-patch1" CACHE PATH "path to HDF5 installation")
+    set(CGNS_DIR "/opt/cgns/cgns_3.3.1" CACHE PATH "path to CGNS installation")
+    set(HDF5_DIR "/opt/HDF5/1.10.4" CACHE PATH "path to HDF5 installation")
     set(HDF5_BUILD_TYPE "parallel" CACHE STRING
         "Choose the type of HDF5 build, options are: parallel serial.")
     # Set the possible values of HDF5 build type for the GUI
-    set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
     
-    
-    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRECTORIES "${CGNS_DIR}/include")
+    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${CGNS_DIR}/include")
     addImportedLibrary("cgns" "${CGNS_DIR}/lib" ON)
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "cgns")
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "cgns")
     
-    addImportedLibrary("hdf5" "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+    addImportedLibrary("hdf5" "${HDF5_DIR}/lib" ON)
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5")
     
     if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
-        addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
-        addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
-        addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
-        addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
-        addImportedLibrary("hdf5hl_fortran" "${HDF5_DIR}/${HDF5_BUILD_TYPE}/lib" ON)
+        addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
+        addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/lib" ON)
+        addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/lib" ON)
+        addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
+        addImportedLibrary("hdf5hl_fortran" "${HDF5_DIR}/lib" ON)
 
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_cpp")
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_fortran")
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl")
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl_cpp")
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5hl_fortran")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_cpp")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_fortran")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl")
@@ -625,6 +638,9 @@ add_subdirectory(cmake)
 
 # Examples
 add_subdirectory(examples)
+
+# External
+add_subdirectory(external)
 
 # Tests
 enable_testing()

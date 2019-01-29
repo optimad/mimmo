@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 2.8)
 #------------------------------------------------------------------------------------#
 
 # Directory where the CMake configuration file will be installed
-set(MIMMO_INSTALL_CMAKE_DIR "lib/cmake/${PROJECT_NAME}-${MIMMO_MAJOR_VERSION}.${MIMMO_MINOR_VERSION}")
+set(MIMMO_INSTALL_CMAKE_DIR "lib/cmake/${PROJECT_NAME}-${MIMMO_MAJOR_VERSION}.${MIMMO_MINOR_VERSION}" CACHE INTERNAL "Directory in which cmake modules will be installed")
 
 #------------------------------------------------------------------------------------#
 # Generate MIMMOConfig.cmake
@@ -86,6 +86,6 @@ add_custom_target(clean-cmake COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECT
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MIMMOConfig.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MIMMOConfigVersion.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 
-install(FILES "FindBITPIT.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
+install(FILES "FindMIMMO.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 install(FILES "UseMIMMO.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 install(FILES "LibFindMacros.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")

@@ -149,3 +149,19 @@ endif()
 libfind_process(MIMMO)
 
 
+#-----------------------------------------------------------------------------
+# Find mimmo external dependencies
+#-----------------------------------------------------------------------------
+
+# Find external packages
+foreach(_DEPENDENCY @MIMMO_EXTERNAL_DEPENDENCIES@)
+    find_package("${_DEPENDENCY}" REQUIRED)
+endforeach()
+
+# Add external libraries
+list(APPEND MIMMO_LIBRARIES @MIMMO_EXTERNAL_LIBRARIES@)
+
+# Add external inclued paths
+list(APPEND MIMMO_INCLUDE_DIRS @MIMMO_EXTERNAL_INCLUDE_DIRS@)
+
+
