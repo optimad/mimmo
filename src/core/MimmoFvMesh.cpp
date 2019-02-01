@@ -262,8 +262,8 @@ void MimmoFvMesh::createBoundaryMesh(){
     for(const auto & idV: boundaryVertices){
         temp->addVertex(bulk->getVertexCoords(idV),idV);
     }
-    
-    
+
+
     short PID = 0;
     bitpit::ElementType eltype;
     livector1D conn;
@@ -276,6 +276,7 @@ void MimmoFvMesh::createBoundaryMesh(){
             conn[i] = cc[i];
         }
         eltype = bulkInterf[idI].getType();
+        PID = short(bulkInterf[idI].getPID());
         
         temp->addConnectedCell(conn, eltype, PID, idI);
     }
