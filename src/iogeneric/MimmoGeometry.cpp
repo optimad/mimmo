@@ -858,6 +858,7 @@ MimmoGeometry::read(){
         for(const auto & cc : Iconnectivity)    {
             eltype = bitpit::ElementType::UNDEFINED;
             std::size_t ccsize = cc.size();
+            if(ccsize == 1)  eltype = bitpit::ElementType::VERTEX;
             if(ccsize == 3)  eltype = bitpit::ElementType::TRIANGLE;
             if(ccsize == 4)  eltype = bitpit::ElementType::QUAD;
             m_intgeo->addConnectedCell(cc, eltype, cellsID[counter]);
@@ -1640,6 +1641,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
                 ssub != "CTRIA3*" &&
                 ssub != "CQUAD4" &&
                 ssub != "CQUAD4*" &&
+                ssub != "RBE3" &&
                 !is.eof()){
 
             getline(is,sread);
@@ -1717,6 +1719,18 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back((short)pid);
+            getline(is,sread);
+            ssub = trim(sread.substr(0,8));
+        }
+        else if(ssub == "RBE3"){
+        	//RBE3 is read as single vertex with its id
+            face.resize(1);
+            iface = stoi(sread.substr(8,8));
+            std::string dummy = (sread.substr(16,8));
+            face[0] = stoi(sread.substr(24,8));
+            faces.push_back(face);
+            facesID.push_back(iface);
+            PIDS.push_back(0);
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
