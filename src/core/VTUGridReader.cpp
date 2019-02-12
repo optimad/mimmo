@@ -48,7 +48,7 @@ VTUAbsorbStreamer::~VTUAbsorbStreamer(){}
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
  */
-void VTUAbsorbStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, 
+void VTUAbsorbStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
     bitpit::VTKBaseStreamer::absorbData(stream, name, format, entries, components, datatype);
@@ -73,7 +73,7 @@ VTUGridStreamer::~VTUGridStreamer(){}
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
  */
-void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, 
+void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
     std::size_t sizeData = std::size_t(entries/components);
@@ -169,7 +169,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : Offsets data format not available");
-                break; 
+                break;
             }
         }
     } else if (name == "types") {
@@ -237,62 +237,62 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : Types data format not available");
-                break; 
+                break;
             }
             //find ElementType
             switch (dumType)  {
                 case 1:
                     vtype = bitpit::ElementType::VERTEX;
                     break;
-                    
+
                 case 3:
                     vtype = bitpit::ElementType::LINE;
                     break;
-                    
+
                 case 5:
                     vtype = bitpit::ElementType::TRIANGLE;
                     break;
-                    
+
                 case 7:
                     vtype = bitpit::ElementType::POLYGON;
                     break;
-                    
+
                 case 8:
                     vtype = bitpit::ElementType::PIXEL;
                     break;
-                    
+
                 case 9:
                     vtype = bitpit::ElementType::QUAD;
                     break;
-                    
+
                 case 10:
                     vtype = bitpit::ElementType::TETRA;
                     break;
-                    
+
                 case 11:
                     vtype = bitpit::ElementType::VOXEL;
                     break;
-                    
+
                 case 12:
                     vtype = bitpit::ElementType::HEXAHEDRON;
                     break;
-                    
+
                 case 13:
                     vtype = bitpit::ElementType::WEDGE;
                     break;
-                    
+
                 case 14:
                     vtype = bitpit::ElementType::PYRAMID;
                     break;
-                    
+
                 case 42:
                     vtype = bitpit::ElementType::POLYHEDRON;
                     break;
-                    
+
                 default:
                     vtype = bitpit::ElementType::UNDEFINED;
                     break;
-                    
+
             }
         }
     } else if (name == "connectivity") {
@@ -358,7 +358,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : Connectivity data format not available");
-                    break; 
+                    break;
             }
         }
     } else if (name == "faces") {
@@ -424,7 +424,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : Faces data format not available");
-                    break; 
+                    break;
             }
         }
     } else if (name == "faceoffsets") {
@@ -490,7 +490,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : Faceoffsets data format not available");
-                    break; 
+                    break;
             }
         }
     } else if (name == "cellIndex") {
@@ -556,7 +556,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : CellIndex data format not available");
-                    break; 
+                    break;
             }
         }
     } else if (name == "PID") {
@@ -622,7 +622,7 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : PID data format not available");
-                    break; 
+                    break;
             }
         }
     } else if (name == "vertexIndex") {
@@ -688,14 +688,14 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUGridStreamer::absorbData : VertexIndex data format not available");
-                    break; 
+                    break;
             }
         }
     }
 }
 
 /*!
- * Use streamer absorbed data, if any, to fill vertices and cells info of target bitpit::PatchKernel container, 
+ * Use streamer absorbed data, if any, to fill vertices and cells info of target bitpit::PatchKernel container,
  * passed externally. Please notice, container must be empty.
  * \param[in] patch    container for mesh
  */
@@ -712,10 +712,10 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
     if(nCells == 0 || types.empty() || connectivitylist.size() < nCells ){
         throw std::runtime_error("Error VTUGridStreamer : no valid connectivity/offsets/types info detected while reading *.vtu file.");
     }
-    
+
     patch.reserveVertices(nVertices);
     patch.reserveCells(nCells);
-    
+
     //reading mesh nodes and store it in vertices.
     //check labels if any;
     bool checkPointsID;
@@ -749,7 +749,7 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
     long idC=0;
     int posCellBegin = 0, posFaceBegin=0;
     bitpit::ElementType eltype;
-    short PID;
+    long PID;
     livector1D conn;
     std::size_t connSize;
     for(const auto & off : offsets){
@@ -758,7 +758,7 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
         if(checkCellsID)  {idC= cellsID[counter];}
         if(checkPID)      {PID = pids[counter];}
         eltype = types[counter];
-        
+
         if(eltype == bitpit::ElementType::POLYHEDRON){
             if(!checkFaceOffset){
                 throw std::runtime_error("Error VTUGridStreamer : trying to acquire POLYHEDRON info without faces and faceoffsets data");
@@ -797,10 +797,10 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
                 ++loc;
             }
         }
-        
+
         bitpit::PatchKernel::CellIterator it = patch.addCell(eltype, true, conn, idC);
         (*it).setPID(PID);
-        
+
         posCellBegin = off;
         if(checkFaceOffset){
             if(faceoffsets[counter] > 0)    posFaceBegin = faceoffsets[counter];
@@ -828,7 +828,7 @@ VTUPointCloudStreamer::~VTUPointCloudStreamer(){}
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
  */
-void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, 
+void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
     std::size_t sizeData = std::size_t(entries/components);
@@ -858,7 +858,7 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
                         throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
                         break;
                 }
-                
+
             }
         }
     }else if (name == "vertexIndex") {
@@ -924,14 +924,14 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
                 case bitpit::VTKDataType::UInt64 :
                 default:
                     throw std::runtime_error("VTUPointCloudStreamer::absorbData : VertexIndex data format not available");
-                    break; 
+                    break;
             }
         }
     }
 }
 
 /*!
- * Use streamer absorbed data, if any, to fill vertices of target bitpit::PatchKernel container, 
+ * Use streamer absorbed data, if any, to fill vertices of target bitpit::PatchKernel container,
  * passed externally. Please notice, container must be empty.
  * \param[in] patch    container for mesh
  */
@@ -968,7 +968,7 @@ void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
 
 
 /*!
- * Base constructor. Linked reference bitpit::PatchKernel container must be empty. If not, 
+ * Base constructor. Linked reference bitpit::PatchKernel container must be empty. If not,
  * class will provide to destroy its previous contents and fill it with new read values.
  * \param[in] dir   target directory of file to be read
  * \param[in] name  name fo the file to be read.
@@ -976,7 +976,7 @@ void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
  * \param[in] streamer streaming class to absorb VTK data.
  * \param[in] eltype [optional] force the elementtype of the grid.
  */
-VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch, bitpit::VTKElementType eltype) : 
+VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch, bitpit::VTKElementType eltype) :
                               VTKUnstructuredGrid(dir, name, eltype), m_patch(patch), m_streamer(streamer)
 {
     for(auto & field : m_geometry){
@@ -1006,6 +1006,3 @@ void VTUGridReader::read(){
 }
 
 }
-
-
-

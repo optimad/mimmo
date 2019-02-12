@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -47,7 +47,7 @@ FVGenericSelection::FVGenericSelection(int topo){
 FVGenericSelection::~FVGenericSelection(){};
 
 /*!
- * Copy Constructor, any already calculated selection is not copied. 
+ * Copy Constructor, any already calculated selection is not copied.
  */
 FVGenericSelection::FVGenericSelection(const FVGenericSelection & other):BaseManipulation(other){
     m_type = other.m_type;
@@ -57,7 +57,7 @@ FVGenericSelection::FVGenericSelection(const FVGenericSelection & other):BaseMan
 };
 
 /*!
- * Copy operator, any already calculated selection is not copied. 
+ * Copy operator, any already calculated selection is not copied.
  */
 FVGenericSelection & FVGenericSelection::operator=(const FVGenericSelection & other){
     *(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation * >(&other));
@@ -204,7 +204,7 @@ FVGenericSelection::isDual(){
 };
 
 
-/*! 
+/*!
  * Execute your object. A selection is extracted and trasferred in
  * two indipendent MimmoObject structures pointed by m_volpatch and m_bndpatch members
  */
@@ -220,18 +220,18 @@ FVGenericSelection::execute(){
     if(!checkCoherenceBulkBoundary()){
         throw std::runtime_error (m_name + " : connected bulk and boundary geometries are not coherent");
     }
-    
+
     m_volpatch.reset(nullptr);
     m_bndpatch.reset(nullptr);
-    
+
     livector1D extractedVol;
-    short maxPID = 0;
-    std::unordered_map<short,livector1D> extractedBndVert;
+    long maxPID = 0;
+    std::unordered_map<long,livector1D> extractedBndVert;
     {
-        std::unordered_map<short,livector1D> extractedBnd;
-        
+        std::unordered_map<long,livector1D> extractedBnd;
+
         extractSelection(extractedVol, extractedBnd);
-        
+
         for (const auto & touple: extractedBnd){
             extractedBndVert[touple.first] = m_bndgeometry->getVertexFromCellList(touple.second);
             maxPID = std::max(touple.first, maxPID);
@@ -248,14 +248,14 @@ FVGenericSelection::execute(){
         topovol = 1;
         topobnd = 4;
     }
-    
+
     std::unique_ptr<MimmoObject> tempVol(new MimmoObject(topovol));
     std::unique_ptr<MimmoObject> tempBnd(new MimmoObject(topobnd));
 
     {
         livector1D TT;
         bitpit::ElementType eltype;
-        short PID;
+        long PID;
 
         livector1D vertExtracted = m_geometry->getVertexFromCellList(extractedVol);
         for(const auto & idV : vertExtracted){
@@ -265,15 +265,15 @@ FVGenericSelection::execute(){
         for(const auto & idCell : extractedVol){
             bitpit::Cell & cell = m_geometry->getPatch()->getCell(idCell);
             eltype = cell.getType();
-            PID = (short)cell.getPID();
+            PID = (long)cell.getPID();
             TT = m_geometry->getCellConnectivity(idCell);
             tempVol->addConnectedCell(TT,eltype, PID, idCell);
             TT.clear();
         }
-        
+
         tempVol->buildInterfaces();
     }
-    
+
     //now create boundary mesh of selection.
     {
         std::set<long> boundaryInterfaces;
@@ -286,19 +286,19 @@ FVGenericSelection::execute(){
                 boundaryVertices.insert(vcount.begin(), vcount.end());
             }
         }
-        
+
         //fill new boundary
         bitpit::PiercedVector<bitpit::Interface> & bulkInterf = tempVol->getInterfaces();
-        
+
         for(const auto & idV: boundaryVertices){
             tempBnd->addVertex(tempVol->getVertexCoords(idV),idV);
         }
-        
-        short PID = maxPID+1;
+
+        long PID = maxPID+1;
         bitpit::ElementType eltype;
         livector1D conn;
         for(const auto & idI: boundaryInterfaces){
-            
+
             int size = bulkInterf[idI].getConnectSize();
             conn.resize(size);
             long * cc = bulkInterf[idI].getConnect();
@@ -309,7 +309,7 @@ FVGenericSelection::execute(){
             tempBnd->addConnectedCell(conn, eltype, PID, idI);
         }
     }
-    
+
     //post-processing boundary (assign existent PID if any).
     for(auto & touple : extractedBndVert){
         livector1D cellids = tempBnd->getCellFromVertexList(touple.second, true);
@@ -317,7 +317,7 @@ FVGenericSelection::execute(){
             tempBnd->setPIDCell(cid, touple.first);
         }
     }
-    
+
     m_volpatch = std::move(tempVol);
     m_bndpatch = std::move(tempBnd);
 };
@@ -334,7 +334,7 @@ FVGenericSelection::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string namevol = m_name + "_Volume_Patch."+ std::to_string(getId());
     std::string namebnd = m_name + "_Boundary_Patch."+ std::to_string(getId());
-    
+
     getVolumePatch()->getPatch()->write(namevol);
     getBoundaryPatch()->getPatch()->write(namebnd);
 }
@@ -342,7 +342,7 @@ FVGenericSelection::plotOptionalResults(){
 /*!
  * Check if boundary and bulk geometry as coherence in vertex indexing.
  */
-bool 
+bool
 FVGenericSelection::checkCoherenceBulkBoundary(){
 
     livector1D vertBnd = m_bndgeometry->getVertices().getIds();

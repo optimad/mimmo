@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -31,25 +31,25 @@ using namespace mimmo;
 /*
  * Test 00003
  * Testing BasicShapes and skdTree searching.
- * extract sub-patch contained in a Cylinder 
+ * extract sub-patch contained in a Cylinder
  */
 
 
 /*!
  * Creating surface triangular mesh and return it in a MimmoObject.
  * Pidding the M of mimmo
- * 
+ *
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
  */
 bool createMimmoMesh(MimmoObject * mesh){
-	
+
 	double dx = 0.25, dy = 0.25;
 	int nV, nC;
 	//create vertexlist
 	dvecarr3E vertex(35,{{0.0,0.0,0.0}});
 	livector2D conn(48, livector1D(3));
-	
+
 	for(int i=0; i<7; ++i){
 		for(int j=0; j<5; j++){
 			nV = 5*i + j;
@@ -57,88 +57,88 @@ bool createMimmoMesh(MimmoObject * mesh){
 			vertex[nV][1] = j*dy;
 		}
 	}
-	
+
 	for(int j=0; j<4; ++j){
 		for(int i=0; i<3; ++i){
 			nC = 8*i + 2*j;
-			
-			conn[nC][0] = 5*i + j; 
+
+			conn[nC][0] = 5*i + j;
 			conn[nC][1] = 5*(i+1) + j;
 			conn[nC][2] = 5*i + j+1;
-			
-			conn[nC+1][0] = 5*(i+1) + j; 
+
+			conn[nC+1][0] = 5*(i+1) + j;
 			conn[nC+1][1] = 5*(i+1) + j+1;
 			conn[nC+1][2] = 5*i + j+1;
 		}
 	}
-	
+
 	for(int j=0; j<4; ++j){
 		for(int i=3; i<6; ++i){
 			nC = 8*i + 2*j;
-			
-			conn[nC][0] = 5*i + j; 
+
+			conn[nC][0] = 5*i + j;
 			conn[nC][1] = 5*(i+1) + j;
 			conn[nC][2] = 5*(i+1) + j+1;
-			
-			conn[nC+1][0] = 5*i + j;  
+
+			conn[nC+1][0] = 5*i + j;
 			conn[nC+1][1] = 5*(i+1) + j+1;
 			conn[nC+1][2] = 5*i + j+1;
 		}
 	}
-	
-	
+
+
 	mesh->getVertices().reserve(35);
 	mesh->getCells().reserve(48);
-	
+
 	//fill the mimmoObject;
 	long cV=0;
 	for(auto & val: vertex){
 		mesh->addVertex(val, cV);
 		cV++;
 	}
-	
+
 	long cC=0;
 	bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
 	for(auto & val: conn){
 		mesh->addConnectedCell(val, eltype, cC);
 		cC++;
 	}
-	
+
 
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertex() == 35);
-	
+
 	mesh->buildAdjacencies();
 	return check;
 }
 
 /*!
  * Extract a submesh from a target MimmoObject mesh.
- * 
+ *
  * \param[in] mesh pointer to a MimmoObject target mesh .
  * \param[in] list of cells to extract for target mesh.
  * \return unique_ptr to new mimmoobject mesh
  */
 std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & list){
-	
+
 	std::unique_ptr<MimmoObject> result(new MimmoObject(original->getType()));
-	
+
 	//fill the mimmoObject;
-	short pid;
+	long pid;
 	bitpit::ElementType eltype = bitpit::ElementType::TRIANGLE;
-	
+
 	livector1D vertlist = original->getVertexFromCellList(list);
-	
+
 	for(auto & val: vertlist){
 		result->addVertex(original->getVertexCoords(val), val);
 	}
-	
+
 	for(auto & val: list){
 		pid = original->getCells()[val].getPID();
 		result->addConnectedCell(original->getCellConnectivity(val), eltype, pid, val);
 	}
-	
+
 	result->buildAdjacencies();
-	
+
 	return std::move(result);
 }
 
@@ -148,13 +148,13 @@ std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & 
 // =================================================================================== //
 
 int test3() {
-	
+
 	MimmoObject * mesh = new MimmoObject();
 	livector1D list;
-	
+
 	//create the target mesh;
 	bool check = createMimmoMesh(mesh);
-	
+
 	if(!check){
 		std::cout<<"ERROR.Not able to create MimmoObject mesh"<<std::endl;
 		delete mesh;
@@ -163,20 +163,20 @@ int test3() {
 		mesh->getPatch()->write("original_t3");
 		std::cout<<"Target Mesh written to file original_t3.vtu"<<std::endl;
 	}
-	
+
 	Cylinder * shape = new Cylinder();
 	shape->setOrigin({{-0.00001, 0.5,0.0}});
 	shape->setSpan({{0.51, M_PI, 1.2}});
 	shape->setInfLimits({{0.0,-0.5*M_PI, 0.0}});
 	shape->setRefSystem(2, {{0.0,1.0,0.0}});
-	
+
 	list.reserve(16);
 	for(int i=0; i<16; ++i)	list.push_back(i);
-	
+
 	//extract a sub mesh from target.
 	auto listex = shape->includeGeometry(mesh);
 	check = (listex.size() == list.size());
-	
+
 	if(check){
 		std::sort(listex.begin(), listex.end());
 		int counter = 0;
@@ -185,7 +185,7 @@ int test3() {
 			++counter;
 		}
 	}
-	
+
 	std::unique_ptr<MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch included in the cylindrical shape w/ bvTree"<<std::endl;
@@ -200,7 +200,7 @@ int test3() {
 
 	delete mesh;
 	delete shape;
-	
+
 	return 0;
 }
 
@@ -210,7 +210,7 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
+
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 
@@ -230,6 +230,6 @@ int main( int argc, char *argv[] ) {
 
 	MPI::Finalize();
 #endif
-	
+
 	return val;
 }

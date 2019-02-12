@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -50,15 +50,15 @@ FVSelectionByBox::FVSelectionByBox(const bitpit::Config::Section & rootXML){
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
-    
+
     std::string fallback_name2 = "1";
     std::string input_topo = rootXML.get("Topology", fallback_name2);
     input_topo = bitpit::utils::string::trim(input_topo);
-    
+
     int topo = std::stoi(input_topo);
     topo = std::min(2,std::max(1, topo));
     m_topo = topo;
-    
+
     if(input == "mimmo.FVSelectionByBox"){
         absorbSectionXML(rootXML);
     }else{
@@ -143,7 +143,7 @@ FVSelectionByBox::clear(){
  * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
  */
 void
-FVSelectionByBox::extractSelection(livector1D & bulk, std::unordered_map<short,livector1D> & boundary){
+FVSelectionByBox::extractSelection(livector1D & bulk, std::unordered_map<long,livector1D> & boundary){
 
     livector1D wholebnd;
     if(m_dual){
@@ -153,7 +153,7 @@ FVSelectionByBox::extractSelection(livector1D & bulk, std::unordered_map<short,l
         bulk = includeGeometry(m_geometry);
         wholebnd = includeGeometry(m_bndgeometry);
     }
-    
+
     //initialize boundary
     boundary.clear();
     for(const auto & pid: m_bndgeometry->getPIDTypeList()){
@@ -164,7 +164,7 @@ FVSelectionByBox::extractSelection(livector1D & bulk, std::unordered_map<short,l
     //split wholebnd for pid.
     for(const auto & cid : wholebnd){
         int pid = m_bndgeometry->getPatch()->getCell(cid).getPID();
-        boundary[short(pid)].push_back(cid);
+        boundary[long(pid)].push_back(cid);
     }
 };
 
@@ -192,8 +192,8 @@ FVSelectionByBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
     }else{
         warningXML(m_log, m_name);
     }
-    
-    
+
+
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
         input = bitpit::utils::string::trim(input);
@@ -282,7 +282,7 @@ FVSelectionByBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML,name);
-    
+
     slotXML.set("Topology", std::to_string(m_topo));
     slotXML.set("Dual", std::to_string(int(m_dual)));
     {

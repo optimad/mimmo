@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -44,7 +44,7 @@ GenericSelection::~GenericSelection(){
 };
 
 /*!
- * Copy Constructor, any already calculated selection is not copied. 
+ * Copy Constructor, any already calculated selection is not copied.
  */
 GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulation(other){
     m_type = other.m_type;
@@ -53,7 +53,7 @@ GenericSelection::GenericSelection(const GenericSelection & other):BaseManipulat
 };
 
 /*!
- * Copy operator, any already calculated selection is not copied. 
+ * Copy operator, any already calculated selection is not copied.
  */
 GenericSelection & GenericSelection::operator=(const GenericSelection & other){
     *(static_cast<BaseManipulation *>(this)) = *(static_cast<const BaseManipulation * >(&other));
@@ -193,7 +193,7 @@ GenericSelection::constrainedBoundary(){
     }
     motherBCells.clear();
     daughterBCells.clear();
-    
+
     //get vertex of the cleaned daughter boundary.
     std::set<long> containerVert;
     for(const auto & sT  :survivors){
@@ -207,12 +207,12 @@ GenericSelection::constrainedBoundary(){
     livector1D result;
     result.reserve(containerVert.size());
     result.insert(result.end(), containerVert.begin(), containerVert.end());
-    
+
     return result;
 };
 
 
-/*! 
+/*!
  * Execute your object. A selection is extracted and trasferred in
  * an indipendent MimmoObject structure pointed by m_subpatch member
  */
@@ -239,7 +239,7 @@ GenericSelection::execute(){
 
     livector1D TT;
     bitpit::ElementType eltype;
-    short PID;
+    long PID;
     if (m_topo != 3){
 
         livector1D vertExtracted = getGeometry()->getVertexFromCellList(extracted);
@@ -251,7 +251,7 @@ GenericSelection::execute(){
 
             bitpit::Cell & cell = getGeometry()->getPatch()->getCell(idCell);
             eltype = cell.getType();
-            PID = (short)cell.getPID();
+            PID = (long)cell.getPID();
             TT = getGeometry()->getCellConnectivity(idCell);
             temp->addConnectedCell(TT,eltype, PID, idCell);
             TT.clear();

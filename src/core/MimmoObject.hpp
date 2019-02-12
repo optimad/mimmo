@@ -71,7 +71,7 @@ public:
     virtual ~MimmoVolUnstructured();
     // Clone
     std::unique_ptr<bitpit::PatchKernel> clone() const;
-    
+
 protected:
     /*! Copy Constructor*/
     MimmoVolUnstructured(const MimmoVolUnstructured &) = default;
@@ -89,7 +89,7 @@ public:
     virtual ~MimmoPointCloud();
     // Clone
     std::unique_ptr<bitpit::PatchKernel> clone() const;
-    
+
 protected:
     /*! Copy Constructor*/
     MimmoPointCloud(const MimmoPointCloud &) = default;
@@ -100,10 +100,10 @@ protected:
 * \class MimmoObject
 * \brief MimmoObject is the basic geometry container for mimmo library
 *
-* MimmoObject is the basic container for 3D geometry unustructured mesh data structure, 
+* MimmoObject is the basic container for 3D geometry unustructured mesh data structure,
 * based on bitpit::PatchKernel containers.
 * MimmoObject can handle unustructured surface meshes, unustructured volume meshes, 3D point clouds and 3D tessellated curves.
-* It supports interface methods to explore and handle the geometrical structure. It supports PID convention to mark subparts 
+* It supports interface methods to explore and handle the geometrical structure. It supports PID convention to mark subparts
 * of geometry as well as building the search-trees KdTree (3D point spatial ordering) and skdTree(Cell-AABB spatial ordering)
 * to quickly retrieve vertices and cells in the data structure.
 */
@@ -117,8 +117,8 @@ private:
 protected:
 //members
     int                                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
-    std::unordered_set<short>                               m_pidsType;        /**<pid type available for your geometry */
-    std::unordered_map<short, std::string>                  m_pidsTypeWNames;   /**<pid type available for your geometry, with name attached */
+    std::unordered_set<long>                                m_pidsType;        /**<pid type available for your geometry */
+    std::unordered_map<long, std::string>                   m_pidsTypeWNames;   /**<pid type available for your geometry, with name attached */
     std::unique_ptr<bitpit::PatchSkdTree>                   m_skdTree;         /**< ordered tree of geometry simplicies for fast searching purposes */
     std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> > m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
     bool                                                    m_skdTreeSync;      /**< track correct building of bvtree. Set false if any geometry modifications occur */
@@ -130,7 +130,7 @@ protected:
     bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
 public:
-    MimmoObject(int type = 1); 
+    MimmoObject(int type = 1);
     MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
     MimmoObject(int type, bitpit::PatchKernel* geometry);
     MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry);
@@ -159,14 +159,14 @@ public:
 
     bitpit::PiercedVector<bitpit::Interface> &           getInterfaces();
     const bitpit::PiercedVector<bitpit::Interface> &     getInterfaces() const;
-    
+
     livector1D                                      getCellsIds();
     bitpit::PatchKernel*                            getPatch();
     const bitpit::PatchKernel*                      getPatch() const;
-    std::unordered_set<short> &                     getPIDTypeList();
-    std::unordered_map<short, std::string> &        getPIDTypeListWNames();
-    shivector1D                                     getCompactPID();
-    std::unordered_map<long, short>                 getPID();
+    std::unordered_set<long> &                      getPIDTypeList();
+    std::unordered_map<long, std::string> &         getPIDTypeListWNames();
+    livector1D                                      getCompactPID();
+    std::unordered_map<long, long>                  getPID();
 
     BITPIT_DEPRECATED(bitpit::PatchSkdTree*         getBvTree());
     bitpit::PatchSkdTree*                           getSkdTree();
@@ -184,12 +184,12 @@ public:
     bool        modifyVertex(const darray3E & vertex, const long & id);
     bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag = bitpit::Cell::NULL_ID);
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, short PID, long idtag = bitpit::Cell::NULL_ID);
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag);
 
-    void        setPID(shivector1D ); 
-    void        setPID(std::unordered_map<long, short>  ); 
-    void        setPIDCell(long, short);
-    bool        setPIDName(short, const std::string &);
+    void        setPID(livector1D );
+    void        setPID(std::unordered_map<long, long>  );
+    void        setPIDCell(long, long);
+    bool        setPIDName(long, const std::string &);
     void        resyncPID();
 
     BITPIT_DEPRECATED(void        setHARDCopy(const MimmoObject * other));
@@ -205,9 +205,9 @@ public:
     livector1D                          extractBoundaryCellID();
     std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID();
     livector1D                          extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
-    
-    livector1D  extractPIDCells(short);
-    livector1D  extractPIDCells(shivector1D);
+
+    livector1D  extractPIDCells(long);
+    livector1D  extractPIDCells(livector1D);
 
     livector1D  getMapData();
     liimap      getMapDataInv();
@@ -232,29 +232,29 @@ public:
 
     void   evalCellVolumes(bitpit::PiercedVector<double> &);
     void   evalCellAspectRatio(bitpit::PiercedVector<double> &);
-    
+
     double evalCellVolume(const long & id);
     double evalCellAspectRatio(const long & id);
-    
+
     void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
     void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
-    
+
     void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
     void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
-    
+
     std::unordered_map<long,long>   getInverseConnectivity();
     std::set<long>                  findVertexVertexOneRing(const long &, const long & );
-    
+
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);
-    
+
     std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
-    
+
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
     void    cleanKdTree();
-    
+
 };
 
 };

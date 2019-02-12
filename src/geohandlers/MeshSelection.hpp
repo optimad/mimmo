@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -57,7 +57,7 @@ enum class SelectionType{
  * \class GenericSelection
  * \ingroup geohandlers
  * \brief Abstract Interface for selection classes
- * 
+ *
  * Class/BaseManipulation Object managing selection of sub-patches of MimmoObject Data structure.
  *
  * Ports available in GenericSelection Class :
@@ -171,7 +171,7 @@ protected:
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- 
+
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
  * - <B>Origin</B>: array of 3 doubles identifying origin;
  * - <B>Span</B>: span of the box (width, height, depth);
@@ -211,7 +211,7 @@ protected:
  * \class SelectionByCylinder
  * \ingroup geohandlers
  * \brief Selection through cylinder primitive.
- * 
+ *
  * Selection Object managing selection of sub-patches oof a MimmoObject Data structure.
  * Select all elements contained in a cylinder.
  *
@@ -250,7 +250,7 @@ protected:
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
- 
+
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionByCylinder</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
@@ -299,7 +299,7 @@ protected:
  * \class SelectionBySphere
  * \ingroup geohandlers
  * \brief Selection through sphere primitive.
- * 
+ *
  * Selection Object managing selection of sub-patches of a MimmoObject Data structure.
  * Select all elements contained in a sphere.
  *
@@ -341,7 +341,7 @@ protected:
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- 
+
  * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionBySphere</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
@@ -361,7 +361,7 @@ protected:
  *
  *
  * Geometry has to be mandatorily passed through port.
- 
+
  *
  */
 class SelectionBySphere: public GenericSelection, public mimmo::Sphere {
@@ -387,14 +387,14 @@ protected:
 };
 
 /*!
- * 
+ *
  * \class SelectionByMapping
  * \ingroup geohandlers
  * \brief Selection mapping external surfaces/volume/3D curves on a target mesh
  * of the same topology.
- * 
- * Selection Object managing selection of sub-patches of a MimmoObject 
- * unstructured surface mesh, unstructured volume mesh or 3D Curve mesh. Extract portion of mesh in common between 
+ *
+ * Selection Object managing selection of sub-patches of a MimmoObject
+ * unstructured surface mesh, unstructured volume mesh or 3D Curve mesh. Extract portion of mesh in common between
  * a target geometry and a second one of the same topology, provided externally. Extraction criterium
  * is based on euclidean nearness, within a prescribed tolerance.
  * Point clouds are not suitable for this selection method.
@@ -453,7 +453,7 @@ protected:
  *                          \<fullpath> absolute path to your file with extension \<fullpath\> \n
  *                          \<tag\> tag extension as supported format STL,NAS,STVTU,etc...\<tag\> \n
  *                      \<file1\> \n
- *                      ... 
+ *                      ...
  *                  \</Files\> </tt> \n
  *
  * Geometry has to be mandatorily passed through port.
@@ -507,9 +507,9 @@ private:
  * \class SelectionByPID
  * \ingroup geohandlers
  * \brief Selection using target mesh Part Identifiers.
- * 
- * Selection Object managing selection of sub-patches of MimmoObject data structure 
- * supporting Part IDentifiers (PID). Extract portion of mesh getting its PID in 
+ *
+ * Selection Object managing selection of sub-patches of MimmoObject data structure
+ * supporting Part IDentifiers (PID). Extract portion of mesh getting its PID in
  * target geometry. Point clouds are not suitable for this selection method.
  *
  * Ports available in SelectionByPID Class :
@@ -519,8 +519,8 @@ private:
      |                   Port Input   ||                                      |
      |----------------|----------------------|----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECTORSI     | setPID               | (MC_VECTOR, MD_SHORT)      |
-     | M_VALUESI      | setPID               | (MC_SCALAR, MD_SHORT)      |
+     | M_VECTORLI     | setPID               | (MC_VECTOR, MD_LONG)      |
+     | M_VALUELI      | setPID               | (MC_SCALAR, MD_LONG)      |
 
      |             Port Output     ||                                         |
      |----------------|---------------------|-----------------------|
@@ -556,36 +556,36 @@ private:
  *
  * Proper of the class:
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>nPID</B>: number of PID to be selected relative to target geometry; 
- * - <B>PID</B>: list of PID (separated by blank spaces) to be selected relative to target geometry; 
+ * - <B>nPID</B>: number of PID to be selected relative to target geometry;
+ * - <B>PID</B>: list of PID (separated by blank spaces) to be selected relative to target geometry;
  *
  * Geometry has to be mandatorily passed through port.
  */
 class SelectionByPID: public GenericSelection {
 
 private:
-    std::unordered_set<short>       m_setPID;    /**< list of pid given by the user */
-    std::unordered_map<short,bool> m_activePID; /**< list of pid available in geometry, to be flagged as active or not*/
+    std::unordered_set<long>       m_setPID;    /**< list of pid given by the user */
+    std::unordered_map<long,bool> m_activePID; /**< list of pid available in geometry, to be flagged as active or not*/
 
 public:
     SelectionByPID();
     SelectionByPID(const bitpit::Config::Section & rootXML);
-    SelectionByPID(shivector1D & pidlist, MimmoObject * target);
+    SelectionByPID(livector1D & pidlist, MimmoObject * target);
     virtual ~SelectionByPID();
     SelectionByPID(const SelectionByPID & other);
     SelectionByPID & operator=(SelectionByPID other);
 
     void    buildPorts();
 
-    shivector1D getPID();
-    shivector1D    getActivePID(bool active= true);
+    livector1D getPID();
+    livector1D    getActivePID(bool active= true);
 
     void     setGeometry(MimmoObject * );
-    void     setPID(short i = -1);
-    void     setPID(shivector1D);
+    void     setPID(long i = -1);
+    void     setPID(livector1D);
 
-    void     removePID(short i = -1);
-    void     removePID(shivector1D);
+    void     removePID(long i = -1);
+    void     removePID(livector1D);
 
     void     syncPIDList();
     void     clear();
@@ -603,7 +603,7 @@ protected:
  * \class SelectionByBoxWithScalar
  * \ingroup geohandlers
  * \brief Selection through volume box primitive.
- * 
+ *
  * Selection Object managing selection of MimmoObject Data Structure.
  * Select all elements contained in a box and extract
  * a scalar field if it is present.
@@ -664,7 +664,7 @@ protected:
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  *Inherited from SelectionByBox:
- 
+
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
  * - <B>Origin</B>: array of 3 doubles identifying origin;
  * - <B>Span</B>: span of the box (width, height, depth);
@@ -706,7 +706,7 @@ public:
     void plotOptionalResults();
 protected:
     void swap(SelectionByBoxWithScalar &) noexcept;
-    
+
 };
 
 
@@ -718,8 +718,7 @@ REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_INFLIMITS, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __MESHSELECTION_HPP__)
-REGISTER_PORT(M_VECTORSI, MC_VECTOR, MD_SHORT, __MESHSELECTION_HPP__)
-REGISTER_PORT(M_VALUESI, MC_SCALAR, MD_SHORT, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_VALUELI, MC_SCALAR, MD_LONG, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __MESHSELECTION_HPP__)
 
 

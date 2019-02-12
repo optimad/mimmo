@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -47,7 +47,7 @@ enum class FVSelectionType{
  * \class FVGenericSelection
  * \ingroup geohandlers
  * \brief Abstract Interface for selection classes related to Volume Unstructured Mesh
- * 
+ *
  * Class/BaseManipulation Object managing selection of sub-patches of MimmoFvMesh data structures.
  *
  * Ports available in FVGenericSelection Class :
@@ -60,14 +60,14 @@ enum class FVSelectionType{
      | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
      | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | setBoundary          | (MC_SCALAR, MD_MIMMO_)  |
-     
+
 
      |             Port Output     ||                                      |
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM         | getVolumePatch        | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | getBoundaryPatch      | (MC_SCALAR, MD_MIMMO_)  |
-     
+
  *    =========================================================
  *
  */
@@ -100,7 +100,7 @@ public:
     const MimmoObject*    getBoundaryPatch()const;
     MimmoObject    *        getVolumePatch();
     MimmoObject    *        getBoundaryPatch();
-    
+
     bool                isDual();
 
     void        execute();
@@ -111,7 +111,7 @@ protected:
     /*!
      * Extract selection from target geometry
      */
-    virtual void extractSelection(livector1D &, std::unordered_map<short,livector1D> &) = 0;
+    virtual void extractSelection(livector1D &, std::unordered_map<long,livector1D> &) = 0;
     void swap(FVGenericSelection &x) noexcept;
     bool checkCoherenceBulkBoundary();
 };
@@ -150,8 +150,8 @@ protected:
      | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
      | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | setBoundary          | (MC_SCALAR, MD_MIMMO_)  |
-     
-     
+
+
      |             Port Output     ||                                      |
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
@@ -201,7 +201,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<short,livector1D> &);
+    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
     void swap(FVSelectionByBox &) noexcept;
 };
 
@@ -209,7 +209,7 @@ protected:
  * \class FVSelectionByCylinder
  * \ingroup geohandlers
  * \brief Selection through cylinder primitive.
- * 
+ *
  * Selection Object managing selection of sub-patches oof a MimmoFvMesh Data structure.
  * Select all elements contained in a cylinder.
  *
@@ -238,8 +238,8 @@ protected:
      | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
      | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | setBoundary          | (MC_SCALAR, MD_MIMMO_)  |
-     
-     
+
+
      |             Port Output     ||                                      |
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
@@ -249,7 +249,7 @@ protected:
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
- 
+
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.FVSelectionByCylinder</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
@@ -291,7 +291,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<short,livector1D> &);
+    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
     void swap(FVSelectionByCylinder &) noexcept;
 };
 
@@ -299,7 +299,7 @@ protected:
  * \class FVSelectionBySphere
  * \ingroup geohandlers
  * \brief Selection through sphere primitive.
- * 
+ *
  * Selection Object managing selection of sub-patches of a MimmoFvMesh Data structure.
  * Select all elements contained in a sphere.
  *
@@ -328,8 +328,8 @@ protected:
      | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
      | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | setBoundary          | (MC_SCALAR, MD_MIMMO_)  |
-     
-     
+
+
      |             Port Output     ||                                      |
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
@@ -342,7 +342,7 @@ protected:
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- 
+
  * - <B>ClassName</B>: name of the class as <tt>mimmo.FVSelectionBySphere</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
@@ -363,7 +363,7 @@ protected:
  *
  *
  * Geometry has to be mandatorily passed through port.
- 
+
  *
  */
 class FVSelectionBySphere: public FVGenericSelection, public mimmo::Sphere {
@@ -384,7 +384,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<short,livector1D> &);
+    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
     void swap(FVSelectionBySphere &) noexcept;
 };
 

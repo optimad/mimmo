@@ -38,7 +38,7 @@ namespace mimmo{
  * \brief struct containing basic information on boundary patch defined in MimmoFvMesh class.
  */
 struct InfoBoundaryPatch{
-    
+
     std::string name;  /**< name of boundary patch */
     std::string type;  /**< type of boundary condition string identifier */
 
@@ -53,13 +53,13 @@ struct InfoBoundaryPatch{
 * \brief MimmoFvMesh is an abstract executable class for handling
 * 3D and 2D mesh with their boundary information
 *
-* Basically it is a wrapping container of two MimmoObject, one holding the bulk volume/surface mesh information, 
+* Basically it is a wrapping container of two MimmoObject, one holding the bulk volume/surface mesh information,
 * and the other holding esplicitly the mesh boundaries.
-* The link between bulk and boundaries is guaranteed with a one-to-one correspondance between ids of 
+* The link between bulk and boundaries is guaranteed with a one-to-one correspondance between ids of
 * bulk Interfaces at mesh border and boundary mesh Cells.
 * Multi-patch subdivision of the boundary mesh is achieved assigning PID on boundary mesh cells.
 * External Additional info can be appended to each boundary patch.
-* 
+*
 * Ports available in MimmoFvMesh class:
 *
 * =========================================================
@@ -68,18 +68,18 @@ struct InfoBoundaryPatch{
 *  |<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
 *  | M_GEOM      | setGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
 *  | M_GEOM2     | setBoundaryGeometry                   | (MC_SCALAR, MD_MIMMO_)      |
-* 
-* 
+*
+*
 *  | Port Output | | |
 *  |-|-|-|
 *  |<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
 *  | M_GEOM      | getGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
 *  | M_GEOM2     | getBoundaryGeometry                   | (MC_SCALAR, MD_MIMMO_)      |
-* 
+*
 * =========================================================
-* 
+*
 * The xml available parameters, sections and subsections  are the following:
-* 
+*
 * Inherited from BaseManipulation:
 * - <B>ClassName</B>: name of the class as "mimmo.MimmoFvMesh"
 * - <B>Priority</B>: uint marking priority in multi-chain execution;
@@ -97,7 +97,7 @@ protected:
     bool                                    m_internalBoundary;  /**< flag to track if boundary is internally created/hold */
 
     //members
-    std::unordered_map<short, InfoBoundaryPatch>   m_infoBoundary; /**< list of additional info on boundary patches */
+    std::unordered_map<long, InfoBoundaryPatch>   m_infoBoundary; /**< list of additional info on boundary patches */
 
 public:
     MimmoFvMesh();
@@ -105,20 +105,20 @@ public:
     virtual ~MimmoFvMesh();
 
     MimmoFvMesh(const MimmoFvMesh & other);
-    
+
     void buildPorts();
-    
+
     void    setGeometry(MimmoObject * bulk);
     void    setBoundaryGeometry(MimmoObject * boundary);
     MimmoObject * getGeometry();
     MimmoObject * getBoundaryGeometry();
-    
-    void                addInfoBoundaryPatch(const short & PID, const InfoBoundaryPatch & info);
-    InfoBoundaryPatch   getInfoBoundaryPatch(const short & PID);
-    
+
+    void                addInfoBoundaryPatch(const long & PID, const InfoBoundaryPatch & info);
+    InfoBoundaryPatch   getInfoBoundaryPatch(const long & PID);
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-    
+
 protected:
     void    swap(MimmoFvMesh & ) noexcept;
     void    createBoundaryMesh();

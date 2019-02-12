@@ -130,11 +130,11 @@ ExtractVectorField::clear(){
 /*!
  * Plot extracted field over the target geometry
  */
-void 
+void
 ExtractVectorField::plotOptionalResults(){
-    
+
     if (m_result.size() == 0 || m_result.getGeometry() == NULL) return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_result.getDataLocation()){
         case MPVLocation::POINT :
@@ -146,16 +146,16 @@ ExtractVectorField::plotOptionalResults(){
         default:
             (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
-            break;   
+            break;
     }
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
-    
+
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvecarr3E field_supp = m_result;
     if(!field_supp.completeMissingData({{0.0,0.0,0.0}})) return;
     dvecarr3E field = field_supp.getDataAsVector();
-    
-    
+
+
     if(m_result.getGeometry()->getType() != 3){
         m_result.getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
         m_result.getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
@@ -187,42 +187,42 @@ ExtractVectorField::plotOptionalResults(){
  */
 bool
 ExtractVectorField::extract(){
-    
+
     if (getGeometry() == NULL || m_field.getGeometry() == NULL) return false;
     //checking internal ids coherence of the field.
     if(!m_field.checkDataIdsCoherence()) return false;
-    
+
     mimmo::MPVLocation refLoc = m_field.getDataLocation();
     if(refLoc == mimmo::MPVLocation::UNDEFINED) refLoc = mimmo::MPVLocation::POINT;
 
     m_result.clear();
     m_result.setDataLocation(refLoc);
-    
+
     switch(m_mode){
         case ExtractMode::ID :
             extractID(refLoc);
             m_result.setGeometry(getGeometry());
             break;
-            
+
         case ExtractMode::PID :
             extractPID(refLoc);
             m_result.setGeometry(m_field.getGeometry());
             break;
-            
+
         case ExtractMode::MAPPING :
             extractMapping(refLoc);
             m_result.setGeometry(getGeometry());
             break;
-            
-        default : 
+
+        default :
             assert(false && "unrecognized field location");
             break;
     }
-    
+
     if (m_result.isEmpty()) return false;
-    
+
     return true;
-    
+
 }
 
 /*!
@@ -231,7 +231,7 @@ ExtractVectorField::extract(){
  * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
  */
 void ExtractVectorField::extractID(mimmo::MPVLocation loc){
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
             for (const auto & ID : getGeometry()->getVertices().getIds()){
@@ -267,11 +267,11 @@ void ExtractVectorField::extractID(mimmo::MPVLocation loc){
  */
 void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
     //Extract by PIDs
-    shivector1D commonPID;
+    livector1D commonPID;
     {
-        std::unordered_set<short> pidTarget = getGeometry()->getPIDTypeList();
-        std::unordered_set<short> pidLinked = m_field.getGeometry()->getPIDTypeList();
-        std::set<short> unionPID(pidTarget.begin(), pidTarget.end());
+        std::unordered_set<long> pidTarget = getGeometry()->getPIDTypeList();
+        std::unordered_set<long> pidLinked = m_field.getGeometry()->getPIDTypeList();
+        std::set<long> unionPID(pidTarget.begin(), pidTarget.end());
         unionPID.insert(pidLinked.begin(), pidLinked.end());
         for(auto val: unionPID){
             if(pidLinked.count(val) && pidTarget.count(val)){
@@ -280,7 +280,7 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
         }
     }
     livector1D cellExtracted = m_field.getGeometry()->extractPIDCells(commonPID);
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
         {
@@ -290,7 +290,7 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
                     m_result.insert(ID, m_field[ID]);
                 }
             }
-        }    
+        }
         break;
         case mimmo::MPVLocation::CELL:
             for (const auto & ID : cellExtracted){
@@ -311,7 +311,7 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
         break;
         default:
             break;
-    } 
+    }
 }
 
 /*!
@@ -320,11 +320,11 @@ void ExtractVectorField::extractPID(mimmo::MPVLocation loc){
  * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
  */
 void ExtractVectorField::extractMapping(mimmo::MPVLocation loc){
-    
+
     if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
     if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
     livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
         {
@@ -334,7 +334,7 @@ void ExtractVectorField::extractMapping(mimmo::MPVLocation loc){
                     m_result.insert(ID, m_field[ID]);
                 }
             }
-        }    
+        }
         break;
         case mimmo::MPVLocation::CELL:
             for (const auto & ID : cellExtracted){

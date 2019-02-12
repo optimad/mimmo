@@ -79,7 +79,7 @@ ClipGeometry::ClipGeometry(const ClipGeometry & other):BaseManipulation(other){
  */
 void
 ClipGeometry::buildPorts(){
-   
+
     bool built = true;
 
     built = (built && createPortIn<darray4E, ClipGeometry>(this, &mimmo::ClipGeometry::setClipPlane, M_PLANE));
@@ -97,7 +97,7 @@ ClipGeometry::buildPorts(){
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return insideout flag
  */
-bool 
+bool
 ClipGeometry::isInsideOut(){
     return(m_insideout);
 };
@@ -107,7 +107,7 @@ ClipGeometry::isInsideOut(){
  * as an indipendent MimmoObject (owned by the class).
  * \return pointer to MimmoObject clipped patch
  */
-MimmoObject * 
+MimmoObject *
 ClipGeometry::getClippedPatch(){
     return(m_patch.get());
 };
@@ -136,7 +136,7 @@ ClipGeometry::setClipPlane(darray4E plane){
  * It sets plane for clipping by point and normal
  * \param[in] origin point belonging to plane
  * \param[in] normal plane normal
- *  
+ *
  */
 void
 ClipGeometry::setClipPlane(darray3E origin, darray3E normal){
@@ -179,7 +179,7 @@ ClipGeometry::setNormal(darray3E normal){
  *  true the exact opposite.
  * \param[in] flag boolean
  */
-void 
+void
 ClipGeometry::setInsideOut(bool flag){
     m_insideout = flag;
 };
@@ -196,7 +196,7 @@ ClipGeometry::execute(){
     if(getGeometry()->isEmpty()){
         throw std::runtime_error (m_name + " : empty geometry linked.");
     };
-    
+
     /* If an implicit definition is not present it has to be computed
      * by using origin and normal.
      */
@@ -234,18 +234,18 @@ ClipGeometry::execute(){
             eltype = cell.getType();
             PID = cell.getPID();
             TT = getGeometry()->getCellConnectivity(idCell);
-            temp->addConnectedCell(TT,eltype,short(PID), idCell);
+            temp->addConnectedCell(TT,eltype,long(PID), idCell);
             TT.clear();
         }
     }
     else{
         temp->getPatch()->reserveVertices(extracted.size());
-        
+
         for(const auto & idV : extracted){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
     }
-    
+
     auto originalmap = getGeometry()->getPIDTypeListWNames();
     auto currentPIDmap = temp->getPIDTypeList();
     for(const auto & val: currentPIDmap){
@@ -322,7 +322,7 @@ ClipGeometry::plotOptionalResults(){
 
     std::cout<<getClippedPatch()->getNVertex()<<std::endl;
     std::cout<<getClippedPatch()->getNCells()<<std::endl;
-    
+
     if (getClippedPatch()->getType() != 3){
         std::string totPath = dir+"/"+name;
         getClippedPatch()->getPatch()->write(totPath);
@@ -407,9 +407,9 @@ void
 ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     int value = m_insideout;
     slotXML.set("InsideOut", std::to_string(value));
 
@@ -440,5 +440,3 @@ ClipGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 };
 
 }
-
-

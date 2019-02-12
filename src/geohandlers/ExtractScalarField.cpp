@@ -130,11 +130,11 @@ ExtractScalarField::clear(){
 /*!
  * Plot extracted field over the target geometry
  */
-void 
+void
 ExtractScalarField::plotOptionalResults(){
 
     if (m_result.size() == 0 || m_result.getGeometry() == NULL) return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_result.getDataLocation()){
         case MPVLocation::POINT :
@@ -146,7 +146,7 @@ ExtractScalarField::plotOptionalResults(){
         default:
             (*m_log)<<"warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
-        break;   
+        break;
     }
      if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
@@ -165,7 +165,7 @@ ExtractScalarField::plotOptionalResults(){
             (*m_log)<<"Warning: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;
             return;
         }
-        
+
         liimap mapDataInv;
         dvecarr3E points = m_result.getGeometry()->getVertexCoords(&mapDataInv);
         int size = points.size();
@@ -191,10 +191,10 @@ ExtractScalarField::extract(){
     if (getGeometry() == NULL || m_field.getGeometry() == NULL) return false;
     //checking internal ids coherence of the field.
     if(!m_field.checkDataIdsCoherence()) return false;
-    
+
     mimmo::MPVLocation refLoc = m_field.getDataLocation();
     if(refLoc == mimmo::MPVLocation::UNDEFINED) refLoc = mimmo::MPVLocation::POINT;
-    
+
     m_result.clear();
     m_result.setDataLocation(refLoc);
 
@@ -214,7 +214,7 @@ ExtractScalarField::extract(){
         m_result.setGeometry(getGeometry());
     break;
 
-    default : 
+    default :
         assert(false && "unrecognized field location");
         break;
     }
@@ -231,7 +231,7 @@ ExtractScalarField::extract(){
  * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
  */
 void ExtractScalarField::extractID(mimmo::MPVLocation loc){
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
         for (const auto & ID : getGeometry()->getVertices().getIds()){
@@ -268,11 +268,11 @@ void ExtractScalarField::extractID(mimmo::MPVLocation loc){
  */
 void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
     //Extract by PIDs
-    shivector1D commonPID;
+    livector1D commonPID;
     {
-        std::unordered_set<short> pidTarget = getGeometry()->getPIDTypeList();
-        std::unordered_set<short> pidLinked = m_field.getGeometry()->getPIDTypeList();
-        std::set<short> unionPID(pidTarget.begin(), pidTarget.end());
+        std::unordered_set<long> pidTarget = getGeometry()->getPIDTypeList();
+        std::unordered_set<long> pidLinked = m_field.getGeometry()->getPIDTypeList();
+        std::set<long> unionPID(pidTarget.begin(), pidTarget.end());
         unionPID.insert(pidLinked.begin(), pidLinked.end());
         for(auto val: unionPID){
             if(pidLinked.count(val) && pidTarget.count(val)){
@@ -281,7 +281,7 @@ void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
         }
     }
     livector1D cellExtracted = m_field.getGeometry()->extractPIDCells(commonPID);
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
         {
@@ -291,7 +291,7 @@ void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
                     m_result.insert(ID, m_field[ID]);
                 }
             }
-        }    
+        }
         break;
         case mimmo::MPVLocation::CELL:
             for (const auto & ID : cellExtracted){
@@ -313,7 +313,7 @@ void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
         default:
             //do nothing
             break;
-    } 
+    }
 }
 
 /*!
@@ -322,11 +322,11 @@ void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
  * \param[in] loc MPVLocation enum identifying data location POINT, CELL or INTERFACE.
  */
 void ExtractScalarField::extractMapping(mimmo::MPVLocation loc){
-    
+
     if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
     if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
     livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
-    
+
     switch(loc){
         case mimmo::MPVLocation::POINT:
         {
@@ -336,7 +336,7 @@ void ExtractScalarField::extractMapping(mimmo::MPVLocation loc){
                     m_result.insert(ID, m_field[ID]);
                 }
             }
-        }    
+        }
         break;
         case mimmo::MPVLocation::CELL:
             for (const auto & ID : cellExtracted){

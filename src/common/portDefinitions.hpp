@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -64,9 +64,10 @@
 #define M_SHAPE           "M_SHAPE"             /**< Port dedicated to communication of an elemental shape type [ mimmo::ShapeType enum ] */
 #define M_COPYSHAPE       "M_COPYSHAPE"         /**< Port dedicated to communication of an elemental shape itself, passed by pointer, instantiated elsewhere [BasicShape *]*/
 #define M_SHAPEI          "M_SHAPEI"            /**< Port dedicated to communication of an elemental shape type [int -> casted from mimmo::ShapeType enum] */
-#define M_PLANE           "M_PLANE"             /**< Port dedicated to communicate planes in a*x+b*y+c*z +d = 0 implicit form [ array < double,4 > ]*/  
+#define M_PLANE           "M_PLANE"             /**< Port dedicated to communicate planes in a*x+b*y+c*z +d = 0 implicit form [ array < double,4 > ]*/
 #define M_VALUED          "M_VALUED"            /**< Port dedicated to communication of a single scalar value [double] */
 #define M_VALUEI          "M_VALUEI"            /**< Port dedicated to communication of a single scalar value [int] */
+#define M_VALUELI         "M_VALUELI"           /**< Port dedicated to communication of a single scalar value [long] */
 #define M_VALUEB          "M_VALUEB"            /**< Port dedicated to communication of a single scalar value [bool] */
 #define M_BMATRIX         "M_BMATRIX"           /**< Port dedicated to communication of a 3x3 matrix of float values [array< array< double,3>,3>] */
 #define M_BCOEFFS         "M_BCOEFFS"           /**< Port dedicated to communication of a 3x3 matrix of float vector values [array < array< vector< double>,3>,3>] */
@@ -130,4 +131,3 @@
  */
 
 #endif
-

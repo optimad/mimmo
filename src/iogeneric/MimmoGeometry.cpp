@@ -63,8 +63,8 @@ MimmoGeometry::~MimmoGeometry(){
     clear();
 };
 
-/*!Copy constructor of MimmoGeometry.If to-be-copied object has an 
- * internal MimmoObject instantiated, it will be soft linked 
+/*!Copy constructor of MimmoGeometry.If to-be-copied object has an
+ * internal MimmoObject instantiated, it will be soft linked
  * in the current class (its pointer only will be copied in m_geometry member);
  */
 MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other){
@@ -86,8 +86,8 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other
 };
 
 /*!
- * Assignement operator of MimmoGeometry.If to-be-copied object has an 
- * internal MimmoObject instantiated, it will be soft linked 
+ * Assignement operator of MimmoGeometry.If to-be-copied object has an
+ * internal MimmoObject instantiated, it will be soft linked
  * in the current class (its pointer only will be copied in m_geometry member);
  */
 MimmoGeometry & MimmoGeometry::operator=(MimmoGeometry other){
@@ -96,7 +96,7 @@ MimmoGeometry & MimmoGeometry::operator=(MimmoGeometry other){
 };
 
 /*!
- * Swap method. 
+ * Swap method.
  * \param[in] x object to be swapped
  */
 void MimmoGeometry::swap(MimmoGeometry & x) noexcept
@@ -390,7 +390,7 @@ void MimmoGeometry::setCodex(bool binary){
 }
 
 /*!
- * Set ASCII Multi Solid STL writing. The method has effect only while writing 
+ * Set ASCII Multi Solid STL writing. The method has effect only while writing
  * standard surface triangulations in STL format type.
  * \param[in] multi boolean, true activate Multi Solid STL writing.
  */
@@ -401,7 +401,7 @@ void MimmoGeometry::setMultiSolidSTL(bool multi){
 
 /*!Sets your current class as a "HARD" copy of the argument.
  * Hard copy means that only your current geometric object MimmoObject is
- * copied as a stand alone internal member and stored in the unique pointer member m_intgeo. 
+ * copied as a stand alone internal member and stored in the unique pointer member m_intgeo.
  * Other members are exactly copied
  * \param[in] other pointer to MimmoGeometry class.
  */
@@ -415,7 +415,7 @@ MimmoGeometry::setHARDCopy(MimmoGeometry * other){
     //make a soft copy
     MimmoGeometry temp = *other;
     swap(temp);
-    
+
     //hard copy the internal mimmoobject.
     std::unique_ptr<MimmoObject> obj = other->getGeometry()->clone();
     m_intgeo = std::move(obj);
@@ -424,7 +424,7 @@ MimmoGeometry::setHARDCopy(MimmoGeometry * other){
 }
 
 /*!
- * Set geometry from an external MimmoObject source, softly linked. 
+ * Set geometry from an external MimmoObject source, softly linked.
  * Reimplementation of BaseManipulation::setGeometry
  * \param[in] external pointer to external geometry
  */
@@ -469,7 +469,7 @@ MimmoGeometry::getVertices(){
 
 /*!
  * Return a pointer to the Cell structure of the MimmoObject geometry actually pointed or allocated by
- * the class. If no geometry is actually available return a nullptr 
+ * the class. If no geometry is actually available return a nullptr
  * \return pointer to the cells structure
  */
 bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
@@ -480,11 +480,11 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
 
 /*!
  * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
- * structure will be erased and substituted by the new ones. Connectivity information in a pre-existent 
- * cell list will be lost, so be careful. If an internal object is not 
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
- * doing anything even in case of argument pointing to nullptr; 
- * \param[in] vertices pointer to a vertex PiercedVector structure 
+ * structure will be erased and substituted by the new ones. Connectivity information in a pre-existent
+ * cell list will be lost, so be careful. If an internal object is not
+ * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without
+ * doing anything even in case of argument pointing to nullptr;
+ * \param[in] vertices pointer to a vertex PiercedVector structure
  */
 void
 MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
@@ -494,10 +494,10 @@ MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
 
 /*!
  * Wrapping to set cells to your internal MimmoObject structure ONLY. Cells in the internal
- * structure will be erased and substituted by the new ones. If an internal object is not 
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without 
- * doing anything even in case of argument pointing to nullptr; 
- * \param[in] cells pointer to a cell PiercedVector structure 
+ * structure will be erased and substituted by the new ones. If an internal object is not
+ * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without
+ * doing anything even in case of argument pointing to nullptr;
+ * \param[in] cells pointer to a cell PiercedVector structure
  */
 void
 MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
@@ -509,7 +509,7 @@ MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
  * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential order. If pids size does not match number of current cell does nothing
  */
 void
-MimmoGeometry::setPID(shivector1D pids){
+MimmoGeometry::setPID(livector1D pids){
     getGeometry()->setPID(pids);
 };
 
@@ -517,20 +517,20 @@ MimmoGeometry::setPID(shivector1D pids){
  * \param[in] pidsMap PIDs map list w/ id of the cell as first value, and pid as second value.
  */
 void
-MimmoGeometry::setPID(std::unordered_map<long, short> pidsMap){
+MimmoGeometry::setPID(std::unordered_map<long, long> pidsMap){
     getGeometry()->setPID(pidsMap);
 };
 
 /*!
- * Set a reference PID for the whole geometry cell. If the geometry is already pidded, all existent pid's 
+ * Set a reference PID for the whole geometry cell. If the geometry is already pidded, all existent pid's
  * will be translated w.r.t. the value of the reference pid. Default value is 0. Maximum value allowed is 30000.
- * The effect of reference pidding will be available only after the execution of the class. After execution, reference PID will 
+ * The effect of reference pidding will be available only after the execution of the class. After execution, reference PID will
  * be reset ot zero.
  * \param[in] pid reference pid to assign to the geometry cells
  */
 void
-MimmoGeometry::setReferencePID(short int pid){
-    m_refPID = std::max(short(0), std::min(pid, short(30000)));
+MimmoGeometry::setReferencePID(long pid){
+    m_refPID = std::max(long(0),pid);
 }
 
 /*!It sets if the SkdTree of the patch has to be built during execution.
@@ -566,7 +566,7 @@ MimmoGeometry::setBuildKdTree(bool build){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty(){
-    if(getGeometry() == NULL)   return true; 
+    if(getGeometry() == NULL)   return true;
     return getGeometry()->isEmpty();
 }
 
@@ -576,7 +576,7 @@ bool MimmoGeometry::isEmpty(){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty() const{
-    if(getGeometry() == NULL)   return true; 
+    if(getGeometry() == NULL)   return true;
     return getGeometry()->isEmpty();
 }
 
@@ -667,8 +667,8 @@ MimmoGeometry::write(){
         livector1D   elementsID = getGeometry()->getCells().getIds(false);
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
-        shivector1D pids = getGeometry()->getCompactPID();
-        std::unordered_set<short>  pidsset = getGeometry()->getPIDTypeList();
+        livector1D pids = getGeometry()->getCompactPID();
+        std::unordered_set<long>  pidsset = getGeometry()->getPIDTypeList();
         if (pids.size() == connectivity.size()){
             nastran.write(m_winfo.fdir,m_winfo.fname,points, pointsID, connectivity,elementsID, &pids, &pidsset);
         }else{
@@ -730,7 +730,7 @@ MimmoGeometry::write(){
     return false;
 };
 
-/*!It reads the mesh geometry from an input file and reverse it in the internal 
+/*!It reads the mesh geometry from an input file and reverse it in the internal
  * MimmoObject container. If an external container is linked skip reading and doing nothing.
  * \return False if file doesn't exists or not found geometry container address.
  */
@@ -768,7 +768,7 @@ MimmoGeometry::read(){
         bool binary = true;
         if (sstype == "solid" || sstype == "SOLID") binary = false;
         in.close();
-        
+
         std::unordered_map<int,std::string> mapPIDSolid;
         dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
 
@@ -779,11 +779,11 @@ MimmoGeometry::read(){
         for(const auto & cell : getGeometry()->getCells() ){
             mapset.insert(cell.getPID());
         }
-        std::unordered_map<short, std::string> & mapWNames = getGeometry()->getPIDTypeListWNames();
+        std::unordered_map<long, std::string> & mapWNames = getGeometry()->getPIDTypeListWNames();
         for(const auto & val :mapset ){
             mapWNames[val] = mapPIDSolid[val];
         }
-        
+
     }
     break;
 
@@ -802,26 +802,26 @@ MimmoGeometry::read(){
         getGeometry()->resyncPID();
     }
     break;
-    
+
     case FileType::VOLVTU :
         //Import Volume VTU meshes
     {
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-        
+
         setGeometry(2);
         VTUGridStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
-        
+
         getGeometry()->resyncPID();
-        
+
     }
     break;
-    
+
     case FileType::NAS :
-        //Import Surface NAS 
+        //Import Surface NAS
     {
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
         bool check = infile.good();
@@ -836,7 +836,7 @@ MimmoGeometry::read(){
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
 
-        shivector1D pids;
+        livector1D pids;
         nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, pointsID, Iconnectivity, cellsID, pids );
 
         bitpit::ElementType eltype;
@@ -898,7 +898,7 @@ MimmoGeometry::read(){
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-        
+
         setGeometry(3);
         VTUPointCloudStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), bitpit::VTKElementType::VERTEX);
@@ -913,12 +913,12 @@ MimmoGeometry::read(){
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
-        
+
         setGeometry(4);
         VTUGridStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
-        
+
         getGeometry()->resyncPID();
     }
     break;
@@ -986,7 +986,7 @@ MimmoGeometry::execute(){
  *\param[in]    inputDir    folder of file
  *\param[in]    surfaceName    name of file
  *\param[out]    points        list of points in the cloud
- * 
+ *
  */
 void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
 
@@ -1022,7 +1022,7 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
  *\param[in]    outputDir    folder of file
  *\param[in]    surfaceName    name of file
  *\param[out]    points        list of points in the cloud
- * 
+ *
  */
 void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
 
@@ -1228,7 +1228,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setBuildSkdTree(value);
     };
 
-    
+
     if(slotXML.hasOption("KdTree")){
         input = slotXML.get("KdTree");
         bool value = false;
@@ -1241,14 +1241,14 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     if(slotXML.hasOption("AssignRefPID")){
         input = slotXML.get("AssignRefPID");
-        short int value = 0;
+        long value = 0;
         if(!input.empty()){
             std::stringstream ss(bitpit::utils::string::trim(input));
             ss >> value;
         }
         setReferencePID(value);
     };
-    
+
     if(slotXML.hasOption("WriteMultiSolidSTL")){
         input = slotXML.get("WriteMultiSolidSTL");
         bool value = true;
@@ -1258,7 +1258,7 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         }
         setMultiSolidSTL(value);
     };
-    
+
 };
 
 /*!
@@ -1355,7 +1355,7 @@ void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
 }
 
 /*!
- * Write a 3D point to an ofstream 
+ * Write a 3D point to an ofstream
  * \param[in]     p         point
  * \param[in]       pointI    point label
  * \param[in,out] os        ofstream where the point is written
@@ -1414,14 +1414,14 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
 }
 
 /*!
- * Write a face to an ofstream 
+ * Write a face to an ofstream
  * \param[in]     faceType     string reporting label fo the type of element
  * \param[in]       facePts    Element Points connectivity
  * \param[in]       nFace        element label
  * \param[in,out] os        ofstream where the face is written
  * \param[in]     PID       part identifier associated to the element
  */
-void NastranInterface::writeFace(string faceType, const livector1D& facePts, const long& nFace, ofstream& os,int PID){
+void NastranInterface::writeFace(string faceType, const livector1D& facePts, const long& nFace, ofstream& os,long PID){
     // Only valid surface elements are CTRIA3 and CQUAD4
 
     // Fixed short/long formats:
@@ -1486,7 +1486,7 @@ void NastranInterface::writeFace(string faceType, const livector1D& facePts, con
 }
 
 /*!
- * Write a face to an ofstream 
+ * Write a face to an ofstream
  * \param[in]     points     list of vertices
  * \param[in]     pointsID   list of vertices labels
  * \param[in]     faces        element points connectivity
@@ -1496,7 +1496,7 @@ void NastranInterface::writeFace(string faceType, const livector1D& facePts, con
  * \return true if the geometry is correctly written.
  */
 bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D & facesID,
-                                     ofstream& os, shivector1D* PIDS){
+                                     ofstream& os, livector1D* PIDS){
 
     if(points.size() != pointsID.size())    return false;
     if(faces.size() != facesID.size())    return false;
@@ -1510,7 +1510,7 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
 
     counter = 0;
     for (const auto & f: faces){
-        int PID = 1;
+        long PID = 1;
         if (flagpid) PID = (*PIDS)[counter];
         if (f.size() == 3){
             writeFace("CTRIA3", f, facesID[counter], os, PID);
@@ -1521,16 +1521,16 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
             throw std::runtime_error ("Error NastranInterface::writeGeometry : unknown face format");
         }
     }
-    
+
     return true;
 }
 
 /*!
- * Write nastran footer to an ofstream 
+ * Write nastran footer to an ofstream
  * \param[in,out] os        ofstream where the footer is written
  * \param[in]     PIDSSET   list of overall available part identifiers
  */
-void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDSSET){
+void NastranInterface::writeFooter(ofstream& os, std::unordered_set<long>* PIDSSET){
     string separator_("");
     if (PIDSSET == NULL){
         int PID = 1;
@@ -1547,7 +1547,7 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDS
         os << nl;
     }
     else{
-        for (std::unordered_set<short>::iterator it = PIDSSET->begin(); it != PIDSSET->end(); it++)
+        for (std::unordered_set<long>::iterator it = PIDSSET->begin(); it != PIDSSET->end(); it++)
         {
             writeKeyword("PSHELL", os);
             int PID = (*it);
@@ -1584,13 +1584,13 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<short>* PIDS
  * \param[in] surfaceName    output filename
  * \param[in] points    reference of a point container that has to be written
  * \param[in] pointsID  reference of a label point container
- * \param[in] faces     reference to element-point connectivity that has to be written 
+ * \param[in] faces     reference to element-point connectivity that has to be written
  * \param[in] facesID   reference to a label element container
- * \param[in] PIDS        reference to short int vector for Part Identifiers that need to be associated to elements
+ * \param[in] PIDS        reference to long int vector for Part Identifiers that need to be associated to elements
  * \param[in] PIDSSET    map of overall available Part Identifiers
  */
 void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
-                             livector2D& faces, livector1D & facesID, shivector1D* PIDS, std::unordered_set<short>* PIDSSET){
+                             livector2D& faces, livector1D & facesID, livector1D* PIDS, std::unordered_set<long>* PIDSSET){
 
     ofstream os(outputDir +"/"+surfaceName + ".nas");
     os << "TITLE=mimmo " << surfaceName << " mesh" << nl
@@ -1613,10 +1613,10 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
  * \param[out] pointsID  reference to a label point container to be filled
  * \param[out] faces     reference to element-point connectivity that has to be filled
  * \param[out] facesID  reference to a label element container to be filled
- * \param[out] PIDS        reference to short int vector for Part Identifier storage
+ * \param[out] PIDS        reference to long int vector for Part Identifier storage
  */
 void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
-                            livector2D& faces, livector1D & facesID, shivector1D& PIDS){
+                            livector2D& faces, livector1D & facesID, livector1D& PIDS){
 
     ifstream is(inputDir +"/"+surfaceName + ".nas");
 
@@ -1630,7 +1630,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
     long iface  = 0;
     darray3E point;
     livector1D face;
-    int pid;
+    long pid;
     string sread;
     string ssub = trim(sread.substr(0,8));
 
@@ -1690,7 +1690,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             face[2] = stoi(sread.substr(80,16));
             faces.push_back(face);
             facesID.push_back(iface);
-            PIDS.push_back((short)pid);
+            PIDS.push_back(pid);
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
@@ -1718,7 +1718,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             face[3] = stoi(sread.substr(96,16));
             faces.push_back(face);
             facesID.push_back(iface);
-            PIDS.push_back((short)pid);
+            PIDS.push_back(pid);
             getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
@@ -1739,7 +1739,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
 }
 
 /*!
- * Custom trimming of nas string 
+ * Custom trimming of nas string
  * \return trimmed string
  */
 string
@@ -1752,7 +1752,7 @@ NastranInterface::trim(string in){
 }
 
 /*!
- * Convert nas string of numerical floats 
+ * Convert nas string of numerical floats
  * \return string of regular floats
  */
 string
@@ -1771,4 +1771,3 @@ NastranInterface::convertVertex(string in){
 }
 
 }
-

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -144,7 +144,7 @@ CreateSeedsOnSurface::buildPorts(){
     built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, M_VALUEI2 ));
     built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setMassCenterAsSeed, M_VALUEB));
     built = (built && createPortIn<dmpvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
-    
+
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, M_COORDS));
 
@@ -190,7 +190,7 @@ CreateSeedsOnSurface::getEngine(){
 
 /*!
  * Return seed point used for calculation. If geometry baricenter is
- * used as initial seed (see setMassCenterAsSeed), it can be 
+ * used as initial seed (see setMassCenterAsSeed), it can be
  * correctly visualized after the execution of the object.
  * \return seed point
  */
@@ -222,8 +222,8 @@ CreateSeedsOnSurface::getMinDistance(){
 /*!
  * Return the signature of the current random distribution of points on target surface,
  * whenever is fixed or not, for result replication. See setRandomFixed method.  This option will
- * only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored. 
- * \return signature. 
+ * only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
+ * \return signature.
  */
 int
 CreateSeedsOnSurface::getRandomSignature(){
@@ -280,7 +280,7 @@ CreateSeedsOnSurface::setMassCenterAsSeed(bool flag){
 }
 
 /*!
- * Set Geometry, check if its search bvtree is built, if not, build it. 
+ * Set Geometry, check if its search bvtree is built, if not, build it.
  * Point Cloud geometries, or pure Volume meshes are currently not supported by this block.
  * Reimplemented from BaseManipulation::setGeometry()
  * \param[in] geo pointer to target geometry
@@ -298,11 +298,11 @@ CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
 }
 
 /*!
- * Set the signature (each integer >= 0) of your random distribution. Same signature will be able to reproduce 
- * the exact random distribution in multiple runs. If signature is < 0 (default), point distribution will randomly 
+ * Set the signature (each integer >= 0) of your random distribution. Same signature will be able to reproduce
+ * the exact random distribution in multiple runs. If signature is < 0 (default), point distribution will randomly
  * vary run by run.It is possible to get the current signature after each random execution using the getRandomSignature method.
  * This option will only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
- *\param[in] signature integer number   
+ *\param[in] signature integer number
  */
 void
 CreateSeedsOnSurface::setRandomFixed( int signature){
@@ -311,8 +311,8 @@ CreateSeedsOnSurface::setRandomFixed( int signature){
 
 /*!
  * Set a sensitivity scalar field, referred to the target geometry linked, to drive placement of the seeds points
- * on the most sensitive part of the geometry. The sensitivity field MUST be defined on geometry vertices.  
- *\param[in] field sensitivity  
+ * on the most sensitive part of the geometry. The sensitivity field MUST be defined on geometry vertices.
+ *\param[in] field sensitivity
  */
 void
 CreateSeedsOnSurface::setSensitivityMap( dmpvector1D field){
@@ -366,17 +366,17 @@ CreateSeedsOnSurface::solve(bool debug){
     if(getGeometry() == NULL){
         throw std::runtime_error(m_name + " : NULL pointer to linked geometry.");
     }
-    
+
     if(getGeometry()->isEmpty()|| m_nPoints< 1){
         throw std::runtime_error(m_name + " : empty geometry or not seeding intial point defined.");
     }
     m_points.clear();
     bbox->execute();
     if(m_seedbaricenter)    m_seed = bbox->getOrigin();
-    
+
     checkField();
     normalizeField();
-    
+
     switch(m_engine){
     case CSeedSurf::RANDOM :
         solveRandom(debug);
@@ -396,8 +396,8 @@ CreateSeedsOnSurface::solve(bool debug){
 };
 
 /*!
- * Find your optimal distribution starting from a seed point and calculating geodesic distance from point of each 
- * triangulated surface node. Add the most distant point from seed to list of candidates, thus update geodesic distance field from the two points, 
+ * Find your optimal distribution starting from a seed point and calculating geodesic distance from point of each
+ * triangulated surface node. Add the most distant point from seed to list of candidates, thus update geodesic distance field from the two points,
  * and repeat the process up the desired number of candidates.
  *\param[in]    debug    flag to activate logs of solver execution
  */
@@ -476,7 +476,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         for(auto itSX =worksensitivity.begin(); itSX != itSE; ++itSX){
             field[itSX.getId()] *= *itSX;
         }
-        
+
         double maxField= 0.0;
         long candMax =0;
         auto itE=field.end();
@@ -486,7 +486,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
               candMax = itX.getId();
             }
         }
-        
+
         m_deads.push_back(candMax);
 
         deadSize = m_deads.size();
@@ -522,9 +522,9 @@ CreateSeedsOnSurface::solveGrid(bool debug){
 
     if(debug)    (*m_log)<<m_name<<" : started CartesianGrid engine"<<std::endl;
     iarray3E dim;
-    
+
     if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
-    
+
     //get the seed and project it on surface
     darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
@@ -639,7 +639,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
 
 
 /*!
- * Find distribution randomly. Regularize the distribution so that each node fullfills 
+ * Find distribution randomly. Regularize the distribution so that each node fullfills
  * the maximum distance possible between points requirement.
  * \param[in]    debug    flag to activate logs of solver execution
  */
@@ -650,7 +650,7 @@ CreateSeedsOnSurface::solveRandom(bool debug){
     dvecarr3E initList(getNPoints());
 
     if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
-    
+
     //get the seed and project it on surface
     initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
@@ -719,7 +719,7 @@ void
 CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, bool binary){
 
     if(m_points.empty())    return;
-    
+
     bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
     if(binary){codex=bitpit::VTKFormat::APPENDED;}
 
@@ -732,7 +732,7 @@ CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, 
     for(int i=0; i<m_nPoints; ++i){
         sens[i] = interpolateSensitivity(m_points[i]);
     }
-    
+
     bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_points) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
@@ -855,16 +855,16 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
 
 
 /*!
- * Update m_sdf distance field on a target node of a superficial tessellation solving 
+ * Update m_sdf distance field on a target node of a superficial tessellation solving
  * the Eikonal equation |grad(u)| = g, using  a fast marching method. Tessellation must be
- * mandatorily a triangular one. 
+ * mandatorily a triangular one.
  * \param[in] g       propagation speed of the Eikonal equation
  * \param[in] s       flag for inwards/outwards propagation (s = -+1)
  * \param[in] tVert   id of the target node in bitpit::PatchKernel indexing
  * \param[in] tCell   id of the cell which the Itarget belongs to in bitpit::PatchKernel indexing
  * \param[in] tri     reference to target triangulated surface.
  * \param[in] flag    flag vector reporting eikonal front advancing status on nodes. Using dead(= 0), alive(= 1),and far away(= 2) identifiers.
- * @param[in] field   reference distance field 
+ * @param[in] field   reference distance field
  * \return    updated value of the m_sdf distance field on the target node.
  */
 double
@@ -1035,10 +1035,10 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, b
     } //loop on oneRing
 
     return(value);
-}; 
+};
 
 /*!
- * Solve the 3D Eikonal equation |grad(u)| = g, using  a fast marching method, on a target triangulation 
+ * Solve the 3D Eikonal equation |grad(u)| = g, using  a fast marching method, on a target triangulation
  * associated unstructured superficial grid. Tessellation must be mandatorily a triangular one.
  * (SurfaceConstraints::m_sdf values in the unknown region must be set to the value 1.0e+18.
  *  Dead vertices of front to be propagated must be set to zero, initially)
@@ -1050,7 +1050,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, b
  */
 void
 CreateSeedsOnSurface::solveEikonal(double g, double s,bitpit::PatchKernel &tri, std::unordered_map<long,long> & invConn, dmpvector1D & field ){
-    
+
     // declare total size and support structure
     long     N(tri.getVertexCount());
     std::unordered_map<long int, short int> active;
@@ -1061,7 +1061,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s,bitpit::PatchKernel &tri, 
         vmap[vert.getId()] = countV;
         ++countV;
     }
-    
+
     { //FLAG DEAD/ALIVE/FAR-AWAY VERTICES
 
         long myId;
@@ -1193,8 +1193,8 @@ CreateSeedsOnSurface::solveEikonal(double g, double s,bitpit::PatchKernel &tri, 
 
 /*!
  * Get a minimal inverse connectivity of the target geometry mesh associated to the class.
- * Each vertex (passed by Id) is associated at list to one of the possible simplex 
- * (passed by Id) which it belongs. This is returned in an unordered_map having as key the 
+ * Each vertex (passed by Id) is associated at list to one of the possible simplex
+ * (passed by Id) which it belongs. This is returned in an unordered_map having as key the
  * vertex Id and as value the Cell id. Id is meant as the unique label identifier associated
  * to bitpit::PatchKernel original geometry
  * \param[in] geo reference to target surface geometry
@@ -1218,7 +1218,7 @@ CreateSeedsOnSurface::getInverseConn(bitpit::PatchKernel & geo){
 /*!
  * Return true if a given vertex belongs to the current constrained boundary front of your patch
  * \param[in]    label index of vertex, in sequential mimmo::MimmoObject notation
- * \return boolean, true if vertex belongs to constrained set, false if not 
+ * \return boolean, true if vertex belongs to constrained set, false if not
  */
 bool CreateSeedsOnSurface::isDeadFront(const long int label){
 
@@ -1267,9 +1267,9 @@ void
 CreateSeedsOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name ){
 
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("NPoints")){
         std::string input = slotXML.get("NPoints");
         input = bitpit::utils::string::trim(input);
@@ -1343,7 +1343,7 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     if(m_nPoints != 0 ){
         slotXML.set("NPoints", std::to_string(m_nPoints));
     }
@@ -1396,17 +1396,17 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
             val[countV] = 0.0;
         }
         double valdist = norm2(geo->getVertexCoords(idLoc) - point);
-        if ( valdist< 1.E-18){ 
+        if ( valdist< 1.E-18){
             return val[countV];
         }
-        
+
         weights[countV] = 1.0/valdist;
         wtot += weights[countV];
         ++countV;
     }
-    
+
     weights /= wtot;
-    
+
     double result = 0.0;
     for(int i=0; i<countV; ++i){
         result +=  weights[i]*val[i];
@@ -1416,15 +1416,15 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
 }
 
 /*!
- * Check your current point data sensitivity field associated to linked geometry. 
+ * Check your current point data sensitivity field associated to linked geometry.
  * Do nothing if class linked geometry is a null pointer or empty.
- * If field geometry is not linked or empty or if field geometry its uncoherent with class linked 
+ * If field geometry is not linked or empty or if field geometry its uncoherent with class linked
  * geometry or not referred to MPVLocation point or if the field itself does not carry any value, create a default unitary field.
  * If the field is still coherent but miss values on some geometry nodes, complete it assigning zero value on missing ids.
  * If no exception occurs, leave the field as it is.
  */
 void CreateSeedsOnSurface::checkField(){
-    
+
     if(getGeometry() == NULL)   return;
     if(getGeometry()->isEmpty()) return;
     dmpvector1D defaultField;
@@ -1434,7 +1434,7 @@ void CreateSeedsOnSurface::checkField(){
     for(const auto vert: getGeometry()->getVertices()){
         defaultField.insert(vert.getId(), 1.0);
     }
-    
+
     m_log->setPriority(bitpit::log::Verbosity::DEBUG);
     if(getGeometry() != m_sensitivity.getGeometry()){
         m_sensitivity = defaultField;
@@ -1444,7 +1444,7 @@ void CreateSeedsOnSurface::checkField(){
         m_sensitivity = defaultField;
         (*m_log)<<"warning in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
         return;
-    }else{    
+    }else{
         if(!m_sensitivity.completeMissingData(0.0)){
             m_sensitivity = defaultField;
             (*m_log)<<"warning in "<<m_name<<" : Not coherent data field connected. Data Ids of MimmoPiercedvector field are not aligned with geometry Vertex/Point field. Using default field"<<std::endl;
@@ -1452,16 +1452,16 @@ void CreateSeedsOnSurface::checkField(){
         }
     }
     m_log->setPriority(bitpit::log::Verbosity::NORMAL);
-    
+
 }
 
 
 /*!
- * Normalize your current point data sensitivity field associated to linked geometry. 
+ * Normalize your current point data sensitivity field associated to linked geometry.
  * It is assumed at this point that the field is fully coeherent, as result of checkField method check.
  */
 void CreateSeedsOnSurface::normalizeField(){
-    
+
     double minSense=0.0,maxSense=0.0;
     minval(m_sensitivity.getRawDataAsVector(), minSense);
     //operate translation.
@@ -1521,7 +1521,7 @@ CreateSeedsOnSurface::triangulate(){
     m_sensitivity_triangulated.setGeometry(temp.get());
 
     long maxID, newID, newVertID;
-    
+
     const auto orderedCellID = temp->getCells().getIds(true);
     maxID = orderedCellID[(int)orderedCellID.size()-1];
     newID = maxID+1;
@@ -1529,16 +1529,16 @@ CreateSeedsOnSurface::triangulate(){
         const auto orderedVertID = temp->getVertices().getIds(true);
         newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
     }
-    
+
     bitpit::ElementType eletype;
     bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
     livector1D connTriangle(3);
     for(const auto &idcell : orderedCellID){
-        
+
         livector1D conn = temp->getCellConnectivity(idcell);
         eletype = temp->getPatch()->getCell(idcell).getType();
-        short pid = temp->getPatch()->getCell(idcell).getPID();
-        
+        long pid = temp->getPatch()->getCell(idcell).getPID();
+
         switch (eletype){
             case bitpit::ElementType::QUAD:
             case bitpit::ElementType::PIXEL:
@@ -1575,12 +1575,12 @@ CreateSeedsOnSurface::triangulate(){
                 }
                 //increment label of vertices
                 ++newVertID;
-                
+
             }
                 break;
             case bitpit::ElementType::TRIANGLE:
                 //do nothing
-                break;    
+                break;
             default:
                 throw std::runtime_error("unrecognized cell type in 3D surface mesh of CreateSeedsOnSurface");
                 break;

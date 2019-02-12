@@ -39,7 +39,7 @@ MimmoSurfUnstructured::MimmoSurfUnstructured():bitpit::SurfUnstructured(){}
 
 /*!
  * MimmoSurfUnstructured custom constructor
- * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines) 
+ * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
                        bitpit::SurfUnstructured(int(patch_dim),int(3)){}
@@ -47,7 +47,7 @@ MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
 /*!
  * MimmoSurfUnstructured custom constructor
  * \param[in] id custom identification label of the mesh
- * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines) 
+ * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(const int & id, int patch_dim):
                        bitpit::SurfUnstructured(id, int(patch_dim), int(3)){}
@@ -66,7 +66,7 @@ MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
 MimmoSurfUnstructured::~MimmoSurfUnstructured(){}
 
 /*!
- * Cloning a MimmoSurfUnstructured in an independent object of base type 
+ * Cloning a MimmoSurfUnstructured in an independent object of base type
  * bitpit::PatchKernel
  */
 std::unique_ptr<bitpit::PatchKernel>
@@ -95,7 +95,7 @@ bitpit::VolUnstructured(id, dimension){}
 MimmoVolUnstructured::~MimmoVolUnstructured(){}
 
 /*!
- * Cloning a MimmoVolUnstructured in an independent object of base type 
+ * Cloning a MimmoVolUnstructured in an independent object of base type
  * bitpit::PatchKernel
  */
 std::unique_ptr<bitpit::PatchKernel>
@@ -122,7 +122,7 @@ bitpit::SurfUnstructured(id, int(2), int(3)){}
 MimmoPointCloud::~MimmoPointCloud(){}
 
 /*!
- * Cloning a MimmoPointCloud in an independent object of base type 
+ * Cloning a MimmoPointCloud in an independent object of base type
  * bitpit::PatchKernel
  */
 std::unique_ptr<bitpit::PatchKernel>
@@ -154,21 +154,21 @@ MimmoObject::MimmoObject(int type){
         case 1:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
@@ -191,22 +191,22 @@ MimmoObject::MimmoObject(int type){
  * local connectivity. Mesh-element details are desumed by local cell-vertices connectivity size.
  * Connectivities supported can be of any kind. Mixed elements are allowed.
  * Cell element types supported are all those of bitpit::ElementType list. In particular:
- *  - any 2D cell for surface meshes 
+ *  - any 2D cell for surface meshes
  *  - any 3D cell for volume meshes
  *  - VERTEX only for 3D point clouds
  *  - LINE cells only for 3D curves
  *
  * Cloud points are always supported (no connectivity field must be provided)
  * Type of meshes supported are described in the default MimmoObject constructor documentation.
- * Please note, despite type argument, if null connectivity structure is provided, MimmoObject will be built 
+ * Please note, despite type argument, if null connectivity structure is provided, MimmoObject will be built
  * as a standard cloud point of vertices provided by vertex.
  * Connectivity for each standard cell is simply defined as a list of vertex indices which compose it
  * (indices are meant as positions in the provided vertex list argument).
  * Polygonal and Polyhedral cells requires a special convention to define their connectivity:
  * - polygons: require on top of the list the total number of vertices which compose it,
  *             followed by the indices in the vertex list.(ex. polygon with 5 vertices: 5 i1 i2 i3 i4 i5)
- * - polyhedra: require on top the total number of faces, followed by the number of vertices which composes the local face + the vertex 
- *   indices which compose the faces, and so on for all the faces which compose the polyhedron (ex. polyhedron with 3 faces, 
+ * - polyhedra: require on top the total number of faces, followed by the number of vertices which composes the local face + the vertex
+ *   indices which compose the faces, and so on for all the faces which compose the polyhedron (ex. polyhedron with 3 faces,
  *   first face is a triangle, second is a quad etc...  3 3 i1 i2 i3 4 i2 i3 i4 i5 ...)
  * \param[in] type type of meshes.
  * \param[in] vertex Coordinates of geometry vertices.
@@ -215,7 +215,7 @@ MimmoObject::MimmoObject(int type){
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity){
 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    
+
     if(connectivity == NULL){
         m_type = 3;
     }else{
@@ -230,27 +230,27 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
         case 1:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
             break;
     }
-    
+
     m_internalPatch = true;
     m_extpatch = NULL;
 
@@ -280,7 +280,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
             if(eltype != bitpit::ElementType::UNDEFINED){
                 addConnectedCell(cc, eltype);
             }else{
-                (*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl; 
+                (*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl;
             }
         }
 
@@ -290,7 +290,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
     }else{
         (*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
         (*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
-    }	
+    }
     m_log->setPriority(bitpit::log::Priority::NORMAL);
 };
 
@@ -303,7 +303,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  * \param[in] geometry pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
-    
+
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4 || geometry == NULL){
@@ -318,10 +318,10 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
         (*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
         throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
     }
-    
+
     m_internalPatch = false;
     m_extpatch = geometry;
-    
+
     //check among elements if they are coherent with the type currently hold by the linked mesh.
     std::unordered_set<int> mapEle = elementsMap(*geometry);
     switch(m_type){
@@ -340,7 +340,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
                 throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
@@ -355,10 +355,10 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
                 throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(geometry))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
@@ -378,17 +378,17 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
                 throw std::runtime_error ("MimmoObject :unsupported elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
             break;
     }
-    
+
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
-    
+
     //check if adjacencies and interfaces are built.
     {
         long free = 0, facesCount=0;
@@ -401,28 +401,28 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
         }
         m_AdjBuilt = (free < facesCount);
     }
-    
+
     m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
-    
+
     //recover cell PID
     for(const auto &cell : getPatch()->getCells()){
         auto PID = cell.getPID();
-        m_pidsType.insert((short)PID);
-        m_pidsTypeWNames.insert(std::make_pair( (short)PID , "") );
+        m_pidsType.insert((long)PID);
+        m_pidsTypeWNames.insert(std::make_pair( (long)PID , "") );
     }
 }
 
 /*!
  * Custom constructor of MimmoObject.
  * This constructor builds a geometry data structure owning an external bitpit::PatchKernel object, that is
- * it takes the ownership of the geometry data structure treting it as an internal structure, and it will 
+ * it takes the ownership of the geometry data structure treting it as an internal structure, and it will
  * be responsible of its own destruction.
  * If a null or empty or not coherent geometry patch is linked, throw an error exception.
  * \param[in] type type of mesh
  * \param[in] geometry unique pointer to a geometry of class PatchKernel to be linked.
  */
 MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry){
-    
+
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
     m_type = max(type,1);
     if (m_type > 4 || !geometry){
@@ -437,7 +437,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
         (*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
         throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
     }
-    
+
     //check among elements if they are coherent with the type currently hold by the linked mesh.
     std::unordered_set<int> mapEle = elementsMap(*(geometry.get()));
     switch(m_type){
@@ -456,7 +456,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
                 throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
@@ -471,10 +471,10 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
                 throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(geometry.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             if( mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
@@ -494,21 +494,21 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
                 throw std::runtime_error ("MimmoObject :unsupported elements for required type in linked mesh.");
             }
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(geometry.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
             break;
     }
-    
+
     m_internalPatch = true;
     m_extpatch = NULL;
     m_patch = std::move(geometry);
-    
+
     m_skdTreeSupported = (m_type != 3);
     m_skdTreeSync = false;
     m_kdTreeSync = false;
-    
+
     //check if adjacencies and interfaces are built.
     {
         long free = 0, facesCount=0;
@@ -521,14 +521,14 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
         }
         m_AdjBuilt = (free < facesCount);
     }
-    
+
     m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
-    
+
     //recover cell PID
     for(const auto &cell : getPatch()->getCells()){
         auto PID = cell.getPID();
-        m_pidsType.insert((short)PID);
-        m_pidsTypeWNames.insert(std::make_pair( (short)PID , "") );
+        m_pidsType.insert((long)PID);
+        m_pidsTypeWNames.insert(std::make_pair( (long)PID , "") );
     }
 }
 
@@ -540,47 +540,47 @@ MimmoObject::~MimmoObject(){
 };
 
 /*!
- * Copy constructor of MimmoObject. 
- * Internal allocated PatchKernel is copied from the argument object as a soft link 
- * (copied by its pointer only, geometry data structure is treated as external in the new copied class). 
+ * Copy constructor of MimmoObject.
+ * Internal allocated PatchKernel is copied from the argument object as a soft link
+ * (copied by its pointer only, geometry data structure is treated as external in the new copied class).
  * Search trees are instantiated, but their containts (if any) are not copied by default.
  */
 MimmoObject::MimmoObject(const MimmoObject & other){
 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-    
+
     m_extpatch = other.m_extpatch;
     if(other.m_internalPatch){
         m_extpatch      = other.m_patch.get();
     }
     m_internalPatch = false;
-    
+
     m_type              = other.m_type;
     m_pidsType          = other.m_pidsType;
     m_pidsTypeWNames    = other.m_pidsTypeWNames;
     m_skdTreeSupported  = other.m_skdTreeSupported;
     m_AdjBuilt          = other.m_AdjBuilt;
     m_IntBuilt          = other.m_IntBuilt;
-    
+
     m_skdTreeSync    = false;
     m_kdTreeSync    = false;
-    
+
     //instantiate empty trees:
     switch(m_type){
         case 1:
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_extpatch))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_extpatch))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
@@ -602,7 +602,7 @@ MimmoObject & MimmoObject::operator=(MimmoObject other){
 };
 
 /*!
- * Swap function. Swap data between current object and one of the same type. 
+ * Swap function. Swap data between current object and one of the same type.
  * \param[in] x object to be swapped.
  */
 void MimmoObject::swap(MimmoObject & x) noexcept
@@ -646,7 +646,7 @@ MimmoObject::isEmpty() const{
 };
 
 
-/*! 
+/*!
  * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
  * \return True for connectivity-based meshes, false por point clouds
  */
@@ -655,7 +655,7 @@ MimmoObject::isBvTreeSupported(){
     return isSkdTreeSupported();
 };
 
-/*! 
+/*!
  * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
  * \return True for connectivity-based meshes, false por point clouds
  */
@@ -665,7 +665,7 @@ MimmoObject::isSkdTreeSupported(){
 };
 
 /*!
- * Return the type of mesh currently hold by the class 
+ * Return the type of mesh currently hold by the class
  * (for type of mesh allowed see MimmoObject(int type) documentation).
  * \return integer flag for mesh type
  */
@@ -676,7 +676,7 @@ MimmoObject::getType(){
 
 /*!
  * Return the total number of vertices within the data structure.
- * \return number of mesh vertices 
+ * \return number of mesh vertices
  */
 long
 MimmoObject::getNVertex() const {
@@ -696,7 +696,7 @@ MimmoObject::getNCells() const {
 
 /*!
  * Return the compact list of vertices hold by the class
- * \return coordinates of mesh vertices 
+ * \return coordinates of mesh vertices
  * \param[out] mapDataInv pointer to inverse of Map of vertex ids, for aligning external vertex data to bitpit::Patch ordering
  */
 dvecarr3E
@@ -735,7 +735,7 @@ MimmoObject::getVertexCoords(long i){
 };
 
 /*!
- * Return reference to the PiercedVector structure of vertex hold 
+ * Return reference to the PiercedVector structure of vertex hold
  * by bitpit::PatchKernel class member
  * \return  Pierced Vector structure of vertices
  */
@@ -745,7 +745,7 @@ MimmoObject::getVertices(){
 }
 
 /*!
- * Return const reference to the PiercedVector structure of vertex hold 
+ * Return const reference to the PiercedVector structure of vertex hold
  * by bitpit::PatchKernel class member
  * \return  const Pierced Vector structure of vertices
  */
@@ -757,12 +757,12 @@ MimmoObject::getVertices() const {
 
 /*!
  * Get the geometry compact connectivity.
- * "Compact" means that in the connectivity matrix the vertex indexing is referred to 
- * the local, compact and sequential numbering of vertices, as it 
+ * "Compact" means that in the connectivity matrix the vertex indexing is referred to
+ * the local, compact and sequential numbering of vertices, as it
  * gets them from the internal method getVertexCoords().
  * Special connectivity is returned for polygons and polyhedra support. See getCellConnectivity
  * doxy for further info.
- * \return local connectivity list 
+ * \return local connectivity list
  * \param[in] mapDataInv inverse of Map of vertex ids actually set, for aligning external vertex data to bitpit::Patch ordering
  */
 livector2D
@@ -776,7 +776,7 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
         const long * conn_ = cell.getConnect();
         connecti[counter].resize(np);
         bitpit::ElementType eltype = cell.getType();
-        
+
         if(eltype == bitpit::ElementType::POLYGON){
             connecti[counter][0] = conn_[0];
             for (int i=1; i<np; ++i){
@@ -788,7 +788,7 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
                 int facePos = cell.getFaceStreamPosition(nF);
                 int beginVertexPos = facePos + 1;
                 int endVertexPos   = facePos + 1 + conn_[facePos];
-                connecti[counter][facePos] = conn_[facePos]; 
+                connecti[counter][facePos] = conn_[facePos];
                 for (int i=beginVertexPos; i<endVertexPos; ++i){
                     connecti[counter][i] = mapDataInv[conn_[i]];
                 }
@@ -808,7 +808,7 @@ MimmoObject::getCompactConnectivity(liimap & mapDataInv){
  * connectivity matrix are returned according to bitpit::PatchKernel unique indexing.
  * Special connectivity is returned for polygons and polyhedra support. See getCellConnectivity
  * doxy for further info.
- * \return cell-vertices connectivity 
+ * \return cell-vertices connectivity
  */
 livector2D
 MimmoObject::getConnectivity(){
@@ -845,7 +845,7 @@ livector1D
 MimmoObject::getCellConnectivity(long i){
     if (!(getCells().exists(i)))    return livector1D(0);
 
-    bitpit::Cell & cell = getPatch()->getCell(i); 
+    bitpit::Cell & cell = getPatch()->getCell(i);
     int np = cell.getConnectSize();
     const long * conn_ = cell.getConnect();
     livector1D connecti(np);
@@ -857,7 +857,7 @@ MimmoObject::getCellConnectivity(long i){
 };
 
 /*!
- * Return reference to the PiercedVector structure of cells hold 
+ * Return reference to the PiercedVector structure of cells hold
  * by bitpit::PatchKernel class member
  * \return  Pierced Vector structure of cells
  */
@@ -867,7 +867,7 @@ MimmoObject::getCells(){
 }
 
 /*!
- * Return const reference to the PiercedVector structure of cells hold 
+ * Return const reference to the PiercedVector structure of cells hold
  * by bitpit::PatchKernel class member
  * \return  const Pierced Vector structure of cells
  */
@@ -878,7 +878,7 @@ MimmoObject::getCells()  const{
 }
 
 /*!
- * Return reference to the PiercedVector structure of interfaces hold 
+ * Return reference to the PiercedVector structure of interfaces hold
  * by bitpit::PatchKernel class member
  * \return  Pierced Vector structure of interfacess
  */
@@ -888,7 +888,7 @@ MimmoObject::getInterfaces(){
 }
 
 /*!
- * Return const reference to the PiercedVector structure of interfaces hold 
+ * Return const reference to the PiercedVector structure of interfaces hold
  * by bitpit::PatchKernel class member
  * \return  const Pierced Vector structure of interfaces
  */
@@ -994,7 +994,7 @@ MimmoObject::getMapCellInv(){
  * \return the list of PID types actually present in your geometry.
  * If empty list is returned, pidding is actually not supported for this geometry
  */
-std::unordered_set<short> 	&
+std::unordered_set<long> 	&
 MimmoObject::getPIDTypeList(){
     return m_pidsType;
 };
@@ -1003,24 +1003,24 @@ MimmoObject::getPIDTypeList(){
  * \return the list of PID types actually present in your geometry with its custom names attached.
  * If empty list is returned, pidding is actually not supported for this geometry
  */
-std::unordered_map<short, std::string> &
+std::unordered_map<long, std::string> &
 MimmoObject::getPIDTypeListWNames(){
     return m_pidsTypeWNames;
 };
 
 
 /*!
- * \return the list of PID associated to each cell of tessellation in compact 
+ * \return the list of PID associated to each cell of tessellation in compact
  * sequential ordering
  * If empty list is returned, pidding is not supported for this geometry
  */
-shivector1D 	
+livector1D
 MimmoObject::getCompactPID() {
-    if(!m_skdTreeSupported || m_pidsType.empty())	return shivector1D(0);
-    shivector1D result(getNCells());
+    if(!m_skdTreeSupported || m_pidsType.empty())	return livector1D(0);
+    livector1D result(getNCells());
     int counter=0;
     for(auto const & cell : getCells()){
-        result[counter] = (short)cell.getPID();
+        result[counter] = (long)cell.getPID();
         ++counter;
     }
     return(result);
@@ -1030,18 +1030,18 @@ MimmoObject::getCompactPID() {
  * \return the map of the PID (argument) associated to each cell unique-id (key) in tessellation.
  * If empty map is returned, pidding is not supported for this geometry.
  */
-std::unordered_map<long,short> 	
+std::unordered_map<long,long>
 MimmoObject::getPID() {
-    if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,short>();
-    std::unordered_map<long,short> 	result;
+    if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,long>();
+    std::unordered_map<long,long> 	result;
     for(auto const & cell : getCells()){
-        result[cell.getId()] = (short) cell.getPID();
+        result[cell.getId()] = (long) cell.getPID();
     }
     return(result);
 };
 
 /*!
- * \return true if the skdTree ordering structure for cells is built/synchronized 
+ * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry
  */
 bool
@@ -1050,7 +1050,7 @@ MimmoObject::isBvTreeBuilt(){
 }
 
 /*!
- * \return true if the skdTree ordering structure for cells is built/synchronized 
+ * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry
  */
 bool
@@ -1059,7 +1059,7 @@ MimmoObject::isBvTreeSync(){
 }
 
 /*!
- * \return true if the skdTree ordering structure for cells is built/synchronized 
+ * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry
  */
 bool
@@ -1087,7 +1087,7 @@ MimmoObject::getSkdTree(){
 
 
 /*!
- * \return true if the kdTree vertices ordering structure is 
+ * \return true if the kdTree vertices ordering structure is
  * built/synchronized with your current geometry
  */
 bool
@@ -1096,7 +1096,7 @@ MimmoObject::isKdTreeBuilt(){
 }
 
 /*!
- * \return true if the kdTree vertices ordering structure is 
+ * \return true if the kdTree vertices ordering structure is
  * built/synchronized with your current geometry
  */
 bool
@@ -1148,10 +1148,10 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
  * If unique-id is specified for the vertex, assign it, otherwise provide itself
  * to get a unique-id for the added vertex. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
- * 
- * 
- * \param[in] vertex vertex coordinates to be added 
- * \param[in] idtag  unique id associated to the vertex	
+ *
+ *
+ * \param[in] vertex vertex coordinates to be added
+ * \param[in] idtag  unique id associated to the vertex
  * \return true if the vertex is successful inserted.
  */
 bool
@@ -1241,7 +1241,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 
     long idc;
     int  nSize;
-    short pid;
+    long pid;
     bitpit::ElementType eltype;
     bool checkTot = true;
     livector1D connectivity;
@@ -1251,8 +1251,8 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
         idc = cell.getId();
         //check on element type
         eltype = cell.getType();
-        //check info PID 
-        pid = (short)cell.getPID();
+        //check info PID
+        pid = (long)cell.getPID();
         nSize = cell.getConnectSize();
         connectivity.resize(nSize);
         auto const conn = cell.getConnect();
@@ -1268,8 +1268,8 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 /*!
  * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
  * be added and its own unique id. If no id is specified, teh method assigns it automatically.
- * Any kind of cell in bitpit::ElementType enum can be added according to mesh dimensionality 
- * (3D element in volume mesh, 2D in surface mesh, etc..). The method does nothing, if class type 
+ * Any kind of cell in bitpit::ElementType enum can be added according to mesh dimensionality
+ * (3D element in volume mesh, 2D in surface mesh, etc..). The method does nothing, if class type
  * is a pointcloud one (type 3).
  * As a reminder for connectivity conn argument:
  *  - Connectivity of polygons must be defined as (nV,V1,V2,V3,V4,...) where nV is the number of vertices
@@ -1282,7 +1282,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
  * \param[in] conn  connectivity of target cell of geometry mesh.
  * \param[in] type  type of element to be added, according to bitpit::ElementInfo enum.
  * \param[in] idtag id of the cell
- * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type 
+ * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type
  */
 bool
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long idtag){
@@ -1290,7 +1290,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
     if (conn.empty() || !m_skdTreeSupported) return false;
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
-    if(!checkCellConnCoherence(type, conn))  return false; 
+    if(!checkCellConnCoherence(type, conn))  return false;
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
@@ -1303,7 +1303,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 
     m_pidsType.insert(0);
     m_pidsTypeWNames.insert(std::make_pair( 0, "") );
-    
+
     m_skdTreeSync = false;
     m_AdjBuilt = false;
     m_IntBuilt = false;
@@ -1314,7 +1314,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
  * be added and its own unique id. If no id is specified, teh method assigns it automatically.
  * Cell type and connectivity dimension of the cell are cross-checked with the mesh type of the class: if mismatch, the method
- * does not add the cell and return false. 
+ * does not add the cell and return false.
  * The method does nothing, if class type is a pointcloud one (type 3).
  * A part identifier PID mark can be associated to the cell.
  *
@@ -1325,20 +1325,20 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * where nF is the total number of faces of polyhedros, nF1V is the number of vertices composing the face 1,
  * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
  *  - Any other standard cell element is uniquely defined by its list of vertex indices.
- * 
+ *
  * \param[in] conn  connectivity of target cell of geometry mesh.
  * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
  * \param[in] PID   part identifier
  * \param[in] idtag id of the cell
- * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type 
+ * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type
  */
 bool
-MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, short PID, long idtag){
+MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag){
 
     if (conn.empty() || !m_skdTreeSupported) return false;
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
-    if(!checkCellConnCoherence(type, conn))  return false; 
+    if(!checkCellConnCoherence(type, conn))  return false;
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
@@ -1360,13 +1360,13 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 };
 
 /*!
- * Set PIDs for all geometry cells available. 
+ * Set PIDs for all geometry cells available.
  * Any previous PID subdivion with label name associated will be erased.
  * The PID list must be referred to the compact local/indexing of the cells in the class.
  * \param[in] pids PID list.
  */
 void
-MimmoObject::setPID(shivector1D pids){
+MimmoObject::setPID(livector1D pids){
     if((int)pids.size() != getNCells() || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
@@ -1377,20 +1377,20 @@ MimmoObject::setPID(shivector1D pids){
         cell.setPID(pids[counter]);
         ++counter;
     }
-    
+
     for(const auto & pid : m_pidsType){
         m_pidsTypeWNames.insert(std::make_pair( pid, ""));
     }
 };
 
 /*!
- * Set PIDs for all geometry cells available. 
+ * Set PIDs for all geometry cells available.
  * Any previous PID subdivion with label name associated will be erased.
  * The PID must be provided as a map with cell unique-id as key and pid associated to it as argument.
  * \param[in] pidsMap PID amp.
  */
 void
-MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
+MimmoObject::setPID(std::unordered_map<long, long> pidsMap){
     if(getNCells() == 0 || !m_skdTreeSupported)	return;
 
     m_pidsType.clear();
@@ -1402,11 +1402,11 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
             m_pidsType.insert(val.second);
         }
     }
-    
+
     for(const auto & pid : m_pidsType){
         m_pidsTypeWNames.insert(std::make_pair( pid, ""));
     }
-    
+
 };
 
 /*!
@@ -1415,24 +1415,24 @@ MimmoObject::setPID(std::unordered_map<long, short> pidsMap){
  * \param[in] pid PID to assign on cell
  */
 void
-MimmoObject::setPIDCell(long id, short pid){
+MimmoObject::setPIDCell(long id, long pid){
     auto & cells = getCells();
     if(cells.exists(id)){
         cells[id].setPID((int)pid);
         m_pidsType.insert(pid);
         m_pidsTypeWNames.insert(std::make_pair( pid, "") );
-    }	
+    }
 };
 
 /*!
  * Set the PID of a target cell
  * \param[in] pid PID to assign on cell
  * \param[in] name name to be assigned to the pid
- * 
+ *
  * \return true if name is assigned, false if not.
  */
 bool
-MimmoObject::setPIDName(short pid, const std::string & name){
+MimmoObject::setPIDName(long pid, const std::string & name){
     if(! bool(m_pidsTypeWNames.count(pid))) return false;
     m_pidsTypeWNames[pid] = name;
 }
@@ -1445,10 +1445,10 @@ MimmoObject::setPIDName(short pid, const std::string & name){
 void
 MimmoObject::resyncPID(){
     m_pidsType.clear();
-    std::unordered_map<short, std::string> copynames = m_pidsTypeWNames;
+    std::unordered_map<long, std::string> copynames = m_pidsTypeWNames;
     m_pidsTypeWNames.clear();
     for(auto const & cell : getCells()){
-        m_pidsType.insert( (short)cell.getPID() );
+        m_pidsType.insert( (long)cell.getPID() );
     }
     for(const auto & pid : m_pidsType){
         m_pidsTypeWNames.insert(std::make_pair( pid, copynames[pid]));
@@ -1460,8 +1460,8 @@ MimmoObject::resyncPID(){
  * Set your current class as a "hard" copy of another MimmoObject.
  * All preexistent data are destroyed and replaced by those provided by the argument, except for search Trees,
  * which are instantiated, but not filled/built/synchronized.
- * Hard means that the geometry data structure is allocated internally 
- * as an exact and stand-alone copy of the geometry data structure of the argument, 
+ * Hard means that the geometry data structure is allocated internally
+ * as an exact and stand-alone copy of the geometry data structure of the argument,
  * indipendently on how the argument owns or links it.
  * \param[in] other MimmoObject class.
  */
@@ -1470,37 +1470,37 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
     m_type  = other->m_type;
     m_internalPatch = true;
     m_extpatch = NULL;
-    
+
     switch(m_type){
         case 1:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
             break;
     }
-    
+
     m_skdTreeSupported = other->m_skdTreeSupported;
     m_skdTreeSync = false;
     m_kdTreeSync = false;
 
-    //copy data 
+    //copy data
     const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
     setVertices(pvert);
 
@@ -1517,21 +1517,21 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 /*!
  * Clone your MimmoObject in a new indipendent MimmoObject. All data of the current class will be "hard" copied in a new
  * MimmoObject class. Search Trees will be only instantiated but not filled/built/synchronized.
- * Hard means that the geometry data structure will be allocated internally into the new object 
+ * Hard means that the geometry data structure will be allocated internally into the new object
  * as an exact and stand-alone copy of the geometry data structure of the current class, indipendently on how the current class
  * owns or links it.
  * \return cloned MimmoObject.
  */
 std::unique_ptr<MimmoObject> MimmoObject::clone(){
     std::unique_ptr<MimmoObject> result(new MimmoObject(getType()));
-    //copy data 
+    //copy data
     result->setVertices(getVertices());
     if(m_skdTreeSupported){
         result->setCells(getCells());
     }
     if(m_AdjBuilt)   result->buildAdjacencies();
     if(m_IntBuilt)   result->buildInterfaces();
-    
+
     result->resyncPID();
     auto mapPID = getPIDTypeListWNames();
     for(const auto & touple: mapPID){
@@ -1554,11 +1554,11 @@ MimmoObject::cleanGeometry(){
     return true;
 };
 
-/*! 
+/*!
  * Extract vertex list from an ensamble of geometry cells.
  *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
  *\return the list of bitpit::PatchKernel ids of involved vertices.
- */  
+ */
 livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
@@ -1580,14 +1580,14 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
     return  result;
 }
 
-/*! 
+/*!
  * Extract interfaces list from an ensamble of geometry cells.
  *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
  *\return the list of bitpit::PatchKernel ids of involved interfaces.
- */  
+ */
 livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
     if(isEmpty() || getType() == 3)   return livector1D(0);
-    
+
     if(!areInterfacesBuilt())   buildInterfaces();
     livector1D result;
     set<long int> ordV;
@@ -1600,15 +1600,15 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
             for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
         }
     }
-    
+
     result.reserve(ordV.size());
     result.insert(result.end(), ordV.begin(), ordV.end());
     return  result;
 }
 
 
-/*! 
- * Extract cell list from an ensamble of geometry vertices. Ids of all those cells whose vertex are 
+/*!
+ * Extract cell list from an ensamble of geometry vertices. Ids of all those cells whose vertex are
  * defined inside the selection will be returned.
  * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
  * \param[in] strict boolean true to restrict search for cells having all vertices in the list, false to include all cells having at least 1 vertex in the list.
@@ -1617,7 +1617,7 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
 
 livector1D MimmoObject::getCellFromVertexList(livector1D vertexList, bool strict){
     if(isEmpty() || getType() == 3)   return livector1D(0);
-   
+
     livector1D result;
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
@@ -1653,7 +1653,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
     if(cellmap.empty()) return livector1D(0);
 
     std::unordered_set<long> container;
- 
+
     for (const auto & val : cellmap){
         bitpit::Cell & cell = getPatch()->getCell(val.first);
         for(const auto face : val.second){
@@ -1677,26 +1677,26 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
  * \return list of cell unique-ids.
  */
 livector1D  MimmoObject::extractBoundaryCellID(){
-    
+
     if(isEmpty() || m_type==3)   return livector1D(0);
     if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
-    
+
     std::unordered_set<long> container;
-    
+
     for (const auto & cell : getCells()){
         int size = cell.getFaceCount();
-        
+
         for(int face=0; face<size; ++face){
             if(cell.isFaceBorder(face)){
                 container.insert(cell.getId());
             }//endif
         }// end loop on face
     }
-    
+
     livector1D result;
     result.reserve(container.size());
     result.insert(result.end(), container.begin(), container.end());
-    
+
     return result;
 };
 
@@ -1725,17 +1725,17 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 };
 
 /*!
- * Extract vertices at the mesh boundaries, provided the map of the cell faces at boundaries. 
+ * Extract vertices at the mesh boundaries, provided the map of the cell faces at boundaries.
  * The method is meant for connected mesh only, return empty list otherwise.
  * \param[in] cellmap map of border faces of the mesh written as cell-ID vs local cell face index.
  * \return list of vertex unique-ids.
  */
 livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &cellmap){
-    
+
     if(cellmap.empty()) return livector1D(0);
-    
+
     std::unordered_set<long> container;
-    
+
     for (const auto & val : cellmap){
         bitpit::Cell & cell = getPatch()->getCell(val.first);
         for(const auto face : val.second){
@@ -1745,11 +1745,11 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
             }
         }// end loop on face
     }
-    
+
     livector1D result;
     result.reserve(container.size());
     result.insert(result.end(), container.begin(), container.end());
-    
+
     return result;
 };
 
@@ -1758,7 +1758,7 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
  * \param[in]   flag    PID for extraction
  * \return  list of cells as unique-ids
  */
-livector1D	MimmoObject::extractPIDCells(short flag){
+livector1D	MimmoObject::extractPIDCells(long flag){
 
     if(m_pidsType.count(flag) < 1)	return livector1D(0);
 
@@ -1779,7 +1779,7 @@ livector1D	MimmoObject::extractPIDCells(short flag){
  * \param[in]   flag    list of PID for extraction
  * \return      list of cells as unique-ids
  */
-livector1D	MimmoObject::extractPIDCells(shivector1D flag){
+livector1D	MimmoObject::extractPIDCells(livector1D flag){
     livector1D result;
     result.reserve(getNCells());
     for(auto && id : flag){
@@ -1791,7 +1791,7 @@ livector1D	MimmoObject::extractPIDCells(shivector1D flag){
 
 /*!
  * Check if a given connectivity list is coherent with a bitpit::ElementType type.
- * 
+ *
  * \param[in] type cell type to check, as bitpit::ElementInfo enum
  * \param[in] conn connectivity list.
  * \return true if connectivity list is coherent with the specified cell type
@@ -1855,7 +1855,7 @@ bool MimmoObject::checkCellConnCoherence(const bitpit::ElementType & type, const
 };
 
 /*!
- * Evaluate axis aligned bounding box of the current MimmoObject 
+ * Evaluate axis aligned bounding box of the current MimmoObject
  * \param[out] pmin lowest bounding box point
  * \param[out] pmax highest bounding box point
  */
@@ -1885,7 +1885,7 @@ void MimmoObject::buildBvTree(int value){
  */
 void MimmoObject::buildSkdTree(int value){
     if(!m_skdTreeSupported || isEmpty())   return;
-    
+
     if (!m_skdTreeSync){
         m_skdTree->clear();
         m_skdTree->build(value);
@@ -1900,7 +1900,7 @@ void MimmoObject::buildSkdTree(int value){
 void MimmoObject::buildKdTree(){
     if( getNVertex() == 0)  return;
     long label;
-    
+
     if (!m_kdTreeSync){
         cleanKdTree();
         m_kdTree->nodes.resize(getNVertex() + m_kdTree->MAXSTK);
@@ -1946,9 +1946,9 @@ bool MimmoObject::isClosedLoop(){
 
     auto itp = getCells().cbegin();
     auto itend = getCells().cend();
-    
+
     while(itp != itend && check){
-        
+
         int cAdj = itp->getAdjacencyCount();
         const long * adj = itp->getAdjacencies();
 
@@ -1974,8 +1974,8 @@ void MimmoObject::buildAdjacencies(){
 
 /*!
  * Force the class to build Interfaces connectivity.
- * If MimmoObject does not support connectivity (as Point Clouds do) 
- * does nothing. 
+ * If MimmoObject does not support connectivity (as Point Clouds do)
+ * does nothing.
  */
 void MimmoObject::buildInterfaces(){
     if(m_type !=3){
@@ -1987,7 +1987,7 @@ void MimmoObject::buildInterfaces(){
 
 
 /*!
- * Desume Element given the vertex connectivity list associated. Polygons and Polyhedra require 
+ * Desume Element given the vertex connectivity list associated. Polygons and Polyhedra require
  * a special writing for their connectivity list. Please read doxy of MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL)
  * custom constructor for further information.
  * Return undefined type for unexistent or unsupported element.
@@ -2030,7 +2030,7 @@ bitpit::ElementType	MimmoObject::desumeElement(const livector1D & locConn){
         case    4:
             result = bitpit::ElementType::LINE;
             break;
-        default : 
+        default :
             assert(false && "reached uncovered case");
             break;
     }
@@ -2053,21 +2053,21 @@ void MimmoObject::reset(int type){
         case 1:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 2:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 3:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud()));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         case 4:
             m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
             m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>())); 
+            m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
             break;
         default:
             //never been reached
@@ -2085,14 +2085,14 @@ void MimmoObject::reset(int type){
 }
 
 /*!
- * Dump contents of your current MimmoObject to a stream. 
+ * Dump contents of your current MimmoObject to a stream.
  * Search trees and adjacencies will not be dumped.
  * Write all in a binary format.
  * \param[in,out] stream to write on.
  */
 void MimmoObject::dump(std::ostream & stream){
     auto mapPid = getPIDTypeListWNames();
-    std::vector<short> pid(mapPid.size());
+    std::vector<long> pid(mapPid.size());
     std::vector<std::string> sspid(mapPid.size());
     int counter = 0;
     for(const auto & touple : mapPid){
@@ -2117,9 +2117,9 @@ void MimmoObject::dump(std::ostream & stream){
 
 void MimmoObject::restore(std::istream & stream){
     int type;
-    std::vector<short> pid;
+    std::vector<long> pid;
     std::vector<std::string> sspid;
-    
+
     bitpit::utils::binary::read(stream,type);
     bitpit::utils::binary::read(stream,pid);
     bitpit::utils::binary::read(stream,sspid);
@@ -2136,15 +2136,15 @@ void MimmoObject::restore(std::istream & stream){
 }
 
 /*!
- * Evaluate general volume of each cell in the current mesh, 
+ * Evaluate general volume of each cell in the current mesh,
  * according to its topology.
- * If no patch or empty patch or pointcloud patch is present 
+ * If no patch or empty patch or pointcloud patch is present
  * in the current MimmoObject return empty map as result.
- * \param[out] volumes volume values referred to cell ids 
+ * \param[out] volumes volume values referred to cell ids
  */
 void
 MimmoObject::evalCellVolumes(bitpit::PiercedVector<double> & volumes){
-    
+
     if(getPatch() == NULL)   return;
     if(isEmpty())       return ;
 
@@ -2173,11 +2173,11 @@ MimmoObject::evalCellVolumes(bitpit::PiercedVector<double> & volumes){
 }
 
 /*!
- * Evaluate Aspect Ratio of each cell in the current mesh, 
+ * Evaluate Aspect Ratio of each cell in the current mesh,
  * according to its topology.
- * VERTEX and LINE elements does not support a proper definition of Aspect Ratio 
+ * VERTEX and LINE elements does not support a proper definition of Aspect Ratio
  * and will return always 0.0 as value. PointCloud and 3DCurve MimmoObject return an empty map.
- * If no patch or empty patch or pointcloud patch is present 
+ * If no patch or empty patch or pointcloud patch is present
  * in the current MimmoObject return empty map as result.
  * \param[out] ARs aspect ratio values referred to cell id
  */
@@ -2186,7 +2186,7 @@ MimmoObject::evalCellAspectRatio(bitpit::PiercedVector<double> & ARs){
 
     if(getPatch() == NULL)   return;
     if(isEmpty())       return;
-    
+
     switch (getType()){
         case 1:
         {
@@ -2265,7 +2265,7 @@ MimmoObject::evalCellVolume(const long & id){
 
 /*!
  * Evaluate Aspect Ratio of a target cell.
- * VERTEX and LINE elements does not support a proper definition of Aspect Ratio 
+ * VERTEX and LINE elements does not support a proper definition of Aspect Ratio
  * and will return always 0.0 as value.
  * \param[in] id of the cell
  * \return value of cell AR.
@@ -2313,9 +2313,9 @@ MimmoObject::evalCellAspectRatio(const long & id){
  */
 std::unordered_set<int>
 MimmoObject::elementsMap(bitpit::PatchKernel & obj){
-    
+
     std::unordered_set<int> result;
-    
+
     for(const auto & cell : obj.getCells()){
         result.insert((int)cell.getType());
     }
@@ -2330,10 +2330,10 @@ MimmoObject::elementsMap(bitpit::PatchKernel & obj){
  */
 void
 MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
-    
+
     if(surface.isEmpty() || surface.getType() != 1) return;
     if(isEmpty() || getType() == 3)  return ;
-    
+
     idList.clear();
     idList.reserve(getNCells());
     darray3E pp;
@@ -2356,7 +2356,7 @@ void
 MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList){
     if(surface.isEmpty() || surface.getType() != 1) return;
     if(isEmpty() || getType() == 3)  return ;
-    
+
     darray3E pp;
     double distance, maxdistance(maxdist);
     distList.clear();
@@ -2377,10 +2377,10 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
  */
 void
 MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
-    
+
     if(surface.isEmpty() || surface.getType() != 1) return;
     if(isEmpty())  return ;
-    
+
     idList.clear();
     idList.reserve(getNVertex());
     darray3E pp;
@@ -2403,7 +2403,7 @@ void
 MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist,bitpit::PiercedVector<double> & distList){
     if(surface.isEmpty() || surface.getType() != 1) return;
     if(isEmpty())  return ;
-    
+
     darray3E pp;
     double distance, maxdistance(maxdist);
     long idsuppsurf;
@@ -2419,17 +2419,17 @@ MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const doub
 
 /*!
  * Get a minimal inverse connectivity of a target geometry mesh.
- * Each vertex (passed by Id) is associated at list to one of the possible simplex 
- * (passed by Id) which it belongs. This is returned in an unordered_map having as key the 
+ * Each vertex (passed by Id) is associated at list to one of the possible simplex
+ * (passed by Id) which it belongs. This is returned in an unordered_map having as key the
  * vertex Id and as value the Cell id. Id is meant as the unique label identifier associated
  * to bitpit::PatchKernel original geometry
  *\return    unordered_map of vertex ids (key) vs cell-belonging-to ids(value)
  */
 std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
-    
+
     std::unordered_map<long,long> invConn ;
     if(getType() == 3) return invConn;
-    
+
     long cellId;
     for(const auto &cell : getCells()){
         cellId = cell.getId();
@@ -2438,7 +2438,7 @@ std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
             invConn[idV] = cellId;
         }
     }
-    
+
     return(invConn);
 };
 
@@ -2451,15 +2451,15 @@ std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
 std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const long & vertexId){
     std::set<long> result;
     if(getType() == 3)  return result;
-    
+
     bitpit::PatchKernel * tri = getPatch();
     bitpit::Cell &cell =  tri->getCell(cellId);
-    
+
     int loc_target = cell.findVertex(vertexId);
     if(loc_target ==bitpit::Vertex::NULL_ID) return result;
-    
+
     livector1D list = tri->findCellVertexOneRing(cellId, loc_target);
-    
+
     for(const auto & index : list){
         bitpit::ConstProxyVector<long> ids = tri->getCell(index).getVertexIds();
         result.insert(ids.begin(), ids.end());
@@ -2471,6 +2471,3 @@ std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const l
 
 
 }
-
-
-

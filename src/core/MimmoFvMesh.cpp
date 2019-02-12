@@ -60,13 +60,13 @@ MimmoFvMesh::~MimmoFvMesh(){}
 
 /*!
  * Custom constructor. Pass bulk and boundary of the mesh.
- * The ownership of the argument will be transferred to the internal 
+ * The ownership of the argument will be transferred to the internal
  * members of the class.
  * Please note, The class admits only the following combinations as bulk/boundary pair:
  *
  *  - bulk MimmoObject of type 2-Volume and boundary MimmoObject of type 1-Surface
  *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
- * 
+ *
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
  */
@@ -91,7 +91,7 @@ MimmoFvMesh::MimmoFvMesh(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<Mi
 }
 
 /*!
- * Copy Constructor. Softly copy all internal meshes of argument class 
+ * Copy Constructor. Softly copy all internal meshes of argument class
  * as external meshes for the current one.
  */
 MimmoFvMesh::MimmoFvMesh(const MimmoFvMesh & other):BaseManipulation(other){
@@ -149,7 +149,7 @@ void MimmoFvMesh::setGeometry(MimmoObject *bulk){
     if (bulk == NULL) return;
     if (bulk->isEmpty())    return;
     if (bulk->getType() != 2 && bulk->getType() != 1) return;
-    
+
     m_bulkext = bulk;
     m_internalBulk = false;
     m_bulk.reset(nullptr);
@@ -164,7 +164,7 @@ void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
     if (boundary == NULL) return;
     if (boundary->isEmpty())    return;
     if (boundary->getType() != 1 && boundary->getType() != 4) return;
-        
+
     m_boundaryext = boundary;
     m_internalBoundary = false;
     m_boundary.reset(nullptr);
@@ -173,7 +173,7 @@ void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
 /*!
  * Get current bulk geometry
  */
-MimmoObject * 
+MimmoObject *
 MimmoFvMesh::getGeometry(){
     if(m_internalBulk)  return m_bulk.get();
     else                return m_bulkext;
@@ -182,7 +182,7 @@ MimmoFvMesh::getGeometry(){
 /*!
  * Get current boundary geometry
  */
-MimmoObject * 
+MimmoObject *
 MimmoFvMesh::getBoundaryGeometry(){
     if(m_internalBoundary)  return m_boundary.get();
     else                    return m_boundaryext;
@@ -195,7 +195,7 @@ MimmoFvMesh::getBoundaryGeometry(){
  * \param[in] info struct holding option info on the patch.
  */
 void
-MimmoFvMesh::addInfoBoundaryPatch(const short & PID, const InfoBoundaryPatch & info){
+MimmoFvMesh::addInfoBoundaryPatch(const long & PID, const InfoBoundaryPatch & info){
     BITPIT_UNUSED(PID);
     BITPIT_UNUSED(info);
 }
@@ -207,7 +207,7 @@ MimmoFvMesh::addInfoBoundaryPatch(const short & PID, const InfoBoundaryPatch & i
  * \param[in] PID patch identifier
  */
 InfoBoundaryPatch
-MimmoFvMesh::getInfoBoundaryPatch(const short & PID){
+MimmoFvMesh::getInfoBoundaryPatch(const long & PID){
     BITPIT_UNUSED(PID);
     return InfoBoundaryPatch();
 }
@@ -238,10 +238,10 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
  * Create boundary mesh starting from a valid bulk present in your current bulk slot(linked or owned).
  */
 void MimmoFvMesh::createBoundaryMesh(){
-    
+
     MimmoObject * bulk = getGeometry();
     if (!bulk->areInterfacesBuilt()) bulk->buildInterfaces();
-    
+
     std::set<long> boundaryInterfaces;
     std::set<long> boundaryVertices;
     bitpit::ConstProxyVector<long> vcount;
@@ -252,7 +252,7 @@ void MimmoFvMesh::createBoundaryMesh(){
             boundaryVertices.insert(vcount.begin(), vcount.end());
         }
     }
-    
+
     //fill new boundary
     int type = int(bulk->getType() == 2) + 4*int(bulk->getType() == 1);
     std::unique_ptr<MimmoObject> temp(new MimmoObject(type));
@@ -264,11 +264,11 @@ void MimmoFvMesh::createBoundaryMesh(){
     }
 
 
-    short PID = 0;
+    long PID = 0;
     bitpit::ElementType eltype;
     livector1D conn;
     for(const auto & idI: boundaryInterfaces){
-        
+
         int size = bulkInterf[idI].getConnectSize();
         conn.resize(size);
         long * cc = bulkInterf[idI].getConnect();
@@ -276,11 +276,11 @@ void MimmoFvMesh::createBoundaryMesh(){
             conn[i] = cc[i];
         }
         eltype = bulkInterf[idI].getType();
-        PID = short(bulkInterf[idI].getPID());
-        
+        PID = long(bulkInterf[idI].getPID());
+
         temp->addConnectedCell(conn, eltype, PID, idI);
     }
-    
+
     m_boundary = std::move(temp);
     m_internalBoundary = true;
     m_boundaryext = NULL;
@@ -289,33 +289,33 @@ void MimmoFvMesh::createBoundaryMesh(){
 
 /*!
  * Check coeherence between bulk and boundary mesh, i.e.:
- * 
+ *
  * - bulk non-null and non-empty
  * - if boundary non null and non empty, it checks out:
- *   - bulk/boundary pair must be of MimmoObject types 2-Volume bulk and 1-Surface boundary or 1-Surface bulk and 4-3Dcurve boundary 
+ *   - bulk/boundary pair must be of MimmoObject types 2-Volume bulk and 1-Surface boundary or 1-Surface bulk and 4-3Dcurve boundary
  *   - ids tight matching between border interfaces on the bulk and cells of the boundary
  * - otherwise:
  *   - create internally a boundary patch, without pid segmentation informations, and return true.
- * 
+ *
  * \return false if one of the check failed.
  */
 bool  MimmoFvMesh::checkMeshCoherence(){
-    
+
     MimmoObject * bulk = getGeometry();
     if(bulk == NULL)  return false;
     if(bulk->isEmpty())  return false;
-    
+
     MimmoObject * boundary = getBoundaryGeometry();
-    
-    bool checkBoundaries = true; 
+
+    bool checkBoundaries = true;
     if(boundary == NULL)  checkBoundaries = false;
     else if(boundary->isEmpty()) checkBoundaries = false;
-    
+
     if(checkBoundaries){
         if(!bulk->areInterfacesBuilt())  return false;
         std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
         if(key !="21" && key !="14")    return false;
-        
+
         std::set<long> idBorderInterf;
         for(const auto & interf : bulk->getInterfaces()){
             if(interf.isBorder())   idBorderInterf.insert(interf.getId());
@@ -323,7 +323,7 @@ bool  MimmoFvMesh::checkMeshCoherence(){
         std::vector<long> idInterf;
         idInterf.insert(idInterf.end(), idBorderInterf.begin(), idBorderInterf.end());
         std::vector<long> idCell   = boundary->getCells().getIds(true);
-        
+
         return idInterf == idCell;
     }else{
         createBoundaryMesh();
@@ -332,6 +332,3 @@ bool  MimmoFvMesh::checkMeshCoherence(){
 }
 
 }
-
-
-

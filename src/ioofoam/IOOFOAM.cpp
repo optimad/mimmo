@@ -43,16 +43,16 @@ IOOFOAM::IOOFOAM(int type):MimmoFvMesh(){
 
 /*!
  * Custom constructor. Pass bulk and boundary of the mesh.
- * The ownership of the argument will be transferred to the internal 
+ * The ownership of the argument will be transferred to the internal
  * members of the class.
  * Please note, The class admits only the following combinations as bulk/boundary pair:
  *
  *  - bulk MimmoObject of type 2-Volume and boundary MimmoObject of type 1-Surface
  *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
- * 
- * The class is meant for writing modes WRITE and WRITEPOINTSONLY. If a READ mode is passed 
+ *
+ * The class is meant for writing modes WRITE and WRITEPOINTSONLY. If a READ mode is passed
  * in argument, it throws an error.
- * 
+ *
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
  *\param[in] type int from enum IOOFMode, for class mode: WRITE, WRITEPOINTSONLY. Default is WRITE.
@@ -178,7 +178,7 @@ IOOFOAM::setDir(std::string dir){
 
 /*!
  * Set overwrite parameter. This option is valid only in WRITEPOINTSONLY mode.
- * If true overwrite points in the current OpenFoam case time of the mesh at WriteDir. 
+ * If true overwrite points in the current OpenFoam case time of the mesh at WriteDir.
  * If false save them in a newly created case time at current time + 1;
  * \param[in] flag activation flag.
  */
@@ -313,7 +313,7 @@ IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 };
 
 /*!
- * Reorder OpenFoam vertex-cell connectivity of an elementary shape in 
+ * Reorder OpenFoam vertex-cell connectivity of an elementary shape in
  * a suitable one for corrispondent bitpit elementary shape. The reordering
  * preserve the local enumeration of faces from OpenFOAM to bitpit.
  * \param[in] FoamConn ordered vertex connectivity of a shape cell
@@ -407,7 +407,7 @@ IOOFOAM::read(){
 	std::string eleshape;
 	bitpit::ElementType eltype;
 	long iDC;
-	short PID = 0;
+	long PID = 0;
 	livector1D conn, temp;
 	livector2D adjacency;
 
@@ -523,7 +523,7 @@ IOOFOAM::read(){
 	long endIndex;
 
 	forAll(foamBMesh, iBoundary){
-		PID = short(iBoundary+1);
+		PID = long(iBoundary+1);
 		startIndex = foamBMesh[iBoundary].start();
 		endIndex = startIndex + long(foamBMesh[iBoundary].size());
 		for(long ind=startIndex; ind<endIndex; ++ind){
@@ -951,9 +951,9 @@ IOOFOAMScalarField::read(){
 		long startIndex;
 		long endIndex;
 
-		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
+		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
 		dmpvector1D boundaryFieldOnFace;
-		for (short pid : pids){
+		for (long pid : pids){
 			if (pid > 0){
 				std::size_t size = 0;
 				std::vector<double> field;
@@ -1157,9 +1157,9 @@ IOOFOAMVectorField::read(){
 		long startIndex;
 		long endIndex;
 
-		std::unordered_set<short> pids = getBoundaryGeometry()->getPIDTypeList();
+		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
 		dmpvecarr3E boundaryFieldOnFace;
-		for (short pid : pids){
+		for (long pid : pids){
 			if (pid > 0){
 				std::size_t size = 0;
 				std::vector<std::array<double,3>> field;

@@ -118,7 +118,7 @@ CGNSPidExtractor::getPatch(){
  * Return current active PIDs for selection in the class.
  * \return list of target PIDs
  */
-std::set<short>
+std::set<long>
 CGNSPidExtractor::whatPIDActive(){
     return m_targetpid;
 }
@@ -140,7 +140,7 @@ CGNSPidExtractor::isForcedToTriangulate(){
  * \param[in]    val target PID to insert in the extraction list
  */
 void
-CGNSPidExtractor::addPID( short val){
+CGNSPidExtractor::addPID( long val){
     if(val > 0) m_targetpid.insert(val);
 }
 
@@ -150,12 +150,12 @@ CGNSPidExtractor::addPID( short val){
  * \param[in]   vval list of target PIDs to use during the extraction
  */
 void
-CGNSPidExtractor::setPID( std::vector<short int> vval){
+CGNSPidExtractor::setPID( std::vector<long> vval){
     for(const auto & val : vval) addPID(val);
 }
 
 /*!
- * Set the class to reduce (in execution) the resulting PID-selected patch in a homogeneous straight triangulation, 
+ * Set the class to reduce (in execution) the resulting PID-selected patch in a homogeneous straight triangulation,
  * if eventually not.
  * \param[in]   flag if true, try to triangulate homogeneously the selected patch.
  */
@@ -183,16 +183,16 @@ CGNSPidExtractor::setGeometry(MimmoObject * geo){
  */
 void
 CGNSPidExtractor::execute(){
-    
+
     if (getGeometry() == NULL) {
         throw std::runtime_error (m_name + " : NULL pointer to linked geometry. Block can do nothing.");
     }
     if (getGeometry()->isEmpty()) {
         throw std::runtime_error (m_name + " : empty linked geometry. Block can do nothing.");
     }
-    
+
     livector1D extracted;
-    std::vector<short> extractedpids;
+    std::vector<long> extractedpids;
 
     for(const auto & val: m_targetpid){
         livector1D temp= getGeometry()->extractPIDCells(val);
@@ -223,7 +223,7 @@ CGNSPidExtractor::execute(){
             patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
             count++;
         }
-        
+
         auto originalmap = mother->getPIDTypeListWNames();
         auto currentPIDmap = patchTemp->getPIDTypeList();
         for(const auto & val: currentPIDmap){
@@ -245,7 +245,7 @@ CGNSPidExtractor::execute(){
             const auto orderedVertID = patchTemp->getVertices().getIds(true);
             newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
         }
-        
+
         bitpit::ElementType eletype;
         bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
         livector1D connTriangle(3);
@@ -253,8 +253,8 @@ CGNSPidExtractor::execute(){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
             eletype = patchTemp->getPatch()->getCell(idcell).getType();
-            short pid = patchTemp->getPatch()->getCell(idcell).getPID();
-            
+            long pid = patchTemp->getPatch()->getCell(idcell).getPID();
+
             switch (eletype){
                 case bitpit::ElementType::QUAD:
                 case bitpit::ElementType::PIXEL:
@@ -288,7 +288,7 @@ CGNSPidExtractor::execute(){
                     }
                     //increment label of vertices
                     ++newVertID;
-                    
+
                 }
                     break;
                 case bitpit::ElementType::TRIANGLE:
@@ -320,7 +320,7 @@ void CGNSPidExtractor::plotOptionalResults(){
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void 
+void
 CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
@@ -328,8 +328,8 @@ CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
     std::string input;
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
-    std::vector<short> temp;
+
+    std::vector<long> temp;
     if(slotXML.hasOption("nPID")){
         input = slotXML.get("nPID");
         int value = 0;
@@ -370,13 +370,13 @@ CGNSPidExtractor::absorbSectionXML(const bitpit::Config::Section & slotXML, std:
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void 
+void
 CGNSPidExtractor::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("nPID", std::to_string(int(m_targetpid.size())));
 
     std::stringstream output;
@@ -385,7 +385,7 @@ CGNSPidExtractor::flushSectionXML(bitpit::Config::Section & slotXML, std::string
     while(it != itE)    {
         output<<*it<<" ";
         ++it;
-    }    
+    }
     slotXML.set("PID", output.str());
     slotXML.set("ForcedToTriangulate", std::to_string(int(m_force)));
 

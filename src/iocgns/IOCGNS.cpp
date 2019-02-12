@@ -101,12 +101,12 @@ void IOCGNS::swap(IOCGNS & x) noexcept
     std::swap(m_wdir, x.m_wdir);
     std::swap(m_wfilename, x.m_wfilename);
     std::swap(m_surfmesh_not, x.m_surfmesh_not);
-    
+
     std::swap(m_volmesh, x.m_volmesh);
     std::swap(m_surfmesh, x.m_surfmesh);
     std::swap(m_storedInfo, x.m_storedInfo);
     std::swap(m_storedBC, x.m_storedBC);
-    
+
     BaseManipulation::swap(x);
 }
 
@@ -149,7 +149,7 @@ IOCGNS::setDefaults(){
  */
 void
 IOCGNS::buildPorts(){
- 
+
     bool built = true;
     built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM));
     built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2));
@@ -163,7 +163,7 @@ IOCGNS::buildPorts(){
 
 /*!
  * Return all the surface bounding the current volume mesh.
- * During reading mode returns info contained in cgns, marking with PID all the possible boundary patches, 
+ * During reading mode returns info contained in cgns, marking with PID all the possible boundary patches,
  * while in writing mode refers to the actual object pointed by the User.
  * \return pointer to surface boundary mesh
  */
@@ -585,7 +585,7 @@ IOCGNS::read(){
 
         livector1D lConn;
         bitpit::ElementType btype;
-        short PID = 0;
+        long PID = 0;
         int size = conns[idsection].size();
 
         switch(val){
@@ -642,7 +642,7 @@ IOCGNS::read(){
                 temp = lConn[3];
                 lConn[3] = lConn[4];
                 lConn[4] = temp;
-            }    
+            }
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
             id++;
@@ -708,7 +708,7 @@ IOCGNS::read(){
     if(bcLists.size() > 0)    {
         for(const auto & sel: bcLists){
             if(sel.second.size() > 0){
-                short PID = sel.first + 1;
+                long PID = sel.first + 1;
                 for(const auto &ind : sel.second){
                     id = ind;
                     patchBnd->setPIDCell(id,PID);
@@ -913,7 +913,7 @@ IOCGNS::write(){
 }
 
 /*!
- * Extract mixed connectivity of 3D elements volume mesh//surface boundary mesh in two separated objects, given an array 
+ * Extract mixed connectivity of 3D elements volume mesh//surface boundary mesh in two separated objects, given an array
  * of mixed connectivity of CGNS reader
  * \param[in,out]    patchVol Pointer to Volume MimmoObject handler
  * \param[in,out]    patchSurf Pointer to Surface MimmoObject handler
@@ -925,7 +925,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
 
     livector1D lConn;
     bitpit::ElementType btype;
-    short PID=0;
+    long PID = 0;
     long id = startId;
     ivector1D::iterator it=conn.begin(), itE=conn.end();
 
@@ -1085,7 +1085,7 @@ IOCGNS::recoverCGNSInfo(){
         m_storedInfo->mcg_number[cgtype]++;
         m_storedInfo->mcg_typetoid[cgtype].push_back(ID);
         auto vList = cell.getVertexIds();
-        
+
         //remap in bitpit conn. TODO complete ref element mapper for connectivity.
         std::vector<long> lConn;
         lConn.insert(lConn.end(), vList.begin(), vList.end());

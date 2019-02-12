@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -57,7 +57,7 @@ SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
  * \param[in] pidlist List of pid to be included into selection
  * \param[in] target    Pointer to target geometry
  */
-SelectionByPID::SelectionByPID(shivector1D & pidlist, MimmoObject * target){
+SelectionByPID::SelectionByPID(livector1D & pidlist, MimmoObject * target){
     m_name = "mimmo.SelectionByPID";
     setGeometry(target);
     setPID(pidlist);
@@ -106,8 +106,8 @@ SelectionByPID::buildPorts(){
 
     GenericSelection::buildPorts();
 
-    built = (built && createPortIn<short, SelectionByPID>(this, &SelectionByPID::setPID, M_VALUESI));
-    built = (built && createPortIn<std::vector<short>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORSI));
+    built = (built && createPortIn<long, SelectionByPID>(this, &SelectionByPID::setPID, M_VALUELI));
+    built = (built && createPortIn<std::vector<long>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORLI));
 
     m_arePortsBuilt = built;
 };
@@ -117,9 +117,9 @@ SelectionByPID::buildPorts(){
  * Return all available PID for current geometry linked. Void list means not linked target geometry
  * \return vector with PIDs for current geometry
  */
-shivector1D
+livector1D
 SelectionByPID::getPID(){
-    shivector1D result(m_activePID.size());
+    livector1D result(m_activePID.size());
     int counter = 0;
     for(auto && val : m_activePID){
         result[counter] = val.first;
@@ -132,9 +132,9 @@ SelectionByPID::getPID(){
  * \param[in] active boolean to get active-true, inactive false PID for selection
  * \return active/inactive PIDs for current geometry linked.
  */
-shivector1D
+livector1D
 SelectionByPID::getActivePID(bool active){
-    shivector1D result;
+    livector1D result;
     for(auto && val : m_activePID){
         if(val.second == active)    result.push_back(val.first);
     }
@@ -153,9 +153,9 @@ SelectionByPID::setGeometry(MimmoObject * target ){
     if(target->getType() == 3)  return; //does not work with point cloud for now.
     m_geometry = target;
     m_topo = target->getType();
-    
-    std::unordered_set<short> & pids =     target->getPIDTypeList();
-    std::unordered_set<short>::iterator it, itE = pids.end();
+
+    std::unordered_set<long> & pids =     target->getPIDTypeList();
+    std::unordered_set<long>::iterator it, itE = pids.end();
 
     for(it = pids.begin(); it!=itE; ++it){
         m_activePID.insert(std::make_pair(*it,false));
@@ -164,23 +164,23 @@ SelectionByPID::setGeometry(MimmoObject * target ){
 
 /*!
  * Activate flagged PID i. If i<0, activates all PIDs available.
- * Modifications are available after applying them with syncPIDList method; 
+ * Modifications are available after applying them with syncPIDList method;
  * \param[in] i PID to be activated.
  */
 void
-SelectionByPID::setPID(short i){
+SelectionByPID::setPID(long i){
     if(m_setPID.count(-1) >0 || (!m_setPID.empty() && i==-1))    m_setPID.clear();
     m_setPID.insert(i);
 
 };
 
 /*!
- * Activate a list of flagged PID i. SelectionByPID::setPID(short i).
- * Modifications are available after applying them with syncPIDList method; 
+ * Activate a list of flagged PID i. SelectionByPID::setPID(long i).
+ * Modifications are available after applying them with syncPIDList method;
  * \param[in] list    list of PID to be activated
  */
 void
-SelectionByPID::setPID(shivector1D list){
+SelectionByPID::setPID(livector1D list){
     for(auto && index : list){
         setPID(index);
     }
@@ -188,12 +188,12 @@ SelectionByPID::setPID(shivector1D list){
 /*!
  * Deactivate flagged PID i. If i<0, deactivates all PIDs available.
  * if i > 0 but does not exist in PID available list, do nothing
- * Modifications are available after applying them with syncPIDList method; 
+ * Modifications are available after applying them with syncPIDList method;
  * \param[in] i PID to be deactivated.
  */
 
 void
-SelectionByPID::removePID(short i){
+SelectionByPID::removePID(long i){
     if(i>0){
         if(m_setPID.count(i) >0) m_setPID.erase(i);
     }else{
@@ -202,12 +202,12 @@ SelectionByPID::removePID(short i){
 };
 
 /*!
- * Deactivate a list of flagged PID i. SelectionByPID::removePID(short i = -1).
- * Modifications are available after applying them with syncPIDList method; 
+ * Deactivate a list of flagged PID i. SelectionByPID::removePID(long i = -1).
+ * Modifications are available after applying them with syncPIDList method;
  * \param[in] list    list of PID to be deactivated
  */
 void
-SelectionByPID::removePID(shivector1D list){
+SelectionByPID::removePID(livector1D list){
     for(auto && index : list){
         removePID(index);
     }
@@ -233,7 +233,7 @@ SelectionByPID::extractSelection(){
     std::set<long> extraction;
 
     syncPIDList();
-    shivector1D pids = getActivePID();
+    livector1D pids = getActivePID();
 
     for(auto && pid : pids){
         livector1D local = getGeometry()->extractPIDCells(pid);
@@ -269,7 +269,7 @@ SelectionByPID::extractSelection(){
 
 /*!
  * Checks & synchronizes user given pid list w/ current pid list available by linked geometry.
- * Activate positive matching PIDs and erase negative matches from user list. 
+ * Activate positive matching PIDs and erase negative matches from user list.
  * if geometry is not currently linked does nothing.
  */
 void
@@ -278,10 +278,10 @@ SelectionByPID::syncPIDList(){
 
     if(m_setPID.count(-1) == 0){
 
-        std::unordered_set<short>::iterator itU;
-        shivector1D negative;
+        std::unordered_set<long>::iterator itU;
+        livector1D negative;
         for(itU = m_setPID.begin(); itU != m_setPID.end(); ++itU){
-            short value = *itU;
+            long value = *itU;
             if(m_activePID.count(value) > 0)    m_activePID[value] = true;
             else    negative.push_back(value);
         }
@@ -333,7 +333,7 @@ SelectionByPID::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
             std::max(0, nPID);
         }
     }
-    shivector1D pidlist(nPID, -1);
+    livector1D pidlist(nPID, -1);
 
     if(slotXML.hasOption("PID")){
         std::string input = slotXML.get("PID");
@@ -365,7 +365,7 @@ SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
     slotXML.set("Dual", std::to_string(value));
 
 
-    shivector1D selected = getActivePID(true);
+    livector1D selected = getActivePID(true);
     int size = selected.size();
 
 
@@ -383,4 +383,3 @@ SelectionByPID::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
 };
 
 }
-

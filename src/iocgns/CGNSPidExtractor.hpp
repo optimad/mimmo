@@ -37,7 +37,7 @@ namespace mimmo{
  *
  * The object return the patch with a target pid (or pids) as an independent surface mesh.
  * It homogeneously triangulates the patch if required.
- * Please notice if the extracted sub-patch is forced to be triangulated, 
+ * Please notice if the extracted sub-patch is forced to be triangulated,
  * no link with the mother boundary surface mesh could be guaranteed anymore.
  *
  * Ports available in CGNSPidExtractor Class :
@@ -76,7 +76,7 @@ namespace mimmo{
 class CGNSPidExtractor: public BaseManipulation{
 private:
     bool                         m_force;     /**<force triangulation of the extracted patch if true.*/
-    std::set<short>              m_targetpid; /**<list of PID involved in the extraction.*/
+    std::set<long>               m_targetpid; /**<list of PID involved in the extraction.*/
     std::unique_ptr<MimmoObject> m_patch;     /**<extracted patch */
 
 public:
@@ -86,15 +86,15 @@ public:
 
     CGNSPidExtractor(const CGNSPidExtractor & other);
     CGNSPidExtractor & operator=(CGNSPidExtractor other);
-    
+
     void            buildPorts();
 
     MimmoObject*    getPatch();
-    std::set<short> whatPIDActive();
+    std::set<long>  whatPIDActive();
     bool            isForcedToTriangulate();
 
-    void            addPID(short val);
-    void            setPID(std::vector<short int> vval);
+    void            addPID(long val);
+    void            setPID(std::vector<long> vval);
     void            setForcedToTriangulate(bool flag);
     void            setGeometry(MimmoObject*);
 

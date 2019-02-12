@@ -63,10 +63,10 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  *  - <B>READ    = 0</B>
  *  - <B>WRITE   = 1</B>
  *  - <B>CONVERT = 2</B>
- * 
+ *
  * \n
  * It uses smart enums FileType list of available geometry formats, which are:
- * 
+ *
  * - <B>STL     = 0</B>    Ascii/Binary triangulation stl.
  * - <B>SURFVTU = 1</B> Surface mesh vtu, of any 2D bitpit::ElementType.
  * - <B>VOLVTU  = 2</B> Volume mesh VTU, of any 3D bitpit::ElementType.
@@ -110,7 +110,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>FileType</B>: file type identifier;
  * - <B>ReadFileType</B>: file type identifier for reader (to be used in case of converter mode);
  * - <B>WriteFileType</B>: file type identifier for writer (to be used in case of converter mode);
- * - <B>WriteMultiSolidSTL</B>: 0-false/1-true, if WriteFileType is STL, MultiSolid STL writing can be activated or not 
+ * - <B>WriteMultiSolidSTL</B>: 0-false/1-true, if WriteFileType is STL, MultiSolid STL writing can be activated or not
  * - <B>ReadDir</B>: directory path (to be used in case of converter mode and different paths);
  * - <B>ReadFilename</B>: name of file for reading/writing (to be used in case of converter mode and different filenames);
  * - <B>WriteDir</B>: directory path (to be used in case of converter mode and different paths);
@@ -119,7 +119,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  * - <B>SkdTree</B>: evaluate SkdTree true 1/false 0;
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
  * - <B>AssignRefPID</B>: assign a reference PID on the whole geometry, after reading or just before writing. If the geometry is already pidded,
- *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0. 
+ *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0.
  *
  * In case of writing mode Geometry has to be mandatorily passed through port.
  *
@@ -140,7 +140,7 @@ private:
 
     bool        m_buildSkdTree;             /**<If true the simplex ordered SkdTree of the geometry is built in execution, whenever geometry support simplicies. */
     bool        m_buildKdTree;                /**<If true the vertex ordered KdTree of the geometry is built in execution*/
-    short int   m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
+    long        m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
     bool        m_multiSolidSTL;            /**< activate or not MultiSolid STL writing if STL writing Filetype is selected */
 
 public:
@@ -177,9 +177,9 @@ public:
     void        setFileType(int type);
     void        setCodex(bool binary = true);
     void        setMultiSolidSTL(bool multi = true);
-    
+
     BITPIT_DEPRECATED(void        setHARDCopy( MimmoGeometry * other));
-   
+
     void        setGeometry( MimmoObject * external);
     void        setGeometry(int type=1);
 
@@ -189,16 +189,16 @@ public:
     void        setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices);
     void        setCells(bitpit::PiercedVector<bitpit::Cell> * cells);
 
-    void        setPID(shivector1D pids);
-    void        setPID(std::unordered_map<long,short> pidsMap);
-    void        setReferencePID(short int pid);
-    
+    void        setPID(livector1D pids);
+    void        setPID(std::unordered_map<long,long> pidsMap);
+    void        setReferencePID(long pid);
+
     void        setFormatNAS(WFORMAT wform);
 
     BITPIT_DEPRECATED(void        setBuildBvTree(bool build));
     void        setBuildSkdTree(bool build);
     void        setBuildKdTree(bool build);
-    
+
     bool         isEmpty();
     bool         isEmpty() const;
     bool        isInternal();
@@ -239,11 +239,11 @@ public:
     void setWFormat(WFORMAT);
     void writeKeyword(std::string key, std::ofstream& os);
     void writeCoord(const darray3E & p, const long& pointI, std::ofstream& os);
-    void writeFace(std::string faceType, const livector1D& facePts, const long& nFace, std::ofstream& os, int PID);
-    bool writeGeometry(dvecarr3E &points,livector1D &pointsID, livector2D &faces, livector1D &facesID, std::ofstream &os, shivector1D *PIDS = NULL);
-    void writeFooter(std::ofstream& os, std::unordered_set<short>* PIDSSET = NULL);
-    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, shivector1D* PIDS = NULL, std::unordered_set<short>* PIDSSET = NULL);
-    void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, shivector1D& PIDS);
+    void writeFace(std::string faceType, const livector1D& facePts, const long& nFace, std::ofstream& os, long PID);
+    bool writeGeometry(dvecarr3E &points,livector1D &pointsID, livector2D &faces, livector1D &facesID, std::ofstream &os, livector1D *PIDS = NULL);
+    void writeFooter(std::ofstream& os, std::unordered_set<long>* PIDSSET = NULL);
+    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, livector1D* PIDS = NULL, std::unordered_set<long>* PIDSSET = NULL);
+    void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, livector1D& PIDS);
 
     std::string trim(std::string in);
     std::string convertVertex(std::string in);

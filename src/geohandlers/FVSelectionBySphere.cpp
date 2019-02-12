@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -50,15 +50,15 @@ FVSelectionBySphere::FVSelectionBySphere(const bitpit::Config::Section & rootXML
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
-    
+
     std::string fallback_name2 = "1";
     std::string input_topo = rootXML.get("Topology", fallback_name2);
     input_topo = bitpit::utils::string::trim(input_topo);
-    
+
     int topo = std::stoi(input_topo);
     topo = std::min(2,std::max(1, topo));
     m_topo = topo;
-    
+
     if(input == "mimmo.FVSelectionBySphere"){
         absorbSectionXML(rootXML);
     }else{
@@ -67,7 +67,7 @@ FVSelectionBySphere::FVSelectionBySphere(const bitpit::Config::Section & rootXML
 }
 
 /*!
- * Custom Constructor. Pay attention span of angular and polar coords are at most 2*pi and pi respectively. 
+ * Custom Constructor. Pay attention span of angular and polar coords are at most 2*pi and pi respectively.
  *  Inf limits of polar coordinate must be > 0 and < pi.
  * \param[in] topo topology of the target MimmoFvMesh.See Basic Constructor doxy.
  * \param[in] origin Origin of the sphere->baricenter
@@ -148,8 +148,8 @@ void FVSelectionBySphere::clear(){
  * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
  */
 void
-FVSelectionBySphere::extractSelection(livector1D & bulk, std::unordered_map<short,livector1D> & boundary){
-    
+FVSelectionBySphere::extractSelection(livector1D & bulk, std::unordered_map<long,livector1D> & boundary){
+
     livector1D wholebnd;
     if(m_dual){
         bulk = excludeGeometry(m_geometry);
@@ -158,18 +158,18 @@ FVSelectionBySphere::extractSelection(livector1D & bulk, std::unordered_map<shor
         bulk = includeGeometry(m_geometry);
         wholebnd = includeGeometry(m_bndgeometry);
     }
-    
+
     //initialize boundary
     boundary.clear();
     for(const auto & pid: m_bndgeometry->getPIDTypeList()){
         boundary.insert(std::make_pair(pid, livector1D()));
         boundary.reserve(wholebnd.size());
     }
-    
+
     //split wholebnd for pid.
     for(const auto & cid : wholebnd){
         int pid = m_bndgeometry->getPatch()->getCell(cid).getPID();
-        boundary[short(pid)].push_back(cid);
+        boundary[long(pid)].push_back(cid);
     }
 };
 
@@ -185,7 +185,7 @@ FVSelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Topology")){
         std::string input = slotXML.get("Topology");
         input = bitpit::utils::string::trim(input);
@@ -198,7 +198,7 @@ FVSelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     }else{
         warningXML(m_log, m_name);
     }
-    
+
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
         input = bitpit::utils::string::trim(input);
@@ -299,10 +299,10 @@ FVSelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::str
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("Topology", std::to_string(m_topo));
     slotXML.set("Dual", std::to_string(int(m_dual)));
-    
+
     {
         darray3E org = getOrigin();
         std::stringstream ss;

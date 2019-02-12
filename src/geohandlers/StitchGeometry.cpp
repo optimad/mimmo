@@ -129,7 +129,7 @@ StitchGeometry::buildPorts(){
  * Return kind of topology supported by the object.
  * \return topology supported (1-surface, 2-volume, 3-points cloud)
  */
-int 
+int
 StitchGeometry::getTopology(){
     return m_topo;
 }
@@ -163,7 +163,7 @@ StitchGeometry::addGeometry(MimmoObject* geo){
  * Check if stitched geometry is present or not.
  * \return true - no geometry present, false otherwise.
  */
-bool 
+bool
 StitchGeometry::isEmpty(){
     return m_patch->isEmpty();
 }
@@ -180,7 +180,7 @@ StitchGeometry::clear(){
 };
 
 /*!
- * Force automatic repidding of all the patch stitched. If a patch has pid already, they will be 
+ * Force automatic repidding of all the patch stitched. If a patch has pid already, they will be
  * kept, with different pid number.
  */
 void
@@ -212,36 +212,36 @@ StitchGeometry::execute(){
 
     long cV = 0, cC = 0;
 
-    std::unordered_map<MimmoObject*,short>    map_pidstart;
+    std::unordered_map<MimmoObject*,long>    map_pidstart;
     //initialize map
     for(auto & obj : m_extgeo){
         map_pidstart[obj.first] = 0;
     }
-    
+
     if(m_repid){
-        short pidmax = -1;
+        long pidmax = -1;
         for(auto & obj : m_extgeo){
             auto pidlist = obj.first->getPIDTypeList();
-            std::vector<short> temp(pidlist.begin(), pidlist.end());
+            std::vector<long> temp(pidlist.begin(), pidlist.end());
             std::sort(temp.begin(), temp.end());
             map_pidstart[obj.first] = pidmax + 1;
             pidmax += (*(temp.rbegin())+1);
         }
     }
-    
-    
+
+
     //start filling your stitched object.
     {
         //optional vars;
         long vId, cId;
-        short PID;
+        long PID;
         bitpit::ElementType eltype;
 
         for(auto &obj : m_extgeo){
 
             std::unordered_map<long,long> mapVloc;
             auto originalPidNames = obj.first->getPIDTypeListWNames();
-            std::unordered_map<short, short> newOldPid;
+            std::unordered_map<long, long> newOldPid;
             for(const auto & val : obj.first->getPIDTypeList()){
                 newOldPid[val + map_pidstart[obj.first]] = val;
             }
@@ -262,37 +262,37 @@ StitchGeometry::execute(){
                 //get the local connectivity and update with new vertex numbering;
                 livector1D conn = obj.first->getCellConnectivity(cId);
                 livector1D connloc(conn.size());
-                
+
                 if(eltype == bitpit::ElementType::POLYGON){
                     std::size_t size = conn.size();
                     connloc[0] = conn[0];
                     for(std::size_t i = 1; i < size; ++i){
                         connloc[i] = mapVloc[conn[i]];
                     }
-                        
+
                 }else if(eltype == bitpit::ElementType::POLYHEDRON){
                     connloc[0] = conn[0];
                     for(int nF = 0; nF < conn[0]-1; ++nF){
                         int facePos = cc.getFaceStreamPosition(nF);
                         int beginVertexPos = facePos + 1;
                         int endVertexPos   = facePos + 1 + conn[facePos];
-                        connloc[facePos] = conn[facePos]; 
+                        connloc[facePos] = conn[facePos];
                         for (int i=beginVertexPos; i<endVertexPos; ++i){
                             connloc[i] = mapVloc[conn[i]];
                         }
                     }
-                }else{    
+                }else{
                     int ic = 0;
                     for (const auto & v : conn){
                         connloc[ic] = mapVloc[v];
                         ++ic;
                     }
-                }    
+                }
                 dum->addConnectedCell(connloc, eltype, PID, cC);
                 //update map;
                 cC++;
             }
-            
+
             dum->resyncPID();
             for(const auto & val: dum->getPIDTypeList()){
                 dum->setPIDName(val, originalPidNames[newOldPid[val]]);
@@ -331,8 +331,8 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     }
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
-    
+
+
     if(slotXML.hasOption("RePID")){
         std::string input = slotXML.get("RePID");
         input = bitpit::utils::string::trim(input);
@@ -343,8 +343,8 @@ void StitchGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         forceRePID(temp);
     }
-    
-    
+
+
 };
 
 /*!
@@ -365,7 +365,7 @@ void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 /*!
  * Plot stitched geometry in *.vtu file as optional result;
  */
-void 
+void
 StitchGeometry::plotOptionalResults(){
     if(m_patch.get() == NULL) return;
     if(isEmpty()) return;
