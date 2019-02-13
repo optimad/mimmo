@@ -10,6 +10,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - fixed BasicShape: selections method
 - fixed IOCGNS: prism element mapping from/to cgns data structure.
 - fixed w/ CGNS compilation-> bump to 3.3.1 version
+- fixed compilation with Openfoam search: find LABEL_SIZE, ARCH_OPTION and PRECISION directly from FOAM env variables.
 
 ### Added
 - added variable radius inner limits for cylindrical and spherical BasicShapes and Lattices.

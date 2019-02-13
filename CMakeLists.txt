@@ -508,26 +508,26 @@ if (MODULE_ENABLED_IOOFOAM)
     # ---- OpenFOAM forced ---
     if(NOT OPENFOAM_PREC)
         # Set default precision for Openfoam in double
-        set(OPENFOAM_PREC "WM_DP" CACHE STRING
-            "Choose the type of Openfoam precision, options are: WM_SP for Single precision or WM_DP for Double precision."
+        set(OPENFOAM_PREC "WM_$ENV{WM_PRECISION_OPTION}" CACHE STRING
+            "Get type of current Openfoam installation precision, typical options are: WM_SP for Single precision or WM_DP for Double precision."
             FORCE)
         # Set the possible values of build type for the GUI
-        set_property(CACHE OPENFOAM_PREC PROPERTY STRINGS "WM_DP" "WM_SP")
+        # set_property(CACHE OPENFOAM_PREC PROPERTY STRINGS "WM_DP" "WM_SP")
     endif()
     if(NOT OPENFOAM_LABEL)
            # Set default precision for Openfoam in double
-        set(OPENFOAM_LABEL "" CACHE STRING
-            "Choose the size of Openfoam label, options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
+        set(OPENFOAM_LABEL "WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE}" CACHE STRING
+            "Get the size of Openfoam label, typical options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
             FORCE)
-        set_property(CACHE OPENFOAM_LABEL PROPERTY STRINGS "WM_LABEL_SIZE=32" "WM_LABEL_SIZE=64" "")
+        # set_property(CACHE OPENFOAM_LABEL PROPERTY STRINGS "WM_LABEL_SIZE=32" "WM_LABEL_SIZE=64" "")
     endif()
     if(NOT OPENFOAM_ARCH)
         # Set default precision for Openfoam in double
-        set(OPENFOAM_ARCH "WM_ARCH_OPTION=64" CACHE STRING
-            "Choose the type of Openfoam Architecture, options are: WM_ARCH_OPTION=64 or WM_ARCH_OPTION=32"
+        set(OPENFOAM_ARCH "WM_ARCH_OPTION=$ENV{WM_ARCH_OPTION}" CACHE STRING
+            "Get the type of Openfoam Architecture, typical option are WM_ARCH_OPTION=64 for 64bit systems, WM_ARCH_OPTION=32 for 32bit systems"
             FORCE)
         # Set the possible values of build type for the GUI
-        set_property(CACHE OPENFOAM_ARCH PROPERTY STRINGS "WM_ARCH_OPTION=64" "WM_ARCH_OPTION=32")
+        # set_property(CACHE OPENFOAM_ARCH PROPERTY STRINGS "WM_ARCH_OPTION=64" "WM_ARCH_OPTION=32")
     endif()
     if(NOT OPENFOAM_OLDVER)
         # Set control versions of Openfoam
