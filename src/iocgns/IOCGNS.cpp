@@ -128,19 +128,25 @@ IOCGNS::setDefaults(){
     m_storedBC  = std::move(std::unique_ptr<BCCGNS>(new BCCGNS()));
 
     //Fill converters
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::TRIANGLE] = CG_ElementType_t::CG_TRI_3;
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::QUAD] = CG_ElementType_t::CG_QUAD_4;
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::TETRA] = CG_ElementType_t::CG_TETRA_4;
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::PYRAMID] = CG_ElementType_t::CG_PYRA_5;
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::WEDGE] = CG_ElementType_t::CG_PENTA_6;
-    m_storedInfo->mcg_typeconverter[bitpit::ElementType::HEXAHEDRON] = CG_ElementType_t::CG_HEXA_8;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::TRIANGLE] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(TRI_3);//CG_ElementType_t::CG_TRI_3;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::QUAD] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(QUAD_4);//CG_ElementType_t::CG_QUAD_4;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::TETRA] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(TETRA_4);//CG_ElementType_t::CG_TETRA_4;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::PYRAMID] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(PYRA_5);//CG_ElementType_t::CG_PYRA_5;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::WEDGE] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(PENTA_6);//CG_ElementType_t::CG_PENTA_6;
+    m_storedInfo->mcg_typeconverter[bitpit::ElementType::HEXAHEDRON] = CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(HEXA_8); //CG_ElementType_t::CG_HEXA_8;
 
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_TRI_3] = "Elem_tri";
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_QUAD_4] = "Elem_quad";
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_TETRA_4] = "Elem_tetra";
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_PYRA_5] = "Elem_pyra";
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_PENTA_6] = "Elem_prism";
-    m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_HEXA_8] = "Elem_hexa";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_TRI_3] = "Elem_tri";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_QUAD_4] = "Elem_quad";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_TETRA_4] = "Elem_tetra";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_PYRA_5] = "Elem_pyra";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_PENTA_6] = "Elem_prism";
+    // m_storedInfo->mcg_typetostring[CG_ElementType_t::CG_HEXA_8] = "Elem_hexa";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(TRI_3)] = "Elem_tri";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(QUAD_4)] = "Elem_quad";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(TETRA_4)] = "Elem_tetra";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(PYRA_5)] = "Elem_pyra";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(PENTA_6)] = "Elem_prism";
+    m_storedInfo->mcg_typetostring[CGNS_ENUMT(ElementType_t)::CGNS_ENUMV(HEXA_8)] = "Elem_hexa";
 
 }
 
@@ -343,7 +349,7 @@ IOCGNS::read(){
     //     long nCells, nBoundVertices;
     int nCoords; //, nConnSections;
     std::array< std::vector<double>,3 > coords;
-    std::vector<CG_ElementType_t> orderedConns;
+    std::vector<CGNS_ENUMT(ElementType_t)> orderedConns;
     std::unordered_map<int, ivector1D> conns;
     std::unordered_map<int, ivector1D > bcLists;
 
@@ -385,7 +391,7 @@ IOCGNS::read(){
     }
 
     //Read type mesh of zone
-    CG_ZoneType_t zoneType;
+    CGNS_ENUMT(ZoneType_t) zoneType;
     int index_dim;
     if(cg_zone_type(indexfile,1,1, &zoneType)!= CG_OK){
         return false;
@@ -393,7 +399,7 @@ IOCGNS::read(){
     if(cg_index_dim(indexfile,1,1, &index_dim)!= CG_OK){
         return false;
     }
-    if(zoneType != CG_ZoneType_t::CG_Unstructured || index_dim != 1){
+    if(zoneType != CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(Unstructured) || index_dim != 1){
         //Only unstructured mesh supported for now (index_dim == 1 for unstructured)
         return false;
     }
@@ -417,7 +423,7 @@ IOCGNS::read(){
     for(int i = 1; i <= nCoords; ++i){
         cgsize_t startIndex = 1;
         cgsize_t finishIndex = sizeG[0];
-        CG_DataType_t datatype;
+        CGNS_ENUMT(DataType_t) datatype;
         char name[33];
         coords[i-1].resize(nVertices);
         if(cg_coord_info(indexfile,1,1,i, &datatype, name)!=CG_OK){
@@ -441,7 +447,7 @@ IOCGNS::read(){
 
         //Read section sec
         char elementname[33];
-        CG_ElementType_t type;
+        CGNS_ENUMT(ElementType_t) type;
         cgsize_t eBeg, eEnd, enBdry;
         int parent_flag;
         std::vector<cgsize_t>    connlocal;
@@ -487,14 +493,14 @@ IOCGNS::read(){
     for(int bc=1; bc<=nBcs; ++bc){
 
         char name[33];
-        CG_BCType_t bocotype;
-        CG_PointSetType_t ptset_type;
+        CGNS_ENUMT(BCType_t) bocotype;
+        CGNS_ENUMT(PointSetType_t) ptset_type;
         std::vector<cgsize_t> nBCElements(2);
         int normalIndex;
         cgsize_t normalListSize;
-        CG_DataType_t normalDataType;
+        CGNS_ENUMT(DataType_t) normalDataType;
         int ndataset;
-        CG_GridLocation_t location;
+        CGNS_ENUMT(GridLocation_t) location;
 
         if(cg_boco_gridlocation_read(indexfile,1,1,bc, &location) != CG_OK){
             return false;
@@ -505,13 +511,14 @@ IOCGNS::read(){
             return false;
         }
 
-        if(ptset_type == CG_PointSetType_t::CG_ElementList || ptset_type == CG_PointSetType_t::CG_ElementRange){
+        if(ptset_type == CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(ElementList) ||
+           ptset_type == CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(ElementRange) ){
 
             cgsize_t dim = nBCElements[0];
 
             std::vector<cgsize_t> localbc;
 
-            if(ptset_type == CG_PointSetType_t::CG_ElementList){
+            if(ptset_type == CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(ElementList) ){
                 localbc.resize((size_t) dim);
                 int *ptr = NULL;
 
@@ -553,7 +560,7 @@ IOCGNS::read(){
 
     }
 
-    m_storedBC->mcg_pidtobc[0] = CG_BCTypeNull;
+    m_storedBC->mcg_pidtobc[0] = CGNS_ENUMV(BCTypeNull);
     m_storedBC->mcg_pidtoname[0] = "undefined";
 
     //Finish reading CGNS file
@@ -806,7 +813,7 @@ IOCGNS::write(){
     }
 
     int zoneindex=1;
-    CG_ZoneType_t zoneType =CG_ZoneType_t::CG_Unstructured ;
+    CGNS_ENUMT(ZoneType_t) zoneType =CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(Unstructured) ;
     //int index_dim = 1;
     char zonename[33] = "Zone  1";
     std::vector<cgsize_t> sizeG(3);
@@ -824,7 +831,7 @@ IOCGNS::write(){
     names[1] = "CoordinateY";
     names[2] = "CoordinateZ";
 
-    CG_DataType_t datatype= CG_DataType_t::CG_RealDouble;
+    CGNS_ENUMT(DataType_t) datatype= CGNS_ENUMT(DataType_t)::CGNS_ENUMV(RealDouble);
 
     for(int i=1; i<=3; ++i){
         if(cg_coord_write(indexfile,baseindex,zoneindex, datatype, names[i-1].data(), coords[i-1].data(), &i )!=CG_OK){
@@ -844,7 +851,7 @@ IOCGNS::write(){
         sec++;
         if(connMap.second.size() == 0) continue;
 
-        CG_ElementType_t type = CG_ElementType_t(connMap.first);
+        CGNS_ENUMT(ElementType_t) type = static_cast<CGNS_ENUMT(ElementType_t)>(connMap.first);
 
         eEnd = eBeg + m_storedInfo->mcg_number[type] - 1;
 
@@ -860,7 +867,7 @@ IOCGNS::write(){
         sec++;
         if(connMap.second.size() == 0) continue;
 
-        CG_ElementType_t type = CG_ElementType_t(connMap.first);
+        CGNS_ENUMT(ElementType_t) type = static_cast<CGNS_ENUMT(ElementType_t)>(connMap.first);
 
         eEnd = eBeg + m_storedInfo->mcg_bndnumber[type] - 1;
 
@@ -879,13 +886,13 @@ IOCGNS::write(){
         /* Default tag for boundary conditions = Wall.
          * Default name for boundary conditions = wall_PID.
          */
-        CG_BCType_t bocotype = CG_BCType_t::CG_BCWall;
-        CG_PointSetType_t ptset_type = CG_ElementList;
+        CGNS_ENUMT(BCType_t) bocotype = CGNS_ENUMT(BCType_t)::CGNS_ENUMV(BCWall);
+        CGNS_ENUMT(PointSetType_t) ptset_type = CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(ElementList);
 
 
         cgsize_t nelements = bc.second.size();
         int bcPID = bc.first;
-        if (m_storedBC->mcg_pidtobc.count(bcPID)) bocotype = CG_BCType_t(m_storedBC->mcg_pidtobc[bcPID]);
+        if (m_storedBC->mcg_pidtobc.count(bcPID)) bocotype = static_cast<CGNS_ENUMT(BCType_t)>(m_storedBC->mcg_pidtobc[bcPID]);
 
         std::string bcname = "wall_"+std::to_string(bcPID);
         if (m_storedBC->mcg_pidtoname.count(bcPID)) bcname = m_storedBC->mcg_pidtoname[bcPID];
@@ -1077,10 +1084,10 @@ IOCGNS::recoverCGNSInfo(){
     int nVolElements = 0;
 
     /* Fill volume map info. */
-    CG_ElementType_t cgtype;
+    CGNS_ENUMT(ElementType_t) cgtype;
     long int ID;
     for (auto & cell : vol->getCells()){
-        cgtype = CG_ElementType_t(m_storedInfo->mcg_typeconverter[cell.getType()]);
+        cgtype = static_cast<CGNS_ENUMT(ElementType_t)>(m_storedInfo->mcg_typeconverter[cell.getType()]);
         ID = cell.getId();
         m_storedInfo->mcg_number[cgtype]++;
         m_storedInfo->mcg_typetoid[cgtype].push_back(ID);
@@ -1123,10 +1130,10 @@ IOCGNS::recoverCGNSInfo(){
     if (flagBnd){
         /* Fill surface mesh (boundary) map info. */
         bitpit::PatchKernel* bndpatch = bnd->getPatch();
-        CG_ElementType_t cgtype;
+        CGNS_ENUMT(ElementType_t) cgtype;
         long int ID;
         for (auto & cell : bnd->getCells()){
-            cgtype = CG_ElementType_t(m_storedInfo->mcg_typeconverter[cell.getType()]);
+            cgtype = static_cast<CGNS_ENUMT(ElementType_t)>(m_storedInfo->mcg_typeconverter[cell.getType()]);
             ID = cell.getId();
             m_storedInfo->mcg_bndnumber[cgtype]++;
             m_storedInfo->mcg_bndtypetoid[cgtype].push_back(ID);

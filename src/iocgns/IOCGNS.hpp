@@ -65,7 +65,7 @@ public:
     {
         clear();
     }
-    
+
 private:
     /*!
      * Clear members of the class.
@@ -117,7 +117,7 @@ public:
  * \ingroup iocgns
  * \brief IOCGNS is the class to import/ export an unstructured volume mesh written in CNGS.
  *
- * The object provides an interface to retrieve volume mesh and its boundary surfaces and 
+ * The object provides an interface to retrieve volume mesh and its boundary surfaces and
  * importing them in mimmo's native Data structures of type MimmoObject
  *
  * The class is in beta version and has the following limitations:
@@ -148,7 +148,7 @@ public:
  *    =========================================================
  *
  * The xml available parameters, sections and subsections are the following :
- * 
+ *
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as <tt>mimmo.IOCGNS</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;

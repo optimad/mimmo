@@ -10,10 +10,10 @@ mimmo depends on
 * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
 * bitpit library. It has been tested with bitpit 1.5.0. Visit www.optimad.it/products/bitpit/ for further information.
 * (optionally) PETSc library. It has been tested with PETSc >= 3.10.3.
-* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. 
-* (optionally) vtk. It has been tested with vtk >= 6.3. 
-* (optionally) cgns. It has been tested with cgns = 3.2.1. 
-* (optionally) hdf5. It has been tested with hdf5 = 1.8.15. 
+* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0.
+* (optionally) vtk. It has been tested with vtk >= 6.3.
+* (optionally) cgns. It has been tested with cgns = 3.3.1.
+* (optionally) hdf5. It has been tested with hdf5 = 1.10.4. 
 
 ## Configuring mimmo
 mimmo uses ccmake as building tool.
@@ -69,20 +69,20 @@ A shared version of the library is provided setting the cmake variable `BUILD_SH
 
 You can test the compilation by run the command `ctest` from the building folder.
 
-For a complete guide to installation of mimmo please visit 
+For a complete guide to installation of mimmo please visit
 <a href="http://www.optimad.github.io/mimmo/documentation/installation.html">mimmo installation webpage</a>.
 
 ## Building Documentation
 In order to build properly the documentation Doxygen (>=1.8.6) and Graphviz (>=2.20.2) are needed.
 
-In the ccmake interface the variable `BUILD_DOCUMENTATION` can be set to `ON` in order to build the documentation during the library compilation. 
+In the ccmake interface the variable `BUILD_DOCUMENTATION` can be set to `ON` in order to build the documentation during the library compilation.
 If turned on the new variable `DOC_EXTRACT_PRIVATE` can be used to include all the private class members in the documentation.
-  
-After the `make` or `make install` the doxygen documentation will be built. You can chose to compile only the documentation with command 
+
+After the `make` or `make install` the doxygen documentation will be built. You can chose to compile only the documentation with command
 ```bash
     mimmo/build$ make doc   
 ```
 You can now browse the html documentation with your favorite browser by opening 'html/index.html'.
 
 ## Help
-For any problem, please contact <a href="http://www.optimad.it">Optimad engineering srl</a> at info@optimad.it. 
+For any problem, please contact <a href="http://www.optimad.it">Optimad engineering srl</a> at info@optimad.it.

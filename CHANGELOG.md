@@ -9,6 +9,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - fixed BasicShape: XML interface
 - fixed BasicShape: selections method
 - fixed IOCGNS: prism element mapping from/to cgns data structure.
+- fixed w/ CGNS compilation-> bump to 3.3.1 version
 
 ### Added
 - added variable radius inner limits for cylindrical and spherical BasicShapes and Lattices.
@@ -24,8 +25,8 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
                           also User Interface and parameters controlling field propagation. Moved into the
                           new module "propagators".
 - MimmoPiercedVector: changes to class interface
-- IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK. 
-                  User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam 
+- IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK.
+                  User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam
                   Foundation versions.
 - SkdTreeUtils : extractTarget method changed in algorithm and interface.
 
@@ -50,12 +51,12 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - fixed minor bugs in FFDLattice manipulator
-- fixed bug in CGNSPIDExtractor (PID assignment) 
+- fixed bug in CGNSPIDExtractor (PID assignment)
 - fixed bugs in MeshSelection classes
 - fixed warnings
 
 ### Changed
-- update CreateSeedOnSurface block: added sensitivity map option to drive the seeding. 
+- update CreateSeedOnSurface block: added sensitivity map option to drive the seeding.
 - modified ports : added new ports for MimmoPiercedVector / Dismissed some ports no more useful (eg. pair MimmoObject & data attached).
 - iocgns_example_00001 now applies volume mesh morphing by propagation of a deformation field defined on boundaries.
 - update bitpit objects and functions with bitipit 1.4 release
@@ -100,4 +101,3 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 ## [1.0.0] - 2017-05-11
 ### Added
 - First **mimmo** release!
-

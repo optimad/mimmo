@@ -183,7 +183,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 if (ENABLE_WARNINGS)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra") 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
 if (NOT ("${CMAKE_VERSION}" VERSION_LESS "2.8.12"))
@@ -498,7 +498,7 @@ if (MODULE_ENABLED_IOVTK)
     include(${VTK_USE_FILE})
     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "VTK")
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
-    #      ---- 
+    #      ----
 else()
     UNSET(VTK_DIR CACHE)
 endif ()
@@ -539,7 +539,7 @@ if (MODULE_ENABLED_IOOFOAM)
     set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
     set(OFOAM_LIBS finiteVolume triSurface fileFormats surfMesh meshTools OpenFOAM )
     set(OFOAM_DUMMYLIBS Pstream)
-    
+
     foreach(OFCOMP IN LISTS OFOAM_INCLUDES)
         list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
     endforeach()
@@ -549,10 +549,10 @@ if (MODULE_ENABLED_IOOFOAM)
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "${OFTEMPL}")
         if(NOT OFTEMPL)
             message(FATAL_ERROR "Cannot found ${OFLIBS} in current OpenFOAM distribution")
-        endif()    
+        endif()
         unset(OFTEMPL CACHE)
     endforeach()
-    
+
     foreach(OFDUMMYLIBS IN LISTS OFOAM_DUMMYLIBS)
         set(DUMMYLIBBIN $ENV{FOAM_LIBBIN})
         find_library(OFTEMPL NAMES ${OFDUMMYLIBS} HINTS "${DUMMYLIBBIN}/dummy")
@@ -562,7 +562,7 @@ if (MODULE_ENABLED_IOOFOAM)
         endif()
         unset(OFTEMPL CACHE)
     endforeach()
-    #      ---- 
+    #      ----
 
    list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
    if(OPENFOAM_OLDVER)
@@ -584,39 +584,40 @@ endif ()
 if (MODULE_ENABLED_IOCGNS)
 
     # ---- CGNS forced ---
-    set(CGNS_DIR "/opt/cgns/cgns_3.3.1" CACHE PATH "path to CGNS installation")
-    set(HDF5_DIR "/opt/HDF5/1.10.4" CACHE PATH "path to HDF5 installation")
+    set(CGNS_DIR " " CACHE PATH "path to CGNS installation")
+    set(HDF5_DIR " " CACHE PATH "path to HDF5 installation")
     set(HDF5_BUILD_TYPE "parallel" CACHE STRING
         "Choose the type of HDF5 build, options are: parallel serial.")
     # Set the possible values of HDF5 build type for the GUI
-    
+    set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
+
     list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${CGNS_DIR}/include")
     addImportedLibrary("cgns" "${CGNS_DIR}/lib" ON)
     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "cgns")
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "cgns")
-    
+
     addImportedLibrary("hdf5" "${HDF5_DIR}/lib" ON)
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5")
-    
+
     if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
         addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
         addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/lib" ON)
         addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/lib" ON)
         addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
-        addImportedLibrary("hdf5hl_fortran" "${HDF5_DIR}/lib" ON)
+        addImportedLibrary("hdf5_hl_fortran" "${HDF5_DIR}/lib" ON)
 
         list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_cpp")
         list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_fortran")
         list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl")
         list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl_cpp")
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5hl_fortran")
+        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl_fortran")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_cpp")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_fortran")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl")
         list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5hl_fortran")
+        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
     endif()
-    #      ---- 
+    #      ----
 else()
     unset(CGNS_DIR CACHE)
     unset(HDF5_DIR CACHE)
@@ -648,4 +649,3 @@ add_subdirectory(test)
 
 # Docs
 add_subdirectory(doc)
-
