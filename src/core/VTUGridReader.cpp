@@ -48,11 +48,21 @@ VTUAbsorbStreamer::~VTUAbsorbStreamer(){}
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
  */
+void VTUAbsorbStreamer::absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format,
+                                 uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
+{
+    bitpit::VTKBaseStreamer::absorbData(stream, name, format, entries, components, datatype);
+}
+/*!
+ * Absorber to get BITPIT_LEGACY from versions lesser then 1.6 release.
+ */
 void VTUAbsorbStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
     bitpit::VTKBaseStreamer::absorbData(stream, name, format, entries, components, datatype);
 }
+
+
 
 /*!
  * Base Constructor
@@ -72,6 +82,630 @@ VTUGridStreamer::~VTUGridStreamer(){}
  * \param[in] entries   number of entries for data container
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
+ */
+void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format,
+                                 uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
+{
+    std::size_t sizeData = std::size_t(entries/components);
+    if (name == "Points") {
+        //get correct data type
+        points.resize(sizeData);
+        for (auto & p :points) {
+            for(auto &pval : p){
+                switch (datatype){
+                    case bitpit::VTKDataType::Float32 :
+                    {
+                        float val;
+                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                        else                                    genericIO::absorbBINARY(stream, val);
+                        pval = val;
+                    }
+                    break;
+                    case bitpit::VTKDataType::Float64:
+                    {
+                        double val;
+                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                        else                                    genericIO::absorbBINARY(stream, val);
+                        pval = val;
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
+                    break;
+                }
+
+            }
+        }
+    } else if (name == "offsets") {
+        offsets.resize(sizeData);
+        for (auto & voffset : offsets) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    voffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : Offsets data format not available");
+                break;
+            }
+        }
+    } else if (name == "types") {
+        types.resize(sizeData);
+        for (auto & vtype : types) {
+
+            int dumType;
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    dumType = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : Types data format not available");
+                break;
+            }
+            //find ElementType
+            switch (dumType)  {
+                case 1:
+                    vtype = bitpit::ElementType::VERTEX;
+                    break;
+
+                case 3:
+                    vtype = bitpit::ElementType::LINE;
+                    break;
+
+                case 5:
+                    vtype = bitpit::ElementType::TRIANGLE;
+                    break;
+
+                case 7:
+                    vtype = bitpit::ElementType::POLYGON;
+                    break;
+
+                case 8:
+                    vtype = bitpit::ElementType::PIXEL;
+                    break;
+
+                case 9:
+                    vtype = bitpit::ElementType::QUAD;
+                    break;
+
+                case 10:
+                    vtype = bitpit::ElementType::TETRA;
+                    break;
+
+                case 11:
+                    vtype = bitpit::ElementType::VOXEL;
+                    break;
+
+                case 12:
+                    vtype = bitpit::ElementType::HEXAHEDRON;
+                    break;
+
+                case 13:
+                    vtype = bitpit::ElementType::WEDGE;
+                    break;
+
+                case 14:
+                    vtype = bitpit::ElementType::PYRAMID;
+                    break;
+
+                case 42:
+                    vtype = bitpit::ElementType::POLYHEDRON;
+                    break;
+
+                default:
+                    vtype = bitpit::ElementType::UNDEFINED;
+                    break;
+
+            }
+        }
+    } else if (name == "connectivity") {
+        connectivitylist.resize(sizeData);
+        for (auto & vconn : connectivitylist) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vconn = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : Connectivity data format not available");
+                    break;
+            }
+        }
+    } else if (name == "faces") {
+        faces.resize(sizeData);
+        for (auto & vface : faces) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vface = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : Faces data format not available");
+                    break;
+            }
+        }
+    } else if (name == "faceoffsets") {
+        faceoffsets.resize(sizeData);
+        for (auto & vfoffset : faceoffsets) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vfoffset = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : Faceoffsets data format not available");
+                    break;
+            }
+        }
+    } else if (name == "cellIndex") {
+        cellsID.resize(sizeData);
+        for (auto & vcid : cellsID) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vcid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : CellIndex data format not available");
+                    break;
+            }
+        }
+    } else if (name == "PID") {
+        pids.resize(sizeData);
+        for (auto & pid : pids) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    pid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : PID data format not available");
+                    break;
+            }
+        }
+    } else if (name == "vertexIndex") {
+        pointsID.resize(sizeData);
+        for (auto & vpid : pointsID) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : VertexIndex data format not available");
+                    break;
+            }
+        }
+    }
+}
+
+/*!
+ * Absorber to get BITPIT_LEGACY from versions lesser then 1.6 release.
  */
 void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
@@ -828,6 +1462,111 @@ VTUPointCloudStreamer::~VTUPointCloudStreamer(){}
  * \param[in] components number of components of current data container
  * \param[in] datatype   data format for binary casting
  */
+void VTUPointCloudStreamer::absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format,
+                                 uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
+{
+    std::size_t sizeData = std::size_t(entries/components);
+    if (name == "Points") {
+        //get correct data type
+        points.resize(sizeData);
+        for (auto & p :points) {
+            for(auto &pval : p){
+                switch (datatype){
+                    case bitpit::VTKDataType::Float32 :
+                    {
+                        float val;
+                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                        else                                    genericIO::absorbBINARY(stream, val);
+                        pval = val;
+                    }
+                    break;
+                    case bitpit::VTKDataType::Float64:
+                    {
+                        double val;
+                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                        else                                    genericIO::absorbBINARY(stream, val);
+                        pval = val;
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
+                        break;
+                }
+
+            }
+        }
+    }else if (name == "vertexIndex") {
+        pointsID.resize(sizeData);
+        for (auto & vpid : pointsID) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
+                    else                                    genericIO::absorbBINARY(stream, val);
+                    vpid = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUPointCloudStreamer::absorbData : VertexIndex data format not available");
+                    break;
+            }
+        }
+    }
+}
+/*!
+ * method to ensure bitpit_legacy with versions lesser then 1.6 release
+ */
+
 void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
 {
@@ -929,6 +1668,7 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
         }
     }
 }
+
 
 /*!
  * Use streamer absorbed data, if any, to fill vertices of target bitpit::PatchKernel container,

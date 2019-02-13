@@ -36,7 +36,7 @@ namespace mimmo{
 /*!
  * \class VTUAbsorbStreamer
  * \brief Abstract class for custom reader/absorber of *.vtu mesh external files
- * 
+ *
  * Reader/absorber is focused to mesh data only.
  * Abstract class need to provide:
  *  - A custom implementation of absorbData method to read the data from file (actually void).
@@ -50,6 +50,7 @@ public:
     /*!Copy Constructor */
     VTUAbsorbStreamer(const VTUAbsorbStreamer&) = default;
 
+    virtual void absorbData(std::fstream &stream, const std::string & name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     /*! Decode read raw data and fill a bitpit::PatchKernel structure with them */
     virtual void decodeRawData(bitpit::PatchKernel &) = 0;
@@ -58,7 +59,7 @@ public:
 /*!
  * \class VTUGridStreamer
  * \brief Custom mesh/data absorber for unstructured grids given by external files *.vtu
- * 
+ *
  * Read unstructured mesh data only from an external file vtu (any other data will be skipped).
  * Data will be stored in internal structures of the streamer.
  */
@@ -69,7 +70,7 @@ protected:
     livector1D connectivitylist;                 /**< one dimensional list of all vertex indices composing connectivity */
     livector1D pointsID;                         /**< labels of mesh nodes, if any*/
     livector1D cellsID;                          /**< labels of mesh cells, if any*/
-    ivector1D pids;                              /**< cell pid, if any */
+    livector1D pids;                              /**< cell pid, if any */
     livector1D offsets;                           /**< offset list for decoding connectivity list */
     std::vector<bitpit::ElementType> types;      /**< list of cell types */
     livector1D faces;                             /**< list of face vertex connectivity - for 3D volume polyhedral support */
@@ -78,9 +79,10 @@ protected:
 public:
     VTUGridStreamer();
     virtual ~VTUGridStreamer();
-    /*! Copy Constructor*/ 
+    /*! Copy Constructor*/
     VTUGridStreamer(const VTUGridStreamer&) = default;
 
+    virtual void absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
 };
@@ -88,7 +90,7 @@ public:
 /*!
  * \class VTUPointCloudStreamer
  * \brief Custom mesh/data absorber for point clouds defined as an unstructured grid and given by external files *.vtu
- * 
+ *
  * Read unstructured point cloud data only from an external file vtu (any other data will be skipped).
  * Data will be stored in internal structures of the streamer.
  */
@@ -103,16 +105,18 @@ public:
     virtual ~VTUPointCloudStreamer();
     /*!Copy Constructor */
     VTUPointCloudStreamer(const VTUPointCloudStreamer&) = default;
-    
+
+    virtual void absorbData(std::fstream &stream, const std::string & name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
+
 };
 
 
 /*!
  * \class VTUGridReader
  * \brief Custom reader of unstructured grids from external files *.vtu
- * 
+ *
  * Reader of unstructured grids from external files *.vtu. if successfull reading,
  * store the mesh fields in target bitpit::Patchkernel data structure.
  * Need in construction to specify a streamer of type VTUAbsorbStreamer.
@@ -121,7 +125,7 @@ class VTUGridReader: protected bitpit::VTKUnstructuredGrid
 {
 
 public:
-    VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, 
+    VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer,
                    bitpit::PatchKernel & patch, bitpit::VTKElementType eltype= bitpit::VTKElementType::UNDEFINED);
     ~VTUGridReader();
 

@@ -797,6 +797,7 @@ MimmoGeometry::read(){
         setGeometry(1);
         VTUGridStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+
         input.read() ;
 
         getGeometry()->resyncPID();
