@@ -24,5 +24,5 @@ set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${MIMMO_REQUIRED_MOD
 # Add preprocessor definitions needed to use MIMMO.
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS})
 
-# Add include directories needed to use MIMMO.
+ # Add include directories needed to use MIMMO.
 include_directories(${MIMMO_INCLUDE_DIRS})

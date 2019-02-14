@@ -153,15 +153,24 @@ libfind_process(MIMMO)
 # Find mimmo external dependencies
 #-----------------------------------------------------------------------------
 
-# Find external packages
+ ##Find external packages
 foreach(_DEPENDENCY @MIMMO_EXTERNAL_DEPENDENCIES@)
     find_package("${_DEPENDENCY}" REQUIRED)
+    string(TOUPPER ${_DEPENDENCY} DEPTT)
+    if(NOT DEFINED "${DEPTT}_USE_FILE"})
+        if(NOT DEFINED "${DEPTT}_INCLUDE_DIRS")
+            list(APPEND MIMMO_INCLUDE_DIRS ${${DEPTT}_INCLUDES})
+        else()
+            list(APPEND MIMMO_INCLUDE_DIRS ${${DEPTT}_INCLUDE_DIRS})
+        endif()
+    else()
+        include(${${DEPTT}_USE_FILE})
+    endif()
+    list(APPEND MIMMO_LIBRARIES ${${DEPTT}_LIBRARIES})
 endforeach()
 
-# Add external libraries
-list(APPEND MIMMO_LIBRARIES @MIMMO_EXTERNAL_LIBRARIES@)
+# Add other external libraries binded by mimmo installation
+list(APPEND MIMMO_LIBRARIES @OTHER_EXTERNAL_LIBRARIES@)
 
-# Add external inclued paths
-list(APPEND MIMMO_INCLUDE_DIRS @MIMMO_EXTERNAL_INCLUDE_DIRS@)
-
-
+# Add other external include dirs binded by mimmo installation
+list(APPEND MIMMO_INCLUDE_DIRS @OTHER_EXTERNAL_INCLUDE_DIRS@)

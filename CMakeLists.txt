@@ -28,7 +28,6 @@
 cmake_minimum_required(VERSION 2.8)
 
 project("mimmo")
-
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
 #------------------------------------------------------------------------------------#
@@ -102,7 +101,9 @@ function(addModuleIncludeDirectories MODULE_NAME)
 
     # External includes
     if (INCLUDE_EXTERNAL)
-        include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRS}")
+        if(MIMMO_EXTERNAL_INCLUDE_DIRS)
+            include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRS}")
+        endif()
     endif ()
 
     # Add dependiecies
@@ -234,8 +235,6 @@ scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
 	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
 endif ()
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
 #------------------------------------------------------------------------------------#
 # Customized build types
 #------------------------------------------------------------------------------------#
@@ -413,11 +412,12 @@ set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulato
 #------------------------------------------------------------------------------------#
 # External modules dependecies
 #------------------------------------------------------------------------------------#
+set(MIMMO_EXTERNAL_DEPENDENCIES "") ## put here the name of package you need to refind with main FindMimmo
+set(MIMMO_EXTERNAL_LIBRARIES "") ## put here the xxx_LIBRARIES you need now.
+set(MIMMO_EXTERNAL_INCLUDE_DIRS "") ## put here the xxx_INCLUDE_DIRS you need now.
 
-set(MIMMO_EXTERNAL_DEPENDENCIES "")
-set(MIMMO_EXTERNAL_LIBRARIES "")
-set(MIMMO_EXTERNAL_INCLUDE_DIRS "")
-set(ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "")
+set(OTHER_EXTERNAL_LIBRARIES "") ## put here libraries you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
+set(OTHER_EXTERNAL_INCLUDE_DIRS "") ## put here include_dirs you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
 
 ###     BITPIT      ###############################################
 find_package(BITPIT REQUIRED COMPONENTS levelset surfunstructured volunstructured RBF CG )
@@ -425,6 +425,7 @@ include(${BITPIT_USE_FILE})
 
 list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "BITPIT")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
+# include dirs are managed with BITPIT_USE_FILE.
 
 ###      LAPACKE   ################################################
 set(LAPACKE_STATIC 0 CACHE BOOL "Require LAPACKE static libraries")
@@ -438,23 +439,22 @@ find_package(LAPACKE REQUIRED)
 
 set(LAPACKE_PRIVATE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/external/LAPACKE/include")
 
-list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LAPACK")
-list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LAPACKE")
-list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LAPACKE_LIBRARIES}" "${LAPACK_LIBRARIES}")
-list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${LAPACKE_PRIVATE_INCLUDE_DIR}" "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
+#NO NEED TO BE REFOUND - bind them to this mimmo installation
+list (APPEND OTHER_EXTERNAL_LIBRARIES "${LAPACKE_LIBRARIES}" "${LAPACK_LIBRARIES}")
+list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${LAPACKE_PRIVATE_INCLUDE_DIR}" "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
 
 ###     XML2      #################################################
 find_package(LibXml2 REQUIRED)
 
-list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "LibXml2")
-list (APPEND MIMMO_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
-list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIRS}")
+#NO NEED TO BE REFOUND - bind them to this mimmo installation
+list (APPEND OTHER_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
+list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIRS}")
 
 ###     MPI      #################################################
 if (ENABLE_MPI)
-    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "MPI")
-    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
-    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
+    #NO NEED TO BE REFOUND - bind them to this mimmo installation
+    list (APPEND OTHER_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
+    list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
 endif()
 
 
@@ -471,6 +471,7 @@ if(MODULE_ENABLED_SYSTEM)
         set(PETSC_DIR "" CACHE PATH "Directory in which PETSc resides")
         set(PETSC_ARCH "arch-linux2-c" CACHE STRING "Build architecture")
     endif ()
+    ##BEtter to be refind after
     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "PETSc")
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PETSC_LIBRARIES}")
     list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PETSC_INCLUDES}")
@@ -496,8 +497,10 @@ if (MODULE_ENABLED_IOVTK)
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
     find_package(VTK REQUIRED)
     include(${VTK_USE_FILE})
+    ##BEtter to be refind after
     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "VTK")
     list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
+    ##include dirs are managed by vtk-use-file
     #      ----
 else()
     UNSET(VTK_DIR CACHE)
@@ -540,13 +543,14 @@ if (MODULE_ENABLED_IOOFOAM)
     set(OFOAM_LIBS finiteVolume triSurface fileFormats surfMesh meshTools OpenFOAM )
     set(OFOAM_DUMMYLIBS Pstream)
 
+    ## you can bind libraries to this current mimmo installation
     foreach(OFCOMP IN LISTS OFOAM_INCLUDES)
-        list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
+        list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
     endforeach()
 
     foreach(OFLIBS IN LISTS OFOAM_LIBS)
         find_library(OFTEMPL NAMES ${OFLIBS} HINTS ENV FOAM_LIBBIN)
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "${OFTEMPL}")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "${OFTEMPL}")
         if(NOT OFTEMPL)
             message(FATAL_ERROR "Cannot found ${OFLIBS} in current OpenFOAM distribution")
         endif()
@@ -556,7 +560,7 @@ if (MODULE_ENABLED_IOOFOAM)
     foreach(OFDUMMYLIBS IN LISTS OFOAM_DUMMYLIBS)
         set(DUMMYLIBBIN $ENV{FOAM_LIBBIN})
         find_library(OFTEMPL NAMES ${OFDUMMYLIBS} HINTS "${DUMMYLIBBIN}/dummy")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "${OFTEMPL}")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "${OFTEMPL}")
         if(NOT OFTEMPL)
             message(FATAL_ERROR "Cannot found dummy ${OFLIBS} in current OpenFOAM distribution")
         endif()
@@ -564,11 +568,11 @@ if (MODULE_ENABLED_IOOFOAM)
     endforeach()
     #      ----
 
-   list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
+   list (APPEND MIMMO_DEFINITIONS_PUBLIC "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
    if(OPENFOAM_OLDVER)
-        list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "OPENFOAM_OLDVER=1")
+        list (APPEND MIMMO_DEFINITIONS_PUBLIC "OPENFOAM_OLDVER=1")
     else()
-        list (APPEND ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE "OPENFOAM_OLDVER=0")
+        list (APPEND MIMMO_DEFINITIONS_PUBLIC "OPENFOAM_OLDVER=0")
     endif()
 
 else()
@@ -591,13 +595,15 @@ if (MODULE_ENABLED_IOCGNS)
     # Set the possible values of HDF5 build type for the GUI
     set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
 
-    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${CGNS_DIR}/include")
+    ## you can bind libs to this current mimmo installation
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_DIR}/include")
+
     addImportedLibrary("cgns" "${CGNS_DIR}/lib" ON)
-    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "cgns")
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "cgns")
+    #list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "cgns") //HEY CGNS DOES NOT SUPPORT its CMake Config!!!
+    list(APPEND OTHER_EXTERNAL_LIBRARIES "cgns")
 
     addImportedLibrary("hdf5" "${HDF5_DIR}/lib" ON)
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5")
+    list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5")
 
     if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
         addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
@@ -606,16 +612,11 @@ if (MODULE_ENABLED_IOCGNS)
         addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
         addImportedLibrary("hdf5_hl_fortran" "${HDF5_DIR}/lib" ON)
 
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_cpp")
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_fortran")
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl")
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl_cpp")
-        list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "hdf5_hl_fortran")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_cpp")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_fortran")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
-        list(APPEND MIMMO_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_cpp")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_fortran")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
+        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
     endif()
     #      ----
 else()
@@ -624,7 +625,17 @@ else()
     unset(HDF5_BUILD_TYPE CACHE)
 endif ()
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${ADDITIONAL_MIMMO_DEFINITIONS_PRIVATE})
+
+## Put together External libraries and include directories
+list(APPEND MIMMO_EXTERNAL_LIBRARIES ${OTHER_EXTERNAL_LIBRARIES})
+list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS ${OTHER_EXTERNAL_INCLUDE_DIRS})
+
+## pass now MIMMO_EXTERNAL_INCLUDE_DIRS to the include_directories
+include_directories(${MIMMO_EXTERNAL_INCLUDE_DIRS})
+
+##PASS THE PROPERTY DEFINITIONS
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
 #------------------------------------------------------------------------------------#
 # Subdirectories
 #------------------------------------------------------------------------------------#
