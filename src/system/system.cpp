@@ -330,10 +330,12 @@ void SystemSolver::matrixInit(localivector2D &stencils)
     }
 
     // Create the matrix
+	int maxd = *std::max_element(d_nnz.begin(), d_nnz.end());
 #if ENABLE_MPI == 1
-    MatCreateAIJ(m_communicator, nRows, nRows, PETSC_DETERMINE, PETSC_DETERMINE, 0, d_nnz.data(), 0, o_nnz.data(), &m_A);
+	int maxo = *std::max_element(o_nnz.begin(), o_nnz.end());
+    MatCreateAIJ(m_communicator, nRows, nRows, PETSC_DETERMINE, PETSC_DETERMINE, maxd, d_nnz.data(), maxo, o_nnz.data(), &m_A);
 #else
-    MatCreateSeqAIJ(PETSC_COMM_SELF, nRows, nRows, 0, d_nnz.data(), &m_A);
+    MatCreateSeqAIJ(PETSC_COMM_SELF, nRows, nRows, maxd, d_nnz.data(), &m_A);
 #endif
 }
 
