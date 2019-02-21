@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 2.8)
 option(BUILD_XMLTUI "Create and install xml-tui interface binaries" OFF)
 
 if(BUILD_XMLTUI)
-	
+
 	include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 		# Add a target to generate the examples
 	foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
@@ -39,16 +39,16 @@ if(BUILD_XMLTUI)
 			addModuleIncludeDirectories(${MODULE_NAME})
 		endif()
 	endforeach ()
-	
+
 	set(MIMMO_HEADER_TEMPLATE "mimmo_template.hpp.in")
 	set(MIMMO_HEADER "mimmo.hpp")
 	CONFIGURE_FILE("${MIMMO_HEADER_TEMPLATE}" "${MIMMO_HEADER}")
-	
+
 	unset(MIMMO_HEADER_TEMPLATE)
 	unset(MIMMO_HEADER)
 	unset(INCLUDE_LIST)
 
-	
+
 	# List of binaries
 	set(BINS "")
 	list(APPEND BINS "mimmo++")
@@ -69,6 +69,7 @@ if(BUILD_XMLTUI)
 
 	##    target_link_libraries(${TEST_NAME} ${VTK_LIBRARIES})
 		install(TARGETS ${BIN_NAME} DESTINATION bin)
+        install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/samples DESTINATION bin)
 	endforeach()
 
 	add_custom_target(binaries DEPENDS ${MIMMO_BINS_TARGETS})

@@ -40,8 +40,8 @@ cmake_minimum_required(VERSION 2.8)
 # endif ()
 
 ##NOTE###########
-# Specify examples list according to module used. for instance, enable an example 
-#using module utils verifying that a module utils is loaded 
+# Specify examples list according to module used. for instance, enable an example
+#using module utils verifying that a module utils is loaded
 ################
 
 
@@ -77,7 +77,7 @@ if(BUILD_EXAMPLES)
     if (MODULE_ENABLED1 AND MODULE_ENABLED0)
         list(APPEND EXAMPLE_LIST "iocgns_example_00001")
     endif ()
-    
+
     #Add examples of enabled modules
     isModuleEnabled("iovtk" MODULE_ENABLED2)
     if (MODULE_ENABLED2)
@@ -96,7 +96,7 @@ if(BUILD_EXAMPLES)
     if (MODULE_ENABLED3)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
     endif ()
-    
+
 	#Rules to build the examples
 	foreach(EXAMPLE_NAME IN LISTS EXAMPLE_LIST)
 		set(EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}.cpp")
@@ -106,6 +106,7 @@ if(BUILD_EXAMPLES)
 		target_link_libraries(${EXAMPLE_NAME} ${MIMMO_LIBRARY})
 		target_link_libraries(${EXAMPLE_NAME} ${MIMMO_EXTERNAL_LIBRARIES})
 		install(TARGETS ${EXAMPLE_NAME} DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
+
 	endforeach()
 
 	add_custom_target(examples DEPENDS ${EXAMPLE_LIST})
@@ -191,8 +192,7 @@ if(BUILD_EXAMPLES)
         )
     endif()
 
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../input" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../geodata" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
+
 endif()
-
-
-
-
