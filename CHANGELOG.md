@@ -13,6 +13,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - fixed compilation with Openfoam search: find LABEL_SIZE, ARCH_OPTION and PRECISION directly from FOAM env variables.
 
 ### Added
+- MRBF class: added heaviside functions to Mimmo Radial Basis Function object
 - added variable radius inner limits for cylindrical and spherical BasicShapes and Lattices.
 - added new elementary basic shape and lattice WEDGE (triangular prism)
 - added Linear System Solver Class based on PETSc
