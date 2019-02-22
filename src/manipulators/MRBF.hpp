@@ -30,6 +30,19 @@
 namespace mimmo{
 
 /*!
+ * @enum MRBFBasisFunction
+ * @ingroup manipulators
+ * @brief Enum class defining types of mimmo RBF kernel functions that could be used in bitpit::RBF class
+ */
+enum class MRBFBasisFunction {
+    HEAVISIDE10    = 101,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10 */
+    	    HEAVISIDE50    = 102,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 50 */
+		    HEAVISIDE100    = 103,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 100 */
+		    HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
+};
+
+
+/*!
  * \enum MRBFSol
  * \ingroup manipulators
  * \brief Solver enum for your RBF data fields interpolation/ direct parameterization
@@ -148,6 +161,9 @@ public:
     void             setTol(double tol);
     void             setDisplacements(dvecarr3E displ);
 
+    void 			setFunction(const MRBFBasisFunction & funct);
+    void 			setFunction(const bitpit::RBFBasisFunction & funct);
+
     void             clear();
     void             clearFilter();
 
@@ -166,6 +182,11 @@ protected:
 
 };
 
+double	heaviside10( const double &dist );
+double	heaviside50( const double &dist );
+double	heaviside100( const double &dist );
+double	heaviside1000( const double &dist );
+
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT ,__MRBF_HPP__)
@@ -174,9 +195,7 @@ REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT ,__MRBF_HPP__)
 
-
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
-
 
 };
 
