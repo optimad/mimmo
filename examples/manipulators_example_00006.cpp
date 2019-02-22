@@ -99,7 +99,8 @@ void test00006() {
      */
     MRBF* mrbf = new MRBF();
     mrbf->setMode(MRBFSol::NONE);
-    mrbf->setSupportRadius(0.25);
+    mrbf->setFunction(MRBFBasisFunction::HEAVISIDE1000);
+    mrbf->setSupportRadius(0.025);
     mrbf->setPlotInExecution(true);
 
 
