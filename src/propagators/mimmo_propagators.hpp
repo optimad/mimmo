@@ -34,8 +34,6 @@
 #ifndef __MIMMO_MODULE_PROPAGATORS_HPP__
 #define __MIMMO_MODULE_PROPAGATORS_HPP__
 
-#include "mimmo_system.hpp"
-
 #include "PropagateField.hpp"
 
 #endif

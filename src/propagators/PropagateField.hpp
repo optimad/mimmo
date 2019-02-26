@@ -25,7 +25,7 @@
 #define __PROPAGATEFIELD_HPP__
 
 #include "BaseManipulation.hpp"
-#include "system.hpp"
+#include "bitpit_LA.hpp"
 
 namespace mimmo{
 /*!
@@ -103,7 +103,7 @@ protected:
     int           m_dumpingType;    /**< 0 distance-control, 1-volume control*/
     
     
-    std::unique_ptr<mimmo::SystemSolver> m_solver; /**! linear system solver for laplace */
+    std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
 
 public:
 
@@ -143,20 +143,20 @@ protected:
     virtual void computeDumpingFunction();
 
     void solveSmoothing(int nstep,
-                        ivector2D &stencils,
+                        livector2D &stencils,
                         dvector2D &weights,
                         dvector1D &rhs,
                         liimap &dataInv,
                         MimmoPiercedVector<std::array<double, NCOMP> > & field);
 
-    void solveLaplace(ivector2D &stencils,
+    void solveLaplace(livector2D &stencils,
                       dvector2D &weights,
                       dvector1D &rhs,
                       liimap &dataInv,
                       MimmoPiercedVector<std::array<double, NCOMP> > & field);
 
     void computeStencils  (liimap &dataInv,
-                           ivector2D &stencils,
+                           livector2D &stencils,
                            dvector2D &weights);
 
 
@@ -260,7 +260,7 @@ protected:
 private:
     //execute
     virtual void correctStencils(liimap & dataInv,
-                                 ivector2D &stencils,
+                                 livector2D &stencils,
                                  dvector2D &weights);
     
     void computeRHS       (MimmoPiercedVector<std::array<double, 1> > & bcs,
@@ -394,7 +394,7 @@ protected:
 private:
     //execute
     virtual void correctStencils(liimap & dataInv,
-                                 ivector2D &stencils, 
+                                 livector2D &stencils,
                                  dvector2D &weights);
     
     virtual void computeRHS (MimmoPiercedVector<std::array<double, 3> > & bcs,

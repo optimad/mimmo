@@ -32,8 +32,8 @@ namespace mimmo{
  */
 template<std::size_t NCOMP>
 PropagateField<NCOMP>::PropagateField(){
-    m_name = "mimmo.PropagateField";
-    setDefaults();
+	m_name = "mimmo.PropagateField";
+	setDefaults();
 };
 
 /*!
@@ -41,24 +41,24 @@ PropagateField<NCOMP>::PropagateField(){
  */
 template<std::size_t NCOMP>
 void PropagateField<NCOMP>::setDefaults(){
-    this->m_isbp.clear();
-    this->m_field.clear();
-    this->m_bc_dir.clear();
-    this->m_np        = 0;
-    this->m_gamma        = 1.0;
-    this->m_laplace   = true;
-    this->m_sstep     = 10;
-    this->m_convergence = false;
-    this->m_tol = 1.0e-12;
-    this->m_bsurface  = NULL;
-    this->m_dsurface  = NULL;
-    this->m_geometry  = NULL;
-    this->m_decayFactor = 1.0;
-    this->m_dumping.clear();
-    this->m_radius = 0.0;
-    this->m_plateau = 0.0;
-    this->m_dumpingActive = false;
-    this->m_dumpingType = 0;
+	this->m_isbp.clear();
+	this->m_field.clear();
+	this->m_bc_dir.clear();
+	this->m_np        = 0;
+	this->m_gamma        = 1.0;
+	this->m_laplace   = true;
+	this->m_sstep     = 10;
+	this->m_convergence = false;
+	this->m_tol = 1.0e-12;
+	this->m_bsurface  = NULL;
+	this->m_dsurface  = NULL;
+	this->m_geometry  = NULL;
+	this->m_decayFactor = 1.0;
+	this->m_dumping.clear();
+	this->m_radius = 0.0;
+	this->m_plateau = 0.0;
+	this->m_dumpingActive = false;
+	this->m_dumpingType = 0;
 }
 
 /*!
@@ -66,7 +66,7 @@ void PropagateField<NCOMP>::setDefaults(){
  */
 template<std::size_t NCOMP>
 PropagateField<NCOMP>::~PropagateField(){
-    clear();
+	clear();
 };
 
 /*!
@@ -74,23 +74,23 @@ PropagateField<NCOMP>::~PropagateField(){
  */
 template<std::size_t NCOMP>
 PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseManipulation(other){
-    setDefaults();
-    this->m_isbp         = other.m_isbp;
-    this->m_bc_dir       = other.m_bc_dir;
-    this->m_np           = other.m_np;
-    this->m_gamma        = other.m_gamma;
-    this->m_laplace      = other.m_laplace;
-    this->m_sstep        = other.m_sstep;
-    this->m_convergence  = other.m_convergence;
-    this->m_tol          = other.m_tol;
-    this->m_bsurface     = other.m_bsurface;
-    this->m_dsurface     = other.m_dsurface;
-    this->m_dumping      = other.m_dumping;
-    this->m_decayFactor  = other.m_decayFactor;
-    this->m_radius       = other.m_radius;
-    this->m_plateau      = other.m_plateau;
-    this->m_dumpingActive= other.m_dumpingActive;
-    this->m_dumpingType = other.m_dumpingType;
+	setDefaults();
+	this->m_isbp         = other.m_isbp;
+	this->m_bc_dir       = other.m_bc_dir;
+	this->m_np           = other.m_np;
+	this->m_gamma        = other.m_gamma;
+	this->m_laplace      = other.m_laplace;
+	this->m_sstep        = other.m_sstep;
+	this->m_convergence  = other.m_convergence;
+	this->m_tol          = other.m_tol;
+	this->m_bsurface     = other.m_bsurface;
+	this->m_dsurface     = other.m_dsurface;
+	this->m_dumping      = other.m_dumping;
+	this->m_decayFactor  = other.m_decayFactor;
+	this->m_radius       = other.m_radius;
+	this->m_plateau      = other.m_plateau;
+	this->m_dumpingActive= other.m_dumpingActive;
+	this->m_dumpingType = other.m_dumpingType;
 };
 
 /*!
@@ -99,24 +99,24 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
  */
 template<std::size_t NCOMP>
 void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
-    this->m_isbp.swap(x.m_isbp);
-    this->m_field.swap(x.m_field);
-    this->m_bc_dir.swap(x.m_bc_dir);
-    std::swap(this->m_np, x.m_np);
-    std::swap(this->m_gamma, x.m_gamma);
-    std::swap(this->m_laplace, x.m_laplace);
-    std::swap(this->m_sstep, x.m_sstep);
-    std::swap(this->m_convergence, x.m_convergence);
-    std::swap(this->m_tol, x.m_tol);
-    std::swap(this->m_bsurface, x.m_bsurface);
-    std::swap(this->m_dsurface, x.m_dsurface);
-    std::swap(this->m_decayFactor, x.m_decayFactor);
-    this->m_dumping.swap(x.m_dumping);
-    std::swap(this->m_radius, x.m_radius);
-    std::swap(this->m_plateau, x.m_plateau);
-    std::swap(this->m_dumpingActive, x.m_dumpingActive);
-    std::swap(this->m_dumpingType, x.m_dumpingType);
-    this->BaseManipulation::swap(x);
+	this->m_isbp.swap(x.m_isbp);
+	this->m_field.swap(x.m_field);
+	this->m_bc_dir.swap(x.m_bc_dir);
+	std::swap(this->m_np, x.m_np);
+	std::swap(this->m_gamma, x.m_gamma);
+	std::swap(this->m_laplace, x.m_laplace);
+	std::swap(this->m_sstep, x.m_sstep);
+	std::swap(this->m_convergence, x.m_convergence);
+	std::swap(this->m_tol, x.m_tol);
+	std::swap(this->m_bsurface, x.m_bsurface);
+	std::swap(this->m_dsurface, x.m_dsurface);
+	std::swap(this->m_decayFactor, x.m_decayFactor);
+	this->m_dumping.swap(x.m_dumping);
+	std::swap(this->m_radius, x.m_radius);
+	std::swap(this->m_plateau, x.m_plateau);
+	std::swap(this->m_dumpingActive, x.m_dumpingActive);
+	std::swap(this->m_dumpingType, x.m_dumpingType);
+	this->BaseManipulation::swap(x);
 }
 
 
@@ -126,11 +126,11 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::buildPorts(){
-    bool built = true;
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDirichletBoundarySurface, M_GEOM2));
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDumpingBoundarySurface, M_GEOM3));
-    m_arePortsBuilt = built;
+	bool built = true;
+	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
+	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDirichletBoundarySurface, M_GEOM2));
+	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDumpingBoundarySurface, M_GEOM3));
+	m_arePortsBuilt = built;
 };
 
 
@@ -144,12 +144,12 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 
-    if (geometry_ == NULL) return;
-    if (geometry_->isEmpty())   return;
-    if (geometry_->getType()!= 2 ) return;
+	if (geometry_ == NULL) return;
+	if (geometry_->isEmpty())   return;
+	if (geometry_->getType()!= 2 ) return;
 
-    m_geometry = geometry_;
-    m_np = m_geometry->getNVertex();
+	m_geometry = geometry_;
+	m_np = m_geometry->getNVertex();
 }
 
 /*! 
@@ -160,11 +160,11 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
-    if (bsurface == NULL)       return;
-    if (bsurface->isEmpty())    return;
-    if (bsurface->getType()!= 1 ) return;
+	if (bsurface == NULL)       return;
+	if (bsurface->isEmpty())    return;
+	if (bsurface->getType()!= 1 ) return;
 
-    m_bsurface = bsurface;
+	m_bsurface = bsurface;
 }
 
 /*! 
@@ -176,11 +176,11 @@ PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
-    if (bdumping == NULL)       return;
-    if (bdumping->isEmpty())    return;
-    if (bdumping->getType()!= 1 ) return;
+	if (bdumping == NULL)       return;
+	if (bdumping->isEmpty())    return;
+	if (bdumping->getType()!= 1 ) return;
 
-    m_dsurface = bdumping;
+	m_dsurface = bdumping;
 }
 
 /*! 
@@ -192,7 +192,7 @@ PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setWeightConstant(double gamma){
-    m_gamma = gamma;
+	m_gamma = gamma;
 }
 
 /*!
@@ -203,7 +203,7 @@ PropagateField<NCOMP>::setWeightConstant(double gamma){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setSmoothingSteps(int ns){
-    m_sstep = ns;
+	m_sstep = ns;
 }
 
 /*! 
@@ -212,7 +212,7 @@ PropagateField<NCOMP>::setSmoothingSteps(int ns){
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setSolver(bool solveLaplacian){
-    m_laplace = solveLaplacian;
+	m_laplace = solveLaplacian;
 }
 
 /*!
@@ -222,7 +222,7 @@ void PropagateField<NCOMP>::setSolver(bool solveLaplacian){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumping(bool flag){
-    m_dumpingActive = flag;
+	m_dumpingActive = flag;
 }
 
 
@@ -233,7 +233,7 @@ PropagateField<NCOMP>::setDumping(bool flag){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingInnerDistance(double plateau){
-    m_plateau = plateau;
+	m_plateau = plateau;
 }
 
 /*!
@@ -243,7 +243,7 @@ PropagateField<NCOMP>::setDumpingInnerDistance(double plateau){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingOuterDistance(double radius){
-    m_radius = radius;
+	m_radius = radius;
 }
 
 /*!
@@ -253,7 +253,7 @@ PropagateField<NCOMP>::setDumpingOuterDistance(double radius){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingType(int type){
-    m_dumpingType = std::max(0, std::min(1, type));
+	m_dumpingType = std::max(0, std::min(1, type));
 }
 
 /*!
@@ -263,7 +263,7 @@ PropagateField<NCOMP>::setDumpingType(int type){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDecayFactor(double decay){
-    m_decayFactor = decay;
+	m_decayFactor = decay;
 }
 
 /*! 
@@ -272,7 +272,7 @@ PropagateField<NCOMP>::setDecayFactor(double decay){
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setConvergence(bool convergence){
-    m_convergence = convergence;
+	m_convergence = convergence;
 }
 
 /*!
@@ -281,7 +281,7 @@ void PropagateField<NCOMP>::setConvergence(bool convergence){
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setTolerance(double tol){
-    m_tol = tol;
+	m_tol = tol;
 }
 
 
@@ -294,127 +294,127 @@ template <std::size_t NCOMP>
 void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 
-    BITPIT_UNUSED(name);
+	BITPIT_UNUSED(name);
 
-    //start absorbing
-    BaseManipulation::absorbSectionXML(slotXML, name);
+	//start absorbing
+	BaseManipulation::absorbSectionXML(slotXML, name);
 
-    if(slotXML.hasOption("Solver")){
-        std::string input = slotXML.get("Solver");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setSolver(value);
-    }
+	if(slotXML.hasOption("Solver")){
+		std::string input = slotXML.get("Solver");
+		input = bitpit::utils::string::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setSolver(value);
+	}
 
-    if(slotXML.hasOption("WeightConstant")){
-        std::string input = slotXML.get("WeightConstant");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setWeightConstant(value);
-    }
+	if(slotXML.hasOption("WeightConstant")){
+		std::string input = slotXML.get("WeightConstant");
+		input = bitpit::utils::string::trim(input);
+		double value = 1.0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+			value = std::fmax(0.0, value);
+		}
+		setWeightConstant(value);
+	}
 
-    if(slotXML.hasOption("SmoothingSteps")){
-        std::string input = slotXML.get("SmoothingSteps");
-        int value =1;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss>>value;
-        }
-        setSmoothingSteps(value);
-    };
+	if(slotXML.hasOption("SmoothingSteps")){
+		std::string input = slotXML.get("SmoothingSteps");
+		int value =1;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::string::trim(input));
+			ss>>value;
+		}
+		setSmoothingSteps(value);
+	};
 
-    if(slotXML.hasOption("Convergence")){
-        std::string input = slotXML.get("Convergence");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setConvergence(value);
-    }
+	if(slotXML.hasOption("Convergence")){
+		std::string input = slotXML.get("Convergence");
+		input = bitpit::utils::string::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setConvergence(value);
+	}
 
-    if(slotXML.hasOption("Tolerance")){
-        std::string input = slotXML.get("Tolerance");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0e-12;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setTolerance(value);
-    }
+	if(slotXML.hasOption("Tolerance")){
+		std::string input = slotXML.get("Tolerance");
+		input = bitpit::utils::string::trim(input);
+		double value = 1.0e-12;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+			value = std::fmax(0.0, value);
+		}
+		setTolerance(value);
+	}
 
-    if(slotXML.hasOption("Dumping")){
-        std::string input = slotXML.get("Dumping");
-        input = bitpit::utils::string::trim(input);
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setDumping(value);
-    }
+	if(slotXML.hasOption("Dumping")){
+		std::string input = slotXML.get("Dumping");
+		input = bitpit::utils::string::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setDumping(value);
+	}
 
-    if(slotXML.hasOption("DecayFactor")){
-        std::string input = slotXML.get("DecayFactor");
-        input = bitpit::utils::string::trim(input);
-        double value = 1.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-            value = std::fmax(0.0, value);
-        }
-        setDecayFactor(value);
-    }   
-    
-    if(m_dumpingActive){
+	if(slotXML.hasOption("DecayFactor")){
+		std::string input = slotXML.get("DecayFactor");
+		input = bitpit::utils::string::trim(input);
+		double value = 1.0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+			value = std::fmax(0.0, value);
+		}
+		setDecayFactor(value);
+	}
 
-        if(slotXML.hasOption("DumpingInnerDistance")){
-            std::string input = slotXML.get("DumpingInnerDistance");
-            input = bitpit::utils::string::trim(input);
-            double value = 0.0;
-            if(!input.empty()){
-                std::stringstream ss(input);
-                ss >> value;
-                value = std::fmax(0.0, value);
-            }
-            setDumpingInnerDistance(value);
-        }
+	if(m_dumpingActive){
 
-        if(slotXML.hasOption("DumpingOuterDistance")){
-            std::string input = slotXML.get("DumpingOuterDistance");
-            input = bitpit::utils::string::trim(input);
-            double value = 1.0e+18;
-            if(!input.empty()){
-                std::stringstream ss(input);
-                ss >> value;
-                value = std::fmax(0.0, value);
-            }
-            setDumpingOuterDistance(value);
-        }
-        
-        if(slotXML.hasOption("DumpingType")){
-            std::string input = slotXML.get("DumpingType");
-            input = bitpit::utils::string::trim(input);
-            int value = 0;
-            if(!input.empty()){
-                std::stringstream ss(input);
-                ss >> value;
-            }
-            setDumpingType(value);
-        }
-    }
+		if(slotXML.hasOption("DumpingInnerDistance")){
+			std::string input = slotXML.get("DumpingInnerDistance");
+			input = bitpit::utils::string::trim(input);
+			double value = 0.0;
+			if(!input.empty()){
+				std::stringstream ss(input);
+				ss >> value;
+				value = std::fmax(0.0, value);
+			}
+			setDumpingInnerDistance(value);
+		}
+
+		if(slotXML.hasOption("DumpingOuterDistance")){
+			std::string input = slotXML.get("DumpingOuterDistance");
+			input = bitpit::utils::string::trim(input);
+			double value = 1.0e+18;
+			if(!input.empty()){
+				std::stringstream ss(input);
+				ss >> value;
+				value = std::fmax(0.0, value);
+			}
+			setDumpingOuterDistance(value);
+		}
+
+		if(slotXML.hasOption("DumpingType")){
+			std::string input = slotXML.get("DumpingType");
+			input = bitpit::utils::string::trim(input);
+			int value = 0;
+			if(!input.empty()){
+				std::stringstream ss(input);
+				ss >> value;
+			}
+			setDumpingType(value);
+		}
+	}
 };
 
 /*!
@@ -425,23 +425,23 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
-    BITPIT_UNUSED(name);
+	BITPIT_UNUSED(name);
 
-    BaseManipulation::flushSectionXML(slotXML, name);
+	BaseManipulation::flushSectionXML(slotXML, name);
 
-    slotXML.set("WeightConstant",std::to_string(m_gamma));
-    slotXML.set("Solver", std::to_string(int(m_laplace)));
-    slotXML.set("SmoothingSteps",std::to_string(m_sstep));
-    slotXML.set("Convergence",std::to_string(int(m_convergence)));
-    slotXML.set("Tolerance",std::to_string(m_tol));
-    slotXML.set("Dumping", std::to_string(int(m_dumpingActive)));
-    if(m_dumpingActive){
-        slotXML.set("DumpingInnerDistance",std::to_string(m_plateau));
-        slotXML.set("DumpingOuterDistance",std::to_string(m_radius));
-        slotXML.set("DumpingType",std::to_string(m_dumpingType));
-    }
-    slotXML.set("DecayFactor",std::to_string(m_decayFactor));
-    
+	slotXML.set("WeightConstant",std::to_string(m_gamma));
+	slotXML.set("Solver", std::to_string(int(m_laplace)));
+	slotXML.set("SmoothingSteps",std::to_string(m_sstep));
+	slotXML.set("Convergence",std::to_string(int(m_convergence)));
+	slotXML.set("Tolerance",std::to_string(m_tol));
+	slotXML.set("Dumping", std::to_string(int(m_dumpingActive)));
+	if(m_dumpingActive){
+		slotXML.set("DumpingInnerDistance",std::to_string(m_plateau));
+		slotXML.set("DumpingOuterDistance",std::to_string(m_radius));
+		slotXML.set("DumpingType",std::to_string(m_dumpingType));
+	}
+	slotXML.set("DecayFactor",std::to_string(m_decayFactor));
+
 };
 
 
@@ -451,8 +451,8 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::clear(){
-    BaseManipulation::clear();
-    setDefaults();
+	BaseManipulation::clear();
+	setDefaults();
 };
 
 /*!
@@ -462,91 +462,91 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::computeDumpingFunction(){
 
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    double dist;
-    long ID;
+	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+	double dist;
+	long ID;
 
-    /* Maxdist should be the maximum distance between
-     * boundaries with zero values and
-     * boundaries with values different from zero.
-     */
-    //TODO compute it
-    const double maxd(m_radius);
-    m_dumping.clear();
+	/* Maxdist should be the maximum distance between
+	 * boundaries with zero values and
+	 * boundaries with values different from zero.
+	 */
+	//TODO compute it
+	const double maxd(m_radius);
+	m_dumping.clear();
 
-    for (auto const & vertex : patch_->getVertices()){
-        ID = vertex.getId();
-        m_dumping.insert(ID, 1.0);
-    }
+	for (auto const & vertex : patch_->getVertices()){
+		ID = vertex.getId();
+		m_dumping.insert(ID, 1.0);
+	}
 
-    if (m_dumpingActive && m_decayFactor > 1.0e-12){
+	if (m_dumpingActive && m_decayFactor > 1.0e-12){
 
-        //MODULATING DUMPING WITH DISTANCE
-        MimmoObject * dumptarget= m_dsurface;
-        if(m_dsurface == NULL)  dumptarget = m_bsurface;
+		//MODULATING DUMPING WITH DISTANCE
+		MimmoObject * dumptarget= m_dsurface;
+		if(m_dsurface == NULL)  dumptarget = m_bsurface;
 
-        bitpit::PiercedVector<double> distFactor;
-        getGeometry()->getVerticesNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
-        
-        double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
-        for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-            if(*it < m_plateau){
-                (*it) = 1.0;
-            }else{
-                (*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
-            }
-        }
+		bitpit::PiercedVector<double> distFactor;
+		getGeometry()->getVerticesNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
 
-        //evaluating volume on each vertex
-        bitpit::PiercedVectorStorage<double> volFactor;
-        volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-        volFactor.fill(1.0);
+		double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
+		for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+			if(*it < m_plateau){
+				(*it) = 1.0;
+			}else{
+				(*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
+			}
+		}
 
-        if(m_dumpingType == 1){
-            //evaluating cell volumes
-            double volmax = 0.0, volmin=1.0E18;
-            livector1D cellList = getGeometry()->getCellFromVertexList(distFactor.getIds(), false);
-            bitpit::PiercedVector<double> volumes;
-            volumes.reserve(cellList.size());
-            //evaluate volumes on each cell and save it
-            
-            for(const auto & idC: cellList){
-                auto it = volumes.insert(idC, getGeometry()->evalCellVolume(idC)); 
-                if(*it <= 0.0){
-                    throw std::runtime_error("Detected cells with negative volume");
-                }
-                volmin = std::min(volmin,*it);
-                volmax = std::max(volmax,*it);
-            }
-            
-            //pass on vertices assigning the min value of volume for each vertices.
-            for(auto & id : cellList){
-                bitpit::ConstProxyVector<long> vids = patch_->getCell(id).getVertexIds();
-                for(auto & idV : vids){
-                    if(distFactor.exists(idV))   volFactor[idV] = std::min(volFactor[idV], volumes[id]);
-                }
-            }
-            
-            //evaluate the volume normalized function
-            for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-                std::size_t pos = it.getRawIndex();
-                volFactor.rawAt(pos) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(pos), distFactor.rawAt(pos));
-            }
-        }
+		//evaluating volume on each vertex
+		bitpit::PiercedVectorStorage<double> volFactor;
+		volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
+		volFactor.fill(1.0);
 
-        
-        //get an average of distance and volume functions.
-        for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-            long id = it.getId();
-            double val;
-            if(m_dumpingType == 1){
-                val = volFactor[id];
-            }else{
-                val = (distanceMax - 1.0)*distFactor[id] + 1.0;
-            }
-            m_dumping[id] = val;
-        }
-    }
+		if(m_dumpingType == 1){
+			//evaluating cell volumes
+			double volmax = 0.0, volmin=1.0E18;
+			livector1D cellList = getGeometry()->getCellFromVertexList(distFactor.getIds(), false);
+			bitpit::PiercedVector<double> volumes;
+			volumes.reserve(cellList.size());
+			//evaluate volumes on each cell and save it
+
+			for(const auto & idC: cellList){
+				auto it = volumes.insert(idC, getGeometry()->evalCellVolume(idC));
+				if(*it <= 0.0){
+					throw std::runtime_error("Detected cells with negative volume");
+				}
+				volmin = std::min(volmin,*it);
+				volmax = std::max(volmax,*it);
+			}
+
+			//pass on vertices assigning the min value of volume for each vertices.
+			for(auto & id : cellList){
+				bitpit::ConstProxyVector<long> vids = patch_->getCell(id).getVertexIds();
+				for(auto & idV : vids){
+					if(distFactor.exists(idV))   volFactor[idV] = std::min(volFactor[idV], volumes[id]);
+				}
+			}
+
+			//evaluate the volume normalized function
+			for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+				std::size_t pos = it.getRawIndex();
+				volFactor.rawAt(pos) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(pos), distFactor.rawAt(pos));
+			}
+		}
+
+
+		//get an average of distance and volume functions.
+		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+			long id = it.getId();
+			double val;
+			if(m_dumpingType == 1){
+				val = volFactor[id];
+			}else{
+				val = (distanceMax - 1.0)*distFactor[id] + 1.0;
+			}
+			m_dumping[id] = val;
+		}
+	}
 }
 
 
@@ -562,78 +562,78 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 template<std::size_t NCOMP>
 void 
 PropagateField<NCOMP>::solveSmoothing(int nstep,
-                               ivector2D &stencils,
-                               dvector2D &weights,
-                               dvector1D &rhs,
-                               liimap & dataInv,
-                               MimmoPiercedVector<std::array<double, NCOMP> > & field)
-{
-    long ID;
-    int ind;
-    field.clear();
+		livector2D &stencils,
+		dvector2D &weights,
+		dvector1D &rhs,
+		liimap & dataInv,
+		MimmoPiercedVector<std::array<double, NCOMP> > & field)
+		{
+	long ID;
+	int ind;
+	field.clear();
 
-    //initialize field
-    field.clear();
-    for (auto vertex : getGeometry()->getVertices()){
-        ID = vertex.getId();
-        field.insert(ID, std::array<double, NCOMP>({}));
-    }
-    
-    //found maxval in rhs for normalization purposes
-    double maxval = 0.0;
-    for (const auto & val : rhs){
-        maxval = std::max(maxval, val);
-    }
-    
-    dvector1D guess = rhs;
-    
-    (*m_log)<< m_name <<" starts field propagation."<<std::endl;
-    
-    for (int istep = 0; istep < nstep; istep++){
+	//initialize field
+	field.clear();
+	for (auto vertex : getGeometry()->getVertices()){
+		ID = vertex.getId();
+		field.insert(ID, std::array<double, NCOMP>({}));
+	}
 
-        if (!m_convergence) (*m_log)<<m_name << " smoothing step : " << istep+1 << " / " << nstep <<std::endl;
+	//found maxval in rhs for normalization purposes
+	double maxval = 0.0;
+	for (const auto & val : rhs){
+		maxval = std::max(maxval, val);
+	}
 
-        double maxdiff = 0.0;
-        for (int locId=0; locId<NCOMP*m_np; ++locId){
+	dvector1D guess = rhs;
 
-            double delta = 0.0;
-            std::size_t sizeStencil = stencils[locId].size();
-            for (std::size_t i=0; i<sizeStencil; ++i){
-                delta += -1.0*guess[stencils[locId][i]]*weights[locId][i];
-            }
-            delta += rhs[locId];
-            guess[locId] += delta;
-            
-            if (m_convergence){
-                maxdiff = std::max(maxdiff, delta);
-            }
-        }//end for vertex
+	(*m_log)<< m_name <<" starts field propagation."<<std::endl;
 
-        if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
+	for (int istep = 0; istep < nstep; istep++){
 
-        //convergence
-        if (m_convergence){
-            if (maxdiff <= m_tol)
-                istep = nstep;
-            else{
-                nstep = istep+2;
-            }
-        }
-    }// end step
+		if (!m_convergence) (*m_log)<<m_name << " smoothing step : " << istep+1 << " / " << nstep <<std::endl;
 
-    (*m_log)<< m_name<<" ends field propagation."<<std::endl;
+		double maxdiff = 0.0;
+		for (int locId=0; locId<NCOMP*m_np; ++locId){
 
-    for (auto vertex : getGeometry()->getVertices()){
-        for (int icomp=0; icomp<NCOMP; ++icomp ){ 
-            ID = vertex.getId();
-            ind = dataInv[ID];
-            field[ID][icomp] = guess[ind + icomp*m_np];
-        }
-    }
-    
-    field.setDataLocation(MPVLocation::POINT);
-    field.setGeometry(getGeometry());
-}
+			double delta = 0.0;
+			std::size_t sizeStencil = stencils[locId].size();
+			for (std::size_t i=0; i<sizeStencil; ++i){
+				delta += -1.0*guess[stencils[locId][i]]*weights[locId][i];
+			}
+			delta += rhs[locId];
+			guess[locId] += delta;
+
+			if (m_convergence){
+				maxdiff = std::max(maxdiff, delta);
+			}
+		}//end for vertex
+
+		if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
+
+		//convergence
+		if (m_convergence){
+			if (maxdiff <= m_tol)
+				istep = nstep;
+			else{
+				nstep = istep+2;
+			}
+		}
+	}// end step
+
+	(*m_log)<< m_name<<" ends field propagation."<<std::endl;
+
+	for (auto vertex : getGeometry()->getVertices()){
+		for (int icomp=0; icomp<NCOMP; ++icomp ){
+			ID = vertex.getId();
+			ind = dataInv[ID];
+			field[ID][icomp] = guess[ind + icomp*m_np];
+		}
+	}
+
+	field.setDataLocation(MPVLocation::POINT);
+	field.setGeometry(getGeometry());
+		}
 
 /*!
  * It solves the laplacian problem. Stencils, weights and rhs must be already corrected to 
@@ -648,54 +648,66 @@ PropagateField<NCOMP>::solveSmoothing(int nstep,
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::solveLaplace(ivector2D &stencils,
-                             dvector2D &weights,
-                             dvector1D &rhs,
-                             liimap &dataInv,
-                             MimmoPiercedVector<std::array<double, NCOMP> > & field)
-{
-    //initialize field
-    field.clear();
-    for (auto vertex : getGeometry()->getVertices()){
-        long int ID = vertex.getId();
-        field.insert(ID, std::array<double, NCOMP>({}));
-    }
+PropagateField<NCOMP>::solveLaplace(livector2D &stencils,
+		dvector2D &weights,
+		dvector1D &rhs,
+		liimap &dataInv,
+		MimmoPiercedVector<std::array<double, NCOMP> > & field){
 
-    // Create the system for solving the pressure
-    m_solver = std::unique_ptr<mimmo::SystemSolver>(new mimmo::SystemSolver(false));
+	//initialize field
+	field.clear();
+	for (auto vertex : getGeometry()->getVertices()){
+		long int ID = vertex.getId();
+		field.insert(ID, std::array<double, NCOMP>({}));
+	}
 
-    // Initialize the system
-    KSPOptions &solverOptions = m_solver->getKSPOptions();
-    solverOptions.nullspace = false;
-    solverOptions.rtol      = m_tol;
-    solverOptions.subrtol   = m_tol;
+	// Create the system for solving the pressure
+	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(false));
 
-#if ENABLE_MPI==1
-        m_solver->initialize(stencils, weights, rhs, ghosts);
-#else
-        m_solver->initialize(stencils, weights, rhs);
-#endif
+	// Initialize the system
+	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
+	solverOptions.rtol      = m_tol;
+	solverOptions.subrtol   = m_tol;
 
-    // Solve the system
-    m_solver->solve();
+	//TODO MPI support
+	//#if ENABLE_MPI==1
 
-    // Get the solution
-    const double *solution = m_solver->getSolutionRawReadPtr();
+	//#else
 
-    long ID;
-    int ind;
-    for (auto vertex : getGeometry()->getVertices()){
-        for (int icomp=0; icomp<NCOMP; ++icomp ){ 
-            ID = vertex.getId();
-            ind = dataInv[ID];
-            field[ID][icomp] = solution[ind + icomp*m_np];
-        }
-    }
+	//#endif
 
-    // Clear the solver
-    m_solver->clear();
-    field.setDataLocation(MPVLocation::POINT);
-    field.setGeometry(getGeometry());
+	//Initialize the system
+	long sum = 0;
+	for (long i=0; i<m_np*NCOMP; i++){
+		sum += stencils[i].size();
+	}
+	{
+		//Define a sparse matrix
+		bitpit::SparseMatrix matrix(m_np*NCOMP,m_np*NCOMP,sum);
+		for (long i=0; i<m_np*NCOMP; i++){
+			matrix.addRow(stencils[i], weights[i]);
+		}
+		m_solver->initialize(matrix);
+	}
+
+	// Solve the system
+	std::vector<double> *solution = new std::vector<double>(m_np*NCOMP, 0.);
+	m_solver->solve(rhs, solution);
+
+	long ID;
+	int ind;
+	for (auto vertex : getGeometry()->getVertices()){
+		for (int icomp=0; icomp<NCOMP; ++icomp ){
+			ID = vertex.getId();
+			ind = dataInv[ID];
+			field[ID][icomp] = solution->at(ind + icomp*m_np);
+		}
+	}
+
+	// Clear the solver
+	m_solver->clear();
+	field.setDataLocation(MPVLocation::POINT);
+	field.setGeometry(getGeometry());
 }
 
 /*!
@@ -712,38 +724,38 @@ PropagateField<NCOMP>::solveLaplace(ivector2D &stencils,
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::computeStencils(liimap &dataInv,
-                                  ivector2D &stencils,
-                                  dvector2D &weights)
-{
-    MimmoPiercedVector<livector1D> conn; 
-    MimmoPiercedVector<dvector1D>  wgt;
+		livector2D &stencils,
+		dvector2D &weights)
+		{
+	MimmoPiercedVector<livector1D> conn;
+	MimmoPiercedVector<dvector1D>  wgt;
 
-    computeRingConnectivity(conn);
-    computeRingWeights(conn,wgt);
-    
-    stencils.clear();
-    weights.clear();
-    stencils.resize(NCOMP*m_np);
-    weights.resize(NCOMP*m_np);
+	computeRingConnectivity(conn);
+	computeRingWeights(conn,wgt);
 
-    long ID;
-    int ind;
-    //Create stencils 
-    for (auto vertex : getGeometry()->getVertices()){
-        ID = vertex.getId();
-        ind = dataInv[ID];
-        //bulk evaluation
-        for(int comp=0; comp<NCOMP; ++comp){
-            for (const long & IDN : conn[ID]){
-                stencils[ind+comp*m_np].push_back(dataInv[IDN]+comp*m_np);
-            }
-            stencils[ind+comp*m_np].push_back(ind+comp*m_np);
-            weights[ind+comp*m_np] = -1.0*wgt[ID];
-            weights[ind+comp*m_np].push_back(1.0);
-        }
-    }
+	stencils.clear();
+	weights.clear();
+	stencils.resize(NCOMP*m_np);
+	weights.resize(NCOMP*m_np);
 
-}
+	long ID;
+	int ind;
+	//Create stencils
+	for (auto vertex : getGeometry()->getVertices()){
+		ID = vertex.getId();
+		ind = dataInv[ID];
+		//bulk evaluation
+		for(int comp=0; comp<NCOMP; ++comp){
+			for (const long & IDN : conn[ID]){
+				stencils[ind+comp*m_np].push_back(long(dataInv[IDN]+comp*m_np));
+			}
+			stencils[ind+comp*m_np].push_back(long(ind+comp*m_np));
+			weights[ind+comp*m_np] = -1.0*wgt[ID];
+			weights[ind+comp*m_np].push_back(1.0);
+		}
+	}
+
+		}
 
 /*!
  * It computes the vertex ring connectivity structure for each mesh vertex.
@@ -751,51 +763,51 @@ PropagateField<NCOMP>::computeStencils(liimap &dataInv,
  */
 template<std::size_t NCOMP>
 void PropagateField<NCOMP>::computeRingConnectivity(MimmoPiercedVector<livector1D> & conn){
-    //DOESN'T WORK FOR POINTS CLOUD OR CURVES
-    
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+	//DOESN'T WORK FOR POINTS CLOUD OR CURVES
 
-    conn.reserve(m_np);
+	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
 
-    //map for edges already visited
-    std::map<std::pair<long, long>, bool> visitedge;
-    
-    //compute connectivity between points
-    for (const auto & cell : patch_->getCells()){
-        int edgecount;
-        //         if (type == 1 || patch_->getDimension() == 2){
-        //             edgecount = cell.getFaceCount();
-        //         }
-        //         else{
-        edgecount = cell.getEdgeCount();
-        //         }
-        for (int ie=0; ie<edgecount; ++ie){
-            bitpit::ConstProxyVector<long> econn;
-            //             if (type == 1 || patch_->getDimension() == 2){
-            //                 econn = cell.getFaceConnect(ie);
-            //             }
-            //             else{
-            econn = cell.getEdgeConnect(ie);
-            //             }
-            if (!visitedge[std::pair<long, long>(econn[0],econn[1])]){
-                
-                visitedge[std::pair<long, long>(econn[0],econn[1])] = true;
-                visitedge[std::pair<long, long>(econn[1],econn[0])] = true;
-                
-                if (!conn.exists(econn[0])){
-                    conn.insert(econn[0], livector1D(1, econn[1]));
-                }else{
-                    conn[econn[0]].push_back(econn[1]);
-                }
-                
-                if (!conn.exists(econn[1])){
-                    conn.insert(econn[1], livector1D(1, econn[0]));
-                }else{
-                    conn[econn[1]].push_back(econn[0]);
-                }
-            }
-        }
-    }
+	conn.reserve(m_np);
+
+	//map for edges already visited
+	std::map<std::pair<long, long>, bool> visitedge;
+
+	//compute connectivity between points
+	for (const auto & cell : patch_->getCells()){
+		int edgecount;
+		//         if (type == 1 || patch_->getDimension() == 2){
+		//             edgecount = cell.getFaceCount();
+		//         }
+		//         else{
+		edgecount = cell.getEdgeCount();
+		//         }
+		for (int ie=0; ie<edgecount; ++ie){
+			bitpit::ConstProxyVector<long> econn;
+			//             if (type == 1 || patch_->getDimension() == 2){
+			//                 econn = cell.getFaceConnect(ie);
+			//             }
+			//             else{
+			econn = cell.getEdgeConnect(ie);
+			//             }
+			if (!visitedge[std::pair<long, long>(econn[0],econn[1])]){
+
+				visitedge[std::pair<long, long>(econn[0],econn[1])] = true;
+				visitedge[std::pair<long, long>(econn[1],econn[0])] = true;
+
+				if (!conn.exists(econn[0])){
+					conn.insert(econn[0], livector1D(1, econn[1]));
+				}else{
+					conn[econn[0]].push_back(econn[1]);
+				}
+
+				if (!conn.exists(econn[1])){
+					conn.insert(econn[1], livector1D(1, econn[0]));
+				}else{
+					conn[econn[1]].push_back(econn[0]);
+				}
+			}
+		}
+	}
 }
 
 /*! 
@@ -806,33 +818,33 @@ void PropagateField<NCOMP>::computeRingConnectivity(MimmoPiercedVector<livector1
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::computeRingWeights(MimmoPiercedVector<livector1D> & conn, 
-                                   MimmoPiercedVector<dvector1D> & wgt)
-{
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    
-    int nsize;
-    livector1D ids;
-    double dist;
-    double sumdist;
-    
-    wgt.reserve(conn.size());
-    darray3E point;
-    dvector1D lweights;
-    for (long ID : conn.getIds()){
-        ids = conn[ID];
-        point = patch_->getVertex(ID).getCoords();
-        nsize = ids.size();
-        lweights.resize(nsize);
-        sumdist = 0.0;
-        for (int j=0; j<nsize; j++){
-            dist = norm2(point-patch_->getVertex(ids[j]).getCoords());
-            lweights[j] = m_dumping[ids[j]] / (std::pow(dist, m_gamma));
-            sumdist += lweights[j];
-        }
-        lweights /= sumdist;
-        wgt.insert(ID, lweights);
-    }
-    if (!m_execPlot) m_dumping.clear();
-}
+		MimmoPiercedVector<dvector1D> & wgt)
+		{
+	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+
+	int nsize;
+	livector1D ids;
+	double dist;
+	double sumdist;
+
+	wgt.reserve(conn.size());
+	darray3E point;
+	dvector1D lweights;
+	for (long ID : conn.getIds()){
+		ids = conn[ID];
+		point = patch_->getVertex(ID).getCoords();
+		nsize = ids.size();
+		lweights.resize(nsize);
+		sumdist = 0.0;
+		for (int j=0; j<nsize; j++){
+			dist = norm2(point-patch_->getVertex(ids[j]).getCoords());
+			lweights[j] = m_dumping[ids[j]] / (std::pow(dist, m_gamma));
+			sumdist += lweights[j];
+		}
+		lweights /= sumdist;
+		wgt.insert(ID, lweights);
+	}
+	if (!m_execPlot) m_dumping.clear();
+		}
 
 }
