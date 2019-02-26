@@ -250,7 +250,7 @@ PropagateScalarField::execute(){
         "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
     
-    ivector2D stencils;
+    livector2D stencils;
     dvector2D weights;
     dvector1D rhs;
     liimap dataInv = getGeometry()->getMapDataInv();
@@ -279,7 +279,7 @@ PropagateScalarField::execute(){
  * 
  */
 void
-PropagateScalarField::correctStencils(liimap & dataInv, ivector2D &stencils, dvector2D &weights)
+PropagateScalarField::correctStencils(liimap & dataInv, livector2D &stencils, dvector2D &weights)
 {
     int ind;
     long ID;
@@ -290,7 +290,7 @@ PropagateScalarField::correctStencils(liimap & dataInv, ivector2D &stencils, dve
         
         switch(*it){
             case 1: //Dirichlet boundary type
-                stencils[ind] = ivector1D(1, ind);
+                stencils[ind] = livector1D(1, long(ind));
                 weights[ind] = dvector1D(1,1.0);
                 break;
             default:
@@ -633,7 +633,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
  * 
  */
 void
-PropagateVectorField::correctStencils(liimap & dataInv, ivector2D &stencils, dvector2D &weights)
+PropagateVectorField::correctStencils(liimap & dataInv, livector2D &stencils, dvector2D &weights)
 {
     int ind;
     long ID;
@@ -645,7 +645,7 @@ PropagateVectorField::correctStencils(liimap & dataInv, ivector2D &stencils, dve
         switch(*it){
             case 1: //Dirichlet boundary type
                 for(int comp=0; comp<3; ++comp){
-                    stencils[ind + comp*m_np] = ivector1D(1, ind + comp*m_np);
+                    stencils[ind + comp*m_np] = livector1D(1, long(ind + comp*m_np));
                     weights[ind + comp*m_np] = dvector1D(1,1.0);
                 }
                 break;
@@ -656,7 +656,7 @@ PropagateVectorField::correctStencils(liimap & dataInv, ivector2D &stencils, dve
                     if(std::abs(m_vNormals[ID][2]) > std::abs(m_vNormals[ID][comp])) comp = 2;
 
                     stencils[ind+comp*m_np].resize(3); 
-                    stencils[ind+comp*m_np] = {{ind, ind+m_np, ind+2*m_np}};
+                    stencils[ind+comp*m_np] = {{long(ind), long(ind+m_np), long(ind+2*m_np)}};
                     weights[ind+comp*m_np].resize(3);
                     for(int i=0; i<3; ++i){
                         weights[ind +comp*m_np][i] = m_vNormals[ID][i]/m_vNormals[ID][comp];
@@ -828,7 +828,7 @@ PropagateVectorField::execute(){
         "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
     
-    ivector2D stencils;
+    livector2D stencils;
     dvector2D weights;
     dvector1D rhs;
     liimap dataInv = getGeometry()->getMapDataInv();
