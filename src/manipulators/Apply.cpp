@@ -43,6 +43,7 @@ Apply::Apply():BaseManipulation(){
 Apply::Apply(const bitpit::Config::Section & rootXML){
 
 	m_name = "mimmo.Apply";
+	m_factor = 1.;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -160,7 +161,7 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
     if(slotXML.hasOption("Scaling")){
         std::string input = slotXML.get("Scaling");
         input = bitpit::utils::string::trim(input);
-        double val;
+        double val = 1.;
         if(!input.empty()){
             std::stringstream ss(input);
             ss>>val;
