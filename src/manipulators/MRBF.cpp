@@ -744,7 +744,7 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
 				value =1;
 			}
 			bitpit::RBFBasisFunction shapetype = static_cast<bitpit::RBFBasisFunction>(value);
-			RBF::setFunction(shapetype);
+			setFunction(shapetype);
 		}
 	};
 
