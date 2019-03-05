@@ -23,6 +23,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added reading and writing STL solid names in multiSolid STL.
 
 ### Changed
+- PropagateField classes: solution of Laplacian system solved by using bitpit LA module.
 - PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
                           also User Interface and parameters controlling field propagation. Moved into the
                           new module "propagators".
