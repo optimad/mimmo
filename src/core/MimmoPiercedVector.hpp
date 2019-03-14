@@ -100,6 +100,9 @@ public:
 
     void  swap(MimmoPiercedVector<mpv_t>& x) noexcept;
 
+    MimmoPiercedVector pointDataToCellData();
+    MimmoPiercedVector cellDataToPointData();
+
 private:
     livector1D getGeometryIds(bool ordered=false);
 };
