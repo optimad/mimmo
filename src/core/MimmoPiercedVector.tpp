@@ -458,8 +458,59 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
     }
 }
 
+/*!
+ * Point data to Cell data interpolation. Average of point data is set on cell center.
+ * \param[in] pointData MimmoPiercedVector object located on MPVLocation::POINT
+ */
+template<typename mpv_t>
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(){
+	MimmoObject* geo = this->getGeometry();
+	MimmoPiercedVector<mpv_t> cellData(geo, MPVLocation::CELL);
+	for (bitpit::Cell & cell : geo->getCells()){
+		long idcell = cell.getId();
+		mpv_t data;
+		bool init = false;
+		for (long idvertex : cell.getVertexIds()){
+			if (!init){
+				data = this->at(idvertex);
+			}
+			else{
+				data = data + this->at(idvertex);
+			}
+		}
+		data = data / cell.getVertexCount();
+		cellData.insert(idcell, data);
+	}
+	return cellData;
+};
 
-
-
+/*!
+ * Cell data to Point data interpolation. Average of cell center data is set on point.
+ * \param[in] cellData MimmoPiercedVector object located on MPVLocation::CELL
+ */
+template<typename mpv_t>
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(){
+	MimmoObject* geo = this->getGeometry();
+	MimmoPiercedVector<mpv_t> pointData(geo, MPVLocation::POINT);
+	MimmoPiercedVector<int> countCells(geo, MPVLocation::POINT);
+	for (bitpit::Cell & cell : geo->getCells()){
+		long idcell = cell.getId();
+		for (long idvertex : cell.getVertexIds()){
+			if (!pointData.exists(idvertex)){
+				pointData.insert(idvertex, this->at(idvertex));
+				countCells.insert(idvertex, 1);
+			}
+			else{
+				pointData[idvertex] = pointData[idvertex] + this->at(idcell);
+				countCells[idvertex] = countCells[idvertex] + 1;
+			}
+		}
+	}
+	for (bitpit::Vertex & vertex : geo->getVertices()){
+		long idvertex = vertex.getId();
+		pointData[idvertex] = pointData[idvertex] / countCells[idvertex];
+	}
+	return pointData;
+};
 
 }

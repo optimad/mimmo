@@ -193,8 +193,8 @@ public:
     bool        setPIDName(long, const std::string &);
     void        resyncPID();
 
-    BITPIT_DEPRECATED(void        setHARDCopy(const MimmoObject * other));
-    std::unique_ptr<MimmoObject>        clone();
+    BITPIT_DEPRECATED(void setHARDCopy(const MimmoObject * other));
+    std::unique_ptr<MimmoObject>	clone();
 
     bool        cleanGeometry();
 
