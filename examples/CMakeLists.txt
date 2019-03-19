@@ -56,6 +56,7 @@ endforeach ()
 if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
+    list(APPEND EXAMPLE_LIST "core_example_00001")
     list(APPEND EXAMPLE_LIST "manipulators_example_00001")
     list(APPEND EXAMPLE_LIST "manipulators_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")

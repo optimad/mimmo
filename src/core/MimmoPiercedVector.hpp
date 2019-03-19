@@ -100,8 +100,8 @@ public:
 
     void  swap(MimmoPiercedVector<mpv_t>& x) noexcept;
 
-    MimmoPiercedVector pointDataToCellData();
-    MimmoPiercedVector cellDataToPointData();
+    MimmoPiercedVector pointDataToCellData(double p = 0.);
+    MimmoPiercedVector cellDataToPointData(double p = 0.);
 
 private:
     livector1D getGeometryIds(bool ordered=false);
