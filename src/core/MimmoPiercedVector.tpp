@@ -460,25 +460,35 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
 
 /*!
  * Point data to Cell data interpolation. Average of point data is set on cell center.
- * \param[in] pointData MimmoPiercedVector object located on MPVLocation::POINT
+ * The current object is a MimmoPiercedVector object with data located on MPVLocation::POINT
+ * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
+ * \return cell data MimmoPiercedVector object located on MPVLocation::CELL
  */
 template<typename mpv_t>
-MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(){
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double p){
 	MimmoObject* geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> cellData(geo, MPVLocation::CELL);
+	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Cell & cell : geo->getCells()){
 		long idcell = cell.getId();
+		std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
 		mpv_t data;
 		bool init = false;
 		for (long idvertex : cell.getVertexIds()){
+			std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
+			double weight = 1. / std::pow(norm2(center-point),p);
 			if (!init){
-				data = this->at(idvertex);
+				data = this->at(idvertex)*weight;
+				sumWeights.insert(idcell, weight);
+				init = true;
 			}
 			else{
-				data = data + this->at(idvertex);
+				data = data + this->at(idvertex)*weight;
+				sumWeights[idcell] = sumWeights[idcell] + weight;
 			}
 		}
-		data = data / cell.getVertexCount();
+//		data = data / cell.getVertexCount();
+		data = data / sumWeights[idcell];
 		cellData.insert(idcell, data);
 	}
 	return cellData;
@@ -486,29 +496,39 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(){
 
 /*!
  * Cell data to Point data interpolation. Average of cell center data is set on point.
- * \param[in] cellData MimmoPiercedVector object located on MPVLocation::CELL
+ * The current object is a MimmoPiercedVector object with data located on MPVLocation::CELL
+ * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
+ * \return point data MimmoPiercedVector object located on MPVLocation::POINT
+ *
  */
 template<typename mpv_t>
-MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(){
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double p){
 	MimmoObject* geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> pointData(geo, MPVLocation::POINT);
 	MimmoPiercedVector<int> countCells(geo, MPVLocation::POINT);
+	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Cell & cell : geo->getCells()){
 		long idcell = cell.getId();
+		std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
 		for (long idvertex : cell.getVertexIds()){
+			std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
+			double weight = 1. / std::pow(norm2(center-point),p);
 			if (!pointData.exists(idvertex)){
-				pointData.insert(idvertex, this->at(idvertex));
-				countCells.insert(idvertex, 1);
+				pointData.insert(idvertex, this->at(idcell)*weight);
+//				countCells.insert(idvertex, 1);
+				sumWeights.insert(idvertex, weight);
 			}
 			else{
-				pointData[idvertex] = pointData[idvertex] + this->at(idcell);
-				countCells[idvertex] = countCells[idvertex] + 1;
+				pointData[idvertex] = pointData[idvertex] + this->at(idcell)*weight;
+//				countCells[idvertex] = countCells[idvertex] + 1;
+				sumWeights[idvertex] = sumWeights[idvertex] + weight;
 			}
 		}
 	}
 	for (bitpit::Vertex & vertex : geo->getVertices()){
 		long idvertex = vertex.getId();
-		pointData[idvertex] = pointData[idvertex] / countCells[idvertex];
+//		pointData[idvertex] = pointData[idvertex] / countCells[idvertex];
+		pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
 	}
 	return pointData;
 };
