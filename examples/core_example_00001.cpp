@@ -54,8 +54,8 @@ void test00001() {
 
     mimmo0->setIOMode(IOMode::READ);
     mimmo0->setReadDir("geodata");
-    mimmo0->setReadFileType(FileType::SURFVTU);
-    mimmo0->setReadFilename("mixedP2D");
+    mimmo0->setReadFileType(FileType::STL);
+    mimmo0->setReadFilename("plane3");
 
     mimmo0->execute();
 
@@ -64,7 +64,7 @@ void test00001() {
      */
     MimmoPiercedVector<double> pointField;
     pointField.initialize(mimmo0->getGeometry(), MPVLocation::POINT, 1.);
-    std::array<double,3> center({{0.5,0.5,0.}});
+    std::array<double,3> center({{0.5,0.,0.}});
     for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
         std::array<double,3> coords = vertex.getCoords();
         double value = norm2(coords-center);
@@ -109,12 +109,12 @@ void test00001() {
     	std::vector<double> field(mimmo0->getGeometry()->getNVertex());
     	int count = 0;
     	for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
-    		field[count] = pointField[vertex.getId()];
+    		field[count] = pointField2[vertex.getId()];
     		count++;
     	}
-    	mimmo0->getGeometry()->getPatch()->getVTK().addData("pointField2", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
+    	mimmo0->getGeometry()->getPatch()->getVTK().addData("pointField", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, field);
     	mimmo0->getGeometry()->getPatch()->write("core_example_00001.0002");
-    	mimmo0->getGeometry()->getPatch()->getVTK().removeData("pointField2");
+    	mimmo0->getGeometry()->getPatch()->getVTK().removeData("pointField");
     }
 
 
