@@ -334,13 +334,13 @@ list(APPEND MIMMO_MODULEENABLED_LIST "core")
 list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
 list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
 list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
-list(APPEND MIMMO_MODULEENABLED_LIST "utils")
 
 set(MIMMO_MODULEDISABLED_LIST "")
 list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iocgns")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iovtk")
 list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
+list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 
 #------------------------------------------------------------------------------------#
 # Modules dependecies
@@ -416,39 +416,35 @@ set(MIMMO_EXTERNAL_INCLUDE_DIRS "") ## put here the xxx_INCLUDE_DIRS you need no
 set(OTHER_EXTERNAL_LIBRARIES "") ## put here libraries you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
 set(OTHER_EXTERNAL_INCLUDE_DIRS "") ## put here include_dirs you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
 
+## search optional modules if activated
+isModuleEnabled("utils"  MODULE_ENABLED_UTILS)
+isModuleEnabled("propagators"  MODULE_ENABLED_PROPAGATORS)
+isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
+isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
+isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
+
 ###     BITPIT      ###############################################
-find_package(BITPIT REQUIRED COMPONENTS levelset surfunstructured volunstructured RBF CG )
+set(BITPIT_QUERYPACKAGES "levelset" "surfunstructured" "volunstructured" "RBF" "CG")
+if(MODULE_ENABLED_PROPAGATORS)
+    list (APPEND BITPIT_QUERYPACKAGES "LA" "discretization")
+elseif(MODULE_ENABLED_UTILS)
+    list (APPEND BITPIT_QUERYPACKAGES "LA")
+endif()
+
+find_package(BITPIT REQUIRED COMPONENTS ${BITPIT_QUERYPACKAGES})
 include(${BITPIT_USE_FILE})
 
 list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "BITPIT")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
 # include dirs are managed with BITPIT_USE_FILE.
 
-###      LAPACKE   ################################################
-set(LAPACKE_STATIC 0 CACHE BOOL "Require LAPACKE static libraries")
-enable_language(Fortran)
-enable_language(C)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/LAPACKE/cmake")
-
-find_package(LAPACK REQUIRED)
-find_package(LAPACKE REQUIRED)
-
-set(LAPACKE_PRIVATE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/external/LAPACKE/include")
-
-#NO NEED TO BE REFOUND - bind them to this mimmo installation
-list (APPEND OTHER_EXTERNAL_LIBRARIES "${LAPACKE_LIBRARIES}" "${LAPACK_LIBRARIES}")
-list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${LAPACKE_PRIVATE_INCLUDE_DIR}" "${LAPACKE_INCLUDE_DIRS}" "${LAPACK_INCLUDE_DIRS}")
-
-###     XML2      #################################################
-find_package(LibXml2 REQUIRED)
-
-#NO NEED TO BE REFOUND - bind them to this mimmo installation
-list (APPEND OTHER_EXTERNAL_LIBRARIES "${LIBXML2_LIBRARIES}")
-list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIRS}")
-
 ###     MPI      #################################################
 if (ENABLE_MPI)
+    #Check if BITPIT IS COMPILED IN MPI, otherwise is impossible to go on.
+    list (FIND BITPIT_DEFINITIONS "BITPIT_ENABLE_MPI=0" _index)
+    if (${_index} GREATER -1)
+        message(FATAL_ERROR "BITPIT distro is not MPI compiled. Impossible to compile MIMMO in MPI!")
+    endif()
     #NO NEED TO BE REFOUND - bind them to this mimmo installation
     list (APPEND OTHER_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
     list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )

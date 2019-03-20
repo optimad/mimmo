@@ -24,7 +24,7 @@
 
 #include "OBBox.hpp"
 #include "bitpit_LA.hpp"
-#include "mimmo_private_lapacke.hpp"
+#include <lapacke.h>
 
 #include <chrono>
 
@@ -132,7 +132,7 @@ OBBox::clearOBBox(){
     m_forceAABB = false;
 };
 
-/*! 
+/*!
  * Return the origin of the OBB.
  * \return Number of control nodes
  */
@@ -141,7 +141,7 @@ OBBox::getOrigin(){
     return(m_origin);
 }
 
-/*! 
+/*!
  * Return the span of the OBB.
  * \return Number of control nodes
  */
@@ -151,7 +151,7 @@ OBBox::getSpan(){
 }
 
 
-/*! 
+/*!
  * Return the oriented axes of the OBB.
  * \return Number of control nodes
  */
@@ -183,14 +183,14 @@ OBBox::isForcedAABB(){
 /*!
  * Set the list of target geometries once and for all, and erase any pre-existent list.
  * Not supported volumetric tessellations(type =2).
- * \param[in] listgeo list of pointers to target geometries 
+ * \param[in] listgeo list of pointers to target geometries
  */
 void
 OBBox::setGeometries(std::vector<MimmoObject *> listgeo){
     m_listgeo.clear();
     for( auto val : listgeo){
         setGeometry(val);
-    } 
+    }
 };
 
 /*!
@@ -200,7 +200,7 @@ OBBox::setGeometries(std::vector<MimmoObject *> listgeo){
  */
 void
 OBBox::setGeometry(MimmoObject * geo){
-    
+
     if (geo == NULL)    {
         (*m_log)<<"warning: "<<m_name<<" not valid Geometry pointer. Doing nothing"<<std::endl;
         return;
@@ -280,7 +280,7 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
 
 /*!Execute your object, calculate the OBBox of your geometry.
  * If the OBBox is not fit enough, return to its AABB version.
- * If forced externally, evaluate the AABB, no matter what. 
+ * If forced externally, evaluate the AABB, no matter what.
  * Implementation of pure virtual BaseManipulation::execute
  */
 void
@@ -318,7 +318,7 @@ OBBox::execute(){
 
 
         etaPoint = evaluateMassCenter(getGeometries(), allCloud);
-        assemblyCovContributes(getGeometries(), allCloud, covContributes); 
+        assemblyCovContributes(getGeometries(), allCloud, covContributes);
         covariance = evaluateCovarianceMatrix(covContributes, etaPoint);
 
         m_axes = eigenVectors(covariance, spectrum);
@@ -445,10 +445,10 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
  *\return assembled covariance matrix, form collection of covariance contributes of all geometries and
  *estimation of t heri global center mass are provided.
  *\param[in] covContributes covariance contributes from all geometries linked
- *\param[in] centermass global centermass of group of geometries   
- * 
+ *\param[in] centermass global centermass of group of geometries
+ *
  */
-dmatrix33E 
+dmatrix33E
 OBBox::evaluateCovarianceMatrix(dmatrix33E & covContributes, darray3E & centermass){
     dmatrix33E result;
 
@@ -467,7 +467,7 @@ OBBox::evaluateCovarianceMatrix(dmatrix33E & covContributes, darray3E & centerma
 }
 
 
-/*! 
+/*!
  * Assembly covariance contributes of various target geometries, that can be used to evaluate covariance matrix
  * The method intrinsecally distinguish between cloud point and tessellation, according to target MimmoObject geometry type.
  * \param[out] covContributes matrix to store all covariance contributes
