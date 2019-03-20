@@ -86,7 +86,7 @@ void test00001() {
     /*
      * Interpolation of synthetic point field on cells.
      */
-    double p = 1.;
+    double p = 5.;
     MimmoPiercedVector<double> cellField = pointField.pointDataToCellData(p);
     {
     	std::vector<double> field(mimmo0->getGeometry()->getNCells());
@@ -103,7 +103,7 @@ void test00001() {
     /*
      * Back Interpolation of synthetic point field on cells.
      */
-    p = 1.;
+    p = 5.;
     MimmoPiercedVector<double> pointField2 = cellField.cellDataToPointData(p);
     {
     	std::vector<double> field(mimmo0->getGeometry()->getNVertex());
