@@ -24,7 +24,7 @@
 
 #include "RBFBox.hpp"
 #include "bitpit_LA.hpp"
-#include "mimmo_private_lapacke.hpp"
+#include <lapacke.h>
 
 #include <chrono>
 
@@ -140,7 +140,7 @@ RBFBox::clearRBFBox(){
 
 };
 
-/*! 
+/*!
  * Return the origin of the RBFBox.
  * \return origin of the box
  */
@@ -149,7 +149,7 @@ RBFBox::getOrigin(){
     return(m_origin);
 }
 
-/*! 
+/*!
  * Return the span of the RBFBox.
  * \return span of the box
  */
@@ -159,7 +159,7 @@ RBFBox::getSpan(){
 }
 
 
-/*! 
+/*!
  * Return the oriented axes of the RBFBox.
  * \return axes of the box
  */
@@ -310,5 +310,3 @@ RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 };
 
 }
-
-
