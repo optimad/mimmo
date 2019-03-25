@@ -185,6 +185,7 @@ public:
     bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag = bitpit::Cell::NULL_ID);
     bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag);
+    bool        addCell(const bitpit::Cell & cell, const long idtag = bitpit::Vertex::NULL_ID);
 
     void        setPID(livector1D );
     void        setPID(std::unordered_map<long, long>  );

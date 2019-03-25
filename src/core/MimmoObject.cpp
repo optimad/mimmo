@@ -1360,6 +1360,36 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 };
 
 /*!
+ *It adds one cell to the mesh.
+ * If unique-id is specified for the cell, assign it, otherwise provide itself
+ * to get a unique-id for the added cell. The latter option is the default.
+ * If the unique-id is already assigned, return with unsuccessful insertion.
+ *
+ *
+ * \param[in] cell cell to be added
+ * \param[in] idtag  unique id associated to the cell
+ * \return true if the cell is successful inserted.
+ */
+bool
+MimmoObject::addCell(const bitpit::Cell & cell, const long idtag){
+
+    if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return false;
+
+    bitpit::PatchKernel::CellIterator it;
+    auto patch = getPatch();
+    if(idtag == bitpit::Cell::NULL_ID){
+        it = patch->addCell(cell);
+    }else{
+        it = patch->addCell(cell, idtag);
+    }
+
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    return true;
+};
+
+
+/*!
  * Set PIDs for all geometry cells available.
  * Any previous PID subdivion with label name associated will be erased.
  * The PID list must be referred to the compact local/indexing of the cells in the class.
