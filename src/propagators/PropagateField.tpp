@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -44,12 +44,8 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_isbp.clear();
 	this->m_field.clear();
 	this->m_bc_dir.clear();
-	this->m_np        = 0;
-	this->m_gamma        = 1.0;
-	this->m_laplace   = true;
-	this->m_sstep     = 10;
-	this->m_convergence = false;
-	this->m_tol = 1.0e-12;
+    this->m_surface_bc_dir.clear();
+	this->m_tol       = 1.0e-12;
 	this->m_bsurface  = NULL;
 	this->m_dsurface  = NULL;
 	this->m_geometry  = NULL;
@@ -77,12 +73,8 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
 	setDefaults();
 	this->m_isbp         = other.m_isbp;
 	this->m_bc_dir       = other.m_bc_dir;
-	this->m_np           = other.m_np;
-	this->m_gamma        = other.m_gamma;
-	this->m_laplace      = other.m_laplace;
-	this->m_sstep        = other.m_sstep;
-	this->m_convergence  = other.m_convergence;
-	this->m_tol          = other.m_tol;
+    this->m_surface_bc_dir = other.m_surface_bc_dir;
+    this->m_tol          = other.m_tol;
 	this->m_bsurface     = other.m_bsurface;
 	this->m_dsurface     = other.m_dsurface;
 	this->m_dumping      = other.m_dumping;
@@ -102,11 +94,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 	this->m_isbp.swap(x.m_isbp);
 	this->m_field.swap(x.m_field);
 	this->m_bc_dir.swap(x.m_bc_dir);
-	std::swap(this->m_np, x.m_np);
-	std::swap(this->m_gamma, x.m_gamma);
-	std::swap(this->m_laplace, x.m_laplace);
-	std::swap(this->m_sstep, x.m_sstep);
-	std::swap(this->m_convergence, x.m_convergence);
+    this->m_surface_bc_dir.swap(x.m_surface_bc_dir);
 	std::swap(this->m_tol, x.m_tol);
 	std::swap(this->m_bsurface, x.m_bsurface);
 	std::swap(this->m_dsurface, x.m_dsurface);
@@ -120,7 +108,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 }
 
 
-/*! 
+/*!
  * It builds the input/output ports of the object
  */
 template <std::size_t NCOMP>
@@ -149,10 +137,13 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 	if (geometry_->getType()!= 2 ) return;
 
 	m_geometry = geometry_;
-	m_np = m_geometry->getNVertex();
+    //check and build the interfaces if needed
+    if(!m_geometry->areInterfacesBuilt()){
+        m_geometry->buildInterfaces();
+    }
 }
 
-/*! 
+/*!
  * Sets the portion of boundary mesh relative to geometry target
  * that must be constrained with Dirichlet conditions.
  * \param[in] bsurface Boundary patch.
@@ -167,7 +158,7 @@ PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
 	m_bsurface = bsurface;
 }
 
-/*! 
+/*!
  * It sets the sub-portion of boundary mesh to be used for dumping calculation.
  * Sub-boundary and bulk meshes must be Vertex-Id coherent.
  * Must be a valid surface type mesh (MimmoObject type =1).
@@ -181,38 +172,6 @@ PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
 	if (bdumping->getType()!= 1 ) return;
 
 	m_dsurface = bdumping;
-}
-
-/*! 
- * It sets the weight constant used in stencil computing. The constant (gamma) is used
- * to scale an exponential distance function taken as weight function in the stencil computing
- * for each point.
- * \param[in] gamma Weight constant.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setWeightConstant(double gamma){
-	m_gamma = gamma;
-}
-
-/*!
- * It sets the number of steps of smoothing to propagate the boundary conditions over
- * the points cloud.
- * \param[in] ns Number of smoothing steps.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setSmoothingSteps(int ns){
-	m_sstep = ns;
-}
-
-/*! 
- * It sets the solver used during the propagation of the surface constraint field.
- * \param[in] solveLaplacian true for Laplacian linear system solver, false for iterative smoothing technique.
- */
-template <std::size_t NCOMP>
-void PropagateField<NCOMP>::setSolver(bool solveLaplacian){
-	m_laplace = solveLaplacian;
 }
 
 /*!
@@ -266,14 +225,6 @@ PropagateField<NCOMP>::setDecayFactor(double decay){
 	m_decayFactor = decay;
 }
 
-/*! 
- * It sets if the smoothing solver must reach the convergence with prescribed tolerance set by setTolerance method.
- * \param[in] convergence Convergence flag.
- */
-template <std::size_t NCOMP>
-void PropagateField<NCOMP>::setConvergence(bool convergence){
-	m_convergence = convergence;
-}
 
 /*!
  * It sets the tolerance on residuals for solver convergence on both smoothing and laplacian solver.
@@ -298,50 +249,6 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
 
 	//start absorbing
 	BaseManipulation::absorbSectionXML(slotXML, name);
-
-	if(slotXML.hasOption("Solver")){
-		std::string input = slotXML.get("Solver");
-		input = bitpit::utils::string::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setSolver(value);
-	}
-
-	if(slotXML.hasOption("WeightConstant")){
-		std::string input = slotXML.get("WeightConstant");
-		input = bitpit::utils::string::trim(input);
-		double value = 1.0;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-			value = std::fmax(0.0, value);
-		}
-		setWeightConstant(value);
-	}
-
-	if(slotXML.hasOption("SmoothingSteps")){
-		std::string input = slotXML.get("SmoothingSteps");
-		int value =1;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::string::trim(input));
-			ss>>value;
-		}
-		setSmoothingSteps(value);
-	};
-
-	if(slotXML.hasOption("Convergence")){
-		std::string input = slotXML.get("Convergence");
-		input = bitpit::utils::string::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setConvergence(value);
-	}
 
 	if(slotXML.hasOption("Tolerance")){
 		std::string input = slotXML.get("Tolerance");
@@ -429,10 +336,6 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 
 	BaseManipulation::flushSectionXML(slotXML, name);
 
-	slotXML.set("WeightConstant",std::to_string(m_gamma));
-	slotXML.set("Solver", std::to_string(int(m_laplace)));
-	slotXML.set("SmoothingSteps",std::to_string(m_sstep));
-	slotXML.set("Convergence",std::to_string(int(m_convergence)));
 	slotXML.set("Tolerance",std::to_string(m_tol));
 	slotXML.set("Dumping", std::to_string(int(m_dumpingActive)));
 	if(m_dumpingActive){
@@ -456,7 +359,10 @@ PropagateField<NCOMP>::clear(){
 };
 
 /*!
- * It computes the dumping function used in weights computation.
+ * It computes the dumping function (artificial diffusivity)
+ * used to modulate laplacian solution over the target mesh.
+ * The dumping function is now a scalar field data on CELLS (ghost included)
+ * and it will be stored in internal member m_dumping.
  */
 template<std::size_t NCOMP>
 void
@@ -466,385 +372,275 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 	double dist;
 	long ID;
 
-	/* Maxdist should be the maximum distance between
-	 * boundaries with zero values and
-	 * boundaries with values different from zero.
-	 */
-	//TODO compute it
 	const double maxd(m_radius);
 	m_dumping.clear();
+    m_dumping.reserve(getGeometry()->getNCells());
+    m_dumping.setGeometry(getGeometry());
+    m_dumping.setDataLocation(MPVLocation::CELL);
 
-	for (auto const & vertex : patch_->getVertices()){
-		ID = vertex.getId();
-		m_dumping.insert(ID, 1.0);
+	for (auto it = patch_->cellBegin(); it!=patch_->cellEnd(); ++it){
+		m_dumping.insert(it.getId(), 1.0);
 	}
 
-	if (m_dumpingActive && m_decayFactor > 1.0e-12){
-
-		//MODULATING DUMPING WITH DISTANCE
-		MimmoObject * dumptarget= m_dsurface;
-		if(m_dsurface == NULL)  dumptarget = m_bsurface;
-
-		bitpit::PiercedVector<double> distFactor;
-		getGeometry()->getVerticesNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
-
-		double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
-		for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-			if(*it < m_plateau){
-				(*it) = 1.0;
-			}else{
-				(*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
-			}
-		}
-
-		//evaluating volume on each vertex
-		bitpit::PiercedVectorStorage<double> volFactor;
-		volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-		volFactor.fill(1.0);
-
-		if(m_dumpingType == 1){
-			//evaluating cell volumes
-			double volmax = 0.0, volmin=1.0E18;
-			livector1D cellList = getGeometry()->getCellFromVertexList(distFactor.getIds(), false);
-			bitpit::PiercedVector<double> volumes;
-			volumes.reserve(cellList.size());
-			//evaluate volumes on each cell and save it
-
-			for(const auto & idC: cellList){
-				auto it = volumes.insert(idC, getGeometry()->evalCellVolume(idC));
-				if(*it <= 0.0){
-					throw std::runtime_error("Detected cells with negative volume");
-				}
-				volmin = std::min(volmin,*it);
-				volmax = std::max(volmax,*it);
-			}
-
-			//pass on vertices assigning the min value of volume for each vertices.
-			for(auto & id : cellList){
-				bitpit::ConstProxyVector<long> vids = patch_->getCell(id).getVertexIds();
-				for(auto & idV : vids){
-					if(distFactor.exists(idV))   volFactor[idV] = std::min(volFactor[idV], volumes[id]);
-				}
-			}
-
-			//evaluate the volume normalized function
-			for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-				std::size_t pos = it.getRawIndex();
-				volFactor.rawAt(pos) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(pos), distFactor.rawAt(pos));
-			}
-		}
+	if (!m_dumpingActive || m_decayFactor <= 1.E-12) return;
 
 
-		//get an average of distance and volume functions.
-		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-			long id = it.getId();
-			double val;
-			if(m_dumpingType == 1){
-				val = volFactor[id];
-			}else{
-				val = (distanceMax - 1.0)*distFactor[id] + 1.0;
-			}
-			m_dumping[id] = val;
+	//MODULATING DUMPING WITH DISTANCE
+	MimmoObject * dumptarget= m_dsurface;
+	if(m_dsurface == NULL)  dumptarget = m_bsurface;
+
+	bitpit::PiercedVector<double> distFactor;
+	getGeometry()->getCellsNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
+
+	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
+	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+		if(*it < m_plateau){
+			(*it) = 1.0;
+		}else{
+			(*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
 		}
 	}
+
+    if(m_dumpingType != 1) { // no volume stuff, fill dumping with distance part only
+        for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+            m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
+        }
+        return; //you can return.
+    }
+
+    // Evaluating the volume part.
+	bitpit::PiercedVectorStorage<double> volFactor;
+	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
+	volFactor.fill(1.0);
+
+	//evaluating cell volumes
+    double locvol;
+	double volmax = 0.0, volmin=1.0E18;
+	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+		locvol = getGeometry()->evalCellVolume(it.getId());
+		if(locvol <= 0.0){
+			throw std::runtime_error("Detected cells with zero or negative volume");
+		}
+        volFactor.rawAt(it.getRawIndex()) = locvol;
+		volmin = std::min(volmin,locvol);
+		volmax = std::max(volmax,locvol);
+	}
+	//evaluate the volume normalized function and store it in dumping.
+	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
+	}
+
+    //all done if you are here, you computed also the volume part and put together all the stuffs.
 }
 
-
 /*!
- * It applies a smoothing filter for a defined number of step.
- * \param[in] nstep desired number of smoothing steps
- * \param[in] stencils stencil-ids of laplace operator on target mesh nodes
- * \param[in] weights  associated to stencils
- * \param[in] dataInv map of local node indexing of stencils vs global mesh node indexing.
- *                    If map is empty, the method itself provides its evaluation from class target mesh.
- * \param[out] field resulting field after smoothing
+ * The method evaluates the Gradient stencils at each interface of the mesh. If
+ * Interfaces are not built for the current mesh, it builds them.
+ *
+ * These interface gradient stencils are used to assembly the laplacian stencils.
+ * Dirichlet and Neumann Boundary conditions are directly provided on their corrispective
+ * border gradient stencil with a neutral value of 1.0 (Dirichlet field value or normal Neumann flux value).
+ * Since this part does not affect the proper stencil pattern and is stored into it
+ * as Constant, you can put unitary boundary conditions and fix the correct Dirichlet
+ * or Neumann flux value later, by multiplying it to the right stencil Constant.
+ * \param[in] alternativeData unused
  */
+
 template<std::size_t NCOMP>
-void 
-PropagateField<NCOMP>::solveSmoothing(int nstep,
-		livector2D &stencils,
-		dvector2D &weights,
-		dvector1D &rhs,
-		liimap & dataInv,
-		MimmoPiercedVector<std::array<double, NCOMP> > & field)
-		{
-	long ID;
-	int ind;
-	field.clear();
+FVolStencil::MPVGradientUPtr
+PropagateField<NCOMP>::computeGradientStencilsWithNeutralBC(FVolStencil::MPVGradientUPtr alternativeData){
 
-	//initialize field
-	field.clear();
-	for (auto vertex : getGeometry()->getVertices()){
-		ID = vertex.getId();
-		field.insert(ID, std::array<double, NCOMP>({}));
-	}
+    BITPIT_UNUSED(alternativeData);
+    //start to evaluate the Gradient Stencil @ Interfaces.
+    FVolStencil::MPVGradientUPtr gradients = FVolStencil::computeFVFaceGradientStencil(*(getGeometry()));
 
-	//found maxval in rhs for normalization purposes
-	double maxval = 0.0;
-	for (const auto & val : rhs){
-		maxval = std::max(maxval, val);
-	}
+    //The gradient stencil @ boundary interfaces is the CCell Gradient stencil of the owner up to now.
+    // You need to modify it to take into account of boundary conditions.
+    // We do not push for now the proper bc condition, but impose a Neutral value 1.0.
+    // Once the boundary interface Gradient stencil is built we can impose the right value
+    // multiplying it to the constant part of the stencil (the only one influenced by it).
 
-	dvector1D guess = rhs;
+    //So loop on m_isbp : for each boundary interface get its type;
 
-	(*m_log)<< m_name <<" starts field propagation."<<std::endl;
+    long id, ownerID;
+    std::array<double,3> interfaceNormal, interfaceCentroid, ownerCentroid;
+    MimmoObject * geo = getGeometry();
+    bitpit::PiercedVector<bitpit::Interface> & interfaces = geo->getInterfaces();
 
-	for (int istep = 0; istep < nstep; istep++){
+    for(auto it = m_isbp.begin(); it!=m_isbp.end(); ++it){
+        id = it.getId();
+        interfaceNormal = geo->evalInterfaceNormal(id);
+        switch(*it){
+            case 1: //dirichlet
+                ownerID = interfaces.at(id).getOwner();
+                ownerCentroid = geo->evalCellCentroid(ownerID);
+                interfaceCentroid = geo->evalInterfaceCentroid(id);
 
-		if (!m_convergence) (*m_log)<<m_name << " smoothing step : " << istep+1 << " / " << nstep <<std::endl;
+                gradients->at(id) = FVolStencil::computeDirichletBCFaceGradient(1.0, ownerID,
+                                   ownerCentroid, interfaceCentroid, interfaceNormal,
+                                   std::abs(dotProduct(interfaceCentroid-ownerCentroid, interfaceNormal)),
+                                   gradients->at(id) );
+                break;
+            default: //neumann
+                gradients->at(id) = FVolStencil::computeNeumannBCFaceGradient(1.0, interfaceNormal, gradients->at(id));
+                break;
+        }
+    }
 
-		double maxdiff = 0.0;
-		for (int locId=0; locId<NCOMP*m_np; ++locId){
-
-			double delta = 0.0;
-			std::size_t sizeStencil = stencils[locId].size();
-			for (std::size_t i=0; i<sizeStencil; ++i){
-				delta += -1.0*guess[stencils[locId][i]]*weights[locId][i];
-			}
-			delta += rhs[locId];
-			guess[locId] += delta;
-
-			if (m_convergence){
-				maxdiff = std::max(maxdiff, delta);
-			}
-		}//end for vertex
-
-		if (m_convergence) (*m_log)<< m_name<<" residual : " << maxdiff <<std::endl;
-
-		//convergence
-		if (m_convergence){
-			if (maxdiff <= m_tol)
-				istep = nstep;
-			else{
-				nstep = istep+2;
-			}
-		}
-	}// end step
-
-	(*m_log)<< m_name<<" ends field propagation."<<std::endl;
-
-	for (auto vertex : getGeometry()->getVertices()){
-		for (int icomp=0; icomp<NCOMP; ++icomp ){
-			ID = vertex.getId();
-			ind = dataInv[ID];
-			field[ID][icomp] = guess[ind + icomp*m_np];
-		}
-	}
-
-	field.setDataLocation(MPVLocation::POINT);
-	field.setGeometry(getGeometry());
-		}
+    return gradients;
+}
 
 /*!
- * It solves the laplacian problem. Stencils, weights and rhs must be already corrected to 
- * account of boundary condition of the problem. See calculateStencilsLaplace and calculateRHSLaplace method.
- * 
- * \param[in] stencils stencil-ids of laplace operator on target mesh nodes
- * \param[in] weights  associated to stencils
- * \param[in] rhs right-hand-side of laplacian linear system 
- * \param[in] dataInv map of local node indexing of stencils vs global mesh node indexing.
- *                    If map is empty, the method itself provides its evaluation from class target mesh.
- * \param[out] field target solution
+ * Prepare your system solver, feeding the laplacian stencils you previosly calculated
+ * with FVolStencil::computeFVLaplacianStencil method.
+ * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS
+ * The stencil will be renumerated with the consecutiveIdIndexing provided.
+ *
+ * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
+ * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
  */
+
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::solveLaplace(livector2D &stencils,
-		dvector2D &weights,
-		dvector1D &rhs,
-		liimap &dataInv,
-		MimmoPiercedVector<std::array<double, NCOMP> > & field){
+PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
 
-	//initialize field
-	field.clear();
-	for (auto vertex : getGeometry()->getVertices()){
-		long int ID = vertex.getId();
-		field.insert(ID, std::array<double, NCOMP>({}));
-	}
-
-	// Create the system for solving the pressure
-	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(false));
-
-	// Initialize the system
-	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
+    bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
 	solverOptions.rtol      = m_tol;
 	solverOptions.subrtol   = m_tol;
+    // total number of local DOFS, determines size of matrix
+    long nDOFs = laplacianStencils->size();
 
-	//TODO MPI support
-	//#if ENABLE_MPI==1
+    // total number of non-zero elements in the stencils.
+    long nNZ(0);
+    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
+        nNZ += it->size();
+    }
 
-	//#else
+    //instantiate the SparseMatrix
+    bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
 
-	//#endif
+    //fill in the stencil rows, after renumbering the stencil.
+    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
 
-	//Initialize the system
-	long sum = 0;
-	for (long i=0; i<m_np*NCOMP; i++){
-		sum += stencils[i].size();
-	}
-	{
-		//Define a sparse matrix
-		bitpit::SparseMatrix matrix(m_np*NCOMP,m_np*NCOMP,sum);
-		for (long i=0; i<m_np*NCOMP; i++){
-			matrix.addRow(stencils[i], weights[i]);
-		}
-		m_solver->initialize(matrix);
-	}
+        it->renumber(maplocals);
+        matrix.addRow(it->size(), it->patternData(), it->weightData());
 
-	// Solve the system
-	std::vector<double> *solution = new std::vector<double>(m_np*NCOMP, 0.);
-	m_solver->solve(rhs, solution);
+    }
+    //assembly the matrix;
+    matrix.assembly();
 
-	long ID;
-	int ind;
-	for (auto vertex : getGeometry()->getVertices()){
-		for (int icomp=0; icomp<NCOMP; ++icomp ){
-			ID = vertex.getId();
-			ind = dataInv[ID];
-			field[ID][icomp] = solution->at(ind + icomp*m_np);
-		}
-	}
-
-	// Clear the solver
-	m_solver->clear();
-	field.setDataLocation(MPVLocation::POINT);
-	field.setGeometry(getGeometry());
+    //clean up the previous stuff in the solver.
+    m_solver->clear();
+    // now you can initialize the m_solver with this matrix.
+    m_solver->initialize(matrix);
 }
 
 /*!
- * Given the target geometry mesh, evaluate the stencils and the weights of laplacian operator.
- * Boundary conditions corrections on the laplacian operator are not applied.
- * Please note the diagonal element is always on the end of each stencils/weights subvector
- * 
- * \param[in] dataInv map of local node indexing of stencils vs global mesh node indexing.
- *                    If map is empty, the method itself provides its evaluation from class target mesh.
- * \param[out] stencils stencil-ids of laplace operator on target mesh nodes
- * \param[out] weights  associated to stencils
- * 
- */
+ * Append to RHS vector the part of due to boundary conditions of the field with component comp.
+ * The method does the following:
+ * - Start from the faceGradient with Neutral conditions 1.0;
+ * - Save their constant part;
+ * - Get the real bc's (on the target component comp) and multiply them to faceGradient stencil constant part
+ * - Recalculate the laplacian stencils on all the cell influenced by the border with
+ *   method FVolStencil::computeFVBorderLaplacianStencil
+ * - get the constant part only of these laplacian stencils and sum them to the consecutive ordered vector rhs position.
+ * - restore faceGradient old neutral constant.
+ *
+ * In this way the rhs is ready to be used by the solver
+ *
+ * \param[in] comp target component of bc conditions.
+ * \param[in] faceGradientStencils pointer to list of faceGradientStencils with bc Neutral
+ * \param[in] maplocals map from GlobalIndex PV to local consecutive index
+ * \param[in,out] rhs, vector of rhs to append data
+   */
+
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::computeStencils(liimap &dataInv,
-		livector2D &stencils,
-		dvector2D &weights)
-		{
-	MimmoPiercedVector<livector1D> conn;
-	MimmoPiercedVector<dvector1D>  wgt;
+PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
+                                                   FVolStencil::MPVGradient * faceGradientStencils,
+                                                   const liimap & maplocals,
+                                                   dvector1D & rhs)
+{
+    if(comp >= NCOMP){
+        std::string message = "Error in PropagateField::appendToRHSFromBorderFlux comp can be at most " + std::to_string(NCOMP-1);
+        throw std::runtime_error(message.c_str());
+    }
 
-	computeRingConnectivity(conn);
-	computeRingWeights(conn,wgt);
+    //resize rhs to the number of internal cells
+    rhs.resize(getGeometry()->getPatch()->getInternalCount(), 0.0);
 
-	stencils.clear();
-	weights.clear();
-	stencils.resize(NCOMP*m_np);
-	weights.resize(NCOMP*m_np);
+    //store the constant part of stencils relative to border interfaces.
+    // and update it with the right boundary condition inside m_bc_dir.
+    std::vector<std::array<double,3> > oldConstantStore;
 
-	long ID;
-	int ind;
-	//Create stencils
-	for (auto vertex : getGeometry()->getVertices()){
-		ID = vertex.getId();
-		ind = dataInv[ID];
-		//bulk evaluation
-		for(int comp=0; comp<NCOMP; ++comp){
-			for (const long & IDN : conn[ID]){
-				stencils[ind+comp*m_np].push_back(long(dataInv[IDN]+comp*m_np));
-			}
-			stencils[ind+comp*m_np].push_back(long(ind+comp*m_np));
-			weights[ind+comp*m_np] = -1.0*wgt[ID];
-			weights[ind+comp*m_np].push_back(1.0);
-		}
-	}
+    oldConstantStore.reserve(m_isbp.size());
+    for(auto it = m_isbp.begin(); it != m_isbp.end(); ++it){
+        std::array<double,3> &temp = faceGradientStencils->at(it.getId()).getConstant();
+        oldConstantStore.push_back(temp);
+        //update this unitary constant value multiplying the real bc.
+        switch(*it){
+            case 1: //dirichlet
+                temp *= m_bc_dir.at(it.getId())[comp];
+                break;
+            default : //neumann homogeneous
+                temp *= 0.0;
+                break;
+        }
+    }
 
-		}
+    // now recalculate the boundary stencils of laplacian:
+    FVolStencil::MPVDivergenceUPtr borderlap =
+                FVolStencil::computeFVBorderLaplacianStencil(*faceGradientStencils, &m_dumping);
+
+    //Subtract their constant part from rhs.
+    for(auto it= borderlap->begin(); it!=borderlap->end(); ++it){
+        auto index = maplocals.at(it.getId());
+        rhs[index] += -1.0 * it->getConstant();
+    }
+}
+
 
 /*!
- * It computes the vertex ring connectivity structure for each mesh vertex.
- * \param[out] conn ring connectivity
- */
-template<std::size_t NCOMP>
-void PropagateField<NCOMP>::computeRingConnectivity(MimmoPiercedVector<livector1D> & conn){
-	//DOESN'T WORK FOR POINTS CLOUD OR CURVES
-
-	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-
-	conn.reserve(m_np);
-
-	//map for edges already visited
-	std::map<std::pair<long, long>, bool> visitedge;
-
-	//compute connectivity between points
-	for (const auto & cell : patch_->getCells()){
-		int edgecount;
-		//         if (type == 1 || patch_->getDimension() == 2){
-		//             edgecount = cell.getFaceCount();
-		//         }
-		//         else{
-		edgecount = cell.getEdgeCount();
-		//         }
-		for (int ie=0; ie<edgecount; ++ie){
-			bitpit::ConstProxyVector<long> econn;
-			//             if (type == 1 || patch_->getDimension() == 2){
-			//                 econn = cell.getFaceConnect(ie);
-			//             }
-			//             else{
-			econn = cell.getEdgeConnect(ie);
-			//             }
-			if (!visitedge[std::pair<long, long>(econn[0],econn[1])]){
-
-				visitedge[std::pair<long, long>(econn[0],econn[1])] = true;
-				visitedge[std::pair<long, long>(econn[1],econn[0])] = true;
-
-				if (!conn.exists(econn[0])){
-					conn.insert(econn[0], livector1D(1, econn[1]));
-				}else{
-					conn[econn[0]].push_back(econn[1]);
-				}
-
-				if (!conn.exists(econn[1])){
-					conn.insert(econn[1], livector1D(1, econn[0]));
-				}else{
-					conn[econn[1]].push_back(econn[0]);
-				}
-			}
-		}
-	}
-}
-
-/*! 
- * It computes the weights associated to the vertex ring connectivity conn.
- * \param[in] conn vertex ring connectivity
- * \param[out] wgt weights associated.
+ * It solves the laplacian problem, one field at a time.
+ * Basically it is a wrapper to m_solver method solve();
+ * Before calling this method be sure to have initialized the Laplacian linear system
+ *
+ * \param[in] rhs on internal cells;
+ * \param[in,out] result on internal cells. In input is an initial solution, in output is the reusl of computation.
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::computeRingWeights(MimmoPiercedVector<livector1D> & conn, 
-		MimmoPiercedVector<dvector1D> & wgt)
-		{
-	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
-	int nsize;
-	livector1D ids;
-	double dist;
-	double sumdist;
+    // Check if the internal solver is initialized
+    if (!m_solver->isInitialized()) {
+        throw std::runtime_error("Unable to solve the system. The solver is not yet initialized.");
+    }
 
-	wgt.reserve(conn.size());
-	darray3E point;
-	dvector1D lweights;
-	for (long ID : conn.getIds()){
-		ids = conn[ID];
-		point = patch_->getVertex(ID).getCoords();
-		nsize = ids.size();
-		lweights.resize(nsize);
-		sumdist = 0.0;
-		for (int j=0; j<nsize; j++){
-			dist = norm2(point-patch_->getVertex(ids[j]).getCoords());
-			lweights[j] = m_dumping[ids[j]] / (std::pow(dist, m_gamma));
-			sumdist += lweights[j];
-		}
-		lweights /= sumdist;
-		wgt.insert(ID, lweights);
-	}
-	if (!m_execPlot) m_dumping.clear();
-		}
+    //just to be sure, resize the vector result
+	result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
+    // Solve the system
+	m_solver->solve(rhs, &result);
 
+    //think I've done my job.
 }
+
+/*!
+ * Initialize m_isbp member getting all the real border interfaces (no ghost) and
+ * assigning to them a condition of type 0 (Neummann)
+ */
+template<std::size_t NCOMP>
+void
+PropagateField<NCOMP>::initializeBoundaryInfo(){
+    //prepare the m_isbp;
+    m_isbp.clear();
+    // get all the real boundary interfaces (no ghost)
+    livector1D list = m_geometry->extractBoundaryInterfaceID(false);
+    m_isbp.reserve(list.size());
+    //prepare m_isbp pushing neumann condition( 0 type ) to all interfaces of the list.
+    for(const auto & val: list){
+        m_isbp.insert(val, 0);
+    }
+}
+
+} //end of mimmo namespace
