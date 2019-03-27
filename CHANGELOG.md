@@ -19,14 +19,15 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added Linear System Solver Class based on PETSc
 - added Volume Mesh handler class MimmoFvMesh
 - added new modules "system" and "propagators"
+- added new kit of functions FVolStencil for Laplacian stencils calculation with Finite Volumes techniques (propagators module).
 - added new selectors FVSelectionBy (Box,Sphere,Cylinder) suitable for MimmoFvMesh objects.
 - added reading and writing STL solid names in multiSolid STL.
 
 ### Changed
 - PropagateField classes: solution of Laplacian system solved by using bitpit LA module.
 - PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
-                          also User Interface and parameters controlling field propagation. Moved into the
-                          new module "propagators".
+                          also User Interface and parameters controlling field propagation. Moved into the new module "propagators".
+
 - MimmoPiercedVector: changes to class interface
 - IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK.
                   User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam
