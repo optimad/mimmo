@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -27,7 +27,7 @@
 
 #include <vector>
 #include <array>
-#include <map>
+#include <unordered_map>
 
 /*!
  * \ingroup typedefs
@@ -44,7 +44,7 @@ typedef std::vector<bool>           bvector1D;   /**< mimmo custom typedef*/
 typedef std::vector<char>           cvector1D;   /**< mimmo custom typedef*/
 typedef std::vector<std::string>    svector1D;   /**< mimmo custom typedef*/
 
-typedef std::array<double,2>        darray2E;   /**< mimmo custom typedef*/ 
+typedef std::array<double,2>        darray2E;   /**< mimmo custom typedef*/
 typedef std::array<double,3>        darray3E;   /**< mimmo custom typedef*/
 typedef std::array<double,4>        darray4E;   /**< mimmo custom typedef*/
 typedef std::array<float,3>         farray3E;   /**< mimmo custom typedef*/
@@ -89,7 +89,7 @@ typedef std::array<uarray3E,3>      umatrix33E; /**< mimmo custom typedef*/
 typedef std::array<dvector1D,3>     darr3Evec;  /**< mimmo custom typedef*/
 typedef std::array<darr3Evec,3>     dmat33Evec; /**< mimmo custom typedef*/
 
-typedef std::map<long int, int>     liimap;     /**< mimmo custom typedef*/
+typedef std::unordered_map<long int, long int>     liimap;     /**< mimmo custom typedef*/
 
 /*!
  * \}
