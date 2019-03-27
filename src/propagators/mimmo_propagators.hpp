@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- #                                                                           
+ #
  #  mimmo
  #
  #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -35,5 +35,6 @@
 #define __MIMMO_MODULE_PROPAGATORS_HPP__
 
 #include "PropagateField.hpp"
+#include "StencilFunctions.hpp"
 
 #endif
