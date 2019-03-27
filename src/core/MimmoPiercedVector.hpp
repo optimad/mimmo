@@ -103,6 +103,8 @@ public:
     MimmoPiercedVector pointDataToCellData(double p = 0.);
     MimmoPiercedVector cellDataToPointData(double p = 0.);
 
+    MimmoPiercedVector pointDataToBoundaryInterfaceData(double p = 0.);
+
 private:
     livector1D getGeometryIds(bool ordered=false);
 };
