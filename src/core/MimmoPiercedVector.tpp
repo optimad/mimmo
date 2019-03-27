@@ -487,7 +487,6 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double 
 				sumWeights[idcell] = sumWeights[idcell] + weight;
 			}
 		}
-//		data = data / cell.getVertexCount();
 		data = data / sumWeights[idcell];
 		cellData.insert(idcell, data);
 	}
@@ -515,22 +514,70 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 			double weight = 1. / std::pow(norm2(center-point),p);
 			if (!pointData.exists(idvertex)){
 				pointData.insert(idvertex, this->at(idcell)*weight);
-//				countCells.insert(idvertex, 1);
 				sumWeights.insert(idvertex, weight);
 			}
 			else{
 				pointData[idvertex] = pointData[idvertex] + this->at(idcell)*weight;
-//				countCells[idvertex] = countCells[idvertex] + 1;
 				sumWeights[idvertex] = sumWeights[idvertex] + weight;
 			}
 		}
 	}
 	for (bitpit::Vertex & vertex : geo->getVertices()){
 		long idvertex = vertex.getId();
-//		pointData[idvertex] = pointData[idvertex] / countCells[idvertex];
 		pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
 	}
 	return pointData;
 };
 
+
+/*!
+ * Point data to boundary Interface data interpolation. Average of point data is set on interface center only for border interfaces.
+ * The current object is a MimmoPiercedVector object with data located on MPVLocation::POINT
+ * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
+ * \return boundary interface data MimmoPiercedVector object located on MPVLocation::INTERFACE
+ */
+template<typename mpv_t>
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfaceData(double p){
+	MimmoObject* geo = this->getGeometry();
+	MimmoPiercedVector<mpv_t> interfaceData(geo, MPVLocation::INTERFACE);
+	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
+	for (bitpit::Interface & interface : geo->getInterfaces()){
+		//Check if interface is border
+		if (interface.isBorder()){
+			long idinterface = interface.getId();
+			//Check if interface has at least one node presents in mimmo pierced vector point data
+			bool found = false;
+			for (long idvertex : interface.getVertexIds()){
+				if (this->exists(idvertex))
+					found = true;
+			}
+			if (found){
+				//Interpolate value
+				std::array<double,3> center = geo->getPatch()->evalInterfaceCentroid(idinterface);
+				mpv_t data;
+				bool init = false;
+				for (long idvertex : interface.getVertexIds()){
+					std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
+					double weight = 1. / std::pow(norm2(center-point),p);
+					if (!init){
+						if (this->exists(idvertex)){
+							data = this->at(idvertex)*weight;
+						}
+						sumWeights.insert(idinterface, weight);
+						init = true;
+					}
+					else{
+						if (this->exists(idvertex)){
+							data = data + this->at(idvertex)*weight;
+						}
+						sumWeights[idinterface] = sumWeights[idinterface] + weight;
+					}
+				}
+				data = data / sumWeights[idinterface];
+				interfaceData.insert(idinterface, data);
+			}
+		}
+	}
+	return interfaceData;
+};
 }
