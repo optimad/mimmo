@@ -1589,16 +1589,17 @@ MimmoObject::cleanGeometry(){
  *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
  *\return the list of bitpit::PatchKernel ids of involved vertices.
  */
-livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
+livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
     livector1D result;
     set<long int> ordV;
     auto patch = getPatch();
+    bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
     //get conn from each cell of the list
     for(const auto id : cellList){
-        if(getCells().exists(id)){
-            bitpit::ConstProxyVector<long> ids = patch->getCell(id).getVertexIds();
+        if(cells.exists(id)){
+            bitpit::ConstProxyVector<long> ids = cells.at(id).getVertexIds();
             for(const auto & val: ids){
                 ordV.insert(val);
             }
@@ -1611,22 +1612,25 @@ livector1D MimmoObject::getVertexFromCellList(livector1D cellList){
 }
 
 /*!
- * Extract interfaces list from an ensamble of geometry cells.
+ * Extract interfaces list from an ensamble of geometry cells. Build Interfaces
+ * if the target mesh has none.
  *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
  *\return the list of bitpit::PatchKernel ids of involved interfaces.
  */
-livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
+livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
     if(!areInterfacesBuilt())   buildInterfaces();
     livector1D result;
     set<long int> ordV;
     auto patch = getPatch();
+    bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
     //get conn from each cell of the list
     for(const auto id : cellList){
-        if(getCells().exists(id)){
-            long * interf = patch->getCell(id).getInterfaces();
-            int nIloc = patch->getCell(id).getInterfaceCount();
+        if(cells.exists(id)){
+            bitpit::Cell & cell = cells.at(id);
+            long * interf =cell.getInterfaces();
+            int nIloc = cell.getInterfaceCount();
             for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
         }
     }
@@ -1645,15 +1649,15 @@ livector1D MimmoObject::getInterfaceFromCellList(livector1D cellList){
  * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
  */
 
-livector1D MimmoObject::getCellFromVertexList(livector1D vertexList, bool strict){
+livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, bool strict){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
     livector1D result;
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
     //get conn from each cell of the list
-    for(auto const & cell : getPatch()->getCells()){
-        bitpit::ConstProxyVector<long> vIds= cell.getVertexIds();
+    for(auto it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
+        bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
         bool check;
         for(const auto & id : vIds){
             check = (ordV.count(id) > 0);
@@ -1664,7 +1668,7 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList, bool strict
                 break ;
             }
         }
-        if(check) ordC.insert(cell.getId());
+        if(check) ordC.insert(it.getId());
     }
 
     result.reserve(ordC.size());
@@ -1673,13 +1677,55 @@ livector1D MimmoObject::getCellFromVertexList(livector1D vertexList, bool strict
 }
 
 /*!
+ * Extract interfaces list from an ensamble of geometry vertices.
+ * Ids of all those interfaces whose vertices are defined inside the
+ * selection will be returned. Interfaces are automatically built, if the mesh has none.
+ * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
+ * \param[in] strict boolean true to restrict search for cells having all vertices in the list, false to include all cells having at least 1 vertex in the list.
+ * \param[in] border boolean true to restrict the search to border interfaces, false to include all interfaces
+ * \return list of bitpit::PatchKernel IDs of involved interfaces
+ */
+
+livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList, bool strict, bool border){
+    if(isEmpty() || getType() == 3)   return livector1D(0);
+
+    if(!areInterfacesBuilt())   buildInterfaces();
+
+    livector1D result;
+    std::unordered_set<long int> ordV, ordI;
+    ordV.insert(vertexList.begin(), vertexList.end());
+    //get conn from each cell of the list
+    for(auto it = getPatch()->interfaceBegin(); it != getPatch()->interfaceEnd(); ++it){
+        if(border && !it->isBorder()) continue;
+        bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
+        bool check;
+        for(const auto & id : vIds){
+            check = (ordV.count(id) > 0);
+            if(!check && strict) {
+                break ;
+            }
+            if(check && !strict) {
+                break ;
+            }
+        }
+        if(check) ordI.insert(it.getId());
+    }
+
+    result.reserve(ordI.size());
+    result.insert(result.end(), ordI.begin(), ordI.end());
+    return  result;
+}
+
+
+/*!
  * Extract vertices at the mesh boundaries, if any. The method is meant for connected mesh only,
  * return empty list otherwise.
+ * \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
  * \return list of vertex unique-ids.
  */
-livector1D 	MimmoObject::extractBoundaryVertexID(){
+livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
 
-    std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID();
+    std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID(ghost);
     if(cellmap.empty()) return livector1D(0);
 
     std::unordered_set<long> container;
@@ -1704,21 +1750,26 @@ livector1D 	MimmoObject::extractBoundaryVertexID(){
 /*!
  * Extract cells who have one face at the mesh boundaries at least, if any.
  * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
  * \return list of cell unique-ids.
  */
-livector1D  MimmoObject::extractBoundaryCellID(){
+livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 
     if(isEmpty() || m_type==3)   return livector1D(0);
     if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
     std::unordered_set<long> container;
-
-    for (const auto & cell : getCells()){
-        int size = cell.getFaceCount();
+    auto itBegin = getPatch()->internalBegin();
+    auto itEnd = getPatch()->internalEnd();
+    if(ghost){
+        itEnd = getPatch()->ghostEnd();
+    }
+    for (auto it=itBegin; it!=itEnd; ++it){
+        int size = it->getFaceCount();
 
         for(int face=0; face<size; ++face){
-            if(cell.isFaceBorder(face)){
-                container.insert(cell.getId());
+            if(it->isFaceBorder(face)){
+                container.insert(it.getId());
             }//endif
         }// end loop on face
     }
@@ -1734,20 +1785,25 @@ livector1D  MimmoObject::extractBoundaryCellID(){
  * Extract cells  who have one face at the mesh boundaries at least, if any.
  * Return the list of the local faces per cell, which lie exactly on the boundary.
  * The method is meant for connected mesh only, return empty list otherwise.
+*  \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
  * \return map of boundary cell unique-ids, with local boundary faces list.
  */
-std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID(){
+std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID(bool ghost){
 
     std::unordered_map<long, std::set<int> > result;
     if(isEmpty() || m_type ==3)   return result;
     if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
-    for (const auto & cell : getCells()){
-        int size = cell.getFaceCount();
-        long idC = cell.getId();
+    auto itBegin = getPatch()->internalBegin();
+    auto itEnd = getPatch()->internalEnd();
+    if(ghost){
+        itEnd = getPatch()->ghostEnd();
+    }
+    for (auto it=itBegin; it!=itEnd; ++it){
+        int size = it->getFaceCount();
         for(int face=0; face<size; ++face){
-            if(cell.isFaceBorder(face)){
-                result[idC].insert(face);
+            if(it->isFaceBorder(face)){
+                result[it.getId()].insert(face);
             }//endif
         }// end loop on face
     }
@@ -1760,7 +1816,7 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
  * \param[in] cellmap map of border faces of the mesh written as cell-ID vs local cell face index.
  * \return list of vertex unique-ids.
  */
-livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &cellmap){
+livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &cellmap, bool ghost){
 
     if(cellmap.empty()) return livector1D(0);
 
@@ -1782,6 +1838,35 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
 
     return result;
 };
+
+/*!
+ * Extract interfaces who lies on the mesh boundaries.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] ghost true if the ghost interfaces must be accounted into the search, false otherwise
+ * \return list of cell unique-ids.
+ */
+livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
+
+    if(isEmpty() || m_type==3)   return livector1D(0);
+    if(!areInterfacesBuilt())   getPatch()->buildInterfaces();
+
+    std::unordered_set<long> container;
+    std::unordered_map<long, std::set<int> > facemap = extractBoundaryFaceCellID(ghost);
+
+    for(auto & tuple : facemap){
+        long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
+        for(auto & val : tuple.second){
+            container.insert(interfCellList[val]);
+        }
+    }
+
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+
+    return result;
+};
+
 
 /*!
  * Extract all cells marked with a target PID flag.
@@ -2498,6 +2583,101 @@ std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const l
     return result;
 }
 
+/*!
+ * Evaluate the centroid of the target cell.
+ *\param[in] id of cell, no control if cell exists is done
+ *\return cell centroid coordinate
+ */
+std::array<double,3> MimmoObject::evalCellCentroid(const long & id){
+   std::array<double,3> result = {{0.0,0.0,0.0}};
+   if(getPatch()){
+       result = getPatch()->evalCellCentroid(id);
+   }
+   return result;
+}
+
+ /*!
+  * Evaluate the centroid of the target interface. Need to have interface built.
+  *\param[in] id of interface, no control if interface exists is done
+  *\return interface centroid coordinate
+  */
+std::array<double,3> MimmoObject::evalInterfaceCentroid(const long & id){
+    std::array<double,3> result = {{0.0,0.0,0.0}};
+    if(areInterfacesBuilt()){
+        result = getPatch()->evalInterfaceCentroid(id);
+    }
+    return result;
+}
+
+/*!
+ * Evaluate the normal of the target interface, in the sense of owner-neighbour cell. Need to have interface built.
+ * The method return zero normal for Point Cloud, 3D-Curve and Undefined mimmoObject meshes.
+ * If volume mesh return the normal to the face in common between owner and neighbour cells and directed from the owner to the neighbor.
+ * if surface mesh return the normal to the edge in common between owner and neighbour cells and directed from the owner to the neighbor.
+ *
+ *\param[in] id of interface,no control if interface exists is done
+ *\return normal to interface
+ */
+std::array<double,3> MimmoObject::evalInterfaceNormal(const long & id){
+    std::array<double,3> result ({0.0,0.0,0.0});
+    if(!areInterfacesBuilt())  return result;
+
+    switch(m_type){
+        case 1:
+            {
+                bitpit::Interface & interf = getInterfaces().at(id);
+                std::array<double,3> enormal = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeNormal(interf.getOwner(), interf.getOwnerFace());
+                ConstProxyVector<long> vv = interf.getVertexIds();
+                result = crossProduct(getVertexCoords(vv[1]) - getVertexCoords(vv[0]), enormal);
+                double normres = norm2(result);
+                if(normres > std::numeric_limits<double>::min()){
+                    result /= normres;
+                }
+            }
+            break;
+
+        case 2:
+            result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceNormal(id);
+            break;
+
+        default:
+            //do nothing
+            break;
+    }
+    return result;
+}
+
+/*!
+ * Evaluate the area/lenght of the target interface. Need to have interface built.
+ * The method return zero area for Point Cloud, 3D-Curve and Undefined mimmoObject meshes.
+ * If volume mesh return the area of the the 2D Element face.
+ * if surface mesh return the lenght of the edge in common between owner and neighbour cells.
+ *
+ *\param[in] id of interface,no control if interface exists is done
+ *\return value of interface area/length.
+ */
+double MimmoObject::evalInterfaceArea(const long & id){
+    double result (0.0);
+    if(!areInterfacesBuilt())  return result;
+
+    switch(m_type){
+        case 1:
+            {
+                bitpit::Interface & interf = getInterfaces().at(id);
+                result = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeLength(interf.getOwner(), interf.getOwnerFace());
+            }
+            break;
+
+        case 2:
+            result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceArea(id);
+            break;
+
+        default:
+            //do nothing
+            break;
+    }
+    return result;
+}
 
 
 }

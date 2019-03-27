@@ -198,14 +198,16 @@ public:
 
     bool        cleanGeometry();
 
-    livector1D  getVertexFromCellList(livector1D cellList);
-    livector1D  getCellFromVertexList(livector1D vertList, bool strict = true);
-    livector1D  getInterfaceFromCellList(livector1D cellList);
+    livector1D  getVertexFromCellList(const livector1D &cellList);
+    livector1D  getCellFromVertexList(const livector1D &vertList, bool strict = true);
+    livector1D  getInterfaceFromCellList(const livector1D &cellList);
+    livector1D  getInterfaceFromVertexList(const livector1D &vertList, bool strict, bool border);
 
-    livector1D                          extractBoundaryVertexID();
-    livector1D                          extractBoundaryCellID();
-    std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID();
-    livector1D                          extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
+    livector1D                               extractBoundaryCellID(bool ghost = false);
+    std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID(bool ghost = false);
+    livector1D                               extractBoundaryInterfaceID(bool ghost= false);
+    livector1D                               extractBoundaryVertexID(bool ghost = false);
+    livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map, bool ghost);
 
     livector1D  extractPIDCells(long);
     livector1D  extractPIDCells(livector1D);
@@ -236,6 +238,11 @@ public:
 
     double evalCellVolume(const long & id);
     double evalCellAspectRatio(const long & id);
+
+    std::array<double,3> evalCellCentroid(const long & id);
+    std::array<double,3> evalInterfaceCentroid(const long & id);
+    double               evalInterfaceArea(const long & id);
+    std::array<double,3> evalInterfaceNormal(const long & id);
 
     void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
     void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
