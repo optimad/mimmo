@@ -1983,7 +1983,7 @@ bool MimmoObject::isClosedLoop(){
         const long * adj = itp->getAdjacencies();
 
         for(int i=0; i<cAdj; ++i){
-            check = check && (adj[i] != -1);
+            check = check && (adj[i] < 0);
         }
 
         itp++;
