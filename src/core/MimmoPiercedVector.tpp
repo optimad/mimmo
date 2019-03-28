@@ -45,7 +45,7 @@ MimmoPiercedVector<mpv_t>::~MimmoPiercedVector(){
     clear();
 }
 
-/*! 
+/*!
  * Copy Constructor
  *\param[in] other MimmoPiercedVector object
  */
@@ -56,8 +56,8 @@ MimmoPiercedVector<mpv_t>::MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & 
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
-/*! 
- * Assignment Operator. 
+/*!
+ * Assignment Operator.
  * \param[in] other MimmoPiercedVector object
  */
 template<typename mpv_t>
@@ -66,13 +66,13 @@ MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(MimmoPiercedVe
     return *this;
 };
 
-/*! 
+/*!
  * Copy Operator for pierced data only. Values will be stored as is in the inner PiercedVector of the class.
  * \param[in] other PiercedVector object
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(bitpit::PiercedVector<mpv_t, long int> other){
-    
+
     this->bitpit::PiercedVector<mpv_t, long int>::swap(other);
     return *this;
 };
@@ -87,7 +87,7 @@ void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 {
   std::swap(this->m_geometry, x.m_geometry);
   std::swap(this->m_loc, x.m_loc);
-  this->bitpit::PiercedVector<mpv_t, long int>::swap(x);	
+  this->bitpit::PiercedVector<mpv_t, long int>::swap(x);
 }
 
 
@@ -116,7 +116,7 @@ MimmoPiercedVector<mpv_t>::getGeometry() const{
 /*!
  * Get data location w.r.t geometry inner structures.
  * It returns what is stored in the respective member, and does not attempt to
- * recover the reference location from geometry eventually. 
+ * recover the reference location from geometry eventually.
  * \return MPVLocation enum
  */
 template<typename mpv_t>
@@ -140,10 +140,10 @@ MimmoPiercedVector<mpv_t>::getDataLocation(){
 /*!
  * Return data contained in inner pierced vector. Sequence follows that of reference location in
  * geometry(vertices, cells or interfaces). If no geometry is provided, return empty result.
- * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as
  * you get iterating the internal location reference geometry PiercedVector from the beginning.
- * \return list of data 
- * 
+ * \return list of data
+ *
  */
 template<typename mpv_t>
 std::vector<mpv_t>
@@ -156,19 +156,19 @@ MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
          if(this->exists(val)){
             result[counter] = (*this)[val];
             ++counter;
-         }   
+         }
      }
-     
+
      return result;
 }
 
 /*!
- * Return only raw data contained in inner pierced vector. Sequence follows the internal pierced vector id-ing, 
+ * Return only raw data contained in inner pierced vector. Sequence follows the internal pierced vector id-ing,
  * without any reference to geometry structure ordering.
- * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as 
+ * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as
  * you get iterating the class object itself from the beginning.
- * \return list of data 
- * 
+ * \return list of data
+ *
  */
 template<typename mpv_t>
 std::vector<mpv_t>
@@ -204,7 +204,7 @@ MimmoPiercedVector<mpv_t>::setDataLocation(MPVLocation loc){
 }
 
 /*!
- * Set the data Location through integer. If out of MPVLocation enum, 
+ * Set the data Location through integer. If out of MPVLocation enum,
  * set MPVLocation::UNDEFINED by default.
  * \param[in] loc int 0 to 3 to identify location.
  */
@@ -225,7 +225,7 @@ template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
     bitpit::PiercedVector<mpv_t, long int>::clear();
-    long int  id = 0; 
+    long int  id = 0;
     for(const auto val: data){
         this->insert( id, val);
         id++;
@@ -233,11 +233,11 @@ MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
 }
 
 /*!
- * Check data coherence with the geometry linked. Return a coherence boolean flag which is 
+ * Check data coherence with the geometry linked. Return a coherence boolean flag which is
  * false if:
  *  - UNDEFINED location is set to the current data
- *  - internal m_data does not match the size of the relative geometry reference structure: vertex, cell or interfaces 
- *  - no geometry is linked 
+ *  - internal m_data does not match the size of the relative geometry reference structure: vertex, cell or interfaces
+ *  - no geometry is linked
  * \return boolean coherence flag
  */
 template<typename mpv_t>
@@ -270,12 +270,12 @@ MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
 }
 
 /*!
- * Check data coherence with the geometry linked. Return a coherence boolean flag which is 
+ * Check data coherence with the geometry linked. Return a coherence boolean flag which is
  * false if:
  *  - UNDEFINED location is set for the current data.
- *  - all internal m_data ids does not match those available in the relative geometry reference structure: vertex, cell or interfaces 
+ *  - all internal m_data ids does not match those available in the relative geometry reference structure: vertex, cell or interfaces
  *  - totally empty vector
- *  - no geometry is linked 
+ *  - no geometry is linked
  * \return boolean coherence flag
  */
 template<typename mpv_t>
@@ -355,7 +355,7 @@ MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
                     (*m_log)<<"Warning: Asked list of geometry Ids in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
                 }
                 return getGeometry()->getInterfaces().getIds(ordered);
-            }    
+            }
             break;
         default:
             return livector1D(0);
@@ -376,22 +376,22 @@ MimmoPiercedVector<mpv_t>::isEmpty(){
  * Check if container current data are coherent with the geometry linked. If it is and
  * current data size does not match the size of the reference geometry container,
  * attempt to complete all values in the missing ids of reference location
- * geometry structure with a User-assigned reference value. 
+ * geometry structure with a User-assigned reference value.
  * \param[in] defValue User-assigned reference value
- * \return true if the vector is coherent and full values aligned with geoemtry reference structure. 
+ * \return true if the vector is coherent and full values aligned with geoemtry reference structure.
  */
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
-    
+
     if(!this->checkDataIdsCoherence()) return false;
     if(!this->checkDataSizeCoherence()){
-        
+
         livector1D ids = this->getGeometryIds();
         for(auto id: ids){
             if(!this->exists(id)) this->insert(id, defValue);
         }
-    }    
+    }
     return true;
 }
 
@@ -400,15 +400,15 @@ MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
  * \param[in] geo target geometry
  * \param[in] loc  data location
  * \param[in] data reference data
- * 
- * if a valid geometry and coherent location are specified, create 
+ *
+ * if a valid geometry and coherent location are specified, create
  * a container on all elements of specified location with constant reference data attached.
  * Any pre-existent data will be destroyed.
  */
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const mpv_t & data){
-    
+
     switch(loc){
         case MPVLocation::POINT :
             if(geo->getNVertex() == 0){
@@ -546,12 +546,12 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfac
 		if (interface.isBorder()){
 			long idinterface = interface.getId();
 			//Check if interface has at least one node presents in mimmo pierced vector point data
-			bool found = false;
+			std::size_t found = 0;
 			for (long idvertex : interface.getVertexIds()){
 				if (this->exists(idvertex))
-					found = true;
+					found++;
 			}
-			if (found){
+			if (found == interface.getVertexCount()){
 				//Interpolate value
 				std::array<double,3> center = geo->getPatch()->evalInterfaceCentroid(idinterface);
 				mpv_t data;
