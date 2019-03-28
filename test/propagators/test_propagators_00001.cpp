@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -28,14 +28,144 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+// =================================================================================== //
+
+std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
+
+    std::array<double,3> center({{0.0,0.0,0.0}});
+    double radiusin(2.0), radiusout(5.0);
+    double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
+    double heightbottom(-1.0), heighttop(1.0);
+    int nr(6),nt(10), nh(6);
+
+    double deltar = (radiusout - radiusin)/ double(nr);
+    double deltat = (azimuthout - azimuthin)/ double(nt);
+    double deltah = (heighttop - heightbottom)/ double(nh);
+
+    std::vector<std::array<double,3> > verts ((nr+1)*(nt+1)*(nh+1));
+
+    int counter = 0;
+    for(int k=0; k<=nh; ++k){
+        for(int j=0; j<=nt; ++j){
+            for(int i=0; i<=nr; ++i){
+                verts[counter][0] =(radiusin + i*deltar)*std::cos(azimuthin + j*deltat);
+                verts[counter][1] =(radiusin + i*deltar)*std::sin(azimuthin + j*deltat);
+                verts[counter][2] =(heightbottom + k*deltah);
+                ++counter;
+            }
+        }
+    }
+
+    //create the volume mesh mimmo.
+    std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+    mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
+    mesh->getPatch()->reserveCells(nr*nt*nh);
+
+    //pump up the vertices
+    for(const auto & vertex : verts){
+        mesh->addVertex(vertex); //automatic id assigned to vertices.
+    }
+
+    //create connectivities for hexa elements
+    std::vector<long> conn(8,0);
+    for(int k=0; k<nh; ++k){
+        for(int j=0; j<nt; ++j){
+            for(int i=0; i<nr; ++i){
+                conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+
+                mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+            }
+        }
+    }
+    mesh->buildAdjacencies();
+    mesh->buildInterfaces();
+
+    bcdir1_vertlist.clear();
+    bcdir2_vertlist.clear();
+    bcdir1_vertlist.reserve(mesh->getNVertex());
+    bcdir2_vertlist.reserve(mesh->getNVertex());
+
+    for(int k=0; k<=nh; ++k){
+        for(int i=0; i<=nr; ++i){
+            bcdir1_vertlist.push_back((nr+1)*(nt+1)*k + i);
+            bcdir2_vertlist.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
+        }
+    }
+    return mesh;
+}
 
 
 // =================================================================================== //
 
 int test1() {
-	
-	std::cout<<"Waiting for a proper test. I do nothing for now"<<std::endl;
-    return 0;
+
+    std::vector<long> bc1list, bc2list;
+    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
+
+    livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
+    livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
+
+    //create the portion of boundary mesh carrying Dirichlet conditions
+    std::unique_ptr<MimmoObject> bdirMesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+    bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
+    bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
+
+    for(auto & val : bc1list){
+        bdirMesh->addVertex(mesh->getVertexCoords(val), val);
+    }
+    for(auto & val : bc2list){
+        bdirMesh->addVertex(mesh->getVertexCoords(val), val);
+    }
+    for(auto & val : cellInterfaceList1){
+        int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
+        long * conn = mesh->getInterfaces().at(val).getConnect();
+        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                    bitpit::ElementType::QUAD, val);
+    }
+    for(auto & val : cellInterfaceList2){
+        int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
+        long * conn = mesh->getInterfaces().at(val).getConnect();
+        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                    bitpit::ElementType::QUAD, val);
+    }
+
+    bdirMesh->buildAdjacencies();
+
+    // and the field of Dirichlet values on its nodes.
+    MimmoPiercedVector<double> bc_surf_field;
+    bc_surf_field.setGeometry(bdirMesh.get());
+    bc_surf_field.setDataLocation(MPVLocation::POINT);
+    bc_surf_field.reserve(bdirMesh->getNVertex());
+    for(auto & val : bc1list){
+        bc_surf_field.insert(val, 10.0);
+    }
+    for(auto & val : bc2list){
+        bc_surf_field.insert(val, 0.0);
+    }
+
+    // Now create a PropagateScalarField and solve the laplacian.
+    PropagateScalarField * prop = new PropagateScalarField();
+    prop->setGeometry(mesh.get());
+    prop->setDirichletBoundarySurface(bdirMesh.get());
+    prop->setDirichletConditions(bc_surf_field);
+    prop->setDumping(false);
+    prop->setPlotInExecution(true);
+
+    prop->exec();
+
+    auto values = prop->getPropagatedField();
+    long targetNode = (10 +1)*(6+1)*3 + (6+1)*5 + 3;
+    bool check = std::abs(values.at(targetNode)-5.0) > 1.0E-6;
+
+    delete prop;
+    return check;
 }
 
 // =================================================================================== //
@@ -44,7 +174,7 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
+
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 
@@ -59,6 +189,6 @@ int main( int argc, char *argv[] ) {
 
 	MPI::Finalize();
 #endif
-	
+
 	return val;
 }
