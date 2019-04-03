@@ -351,7 +351,6 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 
 };
 
-
 /*!
  * Restore data as in class default construction.
  */
@@ -534,19 +533,16 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
         it->renumber(maplocals);
     }
 
-    //Build an aux map instead of sorting laplacianStencils
-//    laplacianStencils->sort();
     std::vector<long> mapsort(laplacianStencils->size());
     for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
     	long id = it.getId();
     	long ind = maplocals.at(id);
-    	mapsort[ind - getGeometry()->getPatchInfo()->getCellGlobalCountOffset()] = id;
+#if MIMMO_ENABLE_MPI
+    	ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+#endif
+    	mapsort[ind] = id;
     }
 
-//    //Add ordered rows
-//    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-//    	matrix.addRow(it->size(), it->patternData(), it->weightData());
-//    }
     //Add ordered rows
     for(auto id : mapsort){
     	auto item = laplacianStencils->at(id);
@@ -560,9 +556,6 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
     m_solver->clear();
     // now you can initialize the m_solver with this matrix.
     m_solver->initialize(matrix);
-
-//    //dump matrix
-//    m_solver->dump(".", "system");
 
 }
 
@@ -627,7 +620,10 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
 
     //Subtract their constant part from rhs.
     for(auto it= borderlap->begin(); it!=borderlap->end(); ++it){
-        auto index = maplocals.at(it.getId()) - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+        auto index = maplocals.at(it.getId());
+#if MIMMO_ENABLE_MPI
+    	index -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+#endif
         rhs[index] += -1.0 * it->getConstant();
     }
 

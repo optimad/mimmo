@@ -25,7 +25,9 @@
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
 #include "mimmo_propagators.hpp"
+#if MIMMO_ENABLE_MPI
 #include "mimmo_parallel.hpp"
+#endif
 #include <exception>
 
 using namespace mimmo;
@@ -60,10 +62,12 @@ void example00001() {
     cgnsO->setWriteDir(".");
     cgnsO->setWriteFilename("iocgns_output_00001");
 
+#if MIMMO_ENABLE_MPI
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
     Partition* partition = new Partition();
+#endif
 
     /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 1,2,3 (All boundaries in input file).
@@ -141,15 +145,18 @@ void example00001() {
     Apply* applierS = new Apply();
 
     /* Create PINs. */
-//    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
-//    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
-//    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
 
+#if MIMMO_ENABLE_MPI
     addPin(cgnsI, partition, M_GEOM, M_GEOM);
     addPin(cgnsI, partition, M_GEOM2, M_GEOM2);
     addPin(partition, cgnsExtr, M_GEOM2, M_GEOM);
     addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM);
     addPin(partition, cgnsSlip, M_GEOM2, M_GEOM);
+#else
+    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
+#endif
 
     addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM);
 
@@ -157,8 +164,11 @@ void example00001() {
     addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
     addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM);
     
-//    addPin(cgnsI, prop, M_GEOM, M_GEOM);
+#if MIMMO_ENABLE_MPI
     addPin(partition, prop, M_GEOM, M_GEOM);
+#else
+    addPin(cgnsI, prop, M_GEOM, M_GEOM);
+#endif
     addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2);
     addPin(cgnsSlip, prop, M_GEOM, M_GEOM4);
     addPin(boxSel, prop, M_GEOM, M_GEOM3);
@@ -166,8 +176,11 @@ void example00001() {
     addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
     
     addPin(prop, applier, M_GDISPLS, M_GDISPLS);
-//    addPin(cgnsI, applier, M_GEOM, M_GEOM);
+#if MIMMO_ENABLE_MPI
     addPin(partition, applier, M_GEOM, M_GEOM);
+#else
+    addPin(cgnsI, applier, M_GEOM, M_GEOM);
+#endif
 
     addPin(cgnsExtr, extrF, M_GEOM, M_GEOM);
     addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD);
@@ -181,12 +194,13 @@ void example00001() {
     /* Create and execute chain. */
     Chain ch0;
     ch0.addObject(cgnsI);
+#if MIMMO_ENABLE_MPI
     ch0.addObject(partition);
+#endif
     ch0.addObject(cgnsExtr);
     ch0.addObject(cgnsDirichlet);
     ch0.addObject(cgnsSlip);
     ch0.addObject(boxSel);
-
 
     ch0.exec(true);
 
@@ -195,8 +209,9 @@ void example00001() {
 
     /* Destroy objects. */
     delete cgnsI;
-//    delete partitionS;
-//    delete partitionV;
+#if MIMMO_ENABLE_MPI
+    delete partition;
+#endif
     delete cgnsExtr;
     delete cgnsDirichlet;
     delete cgnsSlip;
@@ -212,8 +227,8 @@ int main( int argc, char *argv[] ) {
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-    MPI::Init(argc, argv);
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 
     {
 #endif
@@ -225,10 +240,10 @@ int main( int argc, char *argv[] ) {
             std::cout<<"iocgns_example_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI
     }
 
-    MPI::Finalize();
+    MPI_Finalize();
 #endif
 
     return 0;
