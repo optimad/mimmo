@@ -27,6 +27,10 @@
 #include "BaseManipulation.hpp"
 #include "StencilFunctions.hpp"
 
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
+
 namespace mimmo{
 /*!
  * \class PropagateField
@@ -77,7 +81,6 @@ protected:
 
     bitpit::PiercedVector<int>   m_isbp;  /**< list of int to mark volume boundary interfaces.
                                           int >0 marks boundary condition for type. For example 1 is a Dirichlet condition, 2 etc...*/
-
     MimmoPiercedVector<std::array<double, NCOMP> > m_bc_dir; /**< Dirichlet-type condition values interp on boundaries Interfaces of the target volume mesh */
     MimmoPiercedVector<std::array<double, NCOMP> > m_surface_bc_dir; /**< Dirichlet-type condition value of POINTS on boundary surface*/
     MimmoPiercedVector<std::array<double, NCOMP> > m_field;  /**< Resulting Propagated Field on nodes */
@@ -96,6 +99,12 @@ protected:
 
 
     std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
+
+#if MIMMO_ENABLE_MPI
+    std::unique_ptr<GhostCommunicator> m_ghostCommunicator; 			/**<Ghost communicator object */
+    int m_ghostTag;														/**< Tag of communicator object*/
+    std::unique_ptr<MimmoDataBufferStreamer<NCOMP>> m_ghostStreamer;	/**<Data streamer */
+#endif
 
 public:
 
@@ -137,6 +146,11 @@ protected:
     virtual void solveLaplace(const dvector1D &rhs, dvector1D & result);
 
     virtual void initializeBoundaryInfo();
+
+#if MIMMO_ENABLE_MPI
+    int createGhostCommunicator(bool continuous);
+#endif
+
 };
 
 /*!

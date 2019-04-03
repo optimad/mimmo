@@ -176,12 +176,18 @@ void
 ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
-    if (geo == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if(geo == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (geo->isEmpty() ){
-        throw std::runtime_error (m_name + " : linked geometry is empty or a point cloud mesh");
+
+    if(geo->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
+
 
     bool check = m_defField.getGeometry() == geo;
     check = check && m_defField.getDataLocation() == MPVLocation::POINT;

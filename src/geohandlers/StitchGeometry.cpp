@@ -194,7 +194,9 @@ StitchGeometry::forceRePID(bool flag){
 void
 StitchGeometry::execute(){
     if(m_extgeo.empty()){
-        throw std::runtime_error(m_name + " : no source geometries to stich were found");
+//        throw std::runtime_error(m_name + " : no source geometries to stich were found");
+        (*m_log)<<m_name + " : no source geometries to stich were found"<<std::endl;
+        return;
     }
 
     std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
@@ -203,7 +205,7 @@ StitchGeometry::execute(){
 
     for(auto &obj:m_extgeo){
         nCells += obj.first->getNCells();
-        nVerts += obj.first->getNVertex();
+        nVerts += obj.first->getNVertices();
     }
 
     //reserving memory

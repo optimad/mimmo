@@ -332,7 +332,8 @@ IOCGNS::execute(){
     if (!check){
         (*m_log) << "error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        throw std::runtime_error ("write not done : geometry not linked ");
+//        throw std::runtime_error ("write not done : geometry not linked ");
+        return;
     }
 }
 
@@ -806,7 +807,7 @@ IOCGNS::write(){
     //bool flagBnd = (bnd != NULL);
 
     /* Check number of volume cells and global vertices. */
-    nVertices = vol->getNVertex();
+    nVertices = vol->getNVertices();
     nCells = vol->getNCells();
     nBoundVertices=0;
 
@@ -815,7 +816,7 @@ IOCGNS::write(){
     coords[1].resize(nVertices);
     coords[2].resize(nVertices);
     {
-        dvecarr3E vert = vol->getVertexCoords();
+        dvecarr3E vert = vol->getVerticesCoords();
         int count=0;
         for(const auto &val:vert){
             for(int j=0; j<3; ++j)    coords[j][count] = val[j];

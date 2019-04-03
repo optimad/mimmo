@@ -32,9 +32,9 @@ namespace mimmo{
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc):bitpit::PiercedVector<mpv_t,long int>(){
-    m_geometry = geo;
-    m_loc = loc;
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+	m_geometry = geo;
+	m_loc = loc;
+	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 }
 
 /*!
@@ -42,7 +42,7 @@ MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc)
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t>::~MimmoPiercedVector(){
-    clear();
+	clear();
 }
 
 /*!
@@ -51,9 +51,9 @@ MimmoPiercedVector<mpv_t>::~MimmoPiercedVector(){
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t>::MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & other):bitpit::PiercedVector<mpv_t,long int>(other){
-    this->m_geometry = other.m_geometry;
-    this->m_loc = other.m_loc;
-    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+	this->m_geometry = other.m_geometry;
+	this->m_loc = other.m_loc;
+	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
 /*!
@@ -62,8 +62,8 @@ MimmoPiercedVector<mpv_t>::MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & 
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(MimmoPiercedVector<mpv_t> other){
-    this->swap(other);
-    return *this;
+	this->swap(other);
+	return *this;
 };
 
 /*!
@@ -73,8 +73,8 @@ MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(MimmoPiercedVe
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(bitpit::PiercedVector<mpv_t, long int> other){
 
-    this->bitpit::PiercedVector<mpv_t, long int>::swap(other);
-    return *this;
+	this->bitpit::PiercedVector<mpv_t, long int>::swap(other);
+	return *this;
 };
 
 /*!
@@ -85,9 +85,9 @@ MimmoPiercedVector<mpv_t> & MimmoPiercedVector<mpv_t>::operator =(bitpit::Pierce
 template<typename mpv_t>
 void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 {
-  std::swap(this->m_geometry, x.m_geometry);
-  std::swap(this->m_loc, x.m_loc);
-  this->bitpit::PiercedVector<mpv_t, long int>::swap(x);
+	std::swap(this->m_geometry, x.m_geometry);
+	std::swap(this->m_loc, x.m_loc);
+	this->bitpit::PiercedVector<mpv_t, long int>::swap(x);
 }
 
 
@@ -97,10 +97,10 @@ void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::clear(){
-    m_geometry = NULL;
-//     m_name = "";
-    m_loc = MPVLocation::UNDEFINED;
-    bitpit::PiercedVector<mpv_t, long int>::clear();
+	m_geometry = NULL;
+	//     m_name = "";
+	m_loc = MPVLocation::UNDEFINED;
+	bitpit::PiercedVector<mpv_t, long int>::clear();
 }
 
 /*!
@@ -110,7 +110,7 @@ MimmoPiercedVector<mpv_t>::clear(){
 template<typename mpv_t>
 MimmoObject*
 MimmoPiercedVector<mpv_t>::getGeometry() const{
-    return m_geometry;
+	return m_geometry;
 }
 
 /*!
@@ -122,7 +122,7 @@ MimmoPiercedVector<mpv_t>::getGeometry() const{
 template<typename mpv_t>
 MPVLocation
 MimmoPiercedVector<mpv_t>::getConstDataLocation() const{
-    return m_loc;
+	return m_loc;
 }
 
 /*!
@@ -134,7 +134,7 @@ MimmoPiercedVector<mpv_t>::getConstDataLocation() const{
 template<typename mpv_t>
 MPVLocation
 MimmoPiercedVector<mpv_t>::getDataLocation(){
-        return m_loc;
+	return m_loc;
 }
 
 /*!
@@ -148,18 +148,18 @@ MimmoPiercedVector<mpv_t>::getDataLocation(){
 template<typename mpv_t>
 std::vector<mpv_t>
 MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
-     if(getGeometry() == NULL) return std::vector<mpv_t>(0);
-     livector1D ids = getGeometryIds(ordered);
-     std::vector<mpv_t> result(this->size());
-     int counter= 0;
-     for(const auto val: ids){
-         if(this->exists(val)){
-            result[counter] = (*this)[val];
-            ++counter;
-         }
-     }
+	if(getGeometry() == NULL) return std::vector<mpv_t>(0);
+	livector1D ids = getGeometryIds(ordered);
+	std::vector<mpv_t> result(this->size());
+	int counter= 0;
+	for(const auto val: ids){
+		if(this->exists(val)){
+			result[counter] = (*this)[val];
+			++counter;
+		}
+	}
 
-     return result;
+	return result;
 }
 
 /*!
@@ -173,14 +173,14 @@ MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
 template<typename mpv_t>
 std::vector<mpv_t>
 MimmoPiercedVector<mpv_t>::getRawDataAsVector(bool ordered){
-    livector1D ids = this->getIds(ordered);
-    std::vector<mpv_t> result(this->size());
-    int counter= 0;
-    for(const auto val: ids){
-            result[counter] = (*this)[val];
-            ++counter;
-    }
-    return result;
+	livector1D ids = this->getIds(ordered);
+	std::vector<mpv_t> result(this->size());
+	int counter= 0;
+	for(const auto val: ids){
+		result[counter] = (*this)[val];
+		++counter;
+	}
+	return result;
 }
 
 /*!
@@ -190,7 +190,7 @@ MimmoPiercedVector<mpv_t>::getRawDataAsVector(bool ordered){
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::setGeometry(MimmoObject* geo){
-    m_geometry = geo;
+	m_geometry = geo;
 }
 
 /*!
@@ -200,7 +200,7 @@ MimmoPiercedVector<mpv_t>::setGeometry(MimmoObject* geo){
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::setDataLocation(MPVLocation loc){
-    m_loc = loc;
+	m_loc = loc;
 }
 
 /*!
@@ -211,9 +211,9 @@ MimmoPiercedVector<mpv_t>::setDataLocation(MPVLocation loc){
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::setDataLocation(int loc){
-    loc = std::max(0, loc);
-    if (loc > 3) loc =0;
-    setDataLocation(static_cast<MPVLocation>(loc));
+	loc = std::max(0, loc);
+	if (loc > 3) loc =0;
+	setDataLocation(static_cast<MPVLocation>(loc));
 }
 
 /*!
@@ -224,12 +224,12 @@ MimmoPiercedVector<mpv_t>::setDataLocation(int loc){
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
-    bitpit::PiercedVector<mpv_t, long int>::clear();
-    long int  id = 0;
-    for(const auto val: data){
-        this->insert( id, val);
-        id++;
-    }
+	bitpit::PiercedVector<mpv_t, long int>::clear();
+	long int  id = 0;
+	for(const auto val: data){
+		this->insert( id, val);
+		id++;
+	}
 }
 
 /*!
@@ -243,30 +243,30 @@ MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
-    if(getGeometry()==NULL) return false;
-    bool check = false;
-    switch(m_loc){
-        case MPVLocation::CELL:
-            check = (this->size()==m_geometry->getPatch()->getCells().size());
-            break;
-        case MPVLocation::INTERFACE:
-            {
-                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-                check = (this->size()==sizeInterfaces);
-                if(sizeInterfaces == 0){
-                    (*m_log)<<"Warning: Asked Data Size Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-                }
-            }
-            break;
-        case MPVLocation::POINT:
-            check = (this->size()==m_geometry->getPatch()->getVertices().size());
-            break;
-        default:
-            check=false;
-            (*m_log)<<"NO suitable location data found to perform data size coherence check"<<std::endl;
-            break;
-    }
-    return check;
+	if(getGeometry()==NULL) return false;
+	bool check = false;
+	switch(m_loc){
+	case MPVLocation::CELL:
+		check = (this->size()==m_geometry->getPatch()->getCells().size());
+		break;
+	case MPVLocation::INTERFACE:
+	{
+		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+		check = (this->size()==sizeInterfaces);
+		if(sizeInterfaces == 0){
+			(*m_log)<<"Warning: Asked Data Size Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+		}
+	}
+	break;
+	case MPVLocation::POINT:
+		check = (this->size()==m_geometry->getPatch()->getVertices().size());
+		break;
+	default:
+		check=false;
+		(*m_log)<<"NO suitable location data found to perform data size coherence check"<<std::endl;
+		break;
+	}
+	return check;
 }
 
 /*!
@@ -281,44 +281,44 @@ MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
-    if(getGeometry()==NULL) return false;
-    auto ids = this->getIds();
-    bool check = !this->isEmpty();
-    switch(m_loc){
-        case MPVLocation::CELL:
-            {
-                auto vcell = m_geometry->getPatch()->getCells();
-                for(auto el : ids){
-                    check =check && vcell.exists(el);
-                }
-            }
-            break;
-        case MPVLocation::INTERFACE:
-            {
-                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-                if(sizeInterfaces == 0){
-                    (*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-                }
-                auto vint = m_geometry->getPatch()->getInterfaces();
-                for(auto el : ids){
-                    check =check && vint.exists(el);
-                }
-            }
-        break;
-        case MPVLocation::POINT:
-            {
-                auto vvert = m_geometry->getPatch()->getVertices();
-                for(auto el : ids){
-                    check =check && vvert.exists(el);
-                }
-            }
-        break;
-        default:
-            check = false;
-            (*m_log)<<"NO suitable location data found to perform ids coherence check"<<std::endl;
-            break;
-    }
-    return check;
+	if(getGeometry()==NULL) return false;
+	auto ids = this->getIds();
+	bool check = !this->isEmpty();
+	switch(m_loc){
+	case MPVLocation::CELL:
+	{
+		auto vcell = m_geometry->getPatch()->getCells();
+		for(auto el : ids){
+			check =check && vcell.exists(el);
+		}
+	}
+	break;
+	case MPVLocation::INTERFACE:
+	{
+		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+		if(sizeInterfaces == 0){
+			(*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+		}
+		auto vint = m_geometry->getPatch()->getInterfaces();
+		for(auto el : ids){
+			check =check && vint.exists(el);
+		}
+	}
+	break;
+	case MPVLocation::POINT:
+	{
+		auto vvert = m_geometry->getPatch()->getVertices();
+		for(auto el : ids){
+			check =check && vvert.exists(el);
+		}
+	}
+	break;
+	default:
+		check = false;
+		(*m_log)<<"NO suitable location data found to perform ids coherence check"<<std::endl;
+		break;
+	}
+	return check;
 }
 
 /*!
@@ -328,7 +328,7 @@ MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::intIsValidLocation(int &value){
-    return !(value<0 && value>3) ;
+	return !(value<0 && value>3) ;
 }
 
 /*!
@@ -340,27 +340,27 @@ MimmoPiercedVector<mpv_t>::intIsValidLocation(int &value){
 template<typename mpv_t>
 livector1D
 MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
-    if(getGeometry()==NULL) return livector1D(0);
-    switch(m_loc){
-        case MPVLocation::POINT:
-            return getGeometry()->getVertices().getIds(ordered);
-            break;
-        case MPVLocation::CELL:
-            return getGeometry()->getCells().getIds(ordered);
-            break;
-        case MPVLocation::INTERFACE:
-            {
-                size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-                if(sizeInterfaces == 0){
-                    (*m_log)<<"Warning: Asked list of geometry Ids in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-                }
-                return getGeometry()->getInterfaces().getIds(ordered);
-            }
-            break;
-        default:
-            return livector1D(0);
-        break;
-    }
+	if(getGeometry()==NULL) return livector1D(0);
+	switch(m_loc){
+	case MPVLocation::POINT:
+		return getGeometry()->getVertices().getIds(ordered);
+		break;
+	case MPVLocation::CELL:
+		return getGeometry()->getCells().getIds(ordered);
+		break;
+	case MPVLocation::INTERFACE:
+	{
+		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
+		if(sizeInterfaces == 0){
+			(*m_log)<<"Warning: Asked list of geometry Ids in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+		}
+		return getGeometry()->getInterfaces().getIds(ordered);
+	}
+	break;
+	default:
+		return livector1D(0);
+		break;
+	}
 }
 
 /*!
@@ -369,7 +369,7 @@ MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::isEmpty(){
-    return this->size() == size_t(0);
+	return this->size() == size_t(0);
 }
 
 /*!
@@ -384,15 +384,15 @@ template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
 
-    if(!this->checkDataIdsCoherence()) return false;
-    if(!this->checkDataSizeCoherence()){
+	if(!this->checkDataIdsCoherence()) return false;
+	if(!this->checkDataSizeCoherence()){
 
-        livector1D ids = this->getGeometryIds();
-        for(auto id: ids){
-            if(!this->exists(id)) this->insert(id, defValue);
-        }
-    }
-    return true;
+		livector1D ids = this->getGeometryIds();
+		for(auto id: ids){
+			if(!this->exists(id)) this->insert(id, defValue);
+		}
+	}
+	return true;
 }
 
 /*!
@@ -409,53 +409,53 @@ template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const mpv_t & data){
 
-    switch(loc){
-        case MPVLocation::POINT :
-            if(geo->getNVertex() == 0){
-                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-                return;
-            }else{
-                this->clear();
-                this->reserve(geo->getNVertex());
-                m_geometry = geo;
-                m_loc = loc;
-                for(const auto & vertex: geo->getVertices()){
-                    this->insert(vertex.getId(), data);
-                }
-            }
-            break;
-        case MPVLocation::CELL :
-            if(geo->getNCells() == 0){
-                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-                return;
-            }else{
-                this->clear();
-                this->reserve(geo->getNCells());
-                m_geometry = geo;
-                m_loc = loc;
-                for(const auto & cell: geo->getCells()){
-                    this->insert(cell.getId(), data);
-                }
-            }
-            break;
-        case MPVLocation::INTERFACE :
-            if(!geo->areInterfacesBuilt()){
-                (*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-                return;
-            }else{
-                this->clear();
-                this->reserve(geo->getPatch()->getInterfaceCount());
-                m_geometry = geo;
-                m_loc = loc;
-                for(const auto & interf: geo->getInterfaces()){
-                    this->insert(interf.getId(), data);
-                }
-            }
-            break;
-        default:
-            //do nothing
-            break;
-    }
+	switch(loc){
+	case MPVLocation::POINT :
+		if(geo->getNVertices() == 0){
+			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+			return;
+		}else{
+			this->clear();
+			this->reserve(geo->getNVertices());
+			m_geometry = geo;
+			m_loc = loc;
+			for(const auto & vertex: geo->getVertices()){
+				this->insert(vertex.getId(), data);
+			}
+		}
+		break;
+	case MPVLocation::CELL :
+		if(geo->getNCells() == 0){
+			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+			return;
+		}else{
+			this->clear();
+			this->reserve(geo->getNCells());
+			m_geometry = geo;
+			m_loc = loc;
+			for(const auto & cell: geo->getCells()){
+				this->insert(cell.getId(), data);
+			}
+		}
+		break;
+	case MPVLocation::INTERFACE :
+		if(!geo->areInterfacesBuilt()){
+			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
+			return;
+		}else{
+			this->clear();
+			this->reserve(geo->getPatch()->getInterfaceCount());
+			m_geometry = geo;
+			m_loc = loc;
+			for(const auto & interf: geo->getInterfaces()){
+				this->insert(interf.getId(), data);
+			}
+		}
+		break;
+	default:
+		//do nothing
+		break;
+	}
 }
 
 /*!
@@ -508,6 +508,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Cell & cell : geo->getCells()){
 		long idcell = cell.getId();
+		if (this->exists(idcell)){
 		std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
 		for (long idvertex : cell.getVertexIds()){
 			std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
@@ -521,14 +522,15 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 				sumWeights[idvertex] = sumWeights[idvertex] + weight;
 			}
 		}
+		}
 	}
 	for (bitpit::Vertex & vertex : geo->getVertices()){
 		long idvertex = vertex.getId();
-		pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
+		if (pointData.exists(idvertex))
+			pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
 	}
 	return pointData;
 };
-
 
 /*!
  * Point data to boundary Interface data interpolation. Average of point data is set on interface center only for border interfaces.
@@ -580,4 +582,5 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfac
 	}
 	return interfaceData;
 };
+
 }

@@ -256,7 +256,7 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag){
         getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
         liimap mapData;
-        dvecarr3E points = getGeometry()->getVertexCoords(&mapData);
+        dvecarr3E points = getGeometry()->getVerticesCoords(&mapData);
         ivector2D connectivity;
         int np = points.size();
         connectivity.resize(np);
@@ -307,7 +307,7 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
         m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
         liimap mapData;
-        dvecarr3E points = m_subresults[i].getGeometry()->getVertexCoords(&mapData);
+        dvecarr3E points = m_subresults[i].getGeometry()->getVerticesCoords(&mapData);
         ivector2D connectivity;
         int np = points.size();
         connectivity.resize(np);
@@ -333,13 +333,17 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
 void
 ReconstructVector::execute(){
 
-    if(getGeometry() == NULL){
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
-    } 
+	if(getGeometry() == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
+    }
     
     if(getGeometry()->isEmpty()){
-        throw std::runtime_error(m_name + "empty linked geometry found");
-    } 
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
+    }
     
     //Overlap fields
     m_result.clear();
@@ -374,7 +378,8 @@ ReconstructVector::execute(){
     
     if (m_result.isEmpty()){
         (*m_log)<<"Warning in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
-        throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
+//        throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
+        return;
     }
     
     if (m_overlapCriterium == OverlapMethod::AVERAGE){

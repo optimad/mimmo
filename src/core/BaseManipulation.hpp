@@ -37,6 +37,10 @@
 #include <unordered_map>
 #include <typeinfo>
 
+#if MIMMO_ENABLE_MPI
+#include <mpi.h>
+#endif
+
 namespace mimmo{
 
 using namespace pin;
@@ -147,6 +151,12 @@ protected:
 
     //static members
     static  int                 sm_baseManipulationCounter;     /**<Current global number of BaseManipulation object in the instance. */
+
+#if MIMMO_ENABLE_MPI
+    int							m_nprocs;			/**<Total number of processors.*/
+    int							m_rank;				/**<Current rank number.*/
+	MPI_Comm 					m_communicator; 	/**<MPI communicator.*/
+#endif
 
 
 public:

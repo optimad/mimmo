@@ -225,7 +225,7 @@ SelectionByBoxWithScalar::plotOptionalResults(){
         if(checkField)  getPatch()->getPatch()->getVTK().removeData("field");
     }else{
         liimap mapDataInv;
-        dvecarr3E points = getPatch()->getVertexCoords(&mapDataInv);
+        dvecarr3E points = getPatch()->getVerticesCoords(&mapDataInv);
         ivector2D connectivity;
         bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
         

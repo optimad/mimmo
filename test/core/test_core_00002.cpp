@@ -120,7 +120,7 @@ bool createMimmoMesh(MimmoObject * mesh, livector1D & list){
 	}
 
 
-	bool check = (mesh->getNCells() == 48) && (mesh->getNVertex() == 35);
+	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
 	mesh->buildAdjacencies();
 	return check;
@@ -275,7 +275,7 @@ int test2() {
     mesh_4->restore(in);
     buffer2.close();
 
-    if(mesh_4->getNCells() != mesh->getNCells() && mesh_4->getNVertex()!= mesh->getNVertex()){
+    if(mesh_4->getNCells() != mesh->getNCells() && mesh_4->getNVertices()!= mesh->getNVertices()){
         delete mesh_4;
         delete mesh;
         std::cout<<"Dump and Restore methods failed"<<std::endl;

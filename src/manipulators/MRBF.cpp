@@ -251,7 +251,7 @@ MRBF::addNode(dvecarr3E nodes){
 ivector1D
 MRBF::addNode(MimmoObject* geometry){
 	if(geometry == NULL)    return    ivector1D(0);
-	dvecarr3E vertex = geometry->getVertexCoords();
+	dvecarr3E vertex = geometry->getVerticesCoords();
 	return(RBF::addNode(vertex));
 };
 
@@ -283,7 +283,7 @@ void
 MRBF::setNode(MimmoObject* geometry){
 	if(geometry == NULL)    return ;
 	removeAllNodes();
-	dvecarr3E vertex = geometry->getVertexCoords();
+	dvecarr3E vertex = geometry->getVerticesCoords();
 	RBF::addNode(vertex);
 
 };
@@ -505,12 +505,17 @@ void
 MRBF::execute(){
 
 	MimmoObject * container = getGeometry();
-	if (container == NULL){
-		throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
-	}
-	if (container->isEmpty()){
-		throw std::runtime_error (m_name + " : empty linked geometry");
-	}
+    if(container == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
+    }
+
+    if(container->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
+    }
 
 	int size = 0;
 	int sizeF = getDataCount();
@@ -573,7 +578,7 @@ MRBF::execute(){
 
 	m_displ.clear();
 	m_displ.setDataLocation(mimmo::MPVLocation::POINT);
-	m_displ.reserve(getGeometry()->getNVertex());
+	m_displ.reserve(getGeometry()->getNVertices());
 	m_displ.setGeometry(getGeometry());
 
 	dvector1D displ;
@@ -636,7 +641,7 @@ MRBF::checkFilter(){
 		m_filter.clear();
 		m_filter.setGeometry(m_geometry);
 		m_filter.setDataLocation(mimmo::MPVLocation::POINT);
-		m_filter.reserve(getGeometry()->getNVertex());
+		m_filter.reserve(getGeometry()->getNVertices());
 		for (const auto & vertex : getGeometry()->getVertices()){
 			m_filter.insert(vertex.getId(), 1.0);
 		}

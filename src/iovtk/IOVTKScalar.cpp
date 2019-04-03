@@ -350,7 +350,7 @@ IOVTKScalar::read(){
             getGeometry()->addConnectedCell(connectivity, eltype);
         }
 
-        np = getGeometry()->getNVertex();
+        np = getGeometry()->getNVertices();
         vtkDataArray* data = pdata->GetArray(0);
         m_field.clear();
         if (data != NULL){
@@ -400,7 +400,7 @@ IOVTKScalar::write(){
             double point_[3];
             darray3E point;
             int np = points->GetNumberOfPoints();
-            np = min(np, int(getGeometry()->getNVertex()));
+            np = min(np, int(getGeometry()->getNVertices()));
             for (vtkIdType id=0; id<np; id++ ){
                 point = getGeometry()->getVertexCoords(id);
                 for (int i=0; i<3; i++) point_[i] = point[i];
@@ -425,7 +425,7 @@ IOVTKScalar::write(){
         vtkPoints* points = vtkPoints::New() ;
         double point_[3];
         darray3E point;
-        int np = int(getGeometry()->getNVertex());
+        int np = int(getGeometry()->getNVertices());
         points->SetNumberOfPoints(np);
         for (vtkIdType id=0; id<np; id++ ){
             point = getGeometry()->getVertexCoords(id);
@@ -505,7 +505,8 @@ IOVTKScalar::execute(){
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        throw std::runtime_error (m_name + ": write not done : geometry not linked ");
+//        throw std::runtime_error (m_name + ": write not done : geometry not linked ");
+        return;
     }
 }
 

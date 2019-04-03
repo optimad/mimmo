@@ -126,13 +126,17 @@ Apply::setScaling(double alpha){
  */
 void
 Apply::execute(){
-	if (getGeometry() == NULL){
-		throw std::runtime_error (m_name + " : null pointer to linked geometry");
-	}
+    if(getGeometry() == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
+    }
 
-	if (getGeometry()->isEmpty()){
-		throw std::runtime_error (m_name + " : empty linked geometry");
-	}
+    if(getGeometry()->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
+    }
 
 	checkInput();
 
@@ -236,7 +240,7 @@ Apply::checkInput(){
 		m_input.clear();
 		m_input.setGeometry(m_geometry);
 		m_input.setDataLocation(mimmo::MPVLocation::POINT);
-		m_input.reserve(m_geometry->getNVertex());
+		m_input.reserve(m_geometry->getNVertices());
 		for (const auto & vertex : m_geometry->getVertices()){
 			m_input.insert(vertex.getId(), {{0.0,0.0,0.0}});
 		}

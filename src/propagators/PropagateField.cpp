@@ -130,7 +130,6 @@ PropagateScalarField::setDirichletConditions(dmpvector1D bc){
     }
 }
 
-
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
@@ -187,6 +186,7 @@ bool PropagateScalarField::checkBoundariesCoherence(){
     for(auto it=m_surface_bc_dir.begin(); it!=m_surface_bc_dir.end(); ++it){
         temp.insert(it.getId(), *it );
     }
+
     //interpolate now point data to interface data
     m_bc_dir.clear();
     m_bc_dir = temp.pointDataToBoundaryInterfaceData();
@@ -209,7 +209,7 @@ void
 PropagateScalarField::plotOptionalResults(){
 
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
+    if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
 
@@ -238,33 +238,33 @@ PropagateScalarField::plotOptionalResults(){
 void
 PropagateScalarField::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateScalarField execute. No target volume mesh linked");
+    if(getGeometry() == nullptr){
+        (*m_log)<<"Warning in "<<m_name<<" .No target volume mesh linked"<<std::endl;
     }
 
-    if(m_bsurface == NULL ){
-        (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateScalarField execute. No Dirichlet Boundary patch linked");
+    if(m_bsurface == nullptr ){
+        (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
     if(!checkBoundariesCoherence()){
-        (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
+        (*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
         "or bc-fields not coherent with boundary patches"<<std::endl;
-        throw std::runtime_error("Error in PropagateScalarField execute. Boundary patches linked are uncoherent"
-        "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
     //allocate the solver;
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
 
     //get this inverse map -> you will need it to compact the stencils.
     liimap dataInv = getGeometry()->getMapCellInv();
+
     //compute the dumping.
     computeDumpingFunction();
+
     //compute the gradient stencils @ interface with Neutral conditions.
     FVolStencil::MPVGradientUPtr faceGradients  = computeGradientStencilsWithNeutralBC();
+
     // compute the laplacian stencils ;
     FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), &m_dumping);
+
     // initialize the laplacian Matrix in solver and release the laplace stencils.
     initializeLaplaceSolver(laplaceStencils.get(), dataInv);
     laplaceStencils = nullptr;
@@ -283,23 +283,47 @@ PropagateScalarField::execute(){
     MimmoPiercedVector<std::array<double,1> > tempres;
     tempres.setGeometry(m_geometry);
     tempres.setDataLocation(MPVLocation::CELL);
-    tempres.reserve(result.size());
-    livector1D cellmap = getGeometry()->getMapCell();
-    int counter = 0;
-    for(const double & val: result){
-        tempres.insert(cellmap[counter], std::array<double,1>({val}));
-        ++counter;
+    tempres.reserve(getGeometry()->getNCells());
+    liimap cellmap = getGeometry()->getMapCell();
+    for(auto pair : cellmap){
+    	long id = pair.second;
+    	if (getGeometry()->getPatch()->getCell(id).isInterior()){
+    	    long counter = pair.first - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+    		tempres.insert(id, std::array<double,1>{{result[counter]}});
+    	}
+    	else{
+    		tempres.insert(id, std::array<double,1>{{0.}});
+    	}
     }
     cellmap.clear();
 
+#if MIMMO_ENABLE_MPI
+    // Creating ghost communications for exchanging solved values
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<1>>(new MimmoDataBufferStreamer<1>(&tempres));
+        m_ghostTag = createGhostCommunicator(true);
+        m_ghostCommunicator->addData(m_ghostStreamer.get());
+    }
+
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        // Send data
+        m_ghostCommunicator->startAllExchanges();
+        // Receive data
+        m_ghostCommunicator->completeAllExchanges();
+    }
+
+#endif
+
     // interpolate result to POINT location.
     m_field = tempres.cellDataToPointData();
+
     //force boundary Dirichlet on POINTS on m_field;
     for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
         m_field.at(it.getId()) = *it;
     }
     //clear the solver;
     m_solver->clear();
+
 }
 
 
@@ -491,7 +515,6 @@ bool PropagateVectorField::checkBoundariesCoherence(){
     //Clean the old m_isbp and initialize it again (set all to Neumann).
     initializeBoundaryInfo();
 
-
     //2nd step verify coherence of the Dirichlet point field on boundary surface
     // with the dirichlet boundary surface provided
     if(m_surface_bc_dir.getGeometry() != m_bsurface || !m_surface_bc_dir.completeMissingData({{0.0, 0.0,0.0}})){
@@ -535,7 +558,7 @@ void
 PropagateVectorField::plotOptionalResults(){
 
 
-    if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
+    if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
     dvecarr3E data = m_field.getDataAsVector();
@@ -622,20 +645,16 @@ void
 PropagateVectorField::execute(){
 
     if(getGeometry() == NULL){
-        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateVectorField execute. No target volume mesh linked");
+        (*m_log)<<"Warning in "<<m_name<<" .No target volume mesh linked"<<std::endl;
     }
 
     if(m_bsurface == NULL ){
-        (*m_log)<<"Error in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
-        throw std::runtime_error("Error in PropagateVectorField execute. No Dirichlet Boundary patch linked");
+        (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
     if(!checkBoundariesCoherence()){
-        (*m_log)<<"Error in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
+        (*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
         "or bc-fields not coherent with boundary patches"<<std::endl;
-        throw std::runtime_error("Error in PropagateVectorField execute. Boundary patches linked are uncoherent"
-        "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
     //allocate the solver;
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
@@ -674,15 +693,40 @@ PropagateVectorField::execute(){
     std::size_t locsize = results[0].size();
     tempres.setGeometry(m_geometry);
     tempres.setDataLocation(MPVLocation::CELL);
-    tempres.reserve(locsize);
-    livector1D cellmap = getGeometry()->getMapCell();
-    int counter = 0;
-    for(int counter = 0; counter<locsize; ++counter){
-        tempres.insert(cellmap[counter], std::array<double,3>({results[0][counter],results[1][counter],results[2][counter]}));
+    tempres.reserve(getGeometry()->getNCells());
+    liimap cellmap = getGeometry()->getMapCell();
+    for(auto pair : cellmap){
+    	long id = pair.second;
+    	if (getGeometry()->getPatch()->getCell(id).isInterior()){
+    	    long counter = pair.first - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+    		tempres.insert(id, std::array<double,3>({results[0][counter],results[1][counter],results[2][counter]}));
+    	}
+    	else{
+    		tempres.insert(id, std::array<double,3>({{0., 0., 0.}}));
+    	}
     }
     cellmap.clear();
+
+#if MIMMO_ENABLE_MPI
+    // Creating ghost communications for exchanging solved values
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<3>>(new MimmoDataBufferStreamer<3>(&tempres));
+        m_ghostTag = createGhostCommunicator(true);
+        m_ghostCommunicator->addData(m_ghostStreamer.get());
+    }
+
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        // Send data
+        m_ghostCommunicator->startAllExchanges();
+        // Receive data
+        m_ghostCommunicator->completeAllExchanges();
+    }
+
+#endif
+
     // interpolate result to POINT location.
     m_field = tempres.cellDataToPointData();
+
     //force boundary Dirichlet on POINTS on m_field;
     for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
         m_field.at(it.getId()) = *it;
@@ -691,66 +735,6 @@ PropagateVectorField::execute(){
     //clear the solver;
     m_solver->clear();
 
-
-//     livector2D stencils;
-//     dvector2D weights;
-//     dvector1D rhs;
-//     liimap dataInv = getGeometry()->getMapDataInv();
-//
-//     if (m_laplace){
-//         bitpit::PiercedVector<bitpit::Vertex> vertices0;
-//         if (m_nstep > 1){
-//             subdivideBC();
-//             vertices0      = getGeometry()->getVertices();
-//         }
-//
-//
-//         for(int istep=0; istep<m_nstep; istep++){
-//             //TODO need to provide an updater for stencils weights and dumping function to speed up the multi-step stage.
-//             computeDumpingFunction();
-//             computeStencils(dataInv, stencils, weights);
-//             correctStencils(dataInv, stencils, weights);
-//             computeRHS(m_bc_dir, dataInv, rhs);
-//
-//             solveLaplace(stencils, weights, rhs, dataInv, m_field);
-//
-//             if (m_nstep > 1){
-//                 apply();
-//                 if(m_dumpingActive){
-//                     //update vertices of candidate dumping surface
-//                     MimmoObject * dumptarget = m_dsurface;
-//                     if(dumptarget == NULL) dumptarget = m_bsurface;
-//                     for(const auto & vert: dumptarget->getVertices()){
-//                         dumptarget->modifyVertex(getGeometry()->getVertexCoords(vert.getId()), vert.getId());
-//                     }
-//                 }
-//                 (*m_log)<<"                        "<<m_name<<" performing substep :"<<std::to_string(istep+1)<<std::endl;
-//
-//             }
-//         }//end loop step
-//
-//         if (m_nstep > 1){
-//             restoreGeometry(vertices0);
-//             if(m_dumpingActive){
-//                 //update vertices of candidate dumping surface
-//                 MimmoObject * dumptarget = m_dsurface;
-//                 if(dumptarget == NULL) dumptarget = m_bsurface;
-//                 for(const auto & vert: dumptarget->getVertices()){
-//                     dumptarget->modifyVertex(getGeometry()->getVertexCoords(vert.getId()), vert.getId());
-//                 }
-//             }
-//         }
-//
-//         restoreBC();
-//
-//     }else{
-//         computeDumpingFunction();
-//         computeStencils(dataInv, stencils, weights);
-//         correctStencils(dataInv, stencils, weights);
-//         computeRHS(m_bc_dir, dataInv, rhs);
-//
-//         solveSmoothing(m_sstep, stencils, weights, rhs, dataInv, m_field);
-//     }
 }
 
 } //end of mimmo namespace

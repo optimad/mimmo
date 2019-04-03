@@ -211,10 +211,14 @@ FVGenericSelection::isDual(){
 void
 FVGenericSelection::execute(){
     if(m_geometry == NULL || m_bndgeometry == NULL) {
-        throw std::runtime_error (m_name + " : NULL pointer to target bulk/boundary geometry found or both");
+//        throw std::runtime_error (m_name + " : NULL pointer to target bulk/boundary geometry found or both");
+        (*m_log)<<m_name + " : NULL pointer to target bulk/boundary geometry found or both"<<std::endl;
+        return;
     }
     if(m_geometry->isEmpty() || m_bndgeometry->isEmpty() ){
-        throw std::runtime_error (m_name + " : empty bulk/boundary geometry linked");
+//        throw std::runtime_error (m_name + " : empty bulk/boundary geometry linked");
+        (*m_log)<<m_name + " : empty bulk/boundary geometry linked"<<std::endl;
+        return;
     };
 
     if(!checkCoherenceBulkBoundary()){
@@ -239,7 +243,9 @@ FVGenericSelection::execute(){
     }
 
     if(extractedVol.empty()) {
-        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
+//        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
+        (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
+        return;
     }
 
     /*Create subpatches.*/
