@@ -291,9 +291,13 @@ PropagateScalarField::execute(){
         ++counter;
     }
     cellmap.clear();
+
     // interpolate result to POINT location.
     m_field = tempres.cellDataToPointData();
-
+    //force boundary Dirichlet on POINTS on m_field;
+    for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
+        m_field.at(it.getId()) = *it;
+    }
     //clear the solver;
     m_solver->clear();
 }
@@ -679,6 +683,10 @@ PropagateVectorField::execute(){
     cellmap.clear();
     // interpolate result to POINT location.
     m_field = tempres.cellDataToPointData();
+    //force boundary Dirichlet on POINTS on m_field;
+    for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
+        m_field.at(it.getId()) = *it;
+    }
 
     //clear the solver;
     m_solver->clear();
