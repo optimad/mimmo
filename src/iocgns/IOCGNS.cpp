@@ -603,10 +603,16 @@ IOCGNS::read(){
 
         case CGNS_ENUMV(TETRA_4):
         case CGNS_ENUMV(TETRA_10):
+        case CGNS_ENUMV(TETRA_16):
+        case CGNS_ENUMV(TETRA_20):
+        case CGNS_ENUMV(TETRA_22):
+        case CGNS_ENUMV(TETRA_34):
+        case CGNS_ENUMV(TETRA_35):
+
 
         btype = bitpit::ElementType::TETRA;
         lConn.resize(4);
-        for(int i=0; i<size; i+=4){
+        for(int i=0; i<size; i+=4){ //first 4 element are needed only
             for(int j=0; j<4; ++j){
                 lConn[j] = conns[idsection][i+j];
             }
@@ -617,7 +623,13 @@ IOCGNS::read(){
         break;
 
         case CGNS_ENUMV(PYRA_5):
+        case CGNS_ENUMV(PYRA_13):
         case CGNS_ENUMV(PYRA_14):
+        case CGNS_ENUMV(PYRA_21):
+        case CGNS_ENUMV(PYRA_29):
+        case CGNS_ENUMV(PYRA_30):
+        case CGNS_ENUMV(PYRA_50):
+        case CGNS_ENUMV(PYRA_55):
 
         btype = bitpit::ElementType::PYRAMID;
         lConn.resize(5);
@@ -634,6 +646,12 @@ IOCGNS::read(){
         case CGNS_ENUMV(PENTA_6):
         case CGNS_ENUMV(PENTA_15):
         case CGNS_ENUMV(PENTA_18):
+        case CGNS_ENUMV(PENTA_24):
+        case CGNS_ENUMV(PENTA_38):
+        case CGNS_ENUMV(PENTA_40):
+        case CGNS_ENUMV(PENTA_33):
+        case CGNS_ENUMV(PENTA_66):
+        case CGNS_ENUMV(PENTA_75):
 
         btype = bitpit::ElementType::WEDGE;
         lConn.resize(6);
@@ -642,14 +660,9 @@ IOCGNS::read(){
                 lConn[j] = conns[idsection][i+j];
             }
             //remap in bitpit conn. TODO complete ref element mapper for connectivity.
-            {
-                long temp = lConn[0];
-                lConn[0]= lConn[1];
-                lConn[1] = temp;
-                temp = lConn[3];
-                lConn[3] = lConn[4];
-                lConn[4] = temp;
-            }
+            std::swap(lConn[1], lConn[2]);
+            std::swap(lConn[4], lConn[5]);
+
             patchVol->addConnectedCell(lConn, btype, id );
             patchVol->setPIDCell(id,PID);
             id++;
@@ -660,6 +673,12 @@ IOCGNS::read(){
         case CGNS_ENUMV(HEXA_8):
         case CGNS_ENUMV(HEXA_20):
         case CGNS_ENUMV(HEXA_27):
+        case CGNS_ENUMV(HEXA_32):
+        case CGNS_ENUMV(HEXA_56):
+        case CGNS_ENUMV(HEXA_64):
+        case CGNS_ENUMV(HEXA_44):
+        case CGNS_ENUMV(HEXA_98):
+        case CGNS_ENUMV(HEXA_125):
 
         btype = bitpit::ElementType::HEXAHEDRON;
         lConn.resize(8);
@@ -675,6 +694,10 @@ IOCGNS::read(){
 
         case CGNS_ENUMV(TRI_3):
         case CGNS_ENUMV(TRI_6):
+        case CGNS_ENUMV(TRI_9):
+        case CGNS_ENUMV(TRI_10):
+        case CGNS_ENUMV(TRI_12):
+        case CGNS_ENUMV(TRI_15):
 
         btype = bitpit::ElementType::TRIANGLE;
         lConn.resize(3);
@@ -692,6 +715,9 @@ IOCGNS::read(){
         case CGNS_ENUMV(QUAD_4):
         case CGNS_ENUMV(QUAD_8):
         case CGNS_ENUMV(QUAD_9):
+        case CGNS_ENUMV(QUAD_12):
+        case CGNS_ENUMV(QUAD_16):
+        case CGNS_ENUMV(QUAD_25):
 
         btype = bitpit::ElementType::QUAD;
         lConn.resize(4);
@@ -933,7 +959,7 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
     livector1D lConn;
     bitpit::ElementType btype;
     long PID = 0;
-    long id = startId;
+    long &id = startId;
     ivector1D::iterator it=conn.begin(), itE=conn.end();
 
     while(it !=itE){
@@ -942,116 +968,144 @@ IOCGNS::unpack3DElementsMixedConns(MimmoObject * patchVol, MimmoObject* patchSur
         ++it;
 
         switch(et){
-        case CGNS_ENUMV(TETRA_4):
-        case CGNS_ENUMV(TETRA_10):
+            case CGNS_ENUMV(TETRA_4):
+            case CGNS_ENUMV(TETRA_10):
+            case CGNS_ENUMV(TETRA_16):
+            case CGNS_ENUMV(TETRA_20):
+            case CGNS_ENUMV(TETRA_22):
+            case CGNS_ENUMV(TETRA_34):
+            case CGNS_ENUMV(TETRA_35):
 
-        btype = bitpit::ElementType::TETRA;
-        lConn.resize(4);
-        for(int i=0; i<4; i++){
-            lConn[i] = *it;
-            ++it;
-        }
+                btype = bitpit::ElementType::TETRA;
+                lConn.resize(4);
+                for(int i=0; i<4; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
+                patchVol->addConnectedCell(lConn, btype, id );
+                patchVol->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
-        patchVol->addConnectedCell(lConn, btype, id );
-        patchVol->setPIDCell(id,PID);
-        id++;
-        break;
+            case CGNS_ENUMV(PYRA_5):
+            case CGNS_ENUMV(PYRA_13):
+            case CGNS_ENUMV(PYRA_14):
+            case CGNS_ENUMV(PYRA_21):
+            case CGNS_ENUMV(PYRA_29):
+            case CGNS_ENUMV(PYRA_30):
+            case CGNS_ENUMV(PYRA_50):
+            case CGNS_ENUMV(PYRA_55):
 
-        case CGNS_ENUMV(PYRA_5):
-        case CGNS_ENUMV(PYRA_14):
+                btype = bitpit::ElementType::PYRAMID;
+                lConn.resize(5);
+                for(int i=0; i<5; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
 
-        btype = bitpit::ElementType::PYRAMID;
-        lConn.resize(5);
-        for(int i=0; i<5; i++){
-            lConn[i] = *it;
-            ++it;
-        }
+                patchVol->addConnectedCell(lConn, btype, id );
+                patchVol->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
-        patchVol->addConnectedCell(lConn, btype, id );
-        patchVol->setPIDCell(id,PID);
-        id++;
-        break;
+            case CGNS_ENUMV(PENTA_6):
+            case CGNS_ENUMV(PENTA_15):
+            case CGNS_ENUMV(PENTA_18):
+            case CGNS_ENUMV(PENTA_24):
+            case CGNS_ENUMV(PENTA_38):
+            case CGNS_ENUMV(PENTA_40):
+            case CGNS_ENUMV(PENTA_33):
+            case CGNS_ENUMV(PENTA_66):
+            case CGNS_ENUMV(PENTA_75):
 
-        case CGNS_ENUMV(PENTA_6):
-        case CGNS_ENUMV(PENTA_15):
-        case CGNS_ENUMV(PENTA_18):
+                btype = bitpit::ElementType::WEDGE;
+                lConn.resize(6);
+                for(int i=0; i<6; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
+                //remap in bitpit conn. TODO complete ref element mapper for connectivity.
+                std::swap(lConn[1], lConn[2]);
+                std::swap(lConn[4], lConn[5]);
 
-        btype = bitpit::ElementType::WEDGE;
-        lConn.resize(6);
-        for(int i=0; i<6; i++){
-            lConn[i] = *it;
-            ++it;
-        }
-        //remap in bitpit conn. TODO complete ref element mapper for connectivity.
-        {
-            long temp = lConn[0];
-            lConn[0]= lConn[1];
-            lConn[1] = temp;
-            temp = lConn[3];
-            lConn[3] = lConn[4];
-            lConn[4] = temp;
-        }
-        patchVol->addConnectedCell(lConn, btype, id );
-        patchVol->setPIDCell(id,PID);
-        id++;
-        break;
+                patchVol->addConnectedCell(lConn, btype, id );
+                patchVol->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
-        case CGNS_ENUMV(HEXA_8):
-        case CGNS_ENUMV(HEXA_20):
-        case CGNS_ENUMV(HEXA_27):
+            case CGNS_ENUMV(HEXA_8):
+            case CGNS_ENUMV(HEXA_20):
+            case CGNS_ENUMV(HEXA_27):
+            case CGNS_ENUMV(HEXA_32):
+            case CGNS_ENUMV(HEXA_56):
+            case CGNS_ENUMV(HEXA_64):
+            case CGNS_ENUMV(HEXA_44):
+            case CGNS_ENUMV(HEXA_98):
+            case CGNS_ENUMV(HEXA_125):
 
-        btype = bitpit::ElementType::HEXAHEDRON;
-        lConn.resize(8);
-        for(int i=0; i<8; i++){
-            lConn[i] = *it;
-            ++it;
-        }
+                btype = bitpit::ElementType::HEXAHEDRON;
+                lConn.resize(8);
+                for(int i=0; i<8; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
 
-        patchVol->addConnectedCell(lConn, btype, id );
-        patchVol->setPIDCell(id,PID);
-        id++;
-        break;
+                patchVol->addConnectedCell(lConn, btype, id );
+                patchVol->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
-        case CGNS_ENUMV(NODE):
-            ++it;
-        break;
+            case CGNS_ENUMV(NODE):
+            case CGNS_ENUMV(BAR_2):
+            case CGNS_ENUMV(BAR_3):
+            case CGNS_ENUMV(BAR_4):
+            case CGNS_ENUMV(BAR_5):
+                it = itE; //skip all
+            break;
 
-        case CGNS_ENUMV(BAR_2):
-        case CGNS_ENUMV(BAR_3):
+            case CGNS_ENUMV(TRI_3):
+            case CGNS_ENUMV(TRI_6):
+            case CGNS_ENUMV(TRI_9):
+            case CGNS_ENUMV(TRI_10):
+            case CGNS_ENUMV(TRI_12):
+            case CGNS_ENUMV(TRI_15):
 
-        for(int j=0; j<2; ++j)    ++it;
-        break;
+                btype = bitpit::ElementType::TRIANGLE;
+                lConn.resize(3);
+                for(int i=0; i<3; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
 
-        case CGNS_ENUMV(TRI_3):
-        case CGNS_ENUMV(TRI_6):
+                patchSurf->addConnectedCell(lConn, btype, id );
+                patchSurf->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
-        btype = bitpit::ElementType::TRIANGLE;
-        lConn.resize(3);
-        for(int i=0; i<3; i++){
-            lConn[i] = *it;
-            ++it;
-        }
+            case CGNS_ENUMV(QUAD_4):
+            case CGNS_ENUMV(QUAD_8):
+            case CGNS_ENUMV(QUAD_9):
+            case CGNS_ENUMV(QUAD_12):
+            case CGNS_ENUMV(QUAD_16):
+            case CGNS_ENUMV(QUAD_25):
 
-        patchSurf->addConnectedCell(lConn, btype, id );
-        patchSurf->setPIDCell(id,PID);
-        id++;
-        break;
+                btype = bitpit::ElementType::QUAD;
+                lConn.resize(4);
+                for(int i=0; i<4; i++){
+                    lConn[i] = *it;
+                    ++it;
+                }
 
-        case CGNS_ENUMV(QUAD_4):
-        case CGNS_ENUMV(QUAD_8):
-        case CGNS_ENUMV(QUAD_9):
-
-        btype = bitpit::ElementType::QUAD;
-        lConn.resize(4);
-        for(int i=0; i<4; i++){
-            lConn[i] = *it;
-            ++it;
-        }
-
-        patchSurf->addConnectedCell(lConn, btype, id );
-        patchSurf->setPIDCell(id,PID);
-        id++;
-        break;
+                patchSurf->addConnectedCell(lConn, btype, id );
+                patchSurf->setPIDCell(id,PID);
+                id++;
+                it = itE;
+            break;
 
         default:
             (*m_log)<< "error: "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
