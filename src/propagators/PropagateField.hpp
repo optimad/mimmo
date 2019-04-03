@@ -283,9 +283,6 @@ protected:
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
- * - <B>SlipNormalRatio</B> : value > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between
- *                            the maximum component of the normal and the candidate component a is greater then this value,
- *                            the candidate component will be set to 0, and the normal will be recalculated.
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -297,8 +294,6 @@ protected:
 
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
     int           m_nstep;               /**! multistep solver */
-    bitpit::PiercedVector<darray3E> m_vNormals; /**< temporary object to store vertex normals for slip condition */
-    double m_slipratio;                         /**< ratio to correct normals of slip-surfaces*/
 
 public:
 
@@ -314,7 +309,6 @@ public:
     dmpvecarr3E getPropagatedField();
 
     void    setSlipBoundarySurface(MimmoObject *);
-    void    setSlipNormalRatio(double thres);
 
     void    setDirichletConditions(dmpvecarr3E bc);
 

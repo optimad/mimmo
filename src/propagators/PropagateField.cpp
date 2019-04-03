@@ -190,6 +190,9 @@ bool PropagateScalarField::checkBoundariesCoherence(){
     //interpolate now point data to interface data
     m_bc_dir.clear();
     m_bc_dir = temp.pointDataToBoundaryInterfaceData();
+    if(m_bc_dir.isEmpty()){
+        return false;
+    }
 
     //update the m_isbp marking dirichlet interfaces
     for(auto it=m_bc_dir.begin(); it != m_bc_dir.end(); ++it){
@@ -291,8 +294,8 @@ PropagateScalarField::execute(){
     // interpolate result to POINT location.
     m_field = tempres.cellDataToPointData();
 
-    //destroy the solver;
-    m_solver = nullptr;
+    //clear the solver;
+    m_solver->clear();
 }
 
 
@@ -309,8 +312,6 @@ PropagateVectorField::PropagateVectorField():PropagateField<3>(){
     m_name = "mimmo.PropagateVectorField";
     m_nstep = 1;
     m_slipsurface = NULL;
-    m_slipratio   = 100;
-
 };
 
 /*!
@@ -320,7 +321,6 @@ void PropagateVectorField::setDefaults(){
     PropagateField<3>::setDefaults();
     m_nstep = 1;
     m_slipsurface = NULL;
-    m_slipratio   = 100;
 }
 
 /*!
@@ -332,7 +332,6 @@ PropagateVectorField::PropagateVectorField(const bitpit::Config::Section & rootX
     m_name = "mimmo.PropagateVectorField";
     m_nstep = 1;
     m_slipsurface = NULL;
-    m_slipratio   = 100;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -357,7 +356,6 @@ PropagateVectorField::~PropagateVectorField(){
 PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):PropagateField<3>(other){
     m_slipsurface = other.m_slipsurface;
     m_nstep = other.m_nstep;
-    m_slipratio = other.m_slipratio;
 };
 
 /*!
@@ -375,7 +373,6 @@ PropagateVectorField & PropagateVectorField::operator=(PropagateVectorField othe
 void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
     std::swap(m_slipsurface, x.m_slipsurface);
     std::swap(m_nstep, x.m_nstep);
-    std::swap(m_slipratio, x.m_slipratio);
     PropagateField<3>::swap(x);
 }
 
@@ -414,19 +411,10 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
     if (surface->isEmpty())    return;
     if (surface->getType()!= 1 ) return;
 
-    m_slipsurface = surface;
+    //TODO turn on when it's ready
+    //m_slipsurface = surface;
+    m_slipsurface = nullptr;
 
-}
-
-/*!
- * Sets a threshold > 1, meant to adjust defects in vertex-normals of candidate slipsurface. if the rate between
- * the maximum component of the normal and the candidate component a is greater then this value,
- * the candidate component will be set to 0, and the normal will be recalculated.
- * \param[in] thres threshold.
- */
-void
-PropagateVectorField::setSlipNormalRatio(double thres){
-    m_slipratio = std::fmax(1.0, thres);
 }
 
 /*!
@@ -463,17 +451,6 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
         setSolverMultiStep(value2);
     }
 
-    if(slotXML.hasOption("SlipNormalRatio")){
-        std::string input = slotXML.get("SlipNormalRatio");
-        input = bitpit::utils::string::trim(input);
-        double value = 100.0;
-        if(!input.empty()){
-            std::stringstream ss(input);
-            ss >> value;
-        }
-        setSlipNormalRatio(value);
-    }
-
 };
 
 /*!
@@ -486,7 +463,6 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
     BITPIT_UNUSED(name);
     PropagateField<3>::flushSectionXML(slotXML, name);
     slotXML.set("MultiStep", std::to_string(int(m_nstep)));
-    slotXML.set("SlipNormalRatio", std::to_string(m_slipratio));
 };
 
 
@@ -508,79 +484,45 @@ PropagateVectorField::clear(){
  */
 bool PropagateVectorField::checkBoundariesCoherence(){
 
-    // //initialize m_isbp
-    // bitpit::PiercedVector<bitpit::Vertex> & pVtarget = m_geometry->getVertices();
-    //
-    // //1st step: verify boundary IDs of Dirichlet boundary patch and target are coherent
-    // // and fill m_isbp with flag true and mark 1 for Dirichlet condition.
-    // long id;
-    // for(const auto & vert: m_bsurface->getVertices()){
-    //     id= vert.getId();
-    //     if(!pVtarget.exists(id)) {
-    //         m_isbp.clear();
-    //         return false;
-    //     }
-    //     m_isbp.insert(id, 1);
-    // }
-    //
-    // //2nd step verify coherence of the Dirichlet field with boundary surface
-    // if(m_bc_dir.getGeometry() != m_bsurface || !m_bc_dir.completeMissingData({{0.0, 0.0,0.0}})){
-    //     m_isbp.clear();
-    //     return false;
-    // }
-    //
-    // // verify if optional Neumann condition are set. If not, exit with true condition
-    // if(m_slipsurface == NULL)    return true; //ok
-    //
-    // //neumann surface is not null, double step check as m_bsurface
-    // //3rd step: verify boundary IDs of Neumann boundary patch and target are coherent
-    // // and fill m_isbp with flag true and mark 2 for Neumann condition.
-    // for(const auto & vert: m_slipsurface->getVertices()){
-    //     id= vert.getId();
-    //     if(!pVtarget.exists(id)) {
-    //         m_isbp.clear();
-    //         return false;
-    //     }
-    //     if( !(m_isbp.exists(id)) ){
-    //         m_isbp.insert(id, 2);
-    //     }
-    // }
-    //
-    //
-    // m_vNormals.clear();
-    // m_vNormals.reserve(m_slipsurface->getNVertex());
-    //
-    // bitpit::ConstProxyVector<long> verts;
-    // std::size_t size;
-    // long idN;
-    // //save the vertex Normals using the boundary surface m_slipsurface;
-    // //check m_slipratio stuff and correct accordingly the normals.
-    //
-    // bitpit::SurfaceKernel* skernel = static_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch());
-    //
-    // for(const auto & cell: m_slipsurface->getCells()){
-    //     verts= cell.getVertexIds();
-    //     size = verts.size();
-    //     for(std::size_t i=0; i<size; ++i){
-    //         idN = verts[i];
-    //         if(m_isbp[idN]==2 && !m_vNormals.exists(idN)){
-    //             m_vNormals.insert(idN, skernel->evalVertexNormal(cell.getId(), i));
-    //
-    //             int comp = 0;
-    //             if(std::abs(m_vNormals[idN][1]) > std::abs(m_vNormals[idN][comp])) comp = 1;
-    //             if(std::abs(m_vNormals[idN][2]) > std::abs(m_vNormals[idN][comp])) comp = 2;
-    //
-    //             if(m_slipratio * std::abs(m_vNormals[idN][(comp+1)%3]/m_vNormals[idN][comp]) < 1.0)   m_vNormals[idN][(comp+1)%3] = 0.0;
-    //             if(m_slipratio * std::abs(m_vNormals[idN][(comp+2)%3]/m_vNormals[idN][comp]) < 1.0)   m_vNormals[idN][(comp+2)%3] = 0.0;
-    //
-    //             m_vNormals[idN] /= norm2(m_vNormals[idN]);
-    //         }
-    //     }
-    // }
-    //
-    // //if it is survived, then it's all ok.
+    //Clean the old m_isbp and initialize it again (set all to Neumann).
+    initializeBoundaryInfo();
+
+
+    //2nd step verify coherence of the Dirichlet point field on boundary surface
+    // with the dirichlet boundary surface provided
+    if(m_surface_bc_dir.getGeometry() != m_bsurface || !m_surface_bc_dir.completeMissingData({{0.0, 0.0,0.0}})){
+        return false;
+    }
+
+    //transfer point field info of boundary dirichlet on the volume mesh interfaces.
+    MimmoPiercedVector<std::array<double,3>> temp;
+    temp.setGeometry(m_geometry);
+    temp.setDataLocation(MPVLocation::POINT);
+    temp.reserve(m_surface_bc_dir.size());
+    for(auto it=m_surface_bc_dir.begin(); it!=m_surface_bc_dir.end(); ++it){
+        temp.insert(it.getId(), *it );
+    }
+    //interpolate now point data to interface data
+    m_bc_dir.clear();
+    m_bc_dir = temp.pointDataToBoundaryInterfaceData();
+
+    //check the part of slip surface condition.
+    if(m_slipsurface){
+        std::vector<long> slipInterfaceList = getGeometry()->getInterfaceFromVertexList(m_slipsurface->getVertices().getIds(), true, true);
+
+        //update the m_isbp marking slip interfaces (2)
+        for(long id : slipInterfaceList){
+            m_isbp.at(id) = 2;
+        }
+    }
+    //update the m_isbp marking dirichlet interfaces
+    for(auto it=m_bc_dir.begin(); it != m_bc_dir.end(); ++it){
+        m_isbp.at(it.getId()) = 1;
+    }
+
     return true;
 }
+
 
 /*!
  * Plot optional results on vtu unstructured grid file
@@ -592,21 +534,11 @@ PropagateVectorField::plotOptionalResults(){
     if(getGeometry() == NULL || getGeometry()->isEmpty())    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-    dvecarr3E data(m_field.size());
-    int count = 0;
-    for (auto val : m_field){
-        data[count] = val;
-        count++;
-    }
+    dvecarr3E data = m_field.getDataAsVector();
     vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
 
-    dvector1D datad(m_dumping.size());
-    count = 0;
-    for (auto val : m_dumping){
-        datad[count] = val;
-        count++;
-    }
-    vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, datad);
+    dvector1D datad = m_dumping.getDataAsVector();
+    vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
     vtk.setCounter(getId());
     getGeometry()->getPatch()->write(m_name +"_field");
@@ -621,7 +553,7 @@ PropagateVectorField::plotOptionalResults(){
  */
 void
 PropagateVectorField::apply(){
-    if (getGeometry() == NULL) return;
+    if (!getGeometry()) return;
     if (getGeometry()->isEmpty() || m_field.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
@@ -701,6 +633,56 @@ PropagateVectorField::execute(){
         throw std::runtime_error("Error in PropagateVectorField execute. Boundary patches linked are uncoherent"
         "with target bulk geometry or bc-fields not coherent with boundary patches");
     }
+    //allocate the solver;
+    m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
+
+    //get this inverse map -> you will need it to compact the stencils.
+    liimap dataInv = getGeometry()->getMapCellInv();
+
+    //compute the dumping.
+    computeDumpingFunction();
+
+    //compute the gradient stencils @ interface with Neutral conditions.
+    FVolStencil::MPVGradientUPtr faceGradients  = computeGradientStencilsWithNeutralBC();
+
+    // compute the laplacian stencils ;
+    FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), &m_dumping);
+
+    // initialize the laplacian Matrix in solver and release the laplace stencils.
+    initializeLaplaceSolver(laplaceStencils.get(), dataInv);
+    laplaceStencils = nullptr;
+
+    // solve the field component by component
+    std::array<std::vector<double>, 3> results;
+    for(int comp = 0; comp<3; ++comp){
+        //prepare the right hand side and release the faceGradients;
+        dvector1D rhs(getGeometry()->getPatch()->getInternalCount(), 0.0);
+        appendToRHSFromBorderFluxes(comp, faceGradients.get(), dataInv, rhs);
+        //solve
+        results[comp].resize(rhs.size(), 0.0);
+        solveLaplace(rhs, results[comp]);
+    }
+    faceGradients = nullptr;
+    dataInv.clear();
+
+    // push result in a mpv linked to target mesh and on cell location.
+    MimmoPiercedVector<std::array<double,3> > tempres;
+    std::size_t locsize = results[0].size();
+    tempres.setGeometry(m_geometry);
+    tempres.setDataLocation(MPVLocation::CELL);
+    tempres.reserve(locsize);
+    livector1D cellmap = getGeometry()->getMapCell();
+    int counter = 0;
+    for(int counter = 0; counter<locsize; ++counter){
+        tempres.insert(cellmap[counter], std::array<double,3>({results[0][counter],results[1][counter],results[2][counter]}));
+    }
+    cellmap.clear();
+    // interpolate result to POINT location.
+    m_field = tempres.cellDataToPointData();
+
+    //clear the solver;
+    m_solver->clear();
+
 
 //     livector2D stencils;
 //     dvector2D weights;

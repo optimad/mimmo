@@ -137,6 +137,10 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 	if (geometry_->getType()!= 2 ) return;
 
 	m_geometry = geometry_;
+
+    if(!m_geometry->areAdjacenciesBuilt()){
+        m_geometry->buildAdjacencies();
+    }
     //check and build the interfaces if needed
     if(!m_geometry->areInterfacesBuilt()){
         m_geometry->buildInterfaces();
@@ -425,9 +429,10 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 		volmin = std::min(volmin,locvol);
 		volmax = std::max(volmax,locvol);
 	}
+
 	//evaluate the volume normalized function and store it in dumping.
 	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
+        m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
 	}
 
     //all done if you are here, you computed also the volume part and put together all the stuffs.
@@ -478,7 +483,7 @@ PropagateField<NCOMP>::computeGradientStencilsWithNeutralBC(FVolStencil::MPVGrad
 
                 gradients->at(id) = FVolStencil::computeDirichletBCFaceGradient(1.0, ownerID,
                                    ownerCentroid, interfaceCentroid, interfaceNormal,
-                                   std::abs(dotProduct(interfaceCentroid-ownerCentroid, interfaceNormal)),
+                                   dotProduct(interfaceCentroid-ownerCentroid, interfaceNormal),
                                    gradients->at(id) );
                 break;
             default: //neumann
@@ -596,6 +601,13 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
     for(auto it= borderlap->begin(); it!=borderlap->end(); ++it){
         auto index = maplocals.at(it.getId());
         rhs[index] += -1.0 * it->getConstant();
+    }
+
+    //Return to the old neutral value on border stencils.
+    std::vector<std::array<double,3>>::iterator itold = oldConstantStore.begin();
+    for(auto it = m_isbp.begin(); it != m_isbp.end(); ++it){
+        faceGradientStencils->at(it.getId()).getConstant() = *itold;
+        ++itold;
     }
 }
 
