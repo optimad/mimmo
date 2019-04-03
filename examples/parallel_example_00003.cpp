@@ -28,6 +28,10 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+#include <iostream>
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
+
 // =================================================================================== //
 
 std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
@@ -183,7 +187,15 @@ int test00003() {
     prop->setDirichletConditions(bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
+
+    auto t1 = Clock::now();
+    std::cout << "Start Propagator vector field " << std::endl;
     prop->exec();
+    auto t2 = Clock::now();
+    std::cout << "Propagator vector field execution time: "
+              << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+              << " seconds" << std::endl;
+
 
 //    auto values = prop->getPropagatedField();
 //    long targetNode = (10 +1)*(6+1)*3 + (6+1)*5 + 3;
