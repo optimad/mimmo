@@ -30,7 +30,7 @@ using namespace mimmo;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
+std::unique_ptr<MimmoObject> createTestVolumeMesh(bool tetra, std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -59,28 +59,90 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<long> &bcdir1_ver
     //create the volume mesh mimmo.
     std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
     mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
-    mesh->getPatch()->reserveCells(nr*nt*nh);
 
     //pump up the vertices
     for(const auto & vertex : verts){
         mesh->addVertex(vertex); //automatic id assigned to vertices.
     }
+    if(tetra){
+        //using Kuhn decomposition in tetrahedra
+        mesh->getPatch()->reserveCells(6*nr*nt*nh);
+        //create connectivities for tetra elements
+        std::vector<long> conn(4,0);
+        for(int k=0; k<nh; ++k){
+            for(int j=0; j<nt; ++j){
+                for(int i=0; i<nr; ++i){
+                    //FIRST 0-1-2-6 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
 
-    //create connectivities for hexa elements
-    std::vector<long> conn(8,0);
-    for(int k=0; k<nh; ++k){
-        for(int j=0; j<nt; ++j){
-            for(int i=0; i<nr; ++i){
-                conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-                conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-                conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-                conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-                conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-                conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
-                mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+                    //SECOND 1-5-6-0 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
+
+                    //THIRD 0-2-3-6 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
+
+                    //FIRST 4-6-5-0 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
+
+                    //SECOND 4-7-6-0 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
+
+                    //THIRD 0-3-7-6 from elemental hexa
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
+
+                }
+            }
+        }
+
+    }else{
+        mesh->getPatch()->reserveCells(nr*nt*nh);
+
+        //create connectivities for hexa elements
+        std::vector<long> conn(8,0);
+        for(int k=0; k<nh; ++k){
+            for(int j=0; j<nt; ++j){
+                for(int i=0; i<nr; ++i){
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                    conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                    conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                    conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                    conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+
+                    mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+                }
             }
         }
     }
@@ -106,8 +168,9 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<long> &bcdir1_ver
 
 int test1() {
 
+    bool tetra = false;
     std::vector<long> bc1list, bc2list;
-    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
+    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(tetra, bc1list, bc2list);
 
     livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
     livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
@@ -126,19 +189,32 @@ int test1() {
     for(auto & val : cellInterfaceList1){
         int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
         long * conn = mesh->getInterfaces().at(val).getConnect();
-        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                    bitpit::ElementType::QUAD, val);
+        if (tetra){
+            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                        bitpit::ElementType::TRIANGLE, val);
+        }else{
+            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                        bitpit::ElementType::QUAD, val);
+        }
     }
     for(auto & val : cellInterfaceList2){
         int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
         long * conn = mesh->getInterfaces().at(val).getConnect();
-        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                    bitpit::ElementType::QUAD, val);
+        if (tetra){
+            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                        bitpit::ElementType::TRIANGLE, val);
+        }else{
+            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                        bitpit::ElementType::QUAD, val);
+        }
     }
 
     bdirMesh->buildAdjacencies();
+    bool check = false;
+    long targetNode =  (10 +1)*(6+1)*3 + (6+1)*5 + 3;
 
-    // and the field of Dirichlet values on its nodes.
+//TESTING THE SCALAR PROPAGATOR //////
+    // and the scalar field of Dirichlet values on its nodes.
     MimmoPiercedVector<double> bc_surf_field;
     bc_surf_field.setGeometry(bdirMesh.get());
     bc_surf_field.setDataLocation(MPVLocation::POINT);
@@ -149,6 +225,7 @@ int test1() {
     for(auto & val : bc2list){
         bc_surf_field.insert(val, 0.0);
     }
+
 
     // Now create a PropagateScalarField and solve the laplacian.
     PropagateScalarField * prop = new PropagateScalarField();
@@ -161,10 +238,45 @@ int test1() {
     prop->exec();
 
     auto values = prop->getPropagatedField();
-    long targetNode = (10 +1)*(6+1)*3 + (6+1)*5 + 3;
-    bool check = std::abs(values.at(targetNode)-5.0) > 1.0E-6;
 
+    check = check || (std::abs(values.at(targetNode)-5.0) > 1.0E-6);
+
+
+//TESTING THE VECTOR PROPAGATOR //////
+    // and the scalar field of Dirichlet values on its nodes.
+    MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
+    bc_surf_3Dfield.setGeometry(bdirMesh.get());
+    bc_surf_3Dfield.setDataLocation(MPVLocation::POINT);
+    bc_surf_3Dfield.reserve(bdirMesh->getNVertex());
+    for(auto & val : bc1list){
+        bc_surf_3Dfield.insert(val, {{10.0, 7.0, -4.0}});
+    }
+    for(auto & val : bc2list){
+        bc_surf_3Dfield.insert(val, {{0.0,0.0,0.0}});
+    }
+
+    // Now create a PropagateScalarField and solve the laplacian.
+    PropagateVectorField * prop3D = new PropagateVectorField();
+    prop3D->setGeometry(mesh.get());
+    prop3D->setDirichletBoundarySurface(bdirMesh.get());
+    prop3D->setDirichletConditions(bc_surf_3Dfield);
+    prop3D->setDumping(true);
+    prop3D->setDumpingType(1);
+    prop3D->setDecayFactor(1);
+    prop3D->setDumpingInnerDistance(0.5);
+    prop3D->setDumpingOuterDistance(3.5);
+
+    prop3D->setPlotInExecution(true);
+
+    prop3D->exec();
+
+    auto values3D = prop3D->getPropagatedField();
+    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{5.0,3.5,-2.0}})) > 1.0E-6);
+
+
+    delete prop3D;
     delete prop;
+
     return check;
 }
 
