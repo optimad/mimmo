@@ -207,7 +207,7 @@ public:
     std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID(bool ghost = false);
     livector1D                               extractBoundaryInterfaceID(bool ghost= false);
     livector1D                               extractBoundaryVertexID(bool ghost = false);
-    livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map, bool ghost);
+    livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map, bool ghost = false);
 
     livector1D  extractPIDCells(long);
     livector1D  extractPIDCells(livector1D);
