@@ -31,6 +31,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # List of tests
 set(TESTS "")
 list(APPEND TESTS "test_propagators_00001")
+list(APPEND TESTS "test_propagators_00002")
 # if (ENABLE_MPI)
 # 	list(APPEND TESTS "test_iocgns_parallel_00001:3") ##:x number of procs
 # endif ()
@@ -46,4 +47,3 @@ unset(TESTS)
 #     TARGET "name test in the list" PRE_BUILD
 #     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
 #     )
-
