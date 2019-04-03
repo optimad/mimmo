@@ -219,10 +219,14 @@ GenericSelection::constrainedBoundary(){
 void
 GenericSelection::execute(){
     if(getGeometry() == NULL) {
-        throw std::runtime_error (m_name + " : NULL pointer to target geometry found");
+//        throw std::runtime_error (m_name + " : NULL pointer to target geometry found");
+        (*m_log)<<m_name + " : NULL pointer to target geometry found"<<std::endl;
+        return;
     }
     if(getGeometry()->isEmpty()){
-        throw std::runtime_error (m_name + " : empty geometry linked");
+//        throw std::runtime_error (m_name + " : empty geometry linked");
+        (*m_log)<<m_name + " : empty geometry linked"<<std::endl;
+        return;
     };
 
     m_subpatch.reset(nullptr);
@@ -230,7 +234,9 @@ GenericSelection::execute(){
     livector1D extracted = extractSelection();
 
     if(extracted.empty()) {
-        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
+//        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
+        (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
+        return;
     }
 
     /*Create subpatch.*/
@@ -280,8 +286,7 @@ GenericSelection::plotOptionalResults(){
     if(getPatch()->isEmpty()) return;
 
     std::string dir = m_outputPlot;
-    std::string name = m_name + "_Patch."+ std::to_string(getId());
-
+    std::string name = m_name + "_Patch_"+ std::to_string(getId());
 
     if (m_topo != 3){
 
@@ -291,7 +296,7 @@ GenericSelection::plotOptionalResults(){
     }else{
 
         liimap mapDataInv;
-        dvecarr3E points = getPatch()->getVertexCoords(&mapDataInv);
+        dvecarr3E points = getPatch()->getVerticesCoords(&mapDataInv);
         ivector2D connectivity;
         bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
 

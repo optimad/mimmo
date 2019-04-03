@@ -72,7 +72,7 @@ void test00001() {
 	}
 
 	{
-		std::vector<double> field(mimmo0->getGeometry()->getNVertex());
+		std::vector<double> field(mimmo0->getGeometry()->getNVertices());
 		int count = 0;
 		for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
 			field[count] = pointField[vertex.getId()];
@@ -106,7 +106,7 @@ void test00001() {
 	p = 5.;
 	MimmoPiercedVector<double> pointField2 = cellField.cellDataToPointData(p);
 	{
-		std::vector<double> field(mimmo0->getGeometry()->getNVertex());
+		std::vector<double> field(mimmo0->getGeometry()->getNVertices());
 		int count = 0;
 		for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
 			field[count] = pointField2[vertex.getId()];
@@ -116,7 +116,6 @@ void test00001() {
 		mimmo0->getGeometry()->getPatch()->write("core_example_00001.0002");
 		mimmo0->getGeometry()->getPatch()->getVTK().removeData("pointField");
 	}
-
 
 	/*
 	 * Interpolation of synthetic point field on boundary interfaces.

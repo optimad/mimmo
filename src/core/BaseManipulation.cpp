@@ -47,10 +47,27 @@ BaseManipulation::BaseManipulation(){
     m_priority      = 0;
     m_apply         = false;
     sm_baseManipulationCounter++;
+
+#if MIMMO_ENABLE_MPI
+    //Fixed MPI comm world
+	m_communicator = MPI_COMM_WORLD;
+
+	int initialized;
+	MPI_Initialized(&initialized);
+	if (!initialized)
+	   MPI_Init(NULL, NULL);
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &m_nprocs);
+
+#endif
+
     bool logexists  = bitpit::log::manager().exists(MIMMO_LOG_FILE);
-    m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
     if (m_counter == 1)
         initializeLogger(logexists);
+    else
+    	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+
 };
 
 /*!
@@ -83,6 +100,12 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 
     //logger is ready, since another BaseManipulation other, is instantiated.
     m_log           = &bitpit::log::cout(MIMMO_LOG_FILE);
+
+#if MIMMO_ENABLE_MPI
+	m_rank = other.m_rank;
+	m_nprocs = other.m_nprocs;
+	m_communicator = other.m_communicator;
+#endif
 };
 
 /*!
@@ -102,7 +125,11 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
     m_outputPlot    = other.m_outputPlot;
     m_priority      = other.m_priority;
     m_apply         = other.m_apply;
-
+#if MIMMO_ENABLE_MPI
+	m_communicator	= other.m_communicator;
+	m_rank			= other.m_rank;
+	m_nprocs		= other.m_nprocs;
+#endif
     return  *this;
 };
 
@@ -122,6 +149,12 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
     std::swap(m_execPlot, x.m_execPlot);
     std::swap(m_apply, x.m_apply);
     std::swap(m_outputPlot, x.m_outputPlot);
+#if MIMMO_ENABLE_MPI
+    std::swap(m_communicator, x.m_communicator);
+    std::swap(m_rank, x.m_rank);
+    std::swap(m_nprocs, x.m_nprocs);
+#endif
+
 }
 
 /*! Initialize the logger.
@@ -131,17 +164,33 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
  */
 void
 BaseManipulation::initializeLogger(bool logexist){
-    if (!logexist){
-        bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
-        bitpit::log::setFileVerbosity((*m_log), bitpit::log::DEBUG);
-    }
-    (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
-    (*m_log) << bitpit::log::context("mimmo");
-    (*m_log) << "--------------------------------------------------" << std::endl;
-    (*m_log) << "- mimmo - Surface manipulation and mesh morphing -" << std::endl;
-    (*m_log) << "--------------------------------------------------" << std::endl;
-    (*m_log) << "    " << std::endl;
-    (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
+	if (!logexist){
+		bitpit::log::manager().setMode(bitpit::log::Mode::SEPARATE);
+#if MIMMO_ENABLE_MPI
+		bitpit::log::manager().create(MIMMO_LOG_FILE, false, m_nprocs, m_rank);
+#else
+		bitpit::log::manager().create(MIMMO_LOG_FILE, false);
+#endif
+	}
+	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+	bitpit::log::setVisibility((*m_log), bitpit::log::Visibility::MASTER);
+	bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
+	bitpit::log::setFileVerbosity((*m_log), bitpit::log::NORMAL);
+	if (m_counter == 1){
+#if MIMMO_ENABLE_MPI
+		if (m_rank == 0){
+#endif
+		(*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
+		(*m_log) << bitpit::log::context("mimmo");
+		(*m_log) << "--------------------------------------------------" << std::endl;
+		(*m_log) << "- mimmo - Surface manipulation and mesh morphing -" << std::endl;
+		(*m_log) << "--------------------------------------------------" << std::endl;
+		(*m_log) << "    " << std::endl;
+		(*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
+#if MIMMO_ENABLE_MPI
+		}
+#endif
+	}
 }
 
 /*!Get the logger.

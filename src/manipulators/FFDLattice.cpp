@@ -557,11 +557,16 @@ void
 FFDLattice::execute(){
 
     MimmoObject * container = getGeometry();
-    if (container == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if(container == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (container->isEmpty()){
-        throw std::runtime_error (m_name + " : empty linked geometry");
+
+    if(container->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
     
     if(!isBuilt()){
@@ -578,7 +583,7 @@ FFDLattice::execute(){
     //reset displacement in a unique vector
     m_gdispl.clear();
     m_gdispl.setDataLocation(mimmo::MPVLocation::POINT);
-    m_gdispl.reserve(getGeometry()->getNVertex());
+    m_gdispl.reserve(getGeometry()->getNVertices());
     m_gdispl.setGeometry(getGeometry());
     
     long int ID;
@@ -704,7 +709,7 @@ FFDLattice::checkFilter(){
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
-        m_filter.reserve(getGeometry()->getNVertex());
+        m_filter.reserve(getGeometry()->getNVertices());
         for (const auto & vertex : getGeometry()->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
         }

@@ -25,6 +25,7 @@
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
 #include "mimmo_propagators.hpp"
+#include "mimmo_parallel.hpp"
 #include <exception>
 
 using namespace mimmo;
@@ -58,6 +59,11 @@ void example00001() {
     cgnsO->setRead(false);
     cgnsO->setWriteDir(".");
     cgnsO->setWriteFilename("iocgns_output_00001");
+
+    /* Instantiation of a Partition object with default patition method space filling curve.
+     * Plot Optional results during execution active for Partition block.
+     */
+    Partition* partition = new Partition();
 
     /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 1,2,3 (All boundaries in input file).
@@ -93,18 +99,89 @@ void example00001() {
     boxSel->setSpan(1500.,1600.,100.);
     boxSel->setPlotInExecution(true);
 
+    /* Creation of rotation block.
+     */
+    RotationGeometry* rotation = new RotationGeometry();
+    rotation->setDirection(darray3E{0.1,1.,0.});
+    rotation->setRotation((M_PI/12));
+
+    /* Create reconstruct vector block and set to reconstruct rotation 
+     * displacement field over the whole Dirichlet surface geometry 
+     */
+    ReconstructVector* recon = new ReconstructVector();
+    recon->setPlotInExecution(true);
+
+    /* Create propagate vector block and set to propagate over the whole
+     * input volume geometry the displacements field.
+     */
+    PropagateVectorField* prop = new PropagateVectorField();
+    prop->setPlotInExecution(true);
+    prop->setTolerance(1.0e-07);
+    prop->setDumping(true);
+    prop->setDumpingInnerDistance(1000);
+    prop->setDumpingOuterDistance(3000);
+
+    /* Create propagate vector block and set to propagate over the whole
+     * input volume geometry the displacements field.
+     */
+    ExtractVectorField* extrF = new ExtractVectorField();
+    extrF->setMode(1);
+    extrF->setPlotInExecution(true);
+
+    /* Create applier block.
+     * It applies the deformation displacements
+     * to the selected input volume geometry.
+     */
+    Apply* applier = new Apply();
+
+    /* Create applier block.
+     * It applies the deformation displacements
+     * to the selected input surface geometry.
+     */
+    Apply* applierS = new Apply();
 
     /* Create PINs. */
-    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
-    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
+//    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
+//    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
+//    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
+
+    addPin(cgnsI, partition, M_GEOM, M_GEOM);
+    addPin(cgnsI, partition, M_GEOM2, M_GEOM2);
+    addPin(partition, cgnsExtr, M_GEOM2, M_GEOM);
+    addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM);
+    addPin(partition, cgnsSlip, M_GEOM2, M_GEOM);
 
     addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM);
 
+    addPin(boxSel, rotation, M_GEOM, M_GEOM);
+    addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
+    addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM);
+    
+//    addPin(cgnsI, prop, M_GEOM, M_GEOM);
+    addPin(partition, prop, M_GEOM, M_GEOM);
+    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2);
+    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4);
+    addPin(boxSel, prop, M_GEOM, M_GEOM3);
+
+    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
+    
+    addPin(prop, applier, M_GDISPLS, M_GDISPLS);
+//    addPin(cgnsI, applier, M_GEOM, M_GEOM);
+    addPin(partition, applier, M_GEOM, M_GEOM);
+
+    addPin(cgnsExtr, extrF, M_GEOM, M_GEOM);
+    addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD);
+    addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS);
+    addPin(cgnsExtr, applierS, M_GEOM, M_GEOM);
+
+    addPin(applier, cgnsO, M_GEOM, M_GEOM);
+    addPin(applierS, cgnsO, M_GEOM, M_GEOM2);
+    addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS);
 
     /* Create and execute chain. */
     Chain ch0;
     ch0.addObject(cgnsI);
+    ch0.addObject(partition);
     ch0.addObject(cgnsExtr);
     ch0.addObject(cgnsDirichlet);
     ch0.addObject(cgnsSlip);
@@ -118,6 +195,8 @@ void example00001() {
 
     /* Destroy objects. */
     delete cgnsI;
+//    delete partitionS;
+//    delete partitionV;
     delete cgnsExtr;
     delete cgnsDirichlet;
     delete cgnsSlip;

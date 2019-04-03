@@ -135,11 +135,16 @@ void ProjectCloud::clear(){
 void
 ProjectCloud::execute(){
 
-    if (getGeometry() == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if(getGeometry() == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (getGeometry()->isEmpty()){
-        throw std::runtime_error (m_name + " : empty linked geometry");
+
+    if(getGeometry()->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
 
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();

@@ -286,7 +286,8 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
 void
 OBBox::execute(){
     if(m_listgeo.empty()){
-        throw std::runtime_error(m_name + " : found empty list of geometries");
+//        throw std::runtime_error(m_name + " : found empty list of geometries");
+        return;
     };
 
     darray3E pmin, pmax;
@@ -487,7 +488,7 @@ OBBox::assemblyCovContributes(std::vector<MimmoObject*> list, bool flag, dmatrix
     if(flag){
         for(auto geo: list){
             for(auto & val:loc)    val.fill(0.0);
-            size = geo->getNVertex();
+            size = geo->getNVertices();
 
             //evaluate local contributes to covariance
             for(auto & vert: geo->getVertices()){
@@ -569,7 +570,7 @@ OBBox::evaluateMassCenter(std::vector<MimmoObject *> list, bool flag){
 
     if(flag){
         for(auto geo : list){
-            size = geo->getNVertex();
+            size = geo->getNVertices();
             eta.fill(0.0);
             //evaluate eta;
             for(auto & vert: geo->getVertices()){

@@ -319,6 +319,9 @@ endif ()
 set(MIMMO_MODULE_LIST "")
 list(APPEND MIMMO_MODULE_LIST "common")
 list(APPEND MIMMO_MODULE_LIST "core")
+if(ENABLE_MPI)
+    list(APPEND MIMMO_MODULE_LIST "parallel")
+endif()
 list(APPEND MIMMO_MODULE_LIST "iogeneric")
 list(APPEND MIMMO_MODULE_LIST "iocgns")
 list(APPEND MIMMO_MODULE_LIST "iovtk")
@@ -331,9 +334,13 @@ list(APPEND MIMMO_MODULE_LIST "propagators")
 set(MIMMO_MODULEENABLED_LIST "")
 list(APPEND MIMMO_MODULEENABLED_LIST "common")
 list(APPEND MIMMO_MODULEENABLED_LIST "core")
+if(ENABLE_MPI)
+    list(APPEND MIMMO_MODULEENABLED_LIST "parallel")
+endif()
 list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
 list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
 list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
+list(APPEND MIMMO_MODULEENABLED_LIST "utils")
 
 set(MIMMO_MODULEDISABLED_LIST "")
 list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
@@ -354,6 +361,11 @@ set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
 set(PROPAGATORS_DEPS "common;core")
+set(PARALLEL_DEPS "common;core")
+if(ENABLE_MPI)
+set(PROPAGATORS_DEPS "common;core;parallel")
+endif()
+
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
 #------------------------------------------------------------------------------------#
@@ -455,6 +467,7 @@ endif()
 isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
 isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
 isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
+isModuleEnabled("parallel" MODULE_ENABLED_PARALLEL)
 
 if (MODULE_ENABLED_IOVTK)
     # ---- VTK forced ---
@@ -587,6 +600,28 @@ else()
     unset(CGNS_DIR CACHE)
     unset(HDF5_DIR CACHE)
     unset(HDF5_BUILD_TYPE CACHE)
+endif ()
+
+# parallel module dependencies
+if (MODULE_ENABLED_PARALLEL)
+    # ---- parmetis search ---
+#    set(PARMETIS_DIR "/opt/parmetis/parmetis-4.0.3" CACHE PATH "path to parMETIS installation")
+    set(PARMETIS_INCLUDE_DIRS "/opt/parmetis/parmetis-4.0.3/include" CACHE PATH "path to parMETIS include directory")
+    set(PARMETIS_LIBRARIES "/opt/parmetis/parmetis-4.0.3/lib/libparmetis.a" CACHE FILEPATH "path to parMETIS library")
+    set(METIS_INCLUDE_DIRS "/opt/parmetis/parmetis-4.0.3/metis/include" CACHE PATH "path to METIS include directory")
+    set(METIS_LIBRARIES "/opt/parmetis/parmetis-4.0.3/metis/lib/libmetis.a" CACHE FILEPATH "path to METIS library")
+    ##BEtter to be refind after
+#    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "PARMETIS")
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${PARMETIS_LIBRARIES}")
+    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE_DIRS}")
+    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${METIS_LIBRARIES}")
+    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${METIS_INCLUDE_DIRS}")
+    ##include dirs are managed by parmetis-use-file
+    #      ----
+else()
+    UNSET(PARMETIS_DIR CACHE)
+    UNSET(PARMETIS_LIBRARIES CACHE)
+    UNSET(PARMETIS_INCLUDE_DIRS CACHE)
 endif ()
 
 

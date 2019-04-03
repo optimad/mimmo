@@ -146,11 +146,16 @@ TranslationGeometry::getDisplacements(){
 void
 TranslationGeometry::execute(){
 
-    if (getGeometry() == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if(getGeometry() == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (getGeometry()->isEmpty()){
-        throw std::runtime_error (m_name + " : empty linked geometry");
+
+    if(getGeometry()->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
 
     checkFilter();
@@ -158,7 +163,7 @@ TranslationGeometry::execute(){
     m_displ.clear();
     m_displ.clear();
     m_displ.setDataLocation(mimmo::MPVLocation::POINT);
-    m_displ.reserve(getGeometry()->getNVertex());
+    m_displ.reserve(getGeometry()->getNVertices());
     m_displ.setGeometry(getGeometry());
     
     long ID;
@@ -207,7 +212,7 @@ TranslationGeometry::checkFilter(){
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
-        m_filter.reserve(getGeometry()->getNVertex());
+        m_filter.reserve(getGeometry()->getNVertices());
         for (const auto & vertex : getGeometry()->getVertices()){
             m_filter.insert(vertex.getId(), 1.0);
         }

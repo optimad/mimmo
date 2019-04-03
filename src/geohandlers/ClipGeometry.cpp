@@ -191,10 +191,14 @@ void
 ClipGeometry::execute(){
 
     if(getGeometry() == NULL){
-        throw std::runtime_error (m_name + " : nullptr geometry linked.");
+//        throw std::runtime_error (m_name + " : nullptr geometry linked.");
+        (*m_log)<<m_name + " : nullptr geometry linked."<<std::endl;
+        return;
     };
     if(getGeometry()->isEmpty()){
-        throw std::runtime_error (m_name + " : empty geometry linked.");
+//        throw std::runtime_error (m_name + " : empty geometry linked.");
+        (*m_log)<<m_name + " : empty geometry linked."<<std::endl;
+        return;
     };
 
     /* If an implicit definition is not present it has to be computed
@@ -206,7 +210,8 @@ ClipGeometry::execute(){
 
     livector1D extracted = clipPlane();
     if(extracted.empty()){
-        throw std::runtime_error (m_name + " : clipping failed, cannot extract anything in the half 3D-space");
+//        throw std::runtime_error (m_name + " : clipping failed, cannot extract anything in the half 3D-space");
+    	return;
     }
 
     /* Create subpatch.*/
@@ -320,7 +325,7 @@ ClipGeometry::plotOptionalResults(){
     std::string dir = m_outputPlot;
     std::string name = m_name + "_Patch."+ std::to_string(getId());
 
-    std::cout<<getClippedPatch()->getNVertex()<<std::endl;
+    std::cout<<getClippedPatch()->getNVertices()<<std::endl;
     std::cout<<getClippedPatch()->getNCells()<<std::endl;
 
     if (getClippedPatch()->getType() != 3){
@@ -329,7 +334,7 @@ ClipGeometry::plotOptionalResults(){
     }
     else{
         liimap mapDataInv;
-        dvecarr3E points = getClippedPatch()->getVertexCoords(&mapDataInv);
+        dvecarr3E points = getClippedPatch()->getVerticesCoords(&mapDataInv);
         ivector2D connectivity;
         bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
 

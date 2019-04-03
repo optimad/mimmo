@@ -93,9 +93,17 @@ if(BUILD_EXAMPLES)
     endif ()
 
     #Add examples of enabled modules
-    isModuleEnabled("ioofoam" MODULE_ENABLED3)
-    if (MODULE_ENABLED3)
+    isModuleEnabled("ioofoam" MODULE_ENABLED5)
+    if (MODULE_ENABLED5)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
+    endif ()
+
+    #Add examples of enabled modules
+    isModuleEnabled("parallel" MODULE_ENABLED6)
+    if (MODULE_ENABLED6)
+        list(APPEND EXAMPLE_LIST "parallel_example_00001")
+        list(APPEND EXAMPLE_LIST "parallel_example_00002")
+        list(APPEND EXAMPLE_LIST "parallel_example_00003")
     endif ()
 
 	#Rules to build the examples
@@ -192,6 +200,13 @@ if(BUILD_EXAMPLES)
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/OFOAM" "${CMAKE_CURRENT_BINARY_DIR}/geodata/OFOAM"
         )
     endif()
+    if (MODULE_ENABLED6)
+        add_custom_command(
+            TARGET "parallel_example_00001" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/StaticMixer.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StaticMixer.cgns"
+        )
+    endif()
+
 
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../input" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../geodata" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)

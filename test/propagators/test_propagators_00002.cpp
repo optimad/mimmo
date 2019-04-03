@@ -277,7 +277,7 @@ int test1() {
     MimmoPiercedVector<double> bc_surf_field;
     bc_surf_field.setGeometry(boundary.get());
     bc_surf_field.setDataLocation(MPVLocation::POINT);
-    bc_surf_field.reserve(boundary->getNVertex());
+    bc_surf_field.reserve(boundary->getNVertices());
     for(long val : boundary->getVertices().getIds()){
         bc_surf_field.insert(val, 0.0);
     }

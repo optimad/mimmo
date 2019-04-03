@@ -32,6 +32,9 @@
 #include "volume_skd_tree.hpp"
 #include "mimmoTypeDef.hpp"
 #include "MimmoNamespace.hpp"
+#if MIMMO_ENABLE_MPI==1
+#	include <mpi.h>
+#endif
 
 namespace mimmo{
 
@@ -129,6 +132,16 @@ protected:
     bool                                                    m_IntBuilt;     /**< track correct building of interfaces  along with geometry modifications */
     bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
+#if MIMMO_ENABLE_MPI
+    int							m_nprocs;				/**<Total number of processors.*/
+    int							m_rank;					/**<Current rank number.*/
+	MPI_Comm 					m_communicator; 		/**<MPI communicator.*/
+	long						m_nglobalvertices = 0;	/**<Global number of vertices.*/
+#endif
+
+ 	bitpit::PatchNumberingInfo	m_patchInfo;			/**<Patch Numbering Info structure.*/
+    bool                        m_infoSync;				/**<Track correct building of patch info along with geometry modifications */
+
 public:
     MimmoObject(int type = 1);
     MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
@@ -144,9 +157,13 @@ public:
     BITPIT_DEPRECATED(bool                          isBvTreeSupported());
     bool                                            isSkdTreeSupported();
     int                                             getType();
-    long                                            getNVertex()const;
+    long                                            getNVertices()const;
     long                                            getNCells()const;
-    dvecarr3E                                       getVertexCoords(liimap* mapDataInv = NULL);
+#if MIMMO_ENABLE_MPI
+    long                                            getNGlobalVertices();
+    long                                            getNGlobalCells();
+#endif
+    dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = NULL);
     darray3E                                        getVertexCoords(long i);
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
@@ -171,11 +188,13 @@ public:
     BITPIT_DEPRECATED(bitpit::PatchSkdTree*         getBvTree());
     bitpit::PatchSkdTree*                           getSkdTree();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
+    bitpit::PatchNumberingInfo*                     getPatchInfo();
     BITPIT_DEPRECATED(bool                          isBvTreeBuilt());
     BITPIT_DEPRECATED(bool                          isKdTreeBuilt());
     BITPIT_DEPRECATED(bool                          isBvTreeSync());
     bool                          isSkdTreeSync();
     bool                          isKdTreeSync();
+    bool                          isInfoSync();
 
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
@@ -207,21 +226,22 @@ public:
     std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID(bool ghost = false);
     livector1D                               extractBoundaryInterfaceID(bool ghost= false);
     livector1D                               extractBoundaryVertexID(bool ghost = false);
-    livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map, bool ghost = false);
+    livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
 
     livector1D  extractPIDCells(long);
     livector1D  extractPIDCells(livector1D);
 
     livector1D  getMapData();
     liimap      getMapDataInv();
-    livector1D  getMapCell();
+    liimap	    getMapCell();
     liimap      getMapCellInv();
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     BITPIT_DEPRECATED(void        buildBvTree(int value = 1));
     void        buildSkdTree(int value = 1);
     void        buildKdTree();
-    void        buildAdjacencies();
+    void		buildPatchInfo();
+	void        buildAdjacencies();
     void        buildInterfaces();
 
     bool        areAdjacenciesBuilt();
@@ -258,6 +278,10 @@ protected:
     void    reset(int type);
 
     std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
+
+#if MIMMO_ENABLE_MPI
+    void	initializeParallel();
+#endif
 
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);

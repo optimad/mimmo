@@ -661,7 +661,7 @@ MimmoGeometry::write(){
         //Export Nastran file
     {
         liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVertexCoords(&mapDataInv);
+        dvecarr3E    points = getGeometry()->getVerticesCoords(&mapDataInv);
         livector1D   pointsID = getGeometry()->getVertices().getIds(false);
         livector2D   connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
         livector1D   elementsID = getGeometry()->getCells().getIds(false);
@@ -681,7 +681,7 @@ MimmoGeometry::write(){
     case FileType::OFP : //Export ascii OpenFOAM point cloud
     {
 
-        dvecarr3E points = getGeometry()->getVertexCoords();
+        dvecarr3E points = getGeometry()->getVerticesCoords();
         writeOFP(m_winfo.fdir, m_winfo.fname, points);
         return true;
     }
@@ -690,7 +690,7 @@ MimmoGeometry::write(){
     case FileType::PCVTU :
         //Export Point Cloud VTU
     {
-        dvecarr3E    points = getGeometry()->getVertexCoords();
+        dvecarr3E    points = getGeometry()->getVerticesCoords();
         ivector2D    connectivity(points.size(), ivector1D(1,0));
         int counter = 0;
         for(auto & c:connectivity){
@@ -738,6 +738,10 @@ bool
 MimmoGeometry::read(){
 
     if(!m_isInternal) return false;
+
+//#if MIMMO_ENABLE_MPI
+//    if (m_rank == 0) {
+//#endif
 
     switch(FileType::_from_integral(m_rinfo.ftype)){
 
@@ -952,6 +956,10 @@ MimmoGeometry::read(){
     auto pids = getGeometry()->getPIDTypeList();
     for( auto & val: pids) getGeometry()->setPIDName(val, pidsMap[val - m_refPID]);
 
+//#if MIMMO_ENABLE_MPI
+//    }
+//#endif
+
     //action completed, reset m_refPID to zero.
     m_refPID = 0;
 
@@ -976,7 +984,8 @@ MimmoGeometry::execute(){
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-        throw std::runtime_error (m_name + " : write not done : geometry not linked ");
+//        throw std::runtime_error (m_name + " : write not done : geometry not linked ");
+        return;
     }
     if (m_buildSkdTree) getGeometry()->buildSkdTree();
     if (m_buildKdTree) getGeometry()->buildKdTree();

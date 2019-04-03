@@ -364,12 +364,17 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == NULL){
-        throw std::runtime_error(m_name + " : NULL pointer to linked geometry.");
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
 
-    if(getGeometry()->isEmpty()|| m_nPoints< 1){
-        throw std::runtime_error(m_name + " : empty geometry or not seeding intial point defined.");
+    if(getGeometry()->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
+
     m_points.clear();
     bbox->execute();
     if(m_seedbaricenter)    m_seed = bbox->getOrigin();

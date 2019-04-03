@@ -105,7 +105,7 @@ bool createMimmoMesh(MimmoObject * mesh){
 	}
 
 
-	bool check = (mesh->getNCells() == 48) && (mesh->getNVertex() == 35);
+	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
 	mesh->buildAdjacencies();
 	return check;

@@ -46,9 +46,9 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_bc_dir.clear();
     this->m_surface_bc_dir.clear();
 	this->m_tol       = 1.0e-12;
-	this->m_bsurface  = NULL;
-	this->m_dsurface  = NULL;
-	this->m_geometry  = NULL;
+	this->m_bsurface  = nullptr;
+	this->m_dsurface  = nullptr;
+	this->m_geometry  = nullptr;
 	this->m_decayFactor = 1.0;
 	this->m_dumping.clear();
 	this->m_radius = 0.0;
@@ -155,7 +155,7 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
-	if (bsurface == NULL)       return;
+	if (bsurface == nullptr)       return;
 	if (bsurface->isEmpty())    return;
 	if (bsurface->getType()!= 1 ) return;
 
@@ -171,7 +171,7 @@ PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
-	if (bdumping == NULL)       return;
+	if (bdumping == nullptr)       return;
 	if (bdumping->isEmpty())    return;
 	if (bdumping->getType()!= 1 ) return;
 
@@ -388,10 +388,9 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 
 	if (!m_dumpingActive || m_decayFactor <= 1.E-12) return;
 
-
 	//MODULATING DUMPING WITH DISTANCE
 	MimmoObject * dumptarget= m_dsurface;
-	if(m_dsurface == NULL)  dumptarget = m_bsurface;
+	if(m_dsurface == nullptr)  dumptarget = m_bsurface;
 
 	bitpit::PiercedVector<double> distFactor;
 	getGeometry()->getCellsNarrowBandToExtSurface(*dumptarget, maxd, distFactor);
@@ -510,6 +509,7 @@ void
 PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
 
     bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
+
 	solverOptions.rtol      = m_tol;
 	solverOptions.subrtol   = m_tol;
     // total number of local DOFS, determines size of matrix
@@ -521,16 +521,38 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
         nNZ += it->size();
     }
 
+#if MIMMO_ENABLE_MPI==1
+    //instantiate the SparseMatrix
+    bitpit::SparseMatrix matrix(m_communicator, getGeometry()->getPatch()->isPartitioned(), nDOFs, nDOFs, nNZ);
+#else
     //instantiate the SparseMatrix
     bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
+#endif
 
     //fill in the stencil rows, after renumbering the stencil.
     for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-
         it->renumber(maplocals);
-        matrix.addRow(it->size(), it->patternData(), it->weightData());
-
     }
+
+    //Build an aux map instead of sorting laplacianStencils
+//    laplacianStencils->sort();
+    std::vector<long> mapsort(laplacianStencils->size());
+    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
+    	long id = it.getId();
+    	long ind = maplocals.at(id);
+    	mapsort[ind - getGeometry()->getPatchInfo()->getCellGlobalCountOffset()] = id;
+    }
+
+//    //Add ordered rows
+//    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
+//    	matrix.addRow(it->size(), it->patternData(), it->weightData());
+//    }
+    //Add ordered rows
+    for(auto id : mapsort){
+    	auto item = laplacianStencils->at(id);
+    	matrix.addRow(item.size(), item.patternData(), item.weightData());
+    }
+
     //assembly the matrix;
     matrix.assembly();
 
@@ -538,6 +560,10 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
     m_solver->clear();
     // now you can initialize the m_solver with this matrix.
     m_solver->initialize(matrix);
+
+//    //dump matrix
+//    m_solver->dump(".", "system");
+
 }
 
 /*!
@@ -566,6 +592,7 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
                                                    const liimap & maplocals,
                                                    dvector1D & rhs)
 {
+
     if(comp >= NCOMP){
         std::string message = "Error in PropagateField::appendToRHSFromBorderFlux comp can be at most " + std::to_string(NCOMP-1);
         throw std::runtime_error(message.c_str());
@@ -579,6 +606,7 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
     std::vector<std::array<double,3> > oldConstantStore;
 
     oldConstantStore.reserve(m_isbp.size());
+
     for(auto it = m_isbp.begin(); it != m_isbp.end(); ++it){
         std::array<double,3> &temp = faceGradientStencils->at(it.getId()).getConstant();
         oldConstantStore.push_back(temp);
@@ -599,7 +627,7 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
 
     //Subtract their constant part from rhs.
     for(auto it= borderlap->begin(); it!=borderlap->end(); ++it){
-        auto index = maplocals.at(it.getId());
+        auto index = maplocals.at(it.getId()) - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
         rhs[index] += -1.0 * it->getConstant();
     }
 
@@ -610,7 +638,6 @@ PropagateField<NCOMP>::appendToRHSFromBorderFluxes(std::size_t comp,
         ++itold;
     }
 }
-
 
 /*!
  * It solves the laplacian problem, one field at a time.
@@ -654,5 +681,34 @@ PropagateField<NCOMP>::initializeBoundaryInfo(){
         m_isbp.insert(val, 0);
     }
 }
+
+
+#if MIMMO_ENABLE_MPI
+/*!
+    Creates a new ghost communicator.
+
+    \param continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created communicator.
+*/
+template<std::size_t NCOMP>
+int PropagateField<NCOMP>::createGhostCommunicator(bool continuous)
+{
+    // Create communicator
+    GhostCommunicator *ghostCommunicator = new GhostCommunicator(getGeometry()->getPatch());
+    ghostCommunicator->resetExchangeLists();
+    ghostCommunicator->setRecvsContinuous(continuous);
+
+    // Communicator tag
+    int tag = ghostCommunicator->getTag();
+
+    // Add ghost communicator
+    m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(ghostCommunicator);
+
+    // Return communicator tag
+    return tag;
+}
+
+#endif
+
 
 } //end of mimmo namespace

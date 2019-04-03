@@ -44,7 +44,7 @@ int test1() {
     reader->exec();
 
     bool check = reader->getGeometry()->getNCells() == 12288;
-    check = check && reader->getGeometry()->getNVertex() == 6146;
+    check = check && reader->getGeometry()->getNVertices() == 6146;
 
 
     MimmoGeometry * readerCopy = new MimmoGeometry();
@@ -53,7 +53,7 @@ int test1() {
 
     std::unique_ptr<MimmoObject> objHC = reader->getGeometry()->clone();
     check = check && objHC->getNCells() == 12288;
-    check = check && objHC->getNVertex() == 6146;
+    check = check && objHC->getNVertices() == 6146;
 
     std::cout<<"test1 passed :"<<check<<std::endl;
 
@@ -75,7 +75,7 @@ int test2() {
     reader1->exec();
 
     bool check = reader1->getGeometry()->getNCells() == 20;
-    check = check && reader1->getGeometry()->getNVertex() == 19;
+    check = check && reader1->getGeometry()->getNVertices() == 19;
 
     reader1->getGeometry()->getPatch()->write("surface");
 
@@ -87,7 +87,7 @@ int test2() {
     reader2->exec();
 
     check = check && (reader2->getGeometry()->getNCells() == 75);
-    check = check && (reader2->getGeometry()->getNVertex() == 52);
+    check = check && (reader2->getGeometry()->getNVertices() == 52);
 
     reader2->getGeometry()->getPatch()->write("volume");
     

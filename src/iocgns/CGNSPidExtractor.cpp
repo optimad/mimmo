@@ -184,12 +184,18 @@ CGNSPidExtractor::setGeometry(MimmoObject * geo){
 void
 CGNSPidExtractor::execute(){
 
-    if (getGeometry() == NULL) {
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry. Block can do nothing.");
+    if(getGeometry() == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (getGeometry()->isEmpty()) {
-        throw std::runtime_error (m_name + " : empty linked geometry. Block can do nothing.");
+
+    if(getGeometry()->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
+
 
     livector1D extracted;
     std::vector<long> extractedpids;

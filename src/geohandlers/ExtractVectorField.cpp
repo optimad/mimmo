@@ -166,7 +166,7 @@ ExtractVectorField::plotOptionalResults(){
             return;
         }
         liimap mapDataInv;
-        dvecarr3E points = m_result.getGeometry()->getVertexCoords(&mapDataInv);
+        dvecarr3E points = m_result.getGeometry()->getVerticesCoords(&mapDataInv);
         int size = points.size();
         ivector2D connectivity(size, ivector1D(1));
         for(int i=0; i<size; ++i)    connectivity[i][0]=i;

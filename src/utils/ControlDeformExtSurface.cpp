@@ -291,11 +291,16 @@ void
 ControlDeformExtSurface::execute(){
 
     MimmoObject * geo = getGeometry();
-    if (geo == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if(geo == NULL){
+//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        return;
     }
-    if (geo->isEmpty()){
-        throw std::runtime_error (m_name + " : empty linked geometry");
+
+    if(geo->isEmpty()){
+//        throw std::runtime_error(m_name + " empty linked geometry found");
+        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+        return;
     }
 
     bool check = m_defField.getGeometry() == geo;
@@ -319,7 +324,7 @@ ControlDeformExtSurface::execute(){
     dvector1D violationField;
     violationField.resize(nDFS);
 
-    dvecarr3E points = geo->getVertexCoords();
+    dvecarr3E points = geo->getVerticesCoords();
     dvecarr3E pointsOR = points;
 
     //evaluate deformable geometry barycenter************************
@@ -328,7 +333,7 @@ ControlDeformExtSurface::execute(){
 
     for(const auto & p: points)    geoBary += p;
 
-    geoBary /= (double)geo->getNVertex();
+    geoBary /= (double)geo->getNVertices();
 
     for(const auto & p: points){
         distBary= std::fmax(distBary,norm2(p - geoBary));
@@ -352,7 +357,8 @@ ControlDeformExtSurface::execute(){
     //***************************************************************
 
     if(extgeo.size() < 1) {
-        throw std::runtime_error (m_name + " : read of all external geometries failed. Empty valid constraint geometries list.");
+//        throw std::runtime_error (m_name + " : read of all external geometries failed. Empty valid constraint geometries list.");
+        return;
     }
 
     //evaluating bounding box of deformation*************************
@@ -402,7 +408,7 @@ ControlDeformExtSurface::execute(){
         bbMin = bbMinDef;
         bbMax = bbMaxDef;
 
-        for(const auto & p : local->getVertexCoords()){
+        for(const auto & p : local->getVerticesCoords()){
             for(int i=0; i<3; ++i ){
                 bbMin[i] = std::fmin(bbMin[i], p[i]);
                 bbMax[i] = std::fmax(bbMax[i], p[i]);
@@ -679,7 +685,7 @@ ControlDeformExtSurface::readGeometries(std::vector<std::unique_ptr<MimmoGeometr
         geo->setBuildSkdTree(true);
         geo->execute();
 
-        if(geo->getGeometry()->getNVertex() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isSkdTreeSupported()){
+        if(geo->getGeometry()->getNVertices() == 0 || geo->getGeometry()->getNCells() == 0 || !geo->getGeometry()->isSkdTreeSupported()){
             (*m_log)<<"warning: failed to read geometry in ControlDeformExtSurface::readGeometries. Skipping file..."<<std::endl;
         }else{
             if (!geo->getGeometry()->areAdjacenciesBuilt()) geo->getGeometry()->getPatch()->buildAdjacencies();
