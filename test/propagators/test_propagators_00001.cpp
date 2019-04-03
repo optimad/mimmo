@@ -30,7 +30,7 @@ using namespace mimmo;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh(bool tetra, std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
+std::unique_ptr<MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -64,88 +64,26 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(bool tetra, std::vector<long> 
     for(const auto & vertex : verts){
         mesh->addVertex(vertex); //automatic id assigned to vertices.
     }
-    if(tetra){
-        //using Kuhn decomposition in tetrahedra
-        mesh->getPatch()->reserveCells(6*nr*nt*nh);
-        //create connectivities for tetra elements
-        std::vector<long> conn(4,0);
-        for(int k=0; k<nh; ++k){
-            for(int j=0; j<nt; ++j){
-                for(int i=0; i<nr; ++i){
-                    //FIRST 0-1-2-6 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+    mesh->getPatch()->reserveCells(nr*nt*nh);
 
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                    //SECOND 1-5-6-0 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                    //THIRD 0-2-3-6 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                    //FIRST 4-6-5-0 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                    //SECOND 4-7-6-0 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
-                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                    //THIRD 0-3-7-6 from elemental hexa
-                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-                    conn[2] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
-                    conn[3] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
-
-                }
-            }
-        }
-
-    }else{
-        mesh->getPatch()->reserveCells(nr*nt*nh);
-
-        //create connectivities for hexa elements
-        std::vector<long> conn(8,0);
-        for(int k=0; k<nh; ++k){
-            for(int j=0; j<nt; ++j){
-                for(int i=0; i<nr; ++i){
-                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-                    conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-                    conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-                    conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                    conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
-
-                    mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
-                }
+    //create connectivities for hexa elements
+    std::vector<long> conn(8,0);
+    for(int k=0; k<nh; ++k){
+        for(int j=0; j<nt; ++j){
+            for(int i=0; i<nr; ++i){
+                conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+                mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
             }
         }
     }
+
     mesh->buildAdjacencies();
     mesh->buildInterfaces();
 
@@ -168,9 +106,8 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(bool tetra, std::vector<long> 
 
 int test1() {
 
-    bool tetra = false;
     std::vector<long> bc1list, bc2list;
-    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(tetra, bc1list, bc2list);
+    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
 
     livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
     livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
@@ -189,24 +126,14 @@ int test1() {
     for(auto & val : cellInterfaceList1){
         int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
         long * conn = mesh->getInterfaces().at(val).getConnect();
-        if (tetra){
-            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                        bitpit::ElementType::TRIANGLE, val);
-        }else{
-            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                        bitpit::ElementType::QUAD, val);
-        }
+        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                    bitpit::ElementType::QUAD, val);
     }
     for(auto & val : cellInterfaceList2){
         int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
         long * conn = mesh->getInterfaces().at(val).getConnect();
-        if (tetra){
-            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                        bitpit::ElementType::TRIANGLE, val);
-        }else{
-            bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-                                        bitpit::ElementType::QUAD, val);
-        }
+        bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+                                    bitpit::ElementType::QUAD, val);
     }
 
     bdirMesh->buildAdjacencies();
