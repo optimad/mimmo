@@ -38,18 +38,17 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
 {
 
     std::array<double, 3> origin({{0.0,0.0,0.0}});
-    double width(0.2), height(0.3);
-    double prismdepth(0.05), interdepth(0.45), bulkdepth(0.5);
+    double width(0.2), height(0.2);
+    double prismdepth(0.4), bulkdepth(0.6);
 
-    int nw(6), nh(6), npd(26), nid(14), nbd(4);
+    int nw(10), nh(10), npd(20), nbd(30);
 
     double deltaw = width/ double(nw);
     double deltah = height/ double(nh);
     double deltapd = prismdepth/ double(npd);
-    double deltaid = interdepth/ double(nid);
     double deltabd = bulkdepth/ double(nbd);
 
-    std::vector<std::array<double,3> > verts ((nw+1)*(nh+1)*(npd+nid+nbd+1));
+    std::vector<std::array<double,3> > verts ((nw+1)*(nh+1)*(npd+nbd+1));
 
     int counter = 0;
     //prism layer verts
@@ -63,24 +62,13 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
             }
         }
     }
-    //intermediate layer verts
-    for(int k=0; k<nid; ++k){
-        for(int j=0; j<=nh; ++j){
-            for(int i=0; i<=nw; ++i){
-                verts[counter][0] = origin[0] + deltaw  * i;
-                verts[counter][1] = origin[1] + deltah  * j;
-                verts[counter][2] = origin[2] + deltapd * npd + deltaid * k;
-                ++counter;
-            }
-        }
-    }
     //bulk layer verts
     for(int k=0; k<=nbd; ++k){
         for(int j=0; j<=nh; ++j){
             for(int i=0; i<=nw; ++i){
                 verts[counter][0] = origin[0] + deltaw  * i;
                 verts[counter][1] = origin[1] + deltah  * j;
-                verts[counter][2] = origin[2] + deltapd * npd + deltaid * nid + deltabd * k;
+                verts[counter][2] = origin[2] + deltapd * npd + deltabd * k;
                 ++counter;
             }
         }
@@ -95,7 +83,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
         mesh->addVertex(vertex); //automatic id assigned to vertices.
     }
     //using Kuhn decomposition in tetrahedra from hexahedron, cut on diagonal for prism layer cells from hexahedron
-    mesh->getPatch()->reserveCells(2*nw*nh*npd + 6*nw*nh*(nid+nbd));
+    mesh->getPatch()->reserveCells(2*nw*nh*npd + 6*nw*nh*nbd);
 
     //create connectivities for wedge elements  of prism layer
     std::vector<long> conn(6,0);
@@ -124,10 +112,13 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
         }
     }
 
-    //create connectivities for tetra elements
+    //create connectivities for tetra elements: USING KUHN
+    //BEWARE, the coarser the tetrahedral kuhn adapted part the worse the non-orthogonality of cells.
+    // This impacts on LAPLACIAL SOLUTION. //TODO Use a better tetrahedral element generation.
+
     conn.clear();
     conn.resize(4,0);
-    for(int k=npd; k<(npd+nid+nbd); ++k){
+    for(int k=npd; k<(npd+nbd); ++k){
         for(int j=0; j<nh; ++j){
             for(int i=0; i<nw; ++i){
                     //FIRST 0-1-2-6 from elemenhal hexa
@@ -138,11 +129,11 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
 
                     mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
-                    //SECOND 1-5-6-0 from elemenhal hexa
-                    conn[0] = (nw+1)*(nh+1)*k + (nw+1)*j + i+1;
+                    //SECOND 0-5-1-6 from elemenhal hexa
+                    conn[0] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
                     conn[1] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i+1;
-                    conn[2] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
-                    conn[3] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
+                    conn[2] = (nw+1)*(nh+1)*k + (nw+1)*j + i+1;
+                    conn[3] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
 
                     mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
@@ -154,19 +145,19 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
 
                     mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
-                    //FIRST 4-6-5-0 from elemenhal hexa
-                    conn[0] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i;
-                    conn[1] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
+                    //FIRST 0-4-5-6 from elemenhal hexa
+                    conn[0] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
+                    conn[1] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i;
                     conn[2] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i+1;
-                    conn[3] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
+                    conn[3] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
 
                     mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
-                    //SECOND 4-7-6-0 from elemenhal hexa
-                    conn[0] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i;
+                    //SECOND 0-7-4-6 from elemenhal hexa
+                    conn[0] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
                     conn[1] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i;
-                    conn[2] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
-                    conn[3] = (nw+1)*(nh+1)*k + (nw+1)*j + i;
+                    conn[2] = (nw+1)*(nh+1)*(k+1) + (nw+1)*j + i;
+                    conn[3] = (nw+1)*(nh+1)*(k+1) + (nw+1)*(j+1) + i+1;
 
                     mesh->addConnectedCell(conn, bitpit::ElementType::TETRA);
 
@@ -187,8 +178,8 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
 
     livector1D borderverts = mesh->extractBoundaryVertexID();
 
-    //get the subset of ids nearest at z=0 and z= prismdepth+interdepth+bulkdepth;
-    double zin(0.0), zout(prismdepth+interdepth+bulkdepth), zwork;
+    //get the subset of ids nearest at z=0 and z= prismdepth+bulkdepth;
+    double zin(0.0), zout(prismdepth+bulkdepth), zwork;
     std::vector<long> boundary1verts, boundary2verts;
     for(long idv : borderverts){
         zwork = mesh->getVertexCoords(idv)[2];
@@ -240,6 +231,32 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
     }
     boundary->buildAdjacencies();
 
+    //DEBUG
+    // std::unique_ptr<MimmoObject> pippo = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+    // livector1D allinterf = mesh->getInterfaceFromVertexList(borderverts, true, true);
+    // pippo->getPatch()->reserveVertices(borderverts.size());
+    // pippo->getPatch()->reserveCells(allinterf.size());
+    //
+    // for(long id: borderverts){
+    //     pippo->addVertex(mesh->getVertexCoords(id), id);
+    // }
+    // dvecarr3E normals;
+    // normals.reserve(allinterf.size());
+    //
+    // for(long id: allinterf){
+    //     normals.push_back(mesh->evalInterfaceNormal(id));
+    //     bitpit::Interface & ii = orinterfaces.at(id);
+    //     long * conn = ii.getConnect();
+    //     std::size_t connsize = ii.getConnectSize();
+    //
+    //     bitpit::ElementType et = orcells.at(ii.getOwner()).getFaceType(ii.getOwnerFace());
+    //
+    //     pippo->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et);
+    // }
+    //
+    // pippo->getPatch()->getVTK().addData("normals", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::CELL, normals);
+    // pippo->getPatch()->write("interfacenormal");
+
     return mesh;
 }
 
@@ -250,12 +267,10 @@ int test1() {
 
     std::unique_ptr<MimmoObject> boundary;
     std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(boundary);
-    mesh->getPatch()->write("prop2_test_bulk");
-    boundary->getPatch()->write("prop2_test_boundary");
 
 
     bool check = false;
-    long targetNode =  (7*7)*35 + (7)*3 + 3;
+    long targetNode =  (11*11)*25 + (11)*5 + 5;
 
 //TESTING THE SCALAR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
@@ -272,9 +287,14 @@ int test1() {
     for(long id : listPP){
         bc_surf_field.at(id) = 10.0;
     }
-
+    // dvector1D data = bc_surf_field.getDataAsVector();
+    // boundary->getPatch()->getVTK().addData("dirichlet", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, data);
+    // boundary->getPatch()->write("boundary");
+    // boundary->getPatch()->getVTK().removeData("dirichlet");
+    //
     // Now create a PropagateScalarField and solve the laplacian.
     PropagateScalarField * prop = new PropagateScalarField();
+    prop->setName("mimmo.PropagateScalarField_test2");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(boundary.get());
     prop->setDirichletConditions(bc_surf_field);
@@ -284,9 +304,8 @@ int test1() {
     prop->exec();
 
     auto values = prop->getPropagatedField();
-
-    std::cout<<values.at(targetNode)<<std::endl;
-    check = check || (std::abs(values.at(targetNode)-6.53979) > 1.0E-3);
+    std::cout<< values.at(targetNode) <<std::endl;
+    check = check || (std::abs(values.at(targetNode)-4.99937) > 1.0E-3);
 
     delete prop;
 
