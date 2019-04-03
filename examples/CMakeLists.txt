@@ -99,11 +99,13 @@ if(BUILD_EXAMPLES)
     endif ()
 
     #Add examples of enabled modules
-    isModuleEnabled("parallel" MODULE_ENABLED6)
-    if (MODULE_ENABLED6)
-        list(APPEND EXAMPLE_LIST "parallel_example_00001")
-        list(APPEND EXAMPLE_LIST "parallel_example_00002")
-        list(APPEND EXAMPLE_LIST "parallel_example_00003")
+    if (ENABLE_MPI)
+        isModuleEnabled("parallel" MODULE_ENABLED6)
+        if (MODULE_ENABLED6)
+            list(APPEND EXAMPLE_LIST "parallel_example_00001")
+            list(APPEND EXAMPLE_LIST "parallel_example_00002")
+            list(APPEND EXAMPLE_LIST "parallel_example_00003")
+        endif ()
     endif ()
 
 	#Rules to build the examples

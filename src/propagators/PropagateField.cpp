@@ -288,7 +288,10 @@ PropagateScalarField::execute(){
     for(auto pair : cellmap){
     	long id = pair.second;
     	if (getGeometry()->getPatch()->getCell(id).isInterior()){
-    	    long counter = pair.first - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+    	    long counter = pair.first;
+#if MIMMO_ENABLE_MPI
+    	    counter -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+#endif
     		tempres.insert(id, std::array<double,1>{{result[counter]}});
     	}
     	else{
@@ -698,7 +701,10 @@ PropagateVectorField::execute(){
     for(auto pair : cellmap){
     	long id = pair.second;
     	if (getGeometry()->getPatch()->getCell(id).isInterior()){
-    	    long counter = pair.first - getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+    	    long counter = pair.first;
+#if MIMMO_ENABLE_MPI
+    	    counter -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+#endif
     		tempres.insert(id, std::array<double,3>({results[0][counter],results[1][counter],results[2][counter]}));
     	}
     	else{
