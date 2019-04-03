@@ -379,23 +379,26 @@ bitpit::StencilVector computeDirichletBCFaceGradient(const double &dirval,
 {
 
     bitpit::StencilVector correction(CCellOwnerStencil);
-    //epurate the normal part from the cell gradient
-    correction -= dotProduct(CCellOwnerStencil, interfaceNormal) * interfaceNormal;
-
+    double distance = distD;
+    
     // evaluate the estimation U_H field value obtained used the ccell gradient stencil dot the
     // distance vector from owner Centroid to point H.
     // the point H internal to the Owner is obtained as interfaceCentroid - distD*interfaceNormal
     //(interface normal goes always from Owner to Neighbor).
     bitpit::StencilScalar projpart;
     projpart.appendItem(ownerID, 1.0);
-    projpart += dotProduct(correction, ownerCentroid - interfaceCentroid + distD*interfaceNormal);
+    projpart += dotProduct(correction, interfaceCentroid - distance*interfaceNormal - ownerCentroid);
 
     // build the new normal gradient part.
     // The U_H estimation enter into the stencil
-    bitpit::StencilVector newpart = -1.0 * projpart/distD * interfaceNormal;
+    bitpit::StencilVector newpart = -1.0 * (projpart/distance) * interfaceNormal;
     // The Dirichlet part enter as constant into the stencil
-    newpart.sumConstant(dirval/distD * interfaceNormal);
-    //sum to the total stencil
+    newpart.sumConstant((dirval/distance) * interfaceNormal);
+
+    //epurate the normal part from the cell gradient
+    correction -= dotProduct(CCellOwnerStencil, interfaceNormal) * interfaceNormal;
+
+    //sum the newpart to the total stencil
     correction += newpart;
     //go in peace.
     return correction;
@@ -481,7 +484,7 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
     //divide stencils by their cell volume and optimize
     for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
         *it /= geo->evalCellVolume(it.getId());
-        it->optimize();
+        //it->optimize();
     }
 
     return result;
@@ -582,7 +585,7 @@ MPVDivergenceUPtr computeFVBorderLaplacianStencil (MPVGradient & faceGradientSte
     //divide stencils by their cell volume and optimize
     for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
         *it /= geo->evalCellVolume(it.getId());
-        it->optimize();
+        //it->optimize();
     }
 
     return result;
