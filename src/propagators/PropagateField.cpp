@@ -585,13 +585,9 @@ void
 PropagateVectorField::apply(){
     if (!getGeometry()) return;
     if (getGeometry()->isEmpty() || m_field.isEmpty()) return;
-    darray3E vertexcoords;
-    long int ID;
-    for (const auto & vertex : m_geometry->getVertices()){
-        vertexcoords = vertex.getCoords();
-        ID = vertex.getId();
-        vertexcoords += m_field[ID];
-        getGeometry()->modifyVertex(vertexcoords, ID);
+
+    for (auto it= getGeometry()->getVertices().begin(); it != getGeometry()->getVertices().end(); ++it){
+        getGeometry()->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
     }
 }
 
@@ -633,10 +629,13 @@ PropagateVectorField::restoreBC(){
 void
 PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices){
 
-    for (bitpit::Vertex & vertex : vertices){
-        long ID = vertex.getId();
-        m_field[ID] = getGeometry()->getVertexCoords(ID) - vertex.getCoords();
-        getGeometry()->modifyVertex(vertex.getCoords(), ID);
+    bitpit::PiercedVector<bitpit::Vertex> &currentmesh = getGeometry()->getVertices();
+    long ID ;
+    for (auto it= vertices.begin(); it!=vertices.end(); ++it){
+        ID = it.getId();
+        const std::array<double,3> &coords = it->getCoords();
+         m_field.at(ID) = currentmesh.at(ID).getCoords() - coords;
+        getGeometry()->modifyVertex(coords, ID);
     }
 
 }
@@ -698,10 +697,11 @@ PropagateVectorField::execute(){
     tempres.setDataLocation(MPVLocation::CELL);
     tempres.reserve(getGeometry()->getNCells());
     liimap cellmap = getGeometry()->getMapCell();
-    for(auto pair : cellmap){
-    	long id = pair.second;
+    long id, counter;
+    for(auto & pair : cellmap){
+    	id = pair.second;
     	if (getGeometry()->getPatch()->getCell(id).isInterior()){
-    	    long counter = pair.first;
+    	    counter = pair.first;
 #if MIMMO_ENABLE_MPI
     	    counter -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
 #endif
