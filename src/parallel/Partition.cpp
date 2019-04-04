@@ -242,6 +242,9 @@ Partition::parmetisPartGeom(){
 
 		if (m_rank == 0){
 
+			//Renumber cell in consecutive order
+			getGeometry()->getPatch()->consecutiveRenumberCells();
+
 			//Build adjacencies to have ghost after partiioning
 			for (bitpit::Cell & cell : getGeometry()->getCells())
 				cell.resetAdjacencies();
@@ -256,14 +259,15 @@ Partition::parmetisPartGeom(){
 			//
 			//  The number of vertices.
 			//
-			idx_t nvtxs = getGeometry()->getNCells();
+			idx_t nvtxs = idx_t(getGeometry()->getNCells());
+
 			//
 			// Number of balancing constraints, which must be at least 1.
 			//
 			idx_t ncon = 1;
 
 			//Build Adjacencies
-			idx_t xadj[nvtxs+1];
+			std::vector<idx_t> xadj(nvtxs+1);
 			long nint=0;
 			for (auto inter : getGeometry()->getInterfaces()){
 				if (!inter.isBorder())
@@ -280,8 +284,10 @@ Partition::parmetisPartGeom(){
 				xadj[i] = j;
 				std::vector<long> neighs = getGeometry()->getPatch()->findCellFaceNeighs(cell.getId());
 				for (long id : neighs){
-					adjncy[j] = idx_t(mapcell[id]);
-					j++;
+					if (id > 0){
+						adjncy[j] = idx_t(mapcell[id]);
+						j++;
+					}
 				}
 				i++;
 			}
@@ -293,13 +299,14 @@ Partition::parmetisPartGeom(){
 			//  On return, the edge cut volume of the partitioning solution.
 			//
 			idx_t objval;
+
 			//
 			//  On return, the partition vector for the graph.
 			//
-			idx_t part[nvtxs];
+			std::vector<idx_t> part(nvtxs);
 
-			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj, adjncy.data(), NULL, NULL,
-					NULL, &nParts, NULL, NULL, NULL, &objval, part );
+			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj.data(), adjncy.data(), NULL, NULL,
+					NULL, &nParts, NULL, NULL, NULL, &objval, part.data() );
 
 			m_partition.resize(nvtxs);
 			for (long i=0; i<nvtxs; i++){
@@ -307,6 +314,9 @@ Partition::parmetisPartGeom(){
 			}
 		}
 	}
+
+	MPI_Barrier(m_communicator);
+
 }
 
 /*!
