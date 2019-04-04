@@ -156,7 +156,13 @@ int test00003() {
     partition->setPlotInExecution(true);
     partition->setGeometry(mesh.get());
     partition->setBoundaryGeometry(bdirMesh.get());
+    auto t1 = Clock::now();
+    std::cout << "Start Partition mesh " << std::endl;
     partition->exec();
+    auto t2 = Clock::now();
+    std::cout << "Partition mesh execution time: "
+              << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+              << " seconds" << std::endl;
 
     // and the field of Dirichlet values on its nodes.
     MimmoPiercedVector<std::array<double,3>> bc_surf_field;
@@ -188,10 +194,10 @@ int test00003() {
     prop->setDumping(false);
     prop->setPlotInExecution(true);
 
-    auto t1 = Clock::now();
+    t1 = Clock::now();
     std::cout << "Start Propagator vector field " << std::endl;
     prop->exec();
-    auto t2 = Clock::now();
+    t2 = Clock::now();
     std::cout << "Propagator vector field execution time: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds" << std::endl;
