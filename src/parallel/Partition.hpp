@@ -35,7 +35,8 @@ namespace mimmo{
  * \brief Methods available for partitioning geometry.
  */
 enum class PartitionMethod{
-    PARTGEOM = 1 /**< Partition via geometric space filling curve*/
+    SERIALIZE = 0, /**< Communicate the whole mesh to rank 0*/
+    	    PARTGEOM = 1 /**< Partition via geometric space filling curve*/
 };
 
 /*!
@@ -49,6 +50,8 @@ enum class PartitionMethod{
  * To parallelize the input geometry, only the geometry placed on processor with rank = 0 is used, the geometries on ranks != 0 are
  * reset before the partitioning.
  * After run the execution of the Partition block the original MimmoObject is replaced by the partitioned one.
+ * The block can be used to serialize a partitioned mesh by set the PartitionMethod::SERIALIZE. The partitioned mesh after the
+ * execution of the block will be owned entirely by rank = 0.
  * All the blocks linked to the input MimmoObject will link to the partitioned geometry after the execution of this object.
  * The Partition block has to be insert in an execution chain before the manipulation and the creation of fields on the geometry.
  * Partition plots as optional result the partitioned input geometry.
@@ -121,6 +124,7 @@ private:
     void computePartition();
     void computeBoundaryPartition();
     void parmetisPartGeom();
+    void serialPartition();
     void updateBoundaryVerticesID();
 };
 

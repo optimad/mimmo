@@ -45,7 +45,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_field.clear();
 	this->m_bc_dir.clear();
     this->m_surface_bc_dir.clear();
-	this->m_tol       = 1.0e-12;
+	this->m_tol       = 1.0e-14;
 	this->m_bsurface  = nullptr;
 	this->m_dsurface  = nullptr;
 	this->m_geometry  = nullptr;

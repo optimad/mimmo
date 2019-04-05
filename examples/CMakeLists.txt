@@ -105,6 +105,7 @@ if(BUILD_EXAMPLES)
             list(APPEND EXAMPLE_LIST "parallel_example_00001")
             list(APPEND EXAMPLE_LIST "parallel_example_00002")
             list(APPEND EXAMPLE_LIST "parallel_example_00003")
+            list(APPEND EXAMPLE_LIST "parallel_example_00004")
         endif ()
     endif ()
 

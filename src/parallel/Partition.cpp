@@ -130,8 +130,8 @@ Partition::setPartition(ivector1D partition){
  */
 void
 Partition::setPartitionMethod(PartitionMethod mode){
-	if (mode != PartitionMethod::PARTGEOM)
-		throw std::runtime_error("Partition: partition method not allowed");
+	if (mode != PartitionMethod::PARTGEOM && mode != PartitionMethod::SERIALIZE)
+		throw std::runtime_error(m_name + " : partition method not allowed");
 
 	m_mode = mode;
 };
@@ -143,7 +143,7 @@ Partition::setPartitionMethod(PartitionMethod mode){
  */
 void
 Partition::setPartitionMethod(int mode){
-	if (mode != 1)
+	if (mode != 1 && mode != 0)
 		throw std::runtime_error(m_name + " : partition method not allowed");
 
 	m_mode = PartitionMethod(mode);
@@ -174,10 +174,18 @@ Partition::execute(){
 		}
 	}
 
+	//If serialize reset adjacencies and interfaces
+//	if (m_mode == PartitionMethod::SERIALIZE){
+//		getGeometry()->getPatch()->resetInterfaces();
+//		for (auto & cell : getGeometry()->getCells()) {
+//			cell.resetAdjacencies();
+//		}
+//	}
+
 	//partition
 	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, true);
 
-	//Force (Re)Build adjcencies and interfaces after partitioning
+	//Force (Re)Build adjacencies and interfaces after partitioning
 	getGeometry()->buildAdjacencies();
 
 	//TODO Temporary reset to cancel after bitpit fixing
@@ -189,6 +197,15 @@ Partition::execute(){
 
 	if (getBoundaryGeometry() != nullptr){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+
+			//If serialize reset adjacencies and interfaces
+//			if (m_mode == PartitionMethod::SERIALIZE){
+//				getBoundaryGeometry()->getPatch()->resetInterfaces();
+//				for (auto & cell : getBoundaryGeometry()->getCells()) {
+//					cell.resetAdjacencies();
+//				}
+//			}
+
 			//boundary partition
 			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, true);
 
@@ -211,6 +228,9 @@ Partition::execute(){
 void
 Partition::computePartition(){
 	switch(m_mode) {
+	case PartitionMethod::SERIALIZE:
+		serialPartition();
+		break;
 	case PartitionMethod::PARTGEOM:
 		parmetisPartGeom();
 		break;
@@ -320,6 +340,29 @@ Partition::parmetisPartGeom(){
 }
 
 /*!
+ * It computes the partition structure to communicate the entire mesh to processor with rank 0.
+ */
+void
+Partition::serialPartition(){
+
+	//Set communicator in case is not set
+	if (!getGeometry()->getPatch()->isCommunicatorSet()){
+		getGeometry()->getPatch()->setCommunicator(m_communicator);
+	}
+
+	if ((m_nprocs>1) && (getGeometry()->getPatch()->isPartitioned())){
+
+			//Build partition to send to zero
+			long ncells = getGeometry()->getPatch()->getInternalCount();
+			m_partition.clear();
+			m_partition.resize(ncells, 0);
+	}
+
+}
+
+
+
+/*!
  * It computes the boundary path partition coherently with the volume partition.
  * The vertices are supposed with corresponding IDs between volume and surface meshes.
  */
@@ -330,32 +373,44 @@ Partition::computeBoundaryPartition()
 		getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
 	}
 
-	if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
-		//Build adjacencies to have ghost after partiioning
-		getBoundaryGeometry()->buildAdjacencies();
-		m_boundarypartition.clear();
-		if (m_rank == 0){
-			m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
-			getBoundaryGeometry()->buildSkdTree();
-			bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
-			double tol = 1.0e-08;
-			for (bitpit::Interface inter : getGeometry()->getInterfaces()){
-				if (inter.isBorder()){
-					std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
-					long id;
-					double r = tol;
-					double distance = skdTreeUtils::distance(&intercenter, btree, id, r);
-					if (distance <= tol){
-						m_boundarypartition[getBoundaryGeometry()->getCells().getRawIndex(id)] = m_partition[getGeometry()->getCells().getRawIndex(inter.getOwner())];
+	if (m_mode == PartitionMethod::SERIALIZE){
+		if ((m_nprocs>1) && getBoundaryGeometry()->getPatch()->isPartitioned()){
+			//Build partition to send to zero
+			long ncells = getBoundaryGeometry()->getPatch()->getInternalCount();
+			m_boundarypartition.clear();
+			m_boundarypartition.resize(ncells, 0);
+		}
+	}
+	else{
+
+		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
+			//Build adjacencies to have ghost after partiioning
+			getBoundaryGeometry()->buildAdjacencies();
+			m_boundarypartition.clear();
+			if (m_rank == 0){
+				m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
+				getBoundaryGeometry()->buildSkdTree();
+				bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
+				double tol = 1.0e-08;
+				for (bitpit::Interface inter : getGeometry()->getInterfaces()){
+					if (inter.isBorder()){
+						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
+						long id;
+						double r = tol;
+						double distance = skdTreeUtils::distance(&intercenter, btree, id, r);
+						if (distance <= tol){
+							m_boundarypartition[getBoundaryGeometry()->getCells().getRawIndex(id)] = m_partition[getGeometry()->getCells().getRawIndex(inter.getOwner())];
+						}
 					}
 				}
 			}
-		}
-		else{
-			//Reset vertices, cells and interfaces
-			getBoundaryGeometry()->getPatch()->reset();
+			else{
+				//Reset vertices, cells and interfaces
+				getBoundaryGeometry()->getPatch()->reset();
+			}
 		}
 	}
+
 }
 
 /*!
