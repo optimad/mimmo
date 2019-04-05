@@ -40,7 +40,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &
     double radiusin(2.0), radiusout(5.0);
     double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
     double heightbottom(-1.0), heighttop(1.0);
-    int nr(10), nt(20), nh(10);
+    int nr(40), nt(40), nh(40);
 
     double deltar = (radiusout - radiusin)/ double(nr);
     double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -108,7 +108,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &
 
 // =================================================================================== //
 
-int test00003() {
+int test00004() {
 
     std::vector<bitpit::Vertex> bc1list, bc2list;
     std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
@@ -148,7 +148,6 @@ int test00003() {
 
     bdirMesh->buildAdjacencies();
 
-
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
@@ -164,53 +163,27 @@ int test00003() {
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds" << std::endl;
 
-    // and the field of Dirichlet values on its nodes.
-    MimmoPiercedVector<std::array<double,3>> bc_surf_field;
-    bc_surf_field.setGeometry(partition->getBoundaryGeometry());
-    bc_surf_field.setDataLocation(MPVLocation::POINT);
-    bc_surf_field.reserve(partition->getBoundaryGeometry()->getNVertices());
-
-    partition->getBoundaryGeometry()->buildKdTree();
-    bitpit::KdTree<3, bitpit::Vertex, long> *  tree = partition->getBoundaryGeometry()->getKdTree();
-
-    for(auto & val : bc1list){
-    	int node = tree->exist(&val);
-    	if (node > -1){
-    		bc_surf_field.insert(tree->nodes[node].object_->getId(), {{10., 5., 1.}});
-    	}
-    }
-    for(auto & val : bc2list){
-    	int node = tree->exist(&val);
-    	if (node > -1){
-    		bc_surf_field.insert(tree->nodes[node].object_->getId(), {{0., 0., 0.}});
-    	}
-    }
-
-    // Now create a PropagateScalarField and solve the laplacian.
-    PropagateVectorField * prop = new PropagateVectorField();
-    prop->setGeometry(mesh.get());
-    prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-    prop->setDirichletConditions(bc_surf_field);
-    prop->setDumping(false);
-    prop->setPlotInExecution(true);
+    /* Instantiation of a Partition object with serialize partition method.
+     * Plot Optional results during execution active for Partition block.
+     */
+    Partition* serialize = new Partition();
+    serialize->setPlotInExecution(true);
+    serialize->setGeometry(mesh.get());
+    serialize->setBoundaryGeometry(bdirMesh.get());
+    serialize->setPartitionMethod(PartitionMethod::SERIALIZE);
 
     t1 = Clock::now();
-    std::cout << "Start Propagator vector field " << std::endl;
-    prop->exec();
+    std::cout << "Start Serialize mesh " << std::endl;
+    serialize->exec();
     t2 = Clock::now();
-    std::cout << "Propagator vector field execution time: "
+    std::cout << "Serialize mesh execution time: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds" << std::endl;
-
-
-//    auto values = prop->getPropagatedField();
-//    long targetNode = (10 +1)*(6+1)*3 + (6+1)*5 + 3;
-//    bool check = std::abs(values.at(targetNode)-5.0) > 1.0E-6;
 
     bool error = false;
 
     delete partition;
-    delete prop;
+    delete serialize;
     return error;
 }
 
@@ -228,7 +201,7 @@ int main( int argc, char *argv[] ) {
 #endif
 		/**<Calling mimmo Test routines*/
 
-        int val = test00003() ;
+        int val = test00004() ;
 
 #if MIMMO_ENABLE_MPI
 
