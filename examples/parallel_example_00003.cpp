@@ -40,7 +40,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &
     double radiusin(2.0), radiusout(5.0);
     double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
     double heightbottom(-1.0), heighttop(1.0);
-    int nr(10), nt(20), nh(10);
+    int nr(100), nt(100), nh(100);
 
     double deltar = (radiusout - radiusin)/ double(nr);
     double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -202,10 +202,6 @@ int test00003() {
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds" << std::endl;
 
-
-//    auto values = prop->getPropagatedField();
-//    long targetNode = (10 +1)*(6+1)*3 + (6+1)*5 + 3;
-//    bool check = std::abs(values.at(targetNode)-5.0) > 1.0E-6;
 
     bool error = false;
 
