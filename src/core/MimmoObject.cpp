@@ -668,28 +668,35 @@ void MimmoObject::swap(MimmoObject & x) noexcept
  */
 void
 MimmoObject::initializeParallel(){
-	//Fixed MPI comm world
-	m_communicator = MPI_COMM_WORLD;
+
+	//Recover or fix communicator
+	if (m_internalPatch){
+		if (m_patch->isCommunicatorSet()){
+			m_communicator = m_patch->getCommunicator();
+		}
+		else{
+			m_communicator = MPI_COMM_WORLD;
+			m_patch->setCommunicator(m_communicator);
+		}
+	}
+	else{
+		if (m_extpatch->isCommunicatorSet()){
+			m_communicator = m_extpatch->getCommunicator();
+		}
+		else{
+			m_communicator = MPI_COMM_WORLD;
+			m_extpatch->setCommunicator(m_communicator);
+		}
+	}
 
 	int initialized;
 	MPI_Initialized(&initialized);
 	if (!initialized)
 		MPI_Init(NULL, NULL);
 
-	MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &m_nprocs);
+	MPI_Comm_rank(m_communicator, &m_rank);
+	MPI_Comm_size(m_communicator, &m_nprocs);
 
-	//Initialize communicator of the patch
-	if (m_internalPatch){
-		if (!m_patch->isCommunicatorSet()){
-			m_patch->setCommunicator(m_communicator);
-		}
-	}
-	else{
-		if (!m_extpatch->isCommunicatorSet()){
-			m_extpatch->setCommunicator(m_communicator);
-		}
-	}
 }
 #endif
 
