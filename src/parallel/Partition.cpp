@@ -174,22 +174,14 @@ Partition::execute(){
 		}
 	}
 
-	//If serialize reset adjacencies and interfaces
-//	if (m_mode == PartitionMethod::SERIALIZE){
-//		getGeometry()->getPatch()->resetInterfaces();
-//		for (auto & cell : getGeometry()->getCells()) {
-//			cell.resetAdjacencies();
-//		}
-//	}
-
 	//partition
 	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, true);
 
 	//Force (Re)Build adjacencies and interfaces after partitioning
 	getGeometry()->buildAdjacencies();
 
-	//TODO Temporary reset to cancel after bitpit fixing
-	getGeometry()->getPatch()->resetInterfaces();
+//	//TODO Temporary reset to cancel after bitpit fixing
+//	getGeometry()->getPatch()->resetInterfaces();
 	getGeometry()->buildInterfaces();
 
 	//Force rebuild patch info
@@ -197,14 +189,6 @@ Partition::execute(){
 
 	if (getBoundaryGeometry() != nullptr){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
-
-			//If serialize reset adjacencies and interfaces
-//			if (m_mode == PartitionMethod::SERIALIZE){
-//				getBoundaryGeometry()->getPatch()->resetInterfaces();
-//				for (auto & cell : getBoundaryGeometry()->getCells()) {
-//					cell.resetAdjacencies();
-//				}
-//			}
 
 			//boundary partition
 			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, true);
@@ -265,13 +249,13 @@ Partition::parmetisPartGeom(){
 			//Renumber cell in consecutive order
 			getGeometry()->getPatch()->consecutiveRenumberCells();
 
-			//Build adjacencies to have ghost after partiioning
-			for (bitpit::Cell & cell : getGeometry()->getCells())
-				cell.resetAdjacencies();
+			//If they are not already built, build adjacencies to have ghost after partitioning
+//			for (bitpit::Cell & cell : getGeometry()->getCells())
+//				cell.resetAdjacencies();
 			getGeometry()->buildAdjacencies();
 
 			//Build interfaces to compute graph partitioning
-			getGeometry()->getPatch()->resetInterfaces();
+//			getGeometry()->getPatch()->resetInterfaces();
 			getGeometry()->buildInterfaces();
 
 			//USE CELLS CENTERS
@@ -357,9 +341,7 @@ Partition::serialPartition(){
 			m_partition.clear();
 			m_partition.resize(ncells, 0);
 	}
-
 }
-
 
 
 /*!
@@ -384,7 +366,7 @@ Partition::computeBoundaryPartition()
 	else{
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
-			//Build adjacencies to have ghost after partiioning
+			//If they are not already built, build adjacencies to have ghost after partitioning
 			getBoundaryGeometry()->buildAdjacencies();
 			m_boundarypartition.clear();
 			if (m_rank == 0){
