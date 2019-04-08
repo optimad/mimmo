@@ -583,4 +583,65 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfac
 	return interfaceData;
 };
 
+/*!
+ * Copy data from another target MimmoPiercedVector of the same type.
+ * - strict true: data transfer is made only on the shared ids of the structure.
+ * - strict false: ids of target not present in the current MPV are copied also.
+ *
+ * \param[in] other target structure to copy from.
+ * \param[in] strict boolean controlling the data transfer type
+ * \return number of updates or brand new insertions done.
+ */
+template<typename mpv_t>
+std::size_t
+MimmoPiercedVector<mpv_t>::getDataFrom(const MimmoPiercedVector<mpv_t> & other, bool strict){
+    long id;
+    std::size_t counter(0);
+    for(auto it= other.begin(); it != other.end(); ++it){
+        id = it.getId();
+        if(this->exists(id)){
+            this->at(id) = *it;
+            counter++;
+        }else if(!strict){
+            this->insert(id, *it);
+            counter++;
+        }
+    }
+    return counter;
+}
+
+/*!
+ * Erase all data not contained in the target list and squeeze the structure.
+ *
+ * \param[in] list of ids to save from cleaning
+ * \param[in] keepOrder if true keep the survivors in the same order as they appear in the original list.
+ */
+template<typename mpv_t>
+void
+MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::vector<long int> & list, bool keepOrder){
+
+    if(keepOrder){
+        // erase elements in the list then squeeze the piercedvector.
+        std::unordered_set<long> maplist(list.begin(), list.end());
+        MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        result.reserve(maplist.size());
+        for(auto it = this->begin(); it != this->end(); ++it){
+            if(maplist.count(it.getId()) > 0){
+                result.insert(it.getId(), *it);
+            }
+        }
+        this->swap(result);
+    }else{
+        // if the order does not matter, create a new mpv and swap with the current
+        MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        for(long id: list){
+            if(this->exists(id)){
+                result.insert(id, this->at(id));
+            }
+        }
+        this->swap(result);
+    }
+}
+
+
 }

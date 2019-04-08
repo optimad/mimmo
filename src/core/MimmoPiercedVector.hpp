@@ -58,8 +58,8 @@ enum class MPVLocation{
  * defined as a MimmoObject.
  * It is based on bitpit::PiercedVector container.
  * It supports interface methods to recover the related geometric object.
- * It supports a string name attribute to mark the field as well as a location enum to 
- * understand to which structures of geometry refers the data (UNDEFINED no-info, POINT-vertices, 
+ * It supports a string name attribute to mark the field as well as a location enum to
+ * understand to which structures of geometry refers the data (UNDEFINED no-info, POINT-vertices,
  * CELL-simplicies, INTERFACE-interfaces).
  */
 template<typename mpv_t>
@@ -68,7 +68,7 @@ private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
     bitpit::Logger*                          m_log;          /**<Pointer to logger.*/
-    
+
 public:
     MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
@@ -76,7 +76,7 @@ public:
     MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & other);
     MimmoPiercedVector & operator=(MimmoPiercedVector<mpv_t> other);
     MimmoPiercedVector & operator=(bitpit::PiercedVector<mpv_t, long int> other);
-    
+
     void  clear();
 
     // get/set methods of the class;
@@ -86,14 +86,14 @@ public:
     std::vector<mpv_t>    getDataAsVector(bool ordered=false);
     std::vector<mpv_t>    getRawDataAsVector(bool ordered=false);
     bool                    isEmpty();
-    
+
     bool                   completeMissingData(const mpv_t & defValue);
     void                   initialize(MimmoObject *, MPVLocation, const mpv_t &);
     void                   setGeometry(MimmoObject* geo);
     void                   setDataLocation(MPVLocation loc);
     void                   setDataLocation(int loc);
     void                   setData(std::vector<mpv_t> &rawdata);
-    
+
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
     bool intIsValidLocation(int &);
@@ -104,6 +104,9 @@ public:
     MimmoPiercedVector cellDataToPointData(double p = 0.);
     MimmoPiercedVector pointDataToBoundaryInterfaceData(double p = 0.);
 
+    std::size_t getDataFrom(const MimmoPiercedVector<mpv_t> & other, bool strict = false);
+    void squeezeOutExcept(const std::vector<long int> & list, bool keepOrder = false);
+
 private:
     livector1D getGeometryIds(bool ordered=false);
 };
@@ -113,6 +116,3 @@ private:
 #include "MimmoPiercedVector.tpp"
 
 #endif /* __MIMMOPIERCEDVECTOR_HPP__ */
-
-
-
