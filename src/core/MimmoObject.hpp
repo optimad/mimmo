@@ -245,6 +245,7 @@ public:
     void        buildInterfaces();
 	void        resetAdjacencies();
     void        resetInterfaces();
+    void		resetPatch();
 
     bool        areAdjacenciesBuilt();
     bool        areInterfacesBuilt();

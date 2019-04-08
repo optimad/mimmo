@@ -2381,6 +2381,18 @@ void MimmoObject::resetInterfaces(){
 	}
 };
 
+/*!
+ * Force the class to reset all the patch structures, i.e. vertices, cells, interfaces.
+ */
+void MimmoObject::resetPatch(){
+	getPatch()->reset();
+	m_AdjBuilt = false;
+	m_IntBuilt = false;
+	m_skdTreeSync = false;
+	m_kdTreeSync = false;
+ 	m_patchInfo.reset();
+ 	m_infoSync = false;
+};
 
 /*!
  * Desume Element given the vertex connectivity list associated. Polygons and Polyhedra require
