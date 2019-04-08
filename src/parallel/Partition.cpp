@@ -180,8 +180,8 @@ Partition::execute(){
 	//Force (Re)Build adjacencies and interfaces after partitioning
 	getGeometry()->buildAdjacencies();
 
-//	//TODO Temporary reset to cancel after bitpit fixing
-//	getGeometry()->getPatch()->resetInterfaces();
+	//TODO Temporary reset to cancel after bitpit fixing
+	getGeometry()->resetInterfaces();
 	getGeometry()->buildInterfaces();
 
 	//Force rebuild patch info
@@ -250,12 +250,10 @@ Partition::parmetisPartGeom(){
 			getGeometry()->getPatch()->consecutiveRenumberCells();
 
 			//If they are not already built, build adjacencies to have ghost after partitioning
-//			for (bitpit::Cell & cell : getGeometry()->getCells())
-//				cell.resetAdjacencies();
 			getGeometry()->buildAdjacencies();
 
 			//Build interfaces to compute graph partitioning
-//			getGeometry()->getPatch()->resetInterfaces();
+			getGeometry()->resetInterfaces();
 			getGeometry()->buildInterfaces();
 
 			//USE CELLS CENTERS

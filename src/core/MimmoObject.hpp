@@ -243,6 +243,8 @@ public:
     void		buildPatchInfo();
 	void        buildAdjacencies();
     void        buildInterfaces();
+	void        resetAdjacencies();
+    void        resetInterfaces();
 
     bool        areAdjacenciesBuilt();
     bool        areInterfacesBuilt();

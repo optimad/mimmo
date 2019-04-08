@@ -2354,10 +2354,30 @@ void MimmoObject::buildAdjacencies(){
 void MimmoObject::buildInterfaces(){
 	if(m_type !=3){
 		if(!areAdjacenciesBuilt()) buildAdjacencies();
-		//TODO temporary reset interfaces to delete when bitpit fixed
-		getPatch()->resetInterfaces();
 		getPatch()->buildInterfaces();
 		m_IntBuilt=  true;
+	}
+};
+
+/*!
+ * Force the class to reset cell-cell adjacency connectivity.
+ */
+void MimmoObject::resetAdjacencies(){
+	if(m_type !=3){
+		for (bitpit::Cell & cell : getPatch()->getCells()){
+			cell.resetAdjacencies();
+		}
+		m_AdjBuilt = false;
+	}
+};
+
+/*!
+ * Force the class to reset Interfaces connectivity.
+ */
+void MimmoObject::resetInterfaces(){
+	if(m_type !=3){
+		getPatch()->resetInterfaces();
+		m_IntBuilt = false;
 	}
 };
 
