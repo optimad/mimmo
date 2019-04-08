@@ -43,7 +43,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(100), nt(100), nh(100);
+	int nr(10), nt(10), nh(10);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -155,7 +155,7 @@ int test00004() {
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	Partition* partition = new Partition();
-	partition->setPlotInExecution(true);
+	partition->setPlotInExecution(false);
 	partition->setGeometry(mesh.get());
 	partition->setBoundaryGeometry(bdirMesh.get());
 	int rank = partition->getGeometry()->getPatch()->getRank();
@@ -181,23 +181,23 @@ int test00004() {
 //	mimmoVolumeOut->setGeometry(mesh.get());
 //	mimmoVolumeOut->exec();
 
-//    int archiveVersion = 1;
-//    std::string header = "parallel patch";
-//    OBinaryArchive binaryWriter("dump", archiveVersion, header, rank);
-//    mesh->getPatch()->dump(binaryWriter.getStream());
-//    binaryWriter.close();
-//
-//	bitpit::PatchKernel* restored = new bitpit::VolUnstructured();
-//    restored->setCommunicator(MPI_COMM_WORLD);
-//    IBinaryArchive binaryReader("dump", rank);
-//    restored->restore(binaryReader.getStream());
-//    binaryReader.close();
-//
-//	restored->write("restoredPatch");
-//
-//	MimmoObject restoredmesh(2, restored);
-//
-//	restoredmesh.getPatch()->write("mimmoRestoredPatch");
+    int archiveVersion = 1;
+    std::string header = "parallel patch";
+    OBinaryArchive binaryWriter("dump", archiveVersion, header, rank);
+    mesh->getPatch()->dump(binaryWriter.getStream());
+    binaryWriter.close();
+
+	bitpit::PatchKernel* restored = new bitpit::VolUnstructured();
+    restored->setCommunicator(MPI_COMM_WORLD);
+    IBinaryArchive binaryReader("dump", rank);
+    restored->restore(binaryReader.getStream());
+    binaryReader.close();
+
+	restored->write("restoredPatch");
+
+	MimmoObject restoredmesh(2, restored);
+
+	restoredmesh.getPatch()->write("mimmoRestoredPatch");
 
 //	std::cout << "partitioned : " << restored->isPartitioned() << std::endl;
 
@@ -205,9 +205,9 @@ int test00004() {
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	Partition* serialize = new Partition();
-	serialize->setPlotInExecution(true);
-	serialize->setGeometry(mesh.get());
-//	serialize->setGeometry(&restoredmesh);
+	serialize->setPlotInExecution(false);
+//	serialize->setGeometry(mesh.get());
+	serialize->setGeometry(&restoredmesh);
 	serialize->setBoundaryGeometry(bdirMesh.get());
 	serialize->setPartitionMethod(PartitionMethod::SERIALIZE);
 
@@ -225,7 +225,7 @@ int test00004() {
 
 	delete partition;
 	delete serialize;
-//	delete restored;
+	delete restored;
 	return error;
 }
 
