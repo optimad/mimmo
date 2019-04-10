@@ -159,6 +159,7 @@ public:
     int                                             getType();
     long                                            getNVertices()const;
     long                                            getNCells()const;
+    long                                            getNInternals()const;
 #if MIMMO_ENABLE_MPI
     long                                            getNGlobalVertices();
     long                                            getNGlobalCells();

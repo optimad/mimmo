@@ -669,6 +669,11 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 void
 MimmoObject::initializeParallel(){
 
+	int initialized;
+	MPI_Initialized(&initialized);
+	if (!initialized)
+		MPI_Init(NULL, NULL);
+
 	//Recover or fix communicator
 	if (m_internalPatch){
 		if (m_patch->isCommunicatorSet()){
@@ -689,10 +694,6 @@ MimmoObject::initializeParallel(){
 		}
 	}
 
-	int initialized;
-	MPI_Initialized(&initialized);
-	if (!initialized)
-		MPI_Init(NULL, NULL);
 
 	MPI_Comm_rank(m_communicator, &m_rank);
 	MPI_Comm_size(m_communicator, &m_nprocs);
@@ -769,6 +770,16 @@ long
 MimmoObject::getNCells() const {
 	const auto p = getPatch();
 	return p->getCellCount();
+};
+
+/*!
+ * Return the total number of local internal cells within the data structure. Ghost cells are not considered in the count.
+ * \return number of mesh cells.
+ */
+long
+MimmoObject::getNInternals() const {
+	const auto p = getPatch();
+	return p->getInternalCount();
 };
 
 #if MIMMO_ENABLE_MPI
@@ -1488,11 +1499,15 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	bitpit::PatchKernel::CellIterator it;
 	auto patch = getPatch();
 
-	if(idtag == bitpit::Cell::NULL_ID){
-		it = patch->addCell(type, true, conn);
-	}else{
-		it = patch->addCell(type, true,conn, idtag);
-	}
+//	if(idtag == bitpit::Cell::NULL_ID){
+//		it = patch->addCell(type, true, conn);
+//	}else{
+#if MIMMO_ENABLE_MPI
+		it = patch->addCell(type, conn, m_rank, idtag);
+#else
+		it = patch->addCell(type, conn, idtag);
+#endif
+//	}
 
 	m_pidsType.insert(0);
 	m_pidsTypeWNames.insert(std::make_pair( 0, "") );
@@ -1538,13 +1553,19 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	auto patch = getPatch();
 
 	long checkedID;
-	if(idtag == bitpit::Cell::NULL_ID){
-		it = patch->addCell(type, true, conn);
-		checkedID = it->getId();
-	}else{
-		it = patch->addCell(type, true,conn, idtag);
-		checkedID = idtag;
-	}
+//	if(idtag == bitpit::Cell::NULL_ID){
+//		it = patch->addCell(type, true, conn);
+//		checkedID = it->getId();
+//	}else{
+//		it = patch->addCell(type, true,conn, idtag);
+//		checkedID = idtag;
+//	}
+#if MIMMO_ENABLE_MPI
+	it = patch->addCell(type, conn, m_rank, idtag);
+#else
+	it = patch->addCell(type, conn, idtag);
+#endif
+	checkedID = it->getId();
 
 	setPIDCell(checkedID, PID);
 	m_skdTreeSync = false;
@@ -1574,11 +1595,16 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
-    if(idtag == bitpit::Cell::NULL_ID){
-        it = patch->addCell(cell);
-    }else{
-        it = patch->addCell(cell, idtag);
-    }
+//    if(idtag == bitpit::Cell::NULL_ID){
+//        it = patch->addCell(cell);
+//    }else{
+//        it = patch->addCell(cell, idtag);
+//    }
+#if MIMMO_ENABLE_MPI
+    it = patch->addCell(cell, m_rank, idtag);
+#else
+    it = patch->addCell(cell, idtag);
+#endif
 
     m_pidsType.insert(cell.getPID());
     m_pidsTypeWNames.insert(std::make_pair( cell.getPID(), "") );
@@ -2365,7 +2391,7 @@ void MimmoObject::buildInterfaces(){
 void MimmoObject::resetAdjacencies(){
 	if(m_type !=3){
 		for (bitpit::Cell & cell : getPatch()->getCells()){
-			cell.resetAdjacencies();
+			cell.deleteAdjacencies();
 		}
 		m_AdjBuilt = false;
 	}

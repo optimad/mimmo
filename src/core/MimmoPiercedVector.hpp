@@ -84,6 +84,7 @@ public:
     MPVLocation             getConstDataLocation() const;
     MPVLocation             getDataLocation();
     std::vector<mpv_t>    getDataAsVector(bool ordered=false);
+    std::vector<mpv_t>    getInternalDataAsVector(bool ordered=false);
     std::vector<mpv_t>    getRawDataAsVector(bool ordered=false);
     bool                    isEmpty();
 

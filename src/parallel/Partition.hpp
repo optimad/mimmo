@@ -36,7 +36,7 @@ namespace mimmo{
  */
 enum class PartitionMethod{
     SERIALIZE = 0, /**< Communicate the whole mesh to rank 0*/
-    	    PARTGEOM = 1 /**< Partition via geometric space filling curve*/
+    	    PARTGEOM = 1 /**< Partition a serial geometry via geometric space filling curve*/
 };
 
 /*!
@@ -47,8 +47,7 @@ enum class PartitionMethod{
  * Partition is derived from BaseManipulation class.
  * It needs a target MimmoObject serial geometry, alongside a choice of a partitioning method over the processes.
  * It returns geometry partitioned over the processors in the same input MimmoObject.
- * To parallelize the input geometry, only the geometry placed on processor with rank = 0 is used, the geometries on ranks != 0 are
- * reset before the partitioning.
+ * To parallelize a serial input geometry, the geometry has to be stored entirely on processor with rank = 0.
  * After run the execution of the Partition block the original MimmoObject is replaced by the partitioned one.
  * The block can be used to serialize a partitioned mesh by set the PartitionMethod::SERIALIZE. The partitioned mesh after the
  * execution of the block will be owned entirely by rank = 0.
@@ -96,6 +95,7 @@ private:
     MimmoObject*        m_boundary;     		/**<Reference to external boundary MimmoObject. */
 	ivector1D			m_boundarypartition;	/**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
 
+	bool				m_tobuildandreset;
 public:
     Partition();
     Partition(const bitpit::Config::Section & rootXML);

@@ -37,13 +37,15 @@ typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+// =================================================================================== //
+
+std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(10), nt(10), nh(10);
+	int nr(100), nt(100), nh(100);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -65,56 +67,72 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::vector<bitpit::Vertex> &
 
 	//create the volume mesh mimmo.
 	std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
-	mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
-	mesh->getPatch()->reserveCells(nr*nt*nh);
 
-	//pump up the vertices
-	for(const auto & vertex : verts){
-		mesh->addVertex(vertex); //automatic id assigned to vertices.
-	}
+	if (rank == 0){
 
-	//create connectivities for hexa elements
-	std::vector<long> conn(8,0);
-	for(int k=0; k<nh; ++k){
-		for(int j=0; j<nt; ++j){
-			for(int i=0; i<nr; ++i){
-				conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-				conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-				conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-				conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-				conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-				conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-				conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-				conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+		mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
+		mesh->getPatch()->reserveCells(nr*nt*nh);
 
-				mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+		//pump up the vertices
+		for(const auto & vertex : verts){
+			mesh->addVertex(vertex); //automatic id assigned to vertices.
+		}
+
+		//create connectivities for hexa elements
+		std::vector<long> conn(8,0);
+		for(int k=0; k<nh; ++k){
+			for(int j=0; j<nt; ++j){
+				for(int i=0; i<nr; ++i){
+					conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+					conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+					conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+					conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+					conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+					conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+					conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+					conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+
+					mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+				}
+			}
+		}
+
+		bcdir1_vertlist.clear();
+		bcdir2_vertlist.clear();
+		bcdir1_vertlist.reserve(mesh->getNVertices());
+		bcdir2_vertlist.reserve(mesh->getNVertices());
+		std::vector<long> list1, list2;
+		list1.reserve(mesh->getNVertices());
+		list2.reserve(mesh->getNVertices());
+
+		for(int k=0; k<=nh; ++k){
+			for(int i=0; i<=nr; ++i){
+				bcdir1_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + i));
+				bcdir2_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + (nr+1)*nt + i));
+				list1.push_back((nr+1)*(nt+1)*k + i);
+				list2.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
 			}
 		}
 	}
+
 	mesh->buildAdjacencies();
 	mesh->buildInterfaces();
 
-	bcdir1_vertlist.clear();
-	bcdir2_vertlist.clear();
-	bcdir1_vertlist.reserve(mesh->getNVertices());
-	bcdir2_vertlist.reserve(mesh->getNVertices());
-
-	for(int k=0; k<=nh; ++k){
-		for(int i=0; i<=nr; ++i){
-			bcdir1_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + i));
-			bcdir2_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + (nr+1)*nt + i));
-		}
-	}
 	return mesh;
 }
-
 
 // =================================================================================== //
 
 int test00004() {
 
+	// Initialize mpi
+	int nProcs;
+	int    rank;
+	MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
 	std::vector<bitpit::Vertex> bc1list, bc2list;
-	std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
+	std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
 
 	std::vector<long> bc1list_, bc2list_;
 	for (auto v : bc1list)
@@ -127,29 +145,33 @@ int test00004() {
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
 	std::unique_ptr<MimmoObject> bdirMesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
-	bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
-	bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
+	if (rank == 0){
+		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
+		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
 
-	for(auto & val : bc1list_){
-		bdirMesh->addVertex(mesh->getVertexCoords(val), val);
+		for(auto & val : bc1list_){
+			bdirMesh->addVertex(mesh->getVertexCoords(val), val);
+		}
+		for(auto & val : bc2list_){
+			bdirMesh->addVertex(mesh->getVertexCoords(val), val);
+		}
+		for(auto & val : cellInterfaceList1){
+			int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
+			long * conn = mesh->getInterfaces().at(val).getConnect();
+			bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+					bitpit::ElementType::QUAD, val);
+			bdirMesh->getPatch()->getCell(val).setPID(1);
+		}
+		for(auto & val : cellInterfaceList2){
+			int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
+			long * conn = mesh->getInterfaces().at(val).getConnect();
+			bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
+					bitpit::ElementType::QUAD, val);
+			bdirMesh->getPatch()->getCell(val).setPID(2);
+		}
 	}
-	for(auto & val : bc2list_){
-		bdirMesh->addVertex(mesh->getVertexCoords(val), val);
-	}
-	for(auto & val : cellInterfaceList1){
-		int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
-		long * conn = mesh->getInterfaces().at(val).getConnect();
-		bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-				bitpit::ElementType::QUAD, val);
-	}
-	for(auto & val : cellInterfaceList2){
-		int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
-		long * conn = mesh->getInterfaces().at(val).getConnect();
-		bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-				bitpit::ElementType::QUAD, val);
-	}
-
 	bdirMesh->buildAdjacencies();
+	bdirMesh->buildInterfaces();
 
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
@@ -158,14 +180,13 @@ int test00004() {
 	partition->setPlotInExecution(false);
 	partition->setGeometry(mesh.get());
 	partition->setBoundaryGeometry(bdirMesh.get());
-	int rank = partition->getGeometry()->getPatch()->getRank();
 	auto t1 = Clock::now();
 	if (rank == 0)
-		std::cout << "Start Partition mesh " << std::endl;
+		std::cout << "#" << rank  << " Start Partition mesh " << std::endl;
 	partition->exec();
 	auto t2 = Clock::now();
 	if (rank == 0){
-		std::cout << "Partition mesh execution time: "
+		std::cout << "#" << rank << " Partition mesh execution time: "
 				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
 				<< " seconds" << std::endl;
 	}
@@ -181,23 +202,37 @@ int test00004() {
 //	mimmoVolumeOut->setGeometry(mesh.get());
 //	mimmoVolumeOut->exec();
 
-    int archiveVersion = 1;
-    std::string header = "parallel patch";
-    OBinaryArchive binaryWriter("dump", archiveVersion, header, rank);
-    mesh->getPatch()->dump(binaryWriter.getStream());
-    binaryWriter.close();
+//    int archiveVersion = 1;
+//    std::string header = "parallel patch";
+//    OBinaryArchive binaryWriter("dump", archiveVersion, header, rank);
+//    mesh->buildAdjacencies();
+//    mesh->buildInterfaces();
+//    mesh->getPatch()->dump(binaryWriter.getStream());
+//    binaryWriter.close();
+//
+//	bitpit::PatchKernel* restored = new bitpit::VolUnstructured();
+//    restored->setCommunicator(MPI_COMM_WORLD);
+//    IBinaryArchive binaryReader("dump", rank);
+//    restored->restore(binaryReader.getStream());
+//    binaryReader.close();
+//
+//	restored->write("restoredPatch");
 
-	bitpit::PatchKernel* restored = new bitpit::VolUnstructured();
-    restored->setCommunicator(MPI_COMM_WORLD);
-    IBinaryArchive binaryReader("dump", rank);
-    restored->restore(binaryReader.getStream());
-    binaryReader.close();
+//
+//    // Serialize the patch
+//    long nCells = restored->getInternalCount();
+//    std::vector<int> cellRanks(nCells,0);
+//    restored->partition(cellRanks, true);
+//
+//    restored->getVTK().setName("restoredPatch_serialized");
+//    restored->write();
 
-	restored->write("restoredPatch");
 
-	MimmoObject restoredmesh(2, restored);
 
-	restoredmesh.getPatch()->write("mimmoRestoredPatch");
+
+//	MimmoObject restoredmesh(2, restored);
+//
+//	restoredmesh.getPatch()->write("mimmoRestoredPatch");
 
 //	std::cout << "partitioned : " << restored->isPartitioned() << std::endl;
 
@@ -205,9 +240,10 @@ int test00004() {
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	Partition* serialize = new Partition();
+	serialize->setName("mimmo.Serialization");
 	serialize->setPlotInExecution(false);
-//	serialize->setGeometry(mesh.get());
-	serialize->setGeometry(&restoredmesh);
+	serialize->setGeometry(mesh.get());
+//	serialize->setGeometry(&restoredmesh);
 	serialize->setBoundaryGeometry(bdirMesh.get());
 	serialize->setPartitionMethod(PartitionMethod::SERIALIZE);
 
@@ -225,7 +261,7 @@ int test00004() {
 
 	delete partition;
 	delete serialize;
-	delete restored;
+//	delete restored;
 	return error;
 }
 
