@@ -114,15 +114,28 @@ void computeWeightsWLS( const std::vector<std::vector<double>> &P,
 /*!
  *  Evaluate the gradient Stencil on Center Cell for MimmoObject Volume mesh (type 2).
  *  Internally, it employs a Least Squared method to get the correct weights of the gradient.
- *   The method assumes target mesh has adjacenciesalready built: no check is performed in this sense.
+ *   The method assumes target mesh has adjacencies already built: no check is performed in this sense.
  *
  *  \param[in] geo target mesh
- *  \return a CELL data pierced vector containing the gradient stencil
+ *  \param[in] updatelist (optional) if not null, perform computation only on the cell listed,
+ *                                   if null compute on all cells.
+ *  \return a CELL data pierced vector containing the gradient stencils
  */
-MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo){
+MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vector<long> * updatelist){
+
     MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(&geo, MPVLocation::CELL));
     if(geo.getType() != 2) return result; //this work only on Volume meshes
-    result->reserve(geo.getNCells());
+
+    livector1D list;
+    if(!updatelist){
+        list = geo.getCells().getIds();
+    }else{
+        list.insert(list.end(), updatelist->begin(), updatelist->end());
+    }
+
+    if(list.empty()) return result;
+
+    result->reserve(list.size());
 
     auto patch = geo.getPatch();
     std::vector<double>                   ww;
@@ -133,11 +146,11 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo){
     std::array<double,3>                  targetCentroid;
     long cellID;
     int ncellFaces;
-    for( const bitpit::Cell & cell :  geo.getCells()){ // need to be done to all cells, ghosts included.
 
-        cellID = cell.getId();
+    for(const long &cellID : list){
+
         targetCentroid = patch->evalCellCentroid(cellID);
-        ncellFaces = cell.getFaceCount();
+        ncellFaces = patch->getCell(cellID).getFaceCount();
         neighs.clear();
         neighs.reserve(ncellFaces);
 
@@ -182,7 +195,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo){
 }
 
 /*!
- *  Evaluate the gradient Stencil on Face Cell for MimmoObject Volume mesh (type 2).
+ *  Evaluate the gradient Stencil on ALL Face Cells for MimmoObject Volume mesh (type 2).
  *  The method assumes target mesh has interfaces already built: no check is performed in this sense.
  *
  * The method first calculate the gradient stencil on center cells with computeFVCellGradientStencil,
@@ -190,19 +203,14 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo){
  * Then it use these info to distribute them on interface. Face non orthogonality corrections are directly
  * performed on the final stencil (amend and recalculate the gradient normal part to interface).
  *
- * BEWARE: Boundary Interfaces Stencils reports the original Center Cell Gradient Stencil of the Interface Owner.
- *         You need to correct them providing the correct stencil.
+ * BEWARE: Boundary Interfaces Stencils reports the a Stencil with a Homogeneous Neumann condition on it.
+ *         You need to sum the right correction to recover the proper condition.
  *
  * \param[in] geo target mesh
- * \param[in] cellGradientStencil (optional) gradient stencil calculated on cell centers.
+ * \param[in] cellGradientStencil (optional) gradient stencil calculated on ALL cell centers + ghosts.
  * \return a INTERFACE data pierced vector containing the gradient stencil
  */
 MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * cellGradientStencil ){
-    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(&geo, MPVLocation::INTERFACE));
-
-    if(geo.getType() != 2) return result; //this work only on Volume meshes
-
-    result->reserve(geo.getPatch()->getInterfaceCount());
 
     MPVGradientUPtr calculateCellGradStencil;
 
@@ -216,6 +224,60 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
     }else{
         cgs = cellGradientStencil;
     }
+    return updateFVFaceGradientStencil(geo, *cgs);
+}
+
+/*!
+ *  Re-evaluate the gradient Stencil on Face Cells for a selected list of MimmoObject Volume mesh (type 2) cells.
+ *  The method assumes target mesh has interfaces already built: no check is performed in this sense.
+ *
+ * The method first re-evaluate the center cell gradient stencil on a selected list of cells provided by the User
+ * Then it use these info to re-evaluate stencils on all interfaces related to the cells of the list.
+ * Face non orthogonality corrections are directly performed on the final stencil (amend and recalculate
+ * the gradient normal part to interface).
+ *
+ * BEWARE: During this update, Boundary Interfaces Stencils (if any) reports the a Stencil with a Homogeneous Neumann condition on it.
+ *         You need to sum the right correction to recover the proper condition.
+ *
+ * \param[in] geo target mesh
+ * \param[in] list of cell IDs you need to update.
+ * \return a INTERFACE data pierced vector containing gradient stencils at all interfaces relative to the selected cells.
+ */
+MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vector<long> & list ){
+
+    MPVGradientUPtr calculateCellGradStencil = computeFVCellGradientStencil(geo, &list);
+    return updateFVFaceGradientStencil(geo, *(calculateCellGradStencil.get()));
+}
+
+/*!
+ *  Re-evaluate the gradient Stencil on Face Cells for a selected list of MimmoObject Volume mesh (type 2) cells.
+ *  The method assumes target mesh has interfaces already built: no check is performed in this sense.
+ *
+ * The method use the already evaluated center cell gradient stencil on a selected list of cells provided by the User
+ * Then it re-evaluates stencils on all interfaces related to the cells of the list.
+ * Face non orthogonality corrections are directly performed on the final stencil (amend and recalculate
+ * the gradient normal part to interface).
+ *
+ * BEWARE: During this update, Boundary Interfaces Stencils (if any) reports the a Stencil with a Homogeneous Neumann condition on it.
+ *         You need to sum the right correction to recover the proper condition.
+ *
+ * \param[in] geo target mesh
+ * \param[in] list of Center Cell Gradient stencils involved into update.
+ * \return a INTERFACE data pierced vector containing gradient stencils at all interfaces relative to the selected cells.
+ */
+MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil ){
+
+    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(&geo, MPVLocation::INTERFACE));
+
+    if(geo.getType() != 2) return result; //this work only on Volume meshes
+
+    MPVGradient * cgs = &cellGradientStencil;
+    //look if you have an empty cc gradient pool
+    if(cgs->isEmpty()){
+        return result;
+    }
+
+    result->reserve(geo.getPatch()->getInterfaceCount());
 
     //now i have the gradient stencil on cell center.
     bitpit::PiercedVector<bitpit::Interface> & interfaces = geo.getInterfaces();
@@ -229,17 +291,21 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
     bitpit::StencilVector ownerStencil, neighStencil, avgStencil;
     double minDistance;
 
-    for(const bitpit::Interface & interface : interfaces){
+    livector1D targetlist = geo.getInterfaceFromCellList(cgs->getIds());
 
+    for(long & interfid : targetlist){
+        const bitpit::Interface & interface = interfaces.at(interfid);
         ownerID = interface.getOwner();
         neighID = interface.getNeigh();
+        interfaceNormal = geo.evalInterfaceNormal(interfid);
 
         if(neighID < 0){ //interface is a border
             if(!cells.at(ownerID).isInterior()){
                 continue; //skip if the owner is a ghost
             }
-            // copy the Owner center cell gradient stencil to all interface borders.
-            auto it = result->insert(interface.getId(), cgs->at(ownerID));
+            // insert the Neumann Homogeneous face gradient @ the boundary.
+            result->insert(interfid,
+                           computeBorderFaceGradient(interfaceNormal, cgs->at(ownerID)) );
             // you need later to correct this stencil to provide the opportune bc.
         }else{
             if(!cells.at(ownerID).isInterior() && !cells.at(neighID).isInterior()){
@@ -255,9 +321,9 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
             neighProjStencil.clear(false);
 
             //evaluate the gradient stencil on interface, accounting for non-orthogonality correction.
-            //get interface normal and face centroid
-            interfaceCentroid = geo.evalInterfaceCentroid(interface.getId());
-            interfaceNormal = geo.evalInterfaceNormal(interface.getId());
+            //get interface centroid
+            interfaceCentroid = geo.evalInterfaceCentroid(interfid);
+
             // get owner and neighbor centroids
             ownerCentroid = geo.getPatch()->evalCellCentroid(ownerID);
             neighCentroid = geo.getPatch()->evalCellCentroid(neighID);
@@ -295,7 +361,7 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
             avgStencil = 0.5*(ownerStencil + neighStencil);
             avgStencil.flatten();
             // push it in MPV.
-            auto it = result->insert(interface.getId(), avgStencil);
+            auto it = result->insert(interfid, avgStencil);
 
             // amend the normal part, aka the actual stencil projected
             // in the normal direction at interface
@@ -312,64 +378,83 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
 }
 
 /*!
- * Evaluate the Gradient Stencil at a generic Boundary Interface, in case of
- * Neumann condition, homogeneous or not.
+ * Evaluate the Gradient Stencil at a generic Boundary Interface using a homogeneous Neumann condition.
  * The method corrects a CenterCell Gradient Stencil referred to the Owner cell of
- * the interface, canceling the cell gradient normal part to the interface and
- * substituting it with a constant part  "neuval * interfaceNormal".
+ * the interface, erasing the cell gradient normal part to the interface and
+ * substituting it with a zero onstant part
  *
- * Please note, the constant part of the corrected stencil can be changed after
- * passing through the interface of StencilVector (sumConstant stuff).
- * No need to recall this method if the mesh topology or the type of BC does not change.
+ * Please note, you can impose your right boundary condition later adding an opportune
+ * correction (a real prediction of the normal part). see correctionNeumannBCFaceGradient
+ * or correctionDirichletBCFaceGradient
  *
- * \param[in] neuval value of the Neumann Condition
  * \param[in] interfaceNormal normal defined on the BoundaryInterface
  * \param[in] CCellOwnerStencil cell gradient stencil referred to the owner cell
- * \return the new corrected stencil.
+ * \return the homogeneous neumann border stencil.
  */
 
-bitpit::StencilVector computeNeumannBCFaceGradient(const double & neuval,
-                                                   const std::array<double,3> & interfaceNormal,
-                                                   const bitpit::StencilVector & CCellOwnerStencil)
+bitpit::StencilVector computeBorderFaceGradient(const std::array<double,3> & interfaceNormal,
+                                                const bitpit::StencilVector & CCellOwnerStencil)
 {
-
     bitpit::StencilVector correction(CCellOwnerStencil);
     //epurate the normal part form the cell gradient
     correction -= dotProduct(CCellOwnerStencil, interfaceNormal) * interfaceNormal;
-    //add the neuval*interfaceNormal as the new, constant, normal part
-    bitpit::StencilVector temp;
-    temp.sumConstant(neuval*interfaceNormal);
-    correction += temp;
 
     return correction;
 }
+
 /*!
- * Evaluate the Gradient Stencil at a generic Boundary Interface, in case of
- * Dirichlet condition.
- * The method corrects a CenterCell Gradient Stencil referred to the Owner cell of
- * the interface, canceling the cell gradient normal part to the interface and
- * substituting it with a normal part prediction [(U_H - U_D) / distD] * interfaceNormal.
+ * Compute correction to border face gradient to recover a Generic Neumann condition @ the face.
+ * Border face Generic Neumann gradient stencil can be decomposed as a sum two parts:
+ *
+ * - The Homogeneous Neumann part, i.e. the Gradient @ Owner cell centroid
+ *   without its contribute along normal interface
+ * - The correction part, i.e. the value of the directional derivative along the
+ *   interface normal.
+ *
+ * Please note, this correction is "seen" as a constant part by the stencil.
+ *
+ * \param[in] neuval value of the Neumann Condition
+ * \param[in] interfaceNormal normal defined on the BoundaryInterface
+ * \return the neumann correction.
+ */
+
+bitpit::StencilVector correctionNeumannBCFaceGradient(const double & neuval,
+                                                   const std::array<double,3> & interfaceNormal)
+{
+    bitpit::StencilVector correction;
+    correction.sumConstant(neuval*interfaceNormal);
+    return correction;
+}
+/*!
+ * Compute correction to border face gradient to recover a Dirichlet condition @ the face.
+ * Border face Dirichlet gradient stencil can be decomposed as a sum two parts:
+ *
+ * - The Homogeneous Neumann part, i.e. the Gradient @ Owner cell centroid
+ *   without its contribute along normal interface
+ * - The correction part, i.e. a finite difference estimation of the gradient stencil at
+ *  the border interface, where the solution is imposed.
+ *
+ * The finite-difference correction is [(U_H - U_D) / distD] * interfaceNormal.
  * U_D is the value of the dirichlet condition, H is a point internal at Owner Cell
  * at distance distD form the interface centroid and on the interface normal direction,
  * distD is a charateristic length of the Owner cell (typically the radius of the element
  * in-sphere, incircle), U_H an estimation of field value @ H, evaluated
- * starting from Cell Gradient stencil @ owner.
+ * starting from Cell Gradient stencil @ Owner.
  *
- * Please note, the constant part (U_D/distD)*interfaceNormal of the corrected stencil
- * can be changed after passing through the interface of StencilVector (sumConstant stuff).
- * No need to recall this method if the mesh topology or the type of BC does not change.
+ * Please note, the part (U_D/distD)*interfaceNormal of the correction is seen as constant
+ * by the stencil.
  *
  * \param[in] dirval value of the Dirichlet Condition U_D
  * \param[in] ownerID id the the ownerCell
  * \param[in] ownerCentroid centroid of the owner of the BoundaryInterface
  * \param[in] interfaceCentroid centroid of the BoundaryInterface
  * \param[in] interfaceNormal normal defined on the BoundaryInterface
- * \param[in] distD charateristic len to pose the internal point H from interface Centroid.
+ * \param[in] distD charateristic length to pose the internal point H from interface Centroid.
  * \param[in] CCellOwnerStencil cell gradient stencil referred to the owner cell
  * \return the new corrected stencil.
  */
 
-bitpit::StencilVector computeDirichletBCFaceGradient(const double &dirval,
+bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
                                                      const long & ownerID,
                                                      const std::array<double,3> & ownerCentroid,
                                                      const std::array<double,3> & interfaceCentroid,
@@ -378,44 +463,42 @@ bitpit::StencilVector computeDirichletBCFaceGradient(const double &dirval,
                                                      const bitpit::StencilVector & CCellOwnerStencil)
 {
 
-    bitpit::StencilVector correction(CCellOwnerStencil);
-    double distance = distD;
-    
+    bitpit::StencilVector correction;
+    double distance(distD);
     // evaluate the estimation U_H field value obtained used the ccell gradient stencil dot the
     // distance vector from owner Centroid to point H.
     // the point H internal to the Owner is obtained as interfaceCentroid - distD*interfaceNormal
     //(interface normal goes always from Owner to Neighbor).
     bitpit::StencilScalar projpart;
     projpart.appendItem(ownerID, 1.0);
-    projpart += dotProduct(correction, interfaceCentroid - distance*interfaceNormal - ownerCentroid);
+    projpart += dotProduct(CCellOwnerStencil, interfaceCentroid - distance*interfaceNormal - ownerCentroid);
 
     // build the new normal gradient part.
     // The U_H estimation enter into the stencil
-    bitpit::StencilVector newpart = -1.0 * (projpart/distance) * interfaceNormal;
+    correction = -1.0 * (projpart/distance) * interfaceNormal;
     // The Dirichlet part enter as constant into the stencil
-    newpart.sumConstant((dirval/distance) * interfaceNormal);
+    correction.sumConstant((dirval/distance) * interfaceNormal);
 
-    //epurate the normal part from the cell gradient
-    correction -= dotProduct(CCellOwnerStencil, interfaceNormal) * interfaceNormal;
-
-    //sum the newpart to the total stencil
-    correction += newpart;
     //go in peace.
     return correction;
 }
 
 
 /*!
- * Compute the laplacian stencil only on the interior cells of the mesh, once you
- * have defined the gradient stencils on interfaces and specialized the boundary
- * conditions on boundary interfaces. Needs interfaces built and
- * no control is done in such sense. Only for MimmoObject Volume mesh (type=2).
+ * The method computes the Laplacian stencils on cells, once the gradient stencils on
+ * interfaces and specialized the boundary conditions on boundary interfaces are available.
+ * The resulting laplacian stencils will be available on mesh interior cells of the mesh whose
+ * interfaces are all reported in the faceGradientStencil list.
+ * Providing the right set of interfaces you can use this method both to compute laplacian stencils on
+ * the whole mesh or as updater of its subportions.
+ * Mesh Interfaces are supposed built,  no control is done in such sense.
+ * Only for MimmoObject Volume mesh (type=2).
  *
- * The stencils are then divided by their ref cell volume and optimized, setting to zero
- * all values lesser then 1.e-12 in magnitude.
+ * Once computed, the stencils are then divided by their ref cell volume.
  *
  * Both faceGradientStencil and diffusivity(if any) need to be referred to the same mesh.
- *
+ * In case of subportions updater usage, be sure diffusivity includes info on all the cells involved.
+
  * \param[in] faceGradientStencil gradient stencil defined on effective INTERFACES (bc included, no ghost-ghost).
  * \param[in] diffusivity (optional) impose a diffusivity field on center CELLS (provided also on ghosts)
  */
@@ -440,14 +523,15 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
     long ownerID, neighID, interfaceID;
     bitpit::StencilScalar faceGradientNormal;
     bitpit::PiercedVector<bitpit::Cell> & cells = geo->getCells();
+    std::unordered_set<long> cellInvolved;
 
-    for(const auto & interface: geo->getPatch()->getInterfaces()){
+    for(auto it = faceGradientStencil.begin(); it != faceGradientStencil.end(); ++it){
 
-        interfaceID = interface.getId();
-        if(!faceGradientStencil.exists(interfaceID)) continue;
+        interfaceID = it.getId();
+        const bitpit::Interface & interface = geo->getInterfaces().at(interfaceID);
 
         interfaceNormal = geo->evalInterfaceNormal(interfaceID);
-        faceGradientNormal = dotProduct(faceGradientStencil.at(interfaceID), interfaceNormal);
+        faceGradientNormal = dotProduct(*it, interfaceNormal);
 
         ownerID = interface.getOwner();
         neighID = interface.getNeigh();
@@ -460,6 +544,7 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
             if(diffusivity) locdiff *= diffusivity->at(ownerID);
             // sum up the flux to the owner divergence
             result->at(ownerID) += locdiff * faceGradientNormal;
+            cellInvolved.insert(ownerID);
         }else{
             // its an internal interface. Owner ot Neighbor can be ghost.
             // Do not account the flux on the ghost cells.
@@ -472,115 +557,19 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
             // control and sum up flux to Owner divergence
             if(cells.at(ownerID).isInterior()){
                 result->at(ownerID) += locdiff * faceGradientNormal;
+                cellInvolved.insert(ownerID);
             }
 
             // control and substract up flux to Neighbor divergence
             if(cells.at(neighID).isInterior()){
                 result->at(neighID) -= locdiff * faceGradientNormal;
+                cellInvolved.insert(neighID);
             }
         }
     }
 
-    //divide stencils by their cell volume and optimize
-    for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
-        *it /= geo->evalCellVolume(it.getId());
-        //it->optimize();
-    }
-
-    return result;
-}
-
-/*!
- * Compute the laplacian stencil only on the interior cells of the mesh which have a face
- * on a phisical boundary, once you have defined the gradient stencils on interfaces and specialized the boundary
- * conditions on boundary interfaces. Needs interfaces built and
- * no control is done in such sense. Only for MimmoObject Volume mesh (type=2).
- *
- * The stencils are then divided by their ref cell volume and optimized, setting to zero
- * all values lesser then 1.e-12 in magnitude.
- *
- * Both faceGradientStencil and diffusivity(if any) need to be referred to the same mesh.
- *
- * \param[in] faceGradientStencil gradient stencil defined on effective INTERFACES (bc included, no ghost-ghost).
- * \param[in] diffusivity (optional) impose a diffusivity field on center CELLS (provided also on ghosts)
- */
-
-MPVDivergenceUPtr computeFVBorderLaplacianStencil (MPVGradient & faceGradientStencil,
-                                                   MimmoPiercedVector<double> * diffusivity)
-{
-
-    MimmoObject * geo = faceGradientStencil.getGeometry();
-    // prepare and allocate the result list for laplacian stencils.
-    MPVDivergenceUPtr result = MPVDivergenceUPtr(new MPVDivergence(geo, MPVLocation::CELL));
-    if(geo->getType() != 2) return result; //only for Volume Meshes
-
-    //get the list of the cell near border (ghost excluded).
-    std::unordered_set<long> borderCellIDs;
-    {
-        std::vector<long> temp= geo->extractBoundaryCellID(false); //no ghost border here.
-        borderCellIDs.insert(temp.begin(), temp.end());
-    }
-    if(borderCellIDs.empty())   return result;
-
-    //reserve the structure
-    result->reserve(borderCellIDs.size());
-    for(const long & id : borderCellIDs){
-        result->insert(id, bitpit::StencilScalar());
-    }
-
-    //extract only the interfaces involved
-    std::unordered_set<long> subsetInterfaces;
-    bitpit::PiercedVector<bitpit::Cell> & cells = geo->getCells();
-    for(long id : borderCellIDs){
-        std::size_t sizeinterf = cells.at(id).getInterfaceCount();
-        long * temp = cells.at(id).getInterfaces();
-        subsetInterfaces.insert(&temp[0], &temp[sizeinterf]);
-    }
-
-    //loop on the subset of interfaces
-    double locdiff;
-    std::array<double,3> interfaceNormal;
-    long ownerID, neighID;
-    bitpit::StencilScalar faceGradientNormal;
-    bitpit::PiercedVector<bitpit::Interface> & interfaces = geo->getInterfaces();
-
-    for(long interfaceID: subsetInterfaces){
-
-        bitpit::Interface & interface = interfaces.at(interfaceID);
-        if(!faceGradientStencil.exists(interfaceID)) continue;
-        ownerID = interface.getOwner();
-        neighID = interface.getNeigh();
-
-        interfaceNormal = geo->evalInterfaceNormal(interfaceID);
-        faceGradientNormal = dotProduct(faceGradientStencil.at(interfaceID), interfaceNormal);
-        locdiff = geo->evalInterfaceArea(interfaceID);
-
-        if(neighID < 0){
-            //borderInterface - owner is an Interior cell in the pool of border cell for sure
-            // so check if you have non unitary diffusivity
-            if(diffusivity) locdiff *= diffusivity->at(ownerID);
-            // sum up the flux to the owner divergence
-            result->at(ownerID) += locdiff * faceGradientNormal;
-        }else{
-            // its an internal interface. Owner or Neighbor cannot be in the pool of borderCells.
-            // Do not account the flux on the ghost cells.
-
-            // so check if you have non unitary diffusivity
-            if(diffusivity){
-                locdiff *= 0.5*(diffusivity->at(ownerID) + diffusivity->at(neighID));
-            }
-
-            // control and sum up flux to Owner divergence
-            if(borderCellIDs.count(ownerID) > 0 ){
-                result->at(ownerID) += locdiff * faceGradientNormal;
-            }
-
-            // control and substract up flux to Neighbor divergence
-            if(borderCellIDs.count(neighID) > 0 ){
-                result->at(neighID) -= locdiff * faceGradientNormal;
-            }
-        }
-    }
+    //clean result and fit its dimension to the only cells involved
+    result->squeezeOutExcept(std::vector<long>(cellInvolved.begin(), cellInvolved.end()), true);
 
     //divide stencils by their cell volume and optimize
     for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
