@@ -58,7 +58,7 @@ double distance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &i
         throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a not surface patch tree is detected.");
     }
 
-    static_cast<bitpit::SurfaceSkdTree*>(bvtree_)->findPointClosestCell(*P_, r, &id, &h); 
+    static_cast<bitpit::SurfaceSkdTree*>(bvtree_)->findPointClosestCell(*P_, r, &id, &h);
     return h;
 
 }
@@ -107,7 +107,7 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
         VS[count] = spatch->getVertexCoords(iV);
         ++count;
     }
- 
+
     darray3E xP = {{0.0,0.0,0.0}};
     darray3E normal= {{0.0,0.0,0.0}};
 
@@ -213,10 +213,10 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
 
     if(leafSelection.empty())   return;
     std::size_t rootId  =0;
-    
+
     std::vector<std::size_t> candidates;
     std::vector<std::pair< std::size_t, std::vector<const bitpit::SkdNode*> > > nodeStack;
-    
+
     std::vector<const bitpit::SkdNode*> tocheck;
     for (int i=0; i<(int)leafSelection.size(); i++){
         if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->getBoxMin()-tol,
@@ -228,14 +228,14 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
         }
     }
     nodeStack.push_back(std::make_pair(rootId, tocheck) );
-    
+
     while(!nodeStack.empty()){
-        
+
         std::pair<std::size_t,  std::vector<const bitpit::SkdNode*> >  touple = nodeStack.back();
         const SkdNode & node = target->getNode(touple.first);
         nodeStack.pop_back();
-        
-        
+
+
         bool isLeaf = true;
         for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
             SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
@@ -304,7 +304,7 @@ darray3E projectPoint( std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, 
 
 /*!
  * Given the specified point find the cell of a surface patch it is into.
- * The method works only with trees generated with bitpit::SurfUnstructured mesh. 
+ * The method works only with trees generated with bitpit::SurfUnstructured mesh.
  *
  * \param[in] point is the point
  * \param[in] tree reference to SkdTree relative to the target surface geometry.
@@ -317,39 +317,39 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
     }
     // Initialize the cell id
     long id = Cell::NULL_ID;
-    
+
     // Initialize the distance with an estimate
     //
     // The real distance will be lesser than or equal to the estimate.
     std::size_t rootId = 0;
     const SkdNode &root = tree.getNode(rootId);
     double distance = root.evalPointMaxDistance(point);
-    
+
     // Get a list of candidates nodes
     //
     std::vector<std::size_t>    m_candidateIds;
-    
+
     std::vector<std::size_t> nodeStack;
     nodeStack.push_back(rootId);
     while (!nodeStack.empty()) {
         std::size_t nodeId = nodeStack.back();
         const SkdNode &node = tree.getNode(nodeId);
         nodeStack.pop_back();
-        
+
         // Do not consider nodes with a minimum distance greater than
         // the distance estimate
         double nodeMinDistance = node.evalPointMinDistance(point);
         if (nodeMinDistance > distance) {
             continue;
         }
-        
+
         // Update the distance estimate
         //
         // The real distance will be lesser than or equal to the
         // estimate.
         double nodeMaxDistance = node.evalPointMaxDistance(point);
         distance = std::min(nodeMaxDistance, distance);
-        
+
         // If the node is a leaf add it to the candidates, otherwise
         // add its children to the stack.
         bool isLeaf = true;
@@ -361,15 +361,15 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
                 nodeStack.push_back(childId);
             }
         }
-        
+
         if (isLeaf) {
             m_candidateIds.push_back(nodeId);
         }
     }
-    
+
     // Process the candidates and find which cell contains the point
     for (std::size_t k = 0; k < m_candidateIds.size(); ++k) {
-        
+
         // Evaluate the min distance between all cells in the candidate node
         std::size_t nodeId = m_candidateIds[k];
         const SkdNode &node = tree.getNode(nodeId);
@@ -409,7 +409,81 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
     return id;
 }
 
+/*!
+ * Try to return the closest cell of a target mesh to a prescribed orientation point
+ * it works with all those meshes who support a SkdTree.
+ *
+ * \param[in] point is the target point
+ * \param[in] tree reference to SkdTree relative to the target mesh (can be a surface or a volume).
+ * \return id of the geometry cell the point is close. Return bitpit::Cell::NULL_ID if no cell is found.
+ */
+long closestCellToPoint(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree)
+{
+    // Initialize the distance with an estimate
+    //
+    // The real distance will be lesser than or equal to the estimate.
+    std::size_t rootId = 0;
+    const SkdNode &root = tree.getNode(rootId);
+    double distance = root.evalPointMaxDistance(point);
 
+    // Get a list of candidates nodes
+    //
+    std::vector<std::size_t>    m_candidateIds;
+
+    std::vector<std::size_t> nodeStack;
+    nodeStack.push_back(rootId);
+    while (!nodeStack.empty()) {
+        std::size_t nodeId = nodeStack.back();
+        const SkdNode &node = tree.getNode(nodeId);
+        nodeStack.pop_back();
+
+        // Do not consider nodes with a minimum distance greater than
+        // the distance estimate
+        double nodeMinDistance = node.evalPointMinDistance(point);
+        if (nodeMinDistance > distance) {
+            continue;
+        }
+
+        // Update the distance estimate
+        //
+        // The real distance will be lesser than or equal to the
+        // estimate.
+        double nodeMaxDistance = node.evalPointMaxDistance(point);
+        distance = std::min(nodeMaxDistance, distance);
+
+        // If the node is a leaf add it to the candidates, otherwise
+        // add its children to the stack.
+        bool isLeaf = true;
+        for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
+            SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+            std::size_t childId = node.getChildId(childLocation);
+            if (childId != SkdNode::NULL_ID) {
+                isLeaf = false;
+                nodeStack.push_back(childId);
+            }
+        }
+
+        if (isLeaf) {
+            m_candidateIds.push_back(nodeId);
+        }
+    }
+
+    // Process the candidates and find which cell is the nearest to the target point
+    double distanceMin = std::numeric_limits<double>::max();
+    distance = 1.0E18;
+    // Initialize the cell id
+    long id = Cell::NULL_ID;
+    long idwork;
+
+    for (std::size_t cand : m_candidateIds) {
+        tree.getNode(cand).findPointClosestCell(point, &idwork, &distance);
+        if(distance < distanceMin){
+            distanceMin = distance;
+            id = idwork;
+        }
+    }
+    return id;
+}
 
 
 
