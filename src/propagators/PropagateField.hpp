@@ -68,7 +68,8 @@ namespace mimmo{
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
+ * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -97,6 +98,7 @@ protected:
     bool          m_dumpingActive;  /**< true the dumping control is active, false otherwise.*/
     int           m_dumpingType;    /**< 0 distance-control, 1-volume control*/
 
+    double        m_thres;          /**< Lower Threshold to internally mark cells whose solution field norm is above its value. For update purposes only */
 
     std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
 
@@ -125,7 +127,7 @@ public:
     void    setDumpingType( int type=0);
     void    setDecayFactor(double decay);
     void    setTolerance(double tol);
-
+    virtual void    setUpdateThreshold(double thres);
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -133,19 +135,25 @@ public:
 
 protected:
     //cleaners and setters
-    void clear();
-    void setDefaults();
+    virtual void clear();
+    virtual void setDefaults();
+    virtual bool checkBoundariesCoherence();
+    virtual void distributeBCOnBoundaryInterfaces();
 
     // core resolution functions.
     virtual void computeDumpingFunction();
-    virtual FVolStencil::MPVGradientUPtr computeGradientStencilsWithNeutralBC(FVolStencil::MPVGradientUPtr alternativeData = nullptr);
+    virtual void updateDumpingFunction();
     virtual void initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
-    virtual void appendToRHSFromBorderFluxes(std::size_t comp, FVolStencil::MPVGradient * faceGradientStencils,
-                                             const liimap & maplocals,
-                                             dvector1D & rhs);
+    virtual void updateLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
+    virtual void assignBCAndEvaluateRHS(std::size_t comp, bool unused,
+                                        FVolStencil::MPVDivergence * borderLaplacianStencil,
+                                        FVolStencil::MPVGradient * borderCCGradientStencil,
+                                        const liimap & maplocals,
+                                        dvector1D & rhs);
     virtual void solveLaplace(const dvector1D &rhs, dvector1D & result);
 
     virtual void initializeBoundaryInfo();
+    virtual void reconstructResults(const dvector2D & results, const liimap & mapglobals,  livector1D * markedcells = nullptr);
 
 #if MIMMO_ENABLE_MPI
     int createGhostCommunicator(bool continuous);
@@ -164,6 +172,7 @@ protected:
  * through MimmoObject patches and associating to them the value of the field as Dirichlet condition.
  * A natural zero gradient like condition is automatically provided on unbounded borders.
  *
+ * The block can perform multistep evaluation to relax field propagation
  *
  * Class/BaseManipulation Object specialization of class PropagateField
  * for the propagation in a volume mesh of a scalar field.
@@ -201,8 +210,11 @@ protected:
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
-
+ * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
+ *
+ * Proper fo the class:
+ * - <B>MultiStep</B> : get field solution in a finite number of substeps;
+ *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
  *
@@ -223,6 +235,7 @@ public:
     dmpvector1D getPropagatedField();
 
     void    setDirichletConditions(dmpvector1D bc);
+    void    setSolverMultiStep(unsigned int sstep);
 
     //execute
     void        execute();
@@ -232,10 +245,17 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
+    int           m_nstep;               /**< multistep solver */
+
     //cleaners and setters
-    void clear();
-    bool checkBoundariesCoherence();
+    virtual void clear();
+    virtual void setDefaults();
     virtual void plotOptionalResults();
+
+private:
+    void    setUpdateThreshold(double thres) override{
+        BITPIT_UNUSED(thres);
+    };
 };
 
 
@@ -293,7 +313,8 @@ protected:
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian smoothing and direct solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian  direct solver;
+ * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
@@ -307,7 +328,9 @@ class PropagateVectorField: public mimmo::PropagateField<3> {
 protected:
 
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
-    int           m_nstep;               /**! multistep solver */
+    int           m_nstep;               /**< multistep solver */
+    MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition values interp on boundaries Interfaces of the target volume mesh */
+    MimmoPiercedVector<std::array<double, 3> > m_surface_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition value of POINTS on boundary surface*/
 
 public:
 
@@ -337,20 +360,27 @@ public:
 
 protected:
     //cleaners and setters
-    void clear();
-    void setDefaults();
+    virtual void clear();
+    virtual void setDefaults();
 
-    bool checkBoundariesCoherence();
+    virtual bool checkBoundariesCoherence();
+    virtual void distributeSlipBCOnBoundaryInterfaces();
 
     void apply();
 
     virtual void plotOptionalResults();
 
-    void subdivideBC();
-    void restoreBC();
+    virtual void assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
+                                FVolStencil::MPVDivergence * borderLaplacianStencil,
+                                FVolStencil::MPVGradient * borderCCGradientStencil,
+                                const liimap & maplocals,
+                                dvector1D & rhs);
+
+    virtual void propagateMaskMovingCells(livector1D & celllist);
+    virtual void computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint);
+    virtual void subdivideBC();
+    virtual void restoreBC();
     void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
-
-
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
