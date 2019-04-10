@@ -44,7 +44,7 @@ namespace skdTreeUtils{
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol);
     std::array<double,3> projectPoint(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, double r_ = 1.0e+18);
     long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree);
-
+    long closestCellToPoint(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree);
 }; //end namespace skdTreeUtils
 
 } //end namespace mimmo
