@@ -45,28 +45,28 @@ namespace FVolStencil{
                             const std::vector<double> &w,
                             std::vector<std::vector<double>> *weights);
 
-    MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo);
+    MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vector<long> * updatelist = nullptr);
+
     MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * cellGradientStencil = nullptr);
+    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil);
+    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vector<long> & list);
 
-    bitpit::StencilVector computeNeumannBCFaceGradient(const double & neuval,
-                                                       const std::array<double,3> & interfaceNormal,
-                                                       const bitpit::StencilVector & CCellOwnerStencil);
+    bitpit::StencilVector computeBorderFaceGradient(const std::array<double,3> & interfaceNormal,
+                                                    const bitpit::StencilVector & CCellOwnerStencil);
 
-    bitpit::StencilVector computeDirichletBCFaceGradient(const double &dirval,
-                                                         const long & ownerID,
-                                                         const std::array<double,3> & ownerCentroid,
-                                                         const std::array<double,3> & interfaceCentroid,
-                                                         const std::array<double,3> & interfaceNormal,
-                                                         const double &distD,
-                                                         const bitpit::StencilVector & CCellOwnerStencil);
+    bitpit::StencilVector correctionNeumannBCFaceGradient(const double & neuval,
+                                                          const std::array<double,3> & interfaceNormal);
+
+    bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
+                                                            const long & ownerID,
+                                                            const std::array<double,3> & ownerCentroid,
+                                                            const std::array<double,3> & interfaceCentroid,
+                                                            const std::array<double,3> & interfaceNormal,
+                                                            const double &distD,
+                                                            const bitpit::StencilVector & CCellOwnerStencil);
 
     MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
                                                  MimmoPiercedVector<double> * diffusivity = nullptr);
-
-    MPVDivergenceUPtr computeFVBorderLaplacianStencil (MPVGradient & faceGradientStencil,
-                                                       MimmoPiercedVector<double> * diffusivity = nullptr);
-
-
 
 
 };//end namespace stencilFunction
