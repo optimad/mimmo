@@ -1571,6 +1571,9 @@ MimmoObject::addCell(const bitpit::Cell & cell, const long idtag){
         it = patch->addCell(cell, idtag);
     }
 
+    m_pidsType.insert(cell.getPID());
+    m_pidsTypeWNames.insert(std::make_pair( cell.getPID(), "") );
+
     m_skdTreeSync = false;
     m_kdTreeSync = false;
 	m_infoSync = false;
@@ -2282,6 +2285,44 @@ bool MimmoObject::isClosedLoop(){
 	return check;
 };
 
+
+/*!
+ * If the mesh is composed by multiple unconnected patches, the method returns
+ * the cellID list belonging to each subpatches
+ *\return list of cellIDs set for each subpatch
+ */
+livector2D MimmoObject::decomposeLoop(){
+    if(!areAdjacenciesBuilt())	buildAdjacencies();
+
+    livector2D result;
+    livector1D globalcellids = getCells().getIds();
+    std::unordered_set<long> globalcells(globalcellids.begin(), globalcellids.end());
+    globalcellids.clear();
+
+    while(!globalcells.empty()){
+
+        livector1D stack, save;
+        stack.push_back(*(globalcells.begin()));
+
+        while(!stack.empty()){
+
+            long target = stack.back();
+            stack.pop_back();
+            save.push_back(target);
+            globalcells.erase(target);
+            livector1D neighs = getPatch()->findCellNeighs(target,1);
+            for(long val: neighs){
+                if(globalcells.count(val) >0){
+                    stack.push_back(val);
+                }
+            }
+        }
+        result.push_back(save);
+    }
+
+    return result;
+}
+
 /*!
  * Force the class to build cell-cell adjacency connectivity.
  */
@@ -2653,27 +2694,16 @@ MimmoObject::elementsMap(bitpit::PatchKernel & obj){
 
 /*!
  * Get all the cells of the current mesh whose center is within a prescribed distance maxdist w.r.t to a target surface body
- * Ghost cells are considered.
+ * Ghost cells are considered. See twin method getCellsNarrowBandToExtSurfaceWDist.
  * \param[in] surface MimmoObject of type surface.
  * \param[in] maxdist threshold distance.
- * \param[out] idList list of cell IDs within maxdistance
+ * \param[in] seedlist (optional) list of cells to starting narrow band search
+ * \return list of cells inside the narrow band at maxdist from target surface.
  */
-void
-MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
-
-	if(surface.isEmpty() || surface.getType() != 1) return;
-	if(isEmpty() || getType() == 3)  return ;
-
-	idList.clear();
-	idList.reserve(getNCells());
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	long idsuppsurf;
-	for(const auto & cell : getCells()){
-		pp = getPatch()->evalCellCentroid(cell.getId());
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-		if(distance < maxdist)  idList.push_back(cell.getId());
-	}
+livector1D
+MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
+    bitpit::PiercedVector<double> res = getCellsNarrowBandToExtSurfaceWDist(surface, maxdist, seedlist);
+    return res.getIds();
 };
 
 /*!
@@ -2681,23 +2711,118 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
  * Ghost cells are considered.
  * \param[in] surface MimmoObject of type surface.
  * \param[in] maxdist threshold distance.
- * \param[out] distList distances of vertices positive matching within maxdistance
+ * \param[in] seedlist (optional) list of cells to starting narrow band search
+ * \return list of cells inside the narrow band at maxdist from target surface with their distance from it.
  */
-void
-MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList){
-	if(surface.isEmpty() || surface.getType() != 1) return;
-	if(isEmpty() || getType() == 3)  return ;
+bitpit::PiercedVector<double>
+MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	distList.clear();
-	distList.reserve(getNVertices());
-	long idsuppsurf;
-	for(const auto & cell : getCells()){
-		pp = getPatch()->evalCellCentroid(cell.getId());
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-		if(distance < maxdist)  distList.insert(cell.getId(),distance);
-	}
+    bitpit::PiercedVector<double> result;
+    if(surface.isEmpty() || surface.getType() != 1) return result;
+	if(isEmpty() || getType() == 3)  return result;
+
+    if(!surface.areAdjacenciesBuilt()){
+        surface.buildAdjacencies();
+    }
+
+    //use a stack-based search on face cell neighbors of some prescribed seed cells.
+    //You need at least one cell to be near enough to surface
+
+    //First step check seed list and precalculate distance. If dist >= maxdist
+    //the seed candidate is out.
+    darray3E pp;
+    double distance, maxdistance(maxdist);
+    long idsuppsurf;
+    if(seedlist){
+        for(long id: *seedlist){
+            pp = getPatch()->evalCellCentroid(id);
+            distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+            if(distance < maxdist){
+                result.insert(id, distance);
+            }
+        }
+    }
+    // if no seed list is given or none of the seed are into the maxdist search for a seed.
+    if(result.empty()){
+        //find all the unconnected patches composing surfaces.
+        livector2D loops = surface.decomposeLoop();
+        //ping a seed on each subpatch
+        for(livector1D & loop : loops){
+            long idseed;
+            auto itsurf = loop.begin();
+            auto itsurfend = loop.end();
+            darray3E point;
+            while(itsurf != itsurfend ){
+                //continue to search for a seed cell candidate, visiting all point of the target surface.
+                idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+                if(idseed < 0) {
+                    ++itsurf;
+                    continue;
+                }
+                pp = getPatch()->evalCellCentroid(idseed);
+                distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+                if(distance >= maxdist){
+                    ++itsurf;
+                    continue;
+                }
+                result.insert(idseed, distance);
+                itsurf = itsurfend;
+            }
+        }
+    }
+
+    // if no seed is found exit.
+    if(result.empty()){
+        //impossible to find a seed;
+        return result;
+    }
+
+    // create the stack of neighbours with the seed i have.
+    std::unordered_set<long> visited;
+    livector1D stackNeighs;
+    std::unordered_set<long> tt;
+    for(auto it = result.begin(); it != result.end(); ++it){
+        livector1D neighs = getPatch()->findCellNeighs(it.getId(), 1); //only face neighs.
+        for(long id: neighs){
+            if(!result.exists(id))  visited.insert(id);
+        }
+    }
+    stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
+
+    //add as visited also the id already in result;
+    {
+        livector1D temp = result.getIds();
+        visited.insert(temp.begin(), temp.end());
+    }
+
+    long target;
+    //search until the stack is empty.
+    while(!stackNeighs.empty()){
+
+        // extract the candidate
+        target = stackNeighs.back();
+
+        stackNeighs.pop_back();
+        visited.insert(target);
+        // evaluate its distance;
+        pp = getPatch()->evalCellCentroid(target);
+        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+
+        if(distance < maxdist){
+            result.insert(target, distance);
+
+            livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
+            for(long id: neighs){
+                if(visited.count(id) < 1){
+                    visited.insert(id);
+                    stackNeighs.push_back(id);
+                }
+            }
+        }
+    }
+
+    //TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+
 };
 
 /*!

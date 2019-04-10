@@ -248,6 +248,8 @@ public:
     bool        areInterfacesBuilt();
     bool        isClosedLoop();
 
+    std::vector<std::vector<long> > decomposeLoop();
+
     bitpit::ElementType desumeElement(const livector1D &);
 
     void        dump(std::ostream & stream);
@@ -264,11 +266,15 @@ public:
     double               evalInterfaceArea(const long & id);
     std::array<double,3> evalInterfaceNormal(const long & id);
 
-    void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
-    void  getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
+    livector1D                      getCellsNarrowBandToExtSurface(MimmoObject & surface,
+                                                                   const double & maxdist,
+                                                                   livector1D * seedList = nullptr);
+    bitpit::PiercedVector<double>   getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface,
+                                                                        const double & maxdist,
+                                                                        livector1D * seedList = nullptr);
 
-    void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList);
-    void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList);
+    BITPIT_DEPRECATED(void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList));
+    BITPIT_DEPRECATED(void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList));
 
     std::unordered_map<long,long>   getInverseConnectivity();
     std::set<long>                  findVertexVertexOneRing(const long &, const long & );
