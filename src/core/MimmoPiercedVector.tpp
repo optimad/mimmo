@@ -142,7 +142,7 @@ MimmoPiercedVector<mpv_t>::getDataLocation(){
  * geometry(vertices, cells or interfaces). If no geometry is provided, return empty result.
  * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as
  * you get iterating the internal location reference geometry PiercedVector from the beginning.
- * \return list of data
+ * \return list of data. Data on ghost cells are retained.
  *
  */
 template<typename mpv_t>
@@ -159,6 +159,62 @@ MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
 		}
 	}
 
+	return result;
+}
+
+/*!
+ * Return data contained in inner pierced vector located on internal cells. Sequence follows that of reference location in
+ * geometry(vertices, cells, interfaces). If no geometry is provided, return empty result.
+ * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as
+ * you get iterating the internal location reference geometry PiercedVector from the beginning.
+ * \return list of data. Only data on structures of internal cells are retained.
+ *
+ */
+template<typename mpv_t>
+std::vector<mpv_t>
+MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered){
+	if(getGeometry() == NULL) return std::vector<mpv_t>(0);
+	std::vector<mpv_t> result;
+	result.reserve(this->size());
+	livector1D ids;
+	std::unordered_set<long> ids_;
+	switch (getDataLocation())
+	{
+	case MPVLocation::CELL:
+		ids = getGeometryIds(ordered);
+		for(const auto val: ids){
+			if(this->exists(val) && getGeometry()->getPatch()->getCell(val).isInterior()){
+				result.push_back((*this)[val]);
+			}
+		}
+		break;
+	case MPVLocation::POINT:
+		for (auto & cell : getGeometry()->getCells()){
+			if (cell.isInterior()){
+				for (long id : cell.getVertexIds())
+					ids_.insert(id);
+			}
+		}
+		ids = getGeometryIds(ordered);
+		for(const auto val: ids){
+			if(this->exists(val) && ids_.count(val)){
+				result.push_back((*this)[val]);
+			}
+		}
+		break;
+	case MPVLocation::INTERFACE:
+		//Interfaces ghost/ghost are not stored in bitpit::PathcKernel, so use all the interfaces in the geometry
+		ids = getGeometryIds(ordered);
+		for(const auto val: ids){
+			if(this->exists(val)){
+				result.push_back((*this)[val]);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	result.shrink_to_fit();
 	return result;
 }
 
@@ -509,19 +565,19 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 	for (bitpit::Cell & cell : geo->getCells()){
 		long idcell = cell.getId();
 		if (this->exists(idcell)){
-		std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
-		for (long idvertex : cell.getVertexIds()){
-			std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
-			double weight = 1. / std::pow(norm2(center-point),p);
-			if (!pointData.exists(idvertex)){
-				pointData.insert(idvertex, this->at(idcell)*weight);
-				sumWeights.insert(idvertex, weight);
+			std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
+			for (long idvertex : cell.getVertexIds()){
+				std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
+				double weight = 1. / std::pow(norm2(center-point),p);
+				if (!pointData.exists(idvertex)){
+					pointData.insert(idvertex, this->at(idcell)*weight);
+					sumWeights.insert(idvertex, weight);
+				}
+				else{
+					pointData[idvertex] = pointData[idvertex] + this->at(idcell)*weight;
+					sumWeights[idvertex] = sumWeights[idvertex] + weight;
+				}
 			}
-			else{
-				pointData[idvertex] = pointData[idvertex] + this->at(idcell)*weight;
-				sumWeights[idvertex] = sumWeights[idvertex] + weight;
-			}
-		}
 		}
 	}
 	for (bitpit::Vertex & vertex : geo->getVertices()){

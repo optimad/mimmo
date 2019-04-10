@@ -211,8 +211,9 @@ PropagateScalarField::plotOptionalResults(){
     if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
+    getGeometry()->getPatch()->setVTKWriteTarget(PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
 
-    std::vector<std::array<double,1> > dataraw = m_field.getDataAsVector();
+    std::vector<std::array<double,1> > dataraw = m_field.getInternalDataAsVector();
     dvector1D data;
     data.reserve(dataraw.size());
     for (auto val : dataraw){
@@ -220,7 +221,7 @@ PropagateScalarField::plotOptionalResults(){
     }
     vtk.addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, data);
 
-    dvector1D datad = m_dumping.getDataAsVector() ;
+    dvector1D datad = m_dumping.getInternalDataAsVector();
     vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
     vtk.setCounter(getId());
@@ -576,10 +577,12 @@ PropagateVectorField::plotOptionalResults(){
     if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-    dvecarr3E data = m_field.getDataAsVector();
+    getGeometry()->getPatch()->setVTKWriteTarget(PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
+
+    dvecarr3E data = m_field.getInternalDataAsVector();
     vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
 
-    dvector1D datad = m_dumping.getDataAsVector();
+    dvector1D datad = m_dumping.getInternalDataAsVector();
     vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
     vtk.setCounter(getId());

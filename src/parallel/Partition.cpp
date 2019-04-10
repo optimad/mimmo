@@ -159,16 +159,38 @@ Partition::execute(){
 		(*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
 		return;
 	};
-	if(getGeometry()->isEmpty()){
+
+	if(m_mode != PartitionMethod::SERIALIZE && getGeometry()->isEmpty()){
 		(*m_log)<<m_name + " : empty linked geometry found."<<std::endl;
-		return;
 	};
+
+	if(m_mode == PartitionMethod::PARTGEOM && m_rank != 0 && !getGeometry()->isEmpty()){
+		(*m_log)<<m_name + " : non empty linked geometry found on non-zero processors during geometric partition."<<std::endl;
+		throw std::runtime_error(m_name + " : non empty linked geometry found on non-zero processors during geometric partition.");
+	};
+
+	//Set communicator in case is not set
+	if (!getGeometry()->getPatch()->isCommunicatorSet()){
+		getGeometry()->getPatch()->setCommunicator(m_communicator);
+	}
+
+//	//If they are not already built, build adjacencies to partition
+//	getGeometry()->buildAdjacencies();
+
+//	//Build interfaces to compute graph partitioning
+//	getGeometry()->buildInterfaces();
 
 	//Compute partition
 	computePartition();
 
 	if (getBoundaryGeometry() != nullptr){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+
+			//Set communicator if not already set
+			if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
+				getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
+			}
+
 			//Compute boundary partition
 			computeBoundaryPartition();
 		}
@@ -177,27 +199,20 @@ Partition::execute(){
 	//partition
 	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, true);
 
-	//Force (Re)Build adjacencies and interfaces after partitioning
-	getGeometry()->buildAdjacencies();
-
-	//TODO Temporary reset to cancel after bitpit fixing
-	getGeometry()->resetInterfaces();
-	getGeometry()->buildInterfaces();
-
 	//Force rebuild patch info
 	getGeometry()->buildPatchInfo();
 
 	if (getBoundaryGeometry() != nullptr){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
+//			//Force build adjacencies
+//			getBoundaryGeometry()->buildAdjacencies();
+
 			//boundary partition
 			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, true);
 
 			//Update ID of boundary vertices
 			updateBoundaryVerticesID();
-
-			//Force rebuild adjacencies
-			getBoundaryGeometry()->buildAdjacencies();
 
 			//Force rebuild patch info
 			getBoundaryGeometry()->buildPatchInfo();
@@ -229,34 +244,16 @@ Partition::computePartition(){
 void
 Partition::parmetisPartGeom(){
 
-	//Set communicator in case is not set
-	if (!getGeometry()->getPatch()->isCommunicatorSet()){
-		getGeometry()->getPatch()->setCommunicator(m_communicator);
-	}
-
 	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
-		if (m_rank != 0 ){
-			//Reset vertices, cells and interfaces
-			getGeometry()->getPatch()->reset();
-		}
 
 		getGeometry()->cleanGeometry();
 
-		liimap mapcell = getGeometry()->getMapCellInv();
+		liimap mapcell = getGeometry()->getMapCell();
+		liimap mapcellinv = getGeometry()->getMapCellInv();
 
 		if (m_rank == 0){
 
-			//Renumber cell in consecutive order
-			getGeometry()->getPatch()->consecutiveRenumberCells();
-
-			//If they are not already built, build adjacencies to have ghost after partitioning
-			getGeometry()->buildAdjacencies();
-
-			//Build interfaces to compute graph partitioning
-			getGeometry()->resetInterfaces();
-			getGeometry()->buildInterfaces();
-
-			//USE CELLS CENTERS
+			// Use cell centers as vertices of graph
 
 			//
 			//  The number of vertices.
@@ -267,6 +264,12 @@ Partition::parmetisPartGeom(){
 			// Number of balancing constraints, which must be at least 1.
 			//
 			idx_t ncon = 1;
+
+			//Build interfaces to compute graph partitioning
+//			m_tobuildandreset = !getGeometry()->areInterfacesBuilt();
+//			if (m_tobuildandreset)
+			if (!getGeometry()->areInterfacesBuilt())
+				getGeometry()->buildInterfaces();
 
 			//Build Adjacencies
 			std::vector<idx_t> xadj(nvtxs+1);
@@ -280,18 +283,17 @@ Partition::parmetisPartGeom(){
 
 			std::vector<idx_t> adjncy(duenedges);
 
-			idx_t i=0;
+			idx_t i;
 			idx_t j=0;
-			for (bitpit::Cell & cell : getGeometry()->getCells()){
+			for (i=0; i<getGeometry()->getNInternals(); i++){
 				xadj[i] = j;
-				std::vector<long> neighs = getGeometry()->getPatch()->findCellFaceNeighs(cell.getId());
+				std::vector<long> neighs = getGeometry()->getPatch()->findCellFaceNeighs(mapcell[i]);
 				for (long id : neighs){
 					if (id > 0){
-						adjncy[j] = idx_t(mapcell[id]);
+						adjncy[j] = idx_t(mapcellinv[id]);
 						j++;
 					}
 				}
-				i++;
 			}
 			xadj[i] = j;
 
@@ -316,9 +318,6 @@ Partition::parmetisPartGeom(){
 			}
 		}
 	}
-
-	MPI_Barrier(m_communicator);
-
 }
 
 /*!
@@ -333,14 +332,13 @@ Partition::serialPartition(){
 	}
 
 	if ((m_nprocs>1) && (getGeometry()->getPatch()->isPartitioned())){
+		//Build partition to send to zero
+		long ncells = getGeometry()->getPatch()->getInternalCount();
+		m_partition.clear();
+		m_partition.resize(ncells, 0);
 
-			//Build partition to send to zero
-			long ncells = getGeometry()->getPatch()->getInternalCount();
-			m_partition.clear();
-			m_partition.resize(ncells, 0);
 	}
 }
-
 
 /*!
  * It computes the boundary path partition coherently with the volume partition.
@@ -349,9 +347,6 @@ Partition::serialPartition(){
 void
 Partition::computeBoundaryPartition()
 {
-	if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
-		getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
-	}
 
 	if (m_mode == PartitionMethod::SERIALIZE){
 		if ((m_nprocs>1) && getBoundaryGeometry()->getPatch()->isPartitioned()){
@@ -364,8 +359,7 @@ Partition::computeBoundaryPartition()
 	else{
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
-			//If they are not already built, build adjacencies to have ghost after partitioning
-			getBoundaryGeometry()->buildAdjacencies();
+
 			m_boundarypartition.clear();
 			if (m_rank == 0){
 				m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
@@ -383,14 +377,14 @@ Partition::computeBoundaryPartition()
 						}
 					}
 				}
-			}
-			else{
-				//Reset vertices, cells and interfaces
-				getBoundaryGeometry()->getPatch()->reset();
+
+//				//Build interfaces to compute graph partitioning
+//				if (m_tobuildandreset)
+//					getGeometry()->resetInterfaces();
+
 			}
 		}
 	}
-
 }
 
 /*!
