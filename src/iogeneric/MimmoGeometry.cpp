@@ -613,7 +613,7 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
 bool
 MimmoGeometry::write(){
 
-    if (isEmpty()) return false;
+//    if (isEmpty()) return false;
 
     //adjusting with reference pid;
     {
@@ -709,17 +709,19 @@ MimmoGeometry::write(){
     break;
 
     case FileType::MIMMO :
-        //Export in mimmo (bitpit) dump format
+    	//Export in mimmo (bitpit) dump format
     {
-        string name = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
-        std::filebuf buffer;
-        std::ostream out(&buffer);
-        buffer.open(name, std::ios::out);
-        if (buffer.is_open()){
-            getGeometry()->dump(out);
-            buffer.close();
-        }
-        return true;
+    	int archiveVersion = 1;
+    	std::string header = m_name;
+    	string filename = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
+#if MIMMO_ENABLE_MPI
+    	OBinaryArchive binaryWriter(filename, archiveVersion, header, m_rank);
+#else
+    	OBinaryArchive binaryWriter(filename, archiveVersion, header);
+#endif
+    	getGeometry()->dump(binaryWriter.getStream());
+    	binaryWriter.close();
+    	return true;
     }
     break;
 
@@ -739,10 +741,6 @@ MimmoGeometry::read(){
 
     if(!m_isInternal) return false;
 
-//#if MIMMO_ENABLE_MPI
-//    if (m_rank == 0) {
-//#endif
-
     switch(FileType::_from_integral(m_rinfo.ftype)){
 
     //Import STL
@@ -750,84 +748,103 @@ MimmoGeometry::read(){
     {
         setGeometry(1);
         string name;
+#if MIMMO_ENABLE_MPI
+        if (m_rank == 0) {
+#endif
+        	{
+        		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
+        		bool check = infile.good();
+        		name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
+        		if (!check){
+        			infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
+        			check = infile.good();
+        			name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
+        			if (!check) return false;
+        		}
+        	}
 
-        {
-            std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
-            bool check = infile.good();
-            name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
-            if (!check){
-                infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
-                check = infile.good();
-                name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
-                if (!check) return false;
-            }
+        	ifstream in(name);
+        	string    ss, sstype;
+        	getline(in,ss);
+        	stringstream ins;
+        	ins << ss;
+        	ins >> sstype;
+        	bool binary = true;
+        	if (sstype == "solid" || sstype == "SOLID") binary = false;
+        	in.close();
+
+        	std::unordered_map<int,std::string> mapPIDSolid;
+        	dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
+
+        	getGeometry()->cleanGeometry();
+
+        	//count PID if multi-solid
+        	auto & mapset = getGeometry()->getPIDTypeList();
+        	for(const auto & cell : getGeometry()->getCells() ){
+        		mapset.insert(cell.getPID());
+        	}
+        	std::unordered_map<long, std::string> & mapWNames = getGeometry()->getPIDTypeListWNames();
+        	for(const auto & val :mapset ){
+        		mapWNames[val] = mapPIDSolid[val];
+        	}
+#if MIMMO_ENABLE_MPI
         }
-
-        ifstream in(name);
-        string    ss, sstype;
-        getline(in,ss);
-        stringstream ins;
-        ins << ss;
-        ins >> sstype;
-        bool binary = true;
-        if (sstype == "solid" || sstype == "SOLID") binary = false;
-        in.close();
-
-        std::unordered_map<int,std::string> mapPIDSolid;
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
-
-        getGeometry()->cleanGeometry();
-
-        //count PID if multi-solid
-        auto & mapset = getGeometry()->getPIDTypeList();
-        for(const auto & cell : getGeometry()->getCells() ){
-            mapset.insert(cell.getPID());
-        }
-        std::unordered_map<long, std::string> & mapWNames = getGeometry()->getPIDTypeListWNames();
-        for(const auto & val :mapset ){
-            mapWNames[val] = mapPIDSolid[val];
-        }
-
+#endif
     }
     break;
 
     case FileType::SURFVTU :
         //Import Surface VTU meshes
     {
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-        bool check = infile.good();
-        if (!check) return false;
+    	setGeometry(1);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
+    		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+    		bool check = infile.good();
+    		if (!check) return false;
 
-        setGeometry(1);
-        VTUGridStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+    		VTUGridStreamer vtustreamer;
+    		VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
 
-        input.read() ;
+    		input.read() ;
 
-        getGeometry()->resyncPID();
+    		getGeometry()->resyncPID();
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
     break;
 
     case FileType::VOLVTU :
         //Import Volume VTU meshes
     {
+        setGeometry(2);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
 
-        setGeometry(2);
         VTUGridStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
 
         getGeometry()->resyncPID();
-
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
     break;
 
     case FileType::NAS :
         //Import Surface NAS
     {
+        setGeometry(1);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
         bool check = infile.good();
         if (!check) return false;
@@ -845,8 +862,6 @@ MimmoGeometry::read(){
         nastran.read(m_rinfo.fdir, m_rinfo.fname, Ipoints, pointsID, Iconnectivity, cellsID, pids );
 
         bitpit::ElementType eltype;
-
-        setGeometry(1);
 
         int sizeV, sizeC;
         sizeV = Ipoints.size();
@@ -870,14 +885,19 @@ MimmoGeometry::read(){
             ++counter;
         }
         m_intgeo->setPID(pids);
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
-
     break;
 
     //Import ascii OpenFOAM point cloud
     case FileType::OFP :
     {
-
+        setGeometry(3);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname);
         bool check = infile.good();
         if (!check) return false;
@@ -886,60 +906,72 @@ MimmoGeometry::read(){
         dvecarr3E    Ipoints;
         readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
 
-        setGeometry(3);
-
         int sizeV = Ipoints.size();
         m_intgeo->getPatch()->reserveVertices(sizeV);
 
         for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
-
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
     break;
 
     //Import point cloud from vtu
     case FileType::PCVTU :
     {
-
+        setGeometry(3);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
 
-        setGeometry(3);
         VTUPointCloudStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), bitpit::VTKElementType::VERTEX);
         input.read() ;
-
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
     break;
 
     case FileType::CURVEVTU :
         //Import 3D Curve VTU
     {
+        setGeometry(4);
+#if MIMMO_ENABLE_MPI
+    	if (m_rank == 0) {
+#endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
         bool check = infile.good();
         if (!check) return false;
 
-        setGeometry(4);
         VTUGridStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
 
         getGeometry()->resyncPID();
+#if MIMMO_ENABLE_MPI
+    	}
+#endif
     }
     break;
 
     case FileType::MIMMO :
-        //Import in mimmo (bitpit) restore format
+    	//Import in mimmo (bitpit) restore format
     {
-        string name = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
-        std::filebuf buffer;
-        std::istream in(&buffer);
-        buffer.open(name, std::ios::in);
-        if (buffer.is_open()){
-            m_intgeo->restore(in);
-            buffer.close();
-        }
-        return true;
+    	string filename = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
+#if MIMMO_ENABLE_MPI
+    	IBinaryArchive binaryReader(filename, m_rank);
+#else
+    	IBinaryArchive binaryReader(filename);
+#endif
+        m_intgeo.reset(nullptr);
+        std::unique_ptr<MimmoObject> dum(new MimmoObject());
+        m_intgeo = std::move(dum);
+    	m_intgeo->restore(binaryReader.getStream());
+    	binaryReader.close();
     }
     break;
 
@@ -955,10 +987,6 @@ MimmoGeometry::read(){
     setPID(locpids);
     auto pids = getGeometry()->getPIDTypeList();
     for( auto & val: pids) getGeometry()->setPIDName(val, pidsMap[val - m_refPID]);
-
-//#if MIMMO_ENABLE_MPI
-//    }
-//#endif
 
     //action completed, reset m_refPID to zero.
     m_refPID = 0;
@@ -984,7 +1012,6 @@ MimmoGeometry::execute(){
     if (!check){
         (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
         (*m_log) << " " << std::endl;
-//        throw std::runtime_error (m_name + " : write not done : geometry not linked ");
         return;
     }
     if (m_buildSkdTree) getGeometry()->buildSkdTree();
