@@ -45,7 +45,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(100), nt(100), nh(100);
+	int nr(20), nt(20), nh(20);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -177,7 +177,7 @@ int test00004() {
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	Partition* partition = new Partition();
-	partition->setPlotInExecution(false);
+	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh.get());
 	partition->setBoundaryGeometry(bdirMesh.get());
 	auto t1 = Clock::now();
@@ -191,59 +191,35 @@ int test00004() {
 				<< " seconds" << std::endl;
 	}
 
-
 	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
 	 */
-//	MimmoGeometry * mimmoVolumeOut = new MimmoGeometry();
-//	mimmoVolumeOut->setIOMode(IOMode::WRITE);
-//	mimmoVolumeOut->setWriteDir("./");
-//	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
-//	mimmoVolumeOut->setWriteFilename("parallel_example_00004.volume.partitioned");
-//	mimmoVolumeOut->setGeometry(mesh.get());
-//	mimmoVolumeOut->exec();
+	MimmoGeometry * mimmoVolumeOut = new MimmoGeometry();
+	mimmoVolumeOut->setIOMode(IOMode::WRITE);
+	mimmoVolumeOut->setWriteDir("./");
+	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
+	mimmoVolumeOut->setWriteFilename("parallel_example_00004.volume.partitioned");
+	mimmoVolumeOut->setGeometry(mesh.get());
+	mimmoVolumeOut->exec();
 
-//    int archiveVersion = 1;
-//    std::string header = "parallel patch";
-//    OBinaryArchive binaryWriter("dump", archiveVersion, header, rank);
-//    mesh->buildAdjacencies();
-//    mesh->buildInterfaces();
-//    mesh->getPatch()->dump(binaryWriter.getStream());
-//    binaryWriter.close();
-//
-//	bitpit::PatchKernel* restored = new bitpit::VolUnstructured();
-//    restored->setCommunicator(MPI_COMM_WORLD);
-//    IBinaryArchive binaryReader("dump", rank);
-//    restored->restore(binaryReader.getStream());
-//    binaryReader.close();
-//
-//	restored->write("restoredPatch");
-
-//
-//    // Serialize the patch
-//    long nCells = restored->getInternalCount();
-//    std::vector<int> cellRanks(nCells,0);
-//    restored->partition(cellRanks, true);
-//
-//    restored->getVTK().setName("restoredPatch_serialized");
-//    restored->write();
-
-
-
-
-//	MimmoObject restoredmesh(2, restored);
-//
-//	restoredmesh.getPatch()->write("mimmoRestoredPatch");
-
-//	std::cout << "partitioned : " << restored->isPartitioned() << std::endl;
+	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
+	 */
+	MimmoGeometry * mimmoVolumeIn = new MimmoGeometry();
+	mimmoVolumeIn->setIOMode(IOMode::CONVERT);
+	mimmoVolumeIn->setReadDir("./");
+	mimmoVolumeIn->setReadFileType(FileType::MIMMO);
+	mimmoVolumeIn->setReadFilename("parallel_example_00004.volume.partitioned");
+	mimmoVolumeIn->setWriteDir("./");
+	mimmoVolumeIn->setWriteFileType(FileType::VOLVTU);
+	mimmoVolumeIn->setWriteFilename("parallel_example_00004.volume.restored");
+	mimmoVolumeIn->exec();
 
 	/* Instantiation of a Partition object with serialize partition method.
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	Partition* serialize = new Partition();
 	serialize->setName("mimmo.Serialization");
-	serialize->setPlotInExecution(false);
-	serialize->setGeometry(mesh.get());
-//	serialize->setGeometry(&restoredmesh);
+	serialize->setPlotInExecution(true);
+	serialize->setGeometry(mimmoVolumeIn->getGeometry());
 	serialize->setBoundaryGeometry(bdirMesh.get());
 	serialize->setPartitionMethod(PartitionMethod::SERIALIZE);
 
@@ -261,7 +237,6 @@ int test00004() {
 
 	delete partition;
 	delete serialize;
-//	delete restored;
 	return error;
 }
 
