@@ -294,13 +294,13 @@ int test1() {
     //
     // Now create a PropagateScalarField and solve the laplacian.
     PropagateScalarField * prop = new PropagateScalarField();
-    prop->setName("mimmo.PropagateScalarField_test2");
+    prop->setName("test00002_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(boundary.get());
     prop->setDirichletConditions(bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
-
+    prop->setSolverMultiStep(4);
     prop->exec();
 
     auto values = prop->getPropagatedField();

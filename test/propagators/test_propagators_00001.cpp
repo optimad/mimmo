@@ -156,6 +156,7 @@ int test1() {
 
     // Now create a PropagateScalarField and solve the laplacian.
     PropagateScalarField * prop = new PropagateScalarField();
+    prop->setName("test00001_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(bdirMesh.get());
     prop->setDirichletConditions(bc_surf_field);
@@ -184,12 +185,13 @@ int test1() {
 
     // Now create a PropagateScalarField and solve the laplacian.
     PropagateVectorField * prop3D = new PropagateVectorField();
+    prop3D->setName("test00001_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
     prop3D->setDirichletBoundarySurface(bdirMesh.get());
     prop3D->setDirichletConditions(bc_surf_3Dfield);
     prop3D->setDumping(true);
     prop3D->setDumpingType(1);
-    prop3D->setDecayFactor(1);
+    prop3D->setDecayFactor(1.0);
     prop3D->setDumpingInnerDistance(0.5);
     prop3D->setDumpingOuterDistance(3.5);
 
