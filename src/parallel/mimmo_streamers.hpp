@@ -30,6 +30,11 @@
 
 namespace mimmo{
 
+/*!
+ * \class MimmoDataBufferStreamer
+ * \ingroup parallel
+ * \brief Specialized buffer streamer to exchange data defined on cells.
+ */
 template<std::size_t NCOMP>
 class MimmoDataBufferStreamer : public ExchangeBufferStreamer {
 

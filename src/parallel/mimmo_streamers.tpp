@@ -27,12 +27,6 @@ using namespace bitpit;
 
 namespace mimmo{
 
-/*!
-    \class MBufferStreamer
-
-    \brief The MBufferStreamer class allows to stream cell data
-    from / to the buffer of a GhostComunicator.
-*/
 
 /*!
     Creates a new scalar streamer
@@ -86,6 +80,7 @@ void MimmoDataBufferStreamer<NCOMP>::write(const int &rank, bitpit::SendBuffer &
     		buffer << val;
     }
 }
+
 
 }
 #endif
