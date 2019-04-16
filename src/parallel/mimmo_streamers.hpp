@@ -50,6 +50,26 @@ private:
 
 };
 
+/*!
+ * \class MimmoPointDataBufferStreamer
+ * \ingroup parallel
+ * \brief Specialized buffer streamer to exchange data defined on points.
+ */
+template<std::size_t NCOMP>
+class MimmoPointDataBufferStreamer : public ExchangeBufferStreamer {
+
+public:
+	MimmoPointDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+
+    void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
+    void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
+
+private:
+
+    MimmoPiercedVector<std::array<double, NCOMP> >* m_data;
+
+};
+
 }
 
 #include "mimmo_streamers.tpp"

@@ -133,10 +133,13 @@ protected:
     bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
 #if MIMMO_ENABLE_MPI
-    int							m_nprocs;				/**<Total number of processors.*/
-    int							m_rank;					/**<Current rank number.*/
-	MPI_Comm 					m_communicator; 		/**<MPI communicator.*/
-	long						m_nglobalvertices = 0;	/**<Global number of vertices.*/
+    int							m_nprocs;									/**<Total number of processors.*/
+    int							m_rank;										/**<Current rank number.*/
+	MPI_Comm 					m_communicator; 							/**<MPI communicator.*/
+	long						m_nglobalvertices = 0;						/**<Global number of vertices.*/
+	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeTargets;	/**<List of Ids of the local ghosts that are local cells for each other processor.*/
+	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeSources;	/**<List of Ids of the local cells that are ghosts for each other processor.*/
+	bool						m_pointGhostExchangeInfoSync;				/**<Track correct building of point ghost exchange info along with geometry modifications */
 #endif
 
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**<Patch Numbering Info structure.*/
@@ -165,7 +168,7 @@ public:
     long                                            getNGlobalCells();
 #endif
     dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = NULL);
-    darray3E                                        getVertexCoords(long i);
+    darray3E                                        getVertexCoords(long i) const;
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
 
@@ -197,6 +200,15 @@ public:
     bool                          isKdTreeSync();
     bool                          isInfoSync();
 
+#if MIMMO_ENABLE_MPI
+	const MPI_Comm & getCommunicator() const;
+	int getRank() const;
+	int getProcessorCount() const;
+    const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
+    const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
+    bool arePointGhostExchangeInfoSync() const;
+    void updatePointGhostExchangeInfo();
+#endif
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
     bool        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
@@ -296,6 +308,44 @@ protected:
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
     void    cleanKdTree();
+
+
+	/*!
+		Functional for comparing the position of two vertices.
+
+		The comparison is made with respect to the vertex coordinates.
+	*/
+	struct VertexPositionLess
+	{
+    	VertexPositionLess(const MimmoObject &object)
+			: m_object(object)
+		{
+		}
+
+		virtual ~VertexPositionLess() = default;
+
+		bool operator()(const long &id_1, const long &id_2) const
+		{
+			std::array<double, 3> vertex_1 = m_object.getVertexCoords(id_1);
+			std::array<double, 3> vertex_2 = m_object.getVertexCoords(id_2);
+
+			for (int k = 0; k < 3; ++k) {
+				if (std::abs(vertex_1[k] - vertex_2[k]) <= m_object.getPatch()->getTol()) {
+					continue;
+				}
+				return vertex_1[k] < vertex_2[k];
+			}
+
+			// If we are here the two vertices coincide. It's not
+			// possible to define an order for the two vertices.
+			std::ostringstream stream;
+			stream << "It was not possible to define an order for vertices " << id_1 << " and " << id_2 << ". ";
+			stream << "The two vertices have the same coordinates.";
+			throw std::runtime_error (stream.str());
+		}
+
+		const MimmoObject &m_object;
+	};
 
 };
 

@@ -106,6 +106,10 @@ protected:
     std::unique_ptr<GhostCommunicator> m_ghostCommunicator; 			/**<Ghost communicator object */
     int m_ghostTag;														/**< Tag of communicator object*/
     std::unique_ptr<MimmoDataBufferStreamer<NCOMP>> m_ghostStreamer;	/**<Data streamer */
+
+    std::unique_ptr<PointGhostCommunicator> m_pointGhostCommunicator; 			/**<Ghost communicator object */
+    int m_pointGhostTag;														/**< Tag of communicator object*/
+    std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>> m_pointGhostStreamer;	/**<Data streamer */
 #endif
 
 public:
@@ -157,6 +161,7 @@ protected:
 
 #if MIMMO_ENABLE_MPI
     int createGhostCommunicator(bool continuous);
+    int createPointGhostCommunicator(bool continuous);
 #endif
 
 };
