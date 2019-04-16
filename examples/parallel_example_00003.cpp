@@ -40,7 +40,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(100), nt(100), nh(100);
+	int nr(40), nt(40), nh(40);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);

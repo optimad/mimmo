@@ -914,7 +914,8 @@ MimmoObject::getVerticesCoords(liimap* mapDataInv){
  * \return Coordinates of the i-th vertex of geometry mesh.
  */
 darray3E
-MimmoObject::getVertexCoords(long i){
+MimmoObject::getVertexCoords(long i) const
+{
 	if(!(getVertices().exists(i)))	return darray3E({{1.e18,1.e18,1.e18}});
 	return 	getPatch()->getVertexCoords(i);
 };
@@ -1314,6 +1315,146 @@ MimmoObject::getKdTree(){
 	return m_kdTree.get();
 }
 
+#if MIMMO_ENABLE_MPI
+
+/*!
+	Gets the MPI communicator associated to the object
+
+	\return The MPI communicator associated to the object.
+*/
+const MPI_Comm & MimmoObject::getCommunicator() const
+{
+	return m_communicator;
+}
+
+/*!
+	Gets the MPI rank associated to the object
+
+	\return The MPI rank associated to the object.
+*/
+int MimmoObject::getRank() const
+{
+	return m_rank;
+}
+
+/*!
+	Gets the MPI processors in the communicator associated to the object
+
+	\return The MPI processors in the communicator associated to the object
+*/
+int MimmoObject::getProcessorCount() const
+{
+	return m_nprocs;
+}
+
+/*!
+	Gets a constant reference to the ghost targets needed for point data exchange.
+
+	\result A constant reference to the ghost targets needed for point data
+	exchange.
+*/
+const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeTargets() const
+{
+	return m_pointGhostExchangeTargets;
+}
+
+/*!
+	Gets a constant reference to the ghost sources needed for point data exchange.
+
+	\result A constant reference to the ghost sources needed for point data
+	exchange.
+*/
+const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeSources() const
+{
+	return m_pointGhostExchangeSources;
+}
+
+
+/*!
+	Checks if the ghost exchange information are dirty.
+
+	\result Returns true if the ghost exchange information on points are dirty, false
+	otherwise.
+*/
+bool MimmoObject::arePointGhostExchangeInfoSync() const
+{
+	return m_pointGhostExchangeInfoSync;
+}
+
+/*!
+	Update the information needed for ghost point data exchange.
+*/
+void MimmoObject::updatePointGhostExchangeInfo()
+{
+	// Clear targets
+	m_pointGhostExchangeTargets.clear();
+
+	//Fill the nodes of the targets
+	for (const auto &entry : m_patch->getGhostExchangeTargets()) {
+		int ghostRank = entry.first;
+		std::vector<long> ghostIds = entry.second;
+		std::unordered_set<long> ghostVertices;
+		for (long cellId : ghostIds){
+			for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+				ghostVertices.insert(vertexId);
+			}
+		}
+		m_pointGhostExchangeTargets[ghostRank].assign(ghostVertices.begin(), ghostVertices.end());
+	}
+
+	//Fill the nodes of the sources
+	for (const auto &entry : m_patch->getGhostExchangeSources()) {
+		int recvRank = entry.first;
+		std::vector<long> localIds = entry.second;
+		std::unordered_set<long> localVertices;
+		for (long cellId : localIds){
+			for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+				localVertices.insert(vertexId);
+			}
+		}
+		m_pointGhostExchangeSources[recvRank].assign(localVertices.begin(), localVertices.end());
+	}
+
+	//Erase common vertices
+	for (auto & sourceEntry : m_pointGhostExchangeSources){
+		int recvRank = sourceEntry.first;
+		if (m_pointGhostExchangeTargets.count(recvRank)){
+			std::size_t sourceLast = sourceEntry.second.size()-1;
+			auto & sourceVertices = sourceEntry.second;
+			std::size_t targetLast = m_pointGhostExchangeTargets[recvRank].size()-1;
+			auto & targetVertices = m_pointGhostExchangeTargets[recvRank];
+			for (auto & sourceVertex : sourceVertices){
+				auto iter = std::find(targetVertices.begin(), targetVertices.end(), sourceVertex);
+				if (iter != targetVertices.end()){
+					//The nodes are not repeated so the target veritces don't need to be resized
+					*iter = targetLast;
+					targetLast--;
+					sourceVertex = sourceLast;
+					sourceLast--;
+				}
+			}
+			sourceVertices.resize(sourceLast+1);
+			targetVertices.resize(targetLast+1);
+		}
+	}
+
+	// Sort the targets
+	for (auto &entry : m_pointGhostExchangeTargets) {
+		std::vector<long> &rankTargets = entry.second;
+		std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
+	}
+
+	// Sort the sources
+	for (auto &entry : m_pointGhostExchangeSources) {
+		std::vector<long> &rankSources = entry.second;
+		std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
+	}
+
+	// Exchange info are now updated
+	m_pointGhostExchangeInfoSync = true;
+}
+
+#endif
 
 /*!
  * Set the vertices structure of the class, clearing any previous vertex list stored.

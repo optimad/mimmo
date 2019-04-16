@@ -898,7 +898,6 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
         // Receive data
         m_ghostCommunicator->completeAllExchanges();
     }
-
 #endif
 
     if(markedcells){
@@ -917,6 +916,26 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
     // interpolate result to POINT location.
     m_field.clear();
     m_field = mpvres->cellDataToPointData();
+
+
+#if MIMMO_ENABLE_MPI
+    // Creating point ghost communications for exchanging interpolated values
+    if (geo->getPatch()->isPartitioned()) {
+    	//Force update exchange info
+    	getGeometry()->updatePointGhostExchangeInfo();
+        m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(mpvres.get()));
+        m_pointGhostTag = createPointGhostCommunicator(true);
+        m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
+    }
+
+    if (geo->getPatch()->isPartitioned()) {
+        // Send data
+        m_pointGhostCommunicator->startAllExchanges();
+        // Receive data
+        m_pointGhostCommunicator->completeAllExchanges();
+    }
+#endif
+
 }
 
 
@@ -960,6 +979,30 @@ int PropagateField<NCOMP>::createGhostCommunicator(bool continuous)
 
     // Add ghost communicator
     m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(ghostCommunicator);
+
+    // Return communicator tag
+    return tag;
+}
+
+/*!
+    Creates a new point ghost communicator.
+
+    \param continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created communicator.
+*/
+template<std::size_t NCOMP>
+int PropagateField<NCOMP>::createPointGhostCommunicator(bool continuous)
+{
+    // Create communicator
+    PointGhostCommunicator *ghostCommunicator = new PointGhostCommunicator(getGeometry());
+    ghostCommunicator->resetExchangeLists();
+    ghostCommunicator->setRecvsContinuous(continuous);
+
+    // Communicator tag
+    int tag = ghostCommunicator->getTag();
+
+    // Add ghost communicator
+    m_pointGhostCommunicator = std::unique_ptr<PointGhostCommunicator>(ghostCommunicator);
 
     // Return communicator tag
     return tag;
