@@ -623,11 +623,6 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
     bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
 #endif
 
-    //fill in the stencil rows, after renumbering the stencil.
-    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-        it->renumber(maplocals);
-    }
-
     std::vector<long> mapsort(laplacianStencils->size());
     long id, ind;
     for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
@@ -641,7 +636,9 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
 
     //Add ordered rows
     for(auto id : mapsort){
-    	bitpit::StencilScalar & item = laplacianStencils->at(id);
+    	bitpit::StencilScalar item = laplacianStencils->at(id);
+        //renumber values on the fly.
+        item.renumber(maplocals);
     	matrix.addRow(item.size(), item.patternData(), item.weightData());
     }
 
@@ -693,10 +690,6 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
     bitpit::SparseMatrix upelements(nupdate, nDOFs, nNZ);
 #endif
 
-    //fill in the stencil rows, after renumbering the stencil.
-    for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-        it->renumber(maplocals);
-    }
 
     // store the local ind of the rows involved, while filling the matrix of update values.
     std::vector<long> rows_involved;
@@ -710,7 +703,9 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 	    ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
 #endif
     	rows_involved.push_back(ind);
-        upelements.addRow(it->size(), it->patternData(), it->weightData());
+        bitpit::StencilScalar item(*it);
+        item.renumber(maplocals);
+        upelements.addRow(item.size(), item.patternData(), item.weightData());
     }
     //assembly the update matrix;
     upelements.assembly();

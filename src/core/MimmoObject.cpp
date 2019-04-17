@@ -1826,7 +1826,10 @@ livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList){
             bitpit::Cell & cell = cells.at(id);
             long * interf =cell.getInterfaces();
             int nIloc = cell.getInterfaceCount();
-            for(int i=0; i<nIloc; ++i)  ordV.insert(interf[i]);
+            for(int i=0; i<nIloc; ++i){
+              if(interf[i] < 0) continue;
+              ordV.insert(interf[i]);
+            }
         }
     }
 	result.reserve(ordV.size());
@@ -2046,6 +2049,7 @@ livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
     for(auto & tuple : facemap){
         long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
         for(auto & val : tuple.second){
+            if(interfCellList[val] < 0) continue;
             container.insert(interfCellList[val]);
         }
     }
