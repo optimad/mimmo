@@ -99,11 +99,17 @@ if(BUILD_EXAMPLES)
     endif ()
 
     #Add examples of enabled modules
+    isModuleEnabled("propagators" MODULE_ENABLED6)
+
     if (ENABLE_MPI)
-        isModuleEnabled("parallel" MODULE_ENABLED6)
-        if (MODULE_ENABLED6)
+        isModuleEnabled("parallel" MODULE_ENABLED7)
+        if (MODULE_ENABLED7 AND MODULE_ENABLED1)
             list(APPEND EXAMPLE_LIST "parallel_example_00001")
+        endif()
+        if (MODULE_ENABLED7)
             list(APPEND EXAMPLE_LIST "parallel_example_00002")
+        endif()
+        if (MODULE_ENABLED7 AND MODULE_ENABLED6)
             list(APPEND EXAMPLE_LIST "parallel_example_00003")
             list(APPEND EXAMPLE_LIST "parallel_example_00004")
         endif ()
@@ -203,7 +209,7 @@ if(BUILD_EXAMPLES)
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/OFOAM" "${CMAKE_CURRENT_BINARY_DIR}/geodata/OFOAM"
         )
     endif()
-    if (MODULE_ENABLED6)
+    if (MODULE_ENABLED7 AND MODULE_ENABLED1)
         add_custom_command(
             TARGET "parallel_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/StaticMixer.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StaticMixer.cgns"
