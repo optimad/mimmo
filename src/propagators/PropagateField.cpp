@@ -207,7 +207,6 @@ PropagateScalarField::clear(){
 void
 PropagateScalarField::plotOptionalResults(){
 
-
     if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();

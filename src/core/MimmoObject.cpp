@@ -1386,6 +1386,7 @@ bool MimmoObject::arePointGhostExchangeInfoSync() const
 */
 void MimmoObject::updatePointGhostExchangeInfo()
 {
+
 	// Clear targets
 	m_pointGhostExchangeTargets.clear();
 
@@ -1401,6 +1402,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 		m_pointGhostExchangeTargets[ghostRank].assign(ghostVertices.begin(), ghostVertices.end());
 	}
+
+	// Clear sources
+	m_pointGhostExchangeSources.clear();
 
 	//Fill the nodes of the sources
 	for (const auto &entry : m_patch->getGhostExchangeSources()) {
@@ -1423,17 +1427,20 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			auto & sourceVertices = sourceEntry.second;
 			std::size_t targetLast = m_pointGhostExchangeTargets[recvRank].size()-1;
 			auto & targetVertices = m_pointGhostExchangeTargets[recvRank];
-			for (auto & sourceVertex : sourceVertices){
-				auto iter = std::find(targetVertices.begin(), targetVertices.end(), sourceVertex);
+			std::vector<long>::iterator itsourceend = sourceVertices.end();
+			for (std::vector<long>::iterator itsource=sourceVertices.begin(); itsource!=itsourceend; itsource++){
+				auto iter = std::find(targetVertices.begin(), targetVertices.end(), *itsource);
 				if (iter != targetVertices.end()){
 					//The nodes are not repeated so the target veritces don't need to be resized
-					*iter = targetLast;
+					*iter = targetVertices[targetLast];
 					targetLast--;
-					sourceVertex = sourceLast;
+					*itsource = *(sourceVertices.end()-1);
 					sourceLast--;
+					sourceVertices.resize(sourceLast+1);
+					itsourceend = sourceVertices.end();
+					itsource--;
 				}
 			}
-			sourceVertices.resize(sourceLast+1);
 			targetVertices.resize(targetLast+1);
 		}
 	}
