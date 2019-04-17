@@ -1559,9 +1559,11 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * \return true if the cell is successful inserted.
  */
 bool
-MimmoObject::addCell(const bitpit::Cell & cell, const long idtag){
+MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
 
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return false;
+
+    cell.resetAdjacencies();
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
