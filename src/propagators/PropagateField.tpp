@@ -917,13 +917,12 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
     m_field.clear();
     m_field = mpvres->cellDataToPointData();
 
-
 #if MIMMO_ENABLE_MPI
     // Creating point ghost communications for exchanging interpolated values
     if (geo->getPatch()->isPartitioned()) {
     	//Force update exchange info
     	getGeometry()->updatePointGhostExchangeInfo();
-        m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(mpvres.get()));
+        m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(&m_field));
         m_pointGhostTag = createPointGhostCommunicator(true);
         m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
     }
