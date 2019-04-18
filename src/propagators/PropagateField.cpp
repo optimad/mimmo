@@ -623,7 +623,6 @@ PropagateVectorField::apply(){
             m_slipsurface->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
         }
     }
-
 }
 
 /*!
@@ -644,7 +643,6 @@ PropagateVectorField::subdivideBC(){
     for (auto & val : m_surface_bc_dir){
         val /= double(m_nstep);
     }
-
 }
 
 /*!
