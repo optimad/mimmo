@@ -40,7 +40,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(40), nt(40), nh(40);
+	int nr(10), nt(10), nh(10);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -195,7 +195,7 @@ int test00003() {
 		if (cell.getPID() == 1){
 			for (long id : cell.getVertexIds()){
 				if (!bc_surf_field.exists(id))
-					bc_surf_field.insert(id, {{10., 5., 1.}});
+					bc_surf_field.insert(id, {{1., 1., 0.}});
 			}
 		}
 		if (cell.getPID() == 2){
@@ -215,7 +215,10 @@ int test00003() {
 	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
 	prop->setDirichletConditions(bc_surf_field);
 	prop->setDumping(false);
-	prop->setPlotInExecution(true);
+	prop->setSolverMultiStep(10);
+	prop->setPlotInExecution(false);
+
+	prop->getGeometry()->getPatch()->write("ppp");
 
 	t1 = Clock::now();
 	if (rank ==0)

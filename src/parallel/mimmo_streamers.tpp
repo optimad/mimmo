@@ -39,6 +39,12 @@ MimmoDataBufferStreamer<NCOMP>::MimmoDataBufferStreamer(MimmoPiercedVector<std::
 	m_data = data;
 }
 
+template<std::size_t NCOMP>
+void MimmoDataBufferStreamer<NCOMP>::setData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
+{
+	m_data = data;
+}
+
 /*!
     Read the dataset from the buffer.
 
@@ -88,6 +94,12 @@ void MimmoDataBufferStreamer<NCOMP>::write(const int &rank, bitpit::SendBuffer &
 template<std::size_t NCOMP>
 MimmoPointDataBufferStreamer<NCOMP>::MimmoPointDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> >* data)
     : ExchangeBufferStreamer(NCOMP*sizeof(double))
+{
+	m_data = data;
+}
+
+template<std::size_t NCOMP>
+void MimmoPointDataBufferStreamer<NCOMP>::setData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
 {
 	m_data = data;
 }
