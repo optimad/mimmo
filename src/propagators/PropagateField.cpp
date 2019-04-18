@@ -572,6 +572,7 @@ void PropagateVectorField::distributeSlipBCOnBoundaryInterfaces(){
 void
 PropagateVectorField::plotOptionalResults(){
 
+    std::cout <<"#" << m_rank << " " << m_name<<" in plot optional result  "<<std::endl;
 
     if(getGeometry() == NULL)    return;
 
@@ -955,7 +956,6 @@ PropagateVectorField::execute(){
     //declare results here and keep it during the loop to re-use the older steps.
     std::vector<std::vector<double>> results(3);
 
-
     //loop on multistep
     for(int istep=0; istep < m_nstep; ++istep){
 
@@ -972,7 +972,9 @@ PropagateVectorField::execute(){
             assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
             //solve
             results[comp].resize(rhs.size(), 0.0);
+            (*m_log)<<m_name<<" solving component "<<comp<<std::endl;
             solveLaplace(rhs, results[comp]);
+            (*m_log)<<m_name<<" solved component "<<comp<<std::endl;
         }
 
         //if I have a slip wall active, it needs a corrector stage for slip boundaries;
@@ -999,7 +1001,9 @@ PropagateVectorField::execute(){
 
         }
         //RECONSTRUCT STAGE --> /////////////////////////////////////////////////////////////////////////////////
+        (*m_log)<<m_name<<" reconstructing  "<<std::endl;
         reconstructResults(results, data, movingCellList.get());
+        (*m_log)<<m_name<<" reconstructed  "<<std::endl;
 
         //force boundary on slip
         if(m_slipsurface){
@@ -1014,14 +1018,41 @@ PropagateVectorField::execute(){
             m_field.at(it.getId()) = *it;
         }
 
+#if MIMMO_ENABLE_MPI
+    // Creating point ghost communications for exchanging interpolated values
+    if (geo->getPatch()->isPartitioned() && !m_pointGhostStreamer) {
+    	//Force update exchange info
+    	getGeometry()->updatePointGhostExchangeInfo();
+        m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<3>>(new MimmoPointDataBufferStreamer<3>(&m_field));
+        m_pointGhostTag = createPointGhostCommunicator(true);
+        m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
+    }
+    else{
+    	m_pointGhostStreamer->setData(&m_field);
+    }
+
+    if (geo->getPatch()->isPartitioned()) {
+        // Send data
+    	std::cout << "start point all exchange " << std::endl;
+        m_pointGhostCommunicator->startAllExchanges();
+        // Receive data
+    	std::cout << "complete point all exchange " << std::endl;
+        m_pointGhostCommunicator->completeAllExchanges();
+    }
+#endif
+
+
         // if you are in multistep stage apply the deformation to the mesh.
         if(m_nstep > 1){
+            (*m_log)<<m_name<<" applying "<<m_nstep<<std::endl;
             apply();
+            m_geometry->getPatch()->write("multistep."+std::to_string(istep));
         }
 
         // if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
         if(istep < m_nstep-1){
-            //update the dumping function.
+        	//update the dumping function.
+            (*m_log)<<m_name<<" updating dumping "<<m_nstep<<std::endl;
             updateDumpingFunction();
 
             //enlarge the moving cell list taking its first vertex neighs and its second face neighs.
@@ -1044,21 +1075,26 @@ PropagateVectorField::execute(){
             // update the laplacian Matrix in solver free the updateLaplaceStencils
             updateLaplaceSolver(updateLaplaceStencils.get(), dataInv);
             updateLaplaceStencils = nullptr;
+
         }
 
         (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
 
     } //end of multistep loop;
 
+    (*m_log)<<m_name<<" Restoring geometry  "<<std::endl;
     if(m_nstep > 1){
         //this take the geometry to the original state and update the deformation field as the current
         //deformed grid minus the undeformed state (this directly on POINTS).
         restoreGeometry(undeformedTargetVertices);
+        (*m_log)<<m_name<<" Restoring BC  "<<std::endl;
         restoreBC();
     }
 
     //clear the solver;
+    (*m_log)<<m_name<<" Clearing solve  "<<std::endl;
     m_solver->clear();
+    (*m_log)<<m_name<<" Cleared solve  "<<std::endl;
     (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
 }
 

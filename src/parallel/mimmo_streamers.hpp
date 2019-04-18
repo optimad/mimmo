@@ -41,6 +41,8 @@ class MimmoDataBufferStreamer : public ExchangeBufferStreamer {
 public:
 	MimmoDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> > *data);
 
+	void setData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+
     void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
     void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
 
@@ -60,6 +62,8 @@ class MimmoPointDataBufferStreamer : public ExchangeBufferStreamer {
 
 public:
 	MimmoPointDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+
+	void setData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
 
     void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
     void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());

@@ -775,6 +775,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 
         if(!mesh_interfaces.at(idInterface).isBorder()) continue; //skip non-border interfaces;
 
+
         idOwner = mesh_interfaces.at(idInterface).getOwner();
         interfaceNormal = geo->evalInterfaceNormal(idInterface);
         volume = geo->evalCellVolume(idOwner);
@@ -886,16 +887,21 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 
 #if MIMMO_ENABLE_MPI
     // Creating ghost communications for exchanging solved values
-    if (geo->getPatch()->isPartitioned()) {
+    if (geo->getPatch()->isPartitioned() && !m_ghostStreamer) {
         m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(mpvres.get()));
         m_ghostTag = createGhostCommunicator(true);
         m_ghostCommunicator->addData(m_ghostStreamer.get());
     }
+    else{
+    	m_ghostStreamer->setData(mpvres.get());
+    }
 
     if (geo->getPatch()->isPartitioned()) {
         // Send data
+    	std::cout << "start all exchange " << std::endl;
         m_ghostCommunicator->startAllExchanges();
         // Receive data
+    	std::cout << "complete all exchange " << std::endl;
         m_ghostCommunicator->completeAllExchanges();
     }
 #endif
@@ -919,18 +925,23 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 
 #if MIMMO_ENABLE_MPI
     // Creating point ghost communications for exchanging interpolated values
-    if (geo->getPatch()->isPartitioned()) {
+    if (geo->getPatch()->isPartitioned() && !m_pointGhostStreamer) {
     	//Force update exchange info
     	getGeometry()->updatePointGhostExchangeInfo();
         m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(&m_field));
         m_pointGhostTag = createPointGhostCommunicator(true);
         m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
     }
+    else{
+    	m_pointGhostStreamer->setData(&m_field);
+    }
 
     if (geo->getPatch()->isPartitioned()) {
         // Send data
+    	std::cout << "start point all exchange " << std::endl;
         m_pointGhostCommunicator->startAllExchanges();
         // Receive data
+    	std::cout << "complete point all exchange " << std::endl;
         m_pointGhostCommunicator->completeAllExchanges();
     }
 #endif
@@ -969,15 +980,15 @@ template<std::size_t NCOMP>
 int PropagateField<NCOMP>::createGhostCommunicator(bool continuous)
 {
     // Create communicator
-    GhostCommunicator *ghostCommunicator = new GhostCommunicator(getGeometry()->getPatch());
-    ghostCommunicator->resetExchangeLists();
-    ghostCommunicator->setRecvsContinuous(continuous);
+	m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(getGeometry()->getPatch()));
+	m_ghostCommunicator->resetExchangeLists();
+	m_ghostCommunicator->setRecvsContinuous(continuous);
 
     // Communicator tag
-    int tag = ghostCommunicator->getTag();
+    int tag = m_ghostCommunicator->getTag();
 
     // Add ghost communicator
-    m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(ghostCommunicator);
+//    m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(ghostCommunicator);
 
     // Return communicator tag
     return tag;

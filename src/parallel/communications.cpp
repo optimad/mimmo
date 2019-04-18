@@ -460,6 +460,7 @@ void ListCommunicator::completeAllRecvs()
 int ListCommunicator::completeAnyRecv(const std::vector<int> &blacklist)
 {
     // Wait for a receve to finish
+
     int rank = waitAnyRecv(blacklist);
 
     // Get receive buffer
