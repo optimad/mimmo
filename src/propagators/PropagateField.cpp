@@ -572,8 +572,6 @@ void PropagateVectorField::distributeSlipBCOnBoundaryInterfaces(){
 void
 PropagateVectorField::plotOptionalResults(){
 
-    std::cout <<"#" << m_rank << " " << m_name<<" in plot optional result  "<<std::endl;
-
     if(getGeometry() == NULL)    return;
 
     bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();

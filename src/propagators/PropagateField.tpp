@@ -597,7 +597,6 @@ PropagateField<NCOMP>::updateDumpingFunction(){
  * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
  * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
  */
-
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
@@ -662,18 +661,12 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
  * param[in] laplacianStencils pointer to MPV structure of laplacian stencils subset to feed as update.
  * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
  */
-
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
 
     // total number of local DOFS, determines size of matrix
-
-// #if MIMMO_ENABLE_MPI==1
-//     long nDOFs = m_solver->getColGlobalCount();
-// #else
     long nDOFs = m_solver->getColCount();
-// #endif
     long nupdate = laplacianStencils->size();
 
     // total number of non-zero elements in the stencils.
@@ -908,8 +901,6 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 
 }
 
-
-
 /*!
  * Initialize m_isbp member getting all the real border interfaces (no ghost) and
  * assigning to them a condition of type 0 (Neummann)
@@ -927,7 +918,6 @@ PropagateField<NCOMP>::initializeBoundaryInfo(){
         m_isbp.insert(val, 0);
     }
 }
-
 
 #if MIMMO_ENABLE_MPI
 /*!
