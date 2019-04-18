@@ -162,6 +162,9 @@ protected:
 #if MIMMO_ENABLE_MPI
     int createGhostCommunicator(bool continuous);
     int createPointGhostCommunicator(bool continuous);
+    void communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+    void communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+
 #endif
 
 };

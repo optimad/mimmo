@@ -886,24 +886,7 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
     }
 
 #if MIMMO_ENABLE_MPI
-    // Creating ghost communications for exchanging solved values
-    if (geo->getPatch()->isPartitioned() && !m_ghostStreamer) {
-        m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(mpvres.get()));
-        m_ghostTag = createGhostCommunicator(true);
-        m_ghostCommunicator->addData(m_ghostStreamer.get());
-    }
-    else{
-    	m_ghostStreamer->setData(mpvres.get());
-    }
-
-    if (geo->getPatch()->isPartitioned()) {
-        // Send data
-    	std::cout << "start all exchange " << std::endl;
-        m_ghostCommunicator->startAllExchanges();
-        // Receive data
-    	std::cout << "complete all exchange " << std::endl;
-        m_ghostCommunicator->completeAllExchanges();
-    }
+    communicateGhostData(mpvres.get());
 #endif
 
     if(markedcells){
@@ -922,29 +905,6 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
     // interpolate result to POINT location.
     m_field.clear();
     m_field = mpvres->cellDataToPointData();
-
-#if MIMMO_ENABLE_MPI
-    // Creating point ghost communications for exchanging interpolated values
-    if (geo->getPatch()->isPartitioned() && !m_pointGhostStreamer) {
-    	//Force update exchange info
-    	getGeometry()->updatePointGhostExchangeInfo();
-        m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(&m_field));
-        m_pointGhostTag = createPointGhostCommunicator(true);
-        m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
-    }
-    else{
-    	m_pointGhostStreamer->setData(&m_field);
-    }
-
-    if (geo->getPatch()->isPartitioned()) {
-        // Send data
-    	std::cout << "start point all exchange " << std::endl;
-        m_pointGhostCommunicator->startAllExchanges();
-        // Receive data
-    	std::cout << "complete point all exchange " << std::endl;
-        m_pointGhostCommunicator->completeAllExchanges();
-    }
-#endif
 
 }
 
@@ -987,9 +947,6 @@ int PropagateField<NCOMP>::createGhostCommunicator(bool continuous)
     // Communicator tag
     int tag = m_ghostCommunicator->getTag();
 
-    // Add ghost communicator
-//    m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(ghostCommunicator);
-
     // Return communicator tag
     return tag;
 }
@@ -1004,18 +961,70 @@ template<std::size_t NCOMP>
 int PropagateField<NCOMP>::createPointGhostCommunicator(bool continuous)
 {
     // Create communicator
-    PointGhostCommunicator *ghostCommunicator = new PointGhostCommunicator(getGeometry());
-    ghostCommunicator->resetExchangeLists();
-    ghostCommunicator->setRecvsContinuous(continuous);
+	m_pointGhostCommunicator = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(getGeometry()));
+	m_pointGhostCommunicator->resetExchangeLists();
+	m_pointGhostCommunicator->setRecvsContinuous(continuous);
 
     // Communicator tag
-    int tag = ghostCommunicator->getTag();
-
-    // Add ghost communicator
-    m_pointGhostCommunicator = std::unique_ptr<PointGhostCommunicator>(ghostCommunicator);
+    int tag = m_pointGhostCommunicator->getTag();
 
     // Return communicator tag
     return tag;
+}
+
+/*!
+    Communicate data on ghost cells. The methiod create a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to field with data to communicate
+*/
+template<std::size_t NCOMP>
+void PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
+{
+	// Creating point ghost communications for exchanging interpolated values
+    if (getGeometry()->getPatch()->isPartitioned() && !m_ghostStreamer) {
+    	//Force update exchange info
+    	m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(data));
+        m_ghostTag = createGhostCommunicator(true);
+        m_ghostCommunicator->addData(m_ghostStreamer.get());
+    }
+    else{
+    	m_ghostStreamer->setData(data);
+    }
+
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        // Send data
+    	m_ghostCommunicator->startAllExchanges();
+        // Receive data
+    	m_ghostCommunicator->completeAllExchanges();
+    }
+}
+
+/*!
+    Communicate data on ghost points. The methiod create a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to field with data to communicate
+*/
+template<std::size_t NCOMP>
+void PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
+{
+	// Creating point ghost communications for exchanging interpolated values
+    if (getGeometry()->getPatch()->isPartitioned() && !m_pointGhostStreamer) {
+    	//Force update exchange info
+    	getGeometry()->updatePointGhostExchangeInfo();
+    	m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(data));
+    	m_pointGhostTag = createPointGhostCommunicator(true);
+        m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
+    }
+    else{
+    	m_pointGhostStreamer->setData(data);
+    }
+
+    if (getGeometry()->getPatch()->isPartitioned()) {
+        // Send data
+    	m_pointGhostCommunicator->startAllExchanges();
+        // Receive data
+    	m_pointGhostCommunicator->completeAllExchanges();
+    }
 }
 
 #endif
