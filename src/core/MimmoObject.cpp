@@ -618,6 +618,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_nprocs = other.m_nprocs;
 	m_communicator = other.m_communicator;
 	m_nglobalvertices = other.m_nglobalvertices;
+	m_pointGhostExchangeInfoSync = false;
 #endif
 };
 
@@ -659,6 +660,7 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_rank, x.m_rank);
 	std::swap(m_nprocs, x.m_nprocs);
 	std::swap(m_nglobalvertices, x.m_nglobalvertices);
+	m_pointGhostExchangeInfoSync = false;
 #endif
 }
 
@@ -694,9 +696,10 @@ MimmoObject::initializeParallel(){
 		}
 	}
 
-
 	MPI_Comm_rank(m_communicator, &m_rank);
 	MPI_Comm_size(m_communicator, &m_nprocs);
+
+	m_pointGhostExchangeInfoSync = false;
 
 }
 #endif
@@ -1488,6 +1491,9 @@ MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices)
 		coords = val.getCoords();
 		checkTot = checkTot && addVertex(coords, id);
 	}
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return checkTot;
 };
 
@@ -1518,6 +1524,9 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -1548,6 +1557,9 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -1614,6 +1626,10 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 		checkTot = checkTot && addConnectedCell(connectivity, eltype, pid, idc);
 	}
 
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
+
 	return checkTot;
 };
 
@@ -1647,15 +1663,11 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	bitpit::PatchKernel::CellIterator it;
 	auto patch = getPatch();
 
-//	if(idtag == bitpit::Cell::NULL_ID){
-//		it = patch->addCell(type, true, conn);
-//	}else{
 #if MIMMO_ENABLE_MPI
 		it = patch->addCell(type, conn, m_rank, idtag);
 #else
 		it = patch->addCell(type, conn, idtag);
 #endif
-//	}
 
 	m_pidsType.insert(0);
 	m_pidsTypeWNames.insert(std::make_pair( 0, "") );
@@ -1664,6 +1676,9 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	m_AdjBuilt = false;
 	m_IntBuilt = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -1701,13 +1716,6 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	auto patch = getPatch();
 
 	long checkedID;
-//	if(idtag == bitpit::Cell::NULL_ID){
-//		it = patch->addCell(type, true, conn);
-//		checkedID = it->getId();
-//	}else{
-//		it = patch->addCell(type, true,conn, idtag);
-//		checkedID = idtag;
-//	}
 #if MIMMO_ENABLE_MPI
 	it = patch->addCell(type, conn, m_rank, idtag);
 #else
@@ -1720,6 +1728,9 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	m_AdjBuilt = false;
 	m_IntBuilt = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -1743,11 +1754,6 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
 
     bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
-//    if(idtag == bitpit::Cell::NULL_ID){
-//        it = patch->addCell(cell);
-//    }else{
-//        it = patch->addCell(cell, idtag);
-//    }
 #if MIMMO_ENABLE_MPI
     it = patch->addCell(cell, m_rank, idtag);
 #else
@@ -1760,6 +1766,9 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
     m_skdTreeSync = false;
     m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
     return true;
 };
 
@@ -1905,6 +1914,9 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 
 	//copy data
 	const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
@@ -1958,6 +1970,9 @@ MimmoObject::cleanGeometry(){
 
 	m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -2566,6 +2581,9 @@ void MimmoObject::resetPatch(){
 	m_kdTreeSync = false;
  	m_patchInfo.reset();
  	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 };
 
 /*!
