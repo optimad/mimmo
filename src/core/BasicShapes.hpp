@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -25,7 +25,6 @@
 #ifndef __MIMMOBASICSHAPES_HH
 #define __MIMMOBASICSHAPES_HH
 
-#include "bitpit.hpp"
 #include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
 #include "surface_skd_tree.hpp"
@@ -57,23 +56,23 @@ enum class CoordType{
     CLAMPED     /**<force nurbs to pass on the extremal point of the interval (clamping)*/,
     PERIODIC    /**<provide periodic condition on the interval extrema*/,
     SYMMETRIC   /**<provide simmetry condition on the interval extrema*/
-}; 
+};
 
 
 /*!
  *\class BasicShape
- *\ingroup core 
+ *\ingroup core
  *\brief Abstract Interface class for Elementary Shape Representation
  *
  * Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
- * Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class 
+ * Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class
  * internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
- * 
+ *
  * Class works with three reference systems:
  * + Global Absolute SDR: is the external World reference system
- * + Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings 
- * + basic SDR: local system remapping to unitary cube, not accounting of the shape type.  
- *   
+ * + Local Relative SDR: is the local reference system, not affected by Rigid Transformations as RotoTranslations or Scalings
+ * + basic SDR: local system remapping to unitary cube, not accounting of the shape type.
+ *
  */
 class BasicShape {
 
@@ -154,11 +153,11 @@ public:
      */
     virtual	darray3E    toWorldCoord(const darray3E & point)=0;
 
-    /*! 
+    /*!
      * Pure virtual method to convert from World to Local Coordinates
      * \param[in] point 3D point in world global coordinates
      * \return point in local world coordinate
-     * 
+     *
      */
     virtual	darray3E    toLocalCoord(const darray3E & point)=0;
 
@@ -167,13 +166,16 @@ public:
      * \return local origin
      */
     virtual darray3E    getLocalOrigin()=0;
-    
+
 protected:
     uint32_t    intersectShapePlane(int level, const darray3E & target);
     darray3E    checkNearestPointToAABBox(const darray3E &point, const darray3E &bMin, const darray3E &bMax);
     void swap(BasicShape & ) noexcept;
-    
-private:	
+    static dmatrix33E transpose(const dmatrix33E & mat);
+    static darray3E   matmul(const darray3E & vec, const dmatrix33E & mat);
+    static darray3E   matmul(const dmatrix33E & mat,const darray3E & vec);
+
+private:
     /*!
      * Pure Virtual method to transform a 3D point from basic elemental shape coordinate in local ones
      * \param[in] point mapped in basic elemental shape coordinates
@@ -188,7 +190,7 @@ private:
      */
     virtual darray3E    localToBasic(const darray3E &point)=0;
 
-    /*! 
+    /*!
      * Pure virtual method to check if your new span values fit your current shape set up
      * and eventually return correct values.
      * \param[in] s0 first span dimension
@@ -197,7 +199,7 @@ private:
      */
     virtual void    checkSpan(double &s0, double &s1, double &s2)=0;
 
-    /*! 
+    /*!
      * Pure virtual method to check if your inf limits origin values fit your current shape set up
      * and eventually return correct values.
      * \param[in] orig inf limits origin array
@@ -206,7 +208,7 @@ private:
      */
     virtual bool    checkInfLimits(double & orig, int &dir)=0;
 
-    /*! 
+    /*!
      * Pure virtual method to set local span & scaling vectors of your shape
      * \param[in] s0 first span dimension
      * \param[in] s1 second span dimension
@@ -229,7 +231,7 @@ private:
  * \ingroup core
  * \brief Elementary Shape Representation of a Cube
  *
- * Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a cube, directly derived from BasicShape class.
  */
 
 class Cube: public BasicShape {
@@ -260,11 +262,11 @@ private:
 };
 
 /*!
- *\class Cylinder 
+ *\class Cylinder
  *\ingroup core
  *\brief Elementary Shape Representation of a Cylinder or portion of it
  *
- * Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a cylinder, directly derived from BasicShape class.
  */
 
 class Cylinder: public BasicShape {
@@ -283,7 +285,7 @@ public:
     darray3E	getLocalOrigin();
     bool		intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
 
-private:	
+private:
     darray3E	basicToLocal(const darray3E &point);
     darray3E	localToBasic(const darray3E &point);
     void 		checkSpan(double &, double &, double &);
@@ -298,7 +300,7 @@ private:
  *\ingroup core
  *\brief Elementary Shape Representation of a Sphere or portion of it
  *
- * Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.   
+ * Volumetric Core Element, shaped as a sphere, directly derived from BasicShape class.
  */
 
 class Sphere: public BasicShape {
@@ -316,8 +318,8 @@ public:
     darray3E    toLocalCoord(const darray3E &point);
     darray3E    getLocalOrigin();
     bool        intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
-    
-private:    
+
+private:
     darray3E    basicToLocal(const darray3E &point);
     darray3E    localToBasic(const darray3E &point);
     void        checkSpan(double &, double &, double &);
@@ -337,30 +339,30 @@ private:
  */
 
 class Wedge: public BasicShape {
-    
+
 public:
-    
+
     //Costructors, Destructor, Copy/Assignment operators
     Wedge();
     Wedge(const darray3E &origin, const darray3E &span);
     ~Wedge();
-    
+
     Wedge(const Wedge &);
-    
+
     //reimplementing pure virtuals
     darray3E    toWorldCoord(const darray3E &point);
     darray3E    toLocalCoord(const darray3E &point);
     darray3E    getLocalOrigin();
     bool        intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax);
-    
-private:    
+
+private:
     darray3E    basicToLocal(const darray3E &point);
     darray3E    localToBasic(const darray3E &point);
     void        checkSpan( double &, double &, double &);
     bool        checkInfLimits(double &, int &);
     void        setScaling(const double &, const double &, const double &);
     void        getTempBBox();
-    
+
 };
 
 
@@ -368,4 +370,3 @@ private:
 }
 
 #endif //  __MIMMOBASICSHAPES_HH
-

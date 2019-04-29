@@ -23,7 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "RBFBox.hpp"
-#include "bitpit_LA.hpp"
 #include <lapacke.h>
 
 #include <chrono>
@@ -209,7 +208,7 @@ RBFBox::plot(std::string directory, std::string filename,int counter, bool binar
     activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
 
     darray3E temp;
-    dmatrix33E    trasp = bitpit::linearalgebra::transpose(m_axes);
+    dmatrix33E    trasp = transpose(m_axes);
     for(auto &val : activeP){
 
 
@@ -308,5 +307,22 @@ RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     BaseManipulation::flushSectionXML(slotXML, name);
     slotXML.set("SupportRadius", std::to_string(m_suppR));
 };
+
+/*!
+    Transpose a 3x3 double matrix
+    \param[in] target matrix
+    \return new matrix transposed
+*/
+dmatrix33E RBFBox::transpose(const dmatrix33E & mat){
+    dmatrix33E out;
+
+    for(std::size_t i=0; i<3; ++i){
+        for(std::size_t j=0; j<3; ++j){
+            out[j][i] = mat[i][j];
+        }
+    }
+    return out;
+}
+
 
 }
