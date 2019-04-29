@@ -110,7 +110,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 	std::swap(this->m_dumpingType, x.m_dumpingType);
 	std::swap(this->m_thres, x.m_thres);
 	this->BaseManipulation::swap(x);
-    std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
+	std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
 }
 
 
