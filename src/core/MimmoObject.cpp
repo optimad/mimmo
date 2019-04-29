@@ -2007,26 +2007,40 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
  * if the target mesh has none.
  *\param[in] cellList list of bitpit::PatchKernel ids identifying cells.
  *\return the list of bitpit::PatchKernel ids of involved interfaces.
+ *\param[in] all extract all interfaces af listed cells. Otherwise (if false) extract only the interfaces shared by the listed cells.
  */
-livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList){
+livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, bool all){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
     if(!areInterfacesBuilt())   buildInterfaces();
     livector1D result;
     set<long int> ordV;
     auto patch = getPatch();
-    bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
-    //get conn from each cell of the list
-    for(const auto id : cellList){
-        if(cells.exists(id)){
-            bitpit::Cell & cell = cells.at(id);
-            long * interf =cell.getInterfaces();
-            int nIloc = cell.getInterfaceCount();
-            for(int i=0; i<nIloc; ++i){
-              if(interf[i] < 0) continue;
-              ordV.insert(interf[i]);
-            }
-        }
+
+    if (all){
+    	bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+    	//get conn from each cell of the list
+    	for(const auto id : cellList){
+    		if(cells.exists(id)){
+    			bitpit::Cell & cell = cells.at(id);
+    			long * interf =cell.getInterfaces();
+    			int nIloc = cell.getInterfaceCount();
+    			for(int i=0; i<nIloc; ++i){
+    				if(interf[i] < 0) continue;
+    				ordV.insert(interf[i]);
+    			}
+    		}
+    	}
+    }
+    else{
+    	std::unordered_set<long> targetCells(cellList.begin(), cellList.end());
+    	for(const auto & interf : getInterfaces()){
+    		long idowner = interf.getOwner();
+    		long idneigh = interf.getNeigh();
+    		if (targetCells.count(idowner) && (targetCells.count(idneigh) || idneigh<0)){
+				ordV.insert(interf.getId());
+    		}
+    	}
     }
 	result.reserve(ordV.size());
 	result.insert(result.end(), ordV.begin(), ordV.end());
