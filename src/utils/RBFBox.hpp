@@ -41,15 +41,15 @@ namespace mimmo{
  * Ports available in RBFBox Class :
  *
  *    =========================================================
- * 
+ *
      | Port Input |  | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_COORDS    | setNode                               | (MC_VECARR3, MD_FLOAT)      |
      | M_VALUED    | setSupportRadius                      | (MC_SCALAR, MD_FLOAT)       |
 
-     
-     
+
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>        |
@@ -116,6 +116,7 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(RBFBox & x) noexcept;
+    dmatrix33E transpose(const dmatrix33E & mat);
 };
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__RBFBox_HPP__)

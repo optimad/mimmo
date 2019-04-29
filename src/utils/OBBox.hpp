@@ -39,11 +39,11 @@ namespace mimmo{
  * Ports available in OBBox Class :
  *
  *    =========================================================
- 
- 
+
+
      |Port Input | | |
      |-|-|-|
-     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM      | m_geometry                            |(MC_SCALAR, MD_MIMMO_)       |
      | M_VECGEOM   | setGeometries                         |(MC_VECTOR, MD_MIMMO_)       |
 
@@ -97,7 +97,7 @@ public:
     darray3E                         getSpan();
     dmatrix33E                       getAxes();
     bool                             isForcedAABB();
-    
+
     void        setGeometry(MimmoObject* geo);
     void        setGeometries(std::vector<MimmoObject*> listgeo);
     void        setForceAABB(bool flag);
@@ -114,6 +114,8 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(OBBox & x) noexcept;
+    dmatrix33E transpose(const dmatrix33E & mat);
+    
 private:
     dmatrix33E      evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
     void            assemblyCovContributes(std::vector<MimmoObject *> list, bool flag, dmatrix33E &);

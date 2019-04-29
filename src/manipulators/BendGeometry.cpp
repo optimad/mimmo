@@ -246,7 +246,7 @@ BendGeometry::execute(){
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
         return;
     }
-    
+
     //check coherence of degrees and coeffs;
     for(int i=0; i<3; ++i){
         for(int j=0; j<3; ++j){
@@ -318,12 +318,12 @@ BendGeometry::checkFilter(){
     bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
     check = check && m_filter.completeMissingData(0.0);
     check = check && m_filter.getGeometry() == getGeometry();
-    
+
     if (!check){
         m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
         m_log->setPriority(bitpit::log::Verbosity::NORMAL);
-        
+
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
@@ -344,9 +344,7 @@ BendGeometry::toLocalCoord(darray3E  point){
     //unapply origin translation
     work = point - m_origin;
     //apply change to local sdr transformation
-    dmatrix33E transp = linearalgebra::transpose(m_system);
-    linearalgebra::matmul(work, transp, work2);
-    return(work2);
+    return  matmul(m_system, work);
 };
 
 /*!
@@ -364,14 +362,49 @@ darray3E    BendGeometry::toGlobalCoord(darray3E  point){
     }
 
     //unapply change to local sdr transformation
-    linearalgebra::matmul(work, m_system, work2);
+    work2 = matmul(work, m_system);
 
     //unapply origin translation
-    work = work2 + m_origin;
-    return(work);
+    return (work2 + m_origin);
 };
 
+/*!
+  Matrix M-vector V multiplication V*M (V row dot M columns).
+  \param[in] vec vector V with 3 elements
+  \param[in] mat matrix M 3x3 square
+  \return 3 element vector result of multiplication
+*/
+darray3E   BendGeometry::matmul(const darray3E & vec, const dmatrix33E & mat){
 
+    darray3E out;
+    for (std::size_t i = 0; i < 3; i++) {
+        out[i] = 0.0;
+        for (std::size_t j = 0; j <3; j++) {
+            out[i] += vec[j]*mat[j][i];
+        } //next j
+    } //next i
+
+    return out;
+}
+
+/*!
+  Matrix M-vector V multiplication M*V (M rows dot V column).
+  \param[in] vec vector V with 3 elements
+  \param[in] mat matrix M 3x3 square
+  \return 3 element vector result of multiplication
+*/
+darray3E   BendGeometry::matmul(const dmatrix33E & mat, const darray3E & vec){
+
+    darray3E out;
+    for (std::size_t i = 0; i < 3; i++) {
+        out[i] = 0.0;
+        for (std::size_t j = 0; j <3; j++) {
+            out[i] += vec[j]*mat[i][j];
+        } //next j
+    } //next i
+
+    return out;
+}
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -528,4 +561,3 @@ BendGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 };
 
 }
-

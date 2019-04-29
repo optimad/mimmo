@@ -40,7 +40,7 @@ namespace mimmo{
  * For each component i the bending function of the displacement is Si = sum_jk( aijk * xj^k );
  * where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
  * applied to the i-th displacements.
- * 
+ *
  * \n
  * Ports available in BendGeometry Class :
  *
@@ -55,13 +55,13 @@ namespace mimmo{
      | M_BMATRIX | setDegree         | (MC_ARR3ARR3, MD_INT)       |
      | M_BCOEFFS | setCoeffs         | (MC_ARR3ARR3VEC, MD_FLOAT)  |
      | M_GEOM    | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
- 
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | M_GDISPLS| getDisplacements  | (MC_MPVECARR3, MD_FLOAT)    |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
  *    =========================================================
  * \n
  *
@@ -100,7 +100,7 @@ namespace mimmo{
  *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
  *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
  *                  \</RefSystem\> </tt> \n
- * 
+ *
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -146,10 +146,13 @@ public:
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 protected:
     void swap(BendGeometry & x) noexcept;
     void    checkFilter();
-
+    static darray3E   matmul(const darray3E & vec, const dmatrix33E & mat);
+    static darray3E   matmul(const dmatrix33E & mat,const darray3E & vec);
+    
 private:
     darray3E    toLocalCoord(darray3E point);
     darray3E    toGlobalCoord(darray3E point);

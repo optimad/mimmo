@@ -23,7 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "OBBox.hpp"
-#include "bitpit_LA.hpp"
 #include <lapacke.h>
 
 #include <chrono>
@@ -251,7 +250,7 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
     activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
 
     darray3E temp;
-    dmatrix33E    trasp = bitpit::linearalgebra::transpose(m_axes);
+    dmatrix33E    trasp = transpose(m_axes);
     for(auto &val : activeP){
 
 
@@ -338,7 +337,7 @@ OBBox::execute(){
         }
     }
 
-    dmatrix33E trasp = bitpit::linearalgebra::transpose(m_axes);
+    dmatrix33E trasp = transpose(m_axes);
     m_span = pmax - pmin;
     //check if one of the span goes to 0;
     double avg_span = 0.0;
@@ -759,7 +758,7 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         axes[third] = crossProduct(axes[stable],axes[guess]);
 
 
-        //trasp = bitpit::linearalgebra::transpose(axes);
+        //trasp =transpose(axes);
         pmin.fill(1.e18);
         pmax.fill(-1.e18);
         for(auto geo : getGeometries()){
@@ -808,5 +807,23 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
     eigVec[third] = crossProduct(eigVec[stable],eigVec[guess]);
 
 };
+
+
+/*!
+    Transpose a 3x3 double matrix
+    \param[in] target matrix
+    \return new matrix transposed
+*/
+dmatrix33E OBBox::transpose(const dmatrix33E & mat){
+    dmatrix33E out;
+
+    for(std::size_t i=0; i<3; ++i){
+        for(std::size_t j=0; j<3; ++j){
+            out[j][i] = mat[i][j];
+        }
+    }
+    return out;
+}
+
 
 }

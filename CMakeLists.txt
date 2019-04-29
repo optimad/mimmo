@@ -438,9 +438,7 @@ isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
 ###     BITPIT      ###############################################
 set(BITPIT_QUERYPACKAGES "levelset" "surfunstructured" "volunstructured" "RBF" "CG")
 if(MODULE_ENABLED_PROPAGATORS)
-    list (APPEND BITPIT_QUERYPACKAGES "LA" "discretization")
-elseif(MODULE_ENABLED_UTILS)
-    list (APPEND BITPIT_QUERYPACKAGES "LA")
+    list (APPEND BITPIT_QUERYPACKAGES "discretization")
 endif()
 
 find_package(BITPIT REQUIRED COMPONENTS ${BITPIT_QUERYPACKAGES})
