@@ -56,6 +56,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_dumpingActive = false;
 	this->m_dumpingType = 0;
 	this->m_thres = 1.E-8;
+	this->m_forceDirichletConditions = false;
 }
 
 /*!
@@ -85,6 +86,7 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
 	this->m_dumpingActive= other.m_dumpingActive;
 	this->m_dumpingType  = other.m_dumpingType;
 	this->m_thres        = other.m_thres;
+	this->m_forceDirichletConditions = other.m_forceDirichletConditions;
 };
 
 /*!
@@ -108,6 +110,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 	std::swap(this->m_dumpingType, x.m_dumpingType);
 	std::swap(this->m_thres, x.m_thres);
 	this->BaseManipulation::swap(x);
+    std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
 }
 
 
@@ -252,6 +255,15 @@ void PropagateField<NCOMP>::setUpdateThreshold(double thres){
 	m_thres = std::max(std::numeric_limits<double>::min(), thres);
 }
 
+/*!
+ * Force the boundary condition on dirichlet bounray points during reconstruction phase of finite volume scheme.
+ * \param[in] force if true the reconstructed values on Dirichlet boundary points are forced to be the boundary conditions
+ */
+template <std::size_t NCOMP>
+void PropagateField<NCOMP>::setForceDirichletCondition(bool force)
+{
+	m_forceDirichletConditions = force;
+}
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
