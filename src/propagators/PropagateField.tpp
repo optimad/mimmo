@@ -56,7 +56,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_dumpingActive = false;
 	this->m_dumpingType = 0;
 	this->m_thres = 1.E-8;
-	this->m_forceDirichletConditions = false;
+	this->m_forceDirichletConditions = true;
 }
 
 /*!
