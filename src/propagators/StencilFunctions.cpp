@@ -291,7 +291,7 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & c
     bitpit::StencilVector ownerStencil, neighStencil, avgStencil;
     double minDistance;
 
-    livector1D targetlist = geo.getInterfaceFromCellList(cgs->getIds());
+    livector1D targetlist = geo.getInterfaceFromCellList(cgs->getIds(), false);
 
     for(long & interfid : targetlist){
         const bitpit::Interface & interface = interfaces.at(interfid);

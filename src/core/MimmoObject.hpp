@@ -232,7 +232,7 @@ public:
 
     livector1D  getVertexFromCellList(const livector1D &cellList);
     livector1D  getCellFromVertexList(const livector1D &vertList, bool strict = true);
-    livector1D  getInterfaceFromCellList(const livector1D &cellList);
+    livector1D  getInterfaceFromCellList(const livector1D &cellList, bool all = true);
     livector1D  getInterfaceFromVertexList(const livector1D &vertList, bool strict, bool border);
 
     livector1D                               extractBoundaryCellID(bool ghost = false);
