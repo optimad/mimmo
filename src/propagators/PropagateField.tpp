@@ -855,7 +855,13 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	// push result in a mpv linked to target mesh and on cell location.
 	MimmoObject * geo = getGeometry();
 	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
+	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvgradx(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
+	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvgrady(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
+	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvgradz(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
 	mpvres->reserve(geo->getNCells());
+	mpvgradx->reserve(geo->getNCells());
+	mpvgrady->reserve(geo->getNCells());
+	mpvgradz->reserve(geo->getNCells());
 	long id,counter;
 	std::array<double, NCOMP> temp;
 	for(auto & pair : mapglobals){
@@ -895,9 +901,35 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 		markedcells->resize(counter);
 	}
 
+	//Compute gradient field on all cells
+	FVolStencil::MPVGradientUPtr cellGradients = FVolStencil::computeFVCellGradientStencil(*geo);
+	mpvgradx->initialize(geo, MPVLocation::CELL, std::array<double, NCOMP >());
+	mpvgrady->initialize(geo, MPVLocation::CELL, std::array<double, NCOMP >());
+	mpvgradz->initialize(geo, MPVLocation::CELL, std::array<double, NCOMP >());
+	for (bitpit::Cell & cell : geo->getCells()){
+		long idcell = cell.getId();
+		for (std::size_t icomp=0; icomp<NCOMP; icomp++){
+			mpvgradx->at(idcell)[icomp] = 0.;
+			mpvgrady->at(idcell)[icomp] = 0.;
+			mpvgradz->at(idcell)[icomp] = 0.;
+		}
+		for (std::size_t i=0; i<cellGradients->at(idcell).size(); i++){
+			mpvgradx->at(idcell) = mpvgradx->at(idcell) + mpvres->at(cellGradients->at(idcell).getPattern(i))[0]*cellGradients->at(idcell).getWeight(i)[0];
+			mpvgrady->at(idcell) = mpvgrady->at(idcell) + mpvres->at(cellGradients->at(idcell).getPattern(i))[1]*cellGradients->at(idcell).getWeight(i)[1];
+			mpvgradz->at(idcell) = mpvgradz->at(idcell) + mpvres->at(cellGradients->at(idcell).getPattern(i))[2]*cellGradients->at(idcell).getWeight(i)[2];
+		}
+	}
+
+#if MIMMO_ENABLE_MPI
+	communicateGhostData(mpvgradx.get());
+	communicateGhostData(mpvgrady.get());
+	communicateGhostData(mpvgradz.get());
+#endif
+
 	// interpolate result to POINT location.
 	m_field.clear();
-	m_field = mpvres->cellDataToPointData();
+//	m_field = mpvres->cellDataToPointData(3.);
+	m_field = mpvres->cellDataToPointData(*mpvgradx, *mpvgrady, *mpvgradz, false);
 
 }
 
