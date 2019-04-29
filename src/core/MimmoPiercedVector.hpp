@@ -103,6 +103,7 @@ public:
 
     MimmoPiercedVector pointDataToCellData(double p = 0.);
     MimmoPiercedVector cellDataToPointData(double p = 0.);
+    MimmoPiercedVector cellDataToPointData(const MimmoPiercedVector<mpv_t> & cellGradientsX, const MimmoPiercedVector<mpv_t> & cellGradientsY, const MimmoPiercedVector<mpv_t> & cellGradientsZ, bool maximum = false);
     MimmoPiercedVector pointDataToBoundaryInterfaceData(double p = 0.);
 
     std::size_t getDataFrom(const MimmoPiercedVector<mpv_t> & other, bool strict = false);
