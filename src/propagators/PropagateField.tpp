@@ -260,7 +260,7 @@ void PropagateField<NCOMP>::setUpdateThreshold(double thres){
  * \param[in] force if true the reconstructed values on Dirichlet boundary points are forced to be the boundary conditions
  */
 template <std::size_t NCOMP>
-void PropagateField<NCOMP>::setForceDirichletCondition(bool force)
+void PropagateField<NCOMP>::setForceDirichletConditions(bool force)
 {
 	m_forceDirichletConditions = force;
 }
