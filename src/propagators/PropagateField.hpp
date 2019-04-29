@@ -100,6 +100,8 @@ protected:
 
     double        m_thres;          /**< Lower Threshold to internally mark cells whose solution field norm is above its value. For update purposes only */
 
+    bool m_forceDirichletConditions; /**<If true the dirichlet boundaries values are forced during reconstruction on points phase in finite volume solver. */
+
     std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
 
 #if MIMMO_ENABLE_MPI
@@ -132,6 +134,7 @@ public:
     void    setDecayFactor(double decay);
     void    setTolerance(double tol);
     virtual void    setUpdateThreshold(double thres);
+    void	setForceDirichletCondition(bool force = true);
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");

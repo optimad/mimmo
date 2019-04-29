@@ -304,7 +304,7 @@ PropagateScalarField::execute(){
         dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
         assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
         solveLaplace(rhs, result[0]);
-        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
+//        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
     }
 
     dataInv.clear();
@@ -312,9 +312,11 @@ PropagateScalarField::execute(){
     reconstructResults(result, geo->getMapCell());
     // now data are direcly pushed in m_field.
 
+    if (m_forceDirichletConditions){
     //force boundary Dirichlet on POINTS on m_field;
     for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
         m_field.at(it.getId()) = *it;
+    }
     }
 
 #if MIMMO_ENABLE_MPI
@@ -1007,9 +1009,11 @@ PropagateVectorField::execute(){
             }
         }
 
-        //at last force boundary Dirichlet on POINTS on m_field; Because Dirichlet RULEZ
-        for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
-            m_field.at(it.getId()) = *it;
+        if (m_forceDirichletConditions){
+            //at last force boundary Dirichlet on POINTS on m_field; Because Dirichlet RULEZ
+        	for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
+        		m_field.at(it.getId()) = *it;
+        	}
         }
 
 #if MIMMO_ENABLE_MPI
