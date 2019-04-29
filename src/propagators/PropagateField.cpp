@@ -304,7 +304,7 @@ PropagateScalarField::execute(){
         dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
         assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
         solveLaplace(rhs, result[0]);
-        (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
+        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
     }
 
     dataInv.clear();
@@ -316,6 +316,11 @@ PropagateScalarField::execute(){
     for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
         m_field.at(it.getId()) = *it;
     }
+
+#if MIMMO_ENABLE_MPI
+    communicatePointGhostData(&m_field);
+#endif
+
     //clear the solver;
     m_solver->clear();
     (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
