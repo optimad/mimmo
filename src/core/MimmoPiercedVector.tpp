@@ -589,6 +589,64 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 };
 
 /*!
+ * Cell data to Point data interpolation by using gradients on cell centers. A inverse cell volume
+ * weighted extrapolation of reconstructed values is placed on points.
+ * The current object is a MimmoPiercedVector object with data located on MPVLocation::CELL
+ * \param[in] cellGradients gradients on cell centers
+ * \return point data MimmoPiercedVector object located on MPVLocation::POINT
+ */
+template<typename mpv_t>
+MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const MimmoPiercedVector<mpv_t> & cellGradientsX, const MimmoPiercedVector<mpv_t> & cellGradientsY, const MimmoPiercedVector<mpv_t> & cellGradientsZ, bool maximum){
+	double p = 3.;
+	if (maximum){
+		p = 0.;
+	}
+	MimmoObject* geo = this->getGeometry();
+	MimmoPiercedVector<mpv_t> pointData(geo, MPVLocation::POINT);
+	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
+	for (bitpit::Cell & cell : geo->getCells()){
+		long idcell = cell.getId();
+		if (this->exists(idcell)){
+			double volume = geo->evalCellVolume(idcell);
+			double weight = 1. / std::pow(volume,p);
+			std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
+			for (long idvertex : cell.getVertexIds()){
+				std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
+				std::array<mpv_t,3> grad({cellGradientsX.at(idcell), cellGradientsY.at(idcell), cellGradientsZ.at(idcell)});
+				mpv_t value;
+				value = this->at(idcell) + this->at(idcell)*(grad[0]*(point-center)[0]);
+				value = value + this->at(idcell)*(grad[1]*(point-center)[1]);
+				value = value + this->at(idcell)*(grad[2]*(point-center)[2]);
+				value = value * weight;
+				if (!pointData.exists(idvertex)){
+					pointData.insert(idvertex, value);
+					sumWeights.insert(idvertex, weight);
+				}
+				else{
+					if (maximum){
+						if (norm2(value) > norm2(pointData[idvertex]))
+							pointData[idvertex] = value;
+					}
+					else{
+						pointData[idvertex] = pointData[idvertex] + value;
+						sumWeights[idvertex] = sumWeights[idvertex] + weight;
+					}
+				}
+			}
+		}
+	}
+	if (!maximum){
+		for (bitpit::Vertex & vertex : geo->getVertices()){
+			long idvertex = vertex.getId();
+			if (pointData.exists(idvertex)){
+				pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
+			}
+		}
+	}
+	return pointData;
+};
+
+/*!
  * Point data to boundary Interface data interpolation. Average of point data is set on interface center only for border interfaces.
  * The current object is a MimmoPiercedVector object with data located on MPVLocation::POINT
  * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
