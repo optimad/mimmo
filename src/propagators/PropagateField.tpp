@@ -446,7 +446,7 @@ PropagateField<NCOMP>::distributeBCOnBoundaryInterfaces(){
 
 	//interpolate now point data to interface data
 	m_bc_dir.clear();
-	m_bc_dir = temp.pointDataToBoundaryInterfaceData();
+	m_bc_dir = temp.pointDataToBoundaryInterfaceData(3.);
 }
 
 /*!
