@@ -613,10 +613,16 @@ PropagateVectorField::apply(){
 		target->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
 	}
 
+	//Modify m boundary surface
+	MimmoObject * bsurf = m_bsurface;
+	bitpit::PiercedVector<bitpit::Vertex> & vertbound = bsurf->getVertices();
+	for (auto it= vertbound.begin(); it != vertbound.end(); ++it){
+		bsurf->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
+	}
+
 	//if the dumping is active apply this deformation also to the candidate dumping surface.
-	if(m_dumpingActive){
+	if(m_dumpingActive && m_dsurface != m_bsurface && m_dsurface != nullptr){
 		MimmoObject * dumpsurf = m_dsurface;
-		if(!dumpsurf)   dumpsurf = m_bsurface;
 		bitpit::PiercedVector<bitpit::Vertex> & vertdump = dumpsurf->getVertices();
 		for (auto it= vertdump.begin(); it != vertdump.end(); ++it){
 			dumpsurf->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
@@ -630,6 +636,7 @@ PropagateVectorField::apply(){
 			m_slipsurface->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
 		}
 	}
+
 }
 
 /*!
@@ -680,10 +687,16 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
 		target->modifyVertex(coords, ID);
 	}
 
+	//Restore m boundary surface
+	MimmoObject * bsurf = m_bsurface;
+	bitpit::PiercedVector<bitpit::Vertex> & vertbound = bsurf->getVertices();
+	for (auto it= vertbound.begin(); it != vertbound.end(); ++it){
+		*it = vertices.at(it.getId());
+	}
+
 	//restore the candidate dumping surface.
-	if(m_dumpingActive){
+	if(m_dumpingActive && m_dsurface != m_bsurface && m_dsurface != nullptr){
 		MimmoObject * dumpsurf = m_dsurface;
-		if(!dumpsurf)   dumpsurf = m_bsurface;
 		bitpit::PiercedVector<bitpit::Vertex> &vertdump = dumpsurf->getVertices();
 		for(auto it = vertdump.begin(); it != vertdump.end(); ++it){
 			*it = vertices.at(it.getId());
