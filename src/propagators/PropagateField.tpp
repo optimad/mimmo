@@ -479,7 +479,26 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 	MimmoObject * dumptarget= m_dsurface;
 	if(m_dsurface == nullptr)  dumptarget = m_bsurface;
 
-	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*dumptarget, maxd);
+
+	// Initialize seeds to avoid use of skdtree in narrowband computing (//TODO currently, the skdtree doesn't work in parallel!)
+	livector1D seedlist;
+	seedlist.reserve(m_dumping.size());
+	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
+		long id = it.getId();
+		bitpit::Cell & cell = patch_->getCell(id);
+		if(cell.isInterior()){
+			for (int iface=0; iface<cell.getFaceCount(); iface++){
+				if (cell.isFaceBorder(iface)){
+					seedlist.push_back(id);
+					*it = 1.0;
+					break;
+				}
+			}
+		}
+	}
+
+
+	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*dumptarget, maxd, &seedlist);
 
 	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
 	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
