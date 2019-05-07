@@ -2444,6 +2444,14 @@ void	MimmoObject::cleanKdTree(){
 }
 
 /*!
+ * Clean the SkdTree of the class
+ */
+void	MimmoObject::cleanSkdTree(){
+	m_skdTree->clear();
+	m_skdTreeSync = false;
+}
+
+/*!
  * Reset and build again cell patch numbering info of your geometry.
  */
 void MimmoObject::buildPatchInfo(){
@@ -2976,6 +2984,9 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         surface.buildAdjacencies();
     }
 
+    if (!surface.isSkdTreeSync())
+    	surface.buildSkdTree();
+
     //use a stack-based search on face cell neighbors of some prescribed seed cells.
     //You need at least one cell to be near enough to surface
 
@@ -3064,7 +3075,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
             livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
             for(long id: neighs){
-                if(visited.count(id) < 1){
+                if(visited.count(id) < 1 && getPatch()->getCell(id).isInterior()){
                     visited.insert(id);
                     stackNeighs.push_back(id);
                 }

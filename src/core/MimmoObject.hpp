@@ -259,6 +259,8 @@ public:
 	void        resetAdjacencies();
     void        resetInterfaces();
     void		resetPatch();
+    void    	cleanKdTree();
+    void    	cleanSkdTree();
 
     bool        areAdjacenciesBuilt();
     bool        areInterfacesBuilt();
@@ -307,7 +309,6 @@ protected:
 
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
-    void    cleanKdTree();
 
 
 	/*!
