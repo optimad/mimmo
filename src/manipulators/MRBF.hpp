@@ -36,9 +36,9 @@ namespace mimmo{
  */
 enum class MRBFBasisFunction {
     HEAVISIDE10    = 101,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10 */
-    	    HEAVISIDE50    = 102,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 50 */
-		    HEAVISIDE100    = 103,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 100 */
-		    HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
+    HEAVISIDE50    = 102,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 50 */
+	HEAVISIDE100    = 103,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 100 */
+	HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
 };
 
 
@@ -49,8 +49,8 @@ enum class MRBFBasisFunction {
  */
 enum class MRBFSol{
     NONE = 0,     /**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
-            WHOLE = 1,    /**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/
-            GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
+    WHOLE = 1,    /**< activate class as pure interpolator, with RBF coefficients evaluated solving a full linear system for all active nodes.*/
+    GREEDY= 2   /**< activate class as pure interpolator, with RBF coefficients evaluated using a greedy algorithm on active nodes.*/
 };
 
 /*!
@@ -70,10 +70,10 @@ enum class MRBFSol{
  * Ports available in MRBF Class :
  *
  *    =========================================================
- 
+
      |Port Input | | |
      |-|-|-|
-     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
      | M_FILTER  | setFilter             | (MC_MPVECTOR, MD_FLOAT)       |
@@ -103,7 +103,7 @@ enum class MRBFSol{
  * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes;
  * - <B>RBFShape</B>: shape of RBF function wendlandc2 (1), linear (2), gauss90 (3), gauss95 (4), gauss99 (5);
  * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
- * 
+ *
  *
  * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
  *
@@ -112,13 +112,14 @@ enum class MRBFSol{
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 private:
-    double         m_tol;            /**< Tolerance for greedy algorithm.*/
-    MRBFSol        m_solver;       /**<Type of solver specified for the class as default in execution*/
-    dmpvector1D    m_filter;       /**<Filter field for displacements modulation */
-    bool        m_bfilter;      /**<boolean to recognize if a filter field is applied */
-    double        m_SRRatio;        /**<support Radius ratio */
-    dmpvecarr3E    m_displ;        /**<Resulting displacements of geometry vertex.*/
-    bool        m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
+    double       m_tol;          /**< Tolerance for greedy algorithm.*/
+    MRBFSol      m_solver;       /**<Type of solver specified for the class as default in execution*/
+    dmpvector1D  m_filter;       /**<Filter field for displacements modulation */
+    bool         m_bfilter;      /**<boolean to recognize if a filter field is applied */
+    double       m_SRRatio;      /**<support Radius ratio */
+    dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
+    bool         m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
+    int          m_functype;     /**< Function type handler. If -1 refer to RBF getFunctionType method */
 
 public:
     MRBF();
@@ -129,46 +130,48 @@ public:
     //copy operators/constructors
     MRBF(const MRBF & other);
     MRBF& operator=(MRBF other);
-    
+
     void buildPorts();
 
-    dvecarr3E*        getNodes();
+    dvecarr3E*      getNodes();
 
-    MRBFSol            getMode();
+    MRBFSol         getMode();
     void            setMode(MRBFSol);
     void            setMode(int);
-    dmpvector1D        getFilter();
-    double            getSupportRadius();
-    double            getSupportRadiusValue();
+    dmpvector1D     getFilter();
+    double          getSupportRadius();
+    double          getSupportRadiusValue();
     bool            getIsSupportRadiusValue();
 
-    dmpvecarr3E        getDisplacements();
+    int             getFunctionType();
+
+    dmpvecarr3E     getDisplacements();
 
     int             addNode(darray3E);
-    ivector1D        addNode(dvecarr3E);
-    ivector1D         addNode(MimmoObject* geometry);
+    ivector1D       addNode(dvecarr3E);
+    ivector1D       addNode(MimmoObject* geometry);
 
-    void             setNode(darray3E);
+    void            setNode(darray3E);
     void            setNode(dvecarr3E);
-    void             setNode(MimmoObject* geometry);
+    void            setNode(MimmoObject* geometry);
     void            setFilter(dmpvector1D );
 
-    ivector1D        checkDuplicatedNodes(double tol=1.0E-12);
-    bool             removeDuplicatedNodes(ivector1D * list=NULL);
+    ivector1D       checkDuplicatedNodes(double tol=1.0E-12);
+    bool            removeDuplicatedNodes(ivector1D * list=NULL);
 
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
-    void             setTol(double tol);
-    void             setDisplacements(dvecarr3E displ);
+    void            setTol(double tol);
+    void            setDisplacements(dvecarr3E displ);
 
-    void 			setFunction(const MRBFBasisFunction & funct);
-    void 			setFunction(const bitpit::RBFBasisFunction & funct);
+    void            setFunction(const MRBFBasisFunction & funct);
+    void            setFunction(const bitpit::RBFBasisFunction & funct);
 
-    void             clear();
-    void             clearFilter();
+    void            clear();
+    void            clearFilter();
 
-    void             execute();
-    void             apply();
+    void            execute();
+    void            apply();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");

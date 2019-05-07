@@ -37,6 +37,7 @@ MRBF::MRBF(){
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
 	m_SRRatio = -1.0;
+    m_functype = -1;
 };
 
 /*!
@@ -51,6 +52,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
 	setMode(MRBFSol::NONE);
 	m_bfilter = false;
 	m_SRRatio = -1.0;
+    m_functype = -1;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -74,6 +76,7 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
 	m_SRRatio  = other.m_SRRatio;
 	m_supRIsValue = other.m_supRIsValue;
 	m_bfilter = other.m_bfilter;
+    m_functype = other.m_functype;
 	if(m_bfilter)    m_filter = other.m_filter;
 };
 
@@ -86,7 +89,7 @@ MRBF& MRBF::operator=(MRBF other){
 };
 
 /*!
- * Swap function. 
+ * Swap function.
  * \param[in] x object to be swapped
  */
 void MRBF::swap(MRBF & x) noexcept
@@ -96,6 +99,7 @@ void MRBF::swap(MRBF & x) noexcept
 	std::swap(m_SRRatio , x.m_SRRatio);
 	std::swap(m_supRIsValue, x.m_supRIsValue);
 	std::swap(m_bfilter, x.m_bfilter);
+    std::swap(m_functype, x.m_functype);
 	//    std::swap(m_filter, x.m_filter);
 	//    std::swap(m_displ, x.m_displ);
 	m_filter.swap(x.m_filter);
@@ -129,7 +133,7 @@ MRBF::getNodes(){
 	return(&m_node);
 }
 
-/*! 
+/*!
  * Return actual solver set for RBF data fields interpolation in MRBF::execute
  * Reimplemented from RBF::getMode() of bitpit;
  * \return solver mode
@@ -155,7 +159,7 @@ MRBF::setMode(MRBFSol solver){
  * Reimplemented from RBF::setMode() of bitpit;
  * \param[in] type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum;
  */
-void 
+void
 MRBF::setMode(int type){
 	switch(type){
 	case 1 : setMode(MRBFSol::WHOLE);
@@ -175,7 +179,7 @@ MRBF::getFilter(){
 	return(m_filter);
 };
 
-/*! 
+/*!
  * It gets current support radius ratio (or value if defined as absolute value) as set up in the class.
  * See MRBF::setSupportRadius and MRBF::setSupportRadiusValue method documentation.
  * Reimplemented from bitpit::RBF::getSupportRadius.
@@ -190,8 +194,8 @@ MRBF::getSupportRadius(){
 	return(m_SRRatio);
 };
 
-/*! 
- * It gets the current real value of support radius for RBF kernels set up in the class. 
+/*!
+ * It gets the current real value of support radius for RBF kernels set up in the class.
  * \return
  * support radius value
  */
@@ -242,7 +246,7 @@ MRBF::addNode(dvecarr3E nodes){
 };
 
 /*!Adds a set of RBF points to the total control node list extracting
- * the vertices stored in a MimmoObject container. Return a vector containing 
+ * the vertices stored in a MimmoObject container. Return a vector containing
  * the RBF node int id.
  * Reimplemented from RBF::addNode of bitpit;
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
@@ -325,7 +329,7 @@ MRBF::checkDuplicatedNodes(double tol){
 	return(marked);
 }
 
-/*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all 
+/*! Erase all nodes passed by their RBF id list. If no list is provided, the method find all
  * possible duplicated nodes within a default tolerance of 1.0E-12 and erase them, if any.
  * \param[in] list pointer to a list of id's of RBF candidate nodes
  * \return    boolean, true if all duplicated nodes are erased, false if one or more of them are not.
@@ -345,8 +349,8 @@ MRBF::removeDuplicatedNodes(ivector1D * list){
  * R = a*D, where D is the diagonal of the Axis Aligned Bounding Box referred to the target
  * geometry. During the execution the correct value of R is applied.
  * The ratio a can have value between 0 and +inf (with 0 excluded), which corresponding to minimum locally narrowed
- * function, and almost flat functions (as sphere of infinite radius), respectively. 
- * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is 
+ * function, and almost flat functions (as sphere of infinite radius), respectively.
+ * Negative or zero values, bind the evaluation of R to the maximum displacement applied to RBF node, that is
  * R is set proportional to the maximum displacement value.
  * \param[in] suppR_ new value of suppR
  */
@@ -374,7 +378,7 @@ MRBF::setSupportRadiusValue(double suppR_){
 }
 
 /*!It sets the tolerance for greedy - interpolation algorithm.
- * Tolerance infos are not used in MRBFSol::NONE mode. 
+ * Tolerance infos are not used in MRBFSol::NONE mode.
  * \param[in] tol Target tolerance.
  */
 void
@@ -388,7 +392,7 @@ MRBF::setTol(double tol){
  * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
  * Displacements size may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
- * 
+ *
  * \param[in] displ list of nodal displacements
  */
 void
@@ -420,24 +424,29 @@ MRBF::setFunction( const MRBFBasisFunction &bfunc )
 	switch(bfunc){
 
 	case( MRBFBasisFunction::HEAVISIDE10):
-    		RBF::setFunction(heaviside10);
-	break;
+            RBF::setFunction(heaviside10);
+            m_functype = static_cast<int>(MRBFBasisFunction::HEAVISIDE10);
+            break;
 
 	case( MRBFBasisFunction::HEAVISIDE50):
-        	RBF::setFunction(heaviside50);
-	break;
+            RBF::setFunction(heaviside50);
+            m_functype = static_cast<int>(MRBFBasisFunction::HEAVISIDE50);
+            break;
 
 	case( MRBFBasisFunction::HEAVISIDE100):
-        	RBF::setFunction(heaviside100);
-	break;
+            RBF::setFunction(heaviside100);
+            m_functype = static_cast<int>(MRBFBasisFunction::HEAVISIDE100);
+            break;
 
 	case( MRBFBasisFunction::HEAVISIDE1000):
-        	RBF::setFunction(heaviside1000);
-	break;
+            RBF::setFunction(heaviside1000);
+            m_functype = static_cast<int>(MRBFBasisFunction::HEAVISIDE1000);
+            break;
 
 	default:
-			RBF::setFunction(RBFBasisFunction::WENDLANDC2);
-		break;
+            RBF::setFunction(RBFBasisFunction::WENDLANDC2);
+            m_functype = -1;
+            break;
 	}
 }
 
@@ -449,6 +458,19 @@ void
 MRBF::setFunction( const bitpit::RBFBasisFunction &bfunc )
 {
 	RBF::setFunction(bfunc);
+    m_functype = -1;
+}
+
+/*!
+    \return the type of shape function hold by the class.
+ */
+int
+MRBF::getFunctionType(){
+    if(m_functype < 0){
+        return static_cast<int>(RBF::getFunctionType());
+    }else{
+        return m_functype;
+    }
 }
 
 /*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
@@ -471,7 +493,7 @@ MRBF::clearFilter(){
  * Set a field  of n-Dim weights on your RBF Nodes. Supported only in MRBFSol::NONE mode.
  * Weights total number may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
- * 
+ *
  * \param[in] value list of nodal weights
  */
 void
@@ -825,10 +847,9 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 		slotXML.set("SupportRadiusReal", ss.str());
 	}
 
-	bitpit::RBFBasisFunction type = getFunctionType();
-	if(type != RBFBasisFunction::CUSTOM){
-		int val = static_cast<int>(type);
-		slotXML.set("RBFShape", std::to_string(val));
+	int type = getFunctionType();
+	if(type != static_cast<int>(RBFBasisFunction::CUSTOM)){
+		slotXML.set("RBFShape", std::to_string(type));
 	}
 
 	//checking if not default and if not connected to a port
