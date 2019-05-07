@@ -174,12 +174,6 @@ Partition::execute(){
 		getGeometry()->getPatch()->setCommunicator(m_communicator);
 	}
 
-//	//If they are not already built, build adjacencies to partition
-//	getGeometry()->buildAdjacencies();
-
-//	//Build interfaces to compute graph partitioning
-//	getGeometry()->buildInterfaces();
-
 	//Compute partition
 	computePartition();
 
@@ -204,9 +198,6 @@ Partition::execute(){
 
 	if (getBoundaryGeometry() != nullptr){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
-
-//			//Force build adjacencies
-//			getBoundaryGeometry()->buildAdjacencies();
 
 			//boundary partition
 			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, true);
@@ -266,8 +257,6 @@ Partition::parmetisPartGeom(){
 			idx_t ncon = 1;
 
 			//Build interfaces to compute graph partitioning
-//			m_tobuildandreset = !getGeometry()->areInterfacesBuilt();
-//			if (m_tobuildandreset)
 			if (!getGeometry()->areInterfacesBuilt())
 				getGeometry()->buildInterfaces();
 
@@ -378,9 +367,8 @@ Partition::computeBoundaryPartition()
 					}
 				}
 
-//				//Build interfaces to compute graph partitioning
-//				if (m_tobuildandreset)
-//					getGeometry()->resetInterfaces();
+				//Clean SkdTree
+				getBoundaryGeometry()->cleanSkdTree();
 
 			}
 		}
