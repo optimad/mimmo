@@ -57,7 +57,8 @@ void computeWeightsWLS( const std::vector<std::vector<double>> &P,
         if( !isSingular[0] && !isSingular[1] && !isSingular[2] ) break;
     }
 
-    double A[3][3] = {{epsilon, 0., 0.}, {0., epsilon, 0.}, {0., 0., epsilon}};
+    double A[3][3] = {{0.0, 0., 0.}, {0., 0.0, 0.}, {0., 0., 0.0}};
+
     for (int j = 0; j < 3; ++j) {
         for (int l = 0; l < 3; ++l) {
             for (int i = 0; i < n; ++i) {
@@ -150,14 +151,10 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
     for(const long &cellID : list){
 
         targetCentroid = patch->evalCellCentroid(cellID);
-        ncellFaces = patch->getCell(cellID).getFaceCount();
         neighs.clear();
-        neighs.reserve(ncellFaces);
 
         //get all the face neighbours
-        for(int i=0; i< ncellFaces; ++i){
-            patch->findCellFaceNeighs(cellID, i, &neighs); //--> getting only the real neighs. -1 neighs are ignored into the method.
-        }
+        patch->findCellNeighs(cellID, i, &neighs); //--> getting only the real neighs. -1 neighs are ignored into the method.
         std::size_t ngsize = neighs.size();
         points.resize(ngsize, std::vector<double>(3));
         ww.resize(ngsize);
@@ -170,7 +167,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
             // get the vector distance from neigh centroid up to current cell centroid.
             dist = patch->evalCellCentroid(idN) - targetCentroid;
             // calculate the initial weight
-            *wwItr =  1.0/std::pow( norm2(dist), 3 );
+            *wwItr =  1.0/std::pow( norm2(dist), 1 ); //coefficient to be changed 1,3
             //copy the vector distance in points
             std::copy( dist.begin(), dist.end(), pointsItr->begin());
             //increment the iterators.
