@@ -24,6 +24,7 @@
 #include "MimmoGeometry.hpp"
 #include "customOperators.hpp"
 #include "VTUGridReader.hpp"
+#include "VTUGridWriterASCII.hpp"
 #include <iostream>
 
 using namespace std;
@@ -649,10 +650,15 @@ MimmoGeometry::write(){
     case FileType::CURVEVTU:
         //Export Surface/Volume/3DCurve VTU
     {
-        if(!m_codex)    getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::ASCII);
-        else            getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
-        getGeometry()->getPatch()->write(m_winfo.fdir+"/"+m_winfo.fname);
-        getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
+        if(!m_codex){
+            VTUFlushStreamerASCII streamer;
+            VTUGridWriterASCII vtkascii(streamer, *(getGeometry()->getPatch()) );
+            vtkascii.write(m_winfo.fdir+"/"+m_winfo.fname);
+        }
+        else{
+            getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
+            getGeometry()->getPatch()->write(m_winfo.fdir+"/"+m_winfo.fname);
+        }
         return true;
     }
     break;
