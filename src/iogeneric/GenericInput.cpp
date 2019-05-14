@@ -30,7 +30,7 @@ using namespace std;
 namespace mimmo {
 
 ////////GENERICINPUT///////////////////////////////////////
-    
+
 /*!
  * Default constructor of GenericInput.
  * \param[in] readFromFile True if the object reads the values from file (default value false).
@@ -96,7 +96,7 @@ GenericInput::GenericInput(const GenericInput & other):BaseManipulation(other){
 };
 
 /*!
- * Assignment operator. m_input and  m_result members are not copied. 
+ * Assignment operator. m_input and  m_result members are not copied.
  */
 GenericInput & GenericInput::operator=(GenericInput other){
     swap(other);
@@ -254,7 +254,7 @@ GenericInput::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("ReadFromFile", std::to_string((int)m_readFromFile));
     slotXML.set("CSV", std::to_string((int)m_csv));
     slotXML.set("ReadDir", m_dir);
@@ -279,14 +279,14 @@ GenericInputMPVData::GenericInputMPVData(bool csv){
  * \param[in] rootXML reference to your xml tree section
  */
 GenericInputMPVData::GenericInputMPVData(const bitpit::Config::Section & rootXML){
-    
+
     m_csv           = false;
     m_portsType     = BaseManipulation::ConnectionType::BOTH;
     m_name             = "mimmo.GenericInputMPVData";
     m_dir       = "./";
     m_filename  = "input.txt";
     m_binary        = false;
-    
+
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
@@ -326,7 +326,7 @@ GenericInputMPVData::GenericInputMPVData(const GenericInputMPVData & other):Base
 };
 
 /*!
- * Assignment operator. m_input and  m_result members are not copied. 
+ * Assignment operator. m_input and  m_result members are not copied.
  */
 GenericInputMPVData & GenericInputMPVData::operator=(GenericInputMPVData other){
     swap(other);
@@ -384,14 +384,14 @@ GenericInputMPVData::setReadDir(std::string dir){
  */
 void
 GenericInputMPVData::buildPorts(){
-    
+
     bool built = true;
-    
-    built = (built && createPortIn<MimmoObject*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::setGeometry, M_GEOM, true));
+
+    built = (built && createPortIn<MimmoObject*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::setGeometry, M_GEOM));
     built = (built && createPortOut<dmpvector1D, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<double>, M_SCALARFIELD));
     built = (built && createPortOut<dmpvecarr3E, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<darray3E>, M_VECTORFIELD));
-    
-    
+
+
     m_arePortsBuilt = built;
 }
 
@@ -416,13 +416,13 @@ GenericInputMPVData::execute(){};
  */
 void
 GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     std::string input;
-    
+
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("CSV")){
         std::string input = slotXML.get("CSV");
         input = bitpit::utils::string::trim(input);
@@ -433,19 +433,19 @@ GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setCSV(temp);
     };
-    
+
     if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
         input = bitpit::utils::string::trim(input);
         setFilename(input);
     };
-    
+
     if(slotXML.hasOption("ReadDir")){
         std::string input = slotXML.get("ReadDir");
         input = bitpit::utils::string::trim(input);
         setReadDir(input);
     };
-    
+
     if(slotXML.hasOption("Binary")){
         std::string input = slotXML.get("Binary");
         input = bitpit::utils::string::trim(input);
@@ -456,7 +456,7 @@ GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, s
         }
         setBinary(temp);
     };
-    
+
 }
 
 /*!
@@ -466,11 +466,11 @@ GenericInputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, s
  */
 void
 GenericInputMPVData::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("CSV", std::to_string((int)m_csv));
     slotXML.set("ReadDir", m_dir);
     slotXML.set("Filename", m_filename);
@@ -478,4 +478,3 @@ GenericInputMPVData::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 };
 
 }
-

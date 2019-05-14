@@ -147,7 +147,7 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x){
     for(long count = 0; count<sizeData; ++count){
         ifstreamcsv(in,id) ;
         ifstreamcsvend(in,dummy);
-        x.insert(id,dummy); 
+        x.insert(id,dummy);
     }
     return(in);
 }
@@ -304,7 +304,7 @@ GenericInput::_getResult(){
 //GENERICINPUTMPVDATA/////////////////////////////////////////////////////
 /*!
  * It gets the result of the object.
- * Result may be empty both for failed reading or invalid read data. In that case, 
+ * Result may be empty both for failed reading or invalid read data. In that case,
  * return a NULL pointer.
  * \return Pointer to data stored in the result member.
  */
@@ -312,7 +312,6 @@ template<typename T>
 MimmoPiercedVector< T >*
 GenericInputMPVData::_getResult(){
     MimmoPiercedVector< T > data;
-    if (getGeometry() == NULL) return NULL;
 
     int n_loc;
     long nSize = 0, readNSize;
@@ -356,8 +355,10 @@ GenericInputMPVData::_getResult(){
         throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
     }
 
-    //mandatory check:if field is id-uncoherent with current geometry, does not set anything
-    if(data.checkDataIdsCoherence()){ 
+    if(getGeometry() == nullptr){
+        _setResult(data);
+    }else if(data.checkDataIdsCoherence()){
+    //mandatory check:if field is id-uncoherent with a currently linked geometry, does not set anything
         _setResult(data);
     }else{
         throw std::runtime_error (m_name + " : read data are not coherent with linked geometry");
@@ -368,7 +369,7 @@ GenericInputMPVData::_getResult(){
 
 /*!
  * It gets the result of the object.
- * Result may be empty both for failed reading or invalid read data. In that case, 
+ * Result may be empty both for failed reading or invalid read data. In that case,
  * return an empty/default copy of the result data.
  * \return copy of the data stored in result member.
  */
