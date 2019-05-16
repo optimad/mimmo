@@ -43,7 +43,7 @@ namespace mimmo{
  *  - 2-CELL on geometry cells
  *  - 3-INTERFACE on geometry interfaces
  */
-enum class MPVLocation{
+enum class MPVLocation: long {
     UNDEFINED=0,
     POINT=1,
     CELL=2,
