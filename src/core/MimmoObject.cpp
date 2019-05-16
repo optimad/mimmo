@@ -323,11 +323,11 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	}
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
-		throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
+//		throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
 	}
 	if (geometry->getCellCount() ==0 && m_type != 3){
 		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
-		throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
+//		throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
 	}
 
 	m_internalPatch = false;
@@ -449,11 +449,11 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	}
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
-		throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
+//		throw std::runtime_error ("MimmoObject : no points detected in the linked mesh.");
 	}
 	if (geometry->getCellCount() ==0 && m_type != 3){
 		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
-		throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
+//		throw std::runtime_error ("MimmoObject : no connectivity detected in the linked mesh.");
 	}
 
 	//check among elements if they are coherent with the type currently hold by the linked mesh.

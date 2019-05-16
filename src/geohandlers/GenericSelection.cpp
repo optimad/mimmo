@@ -130,7 +130,7 @@ GenericSelection::getPatch() const{
 void
 GenericSelection::setGeometry( MimmoObject * target){
     if(target == NULL)  return;
-    if(target->isEmpty()) return;
+//    if(target->isEmpty()) return;
     m_geometry = target;
     /*set topology informations*/
     m_topo = target->getType();
@@ -226,7 +226,7 @@ GenericSelection::execute(){
     if(getGeometry()->isEmpty()){
 //        throw std::runtime_error (m_name + " : empty geometry linked");
         (*m_log)<<m_name + " : empty geometry linked"<<std::endl;
-        return;
+//        return;
     };
 
     m_subpatch.reset(nullptr);
@@ -236,7 +236,7 @@ GenericSelection::execute(){
     if(extracted.empty()) {
 //        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
         (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
-        return;
+//        return;
     }
 
     /*Create subpatch.*/
@@ -283,7 +283,7 @@ GenericSelection::execute(){
 void
 GenericSelection::plotOptionalResults(){
     if(getPatch() == NULL) return;
-    if(getPatch()->isEmpty()) return;
+//    if(getPatch()->isEmpty()) return;
 
     std::string dir = m_outputPlot;
     std::string name = m_name + "_Patch_"+ std::to_string(getId());

@@ -238,7 +238,7 @@ void
 ReconstructVector::plotData(std::string dir, std::string name, bool flag){
     
     if(getGeometry() == NULL) return;
-    if(getGeometry()->isEmpty())    return;
+//    if(getGeometry()->isEmpty())    return;
     if(!m_result.completeMissingData({{0.0,0.0,0.0}}))   return;
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
@@ -285,7 +285,7 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag){
 void
 ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool flag){
     if(m_subresults[i].getGeometry() == NULL) return;
-    if(m_subresults[i].getGeometry()->isEmpty()) return;
+//    if(m_subresults[i].getGeometry()->isEmpty()) return;
     
     std::string nameX = name+"SubPatch"+std::to_string(i);
 
@@ -342,9 +342,11 @@ ReconstructVector::execute(){
     if(getGeometry()->isEmpty()){
 //        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
+//        return;
     }
     
+    std::cout << "#" << m_rank << " executing overlap fields " << std::endl;
+
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
@@ -379,7 +381,7 @@ ReconstructVector::execute(){
     if (m_result.isEmpty()){
         (*m_log)<<"Warning in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
 //        throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
-        return;
+//        return;
     }
     
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
@@ -409,6 +411,9 @@ ReconstructVector::execute(){
             }
         }
     }
+
+    std::cout << "#" << m_rank << " executed overlap fields " << std::endl;
+
 }
 
 /*!
@@ -416,12 +421,14 @@ ReconstructVector::execute(){
  */
 void
 ReconstructVector::plotOptionalResults(){
+    std::cout << "#" << m_rank << " plot optional results " << std::endl;
     std::string dir = m_outputPlot;
     std::string name = m_name + std::to_string(getId());
     plotData(dir, name, true);
     for (int i=0; i<getNData(); i++){
         plotSubData(dir, name, i, true);
     }
+    std::cout << "#" << m_rank << " plot optional results end " << std::endl;
 }
 
 /*!
