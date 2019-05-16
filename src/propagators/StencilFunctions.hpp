@@ -65,7 +65,7 @@ namespace FVolStencil{
                                                             const double &distD,
                                                             const bitpit::StencilVector & CCellOwnerStencil);
 
-    MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
+    MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, double tolerance = 1.0e-12,
                                                  MimmoPiercedVector<double> * diffusivity = nullptr);
 
 

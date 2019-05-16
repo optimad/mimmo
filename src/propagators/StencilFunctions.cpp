@@ -153,8 +153,8 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
         targetCentroid = patch->evalCellCentroid(cellID);
         neighs.clear();
 
-        //get all the face neighbours
-        patch->findCellNeighs(cellID, i, &neighs); //--> getting only the real neighs. -1 neighs are ignored into the method.
+        //get all the faces and edges neighbours
+        patch->findCellEdgeNeighs(cellID, true, &neighs); //--> getting only the real neighs. -1 neighs are ignored into the method.
         std::size_t ngsize = neighs.size();
         points.resize(ngsize, std::vector<double>(3));
         ww.resize(ngsize);
@@ -167,7 +167,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
             // get the vector distance from neigh centroid up to current cell centroid.
             dist = patch->evalCellCentroid(idN) - targetCentroid;
             // calculate the initial weight
-            *wwItr =  1.0/std::pow( norm2(dist), 1 ); //coefficient to be changed 1,3
+            *wwItr =  1.0/std::pow( norm2(dist), 1.5 ); //coefficient to be changed 1,3
             //copy the vector distance in points
             std::copy( dist.begin(), dist.end(), pointsItr->begin());
             //increment the iterators.
@@ -497,12 +497,15 @@ bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
  * In case of subportions updater usage, be sure diffusivity includes info on all the cells involved.
 
  * \param[in] faceGradientStencil gradient stencil defined on effective INTERFACES (bc included, no ghost-ghost).
+ * \param[in] tolerance threshold value used to filter out stencil items
  * \param[in] diffusivity (optional) impose a diffusivity field on center CELLS (provided also on ghosts)
  */
 
-MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
+MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, double tolerance,
                                              MimmoPiercedVector<double> * diffusivity)
 {
+
+	BITPIT_UNUSED(tolerance);
 
     MimmoObject * geo = faceGradientStencil.getGeometry();
     // prepare and allocate the result list for laplacian stencils.
@@ -571,7 +574,7 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil,
     //divide stencils by their cell volume and optimize
     for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
         *it /= geo->evalCellVolume(it.getId());
-        //it->optimize();
+        //it->optimize(tolerance);
     }
 
     return result;

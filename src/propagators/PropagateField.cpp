@@ -278,7 +278,7 @@ PropagateScalarField::execute(){
 	ccellGradients->squeezeOutExcept(borderCellsID);
 
 	// compute the laplacian stencils and free faceGradients;
-	FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), &m_dumping);
+	FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), m_tol, &m_dumping);
 	faceGradients  = nullptr;
 
 	// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
@@ -952,7 +952,7 @@ PropagateVectorField::execute(){
 	ccellGradients->squeezeOutExcept(borderCellsID);
 
 	// compute the laplacian stencils and free faceGradients;
-	FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), &m_dumping);
+	FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), m_tol, &m_dumping);
 	faceGradients  = nullptr;
 
 	// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
@@ -1056,7 +1056,7 @@ PropagateVectorField::execute(){
 			updateCcellGradients = nullptr;
 
 			// compute the update laplacian stencils, free faceGradients, update the old border laplacian stencils;
-			FVolStencil::MPVDivergenceUPtr updateLaplaceStencils = FVolStencil::computeFVLaplacianStencil(*(updateFaceGradients.get()), &m_dumping);
+			FVolStencil::MPVDivergenceUPtr updateLaplaceStencils = FVolStencil::computeFVLaplacianStencil(*(updateFaceGradients.get()), m_tol, &m_dumping);
 			faceGradients  = nullptr;
 			laplaceStencils->getDataFrom(*(updateLaplaceStencils.get()), true); //only common elements are updated.
 
