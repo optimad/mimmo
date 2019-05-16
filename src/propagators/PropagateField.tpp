@@ -678,6 +678,9 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
 	//clean up the previous stuff in the solver.
 	m_solver->clear();
 	// now you can initialize the m_solver with this matrix.
+	m_solver->getKSPOptions().restart = 20;
+	m_solver->getKSPOptions().overlap = 0;
+	m_solver->getKSPOptions().sublevels = 0;
 	m_solver->initialize(matrix);
 
 }
