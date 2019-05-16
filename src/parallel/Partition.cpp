@@ -191,7 +191,10 @@ Partition::execute(){
 	}
 
 	//partition
-	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, true);
+	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+
+	//Resync PID
+	getGeometry()->resyncPID();
 
 	//Force rebuild patch info
 	getGeometry()->buildPatchInfo();
@@ -200,7 +203,10 @@ Partition::execute(){
 		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
 			//boundary partition
-			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, true);
+			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+
+			//Resync PID
+			getBoundaryGeometry()->resyncPID();
 
 			//Update ID of boundary vertices
 			updateBoundaryVerticesID();
