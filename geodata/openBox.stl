@@ -1,0 +1,72 @@
+solid Visualization Toolkit generated SLA File
+ facet normal 1 0 0
+  outer loop
+   vertex 0.6 -0.425 0
+   vertex 0.6 0.425 0
+   vertex 0.6 -0.425 0.9
+  endloop
+ endfacet
+ facet normal 1 -0 0
+  outer loop
+   vertex 0.6 0.425 0.9
+   vertex 0.6 -0.425 0.9
+   vertex 0.6 0.425 0
+  endloop
+ endfacet
+ facet normal 0 -1 0
+  outer loop
+   vertex -0.6 -0.425 0
+   vertex 0.6 -0.425 0
+   vertex -0.6 -0.425 0.9
+  endloop
+ endfacet
+ facet normal 0 -1 0
+  outer loop
+   vertex 0.6 -0.425 0.9
+   vertex -0.6 -0.425 0.9
+   vertex 0.6 -0.425 0
+  endloop
+ endfacet
+ facet normal 0 1 0
+  outer loop
+   vertex -0.6 0.425 0
+   vertex -0.6 0.425 0.9
+   vertex 0.6 0.425 0
+  endloop
+ endfacet
+ facet normal 0 1 -0
+  outer loop
+   vertex 0.6 0.425 0.9
+   vertex 0.6 0.425 0
+   vertex -0.6 0.425 0.9
+  endloop
+ endfacet
+ facet normal 0 0 -1
+  outer loop
+   vertex -0.6 -0.425 0
+   vertex -0.6 0.425 0
+   vertex 0.6 -0.425 0
+  endloop
+ endfacet
+ facet normal 0 0 -1
+  outer loop
+   vertex 0.6 0.425 0
+   vertex 0.6 -0.425 0
+   vertex -0.6 0.425 0
+  endloop
+ endfacet
+ facet normal 0 0 1
+  outer loop
+   vertex -0.6 -0.425 0.9
+   vertex 0.6 -0.425 0.9
+   vertex -0.6 0.425 0.9
+  endloop
+ endfacet
+ facet normal -0 0 1
+  outer loop
+   vertex 0.6 0.425 0.9
+   vertex -0.6 0.425 0.9
+   vertex 0.6 -0.425 0.9
+  endloop
+ endfacet
+endsolid

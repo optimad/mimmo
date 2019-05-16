@@ -90,6 +90,7 @@ if(BUILD_EXAMPLES)
     if (MODULE_ENABLED4)
         list(APPEND EXAMPLE_LIST "manipulators_example_00006")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
+        list(APPEND EXAMPLE_LIST "utils_example_00002")
     endif ()
 
     #Add examples of enabled modules
@@ -163,6 +164,11 @@ if(BUILD_EXAMPLES)
         add_custom_command(
             TARGET "utils_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/mixedP2D.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/mixedP2D.vtu"
+        )
+        add_custom_command(
+            TARGET "utils_example_00002" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/openBox.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/openBox.stl"
         )
     endif()
     if (MODULE_ENABLED0)
