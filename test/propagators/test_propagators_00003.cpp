@@ -250,7 +250,7 @@ int test1() {
 
     std::cout<<values3D.at(targetNode)<<std::endl;
 
-    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.214663, -0.0718399,1.0E-15}})) > 1.0E-6);
+    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.214756, -0.0720321, 2.91732e-18}})) > 1.0E-6);
 
 
     delete prop3D;
