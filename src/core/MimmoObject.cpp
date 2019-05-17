@@ -795,77 +795,10 @@ MimmoObject::getNGlobalVertices(){
 	if (!getPatch()->isPartitioned())
 		return getNVertices();
 
-	if (!(m_nglobalvertices == 0)){
-		return m_nglobalvertices;
-	}
+	if (!arePointGhostExchangeInfoSync())
+		updatePointGhostExchangeInfo();
 
-	//Count the global number of vertices
-
-	//Recover the information of ghost exchange source cells
-	std::unordered_map<int, std::vector<long> > ranksources = getPatch()->getGhostExchangeSources();
-	std::unordered_map<int, std::vector<long> > ranktargets = getPatch()->getGhostExchangeTargets();
-
-	std::unordered_map<int, std::set<long> > rankst;
-	for (auto & pair : ranksources){
-		for (long id : pair.second)
-			rankst[pair.first].insert(id);
-	}
-	for (auto & pair : ranktargets){
-		for (long id : pair.second)
-			rankst[pair.first].insert(id);
-	}
-
-	//Count occurences for each source to other processors
-	std::unordered_map<long, int> stoccurences;
-	for (auto pair : rankst){
-		for (long source : pair.second){
-			if (stoccurences.count(source)){
-				stoccurences[source] = stoccurences[source] + 1;
-			}
-			else{
-				stoccurences[source] = 2;
-			}
-		}
-	}
-
-	//Initialize occurences for each common vertex
-	std::unordered_map<long, int> vertexoccurences;
-	for (auto & pair : stoccurences){
-		long idcell = pair.first;
-		const bitpit::Cell & cell = getPatch()->getCell(idcell);
-		for (long idvertex : cell.getVertexIds()){
-			if (vertexoccurences.count(idvertex)){
-				vertexoccurences[idvertex] = std::max(vertexoccurences[idvertex], pair.second);
-			}
-			else{
-				vertexoccurences[idvertex] = pair.second;
-			}
-		}
-	}
-
-	//Count local vertices
-	//Use double to weight the contribution of multiple occurences due to the vertices shared by processors
-	double localVerticesCount = 0.;
-	std::set<long> counted;
-	for (const bitpit::Cell & cell : getPatch()->getCells()){
-		for (long id : cell.getVertexIds()){
-			if (!counted.count(id)){
-				counted.insert(id);
-				double weight = 1.;
-				if (vertexoccurences.count(id)){
-					weight /= (double(vertexoccurences[id]));
-				}
-				localVerticesCount += 1. * weight;
-			}
-		}
-	}
-
-	double globalVerticesCount = 0.;
-
-	MPI_Allreduce(&localVerticesCount, &globalVerticesCount, 1, MPI_DOUBLE, MPI_SUM, m_communicator);
-
-	return long(round(globalVerticesCount));
-
+	return m_nglobalvertices;
 };
 
 /*!
@@ -1386,6 +1319,7 @@ bool MimmoObject::arePointGhostExchangeInfoSync() const
 
 /*!
 	Update the information needed for ghost point data exchange.
+	Update even the shared points.
 */
 void MimmoObject::updatePointGhostExchangeInfo()
 {
@@ -1422,6 +1356,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		m_pointGhostExchangeSources[recvRank].assign(localVertices.begin(), localVertices.end());
 	}
 
+	// Clear shared
+	m_pointGhostExchangeShared.clear();
+
 	//Erase common vertices
 	for (auto & sourceEntry : m_pointGhostExchangeSources){
 		int recvRank = sourceEntry.first;
@@ -1434,7 +1371,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			for (std::vector<long>::iterator itsource=sourceVertices.begin(); itsource!=itsourceend; itsource++){
 				auto iter = std::find(targetVertices.begin(), targetVertices.end(), *itsource);
 				if (iter != targetVertices.end()){
-					//The nodes are not repeated so the target veritces don't need to be resized
+					//insert shared point
+					m_pointGhostExchangeShared[recvRank].push_back(*itsource);
+					//The nodes are not repeated so the target vertices don't need to be resized
 					*iter = targetVertices[targetLast];
 					targetLast--;
 					*itsource = *(sourceVertices.end()-1);
@@ -1460,9 +1399,48 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
 	}
 
+
+	//Fill interior points structure
+	//Initialize as interior all the local nodes
+	for (long id : getVertices().getIds()){
+		m_isPointInterior[id] = true;
+	}
+	//Correct target ghost points
+	for (auto &entry : m_pointGhostExchangeTargets) {
+		std::vector<long> &rankTargets = entry.second;
+		for (long id : rankTargets){
+			m_isPointInterior[id] = false;
+		}
+	}
+	//The owner of a shared point is the lower rank
+	for (auto &entry : m_pointGhostExchangeShared){
+		int sharingRank = entry.first;
+		//Correct shared points only if sharede with a lower rank
+		if (sharingRank < m_rank){
+			std::vector<long> &sharedPoints = entry.second;
+			for (long id : sharedPoints){
+				m_isPointInterior[id] = false;
+			}
+		}
+	}
+
+	//Update n interior vertices
+	m_ninteriorvertices = 0;
+	for (auto &entry : m_isPointInterior){
+		if (entry.second)
+			m_ninteriorvertices++;
+	}
+
+	//Update n global vertices
+	m_nglobalvertices = 0;
+	MPI_Allreduce(&m_ninteriorvertices, &m_nglobalvertices, 1, MPI_INT, MPI_SUM, m_communicator);
+
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
 }
+
+
+
 
 #endif
 
