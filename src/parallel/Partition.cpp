@@ -174,45 +174,48 @@ Partition::execute(){
 		getGeometry()->getPatch()->setCommunicator(m_communicator);
 	}
 
-	//Compute partition
-	computePartition();
+	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
 
-	if (getBoundaryGeometry() != nullptr){
-		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+		//Compute partition
+		computePartition();
 
-			//Set communicator if not already set
-			if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
-				getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
+		if (getBoundaryGeometry() != nullptr){
+			if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+
+				//Set communicator if not already set
+				if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
+					getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
+				}
+
+				//Compute boundary partition
+				computeBoundaryPartition();
 			}
-
-			//Compute boundary partition
-			computeBoundaryPartition();
 		}
-	}
 
-	//partition
-	std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+		//partition
+		std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
 
-	//Resync PID
-	getGeometry()->resyncPID();
+		//Resync PID
+		getGeometry()->resyncPID();
 
-	//Force rebuild patch info
-	getGeometry()->buildPatchInfo();
+		//Force rebuild patch info
+		getGeometry()->buildPatchInfo();
 
-	if (getBoundaryGeometry() != nullptr){
-		if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+		if (getBoundaryGeometry() != nullptr){
+			if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
-			//boundary partition
-			std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+				//boundary partition
+				std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
 
-			//Resync PID
-			getBoundaryGeometry()->resyncPID();
+				//Resync PID
+				getBoundaryGeometry()->resyncPID();
 
-			//Update ID of boundary vertices
-			updateBoundaryVerticesID();
+				//Update ID of boundary vertices
+				updateBoundaryVerticesID();
 
-			//Force rebuild patch info
-			getBoundaryGeometry()->buildPatchInfo();
+				//Force rebuild patch info
+				getBoundaryGeometry()->buildPatchInfo();
+			}
 		}
 	}
 };
