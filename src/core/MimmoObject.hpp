@@ -136,8 +136,9 @@ protected:
     int							m_nprocs;									/**<Total number of processors.*/
     int							m_rank;										/**<Current rank number.*/
 	MPI_Comm 					m_communicator; 							/**<MPI communicator.*/
-	long						m_ninteriorvertices = 0;					/**<Global number of vertices.*/
+	long						m_ninteriorvertices = 0;					/**<Number of interior vertices.*/
 	long						m_nglobalvertices = 0;						/**<Global number of vertices.*/
+	std::vector<long>			m_rankinteriorvertices;						/**<Number of interior vertices for each rank.*/
 	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeTargets;	/**<List of Ids of the local ghost points that are local points for each other processor.*/
 	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeSources;	/**<List of Ids of the local points that are ghost points for each other processor.*/
 	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeShared;	/**<List of Ids of the local points that are shared with each other processor.*/

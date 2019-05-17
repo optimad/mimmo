@@ -1433,7 +1433,13 @@ void MimmoObject::updatePointGhostExchangeInfo()
 
 	//Update n global vertices
 	m_nglobalvertices = 0;
-	MPI_Allreduce(&m_ninteriorvertices, &m_nglobalvertices, 1, MPI_INT, MPI_SUM, m_communicator);
+	MPI_Allreduce(&m_ninteriorvertices, &m_nglobalvertices, 1, MPI_LONG, MPI_SUM, m_communicator);
+
+	//Update n interior vertices for procs
+	m_rankinteriorvertices.clear();
+	m_rankinteriorvertices.resize(m_nprocs);
+	m_rankinteriorvertices[m_rank] = m_ninteriorvertices;
+	MPI_Allgather(&m_ninteriorvertices, 1, MPI_LONG, &m_rankinteriorvertices, 1, MPI_LONG, m_communicator);
 
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
