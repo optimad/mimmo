@@ -25,6 +25,7 @@
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
 #include "SkdTreeUtils.hpp"
+#include "communications.hpp"
 #include <set>
 
 using namespace std;
@@ -1373,7 +1374,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				if (iter != targetVertices.end()){
 					//insert shared point
 					m_pointGhostExchangeShared[recvRank].push_back(*itsource);
-					//The nodes are not repeated so the target vertices don't need to be resized
+					//The nodes are not repeated so the target vertices don't need to be resized during loop
 					*iter = targetVertices[targetLast];
 					targetLast--;
 					*itsource = *(sourceVertices.end()-1);
@@ -1399,12 +1400,19 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
 	}
 
+	// Sort the shared
+	for (auto &entry : m_pointGhostExchangeShared) {
+		std::vector<long> &rankShared = entry.second;
+		std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
+	}
+
 
 	//Fill interior points structure
 	//Initialize as interior all the local nodes
 	for (long id : getVertices().getIds()){
 		m_isPointInterior[id] = true;
 	}
+
 	//Correct target ghost points
 	for (auto &entry : m_pointGhostExchangeTargets) {
 		std::vector<long> &rankTargets = entry.second;
@@ -1412,10 +1420,11 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			m_isPointInterior[id] = false;
 		}
 	}
+
 	//The owner of a shared point is the lower rank
 	for (auto &entry : m_pointGhostExchangeShared){
 		int sharingRank = entry.first;
-		//Correct shared points only if sharede with a lower rank
+		//Correct shared points only if shared with a lower rank
 		if (sharingRank < m_rank){
 			std::vector<long> &sharedPoints = entry.second;
 			for (long id : sharedPoints){
@@ -1439,14 +1448,147 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	m_rankinteriorvertices.clear();
 	m_rankinteriorvertices.resize(m_nprocs);
 	m_rankinteriorvertices[m_rank] = m_ninteriorvertices;
-	MPI_Allgather(&m_ninteriorvertices, 1, MPI_LONG, &m_rankinteriorvertices, 1, MPI_LONG, m_communicator);
+	MPI_Allgather(&m_rankinteriorvertices[m_rank], 1, MPI_LONG, m_rankinteriorvertices.data(), 1, MPI_LONG, m_communicator);
+
+	//Update global offset
+	m_globaloffset = 0;
+	for (int i=0; i<m_rank; i++){
+		m_globaloffset += m_rankinteriorvertices[i];
+	}
+
+	//---
+	//Create consecutive map for vertices and fill locals
+	//---
+	m_pointConsecutiveId.clear();
+	long consecutiveId = m_globaloffset;
+	//Insert owned vertices
+	for (const long & id : getVertices().getIds()){
+		if (m_isPointInterior[id]){
+			m_pointConsecutiveId[id] = consecutiveId;
+			consecutiveId++;
+		}
+	}
+
+
+	//Perform twice the communication to guarantee the propagation
+	//TODO OPTIMIZE THIS ASPECT
+	for (int istep=0; istep<2; istep++){
+
+		//---
+		//Communicate consecutive ids for ghost points
+		//---
+		{
+			size_t exchangeDataSize = sizeof(consecutiveId);
+			std::unique_ptr<DataCommunicator> dataCommunicator;
+			dataCommunicator = std::unique_ptr<DataCommunicator>(new DataCommunicator(getCommunicator()));
+			for (const auto entry : m_pointGhostExchangeTargets) {
+				const int rank = entry.first;
+				const auto &list = entry.second;
+				dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
+				dataCommunicator->startRecv(rank);
+			}
+
+			// Set and start the sends
+			for (const auto entry : m_pointGhostExchangeSources) {
+				const int rank = entry.first;
+				auto &list = entry.second;
+				dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+				SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+				for (long id : list) {
+					if (m_pointConsecutiveId.count(id)){
+						buffer << m_pointConsecutiveId.at(id);
+					}else{
+						buffer << long(-1);
+					}
+				}
+				dataCommunicator->startSend(rank);
+			}
+
+			// Receive the consecutive ids of the ghosts
+			int nCompletedRecvs = 0;
+			while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+				int rank = dataCommunicator->waitAnyRecv();
+				const auto &list = m_pointGhostExchangeTargets[rank];
+
+				RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+				for (long id : list) {
+					buffer >> consecutiveId;
+					if (consecutiveId > -1){
+						m_pointConsecutiveId[id] = consecutiveId;
+					}
+				}
+				++nCompletedRecvs;
+			}
+			// Wait for the sends to finish
+			dataCommunicator->waitAllSends();
+		}
+
+		//---
+		//Communicate consecutive ids for not owned shared points
+		//---
+		{
+			size_t exchangeDataSize = sizeof(consecutiveId);
+			std::unique_ptr<DataCommunicator> dataCommunicator;
+			dataCommunicator = std::unique_ptr<DataCommunicator>(new DataCommunicator(getCommunicator()));
+			for (const auto entry : m_pointGhostExchangeShared) {
+				const int rank = entry.first;
+				const auto &list = entry.second;
+				if (rank<m_rank){
+					dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
+					dataCommunicator->startRecv(rank);
+				}
+			}
+
+			// Set and start the sends
+			for (const auto entry : m_pointGhostExchangeShared) {
+				const int rank = entry.first;
+				auto &list = entry.second;
+				if (rank>m_rank){
+					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+					SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					for (long id : list) {
+						if (m_pointConsecutiveId.count(id)){
+							buffer << m_pointConsecutiveId.at(id);
+						}
+						else{
+							buffer << long(-1);
+						}
+					}
+					dataCommunicator->startSend(rank);
+				}
+			}
+
+			// Receive the consecutive ids of the ghosts
+			int nCompletedRecvs = 0;
+			while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+				int rank = dataCommunicator->waitAnyRecv();
+				const auto &list = m_pointGhostExchangeShared[rank];
+
+				RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+				for (long id : list) {
+					buffer >> consecutiveId;
+					if (consecutiveId > -1){
+						m_pointConsecutiveId[id] = consecutiveId;
+					}
+				}
+				++nCompletedRecvs;
+			}
+			// Wait for the sends to finish
+			dataCommunicator->waitAllSends();
+		}
+
+	}
+
+//	//Check if all points have the consecutive id
+//	for (const long & id : getVertices().getIds()){
+//		if (!m_pointConsecutiveId.count(id)){
+//			std::cout << "#" << m_rank << " found vertex without consecutive id : " << id << std::endl;
+//		}
+//	}
 
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
 }
-
-
-
 
 #endif
 
