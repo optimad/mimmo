@@ -479,7 +479,7 @@ IOOFOAM::read(){
 				}
 			}
 		}
-		bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, true, conn, iDC);
+		bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, iDC);
 		it->setPID(int(PID));
 		it->setAdjacencies(adjacency);
 	}
