@@ -1432,7 +1432,7 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
             }
         }
 
-        bitpit::PatchKernel::CellIterator it = patch.addCell(eltype, true, conn, idC);
+        bitpit::PatchKernel::CellIterator it = patch.addCell(eltype, conn, idC);
         (*it).setPID(PID);
 
         posCellBegin = off;
