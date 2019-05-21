@@ -200,7 +200,6 @@ public:
     void        setBuildKdTree(bool build);
 
     bool         isEmpty();
-    bool         isEmpty() const;
     bool        isInternal();
     void         clear();
     bool        write();

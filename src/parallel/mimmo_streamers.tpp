@@ -114,14 +114,19 @@ void MimmoPointDataBufferStreamer<NCOMP>::setData(MimmoPiercedVector<std::array<
 template<std::size_t NCOMP>
 void MimmoPointDataBufferStreamer<NCOMP>::read(int const &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list)
 {
-    BITPIT_UNUSED(rank);
-
     // Read the dataset
     for (const long id : list) {
     	std::array<double, NCOMP> value;
     	for (double & val : value)
     		buffer >> val;
-    	m_data->at(id) = value;
+    	if (!m_receivedFromRank.count(id)){
+    		m_data->at(id) = value;
+    		m_receivedFromRank[id] = rank;
+    	}
+    	else if(rank <= m_receivedFromRank[id]){
+    		m_data->at(id) = value;
+    		m_receivedFromRank[id] = rank;
+    	}
     }
 }
 

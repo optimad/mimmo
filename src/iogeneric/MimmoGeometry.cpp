@@ -572,16 +572,6 @@ bool MimmoGeometry::isEmpty(){
 }
 
 /*!
- * Check if geometry is not linked or not locally instantiated in your class.
- * True - no geometry present, False otherwise. Const overloading.
- * \return is the geometry empty?
- */
-bool MimmoGeometry::isEmpty() const{
-    if(getGeometry() == NULL)   return true;
-    return getGeometry()->isEmpty();
-}
-
-/*!
  * Check if geometry is internally instantiated (true) or externally linked(false).
  * Return false if no geometry is checked. Please verify it with isEmpty method first
  * \return is the geometry internally instantiated?

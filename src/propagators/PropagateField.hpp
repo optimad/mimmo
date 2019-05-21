@@ -32,6 +32,18 @@
 #endif
 
 namespace mimmo{
+
+/*!
+ * \enum PropagatorMethod
+ * Define scheme of propagator solver
+ *  - 0-Graph Laplace scheme on points
+ *  - 1-Finite Volume discretization on cell centers
+ */
+enum class PropagatorMethod: long {
+    GRAPHLAPLACE=0,
+    FINITEVOLUMES=1,
+};
+
 /*!
  * \class PropagateField
  * \ingroup propagators
@@ -104,6 +116,8 @@ protected:
 
     std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
 
+    PropagatorMethod	m_method;	/**<Solver method enum.*/
+
 #if MIMMO_ENABLE_MPI
     std::unique_ptr<GhostCommunicator> m_ghostCommunicator; 			/**<Ghost communicator object */
     int m_ghostTag;														/**< Tag of communicator object*/
@@ -135,6 +149,7 @@ public:
     void    setTolerance(double tol);
     virtual void    setUpdateThreshold(double thres);
     void	setForceDirichletConditions(bool force = true);
+    void	setMethod(PropagatorMethod method);
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -146,17 +161,25 @@ protected:
     virtual void setDefaults();
     virtual bool checkBoundariesCoherence();
     virtual void distributeBCOnBoundaryInterfaces();
+    virtual void distributeBCOnBoundaryPoints();
 
     // core resolution functions.
     virtual void computeDumpingFunction();
     virtual void updateDumpingFunction();
     virtual void initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
+//    virtual void initializeFVLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
+//    virtual void initializeGLLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
     virtual void updateLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
     virtual void assignBCAndEvaluateRHS(std::size_t comp, bool unused,
                                         FVolStencil::MPVDivergence * borderLaplacianStencil,
                                         FVolStencil::MPVGradient * borderCCGradientStencil,
                                         const liimap & maplocals,
                                         dvector1D & rhs);
+    virtual void assignBCAndEvaluateRHS(std::size_t comp, bool unused,
+    		GraphLaplStencil::MPVStencil * borderLaplacianStencil,
+    		const liimap & maplocals,
+    		dvector1D & rhs);
+
     virtual void solveLaplace(const dvector1D &rhs, dvector1D & result);
 
     virtual void initializeBoundaryInfo();
@@ -167,6 +190,7 @@ protected:
     int createPointGhostCommunicator(bool continuous);
     void communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
     void communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+    long getGlobalCountOffset(PropagatorMethod method);
 #endif
 
 };

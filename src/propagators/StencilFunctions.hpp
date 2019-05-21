@@ -33,6 +33,7 @@ namespace mimmo{
 
 /*!
  * \brief Collection of methods to precompute stencils of math operators (Laplacian, Gradients, etc...) on mimmo meshes
+ * for finite volumes methods
  * \ingroup propagators
  */
 namespace FVolStencil{
@@ -69,8 +70,47 @@ namespace FVolStencil{
                                                  MimmoPiercedVector<double> * diffusivity = nullptr);
 
 
-};//end namespace stencilFunction
+};//end namespace FVolStencil
 
+
+/*!
+ * \brief Collection of methods to precompute stencils of math operators (Laplacian, Gradients, etc...) on mimmo meshes
+ * for Graph Laplace deiscretization
+ * \ingroup propagators
+ */
+namespace GraphLaplStencil{
+    typedef MimmoPiercedVector<bitpit::StencilScalar> MPVStencil; /**< typedef to save stencil of a Grad stuff */
+    typedef std::unique_ptr<MPVStencil> MPVStencilUPtr;  /**< typedef to instantiate unique ptr of Grad stencil */
+
+//    void computeWeightsWLS( const std::vector<std::vector<double>> &P,
+//                            const std::vector<double> &w,
+//                            std::vector<std::vector<double>> *weights);
+
+//    MPVGradientUPtr   computeStencils(MimmoObject & geo, const std::vector<long> * updatelist = nullptr);
+
+//    MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * cellGradientStencil = nullptr);
+//    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil);
+//    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vector<long> & list);
+
+//    bitpit::StencilVector computeBorderFaceGradient(const std::array<double,3> & interfaceNormal,
+//                                                    const bitpit::StencilVector & CCellOwnerStencil);
+
+//    bitpit::StencilVector correctionNeumannBCFaceGradient(const double & neuval,
+//                                                          const std::array<double,3> & interfaceNormal);
+
+//    bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
+//                                                            const long & ownerID,
+//                                                            const std::array<double,3> & ownerCentroid,
+//                                                            const std::array<double,3> & interfaceCentroid,
+//                                                            const std::array<double,3> & interfaceNormal,
+//                                                            const double &distD,
+//                                                            const bitpit::StencilVector & CCellOwnerStencil);
+
+    MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance = 1.0e-12,
+                                                 MimmoPiercedVector<double> * diffusivity = nullptr);
+
+
+};//end namespace stencilFunction
 
 }; //end namespace mimmo
 

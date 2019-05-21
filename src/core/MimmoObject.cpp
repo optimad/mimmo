@@ -717,18 +717,6 @@ MimmoObject::isEmpty(){
 };
 
 /*!
- * Is the object empty? const overloading.
- * \return True/False if geometry data structure is empty.
- */
-bool
-MimmoObject::isEmpty() const{
-	bool check = getNVertices() > 0;
-	if(m_type != 3) check = check && (getNCells() > 0);
-	return !check;
-};
-
-
-/*!
  * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
  * \return True for connectivity-based meshes, false por point clouds
  */
@@ -761,7 +749,7 @@ MimmoObject::getType(){
  * \return number of mesh vertices
  */
 long
-MimmoObject::getNVertices() const {
+MimmoObject::getNVertices(){
 	const auto p = getPatch();
 	return p->getVertexCount();
 };
@@ -786,6 +774,25 @@ MimmoObject::getNInternals() const {
 	return p->getInternalCount();
 };
 
+/*!
+ * Return the number of interior vertices within the data structure.
+ * \return number of interior mesh vertices
+ */
+long
+MimmoObject::getNInternalVertices(){
+#if MIMMO_ENABLE_MPI
+	if (!getPatch()->isPartitioned())
+#endif
+		return getNVertices();
+#if MIMMO_ENABLE_MPI
+
+	if (!arePointGhostExchangeInfoSync())
+		updatePointGhostExchangeInfo();
+
+	return m_ninteriorvertices;
+#endif
+};
+
 #if MIMMO_ENABLE_MPI
 /*!
  * Return the total number of global vertices within the data structure.
@@ -793,8 +800,10 @@ MimmoObject::getNInternals() const {
  */
 long
 MimmoObject::getNGlobalVertices(){
-	if (!getPatch()->isPartitioned())
-		return getNVertices();
+	if (!getPatch()->isPartitioned()){
+		const auto p = getPatch();
+		return p->getVertexCount();
+	}
 
 	if (!arePointGhostExchangeInfoSync())
 		updatePointGhostExchangeInfo();
@@ -814,6 +823,22 @@ MimmoObject::getNGlobalCells() {
 	PatchNumberingInfo info(getPatch());
 	return info.getCellGlobalCount();
 };
+
+/*!
+ * Return the partition offset for nodes consecutive index.
+ * \return points partition offset
+ */
+long
+MimmoObject::getPointGlobalCountOffset(){
+	if (!getPatch()->isPartitioned())
+		return 0;
+
+	if (!arePointGhostExchangeInfoSync())
+		updatePointGhostExchangeInfo();
+
+	return m_globaloffset;
+};
+
 #endif
 
 /*!
@@ -1056,13 +1081,13 @@ MimmoObject::getPatch() const{
  * to bitpit::PatchKernel unique-labeled indexing.
  * \return local/unique-id map
  */
-livector1D
+liimap
 MimmoObject::getMapData(){
-	livector1D mapData(getNVertices());
-	int i = 0;
+	liimap mapData;
+	liimap mapDataInv = getMapDataInv();
 	for (auto const & vertex : getVertices()){
-		mapData[i] = vertex.getId();
-		++i;
+		long id = vertex.getId();
+		mapData[mapDataInv[id]] = id;
 	}
 	return mapData;
 };
@@ -1075,6 +1100,13 @@ MimmoObject::getMapData(){
 liimap
 MimmoObject::getMapDataInv(){
 	liimap mapDataInv;
+#if MIMMO_ENABLE_MPI
+	if (getPatch()->isPartitioned()){
+		if (!arePointGhostExchangeInfoSync())
+			updatePointGhostExchangeInfo();
+		return m_pointConsecutiveId;
+	}
+#endif
 	int i = 0;
 	for (auto const & vertex : getVertices()){
 		mapDataInv[vertex.getId()] = i;
@@ -1360,6 +1392,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	// Clear shared
 	m_pointGhostExchangeShared.clear();
 
+	//Note. All the processes will receive the data on the shared points from all the processes,
+	// but they will save the data received by the lowest process that shares those nodes.
+
 	//Erase common vertices
 	for (auto & sourceEntry : m_pointGhostExchangeSources){
 		int recvRank = sourceEntry.first;
@@ -1374,14 +1409,22 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				if (iter != targetVertices.end()){
 					//insert shared point
 					m_pointGhostExchangeShared[recvRank].push_back(*itsource);
-					//The nodes are not repeated so the target vertices don't need to be resized during loop
-					*iter = targetVertices[targetLast];
-					targetLast--;
-					*itsource = *(sourceVertices.end()-1);
-					sourceLast--;
-					sourceVertices.resize(sourceLast+1);
-					itsourceend = sourceVertices.end();
-					itsource--;
+
+					//Maintain shared points only in the sources of the lower rank and in the target of the greater one.
+					//Note. Some nodes will be repeated if shared by several processes. During the communications only the
+					//the data given by the lowest sender will be saved.
+					if (m_rank < recvRank){
+						//The nodes are not repeated so the target vertices don't need to be resized during loop
+						*iter = targetVertices[targetLast];
+						targetLast--;
+					}
+					else if (m_rank > recvRank){
+						*itsource = *(sourceVertices.end()-1);
+						sourceLast--;
+						sourceVertices.resize(sourceLast+1);
+						itsourceend = sourceVertices.end();
+						itsource--;
+					}
 				}
 			}
 			targetVertices.resize(targetLast+1);
@@ -1472,6 +1515,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 
 	//Perform twice the communication to guarantee the propagation
 	//TODO OPTIMIZE THIS ASPECT
+	//TODO USE HALOSIZE(?)
 	for (int istep=0; istep<2; istep++){
 
 		//---
@@ -1576,7 +1620,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			// Wait for the sends to finish
 			dataCommunicator->waitAllSends();
 		}
-
 	}
 
 //	//Check if all points have the consecutive id
@@ -1588,6 +1631,22 @@ void MimmoObject::updatePointGhostExchangeInfo()
 
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
+}
+
+/*!
+ * Get if a vertex is local or not
+ * \param[in] id Vertex id
+ */
+bool
+MimmoObject::isPointInterior(long id)
+{
+	if (!arePointGhostExchangeInfoSync())
+		updatePointGhostExchangeInfo();
+
+	if (!m_isPointInterior.count(id))
+		return false;
+
+	return m_isPointInterior[id];
 }
 
 #endif

@@ -163,16 +163,17 @@ public:
     MimmoObject & operator=(MimmoObject other);
 
     bool                                            isEmpty();
-    bool                                            isEmpty() const;
     BITPIT_DEPRECATED(bool                          isBvTreeSupported());
     bool                                            isSkdTreeSupported();
     int                                             getType();
-    long                                            getNVertices()const;
+    long                                            getNVertices();
     long                                            getNCells()const;
     long                                            getNInternals()const;
+    long                                            getNInternalVertices();
 #if MIMMO_ENABLE_MPI
     long                                            getNGlobalVertices();
     long                                            getNGlobalCells();
+    long                                            getPointGlobalCountOffset();
 #endif
     dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = NULL);
     darray3E                                        getVertexCoords(long i) const;
@@ -215,6 +216,7 @@ public:
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
     bool arePointGhostExchangeInfoSync() const;
     void updatePointGhostExchangeInfo();
+    bool isPointInterior(long id);
 #endif
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
@@ -251,7 +253,7 @@ public:
     livector1D  extractPIDCells(long);
     livector1D  extractPIDCells(livector1D);
 
-    livector1D  getMapData();
+    liimap      getMapData();
     liimap      getMapDataInv();
     liimap	    getMapCell();
     liimap      getMapCellInv();

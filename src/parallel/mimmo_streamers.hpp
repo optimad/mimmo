@@ -71,6 +71,7 @@ public:
 private:
 
     MimmoPiercedVector<std::array<double, NCOMP> >* m_data;
+    std::unordered_map<long, int> m_receivedFromRank; //Which rank sent the received id-th point data?
 
 };
 

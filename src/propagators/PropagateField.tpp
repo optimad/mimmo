@@ -57,6 +57,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_dumpingType = 0;
 	this->m_thres = 1.E-8;
 	this->m_forceDirichletConditions = true;
+	this->m_method = PropagatorMethod::GRAPHLAPLACE;
 }
 
 /*!
@@ -87,6 +88,7 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
 	this->m_dumpingType  = other.m_dumpingType;
 	this->m_thres        = other.m_thres;
 	this->m_forceDirichletConditions = other.m_forceDirichletConditions;
+	this->m_method = other.m_method;
 };
 
 /*!
@@ -111,6 +113,8 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 	std::swap(this->m_thres, x.m_thres);
 	this->BaseManipulation::swap(x);
 	std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
+	std::swap(this->m_method, x.m_method);
+
 }
 
 
@@ -194,7 +198,6 @@ PropagateField<NCOMP>::setDumping(bool flag){
 	m_dumpingActive = flag;
 }
 
-
 /*!
  * Set the inner dumping radius p (see class doc).
  * \param[in] plateau inner distance.
@@ -235,7 +238,6 @@ PropagateField<NCOMP>::setDecayFactor(double decay){
 	m_decayFactor = decay;
 }
 
-
 /*!
  * It sets the tolerance on residuals for solver convergence on both smoothing and laplacian solver.
  * \param[in] tol Convergence tolerance.
@@ -265,6 +267,14 @@ void PropagateField<NCOMP>::setForceDirichletConditions(bool force)
 	m_forceDirichletConditions = force;
 }
 
+/*!
+ * It sets the method to solve the propagation problem
+ * \param[in] method Solver method
+ */
+template <std::size_t NCOMP>
+void PropagateField<NCOMP>::setMethod(PropagatorMethod method){
+	m_method = method;
+}
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
@@ -362,6 +372,19 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
 			setDumpingType(value);
 		}
 	}
+
+	if(slotXML.hasOption("Method")){
+		std::string input  = slotXML.get("Method");
+			int value =0;
+			if(!input.empty()){
+				std::stringstream ss(bitpit::utils::string::trim(input));
+				ss>>value;
+			}
+			value = std::max(0, value);
+			value = std::min(1, value);
+			PropagatorMethod method = static_cast<PropagatorMethod>(value);
+			setMethod(method);
+		};
 };
 
 /*!
@@ -446,7 +469,22 @@ PropagateField<NCOMP>::distributeBCOnBoundaryInterfaces(){
 
 	//interpolate now point data to interface data
 	m_bc_dir.clear();
-	m_bc_dir = temp.pointDataToBoundaryInterfaceData(3.);
+	m_bc_dir = temp.pointDataToBoundaryInterfaceData(1.5);
+}
+
+
+/*!
+ * Distribute the input bc values on the border points of the bulk mesh.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
+	//transfer point field info of boundary dirichlet on the volume mesh interfaces.
+	m_bc_dir.clear();
+	m_bc_dir.reserve(m_surface_bc_dir.size());
+	for(auto it=m_surface_bc_dir.begin(); it!=m_surface_bc_dir.end(); ++it){
+		m_bc_dir.insert(it.getId(), *it );
+	}
 }
 
 /*!
@@ -619,18 +657,110 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 	//all done if you are here, you computed also the volume part and put together all the stuffs.
 }
 
+///*!
+// * Prepare your system solver, feeding the laplacian stencils you previosly calculated.
+// * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS or POINTS
+// * The stencil will be renumerated with the consecutiveIdIndexing provided.
+// *
+// * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
+// * param[in] map of consecutive cell/nodes ID from Global indexing
+// */
+//template<std::size_t NCOMP>
+//void
+//PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
+//
+//	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
+//
+//	solverOptions.rtol      = m_tol;
+//	solverOptions.subrtol   = m_tol;
+//
+//	if (m_method == PropagatorMethod::FINITEVOLUMES){
+//		initializeFVLaplaceSolver(laplacianStencils, maplocals);
+//	}
+//	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+//		initializeGLLaplaceSolver(laplacianStencils, maplocals);
+//	}
+//
+//}
+//
+///*!
+// * Prepare your system solver, feeding the laplacian stencils you previosly calculated
+// * with FVolStencil::computeFVLaplacianStencil method.
+// * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS
+// * The stencil will be renumerated with the consecutiveIdIndexing provided.
+// *
+// * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
+// * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
+// */
+//template<std::size_t NCOMP>
+//void
+//PropagateField<NCOMP>::initializeFVLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
+//
+//	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
+//
+//	solverOptions.rtol      = m_tol;
+//	solverOptions.subrtol   = m_tol;
+//	// total number of local DOFS, determines size of matrix
+//	long nDOFs = laplacianStencils->size();
+//
+//	// total number of non-zero elements in the stencils.
+//	long nNZ(0);
+//	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
+//		nNZ += it->size();
+//	}
+//
+//#if MIMMO_ENABLE_MPI==1
+//	//instantiate the SparseMatrix
+//	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->getPatch()->isPartitioned(), nDOFs, nDOFs, nNZ);
+//#else
+//	//instantiate the SparseMatrix
+//	bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
+//#endif
+//
+//	std::vector<long> mapsort(laplacianStencils->size());
+//	long id, ind;
+//	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
+//		id = it.getId();
+//		ind = maplocals.at(id);
+//#if MIMMO_ENABLE_MPI
+//		ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+//#endif
+//		mapsort[ind] = id;
+//	}
+//
+//	//Add ordered rows
+//	for(auto id : mapsort){
+//		bitpit::StencilScalar item = laplacianStencils->at(id);
+//		//renumber values on the fly.
+//		item.renumber(maplocals);
+//		matrix.addRow(item.size(), item.patternData(), item.weightData());
+//	}
+//
+//	//assembly the matrix;
+//	matrix.assembly();
+//
+//	//clean up the previous stuff in the solver.
+//	m_solver->clear();
+//	// now you can initialize the m_solver with this matrix.
+//	m_solver->getKSPOptions().restart = 20;
+//	m_solver->getKSPOptions().overlap = 0;
+//	m_solver->getKSPOptions().sublevels = 0;
+//	m_solver->initialize(matrix);
+//}
+
+
 /*!
  * Prepare your system solver, feeding the laplacian stencils you previosly calculated
- * with FVolStencil::computeFVLaplacianStencil method.
- * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS
+ * with GraphLaplStencil::computeLaplacianStencil method.
+ * Provide the map that get consecutive Index from Global Pierced vector Index system for POINTS
  * The stencil will be renumerated with the consecutiveIdIndexing provided.
  *
  * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
- * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
+ * param[in] map of consecutive points ID from Global PV indexing (typically get from MimmoObject::getMapDataInv)
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
+PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const liimap & maplocals){
 
 	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
 
@@ -659,7 +789,7 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
 		id = it.getId();
 		ind = maplocals.at(id);
 #if MIMMO_ENABLE_MPI
-		ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+		ind -= getGlobalCountOffset(m_method);
 #endif
 		mapsort[ind] = id;
 	}
@@ -682,7 +812,6 @@ PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * lapl
 	m_solver->getKSPOptions().overlap = 0;
 	m_solver->getKSPOptions().sublevels = 0;
 	m_solver->initialize(matrix);
-
 }
 
 /*!
@@ -727,7 +856,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 		id = it.getId();
 		ind = maplocals.at(id);
 #if MIMMO_ENABLE_MPI
-		ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+		ind -= getGlobalCountOffset(m_method);
 #endif
 		rows_involved.push_back(ind);
 		bitpit::StencilScalar item(*it);
@@ -739,6 +868,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 
 	//call the solver update;
 	m_solver->update(rows_involved, upelements);
+
 }
 
 /*!
@@ -841,7 +971,83 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 #endif
 		rhs[index] -= it->getConstant();
 	}
+}
+
+
+/*!
+ * This method evaluate the bc corrections for a singular run of the system solver,
+ * update the system matrix in m_solver and evaluate the rhs part due to bc.
+ * After you call this method, you are typically ready to solve the laplacian system.
+ * The type of bc @ nodes are directly desumed from class member m_bc_dir.
+ * The method requires the Laplacian m_solver to be initialized. No ghost are taken into account.
+ *
+ * Moreover it needs as input :
+ * \param[in] comp target component of bc conditions.
+ * \param[in] unused boolean
+ * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarely imposed as homogeneous Neumann
+ * \param[in] maplocals map from global id numbering to local system solver numbering.
+ * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ */
+template<std::size_t NCOMP>
+void
+PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
+		GraphLaplStencil::MPVStencil * borderLaplacianStencil,
+		const liimap & maplocals,
+		dvector1D & rhs)
+{
+	BITPIT_UNUSED(unused);
+	//resize rhs to the number of internal cells
+	MimmoObject * geo = getGeometry();
+	rhs.resize(geo->getNInternalVertices(), 0.0);
+
+	if (!m_solver->isInitialized()) {
+		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
+		return;
+	}
+
+	if (!borderLaplacianStencil) {
+		(*m_log)<<"Warning in "<<m_name<<". Unable to reach border nodes stencils data. Nothing to do."<<std::endl;
+		return;
+	}
+
+	//copy laplacian stencils in a work mpv .
+	GraphLaplStencil::MPVStencilUPtr lapwork(new GraphLaplStencil::MPVStencil(*borderLaplacianStencil));
+
+	//correct the original border laplacian stencils applying the Dirichlet corrections.
+	//Nuemann are implicitely imposed by graph-laplacian scheme.
+	//renumber it and update the laplacian matrix and fill the rhs.
+	bitpit::StencilScalar correction;
+	bitpit::PiercedVector<bitpit::Vertex> & mesh_vertices = geo->getVertices();
+	bitpit::PiercedVector<bitpit::Cell> & mesh_cells = geo->getCells();
+
+	//loop on all dirichlet boundary nodes.
+	for(long id : m_bc_dir.getIds()){
+		if (geo->isPointInterior(id)){
+			//apply the correction relative to bc @ dirichlet node.
+			correction.clear(true);
+			correction.appendItem(id, 1.);
+			correction.sumConstant(-m_bc_dir[id][comp]);
+			//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
+			lapwork->at(id) *= 0.;
+			lapwork->at(id) += correction;
 		}
+	}
+
+	// now its time to update the solver matrix and to extract the rhs contributes.
+	//NOTE: USE THE FINITE VOLUMES METHOD, THE STRUCTURES ARE THE SAME!
+	updateLaplaceSolver(lapwork.get(), maplocals);
+
+	// now get the rhs
+	for(auto it = lapwork->begin(); it != lapwork->end();++it){
+		auto index = maplocals.at(it.getId());
+#if MIMMO_ENABLE_MPI
+		//correct index if in parallel
+		index -= getGeometry()->getPointGlobalCountOffset();
+#endif
+		rhs[index] -= it->getConstant();
+	}
+}
+
 
 /*!
  * It solves the laplacian problem, one field at a time.
@@ -856,7 +1062,13 @@ void
 PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
 	//just to be sure, resize the vector result
-	result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
+	}
+	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+		result.resize(getGeometry()->getNInternalVertices(), 0.);
+	}
+
 
 	// Check if the internal solver is initialized
 	if (!m_solver->isInitialized()) {
@@ -871,16 +1083,16 @@ PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 }
 
 /*!
- * Utility to put laplacian solution into a Cell based MPV and after point interpolation
+ * Utility to put laplacian solution into a Cell/Node based MPV and (after point interpolation if needed)
  * directly in m_field (cleared and refreshed).
  * Ghost communication is already taken into account in case of mpi run.
  * \param[in] results data of laplacian solutions collected in raw vectors.
- * \param[in] mapglobals map to retrieve cell global id from locals raw laplacian indexing
- * \param[out] markedcells (OPTIONAL) list of cells whose field norm is greater then m_tolerance.
+ * \param[in] mapglobals map to retrieve cell/node global id from locals raw laplacian indexing
+ * \param[out] marked (OPTIONAL) list of cells/nodes whose field norm is greater then m_tolerance.
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liimap & mapglobals, livector1D * markedcells)
+PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liimap & mapglobals, livector1D * marked)
 {
 	if(results.size() != NCOMP){
 		(*m_log) << "WARNING in "<<m_name<<" . A field with dimension different from" <<NCOMP<<" is feeded to reconstructResults. m_field is not touched"<<std::endl;
@@ -888,16 +1100,31 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	}
 	// push result in a mpv linked to target mesh and on cell location.
 	MimmoObject * geo = getGeometry();
-	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
-	mpvres->reserve(geo->getNCells());
+	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres;
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
+		mpvres->reserve(geo->getNCells());
+	}
+	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+		mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
+		mpvres->reserve(geo->getNVertices());
+	}
+
 	long id,counter;
 	std::array<double, NCOMP> temp;
 	for(auto & pair : mapglobals){
 		id = pair.second;
-		if (geo->getPatch()->getCell(id).isInterior()){
+		bool isInterior = false;
+		if (m_method == PropagatorMethod::FINITEVOLUMES){
+			isInterior = geo->getPatch()->getCell(id).isInterior();
+		}
+		else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+			isInterior = geo->isPointInterior(id);
+		}
+		if (isInterior){
 			counter = pair.first;
 #if MIMMO_ENABLE_MPI
-			counter -= geo->getPatchInfo()->getCellGlobalCountOffset();
+			counter -= getGlobalCountOffset(m_method);
 #endif
 			for(int i=0; i<NCOMP; ++i){
 				temp[i] = results[i][counter];
@@ -913,26 +1140,32 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	}
 
 #if MIMMO_ENABLE_MPI
-	communicateGhostData(mpvres.get());
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		communicateGhostData(mpvres.get());
+	}
 #endif
 
-	if(markedcells){
-		markedcells->clear();
-		markedcells->reserve(mpvres->size());
+	if(marked){
+		marked->clear();
+		marked->reserve(mpvres->size());
 		int counter = 0;
 		for(auto it=mpvres->begin(); it != mpvres->end(); ++it){
 			if(norm2(*it) > m_thres){
-				markedcells->push_back(it.getId());
+				marked->push_back(it.getId());
 				counter++;
 			}
 		}
-		markedcells->resize(counter);
+		marked->resize(counter);
 	}
 
 	// interpolate result to POINT location.
 	m_field.clear();
-	m_field = mpvres->cellDataToPointData(3.);
-
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		m_field = mpvres->cellDataToPointData(1.5);
+	}
+	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+		m_field = *(mpvres.get());
+	}
 }
 
 /*!
@@ -1054,6 +1287,24 @@ void PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::ar
 		}
 	}
 }
+
+/*!
+ * Get the point/cell offset for the current partition if graph-laplace/finite-volume method is used
+ * \return point/cell offset in function of method member.
+ */
+template<std::size_t NCOMP>
+long PropagateField<NCOMP>::getGlobalCountOffset(PropagatorMethod method)
+{
+	if (method == PropagatorMethod::GRAPHLAPLACE)
+		return getGeometry()->getPointGlobalCountOffset();
+
+	if (method == PropagatorMethod::FINITEVOLUMES)
+		return getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+
+	return 0;
+
+}
+
 
 #endif
 

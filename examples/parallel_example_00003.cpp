@@ -40,7 +40,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	double radiusin(2.0), radiusout(5.0);
 	double azimuthin(0.0), azimuthout(0.5*BITPIT_PI);
 	double heightbottom(-1.0), heighttop(1.0);
-	int nr(40), nt(40), nh(40);
+	int nr(20), nt(20), nh(20);
 
 	double deltar = (radiusout - radiusin)/ double(nr);
 	double deltat = (azimuthout - azimuthin)/ double(nt);
@@ -186,7 +186,8 @@ int test00003() {
 				<< " seconds" << std::endl;
 	}
 	// and the field of Dirichlet values on its nodes.
-	MimmoPiercedVector<std::array<double,3>> bc_surf_field;
+//	MimmoPiercedVector<std::array<double,3>> bc_surf_field;
+	MimmoPiercedVector<double> bc_surf_field;
 	bc_surf_field.setGeometry(partition->getBoundaryGeometry());
 	bc_surf_field.setDataLocation(MPVLocation::POINT);
 	bc_surf_field.reserve(partition->getBoundaryGeometry()->getNVertices());
@@ -195,13 +196,15 @@ int test00003() {
 		if (cell.getPID() == 1){
 			for (long id : cell.getVertexIds()){
 				if (!bc_surf_field.exists(id))
-					bc_surf_field.insert(id, {{1., 1., 0.}});
+					bc_surf_field.insert(id, 1.);
+					//bc_surf_field.insert(id, {{1., 1., 0.}});
 			}
 		}
 		if (cell.getPID() == 2){
 			for (long id : cell.getVertexIds()){
 				if (!bc_surf_field.exists(id))
-					bc_surf_field.insert(id, {{0., 0., 0.}});
+					bc_surf_field.insert(id, 0.);
+					//bc_surf_field.insert(id, {{1., 1., 0.}});
 			}
 		}
 	}
@@ -210,12 +213,23 @@ int test00003() {
 	partition->getBoundaryGeometry()->buildInterfaces();
 
 	// Now create a PropagateScalarField and solve the laplacian.
-	PropagateVectorField * prop = new PropagateVectorField();
+//	PropagateVectorField * prop = new PropagateVectorField();
+//	prop->setGeometry(partition->getGeometry());
+//	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
+//	prop->setDirichletConditions(bc_surf_field);
+//	prop->setDumping(false);
+//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
+//	prop->setSolverMultiStep(10);
+//	prop->setPlotInExecution(true);
+
+	PropagateScalarField * prop = new PropagateScalarField();
 	prop->setGeometry(partition->getGeometry());
 	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
 	prop->setDirichletConditions(bc_surf_field);
 	prop->setDumping(false);
-	prop->setSolverMultiStep(10);
+	prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
+//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
+	prop->setSolverMultiStep(2);
 	prop->setPlotInExecution(true);
 
 	t1 = Clock::now();

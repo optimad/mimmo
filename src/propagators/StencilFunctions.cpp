@@ -480,7 +480,6 @@ bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
     return correction;
 }
 
-
 /*!
  * The method computes the Laplacian stencils on cells, once the gradient stencils on
  * interfaces and specialized the boundary conditions on boundary interfaces are available.
@@ -500,7 +499,6 @@ bitpit::StencilVector correctionDirichletBCFaceGradient(const double &dirval,
  * \param[in] tolerance threshold value used to filter out stencil items
  * \param[in] diffusivity (optional) impose a diffusivity field on center CELLS (provided also on ghosts)
  */
-
 MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, double tolerance,
                                              MimmoPiercedVector<double> * diffusivity)
 {
@@ -580,7 +578,110 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, 
     return result;
 }
 
+} //end of finite volumes stencil function namespace
 
-} //end of stencil function namespace
+
+
+namespace GraphLaplStencil{
+
+/*!
+ * The method computes the Laplacian stencils on points as graph laplacian approximation.
+ * The resulting laplacian stencils will be available on mesh interior points of the mesh as saved in m_isInterior member.
+ * Providing the right set of points you can use this method both to compute laplacian stencils on
+ * the whole mesh or as updater of its subportions.
+ *
+ * Diffusivity (if any) needs to be referred to the input mesh.
+ * In case of subportions updater usage, be sure diffusivity includes info on all the points involved.
+
+ * \param[in] geo target mesh
+ * \param[in] tolerance threshold value used to filter out stencil items
+ * \param[in] diffusivity (optional) impose a diffusivity field on POINT (provided also on ghost points)
+ */
+MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
+                                             MimmoPiercedVector<double> * diffusivity)
+{
+
+	BITPIT_UNUSED(tolerance);
+
+    // prepare and allocate the result list for laplacian stencils.
+	MPVStencilUPtr result = MPVStencilUPtr(new MPVStencil(&geo, MPVLocation::POINT));
+
+    result->reserve(geo.getNInternalVertices());
+//    std::cout << geo.getNInternalVertices() << std::endl;
+    for(auto id : geo.getVertices().getIds()){
+//        std::cout << id << " interior " << geo.isPointInterior(id) << std::endl;
+    	if (geo.isPointInterior(id))
+    		result->insert(id, bitpit::StencilScalar());
+    }
+
+    //fill edges
+    std::set<std::pair<long,long> > edges;
+    for (bitpit::Cell & cell : geo.getCells()){
+    	int ne = cell.getEdgeCount();
+    	for (int i=0; i<ne; i++){
+    		bitpit::ConstProxyVector<long> ids = cell.getEdgeVertexIds(i);
+    		//Always two nodes!?! I think yes...
+    		long id1 = ids[0];
+    		long id2 = ids[1];
+    		std::pair<long,long> item;
+    		if (id1<id2)
+    			item=std::pair<long,long>(id1,id2);
+    		else
+    			item = std::pair<long,long>(id2,id1);
+    		edges.insert(item);
+    	}
+    }
+
+    //interpolate diffusivity
+    MimmoPiercedVector<double> pdiffusivity;
+    if (diffusivity)
+    	pdiffusivity = diffusivity->cellDataToPointData(1.5);
+    else
+    	pdiffusivity.initialize(&geo, MPVLocation::POINT, 1.);
+
+    //loop on edges
+    MimmoPiercedVector<double> sums;
+    sums.initialize(&geo, MPVLocation::POINT, 0.);
+    double d_1;
+    double p = 3.;
+    for (std::pair<long,long> edge : edges){
+    	long id1 = edge.first;
+    	long id2 = edge.second;
+    	d_1 = 1. / std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)), 1.5);
+    	if (geo.isPointInterior(id1)){
+    		result->at(id1).appendItem(id2, pdiffusivity[id2] * d_1);
+    	}
+    	if (geo.isPointInterior(id2)){
+    		result->at(id2).appendItem(id1, pdiffusivity[id1] * d_1);
+    	}
+    	sums[id1] += d_1;
+    	sums[id2] += d_1;
+    }
+
+    //Weighted average
+    for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
+        *it /= sums[it.getId()];
+    }
+
+    //Insert diagonal values (-1)
+    for (long id : geo.getPatch()->getVertices().getIds()){
+    	if (geo.isPointInterior(id)){
+    		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
+//    		result->at(id).appendItem(id, -1.);
+    		result->at(id).flatten();
+    	}
+    }
+
+    //Stencils optimize
+//    for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
+//        //it->optimize(tolerance);
+//    }
+
+    return result;
+}
+
+
+} //end of graph laplacian stencil function namespace
+
 
 } //end of mimmo namespace
