@@ -200,7 +200,6 @@ PropagateScalarField::clear(){
 	PropagateField<1>::clear();
 };
 
-
 /*!
  * Plot optional results on vtu unstructured grid file
  */
@@ -230,7 +229,6 @@ PropagateScalarField::plotOptionalResults(){
 	vtk.unsetCounter();
 
 };
-
 
 /*!
  * Execution command. After the execution the result constraint field is stored in the class.
@@ -331,7 +329,7 @@ PropagateScalarField::execute(){
 
 		// Graph Laplace method on points
 
-		//store the id of the border cells only;
+		//store the id of the border nodes only;
 		livector1D borderPointsID = geo->extractBoundaryVertexID(false);
 
 		//get this inverse map -> you will need it to compact the stencils.
@@ -363,11 +361,11 @@ PropagateScalarField::execute(){
 				*it = double(istep + 1) * stepBCdir.at(it.getId());
 			}
 			//update the solver matrix applying bc and evaluate the rhs;
-			dvector1D rhs(geo->getNVertices(), 0.0);
+			dvector1D rhs(geo->getNInternalVertices(), 0.0);
 			//USELESS FOR EACH STEP?...
 			assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), dataInv, rhs);
 			solveLaplace(rhs, result[0]);
-			(*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
+			//(*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
 		}
 
 		dataInv.clear();
@@ -557,7 +555,6 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 	slotXML.set("MultiStep", std::to_string(int(m_nstep)));
 };
 
-
 /*!
  * Clear all data actually stored in the class
  */
@@ -587,11 +584,6 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 	//check the part of slip surface condition if present.
 	if(m_slipsurface){
 		livector1D slipoints = m_slipsurface->getVertices().getIds();
-		livector1D slipInterfaceList = getGeometry()->getInterfaceFromVertexList(slipoints, true, true);
-
-		if(slipInterfaceList.empty()){
-			return false;
-		}
 
 		//create the surface_slip point based dirichlet vector, for internal use only.
 		m_surface_slip_bc_dir.reserve(slipoints.size());
@@ -601,10 +593,19 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 		m_surface_slip_bc_dir.setGeometry(m_slipsurface);
 		m_surface_slip_bc_dir.setDataLocation(MPVLocation::POINT);
 
-		//update the m_isbp marking slip interfaces (2)
-		for(long id : slipInterfaceList){
-			if (m_isbp.at(id) ==1) continue; //keep the hands off from dirichlet.
-			m_isbp.at(id) = 2;
+		if (m_method == PropagatorMethod::FINITEVOLUMES){
+
+			livector1D slipInterfaceList = getGeometry()->getInterfaceFromVertexList(slipoints, true, true);
+
+			if(slipInterfaceList.empty()){
+				return false;
+			}
+
+			//update the m_isbp marking slip interfaces (2)
+			for(long id : slipInterfaceList){
+				if (m_isbp.at(id) ==1) continue; //keep the hands off from dirichlet.
+				m_isbp.at(id) = 2;
+			}
 		}
 	}
 
@@ -733,12 +734,11 @@ PropagateVectorField::restoreBC(){
  * restore geometry to target vertices and reevaluate m_field as whole
  * \param[in] list of vertices to be restored
  */
-
 void
 PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices){
 	MimmoObject * target = getGeometry();
 	bitpit::PiercedVector<bitpit::Vertex> &currentmesh = target->getVertices();
-	long ID ;
+	long ID;
 	for (auto it= vertices.begin(); it!=vertices.end(); ++it){
 		ID = it.getId();
 		const std::array<double,3> &coords = it->getCoords();
@@ -769,8 +769,6 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
 			*it = vertices.at(it.getId());
 		}
 	}
-
-
 }
 
 /*!
@@ -804,6 +802,35 @@ void PropagateVectorField::propagateMaskMovingCells(livector1D & cellList) {
 }
 
 /*!
+ * Given an ensemble of points marked as moving, enrich this list adding the first neighbours of
+ * these vertices.
+ *
+ * \param[in,out] pool of moving points in input, 1Ring augmented in output.
+ */
+void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
+
+	std::unordered_set<long> core(vertexList.begin(), vertexList.end());
+	auto * patch = getGeometry()->getPatch();
+
+    if (!getGeometry()->isPointConnectivitySync())
+    	getGeometry()->buildPointConnectivity();
+
+	livector1D tempV1, tempF2;
+	for(long id: vertexList){
+		tempV1 = getGeometry()->getPointConnectivity(id);
+
+		//run the list element by element. Any new element, evaluate its face neighs in F2Ring and push it in core.
+		for(long candidate : tempV1){
+			if(core.count(candidate) > 0 ) continue;
+			core.insert(candidate);
+		}
+	}
+
+	vertexList.clear();
+	vertexList.insert(vertexList.end(), core.begin(), core.end());
+}
+
+/*!
  * OVERRIDE Base class: This method evaluate the bc corrections for a singular run of the system solver,
  * update the system matrix in m_solver and evaluate the rhs part due to bc.
  * After you call this method, you are typically ready to solve the laplacian system.
@@ -823,7 +850,6 @@ void PropagateVectorField::propagateMaskMovingCells(livector1D & cellList) {
  * \param[in] maplocals map from global id numbering to local system solver numbering.
  * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
  */
-
 void
 PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 		FVolStencil::MPVDivergence * borderLaplacianStencil,
@@ -922,6 +948,100 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 }
 
 /*!
+ * OVERRIDE Base class: This method evaluate the bc corrections for a singular run of the system solver,
+ * update the system matrix in m_solver and evaluate the rhs part due to bc.
+ * After you call this method, you are typically ready to solve the laplacian system.
+ * The type of bc @ nodes are directly desumed from class nodes member m_bc_dir and m_surface_slip_bc_dir.
+ * The method requires the Laplacian m_solver to be initialized. No ghost are taken into account.
+ *
+ * It manages also the slip condition using a predictor-corrector scheme:
+ * First create a set of slip Neumann homogeneous bc condition to predict a guess solution.
+ * Then when the correct bc is defined in m_slip_bc_dir from guess solution, create a set
+ * of slip Dirichlet bc condition, reading it form m_slip_bc_dir.
+ *
+ * Moreover it needs as input :
+ * \param[in] comp target component of bc conditions.
+ * \param[in] slipCorrect true to apply the bc slip corrector step(Dirichlet), false for bc slip predictor(Neumann).
+ * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarely imposed as homogeneous Neumann
+ * \param[in] maplocals map from global id numbering to local system solver numbering.
+ * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ */
+void
+PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
+		GraphLaplStencil::MPVStencil * borderLaplacianStencil,
+		const liimap & maplocals,
+		dvector1D & rhs)
+{
+	MimmoObject * geo = getGeometry();
+
+	//resize rhs to the number of internal cells
+	rhs.resize(geo->getNInternalVertices(), 0.0);
+
+	if (!m_solver->isInitialized()) {
+		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
+		return;
+	}
+
+	if (!borderLaplacianStencil) {
+		(*m_log)<<"Warning in "<<m_name<<". Unable to reach border cells stencils data. Nothing to do."<<std::endl;
+		return;
+	}
+
+	//copy laplacian stencils in a work mpv .
+	GraphLaplStencil::MPVStencilUPtr lapwork(new GraphLaplStencil::MPVStencil(*borderLaplacianStencil));
+
+	//correct the original border laplacian stencils applying the Dirichlet conditions and slip conditions.
+	//Nuemann are implicitely imposed by graph-laplacian scheme.
+	//renumber it and update the laplacian matrix and fill the rhs.
+	bitpit::StencilScalar correction;
+	bitpit::PiercedVector<bitpit::Vertex> & mesh_vertices = geo->getVertices();
+
+	//loop on all dirichlet boundary nodes.
+	for(long id : m_bc_dir.getIds()){
+		if (geo->isPointInterior(id)){
+			//apply the correction relative to bc @ dirichlet node.
+			correction.clear(true);
+			correction.appendItem(id, 1.);
+			correction.sumConstant(-m_bc_dir[id][comp]);
+			//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
+			lapwork->at(id) *= 0.;
+			lapwork->at(id) += correction;
+		}
+	}
+
+
+	//loop on all slip boundary nodes.
+	//Correct if it is the correction step. If not the neumann condition are automatically imposed by Graph-Laplace scheme.
+	if(slipCorrect){
+		for(long id : m_slip_bc_dir.getIds()){
+			if (geo->isPointInterior(id)){
+				//apply the correction relative to bc @ dirichlet node.
+				correction.clear(true);
+				correction.appendItem(id, 1.);
+				correction.sumConstant(-m_slip_bc_dir[id][comp]);
+				//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
+				lapwork->at(id) *= 0.;
+				lapwork->at(id) += correction;
+			}
+		}
+	}
+
+	// now its time to update the solver matrix and to extract the rhs contributes.
+	//NOTE: USE THE FINITE VOLUMES METHOD, THE STRUCTURES ARE THE SAME!
+	updateLaplaceSolver(lapwork.get(), maplocals);
+
+	// now get the rhs
+	for(auto it = lapwork->begin(); it != lapwork->end();++it){
+		auto index = maplocals.at(it.getId());
+#if MIMMO_ENABLE_MPI
+		//correct index if in parallel
+		index -= getGeometry()->getPointGlobalCountOffset();
+#endif
+		rhs[index] -= it->getConstant();
+	}
+}
+
+/*!
  * Starting from a guess solution on mesh points, find a set of dirichlet condition on slip
  * boundary so that the dot product of vector solution at slip wall and slip wall local normal is zero.
  * The temporary dirichlet bc will be stored in m_slip_bc_dir and can be used in assignBCAndEvaluateRHS
@@ -939,7 +1059,8 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 	long id;
 	for(auto it=m_surface_slip_bc_dir.begin(); it!=m_surface_slip_bc_dir.end(); ++it){
 		id = it.getId();
-		if(guessSolutionOnPoint.exists(id))        *it = guessSolutionOnPoint.at(id);
+		if(guessSolutionOnPoint.exists(id))
+			*it = guessSolutionOnPoint.at(id);
 	}
 
 	//precalculate vertex normals on m_slipsurface;
@@ -969,8 +1090,6 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 	// done.
 }
 
-
-
 /*!
  * Execution command. After the execution the result constraint field is stored in the class.
  */
@@ -996,139 +1115,257 @@ PropagateVectorField::execute(){
 	//INITIALIZATION --->////////////////////////////////////////////////////////////////////////////////////
 	//allocate the solver;
 	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
+
 	//get the inverse and the direct map -> you will need it to compact the stencil/ and recover the results respectively.
-	liimap dataInv = geo->getMapCellInv();
-	liimap data = geo->getMapCell();
-	//store the id of the border cells only;
-	livector1D borderCellsID = geo->extractBoundaryCellID(false);
-	//initialize dumping function
+	liimap dataInv;
+	liimap data;
+
+	//compute the dumping.
 	computeDumpingFunction();
-	//compute all the center cell gradients.
-	FVolStencil::MPVGradientUPtr ccellGradients = FVolStencil::computeFVCellGradientStencil(*geo);
-	//compute the gradient stencils @ interface with homogeneous Neumann.
-	FVolStencil::MPVGradientUPtr faceGradients  = FVolStencil::computeFVFaceGradientStencil(*geo, ccellGradients.get());
-	//and squeeze out cell gradients and save the border cells only.
-	ccellGradients->squeezeOutExcept(borderCellsID);
-
-	// compute the laplacian stencils and free faceGradients;
-	FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), m_tol, &m_dumping);
-	faceGradients  = nullptr;
-
-	// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
-	initializeLaplaceSolver(laplaceStencils.get(), dataInv);
-	laplaceStencils->squeezeOutExcept(borderCellsID);
-	borderCellsID.clear();
 
 	//PREPARE THE MULTISTEP;
 	bitpit::PiercedVector<bitpit::Vertex> undeformedTargetVertices;
-	std::unique_ptr<livector1D> movingCellList = nullptr;
+	std::unique_ptr<livector1D> movingElementList = nullptr;
 	if(m_nstep > 1){
 		subdivideBC();
 		undeformedTargetVertices = geo->getVertices();
-		movingCellList = std::unique_ptr<livector1D>(new livector1D());
+		movingElementList = std::unique_ptr<livector1D>(new livector1D());
 	}
 
-	//declare results here and keep it during the loop to re-use the older steps.
-	std::vector<std::vector<double>> results(3);
+	//Switch on solver method
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
 
-	//loop on multistep
-	for(int istep=0; istep < m_nstep; ++istep){
+		// Finite Volumes method
 
-		distributeBCOnBoundaryInterfaces(); //distribute the original dirichlet condition on bulk interfaces.
-		//PLEASE NOTE, this redistribution is essential, since the shape of the boundary changes during
-		// multistep, and the interpolation weights from point to interfaces changes accordingly.
+		//store the id of the border cells only;
+		livector1D borderCellsID = geo->extractBoundaryCellID(false);
 
-		//3-COMPONENT SYSTEM SOLVING ---> ///////////////////////////////////////////////////////////////////////
-		// solve the field component by component
-		//first loop -> if slip is enforced in some walls, this is the predictor stage of guess solution with 0-Neumann on slip walls
-		for(int comp = 0; comp<3; ++comp){
-			//prepare the right hand side ;
-			dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
-			assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
-			//solve
-			results[comp].resize(rhs.size(), 0.0);
-			solveLaplace(rhs, results[comp]);
-		}
+		//get the inverse and the direct map -> you will need it to compact the stencil/ and recover the results respectively.
+		dataInv = geo->getMapCellInv();
+		data = geo->getMapCell();
 
-		//if I have a slip wall active, it needs a corrector stage for slip boundaries;
-		if(m_slipsurface){
-			//reconstruct result on mesh points (ghost included)-> stored in m_field.
-			reconstructResults(results, data);
-			//correct the BC of the slip walls
-			computeSlipBCCorrector(m_field);
-			// distribute this slip dirichlet on the bulk interfaces
-			distributeSlipBCOnBoundaryInterfaces();
-			//now you have a set of dirichlet BC in m_slip_bc_dir pierced vector internal.
+		//compute all the center cell gradients.
+		FVolStencil::MPVGradientUPtr ccellGradients = FVolStencil::computeFVCellGradientStencil(*geo);
 
-			// so loop again on the components, reusing the previous result as starting guess, and setting
-			// the boolean of assignBC as true (corrector stage of slip, read Dirichlet from m_slip_bc_dir)
+		//compute the gradient stencils @ interface with homogeneous Neumann.
+		FVolStencil::MPVGradientUPtr faceGradients  = FVolStencil::computeFVFaceGradientStencil(*geo, ccellGradients.get());
+
+		//and squeeze out cell gradients and save the border cells only.
+		ccellGradients->squeezeOutExcept(borderCellsID);
+
+		// compute the laplacian stencils and free faceGradients;
+		FVolStencil::MPVDivergenceUPtr laplaceStencils = FVolStencil::computeFVLaplacianStencil(*(faceGradients.get()), m_tol, &m_dumping);
+		faceGradients  = nullptr;
+
+		// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
+		initializeLaplaceSolver(laplaceStencils.get(), dataInv);
+		laplaceStencils->squeezeOutExcept(borderCellsID);
+		borderCellsID.clear();
+
+		//declare results here and keep it during the loop to re-use the older steps.
+		std::vector<std::vector<double>> results(3);
+
+		//loop on multistep
+		for(int istep=0; istep < m_nstep; ++istep){
+
+			distributeBCOnBoundaryInterfaces(); //distribute the original dirichlet condition on bulk interfaces.
+			//PLEASE NOTE, this redistribution is essential, since the shape of the boundary changes during
+			// multistep, and the interpolation weights from point to interfaces changes accordingly.
+
+			//3-COMPONENT SYSTEM SOLVING ---> ///////////////////////////////////////////////////////////////////////
+			// solve the field component by component
+			//first loop -> if slip is enforced in some walls, this is the predictor stage of guess solution with 0-Neumann on slip walls
 			for(int comp = 0; comp<3; ++comp){
 				//prepare the right hand side ;
 				dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
-				assignBCAndEvaluateRHS(comp, true, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
+				assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
 				//solve
+				results[comp].resize(rhs.size(), 0.0);
 				solveLaplace(rhs, results[comp]);
 			}
-		}
-		//RECONSTRUCT STAGE --> /////////////////////////////////////////////////////////////////////////////////
-		reconstructResults(results, data, movingCellList.get());
 
-		//force boundary on slip
-		if(m_slipsurface){
-			//if slip is active, force SLIP CORRECTION on POINTS (stored in m_surface_slip_bc_dir) on m_field.
-			for(auto it=m_surface_slip_bc_dir.begin(); it != m_surface_slip_bc_dir.end(); ++it){
-				m_field.at(it.getId()) = *it;
-			}
-		}
+			//if I have a slip wall active, it needs a corrector stage for slip boundaries;
+			if(m_slipsurface){
+				//reconstruct result on mesh points (ghost included)-> stored in m_field.
+				reconstructResults(results, data);
+				//correct the BC of the slip walls
+				computeSlipBCCorrector(m_field);
+				// distribute this slip dirichlet on the bulk interfaces
+				distributeSlipBCOnBoundaryInterfaces();
+				//now you have a set of dirichlet BC in m_slip_bc_dir pierced vector internal.
 
-		if (m_forceDirichletConditions){
-			//at last force boundary Dirichlet on POINTS on m_field; Because Dirichlet RULEZ
-			for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
-				m_field.at(it.getId()) = *it;
+				// so loop again on the components, reusing the previous result as starting guess, and setting
+				// the boolean of assignBC as true (corrector stage of slip, read Dirichlet from m_slip_bc_dir)
+				for(int comp = 0; comp<3; ++comp){
+					//prepare the right hand side ;
+					dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
+					assignBCAndEvaluateRHS(comp, true, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
+					//solve
+					solveLaplace(rhs, results[comp]);
+				}
 			}
-		}
+			//RECONSTRUCT STAGE --> /////////////////////////////////////////////////////////////////////////////////
+			reconstructResults(results, data, movingElementList.get());
+
+			//force boundary on slip
+			if(m_slipsurface){
+				//if slip is active, force SLIP CORRECTION on POINTS (stored in m_surface_slip_bc_dir) on m_field.
+				for(auto it=m_surface_slip_bc_dir.begin(); it != m_surface_slip_bc_dir.end(); ++it){
+					m_field.at(it.getId()) = *it;
+				}
+			}
+
+			if (m_forceDirichletConditions){
+				//at last force boundary Dirichlet on POINTS on m_field; Because Dirichlet RULEZ
+				for(auto it=m_surface_bc_dir.begin(); it != m_surface_bc_dir.end(); ++it){
+					m_field.at(it.getId()) = *it;
+				}
+			}
 
 #if MIMMO_ENABLE_MPI
-		communicatePointGhostData(&m_field);
+			communicatePointGhostData(&m_field);
 #endif
 
-		// if you are in multistep stage apply the deformation to the mesh.
-		if(m_nstep > 1){
-			apply();
-		}
+			// if you are in multistep stage apply the deformation to the mesh.
+			if(m_nstep > 1){
+				apply();
+			}
 
-		// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
-		if(istep < m_nstep-1){
-			//update the dumping function.
-			updateDumpingFunction();
+			// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
+			if(istep < m_nstep-1){
+				//update the dumping function.
+				updateDumpingFunction();
 
-			//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
-			propagateMaskMovingCells(*(movingCellList.get()));
-			//update the center cell gradients and clear moving cells..
-			FVolStencil::MPVGradientUPtr updateCcellGradients = FVolStencil::computeFVCellGradientStencil(*geo, movingCellList.get());
-			movingCellList->clear();
-			//and update the border ccellgradients with this new updated values
-			ccellGradients->getDataFrom(*(updateCcellGradients.get()), true); //only common elements are updated
-			//compute the gradient stencils @ interface with homogeneous Neumann.
-			FVolStencil::MPVGradientUPtr updateFaceGradients  = FVolStencil::updateFVFaceGradientStencil(*geo, *(updateCcellGradients.get()));
-			//we can destroy the updateCcellGradients
-			updateCcellGradients = nullptr;
+				//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
+				propagateMaskMovingCells(*(movingElementList.get()));
+				//update the center cell gradients and clear moving cells..
+				FVolStencil::MPVGradientUPtr updateCcellGradients = FVolStencil::computeFVCellGradientStencil(*geo, movingElementList.get());
+				movingElementList->clear();
+				//and update the border ccellgradients with this new updated values
+				ccellGradients->getDataFrom(*(updateCcellGradients.get()), true); //only common elements are updated
+				//compute the gradient stencils @ interface with homogeneous Neumann.
+				FVolStencil::MPVGradientUPtr updateFaceGradients  = FVolStencil::updateFVFaceGradientStencil(*geo, *(updateCcellGradients.get()));
+				//we can destroy the updateCcellGradients
+				updateCcellGradients = nullptr;
 
-			// compute the update laplacian stencils, free faceGradients, update the old border laplacian stencils;
-			FVolStencil::MPVDivergenceUPtr updateLaplaceStencils = FVolStencil::computeFVLaplacianStencil(*(updateFaceGradients.get()), m_tol, &m_dumping);
-			faceGradients  = nullptr;
-			laplaceStencils->getDataFrom(*(updateLaplaceStencils.get()), true); //only common elements are updated.
+				// compute the update laplacian stencils, free faceGradients, update the old border laplacian stencils;
+				FVolStencil::MPVDivergenceUPtr updateLaplaceStencils = FVolStencil::computeFVLaplacianStencil(*(updateFaceGradients.get()), m_tol, &m_dumping);
+				faceGradients  = nullptr;
+				laplaceStencils->getDataFrom(*(updateLaplaceStencils.get()), true); //only common elements are updated.
 
-			// update the laplacian Matrix in solver free the updateLaplaceStencils
-			updateLaplaceSolver(updateLaplaceStencils.get(), dataInv);
-			updateLaplaceStencils = nullptr;
+				// update the laplacian Matrix in solver free the updateLaplaceStencils
+				updateLaplaceSolver(updateLaplaceStencils.get(), dataInv);
+				updateLaplaceStencils = nullptr;
 
-		}
-
+			}
 		//        (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
-
 	} //end of multistep loop;
 
+	}
+	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+
+		// Graph Laplace method on points
+
+		//store the id of the border nodes only;
+		livector1D borderPointsID = geo->extractBoundaryVertexID(false);
+
+		//get this inverse map -> you will need it to compact the stencils.
+		dataInv = geo->getMapDataInv();
+		data = geo->getMapData();
+
+		// compute the laplacian stencils
+		GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_dumping);
+
+		// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
+		initializeLaplaceSolver(laplaceStencils.get(), dataInv);
+		laplaceStencils->squeezeOutExcept(borderPointsID);
+		borderPointsID.clear();
+
+		//declare results here and keep it during the loop to re-use the older steps.
+		std::vector<std::vector<double>> results(3);
+
+		//loop on multistep
+		for(int istep=0; istep < m_nstep; ++istep){
+
+			//Useless?
+			distributeBCOnBoundaryPoints(); //distribute the original dirichlet condition on bulk interfaces.
+			//PLEASE NOTE, this redistribution is essential, since the shape of the boundary changes during
+			// multistep, and the interpolation weights from point to interfaces changes accordingly.
+
+			//3-COMPONENT SYSTEM SOLVING ---> ///////////////////////////////////////////////////////////////////////
+			// solve the field component by component
+			//first loop -> if slip is enforced in some walls, this is the predictor stage of guess solution with 0-Neumann on slip walls
+			for(int comp = 0; comp<3; ++comp){
+				//prepare the right hand side ;
+				dvector1D rhs(geo->getNInternalVertices(), 0.0);
+				assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), dataInv, rhs);
+				//solve
+				results[comp].resize(rhs.size(), 0.0);
+				solveLaplace(rhs, results[comp]);
+			}
+
+			//if I have a slip wall active, it needs a corrector stage for slip boundaries;
+			if(m_slipsurface){
+				//reconstruct result on mesh points (ghost included)-> stored in m_field.
+				reconstructResults(results, data);
+				//correct the BC of the slip walls
+				computeSlipBCCorrector(m_field);
+				// this slip dirichlet on the bulk nodes don't need to be distribute (they are already on points)
+				//now you have a set of dirichlet BC in m_slip_bc_dir pierced vector internal.
+
+				// so loop again on the components, reusing the previous result as starting guess, and setting
+				// the boolean of assignBC as true (corrector stage of slip, read Dirichlet from m_slip_bc_dir)
+				for(int comp = 0; comp<3; ++comp){
+					//prepare the right hand side ;
+					dvector1D rhs(geo->getNInternalVertices(), 0.0);
+					assignBCAndEvaluateRHS(comp, true, laplaceStencils.get(), dataInv, rhs);
+					//solve
+					solveLaplace(rhs, results[comp]);
+				}
+			}
+			//RECONSTRUCT STAGE --> /////////////////////////////////////////////////////////////////////////////////
+			reconstructResults(results, data, movingElementList.get());
+
+	#if MIMMO_ENABLE_MPI
+			communicatePointGhostData(&m_field);
+	#endif
+
+			// if you are in multistep stage apply the deformation to the mesh.
+			if(m_nstep > 1){
+				apply();
+			}
+
+			getGeometry()->getPatch()->write("deforming."+std::to_string(istep));
+
+			// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
+			if(istep < m_nstep-1){
+
+				//update the dumping function.
+				updateDumpingFunction();
+
+				//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
+				propagateMaskMovingPoints(*(movingElementList.get()));
+
+				// update the laplacian stencils
+				GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, movingElementList.get(), m_tol, &m_dumping);
+				movingElementList->clear();
+
+				laplaceStencils->getDataFrom(*(updateLaplaceStencils.get()), true); //only common elements are updated.
+
+				// update the laplacian Matrix in solver free the updateLaplaceStencils
+				updateLaplaceSolver(updateLaplaceStencils.get(), dataInv);
+				updateLaplaceStencils = nullptr;
+
+			}
+
+			//        (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
+
+		} //end of multistep loop;
+
+
+	} //end if on method
+
+	
 	if(m_nstep > 1){
 		//this take the geometry to the original state and update the deformation field as the current
 		//deformed grid minus the undeformed state (this directly on POINTS).

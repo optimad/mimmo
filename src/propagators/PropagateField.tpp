@@ -117,7 +117,6 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 
 }
 
-
 /*!
  * It builds the input/output ports of the object
  */
@@ -130,8 +129,6 @@ PropagateField<NCOMP>::buildPorts(){
 	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDumpingBoundarySurface, M_GEOM3));
 	m_arePortsBuilt = built;
 };
-
-
 
 /*!
  * Set pointer to your target bulk volume geometry. Reimplemented from mimmo::BaseManipulation::setGeometry().
@@ -275,6 +272,7 @@ template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setMethod(PropagatorMethod method){
 	m_method = method;
 }
+
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
@@ -408,6 +406,7 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 		slotXML.set("DumpingType",std::to_string(m_dumpingType));
 	}
 	slotXML.set("DecayFactor",std::to_string(m_decayFactor));
+	slotXML.set("Method",std::to_string(static_cast<long>(m_method)));
 
 };
 
@@ -441,16 +440,21 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
 		return false;
 	}
 
-	//1st step check if points-ID of m_bsurface get a boundary-interface-patch on the bulk geometry;
-	livector1D interfaces = getGeometry()->getInterfaceFromVertexList(m_bsurface->getVertices().getIds(), true, true);
-	if(interfaces.empty()){
-		return false;
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+
+		//1st step check if points-ID of m_bsurface get a boundary-interface-patch on the bulk geometry;
+		livector1D interfaces = getGeometry()->getInterfaceFromVertexList(m_bsurface->getVertices().getIds(), true, true);
+		if(interfaces.empty()){
+			return false;
+		}
+
+		//update the m_isbp marking dirichlet interfaces
+		for(long id: interfaces){
+			m_isbp.at(id) = 1;
+		}
+
 	}
 
-	//update the m_isbp marking dirichlet interfaces
-	for(long id: interfaces){
-		m_isbp.at(id) = 1;
-	}
 	return true;
 }
 
@@ -1013,12 +1017,11 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 	//copy laplacian stencils in a work mpv .
 	GraphLaplStencil::MPVStencilUPtr lapwork(new GraphLaplStencil::MPVStencil(*borderLaplacianStencil));
 
-	//correct the original border laplacian stencils applying the Dirichlet corrections.
+	//correct the original border laplacian stencils applying the Dirichlet conditions.
 	//Nuemann are implicitely imposed by graph-laplacian scheme.
 	//renumber it and update the laplacian matrix and fill the rhs.
 	bitpit::StencilScalar correction;
 	bitpit::PiercedVector<bitpit::Vertex> & mesh_vertices = geo->getVertices();
-	bitpit::PiercedVector<bitpit::Cell> & mesh_cells = geo->getCells();
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
@@ -1142,6 +1145,9 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 #if MIMMO_ENABLE_MPI
 	if (m_method == PropagatorMethod::FINITEVOLUMES){
 		communicateGhostData(mpvres.get());
+	}
+	if (m_method == PropagatorMethod::GRAPHLAPLACE){
+		communicatePointGhostData(mpvres.get());
 	}
 #endif
 

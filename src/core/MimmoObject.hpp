@@ -152,6 +152,9 @@ protected:
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**<Patch Numbering Info structure.*/
     bool                        m_infoSync;				/**<Track correct building of patch info along with geometry modifications */
 
+    std::unordered_map<long, std::vector<long> >	m_pointConnectivity;		/**<Point-Points connectivity. 1-Ring neighbours of each vertex.*/
+    bool                        					m_pointConnectivitySync;	/**<Track correct building of points connectivity along with geometry modifications */
+
 public:
     MimmoObject(int type = 1);
     MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
@@ -306,6 +309,11 @@ public:
     std::unordered_map<long,long>   getInverseConnectivity();
     std::set<long>                  findVertexVertexOneRing(const long &, const long & );
 
+    void				buildPointConnectivity();
+    void				cleanPointConnectivity();
+    std::vector<long> &	getPointConnectivity(const long & id);
+    bool				isPointConnectivitySync();
+
 protected:
     void    swap(MimmoObject & ) noexcept;
     void    reset(int type);
@@ -318,7 +326,6 @@ protected:
 
 private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
-
 
 	/*!
 		Functional for comparing the position of two vertices.

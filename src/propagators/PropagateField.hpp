@@ -410,7 +410,13 @@ protected:
                                 const liimap & maplocals,
                                 dvector1D & rhs);
 
+    virtual void assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
+                                GraphLaplStencil::MPVStencil * borderLaplacianStencil,
+                                const liimap & maplocals,
+                                dvector1D & rhs);
+
     virtual void propagateMaskMovingCells(livector1D & celllist);
+    virtual void propagateMaskMovingPoints(livector1D & vertexlist);
     virtual void computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint);
     virtual void subdivideBC();
     virtual void restoreBC();

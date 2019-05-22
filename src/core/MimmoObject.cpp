@@ -190,6 +190,7 @@ MimmoObject::MimmoObject(int type){
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = true;
+	m_pointConnectivitySync = false;
 }
 
 /*!
@@ -304,6 +305,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = true;
+	m_pointConnectivitySync = false;
 };
 
 /*!
@@ -429,6 +431,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
 	m_infoSync = true;
+	m_pointConnectivitySync = false;
 }
 
 /*!
@@ -556,6 +559,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = true;
+	m_pointConnectivitySync = false;
 }
 
 /*!
@@ -621,6 +625,8 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_nglobalvertices = other.m_nglobalvertices;
 	m_pointGhostExchangeInfoSync = false;
 #endif
+
+	m_pointConnectivitySync = false;
 };
 
 /*!
@@ -663,6 +669,7 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_nglobalvertices, x.m_nglobalvertices);
 	m_pointGhostExchangeInfoSync = false;
 #endif
+	m_pointConnectivitySync = false; //point connectivity is not copied
 }
 
 #if MIMMO_ENABLE_MPI
@@ -1712,6 +1719,7 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 	return true;
 };
 
@@ -1745,6 +1753,7 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 	return true;
 };
 
@@ -1814,6 +1823,7 @@ MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 
 	return checkTot;
 };
@@ -1864,6 +1874,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 	return true;
 };
 
@@ -1916,6 +1927,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 	return true;
 };
 
@@ -1954,6 +1966,7 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
     return true;
 };
 
@@ -2102,6 +2115,7 @@ void MimmoObject::setHARDCopy(const MimmoObject * other){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 
 	//copy data
 	const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
@@ -2158,6 +2172,7 @@ MimmoObject::cleanGeometry(){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+	cleanPointConnectivity();
 	return true;
 };
 
@@ -2626,6 +2641,7 @@ void MimmoObject::buildKdTree(){
 void	MimmoObject::cleanKdTree(){
 	m_kdTree->n_nodes = 0;
 	m_kdTree->nodes.clear();
+    m_kdTreeSync = false;
 }
 
 /*!
@@ -2791,6 +2807,7 @@ void MimmoObject::resetPatch(){
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
+    m_pointConnectivitySync = false;
 };
 
 /*!
@@ -2894,6 +2911,7 @@ void MimmoObject::reset(int type){
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_infoSync = false;
+    m_pointConnectivitySync = false;
 }
 
 /*!
@@ -3470,5 +3488,53 @@ double MimmoObject::evalInterfaceArea(const long & id){
     return result;
 }
 
+
+void
+MimmoObject::buildPointConnectivity()
+{
+	m_pointConnectivity.clear();
+	m_pointConnectivity.reserve(getNVertices());
+    std::set<std::pair<long,long> > edges;
+    for (bitpit::Cell & cell : getCells()){
+    	int ne = cell.getEdgeCount();
+    	for (int i=0; i<ne; i++){
+    		bitpit::ConstProxyVector<long> ids = cell.getEdgeVertexIds(i);
+    		//Always two nodes!?! I think yes...
+    		long id1 = ids[0];
+    		long id2 = ids[1];
+    		std::pair<long,long> item;
+    		if (id1<id2)
+    			item=std::pair<long,long>(id1,id2);
+    		else
+    			item = std::pair<long,long>(id2,id1);
+    		if (!edges.count(item)){
+    		edges.insert(item);
+    		m_pointConnectivity[id1].push_back(id2);
+    		m_pointConnectivity[id2].push_back(id1);
+    		}
+    	}
+    }
+    m_pointConnectivitySync = true;
+}
+
+void
+MimmoObject::cleanPointConnectivity()
+{
+	std::unordered_map<long, std::vector<long> >().swap(m_pointConnectivity);
+    m_pointConnectivitySync = false;
+}
+
+std::vector<long> &
+MimmoObject::getPointConnectivity(const long & id)
+{
+	if (m_pointConnectivity.count(id))
+		return m_pointConnectivity[id];
+}
+
+bool
+MimmoObject::isPointConnectivitySync()
+{
+	return m_pointConnectivitySync;
+}
 
 }

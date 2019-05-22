@@ -186,8 +186,8 @@ int test00003() {
 				<< " seconds" << std::endl;
 	}
 	// and the field of Dirichlet values on its nodes.
-//	MimmoPiercedVector<std::array<double,3>> bc_surf_field;
-	MimmoPiercedVector<double> bc_surf_field;
+	MimmoPiercedVector<std::array<double,3>> bc_surf_field;
+	//MimmoPiercedVector<double> bc_surf_field;
 	bc_surf_field.setGeometry(partition->getBoundaryGeometry());
 	bc_surf_field.setDataLocation(MPVLocation::POINT);
 	bc_surf_field.reserve(partition->getBoundaryGeometry()->getNVertices());
@@ -196,15 +196,15 @@ int test00003() {
 		if (cell.getPID() == 1){
 			for (long id : cell.getVertexIds()){
 				if (!bc_surf_field.exists(id))
-					bc_surf_field.insert(id, 1.);
-					//bc_surf_field.insert(id, {{1., 1., 0.}});
+					bc_surf_field.insert(id, {{1., 1., 0.}});
+				//	bc_surf_field.insert(id, 1.);
 			}
 		}
 		if (cell.getPID() == 2){
 			for (long id : cell.getVertexIds()){
 				if (!bc_surf_field.exists(id))
-					bc_surf_field.insert(id, 0.);
-					//bc_surf_field.insert(id, {{1., 1., 0.}});
+					bc_surf_field.insert(id, {{0., 0., 0.}});
+				//bc_surf_field.insert(id, 0.);
 			}
 		}
 	}
@@ -213,24 +213,26 @@ int test00003() {
 	partition->getBoundaryGeometry()->buildInterfaces();
 
 	// Now create a PropagateScalarField and solve the laplacian.
-//	PropagateVectorField * prop = new PropagateVectorField();
-//	prop->setGeometry(partition->getGeometry());
-//	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-//	prop->setDirichletConditions(bc_surf_field);
-//	prop->setDumping(false);
-//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
-//	prop->setSolverMultiStep(10);
-//	prop->setPlotInExecution(true);
-
-	PropagateScalarField * prop = new PropagateScalarField();
+	PropagateVectorField * prop = new PropagateVectorField();
 	prop->setGeometry(partition->getGeometry());
 	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
 	prop->setDirichletConditions(bc_surf_field);
 	prop->setDumping(false);
-	prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
 //	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
-	prop->setSolverMultiStep(2);
+	prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
+	prop->setSolverMultiStep(4);
 	prop->setPlotInExecution(true);
+	prop->setApply(true);
+
+//	PropagateScalarField * prop = new PropagateScalarField();
+//	prop->setGeometry(partition->getGeometry());
+//	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
+//	prop->setDirichletConditions(bc_surf_field);
+//	prop->setDumping(false);
+//	//prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
+//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
+//	prop->setSolverMultiStep(1);
+//	prop->setPlotInExecution(true);
 
 	t1 = Clock::now();
 	if (rank ==0)
@@ -242,6 +244,8 @@ int test00003() {
 				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
 				<< " seconds" << std::endl;
 	}
+
+	prop->getGeometry()->getPatch()->write("deformed");
 
 	bool error = false;
 

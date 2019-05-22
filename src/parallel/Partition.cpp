@@ -201,6 +201,9 @@ Partition::execute(){
 		//Force rebuild patch info
 		getGeometry()->buildPatchInfo();
 
+		//Clean potential point connectivity
+		getGeometry()->cleanPointConnectivity();
+
 		if (getBoundaryGeometry() != nullptr){
 			if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
@@ -215,6 +218,10 @@ Partition::execute(){
 
 				//Force rebuild patch info
 				getBoundaryGeometry()->buildPatchInfo();
+
+				//Clean potential point connectivity
+				getBoundaryGeometry()->cleanPointConnectivity();
+
 			}
 		}
 	}

@@ -109,6 +109,8 @@ namespace GraphLaplStencil{
     MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance = 1.0e-12,
                                                  MimmoPiercedVector<double> * diffusivity = nullptr);
 
+    MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* nodesList, double tolerance,
+                                                 MimmoPiercedVector<double> * diffusivity);
 
 };//end namespace stencilFunction
 
