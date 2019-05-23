@@ -222,6 +222,8 @@ int test1() {
     prop3D->setDirichletConditions(bc_surf_3Dfield);
     prop3D->setSlipBoundarySurface(bSLIP.get());
 
+    prop3D->setMethod(PropagatorMethod::GRAPHLAPLACE);
+
     prop3D->setDumping(true);
     prop3D->setDumpingType(0);
     prop3D->setDecayFactor(2.0);
@@ -250,7 +252,7 @@ int test1() {
 
     std::cout<<values3D.at(targetNode)<<std::endl;
 
-    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.214842, -0.0720263, -1.12819e-18}})) > 1.0E-5);
+    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.210569 -0.0519423 -1.40474e-18}})) > 1.0E-5);
 
 
     delete prop3D;
