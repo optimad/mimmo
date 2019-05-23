@@ -345,8 +345,6 @@ ReconstructVector::execute(){
 //        return;
     }
     
-    std::cout << "#" << m_rank << " executing overlap fields " << std::endl;
-
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
@@ -411,9 +409,6 @@ ReconstructVector::execute(){
             }
         }
     }
-
-    std::cout << "#" << m_rank << " executed overlap fields " << std::endl;
-
 }
 
 /*!
@@ -421,14 +416,12 @@ ReconstructVector::execute(){
  */
 void
 ReconstructVector::plotOptionalResults(){
-    std::cout << "#" << m_rank << " plot optional results " << std::endl;
     std::string dir = m_outputPlot;
     std::string name = m_name + std::to_string(getId());
     plotData(dir, name, true);
     for (int i=0; i<getNData(); i++){
         plotSubData(dir, name, i, true);
     }
-    std::cout << "#" << m_rank << " plot optional results end " << std::endl;
 }
 
 /*!

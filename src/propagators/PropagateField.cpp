@@ -209,7 +209,9 @@ PropagateScalarField::plotOptionalResults(){
 	if(getGeometry() == NULL)    return;
 
 	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
+#if MIMMO_ENABLE_MPI
 	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
+#endif
 
 	std::vector<std::array<double,1> > dataraw = m_field.getInternalDataAsVector();
 	dvector1D data;
@@ -644,7 +646,9 @@ PropagateVectorField::plotOptionalResults(){
 	if(getGeometry() == NULL)    return;
 
 	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
+#if MIMMO_ENABLE_MPI
 	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
+#endif
 
 	dvecarr3E data = m_field.getInternalDataAsVector();
 	vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
@@ -1000,7 +1004,10 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
-		if (geo->isPointInterior(id)){
+#if MIMMO_ENABLE_MPI
+		if (geo->isPointInterior(id))
+#endif
+		{
 			//apply the correction relative to bc @ dirichlet node.
 			correction.clear(true);
 			correction.appendItem(id, 1.);
@@ -1016,7 +1023,10 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//Correct if it is the correction step. If not the neumann condition are automatically imposed by Graph-Laplace scheme.
 	if(slipCorrect){
 		for(long id : m_surface_slip_bc_dir.getIds()){
-			if (geo->isPointInterior(id)){
+#if MIMMO_ENABLE_MPI
+			if (geo->isPointInterior(id))
+#endif
+			{
 				//apply the correction relative to bc @ dirichlet node.
 				correction.clear(true);
 				correction.appendItem(id, 1.);

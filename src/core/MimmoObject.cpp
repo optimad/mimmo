@@ -21,11 +21,12 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-
 #include "MimmoObject.hpp"
 #include "Operators.hpp"
 #include "SkdTreeUtils.hpp"
+#if MIMMO_ENABLE_MPI
 #include "communications.hpp"
+#endif
 #include <set>
 
 using namespace std;
@@ -2366,9 +2367,11 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
     std::unordered_set<long> container;
     auto itBegin = getPatch()->internalBegin();
     auto itEnd = getPatch()->internalEnd();
+#if MIMMO_ENABLE_MPI
     if(ghost){
         itEnd = getPatch()->ghostEnd();
     }
+#endif
     for (auto it=itBegin; it!=itEnd; ++it){
         int size = it->getFaceCount();
         for(int face=0; face<size; ++face){
@@ -2399,9 +2402,11 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 
     auto itBegin = getPatch()->internalBegin();
     auto itEnd = getPatch()->internalEnd();
+#if MIMMO_ENABLE_MPI
     if(ghost){
         itEnd = getPatch()->ghostEnd();
     }
+#endif
     for (auto it=itBegin; it!=itEnd; ++it){
         int size = it->getFaceCount();
         for(int face=0; face<size; ++face){

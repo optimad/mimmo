@@ -1025,7 +1025,10 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
-		if (geo->isPointInterior(id)){
+#if MIMMO_ENABLE_MPI
+		if (geo->isPointInterior(id))
+#endif
+		{
 			//apply the correction relative to bc @ dirichlet node.
 			correction.clear(true);
 			correction.appendItem(id, 1.);
@@ -1117,14 +1120,17 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	std::array<double, NCOMP> temp;
 	for(auto & pair : mapglobals){
 		id = pair.second;
-		bool isInterior = false;
+#if MIMMO_ENABLE_MPI
+		bool isInterior = true;
 		if (m_method == PropagatorMethod::FINITEVOLUMES){
 			isInterior = geo->getPatch()->getCell(id).isInterior();
 		}
 		else if (m_method == PropagatorMethod::GRAPHLAPLACE){
 			isInterior = geo->isPointInterior(id);
 		}
-		if (isInterior){
+		if (isInterior)
+#endif
+		{
 			counter = pair.first;
 #if MIMMO_ENABLE_MPI
 			counter -= getGlobalCountOffset(m_method);
@@ -1134,12 +1140,14 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 			}
 			mpvres->insert(id, temp);
 		}
+#if MIMMO_ENABLE_MPI
 		else{
 			for(int i=0; i<NCOMP; ++i){
 				temp[i] = 0.0;
 			}
 			mpvres->insert(id, temp);
 		}
+#endif
 	}
 
 #if MIMMO_ENABLE_MPI
