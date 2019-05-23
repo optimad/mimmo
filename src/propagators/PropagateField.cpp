@@ -503,7 +503,6 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
 	if (!surface)       return;
 	if (surface->isEmpty())    return;
 	if (surface->getType()!= 1 ) return;
-
 	m_slipsurface = surface;
 }
 
@@ -588,7 +587,10 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 		//create the surface_slip point based dirichlet vector, for internal use only.
 		m_surface_slip_bc_dir.reserve(slipoints.size());
 		for(long id : slipoints){
-			m_surface_slip_bc_dir.insert(id, {{0.0,0.0,0.0}});
+			if (!m_surface_slip_bc_dir.exists(id))
+				m_surface_slip_bc_dir.insert(id, {{0.0,0.0,0.0}});
+			else
+				m_surface_slip_bc_dir[id] = std::array<double,3>({{0.0,0.0,0.0}});
 		}
 		m_surface_slip_bc_dir.setGeometry(m_slipsurface);
 		m_surface_slip_bc_dir.setDataLocation(MPVLocation::POINT);
@@ -1013,14 +1015,15 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//loop on all slip boundary nodes.
 	//Correct if it is the correction step. If not the neumann condition are automatically imposed by Graph-Laplace scheme.
 	if(slipCorrect){
-		for(long id : m_slip_bc_dir.getIds()){
+		for(long id : m_surface_slip_bc_dir.getIds()){
 			if (geo->isPointInterior(id)){
 				//apply the correction relative to bc @ dirichlet node.
 				correction.clear(true);
 				correction.appendItem(id, 1.);
-				correction.sumConstant(-m_slip_bc_dir[id][comp]);
+				correction.sumConstant(-m_surface_slip_bc_dir[id][comp]);
 				//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
 				lapwork->at(id) *= 0.;
+				lapwork->at(id).setConstant(0.);
 				lapwork->at(id) += correction;
 			}
 		}
