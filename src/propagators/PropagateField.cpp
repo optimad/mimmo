@@ -210,7 +210,7 @@ PropagateScalarField::plotOptionalResults(){
 	if(getGeometry() == NULL)    return;
 
 	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-	getGeometry()->getPatch()->setVTKWriteTarget(PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
+	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
 
 	std::vector<std::array<double,1> > dataraw = m_field.getInternalDataAsVector();
 	dvector1D data;
@@ -582,7 +582,7 @@ PropagateVectorField::plotOptionalResults(){
 	if(getGeometry() == NULL)    return;
 
 	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-	getGeometry()->getPatch()->setVTKWriteTarget(PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
+	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
 
 	dvecarr3E data = m_field.getInternalDataAsVector();
 	vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
