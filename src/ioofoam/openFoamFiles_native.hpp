@@ -31,6 +31,8 @@
 #define FOAM_FILES_NATIVE_H
 
 #include "fvCFD.H"
+#include <array>
+#include <vector>
 namespace mimmo{
 
 /*!

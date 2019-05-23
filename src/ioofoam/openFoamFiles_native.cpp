@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -21,16 +21,16 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *-----------------------------------------------------------------------*----*/
- 
+
  //=========================================================================
  //  Description:   Handling of OpenFoam Files
  //  Author:        Andrea Iob
  //=========================================================================
 
 #include "openFoamFiles_native.hpp"
-// #include <string>
-// #include "IOobject.H"
-// #include "IFstream.H"
+#include <string>
+#include <IOobject.H>
+#include <IFstream.H>
 
 namespace mimmo{
 
@@ -39,7 +39,7 @@ namespace foamUtilsNative{
 using namespace Foam;
 /*!
  * \return number of components of a data field in file fileName associated to mesh
- * contained in rootPath. Return 3 for vectorfield, 1 for scalarfield, -1 for unknown or 
+ * contained in rootPath. Return 3 for vectorfield, 1 for scalarfield, -1 for unknown or
  * not supported data field.
  * \param[in] rootPath path to openfoam mesh directory
  * \param[in] fileName name of the file where the field is contained
@@ -68,9 +68,9 @@ int getFieldSize(const char *rootPath, const char *fileName, int patchIdx){
     // Initialize case
     Foam::Time *foamRunTime = 0;
     Foam::fvMesh *foamMesh = 0;
-    
+
     initializeCase(rootPath, &foamRunTime, &foamMesh);
-    
+
     // Read field size
     const word& headerClassName = getFieldClass(rootPath, fileName);
     if (headerClassName == volScalarField::typeName) {
@@ -86,7 +86,7 @@ int getFieldSize(const char *rootPath, const char *fileName, int patchIdx){
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             return foamField.internalField().size();
         } else {
@@ -105,14 +105,14 @@ int getFieldSize(const char *rootPath, const char *fileName, int patchIdx){
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             return foamField.internalField().size();
         } else {
             return foamField.boundaryField()[patchIdx].size();
         }
     }
-    
+
     return -1;
 }
 
@@ -130,9 +130,9 @@ void readScalarField(const char *rootPath, const char *fileName, int patchIdx, s
     // Initialize case
     Foam::Time *foamRunTime = 0;
     Foam::fvMesh *foamMesh = 0;
-    
+
     initializeCase(rootPath, &foamRunTime, &foamMesh);
-    
+
     // Read field
     const word& headerClassName = getFieldClass(rootPath, fileName);
     if (headerClassName == volScalarField::typeName) {
@@ -148,7 +148,7 @@ void readScalarField(const char *rootPath, const char *fileName, int patchIdx, s
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             size = std::size_t(foamField.internalField().size());
             field.resize(size);
@@ -179,9 +179,9 @@ void readVectorField(const char *rootPath, const char *fileName, int patchIdx, s
     // Initialize case
     Foam::Time *foamRunTime = 0;
     Foam::fvMesh *foamMesh = 0;
-    
+
     initializeCase(rootPath, &foamRunTime, &foamMesh);
-    
+
     // Read field
     const word& headerClassName = getFieldClass(rootPath, fileName);
     if (headerClassName == volVectorField::typeName) {
@@ -197,7 +197,7 @@ void readVectorField(const char *rootPath, const char *fileName, int patchIdx, s
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             size = std::size_t(foamField.internalField().size());
             field.resize(size);
@@ -216,7 +216,7 @@ void readVectorField(const char *rootPath, const char *fileName, int patchIdx, s
             }
         }
     }
-    
+
 }
 
 /*!
@@ -232,13 +232,13 @@ void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, 
     // Initialize case
     Foam::Time *foamRunTime = 0;
     Foam::fvMesh *foamMesh = 0;
-    
+
     initializeCase(rootPath, &foamRunTime, &foamMesh);
-    
+
     // Write field
     const word& headerClassName = getFieldClass(rootPath, fileName);
     if (headerClassName == volScalarField::typeName) {
-        
+
         volScalarField foamField
         (
             IOobject
@@ -251,7 +251,7 @@ void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, 
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             field.resize(foamField.internalField().size(),0.0);
             forAll(foamField.internalField(), n) {
@@ -267,7 +267,7 @@ void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, 
 #endif
             }
         }
-        
+
         foamField.write();
     }
 }
@@ -285,9 +285,9 @@ void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, 
     // Initialize case
     Foam::Time *foamRunTime = 0;
     Foam::fvMesh *foamMesh = 0;
-    
+
     initializeCase(rootPath, &foamRunTime, &foamMesh);
-    
+
     // Write field
     const word& headerClassName = getFieldClass(rootPath, fileName);
     if (headerClassName == volVectorField::typeName) {
@@ -303,7 +303,7 @@ void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, 
             ),
          *foamMesh
         );
-        
+
         if (patchIdx < 0) {
             field.resize(foamField.internalField().size(),{{0.0,0.0,0.0}});
             forAll(foamField.internalField(), n) {
@@ -348,7 +348,7 @@ int countPatches(const char *rootPath)
  * \return the name of the i-th boundary patch of the target OpenFOAM mesh.
  * If index is not found return an empty char string.
  * \param[in] rootPath path to openfoam mesh directory
- * \param[in] patchIdx index of the boundary patch. 
+ * \param[in] patchIdx index of the boundary patch.
  */
 char * getPatchName(const char *rootPath, int patchIdx)
 {
@@ -376,7 +376,7 @@ char * getPatchName(const char *rootPath, int patchIdx)
  * \return the index associated to a name of a boundary patch of the target OpenFOAM mesh.
  * If patch name is not found return a negative index -1.
  * \param[in] rootPath path to openfoam mesh directory.
- * \param[in] patchName name of the boundary patch. 
+ * \param[in] patchName name of the boundary patch.
  */
 int getPatchIndex(const char *rootPath, const char *patchName)
 {
@@ -401,7 +401,7 @@ int getPatchIndex(const char *rootPath, const char *patchName)
 /*!
  * Read the mesh and initialize the OpenFOAM case.
  * \param[in] rootPath path to openfoam mesh directory.
- * \param[in] foamRunTime_retPtr pointer to foam Time object. 
+ * \param[in] foamRunTime_retPtr pointer to foam Time object.
  * \param[in] foamMesh_retPtr pointer to foam fvMesh object.
  */
 void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam::fvMesh **foamMesh_retPtr)
@@ -436,7 +436,7 @@ void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam:
     }
 
     *foamRunTime_retPtr = foamRunTime;
-    
+
     // Mesh
     static Foam::fvMesh *foamMesh = 0;
     if (!foamMesh) {
@@ -488,11 +488,11 @@ const word getFieldClass(const char *rootPath, const char *fileName)
 /*!
  * Write a pointField to an OpenFoam pre-existent case. The method use the Foam::fvMesh method movePoints
  * to update position of mesh points in the current case. Connectivity of the mesh elements remains the same.
- * Dimension of pointField argument is checked out. If it does not correspond to actual size of points in the 
+ * Dimension of pointField argument is checked out. If it does not correspond to actual size of points in the
  * target case do nothing and return false;
  * \param[in] rootPath path to openfoam mesh directory.
  * \param[in] points new pointField to substitute
- * \param[in] overwriteStart if true new points set will be overwritten in the current case time, otherwise 
+ * \param[in] overwriteStart if true new points set will be overwritten in the current case time, otherwise
  *                           a new time case incremented by one w.r.t the current one will be created.
  */
 bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > & points, bool overwriteStart)
@@ -505,21 +505,21 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
 
     functionObjectList & objfunctions = foamRunTime->functionObjects();
     objfunctions.off();
-    
+
     if(std::size_t(foamMesh->points().size()) != points.size()){
         return false;
     }
 
     Foam::pointField movedPoints(foamMesh->points());
-    
+
     forAll(movedPoints, i){
         for(Foam::label j=0; j<3; ++j){
             movedPoints[i][j] = points[i][j];
         }
     }
-    
+
     foamMesh->movePoints(movedPoints);
-    
+
     if(overwriteStart){
 #if OPENFOAM_OLDVER
         foamMesh->writeObjects(Foam::IOstream::streamFormat::BINARY, foamRunTime->writeVersion(), foamRunTime->writeCompression());

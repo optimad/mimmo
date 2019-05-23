@@ -10,16 +10,16 @@ FoamFile
     version     2.0;
     format      binary;
     class       dictionary;
-    location    "2591/uniform";
+    location    "0/uniform";
     object      time;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-value           2591;
+value           0;
 
-name            "2591";
+name            "0";
 
-index           2591;
+index           0;
 
 deltaT          1;
 

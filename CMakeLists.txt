@@ -538,9 +538,11 @@ if (MODULE_ENABLED_IOOFOAM)
     endif()
 
     set(OPENFOAM_DIR " " CACHE PATH "path to OpenFoam installation")
-
     set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
-    set(OFOAM_LIBS finiteVolume triSurface fileFormats surfMesh meshTools OpenFOAM )
+    set(OFOAM_LIBS finiteVolume fileFormats surfMesh meshTools OpenFOAM )
+    if(NOT "$ENV{WM_PROJECT_VERSION}" STREQUAL "v1806+")
+        set(OFOAM_LIBS ${OFOAM_LIBS} triSurface)
+    endif()
     set(OFOAM_DUMMYLIBS Pstream)
 
     ## you can bind libraries to this current mimmo installation
