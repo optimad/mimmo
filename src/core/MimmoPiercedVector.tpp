@@ -338,8 +338,9 @@ template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 	if(getGeometry()==NULL) return false;
+	if (this->isEmpty()) return true;
 	auto ids = this->getIds();
-	bool check = !this->isEmpty();
+	bool check = true;
 	switch(m_loc){
 	case MPVLocation::CELL:
 	{
@@ -468,9 +469,9 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
 	switch(loc){
 	case MPVLocation::POINT :
 		if(geo->getNVertices() == 0){
-			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-			return;
-		}else{
+			(*m_log)<<"MimmoPiercedVector warning: geometry is empty"<<std::endl;
+		}
+		{
 			this->clear();
 			this->reserve(geo->getNVertices());
 			m_geometry = geo;
@@ -482,9 +483,9 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
 		break;
 	case MPVLocation::CELL :
 		if(geo->getNCells() == 0){
-			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-			return;
-		}else{
+			(*m_log)<<"MimmoPiercedVector warning: geometry is empty"<<std::endl;
+		}
+		{
 			this->clear();
 			this->reserve(geo->getNCells());
 			m_geometry = geo;
@@ -496,9 +497,9 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
 		break;
 	case MPVLocation::INTERFACE :
 		if(!geo->areInterfacesBuilt()){
-			(*m_log)<<"MimmoPiercedVector warning: initialization failed"<<std::endl;
-			return;
-		}else{
+			(*m_log)<<"MimmoPiercedVector warning: geometry interfaces are not built"<<std::endl;
+		}
+		{
 			this->clear();
 			this->reserve(geo->getPatch()->getInterfaceCount());
 			m_geometry = geo;
