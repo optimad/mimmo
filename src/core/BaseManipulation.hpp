@@ -192,6 +192,7 @@ public:
     BITPIT_DEPRECATED(int     getClassCounter());
     int     getId();
 
+    void	setLog(bitpit::Logger& log);
     void    setPriority(uint priority);
     void    setName(std::string name);
     void    setGeometry(MimmoObject* geometry);

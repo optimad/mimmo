@@ -398,6 +398,14 @@ BaseManipulation::getId(){
     return m_counter;
 }
 
+/*!Set the logger.
+ * \param[in] Pointer to logger object.
+ */
+void
+BaseManipulation::setLog(bitpit::Logger& log){
+	m_log = &log;
+}
+
 /*!
  * Set unsigned int priority of execution of class in a multi-chain
  * frame. value must be > 0;
