@@ -115,6 +115,7 @@ protected:
     bool m_forceDirichletConditions; /**<If true the dirichlet boundaries values are forced during reconstruction on points phase in finite volume solver. */
 
     std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
+    bool	m_print;				/**<If true residuals and other info are print during system solving.*/
 
     PropagatorMethod	m_method;	/**<Solver method enum.*/
 
@@ -150,6 +151,7 @@ public:
     virtual void    setUpdateThreshold(double thres);
     void	setForceDirichletConditions(bool force = true);
     void	setMethod(PropagatorMethod method);
+    void	setPrint(bool print = true);
 
     //XML utilities from reading writing settings to file
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");

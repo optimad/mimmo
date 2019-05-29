@@ -58,6 +58,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_thres = 1.E-8;
 	this->m_forceDirichletConditions = true;
 	this->m_method = PropagatorMethod::GRAPHLAPLACE;
+	this->m_print = false;
 }
 
 /*!
@@ -88,7 +89,8 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
 	this->m_dumpingType  = other.m_dumpingType;
 	this->m_thres        = other.m_thres;
 	this->m_forceDirichletConditions = other.m_forceDirichletConditions;
-	this->m_method = other.m_method;
+	this->m_method 		 = other.m_method;
+	this->m_print 		 = other.m_print;
 };
 
 /*!
@@ -114,7 +116,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 	this->BaseManipulation::swap(x);
 	std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
 	std::swap(this->m_method, x.m_method);
-
+	std::swap(this->m_print, x.m_print);
 }
 
 /*!
@@ -271,6 +273,15 @@ void PropagateField<NCOMP>::setForceDirichletConditions(bool force)
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setMethod(PropagatorMethod method){
 	m_method = method;
+}
+
+/*!
+ * It sets if print residuals and info during system solving
+ * \param[in] print Print flag
+ */
+template <std::size_t NCOMP>
+void PropagateField<NCOMP>::setPrint(bool print){
+	m_print = print;
 }
 
 /*!
@@ -812,9 +823,9 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 	//clean up the previous stuff in the solver.
 	m_solver->clear();
 	// now you can initialize the m_solver with this matrix.
-	m_solver->getKSPOptions().restart = 20;
-	m_solver->getKSPOptions().overlap = 0;
-	m_solver->getKSPOptions().sublevels = 0;
+	m_solver->getKSPOptions().restart = 30;
+	m_solver->getKSPOptions().overlap = 1;
+	m_solver->getKSPOptions().sublevels = 1;
 	m_solver->initialize(matrix);
 }
 
