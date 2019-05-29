@@ -237,8 +237,9 @@ ReconstructVector::clear(){
 void
 ReconstructVector::plotData(std::string dir, std::string name, bool flag){
     
+
     if(getGeometry() == NULL) return;
-//    if(getGeometry()->isEmpty())    return;
+
     if(!m_result.completeMissingData({{0.0,0.0,0.0}}))   return;
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
@@ -255,7 +256,7 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag){
         getGeometry()->getPatch()->write(dir+"/"+name);
         getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
-        liimap mapData;
+        liimap mapData = getGeometry()->getMapDataInv();
         dvecarr3E points = getGeometry()->getVerticesCoords(&mapData);
         ivector2D connectivity;
         int np = points.size();
@@ -284,8 +285,8 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag){
  */
 void
 ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool flag){
+
     if(m_subresults[i].getGeometry() == NULL) return;
-//    if(m_subresults[i].getGeometry()->isEmpty()) return;
     
     std::string nameX = name+"SubPatch"+std::to_string(i);
 
@@ -306,7 +307,7 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
         m_subresults[i].getGeometry()->getPatch()->write(dir+"/"+nameX);
         m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
-        liimap mapData;
+        liimap mapData = getGeometry()->getMapDataInv();
         dvecarr3E points = m_subresults[i].getGeometry()->getVerticesCoords(&mapData);
         ivector2D connectivity;
         int np = points.size();
