@@ -629,7 +629,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
     MimmoPiercedVector<double> sums;
     sums.initialize(&geo, MPVLocation::POINT, 0.);
     double d_1;
-    double p = 3.;
+    double p = 1.5;
     for (long id1 : geo.getVertices().getIds()){
     	for (long id2 : geo.getPointConnectivity(id1)){
     		d_1 = 1. / std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)), p);
@@ -644,8 +644,10 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
     }
 
     //Weighted average
+    double denom;
     for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
-        *it /= sums[it.getId()];
+    	denom = sums[it.getId()];
+    	*it /= denom;
     }
 
     //Insert diagonal values (-1)
@@ -715,7 +717,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
     MimmoPiercedVector<double> sums;
     sums.initialize(&geo, MPVLocation::POINT, 0.);
     double d_1;
-    double p = 3.;
+    double p = 1.5;
     for (long id1 : *nodesList){
     	for (long id2 : geo.getPointConnectivity(id1)){
     		d_1 = 1. / std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)), p);
@@ -730,8 +732,10 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
     }
 
     //Weighted average
+    double denom;
     for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
-        *it /= sums[it.getId()];
+    	denom = sums[it.getId()];
+    	*it /= denom;
     }
 
     //Insert diagonal values (-1)
