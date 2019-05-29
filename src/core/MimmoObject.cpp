@@ -828,8 +828,9 @@ MimmoObject::getNGlobalCells() {
 	if (!getPatch()->isPartitioned())
 		return getNCells();
 
-	PatchNumberingInfo info(getPatch());
-	return info.getCellGlobalCount();
+	if (!isInfoSync())
+		buildPatchInfo();
+	return getPatchInfo()->getCellGlobalCount();
 };
 
 /*!
@@ -1629,13 +1630,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			dataCommunicator->waitAllSends();
 		}
 	}
-
-//	//Check if all points have the consecutive id
-//	for (const long & id : getVertices().getIds()){
-//		if (!m_pointConsecutiveId.count(id)){
-//			std::cout << "#" << m_rank << " found vertex without consecutive id : " << id << std::endl;
-//		}
-//	}
 
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
@@ -3523,46 +3517,68 @@ MimmoObject::buildPointConnectivity()
 {
 	m_pointConnectivity.clear();
 	m_pointConnectivity.reserve(getNVertices());
-    std::set<std::pair<long,long> > edges;
-    for (bitpit::Cell & cell : getCells()){
-    	int ne = 0;
-    	if (m_type == 1)
-    		ne = cell.getFaceCount();
-    	if (m_type == 2)
-    		ne = cell.getEdgeCount();
+	std::set<long> visited;
 
-    	for (int i=0; i<ne; i++){
-    		bitpit::ConstProxyVector<long> ids;
-        	if (m_type == 1)
-        		ids = cell.getFaceVertexIds(i);
-        	if (m_type == 2)
-        		ids = cell.getEdgeVertexIds(i);
-    		//Always two nodes!?! I think yes...
-    		long id1 = ids[0];
-    		long id2 = ids[1];
-    		std::pair<long,long> item;
-    		if (id1<id2)
-    			item=std::pair<long,long>(id1,id2);
-    		else
-    			item = std::pair<long,long>(id2,id1);
-    		if (!edges.count(item)){
-    			edges.insert(item);
-    			m_pointConnectivity[id1].push_back(id2);
-    			m_pointConnectivity[id2].push_back(id1);
-    		}
-    	}
-    }
+	//ONLY EDGE CONNECTIVITY
+//    std::set<std::pair<long,long> > edges;
+//    for (bitpit::Cell & cell : getCells()){
+//    	int ne = 0;
+//    	if (m_type == 1)
+//    		ne = cell.getFaceCount();
+//    	if (m_type == 2)
+//    		ne = cell.getEdgeCount();
+//
+//    	for (int i=0; i<ne; i++){
+//    		bitpit::ConstProxyVector<long> ids;
+//        	if (m_type == 1)
+//        		ids = cell.getFaceVertexIds(i);
+//        	if (m_type == 2)
+//        		ids = cell.getEdgeVertexIds(i);
+//    		//Always two nodes!?! I think yes...
+//    		long id1 = ids[0];
+//    		long id2 = ids[1];
+//    		std::pair<long,long> item;
+//    		if (id1<id2)
+//    			item=std::pair<long,long>(id1,id2);
+//    		else
+//    			item = std::pair<long,long>(id2,id1);
+//    		if (!edges.count(item)){
+//    			edges.insert(item);
+//    			m_pointConnectivity[id1].push_back(id2);
+//    			m_pointConnectivity[id2].push_back(id1);
+//    		}
+//    	}
+//    }
+
+
+	//ONE RING CELL CONNECTIVITY
+	for (bitpit::Cell & cell : getCells()){
+		long idcell = cell.getId();
+		int nv = cell.getVertexCount();
+		for (int iv=0; iv<nv; iv++){
+			long id = cell.getVertexId(iv);
+			if (!visited.count(id)){
+				livector1D list = getPatch()->findCellVertexOneRing(idcell, iv);
+				visited.insert(id);
+				for(const auto & cellIndex : list){
+			          bitpit::ConstProxyVector<long> ids = getPatch()->getCell(cellIndex).getVertexIds();
+			          m_pointConnectivity[id].insert(ids.begin(), ids.end());
+				}
+				m_pointConnectivity[id].erase(id);
+			}
+		}
+	}
     m_pointConnectivitySync = true;
 }
 
 void
 MimmoObject::cleanPointConnectivity()
 {
-	std::unordered_map<long, std::vector<long> >().swap(m_pointConnectivity);
+	std::unordered_map<long, std::unordered_set<long> >().swap(m_pointConnectivity);
     m_pointConnectivitySync = false;
 }
 
-std::vector<long> &
+std::unordered_set<long> &
 MimmoObject::getPointConnectivity(const long & id)
 {
 	if (m_pointConnectivity.count(id))

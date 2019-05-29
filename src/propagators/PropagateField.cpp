@@ -256,7 +256,7 @@ PropagateScalarField::execute(){
 	(*m_log) << bitpit::log::context("mimmo");
 
 	//allocate the solver;
-	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
+	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
 
 	//get this inverse map -> you will need it to compact the stencils.
 	liimap dataInv;
@@ -821,7 +821,7 @@ void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
     if (!getGeometry()->isPointConnectivitySync())
     	getGeometry()->buildPointConnectivity();
 
-	livector1D tempV1, tempF2;
+	std::unordered_set<long> tempV1;
 	for(long id: vertexList){
 		tempV1 = getGeometry()->getPointConnectivity(id);
 
@@ -1127,7 +1127,7 @@ PropagateVectorField::execute(){
 	(*m_log) << bitpit::log::context("mimmo");
 	//INITIALIZATION --->////////////////////////////////////////////////////////////////////////////////////
 	//allocate the solver;
-	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver());
+	m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
 
 	//get the inverse and the direct map -> you will need it to compact the stencil/ and recover the results respectively.
 	liimap dataInv;

@@ -152,8 +152,8 @@ protected:
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**<Patch Numbering Info structure.*/
     bool                        m_infoSync;				/**<Track correct building of patch info along with geometry modifications */
 
-    std::unordered_map<long, std::vector<long> >	m_pointConnectivity;		/**<Point-Points connectivity. 1-Ring neighbours of each vertex.*/
-    bool                        					m_pointConnectivitySync;	/**<Track correct building of points connectivity along with geometry modifications */
+    std::unordered_map<long, std::unordered_set<long> >	m_pointConnectivity;		/**<Point-Points connectivity. 1-Ring neighbours of each vertex.*/
+    bool                        						m_pointConnectivitySync;	/**<Track correct building of points connectivity along with geometry modifications */
 
 public:
     MimmoObject(int type = 1);
@@ -309,10 +309,10 @@ public:
     std::unordered_map<long,long>   getInverseConnectivity();
     std::set<long>                  findVertexVertexOneRing(const long &, const long & );
 
-    void				buildPointConnectivity();
-    void				cleanPointConnectivity();
-    std::vector<long> &	getPointConnectivity(const long & id);
-    bool				isPointConnectivitySync();
+    void						buildPointConnectivity();
+    void						cleanPointConnectivity();
+    std::unordered_set<long> &	getPointConnectivity(const long & id);
+    bool						isPointConnectivitySync();
 
 protected:
     void    swap(MimmoObject & ) noexcept;
