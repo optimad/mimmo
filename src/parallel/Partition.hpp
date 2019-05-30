@@ -126,6 +126,11 @@ private:
     void parmetisPartGeom();
     void serialPartition();
     void updateBoundaryVerticesID();
+#if MIMMO_ENABLE_MPI
+    void serialize(MimmoObject* & geometry);
+#endif
+
+
 };
 
 REGISTER_PORT(M_VECTORSI, MC_VECTOR, MD_INT,__PARTITION_HPP__)
