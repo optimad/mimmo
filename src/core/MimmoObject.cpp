@@ -2695,14 +2695,15 @@ bool MimmoObject::isClosedLoop(){
 
 	auto itp = getCells().cbegin();
 	auto itend = getCells().cend();
-
+    std::vector<long> neighs;
 	while(itp != itend && check){
 
 		if (itp->isInterior()){
-			int cAdj = itp->getAdjacencyCount();
-			const long * adj = itp->getAdjacencies();
-			for(int i=0; i<cAdj; ++i){
-				check = check && (adj[i] < 0);
+			int faces = itp->getFaceCount();
+			for(int face=0; face<faces; ++face){
+                neighs.clear();
+                getPatch()->findCellFaceNeighs(itp->getId(), face, &neighs);
+				check = check && (!neighs.empty());
 			}
 			itp++;
 		}
@@ -2717,7 +2718,7 @@ bool MimmoObject::isClosedLoop(){
 
 
 /*!
- * If the mesh is composed by multiple unconnected patches, the method returns
+ * If the mesh is composed by multiple unconnected patches or triage patches, the method returns
  * the cellID list belonging to each subpatches
  *\return list of cellIDs set for each subpatch
  */
@@ -2726,28 +2727,51 @@ livector2D MimmoObject::decomposeLoop(){
 
     livector2D result;
     livector1D globalcellids = getCells().getIds();
-    std::unordered_set<long> globalcells(globalcellids.begin(), globalcellids.end());
-    globalcellids.clear();
+    std::unordered_set<long> checked;
+    bool outcycle = true;
 
-    while(!globalcells.empty()){
+    while(outcycle){
 
         livector1D stack, save;
-        stack.push_back(*(globalcells.begin()));
+
+        auto it = globalcellids.begin();
+        bool found = false;
+        long idstart = -1;
+        while(!found && it != globalcellids.end()){
+            if(checked.count(*it) == 0){
+                idstart = *it;
+                found = true;
+            }
+            ++it;
+        }
+
+        checked.insert(idstart);
+        stack.push_back(idstart);
 
         while(!stack.empty()){
 
             long target = stack.back();
             stack.pop_back();
             save.push_back(target);
-            globalcells.erase(target);
-            livector1D neighs = getPatch()->findCellNeighs(target,1);
-            for(long val: neighs){
-                if(globalcells.count(val) >0){
-                    stack.push_back(val);
+
+            //get the number of faces.
+            int facecount = getPatch()->getCells().at(target).getFaceCount();
+            for(int i=0; i<facecount; ++i){
+                livector1D neighs = getPatch()->findCellFaceNeighs(target,i);
+                bool found = false;
+                auto it = neighs.begin();
+                while(!found && it!=neighs.end()){
+                    if(checked.count(*it) == 0){
+                        stack.push_back(*it);
+                        checked.insert(*it);
+                        found = true;
+                    }
+                    ++it;
                 }
             }
         }
         result.push_back(save);
+        outcycle = (checked.size() < globalcellids.size());
     }
 
     return result;
