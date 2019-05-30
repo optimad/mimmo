@@ -300,6 +300,7 @@ int test1() {
     prop->setDirichletConditions(bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
+    prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
     prop->setSolverMultiStep(4);
     prop->exec();
 
