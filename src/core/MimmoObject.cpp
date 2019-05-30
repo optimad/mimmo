@@ -1096,14 +1096,17 @@ MimmoObject::getMapData(){
 	liimap mapDataInv = getMapDataInv();
 	for (auto const & vertex : getVertices()){
 		long id = vertex.getId();
-		mapData[mapDataInv[id]] = id;
+#if MIMMO_ENABLE_MPI
+		if (m_isPointInterior[id])
+#endif
+			mapData[mapDataInv[id]] = id;
 	}
 	return mapData;
 };
 
 /*!
  * Return the local indexing vertex map, to pass from bitpit::PatchKernel unique-labeled indexing
- * to local, compact indexing.
+ * to local, compact indexing. Note, ghost vertices are not considered in the consecutive map.
  * \return unique-id/local map
  */
 liimap
