@@ -147,7 +147,7 @@ void MimmoFvMesh::buildPorts(){
  */
 void MimmoFvMesh::setGeometry(MimmoObject *bulk){
     if (bulk == NULL) return;
-    if (bulk->isEmpty())    return;
+//    if (bulk->isEmpty())    return;
     if (bulk->getType() != 2 && bulk->getType() != 1) return;
 
     m_bulkext = bulk;
@@ -162,7 +162,7 @@ void MimmoFvMesh::setGeometry(MimmoObject *bulk){
  */
 void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
     if (boundary == NULL) return;
-    if (boundary->isEmpty())    return;
+//    if (boundary->isEmpty())    return;
     if (boundary->getType() != 1 && boundary->getType() != 4) return;
 
     m_boundaryext = boundary;
