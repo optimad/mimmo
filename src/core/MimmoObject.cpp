@@ -713,6 +713,14 @@ MimmoObject::initializeParallel(){
 }
 #endif
 
+/*!Get the logger.
+ * \return Reference to logger object.
+ */
+bitpit::Logger&
+MimmoObject::getLog(){
+    return (*m_log);
+}
+
 /*!
  * Is the object empty?
  * \return True/False if geometry data structure is empty.

@@ -165,6 +165,8 @@ public:
     MimmoObject(const MimmoObject & other);
     MimmoObject & operator=(MimmoObject other);
 
+    bitpit::Logger& getLog();
+
     bool                                            isEmpty();
     BITPIT_DEPRECATED(bool                          isBvTreeSupported());
     bool                                            isSkdTreeSupported();
