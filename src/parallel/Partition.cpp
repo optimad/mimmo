@@ -550,6 +550,11 @@ Partition::serialize(MimmoObject* & geometry)
 
 	if (m_rank == 0){
 
+		//Clear adjacencies and interfaces
+		geometry->resetInterfaces();
+		geometry->resetAdjacencies();
+
+		//fill serialized geometry
 		for (bitpit::Vertex vertex : geometry->getVertices()){
 			long vertexId = vertex.getId();
 			if (geometry->isPointInterior(vertexId)){
@@ -619,6 +624,10 @@ Partition::serialize(MimmoObject* & geometry)
 	else{
 		//Send local vertices and local cells to rank 0
 
+		//Clear adjacencies and interfaces
+		geometry->resetInterfaces();
+		geometry->resetAdjacencies();
+
 	    //
 	    // Send vertex data
 	    //
@@ -667,11 +676,9 @@ Partition::serialize(MimmoObject* & geometry)
 	    cellBuffer << nCellsToCommunicate;
 	    for (const long cellId : geometry->getCellsIds()) {
 	    	if (geometry->getCells()[cellId].isInterior()){
-
-	        const bitpit::Cell &cell = geometry->getCells()[cellId];
-
-	        // Cell data
-	        cellBuffer << cell;
+	    		const bitpit::Cell &cell = geometry->getCells()[cellId];
+	    		// Cell data
+	    		cellBuffer << cell;
 	    	}
 	    }
 
@@ -681,8 +688,8 @@ Partition::serialize(MimmoObject* & geometry)
 
 	}
 
-	// Delete old geometry and update pointer
-	geometry->getPatch()->reset();
+	// Delete temp geometry and update old pointer
+	geometry->resetPatch();
 	geometry = serialized->clone().release();
 	delete serialized;
 
