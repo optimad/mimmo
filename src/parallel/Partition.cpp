@@ -151,6 +151,7 @@ Partition::setPartitionMethod(int mode){
 
 /*!
  * Execution command. Clip geometry and save result in m_patch member.
+ * Note: in case of seralization the older partitioned geometry is reset to empty geometry. Please consider to update pointers (use shared?) to the new serialized geometry.
  */
 void
 Partition::execute(){
