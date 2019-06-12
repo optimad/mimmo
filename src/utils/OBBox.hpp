@@ -115,13 +115,13 @@ protected:
     virtual void plotOptionalResults();
     void swap(OBBox & x) noexcept;
     dmatrix33E transpose(const dmatrix33E & mat);
-    
+
 private:
-    dmatrix33E      evaluateCovarianceMatrix(dmatrix33E &, darray3E &);
-    void            assemblyCovContributes(std::vector<MimmoObject *> list, bool flag, dmatrix33E &);
-    darray3E        evaluateMassCenter(std::vector<MimmoObject *> list, bool flag );
+    dmatrix33E      evaluatePointsCovarianceMatrix(std::vector<MimmoObject *> list);
+    dmatrix33E      evaluateElementsCovarianceMatrix(std::vector<MimmoObject *> list);
     dmatrix33E      eigenVectors( dmatrix33E &, darray3E & eigenValues);
     void            adjustBasis( dmatrix33E &, darray3E & eigenValues);
+    std::array<long,3> get3RepPoints(long cellID, MimmoObject * geo);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__OBBox_HPP__)

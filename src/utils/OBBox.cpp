@@ -278,16 +278,11 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
 
 
 /*!Execute your object, calculate the OBBox of your geometry.
- * If the OBBox is not fit enough, return to its AABB version.
  * If forced externally, evaluate the AABB, no matter what.
  * Implementation of pure virtual BaseManipulation::execute
  */
 void
 OBBox::execute(){
-    if(m_listgeo.empty()){
-//        throw std::runtime_error(m_name + " : found empty list of geometries");
-        return;
-    };
 
     darray3E pmin, pmax;
     pmin.fill(1.e18);
@@ -303,24 +298,32 @@ OBBox::execute(){
             ++count;
         }
     }
+    // check if the list is empty.
+    if(m_listgeo.empty()){
+        m_span.fill(0.0);
+        m_origin.fill(0.0);
+        return;
+    };
 
     std::unordered_map<MimmoObject*, int>::iterator itB = m_listgeo.begin();
-    while(itB != m_listgeo.end() && itB->second != 3){
+    //if one geometry at least is a cloud point, solve all them as cloud points.
+    bool allCloud = false;
+    while(itB != m_listgeo.end() && !allCloud){
+        allCloud = (itB->second == 3 || itB->second == 4);
         itB++;
     }
-    bool allCloud = (itB != m_listgeo.end());
 
     if(!m_forceAABB){
 
-        dmatrix33E covariance, covContributes;
+        dmatrix33E covariance;
         darray3E spectrum;
         darray3E etaPoint;
 
-
-        etaPoint = evaluateMassCenter(getGeometries(), allCloud);
-        assemblyCovContributes(getGeometries(), allCloud, covContributes);
-        covariance = evaluateCovarianceMatrix(covContributes, etaPoint);
-
+        if(allCloud){
+            covariance = evaluatePointsCovarianceMatrix(getGeometries());
+        }else{
+            covariance = evaluateElementsCovarianceMatrix(getGeometries());
+        }
         m_axes = eigenVectors(covariance, spectrum);
         adjustBasis(m_axes, spectrum);
     }
@@ -352,44 +355,6 @@ OBBox::execute(){
     for(int i=0; i<3; ++i){
         m_origin[i] = dotProduct(originLoc, trasp[i]);
     }
-
-    double volOBB = m_span[0]*m_span[1]*m_span[2];
-
-    if(!m_forceAABB){ //check if AABB get a better result
-        pmin.fill(1.e18);
-        pmax.fill(-1.e18);
-
-        for(auto ptr : getGeometries()){
-            for(auto & vert: ptr->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    pmin[i] = std::fmin(pmin[i], coord[i]);
-                    pmax[i] = std::fmax(pmax[i], coord[i]);
-                }
-            }
-        }
-
-        darray3E span2 = pmax - pmin;
-        darray3E orig = 0.5*(pmin+pmax);
-        //check if one of the span goes to 0;
-        avg_span = 0.0;
-        for(auto & val: span2)    avg_span+=val;
-        avg_span /= 3.0;
-
-        for(auto &val : span2)    {
-            val = std::fmax(val, 1.E-04*avg_span);
-        }
-
-        double volAAA =span2[0]*span2[1]*span2[2];
-
-
-        if(volAAA <= volOBB){
-            for(int i=0; i<3; ++i)    m_axes[i] = eye[i];
-            m_span = span2;
-            m_origin = orig;
-        }
-    }
-
 };
 
 /*!
@@ -441,172 +406,140 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 };
 
+
 /*!
- *\return assembled covariance matrix, form collection of covariance contributes of all geometries and
- *estimation of t heri global center mass are provided.
- *\param[in] covContributes covariance contributes from all geometries linked
- *\param[in] centermass global centermass of group of geometries
- *
+ * Assembly covariance matrix of various target geometries treated as cloud points.
+ * \param[in] list    list of geometries
+ * \return covariance matrix;
  */
 dmatrix33E
-OBBox::evaluateCovarianceMatrix(dmatrix33E & covContributes, darray3E & centermass){
-    dmatrix33E result;
+OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoObject*> list){
 
-    for(auto & val: result) val.fill(0);
-
-    for(int i=0; i<3; ++i){
-        for(int j=i; j<3; ++j){
-            result[i][j] = covContributes[i][j] - centermass[i]*centermass[j];
+    //evaluate the mass center first;
+    darray3E masscenter = {{0.0,0.0,0.0}};
+    int countVert = 0;
+    for(auto geo: list){
+        for(auto & vert: geo->getVertices()){
+            masscenter += vert.getCoords();
+            ++countVert;
         }
     }
 
-    result[1][0] = result[0][1];
-    result[2][0] = result[0][2];
-    result[2][1] = result[1][2];
-    return result;
-}
+    masscenter /= double(countVert);
 
-
-/*!
- * Assembly covariance contributes of various target geometries, that can be used to evaluate covariance matrix
- * The method intrinsecally distinguish between cloud point and tessellation, according to target MimmoObject geometry type.
- * \param[out] covContributes matrix to store all covariance contributes
- * \param[in] list    list of geometries
- * \param[in] flag boolean, if true, force all geometries to be treated as point clouds
- */
-void
-OBBox::assemblyCovContributes(std::vector<MimmoObject*> list, bool flag, dmatrix33E & covContributes){
-
+    //assembly covariance matrix node by node.
     dmatrix33E loc;
-    for(auto & val:covContributes)    val.fill(0.0);
-    int size, counter;
-    dvector1D area;
+    dmatrix33E covariance;
+    for(auto & val:covariance)    val.fill(0.0);
+
     darray3E temp;
-    double areaTot = 0.0;
-
-    if(flag){
-        for(auto geo: list){
-            for(auto & val:loc)    val.fill(0.0);
-            size = geo->getNVertices();
-
-            //evaluate local contributes to covariance
-            for(auto & vert: geo->getVertices()){
-                temp = vert.getCoords();
-                for(int j=0; j<3; ++j){
-                    for(int k=j; k<3; ++k){
-                        loc[j][k] += temp[j]*temp[k];
-                    }
+    for(auto geo: list){
+        for(auto & val:loc)    val.fill(0.0);
+        //evaluate local contributes to covariance
+        for(auto & vert: geo->getVertices()){
+            temp = vert.getCoords() - masscenter;
+            for(int j=0; j<3; ++j){
+                for(int k=j; k<3; ++k){
+                    loc[j][k] += temp[j]*temp[k];
                 }
             }
-            //store temporarely in covContributes
-            counter = 0;
-            for(auto & val: covContributes){
-                val += loc[counter];
-                ++counter;
-            }
-
-            areaTot += double(size);
         }
-    }else{
-        for(auto geo: list){
-            for(auto & val:loc)    val.fill(0.0);
-            size = geo->getNCells();
-            bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(geo->getPatch());
-            area.resize(size);
-            counter = 0;
-            for(auto &cell : tri->getCells()){
-                area[counter] = tri->evalCellArea(cell.getId());
-                areaTot +=area[counter];
-                ++counter;
-            }
-
-            counter = 0;
-            darray3E centroid;
-            for(auto & cell: tri->getCells()){
-                centroid = tri->evalCellCentroid(cell.getId());
-
-                for(int j=0; j<3; ++j){
-                    for(int k=j; k<3; ++k){
-                        loc[j][k] += area[counter]*centroid[j]*centroid[k];
-                    }
-                }
-                ++counter;
-            }
-
-            //store temporarely in covContributes
-            counter = 0;
-            for(auto & val: covContributes){
-                val += loc[counter];
-                ++counter;
-            }
+        //store temporarely in covContributes
+        int counter = 0;
+        for(auto & val: covariance){
+            val += loc[counter];
+            ++counter;
         }
     }
 
-    covContributes[1][0] = covContributes[0][1];
-    covContributes[2][0] = covContributes[0][2];
-    covContributes[2][1] = covContributes[1][2];
-
-    counter = 0;
-    for(auto & val: covContributes){
-        val /= areaTot;
+    int counter = 0;
+    for(auto & val: covariance){
+        val /= double(countVert);
         ++counter;
     }
+
+    covariance[1][0] = covariance[0][1];
+    covariance[2][0] = covariance[0][2];
+    covariance[2][1] = covariance[1][2];
+
+    return covariance;
 };
 
 
 /*!
- * \return global mass center of the whole list of geometries.
- * \param[in] list of target geometries
- * \param[in] flag boolean, if true, force all geometries to be treated as point clouds
+ * Assembly covariance matrix of various target surface geometries treated as tesselations.
+ * Here are excluded 3DCurve, Point Clouds and Volume meshes
+ * \param[in] list    list of geometries
+ * \return covariance matrix;
  */
-darray3E
-OBBox::evaluateMassCenter(std::vector<MimmoObject *> list, bool flag){
+dmatrix33E
+OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoObject*> list){
 
-    long size = 0;
-    darray3E centermass = {{0,0,0}}, eta;
-    double areaTot = 0.0;
-    int counter;
+    //You need to evaluate the mass center and the 3x3 matrix of the total moments
+    //obtained as the sum of each element moments.
+    // Non triangular cells are approximated as a representative triangle formed by
+    // the first set of 3 non-aligned vertices.
 
-    if(flag){
-        for(auto geo : list){
-            size = geo->getNVertices();
-            eta.fill(0.0);
-            //evaluate eta;
-            for(auto & vert: geo->getVertices()){
-                 eta += vert.getCoords();
+
+    darray3E masscenter = {{0.0,0.0,0.0}};
+    //assembly moments matrix cell by cell.
+    dmatrix33E loc;
+    dmatrix33E moments;
+    for(auto & val:moments)    val.fill(0.0);
+
+    darray3E p,q,r, centroid;
+    double areatri, areatot(0.0);
+
+    for(auto geo: list){
+        for(auto & cell: geo->getCells()){
+
+            std::array<long,3> vids = get3RepPoints(cell.getId(), geo);
+            if(vids[0] < 0){
+                continue;
             }
-            centermass += eta;
-            areaTot += double(size);
+            p = geo->getVertexCoords(vids[0]);
+            q = geo->getVertexCoords(vids[1]);
+            r = geo->getVertexCoords(vids[2]);
+
+            areatri = 0.5*norm2(crossProduct(q-p, r-p));
+            centroid = (p+q+r)/3.0;
+            masscenter += areatri*centroid;
+            areatot += areatri;
+
+            //assemby moments
+            // on-diagonal terms
+            moments[0][0] += areatri*(9.0*centroid[0]*centroid[0] + p[0]*p[0] + q[0]*q[0] + r[0]*r[0])/12.0;
+            moments[1][1] += areatri*(9.0*centroid[1]*centroid[1] + p[1]*p[1] + q[1]*q[1] + r[1]*r[1])/12.0;
+            moments[2][2] += areatri*(9.0*centroid[2]*centroid[2] + p[2]*p[2] + q[2]*q[2] + r[2]*r[2])/12.0;
+
+            // off-diagonal terms
+            moments[0][1] += areatri*(9.0*centroid[0]*centroid[1] + p[0]*p[1] + q[0]*q[1] + r[0]*r[1])/12.0;
+            moments[0][2] += areatri*(9.0*centroid[0]*centroid[2] + p[0]*p[2] + q[0]*q[2] + r[0]*r[2])/12.0;
+            moments[1][2] += areatri*(9.0*centroid[1]*centroid[2] + p[1]*p[2] + q[1]*q[2] + r[1]*r[2])/12.0;
         }
-    }else{
-        for(auto geo : list){
-            size = geo->getNCells();
-            bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(geo->getPatch());
-            dvector1D area(size);
-            counter = 0;
-            for(auto &cell : tri->getCells()){
-                area[counter] = tri->evalCellArea(cell.getId());
-                areaTot +=area[counter];
-                ++counter;
-            }
+    }// end of cell by cell loop.
 
-            //evaluate eta;
-            eta.fill(0.0);
-            counter = 0;
-            for(auto & cell: tri->getCells()){
-                eta += tri->evalCellCentroid(cell.getId())*area[counter];
-                ++counter;
-            }
-            centermass += eta;
+    //normalize masscenter
+    masscenter /= areatot;
+
+    // moments are symmetric
+    moments[1][0] = moments[0][1];
+    moments[2][0] = moments[0][2];
+    moments[2][1] = moments[1][2];
+
+    //get final covariance matrix
+    dmatrix33E covariance;
+    for(int i=0; i<3; ++i ){
+        for(int j=0; j<3; ++j ){
+            covariance[i][j] = moments[i][j]/areatot - masscenter[i]*masscenter[j];
         }
     }
-
-    centermass /=areaTot;
-    return centermass;
+    return covariance;
 };
 
 /*!
  * Calculates and returns the eigenVectors and eigenvalues of a 3x3 matrix.
+ * eigvec and eigenval are in descending order (eigvec from max to min eigenval they refers)
  * \param[in] matrix    target matrix
  * \param[out]    eigenvalues eigenvalues of the matrix
  * \return    matrix of eigenvectors by column
@@ -616,10 +549,7 @@ OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
 
     dmatrix33E result;
     double * a = new double [9];
-    double * u = new double [9];
-    double * vt = new double [9];
     double * s = new double[3];
-    double * superb = new double[3];
 
     int k=0;
     for(int i=0; i<3; i++){
@@ -630,24 +560,26 @@ OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
         }
     }
 
-    LAPACKE_dgesvd( LAPACK_COL_MAJOR, 'N','S', 3, 3, a, 3, s, u, 3, vt, 3, superb);
+    LAPACKE_dsyev( LAPACK_COL_MAJOR, 'V','U', 3, a, 3, s);
+    //eigenvec are returned in a column wise, and with eigenvals s in ascending order.
 
-    //solution norm
+    //rearrange the eigvec
+    int counter = 0;
     for (int i=0; i<9; i++){
-        result[i/3][i%3] = vt[i];
+        result[i/3][i%3] = a[i];
     }
-    for(int i=0; i<2; ++i)    {
+    for(int i=0; i<3; ++i)    {
         result[i] /= norm2(result[i]);
         eigenvalues[i] = s[i];
     }
-    result[2] = crossProduct(result[0],result[1]);
-    eigenvalues[2] = s[2];
 
+    //change them in descending order.
+    std::swap(result[0], result[2]);
+    std::swap(eigenvalues[0], eigenvalues[2]);
+
+    // clean allocations.
     delete [] a; a = NULL;
-    delete [] u; u = NULL;
-    delete [] vt; vt = NULL;
     delete [] s; s = NULL;
-    delete [] superb; superb = NULL;
 
     return result;
 }
@@ -656,8 +588,8 @@ OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
  * Adjust basis of eigenvectors, given is eigenvalues spectrum. In order to best fit the
  * 3D shape.  The rules are the following
  * 1) three real coincident eigenvalues, return fundamental axis as eigenvectors
- * 2) three real different eigenvalues, do nothing
- * 3) two coincident eigenvalues, one not, find best fit to shape for eigVec associated to coincident eigenvalues.
+ * 2) three real different eigenvalues, order in max, mid, min axis
+ * 3) two coincident eigenvalues, one not, find best fit to shape for eigVec associated to coincident eigenvalues
  * \param[in,out]    eigVec basis of eigenvectors by rows
  * \param[in]    eigVal eigenvalues associated to eigVec
  */
@@ -665,13 +597,13 @@ void
 OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 
     darray3E diff;
-    double tol = 1.0E-3;
+    double tol = std::numeric_limits<double>::min();
 
     diff[0] = std::abs(eigVal[1]-eigVal[0]);
     diff[1] = std::abs(eigVal[2]-eigVal[1]);
     diff[2] = std::abs(eigVal[0]-eigVal[2]);
 
-    if(diff[0]>tol && diff[1]>tol && diff[2]>tol)    return;
+    //3 real quasi coincident eigenval-> return fundamental axis.
     if(diff[0]<=tol && diff[1]<=tol && diff[2]<= tol){
         int counter=0;
         for(auto & val : eigVec){
@@ -682,6 +614,11 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         return;
     }
 
+    // 3 real distinct eigenval
+    if(diff[0]>tol && diff[1]>tol && diff[2]>tol){
+        return;
+    };
+
     int guess = 0, third =1, stable=2;
 
     if(diff[1] <= tol)    {
@@ -690,121 +627,11 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
         stable= 0;
     }
 
-    if(diff[2] <= tol)    {
-        guess = 2;
-        third = 0;
-        stable= 1;
-    }
-
-    dmatrix33E axes; //, trasp;
-    int counter=0;
-    for(const auto & val: eigVec){
-        axes[counter] = val;
-        ++counter;
-    }
-
-    darray3E    guessVec = axes[guess];
-    darray3E    refVec   = axes[stable];
-
-    int nstage = 15;
-    int niterations = 8;
-
-    double distance = M_PI/(2.0*(nstage));
-    double volume, theta, val;
-    std::map<double, double>    mapval;
-    darray3E pmin, pmax, temp;
-
-    for(int i=0; i<nstage; ++i){
-
-        theta = i*distance;
-
-        axes[guess] = guessVec*std::cos(theta) + std::sin(theta)*crossProduct(refVec, guessVec);
-        axes[third] = crossProduct(axes[stable],axes[guess]);
-
-        pmin.fill(1.e18);
-        pmax.fill(-1.e18);
-
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
-            }
-        }
-
-        temp = pmax - pmin;
-        volume = temp[0]*temp[1]*temp[2];
-
-        mapval[volume] = theta;
-    }
-
-    int it =0;
-    while (it < niterations){
-
-
-        distance /= 2.0;
-
-        double thetadx = mapval.begin()->second + distance;
-        if(thetadx >= M_PI/2.0)    thetadx += -1.0*M_PI/2.0;
-
-        double thetasx = mapval.begin()->second - distance;
-        if(thetasx <= 0.0)    thetasx += M_PI/2.0;
-
-        //evaluate on the right
-        axes[guess] = guessVec*std::cos(thetadx) + std::sin(thetadx)*crossProduct(refVec, guessVec);
-        axes[third] = crossProduct(axes[stable],axes[guess]);
-
-
-        //trasp =transpose(axes);
-        pmin.fill(1.e18);
-        pmax.fill(-1.e18);
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
-            }
-        }
-
-        temp = pmax - pmin;
-        volume = temp[0]*temp[1]*temp[2];
-
-        mapval[volume] = thetadx;
-
-        //evaluate on the left
-        axes[guess] = guessVec*std::cos(thetasx) + std::sin(thetasx)*crossProduct(refVec, guessVec);
-        axes[third] = crossProduct(axes[stable],axes[guess]);
-
-
-        pmin.fill(1.e18);
-        pmax.fill(-1.e18);
-        for(auto geo : getGeometries()){
-            for(auto & vert: geo->getVertices()){
-                darray3E coord = vert.getCoords();
-                for(int i=0;i<3; ++i){
-                    val = dotProduct(coord, axes[i]); //trasp[i]);
-                    pmin[i] = std::fmin(pmin[i], val);
-                    pmax[i] = std::fmax(pmax[i], val);
-                }
-            }
-        }
-
-        temp = pmax - pmin;
-        volume = temp[0]*temp[1]*temp[2];
-
-        mapval[volume] = thetasx;
-        ++it;
-    }
-
-    theta = mapval.begin()->second;
-    eigVec[guess] = guessVec*std::cos(theta) + std::sin(theta)*crossProduct(refVec, guessVec);
     eigVec[third] = crossProduct(eigVec[stable],eigVec[guess]);
+    double normv = norm2(eigVec[third]);
+    if(normv > std::numeric_limits<double>::min()){
+        eigVec[third] /= normv;
+    }
 
 };
 
@@ -823,6 +650,59 @@ dmatrix33E OBBox::transpose(const dmatrix33E & mat){
         }
     }
     return out;
+}
+
+/*!
+    Get first 3, non-aligned representative point ids of a 2D cell of a certain geometry.
+    Works only for surface mesh (mimmoObject type 2);
+    \param[in] cellID id of the target cell.
+    \param[in] geo pointer to reference geometry (must be always of mimmoObject type 1)
+    \return ids of vertices composing the representative triangle.Return -1,-1,-1 for unsupported cell elements
+*/
+std::array<long,3> OBBox::get3RepPoints(long cellID, MimmoObject * geo){
+    if(!geo) return{{-1,-1,-1}};
+    bitpit::Cell & cell = geo->getCells().at(cellID);
+    std::array<long,3> result;
+
+    switch(cell.getType()){
+        case bitpit::ElementType::TRIANGLE:
+            {
+                long * conn = cell.getConnect();
+                result[0] = conn[0];
+                result[1] = conn[1];
+                result[2] = conn[2];
+            }
+        break;
+        case bitpit::ElementType::QUAD:
+        case bitpit::ElementType::POLYGON:
+            {
+                bitpit::ConstProxyVector<long> vertids = cell.getVertexIds();
+                std::size_t ssz= vertids.size();
+
+                //find a set of 3 points whose cross product is non zero, if you can.
+                darray3E p0,s1,s2;
+                result[0] = vertids[0];
+                p0 = geo->getVertexCoords(result[0]);
+
+                std::size_t cand = 2;
+                bool found = false;
+
+                while(cand < ssz && !found){
+                    result[1] = vertids[cand-1];
+                    result[2] = vertids[cand];
+                    s1 = geo->getVertexCoords(result[1]) - p0;
+                    s2 = geo->getVertexCoords(result[2]) - p0;
+                    found = (norm2(crossProduct(s1,s2)) > 0.0);
+                    ++cand;
+                }
+            }
+        break;
+        default:
+            result.fill(-1);
+        break;
+    }
+
+    return result;
 }
 
 

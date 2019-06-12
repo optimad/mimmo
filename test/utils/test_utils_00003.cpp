@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -31,10 +31,10 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Test: testing OBbox utility 
+ * Test: testing OBbox utility
  */
 int test3() {
-	
+
     MimmoGeometry * reader1 = new MimmoGeometry();
     reader1->setIOMode(IOMode::READ);
     reader1->setReadDir("geodata");
@@ -48,21 +48,28 @@ int test3() {
     reader2->setReadFilename("sphere2");
     reader2->setReadFileType(FileType::STL);
     reader2->execute();
-    
+
     OBBox * box1 = new OBBox();
     box1->setGeometry(reader1->getGeometry());
-   /* box1->setGeometry(reader2->getGeometry());
-   */ 
+    box1->setGeometry(reader2->getGeometry());
+
     box1->exec();
     box1->plot(".","obbox", 0, false);
-    
+
+    auto span1 = box1->getSpan();
+
     box1->setForceAABB(true);
     box1->exec();
     box1->plot(".","obbox", 1, false);
-    
+
+    auto span2 = box1->getSpan();
+
     delete reader1;
     delete reader2;
     delete box1;
+
+    std::cout<<"AABB volume: "<<span2[0]*span2[1]*span2[2]<<std::endl;
+    std::cout<<"OBB volume:  "<<span1[0]*span1[1]*span1[2]<<std::endl;
     
     std::cout<<"test passed "<<std::endl;
     return 0;
@@ -74,15 +81,15 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
+
 #if ENABLE_MPI==1
 	MPI::Init(argc, argv);
 
 	{
 #endif
-        
+
         int val = 1;
-        
+
 		/**<Calling mimmo Test routines*/
         try{
             val = test3() ;
@@ -96,6 +103,6 @@ int main( int argc, char *argv[] ) {
 
 	MPI::Finalize();
 #endif
-	
+
 	return val;
 }
