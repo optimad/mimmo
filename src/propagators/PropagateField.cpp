@@ -273,7 +273,7 @@ PropagateScalarField::execute(){
 		livector1D borderCellsID = geo->extractBoundaryCellID(false);
 
 		//get this inverse map -> you will need it to compact the stencils.
-		dataInv = geo->getMapCellInv();
+		dataInv = geo->getMapCellInv(true);
 
 		//pass bc point information to bulk interfaces.
 		distributeBCOnBoundaryInterfaces();
@@ -316,7 +316,7 @@ PropagateScalarField::execute(){
 
 		dataInv.clear();
 		//reconstruct getting the direct cell map -> you will need it uncompact the system solution in global id.
-		reconstructResults(result, geo->getMapCell());
+		reconstructResults(result, geo->getMapCell(true));
 		// now data are direcly pushed in m_field.
 
 		if (m_forceDirichletConditions){
@@ -335,7 +335,7 @@ PropagateScalarField::execute(){
 		livector1D borderPointsID = geo->extractBoundaryVertexID(false);
 
 		//get this inverse map -> you will need it to compact the stencils.
-		dataInv = geo->getMapDataInv();
+		dataInv = geo->getMapDataInv(true);
 
 		//pass bc point information to bulk interfaces.
 		distributeBCOnBoundaryPoints();
@@ -372,7 +372,7 @@ PropagateScalarField::execute(){
 
 		dataInv.clear();
 		//reconstruct getting the direct node map -> you will need it uncompact the system solution in global id.
-		liimap mapdata = geo->getMapData();
+		liimap mapdata = geo->getMapData(true);
 		reconstructResults(result, mapdata);
 		// now data are direcly pushed in m_field.
 
@@ -1154,8 +1154,8 @@ PropagateVectorField::execute(){
 		livector1D borderCellsID = geo->extractBoundaryCellID(false);
 
 		//get the inverse and the direct map -> you will need it to compact the stencil/ and recover the results respectively.
-		dataInv = geo->getMapCellInv();
-		data = geo->getMapCell();
+		dataInv = geo->getMapCellInv(true);
+		data = geo->getMapCell(true);
 
 		//compute all the center cell gradients.
 		FVolStencil::MPVGradientUPtr ccellGradients = FVolStencil::computeFVCellGradientStencil(*geo);
@@ -1283,8 +1283,8 @@ PropagateVectorField::execute(){
 		livector1D borderPointsID = geo->extractBoundaryVertexID(false);
 
 		//get this inverse map -> you will need it to compact the stencils.
-		dataInv = geo->getMapDataInv();
-		data = geo->getMapData();
+		dataInv = geo->getMapDataInv(true);
+		data = geo->getMapData(true);
 
 		// compute the laplacian stencils
 		GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_dumping);
