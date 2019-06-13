@@ -195,6 +195,9 @@ Partition::execute(){
 				}
 			}
 
+			if (!getGeometry()->areAdjacenciesBuilt())
+				getGeometry()->buildAdjacencies();
+
 			//partition
 			bool m_usemimmoserialize = true;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
@@ -215,6 +218,9 @@ Partition::execute(){
 
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+
+					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
+						getBoundaryGeometry()->buildAdjacencies();
 
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
