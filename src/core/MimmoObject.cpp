@@ -1096,18 +1096,16 @@ MimmoObject::getPatch() const{
 /*!
  * Return the local indexing vertex map, to pass from local, compact indexing
  * to bitpit::PatchKernel unique-labeled indexing.
+ * \param[in] withghosts If true the structure is filled with ghosts (it has sense only in parallel)
  * \return local/unique-id map
  */
 liimap
-MimmoObject::getMapData(){
+MimmoObject::getMapData(bool withghosts){
 	liimap mapData;
-	liimap mapDataInv = getMapDataInv();
+	liimap mapDataInv = getMapDataInv(withghosts);
 	for (auto const & vertex : getVertices()){
 		long id = vertex.getId();
-#if MIMMO_ENABLE_MPI
-		if (m_isPointInterior[id])
-#endif
-			mapData[mapDataInv[id]] = id;
+		mapData[mapDataInv[id]] = id;
 	}
 	return mapData;
 };
@@ -1115,16 +1113,22 @@ MimmoObject::getMapData(){
 /*!
  * Return the local indexing vertex map, to pass from bitpit::PatchKernel unique-labeled indexing
  * to local, compact indexing. Note, ghost vertices are not considered in the consecutive map.
+ * \param[in] withghosts If true the structure is filled with ghosts (it has sense only in parallel)
  * \return unique-id/local map
  */
 liimap
-MimmoObject::getMapDataInv(){
+MimmoObject::getMapDataInv(bool withghosts){
 	liimap mapDataInv;
 #if MIMMO_ENABLE_MPI
 	if (getPatch()->isPartitioned()){
 		if (!arePointGhostExchangeInfoSync())
 			updatePointGhostExchangeInfo();
-		return m_pointConsecutiveId;
+		for (auto val : m_pointConsecutiveId){
+			if (withghosts || isPointInterior(val.first)){
+				mapDataInv.insert(val);
+			}
+		}
+		return mapDataInv;
 	}
 #endif
 	int i = 0;
@@ -1138,16 +1142,19 @@ MimmoObject::getMapDataInv(){
 /*!
  * Return the map of consecutive global indexing of the local cells; to pass from consecutive global index of a local cell
  * to bitpit::PatchKernel unique-labeled indexing. Ghost cells are considered.
+ * \param[in] withghosts If true the structure is filled with ghosts (it has sense only in parallel)
  * \return global consecutive / local unique id map
  */
 liimap
-MimmoObject::getMapCell(){
+MimmoObject::getMapCell(bool withghosts){
 	liimap mapCell;
 	if (!isInfoSync()) buildPatchInfo();
 	for (auto const & cell : getCells()){
 		long id = cell.getId();
-		long i = getPatchInfo()->getCellConsecutiveId(id);
-		mapCell[i] = id;
+		if (withghosts || cell.isInterior()){
+			long i = getPatchInfo()->getCellConsecutiveId(id);
+			mapCell[i] = id;
+		}
 	}
 	return mapCell;
 };
@@ -1155,12 +1162,24 @@ MimmoObject::getMapCell(){
 /*!
  * Return the map of consecutive global indexing of the local cells; to pass from bitpit::PatchKernel unique-labeled indexing of a local cell
  * to consecutive global index. Ghost cells are considered.
+ * \param[in] withghosts If true the structure is filled with ghosts (it has sense only in parallel)
  * \return local unique id / global consecutive map
  */
 liimap
-MimmoObject::getMapCellInv(){
+MimmoObject::getMapCellInv(bool withghosts){
 	if (!isInfoSync()) buildPatchInfo();
 	liimap mapCellInv = getPatchInfo()->getCellConsecutiveMap();
+	if (!withghosts){
+		std::vector<long> todelete;
+		for (auto & val : mapCellInv){
+			if (!getPatch()->getCell(val.second).isInterior()){
+				todelete.emplace_back(val.first);
+			}
+		}
+		for (int id : todelete){
+			mapCellInv.erase(id);
+		}
+	}
 	return mapCellInv;
 };
 
