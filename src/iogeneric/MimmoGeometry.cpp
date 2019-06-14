@@ -432,7 +432,7 @@ MimmoGeometry::setHARDCopy(MimmoGeometry * other){
 void
 MimmoGeometry::setGeometry(MimmoObject * external){
     if(external == NULL)    return;
-    if(external->isEmpty()) return;
+//    if(external->isEmpty()) return;
     if(getGeometry() == external) return;
 
     m_intgeo.reset(nullptr);
@@ -464,7 +464,7 @@ MimmoGeometry::setGeometry(int type){
  */
 bitpit::PiercedVector<bitpit::Vertex> *
 MimmoGeometry::getVertices(){
-    if(isEmpty())    return NULL;
+//    if(isEmpty())    return NULL;
     return &(getGeometry()->getVertices());
 };
 
@@ -474,7 +474,7 @@ MimmoGeometry::getVertices(){
  * \return pointer to the cells structure
  */
 bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
-    if(isEmpty())    return NULL;
+//    if(isEmpty())    return NULL;
     return    &(getGeometry()->getCells());
 
 };
