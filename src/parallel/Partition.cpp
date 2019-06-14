@@ -198,6 +198,11 @@ Partition::execute(){
 			if (!getGeometry()->areAdjacenciesBuilt())
 				getGeometry()->buildAdjacencies();
 
+#if MIMMO_ENABLE_MPI
+			if (!getGeometry()->arePointGhostExchangeInfoSync())
+				getGeometry()->updatePointGhostExchangeInfo();
+#endif
+
 			//partition
 			bool m_usemimmoserialize = true;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
@@ -212,6 +217,9 @@ Partition::execute(){
 
 			//Force rebuild patch info
 			getGeometry()->buildPatchInfo();
+#if MIMMO_ENABLE_MPI
+			getGeometry()->updatePointGhostExchangeInfo();
+#endif
 
 			//Clean potential point connectivity
 			getGeometry()->cleanPointConnectivity();
@@ -221,7 +229,10 @@ Partition::execute(){
 
 					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
 						getBoundaryGeometry()->buildAdjacencies();
-
+#if MIMMO_ENABLE_MPI
+					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
+						getBoundaryGeometry()->updatePointGhostExchangeInfo();
+#endif
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
@@ -239,7 +250,9 @@ Partition::execute(){
 
 					//Force rebuild patch info
 					getBoundaryGeometry()->buildPatchInfo();
-
+#if MIMMO_ENABLE_MPI
+					getBoundaryGeometry()->updatePointGhostExchangeInfo();
+#endif
 					//Clean potential point connectivity
 					getBoundaryGeometry()->cleanPointConnectivity();
 
@@ -550,7 +563,6 @@ Partition::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 void
 Partition::serialize(MimmoObject* & geometry)
 {
-
 	//SerializedGeometry
 	mimmo::MimmoObject* serialized(new mimmo::MimmoObject(geometry->getType()));
 
@@ -645,7 +657,7 @@ Partition::serialize(MimmoObject* & geometry)
 	    vertexBufferSize += sizeof(long);
 	    for (long vertexId : geometry->getVertices().getIds()){
 	    	if (geometry->isPointInterior(vertexId)){
-		        vertexBufferSize += geometry->getVertices()[vertexId].getBinarySize();
+		    	vertexBufferSize += geometry->getVertices()[vertexId].getBinarySize();
 		        nVerticesToCommunicate++;
 	    	}
 	    }
@@ -702,7 +714,6 @@ Partition::serialize(MimmoObject* & geometry)
 	// Sort cells and vertices with Id
 	geometry->getPatch()->sortCells();
 	geometry->getPatch()->sortVertices();
-
 }
 
 #endif
