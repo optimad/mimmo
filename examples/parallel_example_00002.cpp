@@ -102,7 +102,7 @@ void test00002() {
      */
     lattice->setRefSystem(2, darray3E{0,1,0});
     lattice->setCoordType(CoordType::CLAMPED, 2);
-    lattice->setPlotInExecution(true);
+    lattice->setPlotInExecution(false);
 
     /* Build mesh of lattice outside the execution chain
      * to use it during setup the displacements.
@@ -171,7 +171,7 @@ void test00002() {
     /* Execution of chain.
      * Use debug flag false to avoid printing intermediate results of the execution steps.
      */
-    ch0.exec(false);
+    ch0.exec(true);
 
     /* Clean up & exit;
      */
