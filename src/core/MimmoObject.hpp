@@ -259,9 +259,9 @@ public:
     livector1D  extractPIDCells(livector1D);
 
     liimap      getMapData(bool withghosts=false);
-    liimap      getMapDataInv(bool withghosts=false);
-    liimap	    getMapCell(bool withghosts=false);
-    liimap      getMapCellInv(bool withghosts=false);
+    liimap      getMapDataInv(bool withghosts=true);
+    liimap	    getMapCell(bool withghosts=true);
+    liimap      getMapCellInv(bool withghosts=true);
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     BITPIT_DEPRECATED(void        buildBvTree(int value = 1));

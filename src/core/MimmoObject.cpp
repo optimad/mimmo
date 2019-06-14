@@ -1105,7 +1105,8 @@ MimmoObject::getMapData(bool withghosts){
 	liimap mapDataInv = getMapDataInv(withghosts);
 	for (auto const & vertex : getVertices()){
 		long id = vertex.getId();
-		mapData[mapDataInv[id]] = id;
+		if (mapDataInv.count(id))
+		    mapData[mapDataInv[id]] = id;
 	}
 	return mapData;
 };
@@ -1124,9 +1125,10 @@ MimmoObject::getMapDataInv(bool withghosts){
 		if (!arePointGhostExchangeInfoSync())
 			updatePointGhostExchangeInfo();
 		for (auto val : m_pointConsecutiveId){
-			if (withghosts || isPointInterior(val.first)){
-				mapDataInv.insert(val);
+			if (!withghosts && !isPointInterior(val.first)){
+				continue;
 			}
+			mapDataInv.insert(val);
 		}
 		return mapDataInv;
 	}
@@ -1151,10 +1153,11 @@ MimmoObject::getMapCell(bool withghosts){
 	if (!isInfoSync()) buildPatchInfo();
 	for (auto const & cell : getCells()){
 		long id = cell.getId();
-		if (withghosts || cell.isInterior()){
-			long i = getPatchInfo()->getCellConsecutiveId(id);
-			mapCell[i] = id;
+		if (!withghosts && !cell.isInterior()){
+			continue;
 		}
+		long i = getPatchInfo()->getCellConsecutiveId(id);
+		mapCell[i] = id;
 	}
 	return mapCell;
 };
@@ -1173,7 +1176,7 @@ MimmoObject::getMapCellInv(bool withghosts){
 		std::vector<long> todelete;
 		for (auto & val : mapCellInv){
 			if (!getPatch()->getCell(val.second).isInterior()){
-				todelete.emplace_back(val.first);
+				todelete.push_back(val.first);
 			}
 		}
 		for (int id : todelete){
@@ -1489,6 +1492,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	}
 
 
+	//Clear interior points structure
+	m_isPointInterior.clear();
+
 	//Fill interior points structure
 	//Initialize as interior all the local nodes
 	for (long id : getVertices().getIds()){
@@ -1672,6 +1678,15 @@ void MimmoObject::updatePointGhostExchangeInfo()
 bool
 MimmoObject::isPointInterior(long id)
 {
+
+	if (!getVertices().exists(id))
+		return false;
+
+	//TODO Initialize structure to true if not partitioned
+	//If not partitioned return true
+	if (!getPatch()->isPartitioned())
+		return true;
+
 	if (!arePointGhostExchangeInfoSync())
 		updatePointGhostExchangeInfo();
 
@@ -1798,6 +1813,9 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+#endif
 	return true;
 };
 
@@ -3016,6 +3034,11 @@ void MimmoObject::restore(std::istream & stream){
 		m_pidsTypeWNames.insert( std::make_pair( pp, sspid[count]));
 		++count;
 	}
+
+#if MIMMO_ENABLE_MPI
+	updatePointGhostExchangeInfo();
+#endif
+
 }
 
 /*!
