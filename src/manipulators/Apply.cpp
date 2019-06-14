@@ -148,6 +148,11 @@ Apply::execute(){
 		vertexcoords += m_factor*m_input[ID];
 		getGeometry()->modifyVertex(vertexcoords, ID);
 	}
+
+#if MIMMO_ENABLE_MPI
+	getGeometry()->updatePointGhostExchangeInfo();
+#endif
+
 };
 
 

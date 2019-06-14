@@ -643,6 +643,10 @@ MRBF::apply(){
 		getGeometry()->modifyVertex(vertexcoords, ID);
 	}
 
+#if MIMMO_ENABLE_MPI
+	getGeometry()->updatePointGhostExchangeInfo();
+#endif
+
 }
 
 /*!
