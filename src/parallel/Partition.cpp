@@ -288,7 +288,8 @@ Partition::parmetisPartGeom(){
 
 	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
 
-		getGeometry()->cleanGeometry();
+		//TODO Clean geometry needed?
+		//getGeometry()->cleanGeometry();
 
 		liimap mapcell = getGeometry()->getMapCell();
 		liimap mapcellinv = getGeometry()->getMapCellInv();
@@ -400,7 +401,8 @@ Partition::computeBoundaryPartition()
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
 
-			getBoundaryGeometry()->cleanGeometry();
+			//TODO Clean geometry needed?
+			//getBoundaryGeometry()->cleanGeometry();
 
 			m_boundarypartition.clear();
 			if (m_rank == 0){
@@ -608,7 +610,7 @@ Partition::serialize(MimmoObject* & geometry)
 			//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
 			long nRecvVertices;
 			vertexBuffer >> nRecvVertices;
-			serialized->getPatch()->reserveVertices(nRecvVertices);
+			serialized->getPatch()->reserveVertices(serialized->getPatch()->getVertexCount() + nRecvVertices);
 
 			// Do not add the vertices with Id already in serialized geometry
 			for (long i = 0; i < nRecvVertices; ++i) {
@@ -624,7 +626,7 @@ Partition::serialize(MimmoObject* & geometry)
 			//Receive and add all Cells
 			long nReceivedCells;
 			cellBuffer >> nReceivedCells;
-			serialized->getPatch()->reserveCells(nReceivedCells);
+			serialized->getPatch()->reserveCells(serialized->getPatch()->getCellCount() + nReceivedCells);
 
 			for (long i = 0; i < nReceivedCells; ++i) {
 				// Cell data
