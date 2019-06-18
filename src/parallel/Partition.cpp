@@ -60,7 +60,11 @@ Partition::Partition(const bitpit::Config::Section & rootXML){
 
 /*!Default destructor of Partition
  */
-Partition::~Partition(){};
+Partition::~Partition(){
+	if (m_mode == PartitionMethod::SERIALIZE){
+		delete m_geometry;
+	}
+};
 
 /*!Copy constructor of Partition.
  */
@@ -710,12 +714,15 @@ Partition::serialize(MimmoObject* & geometry)
 
 	// Delete temp geometry and update old pointer
 	geometry->resetPatch();
-	geometry = serialized->clone().release();
-	delete serialized;
+	geometry = serialized;//->clone().release();
+//	delete serialized;
 
 	// Sort cells and vertices with Id
 	geometry->getPatch()->sortCells();
 	geometry->getPatch()->sortVertices();
+
+//	geometry->getPatch()->setPartitioned(false);
+
 }
 
 #endif

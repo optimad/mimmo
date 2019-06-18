@@ -1402,6 +1402,24 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	// Clear targets
 	m_pointGhostExchangeTargets.clear();
 
+	// Clear sources
+	m_pointGhostExchangeSources.clear();
+
+	// Clear shared
+	m_pointGhostExchangeShared.clear();
+
+	//Clear interior points structure
+	m_isPointInterior.clear();
+
+	//Fill interior points structure
+	//Initialize as interior all the local nodes
+	for (long id : getVertices().getIds()){
+		m_isPointInterior[id] = true;
+	}
+
+	//Start update structure if partitioned
+	if (getPatch()->isPartitioned()){
+
 	//Fill the nodes of the targets
 	for (const auto &entry : m_patch->getGhostExchangeTargets()) {
 		int ghostRank = entry.first;
@@ -1415,9 +1433,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		m_pointGhostExchangeTargets[ghostRank].assign(ghostVertices.begin(), ghostVertices.end());
 	}
 
-	// Clear sources
-	m_pointGhostExchangeSources.clear();
-
 	//Fill the nodes of the sources
 	for (const auto &entry : m_patch->getGhostExchangeSources()) {
 		int recvRank = entry.first;
@@ -1430,9 +1445,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 		m_pointGhostExchangeSources[recvRank].assign(localVertices.begin(), localVertices.end());
 	}
-
-	// Clear shared
-	m_pointGhostExchangeShared.clear();
 
 	//Note. All the processes will receive the data on the shared points from all the processes,
 	// but they will save the data received by the lowest process that shares those nodes.
@@ -1492,15 +1504,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	}
 
 
-	//Clear interior points structure
-	m_isPointInterior.clear();
-
-	//Fill interior points structure
-	//Initialize as interior all the local nodes
-	for (long id : getVertices().getIds()){
-		m_isPointInterior[id] = true;
-	}
-
 	//Correct target ghost points
 	for (auto &entry : m_pointGhostExchangeTargets) {
 		std::vector<long> &rankTargets = entry.second;
@@ -1520,6 +1523,9 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			}
 		}
 	}
+
+	}//end update if partitioned
+
 
 	//Update n interior vertices
 	m_ninteriorvertices = 0;
@@ -1557,6 +1563,12 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 	}
 
+
+	//Start update structure if partitioned
+	if (getPatch()->isPartitioned()){
+
+		std::cout << "#" << m_rank << "get patch is partitioned : " << getPatch()->isPartitioned() << std::endl;
+		std::cout << "#" << m_rank << "m_patch is partitioned : " << m_patch->isPartitioned() << std::endl;
 
 	//Perform twice the communication to guarantee the propagation
 	//TODO OPTIMIZE THIS ASPECT
@@ -1666,6 +1678,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			dataCommunicator->waitAllSends();
 		}
 	}
+
+	}//end update structure if partitioned
 
 	// Exchange info are now updated
 	m_pointGhostExchangeInfoSync = true;
