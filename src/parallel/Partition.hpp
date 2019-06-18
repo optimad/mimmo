@@ -96,6 +96,13 @@ private:
 	ivector1D			m_boundarypartition;	/**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
 
 	bool				m_tobuildandreset;
+
+    bool        		m_isInternal;         	/**< flag for internal instantiated main MimmoObject */
+    std::unique_ptr<MimmoObject> m_intgeo;    	/**< pointer to internal allocated geometry, if any */
+
+    bool        		m_isBoundaryInternal;         	/**< flag for internal instantiated boundary MimmoObject */
+    std::unique_ptr<MimmoObject> m_intboundarygeo;    	/**< pointer to internal allocated geometry, if any */
+
 public:
     Partition();
     Partition(const bitpit::Config::Section & rootXML);
@@ -107,6 +114,7 @@ public:
 
     MimmoObject* getGeometry();
     MimmoObject* getBoundaryGeometry();
+    void setGeometry(MimmoObject* geo);
     void setBoundaryGeometry(MimmoObject* geo);
     void setPartitionMethod(PartitionMethod mode);
     void setPartitionMethod(int mode);
@@ -127,7 +135,7 @@ private:
     void serialPartition();
     void updateBoundaryVerticesID();
 #if MIMMO_ENABLE_MPI
-    void serialize(MimmoObject* & geometry);
+    void serialize(MimmoObject* & geometry, bool isBoundary);
 #endif
 
 
