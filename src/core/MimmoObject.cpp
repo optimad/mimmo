@@ -1542,7 +1542,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	m_rankinteriorvertices.clear();
 	m_rankinteriorvertices.resize(m_nprocs);
 	m_rankinteriorvertices[m_rank] = m_ninteriorvertices;
-	MPI_Allgather(&m_rankinteriorvertices[m_rank], 1, MPI_LONG, m_rankinteriorvertices.data(), 1, MPI_LONG, m_communicator);
+	long rankinteriorvertices = m_rankinteriorvertices[m_rank];
+	MPI_Allgather(&rankinteriorvertices, 1, MPI_LONG, m_rankinteriorvertices.data(), 1, MPI_LONG, m_communicator);
 
 	//Update global offset
 	m_globaloffset = 0;
@@ -1566,9 +1567,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 
 	//Start update structure if partitioned
 	if (getPatch()->isPartitioned()){
-
-		std::cout << "#" << m_rank << "get patch is partitioned : " << getPatch()->isPartitioned() << std::endl;
-		std::cout << "#" << m_rank << "m_patch is partitioned : " << m_patch->isPartitioned() << std::endl;
 
 	//Perform twice the communication to guarantee the propagation
 	//TODO OPTIMIZE THIS ASPECT
