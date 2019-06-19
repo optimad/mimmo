@@ -449,7 +449,7 @@ Partition::computeBoundaryPartition()
 				m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
 				getBoundaryGeometry()->buildSkdTree();
 				bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
-				double tol = 1.0e-08;
+				double tol = 1.0e-12;
 				for (bitpit::Interface inter : getGeometry()->getInterfaces()){
 					if (inter.isBorder()){
 						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
