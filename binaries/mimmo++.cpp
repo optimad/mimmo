@@ -44,7 +44,7 @@ enum class Verbose{
 /*!
  * \struct InfoMimmoPP
  * \brief database of essential information absorbed from mimmo++ custom arguments
- * 
+ *
  * The class store from argv string of mimmo++ main the following information:
  *  - ditcname: (string) name of the target xml dictionary
  *  - vconsole: (enum VERBOSE) type of message verbosity returned by mimmo++ on console.
@@ -60,7 +60,7 @@ struct InfoMimmoPP{
     bool optres;                /**< boolean to activate writing of execution optional results */
     bool expert;                /**< boolean to override mandatory ports checking */
     std::string optres_path;    /**< path to store optional results */
-    
+
     /*! Base constructor*/
     InfoMimmoPP(){
         dictName    = "mimmo.xml";
@@ -72,12 +72,12 @@ struct InfoMimmoPP{
     }
     /*! Destructor */
     ~InfoMimmoPP(){};
-    
+
     /*! Copy constructor */
     InfoMimmoPP(const InfoMimmoPP & other){
         *this = other;
     }
-    
+
     /*!Assignement operator */
     InfoMimmoPP & operator=(const InfoMimmoPP & other){
         dictName = other.dictName;
@@ -101,13 +101,13 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
         std::cout<<"Please run mimmo++ --help for a brief guide on how to use it"<<std::endl;
         exit(1);
     }
-    
+
     std::unordered_set<std::string> input;
     for(int i=1; i<argc; ++i){
         std::string temp = argv[i];
         input.insert(bitpit::utils::string::trim(temp));
     }
-    
+
     if(input.count("--help")>0){
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
         std::cout<<""<<std::endl;
@@ -150,7 +150,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
         exit(1);
     }
-    
+
     std::unordered_map<int, std::string> keymap;
     keymap[0] = "dict=";
     keymap[1] = "vlog=";
@@ -158,97 +158,97 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     keymap[3] = "opt-res=";
     keymap[4] = "opt-res-path=";
     keymap[5] = "expert=";
-    
+
     std::map<int, std::string> final_map;
-    //visit input list and search for each key string  in key map. If an input string positively match a key, 
+    //visit input list and search for each key string  in key map. If an input string positively match a key,
     // clean the entry from key, give her the key map marker and store it in the final map.
-    
+
     for(auto val: input){
         std::size_t pos = std::string::npos;
         int counter=0;
         while (pos == std::string::npos && counter <6){
             pos = val.find(keymap[counter]);
             ++counter;
-        }  
-        
-        if(pos != std::string::npos) final_map[counter-1] =val.substr(pos+keymap[counter-1].size()); 
+        }
+
+        if(pos != std::string::npos) final_map[counter-1] =val.substr(pos+keymap[counter-1].size());
     }
-    
+
     if(final_map.count(0) < 1) {
         std::cout<<"Error. Not valid xml dictionary found launching mimmo++"<<std::endl;
         std::cout<<"Please run mimmo++ --help for a brief guide on how to use it"<<std::endl;
         exit(1);
     }
-    
-    
+
+
     //now assign arguments to InfoMimmoPP class
     InfoMimmoPP result;
     result.dictName = final_map[0];
     if(final_map.count(4)) result.optres_path = final_map[4];
     if(final_map.count(3)) result.optres = (final_map[3]=="yes");
     if(final_map.count(5)) result.expert = (final_map[5]=="yes");
-    
+
     if(final_map.count(1)){
         int check = -1 + int(final_map[1]=="quiet") + 2*int(final_map[1]=="normal") + 3*int(final_map[1]=="full");
         if(check == -1) check = 2;
         result.vlog = static_cast<Verbose>(check);
     }
-    
+
     if(final_map.count(2)){
         int check = -1 + int(final_map[2]=="quiet") + 2*int(final_map[2]=="normal") + 3*int(final_map[2]=="full");
         if(check == -1) check = 1;
         result.vconsole = static_cast<Verbose>(check);
     }
-    
+
     return result;
 }
 
 //=================================================================================== //
 /*!
  * read a mimmoXML dictionary, made as :
- * ##xml header string 
+ * ##xml header string
  * ##dictionary mimmoXML header with version
- * ## <B>Blocks</B> ...declaration of all executable objects <B>/Blocks</B> 
- * ## <B>Connections</B> ...declaration of all links between executable objects <B>/Connections</B> 
- * 
+ * ## <B>Blocks</B> ...declaration of all executable objects <B>/Blocks</B>
+ * ## <B>Connections</B> ...declaration of all links between executable objects <B>/Connections</B>
+ *
  * \param[out] mapInst map of all declared and instantiated blocks
  * \param[out] mapConn map of all blocks that need to be linked/connected
  * \param[in] rootFactory reference to internal register of mimmo API
  */
 void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory) {
-	
+
     auto m_log = &bitpit::log::cout("mimmo");
     m_log->setPriority(bitpit::log::NORMAL);
     (*m_log)<< "Currently reading XML dictionary"<<std::endl;
     m_log->setPriority(bitpit::log::DEBUG);
-    
-    
+
+
     if(config::root.hasSection("Blocks")){
         bitpit::Config::Section & blockXML = config::root.getSection("Blocks");
         for(auto & sect : blockXML.getSections()){
-            
+
             std::string fallback_name = "ClassNONE";
-            
+
             std::string className = sect.second->get("ClassName", fallback_name);
             className = bitpit::utils::string::trim(className);
             std::string idstring = sect.first;
             idstring = bitpit::utils::string::trim(idstring);
-            
-            
+
+
             if(rootFactory.containsCreator(className)){
                 std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
                 mapInst[idstring] = std::move(temp);
-        
+
                 (*m_log)<< "...Instantiated mimmo block: "<<sect.first<<" of type "<<className<<std::endl;
             }else {
                 (*m_log)<<"...Failed instantiation of "<<sect.first<<". mimmo block of type "<<className<<" not registered in the API"<<std::endl;
             }
         }
-        
+
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<" "<<std::endl;
         (*m_log)<<"Instantiated objects : "<<mapInst.size()<<std::endl;
-            
+
         for(auto & iM : mapInst){
             mapConn[iM.first] = iM.second.get();
             //need to find a way to define objects inside another object
@@ -261,11 +261,11 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<"No Blocks section available in the XML dictionary"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
-    }   
+    }
 
 	//absorb connections from file if any
 	IOConnections_MIMMO * conns = new IOConnections_MIMMO (mapConn);
-	
+
 	if(config::root.hasSection("Connections")){
 		bitpit::Config::Section & connXML = config::root.getSection("Connections");
 		conns->absorbConnections(connXML, false);
@@ -273,16 +273,16 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<"No Connections section available in the XML dictionary"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
-    }	
-	
-	delete conns; 
+    }
+
+	delete conns;
 	conns=NULL;
-    
+
     m_log->setPriority(bitpit::log::NORMAL);
     (*m_log)<< "Finished reading XML dictionary"<<std::endl;
     m_log->setPriority(bitpit::log::DEBUG);
-    
-		
+
+
 }
 
 // =================================================================================== //
@@ -306,7 +306,7 @@ void mimmocore(const InfoMimmoPP & info) {
             default: //never been reached
                 break;
         }
-        
+
         switch(int(info.vlog)){
             case 1 :
                 bitpit::log::setFileVerbosity((*m_log), bitpit::log::Verbosity::NORMAL);
@@ -319,20 +319,20 @@ void mimmocore(const InfoMimmoPP & info) {
                 break;
             default: //never been reached
                 break;
-                
+
         }
-        
+
         mimmo::setExpertMode(info.expert);
-        
+
         //print resume args info.
         m_log->setPriority(bitpit::log::NORMAL);
-        { 
+        {
             std::vector<std::string> verb(3, "quiet");
             verb[1] = "normal";
             verb[2] = "full";
             std::vector<std::string> yesno(2, "no");
             yesno[1] = "yes";
-            
+
             (*m_log)<< "Resume of arguments in mimmo++:"<<std::endl;
             (*m_log)<< "dictionary:         "<<info.dictName<<std::endl;
             (*m_log)<< "console verbosity:  "<<verb[static_cast<int>(info.vconsole)]<<std::endl;
@@ -344,36 +344,36 @@ void mimmocore(const InfoMimmoPP & info) {
             (*m_log)<< " "<<std::endl;
         }
         m_log->setPriority(bitpit::log::DEBUG);
-        
+
         //get into the mood.
 		bitpit::config::reset("mimmoXML", 1);
 		bitpit::config::read(info.dictName);
-		
+
 		std::unordered_map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
 		std::unordered_map<std::string, BaseManipulation * > mapConn;
 		std::unordered_map<std::string, BaseManipulation * > mapInstPtr;
-		
+
 		auto &factory = Factory<BaseManipulation>::instance();
 		read_Dictionary(mapInst, mapConn, factory);
-        
+
         m_log->setPriority(bitpit::log::NORMAL);
 		(*m_log)<<"Creating Execution chains... ";
-        
-        
+
+
 		//create map of chains vs priorities.
 		std::map<uint,mimmo::Chain> chainMap;
-		
+
 		for(auto &val : mapConn){
 			uint priority = val.second->getPriority();
 			chainMap[priority].addObject(val.second);
 		}
-		(*m_log)<<" DONE."<<std::endl;		
-        
+		(*m_log)<<" DONE."<<std::endl;
+
 		//Execute
         (*m_log)<<"Executing your workflow... "<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
-        
-		
+
+
 		for(auto &val : chainMap){
 			if (val.second.getNObjects() > 0){
                 m_log->setPriority(bitpit::log::NORMAL);
@@ -381,12 +381,12 @@ void mimmocore(const InfoMimmoPP & info) {
                 m_log->setPriority(bitpit::log::DEBUG);
                 val.second.setPlotDebugResults(info.optres);
                 val.second.setOutputDebugResults(info.optres_path);
-				val.second.exec(false);
+				val.second.exec(true);
 			}
 		}
-		
+
 		m_log->setPriority(bitpit::log::NORMAL);
-		(*m_log)<<"Workflow DONE."<<std::endl;		
+		(*m_log)<<"Workflow DONE."<<std::endl;
 		//Done, now exiting;
         m_log->setPriority(bitpit::log::DEBUG);
 }
@@ -394,10 +394,10 @@ void mimmocore(const InfoMimmoPP & info) {
 
 //main program
 int main( int argc, char *argv[] ) {
-    
+
     #if ENABLE_MPI==1
     MPI::Init(argc, argv);
-    
+
     {
         #endif
         try{
@@ -409,12 +409,12 @@ int main( int argc, char *argv[] ) {
             std::cout<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-        
+
         #if ENABLE_MPI==1
     }
-    
+
     MPI::Finalize();
     #endif
-    
+
     return 0;
 }
