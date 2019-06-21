@@ -53,9 +53,9 @@ void test00001() {
      */
     /* Create IO_CGNS object to import input file. */
     IOCGNS * mimmo0 = new IOCGNS();
-    mimmo0->setRead(true);
-    mimmo0->setReadDir("geodata");
-    mimmo0->setReadFilename("StaticMixer");
+    mimmo0->setMode(IOCGNS::IOCGNS_Mode::READ);
+    mimmo0->setDir("geodata");
+    mimmo0->setFilename("StaticMixer");
 
     MimmoGeometry * mimmo1 = new MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);

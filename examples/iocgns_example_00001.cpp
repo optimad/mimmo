@@ -52,15 +52,15 @@ void example00001() {
 
     /* Create IO_CGNS object to import input file. */
     IOCGNS * cgnsI = new IOCGNS();
-    cgnsI->setRead(true);
-    cgnsI->setReadDir("geodata");
-    cgnsI->setReadFilename("grid");
+    cgnsI->setMode(IOCGNS::IOCGNS_Mode::READ);
+    cgnsI->setDir("geodata");
+    cgnsI->setFilename("grid");
 
     /* Create IO_CGNS object to export output file. */
     IOCGNS * cgnsO = new IOCGNS();
-    cgnsO->setRead(false);
-    cgnsO->setWriteDir(".");
-    cgnsO->setWriteFilename("iocgns_output_00001");
+    cgnsO->setMode(IOCGNS::IOCGNS_Mode::WRITE);;
+    cgnsO->setDir(".");
+    cgnsO->setFilename("iocgns_output_00001");
 
 #if MIMMO_ENABLE_MPI
     /* Instantiation of a Partition object with default patition method space filling curve.
@@ -109,8 +109,8 @@ void example00001() {
     rotation->setDirection(darray3E{0.1,1.,0.});
     rotation->setRotation((M_PI/12));
 
-    /* Create reconstruct vector block and set to reconstruct rotation 
-     * displacement field over the whole Dirichlet surface geometry 
+    /* Create reconstruct vector block and set to reconstruct rotation
+     * displacement field over the whole Dirichlet surface geometry
      */
     ReconstructVector* recon = new ReconstructVector();
     recon->setPlotInExecution(true);
@@ -163,7 +163,7 @@ void example00001() {
     addPin(boxSel, rotation, M_GEOM, M_GEOM);
     addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
     addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM);
-    
+
 #if MIMMO_ENABLE_MPI
     addPin(partition, prop, M_GEOM, M_GEOM);
 #else
@@ -174,7 +174,7 @@ void example00001() {
     addPin(boxSel, prop, M_GEOM, M_GEOM3);
 
     addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
-    
+
     addPin(prop, applier, M_GDISPLS, M_GDISPLS);
 #if MIMMO_ENABLE_MPI
     addPin(partition, applier, M_GEOM, M_GEOM);

@@ -39,6 +39,7 @@ namespace mimmo{
  * It homogeneously triangulates the patch if required.
  * Please notice if the extracted sub-patch is forced to be triangulated,
  * no link with the mother boundary surface mesh could be guaranteed anymore.
+ * If no passed PID are found, return an empty patch as extraction result.
  *
  * Ports available in CGNSPidExtractor Class :
  *

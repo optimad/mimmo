@@ -184,58 +184,51 @@ CGNSPidExtractor::setGeometry(MimmoObject * geo){
 void
 CGNSPidExtractor::execute(){
 
-    if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    MimmoObject * mother = getGeometry();
+
+    if(!mother){
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
         return;
     }
 
-    if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
+    if(mother->isEmpty() ){
+#if MIMMO_ENABLE_MPI
+        (*m_log)<<"WARNING "<<m_name << " on rank "<<m_rank<<" : empty linked geometry found"<<std::endl;
+#else
+        (*m_log)<<"WARNING "<<m_name<<" : empty linked geometry found"<<std::endl;
+#endif
     }
 
-
     livector1D extracted;
-    std::vector<long> extractedpids;
 
     for(const auto & val: m_targetpid){
         livector1D temp= getGeometry()->extractPIDCells(val);
         extracted.insert(extracted.end(), temp.begin(), temp.end());
-        extractedpids.resize(extractedpids.size()+temp.size(), val);
     }
     std::unique_ptr<MimmoObject> patchTemp(new MimmoObject(1));
 
+    livector1D vertExtracted = mother->getVertexFromCellList(extracted);
 
-    MimmoObject * mother = getGeometry();
+    darray3E temp;
+    for(const auto & val: vertExtracted){
+        temp = mother->getVertexCoords(val);
+        patchTemp->addVertex(temp, val);
+    }
 
-    if(extracted.empty()){
-        patchTemp = mother->clone();
-    }else{
+    int count = 0;
+    for(const auto &val: extracted){
 
-        livector1D vertExtracted = mother->getVertexFromCellList(extracted);
-        darray3E temp;
-        for(const auto & val: vertExtracted){
-            temp = mother->getVertexCoords(val);
-            patchTemp->addVertex(temp, val);
-        }
+        livector1D conn = mother->getCellConnectivity(val);
+        bitpit::ElementType eletype = mother->getPatch()->getCell(val).getType();
+        long PID = mother->getPatch()->getCell(val).getType();
+        patchTemp->addConnectedCell(conn, eletype, PID, val);
+        count++;
+    }
 
-        int count = 0;
-        for(const auto &val: extracted){
-
-            livector1D conn = mother->getCellConnectivity(val);
-            bitpit::ElementType eletype = mother->getPatch()->getCell(val).getType();
-            patchTemp->addConnectedCell(conn, eletype, extractedpids[count], val);
-            count++;
-        }
-
-        auto originalmap = mother->getPIDTypeListWNames();
-        auto currentPIDmap = patchTemp->getPIDTypeList();
-        for(const auto & val: currentPIDmap){
-            patchTemp->setPIDName(val, originalmap[val]);
-        }
-
+    auto originalmap = mother->getPIDTypeListWNames();
+    auto currentPIDmap = patchTemp->getPIDTypeList();
+    for(const auto & val: currentPIDmap){
+        patchTemp->setPIDName(val, originalmap[val]);
     }
 
     //check if patch is forced to be triangulated in case of polygons (nVertices > 4) more
@@ -315,10 +308,12 @@ CGNSPidExtractor::execute(){
  * as standard vtk unstructured grid.
  */
 void CGNSPidExtractor::plotOptionalResults(){
-    if(getPatch() == NULL)    return;
-    if(getPatch()->isEmpty()) return;
+    if(!getPatch())    return;
+    std::string dir = m_outputPlot+"/";
     std::string name = m_name + "_" + std::to_string(getId()) +  "_Patch";
-    getPatch()->getPatch()->write(name);
+    getPatch()->getPatch()->getVTK().setDirectory(dir);
+    getPatch()->getPatch()->getVTK().setName(name);
+    getPatch()->getPatch()->write();
 }
 
 /*!
