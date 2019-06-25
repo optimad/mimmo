@@ -82,6 +82,7 @@ protected:
     darray3E	m_span;         /**< coordinate span of your current shape, in its local reference system*/
     darray3E    m_infLimits;    /**< inferior limits of coordinate of your current shape */
     dmatrix33E	m_sdr;          /**< axis position of the local reference system w.r.t absolute one*/
+    dmatrix33E	m_sdr_inverse;  /**< inverse rotating sdr */
     darray3E 	m_scaling;      /**< scaling vector of dimensional coordinates */
 
     std::array<CoordType,3>     m_typeCoord;    /**< identifiers for coordinate type definition.DEFAULT is clamped*/
@@ -172,6 +173,7 @@ protected:
     darray3E    checkNearestPointToAABBox(const darray3E &point, const darray3E &bMin, const darray3E &bMax);
     void swap(BasicShape & ) noexcept;
     static dmatrix33E transpose(const dmatrix33E & mat);
+    static dmatrix33E inverse(const dmatrix33E & mat);
     static darray3E   matmul(const darray3E & vec, const dmatrix33E & mat);
     static darray3E   matmul(const dmatrix33E & mat,const darray3E & vec);
 

@@ -42,8 +42,10 @@ BasicShape::BasicShape(){
 	m_infLimits.fill(0.0);
 	for(int i=0; i<3; ++i){
 		m_sdr[i].fill(0.0);
+        m_sdr_inverse[i].fill(0.0);
 	}
 	m_sdr[0][0] = m_sdr[1][1] = m_sdr[2][2] = 1.0;
+    m_sdr_inverse[0][0] = m_sdr_inverse[1][1] = m_sdr_inverse[2][2] = 1.0;
 	m_typeCoord.fill(CoordType::CLAMPED);
 	m_scaling.fill(1.0);
 };
@@ -64,6 +66,7 @@ void BasicShape::swap(BasicShape & x) noexcept
     std::swap(m_span, x.m_span);
     std::swap(m_infLimits, x.m_infLimits);
     std::swap(m_sdr, x.m_sdr);
+    std::swap(m_sdr_inverse, x.m_sdr_inverse);
     std::swap(m_scaling, x.m_scaling);
     std::swap(m_typeCoord, x.m_typeCoord);
 }
@@ -155,9 +158,10 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
     axis1 /= b;
     axis2 /= c;
 
-    double tol = 1.0e-12;
-    check = std::abs(dotProduct(axis0,axis1)) + std::abs(dotProduct(axis1,axis2)) + std::abs(dotProduct(axis0,axis2));
-    if(check > tol) {
+    double tol = 1.0e-3, val;
+    val = std::abs(dotProduct(axis0,axis1)) + std::abs(dotProduct(axis1,axis2)) + std::abs(dotProduct(axis0,axis2));
+
+    if(val > tol) {
         assert(false && "not orthogonal axes passed as arguments in BasicShape::SetRefSystem method");
         return;
     }
@@ -165,6 +169,8 @@ void BasicShape::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
     m_sdr[0] = axis0;
     m_sdr[1] = axis1;
     m_sdr[2] = axis2;
+
+    m_sdr_inverse = inverse(m_sdr);
 }
 
 /*!
@@ -198,6 +204,8 @@ void BasicShape::setRefSystem(int label, darray3E axis){
 
     m_sdr[fin_label] = crossProduct(m_sdr[label],m_sdr[next_label]);
     m_sdr[fin_label] = m_sdr[fin_label]/norm2(m_sdr[fin_label]);
+
+    m_sdr_inverse = inverse(m_sdr);
 }
 
 /*!
@@ -754,6 +762,33 @@ dmatrix33E BasicShape::transpose(const dmatrix33E & mat){
 }
 
 /*!
+    Invert a 3x3 double matrix
+    \param[in] mat input matrix
+    \return new transposed matrix
+
+*/
+dmatrix33E BasicShape::inverse(const dmatrix33E & mat){
+    dmatrix33E out;
+
+    double det = mat[0][0] * (mat[1][1]*mat[2][2] - mat[2][1]*mat[1][2]) -
+                 mat[0][1] * (mat[1][0]*mat[2][2] - mat[2][0]*mat[1][2]) +
+                 mat[0][2] * (mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1]);
+
+    out[0][0] = (mat[1][1]*mat[2][2] - mat[2][1]*mat[1][2])/det;
+    out[0][1] = (mat[0][2]*mat[2][1] - mat[2][2]*mat[0][1])/det;
+    out[0][2] = (mat[0][1]*mat[1][2] - mat[1][1]*mat[0][2])/det;
+    out[1][0] = (mat[1][2]*mat[2][0] - mat[2][2]*mat[1][0])/det;
+    out[1][1] = (mat[0][0]*mat[2][2] - mat[2][0]*mat[0][2])/det;
+    out[1][2] = (mat[0][2]*mat[1][0] - mat[1][2]*mat[0][0])/det;
+    out[2][0] = (mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1])/det;
+    out[2][1] = (mat[0][1]*mat[2][0] - mat[2][1]*mat[0][0])/det;
+    out[2][2] = (mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1])/det;
+
+    return out;
+}
+
+
+/*!
   Matrix M-vector V multiplication V*M (V row dot M columns).
   \param[in] vec vector V with 3 elements
   \param[in] mat matrix M 3x3 square
@@ -844,7 +879,9 @@ darray3E	Cube::toWorldCoord(const darray3E &point){
 	// -> cube, doing nothing
 
 	//unapply change to local sdr transformation
-	work2 = matmul(work, m_sdr);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr_inverse[i]);
+    }
 
 	//unapply origin translation
     return(work2 + m_origin);
@@ -864,7 +901,9 @@ darray3E	Cube::toLocalCoord(const darray3E &point){
 	work = point - m_origin;
 
 	//apply change to local sdr transformation
-	work2 = matmul(m_sdr, work);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr[i]);
+    }
 
 	//get to proper local system
 	// -> cube, doing nothing
@@ -1070,7 +1109,9 @@ darray3E	Cylinder::toWorldCoord(const darray3E &point){
 	work2[2] = work[2];
 
 	//unapply change to local sdr transformation
-	work = matmul(work2, m_sdr);
+    for(int i=0; i<3; ++i){
+        work[i] = dotProduct(work2, m_sdr_inverse[i]);
+    }
 
 	//unapply origin translation
     return(work + m_origin);
@@ -1089,7 +1130,9 @@ darray3E	Cylinder::toLocalCoord(const darray3E &point){
 	work = point - m_origin;
 
 	//apply change to local sdr transformation
-	work2 = matmul(m_sdr, work);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr[i]);
+    }
 
 	//get to proper local system
 	if(work2[0] ==0.0 && work2[1] ==0.0){work[0] = 0.0; work[1] = 0.0;}
@@ -1330,7 +1373,9 @@ darray3E	Sphere::toWorldCoord(const darray3E &point){
     work2[2] = (work[0]+m_infLimits[0])*std::cos(work[2] + m_infLimits[2]);
 
 	//unapply change to local sdr transformation
-	work = matmul(work2, m_sdr);
+    for(int i=0; i<3; ++i){
+        work[i] = dotProduct(work2, m_sdr_inverse[i]);
+    }
 
 	//unapply origin translation
 	work2 = work + m_origin;
@@ -1350,7 +1395,9 @@ darray3E	Sphere::toLocalCoord(const darray3E &point){
 	work = point - m_origin;
 
 	//apply change to local sdr transformation
-	work2 = matmul( m_sdr, work);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr[i]);
+    }
 
 	//get to proper local system
 	work[0] = norm2(work2);
@@ -1613,7 +1660,9 @@ darray3E    Wedge::toWorldCoord(const darray3E &point){
     // -> wedge, doing nothing
 
     //unapply change to local sdr transformation
-    work2 = matmul(work, m_sdr);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr_inverse[i]);
+    }
 
     //unapply origin translation
     return(work2 + m_origin);
@@ -1633,7 +1682,9 @@ darray3E    Wedge::toLocalCoord(const darray3E &point){
     work = point - m_origin;
 
     //apply change to local sdr transformation
-    work2 = matmul(m_sdr, work);
+    for(int i=0; i<3; ++i){
+        work2[i] = dotProduct(work, m_sdr[i]);
+    }
 
     //get to proper local system
     // -> wedge, doing nothing
