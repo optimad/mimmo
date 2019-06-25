@@ -44,6 +44,7 @@ OBBox::OBBox(){
         ++counter;
     }
     m_forceAABB = false;
+    m_writeInfo = false;
 };
 
 /*!
@@ -62,6 +63,7 @@ OBBox::OBBox(const bitpit::Config::Section & rootXML){
         ++counter;
     }
     m_forceAABB = false;
+    m_writeInfo = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -85,6 +87,7 @@ OBBox::OBBox(const OBBox & other):BaseManipulation(other){
     m_axes = other.m_axes;
     m_listgeo = other.m_listgeo;
     m_forceAABB = other.m_forceAABB;
+    m_writeInfo = other.m_writeInfo;
 };
 
 /*!
@@ -98,6 +101,8 @@ void OBBox::swap(OBBox & x) noexcept
     std::swap(m_axes, x.m_axes);
     std::swap(m_listgeo, x.m_listgeo);
     std::swap(m_forceAABB, x.m_forceAABB);
+    std::swap(m_writeInfo, x.m_writeInfo);
+
     BaseManipulation::swap(x);
 }
 /*! It builds the input/output ports of the object
@@ -129,6 +134,7 @@ OBBox::clearOBBox(){
         ++counter;
     }
     m_forceAABB = false;
+    m_writeInfo = false;
 };
 
 /*!
@@ -156,6 +162,7 @@ OBBox::getSpan(){
  */
 dmatrix33E
 OBBox::getAxes(){
+
     return(m_axes);
 }
 
@@ -226,6 +233,15 @@ OBBox::setForceAABB(bool flag){
     m_forceAABB = flag;
 }
 
+/*!
+ * Force class to write OBB calculated origin, axes and span to file(in the plotOptionalResults directory)
+ * \param[in] flag true, write the OBB info on file.
+ */
+void
+OBBox::setWriteInfo(bool flag){
+    m_writeInfo = flag;
+}
+
 /*! Plot the OBB as a structured grid to *vtu file.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
@@ -250,12 +266,10 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
     activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
 
     darray3E temp;
-    dmatrix33E    trasp = transpose(m_axes);
+    dmatrix33E    inv = inverse(m_axes);
     for(auto &val : activeP){
-
-
         for(int i=0; i<3; ++i){
-            temp[i] = dotProduct(val, trasp[i]);
+            temp[i] = dotProduct(val, inv[i]);
         }
         val = temp + m_origin;
     }
@@ -340,7 +354,7 @@ OBBox::execute(){
         }
     }
 
-    dmatrix33E trasp = transpose(m_axes);
+    dmatrix33E inv = inverse(m_axes);
     m_span = pmax - pmin;
     //check if one of the span goes to 0;
     double avg_span = 0.0;
@@ -353,7 +367,28 @@ OBBox::execute(){
 
     darray3E originLoc = 0.5*(pmin+pmax);
     for(int i=0; i<3; ++i){
-        m_origin[i] = dotProduct(originLoc, trasp[i]);
+        m_origin[i] = dotProduct(originLoc, inv[i]);
+    }
+
+
+    if (m_writeInfo){
+
+        std::ofstream out;
+        out.open(m_outputPlot+"/"+m_name+std::to_string(getId())+"_INFO.dat");
+        if(out.is_open()){
+            out<<"OBBox "<<std::to_string(getId())<<" info:"<<std::endl;
+            out<<std::endl;
+            out<<std::endl;
+            out<<"Origin: "<<std::scientific<<m_origin<<std::endl;
+            out<<std::endl;
+            out<<"Axis 0: "<<std::scientific<<m_axes[0]<<std::endl;
+            out<<"Axis 1: "<<std::scientific<<m_axes[1]<<std::endl;
+            out<<"Axis 2: "<<std::scientific<<m_axes[2]<<std::endl;
+            out<<std::endl;
+            out<<"Span:   "<<std::scientific<<m_span<<std::endl;
+
+            out.close();
+        }
     }
 };
 
@@ -389,6 +424,17 @@ OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
         }
         setForceAABB(value);
     }
+    if(slotXML.hasOption("WriteInfo")){
+        std::string input = slotXML.get("WriteInfo");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setWriteInfo(value);
+    }
+
 }
 
 /*!
@@ -403,6 +449,7 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     BaseManipulation::flushSectionXML(slotXML, name);
 
     slotXML.set("ForceAABB", std::to_string((int)m_forceAABB));
+    slotXML.set("WriteInfo", std::to_string((int)m_writeInfo));
 
 };
 
@@ -616,6 +663,10 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 
     // 3 real distinct eigenval
     if(diff[0]>tol && diff[1]>tol && diff[2]>tol){
+        //you need a real reference triad here. Check it out
+        if(dotProduct(eigVec[2], crossProduct(eigVec[0], eigVec[1])) < 0.0){
+            eigVec[2] *= -1.0;
+        };
         return;
     };
 
@@ -632,6 +683,11 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
     if(normv > std::numeric_limits<double>::min()){
         eigVec[third] /= normv;
     }
+
+    //you need a real reference triad here. Check it out
+    if(dotProduct(eigVec[2], crossProduct(eigVec[0], eigVec[1])) < 0.0){
+        eigVec[2] *= -1.0;
+    };
 
 };
 
@@ -651,6 +707,33 @@ dmatrix33E OBBox::transpose(const dmatrix33E & mat){
     }
     return out;
 }
+
+/*!
+    invert a 3x3 double matrix
+    \param[in] target matrix
+    \return new matrix transposed
+*/
+dmatrix33E OBBox::inverse(const dmatrix33E & mat){
+    dmatrix33E out;
+
+    double det = mat[0][0] * (mat[1][1]*mat[2][2] - mat[2][1]*mat[1][2]) -
+                 mat[0][1] * (mat[1][0]*mat[2][2] - mat[2][0]*mat[1][2]) +
+                 mat[0][2] * (mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1]);
+
+    out[0][0] = (mat[1][1]*mat[2][2] - mat[2][1]*mat[1][2])/det;
+    out[0][1] = (mat[0][2]*mat[2][1] - mat[2][2]*mat[0][1])/det;
+    out[0][2] = (mat[0][1]*mat[1][2] - mat[1][1]*mat[0][2])/det;
+    out[1][0] = (mat[1][2]*mat[2][0] - mat[2][2]*mat[1][0])/det;
+    out[1][1] = (mat[0][0]*mat[2][2] - mat[2][0]*mat[0][2])/det;
+    out[1][2] = (mat[0][2]*mat[1][0] - mat[1][2]*mat[0][0])/det;
+    out[2][0] = (mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1])/det;
+    out[2][1] = (mat[0][1]*mat[2][0] - mat[2][1]*mat[0][0])/det;
+    out[2][2] = (mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1])/det;
+
+
+    return out;
+}
+
 
 /*!
     Get first 3, non-aligned representative point ids of a 2D cell of a certain geometry.

@@ -66,6 +66,7 @@ namespace mimmo{
  *
  * Proper of the class:
  * - <B>ForceAABB</B>: if true calculate the simple AABB of the union of target geometries linked
+ * - <B>WriteInfo</B>: 1- write info of OBB on file, in plotOptionalResults directory, 0- do nothing.
  * Geometries have to be mandatorily added/passed through ports.
  *
  */
@@ -78,6 +79,8 @@ protected:
 
     std::unordered_map<MimmoObject*, int> m_listgeo; /**< list of geometries linked in input, according to type */
     bool m_forceAABB; /**< force class to evaluate a simple AABB, not oriented */
+    bool m_writeInfo; /**< write OBB info on file */
+
 public:
     OBBox();
     OBBox(const bitpit::Config::Section & rootXML);
@@ -101,6 +104,8 @@ public:
     void        setGeometry(MimmoObject* geo);
     void        setGeometries(std::vector<MimmoObject*> listgeo);
     void        setForceAABB(bool flag);
+    void        setWriteInfo(bool flag);
+
     //plotting wrappers
     void        plot(std::string directory, std::string filename, int counter, bool binary);
 
@@ -115,6 +120,7 @@ protected:
     virtual void plotOptionalResults();
     void swap(OBBox & x) noexcept;
     dmatrix33E transpose(const dmatrix33E & mat);
+    dmatrix33E inverse (const dmatrix33E & mat);
 
 private:
     dmatrix33E      evaluatePointsCovarianceMatrix(std::vector<MimmoObject *> list);
