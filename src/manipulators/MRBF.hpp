@@ -185,10 +185,10 @@ protected:
 
 };
 
-double	heaviside10( const double &dist );
-double	heaviside50( const double &dist );
-double	heaviside100( const double &dist );
-double	heaviside1000( const double &dist );
+double	heaviside10( double dist );
+double	heaviside50( double dist );
+double	heaviside100( double dist );
+double	heaviside1000( double dist );
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)

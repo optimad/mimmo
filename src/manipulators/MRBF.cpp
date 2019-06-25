@@ -870,7 +870,7 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
  * @return rbf value
  */
 double
-heaviside10( const double &dist )
+heaviside10( double dist )
 {
 	return 1./(1.+std::exp(-10.*(1.-dist)));
 }
@@ -881,7 +881,7 @@ heaviside10( const double &dist )
  * @return rbf value
  */
 double
-heaviside50( const double &dist )
+heaviside50( double dist )
 {
 	return 1./(1.+std::exp(-50.*(1.-dist)));
 }
@@ -892,7 +892,7 @@ heaviside50( const double &dist )
  * @return rbf value
  */
 double
-heaviside100( const double &dist )
+heaviside100( double dist )
 {
 	return 1./(1.+std::exp(-100.*(1.-dist)));
 }
@@ -903,7 +903,7 @@ heaviside100( const double &dist )
  * @return rbf value
  */
 double
-heaviside1000( const double &dist )
+heaviside1000( double dist )
 {
 	return 1./(1.+std::exp(-1000.*(1.-dist)));
 }
