@@ -49,13 +49,13 @@ BaseManipulation::BaseManipulation(){
     sm_baseManipulationCounter++;
 
 #if MIMMO_ENABLE_MPI
-    //Fixed MPI comm world
-	MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
-
 	int initialized;
 	MPI_Initialized(&initialized);
 	if (!initialized)
 	   MPI_Init(NULL, NULL);
+
+    //Fixed MPI comm world
+	MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &m_nprocs);
