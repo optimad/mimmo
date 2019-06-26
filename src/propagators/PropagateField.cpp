@@ -136,7 +136,7 @@ PropagateScalarField::getPropagatedField(){
  */
 void
 PropagateScalarField::setDirichletConditions(dmpvector1D bc){
-	if (bc.isEmpty()) return;
+//	if (bc.isEmpty()) return;
 	m_surface_bc_dir.reserve(bc.size());
 	m_surface_bc_dir.setDataLocation(bc.getDataLocation());
 	m_surface_bc_dir.setGeometry(bc.getGeometry());
@@ -503,7 +503,7 @@ PropagateVectorField::getPropagatedField(){
 void
 PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
 	if (!surface)       return;
-	if (surface->isEmpty())    return;
+//	if (surface->isEmpty())    return;
 	if (surface->getType()!= 1 ) return;
 	m_slipsurface = surface;
 }
@@ -515,7 +515,7 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
  */
 void
 PropagateVectorField::setDirichletConditions(dmpvecarr3E bc){
-	if (bc.isEmpty()) return;
+//	if (bc.isEmpty()) return;
 	m_surface_bc_dir = bc;
 }
 
@@ -671,7 +671,7 @@ void
 PropagateVectorField::apply(){
 	MimmoObject * target = getGeometry();
 	if (!target) return;
-	if (target->isEmpty() || m_field.isEmpty()) return;
+//	if (target->isEmpty() || m_field.isEmpty()) return;
 
 	bitpit::PiercedVector<bitpit::Vertex> & verts = target->getVertices();
 
