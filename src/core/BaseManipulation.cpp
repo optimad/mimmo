@@ -50,7 +50,7 @@ BaseManipulation::BaseManipulation(){
 
 #if MIMMO_ENABLE_MPI
     //Fixed MPI comm world
-	m_communicator = MPI_COMM_WORLD;
+	MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
 
 	int initialized;
 	MPI_Initialized(&initialized);
@@ -104,7 +104,7 @@ BaseManipulation::BaseManipulation(const BaseManipulation & other){
 #if MIMMO_ENABLE_MPI
 	m_rank = other.m_rank;
 	m_nprocs = other.m_nprocs;
-	m_communicator = other.m_communicator;
+	MPI_Comm_dup(other.m_communicator, &m_communicator);
 #endif
 };
 
@@ -126,7 +126,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
     m_priority      = other.m_priority;
     m_apply         = other.m_apply;
 #if MIMMO_ENABLE_MPI
-	m_communicator	= other.m_communicator;
+	MPI_Comm_dup(other.m_communicator, &m_communicator);
 	m_rank			= other.m_rank;
 	m_nprocs		= other.m_nprocs;
 #endif

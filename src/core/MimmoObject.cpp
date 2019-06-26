@@ -622,7 +622,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 #if MIMMO_ENABLE_MPI
 	m_rank = other.m_rank;
 	m_nprocs = other.m_nprocs;
-	m_communicator = other.m_communicator;
+	MPI_Comm_dup(other.m_communicator, &m_communicator);
 	m_nglobalvertices = other.m_nglobalvertices;
 	m_pointGhostExchangeInfoSync = false;
 #endif
@@ -688,19 +688,19 @@ MimmoObject::initializeParallel(){
 	//Recover or fix communicator
 	if (m_internalPatch){
 		if (m_patch->isCommunicatorSet()){
-			m_communicator = m_patch->getCommunicator();
+			 MPI_Comm_dup(m_patch->getCommunicator(), &m_communicator);
 		}
 		else{
-			m_communicator = MPI_COMM_WORLD;
+			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
 			m_patch->setCommunicator(m_communicator);
 		}
 	}
 	else{
 		if (m_extpatch->isCommunicatorSet()){
-			m_communicator = m_extpatch->getCommunicator();
+			MPI_Comm_dup(m_extpatch->getCommunicator(), &m_communicator);
 		}
 		else{
-			m_communicator = MPI_COMM_WORLD;
+			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
 			m_extpatch->setCommunicator(m_communicator);
 		}
 	}
