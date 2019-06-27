@@ -82,6 +82,9 @@ enum class PropagatorMethod: long {
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
  * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
  * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
+ * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
+ * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)
+ * - <B>Print</B> : print solver debug information, Active only in if MIMMO_ENABLE_MPI is enabled in compilation.
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -247,6 +250,9 @@ protected:
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
  * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
+ * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
+ * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)
+ * - <B>Print</B> : print solver debug information, Active only in if MIMMO_ENABLE_MPI is enabled in compilation.
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : get field solution in a finite number of substeps;
@@ -351,6 +357,9 @@ private:
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
  * - <B>Tolerance</B> : convergence tolerance for laplacian  direct solver;
  * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
+ * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
+ * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)
+ * - <B>Print</B> : print solver debug information, Active only in if MIMMO_ENABLE_MPI is enabled in compilation.
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;

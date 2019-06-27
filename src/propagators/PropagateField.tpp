@@ -281,7 +281,14 @@ void PropagateField<NCOMP>::setMethod(PropagatorMethod method){
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setPrint(bool print){
-	m_print = print;
+    bool check = false;
+#if MIMMO_ENABLE_MPI
+    check = print;
+#else
+    BITPIT_UNUSED(print);
+#endif
+    m_print = check;
+
 }
 
 /*!
@@ -384,16 +391,39 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
 
 	if(slotXML.hasOption("Method")){
 		std::string input  = slotXML.get("Method");
-			int value =0;
-			if(!input.empty()){
-				std::stringstream ss(bitpit::utils::string::trim(input));
-				ss>>value;
-			}
-			value = std::max(0, value);
-			value = std::min(1, value);
-			PropagatorMethod method = static_cast<PropagatorMethod>(value);
-			setMethod(method);
-		};
+		int value =0;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::string::trim(input));
+			ss>>value;
+		}
+		value = std::max(0, value);
+		value = std::min(1, value);
+		PropagatorMethod method = static_cast<PropagatorMethod>(value);
+		setMethod(method);
+	};
+
+    if(slotXML.hasOption("ForceDirichlet")){
+        std::string input = slotXML.get("ForceDirichlet");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setForceDirichletConditions(value);
+    }
+
+    if(slotXML.hasOption("Print")){
+        std::string input = slotXML.get("Print");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setPrint(value);
+    }
+
 };
 
 /*!
@@ -418,7 +448,8 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 	}
 	slotXML.set("DecayFactor",std::to_string(m_decayFactor));
 	slotXML.set("Method",std::to_string(static_cast<long>(m_method)));
-
+    slotXML.set("ForceDirichlet",std::to_string(int(m_forceDirichletConditions)));
+    slotXML.set("Print",std::to_string(int(m_print)));
 };
 
 /*!

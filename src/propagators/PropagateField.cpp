@@ -225,7 +225,7 @@ PropagateScalarField::plotOptionalResults(){
 	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
 	vtk.setCounter(getId());
-	getGeometry()->getPatch()->write(m_name +"_field");
+	getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name +"_field");
 	vtk.removeData("field");
 	vtk.removeData("dumping");
 	vtk.unsetCounter();
@@ -311,7 +311,7 @@ PropagateScalarField::execute(){
 			dvector1D rhs(geo->getPatch()->getInternalCount(), 0.0);
 			assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), ccellGradients.get(), dataInv, rhs);
 			solveLaplace(rhs, result[0]);
-			//        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
+			(*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
 		}
 
 		dataInv.clear();
@@ -367,7 +367,7 @@ PropagateScalarField::execute(){
 			//USELESS FOR EACH STEP?...
 			assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), dataInv, rhs);
 			solveLaplace(rhs, result[0]);
-			//(*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
+			(*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
 		}
 
 		dataInv.clear();
@@ -657,7 +657,7 @@ PropagateVectorField::plotOptionalResults(){
 	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
 	vtk.setCounter(getId());
-	getGeometry()->getPatch()->write(m_name +"_field");
+	getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name +"_field");
 	vtk.removeData("field");
 	vtk.removeData("dumping");
 	vtk.unsetCounter();
@@ -1271,7 +1271,7 @@ PropagateVectorField::execute(){
 				updateLaplaceStencils = nullptr;
 
 			}
-		//        (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
+		    (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
 	} //end of multistep loop;
 
 	}
@@ -1286,13 +1286,19 @@ PropagateVectorField::execute(){
 		dataInv = geo->getMapDataInv(true);
 		data = geo->getMapData(true);
 
+        std::cout<<"Preparing boundaries"<<std::endl;
+
 		// compute the laplacian stencils
 		GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_dumping);
+
+        std::cout<<"Evaluate stencils"<<std::endl;
 
 		// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
 		initializeLaplaceSolver(laplaceStencils.get(), dataInv);
 		laplaceStencils->squeezeOutExcept(borderPointsID);
 		borderPointsID.clear();
+
+        std::cout<<"Initialize solver"<<std::endl;
 
 		//declare results here and keep it during the loop to re-use the older steps.
 		std::vector<std::vector<double>> results(3);
@@ -1312,9 +1318,11 @@ PropagateVectorField::execute(){
 				//prepare the right hand side ;
 				dvector1D rhs(geo->getNInternalVertices(), 0.0);
 				assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), dataInv, rhs);
+
 				//solve
 				results[comp].resize(rhs.size(), 0.0);
 				solveLaplace(rhs, results[comp]);
+
 			}
 
 			//if I have a slip wall active, it needs a corrector stage for slip boundaries;
@@ -1348,8 +1356,6 @@ PropagateVectorField::execute(){
 				apply();
 			}
 
-			getGeometry()->getPatch()->write("deforming."+std::to_string(istep));
-
 			// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
 			if(istep < m_nstep-1){
 
@@ -1371,14 +1377,14 @@ PropagateVectorField::execute(){
 
 			}
 
-			//        (*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
+			(*m_log)<<m_name<<" solved step "<<istep<<" out of total steps "<<m_nstep<<std::endl;
 
 		} //end of multistep loop;
 
 
 	} //end if on method
 
-	
+
 	if(m_nstep > 1){
 		//this take the geometry to the original state and update the deformation field as the current
 		//deformed grid minus the undeformed state (this directly on POINTS).
