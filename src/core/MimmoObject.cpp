@@ -1883,6 +1883,25 @@ bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
     return (!m_pointGhostExchangeInfoSync);
 }
 
+/*!
+ * Set the patch partitioned. It performs a fake partitioning by leaving the partition unaltered.
+ */
+void
+MimmoObject::setPartitioned()
+{
+	if (getPatch() == nullptr)
+		return;
+
+	std::unordered_map<long,int> partition;
+	for (bitpit::Cell & cell : getCells()){
+		if (cell.isInterior()){
+			partition[cell.getId()] = getRank();
+		}
+	}
+
+	getPatch()->partition(partition,false,true);
+
+}
 
 #endif
 

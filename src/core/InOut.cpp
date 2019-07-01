@@ -951,6 +951,43 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::unordered_
     return buffer;
 }
 
+/*!
+    Output stream operator for std::unordered_map<long,int>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::unordered_map<long, int>& element)
+{
+    buffer << (std::size_t)element.size();
+    for (auto val : element){
+        buffer<<val.first;
+        buffer<<val.second;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::unordered_map<long,int>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::unordered_map<long, int> &element)
+{
+    element.clear();
+    std::size_t nids;
+    buffer >> nids;
+    for (int i = 0; i < nids; ++i){
+    	long key;
+    	short val;
+        buffer >> key;
+        buffer >> val;
+        element[key] = val;
+    }
+    return buffer;
+}
+
 
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//

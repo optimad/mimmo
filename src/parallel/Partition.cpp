@@ -91,7 +91,7 @@ Partition::buildPorts(){
 
 	bool built = true;
 
-	built = (built && createPortIn<ivector1D, Partition>(this, &mimmo::Partition::setPartition, M_VECTORSI));
+	built = (built && createPortIn<std::unordered_map<long, int>, Partition>(this, &mimmo::Partition::setPartition, M_UMAPSI));
 	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setGeometry, M_GEOM, true));
 	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setBoundaryGeometry, M_GEOM2));
 
@@ -147,7 +147,7 @@ Partition::setBoundaryGeometry(MimmoObject* geo){
  *
  */
 void
-Partition::setPartition(ivector1D partition){
+Partition::setPartition(std::unordered_map<long, int> partition){
 	m_partition = partition;
 	if (m_partition.size() != m_geometry->getNCells())
 		throw std::runtime_error(m_name + " : partition size different from number of cells");
@@ -236,7 +236,7 @@ Partition::execute(){
             }
 #endif
 			//partition
-			bool m_usemimmoserialize = true;
+			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
 			}
@@ -395,9 +395,10 @@ Partition::parmetisPartGeom(){
 			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj.data(), adjncy.data(), NULL, NULL,
 					NULL, &nParts, NULL, NULL, NULL, &objval, part.data() );
 
-			m_partition.resize(nvtxs);
+			m_partition.clear();
+			m_partition.reserve(nvtxs);
 			for (long i=0; i<nvtxs; i++){
-				m_partition[i] = part[i];
+				m_partition[mapcell[i]] = part[i];
 			}
 		}
 	}
@@ -418,7 +419,10 @@ Partition::serialPartition(){
 		//Build partition to send to zero
 		long ncells = getGeometry()->getPatch()->getInternalCount();
 		m_partition.clear();
-		m_partition.resize(ncells, 0);
+		m_partition.reserve(ncells);
+		for (long id : getGeometry()->getPatch()->getCells().getIds()){
+			m_partition[id] = 0;
+		}
 
 	}
 }
@@ -436,7 +440,10 @@ Partition::computeBoundaryPartition()
 			//Build partition to send to zero
 			long ncells = getBoundaryGeometry()->getPatch()->getInternalCount();
 			m_boundarypartition.clear();
-			m_boundarypartition.resize(ncells, 0);
+			m_boundarypartition.reserve(ncells);
+			for (long id : getBoundaryGeometry()->getPatch()->getCells().getIds()){
+				m_boundarypartition[id] = 0;
+			}
 		}
 	}
 	else{
@@ -448,7 +455,7 @@ Partition::computeBoundaryPartition()
 
 			m_boundarypartition.clear();
 			if (m_rank == 0){
-				m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
+				m_boundarypartition.reserve(getBoundaryGeometry()->getNCells());
 				getBoundaryGeometry()->buildSkdTree();
                 bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
 				double tol = 1.0E-12;

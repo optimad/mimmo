@@ -223,7 +223,6 @@ public:
     void updatePointGhostExchangeInfo();
     void resetPointGhostExchangeInfo();
     bool isPointInterior(long id);
-
     bool cleanParallelSkdTreeSync();
     bool cleanParallelKdTreeSync();
     bool cleanParallelAdjacenciesSync();
@@ -231,7 +230,7 @@ public:
     bool cleanParallelPointConnectivitySync();
     bool cleanParallelInfoSync();
     bool cleanParallelPointGhostExchangeInfoSync();
-
+    void setPartitioned();
 #endif
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
