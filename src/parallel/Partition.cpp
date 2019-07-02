@@ -25,6 +25,9 @@
 #include <metis.h>
 #include <bitpit_operators.hpp>
 #include <SkdTreeUtils.hpp>
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock Clock;
 
 namespace mimmo{
 
@@ -211,6 +214,18 @@ Partition::execute(){
 			//Compute partition
 			computePartition();
 
+//			if (m_rank ==0){
+//				std::ofstream outFile("map.partition.dat");
+//				outFile << m_partition.size() << std::endl;
+//				for (auto val : m_partition){
+//					outFile << val.first << std::endl;
+//					outFile << val.second << std::endl;
+//				}
+//				outFile.close();
+//			}
+//			MPI_Barrier(m_communicator);
+
+
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
@@ -236,7 +251,11 @@ Partition::execute(){
             }
 #endif
 			//partition
-			bool m_usemimmoserialize = false;
+			auto t1 = Clock::now();
+			if (m_rank == 0){
+				std::cout << "#" << m_rank  << " Start Partition mesh " << std::endl;
+			}
+			bool m_usemimmoserialize = true;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
 			}
@@ -247,6 +266,12 @@ Partition::execute(){
 					return;
 				}
 				serialize(m_geometry, false);
+			}
+			auto t2 = Clock::now();
+			if (m_rank == 0){
+				std::cout << "#" << m_rank << " Partition mesh execution time: "
+						<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+						<< " seconds" << std::endl;
 			}
 
 			//Resync PID
