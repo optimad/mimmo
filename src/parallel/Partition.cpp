@@ -214,18 +214,6 @@ Partition::execute(){
 			//Compute partition
 			computePartition();
 
-//			if (m_rank ==0){
-//				std::ofstream outFile("map.partition.dat");
-//				outFile << m_partition.size() << std::endl;
-//				for (auto val : m_partition){
-//					outFile << val.first << std::endl;
-//					outFile << val.second << std::endl;
-//				}
-//				outFile.close();
-//			}
-//			MPI_Barrier(m_communicator);
-
-
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
@@ -251,13 +239,14 @@ Partition::execute(){
             }
 #endif
 			//partition
-			auto t1 = Clock::now();
-			if (m_rank == 0){
-				std::cout << "#" << m_rank  << " Start Partition mesh " << std::endl;
-			}
-			bool m_usemimmoserialize = true;
+			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+				if (m_mode == PartitionMethod::SERIALIZE){
+					// Sort cells and vertices with Id
+					getGeometry()->getPatch()->sortCells();
+					getGeometry()->getPatch()->sortVertices();
+				}
 			}
 			else{
 				//Serialize only external geometry
@@ -266,12 +255,6 @@ Partition::execute(){
 					return;
 				}
 				serialize(m_geometry, false);
-			}
-			auto t2 = Clock::now();
-			if (m_rank == 0){
-				std::cout << "#" << m_rank << " Partition mesh execution time: "
-						<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-						<< " seconds" << std::endl;
 			}
 
 			//Resync PID
@@ -299,6 +282,11 @@ Partition::execute(){
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+						if (m_mode == PartitionMethod::SERIALIZE){
+							// Sort cells and vertices with Id
+							getBoundaryGeometry()->getPatch()->sortCells();
+							getBoundaryGeometry()->getPatch()->sortVertices();
+						}
 					}
 					else{
 						//Serialize only external geometry
