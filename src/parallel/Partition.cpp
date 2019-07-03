@@ -243,8 +243,8 @@ Partition::execute(){
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
 				if (m_mode == PartitionMethod::SERIALIZE){
-					// Sort cells and vertices with Id
-					getGeometry()->getPatch()->sortCells();
+//					// Sort cells and vertices with Id
+//					getGeometry()->getPatch()->sortCells();
 					getGeometry()->getPatch()->sortVertices();
 				}
 			}
@@ -283,8 +283,8 @@ Partition::execute(){
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
 						if (m_mode == PartitionMethod::SERIALIZE){
-							// Sort cells and vertices with Id
-							getBoundaryGeometry()->getPatch()->sortCells();
+//							// Sort cells and vertices with Id
+//							getBoundaryGeometry()->getPatch()->sortCells();
 							getBoundaryGeometry()->getPatch()->sortVertices();
 						}
 					}
