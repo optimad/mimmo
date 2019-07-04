@@ -57,6 +57,7 @@ enum WFORMAT{    /*!Single precision data.*/        Short,
  *  ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *  for volume mesh.
  *
+ * On distributed archs, MimmoGeometry can write in parallel, but can read only with the 0 rank processor.
  *  \n
  *  It can be used in three modes reader/writer/converter. To set the mode it uses an enum
  *  IOMode list:

@@ -292,11 +292,13 @@ VTUGridWriterASCII::~VTUGridWriterASCII(){}
 
 /*!
  * Write to file. Overloading of VTK::write();
-  *@param[in] filepath to write.
+  *@param[in] dir path to write.
+  *@param[in] file name of file to write.
  */
-void VTUGridWriterASCII::write(const std::string & filepath,  bitpit::VTKWriteMode mode){
-    setName(filepath);
-    VTKUnstructuredGrid::write(filepath, mode);
+void VTUGridWriterASCII::write(const std::string & dir, const std::string & file,  bitpit::VTKWriteMode mode){
+    setDirectory(dir);
+    setName(file);
+    VTKUnstructuredGrid::write(mode);
 }
 
 

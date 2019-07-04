@@ -70,7 +70,7 @@ public:
                         bitpit::VTKElementType eltype= bitpit::VTKElementType::UNDEFINED);
     ~VTUGridWriterASCII();
 
-    void write(const std::string & pathfile, bitpit::VTKWriteMode mode= bitpit::VTKWriteMode::DEFAULT);
+    void write(const std::string & dir, const std::string & file, bitpit::VTKWriteMode mode= bitpit::VTKWriteMode::DEFAULT);
 
 private:
     bitpit::PatchKernel& m_patch;   /**< reference to patch kernel data structure to fill*/

@@ -628,7 +628,11 @@ MimmoGeometry::write(){
         for(const auto & touple : pidsMap){
             mpp[touple.first] = touple.second;
         }
-        string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+#if MIMMO_ENABLE_MPI
+        std::string name = (m_winfo.fdir+"/"+m_winfo.fname+"."+std::to_string(m_rank)+".stl");
+#else
+        std::string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
+#endif
         dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false, &mpp);
         return true;
     }
@@ -643,11 +647,13 @@ MimmoGeometry::write(){
         if(!m_codex){
             VTUFlushStreamerASCII streamer;
             VTUGridWriterASCII vtkascii(streamer, *(getGeometry()->getPatch()) );
-            vtkascii.write(m_winfo.fdir+"/"+m_winfo.fname);
+            vtkascii.write(m_winfo.fdir+"/", m_winfo.fname);
         }
         else{
             getGeometry()->getPatch()->getVTK().setCodex(bitpit::VTKFormat::APPENDED);
-            getGeometry()->getPatch()->write(m_winfo.fdir+"/"+m_winfo.fname);
+            getGeometry()->getPatch()->getVTK().setDirectory(m_winfo.fdir+"/");
+            getGeometry()->getPatch()->getVTK().setName(m_winfo.fname);
+            getGeometry()->getPatch()->write();
         }
         return true;
     }
@@ -665,10 +671,15 @@ MimmoGeometry::write(){
         nastran.setWFormat(m_wformat);
         livector1D pids = getGeometry()->getCompactPID();
         std::unordered_set<long>  pidsset = getGeometry()->getPIDTypeList();
+#if MIMMO_ENABLE_MPI
+        std::string namefile = m_winfo.fname+"."+std::to_string(m_rank);
+#else
+        std::string namefile = m_winfo.fname;
+#endif
         if (pids.size() == connectivity.size()){
-            nastran.write(m_winfo.fdir,m_winfo.fname,points, pointsID, connectivity,elementsID, &pids, &pidsset);
+            nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity,elementsID, &pids, &pidsset);
         }else{
-            nastran.write(m_winfo.fdir,m_winfo.fname,points, pointsID, connectivity, elementsID);
+            nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity, elementsID);
         }
         return true;
     }
@@ -678,7 +689,12 @@ MimmoGeometry::write(){
     {
 
         dvecarr3E points = getGeometry()->getVerticesCoords();
-        writeOFP(m_winfo.fdir, m_winfo.fname, points);
+#if MIMMO_ENABLE_MPI
+        std::string namefile = m_winfo.fname+"."+std::to_string(m_rank);
+#else
+        std::string namefile = m_winfo.fname;
+#endif
+        writeOFP(m_winfo.fdir, namefile, points);
         return true;
     }
     break;
