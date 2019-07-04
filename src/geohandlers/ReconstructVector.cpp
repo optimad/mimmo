@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -48,10 +48,10 @@ ReconstructVector::ReconstructVector(const bitpit::Config::Section & rootXML){
     std::string input = rootXML.get("ClassName", fallback_name);
     std::string fallback_loc  = "-1";
     std::string input_loc = rootXML.get("DataLocation", fallback_loc);
-    
+
     input = bitpit::utils::string::trim(input);
     input_loc = bitpit::utils::string::trim(input_loc);
-    
+
     int loc = std::stoi(input_loc);
     if(loc > 0 && loc < 3){
         m_loc  =static_cast<MPVLocation>(loc);
@@ -142,7 +142,7 @@ ReconstructVector::getResultField(){
 std::vector<dmpvecarr3E>
 ReconstructVector::getResultFields(){
     return(m_subresults);
-}; 
+};
 
 /*!
  * Set overlap criterium for multi-fields reconstruction. See OverlapMethod enum
@@ -193,7 +193,7 @@ ReconstructVector::removeData(MimmoObject * patch){
 
     //start searching from the begin on element linking patch
     std::vector<dmpvecarr3E>::iterator it = m_subpatch.begin();
-    
+
     while(it != m_subpatch.end()){
         if (it->getGeometry() == patch){
             *it = m_subpatch.back();
@@ -236,7 +236,6 @@ ReconstructVector::clear(){
  */
 void
 ReconstructVector::plotData(std::string dir, std::string name, bool flag){
-    
 
     if(getGeometry() == NULL) return;
 
@@ -253,7 +252,9 @@ ReconstructVector::plotData(std::string dir, std::string name, bool flag){
         getGeometry()->getPatch()->getVTK().addData("vectorfield", bitpit::VTKFieldType::VECTOR, loc, field);
         getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
         if(!flag) getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        getGeometry()->getPatch()->write(dir+"/"+name);
+        getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
+        getGeometry()->getPatch()->getVTK().setName(name);
+        getGeometry()->getPatch()->write();
         getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
         liimap mapData = getGeometry()->getMapDataInv();
@@ -287,7 +288,7 @@ void
 ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool flag){
 
     if(m_subresults[i].getGeometry() == NULL) return;
-    
+
     std::string nameX = name+"SubPatch"+std::to_string(i);
 
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
@@ -304,7 +305,9 @@ ReconstructVector::plotSubData(std::string dir, std::string name, int i, bool fl
         m_subresults[i].getGeometry()->getPatch()->getVTK().addData("vectorfield", bitpit::VTKFieldType::VECTOR,loc, field);
         m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
         if(!flag) m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        m_subresults[i].getGeometry()->getPatch()->write(dir+"/"+nameX);
+        m_subresults[i].getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
+        m_subresults[i].getGeometry()->getPatch()->getVTK().setName(nameX);
+        m_subresults[i].getGeometry()->getPatch()->write();
         m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("vectorfield");
     }else{
         liimap mapData = getGeometry()->getMapDataInv();
@@ -335,37 +338,34 @@ void
 ReconstructVector::execute(){
 
 	if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
         return;
     }
-    
+
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-//        return;
     }
-    
+
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
     m_result.setDataLocation(m_loc);
-    
+
     m_subresults.clear();
-    
+
     std::unordered_set<long> idsTarget;
     {
         livector1D ids = idsGeoDataLocation(getGeometry());
         idsTarget.insert(ids.begin(), ids.end());
     }
-    
+
     bitpit::PiercedVector<int> counter;
     for (int i=0; i<getNData(); i++){
         dmpvecarr3E* pv = &m_subpatch[i];
         livector1D ids = idsGeoDataLocation(pv->getGeometry());
         for (auto ID: ids){
             if(idsTarget.count(ID)==0) continue;
-            
+
             if (!m_result.exists(ID)){
                 m_result.insert(ID, (*pv)[ID]);
                 counter.insert(ID, 1);
@@ -376,13 +376,11 @@ ReconstructVector::execute(){
             }
         }
     }
-    
+
     if (m_result.isEmpty()){
         (*m_log)<<"Warning in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
-//        throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
-//        return;
     }
-    
+
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
         auto itend = m_result.end();
@@ -396,7 +394,7 @@ ReconstructVector::execute(){
     //Update field on whole geometry
     darray3E zero = {{0.0,0.0,0.0}};
     m_result.completeMissingData(zero);
-    
+
     //Create subresults
     m_subresults.resize(getNData());
     for (int i=0; i<getNData(); i++){
@@ -473,7 +471,7 @@ ReconstructVector::overlapFields(long int ID, darray3E & locField){
 
 };
 
-/*! 
+/*!
  * It builds the input/output ports of the object
  */
 void
@@ -515,11 +513,11 @@ void ReconstructVector::absorbSectionXML(const bitpit::Config::Section & slotXML
         if(int(m_loc) != temp){
             (*m_log)<<"Error absorbing DataLocation in "<<m_name<<". Class and read locations mismatch"<<std::endl;
             if (temp == 0) (*m_log)<<"XML DataLocation in "<<m_name<<" is set to 0-UNDEFINED"<<std::endl;
-            if (temp == 3) (*m_log)<<"XML DataLocation in "<<m_name<<" is set to 3-INTERFACE, not supported for now."<<std::endl;            
+            if (temp == 3) (*m_log)<<"XML DataLocation in "<<m_name<<" is set to 3-INTERFACE, not supported for now."<<std::endl;
             throw std::runtime_error (m_name + " : xml absorbing failed.");
         }
     }
-    
+
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
 
@@ -559,7 +557,7 @@ void ReconstructVector::flushSectionXML(bitpit::Config::Section & slotXML, std::
  *\return list of ids relative to vertices or cells according to class m_loc.
  */
 livector1D ReconstructVector::idsGeoDataLocation(MimmoObject * geo){
-    
+
     if (m_loc == MPVLocation::POINT) return geo->getVertices().getIds();
     if (m_loc == MPVLocation::CELL)  return geo->getCells().getIds();
     return livector1D(0);

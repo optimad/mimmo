@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -49,17 +49,17 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
     std::string input = rootXML.get("ClassName", fallback_name);
     std::string fallback_loc  = "-1";
     std::string input_loc = rootXML.get("DataLocation", fallback_loc);
-    
+
     input = bitpit::utils::string::trim(input);
     input_loc = bitpit::utils::string::trim(input_loc);
-    
+
     int loc = std::stoi(input_loc);
     if(loc > 0 && loc < 3){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
         m_loc = MPVLocation::POINT;
     }
-    
+
     if(input == "mimmo.ReconstructScalar"){
         absorbSectionXML(rootXML);
     }else{
@@ -134,7 +134,7 @@ ReconstructScalar::getNData(){
 dmpvector1D
 ReconstructScalar::getResultField(){
     return(m_result);
-}; 
+};
 
 /*!
  * Return your result fields
@@ -179,7 +179,7 @@ ReconstructScalar::addData( dmpvector1D  field){
         return;
     }
     m_subpatch.push_back(field);
-        
+
 };
 
 /*!
@@ -193,10 +193,10 @@ ReconstructScalar::removeData(MimmoObject * patch){
     while(m_subpatch.back().getGeometry() == patch){
         m_subpatch.pop_back();
     }
-    
+
     //start searching from the begin on element linking patch
     std::vector<dmpvector1D>::iterator it = m_subpatch.begin();
-    
+
     while(it != m_subpatch.end()){
         if (it->getGeometry() == patch){
             *it = m_subpatch.back();
@@ -241,9 +241,8 @@ void
 ReconstructScalar::plotData(std::string dir, std::string name, bool flag){
 
     if(getGeometry() == NULL) return;
-    if(getGeometry()->isEmpty())    return;
     if(!m_result.completeMissingData(0.0))   return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
     if(m_loc == MPVLocation::CELL){
         loc = bitpit::VTKLocation::CELL;
@@ -255,7 +254,9 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag){
         getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
         getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
         if(!flag) getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        getGeometry()->getPatch()->write(dir+"/"+name);
+        getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
+        getGeometry()->getPatch()->getVTK().setName(name);
+        getGeometry()->getPatch()->write();
         getGeometry()->getPatch()->getVTK().removeData("scalarfield");
     }else{
         liimap mapData;
@@ -288,7 +289,6 @@ ReconstructScalar::plotData(std::string dir, std::string name, bool flag){
 void
 ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag){
     if(m_subresults[i].getGeometry() == NULL) return;
-    if(m_subresults[i].getGeometry()->isEmpty()) return;
 
     std::string nameX = name+"SubPatch"+std::to_string(i);
 
@@ -301,12 +301,14 @@ ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool fl
     dmpvector1D field_supp = m_subresults[i];
     if(!field_supp.completeMissingData(0.0))    return;
     dvector1D field = field_supp.getDataAsVector();
-    
+
     if (m_subresults[i].getGeometry()->getType() != 3){
         m_subresults[i].getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
         m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
         if(!flag) m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        m_subresults[i].getGeometry()->getPatch()->write(dir+"/"+nameX);
+        m_subresults[i].getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
+        m_subresults[i].getGeometry()->getPatch()->getVTK().setName(nameX);
+        m_subresults[i].getGeometry()->getPatch()->write();
         m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("scalarfield");
     }else{
         liimap mapData;
@@ -337,36 +339,33 @@ void
 ReconstructScalar::execute(){
 
     if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
         return;
     }
-    
+
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
-    } 
+    }
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
     m_result.setDataLocation(m_loc);
 
     m_subresults.clear();
-    
+
     std::unordered_set<long> idsTarget;
     {
         livector1D ids = idsGeoDataLocation(getGeometry());
         idsTarget.insert(ids.begin(), ids.end());
     }
-    
+
     bitpit::PiercedVector<int> counter;
     for (int i=0; i<getNData(); i++){
         dmpvector1D* pv = &m_subpatch[i];
         livector1D ids = idsGeoDataLocation(pv->getGeometry());
         for (auto ID: ids){
             if(idsTarget.count(ID)==0) continue;
-            
+
             if (!m_result.exists(ID)){
                 m_result.insert(ID, (*pv)[ID]);
                 counter.insert(ID, 1);
@@ -377,13 +376,11 @@ ReconstructScalar::execute(){
             }
         }
     }
-    
+
     if (m_result.isEmpty()){
         (*m_log)<<"Error in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
- //       throw std::runtime_error(m_name + "empty field reconstructed in class execution.");
-        return;
     }
-    
+
     if (m_overlapCriterium == OverlapMethod::AVERAGE){
         long int ID;
         auto itend = m_result.end();
@@ -465,7 +462,7 @@ ReconstructScalar::overlapFields(long int ID, double & locField){
 
 };
 
-/*! 
+/*!
  * It builds the input/output ports of the object
  */
 void
@@ -511,7 +508,7 @@ ReconstructScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std
     }
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("OverlapCriterium")){
         std::string input = slotXML.get("OverlapCriterium");
         input = bitpit::utils::string::trim(input);
@@ -535,7 +532,7 @@ ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
 
     BITPIT_UNUSED(name);
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("DataLocation", std::to_string(int(m_loc)));
     int value = static_cast<int>(m_overlapCriterium);
     slotXML.set("OverlapCriterium", std::to_string(value));
@@ -549,7 +546,7 @@ ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
  *\return list of ids relative to vertices or cells according to class m_loc.
  */
 livector1D ReconstructScalar::idsGeoDataLocation(MimmoObject * geo){
-    
+
     if (m_loc == MPVLocation::POINT) return geo->getVertices().getIds();
     if (m_loc == MPVLocation::CELL)  return geo->getCells().getIds();
     return livector1D(0);
