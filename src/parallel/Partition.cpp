@@ -208,7 +208,6 @@ Partition::execute(){
 	if (m_nprocs>1){
 		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->getPatch()->isPartitioned())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->getPatch()->isPartitioned())))
 		{
-
 			//Compute partition
 			computePartition();
 
@@ -225,14 +224,17 @@ Partition::execute(){
 				}
 			}
 
-			if (!getGeometry()->areAdjacenciesBuilt())
+
+			if (!getGeometry()->areAdjacenciesBuilt()){
 				getGeometry()->buildAdjacencies();
+            }
+
 
 #if MIMMO_ENABLE_MPI
-			if (!getGeometry()->arePointGhostExchangeInfoSync())
+            if (!getGeometry()->arePointGhostExchangeInfoSync()){
 				getGeometry()->updatePointGhostExchangeInfo();
+            }
 #endif
-
 			//partition
 			bool m_usemimmoserialize = true;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
@@ -254,10 +256,11 @@ Partition::execute(){
 			getGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
 			getGeometry()->updatePointGhostExchangeInfo();
-#endif
 
+#endif
 			//Clean potential point connectivity
 			getGeometry()->cleanPointConnectivity();
+            getGeometry()->resetInterfaces();
 
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
@@ -295,7 +298,7 @@ Partition::execute(){
 #endif
 					//Clean potential point connectivity
 					getBoundaryGeometry()->cleanPointConnectivity();
-
+                    getBoundaryGeometry()->resetInterfaces();
 				}
 			}
 		}
@@ -330,7 +333,6 @@ Partition::parmetisPartGeom(){
 
 		//TODO Clean geometry needed?
 		//getGeometry()->cleanGeometry();
-
 		liimap mapcell = getGeometry()->getMapCell();
 		liimap mapcellinv = getGeometry()->getMapCellInv();
 
@@ -448,17 +450,29 @@ Partition::computeBoundaryPartition()
 			if (m_rank == 0){
 				m_boundarypartition.resize(getBoundaryGeometry()->getNCells());
 				getBoundaryGeometry()->buildSkdTree();
-				bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
-				double tol = 1.0e-12;
-				for (bitpit::Interface inter : getGeometry()->getInterfaces()){
+                bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
+				double tol = 1.0E-12;
+                std::vector<double> distances(getBoundaryGeometry()->getNCells(), 1.0E+18);
+                bitpit::PiercedVector<bitpit::Interface> & interfaces = getGeometry()->getInterfaces();
+                for (bitpit::Interface &inter : interfaces ){
 					if (inter.isBorder()){
 						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
-						long id;
-						double r = tol;
-						double distance = skdTreeUtils::distance(&intercenter, btree, id, r);
-						if (distance <= tol){
-							m_boundarypartition[getBoundaryGeometry()->getCells().getRawIndex(id)] = m_partition[getGeometry()->getCells().getRawIndex(inter.getOwner())];
-						}
+                        long id = bitpit::Cell::NULL_ID;
+                        int maxiter(10), iter(0);
+                        double r = tol;
+                        double distance;
+                        while(id == bitpit::Cell::NULL_ID && iter<maxiter){
+                            distance = skdTreeUtils::distance(&intercenter, btree, id, r);
+                            ++iter;
+                            r = tol * std::pow(10, iter);
+                        }
+                        if(id != bitpit::Cell::NULL_ID){
+                            long brawindex = getBoundaryGeometry()->getCells().getRawIndex(id);
+    						if (distance < distances[brawindex]){
+                                distances[brawindex] = distance;
+                                m_boundarypartition[brawindex] = m_partition[getGeometry()->getCells().getRawIndex(inter.getOwner())];
+    						}
+                        }
 					}
 				}
 
@@ -548,10 +562,16 @@ Partition::updateBoundaryVerticesID()
  */
 void
 Partition::plotOptionalResults(){
-    std::string name = m_outputPlot +"/"+ m_name;
-    getGeometry()->getPatch()->write(name);
+    std::string dir = m_outputPlot +"/";
+    std::string name = m_name;
+    getGeometry()->getPatch()->getVTK().setDirectory(dir);
+    getGeometry()->getPatch()->getVTK().setName(name);
+    getGeometry()->getPatch()->write();
+
 	if (getBoundaryGeometry() != nullptr){
-		getBoundaryGeometry()->getPatch()->write(name + "Boundary");
+        getBoundaryGeometry()->getPatch()->getVTK().setDirectory(dir);
+        getBoundaryGeometry()->getPatch()->getVTK().setName(name+"Boundary");
+		getBoundaryGeometry()->getPatch()->write();
 	}
 }
 
