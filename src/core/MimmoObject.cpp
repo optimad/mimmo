@@ -723,13 +723,15 @@ MimmoObject::getLog(){
 
 /*!
  * Is the object empty?
- * \return True/False if geometry data structure is empty.
+ * \return True/False if the local geometry data structure is empty.
  */
 bool
 MimmoObject::isEmpty(){
-	bool check = getNVertices() > 0;
-	if(m_type != 3) check = check && (getNCells() > 0);
-	return !check;
+
+    bool check = getNVertices() == 0;
+	if(m_type != 3) check = check || (getNCells() == 0);
+
+	return check;
 };
 
 /*!
@@ -1247,6 +1249,8 @@ MimmoObject::isBvTreeBuilt(){
 }
 
 /*!
+* \param[in] global (parallel archs) true to check if all partitions have the tree synchronized,
+* false to check only the local one. Serial arch will check always the local.
  * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry
  */
@@ -1256,6 +1260,9 @@ MimmoObject::isBvTreeSync(){
 }
 
 /*!
+ * Return if the skdTree ordering structure for cells is built/synchronized
+ * \param[in] global (parallel archs) true to check if all partitions have the tree built,
+ * false to check only the local one. Serial arch will check always the local.
  * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry.
  */
@@ -1265,11 +1272,17 @@ MimmoObject::isSkdTreeSync(){
 }
 
 /*!
- * \return true if the patch numbering info structure for cells is built/synchronized
+ * Return true if the patch numbering info structure for cells is built/synchronized.
  * with your current geometry
+ * In distributed archs, this method will check throughout all the current MimmoObject partitions.
+ * \return if the cell Info are synchronized.
  */
 bool
 MimmoObject::isInfoSync(){
+#if MIMMO_ENABLE_MPI
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+#endif
 	return m_infoSync;
 }
 
@@ -1300,6 +1313,7 @@ MimmoObject::getPatchInfo(){
 }
 
 /*!
+ * Return if the kdTree ordering structure for vertices is built/synchronized
  * \return true if the kdTree vertices ordering structure is
  * built/synchronized with your current geometry
  */
@@ -1309,12 +1323,15 @@ MimmoObject::isKdTreeBuilt(){
 }
 
 /*!
+ * Return if the kdTree ordering structure for vertices is built/synchronized
+ * \param[in] global (parallel archs) true to check if all partitions have the tree built,
+ * false to check only the local one. Serial arch will check always the local.
  * \return true if the kdTree vertices ordering structure is
  * built/synchronized with your current geometry
  */
 bool
 MimmoObject::isKdTreeSync(){
-	return m_kdTreeSync;
+    return m_kdTreeSync;
 }
 
 /*!
@@ -1383,12 +1400,15 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
 
 /*!
 	Checks if the ghost exchange information are dirty.
-
-	\result Returns true if the ghost exchange information on points are dirty, false
+	\return  true if the ghost exchange information on points are dirty, false
 	otherwise.
 */
-bool MimmoObject::arePointGhostExchangeInfoSync() const
+bool MimmoObject::arePointGhostExchangeInfoSync()
 {
+#if MIMMO_ENABLE_MPI
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+#endif
 	return m_pointGhostExchangeInfoSync;
 }
 
@@ -1684,6 +1704,38 @@ void MimmoObject::updatePointGhostExchangeInfo()
 }
 
 /*!
+	Reset any information for ghost point data exchange.
+	Shared points included.
+*/
+void MimmoObject::resetPointGhostExchangeInfo()
+{
+	// Clear targets
+	m_pointGhostExchangeTargets.clear();
+	// Clear sources
+	m_pointGhostExchangeSources.clear();
+	// Clear shared
+	m_pointGhostExchangeShared.clear();
+	//Clear interior points structure
+	m_isPointInterior.clear();
+
+	//Update n interior vertices
+	m_ninteriorvertices = 0;
+	//Update n global vertices
+	m_nglobalvertices = 0;
+
+	//Update n interior vertices for procs
+	m_rankinteriorvertices.clear();
+	//Update global offset
+	m_globaloffset = 0;
+	//Reset consecutive map for vertices
+	m_pointConsecutiveId.clear();
+
+	m_pointGhostExchangeInfoSync = false;
+}
+
+
+
+/*!
  * Get if a vertex is local or not
  * \param[in] id Vertex id
  */
@@ -1707,6 +1759,130 @@ MimmoObject::isPointInterior(long id)
 
 	return m_isPointInterior[id];
 }
+
+/*!
+    General checker for SkdTree status throughout all procs. If at least one partition
+    has not-syncronized SkdTree set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelSkdTreeSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_skdTreeSync){
+        cleanSkdTree();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_skdTreeSync);
+}
+
+/*!
+    General checker for KdTree status throughout all procs. If at least one partition
+    has not-syncronized KdTree set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelKdTreeSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_kdTreeSync){
+        cleanKdTree();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_kdTreeSync);
+}
+/*!
+    General checker for Adjacencies status throughout all procs. If at least one partition
+    has not-syncronized Adj set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelAdjacenciesSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_AdjBuilt){
+        resetAdjacencies();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_AdjBuilt);
+}
+
+/*!
+    General checker for Interfaces status throughout all procs. If at least one partition
+    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelInterfacesSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_IntBuilt){
+        resetInterfaces();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_IntBuilt);
+}
+
+/*!
+    General checker for PointConnectivity status throughout all procs. If at least one partition
+    has not-syncronized PointConnectivity set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelPointConnectivitySync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_pointConnectivitySync){
+        cleanPointConnectivity();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_pointConnectivitySync);
+}
+/*!
+    General checker for Interfaces status throughout all procs. If at least one partition
+    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelInfoSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_infoSync){
+        m_patchInfo.reset();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_infoSync);
+}
+/*!
+    General checker for Interfaces status throughout all procs. If at least one partition
+    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
+    \return true if the structure was reset, false if nothing was done.
+*/
+bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
+    //make sure all procs arrive at this point.
+    MPI_Barrier(m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+
+    //if the boolen is false you need to reset
+    if(!m_pointGhostExchangeInfoSync){
+        resetPointGhostExchangeInfo();
+    }
+    //return true clean if the boolean was false, and viceversa.
+    return (!m_pointGhostExchangeInfoSync);
+}
+
 
 #endif
 
@@ -2726,21 +2902,26 @@ void MimmoObject::buildPatchInfo(){
 }
 
 /*!
- * \return true if cell-cell adjacency is built for your current mesh.
+ * Return if cell-cell adjacency is built for your current mesh.
+ * \return true if local adjacencies are built.
  */
 bool MimmoObject::areAdjacenciesBuilt(){
-	return  m_AdjBuilt;
+    return  m_AdjBuilt;
 };
 
 /*!
- * \return true if Interfaces are built for your current mesh.
+ * Return if Interfaces are built for your current mesh.
+ * \return true if interfaces are built.
+
  */
 bool MimmoObject::areInterfacesBuilt(){
-	return  m_IntBuilt;
+    return  m_IntBuilt;
 };
 
 /*!
  * \return false if your local mesh has open edges/faces. True otherwise.
+  Please note in distributed archs, the method cannot be called locally, but it needs to be called
+  globally from each procs.
  */
 bool MimmoObject::isClosedLoop(){
 
@@ -3651,8 +3832,7 @@ MimmoObject::getPointConnectivity(const long & id)
 }
 
 bool
-MimmoObject::isPointConnectivitySync()
-{
+MimmoObject::isPointConnectivitySync(){
 	return m_pointConnectivitySync;
 }
 

@@ -219,9 +219,19 @@ public:
 	int getProcessorCount() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
-    bool arePointGhostExchangeInfoSync() const;
+    bool arePointGhostExchangeInfoSync();
     void updatePointGhostExchangeInfo();
+    void resetPointGhostExchangeInfo();
     bool isPointInterior(long id);
+
+    bool cleanParallelSkdTreeSync();
+    bool cleanParallelKdTreeSync();
+    bool cleanParallelAdjacenciesSync();
+    bool cleanParallelInterfacesSync();
+    bool cleanParallelPointConnectivitySync();
+    bool cleanParallelInfoSync();
+    bool cleanParallelPointGhostExchangeInfoSync();
+
 #endif
 
     bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
