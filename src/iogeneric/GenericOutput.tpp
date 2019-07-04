@@ -40,7 +40,7 @@ namespace outputCSVStream {
         out << x << ",";
         return(out);
     };
-    
+
     /*!
      * Store a data in a stream when export in csv format when end of line is reached.
      * \param[in] out output stream.
@@ -54,7 +54,7 @@ namespace outputCSVStream {
         out<<'\n';
         return(out);
     };
-    
+
     /*!
      * Store a data in a stream when export in csv format a vector of data.
      * \param[in] out output stream.
@@ -98,7 +98,7 @@ namespace outputCSVStream {
     template <class T, size_t d>
     std::fstream& ofstreamcsv(std::fstream &out, const std::array< T,d > &x)
     {
-        
+
         if (d == 0) return(out);
         for (size_t i = 0; i < d-1; i++) {
             ofstreamcsv(out,x[i]);
@@ -170,15 +170,20 @@ void
 GenericOutput::setInput(T* data){
     _setInput(*data);
     std::fstream file;
-    file.open(m_dir+"/"+m_filename, std::fstream::out);
-    if (file.is_open()){
-        if (m_csv){
-            outputCSVStream::ofstreamcsv(file, *data);
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0)
+#endif
+    {
+        file.open(m_dir+"/"+m_filename, std::fstream::out);
+        if (file.is_open()){
+            if (m_csv){
+                outputCSVStream::ofstreamcsv(file, *data);
+            }
+            else{
+                file << *data;
+            }
+            file.close();
         }
-        else{
-            file << *data;
-        }
-        file.close();
     }
 }
 
@@ -190,18 +195,7 @@ GenericOutput::setInput(T* data){
 template<typename T>
 void
 GenericOutput::setInput(T data){
-    _setInput(data);
-    std::fstream file;
-    file.open(m_dir+"/"+m_filename, std::fstream::out);
-    if (file.is_open()){
-        if (m_csv){
-            outputCSVStream::ofstreamcsv(file, data);
-        }
-        else{
-            file << data;
-        }
-        file.close();
-    }
+    setInput(&data);
 }
 
 /*!
@@ -234,34 +228,98 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
     _setInput(*data);
     if(m_csv)   m_binary = false;
     int loc = static_cast<int>(data->getDataLocation());
-    std::fstream file;
-    file.open(m_dir+"/"+m_filename, std::fstream::out);
-    if (file.is_open()){
-        if(m_binary){
-            bitpit::genericIO::flushBINARY(file, loc);
-            bitpit::genericIO::flushBINARY(file, long(data->size()));
-            typename bitpit::PiercedVector<T>::const_iterator dataItr, dataEnd = data->end();
-            for (dataItr = data->begin(); dataItr != dataEnd; ++dataItr) {
-                bitpit::genericIO::flushBINARY(file, dataItr.getId());
-                bitpit::genericIO::flushBINARY(file, *dataItr);
-            }    
-        } else if (m_csv){
-            outputCSVStream::ofstreamcsv(file, *data);
-        }else{
-            bitpit::genericIO::flushASCII(file,loc);
-            file<<'\n';
-            bitpit::genericIO::flushASCII(file,long(data->size()));
-            file<<'\n';
-            typename bitpit::PiercedVector<T>::const_iterator dataItr, dataEnd = data->end();
-            for (dataItr = data->begin(); dataItr != dataEnd; ++dataItr) {
-                bitpit::genericIO::flushASCII(file, dataItr.getId());
-                bitpit::genericIO::flushASCII(file, *dataItr);
+    MimmoPiercedVector<T> * workingptr_ = data;
+
+#if MIMMO_ENABLE_MPI
+    std::unique_ptr< MimmoPiercedVector<T> > dataglobal(new MimmoPiercedVector<T>());
+    if(m_nprocs > 1) collectDataFromAllProcs(*data, dataglobal.get());
+    workingptr_ = dataglobal.get();
+    // get only 0 to work;
+    if(m_rank == 0)
+#endif
+    {
+        std::fstream file;
+        file.open(m_dir+"/"+m_filename, std::fstream::out);
+        if (file.is_open()){
+            if(m_binary){
+                bitpit::genericIO::flushBINARY(file, loc);
+                bitpit::genericIO::flushBINARY(file, long(workingptr_->size()));
+                for (auto datait = workingptr_->begin(); datait != workingptr_->end(); ++datait) {
+                    bitpit::genericIO::flushBINARY(file, datait.getId());
+                    bitpit::genericIO::flushBINARY(file, *datait);
+                }
+            } else if (m_csv){
+                outputCSVStream::ofstreamcsv(file, *workingptr_);
+            }else{
+                bitpit::genericIO::flushASCII(file,loc);
                 file<<'\n';
+                bitpit::genericIO::flushASCII(file,long(workingptr_->size()));
+                file<<'\n';
+                bitpit::genericIO::flushBINARY(file, long(workingptr_->size()));
+                for (auto datait = workingptr_->begin(); datait != workingptr_->end(); ++datait) {
+                    bitpit::genericIO::flushASCII(file, datait.getId());
+                    bitpit::genericIO::flushASCII(file, *datait);
+                    file<<'\n';
+                }
+            }
+            file.close();
+        }
+    }// exiting scope writing.
+}
+
+#if MIMMO_ENABLE_MPI
+/*!
+ * For reading part only. Since we assume the 0 rank proc read from file,
+ * we need to communicate data to all the other procs.
+ * \param[in] locdata localdata to communicate
+ * \param[in] dataTC collecting structure.
+ */
+template<typename T>
+void
+GenericOutputMPVData::collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, MimmoPiercedVector<T> * globdata){
+
+    if(m_rank == 0){
+        //prefill global data with 0 rank info.
+        globdata->clear();
+        globdata->setDataLocation(locdata.getDataLocation());
+        for(auto it=locdata.begin(); it!=locdata.end(); ++it){
+            globdata->insert(it.getId(), *it);
+        }
+
+
+        //Receive data to all other procs and fill globdata
+        for (int sendRank=1; sendRank<m_nprocs; sendRank++){
+            long dataBufferSize;
+            MPI_Recv(&dataBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
+            bitpit::IBinaryStream dataBuffer(dataBufferSize);
+            MPI_Recv(dataBuffer.data(), dataBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
+
+            //reverse in temp
+            MimmoPiercedVector<T> temp;
+            dataBuffer >> temp;
+
+            //check values of temp and insert into globdata. If ID already exists skip it.
+            for(auto it=temp.begin(); it!=temp.end(); ++it){
+                if(!globdata->exists(it.getId())){
+                    globdata->insert(it.getId(), *it);
+                }
             }
         }
-        file.close();
+        //hey 0, your job is done.
+    }else{
+
+        bitpit::OBinaryStream dataBuffer;
+        dataBuffer << locdata;
+        long dataBufferSize = dataBuffer.getSize();
+        //Send data to rank 0
+        MPI_Send(&dataBufferSize, 1, MPI_LONG, 0, 100, m_communicator);
+        MPI_Send(dataBuffer.data(), dataBuffer.getSize(), MPI_CHAR, 0, 110, m_communicator);
     }
 }
+
+#endif
+
+
 
 /*!
  * Overloaded function of base class setInput.

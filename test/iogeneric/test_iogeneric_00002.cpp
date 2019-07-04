@@ -140,6 +140,65 @@ int test2_2() {
 
     return int(!check);
 }
+
+/*!
+ * Check resize to coherent items of GenericInputMPVData;
+ */
+int test2_3() {
+
+    //create a fake geometry();
+    dvecarr3E points(4, {{0,0,0}});
+    livector2D  conn(2, livector1D(3,0));
+    points[1][0] = 1.0;
+    points[2][1] = 1.0;
+    points[3][0] = 1.0;
+    points[3][1] = 1.0;
+    conn[0][1] = 1; conn[0][2]=2;
+    conn[1][0] = 1; conn[1][1]=3; conn[1][2] = 2;
+
+    MimmoObject * geo = new MimmoObject(1);
+    for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
+    geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, long(0), long(0));
+    geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, long(0), long(1));
+
+    //create a MPV vector of doubles and darray3E;
+    MimmoPiercedVector<darray3E> vector(geo, mimmo::MPVLocation::POINT);
+    vector.insert(1,{{-1.0, 0, 2.0}});
+    vector.insert(2,{{-0.976, -0.976, -0.976}});
+    vector.insert(0,{{1.2, 1.3, 1.4}});
+    vector.insert(3,{{0, 0, 12.0}});
+    vector.insert(5,{{0, 0, 0.0}});
+    vector.insert(22,{{0, 0, 0.0}});
+    vector.insert(7,{{0, 0, 0.0}});
+
+    GenericOutputMPVData * write_vector = new GenericOutputMPVData();
+    write_vector->setWriteDir(".");
+    write_vector->setFilename("vectorOff.csv");
+    write_vector->setCSV(true);
+    write_vector->setBinary(false);
+    write_vector->setInput(vector);
+    write_vector->exec();
+
+    GenericInputMPVData * read_vector = new GenericInputMPVData();
+    read_vector->setReadDir(".");
+    read_vector->setFilename("vectorOff.csv");
+    read_vector->setCSV(true);
+    read_vector->setBinary(false);
+    read_vector->setGeometry(geo);
+    read_vector->exec();
+
+    //check re read structure are the same.
+    auto rvector = read_vector->getResult<darray3E>();
+    bool check = int(rvector.size()) == geo->getPatch()->getVertexCount();
+
+    delete write_vector;
+    delete read_vector;
+    delete geo;
+
+    std::cout<<"test passed :"<<check<<std::endl;
+
+    return int(!check);
+}
 // =================================================================================== //
 
 int main( int argc, char *argv[] ) {
@@ -157,6 +216,7 @@ int main( int argc, char *argv[] ) {
         try{
             val = test2_1() ;
             val = std::max(val, test2_2());
+            val = std::max(val, test2_3());
         }
         catch(std::exception & e){
             std::cout<<"test_iogeneric_00002 exited with an error of type : "<<e.what()<<std::endl;

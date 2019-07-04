@@ -161,9 +161,9 @@ GenericOutput::clearInput(){
 void
 GenericOutput::execute(){
 
-    bool ok = rename("output.txt", m_filename.c_str());
-    if (!ok)
-        (*m_log)<<"Generic Output execution failed renaming..."<<std::endl;
+    // bool ok = rename("output.txt", m_filename.c_str());
+    // if (!ok)
+    //     (*m_log)<<"Generic Output execution failed renaming..."<<std::endl;
 };
 
 /*!
@@ -215,7 +215,7 @@ GenericOutput::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("Filename", m_filename);
     slotXML.set("WriteDir", m_dir);
     slotXML.set("CSV", std::to_string((int)m_csv));
@@ -242,14 +242,14 @@ GenericOutputMPVData::GenericOutputMPVData(std::string dir, std::string filename
  * \param[in] rootXML reference to your xml tree section
  */
 GenericOutputMPVData::GenericOutputMPVData(const bitpit::Config::Section & rootXML){
-    
+
     m_dir       = "./";
     m_filename  = "output.txt";
     m_portsType    = ConnectionType::BACKWARD;
     m_name         = "mimmo.GenericOutputMPVData";
     m_csv       = false;
     m_binary        = false;
-    
+
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
@@ -302,11 +302,11 @@ void GenericOutputMPVData::swap(GenericOutputMPVData & x) noexcept
  */
 void
 GenericOutputMPVData::buildPorts(){
-    
+
     bool built = true;
     built = (built && createPortIn<dmpvector1D, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<double>, M_SCALARFIELD));
     built = (built && createPortIn<dmpvecarr3E, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<darray3E>, M_VECTORFIELD));
-    
+
     m_arePortsBuilt = built;
 }
 
@@ -361,10 +361,10 @@ GenericOutputMPVData::clearInput(){
  */
 void
 GenericOutputMPVData::execute(){
-    
-    bool ok = rename("output.txt", m_filename.c_str());
-    if (!ok)
-        (*m_log)<<"Generic Output execution failed renaming..."<<std::endl;
+
+    // bool ok = rename("output.txt", m_filename.c_str());
+    // if (!ok)
+    //     (*m_log)<<"Generic Output execution failed renaming..."<<std::endl;
 };
 
 /*!
@@ -374,24 +374,24 @@ GenericOutputMPVData::execute(){
  */
 void
 GenericOutputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     std::string input;
-    
+
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Filename")){
         std::string input = slotXML.get("Filename");
         input = bitpit::utils::string::trim(input);
         setFilename(input);
     };
-    
+
     if(slotXML.hasOption("WriteDir")){
         std::string input = slotXML.get("WriteDir");
         input = bitpit::utils::string::trim(input);
         setWriteDir(input);
     };
-    
+
     if(slotXML.hasOption("CSV")){
         std::string input = slotXML.get("CSV");
         input = bitpit::utils::string::trim(input);
@@ -402,7 +402,7 @@ GenericOutputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, 
         }
         setCSV(temp);
     };
-    
+
     if(slotXML.hasOption("Binary")){
         std::string input = slotXML.get("Binary");
         input = bitpit::utils::string::trim(input);
@@ -422,11 +422,11 @@ GenericOutputMPVData::absorbSectionXML(const bitpit::Config::Section & slotXML, 
  */
 void
 GenericOutputMPVData::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("Filename", m_filename);
     slotXML.set("WriteDir", m_dir);
     slotXML.set("CSV", std::to_string((int)m_csv));

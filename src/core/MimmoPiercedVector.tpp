@@ -330,7 +330,6 @@ MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
  * false if:
  *  - UNDEFINED location is set for the current data.
  *  - all internal m_data ids does not match those available in the relative geometry reference structure: vertex, cell or interfaces
- *  - totally empty vector
  *  - no geometry is linked
  * \return boolean coherence flag
  */
@@ -377,6 +376,72 @@ MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 	}
 	return check;
 }
+
+/*!
+ * Return a copy of the current MPV retaining data coherent with the geometry linked.
+ *  If reference geometry is nullptr or none of the items are coherent with geometry return
+ * an empty structure;
+ * \return coherent version of current MPV.
+ */
+template<typename mpv_t>
+MimmoPiercedVector<mpv_t>
+MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
+
+    MimmoPiercedVector<mpv_t> result(this->getGeometry(), m_loc);
+	if(!this->getGeometry()) return result;
+
+    switch(m_loc){
+
+    case MPVLocation::CELL:
+	{
+		bitpit::PiercedVector<bitpit::Cell> & cells = m_geometry->getCells();
+        result.reserve(cells.size());
+        long id;
+        for(auto it=this->begin(); it!=this->end(); ++it){
+            long id = it.getId();
+            if(cells.exists(id)){
+                result.insert(id, *it);
+            }
+        }
+	}
+	break;
+	case MPVLocation::INTERFACE:
+	{
+        bitpit::PiercedVector<bitpit::Interface> & interfaces = m_geometry->getInterfaces();
+		size_t sizeInterfaces = interfaces.size();
+		if(sizeInterfaces == 0){
+			(*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
+		}
+        result.reserve(interfaces.size());
+        long id;
+        for(auto it=this->begin(); it!=this->end(); ++it){
+            long id = it.getId();
+            if(interfaces.exists(id)){
+                result.insert(id, *it);
+            }
+        }
+	}
+	break;
+	case MPVLocation::POINT:
+	{
+        bitpit::PiercedVector<bitpit::Vertex> & verts = m_geometry->getVertices();
+        result.reserve(verts.size());
+        long id;
+        for(auto it=this->begin(); it!=this->end(); ++it){
+            long id = it.getId();
+            if(verts.exists(id)){
+                result.insert(id, *it);
+            }
+        }
+	}
+	break;
+	default:
+		(*m_log)<<"NO suitable location data found to perform ids coherent resizing "<<std::endl;
+		break;
+	}
+	return result;
+}
+
 
 /*!
  * Check if a random integer number is a valid MPVLocation for the current class.

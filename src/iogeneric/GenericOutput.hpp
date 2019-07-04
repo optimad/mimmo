@@ -63,6 +63,10 @@ namespace outputCSVStream{
  * it adapts the writing method in function of the input port used
  * to build link (pin) with an other object.
  *
+ * On distributed archs, only the 0 rank procs is deputed to writing.
+ * Since the class does not hold data structure that can be unambigously recollected
+ * once partitioned, it is supposed that all procs hold the same identical data.
+ *
  * \n
  * Ports available in GenericOutput Class :
  *
@@ -119,7 +123,7 @@ public:
 
 	GenericOutput(const GenericOutput & other);
     GenericOutput& operator=(GenericOutput other);
-    
+
 	void buildPorts();
 
 	BITPIT_DEPRECATED( template<typename T>
@@ -138,11 +142,13 @@ public:
     void setCSV(bool csv);
 
 	void 	execute();
-	
+
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
 protected:
     void swap(GenericOutput & x) noexcept;
+
 private:
     template<typename T>
     void _setInput(T & data);
@@ -161,23 +167,24 @@ private:
  * to build link (pin) with an other object.
  * Can write binary data in raw format only, activating the binary flag.
  *
+ * On distributed archs, only the 0 rank procs is deputed to writing.
  * \n
  * Ports available in GenericOutputMPVData Class :
  *
  *  =========================================================
- * 
+ *
  *  |                    Port Input  ||                                |
  *  |-------------|-------------------|-------------------------|
  *  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  *  | M_SCALARFIELD | setInput       | (MC_MPVECTOR, MD_FLOAT)    |
  *  | M_VECTORFIELD | setInput       | (MC_MPVECARR3, MD_FLOAT)   |
- * 
- * 
+ *
+ *
  *  |              Port Output  ||              |
  *  |-------------|---------|----------|
  *  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- * 
- * 
+ *
+ *
  *  =========================================================
  *
  * \n
@@ -199,12 +206,12 @@ private:
     std::string             m_dir;          /**<Name of directory to write the output file.*/
     std::string             m_filename;     /**<Name of the output file.
     The file will be an ascii text file.*/
-    
+
     bool                    m_csv;          /**<True if write output file in csv format.*/
     std::unique_ptr<IOData> m_input;        /**<Pointer to a base class object Input, meant for input temporary data, cleanable in execution (derived class is template).*/
-    
+
     bool            m_binary;       /**<Output unformatted binary files.*/
-    
+
 public:
     GenericOutputMPVData(std::string dir = "./", std::string filename = "output.txt", bool csv = false);
     GenericOutputMPVData(const bitpit::Config::Section & rootXML);
@@ -217,7 +224,7 @@ public:
 
     BITPIT_DEPRECATED(template<typename T>
     MimmoPiercedVector< T >*    getInput());
-    
+
     template<typename T>
     void    setInput(MimmoPiercedVector< T > *data);
 
@@ -230,13 +237,19 @@ public:
     void setFilename(std::string filename);
     void setCSV(bool csv);
     void setBinary(bool binary);
-    
+
     void    execute();
-    
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
 protected:
     void swap(GenericOutputMPVData & x) noexcept;
+#if MIMMO_ENABLE_MPI
+    template<typename T>
+    void    collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, MimmoPiercedVector<T> * dataglobal);
+#endif
+
 private:
     template<typename T>
     void _setInput(MimmoPiercedVector< T > & data);
@@ -257,6 +270,8 @@ REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__OUTPUTDOF_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__OUTPUTDOF_HPP__)
 
 REGISTER(BaseManipulation, GenericOutput, "mimmo.GenericOutput")
+REGISTER(BaseManipulation, GenericOutputMPVData, "mimmo.GenericOutputMPVData")
+
 }
 
 #include "GenericOutput.tpp"

@@ -50,6 +50,9 @@ namespace inputCSVStream{
     std::fstream&  ifstreamcsvend(std::fstream &in, std::array< T,d > &x);
     template<typename T>
     std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x);
+    template<typename T, size_t d>
+    std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< std::array< T,d > > &x);
+
 }
 
 /*!
@@ -57,13 +60,15 @@ namespace inputCSVStream{
  * \ingroup iogeneric
  * \brief GenericInput is the class that set the initialization of a generic input data.
  *
- * GenericInput is derived from BaseManipulation class. 
+ * GenericInput is derived from BaseManipulation class.
  * GenericInput can read the input from a data file (unformatted/csv) or
  * it can be set by using setInput methods.
  * When reading, the GenericInput object recognizes the type of data and
  * it adapts the reading method in function of the output port used
  * to build link (pin) with other objects.
- * 
+ * On MPI versions, GenericInput read data from file with proc rank 0, and send
+ * all the data to all other proc.
+ *
  * \n
  * Ports available in GenericInput Class :
  *
@@ -72,7 +77,7 @@ namespace inputCSVStream{
      |                 Port Input  ||                                 |
      |----------|-------------------|-----------------------|
      |<B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    
+
 
      |              Port Output   |               |                       |
      |---------------|-------------------|-----------------------|
@@ -104,6 +109,15 @@ namespace inputCSVStream{
  *
  */
 class GenericInput: public BaseManipulation{
+
+// template<typename T>
+// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::array<T,3> &array3);
+// template<typename T>
+// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::vector<T> &vector);
+// template<typename T>
+// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::vector<std::array<T,3>> &vecarray3);
+
+
 private:
     bool            m_readFromFile; /**<True if the object reads the values from file.*/
     bool            m_csv;          /**<True if the file is in csv format.*/
@@ -163,6 +177,10 @@ public:
 
 protected:
     void swap(GenericInput & x) noexcept;
+#if MIMMO_ENABLE_MPI
+    template<typename T>
+    void                sendReadDataToAllProcs(T & data);
+#endif
 
 private:
 
@@ -189,29 +207,36 @@ private:
  * \ingroup iogeneric
  * \brief GenericInputMPVData is the class that set a generic input data as mimmo::MimmoPiercedVector.
  *
- * GenericInputMPVData is derived from BaseManipulation class. 
+ * GenericInputMPVData is derived from BaseManipulation class.
  * GenericInput read MimmoPiercedVector data fields from file (unformatted/csv)
  * When reading, the GenericInput object recognizes the type of data and
  * it adapts the reading method in function of the output port used
  * to build link (pin) with other objects.
+ * If a valid reference geometry is linked through port M_GEOM or through method setGeometry
+ * the class checks all MPV entries read  and retains those whose id is contained inside the
+ * reference geometry point-data, cell-data or interface-data.
+ * If none of the items is referenced by the geometry return an empty MimmoPiercedVector as
+ * result.
  * Can read binary data related to PiercedVector, activating the binary flag.
- * 
+ * On MPI versions, GenericInputMPVData read data from file with proc rank 0, and send
+ * all the data to all other procs.
+ *
  * \n
  * Ports available in GenericInput Class :
  *
  *    =========================================================
- * 
+ *
  *     |                 Port Input  ||                                 |
  *     |----------|-------------------|-----------------------|
  *     |<B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  *     |M_GEOM   |  setGeometry | (MC_SCALAR, MD_MIMMO_) |
- * 
+ *
  *     |              Port Output   |               |                       |
  *     |---------------|-------------------|-----------------------|
  *     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  *     | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
  *     | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)    |
- * 
+ *
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :
@@ -231,7 +256,7 @@ class GenericInputMPVData: public BaseManipulation{
 private:
     bool            m_csv;          /**<True if the file is in csv format.*/
     std::string     m_dir;          /**<Name of directory to read the input file.*/
-    std::string     m_filename;     /**<Name of the input file. The file has to be an ascii text file.*/
+    std::string     m_filename;     /**<Name of the input file. */
 
     std::unique_ptr<IOData>                m_result;        /**<Pointer to a base class object Result (derived class is template).*/
 
@@ -266,6 +291,10 @@ public:
 
 protected:
     void swap(GenericInputMPVData & x) noexcept;
+#if MIMMO_ENABLE_MPI
+    template<typename T>
+    void sendReadDataToAllProcs(MimmoPiercedVector<T> & data);
+#endif
 
 private:
 
@@ -275,7 +304,7 @@ private:
     void                             _setResult(MimmoPiercedVector< T >*);
     template<typename T>
     void                             _setResult(MimmoPiercedVector< T >&);
-    
+
 
 };
 

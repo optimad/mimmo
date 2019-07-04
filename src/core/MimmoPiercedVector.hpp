@@ -97,6 +97,7 @@ public:
 
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
+    MimmoPiercedVector<mpv_t> resizeToCoherentDataIds();
     bool intIsValidLocation(int &);
 
     void  swap(MimmoPiercedVector<mpv_t>& x) noexcept;

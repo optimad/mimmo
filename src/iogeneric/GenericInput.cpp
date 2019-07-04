@@ -310,7 +310,7 @@ GenericInputMPVData::GenericInputMPVData(std::string dir, std::string filename, 
     m_filename      = filename;
     m_name          = "mimmo.GenericInputMPVData";
     m_binary        = false;
-    m_portsType     = BaseManipulation::ConnectionType::FORWARD;
+    m_portsType     = BaseManipulation::ConnectionType::BOTH;
 };
 
 GenericInputMPVData::~GenericInputMPVData(){};
