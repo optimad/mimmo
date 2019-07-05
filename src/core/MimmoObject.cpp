@@ -844,7 +844,7 @@ MimmoObject::getNGlobalCells() {
 };
 
 /*!
- * Return the partition offset for nodes consecutive index.
+ * Return the partition offset for nodes consecutive index. The parallel structures have to be already updated (not internal sync).
  * \return points partition offset
  */
 long
@@ -852,8 +852,8 @@ MimmoObject::getPointGlobalCountOffset(){
 	if (!getPatch()->isPartitioned())
 		return 0;
 
-	if (!arePointGhostExchangeInfoSync())
-		updatePointGhostExchangeInfo();
+//	if (!arePointGhostExchangeInfoSync())
+//		updatePointGhostExchangeInfo();
 
 	return m_globaloffset;
 };
@@ -1736,7 +1736,7 @@ void MimmoObject::resetPointGhostExchangeInfo()
 
 
 /*!
- * Get if a vertex is local or not
+ * Get if a vertex is local or not. The structures have to be previously updated (not internal sync).
  * \param[in] id Vertex id
  */
 bool
@@ -1751,8 +1751,8 @@ MimmoObject::isPointInterior(long id)
 	if (!getPatch()->isPartitioned())
 		return true;
 
-	if (!arePointGhostExchangeInfoSync())
-		updatePointGhostExchangeInfo();
+//	if (!arePointGhostExchangeInfoSync())
+//		updatePointGhostExchangeInfo();
 
 	if (!m_isPointInterior.count(id))
 		return false;
