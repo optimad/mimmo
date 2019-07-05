@@ -224,6 +224,18 @@ Partition::execute(){
 
 					//Compute boundary partition
 					computeBoundaryPartition();
+
+					if (m_rank == 0){
+						std::ofstream outFile("surf.partition.dat");
+						long ncell = getBoundaryGeometry()->getPatch()->getCellCount();
+						outFile << ncell;
+						for (auto val : m_boundarypartition){
+							outFile << val.first;
+							outFile << val.second;
+						}
+						outFile.close();
+					}
+
 				}
 			}
 
