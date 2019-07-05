@@ -225,7 +225,9 @@ PropagateScalarField::plotOptionalResults(){
 	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
 	vtk.setCounter(getId());
-	getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name +"_field");
+    getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
+    getGeometry()->getPatch()->getVTK().setName(m_name+"_field");
+	getGeometry()->getPatch()->write();
 	vtk.removeData("field");
 	vtk.removeData("dumping");
 	vtk.unsetCounter();
@@ -657,7 +659,10 @@ PropagateVectorField::plotOptionalResults(){
 	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
 
 	vtk.setCounter(getId());
-	getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name +"_field");
+    getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
+    getGeometry()->getPatch()->getVTK().setName(m_name+"_field");
+    getGeometry()->getPatch()->write();
+
 	vtk.removeData("field");
 	vtk.removeData("dumping");
 	vtk.unsetCounter();
