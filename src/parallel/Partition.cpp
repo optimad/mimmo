@@ -490,7 +490,7 @@ Partition::computeBoundaryPartition()
                             long brawindex = getBoundaryGeometry()->getCells().getRawIndex(id);
     						if (distance < distances[brawindex]){
                                 distances[brawindex] = distance;
-                                m_boundarypartition[brawindex] = m_partition[getGeometry()->getCells().getRawIndex(inter.getOwner())];
+                                m_boundarypartition[id] = m_partition[inter.getOwner()];
     						}
                         }
 					}
