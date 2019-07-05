@@ -241,7 +241,9 @@ Partition::execute(){
 			//partition
 			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
+				std::cout << "in partition" << std::endl;
 				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+				std::cout << "out partition" << std::endl;
 				if (m_mode == PartitionMethod::SERIALIZE){
 //					// Sort cells and vertices with Id
 //					getGeometry()->getPatch()->sortCells();
@@ -281,7 +283,9 @@ Partition::execute(){
 #endif
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
+						std::cout << "in partition boundary" << std::endl;
 						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+						std::cout << "out partition boundary" << std::endl;
 						if (m_mode == PartitionMethod::SERIALIZE){
 //							// Sort cells and vertices with Id
 //							getBoundaryGeometry()->getPatch()->sortCells();
@@ -305,12 +309,16 @@ Partition::execute(){
 //					updateBoundaryVerticesID();
 
 					//Force rebuild patch info
+					std::cout << "in build info" << std::endl;
 					getBoundaryGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
+					std::cout << "in update point info" << std::endl;
 					getBoundaryGeometry()->updatePointGhostExchangeInfo();
 #endif
 					//Clean potential point connectivity
+					std::cout << "in clean point connectivity" << std::endl;
 					getBoundaryGeometry()->cleanPointConnectivity();
+					std::cout << "in reset interface" << std::endl;
                     getBoundaryGeometry()->resetInterfaces();
 				}
 			}
@@ -582,6 +590,7 @@ Partition::updateBoundaryVerticesID()
  */
 void
 Partition::plotOptionalResults(){
+	std::cout << "in plot optional results" << std::endl;
     std::string dir = m_outputPlot +"/";
     std::string name = m_name;
     getGeometry()->getPatch()->getVTK().setDirectory(dir);
