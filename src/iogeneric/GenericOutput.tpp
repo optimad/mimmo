@@ -232,7 +232,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
 
 #if MIMMO_ENABLE_MPI
     std::unique_ptr< MimmoPiercedVector<T> > dataglobal(new MimmoPiercedVector<T>());
-    if(m_nprocs > 1) collectDataFromAllProcs(*data, dataglobal.get());
+    collectDataFromAllProcs(*data, dataglobal.get());
     workingptr_ = dataglobal.get();
     // get only 0 to work;
     if(m_rank == 0)
@@ -255,7 +255,6 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
                 file<<'\n';
                 bitpit::genericIO::flushASCII(file,long(workingptr_->size()));
                 file<<'\n';
-                bitpit::genericIO::flushBINARY(file, long(workingptr_->size()));
                 for (auto datait = workingptr_->begin(); datait != workingptr_->end(); ++datait) {
                     bitpit::genericIO::flushASCII(file, datait.getId());
                     bitpit::genericIO::flushASCII(file, *datait);
