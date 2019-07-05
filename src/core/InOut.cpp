@@ -28,7 +28,7 @@ using namespace std;
 
 
 /*!
-    Output stream operator for dvector1D 
+    Output stream operator for dvector1D
     \param[in] buffer is the output stream
     \param[in] var is the element to be streamed
     \result Returns the same output stream received in input.
@@ -270,13 +270,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<mimm
 }
 
 /*!
-*	Input stream operator for std::pair\<MimmoObject*, dvecarr3E *\> 
+*	Input stream operator for std::pair\<MimmoObject*, dvecarr3E *\>
 *	\param[in] buffer is the input stream
 *	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element){
-    
+
     mimmo::MimmoObject * geo;
     dvecarr3E * data;
     buffer >> geo >> data ;
@@ -296,7 +296,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 };
 
 /*!
-*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\> 
+*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\>
 *	\param[in] buffer is the input stream
 *	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -310,7 +310,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<mimmo
 };
 
 /*!
-*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\> 
+*	Input stream operator for std::pair\<MimmoObject*, dvector1D *\>
 *	\param[in] buffer is the input stream
 *	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -355,7 +355,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
 }
 
 /*!
-*	Input stream operator for std::pair\<BaseManipulation*, double\> 
+*	Input stream operator for std::pair\<BaseManipulation*, double\>
 *	\param[in] buffer is the input stream
 *	\param[in] element is the element to be streamed
 *	\result Returns the same input stream received in input.
@@ -395,7 +395,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr2
             buffer << var[i][j];
         }
     }
-    
+
     return buffer;
 }
 
@@ -416,7 +416,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr2E &var)
             buffer >> var[i][j];
         }
     }
-    
+
     return buffer;
 }
 
@@ -435,7 +435,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivecarr2
             buffer << var[i][j];
         }
     }
-    
+
     return buffer;
 }
 
@@ -479,7 +479,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
             }
         }
     }
-    
+
     return buffer;
 }
 
@@ -502,7 +502,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
             for (int k = 0; k < 2; ++k) {
                 buffer >> var[i][j][k];
             }
-        }	
+        }
     }
     return buffer;
 }
@@ -515,7 +515,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dve
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<std::string, std::pair<int, mimmo::MimmoObject*> >&  var){
-    
+
     std::string key;
     mimmo::MimmoObject * value;
     int ftype;
@@ -535,7 +535,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<std::string, std::pair<int, mimmo::MimmoObject*> >& var){
-    
+
     int nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
@@ -551,7 +551,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<long,std::pair<int,long> >&  var){
-    
+
     long key;
     int val1;
     long val2;
@@ -571,7 +571,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<long,std::pair<int,long> >& var){
-    
+
     int nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
@@ -589,7 +589,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<mimmo::MimmoObject *>&  var){
-    
+
     int nP;
     buffer >> nP;
     var.resize(nP);
@@ -606,7 +606,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<mimm
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::MimmoObject *>& var){
-    
+
     int nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
@@ -628,7 +628,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileData
     buffer >> var.ftype;
     buffer >> var.fdir;
     buffer >> var.fname;
-    
+
     return buffer;
 };
 
@@ -639,11 +639,11 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileData
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
-    
+
     buffer<<var.ftype<<var.fdir<<var.fname;
     return buffer;
-    
-    
+
+
 };
 
 /*!
@@ -653,7 +653,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::Fi
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::FileDataInfo>&  var){
-    
+
     int nP;
     buffer>>nP;
     var.resize(nP);
@@ -685,7 +685,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< mimmo::MimmoObject*, dvector1D* >&  var){
-    
+
     mimmo::MimmoObject * key;
     dvector1D * val;
     int size;
@@ -719,7 +719,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 *	\result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >&  var){
-    
+
     mimmo::MimmoObject * key;
     dvecarr3E * val;
     int size;
@@ -753,7 +753,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 * \result Returns the same output stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
-    
+
     int nP;
     buffer >> nP;
     element.resize(nP);
@@ -770,7 +770,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 * \result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
-    
+
     int nP = element.size();
     buffer << nP;
     for (int i = 0; i < nP; ++i) buffer << element[i];
@@ -784,7 +784,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 * \result Returns the same output stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
-    
+
     int nP;
     buffer >> nP;
     element.resize(nP);
@@ -801,7 +801,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 * \result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
-    
+
     int nP = element.size();
     buffer << nP;
     for (int i = 0; i < nP; ++i) buffer << element[i];
@@ -895,11 +895,11 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
 //     buffer >> name;
 //     std::cout<<"mpv name"<<name<<std::endl;
 //     element.setName(name);
-    
+
     int loc_;
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
-    
+
     int nP;
     buffer >> nP;
     darray3E val;
@@ -911,7 +911,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
         }
         element.insert(Id, val);
     }
-    
+
     return buffer;
 }
 
@@ -980,10 +980,116 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::unordered_
     buffer >> nids;
     for (int i = 0; i < nids; ++i){
     	long key;
-    	short val;
+    	int val;
         buffer >> key;
         buffer >> val;
         element[key] = val;
+    }
+    return buffer;
+}
+
+
+/*!
+    Output stream operator for std::map<int,int>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<int, int>& element){
+    buffer << (std::size_t)element.size();
+    for (auto &ids : element){
+        buffer<<ids.first;
+        buffer<<ids.second;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::map<int,int>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int,int>& element){
+    element.clear();
+    std::size_t nids;
+    buffer >> nids;
+    int key, id;
+    for (int i = 0; i < nids; ++i){
+        buffer >> key;
+        buffer >> id;
+        element[key] = id;
+    }
+    return buffer;
+}
+
+
+/*!
+    Output stream operator for std::map<int,string>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<int, std::vector<int>>& element){
+    buffer << (std::size_t)element.size();
+    for (auto ids : element){
+        buffer<<ids.first;
+        buffer<<ids.second;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::map<int,string>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, std::vector<int> >& element){
+    element.clear();
+    std::size_t nids;
+    buffer >> nids;
+    int key;
+    std::vector<int> vid;
+
+    for (int i = 0; i < nids; ++i){
+        buffer >> key;
+        buffer >> vid;
+        element[key] = vid;
+    }
+    return buffer;
+}
+
+/*!
+* Output stream operator for ivector1D
+* \param[in] buffer is the output stream
+* \param[in] var is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivector1D &var)
+{
+    int nP = var.size();
+    buffer << nP;
+    for (int i = 0; i < nP; ++i) {
+        buffer << var[i];
+    }
+    return buffer;
+}
+
+
+/*!
+* Input stream operator for ivector1D
+* \param[in] buffer is the input stream
+* \param[in] var is the element to be streamed
+* \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivector1D &var)
+{
+    int nP;
+    buffer >> nP;
+    var.resize(nP);
+    for (int i = 0; i < nP; ++i) {
+        buffer >> var[i];
     }
     return buffer;
 }
@@ -1132,7 +1238,7 @@ mimmo::PortOut::clear(int j){
     }
 }
 
-/*! 
+/*!
  * Execution of the PIN.
  * All the pins are called in execution of the sending owner after its own execution.
  * Reading stage of pin linked receivers is automatically performed within this execution.

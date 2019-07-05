@@ -101,7 +101,7 @@ Partition::buildPorts(){
 
 	bool built = true;
 
-	built = (built && createPortIn<std::unordered_map<long, int>, Partition>(this, &mimmo::Partition::setPartition, M_UMAPSI));
+	built = (built && createPortIn<std::unordered_map<long, int>, Partition>(this, &mimmo::Partition::setPartition, M_UMAPI));
 	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setGeometry, M_GEOM, true));
 	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setBoundaryGeometry, M_GEOM2));
 

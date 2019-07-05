@@ -62,7 +62,7 @@ enum class PartitionMethod{
      |                 Port Input    ||                              |
      |----------|-------------------|-------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECTORLI  | setPartition      | (MC_VECTOR, MD_LONG)          |
+     | M_UMAPI  | setPartition      | (MC_UMAP, MD_INT)          |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
      | M_GEOM2   | setBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
@@ -141,7 +141,7 @@ private:
 
 };
 
-REGISTER_PORT(M_UMAPSI, MC_UMAP, MD_SHORT,__PARTITION_HPP__)
+REGISTER_PORT(M_UMAPI, MC_UMAP, MD_INT,__PARTITION_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PARTITION_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__PARTITION_HPP__)
 

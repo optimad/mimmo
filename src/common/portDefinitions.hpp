@@ -82,7 +82,7 @@
 #define M_VALUEI2         "M_VALUEI2"           /**< Port dedicated to communication of a single scalar value [int] */
 #define M_POLYDATA_       "M_POLYDATA_"         /**< Port dedicated to communicate a pointer to a vtk polydata mesh [vtkPolyData *] */
 #define M_UMAPIDS      	  "M_UMAPIDS"           /**< Port dedicated to communicate a map between IDs [std::unordered_map<long, long> *] */
-#define M_UMAPSI      	  "M_UMAPSI"            /**< Port dedicated to communicate a map between IDs and short int [std::unordered_map<long, int> *] */
+#define M_UMAPI      	  "M_UMAPI"             /**< Port dedicated to communicate a map between IDs and int [std::unordered_map<long, int> *] */
 
 /*!
  * \}
