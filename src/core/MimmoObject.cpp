@@ -1125,7 +1125,6 @@ MimmoObject::getMapDataInv(bool withghosts){
 #if MIMMO_ENABLE_MPI
 	if (getPatch()->isPartitioned()){
 		for (auto val : m_pointConsecutiveId){
-			std::cout << "val " << val.first << " " << val.second << std::endl;
 			if (!withghosts && !isPointInterior(val.first)){
 				continue;
 			}
@@ -1136,7 +1135,6 @@ MimmoObject::getMapDataInv(bool withghosts){
 #endif
 	int i = 0;
 	for (auto const & vertex : getVertices()){
-		std::cout << "vertex " << vertex.getId() << " " << i << std::endl;
 		mapDataInv[vertex.getId()] = i;
 		++i;
 	}
