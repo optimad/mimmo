@@ -804,8 +804,8 @@ MimmoObject::getNInternalVertices(){
 		return getNVertices();
 #if MIMMO_ENABLE_MPI
 
-	if (!arePointGhostExchangeInfoSync())
-		updatePointGhostExchangeInfo();
+//	if (!arePointGhostExchangeInfoSync())
+//		updatePointGhostExchangeInfo();
 
 	return m_ninteriorvertices;
 #endif
@@ -823,8 +823,8 @@ MimmoObject::getNGlobalVertices(){
 		return p->getVertexCount();
 	}
 
-	if (!arePointGhostExchangeInfoSync())
-		updatePointGhostExchangeInfo();
+//	if (!arePointGhostExchangeInfoSync())
+//		updatePointGhostExchangeInfo();
 
 	return m_nglobalvertices;
 };
@@ -1124,8 +1124,6 @@ MimmoObject::getMapDataInv(bool withghosts){
 	liimap mapDataInv;
 #if MIMMO_ENABLE_MPI
 	if (getPatch()->isPartitioned()){
-		if (!arePointGhostExchangeInfoSync())
-			updatePointGhostExchangeInfo();
 		for (auto val : m_pointConsecutiveId){
 			if (!withghosts && !isPointInterior(val.first)){
 				continue;
@@ -1528,7 +1526,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	for (auto &entry : m_pointGhostExchangeTargets) {
 		std::vector<long> &rankTargets = entry.second;
 		for (long id : rankTargets){
-			m_isPointInterior[id] = false;
+			m_isPointInterior.at(id) = false;
 		}
 	}
 
@@ -1539,7 +1537,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		if (sharingRank < m_rank){
 			std::vector<long> &sharedPoints = entry.second;
 			for (long id : sharedPoints){
-				m_isPointInterior[id] = false;
+				m_isPointInterior.at(id) = false;
 			}
 		}
 	}
@@ -1578,7 +1576,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	long consecutiveId = m_globaloffset;
 	//Insert owned vertices
 	for (const long & id : getVertices().getIds()){
-		if (m_isPointInterior[id]){
+		if (m_isPointInterior.at(id)){
 			m_pointConsecutiveId[id] = consecutiveId;
 			consecutiveId++;
 		}
@@ -1743,8 +1741,8 @@ bool
 MimmoObject::isPointInterior(long id)
 {
 
-	if (!getVertices().exists(id))
-		return false;
+//	if (!getVertices().exists(id))
+//		return false;
 
 	//TODO Initialize structure to true if not partitioned
 	//If not partitioned return true
@@ -1754,10 +1752,10 @@ MimmoObject::isPointInterior(long id)
 //	if (!arePointGhostExchangeInfoSync())
 //		updatePointGhostExchangeInfo();
 
-	if (!m_isPointInterior.count(id))
-		return false;
+//	if (!m_isPointInterior.count(id))
+//		return false;
 
-	return m_isPointInterior[id];
+	return m_isPointInterior.at(id);
 }
 
 /*!
