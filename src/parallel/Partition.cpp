@@ -254,7 +254,8 @@ Partition::execute(){
 			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::cout << "in partition" << std::endl;
-				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+//				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
+				getGeometry()->getPatch()->partition(m_partition, false, false);
 				std::cout << "out partition" << std::endl;
 				if (m_mode == PartitionMethod::SERIALIZE){
 //					// Sort cells and vertices with Id
@@ -296,7 +297,8 @@ Partition::execute(){
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::cout << "in partition boundary" << std::endl;
-						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+//						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+						getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, false);
 						std::cout << "out partition boundary" << std::endl;
 						if (m_mode == PartitionMethod::SERIALIZE){
 //							// Sort cells and vertices with Id
