@@ -218,10 +218,10 @@ Partition::execute(){
 			if (m_rank == 0){
 				std::ofstream outFile("volume.partition.dat");
 				long ncell = getGeometry()->getPatch()->getCellCount();
-				outFile << ncell;
+				outFile << ncell << std::endl;
 				for (auto val : m_partition){
-					outFile << val.first;
-					outFile << val.second;
+					outFile << val.first << std::endl;
+					outFile << val.second << std::endl;
 				}
 				outFile.close();
 			}
@@ -241,10 +241,10 @@ Partition::execute(){
 					if (m_rank == 0){
 						std::ofstream outFile("surf.partition.dat");
 						long ncell = getBoundaryGeometry()->getPatch()->getCellCount();
-						outFile << ncell;
+						outFile << ncell << std::endl;
 						for (auto val : m_boundarypartition){
-							outFile << val.first;
-							outFile << val.second;
+							outFile << val.first << std::endl;
+							outFile << val.second << std::endl;
 						}
 						outFile.close();
 					}
