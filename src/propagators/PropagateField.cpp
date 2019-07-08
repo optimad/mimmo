@@ -645,7 +645,7 @@ void PropagateVectorField::distributeSlipBCOnBoundaryInterfaces(){
 void
 PropagateVectorField::plotOptionalResults(){
 
-	if(getGeometry() == NULL)    return;
+	if(!getGeometry())    return;
 
 	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
 #if MIMMO_ENABLE_MPI
@@ -1291,19 +1291,13 @@ PropagateVectorField::execute(){
 		dataInv = geo->getMapDataInv(true);
 		data = geo->getMapData(true);
 
-        std::cout<<"Preparing boundaries"<<std::endl;
-
 		// compute the laplacian stencils
 		GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_dumping);
-
-        std::cout<<"Evaluate stencils"<<std::endl;
 
 		// initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
 		initializeLaplaceSolver(laplaceStencils.get(), dataInv);
 		laplaceStencils->squeezeOutExcept(borderPointsID);
 		borderPointsID.clear();
-
-        std::cout<<"Initialize solver"<<std::endl;
 
 		//declare results here and keep it during the loop to re-use the older steps.
 		std::vector<std::vector<double>> results(3);
@@ -1355,7 +1349,6 @@ PropagateVectorField::execute(){
 	#if MIMMO_ENABLE_MPI
 			communicatePointGhostData(&m_field);
 	#endif
-
 			// if you are in multistep stage apply the deformation to the mesh.
 			if(m_nstep > 1){
 				apply();

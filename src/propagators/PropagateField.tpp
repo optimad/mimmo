@@ -1325,8 +1325,8 @@ void PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::ar
 	// Creating point ghost communications for exchanging interpolated values
 	if (getGeometry()->getPatch()->isPartitioned()){
 		if(!m_pointGhostStreamer) {
-			//Force update exchange info
-			getGeometry()->updatePointGhostExchangeInfo();
+			// //Force update exchange info
+			// getGeometry()->updatePointGhostExchangeInfo();
 			m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(data));
 			m_pointGhostTag = createPointGhostCommunicator(true);
 			m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
