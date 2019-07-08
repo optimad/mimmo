@@ -33,61 +33,6 @@ namespace mimmo{
 typedef int M_CG_ElementType_t;     /**<Casting of CG_ElementType_t to int.*/
 typedef int M_CG_BCType_t;          /**<Casting of CG_BCType_t to int.*/
 
-// /*!
-//  * \class InfoCGNS
-//  * \ingroup iocgns
-//  *  \brief Class to store the Info related to MimmoObject in order to export in CGNS grid format. Only one zone supported.
-//  *
-//  */
-// class InfoCGNS{
-//     friend class IOCGNS;
-// private:
-//
-//     std::map<bitpit::ElementType, M_CG_ElementType_t>   mcg_typeconverter; /**<Element type conversion bitpit->CGNS.*/
-//     std::map<M_CG_ElementType_t, std::string>                 mcg_typetostring;  /**<Element type conversion CGNS->sting.*/
-//
-//     std::map<M_CG_ElementType_t, int>                         mcg_number;     /**<Number of elements in each volume section per type.*/
-//     std::map<M_CG_ElementType_t, std::vector<long int> >      mcg_typetoid;   /**<Map of elements (bitpit ID vector) in each volume section per type.*/
-//     std::map<M_CG_ElementType_t, std::vector<int> >           mcg_typetoconn; /**<Map of connectivity of elements (bitpit vertex ID vector) in each volume section per type.*/
-//     std::map<long int, int>                                 mcg_idtoindex;  /**<Map of elements bitpit ID to local CGNS index.*/
-//     std::vector<long int>                                   mcg_indextoid;  /**<Vector of elements local CGNS index to bitpit ID.*/
-//
-//     std::map<M_CG_ElementType_t, int>                         mcg_bndnumber;      /**<Number of elements in each boundary section per type.*/
-//     std::map<M_CG_ElementType_t, std::vector<long int> >      mcg_bndtypetoid;    /**<Map of boundary elements (bitpit ID vector) in each boundary section per type.*/
-//     std::map<M_CG_ElementType_t, std::vector<int> >           mcg_bndtypetoconn;  /**<Map of connectivity of boundary elements (bitpit vertex ID vector) in each boundary section per type.*/
-//     std::map<long int, int>                                 mcg_bndidtoindex;   /**<Map of boundary elements bitpit ID to local CGNS index.*/
-//     std::vector<long int>                                   mcg_bndindextoid;   /**<Vector of boundary elements local CGNS index to bitpit ID.*/
-//
-// public:
-//     InfoCGNS(){};
-//     ~InfoCGNS()
-//     {
-//         clear();
-//     }
-//
-//     void dump(std::ostream & out);
-//     void restore(std::istream & in);
-//
-// private:
-//     /*!
-//      * Clear members of the class.
-//      */
-//     void
-//     clear(){
-//         mcg_number.clear();
-//         mcg_typetoid.clear();
-//         mcg_typetoconn.clear();
-//         mcg_idtoindex.clear();
-//         mcg_indextoid.clear();
-//         mcg_bndnumber.clear();
-//         mcg_bndtypetoid.clear();
-//         mcg_bndtypetoconn.clear();
-//         mcg_bndidtoindex.clear();
-//         mcg_bndindextoid.clear();
-//     }
-//
-// };
-
 /*!
  * \class BCCGNS
  * \ingroup iocgns
@@ -100,7 +45,6 @@ class BCCGNS{
     friend class IOCGNS;
 private:
     std::map<int, M_CG_BCType_t >       mcg_pidtobc;      /**<Converter of boundary conditions types (PID->conditionType).*/
-    std::map<int, std::string >         mcg_pidtoname;      /**<Converter of boundary conditions types (PID->nameBC).*/
     std::map<int, std::vector<int> >    mcg_zonetobndpid;  /**<map that associates volume zone to interested boundary pid*/
 
 public:
@@ -116,7 +60,6 @@ private:
 
     void clear(){
         mcg_pidtobc.clear();
-        mcg_pidtoname.clear();
         mcg_zonetobndpid.clear();
     }
 };
@@ -131,7 +74,9 @@ private:
  *
  * The class is in beta version and has the following limitations:
  * - Only unstructured mesh with single base supported.
- * - Singular of multi-zone meshes are supported.
+ * - Singular of multi-zone meshes are supported are supported in reading native cgns.
+ * - Singular zone meshes are supported in writing cgns format.
+ * - Multi-zone meshes cgns writing will be supported in future, but not yet available.
  * - Data attached to boundary conditions patches are not read/written, except for
  *   their names and their cgns type.
  *
@@ -165,11 +110,15 @@ private:
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
 
  * Proper of the class:
- * - <B>IOCGNS_Mode</B>: 0-read from file cgns, 1-read from file cgns and save dump file,
- *                       2-read from dump, 3-write grid on cgns file, 4-write on dump, 5-convert dump to cgns file.
- * - <B>Dir</B>: directory path for reading/writing; In case of IOCGNS_Mode 1, cgns file is read here and the dump file will be saved here
- * - <B>Filename</B>: name of file to read/write without .cgns tag; In case of IOCGNS_Mode 1, this is the name of the cgns file. The dump file will be saved with the same name + "_MDUMP.dump"
+ * - <B>IOCGNS_Mode</B>: 0-read from file cgns (MPI archs reading with 0 rank only),
+ *                       1-restore from dump file
+ *                       2-write file to cgns (MPI archs writing with 0 rank only),
+ *                       3-dump data to file.
+ * - <B>Dir</B>: directory path for reading/writing;
+ * - <B>Filename</B>: name of file to read/write without .cgns/dump tag;
  * - <B>WriteInfo</B>: boolean (1/0) write on file zoneNames, bcNames, either in reading and writing mode. The save directory path is specified with Dir.
+ * - <B>WriteHDF</B>: 0- write in default format HDF, 1- write in old format ADF
+ * - <B>WriteMultiZone</B>: 0- write single zone, 1- write multizone(if multi zone are available in the mesh).
  *
  * Geometry has to be mandatorily read or passed through port.
  *
@@ -179,12 +128,14 @@ class IOCGNS: public BaseManipulation{
 public:
 
     enum IOCGNS_Mode{
-        READ = 0        , /**< Read the cgns from file */
-        READANDDUMP = 1 , /**< Read the cgns from file and dump it in file <>.dump*/
-        RESTORE = 2     , /**< Read the mesh from a previous <>.dump file*/
-        WRITE=3         , /**< Write the mesh on a cgns file */
-        WRITEONDUMP =4  , /**< Write the mesh on a <>.dump file */
-        CONVERTFROMDUMP=5 /**< Convert a mesh read from a dump file in the cgns native format*/
+        READ = 0        , /**< 0-rank only, Read the cgns from file */
+        RESTORE=1       , /**< Read the mesh from a previous <>.dump file*/
+        WRITE=2         , /**< 0-rank only, Write the mesh on a cgns file */
+        DUMP=3            /**<Write the mesh to dump file*/
+    };
+    enum IOCGNS_WriteType{
+        HDF = 0        , /**< 0-write cgns in default HDF mode */
+        ADF = 1        , /**< 1-write cgns in old ADF mode*/
     };
 
     IOCGNS(IOCGNS_Mode mode= IOCGNS_Mode::READ);
@@ -204,6 +155,9 @@ public:
     IOCGNS_Mode     whichMode();
     int             whichModeInt();
 
+    bool            isWritingHDF();
+    bool            isWritingMultiZone();
+
     void            setDir(const std::string &dir);
     void            setMode(IOCGNS_Mode mode);
     void            setFilename(const std::string &filename);
@@ -212,6 +166,8 @@ public:
     void            setSurfaceBoundary(MimmoObject*);
     void            setBoundaryConditions(BCCGNS*);
 
+    void            setWritingHDF(bool hdf);
+    void            setWritingMultiZone(bool multizone);
     void            setWriteOnFileMeshInfo(bool write);
 
     void            execute();
@@ -227,13 +183,17 @@ protected:
     bool            restore(std::istream & stream);
     bool            belongToPool(const bitpit::ConstProxyVector<long> & elementconn, const std::set<long> &pool);
 
-//    void    unpack3DElementsMixedConns(MimmoObject*,MimmoObject*, ivector1D &, long &startId);
-//    void    recoverCGNSInfo();
-    void writeInfoFile(); 
+    void writeInfoFile();
     std::unordered_map<int, std::vector<std::size_t> >
                 getZoneConn(const livector1D& cellIds, const std::unordered_map<long,int> & mapToLocVert);
+#if MIMMO_ENABLE_MPI
+    void communicateAllProcsStoredBC();
+#endif
+
 private:
-    IOCGNS_Mode    m_mode;         /**<Mode of execution.See setMode configuration.*/
+    IOCGNS_Mode      m_mode;       /**<Mode of execution.See setMode configuration.*/
+    IOCGNS_WriteType m_wtype;      /**<Writing type HDF or ADF*/
+    bool             m_multizone;  /**<Writing multizone true, or single zone false*/
 
     std::string     m_dir;         /**<Name of directory path*/
     std::string     m_filename;    /**<Name of file */
@@ -242,11 +202,11 @@ private:
     std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiated in reading */
     MimmoObject *                       m_surfmesh_not;     /**<Pointed external boundary mesh*/
 
-//    std::unique_ptr<InfoCGNS>           m_storedInfo;       /**<Information of a CGNS read mesh.*/
+//    std::unique_ptr<InfoCGNS>           m_storedInfo;     /**<Information of a CGNS read mesh.*/
     std::unique_ptr<BCCGNS>             m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
 
-    bool    m_writeOnFile; /**! write mesh info on file */
-
+    bool    m_writeOnFile;                                  /**! write mesh info on file */
+    std::unordered_map<int, std::string> m_elementsSectionName;  /**< facility to giv name to group of elements in writing mode*/
 };
 
 

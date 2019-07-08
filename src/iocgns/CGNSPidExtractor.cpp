@@ -171,7 +171,6 @@ CGNSPidExtractor::setForcedToTriangulate( bool flag){
 void
 CGNSPidExtractor::setGeometry(MimmoObject * geo){
     if(geo == NULL)    return;
-    if(geo->isEmpty())    return;
     if(geo->getType() != 1)    return;
     BaseManipulation::setGeometry(geo);
 }
@@ -188,6 +187,7 @@ CGNSPidExtractor::execute(){
 
     if(!mother){
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error("NULL pointer to linked geometry found");
         return;
     }
 
