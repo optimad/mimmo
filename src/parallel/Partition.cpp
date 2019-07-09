@@ -214,18 +214,6 @@ Partition::execute(){
 			//Compute partition
 			computePartition();
 
-			//TODO DEBUG
-			if (m_rank == 0){
-				std::ofstream outFile("volume.partition.dat");
-				long ncell = getGeometry()->getPatch()->getCellCount();
-				outFile << ncell << std::endl;
-				for (auto val : m_partition){
-					outFile << val.first << std::endl;
-					outFile << val.second << std::endl;
-				}
-				outFile.close();
-			}
-
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
@@ -236,18 +224,6 @@ Partition::execute(){
 
 					//Compute boundary partition
 					computeBoundaryPartition();
-
-					//TODO DEBUG
-					if (m_rank == 0){
-						std::ofstream outFile("surf.partition.dat");
-						long ncell = getBoundaryGeometry()->getPatch()->getCellCount();
-						outFile << ncell << std::endl;
-						for (auto val : m_boundarypartition){
-							outFile << val.first << std::endl;
-							outFile << val.second << std::endl;
-						}
-						outFile.close();
-					}
 
 				}
 			}
