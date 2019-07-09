@@ -258,11 +258,11 @@ Partition::execute(){
             }
 
 
-#if MIMMO_ENABLE_MPI
-            if (!getGeometry()->arePointGhostExchangeInfoSync()){
-				getGeometry()->updatePointGhostExchangeInfo();
-            }
-#endif
+//#if MIMMO_ENABLE_MPI
+//            if (!getGeometry()->arePointGhostExchangeInfoSync()){
+//				getGeometry()->updatePointGhostExchangeInfo();
+//            }
+//#endif
 			//partition
 			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
@@ -303,10 +303,10 @@ Partition::execute(){
 
 					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
 						getBoundaryGeometry()->buildAdjacencies();
-#if MIMMO_ENABLE_MPI
-					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
-						getBoundaryGeometry()->updatePointGhostExchangeInfo();
-#endif
+//#if MIMMO_ENABLE_MPI
+//					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
+//						getBoundaryGeometry()->updatePointGhostExchangeInfo();
+//#endif
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::cout << "in partition boundary" << std::endl;

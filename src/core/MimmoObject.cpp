@@ -1278,8 +1278,7 @@ MimmoObject::isSkdTreeSync(){
 bool
 MimmoObject::isInfoSync(){
 #if MIMMO_ENABLE_MPI
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 #endif
 	return m_infoSync;
 }
@@ -1404,8 +1403,7 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
 bool MimmoObject::arePointGhostExchangeInfoSync()
 {
 #if MIMMO_ENABLE_MPI
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 #endif
 	return m_pointGhostExchangeInfoSync;
 }
@@ -1764,9 +1762,7 @@ MimmoObject::isPointInterior(long id)
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelSkdTreeSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_skdTreeSync){
@@ -1782,9 +1778,7 @@ bool MimmoObject::cleanParallelSkdTreeSync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelKdTreeSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_kdTreeSync){
@@ -1799,9 +1793,7 @@ bool MimmoObject::cleanParallelKdTreeSync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelAdjacenciesSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_AdjBuilt){
@@ -1817,9 +1809,7 @@ bool MimmoObject::cleanParallelAdjacenciesSync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelInterfacesSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_IntBuilt){
@@ -1835,9 +1825,7 @@ bool MimmoObject::cleanParallelInterfacesSync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelPointConnectivitySync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_pointConnectivitySync){
@@ -1852,9 +1840,7 @@ bool MimmoObject::cleanParallelPointConnectivitySync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelInfoSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_infoSync){
@@ -1869,9 +1855,7 @@ bool MimmoObject::cleanParallelInfoSync(){
     \return true if the structure was reset, false if nothing was done.
 */
 bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
     //if the boolen is false you need to reset
     if(!m_pointGhostExchangeInfoSync){
@@ -2962,7 +2946,7 @@ bool MimmoObject::isClosedLoop(){
 	}
 
 #if MIMMO_ENABLE_MPI
-	MPI_Allreduce(MPI_IN_PLACE, &check, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &check, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 #endif
 
 	return check;
