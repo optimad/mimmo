@@ -244,7 +244,7 @@ Partition::execute(){
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 				std::cout << "in partition" << std::endl;
 //				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
-				getGeometry()->getPatch()->partition(m_partition, false, false);
+				getGeometry()->getPatch()->partition(m_partition, false, true);
 				std::cout << "out partition" << std::endl;
 				if (m_mode == PartitionMethod::SERIALIZE){
 //					// Sort cells and vertices with Id
@@ -265,29 +265,29 @@ Partition::execute(){
 			getGeometry()->resyncPID();
 
 			//Force rebuild patch info
-			getGeometry()->buildPatchInfo();
+//			getGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
-			getGeometry()->updatePointGhostExchangeInfo();
-
+//			getGeometry()->updatePointGhostExchangeInfo();
 #endif
 			//Clean potential point connectivity
-			getGeometry()->cleanPointConnectivity();
-            getGeometry()->resetInterfaces();
+//			getGeometry()->cleanPointConnectivity();
+//            getGeometry()->resetInterfaces();
 
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
 					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
 						getBoundaryGeometry()->buildAdjacencies();
-//#if MIMMO_ENABLE_MPI
+#if MIMMO_ENABLE_MPI
 //					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
 //						getBoundaryGeometry()->updatePointGhostExchangeInfo();
-//#endif
+					MPI_Barrier(m_communicator);
+#endif
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::cout << "in partition boundary" << std::endl;
 //						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
-						getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, false);
+						getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
 						std::cout << "out partition boundary" << std::endl;
 						if (m_mode == PartitionMethod::SERIALIZE){
 //							// Sort cells and vertices with Id
@@ -313,10 +313,10 @@ Partition::execute(){
 
 					//Force rebuild patch info
 					std::cout << "in build info" << std::endl;
-					getBoundaryGeometry()->buildPatchInfo();
+//					getBoundaryGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
 					std::cout << "in update point info" << std::endl;
-					getBoundaryGeometry()->updatePointGhostExchangeInfo();
+//					getBoundaryGeometry()->updatePointGhostExchangeInfo();
 #endif
 					//Clean potential point connectivity
 					std::cout << "in clean point connectivity" << std::endl;
