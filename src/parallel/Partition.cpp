@@ -211,28 +211,27 @@ Partition::execute(){
 	if (m_nprocs>1){
 		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->getPatch()->isPartitioned())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->getPatch()->isPartitioned())))
 		{
-			//Compute partition
-			computePartition();
-
-			if (getBoundaryGeometry() != nullptr){
-				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
-
-					//Set communicator if not already set
-					if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
-						getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
-					}
-
-					//Compute boundary partition
-					computeBoundaryPartition();
-
-				}
-			}
-
 
 			if (!getGeometry()->areAdjacenciesBuilt()){
 				getGeometry()->buildAdjacencies();
             }
 
+			//Compute partition
+			computePartition();
+			if (getBoundaryGeometry() != nullptr){
+				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+					//Set communicator if not already set
+					if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
+						getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
+					}
+					//Compute boundary partition
+					computeBoundaryPartition();
+				}
+			}
+
+
+			//Clean potential point connectivity
+			getGeometry()->cleanPointConnectivity();
 
 //#if MIMMO_ENABLE_MPI
 //            if (!getGeometry()->arePointGhostExchangeInfoSync()){
@@ -265,24 +264,25 @@ Partition::execute(){
 			getGeometry()->resyncPID();
 
 			//Force rebuild patch info
-//			getGeometry()->buildPatchInfo();
+			getGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
-//			getGeometry()->updatePointGhostExchangeInfo();
+			getGeometry()->updatePointGhostExchangeInfo();
 #endif
-			//Clean potential point connectivity
-//			getGeometry()->cleanPointConnectivity();
-//            getGeometry()->resetInterfaces();
 
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
 					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
 						getBoundaryGeometry()->buildAdjacencies();
-#if MIMMO_ENABLE_MPI
+//#if MIMMO_ENABLE_MPI
 //					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
 //						getBoundaryGeometry()->updatePointGhostExchangeInfo();
-					MPI_Barrier(m_communicator);
-#endif
+//					MPI_Barrier(m_communicator);
+//#endif
+					//Clean potential point connectivity
+					std::cout << "in clean point connectivity" << std::endl;
+					getBoundaryGeometry()->cleanPointConnectivity();
+
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
 						std::cout << "in partition boundary" << std::endl;
@@ -313,16 +313,11 @@ Partition::execute(){
 
 					//Force rebuild patch info
 					std::cout << "in build info" << std::endl;
-//					getBoundaryGeometry()->buildPatchInfo();
+					getBoundaryGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
 					std::cout << "in update point info" << std::endl;
-//					getBoundaryGeometry()->updatePointGhostExchangeInfo();
+					getBoundaryGeometry()->updatePointGhostExchangeInfo();
 #endif
-					//Clean potential point connectivity
-					std::cout << "in clean point connectivity" << std::endl;
-					getBoundaryGeometry()->cleanPointConnectivity();
-					std::cout << "in reset interface" << std::endl;
-                    getBoundaryGeometry()->resetInterfaces();
 				}
 			}
 		}
@@ -374,27 +369,35 @@ Partition::parmetisPartGeom(){
 			//
 			idx_t ncon = 1;
 
-			//Build interfaces to compute graph partitioning
-			if (!getGeometry()->areInterfacesBuilt())
-				getGeometry()->buildInterfaces();
-
-			//Build Adjacencies
+//			//Build interfaces to compute graph partitioning
+//			if (!getGeometry()->areInterfacesBuilt())
+//				getGeometry()->buildInterfaces();
+//
+//			//Build Adjacencies
 			std::vector<idx_t> xadj(nvtxs+1);
-			long nint=0;
-			for (auto inter : getGeometry()->getInterfaces()){
-				if (!inter.isBorder())
-					nint++;
+//			long nint=0;
+//			for (auto inter : getGeometry()->getInterfaces()){
+//				if (!inter.isBorder())
+//					nint++;
+//			}
+//			idx_t nEdges = idx_t(nint);
+//			idx_t duenedges = 2*nEdges;
+
+			idx_t duenedges = 0;
+
+			for (int i=0; i<getGeometry()->getNInternals(); i++){
+				duenedges += getGeometry()->getPatch()->getCell(mapcell[i]).getAdjacencyCount();
 			}
-			idx_t nEdges = idx_t(nint);
-			idx_t duenedges = 2*nEdges;
 
 			std::vector<idx_t> adjncy(duenedges);
 
 			idx_t i;
 			idx_t j=0;
+			std::vector<long> neighs;
 			for (i=0; i<getGeometry()->getNInternals(); i++){
 				xadj[i] = j;
-				std::vector<long> neighs = getGeometry()->getPatch()->findCellFaceNeighs(mapcell[i]);
+				neighs.clear();
+				getGeometry()->getPatch()->findCellFaceNeighs(mapcell[i], &neighs);
 				for (long id : neighs){
 					if (id > 0){
 						adjncy[j] = idx_t(mapcellinv[id]);
