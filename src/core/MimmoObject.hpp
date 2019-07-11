@@ -358,7 +358,7 @@ private:
 			std::array<double, 3> vertex_2 = m_object.getVertexCoords(id_2);
 
 			for (int k = 0; k < 3; ++k) {
-				if (std::abs(vertex_1[k] - vertex_2[k]) <= m_object.getPatch()->getTol()) {
+				if (std::abs(vertex_1[k] - vertex_2[k]) <= 1.0E-12) {
 					continue;
 				}
 				return vertex_1[k] < vertex_2[k];
