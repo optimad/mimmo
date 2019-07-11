@@ -95,7 +95,7 @@ private:
     MimmoObject*        			m_boundary;     		/**<Reference to external boundary MimmoObject. */
     std::unordered_map<long, int>	m_boundarypartition;	/**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
 
-	bool							m_tobuildandreset;
+	bool							m_interfacesReset;
 
     bool        					m_isInternal;         	/**< flag for internal instantiated main MimmoObject */
     std::unique_ptr<MimmoObject> 	m_intgeo;    			/**< pointer to internal allocated geometry, if any */

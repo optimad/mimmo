@@ -41,6 +41,7 @@ Partition::Partition(){
 	m_isInternal = false;
 	m_isBoundaryInternal = false;
 	m_intgeo = nullptr;
+	m_interfacesReset = false;
 };
 
 /*!
@@ -53,6 +54,10 @@ Partition::Partition(const bitpit::Config::Section & rootXML){
 	m_mode = PartitionMethod::PARTGEOM;
 	m_boundary = nullptr;
 	m_partition.clear();
+	m_isInternal = false;
+	m_isBoundaryInternal = false;
+	m_intgeo = nullptr;
+	m_interfacesReset = false;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -75,6 +80,8 @@ Partition::Partition(const Partition & other):BaseManipulation(other){
 	m_mode = other.m_mode;
 	m_partition = other.m_partition;
 	m_boundary = other.m_boundary;
+	m_interfacesReset = other.m_interfacesReset;
+;
 
 	if(other.m_isInternal){
         m_geometry = other.m_intgeo.get();
@@ -447,6 +454,11 @@ Partition::computeBoundaryPartition()
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
 
+			if (!getGeometry()->areInterfacesBuilt()){
+				m_interfacesReset = true;
+				getGeometry()->buildInterfaces();
+			}
+
 			m_boundarypartition.clear();
 			if (m_rank == 0){
 				m_boundarypartition.reserve(getBoundaryGeometry()->getNCells());
@@ -481,6 +493,10 @@ Partition::computeBoundaryPartition()
 				getBoundaryGeometry()->cleanSkdTree();
 
 			}
+
+			if (m_interfacesReset)
+				getGeometry()->resetInterfaces();
+
 		}
 	}
 }
