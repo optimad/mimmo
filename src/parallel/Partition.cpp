@@ -229,22 +229,14 @@ Partition::execute(){
 				}
 			}
 
-
 			//Clean potential point connectivity
 			getGeometry()->cleanPointConnectivity();
 
-//#if MIMMO_ENABLE_MPI
-//            if (!getGeometry()->arePointGhostExchangeInfoSync()){
-//				getGeometry()->updatePointGhostExchangeInfo();
-//            }
-//#endif
 			//partition
 			bool m_usemimmoserialize = false;
 			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
-				std::cout << "in partition" << std::endl;
 //				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
 				getGeometry()->getPatch()->partition(m_partition, false, true);
-				std::cout << "out partition" << std::endl;
 				if (m_mode == PartitionMethod::SERIALIZE){
 //					// Sort cells and vertices with Id
 //					getGeometry()->getPatch()->sortCells();
@@ -274,21 +266,14 @@ Partition::execute(){
 
 					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
 						getBoundaryGeometry()->buildAdjacencies();
-//#if MIMMO_ENABLE_MPI
-//					if (!getBoundaryGeometry()->arePointGhostExchangeInfoSync())
-//						getBoundaryGeometry()->updatePointGhostExchangeInfo();
-//					MPI_Barrier(m_communicator);
-//#endif
+
 					//Clean potential point connectivity
-					std::cout << "in clean point connectivity" << std::endl;
 					getBoundaryGeometry()->cleanPointConnectivity();
 
 					//boundary partition
 					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
-						std::cout << "in partition boundary" << std::endl;
 //						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
 						getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
-						std::cout << "out partition boundary" << std::endl;
 						if (m_mode == PartitionMethod::SERIALIZE){
 //							// Sort cells and vertices with Id
 //							getBoundaryGeometry()->getPatch()->sortCells();
@@ -308,14 +293,12 @@ Partition::execute(){
 					getBoundaryGeometry()->resyncPID();
 
 					//Update ID of boundary vertices
-						//TODO NO UPDATE BECAUSE BITPIT ASSIGN THE SAME IDS DURING PARTITION (FROM SERIAL TO PARTITION IS TRUE AND VICEVERSA IF NOT MODIFIED)
+					//NO UPDATE BECAUSE BITPIT ASSIGN THE SAME IDS DURING PARTITION (FROM SERIAL TO PARTITION IS TRUE AND VICEVERSA IF NOT MODIFIED)
 //					updateBoundaryVerticesID();
 
 					//Force rebuild patch info
-					std::cout << "in build info" << std::endl;
 					getBoundaryGeometry()->buildPatchInfo();
 #if MIMMO_ENABLE_MPI
-					std::cout << "in update point info" << std::endl;
 					getBoundaryGeometry()->updatePointGhostExchangeInfo();
 #endif
 				}
@@ -350,8 +333,6 @@ Partition::parmetisPartGeom(){
 
 	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
 
-		//TODO Clean geometry needed?
-		//getGeometry()->cleanGeometry();
 		liimap mapcell = getGeometry()->getMapCell();
 		liimap mapcellinv = getGeometry()->getMapCellInv();
 
@@ -369,22 +350,11 @@ Partition::parmetisPartGeom(){
 			//
 			idx_t ncon = 1;
 
-//			//Build interfaces to compute graph partitioning
-//			if (!getGeometry()->areInterfacesBuilt())
-//				getGeometry()->buildInterfaces();
-//
-//			//Build Adjacencies
+
+			//Build Adjacencies
 			std::vector<idx_t> xadj(nvtxs+1);
-//			long nint=0;
-//			for (auto inter : getGeometry()->getInterfaces()){
-//				if (!inter.isBorder())
-//					nint++;
-//			}
-//			idx_t nEdges = idx_t(nint);
-//			idx_t duenedges = 2*nEdges;
 
 			idx_t duenedges = 0;
-
 			for (int i=0; i<getGeometry()->getNInternals(); i++){
 				duenedges += getGeometry()->getPatch()->getCell(mapcell[i]).getAdjacencyCount();
 			}
@@ -476,9 +446,6 @@ Partition::computeBoundaryPartition()
 	else{
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
-
-			//TODO Clean geometry needed?
-			//getBoundaryGeometry()->cleanGeometry();
 
 			m_boundarypartition.clear();
 			if (m_rank == 0){
@@ -596,7 +563,6 @@ Partition::updateBoundaryVerticesID()
  */
 void
 Partition::plotOptionalResults(){
-	std::cout << "in plot optional results" << std::endl;
     std::string dir = m_outputPlot +"/";
     std::string name = m_name;
     getGeometry()->getPatch()->getVTK().setDirectory(dir);
