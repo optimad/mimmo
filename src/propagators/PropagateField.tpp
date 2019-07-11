@@ -150,10 +150,10 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 	if(!m_geometry->areAdjacenciesBuilt()){
 		m_geometry->buildAdjacencies();
 	}
-	//check and build the interfaces if needed
-	if(!m_geometry->areInterfacesBuilt()){
-		m_geometry->buildInterfaces();
-	}
+//	//check and build the interfaces if needed
+//	if(!m_geometry->areInterfacesBuilt()){
+//		m_geometry->buildInterfaces();
+//	}
 }
 
 /*!
