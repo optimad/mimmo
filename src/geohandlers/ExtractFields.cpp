@@ -70,7 +70,6 @@ ExtractField::buildPorts(){
 void
 ExtractField::setGeometry(MimmoObject* geo){
     if(geo == NULL)     return;
-    if(geo->isEmpty()) return;
     m_geometry = geo;
 };
 
@@ -163,7 +162,7 @@ void ExtractField::absorbSectionXML(const bitpit::Config::Section & slotXML, std
         if(!input.empty()){
             std::stringstream ss(input);
             ss >> value;
-            value = std::min(std::max(1, value),4);
+            value = std::min(std::max(1, value),3);
         }
     };
 

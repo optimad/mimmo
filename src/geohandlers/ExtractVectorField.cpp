@@ -144,11 +144,13 @@ ExtractVectorField::plotOptionalResults(){
             loc = bitpit::VTKLocation::CELL;
             break;
         default:
-            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<"Error: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
             break;
     }
-    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
+    if(loc == bitpit::VTKLocation::UNDEFINED){
+        throw std::runtime_error("Undefined data location");
+    };
 
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvecarr3E field_supp = m_result;
@@ -157,13 +159,15 @@ ExtractVectorField::plotOptionalResults(){
 
 
     if(m_result.getGeometry()->getType() != 3){
+        m_result.getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
+        m_result.getGeometry()->getPatch()->getVTK().setName(m_name+std::to_string(getId()));
         m_result.getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
-        m_result.getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+        m_result.getGeometry()->getPatch()->write();
         m_result.getGeometry()->getPatch()->getVTK().removeData("field");
     }else{
         if(loc == bitpit::VTKLocation::CELL){
-            (*m_log)<<"Warning: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;
-            return;
+            (*m_log)<<"Error: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;
+            throw std::runtime_error("Attempt writing Cell data field on cloud of points");
         }
         liimap mapDataInv;
         dvecarr3E points = m_result.getGeometry()->getVerticesCoords(&mapDataInv);

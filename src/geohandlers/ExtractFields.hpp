@@ -52,12 +52,12 @@ enum class ExtractMode{
  * Reference data location (POINT, CELLS or INTERFACES) of the input field is used to extract data
  * on vertices, cells or interfaces of the target geometry.
  * Three methods are available:
- * - <B>ID  = 0</B> : extraction of data on reference Location with the same IDs between target and input field linked geometry.
+ * - <B>ID  = 1</B> : extraction of data on reference Location with the same IDs between target and input field linked geometry.
  *                    Return an extracted field referred to the target geometry, with the same data location of the input field.
- * - <B>PID = 1</B> : extraction of data on reference Location within common PIDs between target geometry and field linked geometry;
+ * - <B>PID = 2</B> : extraction of data on reference Location within common PIDs between target geometry and field linked geometry;
  *                    Return an extracted field referred to the input field linked geometry, with the same data location of the input field.
- * - <B>MAPPING = 2</B> : extraction of data on reference Location identified by a proximity mapping between target geometry and field linked geometry;
- *                       Return an extracted field referred to the target geometry,with the same data location of the input field. 
+ * - <B>MAPPING = 3</B> : extraction of data on reference Location identified by a proximity mapping between target geometry and field linked geometry;
+ *                       Return an extracted field referred to the target geometry,with the same data location of the input field.
  *
  * ExtractField is an abstract class. To use its features take a look to its specializations,
  *  here presented as derived class, ExtractScalarField and ExtractVectorField.
@@ -81,14 +81,14 @@ enum class ExtractMode{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Fields"
+ * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>ExtractMode</B>: activate extraction mode by ID, PID or Mapping;
- * - <B>Tolerance</B>: tolerance for extraction by patch.
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
  *
  * Geometries and fields have to be mandatorily passed through port.
  *
@@ -113,18 +113,18 @@ public:
 
     ExtractMode getMode();
     double      getTolerance();
-    
+
     void         clear();
     void         execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
-    
+
     /*!
      * Pure virtual method
      */
     virtual bool extract() = 0;
-    
+
 protected:
     void swap(ExtractField & x) noexcept;
 
@@ -136,7 +136,18 @@ protected:
  * \ingroup geohandlers
  * \brief ExtractScalarField is specialized derived class of ExtractField to extract a
  *         scalar field of doubles.
- * 
+ *
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
+
  * Ports available in ExtractScalarField Class :
  *
  *    =========================================================
@@ -183,7 +194,7 @@ public:
     void     setField(dmpvector1D field);
 
     dmpvector1D getOriginalField();
-    
+
     void clear();
 
     void     plotOptionalResults();
@@ -204,7 +215,18 @@ private:
  *  \class ExtractVectorField
  *    \brief ExtractVectorField is specialized derived class of ExtractField to extract a
  *         scalar field of array<double,3>.
- * 
+ *
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
+
  * Ports available in ExtractVectorField Class :
  *
  *    =========================================================
@@ -213,25 +235,25 @@ private:
  |--------------|--------------------|----------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  | M_VECTORFIELD| setField           | (MC_MPVECARR3, MD_FLOAT)|
- 
- 
+
+
  |            Port Output   ||                                        |
  |-----------|-------------------|--------------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  | M_VECTORFIELD  | getExtractedField     | (MC_MPVECARR3, MD_FLOAT)       |
- 
- 
+
+
  Inherited from ExtractField
- 
+
  |                 Port Input   ||                                                         |
  |------------|------------------------------------|-----------------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
- 
+
  |            Port Output  ||                               |
  |-----------|------------------------------------|-----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- 
+
 
  *    =========================================================
  *
@@ -256,7 +278,7 @@ public:
 
     void     plotOptionalResults();
     bool     extract();
-    
+
 protected:
     void swap(ExtractVectorField & x) noexcept;
 
@@ -264,7 +286,7 @@ private:
     void extractID(mimmo::MPVLocation loc);
     void extractPID(mimmo::MPVLocation loc);
     void extractMapping(mimmo::MPVLocation loc);
-    
+
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __EXTRACTFIELDS_HPP__)

@@ -148,7 +148,9 @@ ExtractScalarField::plotOptionalResults(){
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
         break;
     }
-     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
+     if(loc == bitpit::VTKLocation::UNDEFINED){
+         throw std::runtime_error("Undefined data location");
+     };
 
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvector1D field_supp = m_result;
@@ -157,13 +159,15 @@ ExtractScalarField::plotOptionalResults(){
 
 
     if(m_result.getGeometry()->getType() != 3){
+        m_result.getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
+        m_result.getGeometry()->getPatch()->getVTK().setName(m_name+std::to_string(getId()));
         m_result.getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
-        m_result.getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+        m_result.getGeometry()->getPatch()->write();
         m_result.getGeometry()->getPatch()->getVTK().removeData("field");
     }else{
         if(loc == bitpit::VTKLocation::CELL){
             (*m_log)<<"Warning: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;
-            return;
+            throw std::runtime_error("Attempt writing Cell data field on cloud of points");
         }
 
         liimap mapDataInv;
