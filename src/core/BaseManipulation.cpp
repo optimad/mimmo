@@ -134,7 +134,7 @@ BaseManipulation & BaseManipulation::operator=(const BaseManipulation & other){
 };
 
 /*!
- * Exchange data between the current class and an external BaseManipulation object. 
+ * Exchange data between the current class and an external BaseManipulation object.
  * Data will be swapped (data of A assigned to B and vice versa). Port connections/building info
  * will not be exchanged, as well as class unique-id.
  * \param[in] x BaseManipulation object to be swapped with current class.
@@ -165,7 +165,7 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
 void
 BaseManipulation::initializeLogger(bool logexist){
 	if (!logexist){
-		bitpit::log::manager().setMode(bitpit::log::Mode::SEPARATE);
+		bitpit::log::manager().setMode(bitpit::log::Mode::COMBINED);
 #if MIMMO_ENABLE_MPI
 		bitpit::log::manager().create(MIMMO_LOG_FILE, false, m_nprocs, m_rank);
 #else
@@ -321,7 +321,7 @@ BaseManipulation::getConnectionType(){
     return (m_portsType);
 }
 
-/*! 
+/*!
  * It gets the number of input ports of the object.
  * \return Number of input ports of the object.
  */
@@ -330,7 +330,7 @@ BaseManipulation::getNPortsIn(){
     return (m_portIn.size());
 }
 
-/*! 
+/*!
  * It gets the number of output ports of the object.
  * \return Number of output ports of the object.
  */
@@ -444,7 +444,7 @@ BaseManipulation::setPlotInExecution( bool flag){
 }
 
 /*!
- * Set path to directory where the optional results will be stored, 
+ * Set path to directory where the optional results will be stored,
  * if setPlotInExecution feature is set active.
  * \param[in] path absolute path to specified directory, if empty use the default value "."
  */
@@ -623,7 +623,7 @@ void
 BaseManipulation::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
     BITPIT_UNUSED(name);
 
-    std::string input; 
+    std::string input;
     if(slotXML.hasOption("Priority")){
         input = slotXML.get("Priority");
         int value =0;
@@ -688,7 +688,7 @@ BaseManipulation::flushSectionXML(bitpit::Config::Section & slotXML, std::string
     if(isPlotInExecution()){
         slotXML.set("PlotInExecution", std::to_string(1));
         slotXML.set("OutputPlot", m_outputPlot);
-    }    
+    }
 }
 
 /*!
@@ -778,7 +778,7 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
     }
 };
 
-/*! 
+/*!
  * Decrement target child multiplicity, contained in member m_child.
  * If multiplicity is zero, erase target from list.
  * The method is meant to be used in together to manual cut off of object pins.
@@ -910,7 +910,7 @@ BaseManipulation::removePinOut(PortID portS, int j){
 
 /*!
  * Plot optional data related to your blocks. The current method for the BaseManipulation class
- * do nothing. For Programmers only: to customize your optional results plotting create your own reimplementation 
+ * do nothing. For Programmers only: to customize your optional results plotting create your own reimplementation
  * of this method in each BaseManipulation derived block.
  */
 void 	BaseManipulation::plotOptionalResults(){};
@@ -937,4 +937,3 @@ std::vector<BaseManipulation*>    BaseManipulation::getSubBlocksEmbedded(){
 };
 
 };
-
