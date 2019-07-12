@@ -22,6 +22,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added new kit of functions FVolStencil for Laplacian stencils calculation with Finite Volumes techniques (propagators module).
 - added new selectors FVSelectionBy (Box,Sphere,Cylinder) suitable for MimmoFvMesh objects.
 - added reading and writing STL solid names in multiSolid STL.
+- added MeshChecker class  in "utils" module
 
 ### Changed
 - PropagateField classes: solution of Laplacian system solved by using bitpit LA module.

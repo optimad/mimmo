@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- #                                                                           
+ #
  #  mimmo
  #
  #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -43,5 +43,7 @@
 #include "SpecularPoints.hpp"
 #include "TranslationPoint.hpp"
 #include "OBBox.hpp"
+#include "MeshChecker.hpp"
+
 
 #endif
