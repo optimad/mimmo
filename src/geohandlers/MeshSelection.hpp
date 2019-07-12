@@ -519,7 +519,7 @@ private:
      |                   Port Input   ||                                      |
      |----------------|----------------------|----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECTORLI     | setPID               | (MC_VECTOR, MD_LONG)      |
+     | M_VECTORLI2    | setPID               | (MC_VECTOR, MD_LONG)      |
      | M_VALUELI      | setPID               | (MC_SCALAR, MD_LONG)      |
 
      |             Port Output     ||                                         |
@@ -712,7 +712,7 @@ protected:
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL, __MESHSELECTION_HPP__)
-REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_VECTORLI2, MC_VECTOR, MD_LONG, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)

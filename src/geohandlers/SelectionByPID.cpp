@@ -107,7 +107,7 @@ SelectionByPID::buildPorts(){
     GenericSelection::buildPorts();
 
     built = (built && createPortIn<long, SelectionByPID>(this, &SelectionByPID::setPID, M_VALUELI));
-    built = (built && createPortIn<std::vector<long>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORLI));
+    built = (built && createPortIn<std::vector<long>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORLI2));
 
     m_arePortsBuilt = built;
 };

@@ -285,13 +285,14 @@ GenericSelection::plotOptionalResults(){
     if(getPatch() == NULL) return;
 //    if(getPatch()->isEmpty()) return;
 
-    std::string dir = m_outputPlot;
+    std::string dir = m_outputPlot + "/";
     std::string name = m_name + "_Patch_"+ std::to_string(getId());
 
     if (m_topo != 3){
 
-        std::string fullpath = dir + "/" + name ;
-        getPatch()->getPatch()->write(fullpath);
+        getPatch()->getPatch()->getVTK().setDirectory(dir);
+        getPatch()->getPatch()->getVTK().setName(name);
+        getPatch()->getPatch()->write();
 
     }else{
 
