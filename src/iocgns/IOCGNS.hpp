@@ -117,7 +117,7 @@ private:
  * - <B>Dir</B>: directory path for reading/writing;
  * - <B>Filename</B>: name of file to read/write without .cgns/dump tag;
  * - <B>WriteInfo</B>: boolean (1/0) write on file zoneNames, bcNames, either in reading and writing mode. The save directory path is specified with Dir.
- * - <B>WriteHDF</B>: 0- write in default format HDF, 1- write in old format ADF
+ * - <B>WriteFormat</B>: 1- write in default format HDF5, 2- write in old format ADF, 3-ADF2 (version 2.5 ADF for 32 bit systems)
  * - <B>WriteMultiZone</B>: 0- write single zone, 1- write multizone(if multi zone are available in the mesh).
  *
  * Geometry has to be mandatorily read or passed through port.
@@ -134,8 +134,10 @@ public:
         DUMP=3            /**<Write the mesh to dump file*/
     };
     enum IOCGNS_WriteType{
-        HDF = 0        , /**< 0-write cgns in default HDF mode */
-        ADF = 1        , /**< 1-write cgns in old ADF mode*/
+        NONE = 0        ,
+        HDF5 = 1        , /**< 1-write cgns in default HDF5 mode */
+        ADF  = 2         , /**< 2-write cgns in ADF mode*/
+        ADF2 = 3         /**< 3-write cgns in old ADF2 mode for 2.5 cgns on 32 bit system only*/
     };
 
     IOCGNS(IOCGNS_Mode mode= IOCGNS_Mode::READ);
@@ -155,8 +157,8 @@ public:
     IOCGNS_Mode     whichMode();
     int             whichModeInt();
 
-    bool            isWritingHDF();
-    bool            isWritingMultiZone();
+    IOCGNS_WriteType  whatWritingFormat();
+    bool              isWritingMultiZone();
 
     void            setDir(const std::string &dir);
     void            setMode(IOCGNS_Mode mode);
@@ -166,7 +168,7 @@ public:
     void            setSurfaceBoundary(MimmoObject*);
     void            setBoundaryConditions(BCCGNS*);
 
-    void            setWritingHDF(bool hdf);
+    void            setWritingFormat(IOCGNS_WriteType type);
     void            setWritingMultiZone(bool multizone);
     void            setWriteOnFileMeshInfo(bool write);
 
@@ -192,7 +194,7 @@ protected:
 
 private:
     IOCGNS_Mode      m_mode;       /**<Mode of execution.See setMode configuration.*/
-    IOCGNS_WriteType m_wtype;      /**<Writing type HDF or ADF*/
+    IOCGNS_WriteType m_wtype;      /**<Writing type HDF5 or ADF*/
     bool             m_multizone;  /**<Writing multizone true, or single zone false*/
 
     std::string     m_dir;         /**<Name of directory path*/

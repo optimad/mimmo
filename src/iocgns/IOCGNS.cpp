@@ -124,7 +124,7 @@ IOCGNS::setDefaults(){
     m_storedBC  = std::move(std::unique_ptr<BCCGNS>(new BCCGNS()));
 
     m_writeOnFile = false;
-    m_wtype = IOCGNS_WriteType::HDF;
+    m_wtype = IOCGNS_WriteType::ADF;
     m_multizone = false;
 
     m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TETRA_4))] = "TetElements";
@@ -232,12 +232,13 @@ IOCGNS::whichModeInt(){
 }
 
 /*!
-  Check if the class is writing native cgns with HDF format (1) or
-  ADF format(0). The method is meaningful only in class mode IOCGNS_Mode::WRITE.
-  \return boolean true-writing HDF, false-writing ADF
+  Check if the class is writing native cgns with HDF5 format (1) or
+  ADF format(2) or ADF2 format(3). NONE format is marked as 0.
+  The method is meaningful only in class mode IOCGNS_Mode::WRITE.
+  \return format type.
  */
-bool    IOCGNS::isWritingHDF(){
-    return m_wtype == IOCGNS_WriteType::HDF;
+IOCGNS::IOCGNS_WriteType    IOCGNS::whatWritingFormat(){
+    return m_wtype;
 }
 /*!
   Check if the class is set to write cgns multizone or not.
@@ -355,16 +356,13 @@ IOCGNS::setBoundaryConditions(BCCGNS* bccgns){
 
 
 /*!
-    Set write type HDF or ADF of the cgns native format.
+    Set write type cgns native format.
     The method is meaningful only in class mode IOCGNS_Mode::WRITE.
-    \param[in] hdf true write HDF, false write ADF
+    See whatWritingFormat method doc for options available.
+    \param[in] type of writing format
 */
-void    IOCGNS::setWritingHDF(bool hdf){
-    if(hdf){
-        m_wtype = IOCGNS_WriteType::HDF;
-    }else{
-        m_wtype = IOCGNS_WriteType::ADF;
-    }
+void    IOCGNS::setWritingFormat(IOCGNS::IOCGNS_WriteType type){
+    m_wtype = type;
 }
 /*!
     Set writing MultiZone cgns native format.
@@ -1087,20 +1085,20 @@ IOCGNS::read(const std::string & file){
 bool
 IOCGNS::write(const std::string & file){
 
-#if MIMMO_ENABLE_MPI
-    if(m_rank == 0){
-#endif
-
-    if(m_wtype == IOCGNS_WriteType::ADF){
-        cg_set_file_type(CG_FILE_ADF);
-    }else{
+switch(m_wtype){
+    case IOCGNS_WriteType::HDF5:
         cg_set_file_type(CG_FILE_HDF5);
-    }
-
-#if MIMMO_ENABLE_MPI
-    }
-#endif
-
+        break;
+    case IOCGNS_WriteType::ADF:
+        cg_set_file_type(CG_FILE_ADF);
+        break;
+    case IOCGNS_WriteType::ADF2:
+        cg_set_file_type(CG_FILE_ADF2);
+        break;
+    default: //NONE
+        (*m_log)<<"Error in IOCGNS::write: a NONE file type is set as writing type format"<<std::endl;
+        break;
+}
 
 if(m_multizone){
 
@@ -1486,6 +1484,7 @@ if(m_multizone){
 
 #if MIMMO_ENABLE_MPI
     } //ENDIF M-RANK mpi
+    MPI_Barrier(m_communicator);
 #endif
 
 }//endif multizone;
@@ -1546,15 +1545,17 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
         setWriteOnFileMeshInfo(value);
     };
 
-    if(slotXML.hasOption("WriteHDF")){
-        input = slotXML.get("WriteHDF");
+    if(slotXML.hasOption("WriteFormat")){
+        input = slotXML.get("WriteFormat");
         input = bitpit::utils::string::trim(input);
-        bool value = false;
+        int value = 2;
         if(!input.empty()){
             std::stringstream ss(input);
             ss >>value;
         };
-        setWritingHDF(value);
+
+        value = std::min(3, std::max(value, 0));
+        setWritingFormat(static_cast<IOCGNS_WriteType>(value));
     };
 
     if(slotXML.hasOption("WriteMultiZone")){
@@ -1586,7 +1587,7 @@ IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     slotXML.set("Dir", m_dir);
     slotXML.set("Filename", m_filename);
     slotXML.set("WriteInfo", std::to_string(int(m_writeOnFile)));
-    slotXML.set("WriteHDF", std::to_string(int(isWritingHDF())));
+    slotXML.set("WriteFormat", std::to_string(static_cast<int>(whatWritingFormat())));
     slotXML.set("WriteMultiZone", std::to_string(int(isWritingMultiZone())));
 };
 
@@ -1706,6 +1707,15 @@ bool IOCGNS::restore(std::istream &stream){
     }catch(std::exception & ee){
         return false;
     }
+
+#if MIMMO_ENABLE_MPI
+    m_volmesh->buildPatchInfo();
+    m_surfmesh->buildPatchInfo();
+
+    m_volmesh->updatePointGhostExchangeInfo();
+    m_surfmesh->updatePointGhostExchangeInfo();
+
+#endif
     return true;
 }
 
