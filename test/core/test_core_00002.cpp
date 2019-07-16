@@ -246,19 +246,7 @@ int test2() {
         std::cout<<"Hard copy method of MimmoObject failed"<<std::endl;
         return 1;
     }
-    mesh_2->getPatch()->write("hardcopy");
-
-    MimmoObject * mesh_3 = new MimmoObject();
-    *mesh_3 = *mesh;
-    if(mesh_3->getNCells() != mesh->getNCells() && mesh_3->getPatch()!= mesh->getPatch()){
-        delete mesh_3;
-        delete mesh;
-        std::cout<<"Soft assignment copy method of MimmoObject failed"<<std::endl;
-        return 1;
-    }
-
-    mesh_3->getPatch()->write("softcopy");
-    delete mesh_3;
+    mesh_2->getPatch()->write("clone");
 
     //testing dump and restore
     string Fname = ("./dump.geomimmo");

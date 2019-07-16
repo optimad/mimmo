@@ -51,8 +51,8 @@ MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
  * \param[in] id custom identification label of the mesh
  * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
-MimmoSurfUnstructured::MimmoSurfUnstructured(const int & id, int patch_dim):
-                    				   bitpit::SurfUnstructured(id, int(patch_dim), int(3)){}
+MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int patch_dim):
+                    				   bitpit::SurfUnstructured(int(id), int(patch_dim), int(3)){}
 
 /*!
  * MimmoSurfUnstructured custom constructor
@@ -73,23 +73,23 @@ MimmoSurfUnstructured::~MimmoSurfUnstructured(){}
  */
 std::unique_ptr<bitpit::PatchKernel>
 MimmoSurfUnstructured::clone() const{
-	return std::unique_ptr<MimmoSurfUnstructured>(new MimmoSurfUnstructured(*this));
+	return bitpit::SurfUnstructured::clone();
 }
 
 /*!
  * MimmoVolUnstructured default constructor
  * \param[in] dimension dimensionality of elements (3D - tetrahedra/hexahedra ..., 2D-triangles/quads/polygons)
  */
-MimmoVolUnstructured::MimmoVolUnstructured(const int& dimension):
-				bitpit::VolUnstructured(dimension){}
+MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
+				bitpit::VolUnstructured(int(dimension)){}
 
 /*!
  * MimmoVolUnstructured custom constructor
  * \param[in] id custom identification label of the mesh
  * \param[in] dimension dimensionality of elements (3D - tetrahedra/hexahedra ..., 2D-triangles/quads/polygons)
  */
-MimmoVolUnstructured::MimmoVolUnstructured(const int & id, const int & dimension):
-				bitpit::VolUnstructured(id, dimension){}
+MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension):
+				bitpit::VolUnstructured(int(id), int(dimension)){}
 
 /*!
  * Basic Destructor
@@ -102,7 +102,7 @@ MimmoVolUnstructured::~MimmoVolUnstructured(){}
  */
 std::unique_ptr<bitpit::PatchKernel>
 MimmoVolUnstructured::clone() const{
-	return std::unique_ptr<MimmoVolUnstructured>(new MimmoVolUnstructured(*this));
+	return bitpit::VolUnstructured::clone();
 }
 
 /*!
@@ -115,8 +115,8 @@ MimmoPointCloud::MimmoPointCloud():
  * MimmoPointCloud custom constructor
  * \param[in] id custom identification label of the mesh
  */
-MimmoPointCloud::MimmoPointCloud(const int & id):
-				bitpit::SurfUnstructured(id, int(2), int(3)){}
+MimmoPointCloud::MimmoPointCloud(int id):
+				bitpit::SurfUnstructured(int(id), int(2), int(3)){}
 
 /*!
  * Basic Destructor
@@ -129,7 +129,7 @@ MimmoPointCloud::~MimmoPointCloud(){}
  */
 std::unique_ptr<bitpit::PatchKernel>
 MimmoPointCloud::clone() const{
-	return std::unique_ptr<MimmoPointCloud>(new MimmoPointCloud(*this));
+	return bitpit::SurfUnstructured::clone();
 }
 
 
@@ -178,7 +178,7 @@ MimmoObject::MimmoObject(int type){
 	}
 
 	m_internalPatch = true;
-	m_extpatch = NULL;
+	m_extpatch = nullptr;
 
 	m_skdTreeSupported = (m_type != 3);
 	m_skdTreeSync = false;
@@ -261,7 +261,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	}
 
 	m_internalPatch = true;
-	m_extpatch = NULL;
+	m_extpatch = nullptr;
 
 	m_skdTreeSupported = (m_type != 3);
 	m_skdTreeSync = false;
@@ -525,7 +525,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	}
 
 	m_internalPatch = true;
-	m_extpatch = NULL;
+	m_extpatch = nullptr;
 	m_patch = std::move(geometry);
 
 	m_skdTreeSupported = (m_type != 3);
@@ -734,14 +734,6 @@ MimmoObject::isEmpty(){
 	return check;
 };
 
-/*!
- * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
- * \return True for connectivity-based meshes, false por point clouds
- */
-bool
-MimmoObject::isBvTreeSupported(){
-	return isSkdTreeSupported();
-};
 
 /*!
  * Is the skdTree (former bvTree) ordering supported w/ the current geometry?
@@ -1237,25 +1229,6 @@ MimmoObject::getPID() {
 	return(result);
 };
 
-/*!
- * \return true if the skdTree ordering structure for cells is built/synchronized
- * with your current geometry
- */
-bool
-MimmoObject::isBvTreeBuilt(){
-	return isSkdTreeSync();
-}
-
-/*!
-* \param[in] global (parallel archs) true to check if all partitions have the tree synchronized,
-* false to check only the local one. Serial arch will check always the local.
- * \return true if the skdTree ordering structure for cells is built/synchronized
- * with your current geometry
- */
-bool
-MimmoObject::isBvTreeSync(){
-	return isSkdTreeSync();
-}
 
 /*!
  * Return if the skdTree ordering structure for cells is built/synchronized
@@ -1284,13 +1257,6 @@ MimmoObject::isInfoSync(){
 	return m_infoSync;
 }
 
-/*!
- * \return pointer to geometry skdTree search structure
- */
-bitpit::PatchSkdTree*
-MimmoObject::getBvTree(){
-	return getSkdTree();
-}
 
 /*!
  * \return pointer to geometry skdTree search structure
@@ -1310,15 +1276,6 @@ MimmoObject::getPatchInfo(){
 	return &m_patchInfo;
 }
 
-/*!
- * Return if the kdTree ordering structure for vertices is built/synchronized
- * \return true if the kdTree vertices ordering structure is
- * built/synchronized with your current geometry
- */
-bool
-MimmoObject::isKdTreeBuilt(){
-	return isKdTreeSync();
-}
 
 /*!
  * Return if the kdTree ordering structure for vertices is built/synchronized
@@ -2317,92 +2274,43 @@ MimmoObject::resyncPID(){
 
 
 /*!
- * Set your current class as a "hard" copy of another MimmoObject.
- * All preexistent data are destroyed and replaced by those provided by the argument, except for search Trees,
- * which are instantiated, but not filled/built/synchronized.
- * Hard means that the geometry data structure is allocated internally
- * as an exact and stand-alone copy of the geometry data structure of the argument,
- * indipendently on how the argument owns or links it.
- * \param[in] other MimmoObject class.
- */
-void MimmoObject::setHARDCopy(const MimmoObject * other){
-
-	m_type  = other->m_type;
-	m_internalPatch = true;
-	m_extpatch = NULL;
-
-	switch(m_type){
-	case 1:
-		m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(2)));
-		m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-		m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
-		break;
-	case 2:
-		m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoVolUnstructured(3)));
-		m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new VolumeSkdTree(dynamic_cast<VolumeKernel*>(m_patch.get()))));
-		m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
-		break;
-	case 3:
-		m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoPointCloud));
-		m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
-		break;
-	case 4:
-		m_patch = std::move(std::unique_ptr<PatchKernel>(new MimmoSurfUnstructured(1)));
-		m_skdTree = std::move(std::unique_ptr<PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<SurfaceKernel*>(m_patch.get()))));
-		m_kdTree  = std::move(std::unique_ptr<KdTree<3,bitpit::Vertex,long> >(new KdTree<3,bitpit::Vertex, long>()));
-		break;
-	default:
-		//never been reached
-		break;
-	}
-
-	m_skdTreeSupported = other->m_skdTreeSupported;
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_infoSync = false;
-#if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
-#endif
-    m_pointConnectivitySync = false;
-
-	//copy data
-	const bitpit::PiercedVector<bitpit::Vertex> & pvert = other->getVertices();
-	setVertices(pvert);
-
-	if(m_skdTreeSupported){
-		const bitpit::PiercedVector<bitpit::Cell> & pcell = other->getCells();
-		setCells(pcell);
-	}
-
-	if(other->m_AdjBuilt)   buildAdjacencies();
-	if(other->m_IntBuilt)   buildInterfaces();
-
-};
-
-/*!
  * Clone your MimmoObject in a new indipendent MimmoObject. All data of the current class will be "hard" copied in a new
- * MimmoObject class. Search Trees will be only instantiated but not filled/built/synchronized.
- * Hard means that the geometry data structure will be allocated internally into the new object
+ * MimmoObject class. Hard means that the geometry data structure will be allocated internally into the new object
  * as an exact and stand-alone copy of the geometry data structure of the current class, indipendently on how the current class
  * owns or links it.
  * \return cloned MimmoObject.
  */
-std::unique_ptr<MimmoObject> MimmoObject::clone(){
-	std::unique_ptr<MimmoObject> result(new MimmoObject(getType()));
-	//copy data
-	result->setVertices(getVertices());
-	if(m_skdTreeSupported){
-		result->setCells(getCells());
-	}
-	if(m_AdjBuilt)   result->buildAdjacencies();
-	if(m_IntBuilt)   result->buildInterfaces();
+std::unique_ptr<MimmoObject> MimmoObject::clone() const {
 
-	result->resyncPID();
-	auto mapPID = getPIDTypeListWNames();
-	for(const auto & touple: mapPID){
+    //first step clone the internal bitpit patch.
+    std::unique_ptr<bitpit::PatchKernel> clonedPatch = m_patch->clone();
+
+    //build the cloned mimmoObject using the custom constructor
+    std::unique_ptr<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
+
+    //--> this constructor checks adjacencies and interfaces, initialize parallel
+    // and update the infoSync (cell parallel structures also)
+    //now what missing here?
+    // 1) MimmoObject sync'ed PID structured and get eventually local PID names.
+    result->resyncPID();
+	for(auto & touple: m_pidsTypeWNames){
 		result->setPIDName(touple.first, touple.second);
 	}
-	return std::move(result);
+
+    // 2) check if trees are built here locally and force build to result eventually;
+    if(m_kdTreeSync)    result->buildKdTree();
+    if(m_skdTreeSync)   result->buildSkdTree();
+
+#if MIMMO_ENABLE_MPI
+    //rank, nprocs and communicator managed inside initializeParallel call  of the MimmoObject constructor
+    //3) check if PointGhost are synchronized, if they are, update point ghost of result
+    if(m_pointGhostExchangeInfoSync)    result->updatePointGhostExchangeInfo();
+#endif
+
+    //4) check if pointConnectivity is built here locally, if it is, force build to result.
+	if(m_pointConnectivitySync)    result->buildPointConnectivity();
+
+	return result;
 };
 
 /*!
@@ -2834,21 +2742,6 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
 	return;
 }
 
-/*!
- * Reset and build again cell skdTree of your geometry (if supports connectivity elements).
- * Ghost cells are insert in the tree.
- *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
- */
-void MimmoObject::buildBvTree(int value){
-	if(!m_skdTreeSupported || isEmpty())   return;
-
-	if (!m_skdTreeSync){
-		m_skdTree->clear();
-		m_skdTree->build(value);
-		m_skdTreeSync = true;
-	}
-	return;
-}
 
 /*!
  * Reset and build again cell skdTree of your geometry (if supports connectivity elements).
@@ -3574,55 +3467,6 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     //TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
 
-};
-
-/*!
- * Get all the vertices of the current mesh within a prescribed distance maxdist w.r.t to a target surface body
- * Nodes of ghost cells are considered.
- * \param[in] surface MimmoObject of type surface.
- * \param[in] maxdist threshold distance.
- * \param[out] idList list of vertex IDs within maxdistance
- */
-void
-MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList){
-
-	if(surface.isEmpty() || surface.getType() != 1) return;
-	if(isEmpty())  return ;
-
-	idList.clear();
-	idList.reserve(getNVertices());
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	long idsuppsurf;
-	for(const auto & vertex : getVertices()){
-		pp = vertex.getCoords();
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-		if(distance < maxdist)  idList.push_back(vertex.getId());
-	}
-};
-
-/*!
- * Get all the vertices of the current mesh within a prescribed distance maxdist w.r.t to a target surface body
- * Nodes of ghost cells are considered.
- * \param[in] surface MimmoObject of type surface.
- * \param[in] maxdist threshold distance.
- * \param[out] distList map of vertex IDs-distances positive matches within maxdistance
- */
-void
-MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist,bitpit::PiercedVector<double> & distList){
-	if(surface.isEmpty() || surface.getType() != 1) return;
-	if(isEmpty())  return ;
-
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	long idsuppsurf;
-	distList.clear();
-	distList.reserve(getNVertices());
-	for(const auto & vertex : getVertices()){
-		pp = vertex.getCoords();
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-		if(distance < maxdist)  distList.insert(vertex.getId(),distance);
-	}
 };
 
 

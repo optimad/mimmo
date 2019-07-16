@@ -51,15 +51,15 @@ public:
     // Constructors
     MimmoSurfUnstructured();
     MimmoSurfUnstructured(int patch_dim);
-    MimmoSurfUnstructured(const int &id, int patch_dim);
+    MimmoSurfUnstructured(int id, int patch_dim);
     MimmoSurfUnstructured(std::istream &stream);
     virtual ~MimmoSurfUnstructured();
     // Clone
-    std::unique_ptr<bitpit::PatchKernel> clone() const;
+    std::unique_ptr<bitpit::PatchKernel> clone() const override;
 
 protected:
     /*! Copy Constructor*/
-    MimmoSurfUnstructured(const MimmoSurfUnstructured &) = default;
+    MimmoSurfUnstructured(const MimmoSurfUnstructured & other) = default;
 };
 
 /*!
@@ -69,11 +69,11 @@ protected:
 class MimmoVolUnstructured: public bitpit::VolUnstructured{
 public:
     // Constructors
-    MimmoVolUnstructured(const int& dimension);
-    MimmoVolUnstructured(const int &id, const int& dimension);
+    MimmoVolUnstructured(int dimension);
+    MimmoVolUnstructured(int id, int dimension);
     virtual ~MimmoVolUnstructured();
     // Clone
-    std::unique_ptr<bitpit::PatchKernel> clone() const;
+    std::unique_ptr<bitpit::PatchKernel> clone() const override;
 
 protected:
     /*! Copy Constructor*/
@@ -88,10 +88,11 @@ class MimmoPointCloud: public bitpit::SurfUnstructured{
 public:
     // Constructors
     MimmoPointCloud();
-    MimmoPointCloud(const int &id);
+    MimmoPointCloud(int id);
     virtual ~MimmoPointCloud();
     // Clone
-    std::unique_ptr<bitpit::PatchKernel> clone() const;
+    std::unique_ptr<bitpit::PatchKernel> clone() const override;
+
 
 protected:
     /*! Copy Constructor*/
@@ -162,13 +163,9 @@ public:
     MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry);
     ~MimmoObject();
 
-    MimmoObject(const MimmoObject & other);
-    MimmoObject & operator=(MimmoObject other);
-
     bitpit::Logger& getLog();
 
     bool                                            isEmpty();
-    BITPIT_DEPRECATED(bool                          isBvTreeSupported());
     bool                                            isSkdTreeSupported();
     int                                             getType();
     long                                            getNVertices();
@@ -202,13 +199,9 @@ public:
     livector1D                                      getCompactPID();
     std::unordered_map<long, long>                  getPID();
 
-    BITPIT_DEPRECATED(bitpit::PatchSkdTree*         getBvTree());
     bitpit::PatchSkdTree*                           getSkdTree();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
     bitpit::PatchNumberingInfo*                     getPatchInfo();
-    BITPIT_DEPRECATED(bool                          isBvTreeBuilt());
-    BITPIT_DEPRECATED(bool                          isKdTreeBuilt());
-    BITPIT_DEPRECATED(bool                          isBvTreeSync());
     bool                          isSkdTreeSync();
     bool                          isKdTreeSync();
     bool                          isInfoSync();
@@ -248,8 +241,8 @@ public:
     bool        setPIDName(long, const std::string &);
     void        resyncPID();
 
-    BITPIT_DEPRECATED(void setHARDCopy(const MimmoObject * other));
-    std::unique_ptr<MimmoObject>	clone();
+    std::unique_ptr<MimmoObject>	clone() const ;
+    void                            swap(MimmoObject & ) noexcept;
 
     bool        cleanGeometry();
 
@@ -273,7 +266,6 @@ public:
     liimap      getMapCellInv(bool withghosts=true);
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
-    BITPIT_DEPRECATED(void        buildBvTree(int value = 1));
     void        buildSkdTree(int value = 1);
     void        buildKdTree();
     void		buildPatchInfo();
@@ -314,8 +306,6 @@ public:
                                                                         const double & maxdist,
                                                                         livector1D * seedList = nullptr);
 
-    BITPIT_DEPRECATED(void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D & idList));
-    BITPIT_DEPRECATED(void  getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, bitpit::PiercedVector<double> & distList));
 
     std::unordered_map<long,long>   getInverseConnectivity();
     std::set<long>                  findVertexVertexOneRing(const long &, const long & );
@@ -326,7 +316,6 @@ public:
     bool						isPointConnectivitySync();
 
 protected:
-    void    swap(MimmoObject & ) noexcept;
     void    reset(int type);
 
     std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
@@ -336,6 +325,10 @@ protected:
 #endif
 
 private:
+    //make copy constructor and  assignment private and not accessible (use properly clone method for copy)
+    MimmoObject(const MimmoObject & other);
+    MimmoObject & operator=(MimmoObject other);
+
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
 
 	/*!
