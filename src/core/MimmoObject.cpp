@@ -3108,6 +3108,8 @@ void MimmoObject::dump(std::ostream & stream){
 	bitpit::utils::binary::write(stream,m_type);
 	bitpit::utils::binary::write(stream,pid);
 	bitpit::utils::binary::write(stream,sspid);
+	bitpit::utils::binary::write(stream,m_AdjBuilt);
+	bitpit::utils::binary::write(stream,m_IntBuilt);
 	getPatch()->dump(stream);
 }
 
@@ -3124,10 +3126,17 @@ void MimmoObject::restore(std::istream & stream){
 	std::vector<long> pid;
 	std::vector<std::string> sspid;
 
+	bool adjbuilt, intbuilt;
+
 	bitpit::utils::binary::read(stream,type);
 	bitpit::utils::binary::read(stream,pid);
 	bitpit::utils::binary::read(stream,sspid);
+	bitpit::utils::binary::read(stream,adjbuilt);
+	bitpit::utils::binary::read(stream,intbuilt);
 	reset(type);
+
+	m_AdjBuilt = adjbuilt;
+	m_IntBuilt = adjbuilt;
 
 	getPatch()->restore(stream);
 
