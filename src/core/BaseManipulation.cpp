@@ -936,4 +936,22 @@ std::vector<BaseManipulation*>    BaseManipulation::getSubBlocksEmbedded(){
     return std::vector<BaseManipulation *>();
 };
 
+#if MIMMO_ENABLE_MPI
+
+/*! \return total number of processors in the job */
+int BaseManipulation::getTotalProcs(){
+    return m_nprocs;
+}
+
+/*! \return processor rank */
+int BaseManipulation::getRank(){
+    return m_rank;
+}
+/*! \return reference to communicator of the class */
+MPI_Comm &  BaseManipulation::getCommunicator(){
+    return m_communicator;
+}
+
+#endif
+
 };

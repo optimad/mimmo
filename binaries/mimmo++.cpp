@@ -215,13 +215,11 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
  * \param[out] mapConn map of all blocks that need to be linked/connected
  * \param[in] rootFactory reference to internal register of mimmo API
  */
-void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory) {
+void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory) {
 
     auto m_log = &bitpit::log::cout("mimmo");
     m_log->setPriority(bitpit::log::NORMAL);
     (*m_log)<< "Currently reading XML dictionary"<<std::endl;
-    m_log->setPriority(bitpit::log::DEBUG);
-
 
     if(config::root.hasSection("Blocks")){
         bitpit::Config::Section & blockXML = config::root.getSection("Blocks");
@@ -245,7 +243,6 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
             }
         }
 
-        m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<" "<<std::endl;
         (*m_log)<<"Instantiated objects : "<<mapInst.size()<<std::endl;
 
@@ -258,13 +255,12 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
         (*m_log)<<"Connectable objects : "<<mapConn.size()<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
     }else{
-        m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<<"No Blocks section available in the XML dictionary"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
     }
 
 	//absorb connections from file if any
-	IOConnections_MIMMO * conns = new IOConnections_MIMMO (mapConn);
+	std::unique_ptr<IOConnections_MIMMO> conns (new IOConnections_MIMMO (mapConn));
 
 	if(config::root.hasSection("Connections")){
 		bitpit::Config::Section & connXML = config::root.getSection("Connections");
@@ -274,9 +270,6 @@ void read_Dictionary(std::unordered_map<std::string, std::unique_ptr<BaseManipul
         (*m_log)<<"No Connections section available in the XML dictionary"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
     }
-
-	delete conns;
-	conns=NULL;
 
     m_log->setPriority(bitpit::log::NORMAL);
     (*m_log)<< "Finished reading XML dictionary"<<std::endl;
@@ -349,7 +342,7 @@ void mimmocore(const InfoMimmoPP & info) {
 		bitpit::config::reset("mimmoXML", 1);
 		bitpit::config::read(info.dictName);
 
-		std::unordered_map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
+		std::map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
 		std::unordered_map<std::string, BaseManipulation * > mapConn;
 		std::unordered_map<std::string, BaseManipulation * > mapInstPtr;
 
@@ -395,8 +388,8 @@ void mimmocore(const InfoMimmoPP & info) {
 //main program
 int main( int argc, char *argv[] ) {
 
-    #if ENABLE_MPI==1
-    MPI::Init(argc, argv);
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 
     {
         #endif
@@ -410,10 +403,10 @@ int main( int argc, char *argv[] ) {
             return 1;
         }
 
-        #if ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI
     }
 
-    MPI::Finalize();
+    MPI_Finalize();
     #endif
 
     return 0;

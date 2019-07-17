@@ -89,8 +89,8 @@ using namespace pin;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class, for debugging purpose.
- * - <B>OutputPlot</B>: target directory for optional results writing. 
- * 
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
  * All BaseManipulation derived classes inherite these attributes.
  */
 class BaseManipulation{
@@ -183,6 +183,13 @@ public:
     int                  getNPortsIn();
     int                  getNPortsOut();
 
+#if MIMMO_ENABLE_MPI
+    int                 getTotalProcs();
+    int                 getRank();
+    MPI_Comm &          getCommunicator();
+#endif
+
+
     std::unordered_map<PortID, PortIn*> getPortsIn();
     std::unordered_map<PortID, PortOut*>getPortsOut();
 
@@ -215,11 +222,11 @@ public:
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-    
+
     virtual std::vector<BaseManipulation*> getSubBlocksEmbedded();
 protected:
 
-    
+
     void swap(BaseManipulation & x) noexcept;
     void initializeLogger(bool logexists);
 
