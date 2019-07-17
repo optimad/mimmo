@@ -473,8 +473,10 @@ template <std::size_t NCOMP>
 bool
 PropagateField<NCOMP>::checkBoundariesCoherence(){
 
-	//Clean the old m_isbp and initialize it again.
-	initializeBoundaryInfo();
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		//Clean the old m_isbp and initialize it again.
+		initializeBoundaryInfo();
+	}
 
 	//1st step verify coherence of the Dirichlet point field on boundary surface
 	// with the dirichlet boundary surface provided

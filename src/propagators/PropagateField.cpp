@@ -576,8 +576,10 @@ PropagateVectorField::clear(){
  */
 bool PropagateVectorField::checkBoundariesCoherence(){
 
-	//Clean the old m_isbp and initialize it again (set all to Neumann - 0).
-	initializeBoundaryInfo();
+	if (m_method == PropagatorMethod::FINITEVOLUMES){
+		//Clean the old m_isbp and initialize it again (set all to Neumann - 0).
+		initializeBoundaryInfo();
+	}
 
 	// this check the part related to the dirichlet information
 	if(!PropagateField<3>::checkBoundariesCoherence()){
