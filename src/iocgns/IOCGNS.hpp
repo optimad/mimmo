@@ -30,7 +30,6 @@
 
 namespace mimmo{
 
-typedef int M_CG_ElementType_t;     /**<Casting of CG_ElementType_t to int.*/
 typedef int M_CG_BCType_t;          /**<Casting of CG_BCType_t to int.*/
 
 /*!
@@ -46,6 +45,9 @@ class BCCGNS{
 private:
     std::map<int, M_CG_BCType_t >       mcg_pidtobc;      /**<Converter of boundary conditions types (PID->conditionType).*/
     std::map<int, std::vector<int> >    mcg_zonetobndpid;  /**<map that associates volume zone to interested boundary pid*/
+    std::map<int, int >       mcg_pidtolisttype;                  /**! Track the list type for BC 0-PointList, 1-ElementList */
+    std::map<int, std::string >       mcg_bcpidnames;                  /**! map bc pid and its names if any*/
+    std::map<int, std::string >       mcg_zonepidnames;                  /**! map bc pid and its names if any*/
 
 public:
     BCCGNS(){};
@@ -61,6 +63,9 @@ private:
     void clear(){
         mcg_pidtobc.clear();
         mcg_zonetobndpid.clear();
+        mcg_pidtolisttype.clear();
+        mcg_bcpidnames.clear();
+        mcg_zonepidnames.clear();
     }
 };
 
@@ -185,9 +190,25 @@ protected:
     bool            restore(std::istream & stream);
     bool            belongToPool(const bitpit::ConstProxyVector<long> & elementconn, const std::set<long> &pool);
 
-    void writeInfoFile();
-    std::unordered_map<int, std::vector<std::size_t> >
-                getZoneConn(const livector1D& cellIds, const std::unordered_map<long,int> & mapToLocVert);
+    void            unpackMixedConns( const ivector1D & connsArray,
+                                     MimmoObject * patchVol,
+                                     std::unordered_map<long, std::vector<long>> surfElem,
+                                     const long & idVertexOffset,
+                                     const long & idCellOffset,
+                                     const long & PIDZoneVolume,
+                                     long & idwork);
+
+    void            writeInfoFile();
+    std::map<int, std::vector<std::size_t> >
+                    getZoneConn(const livector1D& cellIds,
+                                const std::unordered_map<long,int> & mapToLocVert,
+                                std::map<int, std::size_t> & ncells);
+    std::map<int, std::vector<std::size_t> >
+                    getBCElementsConn(const livector1D& cellIds,
+                                      const std::unordered_map<long,int> & mapToLocVert,
+                                      std::map<int, std::size_t> &ncells,
+                                      std::unordered_map<long, int> & surfCellGlobToLoc);
+
 #if MIMMO_ENABLE_MPI
     void communicateAllProcsStoredBC();
 #endif

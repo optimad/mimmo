@@ -127,12 +127,12 @@ IOCGNS::setDefaults(){
     m_wtype = IOCGNS_WriteType::ADF;
     m_multizone = false;
 
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TETRA_4))] = "TetElements";
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(PYRA_5))]  = "PyrElements";
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(PENTA_6))] = "PenElements";
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(HEXA_8))]  = "HexElements";
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TRI_3))]   = "TriElements";
-    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(QUAD_4))]  = "QuaElements";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TETRA_4))] = "Elem_tetra";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(PYRA_5))]  = "Elem_pyra";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(PENTA_6))] = "Elem_prism";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(HEXA_8))]  = "Elem_hexa";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TRI_3))]   = "Elem_tri";
+    m_elementsSectionName[static_cast<int>(CGNS_ENUMV(QUAD_4))]  = "Elem_quad";
 
 }
 
@@ -248,6 +248,7 @@ IOCGNS::IOCGNS_WriteType    IOCGNS::whatWritingFormat(){
 bool    IOCGNS::isWritingMultiZone(){
     return m_multizone;
 }
+
 
 /*!It sets the  working directory path for IO operation.
    File to be read or file to be written will be located here.
@@ -377,6 +378,7 @@ void    IOCGNS::setWritingMultiZone(bool multizone){
     m_multizone = false;
 }
 
+
 /*!Execution command.
  * It reads the geometry if the condition m_read is true.
  * It writes the geometry if the condition m_write is true.
@@ -472,24 +474,22 @@ void IOCGNS::writeInfoFile(){
             out<<std::endl;
             out<<std::endl;
 
-            auto vl = getGeometry()->getPIDTypeListWNames();
-            std::map<long, std::string> volplist(vl.begin(), vl.end());
-            out<<"Zones defined on the mesh :"<<std::endl;
-            out<<std::endl;
-            for(auto & pl : volplist){
-                out<<"PID : "<<pl.first<<" Name : "<<pl.second<<std::endl;
-            }
-            out<<std::endl;
-            out<<std::endl;
+            if(m_storedBC){
+                out<<"Zones defined on the mesh :"<<std::endl;
+                out<<std::endl;
+                for(auto & pl : m_storedBC->mcg_zonepidnames){
+                    out<<"PID : "<<pl.first<<" Name : "<<pl.second<<std::endl;
+                }
+                out<<std::endl;
+                out<<std::endl;
 
-            auto sl = getSurfaceBoundary()->getPIDTypeListWNames();
-            std::map<long, std::string> surfplist(sl.begin(), sl.end());
-
-            out<<"Boundary Patches defined on the mesh :"<<std::endl;
-            out<<std::endl;
-            for(auto & pl : surfplist){
-                out<<"PID : "<<pl.first<<" Name : "<<pl.second<<std::endl;
+                out<<"Boundary Patches defined on the mesh :"<<std::endl;
+                out<<std::endl;
+                for(auto & pl : m_storedBC->mcg_bcpidnames){
+                    out<<"PID : "<<pl.first<<" Name : "<<pl.second<<std::endl;
+                }
             }
+
             out.close();
         }else{
             (*m_log) << "Warning IOCGNS : cannot open "<<writeInfoFilename<<" to flush mesh Info" << std::endl;
@@ -528,7 +528,7 @@ IOCGNS::read(const std::string & file){
     std::vector<std::unordered_map<int, ivector1D >> bcLists; //list of elements composing bcs, for each zone.
     std::vector<std::unordered_map<int, std::string >> bcNames; // list of names of bcs, for each zone
     std::vector<std::unordered_map<int, CGNS_ENUMT(BCType_t) >> bcTypes; // list of types of bcs, for each zone
-    std::vector<bool> bcOnPoints;
+    std::vector<std::unordered_map<int, bool > > bcOnElements;
 
     //FIRST STEP ABSORB INFO from FILE//
 
@@ -581,7 +581,7 @@ IOCGNS::read(const std::string & file){
     bcLists.resize(nzones);
     bcNames.resize(nzones);
     bcTypes.resize(nzones);
-    bcOnPoints.resize(nzones);
+    bcOnElements.resize(nzones);
 
     for(int indexzone=0; indexzone<nzones; ++indexzone){
         if(cg_zone_type(indexfile,1,indexzone+1, &zoneType[indexzone])!= CG_OK){
@@ -691,6 +691,11 @@ IOCGNS::read(const std::string & file){
                     &normalIndex, &normalListSize, &normalDataType, &ndataset) != CG_OK){
                 return false;
             }
+            GridLocation_t bclocation;
+            if(cg_boco_gridlocation_read(indexfile,1,indexzone+1,indexbc+1, &bclocation) != CG_OK){
+                return false;
+            }
+
             bcNames[indexzone][indexbc] = std::string(name);
             bcTypes[indexzone][indexbc] = bocotype;
 
@@ -698,8 +703,8 @@ IOCGNS::read(const std::string & file){
             std::vector<cgsize_t> localbclist;
 
             switch(ptset_type){
-                case CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(PointList):
-                case CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(ElementList):
+                case CGNS_ENUMV(PointList):
+                case CGNS_ENUMV(ElementList):
                 {
                     localbclist.resize((size_t) nBCElements[0]);
                     if(cg_boco_read(indexfile,1,indexzone+1,indexbc+1, localbclist.data(), nullptr )!= CG_OK){
@@ -707,8 +712,8 @@ IOCGNS::read(const std::string & file){
                     }
                 }
                 break;
-                case CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(PointRange):
-                case CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(ElementRange):
+                case CGNS_ENUMV(PointRange):
+                case CGNS_ENUMV(ElementRange):
                 {
                     cgsize_t dim = nBCElements[1] - nBCElements[0] + 1;
                     localbclist.reserve((size_t) dim);
@@ -725,16 +730,18 @@ IOCGNS::read(const std::string & file){
                 (*m_log)<<"IOCGNS reader cannot support BC PointSetType_t different from PointList, PointRange, ElementList and ElementRange.Aborting"<<std::endl;
                 return false;
             }
-            bcOnPoints[indexzone] = (ptset_type == CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(PointRange) ||
-                                     ptset_type == CGNS_ENUMT(PointSetType_t)::CGNS_ENUMT(PointList) );
 
+            bool flag = ( ptset_type == CGNS_ENUMV(ElementList) );
+            flag = flag ||  (ptset_type == CGNS_ENUMV(ElementRange) );
+            flag = flag ||  ( (ptset_type == CGNS_ENUMV(PointList) || ptset_type == CGNS_ENUMV(PointRange) )
+                               && bclocation == CGNS_ENUMV(FaceCenter) ) ;
+            bcOnElements[indexzone].insert(std::make_pair(indexbc,flag));
             bcLists[indexzone][indexbc].resize(localbclist.size());
             int count=0;
             for(const auto &val: localbclist){
                 bcLists[indexzone][indexbc][count] = (int)val-1;//from fortran to c style
                 ++count;
             }
-
         }
     }
 
@@ -754,7 +761,8 @@ IOCGNS::read(const std::string & file){
     }
     m_volmesh->getPatch()->reserveVertices(totV);
     m_volmesh->getPatch()->reserveCells(totC);
-    std::unordered_map<long, std::map<int, long> > mapCellFacePid;
+    std::unordered_map<long, std::map<int, long> > mapCellFacePid; //used for point list. idcell - face - PID
+    std::unordered_map<long, std::unordered_map<long,std::vector<long> > > mapBndFaceDCPid; //used for element list. PID - id -2D element connectivity
     std::unordered_map<long, std::string > bndNames;
 
     for(int target_zone = 0; target_zone< nzones; ++target_zone){
@@ -763,7 +771,7 @@ IOCGNS::read(const std::string & file){
 
         for(int j=0; j<nbc; ++j){
              m_storedBC->mcg_pidtobc[PIDBCOffset +j] = bcTypes[target_zone][j];
-             bndNames[PIDBCOffset +j] = bcNames[target_zone][j];
+             m_storedBC->mcg_bcpidnames[PIDBCOffset +j] = bcNames[target_zone][j];
              m_storedBC->mcg_zonetobndpid[target_zone].push_back(PIDBCOffset+j);
         }
 
@@ -925,9 +933,11 @@ IOCGNS::read(const std::string & file){
             break;
 
             case CGNS_ENUMV(MIXED):
+                unpackMixedConns(conns[target_zone][idsection], patchVol.get(), flaggedBCConns, idVertexOffset, idCellOffset, PIDZone, id);
+            break;
             default:
-                (*m_log)<<"Warning IOCGNS : found unsupported Element Type or Mixed connectivity"<<std::endl;
-                break;
+                (*m_log)<<"Warning IOCGNS : found unsupported Element Type in CGNS connectivity"<<std::endl;
+            break;
             }
         }
 
@@ -939,51 +949,48 @@ IOCGNS::read(const std::string & file){
         //you have bc on points, you need to pass from patchVol first.
         bitpit::PiercedVector<bitpit::Cell> & cells = patchVol->getCells();
         bitpit::PiercedVector<bitpit::Vertex> & verts = patchVol->getVertices();
-        std::unordered_map<long, std::set<int> > borderFaceCells = patchVol->extractBoundaryFaceCellID();
-        std::vector<std::set<long> > pools(bcLists[target_zone].size());
+        std::unordered_map<long, std::set<int> > borderFaceCells;
 
-        if(bcOnPoints[target_zone]){
-            // reverse each singular list of bcs in a more suitable container
-            for(const auto & pairList: bcLists[target_zone]){
-                // save it in pools and push vertices to patchBnd.
-                for(long idV: pairList.second){
-                    pools[pairList.first].insert(idV+idVertexOffset);
+        //loop on local bc;
+        for(int j=0; j<nbc; ++j){
+
+             m_storedBC->mcg_pidtolisttype[int(PIDBCOffset +j)] = int(bcOnElements[target_zone][j]);
+
+             if(!bcOnElements[target_zone][j]){
+
+                //compute borderFaceCells once.
+                if(borderFaceCells.empty()) {
+                    borderFaceCells = patchVol->extractBoundaryFaceCellID();
                 }
-            }
-        }else{
-            // reverse each singular list of bcs in a more suitable container
-            for(const auto & pairList: bcLists[target_zone]){
-                // save it in pools and push conn vertices of each surface cell idc into pools.
-                for(long idC: pairList.second){
-                    std::vector<long>& lconn = flaggedBCConns.at(idC);
-                    pools[pairList.first].insert(lconn.begin(), lconn.end());
+                // reverse each singular list of bcs in a more suitable container
+                std::set<long> pool;
+                for(long idV: bcLists[target_zone][j]){
+                    pool.insert(idV+idVertexOffset);
                 }
-            }
-            flaggedBCConns.clear();
-        }
 
-        // run over boundary faces, get their connectivity. If each conn vertex is in one of the pools
-        // mark it as a cell element of boundary
-        for(const auto & cellPair : borderFaceCells){
+                // run over boundary faces, get their connectivity. If each conn vertex is in one of the pools
+                // mark it as a cell element of boundary
+                for(const auto & cellPair : borderFaceCells){
+                    bitpit::Cell & cell = cells.at(cellPair.first);
 
-            bitpit::Cell & cell = cells.at(cellPair.first);
-
-            for(int iface : cellPair.second){
-
-                bitpit::ConstProxyVector<long> conn = cell.getFaceConnect(iface);
-                bitpit::ElementType etype  = cell.getFaceType(iface);
-                int count = 0;
-                for(const auto &localpool : pools){
-                    if( belongToPool(conn, localpool)){
-                        mapCellFacePid[cellPair.first].insert(std::make_pair(iface, PIDBCOffset +long(count)));
+                    for(int iface : cellPair.second){
+                        bitpit::ConstProxyVector<long> conn = cell.getFaceConnect(iface);
+                        if( belongToPool(conn, pool)){
+                            mapCellFacePid[cellPair.first].insert(std::make_pair(iface, PIDBCOffset +long(j)));
+                        }
                     }
-                    ++count;
+                }
+
+            }else{
+
+                for(long idC: bcLists[target_zone][j]){
+                        mapBndFaceDCPid[PIDBCOffset +long(j)].insert(std::make_pair(idC, flaggedBCConns.at(idC)) );
                 }
             }
-        }
-        borderFaceCells.clear();
+        } //end of looping bcs.
+        flaggedBCConns.clear();
         //clean up adjacencies. These portion is local, you need to append this structure to the real mesh manager after.
-        patchVol->resetAdjacencies();
+        if(patchVol->areAdjacenciesBuilt()) patchVol->resetAdjacencies();
 
         //reversing patchVol inside volmesh .
         for(auto it=patchVol->getPatch()->vertexBegin(); it != patchVol->getPatch()->vertexEnd(); ++it){
@@ -994,9 +1001,8 @@ IOCGNS::read(const std::string & file){
             m_volmesh->addCell(*it, it->getId());
         }
 
-        //store the name of volumetric pid (zone names) and bc pid (bcNames.)
-        auto & volPidList = m_volmesh->getPIDTypeListWNames();
-        volPidList[PIDZoneOffset+target_zone] = zonenames[target_zone];
+        //store the name of volumetric pid (zone names)
+        m_storedBC->mcg_zonepidnames[PIDZoneOffset+target_zone] = zonenames[target_zone];
 
         //update the offsets;
         PIDZoneOffset = 0;
@@ -1024,6 +1030,10 @@ IOCGNS::read(const std::string & file){
     for(auto & pp : mapCellFacePid){
         totSC += pp.second.size();
     }
+    for(auto & pp : mapBndFaceDCPid){
+        totSC += pp.second.size();
+    }
+
     totSV = 4*totSC;
 
     m_surfmesh->getPatch()->reserveVertices(totSV);
@@ -1039,6 +1049,8 @@ IOCGNS::read(const std::string & file){
     int iface;
     bitpit::ElementType et;
     bitpit::ConstProxyVector<long> conn;
+
+    // fill data from point list to surface
     for(auto & mapp : mapCellFacePid){
         bitpit::Cell & cell = volCells.at(mapp.first);
 
@@ -1058,14 +1070,26 @@ IOCGNS::read(const std::string & file){
             ++idCellCounter;
         }
     }
-    auto & surfPidList = m_surfmesh->getPIDTypeListWNames();
 
-    for(auto & pp: bndNames){
-        surfPidList[pp.first] = pp.second;
+    // fill data from element list to surface
+    for(auto & rootmap : mapBndFaceDCPid){
+        PIDSurf = rootmap.first;
+        for(auto & info: rootmap.second){
+            bitpit::ElementType et = bitpit::ElementType::QUAD;
+            if(info.second.size()<4){
+                et = bitpit::ElementType::TRIANGLE;
+            }
+            //push vertices in m_surfmesh;
+            for(long idV : info.second){
+                if(!surfVerts.exists(idV)){
+                    m_surfmesh->addVertex(volVerts.at(idV), idV);
+                }
+            }
+            m_surfmesh->addConnectedCell(info.second, et, PIDSurf, idCellCounter);
+            ++idCellCounter;
+        }
     }
-    if(surfPidList.count(0)){
-        surfPidList[0]= "Undefined_BC";
-    }
+
 
 #if MIMMO_ENABLE_MPI
     } //endif mpi
@@ -1101,195 +1125,10 @@ switch(m_wtype){
 }
 
 if(m_multizone){
-
     //TODO : write better the multizone part and add the zone-zone connectivity
     //information maybe faces? 1to1Connectivity.
-
-// #if MIMMO_ENABLE_MPI
-//     if(m_rank == 0){
-// #endif
-//
-//     std::string error_string = "write CGNS grid: " + file;
-//
-//
-//     /* Fill this structures (surface boundary connectivity has
-//      * to be filled with same vertex indices of volume mesh) */
-//     MimmoObject * vol = getGeometry();
-//     MimmoObject * bnd = getSurfaceBoundary();
-//
-//     if( vol == NULL || bnd == NULL ) return false;
-//
-//     std::unordered_map<long, std::string> & zonePidList = vol->getPIDTypeListWNames();
-//     std::set<long> zoneOrdered;
-//     for(auto &pp: zonePidList){
-//         zoneOrdered.insert(pp.first);
-//     }
-//
-//     //Check if zone and bnd lists have valid names into them.
-//     //Otherwise give them a fake name Zone
-//     for(auto & pp : zonePidList){
-//         if(pp.second.empty()){
-//             pp.second = std::string("Zone" + std::to_string(pp.first));
-//         }
-//     }
-//
-//
-//     //Open index nad Write Unique Base Info
-//     int indexfile;
-//     if(cg_open(file.c_str(), CG_MODE_WRITE, &indexfile) != CG_OK){
-//         (*m_log) << "error: cgns error during write: opening file " << file << std::endl;
-//         throw std::runtime_error ("cgns error during write " + file);
-//     }
-//
-//     int baseindex = 1;
-//     char basename[33] = "Base";
-//     int physdim=3, celldim=3;
-//     if(cg_base_write(indexfile,basename, celldim, physdim, &baseindex) != CG_OK){
-//         (*m_log) << "error: cgns error during write : base  " << file << std::endl;
-//         throw std::runtime_error ("cgns error during write " + file);
-//     }
-//
-//     int n_zones = zoneOrdered.size();
-//     livector1D cellIds, vertIds;
-//     std::unordered_map<long, int> globToLoc;
-//     std::vector<ivector1D> bndPools;
-//     int zoneindex;
-//     for(long target_zone: zoneOrdered){
-//
-//         //take out volume cell ids in the target zone.
-//         cellIds = vol->extractPIDCells(target_zone);
-//         vertIds = vol->getVertexFromCellList(cellIds);
-//
-//         // fill the inverse point map. Start from 1 because CGNS is a fortran buddy
-//         int countvert = 1;
-//         for(long idV : vertIds){
-//             globToLoc[idV] = countvert;
-//             ++countvert;
-//         }
-//
-//         int bndsize = m_storedBC->mcg_zonetobndpid[target_zone].size();
-//         bndPools.resize(bndsize, ivector1D());
-//         livector1D temp;
-//         if(bndsize>0){
-//             int count=0;
-//             for(int val : m_storedBC->mcg_zonetobndpid[target_zone]){
-//                 temp = bnd->getVertexFromCellList(bnd->extractPIDCells(val));
-//                 bndPools[count].resize(temp.size());
-//                 int llcc = 0;
-//                 for(long & val : temp){
-//                     bndPools[count][llcc] = globToLoc[val];
-//                     ++llcc;
-//                 }
-//                 ++count;
-//             }
-//             // cgns boundaries for each zone are always unique.
-//         }
-//
-//         CGNS_ENUMT(ZoneType_t) zoneType =CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(Unstructured) ;
-//         //int index_dim = 1;
-//         std::vector<cgsize_t> sizeG(3);
-//         sizeG[0] = vertIds.size();
-//         sizeG[1] = cellIds.size();
-//         sizeG[2] = 0; //unsorted elements.
-//
-//         if(cg_zone_write(indexfile,baseindex, zonePidList[target_zone].data(), sizeG.data(), zoneType, &zoneindex) != CG_OK ){
-//             (*m_log) << "error: cgns error during write: zone " << file << std::endl;
-//             throw std::runtime_error ("cgns error during write " + file);
-//         }
-//
-//         //writing vertices.
-//         svector1D names(3, "CoordinateX");
-//         names[1] = "CoordinateY";
-//         names[2] = "CoordinateZ";
-//
-//         CGNS_ENUMT(DataType_t) datatype= CGNS_ENUMT(DataType_t)::CGNS_ENUMV(RealDouble);
-//         {
-//             //put vertices coordinates in a more suitable structure
-//             std::array<std::vector<double>,3 > coords;
-//             coords[0].reserve(vertIds.size());
-//             coords[1].reserve(vertIds.size());
-//             coords[2].reserve(vertIds.size());
-//
-//             darray3E temp;
-//             for(long idV : vertIds){
-//                 temp = vol->getVertexCoords(idV);
-//                 coords[0].push_back(temp[0]);
-//                 coords[1].push_back(temp[1]);
-//                 coords[2].push_back(temp[2]);
-//             }
-//
-//             for(int i=1; i<=3; ++i){
-//                 int index;
-//                 if(cg_coord_write(indexfile,baseindex,zoneindex, datatype, names[i-1].data(), coords[i-1].data(), &index )!=CG_OK){
-//                     (*m_log) << "error: cgns error during write: node coordinates " << file << std::endl;
-//                     throw std::runtime_error ("cgns error during write " + file);
-//                 }
-//             }
-//         }//end scope vertices
-//
-//         std::unordered_map<int, std::vector<std::size_t> > mmcgns = getZoneConn(cellIds, globToLoc);
-//         /* Write volume elements */
-//         int sec, countsec(1);
-//         cgsize_t eBeg = 1, eEnd;
-//         std::string sectionname;
-//         std::vector<cgsize_t> cgtemp;
-//         std::size_t locsize;
-//         for(auto &connMap : mmcgns){
-//
-//             if(connMap.second.empty()) continue;
-//
-//             locsize = connMap.second.size();
-//             eEnd = eBeg + cellIds.size() - 1;
-//             cgtemp.clear();
-//             cgtemp.reserve(locsize);
-//             for(std::size_t val : connMap.second){
-//                 cgtemp.push_back(cgsize_t(val));
-//             }
-//             sectionname = "Section"+std::to_string(countsec);
-//
-//             if(cg_section_write(indexfile,baseindex,zoneindex,sectionname.data(), static_cast<CGNS_ENUMT(ElementType_t)>(connMap.first),
-//                                 eBeg,eEnd,0, cgtemp.data(), &sec) !=CG_OK )
-//             {
-//                 cg_error_print();
-//
-//                 (*m_log) << "error: cgns error during write: section " << file << std::endl;
-//                 throw std::runtime_error ("cgns error during write " + file);
-//             }
-//             eBeg = eEnd+1;
-//             ++countsec;
-//         }
-//
-//         mmcgns.clear();
-//
-//         /* Write boundary conditions if any
-//          */
-//         int bccount(0), bcid;
-//         for(const auto & pool: bndPools){
-//
-//             int pid = m_storedBC->mcg_zonetobndpid[target_zone][bccount];
-//             CGNS_ENUMT(BCType_t) bocotype = static_cast<CGNS_ENUMT(BCType_t)>(m_storedBC->mcg_pidtobc[pid]);
-//             std::string bcname =m_storedBC->mcg_pidtoname[pid];
-//             CGNS_ENUMT(PointSetType_t) ptset_type = CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(PointList);
-//
-//             cgsize_t nverts = pool.size();
-//
-//             if(cg_boco_write(indexfile, baseindex, zoneindex, bcname.data(),
-//                     bocotype, ptset_type, nverts, pool.data(), &bcid )!= CG_OK)
-//             {
-//                 (*m_log) << "error: cgns error during write: bc " << file << std::endl;
-//                 throw std::runtime_error ("cgns error during write " + file);
-//             }
-//             ++bccount;
-//         }
-//
-//     }//end loop zones
-//     /* Finish writing CGNS file */
-//     cg_close(indexfile);
-//
-// #if MIMMO_ENABLE_MPI
-// } //ENDIF M-RANK mpi
-// #endif
 }else{
+
 #if MIMMO_ENABLE_MPI
     if(m_rank == 0){
 #endif
@@ -1300,6 +1139,10 @@ if(m_multizone){
      * to be filled with same vertex indices of volume mesh) */
     MimmoObject * vol = getGeometry();
     MimmoObject * bnd = getSurfaceBoundary();
+
+    //just in case resynchronize the internal pids - to be sure
+    vol->resyncPID();
+    bnd->resyncPID();
 
     if( vol == NULL || bnd == NULL ) return false;
 
@@ -1321,33 +1164,15 @@ if(m_multizone){
     std::unordered_map<long, std::string> & zonePidList = vol->getPIDTypeListWNames();
 
     std::string zonename = "Zone0001";
-    // long zoneX = zonePidList.begin()->first;
-    // zonename = zonePidList.begin()->second;
-    // for(auto & pp : zonePidList){
-    //     if(pp.second == "T"){
-    //         zoneX = pp.first;
-    //         zonename = pp.second;
-    //     }
-    // }
-
 
     livector1D cellIds, vertIds;
     std::unordered_map<long, int> globToLoc;
-    std::vector<ivector1D> bndPools;
+    std::map<long, ivector1D> bndPools;
+
     int zoneindex=1;
     //take out volume cell ids in the target zone.
-    cellIds = vol->getCells().getIds();//vol->extractPIDCells(zoneX);
-    vertIds = vol->getVertices().getIds();//vol->getVertexFromCellList(cellIds);
-
-    // cellIds = vol->extractPIDCells(zoneX);
-    // cellIds.resize(2);
-    // std::set<long> pverts;
-    // for (long id : cellIds){
-    //     bitpit::Cell & cell = vol->getCells().at(id);
-    //     bitpit::ConstProxyVector<long> vids = cell.getVertexIds();
-    //     pverts.insert(vids.begin(), vids.end());
-    // }
-    // vertIds.insert(vertIds.end(), pverts.begin(), pverts.end());
+    cellIds = vol->getCells().getIds();
+    vertIds = vol->getVertices().getIds();
 
 
     // fill the inverse point map. Start from 1 because CGNS is a fortran buddy
@@ -1358,19 +1183,26 @@ if(m_multizone){
     }
 
     int bndsize = m_storedBC->mcg_pidtobc.size();
-    bndPools.resize(bndsize, ivector1D());
     livector1D temp;
     if(bndsize>0){
-        int count=0;
         for(auto & val : m_storedBC->mcg_pidtobc){
-            temp = bnd->getVertexFromCellList(bnd->extractPIDCells(val.first));
-            bndPools[count].resize(temp.size());
-            int llcc = 0;
-            for(long & val : temp){
-                bndPools[count][llcc] = globToLoc[val];
-                ++llcc;
+            if(m_storedBC->mcg_pidtolisttype[val.first] > 0){
+                temp = bnd->extractPIDCells(val.first);
+                bndPools[val.first].resize(temp.size());
+                int llcc = 0;
+                for(long id : temp){
+                    bndPools[val.first][llcc] = id;
+                    ++llcc;
+                }
+            }else{
+                temp = bnd->getVertexFromCellList(bnd->extractPIDCells(val.first));
+                bndPools[val.first].resize(temp.size());
+                int llcc = 0;
+                for(long id : temp){
+                    bndPools[val.first][llcc] = globToLoc[id];
+                    ++llcc;
+                }
             }
-            ++count;
         }
         // cgns boundaries for each zone are always unique.
     }
@@ -1416,19 +1248,32 @@ if(m_multizone){
         }
     }//end scope vertices
 
-    std::unordered_map<int, std::vector<std::size_t> > mmcgns = getZoneConn(cellIds, globToLoc);
+    std::map<int, std::size_t> mmcgns_ncells;
+    std::map<int, std::vector<std::size_t> > mmcgns = getZoneConn(cellIds, globToLoc, mmcgns_ncells);
+    livector1D bndCellIds;
+    for(auto & mapp : bndPools){
+        if(m_storedBC->mcg_pidtolisttype[int(mapp.first)] > 0){
+            bndCellIds.insert(bndCellIds.end(), mapp.second.begin(), mapp.second.end());
+        }
+    }
+    std::map<int, std::size_t> bndcgns_ncells;
+    std::unordered_map<long, int> surfCellGlobToLoc;
+    std::map<int, std::vector<std::size_t> > bndcgns = getBCElementsConn(bndCellIds, globToLoc, bndcgns_ncells, surfCellGlobToLoc);
+
     /* Write volume elements */
     int sec, countsec(1);
     cgsize_t eBeg = 1, eEnd;
     std::string sectionname;
     std::vector<cgsize_t> cgtemp;
     std::size_t locsize;
+
+    //write voume elements.
     for(auto &connMap : mmcgns){
 
         if(connMap.second.empty()) continue;
 
         locsize = connMap.second.size();
-        eEnd = eBeg + cellIds.size() - 1;
+        eEnd = eBeg + mmcgns_ncells[connMap.first] - 1;
         cgtemp.clear();
         cgtemp.reserve(locsize);
         for(std::size_t val : connMap.second){
@@ -1452,31 +1297,68 @@ if(m_multizone){
     }
 
     mmcgns.clear();
+    cgsize_t startSurfElementsOffset(eBeg);
+    //write surface elements.
+    for(auto &connMap : bndcgns){
 
-    /* Write boundary conditions if any
+        if(connMap.second.empty()) continue;
+
+        locsize = connMap.second.size();
+        eEnd = eBeg + bndcgns_ncells[connMap.first] - 1;
+        cgtemp.clear();
+        cgtemp.reserve(locsize);
+        for(std::size_t val : connMap.second){
+            cgtemp.push_back(cgsize_t(val));
+        }
+
+        sectionname = "UndefElements";
+        if(m_elementsSectionName.count(connMap.first) > 0){
+            sectionname = m_elementsSectionName[connMap.first];
+        }
+
+        if(cg_section_write(indexfile,baseindex,zoneindex,sectionname.data(), static_cast<CGNS_ENUMT(ElementType_t)>(connMap.first),
+                            eBeg,eEnd,0, cgtemp.data(), &sec) !=CG_OK )
+        {
+            cg_error_print();
+            (*m_log) << "error: cgns error during write: section " << file << std::endl;
+            throw std::runtime_error ("cgns error during write " + file);
+        }
+        eBeg = eEnd+1;
+        ++countsec;
+    }
+
+    bndcgns.clear();
+
+    /* Write boundary conditions
      */
 
     int bccount(0), bcid;
-    auto it = m_storedBC->mcg_pidtobc.begin();
-    auto bndList = bnd->getPIDTypeListWNames();
-    for(const auto & pool: bndPools){
 
-        int pid = it->first;
+    for(auto & pool: bndPools){
+
+        int pid = pool.first;
         CGNS_ENUMT(BCType_t) bocotype = static_cast<CGNS_ENUMT(BCType_t)>(m_storedBC->mcg_pidtobc[pid]);
-        std::string bcname = "Undefined_BC";
-        if(bndList.count(pid) > 0) bcname = bndList[pid];
-        CGNS_ENUMT(PointSetType_t) ptset_type = CGNS_ENUMT(PointSetType_t)::CGNS_ENUMV(PointList);
-
-        cgsize_t nverts = pool.size();
+        std::string bcname = "Undefined_BC_"+ std::to_string(pid);
+        if(m_storedBC->mcg_bcpidnames.count(pid) > 0) bcname = m_storedBC->mcg_bcpidnames[pid];
+        CGNS_ENUMT(PointSetType_t) ptset_type;
+        if(m_storedBC->mcg_pidtolisttype[pid] == 0){
+            ptset_type = CGNS_ENUMV(PointList);
+        }else{
+            ptset_type = CGNS_ENUMV(ElementList);
+            //remap the ids of elements into the pool.
+            for(int & idSC : pool.second){
+                idSC = surfCellGlobToLoc[idSC] + int(startSurfElementsOffset);
+            }
+        }
+        cgsize_t nelems = pool.second.size();
 
         if(cg_boco_write(indexfile, baseindex, zoneindex, bcname.data(),
-                bocotype, ptset_type, nverts, pool.data(), &bcid )!= CG_OK)
+                bocotype, ptset_type, nelems, pool.second.data(), &bcid )!= CG_OK)
         {
             (*m_log) << "error: cgns error during write: bc " << file << std::endl;
             throw std::runtime_error ("cgns error during write " + file);
         }
         ++bccount;
-        ++it;
     }
 
     /* Finish writing CGNS file */
@@ -1568,7 +1450,6 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
         };
         setWritingMultiZone(value);
     };
-
 };
 
 /*!
@@ -1589,6 +1470,7 @@ IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     slotXML.set("WriteInfo", std::to_string(int(m_writeOnFile)));
     slotXML.set("WriteFormat", std::to_string(static_cast<int>(whatWritingFormat())));
     slotXML.set("WriteMultiZone", std::to_string(int(isWritingMultiZone())));
+
 };
 
 /*!
@@ -1614,14 +1496,18 @@ bool IOCGNS::belongToPool(const bitpit::ConstProxyVector<long> & elementconn, co
 
     \param[in] cellIds  list of cells
     \param[in] mapToLocVert map from volmesh globla enumeration to local one starting from 0 up to max Number of vertices involved.
+    \param[out] map of number of cells for each type of elements.
+
     \return the Zone connectivity of a certain portion of volume mesh.
 
  */
-std::unordered_map<int, std::vector<std::size_t> >
-IOCGNS::getZoneConn(const livector1D& cellIds, const std::unordered_map<long, int> & mapToLocVert)
+std::map<int, std::vector<std::size_t> >
+IOCGNS::getZoneConn(const livector1D& cellIds,
+                    const std::unordered_map<long, int> & mapToLocVert,
+                    std::map<int, std::size_t> &ncells)
 {
-    std::unordered_map<int, std::vector<std::size_t> > mm;
-
+    std::map<int, std::vector<std::size_t> > mm;
+    ncells.clear();
     bitpit::PiercedVector<bitpit::Cell> & cells = getGeometry()->getCells();
 
     bitpit::ElementType btype;
@@ -1666,10 +1552,274 @@ IOCGNS::getZoneConn(const livector1D& cellIds, const std::unordered_map<long, in
         }
         int tt = static_cast<int>(cgnstype);
         mm[tt].insert(mm[tt].end(), connConverted.begin(), connConverted.end());
+        if(ncells.count(tt) < 1){
+            ncells[tt] = 0;
+        }
+        ncells[tt] += 1;
     }
 
     return mm;
 };
+
+/*!
+    Given a portion of cells referring to volmesh , and the list of vertices involved in it
+    renumbered from 0 to nmaxVert-1, return a cgns map connectivity having as key the type of elements
+    and as argument the compact vector of the connectivity.
+
+    \param[in] cellIds  list of cells
+    \param[in] mapToLocVert map from volmesh globla enumeration to local one starting from 0 up to max Number of vertices involved.
+    \param[out] map of number of cells for each type of elements.
+    \param[out] surfCellGlobToLoc  map form surface cell id to local compact consecutive id.
+    \return the Zone connectivity of a certain portion of volume mesh.
+
+ */
+std::map<int, std::vector<std::size_t> >
+IOCGNS::getBCElementsConn(const livector1D& cellIds,
+                          const std::unordered_map<long, int> & mapToLocVert,
+                          std::map<int, std::size_t> &ncells,
+                          std::unordered_map<long, int> & surfCellGlobToLoc)
+{
+    std::map<int, std::vector<std::size_t> > mm;
+    std::map<int, std::vector<long> > idInsertion;
+    ncells.clear();
+    bitpit::PiercedVector<bitpit::Cell> & cells = getSurfaceBoundary()->getCells();
+
+    bitpit::ElementType btype;
+    CGNS_ENUMT(ElementType_t) cgnstype;
+    bool unsupported = false;
+    std::vector<std::size_t> connConverted;
+
+    for(long idC : cellIds){
+        bitpit::Cell & cell = cells.at(idC);
+        btype = cell.getType();
+        switch(btype){
+            case bitpit::ElementType::TRIANGLE:
+                cgnstype = CGNS_ENUMV(TRI_3);
+            break;
+            case bitpit::ElementType::QUAD:
+                cgnstype = CGNS_ENUMV(QUAD_4);
+            break;
+            default:
+                unsupported = true;
+            break;
+        }
+
+        if(unsupported){
+            (*m_log)<<"WARNING IOCGNS:write() : Skipping a polyhedral element in volume mesh. Unsupported writign at the moment."<<std::endl;
+            continue;
+        }
+        long * conn = cell.getConnect();
+        int iconn = cell.getConnectSize();
+        connConverted.resize(iconn);
+        for(int i=0; i< iconn; ++i){
+            connConverted[i] = std::size_t(mapToLocVert.at(conn[i]));
+        }
+        int tt = static_cast<int>(cgnstype);
+        mm[tt].insert(mm[tt].end(), connConverted.begin(), connConverted.end());
+        idInsertion[tt].push_back(idC);
+    }
+
+    int counter = 0;
+    for(auto &mapp: idInsertion){
+        for(long & val: mapp.second){
+            surfCellGlobToLoc.insert(std::make_pair(val, counter) );
+            ++counter;
+        }
+        ncells[mapp.first] = mapp.second.size();
+    }
+    return mm;
+};
+
+/*!
+    Unpack conns array of mixed elements.
+    \param[in] connsArray of mixed conns as read by cgns.
+    \param[in,out] patchVol mimmoObject to store volume elements.
+    \param[in,out] surfElements map to store surface elements for boundary purposes (key ordered according to the element type)
+    \param[in] idVertexOffset id offset for remapping local vertices.
+    \param[in] idCellOffset id offset for remapping local cells.
+    \param[in] PIDZoneVolume PID to be assigned to volumtric cells
+    \param[in,out] idwork id counter for new cells added.
+*/
+
+void
+IOCGNS::unpackMixedConns( const ivector1D & connsArray,
+                          MimmoObject * patchVol,
+                          std::unordered_map<long, std::vector<long>> surfElem,
+                          const long & idVertexOffset,
+                          const long & idCellOffset,
+                          const long & PIDZoneVolume,
+                          long & idwork)
+{
+    livector1D lConn;
+    bitpit::ElementType btype;
+    auto it=connsArray.begin(), itE=connsArray.end();
+
+    while(it != itE){
+
+        CGNS_ENUMT(ElementType_t) et = static_cast<CGNS_ENUMT(ElementType_t)>(*it);
+        ++it;
+
+        switch(et){
+
+        case CGNS_ENUMV(TETRA_4):
+        case CGNS_ENUMV(TETRA_10):
+        case CGNS_ENUMV(TETRA_16):
+        case CGNS_ENUMV(TETRA_20):
+        case CGNS_ENUMV(TETRA_22):
+        case CGNS_ENUMV(TETRA_34):
+        case CGNS_ENUMV(TETRA_35):
+
+            btype = bitpit::ElementType::TETRA;
+            lConn.resize(4);
+            for(long & val: lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            patchVol->addConnectedCell(lConn, btype, idwork+idCellOffset );
+            patchVol->setPIDCell(idwork + idCellOffset,PIDZoneVolume);
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(PYRA_5):
+        case CGNS_ENUMV(PYRA_13):
+        case CGNS_ENUMV(PYRA_14):
+        case CGNS_ENUMV(PYRA_21):
+        case CGNS_ENUMV(PYRA_29):
+        case CGNS_ENUMV(PYRA_30):
+        case CGNS_ENUMV(PYRA_50):
+        case CGNS_ENUMV(PYRA_55):
+
+            btype = bitpit::ElementType::PYRAMID;
+            lConn.resize(5);
+            for(long & val : lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            patchVol->addConnectedCell(lConn, btype, idwork+idCellOffset );
+            patchVol->setPIDCell(idwork+idCellOffset,PIDZoneVolume);
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(PENTA_6):
+        case CGNS_ENUMV(PENTA_15):
+        case CGNS_ENUMV(PENTA_18):
+        case CGNS_ENUMV(PENTA_24):
+        case CGNS_ENUMV(PENTA_38):
+        case CGNS_ENUMV(PENTA_40):
+        case CGNS_ENUMV(PENTA_33):
+        case CGNS_ENUMV(PENTA_66):
+        case CGNS_ENUMV(PENTA_75):
+
+            btype = bitpit::ElementType::WEDGE;
+            lConn.resize(6);
+            for(long & val : lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            //remap in bitpit conn. TODO complete ref element mapper for connectivity.
+            std::swap(lConn[1], lConn[2]);
+            std::swap(lConn[4], lConn[5]);
+
+            patchVol->addConnectedCell(lConn, btype, idwork+idCellOffset );
+            patchVol->setPIDCell(idwork+idCellOffset,PIDZoneVolume);
+            idwork++;
+
+        break;
+
+        case CGNS_ENUMV(HEXA_8):
+        case CGNS_ENUMV(HEXA_20):
+        case CGNS_ENUMV(HEXA_27):
+        case CGNS_ENUMV(HEXA_32):
+        case CGNS_ENUMV(HEXA_56):
+        case CGNS_ENUMV(HEXA_64):
+        case CGNS_ENUMV(HEXA_44):
+        case CGNS_ENUMV(HEXA_98):
+        case CGNS_ENUMV(HEXA_125):
+
+            btype = bitpit::ElementType::HEXAHEDRON;
+            lConn.resize(8);
+            for(long & val : lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            patchVol->addConnectedCell(lConn, btype, idwork+idCellOffset );
+            patchVol->setPIDCell(idwork+idCellOffset,PIDZoneVolume);
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(TRI_3):
+        case CGNS_ENUMV(TRI_6):
+        case CGNS_ENUMV(TRI_9):
+        case CGNS_ENUMV(TRI_10):
+        case CGNS_ENUMV(TRI_12):
+        case CGNS_ENUMV(TRI_15):
+
+            btype = bitpit::ElementType::TRIANGLE;
+            lConn.resize(3);
+            for(long & val : lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            surfElem[idwork] = lConn;
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(QUAD_4):
+        case CGNS_ENUMV(QUAD_8):
+        case CGNS_ENUMV(QUAD_9):
+        case CGNS_ENUMV(QUAD_12):
+        case CGNS_ENUMV(QUAD_16):
+        case CGNS_ENUMV(QUAD_25):
+
+            btype = bitpit::ElementType::QUAD;
+            lConn.resize(4);
+            for(long & val : lConn){
+                val = idVertexOffset + *it;
+                ++it;
+            }
+            surfElem[idwork] = lConn;
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(NODE):
+            ++it;
+            idwork++;
+        break;
+
+        case CGNS_ENUMV(BAR_2):
+            for(int j=0; j<2; ++j){
+                ++it;
+            }
+            idwork++;
+        break;
+        case CGNS_ENUMV(BAR_3):
+            for(int j=0; j<3; ++j){
+                ++it;
+            }
+            idwork++;
+        break;
+        case CGNS_ENUMV(BAR_4):
+            for(int j=0; j<4; ++j){
+                ++it;
+            }
+            idwork++;
+        break;
+        case CGNS_ENUMV(BAR_5):
+            for(int j=0; j<5; ++j){
+                ++it;
+            }
+            idwork++;
+        break;
+
+        default:
+            (*m_log)<< "error: "<< m_name << " found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. "<<std::endl;
+            throw std::runtime_error (m_name + " : found unrecognized CGNS element while reading. Impossible to absorb further mixed elements. ");
+            return;
+            break;
+        }
+    } //end while
+}
+
 
 
 /*!
@@ -1708,10 +1858,10 @@ bool IOCGNS::restore(std::istream &stream){
         return false;
     }
 
-#if MIMMO_ENABLE_MPI
     m_volmesh->buildPatchInfo();
     m_surfmesh->buildPatchInfo();
 
+#if MIMMO_ENABLE_MPI
     m_volmesh->updatePointGhostExchangeInfo();
     m_surfmesh->updatePointGhostExchangeInfo();
 
@@ -1729,38 +1879,70 @@ void IOCGNS::communicateAllProcsStoredBC(){
     if(m_rank == 0){
 
         //create char output data buffer and reverse data into it.
+        bitpit::OBinaryStream dataBuffer_pidtolisttype;
         bitpit::OBinaryStream dataBuffer_pidtobc;
         bitpit::OBinaryStream dataBuffer_zonetobndpid;
+        bitpit::OBinaryStream dataBuffer_bcpidnames;
+        bitpit::OBinaryStream dataBuffer_zonepidnames;
 
         dataBuffer_pidtobc << m_storedBC->mcg_pidtobc;
         dataBuffer_zonetobndpid << m_storedBC->mcg_zonetobndpid;
+        dataBuffer_pidtolisttype << m_storedBC->mcg_pidtolisttype;
+        dataBuffer_bcpidnames << m_storedBC->mcg_bcpidnames;
+        dataBuffer_zonepidnames << m_storedBC->mcg_zonepidnames;
 
         long dbs1 = dataBuffer_pidtobc.getSize();
-        long dbs3 = dataBuffer_zonetobndpid.getSize();
+        long dbs2 = dataBuffer_zonetobndpid.getSize();
+        long dbs3 = dataBuffer_pidtolisttype.getSize();
+        long dbs4 = dataBuffer_bcpidnames.getSize();
+        long dbs5 = dataBuffer_zonepidnames.getSize();
 
         //Send data to all other procs
         for (int sendRank=1; sendRank<m_nprocs; sendRank++){
            MPI_Send(&dbs1, 1, MPI_LONG, sendRank, 100, m_communicator);
            MPI_Send(dataBuffer_pidtobc.data(), dataBuffer_pidtobc.getSize(), MPI_CHAR, sendRank, 110, m_communicator);
+           MPI_Send(&dbs2, 1, MPI_LONG, sendRank, 200, m_communicator);
+           MPI_Send(dataBuffer_zonetobndpid.data(), dataBuffer_zonetobndpid.getSize(), MPI_CHAR, sendRank, 210, m_communicator);
            MPI_Send(&dbs3, 1, MPI_LONG, sendRank, 300, m_communicator);
-           MPI_Send(dataBuffer_zonetobndpid.data(), dataBuffer_zonetobndpid.getSize(), MPI_CHAR, sendRank, 310, m_communicator);
+           MPI_Send(dataBuffer_pidtolisttype.data(), dataBuffer_pidtolisttype.getSize(), MPI_CHAR, sendRank, 310, m_communicator);
+           MPI_Send(&dbs4, 1, MPI_LONG, sendRank, 400, m_communicator);
+           MPI_Send(dataBuffer_bcpidnames.data(), dataBuffer_bcpidnames.getSize(), MPI_CHAR, sendRank, 410, m_communicator);
+           MPI_Send(&dbs5, 1, MPI_LONG, sendRank, 500, m_communicator);
+           MPI_Send(dataBuffer_zonepidnames.data(), dataBuffer_zonepidnames.getSize(), MPI_CHAR, sendRank, 510, m_communicator);
+
         }
         //hey 0, your job is done.
     }else{
 
         m_storedBC  = std::move(std::unique_ptr<BCCGNS>(new BCCGNS()));
 
-        long dbs1,dbs3;
+        long dbs1,dbs2, dbs3,dbs4, dbs5;
 
         MPI_Recv(&dbs1, 1, MPI_LONG, 0, 100, m_communicator, MPI_STATUS_IGNORE);
         bitpit::IBinaryStream dataBuffer_pidtobc(dbs1);
         MPI_Recv(dataBuffer_pidtobc.data(), dataBuffer_pidtobc.getSize(), MPI_CHAR, 0, 110, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_pidtobc >> m_storedBC->mcg_pidtobc;
 
-        MPI_Recv(&dbs3, 1, MPI_LONG, 0, 300, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_zonetobndpid(dbs3);
-        MPI_Recv(dataBuffer_zonetobndpid.data(), dataBuffer_zonetobndpid.getSize(), MPI_CHAR, 0, 310, m_communicator, MPI_STATUS_IGNORE);
+        MPI_Recv(&dbs2, 1, MPI_LONG, 0, 200, m_communicator, MPI_STATUS_IGNORE);
+        bitpit::IBinaryStream dataBuffer_zonetobndpid(dbs2);
+        MPI_Recv(dataBuffer_zonetobndpid.data(), dataBuffer_zonetobndpid.getSize(), MPI_CHAR, 0, 210, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_zonetobndpid >> m_storedBC->mcg_zonetobndpid;
+
+        MPI_Recv(&dbs3, 1, MPI_LONG, 0, 300, m_communicator, MPI_STATUS_IGNORE);
+        bitpit::IBinaryStream dataBuffer_pidtolisttype(dbs3);
+        MPI_Recv(dataBuffer_pidtolisttype.data(), dataBuffer_pidtolisttype.getSize(), MPI_CHAR, 0, 310, m_communicator, MPI_STATUS_IGNORE);
+        dataBuffer_pidtolisttype >> m_storedBC->mcg_pidtobc;
+
+        MPI_Recv(&dbs4, 1, MPI_LONG, 0, 400, m_communicator, MPI_STATUS_IGNORE);
+        bitpit::IBinaryStream dataBuffer_bcpidnames(dbs4);
+        MPI_Recv(dataBuffer_bcpidnames.data(), dataBuffer_bcpidnames.getSize(), MPI_CHAR, 0, 410, m_communicator, MPI_STATUS_IGNORE);
+        dataBuffer_bcpidnames >> m_storedBC->mcg_bcpidnames;
+
+        MPI_Recv(&dbs5, 1, MPI_LONG, 0, 500, m_communicator, MPI_STATUS_IGNORE);
+        bitpit::IBinaryStream dataBuffer_zonepidnames(dbs5);
+        MPI_Recv(dataBuffer_zonepidnames.data(), dataBuffer_zonepidnames.getSize(), MPI_CHAR, 0, 510, m_communicator, MPI_STATUS_IGNORE);
+        dataBuffer_zonepidnames >> m_storedBC->mcg_zonepidnames;
+
     }
 
 }
@@ -1773,8 +1955,11 @@ void IOCGNS::communicateAllProcsStoredBC(){
 */
 void BCCGNS::dump(std::ostream & out){
 
+    int pidtolisttype_size = mcg_pidtolisttype.size();
     int pidtobc_size = mcg_pidtobc.size();
     int zonetobndpid_size = mcg_zonetobndpid.size();
+    int bcpidnames_size = mcg_bcpidnames.size();
+    int zonepidnames_size = mcg_zonepidnames.size();
 
     {
         bitpit::utils::binary::write(out, pidtobc_size);
@@ -1795,6 +1980,34 @@ void BCCGNS::dump(std::ostream & out){
             ++it;
         }
     }
+    {
+        bitpit::utils::binary::write(out, pidtolisttype_size);
+        auto it = mcg_pidtolisttype.begin();
+        for(int i=0; i<pidtolisttype_size; ++i){
+            bitpit::utils::binary::write(out, it->first);
+            bitpit::utils::binary::write(out, it->second);
+            ++it;
+        }
+    }
+    {
+        bitpit::utils::binary::write(out, bcpidnames_size);
+        auto it = mcg_bcpidnames.begin();
+        for(int i=0; i<bcpidnames_size; ++i){
+            bitpit::utils::binary::write(out, it->first);
+            bitpit::utils::binary::write(out, it->second);
+            ++it;
+        }
+    }
+    {
+        bitpit::utils::binary::write(out, zonepidnames_size);
+        auto it = mcg_zonepidnames.begin();
+        for(int i=0; i<zonepidnames_size; ++i){
+            bitpit::utils::binary::write(out, it->first);
+            bitpit::utils::binary::write(out, it->second);
+            ++it;
+        }
+    }
+
 }
 
 /*!
@@ -1802,7 +2015,7 @@ void BCCGNS::dump(std::ostream & out){
     \param[in] stream input stream
 */
 void BCCGNS::restore(std::istream & in){
-    int pidtobc_size, zonetobndpid_size;
+    int pidtobc_size, zonetobndpid_size, pidtolisttype_size, bcpidnames_size, zonepidnames_size;
     clear();
 
     {
@@ -1829,6 +2042,44 @@ void BCCGNS::restore(std::istream & in){
             mcg_zonetobndpid.insert(std::make_pair(key,val));
         }
     }
+
+    {
+        bitpit::utils::binary::read(in, pidtolisttype_size);
+        int key;
+        int val;
+
+        for(int i=0; i<pidtolisttype_size; ++i){
+            bitpit::utils::binary::read(in, key);
+            bitpit::utils::binary::read(in, val);
+            mcg_pidtolisttype.insert(std::make_pair(key,val));
+        }
+    }
+
+    {
+        bitpit::utils::binary::read(in, bcpidnames_size);
+        int key;
+        std::string val;
+
+        for(int i=0; i<bcpidnames_size; ++i){
+            bitpit::utils::binary::read(in, key);
+            bitpit::utils::binary::read(in, val);
+            mcg_bcpidnames.insert(std::make_pair(key,val));
+        }
+    }
+
+    {
+        bitpit::utils::binary::read(in, zonepidnames_size);
+        int key;
+        std::string val;
+
+        for(int i=0; i<zonepidnames_size; ++i){
+            bitpit::utils::binary::read(in, key);
+            bitpit::utils::binary::read(in, val);
+            mcg_zonepidnames.insert(std::make_pair(key,val));
+        }
+    }
+
+
 }
 
 

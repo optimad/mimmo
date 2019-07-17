@@ -209,24 +209,28 @@ CGNSPidExtractor::execute(){
 
     livector1D vertExtracted = mother->getVertexFromCellList(extracted);
 
-    darray3E temp;
+    bitpit::PiercedVector<bitpit::Vertex> & motherverts = mother->getVertices();
     for(const auto & val: vertExtracted){
-        temp = mother->getVertexCoords(val);
-        patchTemp->addVertex(temp, val);
+        patchTemp->addVertex(motherverts.at(val).getCoords(), val);
     }
 
     int count = 0;
+    bitpit::PiercedVector<bitpit::Cell> & mothercells = mother->getCells();
     for(const auto &val: extracted){
-
-        livector1D conn = mother->getCellConnectivity(val);
-        bitpit::ElementType eletype = mother->getPatch()->getCell(val).getType();
-        long PID = mother->getPatch()->getCell(val).getType();
-        patchTemp->addConnectedCell(conn, eletype, PID, val);
+        bitpit::Cell & cell = mothercells.at(val);
+        long * conn = cell.getConnect();
+        int connsize = cell.getConnectSize();
+        bitpit::ElementType et = cell.getType();
+        long PID = cell.getPID();
+        patchTemp->addConnectedCell(std::vector<long>(conn, conn+connsize),et, PID, val);
         count++;
     }
 
+
     auto originalmap = mother->getPIDTypeListWNames();
     auto currentPIDmap = patchTemp->getPIDTypeList();
+
+
     for(const auto & val: currentPIDmap){
         patchTemp->setPIDName(val, originalmap[val]);
     }
@@ -299,7 +303,9 @@ CGNSPidExtractor::execute(){
             }
         }
     }
+
     m_patch = std::move(patchTemp);
+
 };
 
 

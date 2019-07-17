@@ -66,16 +66,15 @@ void example00001() {
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
-    Partition* partition = new Partition();
-#endif
-
-    /* Create CGNS PID extractor object to test input file.
-     * Extraction of PID = 1,2,3 (All boundaries in input file).
+    Partition *partition = new Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
+    partition->setPlotInExecution(true);
+    /* Instantiation of a Partition object to serialize mesh right before the writing cgns.
      */
-    CGNSPidExtractor * cgnsExtr = new CGNSPidExtractor();
-    cgnsExtr->setPID({1, 2, 3});
-    cgnsExtr->setForcedToTriangulate(false);
-    cgnsExtr->setPlotInExecution(true);
+    Partition *serialize = new Partition();
+    serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
+    serialize->setPlotInExecution(true);
+#endif
 
     /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 1,2 (Wing wall and outer part boundaries
@@ -107,7 +106,7 @@ void example00001() {
      */
     RotationGeometry* rotation = new RotationGeometry();
     rotation->setDirection(darray3E{0.1,1.,0.});
-    rotation->setRotation((M_PI/12));
+    rotation->setRotation((BITPIT_PI/12));
 
     /* Create reconstruct vector block and set to reconstruct rotation
      * displacement field over the whole Dirichlet surface geometry
@@ -131,7 +130,6 @@ void example00001() {
     ExtractVectorField* extrF = new ExtractVectorField();
     extrF->setMode(1);
     extrF->setPlotInExecution(true);
-
     /* Create applier block.
      * It applies the deformation displacements
      * to the selected input volume geometry.
@@ -145,77 +143,96 @@ void example00001() {
     Apply* applierS = new Apply();
 
     /* Create PINs. */
-
 #if MIMMO_ENABLE_MPI
-    addPin(cgnsI, partition, M_GEOM, M_GEOM);
-    addPin(cgnsI, partition, M_GEOM2, M_GEOM2);
-    addPin(partition, cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM);
-    addPin(partition, cgnsSlip, M_GEOM2, M_GEOM);
+    addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
+    addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
+    addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    addPin(partition, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #else
-    addPin(cgnsI, cgnsExtr, M_GEOM2, M_GEOM);
-    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM);
-    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM);
+    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #endif
 
-    addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM);
+    addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM)  ;
 
-    addPin(boxSel, rotation, M_GEOM, M_GEOM);
-    addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD);
-    addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM);
+    addPin(boxSel, rotation, M_GEOM, M_GEOM)  ;
+    addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD)  ;
+    addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM)  ;
 
 #if MIMMO_ENABLE_MPI
-    addPin(partition, prop, M_GEOM, M_GEOM);
+    addPin(partition, prop, M_GEOM, M_GEOM)  ;
 #else
-    addPin(cgnsI, prop, M_GEOM, M_GEOM);
+    addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
 #endif
-    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2);
-    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4);
-    addPin(boxSel, prop, M_GEOM, M_GEOM3);
+    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
+    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
+    addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
 
-    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS);
-
-    addPin(prop, applier, M_GDISPLS, M_GDISPLS);
+    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
+    addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
 #if MIMMO_ENABLE_MPI
-    addPin(partition, applier, M_GEOM, M_GEOM);
+    addPin(partition, applier, M_GEOM, M_GEOM)  ;
 #else
-    addPin(cgnsI, applier, M_GEOM, M_GEOM);
+    addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
 #endif
 
-    addPin(cgnsExtr, extrF, M_GEOM, M_GEOM);
-    addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD);
-    addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS);
-    addPin(cgnsExtr, applierS, M_GEOM, M_GEOM);
+    addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
+    addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
+    addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
+    addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
 
-    addPin(applier, cgnsO, M_GEOM, M_GEOM);
-    addPin(applierS, cgnsO, M_GEOM, M_GEOM2);
-    addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS);
+#if MIMMO_ENABLE_MPI
+    addPin(applier, serialize, M_GEOM, M_GEOM)  ;
+    addPin(applierS, serialize, M_GEOM, M_GEOM2)  ;
+    addPin(serialize, cgnsO, M_GEOM, M_GEOM)  ;
+    addPin(serialize, cgnsO, M_GEOM2, M_GEOM2)  ;
+#else
+    addPin(applier, cgnsO, M_GEOM, M_GEOM)  ;
+    addPin(applierS, cgnsO, M_GEOM, M_GEOM2)  ;
+#endif
+
+    addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
 
     /* Create and execute chain. */
-    Chain ch0;
+    Chain ch0, ch1;
     ch0.addObject(cgnsI);
 #if MIMMO_ENABLE_MPI
     ch0.addObject(partition);
 #endif
-    ch0.addObject(cgnsExtr);
     ch0.addObject(cgnsDirichlet);
     ch0.addObject(cgnsSlip);
     ch0.addObject(boxSel);
+    ch0.addObject(rotation);
+    ch0.addObject(recon);
+    ch0.addObject(prop);
+    ch0.addObject(extrF);
+    ch0.addObject(applier);
+    ch0.addObject(applierS);
+    #if MIMMO_ENABLE_MPI
+       ch0.addObject(serialize);
+    #endif
+
+    ch1.addObject(cgnsO);
 
     ch0.exec(true);
-
-    cgnsI->getGeometry()->getPatch()->write("bulk");
-    cgnsI->getSurfaceBoundary()->getPatch()->write("boundary");
+    ch1.exec(true);
 
     /* Destroy objects. */
     delete cgnsI;
 #if MIMMO_ENABLE_MPI
     delete partition;
+    delete serialize;
 #endif
-    delete cgnsExtr;
     delete cgnsDirichlet;
     delete cgnsSlip;
     delete boxSel;
+    delete rotation;
+    delete recon;
+    delete prop;
+    delete extrF;
+    delete applier;
+    delete applierS;
+    delete cgnsO;
 
     return;
 }
