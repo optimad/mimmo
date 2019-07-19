@@ -581,6 +581,9 @@ void
 Partition::plotOptionalResults(){
     std::string dir = m_outputPlot +"/";
     std::string name = m_name;
+    if(m_mode == PartitionMethod::SERIALIZE){
+        name = "mimmo.Serialization";
+    }
     getGeometry()->getPatch()->getVTK().setDirectory(dir);
     getGeometry()->getPatch()->getVTK().setName(name);
     getGeometry()->getPatch()->write();
