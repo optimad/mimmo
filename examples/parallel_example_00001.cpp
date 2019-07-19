@@ -45,77 +45,79 @@ using namespace mimmo::pin;
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
+
+//TODO - Find  a suitable volume mesh for Partition demo!!!!!!!
 void test00001() {
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
-     */
-    /* Create IO_CGNS object to import input file. */
-    IOCGNS * mimmo0 = new IOCGNS();
-    mimmo0->setMode(IOCGNS::IOCGNS_Mode::READ);
-    mimmo0->setDir("geodata");
-    mimmo0->setFilename("StaticMixer");
-
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
-    mimmo1->setIOMode(IOMode::WRITE);
-    mimmo1->setWriteDir(".");
-    mimmo1->setWriteFileType(FileType::VOLVTU);
-    mimmo1->setWriteFilename("parallel_Voutput_00001.0001");
-
-    MimmoGeometry * mimmo2 = new MimmoGeometry();
-    mimmo2->setIOMode(IOMode::WRITE);
-    mimmo2->setWriteDir(".");
-    mimmo2->setWriteFileType(FileType::SURFVTU);
-    mimmo2->setWriteFilename("parallel_Soutput_00001.0001");
-
-    /* Instantiation of a Partition object with default patition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
-     */
-    Partition* partition = new Partition();
-    partition->setPlotInExecution(true);
-
-    /* Setup pin connections.
-     */
-
-    /* Add pin with port TAG ONLY
-     */
-
-    addPin(mimmo0, partition, M_GEOM, M_GEOM);
-    addPin(mimmo0, partition, M_GEOM2, M_GEOM2);
-    addPin(partition, mimmo1, M_GEOM, M_GEOM);
-    addPin(partition, mimmo2, M_GEOM2, M_GEOM);
-
-    /* Setup execution chain.
-     */
-    Chain ch0;
-    ch0.addObject(mimmo0);
-    ch0.addObject(partition);
-    ch0.addObject(mimmo1);
-    ch0.addObject(mimmo2);
-
-    //force the chain to plot all the optional results of its children...
-    ch0.setPlotDebugResults(false);
-    //...in the path specified by the User.
-    ch0.setOutputDebugResults(".");
-
-    /* Execution of chain.
-     * Use debug flag true to full print out the execution steps.
-     */
-    ch0.exec(true);
-
-    /* Clean up & exit;
-     */
-    delete partition;
-    delete mimmo0;
-    delete mimmo1;
-    delete mimmo2;
-
-    partition	= NULL;
-    mimmo0  	= NULL;
-    mimmo1  	= NULL;
-    mimmo2  	= NULL;
-
+    // /* Creation of mimmo containers.
+    //  * Input and output MimmoGeometry are instantiated
+    //  * as two different objects (no loop in chain are permitted).
+    //  */
+    // /* Create IO_CGNS object to import input file. */
+    // IOCGNS * mimmo0 = new IOCGNS();
+    // mimmo0->setMode(IOCGNS::IOCGNS_Mode::READ);
+    // mimmo0->setDir("geodata");
+    // mimmo0->setFilename("StaticMixer");
+    //
+    // MimmoGeometry * mimmo1 = new MimmoGeometry();
+    // mimmo1->setIOMode(IOMode::WRITE);
+    // mimmo1->setWriteDir(".");
+    // mimmo1->setWriteFileType(FileType::VOLVTU);
+    // mimmo1->setWriteFilename("parallel_Voutput_00001.0001");
+    //
+    // MimmoGeometry * mimmo2 = new MimmoGeometry();
+    // mimmo2->setIOMode(IOMode::WRITE);
+    // mimmo2->setWriteDir(".");
+    // mimmo2->setWriteFileType(FileType::SURFVTU);
+    // mimmo2->setWriteFilename("parallel_Soutput_00001.0001");
+    //
+    // /* Instantiation of a Partition object with default patition method space filling curve.
+    //  * Plot Optional results during execution active for Partition block.
+    //  */
+    // Partition* partition = new Partition();
+    // partition->setPlotInExecution(true);
+    //
+    // /* Setup pin connections.
+    //  */
+    //
+    // /* Add pin with port TAG ONLY
+    //  */
+    //
+    // addPin(mimmo0, partition, M_GEOM, M_GEOM);
+    // addPin(mimmo0, partition, M_GEOM2, M_GEOM2);
+    // addPin(partition, mimmo1, M_GEOM, M_GEOM);
+    // addPin(partition, mimmo2, M_GEOM2, M_GEOM);
+    //
+    // /* Setup execution chain.
+    //  */
+    // Chain ch0;
+    // ch0.addObject(mimmo0);
+    // ch0.addObject(partition);
+    // ch0.addObject(mimmo1);
+    // ch0.addObject(mimmo2);
+    //
+    // //force the chain to plot all the optional results of its children...
+    // ch0.setPlotDebugResults(false);
+    // //...in the path specified by the User.
+    // ch0.setOutputDebugResults(".");
+    //
+    // /* Execution of chain.
+    //  * Use debug flag true to full print out the execution steps.
+    //  */
+    // ch0.exec(true);
+    //
+    // /* Clean up & exit;
+    //  */
+    // delete partition;
+    // delete mimmo0;
+    // delete mimmo1;
+    // delete mimmo2;
+    //
+    // partition	= NULL;
+    // mimmo0  	= NULL;
+    // mimmo1  	= NULL;
+    // mimmo2  	= NULL;
+    //
 
 }
 
