@@ -386,6 +386,13 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unorder
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,ivector1D& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const ivector1D& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::map<int,std::string>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<int, std::string>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::string & element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::string & element);
+
 /*!
  *\}
  */

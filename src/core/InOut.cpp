@@ -1025,7 +1025,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int,in
 
 
 /*!
-    Output stream operator for std::map<int,string>
+    Output stream operator for std::map<int,vector<int>>
     \param[in] buffer is the output stream
     \param[in] element is the element to be streamed
     \result Returns the same output stream received in input.
@@ -1040,7 +1040,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<
 }
 
 /*!
-    Input stream operator for std::map<int,string>
+    Input stream operator for std::map<int,vector<int>>
     \param[in] buffer is the input stream
     \param[in] element is the element to be streamed
     \result Returns the same input stream received in input.
@@ -1091,6 +1091,74 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivector1D &var)
     for (int i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
+    return buffer;
+}
+
+/*!
+    Output stream operator for std::map<int,string>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<int, std::string>& element){
+    buffer << (std::size_t)element.size();
+    for (auto &ids : element){
+        buffer<<ids.first;
+        buffer<<ids.second;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::map<int,std::string>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, std::string>& element){
+    element.clear();
+    std::size_t nids;
+    buffer >> nids;
+    int key;
+    std::string id;
+    for (int i = 0; i < nids; ++i){
+        buffer >> key;
+        buffer >> id;
+        element[key] = id;
+    }
+    return buffer;
+}
+
+/*!
+    Output stream operator for std::map<int,string>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::string& element){
+
+    std::vector<char> inputss(element.c_str(), element.c_str()+element.size()+1);
+    buffer << (std::size_t)inputss.size();
+    for (char & pp: inputss){
+        buffer<<pp;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::map<int,std::string>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& element){
+    std::size_t nids;
+    buffer >> nids;
+    std::vector<char> inputss(nids);
+    for (int i = 0; i < nids; ++i){
+        buffer >> inputss[i];
+    }
+    element = std::string(inputss.begin(), inputss.end());
     return buffer;
 }
 
