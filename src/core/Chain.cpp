@@ -266,6 +266,7 @@ std::string Chain::getOutputDebugResults(){
 void
 Chain::exec(bool debug){
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+
     vector<BaseManipulation*>::iterator it, itb = m_objects.begin();
     vector<BaseManipulation*>::iterator itend = m_objects.end();
     if(debug)
@@ -283,11 +284,14 @@ Chain::exec(bool debug){
     checkLoops();
     int i = 1;
     for (it = itb; it != itend; ++it){
+        if(debug)
+            m_log->setPriority(bitpit::log::NORMAL);
         (*m_log) << " execution object " << i << "	: " << (*it)->getName() << std::endl;
+
         if(m_plotDebRes){
             (*it)->setPlotInExecution(m_plotDebRes);
             (*it)->setOutputPlot(m_outputDebRes);
-        }    
+        }
         (*it)->exec();
         i++;
     }
@@ -331,4 +335,3 @@ Chain::checkLoops(){
 }
 
 }
-
