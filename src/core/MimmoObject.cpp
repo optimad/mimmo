@@ -2268,7 +2268,7 @@ MimmoObject::resyncPID(){
 		m_pidsType.insert( (long)cell.getPID() );
 	}
 	for(const auto & pid : m_pidsType){
-		m_pidsTypeWNames.insert(std::make_pair( pid, copynames[pid]));
+        if (copynames.count(pid) > 0)   m_pidsTypeWNames.insert(std::make_pair( pid, copynames[pid]));
 	}
 };
 
