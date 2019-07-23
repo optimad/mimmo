@@ -142,7 +142,6 @@ void
 PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
 
 	if (geometry_ == NULL) return;
-	if (geometry_->isEmpty())   return;
 	if (geometry_->getType()!= 2 ) return;
 
 	m_geometry = geometry_;
@@ -165,7 +164,6 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
 	if (bsurface == nullptr)       return;
-	if (bsurface->isEmpty())    return;
 	if (bsurface->getType()!= 1 ) return;
 
 	m_bsurface = bsurface;
@@ -181,7 +179,6 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
 	if (bdumping == nullptr)       return;
-	if (bdumping->isEmpty())    return;
 	if (bdumping->getType()!= 1 ) return;
 
 	m_dsurface = bdumping;
@@ -1224,6 +1221,9 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
 		m_field = *(mpvres.get());
 	}
+#if MIMMO_ENABLE_MPI
+		communicatePointGhostData(&m_field);
+#endif
 }
 
 /*!

@@ -373,6 +373,7 @@ class PropagateVectorField: public mimmo::PropagateField<3> {
 protected:
 
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
+    std::unique_ptr<MimmoObject> m_originalslipsurface;    /**< MimmoObject boundary patch identifying undeformed original slip conditions*/
     int           m_nstep;               /**< multistep solver */
     MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition values interp on boundaries Interfaces of the target volume mesh */
     MimmoPiercedVector<std::array<double, 3> > m_surface_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition value of POINTS on boundary surface*/
@@ -432,6 +433,10 @@ protected:
     virtual void subdivideBC();
     virtual void restoreBC();
     void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
+#if MIMMO_ENABLE_MPI
+    void initializeSlipSurface();
+#endif
+
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
