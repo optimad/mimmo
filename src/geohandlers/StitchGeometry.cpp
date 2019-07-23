@@ -151,7 +151,6 @@ StitchGeometry::getGeometry(){
 void
 StitchGeometry::addGeometry(MimmoObject* geo){
     if(geo == NULL) return;
-    if(geo->isEmpty()) return;
     if(geo->getType() != m_topo)    return;
     if(m_extgeo.count(geo)    > 0)    return;
 
@@ -194,16 +193,24 @@ StitchGeometry::forceRePID(bool flag){
 void
 StitchGeometry::execute(){
     if(m_extgeo.empty()){
-//        throw std::runtime_error(m_name + " : no source geometries to stich were found");
         (*m_log)<<m_name + " : no source geometries to stich were found"<<std::endl;
-        return;
     }
 
     std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
+#if MIMMO_ENABLE_MPI
+    //TODO you need a strategy to stitch together partioned mesh, keeping a unique id
+    //throughout cells and ids. For example, communicate the number of Global cells and Global verts
+    //(or min/max ids) of each patch to all communicators, and using them to organize offsets
+    //for safe inserting elements.
+    (*m_log)<<"WARNING "<< m_name<<" : stitching not available yet for MPI version"<<std::endl;
+    m_patch = std::move(dum);
+    return;
+#endif
+
     long nCells = 0;
     long nVerts = 0;
 
-    for(auto &obj:m_extgeo){
+    for(auto &obj : m_extgeo){
         nCells += obj.first->getNCells();
         nVerts += obj.first->getNVertices();
     }
