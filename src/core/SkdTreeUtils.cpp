@@ -89,68 +89,70 @@ double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, l
     double h = 1.E+18;
 
     if(!bvtree_ ){
-        throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a void tree is detected.");
+    	throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a void tree is detected.");
     }
     const bitpit::SurfUnstructured *spatch = dynamic_cast<const bitpit::SurfUnstructured*>(&(bvtree_->getPatch()));
     if(!spatch){
-        throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a not surface patch tree is detected.");
+    	throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a not surface patch tree is detected.");
     }
 
     static_cast<bitpit::SurfaceSkdTree*>(bvtree_)->findPointClosestCell(*P_, r, &id, &h);
 
     //signed distance only for 2D element patches(quads, pixels, triangles or segments)
-    const bitpit::Cell & cell = spatch->getCell(id);
-    bitpit::ConstProxyVector<long> vertIds = cell.getVertexIds();
-    dvecarr3E VS(vertIds.size());
-    int count = 0;
-    for (const auto & iV: vertIds){
-        VS[count] = spatch->getVertexCoords(iV);
-        ++count;
-    }
+    if (id != bitpit::Cell::NULL_ID){
+    	const bitpit::Cell & cell = spatch->getCell(id);
+    	bitpit::ConstProxyVector<long> vertIds = cell.getVertexIds();
+    	dvecarr3E VS(vertIds.size());
+    	int count = 0;
+    	for (const auto & iV: vertIds){
+    		VS[count] = spatch->getVertexCoords(iV);
+    		++count;
+    	}
 
-    darray3E xP = {{0.0,0.0,0.0}};
-    darray3E normal= {{0.0,0.0,0.0}};
+    	darray3E xP = {{0.0,0.0,0.0}};
+    	darray3E normal= {{0.0,0.0,0.0}};
 
-    if ( vertIds.size() == 3 ){ //TRIANGLE
-        darray3E lambda;
-        h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2],lambda);
-        int count = 0;
-        for(const auto &val: lambda){
-            normal += val * spatch->evalVertexNormal(id,count) ;
-            xP += val * VS[count];
-            ++count;
-        }
-    }else if ( vertIds.size() == 2 ){ //LINE/SEGMENT
-        darray2E lambda;
-        h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], lambda);
-        int count = 0;
-        for(const auto &val: lambda){
-            normal += val * spatch->evalVertexNormal(id,count) ;
-            xP += val * VS[count];
-            ++count;
-        }
-    }else{ //GENERAL POLYGON
-        std::vector<double> lambda;
-        h = bitpit::CGElem::distancePointPolygon((*P_), VS,lambda);
-        int count = 0;
-        for(const auto &val: lambda){
-            normal += val * spatch->evalVertexNormal(id,count) ;
-            xP += val * VS[count];
-            ++count;
-        }
-    }
+    	if ( vertIds.size() == 3 ){ //TRIANGLE
+    		darray3E lambda;
+    		h = bitpit::CGElem::distancePointTriangle((*P_), VS[0], VS[1], VS[2],lambda);
+    		int count = 0;
+    		for(const auto &val: lambda){
+    			normal += val * spatch->evalVertexNormal(id,count) ;
+    			xP += val * VS[count];
+    			++count;
+    		}
+    	}else if ( vertIds.size() == 2 ){ //LINE/SEGMENT
+    		darray2E lambda;
+    		h = bitpit::CGElem::distancePointSegment((*P_), VS[0], VS[1], lambda);
+    		int count = 0;
+    		for(const auto &val: lambda){
+    			normal += val * spatch->evalVertexNormal(id,count) ;
+    			xP += val * VS[count];
+    			++count;
+    		}
+    	}else{ //GENERAL POLYGON
+    		std::vector<double> lambda;
+    		h = bitpit::CGElem::distancePointPolygon((*P_), VS,lambda);
+    		int count = 0;
+    		for(const auto &val: lambda){
+    			normal += val * spatch->evalVertexNormal(id,count) ;
+    			xP += val * VS[count];
+    			++count;
+    		}
+    	}
 
-    double s =  sign( dotProduct(normal, (*P_) - xP) );
-    if(s == 0.0)    s =1.0;
-    h = s * h;
-    //pseudo-normal (direction P and xP closest point on triangle)
-    n = s * ((*P_) - xP);
-    double normX = norm2(n);
-    if(normX < 1.E-15){
-        n = normal/norm2(normal);
-    }else{
-        n /= norm2(n);
-    }
+    	double s =  sign( dotProduct(normal, (*P_) - xP) );
+    	if(s == 0.0)    s =1.0;
+    	h = s * h;
+    	//pseudo-normal (direction P and xP closest point on triangle)
+    	n = s * ((*P_) - xP);
+    	double normX = norm2(n);
+    	if(normX < 1.E-15){
+    		n = normal/norm2(normal);
+    	}else{
+    		n /= norm2(n);
+    	}
+    }//end if not id null
     return h;
 
 }
@@ -289,6 +291,8 @@ darray3E projectPoint( std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, 
 
     long         id;
     darray3E     normal;
+
+    r = std::max(r, bvtree_->getPatch().getTol());
 
     double         dist = 1.0e+18;
     while (std::abs(dist) >= 1.0e+18){
