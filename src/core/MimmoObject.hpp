@@ -133,9 +133,10 @@ protected:
     bool                                                    m_IntBuilt;     /**< track correct building of interfaces  along with geometry modifications */
     bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
 
-#if MIMMO_ENABLE_MPI
     int							m_nprocs;									/**<Total number of processors.*/
     int							m_rank;										/**<Current rank number.*/
+
+#if MIMMO_ENABLE_MPI
 	MPI_Comm 					m_communicator; 							/**<MPI communicator.*/
 	long						m_ninteriorvertices = 0;					/**<Number of interior vertices.*/
 	long						m_nglobalvertices = 0;						/**<Global number of vertices.*/
@@ -206,10 +207,11 @@ public:
     bool                          isKdTreeSync();
     bool                          isInfoSync();
 
+    int getRank() const;
+	int getProcessorCount() const;
+
 #if MIMMO_ENABLE_MPI
 	const MPI_Comm & getCommunicator() const;
-	int getRank() const;
-	int getProcessorCount() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
     bool arePointGhostExchangeInfoSync();
@@ -224,16 +226,18 @@ public:
     bool cleanParallelInfoSync();
     bool cleanParallelPointGhostExchangeInfoSync();
     void setPartitioned();
+    void deleteOrphanGhostCells();
 #endif
 
-    bool        setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices);
-    bool        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
-    bool        addVertex(const bitpit::Vertex & vertex, const long idtag = bitpit::Vertex::NULL_ID);
+    bool        addVertex(const darray3E & vertex, long idtag = bitpit::Vertex::NULL_ID);
+    bool        addVertex(const bitpit::Vertex & vertex, long idtag = bitpit::Vertex::NULL_ID);
     bool        modifyVertex(const darray3E & vertex, const long & id);
-    bool        setCells(const bitpit::PiercedVector<bitpit::Cell> & cells);
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag = bitpit::Cell::NULL_ID);
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag);
-    bool        addCell(bitpit::Cell & cell, const long idtag = bitpit::Vertex::NULL_ID);
+
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, int rank = -1);
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag, int rank = -1);
+    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag, int rank = -1);
+    bool        addCell(bitpit::Cell & cell, int rank = -1);
+    bool        addCell(bitpit::Cell & cell, long idtag, int rank = -1);
 
     void        setPID(livector1D );
     void        setPID(std::unordered_map<long, long>  );

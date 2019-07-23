@@ -285,7 +285,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 		for(auto const & cc : *connectivity){
 			eltype = desumeElement(cc);
 			if(eltype != bitpit::ElementType::UNDEFINED){
-				addConnectedCell(cc, eltype);
+				addConnectedCell(cc, eltype); //if MPI, is adding cell with rank =-1, that is is using local m_rank.
 			}else{
 				(*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl;
 			}
@@ -1848,7 +1848,7 @@ MimmoObject::setPartitioned()
 		return;
 
 	std::unordered_map<long,int> partition;
-	for (bitpit::Cell & cell : getCells()){
+    for (bitpit::Cell & cell : getCells()){
 		if (cell.isInterior()){
 			partition[cell.getId()] = getRank();
 		}
@@ -1858,38 +1858,67 @@ MimmoObject::setPartitioned()
 
 }
 
-#endif
-
 /*!
- * Set the vertices structure of the class, clearing any previous vertex list stored.
- * Be careful: any connectivity information stored in an existent cell list will be erased too.
- * The cell list will survive, but carrying no connectivity information.
- * \param[in] vertices geometry vertex structure .
- * \return false if no geometry is linked, not all vertices inserted or empty argument.
+    Track all ghost cells present in the current object which are not
+    adjacent to at least one internal cell and erase them.
+    WARNING Orphan vertices may be created after this method call.
+
  */
-bool
-MimmoObject::setVertices(const bitpit::PiercedVector<bitpit::Vertex> & vertices){
+void MimmoObject::deleteOrphanGhostCells(){
 
-	if (vertices.empty()) return false;
+    //Check ghosts if any
+    if(getPatch()->getGhostCount() < 1){
+        //do nothing and return;
+        MPI_Barrier(m_communicator);
+        return;
+    }
 
-	getPatch()->resetVertices();
+    //check if there are internals.
+    if(getPatch()->getInternalCount() < 1){
+        resetPatch();
+        MPI_Barrier(m_communicator);
+        return;
+    }
 
-	int sizeVert = vertices.size();
-	getPatch()->reserveVertices(sizeVert);
+    //build temporarely adjacencies to get orphans.
+    bool checkResetAdjacencies = false;
+    if(!areAdjacenciesBuilt()){
+         buildAdjacencies();
+         checkResetAdjacencies = true;
+    }
+    std::vector<long> markToDelete;
 
-	long id;
-	darray3E coords;
-	bool checkTot = true;
-	for (auto && val : vertices){
-		id = val.getId();
-		coords = val.getCoords();
-		checkTot = checkTot && addVertex(coords, id);
-	}
-#if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+    //Track orphan ghosts, that is ghost cells which have no neighbour cell marked as internal.
+    bitpit::PiercedVector<bitpit::Cell> & patchCells = getCells();
+    for(auto it = getPatch()->ghostBegin(); it != getPatch()->ghostEnd(); ++it){
+        std::vector<long> neighs = getPatch()->findCellNeighs(it.getId());
+        bool check = false;
+        std::vector<long>::iterator itN = neighs.begin();
+        while(itN != neighs.end() && !check){
+            check = check || patchCells[*itN].isInterior();
+            ++itN;
+        }
+
+        //if check is still false, send this ghost cell to deletion
+        if(!check){
+            markToDelete.push_back(it.getId());
+        }
+    }
+
+    //clean marked ghosts;
+    if(!markToDelete.empty()){
+        getPatch()->deleteCells(markToDelete);
+    }
+    //erase temporarely adjacencies
+    if(checkResetAdjacencies){
+       resetAdjacencies();
+    }
+
+    MPI_Barrier(m_communicator);
+}
+
 #endif
-	return checkTot;
-};
+
 
 /*!
  *It adds one vertex to the mesh.
@@ -1981,106 +2010,23 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 	return true;
 };
 
+
 /*!
- * Sets the cell structure of the geometry, clearing any previous cell list stored.
- * Does not do anything if class type is a point cloud (mesh type 3).
- * Previous PID and name associated will be wiped out and replaced.
- * Ghost cells have to be considered.
- *
- * \param[in] cells cell structure of geometry mesh.
- * \return false if no geometry is linked, not all cells are inserted or empty argument.
+ * See method addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank) doxy.
+ * The only difference is the automatic assignment to PID= 0 for the current element and the automatic assignment of ID.
  */
 bool
-MimmoObject::setCells(const bitpit::PiercedVector<Cell> & cells){
-
-	if (cells.empty() || !m_skdTreeSupported) return false;
-
-	m_pidsType.clear();
-	m_pidsTypeWNames.clear();
-	getPatch()->resetCells();
-
-	int sizeCell = cells.size();
-	getPatch()->reserveCells(sizeCell);
-
-	long idc;
-	int  nSize;
-	long pid;
-	bitpit::ElementType eltype;
-	bool checkTot = true;
-	livector1D connectivity;
-
-	for (const auto & cell : cells){
-		// get ID
-		idc = cell.getId();
-		//check on element type
-		eltype = cell.getType();
-		//check info PID
-		pid = (long)cell.getPID();
-		nSize = cell.getConnectSize();
-		connectivity.resize(nSize);
-		auto const conn = cell.getConnect();
-		for(int i=0; i<nSize; ++i){
-			connectivity[i] = conn[i];
-		}
-		checkTot = checkTot && addConnectedCell(connectivity, eltype, pid, idc);
-	}
-
-#if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
-#endif
-    m_pointConnectivitySync = false;
-
-	return checkTot;
+MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, int rank){
+    return addConnectedCell(conn, type, 0, bitpit::Cell::NULL_ID, rank);
 };
 
 /*!
- * It adds one cell with its vertex-connectivity (vertex in bitpit::PatchKernel unique id's), the type of cell to
- * be added and its own unique id. If no id is specified, teh method assigns it automatically.
- * Any kind of cell in bitpit::ElementType enum can be added according to mesh dimensionality
- * (3D element in volume mesh, 2D in surface mesh, etc..). The method does nothing, if class type
- * is a pointcloud one (type 3).
- * As a reminder for connectivity conn argument:
- *  - Connectivity of polygons must be defined as (nV,V1,V2,V3,V4,...) where nV is the number of vertices
- * defining the polygon and V1,V2,V3... are indices of vertices.
- *  - Connectivity of polyhedrons must be defined as (nF,nF1V, V1, V2, V3,..., nF2V, V2,V4,V5,V6,...,....)
- * where nF is the total number of faces of polyhedros, nF1V is the number of vertices composing the face 1,
- * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
- *  - Any other standard cell element is uniquely defined by its list of vertex indices.
- *
- * \param[in] conn  connectivity of target cell of geometry mesh.
- * \param[in] type  type of element to be added, according to bitpit::ElementInfo enum.
- * \param[in] idtag id of the cell
- * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type
+ * See method addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank) doxy.
+ * The only difference is the automatic assignment to PID= 0 for the current element.
  */
 bool
-MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long idtag){
-
-	if (conn.empty() || !m_skdTreeSupported) return false;
-	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
-
-	if(!checkCellConnCoherence(type, conn))  return false;
-
-	bitpit::PatchKernel::CellIterator it;
-	auto patch = getPatch();
-
-#if MIMMO_ENABLE_MPI
-		it = patch->addCell(type, conn, m_rank, idtag);
-#else
-		it = patch->addCell(type, conn, idtag);
-#endif
-
-	m_pidsType.insert(0);
-	m_pidsTypeWNames.insert(std::make_pair( 0, "") );
-
-	m_skdTreeSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
-	m_infoSync = false;
-#if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
-#endif
-    m_pointConnectivitySync = false;
-	return true;
+MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long idtag, int rank){
+    return addConnectedCell(conn, type, 0, idtag, rank);
 };
 
 /*!
@@ -2099,32 +2045,41 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * followed by the indices of vertices which draws it. Face 2,3,..,n are defined in the same way.
  *  - Any other standard cell element is uniquely defined by its list of vertex indices.
  *
+ * FOR MPI version: the method add cell with the custom rank provided. If rank < 0, use local m_rank of current MimmoObject.
+ *
  * \param[in] conn  connectivity of target cell of geometry mesh.
  * \param[in] type  type of element to be added, according to bitpit ElementInfo enum.
  * \param[in] PID   part identifier
  * \param[in] idtag id of the cell
+ * \param[in] rank  belonging proc rank of the Cell (for MPI version only)
  * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type
  */
 bool
-MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag){
+MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank){
+
+#if MIMMO_ENABLE_MPI==0
+    BITPIT_UNUSED(rank);
+#endif
 
 	if (conn.empty() || !m_skdTreeSupported) return false;
 	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
 
 	if(!checkCellConnCoherence(type, conn))  return false;
 
-	bitpit::PatchKernel::CellIterator it;
 	auto patch = getPatch();
 
+    bitpit::PatchKernel::CellIterator it;
 	long checkedID;
 #if MIMMO_ENABLE_MPI
-	it = patch->addCell(type, conn, m_rank, idtag);
+    if(rank < 0)    rank = m_rank;
+    it = patch->addCell(type, conn, rank, idtag);
 #else
 	it = patch->addCell(type, conn, idtag);
 #endif
 	checkedID = it->getId();
 
 	setPIDCell(checkedID, PID);
+
 	m_skdTreeSync = false;
 	m_AdjBuilt = false;
 	m_IntBuilt = false;
@@ -2136,30 +2091,45 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	return true;
 };
 
+
+/*!
+ * Same as MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank), but
+ * using id automatic assignment.
+ */
+bool
+MimmoObject::addCell(bitpit::Cell & cell, int rank){
+    return addCell(cell, bitpit::Cell::NULL_ID, rank);
+}
+
 /*!
  *It adds one cell to the mesh.
  * If unique-id is specified for the cell, assign it, otherwise provide itself
  * to get a unique-id for the added cell. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
  *
+ * FOR MPI version: the method add cell with the custom rank provided. If rank < 0, use local m_rank of MimmoObject.
  *
  * \param[in] cell cell to be added
  * \param[in] idtag  unique id associated to the cell
+ * \param[in] rank  belonging proc rank of the Cell (for MPI version only)
  * \return true if the cell is successful inserted.
  */
 bool
-MimmoObject::addCell(bitpit::Cell & cell, const long idtag){
+MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank){
+#if MIMMO_ENABLE_MPI==0
+    BITPIT_UNUSED(rank);
+#endif
 
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return false;
 
     cell.resetAdjacencies();
-
-    bitpit::PatchKernel::CellIterator it;
     auto patch = getPatch();
-#if MIMMO_ENABLE_MPI
-    it = patch->addCell(cell, m_rank, idtag);
+
+#if MIMMO_ENABLE_MPI==1
+    if(rank < 0)    rank = m_rank;
+    patch->addCell(cell, rank, idtag);
 #else
-    it = patch->addCell(cell, idtag);
+    patch->addCell(cell, idtag);
 #endif
 
     m_pidsType.insert(cell.getPID());
