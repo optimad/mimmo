@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -70,7 +70,7 @@ FFDLattice::~FFDLattice(){};
 
 /*! Copy Constructor. Result displacements are never copied.
  *\param[in] other FFDLattice where copy from
- */ 
+ */
 FFDLattice::FFDLattice(const FFDLattice & other):Lattice(other){
     m_deg = other.m_deg;
     m_knots = other.m_knots;
@@ -180,7 +180,7 @@ FFDLattice::getKnotsDimension(){
     return(res);
 };
 
-/*! Return weight actually set for each control node 
+/*! Return weight actually set for each control node
  * \return list of weights
  */
 dvector1D
@@ -189,9 +189,9 @@ FFDLattice::getWeights(){
 };
 
 /*! Return knots structure and theoretical map of knots distributions for the current Lattice
- * \param[out] knots knots list 
+ * \param[out] knots knots list
  * \param[out] mapTheo  map of knots theoretical distribution
- */ 
+ */
 void
 FFDLattice::returnKnotsStructure(dvector2D & knots, ivector2D &mapTheo){
     knots.resize(3);
@@ -206,7 +206,7 @@ FFDLattice::returnKnotsStructure(dvector2D & knots, ivector2D &mapTheo){
  * \param[in] dir integer (0,1,2) identifies nurbs curve in x,y,and z direction respectively
  * \param[out] knots knots list
  * \param[out] mapT theoretical knot map distribution
- */ 
+ */
 void
 FFDLattice::returnKnotsStructure( int dir, dvector1D & knots, ivector1D & mapT){
     if(dir<0 || dir>2){return;}
@@ -294,11 +294,11 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier 
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method 
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
+ *  trivariate parameterization is recovered.The lattice can be build also with inherited method
  *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.   
- * 
+ *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
  * \param[in] type ShapeType enum identifies the shape
@@ -319,10 +319,10 @@ FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, iarray3
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier 
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method 
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
+ *  trivariate parameterization is recovered.The lattice can be build also with inherited method
  *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.   
+ *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
  *
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
@@ -369,11 +369,11 @@ FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, dvector
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier 
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method 
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
+ *  trivariate parameterization is recovered.The lattice can be build also with inherited method
  *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications. 
- * 
+ *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *
  * \param[in] shape pointer to an external BasicShape object
  * \param[in] dimensions number of control nodes for each direction
  * \param[in] degrees   curve degrees for each direction;
@@ -389,11 +389,11 @@ FFDLattice::setLattice(BasicShape * shape, iarray3E & dimensions, iarray3E & deg
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier 
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method 
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
+ *  trivariate parameterization is recovered.The lattice can be build also with inherited method
  *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications. 
- *   
+ *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *
  * \param[in] shape pointer to an external BasicShape object
  * \param[in] spacing define spacing step for each lattice dimension
  * \param[in] degrees   curve degrees for each direction;
@@ -458,7 +458,7 @@ FFDLattice::setNodalWeight(double val, int i, int j, int k){
     setNodalWeight(val, index);
 };
 
-/*! Modify weights of each control node. 
+/*! Modify weights of each control node.
  * \param[in] wg weights vector of each nx*ny*nz control nodes
  */
 void
@@ -486,7 +486,7 @@ FFDLattice::setFilter(dmpvector1D filter){
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
- * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing 
+ * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
  * \param[in] deformed  boolean flag for plotting 0-"original lattice", 1-"deformed lattice"
  */
 void
@@ -519,7 +519,7 @@ FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bo
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
- * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing 
+ * \param[in] binary     boolean flag for 0-"ascii" or 1-"appended" writing
  * \param[in] deformed  boolean flag for plotting 0-"original lattice", 1-"deformed lattice"
  */
 void
@@ -558,34 +558,30 @@ FFDLattice::execute(){
 
     MimmoObject * container = getGeometry();
     if(container == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
-
     if(container->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
     }
-    
-    if(!isBuilt()){
-        build();
-    }
-    
-    //build trees
-    if(container->isSkdTreeSupported() && !container->isSkdTreeSync())    container->buildSkdTree();
-    else if(!container->isKdTreeSync())                                container->buildKdTree();
-
-    livector1D map;
-    dvecarr3E localdef = apply(map);
 
     //reset displacement in a unique vector
     m_gdispl.clear();
     m_gdispl.setDataLocation(mimmo::MPVLocation::POINT);
     m_gdispl.reserve(getGeometry()->getNVertices());
     m_gdispl.setGeometry(getGeometry());
-    
+
+    //build trees
+    if(container->isSkdTreeSupported() && !container->isSkdTreeSync())    container->buildSkdTree();
+    else if(!container->isKdTreeSync())                                container->buildKdTree();
+
+    if(!isBuilt()){
+        build();
+    }
+
+    livector1D map;
+    dvecarr3E localdef = apply(map);
+
     long int ID;
     darray3E zero;
     zero.fill(0.0);
@@ -605,8 +601,8 @@ FFDLattice::execute(){
 
 /*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero.
  *  The method does not apply filter field modulation if any.
- * \param[in] point coordinate of the points 
- * \return point displacement 
+ * \param[in] point coordinate of the points
+ * \return point displacement
  */
 darray3E
 FFDLattice::apply(darray3E & point){
@@ -616,20 +612,20 @@ FFDLattice::apply(darray3E & point){
     return(nurbsEvaluator(point));
 };
 
-/*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class 
- * (see method getGeometry).If MimmoObject member m_geometry is NULL,return void results. 
+/*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class
+ * (see method getGeometry).If MimmoObject member m_geometry is NULL,return void results.
  * The method applies filter field modulation if any
- * \param[out] list list of non-zero displacement of m_geometry vertices 
+ * \param[out] list list of non-zero displacement of m_geometry vertices
  * \return list of ids of non-zero displaced vertex belonging to geometry
  */
 dvecarr3E
 FFDLattice::apply(livector1D & list){
 
     MimmoObject * container = getGeometry();
+    list.clear();
     if(container == NULL) return dvecarr3E(0);
     if(container->isEmpty() || !isBuilt()) return dvecarr3E(0);
 
-    list.clear();
 
     //check simplex included and extract their vertex in global IDs;
     if(container->isSkdTreeSupported()) list= container->getVertexFromCellList(getShape()->includeGeometry(container));
@@ -649,11 +645,11 @@ FFDLattice::apply(livector1D & list){
     return(result);
 };
 
-/*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed, 
- *  displacement of the others will be set to zero. If point list is NULL,return void results. 
+/*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed,
+ *  displacement of the others will be set to zero. If point list is NULL,return void results.
  *  The method does not apply filter field modulation if any
  * \param[in] point pointer to a list of 3D points.
- * \return displacements of points 
+ * \return displacements of points
  */
 dvecarr3E
 FFDLattice::apply(dvecarr3E * point){
@@ -679,13 +675,12 @@ void
 FFDLattice::apply(){
 
     if (getGeometry() == NULL) return;
-    if (getGeometry()->isEmpty() || m_gdispl.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
-        vertexcoords += m_gdispl[ID];
+        if(m_gdispl.exists(ID)) vertexcoords += m_gdispl[ID];
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
@@ -704,12 +699,12 @@ FFDLattice::checkFilter(){
     bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
     check = check && m_filter.completeMissingData(0.0);
     check = check && m_filter.getGeometry() == getGeometry();
-    
+
     if (!check){
         m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
         m_log->setPriority(bitpit::log::Verbosity::NORMAL);
-        
+
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
@@ -754,7 +749,7 @@ FFDLattice::convertDisplToXYZ(){
     return(result);
 };
 
-/*! Return displacement of a given point, under the deformation effect of the whole Lattice. 
+/*! Return displacement of a given point, under the deformation effect of the whole Lattice.
  * \param[in] pointOr 3D point
  * \return point displacement
  */
@@ -833,11 +828,11 @@ FFDLattice::nurbsEvaluator(darray3E & pointOr){
     }
     return(outres);
 
-}; 
+};
 
 /*! Return displacement of a list of points,
  * under the deformation effect of the whole Lattice.
- *  
+ *
  * \param[in] list 3D points
  * \return points displacements
  */
@@ -972,7 +967,7 @@ FFDLattice::nurbsEvaluator(livector1D & list){
 
 };
 
-/*! Return a specified component of a displacement of a given point, under the deformation effect of the whole Lattice. 
+/*! Return a specified component of a displacement of a given point, under the deformation effect of the whole Lattice.
  * \param[in] coordOr 3D point
  * \param[in] targ component of displacement vector (0,1,2)
  * \return point displacement disp[intV]
@@ -1048,9 +1043,9 @@ FFDLattice::nurbsEvaluatorScalar(darray3E & coordOr, int targ){
     return(res[targ]);
 };
 
-/*!Return the local basis function of a Nurbs Curve.Please refer to NURBS book of PEIGL 
- * for this Inverted Triangular Scheme Algorithm (pag 74); 
- *\param[in] k  local knot interval in which coord resides -> theoretical knot indexing, 
+/*!Return the local basis function of a Nurbs Curve.Please refer to NURBS book of PEIGL
+ * for this Inverted Triangular Scheme Algorithm (pag 74);
+ *\param[in] k  local knot interval in which coord resides -> theoretical knot indexing,
  *\param[in] pos identifies which nurbs curve of lattice (3 curve for 3 box direction) you are pointing
  *\param[in] coord the evaluation point on the curve
  *\return result local basis of ITS algorithm-> coefficient of interpolation of control nodes for position u of curve pos
@@ -1456,7 +1451,7 @@ dvector1D FFDLattice::recoverFullNodeWeights(){
     return(result);
 };
 
-/*! Fill m_mapnodes, to access correct displacement w knots structure 
+/*! Fill m_mapnodes, to access correct displacement w knots structure
  * theoretical knot indexing*/
 void
 FFDLattice::setMapNodes( int ind){
@@ -1541,8 +1536,8 @@ FFDLattice::orderDimension(){
 
 };
 
-/*! Build your lattice and all your knot structures. Execute this method every 
- *  time a parameter modification is applied, in order to enable it 
+/*! Build your lattice and all your knot structures. Execute this method every
+ *  time a parameter modification is applied, in order to enable it
  *  \return id lattice is successfully built.
  */
 bool
@@ -1555,7 +1550,7 @@ FFDLattice::build(){
 
     m_weights.clear();
     m_weights.resize(m_np, 1.0);
-    
+
     m_displ.resize(m_np, {{0.0,0.0,0.0}});
 
     std::unordered_map<int, double>::iterator it;

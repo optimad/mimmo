@@ -236,16 +236,20 @@ void
 BendGeometry::execute(){
 
     if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
 
+
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
     }
+
+    m_displ.clear();
+    m_displ.setDataLocation(mimmo::MPVLocation::POINT);
+    m_displ.reserve(getGeometry()->getNVertices());
+    m_displ.setGeometry(getGeometry());
+
 
     //check coherence of degrees and coeffs;
     for(int i=0; i<3; ++i){
@@ -255,11 +259,6 @@ BendGeometry::execute(){
     }
 
     checkFilter();
-
-    m_displ.clear();
-    m_displ.setDataLocation(mimmo::MPVLocation::POINT);
-    m_displ.reserve(getGeometry()->getNVertices());
-    m_displ.setGeometry(getGeometry());
 
     long ID;
     darray3E value;
@@ -295,15 +294,13 @@ BendGeometry::execute(){
  */
 void
 BendGeometry::apply(){
-
     if (getGeometry() == NULL) return;
-    if (getGeometry()->isEmpty() || m_displ.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
-        vertexcoords += m_displ[ID];
+        if(m_displ.exists(ID))     vertexcoords += m_displ[ID];
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 

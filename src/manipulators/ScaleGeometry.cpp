@@ -81,7 +81,7 @@ ScaleGeometry & ScaleGeometry::operator=(ScaleGeometry other){
 /*!
  * Swap function
  * \param[in] x object to be swapped
- */ 
+ */
 void ScaleGeometry::swap(ScaleGeometry & x) noexcept
 {
     std::swap(m_scaling, x.m_scaling);
@@ -158,23 +158,20 @@ void
 ScaleGeometry::execute(){
 
     if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
     }
 
     checkFilter();
-
     m_displ.clear();
     m_displ.setDataLocation(mimmo::MPVLocation::POINT);
     m_displ.reserve(getGeometry()->getNVertices());
     m_displ.setGeometry(getGeometry());
+
 
     long ID;
     darray3E value;
@@ -204,13 +201,12 @@ void
 ScaleGeometry::apply(){
 
     if (getGeometry() == NULL) return;
-    if (getGeometry()->isEmpty() || m_displ.isEmpty()) return;
     darray3E vertexcoords;
     long int ID;
     for (const auto & vertex : m_geometry->getVertices()){
         vertexcoords = vertex.getCoords();
         ID = vertex.getId();
-        vertexcoords += m_displ[ID];
+        if(m_displ.exists(ID))  vertexcoords += m_displ[ID];
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
@@ -229,12 +225,12 @@ ScaleGeometry::checkFilter(){
     bool check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
     check = check && m_filter.completeMissingData(0.0);
     check = check && m_filter.getGeometry() == getGeometry();
-    
+
     if (!check){
         m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Not valid filter found in "<<m_name<<". Proceeding with default unitary field"<<std::endl;
         m_log->setPriority(bitpit::log::Verbosity::NORMAL);
-        
+
         m_filter.clear();
         m_filter.setGeometry(m_geometry);
         m_filter.setDataLocation(mimmo::MPVLocation::POINT);
@@ -256,7 +252,7 @@ ScaleGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     BITPIT_UNUSED(name);
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("MeanPoint")){
         std::string input = slotXML.get("MeanPoint");
         bool value = false;
