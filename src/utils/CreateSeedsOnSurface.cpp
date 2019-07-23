@@ -364,40 +364,53 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
+
+    //build skd tree. if object is empty, the skd tree building is going to be safe anyway.
+    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
 
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
+    }else{
+
+        m_points.clear();
+        bbox->execute();
+        if(m_seedbaricenter)    m_seed = bbox->getOrigin();
+
+        checkField();
+        normalizeField();
+
+        switch(m_engine){
+        case CSeedSurf::RANDOM :
+            solveRandom(debug);
+            break;
+
+        case CSeedSurf::LEVELSET :
+#if MIMMO_ENABLE_MPI==0
+            //TODO Lset strategy not available in MPI. You need to implement a method of
+            // calculation of LS suitable for distributed archs.
+            solveLSet(debug);
+#else
+            (*m_log)<<"WARNING "<<m_name<<" : LevelSet option not yet available in MPI version"<<std::endl;
+#endif
+            break;
+        case CSeedSurf::CARTESIANGRID :
+            solveGrid(debug);
+            break;
+
+        default: //never been reached
+            break;
+        }
     }
 
-    m_points.clear();
-    bbox->execute();
-    if(m_seedbaricenter)    m_seed = bbox->getOrigin();
 
-    checkField();
-    normalizeField();
+#if MIMMO_ENABLE_MPI
+    //create a rendez vous point for all procs.
+    MPI_Barrier(m_communicator);
+#endif
 
-    switch(m_engine){
-    case CSeedSurf::RANDOM :
-        solveRandom(debug);
-        break;
-
-    case CSeedSurf::LEVELSET :
-        solveLSet(debug);
-        break;
-
-    case CSeedSurf::CARTESIANGRID :
-        solveGrid(debug);
-        break;
-
-    default: //never been reached
-        break;
-    }
 };
 
 /*!
@@ -528,8 +541,6 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     if(debug)    (*m_log)<<m_name<<" : started CartesianGrid engine"<<std::endl;
     iarray3E dim;
 
-    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
-
     //get the seed and project it on surface
     darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
@@ -653,8 +664,6 @@ CreateSeedsOnSurface::solveRandom(bool debug){
 
     if(debug)    (*m_log)<<m_name<<" : started Random engine"<<std::endl;
     dvecarr3E initList(getNPoints());
-
-    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
 
     //get the seed and project it on surface
     initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
