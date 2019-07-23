@@ -479,32 +479,6 @@ bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
 
 };
 
-/*!
- * Wrapping to set vertices to your internal MimmoObject structure ONLY. Vertices in the internal
- * structure will be erased and substituted by the new ones. Connectivity information in a pre-existent
- * cell list will be lost, so be careful. If an internal object is not
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without
- * doing anything even in case of argument pointing to nullptr;
- * \param[in] vertices pointer to a vertex PiercedVector structure
- */
-void
-MimmoGeometry::setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices){
-    if(m_intgeo.get() == NULL || vertices == NULL) return ;
-    m_intgeo->setVertices(*vertices);
-};
-
-/*!
- * Wrapping to set cells to your internal MimmoObject structure ONLY. Cells in the internal
- * structure will be erased and substituted by the new ones. If an internal object is not
- * allocated and the class is pointing to an external MimmoObject does nothing and return. Return without
- * doing anything even in case of argument pointing to nullptr;
- * \param[in] cells pointer to a cell PiercedVector structure
- */
-void
-MimmoGeometry::setCells(bitpit::PiercedVector<bitpit::Cell> * cells){
-    if(m_intgeo.get() == NULL || cells == NULL) return;
-    m_intgeo->setCells(*cells);
-};
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
  * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential order. If pids size does not match number of current cell does nothing

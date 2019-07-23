@@ -187,8 +187,6 @@ public:
     bitpit::PiercedVector<bitpit::Vertex> *     getVertices();
     bitpit::PiercedVector<bitpit::Cell> *         getCells();
 
-    void        setVertices(bitpit::PiercedVector<bitpit::Vertex> * vertices);
-    void        setCells(bitpit::PiercedVector<bitpit::Cell> * cells);
 
     void        setPID(livector1D pids);
     void        setPID(std::unordered_map<long,long> pidsMap);
