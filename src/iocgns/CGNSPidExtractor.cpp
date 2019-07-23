@@ -206,7 +206,6 @@ CGNSPidExtractor::execute(){
         extracted.insert(extracted.end(), temp.begin(), temp.end());
     }
     std::unique_ptr<MimmoObject> patchTemp(new MimmoObject(1));
-
     livector1D vertExtracted = mother->getVertexFromCellList(extracted);
 
     bitpit::PiercedVector<bitpit::Vertex> & motherverts = mother->getVertices();
@@ -214,16 +213,15 @@ CGNSPidExtractor::execute(){
         patchTemp->addVertex(motherverts.at(val).getCoords(), val);
     }
 
-    int count = 0;
+    int rank;
     bitpit::PiercedVector<bitpit::Cell> & mothercells = mother->getCells();
     for(const auto &val: extracted){
         bitpit::Cell & cell = mothercells.at(val);
-        long * conn = cell.getConnect();
-        int connsize = cell.getConnectSize();
-        bitpit::ElementType et = cell.getType();
-        long PID = cell.getPID();
-        patchTemp->addConnectedCell(std::vector<long>(conn, conn+connsize),et, PID, val);
-        count++;
+        rank = -1;
+#if MIMMO_ENABLE_MPI
+        rank = mother->getPatch()->getCellRank(val);
+#endif
+        patchTemp->addCell(cell, val, rank);
     }
 
 
@@ -237,7 +235,9 @@ CGNSPidExtractor::execute(){
 
     //check if patch is forced to be triangulated in case of polygons (nVertices > 4) more
     // nodes are added to the mesh.
+    // For Now this slot works only in SERIAL mode.
     if(m_force){
+#if MIMMO_ENABLE_MPI == 0
 
         long maxID, newID, newVertID;
 
@@ -252,6 +252,9 @@ CGNSPidExtractor::execute(){
         bitpit::ElementType eletype;
         bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
         livector1D connTriangle(3);
+
+
+
         for(const auto &idcell : orderedCellID){
 
             livector1D conn = patchTemp->getCellConnectivity(idcell);
@@ -302,10 +305,30 @@ CGNSPidExtractor::execute(){
                     break;
             }
         }
+#else
+    //TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+    (*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+#endif
     }
 
     m_patch = std::move(patchTemp);
 
+#if MIMMO_ENABLE_MPI
+    //delete orphan ghosts
+    m_patch->buildAdjacencies();
+    m_patch->deleteOrphanGhostCells();
+    if(m_patch->getPatch()->countOrphanVertices() > 0){
+        m_patch->getPatch()->deleteOrphanVertices();
+    }
+    m_patch->setPartitioned();
+#endif
+
+    if(getGeometry()->isInfoSync()) m_patch->buildPatchInfo();
+
+#if MIMMO_ENABLE_MPI
+    if(getGeometry()->arePointGhostExchangeInfoSync()) m_patch->updatePointGhostExchangeInfo();
+
+#endif
 };
 
 
