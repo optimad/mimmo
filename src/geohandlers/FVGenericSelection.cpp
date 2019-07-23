@@ -303,14 +303,6 @@ FVGenericSelection::execute(){
 
 #endif
 
-    //align ghost info with the situation of the mother mesh.
-    if(m_geometry->isInfoSync()) m_volpatch->buildPatchInfo();
-    if(m_bndgeometry->isInfoSync()) m_bndpatch->buildPatchInfo();
-
-#if MIMMO_ENABLE_MPI
-        if(m_geometry->arePointGhostExchangeInfoSync()) m_volpatch->updatePointGhostExchangeInfo();
-        if(m_bndgeometry->arePointGhostExchangeInfoSync()) m_bndpatch->updatePointGhostExchangeInfo();
-#endif
 
 
 };

@@ -253,6 +253,9 @@ ClipGeometry::execute(){
     m_patch = std::move(temp);
 
 #if MIMMO_ENABLE_MPI
+    // if the mesh is not  a point cloud
+    if (getGeometry()->getType() != 3){
+
         m_patch->buildAdjacencies();
         //delete orphan ghosts
         m_patch->deleteOrphanGhostCells();
@@ -261,16 +264,9 @@ ClipGeometry::execute(){
         }
         //fixed ghosts you will claim this patch partitioned.
         m_patch->setPartitioned();
+    }
 #endif
 
-    // if the mesh is not  a point cloud
-    if (getGeometry()->getType() != 3){
-        //align ghost info with the situation of the mother mesh.
-        if(getGeometry()->isInfoSync()) m_patch->buildPatchInfo();
-#if MIMMO_ENABLE_MPI
-        if(getGeometry()->arePointGhostExchangeInfoSync()) m_patch->updatePointGhostExchangeInfo();
-#endif
-    }
 
 
 };

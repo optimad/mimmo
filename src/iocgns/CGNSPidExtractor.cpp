@@ -322,13 +322,6 @@ CGNSPidExtractor::execute(){
     }
     m_patch->setPartitioned();
 #endif
-
-    if(getGeometry()->isInfoSync()) m_patch->buildPatchInfo();
-
-#if MIMMO_ENABLE_MPI
-    if(getGeometry()->arePointGhostExchangeInfoSync()) m_patch->updatePointGhostExchangeInfo();
-
-#endif
 };
 
 

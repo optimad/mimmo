@@ -1856,6 +1856,9 @@ MimmoObject::setPartitioned()
 
 	getPatch()->partition(partition,false,true);
 
+    buildPatchInfo();
+    updatePointGhostExchangeInfo();
+
 }
 
 /*!

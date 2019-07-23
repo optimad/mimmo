@@ -277,24 +277,18 @@ GenericSelection::execute(){
     m_subpatch = std::move(temp);
 
 #if MIMMO_ENABLE_MPI
-    //delete orphan ghosts
-    m_subpatch->buildAdjacencies();
-    m_subpatch->deleteOrphanGhostCells();
-    if(m_subpatch->getPatch()->countOrphanVertices() > 0){
-        m_subpatch->getPatch()->deleteOrphanVertices();
-    }
-    //fixed ghosts you will claim this patch partitioned.
-    m_subpatch->setPartitioned();
-#endif
-
     // if the mesh is not  a point cloud
     if (m_topo != 3){
-        //align ghost info with the situation of the mother mesh.
-        if(getGeometry()->isInfoSync()) m_subpatch->buildPatchInfo();
-#if MIMMO_ENABLE_MPI
-        if(getGeometry()->arePointGhostExchangeInfoSync()) m_subpatch->updatePointGhostExchangeInfo();
-#endif
+        //delete orphan ghosts
+        m_subpatch->buildAdjacencies();
+        m_subpatch->deleteOrphanGhostCells();
+        if(m_subpatch->getPatch()->countOrphanVertices() > 0){
+            m_subpatch->getPatch()->deleteOrphanVertices();
+        }
+        //fixed ghosts you will claim this patch partitioned.
+        m_subpatch->setPartitioned();
     }
+#endif
 };
 
 /*!
