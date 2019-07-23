@@ -155,7 +155,6 @@ FVGenericSelection::getBoundaryPatch() const{
 void
 FVGenericSelection::setGeometry( MimmoObject * target){
     if(target == NULL)  return;
-    if(target->isEmpty()) return;
     int type = target->getType();
     if(m_topo == 1 && type != 2) return;
     if(m_topo == 2 && type != 1) return;
@@ -169,7 +168,6 @@ FVGenericSelection::setGeometry( MimmoObject * target){
 void
 FVGenericSelection::setBoundaryGeometry( MimmoObject * target){
     if(target == NULL)  return;
-    if(target->isEmpty()) return;
     int type = target->getType();
     if(m_topo == 1 && type != 1) return;
     if(m_topo == 2 && type != 4) return;
@@ -211,41 +209,28 @@ FVGenericSelection::isDual(){
 void
 FVGenericSelection::execute(){
     if(m_geometry == NULL || m_bndgeometry == NULL) {
-//        throw std::runtime_error (m_name + " : NULL pointer to target bulk/boundary geometry found or both");
         (*m_log)<<m_name + " : NULL pointer to target bulk/boundary geometry found or both"<<std::endl;
+        throw std::runtime_error (m_name + " : NULL pointer to target bulk/boundary geometry found or both");
         return;
     }
     if(m_geometry->isEmpty() || m_bndgeometry->isEmpty() ){
-//        throw std::runtime_error (m_name + " : empty bulk/boundary geometry linked");
         (*m_log)<<m_name + " : empty bulk/boundary geometry linked"<<std::endl;
-        return;
     };
 
     if(!checkCoherenceBulkBoundary()){
-        throw std::runtime_error (m_name + " : connected bulk and boundary geometries are not coherent");
+        (*m_log)<<m_name + " : id-vertex uncoherent bulk/boundary geometry linked"<<std::endl;
     }
 
     m_volpatch.reset(nullptr);
     m_bndpatch.reset(nullptr);
 
     livector1D extractedVol;
-    long maxPID = 0;
-    std::unordered_map<long,livector1D> extractedBndVert;
-    {
-        std::unordered_map<long,livector1D> extractedBnd;
+    livector1D extractedBnd;
 
-        extractSelection(extractedVol, extractedBnd);
+    extractSelection(extractedVol, extractedBnd);
 
-        for (const auto & touple: extractedBnd){
-            extractedBndVert[touple.first] = m_bndgeometry->getVertexFromCellList(touple.second);
-            maxPID = std::max(touple.first, maxPID);
-        }
-    }
-
-    if(extractedVol.empty()) {
-//        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
-        (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
-        return;
+    if(extractedVol.empty() || extractedBnd.empty()) {
+        (*m_log)<<m_name + " : empty selection for bulk or boundary performed. check block set-up"<<std::endl;
     }
 
     /*Create subpatches.*/
@@ -259,73 +244,75 @@ FVGenericSelection::execute(){
     std::unique_ptr<MimmoObject> tempBnd(new MimmoObject(topobnd));
 
     {
-        livector1D TT;
-        bitpit::ElementType eltype;
-        long PID;
-
         livector1D vertExtracted = m_geometry->getVertexFromCellList(extractedVol);
         for(const auto & idV : vertExtracted){
             tempVol->addVertex(m_geometry->getVertexCoords(idV), idV);
         }
 
+        int rank;
         for(const auto & idCell : extractedVol){
             bitpit::Cell & cell = m_geometry->getPatch()->getCell(idCell);
-            eltype = cell.getType();
-            PID = (long)cell.getPID();
-            TT = m_geometry->getCellConnectivity(idCell);
-            tempVol->addConnectedCell(TT,eltype, PID, idCell);
-            TT.clear();
+            rank = -1;
+#if MIMMO_ENABLE_MPI
+            rank = m_geometry->getPatch()->getCellRank(idCell);
+#endif
+            tempVol->addCell(cell, idCell, rank);
         }
-
-        tempVol->buildInterfaces();
     }
 
-    //now create boundary mesh of selection.
     {
-        std::set<long> boundaryInterfaces;
-        std::set<long> boundaryVertices;
-        bitpit::ConstProxyVector<long> vcount;
-        for(const auto & interf : tempVol->getInterfaces()){
-            if(interf.isBorder()){
-                boundaryInterfaces.insert(interf.getId());
-                vcount = interf.getVertexIds();
-                boundaryVertices.insert(vcount.begin(), vcount.end());
-            }
+        livector1D vertExtracted = m_geometry->getVertexFromCellList(extractedBnd);
+        for(const auto & idV : vertExtracted){
+            tempBnd->addVertex(m_bndgeometry->getVertexCoords(idV), idV);
         }
 
-        //fill new boundary
-        bitpit::PiercedVector<bitpit::Interface> & bulkInterf = tempVol->getInterfaces();
-
-        for(const auto & idV: boundaryVertices){
-            tempBnd->addVertex(tempVol->getVertexCoords(idV),idV);
-        }
-
-        long PID = maxPID+1;
-        bitpit::ElementType eltype;
-        livector1D conn;
-        for(const auto & idI: boundaryInterfaces){
-
-            int size = bulkInterf[idI].getConnectSize();
-            conn.resize(size);
-            long * cc = bulkInterf[idI].getConnect();
-            for(int i=0; i<size; ++i){
-                conn[i] = cc[i];
-            }
-            eltype = bulkInterf[idI].getType();
-            tempBnd->addConnectedCell(conn, eltype, PID, idI);
-        }
-    }
-
-    //post-processing boundary (assign existent PID if any).
-    for(auto & touple : extractedBndVert){
-        livector1D cellids = tempBnd->getCellFromVertexList(touple.second, true);
-        for(const long & cid: cellids){
-            tempBnd->setPIDCell(cid, touple.first);
+        int rank;
+        for(const auto & idCell : extractedBnd){
+            bitpit::Cell & cell = m_bndgeometry->getPatch()->getCell(idCell);
+            rank = -1;
+#if MIMMO_ENABLE_MPI
+            rank = m_bndgeometry->getPatch()->getCellRank(idCell);
+#endif
+            tempBnd->addCell(cell, idCell, rank);
         }
     }
 
     m_volpatch = std::move(tempVol);
     m_bndpatch = std::move(tempBnd);
+
+// TODO For now adjusting ghosts only for the volume patch. Later you will need
+// to adjust stuffs also for  the boundary
+#if MIMMO_ENABLE_MPI
+    m_volpatch->buildAdjacencies();
+    //delete orphan ghosts
+    m_volpatch->deleteOrphanGhostCells();
+    if(m_volpatch->getPatch()->countOrphanVertices() > 0){
+        m_volpatch->getPatch()->deleteOrphanVertices();
+    }
+    //fixed ghosts you will claim this patch partitioned.
+    m_volpatch->setPartitioned();
+
+    m_bndpatch->buildAdjacencies();
+    m_bndpatch->deleteOrphanGhostCells();
+    if(m_bndpatch->getPatch()->countOrphanVertices() > 0){
+        m_bndpatch->getPatch()->deleteOrphanVertices();
+    }
+    //fixed ghosts you will claim this patch partitioned.
+    m_bndpatch->setPartitioned();
+
+
+#endif
+
+    //align ghost info with the situation of the mother mesh.
+    if(m_geometry->isInfoSync()) m_volpatch->buildPatchInfo();
+    if(m_bndgeometry->isInfoSync()) m_bndpatch->buildPatchInfo();
+
+#if MIMMO_ENABLE_MPI
+        if(m_geometry->arePointGhostExchangeInfoSync()) m_volpatch->updatePointGhostExchangeInfo();
+        if(m_bndgeometry->arePointGhostExchangeInfoSync()) m_bndpatch->updatePointGhostExchangeInfo();
+#endif
+
+
 };
 
 /*!
@@ -334,15 +321,25 @@ FVGenericSelection::execute(){
  */
 void
 FVGenericSelection::plotOptionalResults(){
-    if(getVolumePatch() == NULL || getBoundaryPatch() == NULL) return;
-    if(getVolumePatch()->isEmpty() || getBoundaryPatch()->isEmpty()) return;
-
     std::string dir = m_outputPlot;
-    std::string namevol = m_name + "_Volume_Patch."+ std::to_string(getId());
-    std::string namebnd = m_name + "_Boundary_Patch."+ std::to_string(getId());
 
-    getVolumePatch()->getPatch()->write(namevol);
-    getBoundaryPatch()->getPatch()->write(namebnd);
+    if(getVolumePatch()){
+        std::string namevol = m_name + "_Volume_Patch."+ std::to_string(getId());
+        bitpit::VTKUnstructuredGrid & vtk = getVolumePatch()->getPatch()->getVTK();
+        vtk.setDirectory(m_outputPlot+"/");
+        vtk.setName(namevol);
+        getVolumePatch()->getPatch()->write();
+    }
+
+
+    if(getBoundaryPatch()){
+        std::string namebnd = m_name + "_Boundary_Patch."+ std::to_string(getId());
+        bitpit::VTKUnstructuredGrid & vtk = getBoundaryPatch()->getPatch()->getVTK();
+        vtk.setDirectory(m_outputPlot+"/");
+        vtk.setName(namebnd);
+        getBoundaryPatch()->getPatch()->write();
+
+    }
 }
 
 /*!

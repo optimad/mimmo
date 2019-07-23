@@ -148,28 +148,14 @@ void FVSelectionBySphere::clear(){
  * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
  */
 void
-FVSelectionBySphere::extractSelection(livector1D & bulk, std::unordered_map<long,livector1D> & boundary){
+FVSelectionBySphere::extractSelection(livector1D & bulk, livector1D & boundary){
 
-    livector1D wholebnd;
     if(m_dual){
         bulk = excludeGeometry(m_geometry);
-        wholebnd = excludeGeometry(m_bndgeometry);
+        boundary = excludeGeometry(m_bndgeometry);
     }else{
         bulk = includeGeometry(m_geometry);
-        wholebnd = includeGeometry(m_bndgeometry);
-    }
-
-    //initialize boundary
-    boundary.clear();
-    for(const auto & pid: m_bndgeometry->getPIDTypeList()){
-        boundary.insert(std::make_pair(pid, livector1D()));
-        boundary.reserve(wholebnd.size());
-    }
-
-    //split wholebnd for pid.
-    for(const auto & cid : wholebnd){
-        int pid = m_bndgeometry->getPatch()->getCell(cid).getPID();
-        boundary[long(pid)].push_back(cid);
+        boundary = includeGeometry(m_bndgeometry);
     }
 };
 

@@ -231,6 +231,7 @@ GenericSelection::execute(){
 
     m_subpatch.reset(nullptr);
 
+// extract all the interior cell satisfying the extraction criterium.
     livector1D extracted = extractSelection();
 
     if(extracted.empty()) {
@@ -243,9 +244,6 @@ GenericSelection::execute(){
     std::unique_ptr<MimmoObject> temp(new MimmoObject(m_topo));
 
 
-    livector1D TT;
-    bitpit::ElementType eltype;
-    long PID;
     if (m_topo != 3){
 
         livector1D vertExtracted = getGeometry()->getVertexFromCellList(extracted);
@@ -253,19 +251,22 @@ GenericSelection::execute(){
             temp->addVertex(getGeometry()->getVertexCoords(idV), idV);
         }
 
+        int rank;
         for(const auto & idCell : extracted){
-
             bitpit::Cell & cell = getGeometry()->getPatch()->getCell(idCell);
-            eltype = cell.getType();
-            PID = (long)cell.getPID();
-            TT = getGeometry()->getCellConnectivity(idCell);
-            temp->addConnectedCell(TT,eltype, PID, idCell);
-            TT.clear();
+            rank = -1;
+#if MIMMO_ENABLE_MPI
+            rank = getGeometry()->getPatch()->getCellRank(idCell);
+#endif
+            temp->addCell(cell, idCell, rank);
         }
+
     }else{
+
         for(const auto & idV : extracted){
             temp->addVertex(getGeometry()->getVertexCoords(idV),idV);
         }
+
     }
 
     auto originalmap = getGeometry()->getPIDTypeListWNames();
@@ -274,6 +275,26 @@ GenericSelection::execute(){
         temp->setPIDName(val, originalmap[val]);
     }
     m_subpatch = std::move(temp);
+
+#if MIMMO_ENABLE_MPI
+    //delete orphan ghosts
+    m_subpatch->buildAdjacencies();
+    m_subpatch->deleteOrphanGhostCells();
+    if(m_subpatch->getPatch()->countOrphanVertices() > 0){
+        m_subpatch->getPatch()->deleteOrphanVertices();
+    }
+    //fixed ghosts you will claim this patch partitioned.
+    m_subpatch->setPartitioned();
+#endif
+
+    // if the mesh is not  a point cloud
+    if (m_topo != 3){
+        //align ghost info with the situation of the mother mesh.
+        if(getGeometry()->isInfoSync()) m_subpatch->buildPatchInfo();
+#if MIMMO_ENABLE_MPI
+        if(getGeometry()->arePointGhostExchangeInfoSync()) m_subpatch->updatePointGhostExchangeInfo();
+#endif
+    }
 };
 
 /*!
@@ -283,7 +304,6 @@ GenericSelection::execute(){
 void
 GenericSelection::plotOptionalResults(){
     if(getPatch() == NULL) return;
-//    if(getPatch()->isEmpty()) return;
 
     std::string dir = m_outputPlot + "/";
     std::string name = m_name + "_Patch_"+ std::to_string(getId());
@@ -316,5 +336,8 @@ GenericSelection::plotOptionalResults(){
         output.write();
     }
 }
+
+
+
 
 }

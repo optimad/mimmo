@@ -106,14 +106,14 @@ public:
     void        execute();
 
     virtual void plotOptionalResults();
-
+    bool checkCoherenceBulkBoundary();
+    
 protected:
     /*!
      * Extract selection from target geometry
      */
-    virtual void extractSelection(livector1D &, std::unordered_map<long,livector1D> &) = 0;
+    virtual void extractSelection(livector1D &, livector1D &) = 0;
     void swap(FVGenericSelection &x) noexcept;
-    bool checkCoherenceBulkBoundary();
 };
 
 
@@ -201,7 +201,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
+    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionByBox &) noexcept;
 };
 
@@ -291,7 +291,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
+    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionByCylinder &) noexcept;
 };
 
@@ -384,7 +384,7 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, std::unordered_map<long,livector1D> &);
+    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionBySphere &) noexcept;
 };
 

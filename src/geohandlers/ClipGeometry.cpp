@@ -191,14 +191,12 @@ void
 ClipGeometry::execute(){
 
     if(getGeometry() == NULL){
-//        throw std::runtime_error (m_name + " : nullptr geometry linked.");
+        throw std::runtime_error (m_name + " : nullptr geometry linked.");
         (*m_log)<<m_name + " : nullptr geometry linked."<<std::endl;
-        return;
     };
+
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error (m_name + " : empty geometry linked.");
         (*m_log)<<m_name + " : empty geometry linked."<<std::endl;
-        return;
     };
 
     /* If an implicit definition is not present it has to be computed
@@ -210,16 +208,12 @@ ClipGeometry::execute(){
 
     livector1D extracted = clipPlane();
     if(extracted.empty()){
-//        throw std::runtime_error (m_name + " : clipping failed, cannot extract anything in the half 3D-space");
-    	return;
+        (*m_log)<<m_name + " : performed empty clipping extraction"<<std::endl;
     }
 
     /* Create subpatch.*/
     std::unique_ptr<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
-
-    bitpit::ElementType eltype;
-    int PID;
 
     if (getGeometry()->getType() != 3){
 
@@ -232,20 +226,19 @@ ClipGeometry::execute(){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
 
-        livector1D TT;
+        int rank;
         for(const auto & idCell : extracted){
 
             bitpit::Cell & cell = tri->getCell(idCell);
-            eltype = cell.getType();
-            PID = cell.getPID();
-            TT = getGeometry()->getCellConnectivity(idCell);
-            temp->addConnectedCell(TT,eltype,long(PID), idCell);
-            TT.clear();
+            rank  =-1;
+#if MIMMO_ENABLE_MPI
+            rank = getGeometry()->getPatch()->getCellRank(idCell);
+#endif
+            temp->addCell(cell, idCell, rank);
         }
     }
     else{
         temp->getPatch()->reserveVertices(extracted.size());
-
         for(const auto & idV : extracted){
             temp->addVertex(tri->getVertexCoords(idV),idV);
         }
@@ -258,7 +251,28 @@ ClipGeometry::execute(){
     }
 
     m_patch = std::move(temp);
-    tri = NULL;
+
+#if MIMMO_ENABLE_MPI
+        m_patch->buildAdjacencies();
+        //delete orphan ghosts
+        m_patch->deleteOrphanGhostCells();
+        if(m_patch->getPatch()->countOrphanVertices() > 0){
+            m_patch->getPatch()->deleteOrphanVertices();
+        }
+        //fixed ghosts you will claim this patch partitioned.
+        m_patch->setPartitioned();
+#endif
+
+    // if the mesh is not  a point cloud
+    if (getGeometry()->getType() != 3){
+        //align ghost info with the situation of the mother mesh.
+        if(getGeometry()->isInfoSync()) m_patch->buildPatchInfo();
+#if MIMMO_ENABLE_MPI
+        if(getGeometry()->arePointGhostExchangeInfoSync()) m_patch->updatePointGhostExchangeInfo();
+#endif
+    }
+
+
 };
 
 /*!
