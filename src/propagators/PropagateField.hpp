@@ -130,6 +130,7 @@ protected:
     std::unique_ptr<PointGhostCommunicator> m_pointGhostCommunicator; 			/**<Ghost communicator object */
     int m_pointGhostTag;														/**< Tag of communicator object*/
     std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>> m_pointGhostStreamer;	/**<Data streamer */
+
 #endif
 
 public:
@@ -363,6 +364,8 @@ private:
  *
  * Proper fo the class:
  * - <B>MultiStep</B> : got deformation in a finite number of substep of solution;
+ * - <B>ForcePlanarSlip</B> : (for Quasi-Planar Slip Surface Only)  1- force the class to treat slip surface as plane (without holes), 0-use slip surface as it is;
+
  *
  * Geometry, boundary surfaces, boundary condition values
  * for the target geometry have to be mandatorily passed through ports.
@@ -377,6 +380,11 @@ protected:
     int           m_nstep;               /**< multistep solver */
     MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition values interp on boundaries Interfaces of the target volume mesh */
     MimmoPiercedVector<std::array<double, 3> > m_surface_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition value of POINTS on boundary surface*/
+    bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
+
+private:
+    std::array<double,3> m_AVGslipNormal;
+    std::array<double,3> m_AVGslipCenter;
 
 public:
 
@@ -390,9 +398,10 @@ public:
     void buildPorts();
 
     dmpvecarr3E getPropagatedField();
+    bool        isForcingPlanarSlip();
 
     void    setSlipBoundarySurface(MimmoObject *);
-
+    void    forcePlanarSlip(bool planar);
     void    setDirichletConditions(dmpvecarr3E bc);
 
     void    setSolverMultiStep(unsigned int sstep);
@@ -433,10 +442,8 @@ protected:
     virtual void subdivideBC();
     virtual void restoreBC();
     void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
-#if MIMMO_ENABLE_MPI
     void initializeSlipSurface();
-#endif
-
+    void initializeSlipSurfaceAsPlane();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)

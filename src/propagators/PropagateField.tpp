@@ -558,7 +558,9 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 
 	if (!m_dumpingActive || m_decayFactor <= 1.E-12) return;
 
-	//MODULATING DUMPING WITH DISTANCE
+
+    //TODO MPI - create a unique surface of dump shared to all processor (as you do in slip)
+    //MODULATING DUMPING WITH DISTANCE
 	MimmoObject * dumptarget= m_dsurface;
 	if(m_dsurface == nullptr)  dumptarget = m_bsurface;
 
@@ -584,6 +586,7 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*dumptarget, maxd, &seedlist);
 
 	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
+    //TODO MPI you need to communicate this value distanceMax.
 	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
 		if(*it < m_plateau){
 			(*it) = 1.0;
@@ -596,34 +599,68 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
 			m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
 		}
-		return; //you can return.
-	}
+    }else{
 
-	// Evaluating the volume part.
-	bitpit::PiercedVectorStorage<double> volFactor;
-	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-	volFactor.fill(1.0);
+    	// Evaluating the volume part.
+    	bitpit::PiercedVectorStorage<double> volFactor;
+    	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
+    	volFactor.fill(1.0);
 
-	//evaluating cell volumes
-	double locvol;
-	double volmax = 0.0, volmin=1.0E18;
-	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-		locvol = getGeometry()->evalCellVolume(it.getId());
-		if(locvol <= std::numeric_limits<float>::min()){
-			(*m_log)<<"Warning in "<<m_name<<". Detected cells with almost zero or negative volume"<<std::endl;
-			locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
-		}
-		volFactor.rawAt(it.getRawIndex()) = locvol;
-		volmin = std::min(volmin,locvol);
-		volmax = std::max(volmax,locvol);
-	}
+    	//evaluating cell volumes
+    	double locvol;
+    	double volmax = 0.0, volmin=1.0E18;
+    	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+    		locvol = getGeometry()->evalCellVolume(it.getId());
+    		if(locvol <= std::numeric_limits<float>::min()){
+    			(*m_log)<<"Warning in "<<m_name<<". Detected cells with almost zero or negative volume"<<std::endl;
+    			locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
+    		}
+    		volFactor.rawAt(it.getRawIndex()) = locvol;
+    		volmin = std::min(volmin,locvol);
+    		volmax = std::max(volmax,locvol);
+    	}
 
-	//evaluate the volume normalized function and store it in dumping.
-	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
-	}
+        //TODO MPI you need to communicate this volmax and volmin.
 
-	//all done if you are here, you computed also the volume part and put together all the stuffs.
+    	//evaluate the volume normalized function and store it in dumping.
+    	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+    		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
+    	}
+    }
+    	//all done if you are here, you computed also the volume part and put together all the stuffs.
+
+    //now the most difficult part: communicate data betwenn ghost cell
+#if MIMMO_ENABLE_MPI
+    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > tempDumping(new MimmoPiercedVector<std::array<double,NCOMP> >());
+    tempDumping->setGeometry(getGeometry());
+    tempDumping->setDataLocation(MPVLocation::CELL);
+    tempDumping->reserve(getGeometry()->getNCells());
+
+    bitpit::PiercedVector<bitpit::Cell> &cells = getGeometry()->getCells();
+    std::array<double, NCOMP> work;
+    livector1D listghosts;
+    listghosts.reserve(getGeometry()->getPatch()->getGhostCount());
+
+    for(auto it=m_dumping.begin(); it != m_dumping.end(); ++it){
+        bitpit::Cell & cell = cells.at(it.getId());
+        work.fill(0.0);
+        if(cell.isInterior()){
+            work[0] = *it;
+        }else{
+            listghosts.push_back(it.getId());
+        }
+        tempDumping->insert(it.getId(), work);
+    }
+    //communicate the data;
+    communicateGhostData(tempDumping.get());
+
+    for(long id : listghosts){
+        m_dumping.at(id) = tempDumping->at(id)[0];
+    }
+
+#endif
+
+
 }
 
 /*!
@@ -700,6 +737,37 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
 	}
 	//all done if you are here, you computed also the volume part and put together all the stuffs.
+
+    //now the most difficult part: communicate data betwenn ghost cell
+#if MIMMO_ENABLE_MPI
+    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > tempDumping(new MimmoPiercedVector<std::array<double,NCOMP> >());
+    tempDumping->setGeometry(getGeometry());
+    tempDumping->setDataLocation(MPVLocation::CELL);
+    tempDumping->reserve(getGeometry()->getNCells());
+
+    bitpit::PiercedVector<bitpit::Cell> &cells = getGeometry()->getCells();
+    std::array<double, NCOMP> work;
+    livector1D listghosts;
+    listghosts.reserve(getGeometry()->getPatch()->getGhostCount());
+
+    for(auto it=m_dumping.begin(); it != m_dumping.end(); ++it){
+        bitpit::Cell & cell = cells.at(it.getId());
+        work.fill(0.0);
+        if(cell.isInterior()){
+            work[0] = *it;
+        }else{
+            listghosts.push_back(it.getId());
+        }
+        tempDumping->insert(it.getId(), work);
+    }
+    //communicate the data;
+    communicateGhostData(tempDumping.get());
+
+    for(long id : listghosts){
+        m_dumping.at(id) = tempDumping->at(id)[0];
+    }
+
+#endif
 }
 
 ///*!

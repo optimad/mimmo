@@ -24,7 +24,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "PropagateField.hpp"
-
+#include <CG.hpp>
 namespace mimmo {
 //--------------------------------------
 //--------------------------------------
@@ -403,7 +403,7 @@ PropagateVectorField::PropagateVectorField():PropagateField<3>(){
 	m_name = "mimmo.PropagateVectorField";
 	m_nstep = 1;
 	m_slipsurface = nullptr;
-//	m_originalslipsurface = nullptr;
+    m_forcePlanarSlip = false;
 };
 
 /*!
@@ -413,7 +413,7 @@ void PropagateVectorField::setDefaults(){
 	PropagateField<3>::setDefaults();
 	m_nstep = 1;
 	m_slipsurface = nullptr;
-//	m_originalslipsurface = nullptr;
+    m_forcePlanarSlip = false;
 	m_slip_bc_dir.clear();
 	m_surface_slip_bc_dir.clear();
 }
@@ -427,7 +427,7 @@ PropagateVectorField::PropagateVectorField(const bitpit::Config::Section & rootX
 	m_name = "mimmo.PropagateVectorField";
 	m_nstep = 1;
 	m_slipsurface = nullptr;
-//	m_originalslipsurface = nullptr;
+    m_forcePlanarSlip = false;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -454,6 +454,7 @@ PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):P
 	m_nstep = other.m_nstep;
 	m_slip_bc_dir = other.m_slip_bc_dir;
 	m_surface_slip_bc_dir = other.m_surface_slip_bc_dir;
+    m_forcePlanarSlip = other.m_forcePlanarSlip;
 };
 
 /*!
@@ -474,7 +475,11 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
 	std::swap(m_nstep, x.m_nstep);
 	std::swap(m_slip_bc_dir, x.m_slip_bc_dir);
 	std::swap(m_surface_slip_bc_dir, x.m_surface_slip_bc_dir);
-	PropagateField<3>::swap(x);
+    std::swap(m_forcePlanarSlip, x.m_forcePlanarSlip);
+    std::swap(m_AVGslipNormal, x.m_AVGslipNormal);
+    std::swap(m_AVGslipCenter, x.m_AVGslipCenter);
+
+    PropagateField<3>::swap(x);
 }
 
 /*!
@@ -500,10 +505,20 @@ PropagateVectorField::getPropagatedField(){
 }
 
 /*!
+ * \return true if the class is forcing the slip surface to be treated as plane. See forcePlanarSlip method docs.
+ */
+bool
+PropagateVectorField::isForcingPlanarSlip(){
+	return m_forcePlanarSlip;
+}
+
+/*!
  * Sets the portion of boundary mesh relative to geometry target
  * that must be constrained component-wise with zero normal field throughout boundary surface.
  * This patch is optional. If nothing is linked, the relative boundary is
  * solved free of any conditions.
+ * WARNING: in case of internal holes inside the slip surface, quality of the slip computation
+ * might be affected. Slip surface holes are NOT filled automatically right now.
  * \param[in] surface Boundary patch.
  */
 void
@@ -513,6 +528,18 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
 	m_slipsurface = surface;
 }
 
+/*!
+ * If an almost planar surface is provided as slip surface,
+ * this method forces the class to treat the surface as planar, computing an average plane.
+ * This trick can manage quasi-planar surface with internal holes, without affecting quality of the
+ * slip conditions computations.
+ * Results are not guaranteed in case of highly non-planar slip surface.
+ * \param[in] planar true, use the average plane of the slip surface to calculate slip conditions, false use the slip surface as it is.
+ */
+void
+PropagateVectorField::forcePlanarSlip(bool planar){
+	m_forcePlanarSlip = planar;
+}
 /*!
  * It sets the Dirichlet conditions for each component of the vector field on the previously linked
  * Dirichlet Boundary patch.
@@ -545,6 +572,16 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
 		if(value >= 1.0) value2 = value;
 		setSolverMultiStep(value2);
 	}
+    if(slotXML.hasOption("ForcePlanarSlip")){
+		std::string input = slotXML.get("ForcePlanarSlip");
+		input = bitpit::utils::string::trim(input);
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		forcePlanarSlip(value);
+	}
 
 };
 
@@ -558,6 +595,7 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 	BITPIT_UNUSED(name);
 	PropagateField<3>::flushSectionXML(slotXML, name);
 	slotXML.set("MultiStep", std::to_string(int(m_nstep)));
+    slotXML.set("ForcePlanarSlip", std::to_string(int(m_forcePlanarSlip)));
 };
 
 /*!
@@ -622,27 +660,28 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 	return true;
 }
 
-#if MIMMO_ENABLE_MPI
 /*!
- * Distribute the input m_surface_slip_bc_dir on all the processes.
+ * Instantiate m_originalslipsurface, that is the surface where you need to evaluate
+ * slip conditions. In SERIAL version m_originalslipsurface is the m_slipsurface passed as boundary.
+ * In MPI version m_originalslipsurface is the whole slip surface rebuilt from every portion "m_slipsurface"
+ * owned by each rank. Once recollected the whole surface is sent as it is to all ranks.
+ * This surface needs to remain untouched and undeformed during Multistep iterations.
  */
 void PropagateVectorField::initializeSlipSurface(){
 
-	std::cout << "#" << m_rank << " in initializeSlipSurface" << std::endl;
-
+#if MIMMO_ENABLE_MPI
+    //MPI version
 	m_originalslipsurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
 	//fill serialized geometry
 	for (bitpit::Vertex vertex : m_slipsurface->getVertices()){
 		long vertexId = vertex.getId();
-		std::cout << "#" << m_rank << " addVertex " << vertexId << std::endl;
 		if (m_slipsurface->isPointInterior(vertexId)){
 			m_originalslipsurface->addVertex(vertex, vertexId);
 		}
 	}
 	for (bitpit::Cell cell : m_slipsurface->getCells()){
 		if (cell.isInterior()){
-			std::cout << "#" << m_rank << " addCell " << cell.getId() << std::endl;
 			m_originalslipsurface->addCell(cell, cell.getId());
 		}
 	}
@@ -650,8 +689,6 @@ void PropagateVectorField::initializeSlipSurface(){
 
 	//Receive vertices and cells
 	for (int sendRank=0; sendRank<m_nprocs; sendRank++){
-
-		std::cout << "#" << m_rank << " send rank : " << sendRank << std::endl;
 
 		if (m_rank != sendRank){
 
@@ -735,8 +772,6 @@ void PropagateVectorField::initializeSlipSurface(){
 
 			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
 
-				std::cout << "#" << m_rank << " vertices recv rank : " << recvRank << std::endl;
-
 				if (m_rank != recvRank){
 
 					// Communication
@@ -774,8 +809,6 @@ void PropagateVectorField::initializeSlipSurface(){
 
 			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
 
-				std::cout << "#" << m_rank << " cells recv rank : " << recvRank << std::endl;
-
 				if (m_rank != recvRank){
 					// Communication
 					MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
@@ -787,9 +820,62 @@ void PropagateVectorField::initializeSlipSurface(){
 		}
 
 	}// end external sendrank loop
+#else
+    //serial version
+    m_originalslipsurface = m_slipsurface->clone();
+#endif
+}
+
+
+/*!
+ * Instead of instantiating m_originalslipsurface, calculate the average normal and
+ * barycenter of m_slipsurface, and store them in internal members m_AVGslipNormal and m_AVGslipCenter.
+ */
+void PropagateVectorField::initializeSlipSurfaceAsPlane(){
+
+    m_AVGslipCenter.fill(0.0);
+    m_AVGslipNormal.fill(0.0);
+    long countV = 0;
+    long countC = 0;
+
+#if MIMMO_ENABLE_MPI
+    if(!m_slipsurface->arePointGhostExchangeInfoSync()) m_slipsurface->updatePointGhostExchangeInfo();
+#endif
+
+bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch());
+    //start evaluating barycenter of interior points.
+    for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
+#if MIMMO_ENABLE_MPI
+        if(m_slipsurface->isPointInterior(itV.getId()))
+#endif
+        {
+            m_AVGslipCenter += itV->getCoords();
+            ++countV;
+        }
+    }
+
+    //evaluating average facet normal of interior cells.
+    for(auto itC = surfkernss->internalBegin(); itC != surfkernss->internalEnd(); ++itC){
+        m_AVGslipNormal += surfkernss->evalFacetNormal(itC.getId());
+        ++countC;
+    }
+
+
+#if MIMMO_ENABLE_MPI
+    //communicate with other processors summing barycenters, normals
+    //number of vertices and number of cells and then average it.
+    MPI_Allreduce(MPI_IN_PLACE, &countV, 1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &countC, 1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, m_AVGslipCenter.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, m_AVGslipNormal.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+
+#endif
+
+    if(countV > 0)  m_AVGslipCenter /= double(countV);
+    if(countC > 0)  m_AVGslipNormal /= double(countC);
 
 }
-#endif
+
 
 /*!
  * Distribute the input m_surface_slip_bc_dir on the border interfaces of the bulk mesh.
@@ -849,7 +935,6 @@ void
 PropagateVectorField::apply(){
 	MimmoObject * target = getGeometry();
 	if (!target) return;
-//	if (target->isEmpty() || m_field.isEmpty()) return;
 
 	bitpit::PiercedVector<bitpit::Vertex> & verts = target->getVertices();
 
@@ -1283,29 +1368,41 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 //		bcval -= dotProduct(bcval, normal) * normal; //remove its normal component.
 //	}
 
+    //precalculate projection of new point on m_slipsurface;
+    std::unordered_map<long, std::array<double,3> > projectionVector;
 
+    if(m_forcePlanarSlip){
+    	  // VERSION USING THE AVERAGE NORMAL!
+    	//loop on surface points.
+    	for(auto it=m_surface_slip_bc_dir.begin(); it!=m_surface_slip_bc_dir.end(); ++it){
+    		long idV = it.getId();
+    		std::array<double,3> point = m_slipsurface->getVertexCoords(idV) + m_surface_slip_bc_dir[idV];
+    		std::array<double,3> projpoint = bitpit::CGElem::projectPointPlane(point, m_AVGslipCenter,m_AVGslipNormal);
+    		projectionVector[idV] = projpoint - point;
+    	}
+    }else{
 	//precalculate projection of new point on m_slipsurface;
-	if (!m_originalslipsurface->isSkdTreeSync())
-		m_originalslipsurface->buildSkdTree();
+    	if (!m_originalslipsurface->isSkdTreeSync())
+    		m_originalslipsurface->buildSkdTree();
 
-	bitpit::PatchSkdTree *tree = m_originalslipsurface->getSkdTree();
-	std::unordered_map<long, std::array<double,3> > projectionVector;
-	//loop on surface points.
-	for(auto it=m_surface_slip_bc_dir.begin(); it!=m_surface_slip_bc_dir.end(); ++it){
-		long idV = it.getId();
-		bitpit::Vertex vertex = m_slipsurface->getPatch()->getVertex(idV);
-		std::array<double,3> point = vertex.getCoords() + m_surface_slip_bc_dir[idV];
-		 double r = std::max(1.0e-02, norm2(m_surface_slip_bc_dir[idV])*1.25);
-		std::array<double,3> projpoint = skdTreeUtils::projectPoint(&point, tree, r);
-		projectionVector[idV] = projpoint - point;
-	}
+    	bitpit::PatchSkdTree *tree = m_originalslipsurface->getSkdTree();
+    	//loop on surface points.
+    	for(auto it=m_surface_slip_bc_dir.begin(); it!=m_surface_slip_bc_dir.end(); ++it){
+    		long idV = it.getId();
+    		bitpit::Vertex &vertex = m_slipsurface->getPatch()->getVertex(idV);
+    		std::array<double,3> point = vertex.getCoords() + m_surface_slip_bc_dir[idV];
+    		 double r = std::max(1.0e-02, norm2(m_surface_slip_bc_dir[idV])*1.25);
+    		std::array<double,3> projpoint = skdTreeUtils::projectPoint(&point, tree, r);
+    		projectionVector[idV] = projpoint - point;
+    	}
+    }
+
+
 
 	// force the correction on m_surface_slip_bc_dir
 	for(auto it=m_surface_slip_bc_dir.begin(); it!=m_surface_slip_bc_dir.end(); ++it){
 		id = it.getId();
-		std::array<double,3> & projvec = projectionVector.at(id);
-		std::array<double,3> & bcval  = *it;
-		bcval += projvec; //remove its normal component.
+        (*it) += projectionVector.at(id);
 	}
 
 //
@@ -1335,8 +1432,6 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 void
 PropagateVectorField::execute(){
 
-	std::cout << "#" << m_rank << " in execute" << std::endl;
-
 	MimmoObject * geo = getGeometry();
 	if(!geo){
 		(*m_log)<<"Warning in "<<m_name<<" .No target volume mesh linked"<<std::endl;
@@ -1346,7 +1441,11 @@ PropagateVectorField::execute(){
 		(*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
 	}
 
-	std::cout << "#" << m_rank << " in checkBoundariesCoherence" << std::endl;
+#if MIMMO_ENABLE_MPI
+    if(m_dumpingActive){
+        (*m_log)<<"WARNING " << m_name<<" : Dumping may present incoherent results if used in MPI compilation."<<std::endl;
+    }
+#endif
 
 	if(!checkBoundariesCoherence()){
 		(*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
@@ -1354,9 +1453,11 @@ PropagateVectorField::execute(){
 	}
 
 	if(m_slipsurface){
-		std::cout << "#" << m_rank << " in initializeSlipSurface" << std::endl;
-		//Initialize boundary slip surface to project deformed patch on original one (distribute it on all the processes)
-		initializeSlipSurface();
+        if(m_forcePlanarSlip){
+            initializeSlipSurfaceAsPlane();
+        }else{
+            initializeSlipSurface();
+        }
 	}
 
 	(*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
@@ -1577,9 +1678,6 @@ PropagateVectorField::execute(){
 			//RECONSTRUCT STAGE --> /////////////////////////////////////////////////////////////////////////////////
 			reconstructResults(results, data, movingElementList.get());
 
-//	#if MIMMO_ENABLE_MPI
-//			communicatePointGhostData(&m_field);
-//	#endif
 			// if you are in multistep stage apply the deformation to the mesh.
 			if(m_nstep > 1){
 				apply();
