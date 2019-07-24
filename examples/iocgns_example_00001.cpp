@@ -106,7 +106,7 @@ void example00001() {
      */
     RotationGeometry* rotation = new RotationGeometry();
     rotation->setDirection(darray3E{0.1,1.,0.});
-    rotation->setRotation((BITPIT_PI/12));
+    rotation->setRotation((BITPIT_PI/18.0));
 
     /* Create reconstruct vector block and set to reconstruct rotation
      * displacement field over the whole Dirichlet surface geometry
@@ -119,11 +119,13 @@ void example00001() {
      */
     PropagateVectorField* prop = new PropagateVectorField();
     prop->setPlotInExecution(true);
-    prop->setTolerance(1.0e-07);
-    prop->setDumping(true);
-    prop->setDumpingInnerDistance(1000);
-    prop->setDumpingOuterDistance(3000);
-
+    prop->setTolerance(1.0e-9);
+    //prop->setUpdateThreshold(1.0e-12);
+    prop->setDumping(false);
+    // prop->setDumpingInnerDistance(100);
+    // prop->setDumpingOuterDistance(3000);
+    prop->forcePlanarSlip(true);
+    //prop->setSolverMultiStep(2);
     /* Create propagate vector block and set to propagate over the whole
      * input volume geometry the displacements field.
      */
