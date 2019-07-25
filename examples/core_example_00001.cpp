@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if BITPIT_ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI==1
 	MPI_Init(&argc, &argv);
 
 	{
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 
-#if BITPIT_ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI==1
 	}
 
 	MPI_Finalize();
@@ -175,5 +175,3 @@ int main(int argc, char *argv[]) {
 
 	return (1);
 }
-
-

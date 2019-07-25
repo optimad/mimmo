@@ -32,17 +32,17 @@
 
 /*!
  * \example ioofoam_example_00001.cpp
- * 
+ *
  * \brief Example of reading/writing of a OpenFOAM case mesh.
- * 
+ *
  * Mesh is read from an OpenFOAM case. A FFD deformation is applied.
  * The bulk volume mesh is deformed accordingly.
  * In writing, moved bulk points update those on the target mesh.
  *
  * Using: IOOFOAM
- * 
+ *
  * <b>To run</b>: ./ioofoam_example_00001 \n
- * 
+ *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
@@ -78,7 +78,7 @@ void OFOAM_manip() {
     mimmo::pin::addPin(reader, applier, M_GEOM, M_GEOM);
     mimmo::pin::addPin(ffd, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
-    
+
     mimmo::Chain c0;
     c0.addObject(reader);
     c0.addObject(ffd);
@@ -138,10 +138,8 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         try{
@@ -159,10 +157,8 @@ int main( int argc, char *argv[] ) {
             return 1;
         }
 
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return 0;

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -32,13 +32,13 @@ using namespace mimmo;
 
 /*!
  * \example genericinput_example_00001.cpp
- * 
- * \brief Example of reading/writing a generic csv file of raw data. 
+ *
+ * \brief Example of reading/writing a generic csv file of raw data.
 
  * Using: GenericInput, GenericOutput
- * 
+ *
  * <b>To run</b>: ./genericinput_example_00001 \n
- * 
+ *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
@@ -95,10 +95,8 @@ int main( int argc, char *argv[] ) {
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-    MPI::Init(argc, argv);
-
-    {
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 #endif
         /**<Calling mimmo Test routines*/
         try{
@@ -108,12 +106,9 @@ int main( int argc, char *argv[] ) {
             std::cout<<"genericinput_example_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-    }
-
-    MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+    MPI_Finalize();
 #endif
 
     return 0;
 }
-

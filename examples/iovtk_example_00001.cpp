@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -29,13 +29,13 @@ using namespace mimmo;
 
 /*!
  * \example iovtk_example_00001.cpp
- * 
+ *
  * \brief Example of reading/writing a vtk polydata file w/ scalar field attached.
- * 
+ *
  * Using: IOVTKScalar
- * 
+ *
  * <b>To run</b>: ./iovtk_example_00001 \n
- * 
+ *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
@@ -93,14 +93,12 @@ void test00001() {
 // =================================================================================== //
 
 int main( int argc, char *argv[] ) {
-    
+
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
-    
-#if ENABLE_MPI==1
-    MPI::Init(argc, argv);
-    
-    {
+
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 #endif
         /**<Calling mimmo Test routines*/
         try{
@@ -110,10 +108,8 @@ int main( int argc, char *argv[] ) {
             std::cout<<"iovtk_example_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-    }
-
-    MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+    MPI_Finalize();
 #endif
 
     return 0;

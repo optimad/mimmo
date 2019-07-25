@@ -61,11 +61,11 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::SURFVTU);
     mimmo0->setWriteFilename("utils_mesh_00001.0000");
 
-    /*Creation of the seeder. Use Level set engine to place 9 points on 
+    /*Creation of the seeder. Use Level set engine to place 9 points on
      * surface, starting from a seed point in the absolute origin.
      */
     CreateSeedsOnSurface * cseed = new CreateSeedsOnSurface();
-    
+
     cseed->setSeed({{0.0,0.0,0.0}});
     cseed->setNPoints(9);
     cseed->setEngine(1);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
 
-#if BITPIT_ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI==1
     MPI_Init(&argc, &argv);
 
     {
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-#if BITPIT_ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI==1
     }
 
     MPI_Finalize();
@@ -127,5 +127,3 @@ int main(int argc, char *argv[]) {
 
     return (1);
 }
-
-

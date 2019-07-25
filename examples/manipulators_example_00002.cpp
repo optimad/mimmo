@@ -91,7 +91,7 @@ void test00002() {
     deg[2] = 2;
 
     lattice->setLattice(origin, span, ShapeType::CUBE, dim, deg);
-   
+
 
     /* Creation of Generic input block to read the
      * displacements of the control nodes of the lattice.
@@ -112,7 +112,7 @@ void test00002() {
     cout << " " << endl;
     /* Add pin with port TAG ONLY
      */
-    
+
     cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, M_GEOM, M_GEOM) << endl;
     cout << " add pin info : " << boolalpha << addPin(input, lattice, M_DISPLS, M_DISPLS) << endl;
     cout << " add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
@@ -128,12 +128,12 @@ void test00002() {
     ch0.addObject(lattice);
     ch0.addObject(applier);
     ch0.addObject(mimmo1);
-    
+
     //force the chain to plot all the optional results of its children...
     ch0.setPlotDebugResults(true);
     //...in the path specified by the User.
     ch0.setOutputDebugResults(".");
-    
+
     /* Execution of chain.
      * Use debug flag true to full print out the execution steps.
      */
@@ -164,10 +164,8 @@ int main( int argc, char *argv[] ) {
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-    MPI::Init(argc, argv);
-
-    {
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 #endif
         /**<Calling mimmo Test routine*/
         try{
@@ -177,10 +175,8 @@ int main( int argc, char *argv[] ) {
             std::cout<<"manipulators_example_00002 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-    }
-
-    MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+    MPI_Finalize();
 #endif
 
     return(1);

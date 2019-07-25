@@ -83,7 +83,7 @@ void test00002() {
 	StitchGeometry * stitcher = new StitchGeometry(1);
 	stitcher->setPlotInExecution(true);
 	stitcher->setOutputPlot(".");
-	
+
     /* Setup pin connections.
      */
 	addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
@@ -124,11 +124,9 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+    MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         try{
@@ -138,10 +136,8 @@ int main( int argc, char *argv[] ) {
             std::cout<<"geohandlers_example_00002 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return(1);

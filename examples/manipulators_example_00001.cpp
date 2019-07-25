@@ -257,24 +257,24 @@ int main(int argc, char *argv[]) {
     BITPIT_UNUSED(argc);
     BITPIT_UNUSED(argv);
 
-#if BITPIT_ENABLE_MPI==1
+#if MIMMO_ENABLE_MPI==1
     MPI_Init(&argc, &argv);
 
     {
 #endif
 
-         
+
         try{
             /**<Calling mimmo Test routines*/
             test00001() ;
         }
-        
+
         catch(std::exception & e){
             std::cout<<"manipulators_example_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-        
-#if BITPIT_ENABLE_MPI==1
+
+#if MIMMO_ENABLE_MPI==1
     }
 
     MPI_Finalize();
@@ -282,5 +282,3 @@ int main(int argc, char *argv[]) {
 
     return (1);
 }
-
-
