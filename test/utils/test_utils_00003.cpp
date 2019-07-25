@@ -70,7 +70,7 @@ int test3() {
 
     std::cout<<"AABB volume: "<<span2[0]*span2[1]*span2[2]<<std::endl;
     std::cout<<"OBB volume:  "<<span1[0]*span1[1]*span1[2]<<std::endl;
-    
+
     std::cout<<"test passed "<<std::endl;
     return 0;
 }
@@ -82,10 +82,8 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 
         int val = 1;
@@ -98,10 +96,8 @@ int main( int argc, char *argv[] ) {
             std::cout<<"test_utils_00003 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return val;

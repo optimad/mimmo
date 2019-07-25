@@ -252,7 +252,7 @@ int test1() {
 
     std::cout<<values3D.at(targetNode)<<std::endl;
 
-    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.210385, -0.0601262, 2.15488e-15}})) > 1.0E-5);
+    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
 
 
     delete prop3D;
@@ -266,19 +266,15 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
 
         int val = test1() ;
 
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return val;

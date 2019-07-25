@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -33,7 +33,7 @@ using namespace mimmo;
 // =================================================================================== //
 
 int test1() {
-	
+
 	std::cout<<"Waiting for a proper test. I do nothing for now"<<std::endl;
     return 0;
 }
@@ -44,21 +44,17 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
-#endif
-		/**<Calling mimmo Test routines*/
+    #if MIMMO_ENABLE_MPI
+    	MPI_Init(&argc, &argv);
+    #endif
+    		/**<Calling mimmo Test routines*/
 
-        int val = test1() ;
+            int val = test1() ;
 
-#if ENABLE_MPI==1
-	}
+    #if MIMMO_ENABLE_MPI
+    	MPI_Finalize();
+    #endif
 
-	MPI::Finalize();
-#endif
-	
 	return val;
 }

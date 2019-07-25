@@ -216,19 +216,15 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
 
         int val = test1() ;
 
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return val;

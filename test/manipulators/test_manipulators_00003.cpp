@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -32,21 +32,21 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Testing Global Manipulators-> Rotation and Scaling 
+ * Testing Global Manipulators-> Rotation and Scaling
  */
 
 int test3() {
-    
+
     //create a mimmoobject containing a single triangle.
     MimmoObject * mesh = new MimmoObject(1);
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
-    
+
     p[1][0] = 1.0;
     p[2][1] = 1.0;
     conn[1] = 1;
     conn[2] = 2;
-    
+
     int counter = 0;
     for(auto &val: p){
         mesh->addVertex(val, counter);
@@ -54,32 +54,32 @@ int test3() {
     }
     mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
 //     mesh->getPatch()->write("undeformed");
-    
+
     //recover normal of the triangle, and area;
     darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     darray3E bbmin, bbmax;
     mesh->getBoundingBox(bbmin, bbmax);
-    
+
     darray3E origin = 0.5*(bbmin + bbmax);
     darray3E span   = bbmax - bbmin;
     for(auto & val : span){
         if (val<1.e-18) val = 2.E-03;
     }
     double zdispl = 0.5*span[0]*std::tan(M_PI/3.0);
-    
+
     dvecarr3E displ(8,{{0.0,0.0,0.0}});
-    
+
     displ[0][2] = -1.0*zdispl;
     displ[1][2] = -1.0*zdispl;
     displ[4][2] = -1.0*zdispl;
     displ[5][2] = -1.0*zdispl;
-    
+
     displ[2][2] = zdispl;
     displ[3][2] = zdispl;
     displ[6][2] = zdispl;
     displ[7][2] = zdispl;
-    
-    
+
+
     FFDLattice * latt = new FFDLattice();
     latt->setGeometry(mesh);
     latt->setShape(mimmo::ShapeType::CUBE);
@@ -89,7 +89,7 @@ int test3() {
     latt->setDisplacements(displ);
 //     latt->setPlotInExecution(true);
     latt->exec();
-    
+
     Apply * applier = new Apply();
     applier->setGeometry(mesh);
     applier->setInput(latt->getDeformation());
@@ -98,14 +98,14 @@ int test3() {
 //     mesh->getPatch()->write("deformed");
     //recover normal of the triangle rotated, and area of the scaled;
     darray3E normal2 = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
-    
+
     //check phase
     bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.E-18);
-    
+
     delete mesh;
     delete latt;
     delete applier;
-    
+
     std::cout<<"test passed: "<<check<<std::endl;
     return int(!check);
 }
@@ -116,28 +116,24 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         int val =1;
         try{
             val = test3() ;
         }
-        
+
         catch(std::exception & e){
             std::cout<<"test_manipulators_00003 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
-        }        
+        }
 
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

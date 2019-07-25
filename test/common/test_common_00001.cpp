@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -33,11 +33,11 @@ class BaseClass {
 protected:
 	std::string m_member;
 public:
-	
+
 	BaseClass(){m_member="None";};
 	virtual ~BaseClass(){};
 	virtual std::string whoAmI() = 0;
-	
+
 };
 
 class DerivedClass:public BaseClass {
@@ -55,11 +55,11 @@ REGISTER(BaseClass, DerivedClass, "DerivedObject");
 // =================================================================================== //
 
 int test1() {
-	
-	
+
+
 	auto & factory = Factory<BaseClass>::instance();
 	std::string name = "DerivedObject";
-	
+
 	if(factory.containsCreator(name)){
 		std::cout<<"Found instantiable object "<<name<<std::endl;
 		std::unique_ptr<BaseClass> obj(factory.create(name, config::root));
@@ -68,10 +68,10 @@ int test1() {
 			return 0;
 		}else{
 			std::cout<<"Instantition of object "<<name<<" failed."<<std::endl;
-		}	
+		}
 	}else{
 		std::cout<<"NOT Found instantiable object "<<name<<std::endl;
-		
+
 	}
     return 1;
 }
@@ -82,11 +82,9 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         int val = 1;
@@ -97,11 +95,9 @@ int main( int argc, char *argv[] ) {
             std::cout<<"test_common_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

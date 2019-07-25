@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -45,25 +45,25 @@ int test3_1() {
     livector1D conn(3,0);
     conn[1] = 1;
     conn[2] = 2;
-    
+
     obj->addVertex(pp[0],0);
     obj->addVertex(pp[1],1);
     obj->addVertex(pp[2],2);
     obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
-    
+
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);
-    
+
     sca->setGeometry(obj);
     sca->setId(34);
     sca->setMode(ExtractMode::MAPPING);
     sca->setTolerance(1.2345E-4);
     sca->setField(ciccio);
-        
+
     ExtractScalarField *scaCC = new ExtractScalarField(*sca);
     ExtractScalarField *scaAO = new ExtractScalarField();
     *scaAO = *sca;
-    
+
     auto fCC = scaCC->getOriginalField();
 
     std::cout<<scaCC->getGeometry()<<'\t'<<obj<<std::endl;
@@ -71,7 +71,7 @@ int test3_1() {
     std::cout<<(int)scaCC->getMode()<<'\t'<<(int)sca->getMode()<<std::endl;
     std::cout<<scaCC->getTolerance()<<'\t'<<sca->getTolerance()<<std::endl;
     std::cout<<fCC.exists(23)<<std::endl;
-    
+
     bool check= true;
     //verify copy constructor result content
     check = check && (scaCC->getGeometry() == obj);
@@ -96,7 +96,7 @@ int test3_1() {
     check = check && (scaAO->getTolerance() == sca->getTolerance());
     auto fAO = scaAO->getOriginalField();
     check = check  && (fAO.exists(23));
-    
+
     if(!check){
         delete sca;
         delete scaCC;
@@ -105,20 +105,20 @@ int test3_1() {
         std::cout<<"Failing assignment of geohandlers ExtractFields"<<std::endl;
         return 1;
     }
-    std::cout<<"test 1 passed :"<<check<<std::endl; 
-    
+    std::cout<<"test 1 passed :"<<check<<std::endl;
+
     delete sca;
     delete scaCC;
     delete scaAO;
     delete obj;
-    
+
     return 0;
 }
 
 int test3_2() {
-    
+
     SelectionByBoxWithScalar * sca = new SelectionByBoxWithScalar();
-    
+
     MimmoObject * obj = new MimmoObject();
     dvecarr3E pp(3,{{0,0,0}});
     pp[0][0] =1;
@@ -127,40 +127,40 @@ int test3_2() {
     livector1D conn(3,0);
     conn[1] = 1;
     conn[2] = 2;
-    
+
     obj->addVertex(pp[0],0);
     obj->addVertex(pp[1],1);
     obj->addVertex(pp[2],2);
     obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
-    
+
     dmpvector1D ciccio;
     ciccio.insert(23,-12.456767);
-    
+
     sca->setGeometry(obj);
     sca->setOrigin({{1,2,3}});
     sca->setDual(true);
     sca->setField(ciccio);
-    
+
     SelectionByBoxWithScalar *scaCC = new SelectionByBoxWithScalar(*sca);
     SelectionByBoxWithScalar *scaAO = new SelectionByBoxWithScalar();
     *scaAO = *sca;
-    
+
     bool check= true;
-    
+
     auto fCC = scaCC->getField();
-    
+
         std::cout<<scaCC->getGeometry()<<'\t'<<obj<<std::endl;
         std::cout<<scaCC->getOrigin()<<'\t'<<sca->getOrigin()<<std::endl;
         std::cout<<scaCC->isDual()<<std::endl;
         std::cout<<fCC.exists(23)<<std::endl;
-    
+
     //verify copy constructor result content
     check = check && (scaCC->getGeometry() == obj);
     check = check && (scaCC->getOrigin() == sca->getOrigin());
     check = check && (scaCC->isDual());
-    
+
     check = check  && (fCC.exists(23));
-    
+
     if(!check){
         delete sca;
         delete scaCC;
@@ -169,22 +169,22 @@ int test3_2() {
         std::cout<<"Failing copy construction of geohandlers SelectionByBoxWithScalar"<<std::endl;
         return 1;
     }
-    
+
 
     auto fAO = scaAO->getField();
-    
+
 //     std::cout<<scaAO->getGeometry()<<'\t'<<obj<<std::endl;
 //     std::cout<<scaAO->getOrigin()<<'\t'<<sca->getOrigin()<<std::endl;
 //     std::cout<<scaAO->isDual()<<std::endl;
 //     std::cout<<fAO.exists(23)<<std::endl;
-    
+
     //verify copy constructor result content
     check = check && (scaAO->getGeometry() == obj);
     check = check && (scaAO->getOrigin() == sca->getOrigin());
     check = check && (scaAO->isDual());
-    
+
     check = check  && (fAO.exists(23));
-    
+
     if(!check){
         delete sca;
         delete scaCC;
@@ -193,13 +193,13 @@ int test3_2() {
         std::cout<<"Failing assignment of geohandlers SelectionByBoxWithScalar"<<std::endl;
         return 1;
     }
-    std::cout<<"test 2 passed :"<<check<<std::endl; 
-    
+    std::cout<<"test 2 passed :"<<check<<std::endl;
+
     delete sca;
     delete scaCC;
     delete scaAO;
     delete obj;
-    
+
     return 0;
 }
 
@@ -210,14 +210,12 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
         int val = 1;
-        
+
 		/**<Calling mimmo Test routines*/
         try{
             val = test3_1();
@@ -227,11 +225,9 @@ int main( int argc, char *argv[] ) {
             std::cout<<"test_geohandlers_00003 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

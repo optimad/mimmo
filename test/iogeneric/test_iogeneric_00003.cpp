@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -35,19 +35,19 @@ using namespace mimmo;
  * Reading a generic input from file with GenericDispls
  */
 int test3() {
-	
+
     GenericDispls * ginput = new GenericDispls();
     ginput->setReadDir("input");
     ginput->setReadFilename("generic_displ_00001.txt");
     ginput->exec();
-    
+
     auto result = ginput->getLabels();
-    
+
     bool check = (result.size() == 2);
     check = check && (result[0] == 12 && result[1]==21);
 
     std::cout<<"test passed :"<<check<<std::endl;
-    
+
     delete ginput;
     return int(!check);
 }
@@ -58,28 +58,24 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         int val =1;
         try{
             val = test3() ;
         }
-        
+
         catch(std::exception & e){
             std::cout<<"test_iogeneric_00003 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

@@ -90,7 +90,7 @@ int test2() {
     check = check && (reader2->getGeometry()->getNVertices() == 52);
 
     reader2->getGeometry()->getPatch()->write("volume");
-    
+
     delete reader1;
     delete reader2;
     return int(!check);
@@ -104,25 +104,21 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
-        int val = 1;
-        try{
-            /**<Calling mimmo Test routines*/
-            val = test1() ;
-            val = std::max(val,test2());
-        }
-        catch(std::exception & e){
-            std::cout<<"test_iogeneric_00001 exited with an error of type : "<<e.what()<<std::endl;
-            return 1;
-        }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+    int val = 1;
+    try{
+        /**<Calling mimmo Test routines*/
+        val = test1() ;
+        val = std::max(val,test2());
+    }
+    catch(std::exception & e){
+        std::cout<<"test_iogeneric_00001 exited with an error of type : "<<e.what()<<std::endl;
+        return 1;
+    }
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return val;

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -32,32 +32,32 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Testing Global Manipulators-> Rotation and Scaling 
+ * Testing Global Manipulators-> Rotation and Scaling
  */
 
 int test1() {
-    
+
     //create a mimmoobject containing a single triangle.
     MimmoObject * mesh = new MimmoObject(1);
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
-    
+
     p[1][0] = 1.0;
     p[2][1] = 1.0;
     conn[1] = 1;
     conn[2] = 2;
-    
+
     int counter = 0;
     for(auto &val: p){
         mesh->addVertex(val, counter);
         ++counter;
     }
     mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
-    
+
     //recover normal of the triangle, and area;
     darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
-    
+
     std::unique_ptr<MimmoObject> mesh2 = mesh->clone();
 
     RotationGeometry * rot = new RotationGeometry();
@@ -65,21 +65,21 @@ int test1() {
     rot->setAxis({{0.0,0.0,0.0}},{{1.0,0.0,0.0}});
     rot->setRotation(M_PI/3.);
     rot->exec();
-    
+
     ScaleGeometry * scale = new ScaleGeometry();
     scale->setGeometry(mesh);
     scale->setScaling({{0.5,0.5,0.5}});
     scale->exec();
-    
-    
+
+
     Apply * applier = new Apply();
     applier->setGeometry(mesh);
     applier->setInput(rot->getDisplacements());
-    
+
     Apply * applier2 = new Apply();
     applier2->setGeometry(mesh2.get());
     applier2->setInput(scale->getDisplacements());
-    
+
     applier->exec();
     applier2->exec();
 
@@ -87,17 +87,17 @@ int test1() {
     //recover normal of the triangle rotated, and area of the scaled;
     darray3E normal2 = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area2     = (static_cast<SurfaceKernel * >(mesh2->getPatch()))->evalCellArea(0);
-    
-    
+
+
     //check phase
     bool check = true;
-    
+
     check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.e-18);
     check = check && ( (std::abs(area/area2) - 4.0) <= 1.e-18);
-    
+
 //     mesh->getPatch()->write("rotated");
 //     mesh2->getPatch()->write("scaled");
-    
+
     delete mesh;
     delete rot;
     delete scale;
@@ -113,11 +113,9 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
         int val = 1;
@@ -128,11 +126,9 @@ int main( int argc, char *argv[] ) {
             std::cout<<"test_manipulators_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

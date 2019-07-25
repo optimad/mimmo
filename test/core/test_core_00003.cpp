@@ -211,24 +211,23 @@ int main( int argc, char *argv[] ) {
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
 
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
-
-	{
+#if MIMMO_ENABLE_MPI
+        MPI_Init(&argc, &argv);
 #endif
-        int val = 1;
-        /**<Calling mimmo Test routines*/
-        try{
-            val = test3() ;
-        }
-        catch(std::exception & e){
-            std::cout<<"test_core_00003 exited with an error of type : "<<e.what()<<std::endl;
-            return 1;
-        }
-#if ENABLE_MPI==1
-	}
 
-	MPI::Finalize();
+    int val = 1;
+
+    /**<Calling mimmo Test routines*/
+    try{
+        val = test3() ;
+    }
+    catch(std::exception & e){
+        std::cout<<"test_core_00003 exited with an error of type : "<<e.what()<<std::endl;
+        return 1;
+    }
+
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
 
 	return val;

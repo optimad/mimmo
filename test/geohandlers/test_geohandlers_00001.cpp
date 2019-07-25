@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -32,15 +32,15 @@ using namespace mimmo;
 
 // =================================================================================== //
 /*!
- * Testing geohandlers module. Stitching geometries, Splitting and Overlapping fields defined on them 
+ * Testing geohandlers module. Stitching geometries, Splitting and Overlapping fields defined on them
  */
 int test1() {
-	
+
     //define 3 single triangle mesh
     MimmoObject * m1 = new MimmoObject(1);
     MimmoObject * m2 = new MimmoObject(1);
     MimmoObject * m3 = new MimmoObject(1);
-    
+
     dvecarr3E points(5, {{0.0,0.0,0.0}});
     points[1] = {{1.0,0.0,0.0}};
     points[2] = {{2.0,0.0,0.0}};
@@ -48,41 +48,41 @@ int test1() {
     points[4] = {{1.5,1.0,0.0}};
 
     livector1D conn(3, 0);
-    
+
     m1->addVertex(points[0],0);
     m1->addVertex(points[1],1);
     m1->addVertex(points[3],3);
     conn[0] = 0; conn[1] = 1; conn[2] = 3;
-    m1->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 12, 4);
-    
+    m1->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, long(12), long(4));
+
     m2->addVertex(points[1],1);
     m2->addVertex(points[3],3);
     m2->addVertex(points[4],4);
     conn[0] = 1; conn[1] = 4; conn[2] = 3;
-    m2->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 21, 9);
-    
-    
+    m2->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, long(21), long(9));
+
+
     m3->addVertex(points[1],1);
     m3->addVertex(points[2],2);
     m3->addVertex(points[4],4);
     conn[0] = 1; conn[1] = 2; conn[2] = 4;
-    m3->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 44, 12);
+    m3->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, long(44), long(12));
 
 
     //stitch geometries
     StitchGeometry * stitch1 = new StitchGeometry(1);
     stitch1->forceRePID(true);
     StitchGeometry * stitch2 = new StitchGeometry(1);
-    
+
     stitch1->addGeometry(m1);
     stitch1->addGeometry(m2);
-    
+
     stitch2->addGeometry(m2);
     stitch2->addGeometry(m3);
-    
+
     stitch1->exec();
     stitch2->exec();
-    
+
     if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2){
         delete m1;
         delete m2;
@@ -90,24 +90,24 @@ int test1() {
         delete stitch1;
         delete stitch2;
         return 1;
-   }	
+   }
 
     bool check = true;
-    
-    std::cout<<"test passed :"<<check<<std::endl; 
+
+    std::cout<<"test passed :"<<check<<std::endl;
     m1->getPatch()->write("t1");
     m2->getPatch()->write("t2");
     m3->getPatch()->write("t3");
-    
+
     stitch1->getGeometry()->getPatch()->write("mesh1");
     stitch2->getGeometry()->getPatch()->write("mesh2");
-    
+
     delete m1;
     delete m2;
     delete m3;
     delete stitch1;
     delete stitch2;
-    
+
     return int(!check);
 }
 
@@ -117,11 +117,9 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-	
-#if ENABLE_MPI==1
-	MPI::Init(argc, argv);
 
-	{
+#if MIMMO_ENABLE_MPI
+	MPI_Init(&argc, &argv);
 #endif
         int val = 1;
 		try{
@@ -132,11 +130,9 @@ int main( int argc, char *argv[] ) {
             std::cout<<"test_geohandlers_00001 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-#if ENABLE_MPI==1
-	}
-
-	MPI::Finalize();
+#if MIMMO_ENABLE_MPI
+	MPI_Finalize();
 #endif
-	
+
 	return val;
 }
