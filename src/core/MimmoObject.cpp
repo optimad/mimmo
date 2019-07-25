@@ -404,20 +404,8 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 
-	//check if adjacencies and interfaces are built.
-	{
-		long free = 0, facesCount=0;
-		for(const auto & cell : getPatch()->getCells()){
-			const long * adj = cell.getAdjacencies();
-			for(int i=0; i<cell.getAdjacencyCount(); ++i){
-				free += long(adj[i] == bitpit::Cell::NULL_ID);
-				facesCount++;
-			}
-		}
-		m_AdjBuilt = (free < facesCount);
-	}
-
-	m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
+    m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	m_IntBuilt = geometry->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 
 	//recover cell PID
 	for(const auto &cell : getPatch()->getCells()){
@@ -532,20 +520,9 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 
-	//check if adjacencies and interfaces are built.
-	{
-		long free = 0, facesCount=0;
-		for(const auto & cell : getPatch()->getCells()){
-			const long * adj = cell.getAdjacencies();
-			for(int i=0; i<cell.getAdjacencyCount(); ++i){
-				free += long(adj[i] == bitpit::Cell::NULL_ID);
-				facesCount++;
-			}
-		}
-		m_AdjBuilt = (free < facesCount);
-	}
-
-	m_IntBuilt = (getPatch()->getInterfaces().size() > 0);
+	//check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
+    m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	m_IntBuilt = geometry->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 
 	//recover cell PID
 	for(const auto &cell : getPatch()->getCells()){
@@ -2109,6 +2086,8 @@ MimmoObject::addCell(bitpit::Cell & cell, int rank){
  * If unique-id is specified for the cell, assign it, otherwise provide itself
  * to get a unique-id for the added cell. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
+ * PAY ATTENTION if the cell have adjacencies and interfaces built, they are not copied
+ * to not mess with local PatchKernel and MimmoObject Adjacencies and Interfaces syncronization. 
  *
  * FOR MPI version: the method add cell with the custom rank provided. If rank < 0, use local m_rank of MimmoObject.
  *
@@ -2124,23 +2103,36 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank){
 #endif
 
     if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return false;
-
-    cell.resetAdjacencies();
     auto patch = getPatch();
 
+    //patchkernel methods addCell(const & Cell... ) copy everything from the target cell, adjacencies and interfaces included.
+    //and move them into the new patch.
+    // But pay attention  these information are useless for you, since you considered interfaces and
+    // adjacencies invalidated every time you add a cell.
+    //So practically keep using an add cell method passing connectivity, type, PID and rank.
+
+    int connectSize = cell.getConnectSize();
+    long *conn = cell.getConnect();
+    std::unique_ptr<long[]> connectStorage = std::unique_ptr<long[]>(new long[connectSize]);
+    std::copy(conn, conn+connectSize, connectStorage.get());
+    bitpit::PatchKernel::CellIterator itcell;
 #if MIMMO_ENABLE_MPI==1
     if(rank < 0)    rank = m_rank;
-    patch->addCell(cell, rank, idtag);
+    itcell = patch->addCell(cell.getType(), std::move(connectStorage), rank, idtag);
 #else
-    patch->addCell(cell, idtag);
+    itcell = patch->addCell(cell.getType(), std::move(connectStorage), idtag);
 #endif
 
-    m_pidsType.insert(cell.getPID());
-    m_pidsTypeWNames.insert(std::make_pair( cell.getPID(), "") );
+    long checkedID = itcell->getId();
+
+    setPIDCell(checkedID, cell.getPID());
 
     m_skdTreeSync = false;
     m_kdTreeSync = false;
 	m_infoSync = false;
+    m_AdjBuilt = false;
+    m_IntBuilt = false;
+
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
@@ -2789,6 +2781,12 @@ void MimmoObject::buildPatchInfo(){
  * \return true if local adjacencies are built.
  */
 bool MimmoObject::areAdjacenciesBuilt(){
+
+    //check if you are synchronized with patch
+    bool patchAdjBuilt = getPatch()->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+    if(m_AdjBuilt != patchAdjBuilt ){
+        m_AdjBuilt = patchAdjBuilt;
+    }
     return  m_AdjBuilt;
 };
 
@@ -2798,6 +2796,12 @@ bool MimmoObject::areAdjacenciesBuilt(){
 
  */
 bool MimmoObject::areInterfacesBuilt(){
+    //check if you are synchronized with patch
+    bool patchIntBuilt = getPatch()->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
+    if(m_IntBuilt != patchIntBuilt ){
+        m_IntBuilt = patchIntBuilt;
+    }
+
     return  m_IntBuilt;
 };
 
@@ -2923,9 +2927,8 @@ void MimmoObject::buildInterfaces(){
  */
 void MimmoObject::resetAdjacencies(){
 	if(m_type !=3){
-		for (bitpit::Cell & cell : getPatch()->getCells()){
-			cell.deleteAdjacencies();
-		}
+        //do not use delete from bitpit::CELL!!!! PatchKernel does not track them.
+        getPatch()->clearAdjacencies();
 		m_AdjBuilt = false;
 	}
 };
@@ -2935,7 +2938,7 @@ void MimmoObject::resetAdjacencies(){
  */
 void MimmoObject::resetInterfaces(){
 	if(m_type !=3){
-		getPatch()->resetInterfaces();
+		getPatch()->clearInterfaces(); // is the same as getPatch()->resetInterfaces
 		m_IntBuilt = false;
 	}
 };
