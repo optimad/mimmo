@@ -388,14 +388,9 @@ CreateSeedsOnSurface::solve(bool debug){
             break;
 
         case CSeedSurf::LEVELSET :
-#if MIMMO_ENABLE_MPI==0
-            //TODO Lset strategy not available in MPI. You need to implement a method of
-            // calculation of LS suitable for distributed archs.
             solveLSet(debug);
-#else
-            (*m_log)<<"WARNING "<<m_name<<" : LevelSet option not yet available in MPI version"<<std::endl;
-#endif
             break;
+
         case CSeedSurf::CARTESIANGRID :
             solveGrid(debug);
             break;
@@ -406,10 +401,6 @@ CreateSeedsOnSurface::solve(bool debug){
     }
 
 
-#if MIMMO_ENABLE_MPI
-    //create a rendez vous point for all procs.
-    MPI_Barrier(m_communicator);
-#endif
 
 };
 
@@ -421,6 +412,15 @@ CreateSeedsOnSurface::solve(bool debug){
  */
 void
 CreateSeedsOnSurface::solveLSet(bool debug){
+
+#if MIMMO_ENABLE_MPI
+    if(m_nprocs > 1){
+       //TODO Lset strategy not available in MPI. You need to implement a method of
+      // calculation of LS suitable for distributed archs.
+        (*m_log)<<"WARNING "<<m_name<<" : LevelSet option not yet available in MPI version with proc > 1"<<std::endl;
+        return;
+    }
+#endif
 
     if(debug)    (*m_log)<<m_name<<" : started LevelSet engine"<<std::endl;
     dvecarr3E initList;

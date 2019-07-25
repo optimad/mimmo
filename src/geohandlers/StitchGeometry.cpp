@@ -198,13 +198,15 @@ StitchGeometry::execute(){
 
     std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
 #if MIMMO_ENABLE_MPI
-    //TODO you need a strategy to stitch together partioned mesh, keeping a unique id
-    //throughout cells and ids. For example, communicate the number of Global cells and Global verts
-    //(or min/max ids) of each patch to all communicators, and using them to organize offsets
-    //for safe inserting elements.
-    (*m_log)<<"WARNING "<< m_name<<" : stitching not available yet for MPI version"<<std::endl;
-    m_patch = std::move(dum);
-    return;
+    if(m_nprocs > 1){
+        //TODO you need a strategy to stitch together partioned mesh, keeping a unique id
+        //throughout cells and ids. For example, communicate the number of Global cells and Global verts
+        //(or min/max ids) of each patch to all communicators, and using them to organize offsets
+        //for safe inserting elements.
+        (*m_log)<<"WARNING "<< m_name<<" : stitching not available yet for MPI version with procs > 1"<<std::endl;
+        m_patch = std::move(dum);
+        return;
+    }
 #endif
 
     long nCells = 0;
