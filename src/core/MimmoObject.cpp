@@ -521,8 +521,8 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_kdTreeSync = false;
 
 	//check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
-    m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
-	m_IntBuilt = geometry->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
+    m_AdjBuilt = m_patch->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	m_IntBuilt = m_patch->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 
 	//recover cell PID
 	for(const auto &cell : getPatch()->getCells()){
@@ -2087,7 +2087,7 @@ MimmoObject::addCell(bitpit::Cell & cell, int rank){
  * to get a unique-id for the added cell. The latter option is the default.
  * If the unique-id is already assigned, return with unsuccessful insertion.
  * PAY ATTENTION if the cell have adjacencies and interfaces built, they are not copied
- * to not mess with local PatchKernel and MimmoObject Adjacencies and Interfaces syncronization. 
+ * to not mess with local PatchKernel and MimmoObject Adjacencies and Interfaces syncronization.
  *
  * FOR MPI version: the method add cell with the custom rank provided. If rank < 0, use local m_rank of MimmoObject.
  *
