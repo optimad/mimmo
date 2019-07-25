@@ -54,6 +54,16 @@ foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
 endforeach ()
 
 if(BUILD_EXAMPLES)
+    isModuleEnabled("geohandlers" MODULE_GEOHANDLERS_ENABLED)
+    isModuleEnabled("utils" MODULE_UTILS_ENABLED)
+    isModuleEnabled("propagators" MODULE_PROPAGATORS_ENABLED)
+    isModuleEnabled("parallel" MODULE_PARALLEL_ENABLED)
+    isModuleEnabled("iovkt" MODULE_IOVTK_ENABLED)
+    isModuleEnabled("ioofoam" MODULE_IOOFOAM_ENABLED)
+    isModuleEnabled("iocgns" MODULE_IOCGNS_ENABLED)
+
+
+
 	# List of examples
 	set(EXAMPLE_LIST "")
     list(APPEND EXAMPLE_LIST "core_example_00001")
@@ -64,53 +74,49 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "manipulators_example_00005")
     list(APPEND EXAMPLE_LIST "genericinput_example_00001")
 
+    #0
     #Add examples of enabled modules
-    isModuleEnabled("geohandlers" MODULE_ENABLED0)
-    if (MODULE_ENABLED0)
-    list(APPEND EXAMPLE_LIST "geohandlers_example_00000")
-    list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
-    list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
-    list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
+    if (MODULE_GEOHANDLERS_ENABLED)
+        list(APPEND EXAMPLE_LIST "geohandlers_example_00000")
+        list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
+        list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
+        list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
     endif ()
 
-    #Add examples of enabled modules
-    isModuleEnabled("iocgns" MODULE_ENABLED1)
-    if (MODULE_ENABLED1 AND MODULE_ENABLED0)
-        list(APPEND EXAMPLE_LIST "iocgns_example_00001")
-    endif ()
-
-    #Add examples of enabled modules
-    isModuleEnabled("iovtk" MODULE_ENABLED2)
-    if (MODULE_ENABLED2)
-        list(APPEND EXAMPLE_LIST "iovtk_example_00001")
-    endif ()
-
-    #Add examples of enabled modules
-    isModuleEnabled("utils" MODULE_ENABLED4)
-    if (MODULE_ENABLED4)
+    #4
+    if (MODULE_UTILS_ENABLED)
         list(APPEND EXAMPLE_LIST "manipulators_example_00006")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
         list(APPEND EXAMPLE_LIST "utils_example_00002")
     endif ()
 
-    #Add examples of enabled modules
-    isModuleEnabled("ioofoam" MODULE_ENABLED5)
-    if (MODULE_ENABLED5)
+    #1
+    if (MODULE_IOCGNS_ENABLED AND MODULE_GEOHANDLERS_ENABLED AND MODULE_PROPAGATORS_ENABLED)
+        list(APPEND EXAMPLE_LIST "iocgns_example_00001")
+    endif ()
+    if (MODULE_IOCGNS_ENABLED AND MODULE_UTILS_ENABLED)
+        list(APPEND EXAMPLE_LIST "iocgns_example_00002")
+    endif ()
+
+    #2
+    if (MODULE_IOVTK_ENABLED)
+        list(APPEND EXAMPLE_LIST "iovtk_example_00001")
+    endif ()
+
+
+    #5
+    if (MODULE_IOOFOAM_ENABLED)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
     endif ()
 
-    #Add examples of enabled modules
-    isModuleEnabled("propagators" MODULE_ENABLED6)
-
     if (ENABLE_MPI)
-        isModuleEnabled("parallel" MODULE_ENABLED7)
-        if (MODULE_ENABLED7 AND MODULE_ENABLED1)
+        if (MODULE_PARALLEL_ENABLED AND MODULE_IOCGNS_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00001")
         endif()
-        if (MODULE_ENABLED7)
+        if (MODULE_PARALLEL_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00002")
         endif()
-        if (MODULE_ENABLED7 AND MODULE_ENABLED6)
+        if (MODULE_PARALLEL_ENABLED AND MODULE_PROPAGATORS_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00003")
             list(APPEND EXAMPLE_LIST "parallel_example_00004")
         endif ()
@@ -156,35 +162,60 @@ if(BUILD_EXAMPLES)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/spherepc.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherepc.vtu"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005.txt"
     )
-    if (MODULE_ENABLED4)
+
+    list(FIND EXAMPLE_LIST "manipulators_example_00006" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "manipulators_example_00006" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         )
+    endif()
+
+    list(FIND EXAMPLE_LIST "utils_example_00001" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "utils_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/mixedP2D.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/mixedP2D.vtu"
         )
+    endif()
+
+    list(FIND EXAMPLE_LIST "utils_example_00002" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "utils_example_00002" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/openBox.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/openBox.stl"
         )
     endif()
-    if (MODULE_ENABLED0)
+
+
+    list(FIND EXAMPLE_LIST "geohandlers_example_00000" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "geohandlers_example_00000" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane3.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane3.stl"
         )
-        add_custom_command(
+    endif()
+
+    list(FIND EXAMPLE_LIST "geohandlers_example_00001" _index)
+    if ( ${_index} GREATER -1)
+            add_custom_command(
             TARGET "geohandlers_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         )
+    endif()
+
+    list(FIND EXAMPLE_LIST "geohandlers_example_00002" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "geohandlers_example_00002" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
         )
+    endif()
+
+    list(FIND EXAMPLE_LIST "geohandlers_example_00003" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "geohandlers_example_00003" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
@@ -193,35 +224,53 @@ if(BUILD_EXAMPLES)
         )
     endif()
 
+    list(FIND EXAMPLE_LIST "genericinput_example_00001" _index)
+    if ( ${_index} GREATER -1)
     add_custom_command(
         TARGET "genericinput_example_00001" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
     )
-    if (MODULE_ENABLED1)
+    endif()
+
+    list(FIND EXAMPLE_LIST "iocgns_example_00001" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "iocgns_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/grid.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/grid.cgns"
         )
     endif()
-    if (MODULE_ENABLED2)
+
+    list(FIND EXAMPLE_LIST "iocgns_example_00002" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "iocgns_example_00002" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/grid.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/grid.cgns"
+        )
+    endif()
+
+    list(FIND EXAMPLE_LIST "iovtk_example_00001" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "iovtk_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/iovtk.vtk" "${CMAKE_CURRENT_BINARY_DIR}/geodata/iovtk.vtk"
         )
     endif()
-    if (MODULE_ENABLED3)
+
+    list(FIND EXAMPLE_LIST "ioofoam_example_00001" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "ioofoam_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/OFOAM" "${CMAKE_CURRENT_BINARY_DIR}/geodata/OFOAM"
         )
     endif()
-    if (MODULE_ENABLED7 AND MODULE_ENABLED1)
+
+    list(FIND EXAMPLE_LIST "parallel_example_00001" _index)
+    if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "parallel_example_00001" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/StaticMixer.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StaticMixer.cgns"
         )
     endif()
-
 
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../input" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../geodata" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
