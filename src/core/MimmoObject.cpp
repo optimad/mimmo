@@ -3413,9 +3413,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
                 result.insert(id, distance);
             }
         }
-    }
-    // if no seed list is given or none of the seed are into the maxdist search for a seed.
-    if(result.empty()){
+    }else{
         //find all the unconnected patches composing surfaces.
         livector2D loops = surface.decomposeLoop();
         //ping a seed on each subpatch
@@ -3445,7 +3443,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     // if no seed is found exit.
     if(result.empty()){
-        //impossible to find a seed;
+        //impossible to find a valid seed;
         return result;
     }
 
