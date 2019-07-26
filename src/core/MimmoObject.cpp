@@ -2229,11 +2229,17 @@ MimmoObject::resyncPID(){
 	m_pidsType.clear();
 	std::unordered_map<long, std::string> copynames = m_pidsTypeWNames;
 	m_pidsTypeWNames.clear();
-	for(auto const & cell : getCells()){
+	for(const bitpit::Cell & cell : getCells()){
 		m_pidsType.insert( (long)cell.getPID() );
 	}
+    std::string work;
 	for(const auto & pid : m_pidsType){
-        if (copynames.count(pid) > 0)   m_pidsTypeWNames.insert(std::make_pair( pid, copynames[pid]));
+        if (copynames.count(pid) > 0){
+            work =  copynames[pid];
+        }else{
+            work = "";
+        }
+        m_pidsTypeWNames.insert(std::make_pair( pid, work));
 	}
 };
 
@@ -3049,7 +3055,7 @@ void MimmoObject::reset(int type){
 	}
 
 	m_internalPatch = true;
-	m_extpatch = NULL;
+	m_extpatch = nullptr;
 
 	m_skdTreeSupported = (m_type != 3);
 	m_skdTreeSync = false;
@@ -3066,12 +3072,17 @@ void MimmoObject::reset(int type){
 
 /*!
  * Dump contents of your current MimmoObject to a stream.
- * Search trees and adjacencies will not be dumped.
+ * Dump all strict necessary information except for search tree structure,
+ * Point ghost exchange info and point connectivity are recreated when restores.
  * Write all in a binary format.
  * \param[in,out] stream to write on.
  */
 void MimmoObject::dump(std::ostream & stream){
-	auto mapPid = getPIDTypeListWNames();
+
+    //scan pids inside your patch to be sure everything it's in order.
+    resyncPID();
+    //reverse pid and pidnames in vector structures.
+    auto mapPid = getPIDTypeListWNames() ;
 	std::vector<long> pid(mapPid.size());
 	std::vector<std::string> sspid(mapPid.size());
 	int counter = 0;
@@ -3080,12 +3091,19 @@ void MimmoObject::dump(std::ostream & stream){
 		sspid[counter] = touple.second;
 		++counter;
 	}
-
+    //write comparison variables
 	bitpit::utils::binary::write(stream,m_type);
+#if MIMMO_ENABLE_MPI
+    bitpit::utils::binary::write(stream,m_nprocs);
+#endif
+    //write other variables
 	bitpit::utils::binary::write(stream,pid);
 	bitpit::utils::binary::write(stream,sspid);
 	bitpit::utils::binary::write(stream,m_AdjBuilt);
 	bitpit::utils::binary::write(stream,m_IntBuilt);
+    bitpit::utils::binary::write(stream,m_pointConnectivitySync);
+
+    //write the patch
 	getPatch()->dump(stream);
 }
 
@@ -3093,40 +3111,65 @@ void MimmoObject::dump(std::ostream & stream){
  * Restore contents of a dumped MimmoObject from a stream in your current class.
  * New restored data will be owned internally by the class.
  * Every data previously stored will be lost.
+ * Tree are not restored by default.
  * Read all in a binary format.
  * \param[in,out] stream to write on.
  */
 
 void MimmoObject::restore(std::istream & stream){
-	int type;
-	std::vector<long> pid;
-	std::vector<std::string> sspid;
+    //check comparisons
+    int type;
+    bitpit::utils::binary::read(stream,type);
+	if(type != m_type){
+        throw std::runtime_error("Error during MimmoObject::restore :  mesh type of contents and container does not match");
+    }
+#if MIMMO_ENABLE_MPI
+    int nprocs;
+    bitpit::utils::binary::read(stream,nprocs);
+    if(nprocs != m_nprocs){
+        throw std::runtime_error("Error during MimmoObject::restore :  uncoherent procs number between contents and container");
+    }
+#endif
 
-	bool adjbuilt, intbuilt;
+    //clean up and reset current object to ist virgin state
+    reset(m_type);
+    //absorb the other data
+    std::vector<long> pid;
+    std::vector<std::string> sspid;
+    bool connpointsync;
 
-	bitpit::utils::binary::read(stream,type);
-	bitpit::utils::binary::read(stream,pid);
-	bitpit::utils::binary::read(stream,sspid);
-	bitpit::utils::binary::read(stream,adjbuilt);
-	bitpit::utils::binary::read(stream,intbuilt);
-	reset(type);
+    bitpit::utils::binary::read(stream,pid);
+    bitpit::utils::binary::read(stream,sspid);
+    bitpit::utils::binary::read(stream,m_AdjBuilt);
+    bitpit::utils::binary::read(stream,m_IntBuilt);
+    bitpit::utils::binary::read(stream,connpointsync);
 
-	m_AdjBuilt = adjbuilt;
-	m_IntBuilt = adjbuilt;
+    getPatch()->restore(stream);
 
-	getPatch()->restore(stream);
+    //m_patchInfo has already the pointer to the patch set during reset(type)
+    //update it.
+    m_patchInfo.update();
+    m_infoSync = true;
 
+    //rebuild the point ghost exchange information.
+#if MIMMO_ENABLE_MPI
+	updatePointGhostExchangeInfo();
+#endif
+
+    //check point connectivity, if true build it, otherwise leave it as reset put it, i.e. false.
+    if(connpointsync){
+        this->buildPointConnectivity();
+    }
+
+    //uncompact and rewrite PID stuff
 	int count = 0;
-	for (const auto &pp : pid){
+	for (long pp : pid){
 		m_pidsType.insert(pp);
 		m_pidsTypeWNames.insert( std::make_pair( pp, sspid[count]));
 		++count;
 	}
 
-#if MIMMO_ENABLE_MPI
-	updatePointGhostExchangeInfo();
-#endif
-
+    //that's all folks.
 }
 
 /*!
