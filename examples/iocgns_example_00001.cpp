@@ -120,12 +120,14 @@ void example00001() {
     PropagateVectorField* prop = new PropagateVectorField();
     prop->setPlotInExecution(true);
     prop->setTolerance(1.0e-9);
-    //prop->setUpdateThreshold(1.0e-12);
-    prop->setDumping(false);
-    // prop->setDumpingInnerDistance(100);
-    // prop->setDumpingOuterDistance(3000);
+    prop->setUpdateThreshold(1.0e-12);
+    prop->setDumping(true);
+    prop->setDumpingType(0);
+    prop->setDumpingInnerDistance(0.01);
+    prop->setDumpingOuterDistance(25.0);
+    prop->setDecayFactor(3.0);
     prop->forcePlanarSlip(true);
-    //prop->setSolverMultiStep(2);
+    prop->setSolverMultiStep(1);
     /* Create propagate vector block and set to propagate over the whole
      * input volume geometry the displacements field.
      */

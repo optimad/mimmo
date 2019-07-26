@@ -59,6 +59,7 @@ void PropagateField<NCOMP>::setDefaults(){
 	this->m_forceDirichletConditions = true;
 	this->m_method = PropagatorMethod::GRAPHLAPLACE;
 	this->m_print = false;
+    this->m_originalDumpingSurface = nullptr;
 }
 
 /*!
@@ -533,6 +534,182 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
 }
 
 /*!
+ * Instantiate m_originalslipsurface, that is the surface where you need to evaluate
+ * slip conditions. In SERIAL version m_originalslipsurface is the m_slipsurface passed as boundary.
+ * In MPI version m_originalslipsurface is the whole slip surface rebuilt from every portion "m_slipsurface"
+ * owned by each rank. Once recollected the whole surface is sent as it is to all ranks.
+ * This surface needs to remain untouched and undeformed during Multistep iterations.
+ */
+template<std::size_t NCOMP>
+void PropagateField<NCOMP>::initializeDumpingSurface(){
+
+    m_originalDumpingSurface = nullptr;
+
+    if (!m_dumpingActive || m_decayFactor <= 1.E-12) {
+        return;
+    };
+
+    MimmoObject * dumptarget= m_dsurface;
+    if(m_dsurface == nullptr)  dumptarget = m_bsurface;
+
+#if MIMMO_ENABLE_MPI
+    //MPI version
+	m_originalDumpingSurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
+
+	//fill serialized geometry
+	for (bitpit::Vertex &vertex : dumptarget->getVertices()){
+		long vertexId = vertex.getId();
+		if (dumptarget->isPointInterior(vertexId)){
+			m_originalDumpingSurface->addVertex(vertex, vertexId);
+		}
+	}
+	for (bitpit::Cell &cell : dumptarget->getCells()){
+		if (cell.isInterior()){
+			m_originalDumpingSurface->addCell(cell, cell.getId());
+		}
+	}
+
+	//Receive vertices and cells
+	for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+
+		if (m_rank != sendRank){
+
+			// Vertex data
+			long vertexBufferSize;
+			MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
+
+			bitpit::IBinaryStream vertexBuffer(vertexBufferSize);
+			MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
+
+			// Cell data
+			long cellBufferSize;
+			MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
+
+			bitpit::IBinaryStream cellBuffer(cellBufferSize);
+			MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
+
+			// There are no duplicate in the received vertices, but some of them may
+			// be already a local vertex of a interface cell.
+			//TODO GENERALIZE IT
+			//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
+			long nRecvVertices;
+			vertexBuffer >> nRecvVertices;
+			m_originalDumpingSurface->getPatch()->reserveVertices(m_originalDumpingSurface->getPatch()->getVertexCount() + nRecvVertices);
+
+			// Do not add the vertices with Id already in serialized geometry
+			for (long i = 0; i < nRecvVertices; ++i) {
+				bitpit::Vertex vertex;
+				vertexBuffer >> vertex;
+				long vertexId = vertex.getId();
+
+				if (!m_originalDumpingSurface->getVertices().exists(vertexId)){
+					m_originalDumpingSurface->addVertex(vertex, vertexId);
+				}
+			}
+
+			//Receive and add all Cells
+			long nReceivedCells;
+			cellBuffer >> nReceivedCells;
+			m_originalDumpingSurface->getPatch()->reserveCells(m_originalDumpingSurface->getPatch()->getCellCount() + nReceivedCells);
+
+			for (long i = 0; i < nReceivedCells; ++i) {
+				// Cell data
+				bitpit::Cell cell;
+				cellBuffer >> cell;
+
+				long cellId = cell.getId();
+
+				// Add cell
+				m_originalDumpingSurface->addCell(cell, cellId);
+
+			}
+		}
+		else{
+
+			//Send local vertices and local cells to ranks
+
+			//
+			// Send vertex data
+			//
+			bitpit::OBinaryStream vertexBuffer;
+			long vertexBufferSize = 0;
+			long nVerticesToCommunicate = 0;
+
+			// Fill buffer with vertex data
+			vertexBufferSize += sizeof(long);
+			for (long vertexId : dumptarget->getVertices().getIds()){
+				if (dumptarget->isPointInterior(vertexId)){
+					vertexBufferSize += dumptarget->getVertices()[vertexId].getBinarySize();
+					nVerticesToCommunicate++;
+				}
+			}
+			vertexBuffer.setSize(vertexBufferSize);
+
+			vertexBuffer << nVerticesToCommunicate;
+			for (long vertexId : dumptarget->getVertices().getIds()){
+				if (dumptarget->isPointInterior(vertexId)){
+					vertexBuffer << dumptarget->getVertices()[vertexId];
+				}
+			}
+
+			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+
+				if (m_rank != recvRank){
+
+					// Communication
+					MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
+					MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
+
+				}
+			}
+
+			//
+			// Send cell data
+			//
+			bitpit::OBinaryStream cellBuffer;
+			long cellBufferSize = 0;
+			long nCellsToCommunicate = 0;
+
+			// Fill the buffer with cell data
+			cellBufferSize += sizeof(long);
+			for (const long cellId : dumptarget->getCellsIds()) {
+				if (dumptarget->getCells()[cellId].isInterior()){
+					cellBufferSize += sizeof(int) + sizeof(int) + dumptarget->getCells()[cellId].getBinarySize();
+					nCellsToCommunicate++;
+				}
+			}
+			cellBuffer.setSize(cellBufferSize);
+
+			cellBuffer << nCellsToCommunicate;
+			for (const long cellId : dumptarget->getCellsIds()) {
+				if (dumptarget->getCells()[cellId].isInterior()){
+					const bitpit::Cell &cell = dumptarget->getCells()[cellId];
+					// Cell data
+					cellBuffer << cell;
+				}
+			}
+
+			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+
+				if (m_rank != recvRank){
+					// Communication
+					MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
+					MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
+
+				}
+			}
+
+		}
+
+	}// end external sendrank loop
+#else
+    //serial version
+    m_originalDumpingSurface = dumptarget->clone();
+#endif
+
+}
+
+/*!
  * It computes the dumping function (artificial diffusivity)
  * used to modulate laplacian solution over the target mesh.
  * The dumping function is now a scalar field data on CELLS (ghost included)
@@ -543,50 +720,49 @@ void
 PropagateField<NCOMP>::computeDumpingFunction(){
 
 	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-	double dist;
-	long ID;
-
-	const double maxd(m_radius);
-	m_dumping.clear();
+    m_dumping.clear();
 	m_dumping.reserve(getGeometry()->getNCells());
 	m_dumping.setGeometry(getGeometry());
 	m_dumping.setDataLocation(MPVLocation::CELL);
 
-	for (auto it = patch_->cellBegin(); it!=patch_->cellEnd(); ++it){
+    for (auto it = patch_->cellBegin(); it!=patch_->cellEnd(); ++it){
 		m_dumping.insert(it.getId(), 1.0);
 	}
 
-	if (!m_dumpingActive || m_decayFactor <= 1.E-12) return;
+    if(!m_originalDumpingSurface.get()){
+        //this unique_ptr structure is initialized by initializeDumpingSurface
+        // if dumping is not active is set to nullptr
+        return;
+    }
 
+	double dist;
+	long ID;
+	const double maxd(m_radius);
 
-    //TODO MPI - create a unique surface of dump shared to all processor (as you do in slip)
-    //MODULATING DUMPING WITH DISTANCE
-	MimmoObject * dumptarget= m_dsurface;
-	if(m_dsurface == nullptr)  dumptarget = m_bsurface;
+    livector1D seedlist;
+    {
+    	// Initialize seeds to avoid use of skdtree in narrowband computing
+        std::unordered_set<long> seedtemp;
+    	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
+    		long id = it.getId();
+    		bitpit::Cell & cell = patch_->getCell(id);
+    		if(cell.isInterior()){
+    			for (int iface=0; iface<cell.getFaceCount(); iface++){
+    				if (cell.isFaceBorder(iface)){
+    					seedtemp.insert(id);
+    				}
+    			}
+    		}else{
+                //this cannot happen in serial, only in partitioned grids.
+                seedtemp.insert(id);
+            }
+    	}
+        seedlist.insert(seedlist.end(), seedtemp.begin(), seedtemp.end());
+    }
 
+    bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_originalDumpingSurface.get()), maxd, &seedlist);
 
-	// Initialize seeds to avoid use of skdtree in narrowband computing (//TODO currently, the skdtree doesn't work in parallel!)
-	livector1D seedlist;
-	seedlist.reserve(m_dumping.size());
-	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
-		long id = it.getId();
-		bitpit::Cell & cell = patch_->getCell(id);
-		if(cell.isInterior()){
-			for (int iface=0; iface<cell.getFaceCount(); iface++){
-				if (cell.isFaceBorder(iface)){
-					seedlist.push_back(id);
-					*it = 1.0;
-					break;
-				}
-			}
-		}
-	}
-
-
-	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*dumptarget, maxd, &seedlist);
-
-	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
-    //TODO MPI you need to communicate this value distanceMax.
+	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor); //made by class parameters, every proc has it.
 	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
 		if(*it < m_plateau){
 			(*it) = 1.0;
@@ -600,7 +776,6 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 			m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
 		}
     }else{
-
     	// Evaluating the volume part.
     	bitpit::PiercedVectorStorage<double> volFactor;
     	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
@@ -608,58 +783,36 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 
     	//evaluating cell volumes
     	double locvol;
+        std::size_t countNegativeVolumes(0);
+
     	double volmax = 0.0, volmin=1.0E18;
     	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
     		locvol = getGeometry()->evalCellVolume(it.getId());
     		if(locvol <= std::numeric_limits<float>::min()){
-    			(*m_log)<<"Warning in "<<m_name<<". Detected cells with almost zero or negative volume"<<std::endl;
-    			locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
-    		}
+                ++countNegativeVolumes;
+                locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
+            }
     		volFactor.rawAt(it.getRawIndex()) = locvol;
     		volmin = std::min(volmin,locvol);
     		volmax = std::max(volmax,locvol);
     	}
+        if(countNegativeVolumes > 0){
+            (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
+        }
 
-        //TODO MPI you need to communicate this volmax and volmin.
+
+#if MIMMO_ENABLE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &volmin, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
+        MPI_Allreduce(MPI_IN_PLACE, &volmax, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
 
     	//evaluate the volume normalized function and store it in dumping.
     	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
     		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
     	}
     }
-    	//all done if you are here, you computed also the volume part and put together all the stuffs.
-
-    //now the most difficult part: communicate data betwenn ghost cell
-#if MIMMO_ENABLE_MPI
-    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > tempDumping(new MimmoPiercedVector<std::array<double,NCOMP> >());
-    tempDumping->setGeometry(getGeometry());
-    tempDumping->setDataLocation(MPVLocation::CELL);
-    tempDumping->reserve(getGeometry()->getNCells());
-
-    bitpit::PiercedVector<bitpit::Cell> &cells = getGeometry()->getCells();
-    std::array<double, NCOMP> work;
-    livector1D listghosts;
-    listghosts.reserve(getGeometry()->getPatch()->getGhostCount());
-
-    for(auto it=m_dumping.begin(); it != m_dumping.end(); ++it){
-        bitpit::Cell & cell = cells.at(it.getId());
-        work.fill(0.0);
-        if(cell.isInterior()){
-            work[0] = *it;
-        }else{
-            listghosts.push_back(it.getId());
-        }
-        tempDumping->insert(it.getId(), work);
-    }
-    //communicate the data;
-    communicateGhostData(tempDumping.get());
-
-    for(long id : listghosts){
-        m_dumping.at(id) = tempDumping->at(id)[0];
-    }
-
-#endif
-
+    //all done if you are here, you computed also the volume part and put together all the stuffs.
+    // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
 
 }
 
@@ -672,7 +825,13 @@ PropagateField<NCOMP>::computeDumpingFunction(){
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::updateDumpingFunction(){
-	if(!m_dumpingActive) return;
+
+    if(!m_originalDumpingSurface.get()){
+        //this unique_ptr structure is initialized by initializeDumpingSurface
+        // if dumping is not active is set to nullptr
+        // leaving dumping as it is.
+        return;
+    }
 
 	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
 	double dist;
@@ -686,15 +845,12 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
 		if(*it > 1.0){
 			seedlist.push_back(it.getId());
+            //reset local value of m_dumping to 1.0.
 			*it = 1.0;
 		}
 	}
 
-	//MODULATING DUMPING WITH DISTANCE
-	MimmoObject * dumptarget= m_dsurface;
-	if(m_dsurface == nullptr)  dumptarget = m_bsurface;
-
-	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*dumptarget, maxd, &seedlist);
+	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_originalDumpingSurface.get()), maxd, &seedlist);
 	seedlist.clear();
 
 	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
@@ -710,64 +866,43 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
 			m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
 		}
-		return; //you can return.
-	}
+	}else{
+    	// Evaluating the volume part.
+    	bitpit::PiercedVectorStorage<double> volFactor;
+    	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
+    	volFactor.fill(1.0);
 
-	// Evaluating the volume part.
-	bitpit::PiercedVectorStorage<double> volFactor;
-	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-	volFactor.fill(1.0);
+    	//evaluating cell volumes
+    	double locvol;
+        std::size_t countNegativeVolumes(0);
 
-	//evaluating cell volumes
-	double locvol;
-	double volmax = 0.0, volmin=1.0E18;
-	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-		locvol = getGeometry()->evalCellVolume(it.getId());
-		if(locvol <= std::numeric_limits<float>::min()){
-			(*m_log)<<"Warning in "<<m_name<<". Detected cells with almost zero or negative volume"<<std::endl;
-			locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
-		}
-		volFactor.rawAt(it.getRawIndex()) = locvol;
-		volmin = std::min(volmin,locvol);
-		volmax = std::max(volmax,locvol);
-	}
-
-	//evaluate the volume normalized function and store it in dumping.
-	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
-	}
-	//all done if you are here, you computed also the volume part and put together all the stuffs.
-
-    //now the most difficult part: communicate data betwenn ghost cell
-#if MIMMO_ENABLE_MPI
-    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > tempDumping(new MimmoPiercedVector<std::array<double,NCOMP> >());
-    tempDumping->setGeometry(getGeometry());
-    tempDumping->setDataLocation(MPVLocation::CELL);
-    tempDumping->reserve(getGeometry()->getNCells());
-
-    bitpit::PiercedVector<bitpit::Cell> &cells = getGeometry()->getCells();
-    std::array<double, NCOMP> work;
-    livector1D listghosts;
-    listghosts.reserve(getGeometry()->getPatch()->getGhostCount());
-
-    for(auto it=m_dumping.begin(); it != m_dumping.end(); ++it){
-        bitpit::Cell & cell = cells.at(it.getId());
-        work.fill(0.0);
-        if(cell.isInterior()){
-            work[0] = *it;
-        }else{
-            listghosts.push_back(it.getId());
+    	double volmax = 0.0, volmin=1.0E18;
+    	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+    		locvol = getGeometry()->evalCellVolume(it.getId());
+    		if(locvol <= std::numeric_limits<float>::min()){
+                ++countNegativeVolumes;
+                locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
+    		}
+    		volFactor.rawAt(it.getRawIndex()) = locvol;
+    		volmin = std::min(volmin,locvol);
+    		volmax = std::max(volmax,locvol);
+    	}
+        if(countNegativeVolumes > 0){
+            (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
         }
-        tempDumping->insert(it.getId(), work);
-    }
-    //communicate the data;
-    communicateGhostData(tempDumping.get());
 
-    for(long id : listghosts){
-        m_dumping.at(id) = tempDumping->at(id)[0];
-    }
-
+#if MIMMO_ENABLE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &volmin, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
+        MPI_Allreduce(MPI_IN_PLACE, &volmax, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
 #endif
+
+    	//evaluate the volume normalized function and store it in dumping.
+    	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+    		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
+    	}
+    }
+	//all done if you are here, you computed also the volume part and put together all the stuffs.
+    // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
 }
 
 ///*!

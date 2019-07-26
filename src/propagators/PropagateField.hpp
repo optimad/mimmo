@@ -121,6 +121,7 @@ protected:
     bool	m_print;				/**<If true residuals and other info are print during system solving.*/
 
     PropagatorMethod	m_method;	/**<Solver method enum.*/
+    std::unique_ptr<MimmoObject> m_originalDumpingSurface; /**! recollect of the whole dumping surface*/
 
 #if MIMMO_ENABLE_MPI
     std::unique_ptr<GhostCommunicator> m_ghostCommunicator; 			/**<Ghost communicator object */
@@ -170,6 +171,7 @@ protected:
     virtual void distributeBCOnBoundaryPoints();
 
     // core resolution functions.
+            void initializeDumpingSurface();
     virtual void computeDumpingFunction();
     virtual void updateDumpingFunction();
     virtual void initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals);
@@ -444,6 +446,7 @@ protected:
     void restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices);
     void initializeSlipSurface();
     void initializeSlipSurfaceAsPlane();
+    void deformDumpingSurface();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)

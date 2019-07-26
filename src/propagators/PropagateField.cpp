@@ -263,8 +263,10 @@ PropagateScalarField::execute(){
 	//get this inverse map -> you will need it to compact the stencils.
 	liimap dataInv;
 
+
 	//compute the dumping.
-	computeDumpingFunction();
+    initializeDumpingSurface();
+    computeDumpingFunction();
 
 	//Switch on solver method
 	if (m_method == PropagatorMethod::FINITEVOLUMES){
@@ -674,13 +676,13 @@ void PropagateVectorField::initializeSlipSurface(){
 	m_originalslipsurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
 	//fill serialized geometry
-	for (bitpit::Vertex vertex : m_slipsurface->getVertices()){
+	for (bitpit::Vertex &vertex : m_slipsurface->getVertices()){
 		long vertexId = vertex.getId();
 		if (m_slipsurface->isPointInterior(vertexId)){
 			m_originalslipsurface->addVertex(vertex, vertexId);
 		}
 	}
-	for (bitpit::Cell cell : m_slipsurface->getCells()){
+	for (bitpit::Cell &cell : m_slipsurface->getCells()){
 		if (cell.isInterior()){
 			m_originalslipsurface->addCell(cell, cell.getId());
 		}
@@ -878,6 +880,83 @@ bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(m_slip
 
 
 /*!
+ * If dumping is active deform with value of m_field the internal dumping geometry
+ * m_originalDumpingSurface, which is a reconstruction of all dumping surfaces throughout the procs
+ * All procs has the same m_originalDumpingSurface.
+ * This method ask to all procs to recover the part of deformation field m_field referred to nodes
+ * of m_originaDumpingSurface. Procs Mutually exchange their own parts to have all of them a unique deformation field for
+ * their own m_originalDumpingSurface. Then the deformation is applied.
+ */
+void PropagateVectorField::deformDumpingSurface(){
+
+
+std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
+        mpvres(new MimmoPiercedVector<std::array<double,3> >(m_originalDumpingSurface.get(), MPVLocation::POINT) );
+
+    mpvres->reserve(m_originalDumpingSurface->getNVertices());
+
+    MimmoObject * dumptarget = m_dsurface;
+    if(!dumptarget) dumptarget = m_bsurface;
+
+    for(long id: dumptarget->getVertices().getIds()){
+#if MIMMO_ENABLE_MPI
+        if(dumptarget->isPointInterior(id))
+#endif
+        {
+            mpvres->insert(id, m_field.at(id));
+        }
+    }
+
+#if MIMMO_ENABLE_MPI
+	//Send my own and receive deformations by other.
+
+    //prepare my own send buffer.
+    bitpit::OBinaryStream myrankDataBuffer;
+    myrankDataBuffer << *(mpvres.get());
+    long myrankDataBufferSize = myrankDataBuffer.getSize();
+
+    for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+
+		if (m_rank != sendRank){
+            // receive data from other ranks.
+			long defBufferSize;
+			MPI_Recv(&defBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
+			bitpit::IBinaryStream defBuffer(defBufferSize);
+			MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
+
+            MimmoPiercedVector<std::array<double,3>> temp;
+            defBuffer >> temp;
+
+			// insert this part in mpvres.
+			for (auto it = temp.begin(); it!=temp.end(); ++it) {
+                if(!mpvres->exists(it.getId())){
+                    mpvres->insert(it.getId(), *it);
+                }
+			}
+		}else{
+            //send to all other except me the def data.
+			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+				if (m_rank != recvRank){
+					MPI_Send(&myrankDataBufferSize, 1, MPI_LONG, recvRank, 900, m_communicator);
+					MPI_Send(myrankDataBuffer.data(), myrankDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
+				}
+			}
+		}
+
+	}// end external sendrank loop
+    MPI_Barrier(m_communicator);
+#endif
+
+    // you can deform
+    bitpit::PiercedVector<bitpit::Vertex> & verts = m_originalDumpingSurface->getVertices();
+	for (auto it= verts.begin(); it != verts.end(); ++it){
+		m_originalDumpingSurface->modifyVertex(it->getCoords() + mpvres->at(it.getId()), it.getId());
+	}
+
+
+}
+
+/*!
  * Distribute the input m_surface_slip_bc_dir on the border interfaces of the bulk mesh.
  */
 void PropagateVectorField::distributeSlipBCOnBoundaryInterfaces(){
@@ -949,13 +1028,9 @@ PropagateVectorField::apply(){
 		bsurf->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
 	}
 
-	//if the dumping is active apply this deformation also to the candidate dumping surface.
-	if(m_dumpingActive && m_dsurface != m_bsurface && m_dsurface != nullptr){
-		MimmoObject * dumpsurf = m_dsurface;
-		bitpit::PiercedVector<bitpit::Vertex> & vertdump = dumpsurf->getVertices();
-		for (auto it= vertdump.begin(); it != vertdump.end(); ++it){
-			dumpsurf->modifyVertex(it->getCoords()+m_field.at(it.getId()), it.getId());
-		}
+	//if the dumping is active morph the internal member m_originaDumpingSurface. It is enough.
+	if(m_dumpingActive && m_originalDumpingSurface.get() != nullptr){
+	       deformDumpingSurface();
 	}
 
 	//if the slipsurface is active apply this deformation also to the slipsurface(re-evaluation of normals)
@@ -1022,14 +1097,9 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
 		*it = vertices.at(it.getId());
 	}
 
-	//restore the candidate dumping surface.
-	if(m_dumpingActive && m_dsurface != m_bsurface && m_dsurface != nullptr){
-		MimmoObject * dumpsurf = m_dsurface;
-		bitpit::PiercedVector<bitpit::Vertex> &vertdump = dumpsurf->getVertices();
-		for(auto it = vertdump.begin(); it != vertdump.end(); ++it){
-			*it = vertices.at(it.getId());
-		}
-	}
+    //m_dumping partitioned members are not deformed. m_originalDumpingSurface, their
+    // reconstruction, is deformed. By I have no interest in restoring it,
+    // since is not a User feeded input.
 
 	//restore the slip surface
 	if(m_slipsurface){
@@ -1441,12 +1511,6 @@ PropagateVectorField::execute(){
 		(*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
 	}
 
-#if MIMMO_ENABLE_MPI
-    if(m_dumpingActive){
-        (*m_log)<<"WARNING " << m_name<<" : Dumping may present incoherent results if used in MPI compilation."<<std::endl;
-    }
-#endif
-
 	if(!checkBoundariesCoherence()){
 		(*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"
 				"or bc-fields not coherent with boundary patches"<<std::endl;
@@ -1471,7 +1535,8 @@ PropagateVectorField::execute(){
 	liimap data;
 
 	//compute the dumping.
-	computeDumpingFunction();
+    initializeDumpingSurface();
+    computeDumpingFunction();
 
 	//PREPARE THE MULTISTEP;
 	bitpit::PiercedVector<bitpit::Vertex> undeformedTargetVertices;
@@ -1577,6 +1642,7 @@ PropagateVectorField::execute(){
 #endif
 
 			// if you are in multistep stage apply the deformation to the mesh.
+            // here is morphed also the m_originalDumpingSurface if active dumping.
 			if(m_nstep > 1){
 				apply();
 			}
@@ -1679,9 +1745,11 @@ PropagateVectorField::execute(){
 			reconstructResults(results, data, movingElementList.get());
 
 			// if you are in multistep stage apply the deformation to the mesh.
+            // here is morphed also the m_originalDumpingSurface if active dumping.
 			if(m_nstep > 1){
 				apply();
 			}
+
 
 //    		//TODO DEBUG
 //    		{
@@ -1703,7 +1771,7 @@ PropagateVectorField::execute(){
 			// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
 			if(istep < m_nstep-1){
 
-				//update the dumping function.
+				//update the dumping function. using m_originalDumpingSurface deformed.
 				updateDumpingFunction();
 
 				//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
