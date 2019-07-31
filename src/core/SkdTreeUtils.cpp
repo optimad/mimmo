@@ -52,10 +52,10 @@ double distance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &i
 
     double h = 1.E+18;
     if(!bvtree_ ){
-        throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a void tree is detected.");
+        throw std::runtime_error("Invalid use of skdTreeUtils::distance method: a void tree is detected.");
     }
     if(!dynamic_cast<const bitpit::SurfUnstructured*>(&(bvtree_->getPatch()))){
-        throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a not surface patch tree is detected.");
+        throw std::runtime_error("Invalid use of skdTreeUtils::distance method: a not surface patch tree is detected.");
     }
 
     static_cast<bitpit::SurfaceSkdTree*>(bvtree_)->findPointClosestCell(*P_, r, &id, &h);
