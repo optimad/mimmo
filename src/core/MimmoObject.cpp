@@ -3447,6 +3447,8 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         return result;
     }
 
+
+
     // create the stack of neighbours with the seed i have.
     std::unordered_set<long> visited;
     livector1D stackNeighs;
@@ -3483,7 +3485,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
             livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
             for(long id: neighs){
-                if(visited.count(id) < 1 && getPatch()->getCell(id).isInterior()){
+                if(visited.count(id) < 1){
                     visited.insert(id);
                     stackNeighs.push_back(id);
                 }
