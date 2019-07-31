@@ -55,6 +55,7 @@ namespace mimmo{
  * - <B>MaxBoundarySkewTOL</B>: tolerance for maximum skewness on boundary allowable.
  * - <B>MinFaceValidityTOL</B>: tolerance for maximum skewness on boundary allowable.
  * - <B>MinVolChangeTOL</B>: tolerance for maximum skewness on boundary allowable.
+ * - <B>ResumeFile</B>: boolean 1-print Resume file, 0 do nothing.
 
  * Geometry has to be mandatorily passed by port.
  *
@@ -94,11 +95,11 @@ public:
 	void setMaximumBoundarySkewnessTolerance(double tol);
 	void setMinimumFaceValidityTolerance(double tol);
 	void setMinimumVolumeChangeTolerance(double tol);
+    void setPrintResumeFile(bool flag);
 
     bool isGood();
     CMeshOutput getQualityStatus();
     int  getQualityStatusInt();
-
 	void execute();
 	void buildPorts();
 
@@ -117,6 +118,7 @@ protected:
 	bool checkFaceValidity();
 	void initializeVolumes();
 	void clear();
+    void printResumeFile();
 
 protected:
 
@@ -150,8 +152,7 @@ protected:
 	std::unique_ptr<MimmoObject>	m_facevalidity; /**<Cells with poor face validity.*/
 	std::unique_ptr<MimmoObject>	m_volumechange; /**<Cells with poor volume change ratio.*/
 
-	//TODO Save patches with cells not satisfying each quality check
-
+    bool m_printResumeFile;
 
 };
 

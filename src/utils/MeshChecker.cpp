@@ -54,6 +54,7 @@ MeshChecker::MeshChecker(const MeshChecker & other){
 	m_minVolumeChangeTol = other.m_minVolumeChangeTol;
 	m_isGood = other.m_isGood;
     m_qualityStatus = other.m_qualityStatus;
+    m_printResumeFile = other.m_printResumeFile;
 };
 
 /*!
@@ -86,7 +87,7 @@ MeshChecker::swap(MeshChecker & x) noexcept
 	std::swap(m_minVolumeChangeTol, x.m_minVolumeChangeTol);
 	std::swap(m_isGood, x.m_isGood);
     std::swap(m_qualityStatus, x.m_qualityStatus);
-
+    std::swap(m_printResumeFile, x.m_printResumeFile);
 }
 
 /*!
@@ -110,6 +111,7 @@ MeshChecker::setDefault()
 	m_minVolumeChangeTol = 1.0e-05;
 	m_isGood = false;
     m_qualityStatus = CMeshOutput::NOTRUN;
+    m_printResumeFile = false;
 	m_volumes.clear();
 }
 
@@ -135,6 +137,9 @@ MeshChecker::execute()
     m_qualityStatus = checkMeshQuality();
 	m_isGood = ( m_qualityStatus == CMeshOutput::GOOD );
 
+    if(m_printResumeFile){
+        printResumeFile();
+    }
 	//Clear auxiliary variables
 	clear();
 
@@ -216,6 +221,16 @@ MeshChecker::setMinimumVolumeChangeTolerance(double tol)
 {
 	m_minVolumeChangeTol = tol;
 }
+
+/*!
+ * set true to print resume file
+ */
+void
+MeshChecker::setPrintResumeFile(bool flag)
+{
+	m_printResumeFile = flag;
+}
+
 
 /*!
  * \return true is quality is good
@@ -326,6 +341,7 @@ MeshChecker::checkMeshQuality()
 	}
 
     (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
+
 
 	return check;
 }
@@ -734,6 +750,16 @@ MeshChecker::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
        }
        setMinimumVolumeChangeTolerance(val);
    }
+   if(slotXML.hasOption("ResumeFile")){
+       std::string input = slotXML.get("ResumeFile");
+       input = bitpit::utils::string::trim(input);
+       bool val = false;
+       if(!input.empty()){
+           std::stringstream ss(input);
+           ss>>val;
+       }
+       setPrintResumeFile(val);
+   }
 
 };
 
@@ -783,6 +809,68 @@ MeshChecker::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
         slotXML.set("MinVolChangeTOL", ss.str());
     }
 
+    slotXML.set("ResumeFile", std::to_string(int(m_printResumeFile)));
 };
+
+/*!
+    Print resume file, of performing mesh check
+*/
+void MeshChecker::printResumeFile(){
+
+    long countVolumeCells = m_volume->getNCells();
+    long countVolumeChangeCells = m_volumechange->getNCells();
+    long countSkewCells = m_skewness->getNCells();
+    long countFValCells = m_facevalidity->getNCells();
+
+#if MIMMO_ENABLE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &countVolumeCells,1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &countVolumeChangeCells,1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &countSkewCells,1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &countFValCells,1, MPI_LONG, MPI_SUM, m_communicator);
+
+    if(m_rank == 0)
+#endif
+    {
+        std::string dir = m_outputPlot + "/";
+        std::string name = m_name +std::to_string(getId())+"_ResumeFile.dat";
+        std::string file = dir + name;
+        std::ofstream out;
+        out.open(file);
+        if(out.is_open()){
+
+            out<<"#mimmo MeshChecker Resume File"<<std::endl;
+            out<<std::endl;
+            out<<std::endl;
+            out<<"#Sick Cells Count: "<<std::endl;
+            out<<std::endl;
+            out<<"VOLUME       : "<<countVolumeCells<<std::endl;
+            out<<"VOLUMECHANGE : "<<countVolumeChangeCells<<std::endl;
+            out<<"SKEWNESS     : "<<countSkewCells<<std::endl;
+            out<<"FACEVALIDITY : "<<countFValCells<<std::endl;
+
+            out<<std::endl;
+            out<<std::endl;
+            out<<"#Found indicators values vs Thresholds: "<<std::endl;
+            out<<std::endl;
+            out<<std::scientific<<"MinVol Threshold          : "<< m_minVolumeTol           <<" , MinVol found          : "<<m_minVolume<<std::endl;
+            out<<std::scientific<<"MaxVol Threshold          : "<< m_maxVolumeTol           <<" , MaxVol found          : "<<m_maxVolume<<std::endl;
+            out<<std::scientific<<"MinVolChange Threshold    : "<< m_minVolumeChangeTol     <<" , MinVolChange found    : "<<m_minVolumeChange<<std::endl;
+            out<<std::scientific<<"MaxSkewness Threshold     : "<< m_maxSkewnessTol         <<" , MaxSkewness found     : "<<m_maxSkewness<<std::endl;
+            out<<std::scientific<<"MaxBndSkewness Threshold  : "<< m_maxSkewnessBoundaryTol <<" , MaxBndSkewness found  : "<<m_maxSkewnessBoundary <<std::endl;
+            out<<std::scientific<<"MinFaceVal Threshold      : "<< m_minFaceValidityTol     <<" , MinFaceVal found      : "<<m_minFaceValidity <<std::endl;
+
+            out.close();
+        }else{
+            throw std::runtime_error("MeshChecker cannot open ResumeFile to write.");
+        }
+
+    }
+#if MIMMO_ENABLE_MPI
+    MPI_Barrier(m_communicator);
+#endif
+
+}
+
+
 
 }
