@@ -625,19 +625,23 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
     else
     	pdiffusivity.initialize(&geo, MPVLocation::POINT, 1.);
 
-    //loop on edges
+    //loop on point connectivity
     MimmoPiercedVector<double> sums;
     sums.initialize(&geo, MPVLocation::POINT, 0.);
     double d_1;
     double p = 1.5;
+    double localdiff, avgdiff;
     for (long id1 : geo.getVertices().getIds()){
-    	for (long id2 : geo.getPointConnectivity(id1)){
-    		d_1 = 1. / std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)), p);
+        localdiff = pdiffusivity.at(id1);
+        for (long id2 : geo.getPointConnectivity(id1)){
+            avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
+            d_1 = avgdiff/norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2));
+    		d_1 = std::pow(d_1, p);
 #if MIMMO_ENABLE_MPI
     		if (geo.isPointInterior(id1))
 #endif
     		{
-    			result->at(id1).appendItem(id2, pdiffusivity[id2] * d_1);
+    			result->at(id1).appendItem(id2, d_1);
     		}
     		sums[id1] += d_1;
     	}
