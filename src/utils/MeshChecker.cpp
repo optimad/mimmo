@@ -652,21 +652,33 @@ MeshChecker::plotOptionalResults(){
 #endif
 
 	if (!volumeEmpty){
+#if MIMMO_ENABLE_MPI
+        m_volume->setPartitioned();
+#endif
         m_volume->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
         m_volume->getPatch()->getVTK().setName(m_name+std::to_string(getId())+".volume");
         m_volume->getPatch()->write();
     }
 	if (!volchangeEmpty){
+#if MIMMO_ENABLE_MPI
+		m_volumechange->setPartitioned();
+#endif
         m_volumechange->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
         m_volumechange->getPatch()->getVTK().setName(m_name+std::to_string(getId())+".volume.ratio");
 		m_volumechange->getPatch()->write();
     }
 	if (!skewEmpty){
+#if MIMMO_ENABLE_MPI
+		m_skewness->setPartitioned();
+#endif
         m_skewness->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
         m_skewness->getPatch()->getVTK().setName(m_name+std::to_string(getId())+".skewness");
 		m_skewness->getPatch()->write();
     }
 	if (!fvalEmpty){
+#if MIMMO_ENABLE_MPI
+		m_facevalidity->setPartitioned();
+#endif
         m_facevalidity->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
         m_facevalidity->getPatch()->getVTK().setName(m_name+std::to_string(getId())+".face.validity");
 		m_facevalidity->getPatch()->write();
