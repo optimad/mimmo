@@ -454,10 +454,10 @@ Partition::computeBoundaryPartition()
 
 		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
 
-			if (!getGeometry()->areInterfacesBuilt()){
-				m_interfacesReset = true;
-				getGeometry()->buildInterfaces();
-			}
+//			if (!getGeometry()->areInterfacesBuilt()){
+//				m_interfacesReset = true;
+//				getGeometry()->buildInterfaces();
+//			}
 
 			m_boundarypartition.clear();
 			if (m_rank == 0){
@@ -466,36 +466,51 @@ Partition::computeBoundaryPartition()
                 bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
 				double tol = 1.0E-12;
                 std::vector<double> distances(getBoundaryGeometry()->getNCells(), 1.0E+18);
-                bitpit::PiercedVector<bitpit::Interface> & interfaces = getGeometry()->getInterfaces();
-                for (bitpit::Interface &inter : interfaces ){
-					if (inter.isBorder()){
-						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
-                        long id = bitpit::Cell::NULL_ID;
-                        int maxiter(10), iter(0);
-                        double r = tol;
-                        double distance;
-                        while(id == bitpit::Cell::NULL_ID && iter<maxiter){
-                            distance = skdTreeUtils::distance(&intercenter, btree, id, r);
-                            ++iter;
-                            r = tol * std::pow(10, iter);
-                        }
-                        if(id != bitpit::Cell::NULL_ID){
-                            long brawindex = getBoundaryGeometry()->getCells().getRawIndex(id);
-    						if (distance < distances[brawindex]){
-                                distances[brawindex] = distance;
-                                m_boundarypartition[id] = m_partition.at(inter.getOwner());
-    						}
-                        }
-					}
-				}
+//                bitpit::PiercedVector<bitpit::Interface> & interfaces = getGeometry()->getInterfaces();
+//                for (bitpit::Interface &inter : interfaces ){
+//					if (inter.isBorder()){
+                bitpit::PiercedVector<bitpit::Cell> & cells = getGeometry()->getCells();
+                for (bitpit::Cell &cell : cells){
+                	if (cell.isInterior()){
+                		for (int iface=0; iface<cell.getFaceCount(); iface++){
+                			if (cell.isFaceBorder(iface)){
+                				//        						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
+                				std::array<double,3> intercenter({0.,0.,0.});
+                				bitpit::ConstProxyVector<long> vertices = cell.getFaceVertexIds(iface);
+                				int nV = cell.getFaceVertexCount(iface);
+                				for (int iv=0; iv<nV; iv++){
+                					intercenter += getGeometry()->getPatch()->getVertexCoords(vertices[iv]);
+                				}
+                				intercenter /= double(nV);
+                				long id = bitpit::Cell::NULL_ID;
+                				int maxiter(10), iter(0);
+                				double r = tol;
+                				double distance;
+                				while(id == bitpit::Cell::NULL_ID && iter<maxiter){
+                					distance = skdTreeUtils::distance(&intercenter, btree, id, r);
+                					++iter;
+                					r = tol * std::pow(10, iter);
+                				}
+                				if(id != bitpit::Cell::NULL_ID){
+                					long brawindex = getBoundaryGeometry()->getCells().getRawIndex(id);
+                					if (distance < distances[brawindex]){
+                						distances[brawindex] = distance;
+                						//m_boundarypartition[id] = m_partition.at(inter.getOwner());
+                						m_boundarypartition[id] = m_partition.at(cell.getId());
+                					}
+                				}
+                			}
+                		}
+                	}
+                }
 
 				//Clean SkdTree
 				getBoundaryGeometry()->cleanSkdTree();
 
 			}
 
-			if (m_interfacesReset)
-				getGeometry()->resetInterfaces();
+//			if (m_interfacesReset)
+//				getGeometry()->resetInterfaces();
 
 		}
 	}
