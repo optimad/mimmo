@@ -1650,7 +1650,8 @@ PropagateVectorField::execute(){
 			// if in multistep stage continue to update the other laplacian stuff up to "second-to-last" step.
 			if(istep < m_nstep-1){
 				//update the dumping function.
-				updateDumpingFunction();
+//				updateDumpingFunction();
+				computeDumpingFunction();
 
 				//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
 				propagateMaskMovingCells(*(movingElementList.get()));
@@ -1772,7 +1773,8 @@ PropagateVectorField::execute(){
 			if(istep < m_nstep-1){
 
 				//update the dumping function. using m_originalDumpingSurface deformed.
-				updateDumpingFunction();
+//				updateDumpingFunction();
+				computeDumpingFunction();
 
 				//enlarge the moving cell list taking its first vertex neighs and its second face neighs.
 				propagateMaskMovingPoints(*(movingElementList.get()));
