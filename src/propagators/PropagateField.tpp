@@ -843,7 +843,7 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 	livector1D seedlist;
 	seedlist.reserve(m_dumping.size());
 	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
-		if(*it > 1.0){
+		if(*it > 1.0 + m_originalDumpingSurface->getPatch()->getTol()){
 			seedlist.push_back(it.getId());
             //reset local value of m_dumping to 1.0.
 			*it = 1.0;
