@@ -626,32 +626,34 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
     	pdiffusivity.initialize(&geo, MPVLocation::POINT, 1.);
 
     //loop on point connectivity
-    MimmoPiercedVector<double> sums;
-    sums.initialize(&geo, MPVLocation::POINT, 0.);
+   MimmoPiercedVector<double> sums;
+   sums.initialize(&geo, MPVLocation::POINT, 0.);
     double d_1;
-    double p = 1.5;
+    double p = 2.0;
     double localdiff, avgdiff;
     for (long id1 : geo.getVertices().getIds()){
         localdiff = pdiffusivity.at(id1);
-        for (long id2 : geo.getPointConnectivity(id1)){
+        auto pconn = geo.getPointConnectivity(id1);
+        for (long id2 : pconn){
             avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
-            d_1 = avgdiff/norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2));
-    		d_1 = std::pow(d_1, p);
+            d_1 =1.0/std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)),p);
+            d_1 *= avgdiff;
+            sums[id1] += d_1;
+
 #if MIMMO_ENABLE_MPI
     		if (geo.isPointInterior(id1))
 #endif
     		{
     			result->at(id1).appendItem(id2, d_1);
     		}
-    		sums[id1] += d_1;
     	}
     }
 
     //Weighted average
     double denom;
     for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
-    	denom = sums[it.getId()];
-    	*it /= denom;
+        denom =  sums[it.getId()];
+        *it /= denom;
     }
 
     //Insert diagonal values (-1)
@@ -721,17 +723,22 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
     MimmoPiercedVector<double> sums;
     sums.initialize(&geo, MPVLocation::POINT, 0.);
     double d_1;
-    double p = 1.5;
+    double p = 2.0;
+    double localdiff, avgdiff;
     for (long id1 : *nodesList){
-    	for (long id2 : geo.getPointConnectivity(id1)){
-    		d_1 = 1. / std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)), p);
+        localdiff = pdiffusivity.at(id1);
+        auto pconn = geo.getPointConnectivity(id1);
+        for (long id2 : pconn){
+            avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
+            d_1 =1.0/std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)),p);
+            d_1 *= avgdiff;
+            sums[id1] += d_1;
 #if MIMMO_ENABLE_MPI
     		if (geo.isPointInterior(id1))
 #endif
     		{
-    			result->at(id1).appendItem(id2, pdiffusivity[id2] * d_1);
+    			result->at(id1).appendItem(id2, d_1);
     		}
-    		sums[id1] += d_1;
     	}
     }
 
