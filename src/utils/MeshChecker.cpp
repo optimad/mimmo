@@ -281,7 +281,9 @@ MeshChecker::checkMeshQuality()
     }
 
     check = CMeshOutput::GOOD;
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_maxVolume > m_maxVolumeTol){
         check = CMeshOutput::MAXIMUMVOLUME;
 		(*m_log)<<m_name<<" : FAILED maximum cell volume check, found value : "<< m_maxVolume << std::endl;
@@ -290,7 +292,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : maximum cell volume check PASSED with value : "<< m_maxVolume << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_minVolume < m_minVolumeTol){
         check = CMeshOutput::MINIMUMVOLUME;
 		(*m_log)<<m_name<<" : FAILED minimum cell volume check, found value : "<< m_minVolume << std::endl;
@@ -299,7 +303,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : minimum cell volume check PASSED with value : "<< m_minVolume << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_maxSkewness > m_maxSkewnessTol){
         check = CMeshOutput::SKEWNESS;
 		(*m_log)<<m_name<<" : FAILED cell skewness, found value [deg] : "<< m_maxSkewness / BITPIT_PI * 180. << std::endl;
@@ -308,7 +314,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : cell skewness PASSED with value [deg] : "<< m_maxSkewness / BITPIT_PI * 180. << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_maxSkewnessBoundary > m_maxSkewnessBoundaryTol){
         check = CMeshOutput::BOUNDARYSKEWNESS;
 		(*m_log)<<m_name<<" : FAILED boundary skewness, found value [deg] : "<< m_maxSkewnessBoundary / M_PI * 180. << std::endl;
@@ -317,7 +325,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : boundary skewness PASSED with value [deg] : "<< m_maxSkewnessBoundary / M_PI * 180. << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_minVolumeChange < m_minVolumeChangeTol){
         check = CMeshOutput::VOLUMECHANGERATIO;
 		(*m_log)<<m_name<<" : FAILED cell volume change check, found value : "<< m_minVolumeChange << std::endl;
@@ -326,7 +336,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : cell volume change check PASSED with value : "<< m_minVolumeChange << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (m_minFaceValidity < m_minFaceValidityTol){
 		check = CMeshOutput::FACEVALIDITY;
 		(*m_log)<<m_name<<" : FAILED cell face validity check, found value : "<< m_minFaceValidity << std::endl;
@@ -335,7 +347,9 @@ MeshChecker::checkMeshQuality()
 		(*m_log)<<m_name<<" : cell face validity check PASSED with value : "<< m_minFaceValidity << std::endl;
 	}
 
+#if MIMMO_ENABLE_MPI
     MPI_Barrier(m_communicator);
+#endif
 	if (check == CMeshOutput::GOOD){
 		(*m_log)<< m_name << " : ALL checks PASSED " << std::endl;
 	}
