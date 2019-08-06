@@ -174,7 +174,7 @@ MimmoGeometry::setDefaults(){
     m_buildSkdTree    = false;
     m_buildKdTree    = false;
     m_refPID = 0;
-    m_multiSolidSTL = true;
+    m_multiSolidSTL = false;
 }
 
 /*!It sets the condition to read the geometry on file during the execution.
