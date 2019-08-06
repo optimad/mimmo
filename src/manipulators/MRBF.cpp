@@ -113,8 +113,10 @@ void MRBF::swap(MRBF & x) noexcept
 void
 MRBF::buildPorts(){
 	bool built = true;
+	built = (built && createPortIn<dmpvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_GDISPLS));
 	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
 	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS));
+	built = (built && createPortIn<MimmoObject*, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
 	built = (built && createPortIn<dmpvector1D, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, M_VALUED));
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, M_VALUED2));
@@ -230,7 +232,7 @@ MRBF::getDisplacements(){
  * \param[in] node coordinates of control point.
  * \return RBF id.
  */
-int
+long
 MRBF::addNode(darray3E node){
 	return(RBF::addNode(node));
 };
@@ -240,7 +242,7 @@ MRBF::addNode(darray3E node){
  * \param[in] nodes coordinates of control points.
  * \return Vector of RBF ids.
  */
-std::vector<int>
+std::vector<long>
 MRBF::addNode(dvecarr3E nodes){
 	return(RBF::addNode(nodes));
 };
@@ -252,9 +254,9 @@ MRBF::addNode(dvecarr3E nodes){
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
  * \return Vector of RBF ids.
  */
-ivector1D
+livector1D
 MRBF::addNode(MimmoObject* geometry){
-	if(geometry == NULL)    return    ivector1D(0);
+	if(geometry == NULL)    return    livector1D(0);
 	dvecarr3E vertex = geometry->getVerticesCoords();
 	return(RBF::addNode(vertex));
 };
@@ -309,16 +311,16 @@ MRBF::setFilter(dmpvector1D filter){
  * \param[in] tol distance tolerance
  * \return    list of duplicated nodes.
  */
-ivector1D
+livector1D
 MRBF::checkDuplicatedNodes(double tol){
-	ivector1D marked;
-	int sizeEff = getTotalNodesCount();
+	livector1D marked;
+	long sizeEff = getTotalNodesCount();
 	if( sizeEff == 0 ) return marked;
 
 	bvector1D check(sizeEff, false);
 
-	for(int i=0; i<sizeEff; ++i){
-		for(int j=i+1; j<sizeEff; ++j){
+	for(long i=0; i<sizeEff; ++i){
+		for(long j=i+1; j<sizeEff; ++j){
 			double dist = norm2(m_node[j] - m_node[i]);
 			if(!check[j] && dist <= tol){
 				marked.push_back(i);
@@ -335,8 +337,8 @@ MRBF::checkDuplicatedNodes(double tol){
  * \return    boolean, true if all duplicated nodes are erased, false if one or more of them are not.
  */
 bool
-MRBF::removeDuplicatedNodes(ivector1D * list){
-	ivector1D marked;
+MRBF::removeDuplicatedNodes(livector1D * list){
+	livector1D marked;
 	if(list==NULL){
 		marked = checkDuplicatedNodes();
 		list = &marked;
@@ -397,7 +399,7 @@ MRBF::setTol(double tol){
  */
 void
 MRBF::setDisplacements(dvecarr3E displ){
-	int size = displ.size();
+	long size = displ.size();
 	//    if(size != getTotalNodesCount()){
 	//        (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
 	//    }
@@ -406,8 +408,37 @@ MRBF::setDisplacements(dvecarr3E displ){
 
 	dvector1D temp(size);
 	for(int loc=0; loc<3; ++loc){
-		for(int i=0; i<size; ++i){
+		for(long i=0; i<size; ++i){
 			temp[i] = displ[i][loc];
+		}
+		addData(temp);
+	}
+}
+
+/*!
+ * Set a field  of 3D displacements on your RBF Nodes defined as points of a MimmoObject. According to MRBFSol mode
+ * active in the class set: displacements as direct RBF weights coefficients in MRBFSol::NONE mode,
+ * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
+ * Displacements size may not match the actual number of RBF nodes stored in the class.
+ * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+ *
+ * \param[in] displ list of nodal displacements
+ */
+void
+MRBF::setDisplacements(dmpvecarr3E displ){
+	long size = displ.size();
+	//    if(size != getTotalNodesCount()){
+	//        (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
+	//    }
+
+	removeAllData();
+
+	dvector1D temp(size);
+	for(int loc=0; loc<3; ++loc){
+		long i = 0;
+		for (auto val : displ){
+			temp[i] = val[loc];
+			i++;
 		}
 		addData(temp);
 	}
@@ -537,12 +568,10 @@ MRBF::execute(){
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
     }
 
-
     m_displ.clear();
 	m_displ.setDataLocation(mimmo::MPVLocation::POINT);
 	m_displ.reserve(getGeometry()->getNVertices());
 	m_displ.setGeometry(getGeometry());
-
 
 	int size = 0;
 	int sizeF = getDataCount();
@@ -601,9 +630,13 @@ MRBF::execute(){
 	RBF::setSupportRadius(radius);
 
 
+	std::cout << " solving " << std::endl;
+
 	if (m_solver == MRBFSol::WHOLE)    solve();
 	if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
+
+	std::cout << " solved " << std::endl;
 
 	dvector1D displ;
 	darray3E adispl;
@@ -612,6 +645,7 @@ MRBF::execute(){
 		for (int j=0; j<3; ++j)
 			adispl[j] = displ[j];
 		m_displ.insert(vertex.getId(), adispl);
+//		std::cout << " insert  " <<  vertex.getId() << std::endl;
 	}
 
 	//if m_filter is active;
@@ -625,6 +659,8 @@ MRBF::execute(){
 			m_displ[ID] = m_displ[ID] * m_filter[ID];
 		}
 	}
+
+	std::cout << " end execution  " <<  std::endl;
 
 };
 
@@ -701,23 +737,23 @@ MRBF::plotOptionalResults(){
 void
 MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
 
-	int nnodes = getTotalNodesCount();
-	nnodes = min(nnodes, int(m_displ.size()));
+	long nnodes = getTotalNodesCount();
+	nnodes = min(nnodes, long(m_displ.size()));
 	dvecarr3E* nodes_ = getNodes();
 	dvecarr3E nodes(nnodes);
 	dvecarr3E data(nnodes);
-	for(int i=0; i<nnodes; ++i){
+	for(long i=0; i<nnodes; ++i){
 		for(int j=0; j<3; ++j){
 			if(m_solver == MRBFSol::NONE)   data[i][j] = m_weight[j][i];
 			else                            data[i][j] = m_value[j][i];
 		}
 	}
 	if(deformed){
-		for(int i=0; i<nnodes; ++i){
+		for(long i=0; i<nnodes; ++i){
 			nodes[i] = (*nodes_)[i] + data[i];
 		}
 	}else{
-		for(int i=0; i<nnodes; ++i){
+		for(long i=0; i<nnodes; ++i){
 			nodes[i] = (*nodes_)[i];
 		}
 	}
@@ -725,9 +761,9 @@ MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bo
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(binary){codex=bitpit::VTKFormat::APPENDED;}
 
-	ivector1D conn(nnodes);
+	livector1D conn(nnodes);
 	{
-		int counter = 0;
+		long counter = 0;
 		for(auto & val: conn){
 			val = counter;
 			++counter;

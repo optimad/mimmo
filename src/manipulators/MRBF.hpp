@@ -75,6 +75,7 @@ enum class MRBFSol{
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
+     | M_GEOM2   | setNode               | (MC_SCALAR, MD_MIMMO_)      |
      | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
      | M_FILTER  | setFilter             | (MC_MPVECTOR, MD_FLOAT)       |
      | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
@@ -147,22 +148,23 @@ public:
 
     dmpvecarr3E     getDisplacements();
 
-    int             addNode(darray3E);
-    ivector1D       addNode(dvecarr3E);
-    ivector1D       addNode(MimmoObject* geometry);
+    long             addNode(darray3E);
+    livector1D       addNode(dvecarr3E);
+    livector1D       addNode(MimmoObject* geometry);
 
     void            setNode(darray3E);
     void            setNode(dvecarr3E);
     void            setNode(MimmoObject* geometry);
     void            setFilter(dmpvector1D );
 
-    ivector1D       checkDuplicatedNodes(double tol=1.0E-12);
-    bool            removeDuplicatedNodes(ivector1D * list=NULL);
+    livector1D       checkDuplicatedNodes(double tol=1.0E-12);
+    bool            removeDuplicatedNodes(livector1D * list=NULL);
 
     void            setSupportRadius(double suppR_);
     void            setSupportRadiusValue(double suppR_);
     void            setTol(double tol);
     void            setDisplacements(dvecarr3E displ);
+    void            setDisplacements(dmpvecarr3E displ);
 
     void            setFunction(const MRBFBasisFunction & funct);
     void            setFunction(const bitpit::RBFBasisFunction & funct);
@@ -191,6 +193,7 @@ double	heaviside100( double dist );
 double	heaviside1000( double dist );
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
