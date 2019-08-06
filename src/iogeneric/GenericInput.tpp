@@ -465,16 +465,12 @@ GenericInputMPVData::_getResult(){
                 inputCSVStream::ifstreamcsv(file, data);
             }else{
                 bitpit::genericIO::absorbASCII(file, n_loc);
-            	std::cout << " loc " << n_loc << std::endl;
                 bitpit::genericIO::absorbASCII(file, readNSize);
-            	std::cout << " readNSize " << readNSize << std::endl;
                 nSize = std::max(nSize,readNSize);
                 data.reserve(nSize);
                 for(int i=0; i<nSize; ++i){
                     bitpit::genericIO::absorbASCII(file, id);
                     bitpit::genericIO::absorbASCII(file, data_T);
-                	std::cout << " id " << id << std::endl;
-                	std::cout << " data_T " << data_T << std::endl;
                     data.insert(id,data_T);
                 }
                 data.setDataLocation(n_loc);
