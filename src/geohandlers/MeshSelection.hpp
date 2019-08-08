@@ -465,6 +465,8 @@ private:
     std::unordered_map<std::string, int>    m_geolist;      /**< list of file for geometrical proximity check*/
     std::unordered_set<MimmoObject*>        m_mimmolist;    /**< list of mimmo objects for geometrical proximity check*/
     std::vector<std::set< int > >           m_allowedType;  /**< list of FileType actually allowed for the target geometry type*/
+    std::vector<std::set< int > >           m_allowedTopology;  /**< list of mapping geometry topology allowed by current target topology*/
+
 public:
     SelectionByMapping(int topo = 1);
     SelectionByMapping(const bitpit::Config::Section & rootXML);

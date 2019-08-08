@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -46,12 +46,22 @@ SelectionByMapping::SelectionByMapping(int topo){
     m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
     m_allowedType[1].insert(FileType::MIMMO);
+    m_allowedType[1].insert(FileType::CURVEVTU);
 
     m_allowedType[2].insert(FileType::VOLVTU);
     m_allowedType[2].insert(FileType::MIMMO);
-    
+
     m_allowedType[4].insert(FileType::CURVEVTU);
     m_allowedType[4].insert(FileType::MIMMO);
+
+    m_allowedTopology.resize(5);
+    m_allowedTopology[1].insert(1);
+    m_allowedTopology[1].insert(4);
+
+    m_allowedTopology[2].insert(2);
+
+    m_allowedTopology[4].insert(4);
+
 };
 
 /*!
@@ -76,19 +86,27 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
     topo = std::max(1,topo);
     if(topo > 4 || topo == 3)    topo=1;
     m_topo = topo;
-    
+
     m_allowedType.resize(5);
     m_allowedType[1].insert(FileType::STL);
     m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
     m_allowedType[1].insert(FileType::MIMMO);
-    
+    m_allowedType[1].insert(FileType::CURVEVTU);
+
     m_allowedType[2].insert(FileType::VOLVTU);
     m_allowedType[2].insert(FileType::MIMMO);
-    
+
     m_allowedType[4].insert(FileType::CURVEVTU);
     m_allowedType[4].insert(FileType::MIMMO);
 
+    m_allowedTopology.resize(5);
+    m_allowedTopology[1].insert(1);
+    m_allowedTopology[1].insert(4);
+
+    m_allowedTopology[2].insert(2);
+
+    m_allowedTopology[4].insert(4);
 
     if(input_name == "mimmo.SelectionByMapping"){
         absorbSectionXML(rootXML);
@@ -114,16 +132,24 @@ SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & ge
     m_allowedType[1].insert(FileType::SURFVTU);
     m_allowedType[1].insert(FileType::NAS);
     m_allowedType[1].insert(FileType::MIMMO);
-    
+    m_allowedType[1].insert(FileType::CURVEVTU);
+
     m_allowedType[2].insert(FileType::VOLVTU);
     m_allowedType[2].insert(FileType::MIMMO);
-    
+
     m_allowedType[4].insert(FileType::CURVEVTU);
     m_allowedType[4].insert(FileType::MIMMO);
-    
+
+    m_allowedTopology.resize(5);
+    m_allowedTopology[1].insert(1);
+    m_allowedTopology[1].insert(4);
+
+    m_allowedTopology[2].insert(2);
+
+    m_allowedTopology[4].insert(4);
+
     if(target == NULL) return;
-    if(target->isEmpty()) return;
-    
+
     m_topo = target->getType();
     m_topo = std::min(1, m_topo);
     if(m_topo > 4 || m_topo == 3)    m_topo = 1;
@@ -146,6 +172,7 @@ SelectionByMapping::SelectionByMapping(const SelectionByMapping & other):Generic
     m_geolist = other.m_geolist;
     m_mimmolist = other.m_mimmolist;
     m_allowedType = other.m_allowedType;
+    m_allowedTopology = other.m_allowedTopology;
 };
 
 /*!
@@ -167,6 +194,8 @@ void SelectionByMapping::swap(SelectionByMapping & x) noexcept
     std::swap(m_geolist, x.m_geolist);
     std::swap(m_mimmolist, x.m_mimmolist);
     std::swap(m_allowedType, x.m_allowedType);
+    std::swap(m_allowedTopology, x.m_allowedTopology);
+
     GenericSelection::swap(x);
 }
 
@@ -209,20 +238,19 @@ SelectionByMapping::setTolerance(double tol){
 };
 
 /*!
- * Set link to target geometry for your selection. Reimplementation of 
+ * Set link to target geometry for your selection. Reimplementation of
  * GenericSelection::setGeometry();
  * \param[in] target Pointer to target geometry.
  */
 void
 SelectionByMapping::setGeometry( MimmoObject * target){
 
-    if(target == NULL){ 
+    if(target == NULL){
         (*m_log)<< m_name << " attempt to link null target geometry. Do nothing." << std::endl;
         return;
     }
-    if(target->isEmpty()){ 
+    if(target->isEmpty()){
         (*m_log)<< m_name << " attempt to link empty geometry. Do nothing" << std::endl;
-        return;
     }
 
     if(target->getType() != m_topo){
@@ -276,13 +304,13 @@ SelectionByMapping::addFile(std::pair<std::string, int> file){
  */
 void
 SelectionByMapping::addMappingGeometry(MimmoObject* obj){
-    if(obj->getType() == m_topo){
+    if(m_allowedTopology[m_topo].count(obj->getType()) > 0){
         m_mimmolist.insert(obj);
     }
 };
 
 /*!
- * Remove an existent file to a list of external geometry files. If not in the list, do nothing 
+ * Remove an existent file to a list of external geometry files. If not in the list, do nothing
  * \param[in] file Name of the file to be removed from the list
  */
 void
@@ -291,7 +319,7 @@ SelectionByMapping::removeFile(std::string file){
 };
 
 /*!
- * Empty your list of file for mapping 
+ * Empty your list of file for mapping
  */
 void
 SelectionByMapping::removeFiles(){
@@ -314,7 +342,6 @@ SelectionByMapping::clear(){
     m_subpatch.reset(nullptr);
     removeFiles();
     removeMappingGeometries();
-    m_topo = 0;
     BaseManipulation::clear();
 };
 
@@ -328,13 +355,14 @@ SelectionByMapping::extractSelection(){
     if(!(getGeometry()->isSkdTreeSync()))    getGeometry()->buildSkdTree();
     std::set<long> cellList;
 
-    for (auto && file : m_geolist){
+    for (auto & file : m_geolist){
         livector1D list = getProximity(file);
         cellList.insert(list.begin(), list.end());
     }
 
-    for (auto mimmo : m_mimmolist){
-        livector1D list = getProximity(mimmo);
+
+    for (auto & mimmoptr : m_mimmolist){
+        livector1D list = getProximity(mimmoptr);
         cellList.insert(list.begin(), list.end());
     }
 
@@ -403,14 +431,13 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
 livector1D
 SelectionByMapping::getProximity(MimmoObject* obj){
 
-    obj->buildSkdTree(true);
-
     if(obj->getNVertices() == 0 || obj->getNCells() == 0){
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<< m_name << " failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
+
     livector1D result = mimmo::skdTreeUtils::selectByPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
 
     return    result;
@@ -534,7 +561,7 @@ void SelectionByMapping::flushSectionXML(bitpit::Config::Section & slotXML, std:
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("Topology", m_topo);
 
     int value = m_dual;
