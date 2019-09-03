@@ -114,26 +114,35 @@ void example00001() {
     ReconstructVector* recon = new ReconstructVector();
     recon->setPlotInExecution(true);
 
-    /* Create propagate vector block and set to propagate over the whole
+//    /* Create propagate vector block and set to propagate over the whole
+//     * input volume geometry the displacements field.
+//     */
+//    PropagateVectorField* prop = new PropagateVectorField();
+//    prop->setPlotInExecution(true);
+//    prop->setTolerance(1.0e-9);
+//    prop->setUpdateThreshold(1.0e-12);
+//    prop->setDumping(true);
+//    prop->setDumpingType(0);
+//    prop->setDumpingInnerDistance(0.01);
+//    prop->setDumpingOuterDistance(25.0);
+//    prop->setDecayFactor(3.0);
+//    prop->forcePlanarSlip(true);
+//    prop->setSolverMultiStep(1);
+
+    /* Create mrbf vector block and set to propagate over the whole
      * input volume geometry the displacements field.
      */
-    PropagateVectorField* prop = new PropagateVectorField();
+    MRBF* prop = new MRBF();
     prop->setPlotInExecution(true);
-    prop->setTolerance(1.0e-9);
-    prop->setUpdateThreshold(1.0e-12);
-    prop->setDumping(true);
-    prop->setDumpingType(0);
-    prop->setDumpingInnerDistance(0.01);
-    prop->setDumpingOuterDistance(25.0);
-    prop->setDecayFactor(3.0);
-    prop->forcePlanarSlip(true);
-    prop->setSolverMultiStep(1);
-    /* Create propagate vector block and set to propagate over the whole
-     * input volume geometry the displacements field.
+    prop->setSupportRadiusValue(1);
+    prop->setMode(1);
+
+    /* Create extract vector field block to deform surface
      */
     ExtractVectorField* extrF = new ExtractVectorField();
     extrF->setMode(1);
     extrF->setPlotInExecution(true);
+
     /* Create applier block.
      * It applies the deformation displacements
      * to the selected input volume geometry.
@@ -168,11 +177,15 @@ void example00001() {
 #else
     addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
 #endif
-    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
-    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
-    addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
+//    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
+//    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
+//    addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
 
-    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
+//    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
+
+    addPin(rotation, prop, M_GEOM, M_GEOM2)  ;
+    addPin(rotation, prop, M_GDISPLS, M_GDISPLS)  ;
+
     addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
 #if MIMMO_ENABLE_MPI
     addPin(partition, applier, M_GEOM, M_GEOM)  ;

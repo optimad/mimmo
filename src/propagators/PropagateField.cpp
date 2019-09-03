@@ -904,53 +904,53 @@ std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
     if(!dumptarget) dumptarget = m_bsurface;
 
     for(long id: dumptarget->getVertices().getIds()){
-#if MIMMO_ENABLE_MPI
-        if(dumptarget->isPointInterior(id))
-#endif
+//#if MIMMO_ENABLE_MPI
+//        if(dumptarget->isPointInterior(id))
+//#endif
         {
             mpvres->insert(id, m_field.at(id));
         }
     }
 
-#if MIMMO_ENABLE_MPI
-	//Send my own and receive deformations by other.
-
-    //prepare my own send buffer.
-    bitpit::OBinaryStream myrankDataBuffer;
-    myrankDataBuffer << *(mpvres.get());
-    long myrankDataBufferSize = myrankDataBuffer.getSize();
-
-    for (int sendRank=0; sendRank<m_nprocs; sendRank++){
-
-		if (m_rank != sendRank){
-            // receive data from other ranks.
-			long defBufferSize;
-			MPI_Recv(&defBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
-			bitpit::IBinaryStream defBuffer(defBufferSize);
-			MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
-
-            MimmoPiercedVector<std::array<double,3>> temp;
-            defBuffer >> temp;
-
-			// insert this part in mpvres.
-			for (auto it = temp.begin(); it!=temp.end(); ++it) {
-                if(!mpvres->exists(it.getId())){
-                    mpvres->insert(it.getId(), *it);
-                }
-			}
-		}else{
-            //send to all other except me the def data.
-			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-				if (m_rank != recvRank){
-					MPI_Send(&myrankDataBufferSize, 1, MPI_LONG, recvRank, 900, m_communicator);
-					MPI_Send(myrankDataBuffer.data(), myrankDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
-				}
-			}
-		}
-
-	}// end external sendrank loop
-    MPI_Barrier(m_communicator);
-#endif
+//#if MIMMO_ENABLE_MPI
+//	//Send my own and receive deformations by other.
+//
+//    //prepare my own send buffer.
+//    bitpit::OBinaryStream myrankDataBuffer;
+//    myrankDataBuffer << *(mpvres.get());
+//    long myrankDataBufferSize = myrankDataBuffer.getSize();
+//
+//    for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+//
+//		if (m_rank != sendRank){
+//            // receive data from other ranks.
+//			long defBufferSize;
+//			MPI_Recv(&defBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
+//			bitpit::IBinaryStream defBuffer(defBufferSize);
+//			MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
+//
+//            MimmoPiercedVector<std::array<double,3>> temp;
+//            defBuffer >> temp;
+//
+//			// insert this part in mpvres.
+//			for (auto it = temp.begin(); it!=temp.end(); ++it) {
+//                if(!mpvres->exists(it.getId())){
+//                    mpvres->insert(it.getId(), *it);
+//                }
+//			}
+//		}else{
+//            //send to all other except me the def data.
+//			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+//				if (m_rank != recvRank){
+//					MPI_Send(&myrankDataBufferSize, 1, MPI_LONG, recvRank, 900, m_communicator);
+//					MPI_Send(myrankDataBuffer.data(), myrankDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
+//				}
+//			}
+//		}
+//
+//	}// end external sendrank loop
+//    MPI_Barrier(m_communicator);
+//#endif
 
     // you can deform
     bitpit::PiercedVector<bitpit::Vertex> & verts = m_originalDumpingSurface->getVertices();

@@ -629,14 +629,20 @@ MRBF::execute(){
 	const double radius = distance;
 	RBF::setSupportRadius(radius);
 
-
-	std::cout << " solving " << std::endl;
+//	std::cout << " support radius " << radius << std::endl;
+//	std::cout << " solving " << std::endl;
 
 	if (m_solver == MRBFSol::WHOLE)    solve();
 	if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
+//	std::cout << " solved " << std::endl;
 
-	std::cout << " solved " << std::endl;
+//	for (int i=0; i<sizeF; i++){
+//		for (auto val : m_weight[i])
+//			std::cout << " wegiht " <<  val << std::endl;
+//		for (auto val : m_value[i])
+//			std::cout << " value " <<  val << std::endl;
+//	}
 
 	dvector1D displ;
 	darray3E adispl;
@@ -645,7 +651,8 @@ MRBF::execute(){
 		for (int j=0; j<3; ++j)
 			adispl[j] = displ[j];
 		m_displ.insert(vertex.getId(), adispl);
-//		std::cout << " insert  " <<  vertex.getId() << std::endl;
+//		if (norm2(adispl)>0.)
+//			std::cout << " insert  id " <<  vertex.getId() << " displ " << adispl << std::endl;
 	}
 
 	//if m_filter is active;
@@ -660,7 +667,7 @@ MRBF::execute(){
 		}
 	}
 
-	std::cout << " end execution  " <<  std::endl;
+//	std::cout << " end execution  " <<  std::endl;
 
 };
 
