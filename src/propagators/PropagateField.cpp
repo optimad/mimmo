@@ -672,162 +672,167 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 void PropagateVectorField::initializeSlipSurface(){
 
 #if MIMMO_ENABLE_MPI
-    //MPI version
-	m_originalslipsurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
-	//fill serialized geometry
-	for (bitpit::Vertex &vertex : m_slipsurface->getVertices()){
-		long vertexId = vertex.getId();
-		if (m_slipsurface->isPointInterior(vertexId)){
-			m_originalslipsurface->addVertex(vertex, vertexId);
-		}
-	}
-	for (bitpit::Cell &cell : m_slipsurface->getCells()){
-		if (cell.isInterior()){
-			m_originalslipsurface->addCell(cell, cell.getId());
-		}
-	}
+	if (getTotalProcs() > 1){
 
+		//MPI version
+		m_originalslipsurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
-	//Receive vertices and cells
-	for (int sendRank=0; sendRank<m_nprocs; sendRank++){
-
-		if (m_rank != sendRank){
-
-			// Vertex data
-			long vertexBufferSize;
-			MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
-
-			bitpit::IBinaryStream vertexBuffer(vertexBufferSize);
-			MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
-
-			// Cell data
-			long cellBufferSize;
-			MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
-
-			bitpit::IBinaryStream cellBuffer(cellBufferSize);
-			MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
-
-			// There are no duplicate in the received vertices, but some of them may
-			// be already a local vertex of a interface cell.
-			//TODO GENERALIZE IT
-			//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
-			long nRecvVertices;
-			vertexBuffer >> nRecvVertices;
-			m_originalslipsurface->getPatch()->reserveVertices(m_originalslipsurface->getPatch()->getVertexCount() + nRecvVertices);
-
-			// Do not add the vertices with Id already in serialized geometry
-			for (long i = 0; i < nRecvVertices; ++i) {
-				bitpit::Vertex vertex;
-				vertexBuffer >> vertex;
-				long vertexId = vertex.getId();
-
-				if (!m_originalslipsurface->getVertices().exists(vertexId)){
-					m_originalslipsurface->addVertex(vertex, vertexId);
-				}
+		//fill serialized geometry
+		for (bitpit::Vertex &vertex : m_slipsurface->getVertices()){
+			long vertexId = vertex.getId();
+			if (m_slipsurface->isPointInterior(vertexId)){
+				m_originalslipsurface->addVertex(vertex, vertexId);
 			}
+		}
+		for (bitpit::Cell &cell : m_slipsurface->getCells()){
+			if (cell.isInterior()){
+				m_originalslipsurface->addCell(cell, cell.getId());
+			}
+		}
 
-			//Receive and add all Cells
-			long nReceivedCells;
-			cellBuffer >> nReceivedCells;
-			m_originalslipsurface->getPatch()->reserveCells(m_originalslipsurface->getPatch()->getCellCount() + nReceivedCells);
 
-			for (long i = 0; i < nReceivedCells; ++i) {
+		//Receive vertices and cells
+		for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+
+			if (m_rank != sendRank){
+
+				// Vertex data
+				long vertexBufferSize;
+				MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
+
+				bitpit::IBinaryStream vertexBuffer(vertexBufferSize);
+				MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
+
 				// Cell data
-				bitpit::Cell cell;
-				cellBuffer >> cell;
+				long cellBufferSize;
+				MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
 
-				long cellId = cell.getId();
+				bitpit::IBinaryStream cellBuffer(cellBufferSize);
+				MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
 
-				// Add cell
-				m_originalslipsurface->addCell(cell, cellId);
+				// There are no duplicate in the received vertices, but some of them may
+				// be already a local vertex of a interface cell.
+				//TODO GENERALIZE IT
+				//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
+				long nRecvVertices;
+				vertexBuffer >> nRecvVertices;
+				m_originalslipsurface->getPatch()->reserveVertices(m_originalslipsurface->getPatch()->getVertexCount() + nRecvVertices);
 
-			}
-		}
-		else{
+				// Do not add the vertices with Id already in serialized geometry
+				for (long i = 0; i < nRecvVertices; ++i) {
+					bitpit::Vertex vertex;
+					vertexBuffer >> vertex;
+					long vertexId = vertex.getId();
 
-			//Send local vertices and local cells to ranks
-
-			//
-			// Send vertex data
-			//
-			bitpit::OBinaryStream vertexBuffer;
-			long vertexBufferSize = 0;
-			long nVerticesToCommunicate = 0;
-
-			// Fill buffer with vertex data
-			vertexBufferSize += sizeof(long);
-			for (long vertexId : m_slipsurface->getVertices().getIds()){
-				if (m_slipsurface->isPointInterior(vertexId)){
-					vertexBufferSize += m_slipsurface->getVertices()[vertexId].getBinarySize();
-					nVerticesToCommunicate++;
+					if (!m_originalslipsurface->getVertices().exists(vertexId)){
+						m_originalslipsurface->addVertex(vertex, vertexId);
+					}
 				}
-			}
-			vertexBuffer.setSize(vertexBufferSize);
 
-			vertexBuffer << nVerticesToCommunicate;
-			for (long vertexId : m_slipsurface->getVertices().getIds()){
-				if (m_slipsurface->isPointInterior(vertexId)){
-					vertexBuffer << m_slipsurface->getVertices()[vertexId];
-				}
-			}
+				//Receive and add all Cells
+				long nReceivedCells;
+				cellBuffer >> nReceivedCells;
+				m_originalslipsurface->getPatch()->reserveCells(m_originalslipsurface->getPatch()->getCellCount() + nReceivedCells);
 
-			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-
-				if (m_rank != recvRank){
-
-					// Communication
-					MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
-					MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
-
-				}
-			}
-
-			//
-			// Send cell data
-			//
-			bitpit::OBinaryStream cellBuffer;
-			long cellBufferSize = 0;
-			long nCellsToCommunicate = 0;
-
-			// Fill the buffer with cell data
-			cellBufferSize += sizeof(long);
-			for (const long cellId : m_slipsurface->getCellsIds()) {
-				if (m_slipsurface->getCells()[cellId].isInterior()){
-					cellBufferSize += sizeof(int) + sizeof(int) + m_slipsurface->getCells()[cellId].getBinarySize();
-					nCellsToCommunicate++;
-				}
-			}
-			cellBuffer.setSize(cellBufferSize);
-
-			cellBuffer << nCellsToCommunicate;
-			for (const long cellId : m_slipsurface->getCellsIds()) {
-				if (m_slipsurface->getCells()[cellId].isInterior()){
-					const bitpit::Cell &cell = m_slipsurface->getCells()[cellId];
+				for (long i = 0; i < nReceivedCells; ++i) {
 					// Cell data
-					cellBuffer << cell;
-				}
-			}
+					bitpit::Cell cell;
+					cellBuffer >> cell;
 
-			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+					long cellId = cell.getId();
 
-				if (m_rank != recvRank){
-					// Communication
-					MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
-					MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
+					// Add cell
+					m_originalslipsurface->addCell(cell, cellId);
 
 				}
 			}
+			else{
 
-		}
+				//Send local vertices and local cells to ranks
 
-	}// end external sendrank loop
-#else
-    //serial version
-    m_originalslipsurface = m_slipsurface->clone();
+				//
+				// Send vertex data
+				//
+				bitpit::OBinaryStream vertexBuffer;
+				long vertexBufferSize = 0;
+				long nVerticesToCommunicate = 0;
+
+				// Fill buffer with vertex data
+				vertexBufferSize += sizeof(long);
+				for (long vertexId : m_slipsurface->getVertices().getIds()){
+					if (m_slipsurface->isPointInterior(vertexId)){
+						vertexBufferSize += m_slipsurface->getVertices()[vertexId].getBinarySize();
+						nVerticesToCommunicate++;
+					}
+				}
+				vertexBuffer.setSize(vertexBufferSize);
+
+				vertexBuffer << nVerticesToCommunicate;
+				for (long vertexId : m_slipsurface->getVertices().getIds()){
+					if (m_slipsurface->isPointInterior(vertexId)){
+						vertexBuffer << m_slipsurface->getVertices()[vertexId];
+					}
+				}
+
+				for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+
+					if (m_rank != recvRank){
+
+						// Communication
+						MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
+						MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
+
+					}
+				}
+
+				//
+				// Send cell data
+				//
+				bitpit::OBinaryStream cellBuffer;
+				long cellBufferSize = 0;
+				long nCellsToCommunicate = 0;
+
+				// Fill the buffer with cell data
+				cellBufferSize += sizeof(long);
+				for (const long cellId : m_slipsurface->getCellsIds()) {
+					if (m_slipsurface->getCells()[cellId].isInterior()){
+						cellBufferSize += sizeof(int) + sizeof(int) + m_slipsurface->getCells()[cellId].getBinarySize();
+						nCellsToCommunicate++;
+					}
+				}
+				cellBuffer.setSize(cellBufferSize);
+
+				cellBuffer << nCellsToCommunicate;
+				for (const long cellId : m_slipsurface->getCellsIds()) {
+					if (m_slipsurface->getCells()[cellId].isInterior()){
+						const bitpit::Cell &cell = m_slipsurface->getCells()[cellId];
+						// Cell data
+						cellBuffer << cell;
+					}
+				}
+
+				for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+
+					if (m_rank != recvRank){
+						// Communication
+						MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
+						MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
+
+					}
+				}
+
+			}
+
+		}// end external sendrank loop
+	}
+	else
 #endif
+	{
+		//serial version
+		m_originalslipsurface = m_slipsurface->clone();
+	}
 }
-
 
 /*!
  * Instead of instantiating m_originalslipsurface, calculate the average normal and
