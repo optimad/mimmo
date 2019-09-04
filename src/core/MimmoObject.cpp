@@ -3120,9 +3120,6 @@ void MimmoObject::restore(std::istream & stream){
     //check comparisons
     int type;
     bitpit::utils::binary::read(stream,type);
-	if(type != m_type){
-        throw std::runtime_error("Error during MimmoObject::restore :  mesh type of contents and container does not match");
-    }
 #if MIMMO_ENABLE_MPI
     int nprocs;
     bitpit::utils::binary::read(stream,nprocs);
@@ -3132,7 +3129,7 @@ void MimmoObject::restore(std::istream & stream){
 #endif
 
     //clean up and reset current object to ist virgin state
-    reset(m_type);
+    reset(type);
     //absorb the other data
     std::vector<long> pid;
     std::vector<std::string> sspid;
