@@ -73,11 +73,11 @@ public:
 
         //Register ports
         PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
-        PortManager::instance().addPort(M_SCALARFIELD, MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
+        PortManager::instance().addPort("M_MYSCALARFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
 
 		bool built = true;
 		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, M_COORDS);
-		built = built && createPortIn<dvector1D, ManipB>(this, &ManipB::setField, M_SCALARFIELD);
+		built = built && createPortIn<dvector1D, ManipB>(this, &ManipB::setField, "M_MYSCALARFIELD");
 		m_arePortsBuilt = built;
 	};
 	void execute(){m_member = 4;};
@@ -110,7 +110,7 @@ int test1() {
 	objA->m_field = field;
 
 	checkPin = checkPin && addPin(objA, objB, M_COORDS, M_COORDS);
-    checkPin = checkPin && addPin(objA, objB, "M_MYPERSONALFIELD", M_SCALARFIELD);
+    checkPin = checkPin && addPin(objA, objB, "M_MYPERSONALFIELD", "M_MYSCALARFIELD");
 
 	if(!checkPin){
 		std::cout<<"Failed getting connections"<<std::endl;
