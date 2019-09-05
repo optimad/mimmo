@@ -334,13 +334,14 @@ list(APPEND MIMMO_MODULE_LIST "propagators")
 set(MIMMO_MODULEENABLED_LIST "")
 list(APPEND MIMMO_MODULEENABLED_LIST "common")
 list(APPEND MIMMO_MODULEENABLED_LIST "core")
-if(ENABLE_MPI)
-    list(APPEND MIMMO_MODULEENABLED_LIST "parallel")
-endif()
 list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
 list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
 list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
 list(APPEND MIMMO_MODULEENABLED_LIST "utils")
+if(ENABLE_MPI)
+    list(APPEND MIMMO_MODULEENABLED_LIST "parallel")
+endif()
+
 
 set(MIMMO_MODULEDISABLED_LIST "")
 list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
@@ -360,10 +361,11 @@ set(IOOFOAM_DEPS "iogeneric;core;common")
 set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
-set(PROPAGATORS_DEPS "common;core")
-set(PARALLEL_DEPS "common;core")
 if(ENABLE_MPI)
-set(PROPAGATORS_DEPS "common;core;parallel")
+    set(PARALLEL_DEPS "common;core")
+    set(PROPAGATORS_DEPS "common;core;parallel")
+else()
+    set(PROPAGATORS_DEPS "common;core")
 endif()
 
 #------------------------------------------------------------------------------------#
@@ -434,6 +436,7 @@ isModuleEnabled("propagators"  MODULE_ENABLED_PROPAGATORS)
 isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
 isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
 isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
+isModuleEnabled("parallel" MODULE_ENABLED_PARALLEL)
 
 ###     BITPIT      ###############################################
 set(BITPIT_QUERYPACKAGES "levelset" "surfunstructured" "volunstructured" "RBF" "CG")
@@ -459,13 +462,6 @@ if (ENABLE_MPI)
     list (APPEND OTHER_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
     list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
 endif()
-
-
-## search optional modules if activated
-isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
-isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
-isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
-isModuleEnabled("parallel" MODULE_ENABLED_PARALLEL)
 
 if (MODULE_ENABLED_IOVTK)
     # ---- VTK forced ---
@@ -604,24 +600,32 @@ endif ()
 
 # parallel module dependencies
 if (MODULE_ENABLED_PARALLEL)
-    # ---- parmetis search ---
-#    set(PARMETIS_DIR "/opt/parmetis/parmetis-4.0.3" CACHE PATH "path to parMETIS installation")
-    set(PARMETIS_INCLUDE_DIRS "/opt/parmetis/parmetis-4.0.3/include" CACHE PATH "path to parMETIS include directory")
-    set(PARMETIS_LIBRARIES "/opt/parmetis/parmetis-4.0.3/lib/libparmetis.a" CACHE FILEPATH "path to parMETIS library")
-    set(METIS_INCLUDE_DIRS "/opt/parmetis/parmetis-4.0.3/metis/include" CACHE PATH "path to METIS include directory")
-    set(METIS_LIBRARIES "/opt/parmetis/parmetis-4.0.3/metis/lib/libmetis.a" CACHE FILEPATH "path to METIS library")
-    ##BEtter to be refind after
-#    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "PARMETIS")
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${PARMETIS_LIBRARIES}")
-    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE_DIRS}")
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${METIS_LIBRARIES}")
-    list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${METIS_INCLUDE_DIRS}")
-    ##include dirs are managed by parmetis-use-file
-    #      ----
+    # ---- parmetis/metis search ---
+    set(PARMETIS_DIR "/opt/parmetis/parmetis-4.0.3" CACHE PATH "path to parMETIS installation")
+    set(METIS_DIR "/opt/parmetis/parmetis-4.0.3/metis" CACHE PATH "path to METIS installation")
+
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${METIS_DIR}/include")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${PARMETIS_DIR}/include")
+
+    find_library(METISLIB NAMES "libmetis.so" "libmetis.a" HINTS "${METIS_DIR}/lib")
+    if(NOT METISLIB)
+        unset(METISLIB CACHE)
+        message(FATAL_ERROR "Cannot found any libmetis.so/libmetis.a in METIS lib installation path")
+    endif()
+    list(APPEND OTHER_EXTERNAL_LIBRARIES ${METISLIB})
+    unset(METISLIB CACHE)
+
+    find_library(PARMETISLIB NAMES "libparmetis.so" "libparmetis.a" HINTS "${PARMETIS_DIR}/lib")
+    if(NOT PARMETISLIB)
+        unset(PARMETISLIB CACHE)
+        message(FATAL_ERROR "Cannot found any libparmetis.so/libparmetis.a in parMETIS lib installation path")
+    endif()
+    list(APPEND OTHER_EXTERNAL_LIBRARIES ${PARMETISLIB})
+    unset(PARMETISLIB CACHE)
+
 else()
+    UNSET(METIS_DIR CACHE)
     UNSET(PARMETIS_DIR CACHE)
-    UNSET(PARMETIS_LIBRARIES CACHE)
-    UNSET(PARMETIS_INCLUDE_DIRS CACHE)
 endif ()
 
 
