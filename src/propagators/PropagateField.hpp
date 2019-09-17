@@ -334,6 +334,7 @@ private:
     | M_GEOM3         | setDumpingBoundarySurface   | (MC_SCALAR, MD_MIMMO_)  |
     | M_GDISPLS       | setDirichletConditions      | (MC_MPVECARR3, MD_FLOAT)|
     | M_GEOM4         | setSlipBoundarySurface      | (MC_SCALAR, MD_MIMMO_)  |
+    | M_GEOM5         | addPeriodicBoundarySurface  | (MC_SCALAR, MD_MIMMO_)  |
 
     |Port Output|||
     ||||
@@ -384,6 +385,9 @@ protected:
     MimmoPiercedVector<std::array<double, 3> > m_surface_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition value of POINTS on boundary surface*/
     bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
 
+    std::vector<MimmoObject*> m_periodicsurfaces;         /**< MimmoObject boundary patch identifying periodic conditions */
+    std::vector<long> m_periodicBoundaryPoints;
+
 private:
     std::array<double,3> m_AVGslipNormal;
     std::array<double,3> m_AVGslipCenter;
@@ -403,7 +407,9 @@ public:
     bool        isForcingPlanarSlip();
 
     void    setSlipBoundarySurface(MimmoObject *);
+    void    addPeriodicBoundarySurface(MimmoObject *);
     void    forcePlanarSlip(bool planar);
+    void    forceBoundarySlip(bool boundaries);
     void    setDirichletConditions(dmpvecarr3E bc);
 
     void    setSolverMultiStep(unsigned int sstep);
@@ -453,6 +459,7 @@ REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM4, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
+REGISTER_PORT(M_GEOM5, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__PROPAGATEFIELD_HPP__)
 

@@ -492,6 +492,7 @@ PropagateVectorField::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipBoundarySurface, M_GEOM4));
+	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
 	built = (built && createPortOut<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
 	PropagateField<3>::buildPorts();
 	m_arePortsBuilt = built;
@@ -542,6 +543,8 @@ void
 PropagateVectorField::forcePlanarSlip(bool planar){
 	m_forcePlanarSlip = planar;
 }
+
+
 /*!
  * It sets the Dirichlet conditions for each component of the vector field on the previously linked
  * Dirichlet Boundary patch.
@@ -550,6 +553,23 @@ PropagateVectorField::forcePlanarSlip(bool planar){
 void
 PropagateVectorField::setDirichletConditions(dmpvecarr3E bc){
 	m_surface_bc_dir = bc;
+}
+
+/*!
+ * Add a portion of boundary mesh relative to geometry target
+ * that must be constrained as periodic boundary surface.
+ * This patch is optional. If nothing is linked, the relative boundary is
+ * solved free of any conditions.
+ * WARNING: The imposed conditions are dirichlet homogeneous conditions on the boundary points of the patches. It has sense to impose
+ * slip conditions on the surface elements of the periodic patches. So for this version the suggestion is to pass the desired periodic surfaces
+ * both as periodic surfaces and even merged inside the slip patch.
+ * \param[in] surface Boundary patch.
+ */
+void
+PropagateVectorField::addPeriodicBoundarySurface(MimmoObject* surface){
+	if (!surface)       return;
+	if (surface->getType()!= 1 ) return;
+	m_periodicsurfaces.push_back(surface);
 }
 
 /*!
@@ -584,7 +604,6 @@ void PropagateVectorField::absorbSectionXML(const bitpit::Config::Section & slot
 		}
 		forcePlanarSlip(value);
 	}
-
 };
 
 /*!
@@ -658,6 +677,14 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 			}
 		}
 	}
+
+	if (m_periodicsurfaces.size()){
+		for (MimmoObject* surf : m_periodicsurfaces){
+			std::vector<long> tempboundary = surf->extractBoundaryVertexID(false);
+			m_periodicBoundaryPoints.insert(m_periodicBoundaryPoints.end(), tempboundary.begin(),tempboundary.end());
+		}
+	}
+
 
 	return true;
 }
@@ -1355,6 +1382,21 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 			lapwork->at(id) += correction;
 		}
 	}
+
+	//Loop on all periodic boundary points and force to be fixed (dirichlet 0)
+	for (long id : m_periodicBoundaryPoints){
+#if MIMMO_ENABLE_MPI
+			if (geo->isPointInterior(id))
+#endif
+			{
+				correction.clear(true);
+				correction.appendItem(id, 1.);
+				correction.sumConstant(0.);
+				//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
+				lapwork->at(id) *= 0.;
+				lapwork->at(id) += correction;
+			}
+		}
 
 
 	//loop on all slip boundary nodes.
