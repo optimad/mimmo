@@ -534,9 +534,9 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
 }
 
 /*!
- * Instantiate m_originalslipsurface, that is the surface where you need to evaluate
- * slip conditions. In SERIAL version m_originalslipsurface is the m_slipsurface passed as boundary.
- * In MPI version m_originalslipsurface is the whole slip surface rebuilt from every portion "m_slipsurface"
+ * Instantiate m_originaldumpingsurface, that is the surface where you need to evaluate
+ * dumping conditions. In SERIAL version m_dumpingsurface is the m_dumpingsurface passed as boundary.
+ * In MPI version m_dumpingsurface is the whole dumping surface rebuilt from every portion "m_dumpingsurface"
  * owned by each rank. Once recollected the whole surface is sent as it is to all ranks.
  * This surface needs to remain untouched and undeformed during Multistep iterations.
  */

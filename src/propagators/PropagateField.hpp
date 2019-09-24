@@ -315,7 +315,10 @@ private:
  * identifying boundaries through MimmoObject patches and associating to them the value of each component
  * of the field as Dirichlet condition.
  * Optionally an inpermeability-like/slip condition (zero vector field normal to boundary surface)
- * can be imposed on chosen boundary patches.
+ * can be imposed on chosen boundary patches. The nodes of the slip boundary patch are moved on a reference surface;
+ * if not provided by the user the reference surface is fixed as the same slip boundary patch.
+ * Moreover, the user can force the slip reference surface to be a plane by activating the related flag; in this
+ * case the mean plane defined over the slip boundary patch (the slip reference surface is useless) is used.
  *
  * The block can perform multistep evaluation to relax field propagation
  *
@@ -335,6 +338,7 @@ private:
     | M_GDISPLS       | setDirichletConditions      | (MC_MPVECARR3, MD_FLOAT)|
     | M_GEOM4         | setSlipBoundarySurface      | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM5         | addPeriodicBoundarySurface  | (MC_SCALAR, MD_MIMMO_)  |
+    | M_GEOM6         | setSlipReferenceSurface     | (MC_SCALAR, MD_MIMMO_)  |
 
     |Port Output|||
     ||||
@@ -380,12 +384,13 @@ protected:
 
     MimmoObject * m_slipsurface;         /**< MimmoObject boundary patch identifying slip conditions */
     std::unique_ptr<MimmoObject> m_originalslipsurface;    /**< MimmoObject boundary patch identifying undeformed original slip conditions*/
+    MimmoObject * m_slipreferencesurface;	/**< MimmoObject boundary surface identifying slip reference surface on which the slip nodes of boundary patch are re-projected. */
     int           m_nstep;               /**< multistep solver */
     MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition values interp on boundaries Interfaces of the target volume mesh */
     MimmoPiercedVector<std::array<double, 3> > m_surface_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type corrector condition value of POINTS on boundary surface*/
     bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
 
-    std::vector<MimmoObject*> m_periodicsurfaces;         /**< MimmoObject boundary patch identifying periodic conditions */
+    std::vector<MimmoObject*> m_periodicsurfaces;	/**< MimmoObject boundary patch identifying periodic conditions */
     std::vector<long> m_periodicBoundaryPoints;
 
 private:
@@ -407,6 +412,7 @@ public:
     bool        isForcingPlanarSlip();
 
     void    setSlipBoundarySurface(MimmoObject *);
+    void    setSlipReferenceSurface(MimmoObject *);
     void    addPeriodicBoundarySurface(MimmoObject *);
     void    forcePlanarSlip(bool planar);
     void    forceBoundarySlip(bool boundaries);
@@ -460,6 +466,7 @@ REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM4, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM5, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
+REGISTER_PORT(M_GEOM6, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__PROPAGATEFIELD_HPP__)
 

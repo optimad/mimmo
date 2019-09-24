@@ -405,6 +405,7 @@ PropagateVectorField::PropagateVectorField():PropagateField<3>(){
 	m_name = "mimmo.PropagateVectorField";
 	m_nstep = 1;
 	m_slipsurface = nullptr;
+	m_slipreferencesurface = nullptr;
     m_forcePlanarSlip = false;
 };
 
@@ -415,6 +416,7 @@ void PropagateVectorField::setDefaults(){
 	PropagateField<3>::setDefaults();
 	m_nstep = 1;
 	m_slipsurface = nullptr;
+	m_slipreferencesurface = nullptr;
     m_forcePlanarSlip = false;
 	m_slip_bc_dir.clear();
 	m_surface_slip_bc_dir.clear();
@@ -429,6 +431,7 @@ PropagateVectorField::PropagateVectorField(const bitpit::Config::Section & rootX
 	m_name = "mimmo.PropagateVectorField";
 	m_nstep = 1;
 	m_slipsurface = nullptr;
+	m_slipreferencesurface = nullptr;
     m_forcePlanarSlip = false;
 
 	std::string fallback_name = "ClassNONE";
@@ -453,6 +456,7 @@ PropagateVectorField::~PropagateVectorField(){
  */
 PropagateVectorField::PropagateVectorField(const PropagateVectorField & other):PropagateField<3>(other){
 	m_slipsurface = other.m_slipsurface;
+	m_slipreferencesurface = other.m_slipreferencesurface;
 	m_nstep = other.m_nstep;
 	m_slip_bc_dir = other.m_slip_bc_dir;
 	m_surface_slip_bc_dir = other.m_surface_slip_bc_dir;
@@ -473,6 +477,7 @@ PropagateVectorField & PropagateVectorField::operator=(PropagateVectorField othe
  */
 void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
 	std::swap(m_slipsurface, x.m_slipsurface);
+	std::swap(m_slipreferencesurface,x.m_slipreferencesurface);
 	std::swap(m_originalslipsurface, x.m_originalslipsurface);
 	std::swap(m_nstep, x.m_nstep);
 	std::swap(m_slip_bc_dir, x.m_slip_bc_dir);
@@ -492,6 +497,7 @@ PropagateVectorField::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipBoundarySurface, M_GEOM4));
+	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipReferenceSurface, M_GEOM6));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
 	built = (built && createPortOut<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
 	PropagateField<3>::buildPorts();
@@ -529,6 +535,20 @@ PropagateVectorField::setSlipBoundarySurface(MimmoObject* surface){
 	if (!surface)       return;
 	if (surface->getType()!= 1 ) return;
 	m_slipsurface = surface;
+}
+
+/*!
+ * Set the surface geometry on which the target boundary slip surface
+ * must be constrained on.
+ * This patch is optional. If nothing is linked, the slip boundary is reprojected
+ * over itself or on its mean plane if forced to be planar.
+ * \param[in] surface Slip reference surface.
+ */
+void
+PropagateVectorField::setSlipReferenceSurface(MimmoObject* surface){
+	if (!surface)       return;
+	if (surface->getType()!= 1 ) return;
+	m_slipreferencesurface = surface;
 }
 
 /*!
@@ -685,7 +705,6 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 		}
 	}
 
-
 	return true;
 }
 
@@ -698,6 +717,10 @@ bool PropagateVectorField::checkBoundariesCoherence(){
  */
 void PropagateVectorField::initializeSlipSurface(){
 
+	//If it not exists use the slip boundary patch as slip reference surface
+	if (m_slipreferencesurface == nullptr)
+		m_slipreferencesurface = m_slipsurface;
+
 #if MIMMO_ENABLE_MPI
 
 	if (getTotalProcs() > 1){
@@ -706,18 +729,17 @@ void PropagateVectorField::initializeSlipSurface(){
 		m_originalslipsurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
 		//fill serialized geometry
-		for (bitpit::Vertex &vertex : m_slipsurface->getVertices()){
+		for (bitpit::Vertex &vertex : m_slipreferencesurface->getVertices()){
 			long vertexId = vertex.getId();
-			if (m_slipsurface->isPointInterior(vertexId)){
+			if (m_slipreferencesurface->isPointInterior(vertexId)){
 				m_originalslipsurface->addVertex(vertex, vertexId);
 			}
 		}
-		for (bitpit::Cell &cell : m_slipsurface->getCells()){
+		for (bitpit::Cell &cell : m_slipreferencesurface->getCells()){
 			if (cell.isInterior()){
 				m_originalslipsurface->addCell(cell, cell.getId());
 			}
 		}
-
 
 		//Receive vertices and cells
 		for (int sendRank=0; sendRank<m_nprocs; sendRank++){
@@ -787,18 +809,18 @@ void PropagateVectorField::initializeSlipSurface(){
 
 				// Fill buffer with vertex data
 				vertexBufferSize += sizeof(long);
-				for (long vertexId : m_slipsurface->getVertices().getIds()){
-					if (m_slipsurface->isPointInterior(vertexId)){
-						vertexBufferSize += m_slipsurface->getVertices()[vertexId].getBinarySize();
+				for (long vertexId : m_slipreferencesurface->getVertices().getIds()){
+					if (m_slipreferencesurface->isPointInterior(vertexId)){
+						vertexBufferSize += m_slipreferencesurface->getVertices()[vertexId].getBinarySize();
 						nVerticesToCommunicate++;
 					}
 				}
 				vertexBuffer.setSize(vertexBufferSize);
 
 				vertexBuffer << nVerticesToCommunicate;
-				for (long vertexId : m_slipsurface->getVertices().getIds()){
-					if (m_slipsurface->isPointInterior(vertexId)){
-						vertexBuffer << m_slipsurface->getVertices()[vertexId];
+				for (long vertexId : m_slipreferencesurface->getVertices().getIds()){
+					if (m_slipreferencesurface->isPointInterior(vertexId)){
+						vertexBuffer << m_slipreferencesurface->getVertices()[vertexId];
 					}
 				}
 
@@ -822,18 +844,18 @@ void PropagateVectorField::initializeSlipSurface(){
 
 				// Fill the buffer with cell data
 				cellBufferSize += sizeof(long);
-				for (const long cellId : m_slipsurface->getCellsIds()) {
-					if (m_slipsurface->getCells()[cellId].isInterior()){
-						cellBufferSize += sizeof(int) + sizeof(int) + m_slipsurface->getCells()[cellId].getBinarySize();
+				for (const long cellId : m_slipreferencesurface->getCellsIds()) {
+					if (m_slipreferencesurface->getCells()[cellId].isInterior()){
+						cellBufferSize += sizeof(int) + sizeof(int) + m_slipreferencesurface->getCells()[cellId].getBinarySize();
 						nCellsToCommunicate++;
 					}
 				}
 				cellBuffer.setSize(cellBufferSize);
 
 				cellBuffer << nCellsToCommunicate;
-				for (const long cellId : m_slipsurface->getCellsIds()) {
-					if (m_slipsurface->getCells()[cellId].isInterior()){
-						const bitpit::Cell &cell = m_slipsurface->getCells()[cellId];
+				for (const long cellId : m_slipreferencesurface->getCellsIds()) {
+					if (m_slipreferencesurface->getCells()[cellId].isInterior()){
+						const bitpit::Cell &cell = m_slipreferencesurface->getCells()[cellId];
 						// Cell data
 						cellBuffer << cell;
 					}
@@ -857,7 +879,7 @@ void PropagateVectorField::initializeSlipSurface(){
 #endif
 	{
 		//serial version
-		m_originalslipsurface = m_slipsurface->clone();
+		m_originalslipsurface = m_slipreferencesurface->clone();
 	}
 }
 
@@ -867,49 +889,47 @@ void PropagateVectorField::initializeSlipSurface(){
  */
 void PropagateVectorField::initializeSlipSurfaceAsPlane(){
 
-    m_AVGslipCenter.fill(0.0);
-    m_AVGslipNormal.fill(0.0);
-    long countV = 0;
-    long countC = 0;
+	m_AVGslipCenter.fill(0.0);
+	m_AVGslipNormal.fill(0.0);
+	long countV = 0;
+	long countC = 0;
 
 #if MIMMO_ENABLE_MPI
-    if(!m_slipsurface->arePointGhostExchangeInfoSync()) m_slipsurface->updatePointGhostExchangeInfo();
+	if(!m_slipsurface->arePointGhostExchangeInfoSync()) m_slipsurface->updatePointGhostExchangeInfo();
 #endif
 
-bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch());
-    //start evaluating barycenter of interior points.
-    for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
+	bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch());
+	//start evaluating barycenter of interior points.
+	for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
 #if MIMMO_ENABLE_MPI
-        if(m_slipsurface->isPointInterior(itV.getId()))
+		if(m_slipsurface->isPointInterior(itV.getId()))
 #endif
-        {
-            m_AVGslipCenter += itV->getCoords();
-            ++countV;
-        }
-    }
+		{
+			m_AVGslipCenter += itV->getCoords();
+			++countV;
+		}
+	}
 
-    //evaluating average facet normal of interior cells.
-    for(auto itC = surfkernss->internalBegin(); itC != surfkernss->internalEnd(); ++itC){
-        m_AVGslipNormal += surfkernss->evalFacetNormal(itC.getId());
-        ++countC;
-    }
-
+	//evaluating average facet normal of interior cells.
+	for(auto itC = surfkernss->internalBegin(); itC != surfkernss->internalEnd(); ++itC){
+		m_AVGslipNormal += surfkernss->evalFacetNormal(itC.getId());
+		++countC;
+	}
 
 #if MIMMO_ENABLE_MPI
-    //communicate with other processors summing barycenters, normals
-    //number of vertices and number of cells and then average it.
-    MPI_Allreduce(MPI_IN_PLACE, &countV, 1, MPI_LONG, MPI_SUM, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &countC, 1, MPI_LONG, MPI_SUM, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, m_AVGslipCenter.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, m_AVGslipNormal.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+	//communicate with other processors summing barycenters, normals
+	//number of vertices and number of cells and then average it.
+	MPI_Allreduce(MPI_IN_PLACE, &countV, 1, MPI_LONG, MPI_SUM, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &countC, 1, MPI_LONG, MPI_SUM, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, m_AVGslipCenter.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, m_AVGslipNormal.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
 
 #endif
 
-    if(countV > 0)  m_AVGslipCenter /= double(countV);
-    if(countC > 0)  m_AVGslipNormal /= double(countC);
+	if(countV > 0)  m_AVGslipCenter /= double(countV);
+	if(countC > 0)  m_AVGslipNormal /= double(countC);
 
 }
-
 
 /*!
  * If dumping is active deform with value of m_field the internal dumping geometry
@@ -984,7 +1004,6 @@ std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
 	for (auto it= verts.begin(); it != verts.end(); ++it){
 		m_originalDumpingSurface->modifyVertex(it->getCoords() + mpvres->at(it.getId()), it.getId());
 	}
-
 
 }
 
@@ -1447,11 +1466,6 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 {
 	if(!m_slipsurface) return;
 	bitpit::SurfaceKernel * slipsurf = dynamic_cast<bitpit::SurfaceKernel *> (m_slipsurface->getPatch());
-
-//	//If not initialized initialize original slip surface
-//	if (!m_originalslipsurface)
-//		m_originalslipsurface = m_slipsurface->clone();
-
 
 	//first step: extract solutions on twin border nodes of m_surface_slip_bc_dir;
 	long id;

@@ -221,6 +221,7 @@ int test1() {
     prop3D->setDirichletBoundarySurface(bDIR.get());
     prop3D->setDirichletConditions(bc_surf_3Dfield);
     prop3D->setSlipBoundarySurface(bSLIP.get());
+    prop3D->setSlipReferenceSurface(bSLIP.get());
 
     prop3D->setMethod(PropagatorMethod::GRAPHLAPLACE);
 
