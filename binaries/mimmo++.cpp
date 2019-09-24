@@ -29,6 +29,7 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+static bitpit::Logger * mimmo_log;
 
 /*!
  * \enum Verbose
@@ -217,9 +218,8 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
  */
 void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory) {
 
-    auto m_log = &bitpit::log::cout("mimmo");
-    m_log->setPriority(bitpit::log::NORMAL);
-    (*m_log)<< "Currently reading XML dictionary"<<std::endl;
+    mimmo_log->setPriority(bitpit::log::NORMAL);
+    (*mimmo_log)<< "Currently reading XML dictionary"<<std::endl;
 
     if(config::root.hasSection("Blocks")){
         bitpit::Config::Section & blockXML = config::root.getSection("Blocks");
@@ -237,26 +237,26 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
                 std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
                 mapInst[idstring] = std::move(temp);
 
-                (*m_log)<< "...Instantiated mimmo block: "<<sect.first<<" of type "<<className<<std::endl;
+                (*mimmo_log)<< "...Instantiated mimmo block: "<<sect.first<<" of type "<<className<<std::endl;
             }else {
-                (*m_log)<<"...Failed instantiation of "<<sect.first<<". mimmo block of type "<<className<<" not registered in the API"<<std::endl;
+                (*mimmo_log)<<"...Failed instantiation of "<<sect.first<<". mimmo block of type "<<className<<" not registered in the API"<<std::endl;
             }
         }
 
-        (*m_log)<<" "<<std::endl;
-        (*m_log)<<"Instantiated objects : "<<mapInst.size()<<std::endl;
+        (*mimmo_log)<<" "<<std::endl;
+        (*mimmo_log)<<"Instantiated objects : "<<mapInst.size()<<std::endl;
 
         for(auto & iM : mapInst){
             mapConn[iM.first] = iM.second.get();
             //need to find a way to define objects inside another object
         }
 
-        (*m_log)<<" "<<std::endl;
-        (*m_log)<<"Connectable objects : "<<mapConn.size()<<std::endl;
-        m_log->setPriority(bitpit::log::DEBUG);
+        (*mimmo_log)<<" "<<std::endl;
+        (*mimmo_log)<<"Connectable objects : "<<mapConn.size()<<std::endl;
+        mimmo_log->setPriority(bitpit::log::DEBUG);
     }else{
-        (*m_log)<<"No Blocks section available in the XML dictionary"<<std::endl;
-        m_log->setPriority(bitpit::log::DEBUG);
+        (*mimmo_log)<<"No Blocks section available in the XML dictionary"<<std::endl;
+        mimmo_log->setPriority(bitpit::log::DEBUG);
     }
 
 	//absorb connections from file if any
@@ -266,14 +266,14 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
 		bitpit::Config::Section & connXML = config::root.getSection("Connections");
 		conns->absorbConnections(connXML, false);
 	}else{
-        m_log->setPriority(bitpit::log::NORMAL);
-        (*m_log)<<"No Connections section available in the XML dictionary"<<std::endl;
-        m_log->setPriority(bitpit::log::DEBUG);
+        mimmo_log->setPriority(bitpit::log::NORMAL);
+        (*mimmo_log)<<"No Connections section available in the XML dictionary"<<std::endl;
+        mimmo_log->setPriority(bitpit::log::DEBUG);
     }
 
-    m_log->setPriority(bitpit::log::NORMAL);
-    (*m_log)<< "Finished reading XML dictionary"<<std::endl;
-    m_log->setPriority(bitpit::log::DEBUG);
+    mimmo_log->setPriority(bitpit::log::NORMAL);
+    (*mimmo_log)<< "Finished reading XML dictionary"<<std::endl;
+    mimmo_log->setPriority(bitpit::log::DEBUG);
 
 
 }
@@ -285,16 +285,16 @@ void mimmocore(const InfoMimmoPP & info) {
         //set the logger and the verbosity of the output messages in execution
         std::string log = "mimmo";
         mimmo::setLogger(log);
-        auto m_log = &bitpit::log::cout(log);
+        auto mimmo_log = &bitpit::log::cout(log);
         switch(int(info.vconsole)){
             case 1 :
-                bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::Verbosity::NORMAL);
+                bitpit::log::setConsoleVerbosity((*mimmo_log), bitpit::log::Verbosity::NORMAL);
                 break;
             case 2 :
-                bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::Verbosity::DEBUG);
+                bitpit::log::setConsoleVerbosity((*mimmo_log), bitpit::log::Verbosity::DEBUG);
                 break;
             case 0 :
-                bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::Verbosity::QUIET);
+                bitpit::log::setConsoleVerbosity((*mimmo_log), bitpit::log::Verbosity::QUIET);
                 break;
             default: //never been reached
                 break;
@@ -302,13 +302,13 @@ void mimmocore(const InfoMimmoPP & info) {
 
         switch(int(info.vlog)){
             case 1 :
-                bitpit::log::setFileVerbosity((*m_log), bitpit::log::Verbosity::NORMAL);
+                bitpit::log::setFileVerbosity((*mimmo_log), bitpit::log::Verbosity::NORMAL);
                 break;
             case 2 :
-                bitpit::log::setFileVerbosity((*m_log), bitpit::log::Verbosity::DEBUG);
+                bitpit::log::setFileVerbosity((*mimmo_log), bitpit::log::Verbosity::DEBUG);
                 break;
             case 0 :
-                bitpit::log::setFileVerbosity((*m_log), bitpit::log::Verbosity::QUIET);
+                bitpit::log::setFileVerbosity((*mimmo_log), bitpit::log::Verbosity::QUIET);
                 break;
             default: //never been reached
                 break;
@@ -318,7 +318,7 @@ void mimmocore(const InfoMimmoPP & info) {
         mimmo::setExpertMode(info.expert);
 
         //print resume args info.
-        m_log->setPriority(bitpit::log::NORMAL);
+        mimmo_log->setPriority(bitpit::log::NORMAL);
         {
             std::vector<std::string> verb(3, "quiet");
             verb[1] = "normal";
@@ -326,17 +326,17 @@ void mimmocore(const InfoMimmoPP & info) {
             std::vector<std::string> yesno(2, "no");
             yesno[1] = "yes";
 
-            (*m_log)<< "Resume of arguments in mimmo++:"<<std::endl;
-            (*m_log)<< "dictionary:         "<<info.dictName<<std::endl;
-            (*m_log)<< "console verbosity:  "<<verb[static_cast<int>(info.vconsole)]<<std::endl;
-            (*m_log)<< "log file verbosity: "<<verb[static_cast<int>(info.vlog)]<<std::endl;
-            (*m_log)<< "debug results:      "<<yesno[int(info.optres)]<<std::endl;
-            (*m_log)<< "debug results path: "<<info.optres_path<<std::endl;
-            (*m_log)<< "expert mode:        "<<yesno[int(info.expert)]<<std::endl;
-            (*m_log)<< " "<<std::endl;
-            (*m_log)<< " "<<std::endl;
+            (*mimmo_log)<< "Resume of arguments in mimmo++:"<<std::endl;
+            (*mimmo_log)<< "dictionary:         "<<info.dictName<<std::endl;
+            (*mimmo_log)<< "console verbosity:  "<<verb[static_cast<int>(info.vconsole)]<<std::endl;
+            (*mimmo_log)<< "log file verbosity: "<<verb[static_cast<int>(info.vlog)]<<std::endl;
+            (*mimmo_log)<< "debug results:      "<<yesno[int(info.optres)]<<std::endl;
+            (*mimmo_log)<< "debug results path: "<<info.optres_path<<std::endl;
+            (*mimmo_log)<< "expert mode:        "<<yesno[int(info.expert)]<<std::endl;
+            (*mimmo_log)<< " "<<std::endl;
+            (*mimmo_log)<< " "<<std::endl;
         }
-        m_log->setPriority(bitpit::log::DEBUG);
+        mimmo_log->setPriority(bitpit::log::DEBUG);
 
         //get into the mood.
 		bitpit::config::reset("mimmoXML", 1);
@@ -349,8 +349,8 @@ void mimmocore(const InfoMimmoPP & info) {
 		auto &factory = Factory<BaseManipulation>::instance();
 		read_Dictionary(mapInst, mapConn, factory);
 
-        m_log->setPriority(bitpit::log::NORMAL);
-		(*m_log)<<"Creating Execution chains... ";
+        mimmo_log->setPriority(bitpit::log::NORMAL);
+		(*mimmo_log)<<"Creating Execution chains... ";
 
 
 		//create map of chains vs priorities.
@@ -360,28 +360,28 @@ void mimmocore(const InfoMimmoPP & info) {
 			uint priority = val.second->getPriority();
 			chainMap[priority].addObject(val.second);
 		}
-		(*m_log)<<" DONE."<<std::endl;
+		(*mimmo_log)<<" DONE."<<std::endl;
 
 		//Execute
-        (*m_log)<<"Executing your workflow... "<<std::endl;
-        m_log->setPriority(bitpit::log::DEBUG);
+        (*mimmo_log)<<"Executing your workflow... "<<std::endl;
+        mimmo_log->setPriority(bitpit::log::DEBUG);
 
 
 		for(auto &val : chainMap){
 			if (val.second.getNObjects() > 0){
-                m_log->setPriority(bitpit::log::NORMAL);
-                (*m_log)<<"...executing Chain w/ priority "<<val.first<<std::endl;
-                m_log->setPriority(bitpit::log::DEBUG);
+                mimmo_log->setPriority(bitpit::log::NORMAL);
+                (*mimmo_log)<<"...executing Chain w/ priority "<<val.first<<std::endl;
+                mimmo_log->setPriority(bitpit::log::DEBUG);
                 val.second.setPlotDebugResults(info.optres);
                 val.second.setOutputDebugResults(info.optres_path);
 				val.second.exec(true);
 			}
 		}
 
-		m_log->setPriority(bitpit::log::NORMAL);
-		(*m_log)<<"Workflow DONE."<<std::endl;
+		mimmo_log->setPriority(bitpit::log::NORMAL);
+		(*mimmo_log)<<"Workflow DONE."<<std::endl;
 		//Done, now exiting;
-        m_log->setPriority(bitpit::log::DEBUG);
+        mimmo_log->setPriority(bitpit::log::DEBUG);
 }
 
 
@@ -393,13 +393,14 @@ int main( int argc, char *argv[] ) {
 
     {
         #endif
+    	mimmo_log = &bitpit::log::cout("mimmo");
         try{
             //read the arguments
             InfoMimmoPP info = readArguments(argc, argv);
             mimmocore(info);
         }
         catch(std::exception & e){
-            std::cout<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
+        	(*mimmo_log)<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 
