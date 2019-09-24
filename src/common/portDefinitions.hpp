@@ -36,6 +36,7 @@
 #define M_GEOM3           "M_GEOM3"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOM4           "M_GEOM4"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOM5           "M_GEOM5"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
+#define M_GEOM6           "M_GEOM6"             /**< Port dedicated to communication of pointers to a MimmoObject object*/
 #define M_GEOMOFOAM       "M_GEOMOFOAM"         /**< Port dedicated to communication of pointers to a MimmoObject object used as I/O between OFOAM blocks*/
 #define M_GEOMOFOAM2      "M_GEOMOFOAM2"        /**< Port dedicated to communication of pointers to a MimmoObject object used as I/O between OFOAM blocks*/
 #define M_VECGEOM         "M_VECGEOM"           /**< Port dedicated to communication of list of pointers to a MimmoObject object [ std::vector< MimmoObject* > ] */
