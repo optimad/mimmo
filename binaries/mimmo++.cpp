@@ -108,7 +108,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     //reading arguments
     if(argc <2) {
         std::cout<<"Error. Not enough arguments found launching mimmo++"<<std::endl;
-        std::cout<<"Please run mimmo++ --help for a brief guide on how to use it"<<std::endl;
+        std::cout<<"Please run mimmo++ --help or -h for a brief guide on how to use it"<<std::endl;
         exit(1);
     }
 
@@ -118,7 +118,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
         input.insert(bitpit::utils::string::trim(temp));
     }
 
-    if(input.count("--help")>0){
+    if(input.count("--help") || input.count("-h")){
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
         std::cout<<""<<std::endl;
         std::cout<<"    Brief mimmo++ helper, version 1.0"<<std::endl;
@@ -133,26 +133,26 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
         std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --help                         : print this helper "<<std::endl;
+        std::cout<<"    --help,-h                                       : print this helper "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --dict=<dictionary name>       : full path to the target xml dictionary. Mandatory. "<<std::endl;
+        std::cout<<"    --dictionary,-d=<dictionary name>               : full path to the target xml dictionary. Mandatory. "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --vconsole=<quiet/normal/full> : print info on mimmo++ execution on console(screen).        "<<std::endl;
-        std::cout<<"                                     full is meant for full debug message verbosity, normal for "<<std::endl;
-        std::cout<<"                                     a medium verbosity, quiet shut off messaging on console.   "<<std::endl;
-        std::cout<<"                                     Default verbosity is medium.                               "<<std::endl;
+        std::cout<<"    --console-verbosity,-cv=<quiet/normal/full>     : print info on mimmo++ execution on console(screen).        "<<std::endl;
+        std::cout<<"                                                    full is meant for full debug message verbosity, normal for "<<std::endl;
+        std::cout<<"                                                    a medium verbosity, quiet shut off messaging on console.   "<<std::endl;
+        std::cout<<"                                                    Default verbosity is medium.                               "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --vlog=<quiet/normal/full>     : print info on mimmo++ execution external file mimmo.log.   "<<std::endl;
-        std::cout<<"                                     full is meant for full debug message verbosity, normal for "<<std::endl;
-        std::cout<<"                                     a medium verbosity, quiet shut off messaging on file.      "<<std::endl;
-        std::cout<<"                                     Default verbosity is full.                                 "<<std::endl;
+        std::cout<<"    --log-verbosity,-lv=<quiet/normal/full>         : print info on mimmo++ execution external file mimmo.log.   "<<std::endl;
+        std::cout<<"                                                    full is meant for full debug message verbosity, normal for "<<std::endl;
+        std::cout<<"                                                    a medium verbosity, quiet shut off messaging on file.      "<<std::endl;
+        std::cout<<"                                                    Default verbosity is full.                                 "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --opt-res=yes                  : activate plot of optional/debug results of execution       "<<std::endl;
+        std::cout<<"    --optional-results,-or=yes                      : activate plot of optional/debug results of execution       "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --opt-res-path=<path>          : specify directory to store optional results.               "<<std::endl;
-        std::cout<<"                                     Default directory is the current one ./                    "<<std::endl;
+        std::cout<<"    --optional-results-path,-orp=<path>             : specify directory to store optional results.               "<<std::endl;
+        std::cout<<"                                                    Default directory is the current one ./                        "<<std::endl;
         std::cout<<" "<<std::endl;
-        std::cout<<"    --expert=yes                   : override mandatory ports connection checking.              "<<std::endl;
+        std::cout<<"    --expert,-e=yes                                 : override mandatory ports connection checking.              "<<std::endl;
         std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
         std::cout<<" "<<std::endl;
@@ -162,12 +162,20 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     }
 
     std::unordered_map<int, std::string> keymap;
-    keymap[0] = "dict=";
-    keymap[1] = "vlog=";
-    keymap[2] = "vconsole=";
-    keymap[3] = "opt-res=";
-    keymap[4] = "opt-res-path=";
+    int nkeys = 6;
+    keymap[0] = "dictionary=";
+    keymap[1] = "log-verbosity=";
+    keymap[2] = "console-verbosity=";
+    keymap[3] = "optional-results=";
+    keymap[4] = "optional-results-path=";
     keymap[5] = "expert=";
+
+    keymap[nkeys] = "d=";
+    keymap[nkeys+1] = "lv=";
+    keymap[nkeys+2] = "cv=";
+    keymap[nkeys+3] = "or=";
+    keymap[nkeys+4] = "orp=";
+    keymap[nkeys+5] = "e=";
 
     std::map<int, std::string> final_map;
     //visit input list and search for each key string  in key map. If an input string positively match a key,
@@ -175,13 +183,13 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
 
     for(auto val: input){
         std::size_t pos = std::string::npos;
-        int counter=0;
-        while (pos == std::string::npos && counter <6){
-            pos = val.find(keymap[counter]);
-            ++counter;
+        int counter=-1;
+        while (pos == std::string::npos && counter <2*nkeys){
+        	++counter;
+        	pos = val.find(keymap[counter]);
         }
 
-        if(pos != std::string::npos) final_map[counter-1] =val.substr(pos+keymap[counter-1].size());
+        if(pos != std::string::npos) final_map[counter%nkeys] =val.substr(pos+keymap[counter].size());
     }
 
     if(final_map.count(0) < 1) {
