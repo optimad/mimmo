@@ -177,6 +177,13 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     keymap[nkeys+4] = "orp=";
     keymap[nkeys+5] = "e=";
 
+    keymap[2*nkeys] = "dict=";
+    keymap[2*nkeys+1] = "vlog=";
+    keymap[2*nkeys+2] = "vconsole=";
+    keymap[2*nkeys+3] = "opt-res=";
+    keymap[2*nkeys+4] = "opt-res-path=";
+    keymap[2*nkeys+5] = "expert=";
+
     std::map<int, std::string> final_map;
     //visit input list and search for each key string  in key map. If an input string positively match a key,
     // clean the entry from key, give her the key map marker and store it in the final map.
@@ -184,7 +191,7 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
     for(auto val: input){
         std::size_t pos = std::string::npos;
         int counter=-1;
-        while (pos == std::string::npos && counter <2*nkeys){
+        while (pos == std::string::npos && counter <3*nkeys){
         	++counter;
         	pos = val.find(keymap[counter]);
         }
