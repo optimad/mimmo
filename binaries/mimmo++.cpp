@@ -163,19 +163,19 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
 
     std::unordered_map<int, std::string> keymap;
     int nkeys = 6;
-    keymap[0] = "dictionary=";
-    keymap[1] = "log-verbosity=";
-    keymap[2] = "console-verbosity=";
-    keymap[3] = "optional-results=";
-    keymap[4] = "optional-results-path=";
-    keymap[5] = "expert=";
+    keymap[0] = "--dictionary=";
+    keymap[1] = "--log-verbosity=";
+    keymap[2] = "--console-verbosity=";
+    keymap[3] = "--optional-results=";
+    keymap[4] = "--optional-results-path=";
+    keymap[5] = "--expert=";
 
-    keymap[nkeys] = "d=";
-    keymap[nkeys+1] = "lv=";
-    keymap[nkeys+2] = "cv=";
-    keymap[nkeys+3] = "or=";
-    keymap[nkeys+4] = "orp=";
-    keymap[nkeys+5] = "e=";
+    keymap[nkeys] = "-d=";
+    keymap[nkeys+1] = "-lv=";
+    keymap[nkeys+2] = "-cv=";
+    keymap[nkeys+3] = "-or=";
+    keymap[nkeys+4] = "-orp=";
+    keymap[nkeys+5] = "-e=";
 
     keymap[2*nkeys] = "dict=";
     keymap[2*nkeys+1] = "vlog=";
