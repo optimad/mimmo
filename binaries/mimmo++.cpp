@@ -29,7 +29,16 @@ using namespace std;
 using namespace bitpit;
 using namespace mimmo;
 
+/*!
+ * Global logger of the process
+ */
 static bitpit::Logger * mimmo_log;
+
+/*!
+ * Global xml dictionary parser of the process
+ */
+static std::unique_ptr<bitpit::ConfigParser> mimmo_parser;
+
 
 /*!
  * \enum Verbose
@@ -221,8 +230,8 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
     mimmo_log->setPriority(bitpit::log::NORMAL);
     (*mimmo_log)<< "Currently reading XML dictionary"<<std::endl;
 
-    if(config::root.hasSection("Blocks")){
-        bitpit::Config::Section & blockXML = config::root.getSection("Blocks");
+    if(mimmo_parser->hasSection("Blocks")){
+        bitpit::Config::Section & blockXML = mimmo_parser->getSection("Blocks");
         for(auto & sect : blockXML.getSections()){
 
             std::string fallback_name = "ClassNONE";
@@ -262,8 +271,8 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
 	//absorb connections from file if any
 	std::unique_ptr<IOConnections_MIMMO> conns (new IOConnections_MIMMO (mapConn));
 
-	if(config::root.hasSection("Connections")){
-		bitpit::Config::Section & connXML = config::root.getSection("Connections");
+	if(mimmo_parser->hasSection("Connections")){
+		bitpit::Config::Section & connXML = mimmo_parser->getSection("Connections");
 		conns->absorbConnections(connXML, false);
 	}else{
         mimmo_log->setPriority(bitpit::log::NORMAL);
@@ -338,9 +347,9 @@ void mimmocore(const InfoMimmoPP & info) {
         }
         mimmo_log->setPriority(bitpit::log::DEBUG);
 
-        //get into the mood.
-		bitpit::config::reset("mimmoXML", 1);
-		bitpit::config::read(info.dictName);
+    	//Instantiate of global parser
+      	mimmo_parser = std::unique_ptr<bitpit::ConfigParser>(new bitpit::ConfigParser("mimmoXML", 1, true));
+      	mimmo_parser->read(info.dictName);
 
 		std::map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
 		std::unordered_map<std::string, BaseManipulation * > mapConn;
@@ -351,7 +360,6 @@ void mimmocore(const InfoMimmoPP & info) {
 
         mimmo_log->setPriority(bitpit::log::NORMAL);
 		(*mimmo_log)<<"Creating Execution chains... ";
-
 
 		//create map of chains vs priorities.
 		std::map<uint,mimmo::Chain> chainMap;
@@ -393,7 +401,9 @@ int main( int argc, char *argv[] ) {
 
     {
         #endif
+    	//Instantiate of global logger
     	mimmo_log = &bitpit::log::cout("mimmo");
+
         try{
             //read the arguments
             InfoMimmoPP info = readArguments(argc, argv);
