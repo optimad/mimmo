@@ -79,7 +79,7 @@ void example00002() {
     addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
     addPin(partition, checkmesh, M_GEOM, M_GEOM);
 #else
-    addPin(cgnsI, checkMesh, M_GEOM, M_GEOM)  ;
+    addPin(cgnsI, checkmesh, M_GEOM, M_GEOM)  ;
 #endif
 
     /* Create and execute chain. */
