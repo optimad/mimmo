@@ -44,6 +44,9 @@
 #include "TranslationPoint.hpp"
 #include "OBBox.hpp"
 #include "MeshChecker.hpp"
+#include "ProjSegmentOnSurface.hpp"
+#include "Proj3DCurveOnSurface.hpp"
+#include "ProjPatchOnSurface.hpp"
 
 
 #endif
