@@ -3751,7 +3751,7 @@ MimmoObject::triangulate(){
 	newID = maxID+1;
 	{
 		const auto orderedVertID = getVertices().getIds(true);
-		newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
+		newVertID = orderedVertID[(int)orderedVertID.size()-1] +1;
 	}
 
 	bitpit::ElementType eletype;
