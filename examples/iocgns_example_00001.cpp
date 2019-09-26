@@ -176,14 +176,16 @@ void example00001() {
     addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
 #if MIMMO_ENABLE_MPI
     addPin(partition, applier, M_GEOM, M_GEOM)  ;
+    addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
+    addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
 #else
     addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
+    addPin(cgnsI, extrF, M_GEOM2, M_GEOM)  ;
+    addPin(cgnsI, applierS, M_GEOM2, M_GEOM)  ;
 #endif
 
-    addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
     addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
     addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
-    addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
 
 #if MIMMO_ENABLE_MPI
     addPin(applier, serialize, M_GEOM, M_GEOM)  ;
