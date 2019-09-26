@@ -90,8 +90,15 @@ void test00001() {
 	sphSel->setOrigin({{-0.5, 0.5,0.2}});
 	sphSel->setSpan(0.34, 2*M_PI, M_PI);
 
+    /* Instantiation of a Refine Geometry block.
+     * Setup refining.
+     */
+    RefineGeometry   * refine = new RefineGeometry();
+    refine->setRefineType(RefineType::TERNARY);
+
     /* Setup pin connections.
      */
+    pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
     pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
     pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
     pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
@@ -101,6 +108,7 @@ void test00001() {
      */
     Chain ch0;
     ch0.addObject(mimmo0);
+    ch0.addObject(refine);
     ch0.addObject(boxSel);
     ch0.addObject(sphSel);
     ch0.addObject(mimmo1);
@@ -116,12 +124,14 @@ void test00001() {
 	delete boxSel;
 	delete sphSel;
     delete mimmo0;
+    delete refine;
     delete mimmo1;
     delete mimmo2;
 
     boxSel = NULL;
     sphSel = NULL;
     mimmo0 = NULL;
+    refine = NULL;
     mimmo1 = NULL;
     mimmo2 = NULL;
 

@@ -35,7 +35,9 @@ namespace mimmo{
  * \brief Methods available for refining globally a (surface) geometry.
  */
 enum class RefineType{
-    TERNARY = 0, /**< One vertex for cell*/
+    TERNARY = 0, /**< One vertex for cell is added located on the barycenter of each cell.
+    				  Then each cell is replaced by n-triangles built by using the n-edge of the cell.
+     	 	 	 	  Note: all the elements must be convex. */
 };
 
 /*!
@@ -45,8 +47,7 @@ enum class RefineType{
  *         refine a surface geometry
  *
  *    RefineGeometry is the object to refine a surface MimmoObject.
- *    The refining can be performed by using an external geometry, for instance a sub-selection of the surface patch
- *    or a line MimmoObject.
+ *    After the execution of the block the geometry will be refined in function of the refinement method chosen.
  * 
  * Ports available in RefineGeometry Class :
  *
@@ -56,7 +57,6 @@ enum class RefineType{
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM   | setGeometry                     | (MC_SCALAR, MD_MIMMO_)      |
-     | M_GEOM2   | addExternalGeometry                     | (MC_SCALAR, MD_MIMMO_)      |
 
 
      |Port Output | | |
@@ -83,10 +83,7 @@ enum class RefineType{
 class RefineGeometry: public BaseManipulation{
 
 protected:
-//	std::vector<MimmoObject*>   m_extgeo;   /**< Pointers to external geometries*/
 	RefineType					m_type;		/**< Refine mode. Default 2 - Line Path Refinement*/
-
-//    std::unique_ptr<MimmoObject> m_erasepatch;    /**< erased patch of the original geometry */
 
 public:
     RefineGeometry();
@@ -100,9 +97,8 @@ public:
 
     RefineType	getRefineType();
 
-//    void	addExternalGeometry(MimmoObject * geo);
-    void	setRefineType(RefineType mode);
-    void	setRefineType(int mode);
+    void	setRefineType(RefineType type);
+    void	setRefineType(int tyep);
     void	clear();
     void	execute();
     

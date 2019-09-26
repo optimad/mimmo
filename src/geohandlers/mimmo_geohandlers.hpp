@@ -41,4 +41,5 @@
 #include "ExtractFields.hpp"
 #include "StitchGeometry.hpp"
 #include "FVMeshSelection.hpp"
+#include "RefineGeometry.hpp"
 #endif

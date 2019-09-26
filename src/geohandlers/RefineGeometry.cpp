@@ -98,7 +98,6 @@ RefineGeometry::buildPorts(){
     bool built = true;
 
 	built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
-//    built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::addExternalGeometry, M_GEOM2));
 
     built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
@@ -138,46 +137,11 @@ RefineGeometry::setRefineType(int type){
 	m_type = RefineType(type);
 };
 
-///*!
-// * Add an external geometry to be used for refining. Topology of the geometry must be coeherent
-// * with refinement type of the class;
-// * \param[in] geo  Pointer to MimmoObject
-// */
-//void
-//RefineGeometry::addExternalGeometry(MimmoObject* geo){
-//    if(geo == nullptr) return;
-//    if(geo->getType() != 1 && geo->getType() != 4){
-//		(*m_log)<<m_name + " : warning, topology of provided external geometry different from surface or line."<<std::endl;
-//		return;
-//    }
-//    else if (geo->getType() == 1){
-//    	if (m_type != RefineType::SELECTION){
-//    		(*m_log)<<m_name + " : warning, topology of provided external geometry surface with type different from selection."<<std::endl;
-//    		return;
-//    	}
-//    }
-//    else if (geo->getType() == 4){
-//    	if (m_type != RefineType::LINE){
-//    		(*m_log)<<m_name + " : warning, topology of provided external geometry 3D line with type different from line."<<std::endl;
-//    		return;
-//    	}
-//    }
-//
-//    //Don't insert a duplicated geometry
-//    if(std::count(m_extgeo.begin(), m_extgeo.end(), geo))
-//    	return;
-//
-//    m_extgeo.push_back(geo);
-//
-//};
-
-
 /*!
  * Clear all stuffs in your class
  */
 void
 RefineGeometry::clear(){
-//    m_extgeo.clear();
     BaseManipulation::clear();
 };
 
@@ -187,132 +151,104 @@ RefineGeometry::clear(){
  */
 void
 RefineGeometry::execute(){
+
     if(getGeometry() == nullptr){
         (*m_log)<<m_name + " : no geometry to refine found"<<std::endl;
         return;
     }
 
+	if (getGeometry()->getType() != 1){
+		(*m_log)<<m_name + " : data structure type different from Surface "<<std::endl;
+		throw std::runtime_error (m_name + " : data structure type different from Surface");
+	}
 
+    if (m_type == RefineType::TERNARY){
+    	//TERNARY REFINEMENT
 
+    	// Ternary refinement force the geometry to be a triangulation by placing a new vertex
+    	// on the mean point of each cell (the cells have to be convex)
 
+    	// For Now this method works only in SERIAL mode.
+    #if MIMMO_ENABLE_MPI
+    	if (m_nprocs > 1){
+    		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+    		(*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel process."<<std::endl;
+    	}
+    #else
 
-//    std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
-//#if MIMMO_ENABLE_MPI
-//    if(m_nprocs > 1){
-//        //TODO you need a strategy to stitch together partioned mesh, keeping a unique id
-//        //throughout cells and ids. For example, communicate the number of Global cells and Global verts
-//        //(or min/max ids) of each patch to all communicators, and using them to organize offsets
-//        //for safe inserting elements.
-//        (*m_log)<<"WARNING "<< m_name<<" : stitching not available yet for MPI version with procs > 1"<<std::endl;
-//        m_patch = std::move(dum);
-//        return;
-//    }
-//#endif
-//
-//    long nCells = 0;
-//    long nVerts = 0;
-//
-//    for(auto &obj : m_extgeo){
-//        nCells += obj.first->getNCells();
-//        nVerts += obj.first->getNVertices();
-//    }
-//
-//    //reserving memory
-//    dum->getPatch()->reserveVertices(nVerts);
-//    dum->getPatch()->reserveCells(nCells);
-//
-//    long cV = 0, cC = 0;
-//
-//    std::unordered_map<MimmoObject*,long>    map_pidstart;
-//    //initialize map
-//    for(auto & obj : m_extgeo){
-//        map_pidstart[obj.first] = 0;
-//    }
-//
-//    if(m_repid){
-//        long pidmax = -1;
-//        for(auto & obj : m_extgeo){
-//            auto pidlist = obj.first->getPIDTypeList();
-//            std::vector<long> temp(pidlist.begin(), pidlist.end());
-//            std::sort(temp.begin(), temp.end());
-//            map_pidstart[obj.first] = pidmax + 1;
-//            pidmax += (*(temp.rbegin())+1);
-//        }
-//    }
-//
-//
-//    //start filling your stitched object.
-//    {
-//        //optional vars;
-//        long vId, cId;
-//        long PID;
-//        bitpit::ElementType eltype;
-//
-//        for(auto &obj : m_extgeo){
-//
-//            std::unordered_map<long,long> mapVloc;
-//            auto originalPidNames = obj.first->getPIDTypeListWNames();
-//            std::unordered_map<long, long> newOldPid;
-//            for(const auto & val : obj.first->getPIDTypeList()){
-//                newOldPid[val + map_pidstart[obj.first]] = val;
-//            }
-//            //start extracting/reversing vertices of the current obj
-//            for(const auto & vv : obj.first->getVertices()){
-//                vId = vv.getId();
-//                dum->addVertex(obj.first->getVertexCoords(vId), cV);
-//                //update map;
-//                mapVloc[vId] = cV;
-//                cV++;
-//            }
-//
-//            //start extracting/reversing cells of the current obj
-//            for(const auto & cc : obj.first->getCells()){
-//                cId = cc.getId();
-//                PID = cc.getPID() + map_pidstart[obj.first];
-//                eltype = cc.getType();
-//                //get the local connectivity and update with new vertex numbering;
-//                livector1D conn = obj.first->getCellConnectivity(cId);
-//                livector1D connloc(conn.size());
-//
-//                if(eltype == bitpit::ElementType::POLYGON){
-//                    std::size_t size = conn.size();
-//                    connloc[0] = conn[0];
-//                    for(std::size_t i = 1; i < size; ++i){
-//                        connloc[i] = mapVloc[conn[i]];
-//                    }
-//
-//                }else if(eltype == bitpit::ElementType::POLYHEDRON){
-//                    connloc[0] = conn[0];
-//                    for(int nF = 0; nF < conn[0]-1; ++nF){
-//                        int facePos = cc.getFaceStreamPosition(nF);
-//                        int beginVertexPos = facePos + 1;
-//                        int endVertexPos   = facePos + 1 + conn[facePos];
-//                        connloc[facePos] = conn[facePos];
-//                        for (int i=beginVertexPos; i<endVertexPos; ++i){
-//                            connloc[i] = mapVloc[conn[i]];
-//                        }
-//                    }
-//                }else{
-//                    int ic = 0;
-//                    for (const auto & v : conn){
-//                        connloc[ic] = mapVloc[v];
-//                        ++ic;
-//                    }
-//                }
-//                dum->addConnectedCell(connloc, eltype, PID, cC);
-//                //update map;
-//                cC++;
-//            }
-//
-//            dum->resyncPID();
-//            for(const auto & val: dum->getPIDTypeList()){
-//                dum->setPIDName(val, originalPidNames[newOldPid[val]]);
-//            }
-//        }
-//    }//scope for optional vars;
-//
-//    m_patch = std::move(dum);
-//    m_patch->cleanGeometry();
+    	MimmoObject * geometry = getGeometry();
+    	long maxID, newID, newVertID;
+    	const auto orderedCellID = geometry->getCells().getIds(true);
+    	maxID = orderedCellID[(int)orderedCellID.size()-1];
+    	newID = maxID+1;
+    	{
+    		const auto orderedVertID = geometry->getVertices().getIds(true);
+    		newVertID = orderedVertID[(int)orderedVertID.size()-1] +1;
+    	}
+
+    	bitpit::ElementType eletype;
+    	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
+    	livector1D connTriangle(3);
+
+    	for(const auto &idcell : orderedCellID){
+
+    		livector1D conn = geometry->getCellConnectivity(idcell);
+    		eletype = geometry->getPatch()->getCell(idcell).getType();
+    		long pid = geometry->getPatch()->getCell(idcell).getPID();
+
+    		switch (eletype){
+    		case bitpit::ElementType::TRIANGLE:
+    		case bitpit::ElementType::PIXEL:
+    		case bitpit::ElementType::QUAD:
+    		{
+    			std::size_t startIndex = 0;
+    			std::size_t nnewTri = conn.size() - startIndex;
+    			//calculate barycenter and add it as new vertex
+    			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
+    			geometry->addVertex(barycenter, newVertID);
+    			//delete current polygon
+    			geometry->getPatch()->deleteCell(idcell);
+    			//insert new triangles from polygon subdivision
+    			for(std::size_t i=0; i<nnewTri; ++i){
+    				connTriangle[0] = newVertID;
+    				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+    				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+    				geometry->addConnectedCell(connTriangle, eletri, pid, newID);
+    				++newID;
+    			}
+    			//increment label of vertices
+    			++newVertID;
+    		}
+    		break;
+    		case bitpit::ElementType::POLYGON:
+    		{
+    			std::size_t startIndex = 1;
+    			std::size_t nnewTri = conn.size() - startIndex;
+    			//calculate barycenter and add it as new vertex
+    			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
+    			geometry->addVertex(barycenter, newVertID);
+    			//delete current polygon
+    			geometry->getPatch()->deleteCell(idcell);
+    			//insert new triangles from polygon subdivision
+    			for(std::size_t i=0; i<nnewTri; ++i){
+    				connTriangle[0] = newVertID;
+    				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+    				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+    				geometry->addConnectedCell(connTriangle, eletri, pid, newID);
+    				++newID;
+    			}
+    			//increment label of vertices
+    			++newVertID;
+    		}
+    		break;
+    		default:
+    			throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+    			break;
+    		}
+    	}
+    #endif
+    }
+
 }
 
 /*!
