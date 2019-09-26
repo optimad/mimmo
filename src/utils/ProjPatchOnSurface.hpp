@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*\
  *
- *  mimic
+ *  mimmo
  *
  *  Optimad Engineering S.r.l. ("COMPANY") CONFIDENTIAL
  *  Copyright (c) 2015-2017 Optimad Engineering S.r.l., All Rights Reserved.

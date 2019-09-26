@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*\
  *
- *  mimic
+ *  mimmo
  *
  *  Optimad Engineering S.r.l. ("COMPANY") CONFIDENTIAL
  *  Copyright (c) 2015-2017 Optimad Engineering S.r.l., All Rights Reserved.
@@ -33,7 +33,8 @@
 \*----------------------------------------------------------------------------*/
 
 #include "Proj3DCurveOnSurface.hpp"
-#include "mimic_common.hpp"
+#include "mimmo_common.hpp"
+#include "mimmo_core.hpp"
 #include <queue>
 
 using namespace std;
