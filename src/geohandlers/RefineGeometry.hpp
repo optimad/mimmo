@@ -30,14 +30,12 @@
 namespace mimmo{
 
 /*!
- * \enum RefineMode
+ * \enum RefineType
  * \ingroup geohandlers
- * \brief Methods available for refining surface geometry.
+ * \brief Methods available for refining globally a (surface) geometry.
  */
-enum class RefineMode{
-    GLOBAL = 0, /**< Refine the whole geometry*/
-    	    SELECTION = 1, /**< Refine by giving one ore more external input sub-selection of the target geometry*/
-			LINE = 2	/**< Refine by following the projection of one or more external input line on the target geometry*/
+enum class RefineType{
+    TERNARY = 0, /**< One vertex for cell*/
 };
 
 /*!
@@ -77,16 +75,16 @@ enum class RefineMode{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>RefineMode</B>: Refine method.
+ * - <B>RefineType</B>: Refine method.
  
  * Geometries have to be mandatorily passed through port.
  *
  */
 class RefineGeometry: public BaseManipulation{
 
-private:
-	std::vector<MimmoObject*>   m_extgeo;   /**< Pointers to external geometries*/
-	RefineMode					m_mode;		/**< Refine mode. Default 2 - Line Path Refinement*/
+protected:
+//	std::vector<MimmoObject*>   m_extgeo;   /**< Pointers to external geometries*/
+	RefineType					m_type;		/**< Refine mode. Default 2 - Line Path Refinement*/
 
 //    std::unique_ptr<MimmoObject> m_erasepatch;    /**< erased patch of the original geometry */
 
@@ -100,11 +98,11 @@ public:
 
     void buildPorts();
 
-    RefineMode	getRefineMode();
+    RefineType	getRefineType();
 
-    void	addExternalGeometry(MimmoObject * geo);
-    void	setRefineMode(RefineMode mode);
-    void	setRefineMode(int mode);
+//    void	addExternalGeometry(MimmoObject * geo);
+    void	setRefineType(RefineType mode);
+    void	setRefineType(int mode);
     void	clear();
     void	execute();
     

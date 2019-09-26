@@ -33,7 +33,7 @@ namespace mimmo{
  */
 RefineGeometry::RefineGeometry(){
     m_name  = "mimmo.RefineGeometry";
-    m_mode	= RefineMode(2);
+    m_type	= RefineType(2);
 }
 
 /*!
@@ -47,7 +47,7 @@ RefineGeometry::RefineGeometry(const bitpit::Config::Section & rootXML){
     input_name = bitpit::utils::string::trim(input_name);
 
     m_name = "mimmo.RefineGeometry";
-    m_mode = RefineMode(2);
+    m_type = RefineType(2);
 
     if(input_name == "mimmo.RefineGeometry"){
         absorbSectionXML(rootXML);
@@ -67,7 +67,7 @@ RefineGeometry::~RefineGeometry(){
  * Copy constructor of RefineGeometry.
  */
 RefineGeometry::RefineGeometry(const RefineGeometry & other):BaseManipulation(other){
-    m_mode = other.m_mode;
+    m_type = other.m_type;
 };
 
 /*!
@@ -85,7 +85,7 @@ RefineGeometry & RefineGeometry::operator=(RefineGeometry other){
  */
 void RefineGeometry::swap(RefineGeometry & x ) noexcept
 {
-    std::swap(m_mode,x.m_mode);
+    std::swap(m_type,x.m_type);
     BaseManipulation::swap(x);
 };
 
@@ -98,7 +98,7 @@ RefineGeometry::buildPorts(){
     bool built = true;
 
 	built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::addExternalGeometry, M_GEOM2));
+//    built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::addExternalGeometry, M_GEOM2));
 
     built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
@@ -106,70 +106,70 @@ RefineGeometry::buildPorts(){
 
 /*!
  * Return kind of refinement set for the object.
- * \return refine mode
+ * \return refine type
  */
-RefineMode
-RefineGeometry::getRefineMode(){
-    return m_mode;
+RefineType
+RefineGeometry::getRefineType(){
+    return m_type;
 }
 
 /*!
  * It sets refinement method of refine block
- * \param[in] mode refine mode
+ * \param[in] type refine type
  *
  */
 void
-RefineGeometry::setRefineMode(RefineMode mode){
-	if (mode != RefineMode::GLOBAL && mode != RefineMode::SELECTION && mode != RefineMode::LINE)
+RefineGeometry::setRefineType(RefineType type){
+	if (type != RefineType::TERNARY)
 		throw std::runtime_error(m_name + " : refinement method not allowed");
-	m_mode = mode;
+	m_type = type;
 };
 
 /*!
  * It sets partition method of partition block
- * \param[in] mode partition method
+ * \param[in] type partition method
  *
  */
 void
-RefineGeometry::setRefineMode(int mode){
-	if (mode != 0 && mode != 1 && mode != 2)
+RefineGeometry::setRefineType(int type){
+	if (type != 0)
 		throw std::runtime_error(m_name + " : refinement method not allowed");
 
-	m_mode = RefineMode(mode);
+	m_type = RefineType(type);
 };
 
-/*!
- * Add an external geometry to be used for refining. Topology of the geometry must be coeherent
- * with refinement mode of the class;
- * \param[in] geo  Pointer to MimmoObject
- */
-void
-RefineGeometry::addExternalGeometry(MimmoObject* geo){
-    if(geo == nullptr) return;
-    if(geo->getType() != 1 && geo->getType() != 4){
-		(*m_log)<<m_name + " : warning, topology of provided external geometry different from surface or line."<<std::endl;
-		return;
-    }
-    else if (geo->getType() == 1){
-    	if (m_mode != RefineMode::SELECTION){
-    		(*m_log)<<m_name + " : warning, topology of provided external geometry surface with mode different from selection."<<std::endl;
-    		return;
-    	}
-    }
-    else if (geo->getType() == 4){
-    	if (m_mode != RefineMode::LINE){
-    		(*m_log)<<m_name + " : warning, topology of provided external geometry 3D line with mode different from line."<<std::endl;
-    		return;
-    	}
-    }
-
-    //Don't insert a duplicated geometry
-    if(std::count(m_extgeo.begin(), m_extgeo.end(), geo))
-    	return;
-
-    m_extgeo.push_back(geo);
-
-};
+///*!
+// * Add an external geometry to be used for refining. Topology of the geometry must be coeherent
+// * with refinement type of the class;
+// * \param[in] geo  Pointer to MimmoObject
+// */
+//void
+//RefineGeometry::addExternalGeometry(MimmoObject* geo){
+//    if(geo == nullptr) return;
+//    if(geo->getType() != 1 && geo->getType() != 4){
+//		(*m_log)<<m_name + " : warning, topology of provided external geometry different from surface or line."<<std::endl;
+//		return;
+//    }
+//    else if (geo->getType() == 1){
+//    	if (m_type != RefineType::SELECTION){
+//    		(*m_log)<<m_name + " : warning, topology of provided external geometry surface with type different from selection."<<std::endl;
+//    		return;
+//    	}
+//    }
+//    else if (geo->getType() == 4){
+//    	if (m_type != RefineType::LINE){
+//    		(*m_log)<<m_name + " : warning, topology of provided external geometry 3D line with type different from line."<<std::endl;
+//    		return;
+//    	}
+//    }
+//
+//    //Don't insert a duplicated geometry
+//    if(std::count(m_extgeo.begin(), m_extgeo.end(), geo))
+//    	return;
+//
+//    m_extgeo.push_back(geo);
+//
+//};
 
 
 /*!
@@ -177,7 +177,7 @@ RefineGeometry::addExternalGeometry(MimmoObject* geo){
  */
 void
 RefineGeometry::clear(){
-    m_extgeo.clear();
+//    m_extgeo.clear();
     BaseManipulation::clear();
 };
 
@@ -187,24 +187,10 @@ RefineGeometry::clear(){
  */
 void
 RefineGeometry::execute(){
-    if(m_extgeo.empty()){
-        (*m_log)<<m_name + " : no external geometries to refine were found"<<std::endl;
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : no geometry to refine found"<<std::endl;
+        return;
     }
-
-
-    if (m_mode == RefineMode::LINE){
-
-    	// Loop on external geometries
-    	for (MimmoObject* line : m_extgeo){
-
-    		//Compute projection of line segments on geometry
-    		for (bitpit::Cell & segment : line->getCells()){
-
-    		}// end segments loop
-
-    	}// end external lines loop
-    }
-
 
 
 
@@ -341,15 +327,15 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
     std::string input;
 
 
-	if(slotXML.hasOption("RefineMode")){
-		std::string input = slotXML.get("RefineMode");
+	if(slotXML.hasOption("RefineType")){
+		std::string input = slotXML.get("RefineType");
 		input = bitpit::utils::string::trim(input);
 		int value = 2;
 		if(!input.empty()){
 			std::stringstream ss(input);
 			ss >> value;
 		}
-		setRefineMode(value);
+		setRefineType(value);
 	}
 
     BaseManipulation::absorbSectionXML(slotXML, name);
@@ -364,7 +350,7 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    slotXML.set("RefineMode", int(m_mode));
+    slotXML.set("RefineType", int(m_type));
 
 };
 
