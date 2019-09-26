@@ -228,7 +228,6 @@ CGNSPidExtractor::execute(){
     auto originalmap = mother->getPIDTypeListWNames();
     auto currentPIDmap = patchTemp->getPIDTypeList();
 
-
     for(const auto & val: currentPIDmap){
         patchTemp->setPIDName(val, originalmap[val]);
     }
@@ -237,91 +236,92 @@ CGNSPidExtractor::execute(){
     // nodes are added to the mesh.
     // For Now this slot works only in SERIAL mode.
     if(m_force){
-#if MIMMO_ENABLE_MPI == 0
-
-        long maxID, newID, newVertID;
-
-        const auto orderedCellID = patchTemp->getCells().getIds(true);
-        maxID = orderedCellID[(int)orderedCellID.size()-1];
-        newID = maxID+1;
-        {
-            const auto orderedVertID = patchTemp->getVertices().getIds(true);
-            newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
-        }
-
-        bitpit::ElementType eletype;
-        bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
-        livector1D connTriangle(3);
-
-
-
-        for(const auto &idcell : orderedCellID){
-
-            livector1D conn = patchTemp->getCellConnectivity(idcell);
-            eletype = patchTemp->getPatch()->getCell(idcell).getType();
-            long pid = patchTemp->getPatch()->getCell(idcell).getPID();
-
-            switch (eletype){
-                case bitpit::ElementType::QUAD:
-                case bitpit::ElementType::PIXEL:
-                {
-                    patchTemp->getPatch()->deleteCell(idcell);
-                    for(std::size_t i=0; i<2; ++i){
-                        connTriangle[0] = conn[0];
-                        connTriangle[1] = conn[i+1];
-                        connTriangle[2] = conn[i+2];
-                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
-                        ++newID;
-                    }
-                }
-                    break;
-                case bitpit::ElementType::POLYGON:
-                {
-                    std::size_t startIndex = 1;
-                    std::size_t nnewTri = conn.size() - startIndex;
-                    //calculate barycenter and add it as new vertex
-                    darray3E barycenter = patchTemp->getPatch()->evalCellCentroid(idcell);
-                    patchTemp->addVertex(barycenter, newVertID);
-                    //delete current polygon
-                    patchTemp->getPatch()->deleteCell(idcell);
-                    //insert new triangles from polygon subdivision
-                    for(std::size_t i=0; i<nnewTri; ++i){
-                        connTriangle[0] = newVertID;
-                        connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
-                        connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
-                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
-                        ++newID;
-                    }
-                    //increment label of vertices
-                    ++newVertID;
-
-                }
-                    break;
-                case bitpit::ElementType::TRIANGLE:
-                        //do nothing
-                    break;
-                default:
-                    throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
-                    break;
-            }
-        }
-#else
-    //TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-    (*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
-#endif
+//#if MIMMO_ENABLE_MPI == 0
+//
+//        long maxID, newID, newVertID;
+//
+//        const auto orderedCellID = patchTemp->getCells().getIds(true);
+//        maxID = orderedCellID[(int)orderedCellID.size()-1];
+//        newID = maxID+1;
+//        {
+//            const auto orderedVertID = patchTemp->getVertices().getIds(true);
+//            newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
+//        }
+//
+//        bitpit::ElementType eletype;
+//        bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
+//        livector1D connTriangle(3);
+//
+//
+//
+//        for(const auto &idcell : orderedCellID){
+//
+//            livector1D conn = patchTemp->getCellConnectivity(idcell);
+//            eletype = patchTemp->getPatch()->getCell(idcell).getType();
+//            long pid = patchTemp->getPatch()->getCell(idcell).getPID();
+//
+//            switch (eletype){
+//                case bitpit::ElementType::QUAD:
+//                case bitpit::ElementType::PIXEL:
+//                {
+//                    patchTemp->getPatch()->deleteCell(idcell);
+//                    for(std::size_t i=0; i<2; ++i){
+//                        connTriangle[0] = conn[0];
+//                        connTriangle[1] = conn[i+1];
+//                        connTriangle[2] = conn[i+2];
+//                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
+//                        ++newID;
+//                    }
+//                }
+//                    break;
+//                case bitpit::ElementType::POLYGON:
+//                {
+//                    std::size_t startIndex = 1;
+//                    std::size_t nnewTri = conn.size() - startIndex;
+//                    //calculate barycenter and add it as new vertex
+//                    darray3E barycenter = patchTemp->getPatch()->evalCellCentroid(idcell);
+//                    patchTemp->addVertex(barycenter, newVertID);
+//                    //delete current polygon
+//                    patchTemp->getPatch()->deleteCell(idcell);
+//                    //insert new triangles from polygon subdivision
+//                    for(std::size_t i=0; i<nnewTri; ++i){
+//                        connTriangle[0] = newVertID;
+//                        connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+//                        connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+//                        patchTemp->addConnectedCell(connTriangle, eletri, pid, newID);
+//                        ++newID;
+//                    }
+//                    //increment label of vertices
+//                    ++newVertID;
+//
+//                }
+//                    break;
+//                case bitpit::ElementType::TRIANGLE:
+//                        //do nothing
+//                    break;
+//                default:
+//                    throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+//                    break;
+//            }
+//        }
+//#else
+//    //TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+//    (*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+//#endif
     }
 
+	patchTemp->triangulate();
     m_patch = std::move(patchTemp);
 
-#if MIMMO_ENABLE_MPI
-    //delete orphan ghosts
-    m_patch->buildAdjacencies();
-    m_patch->deleteOrphanGhostCells();
-    if(m_patch->getPatch()->countOrphanVertices() > 0){
-        m_patch->getPatch()->deleteOrphanVertices();
-    }
-    m_patch->setPartitioned();
-#endif
+//#if MIMMO_ENABLE_MPI
+//    //delete orphan ghosts
+//    m_patch->buildAdjacencies();
+//    m_patch->deleteOrphanGhostCells();
+//    if(m_patch->getPatch()->countOrphanVertices() > 0){
+//        m_patch->getPatch()->deleteOrphanVertices();
+//    }
+//    m_patch->setPartitioned();
+//#endif
 };
 
 

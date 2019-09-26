@@ -319,6 +319,8 @@ public:
     std::unordered_set<long> &	getPointConnectivity(const long & id);
     bool						isPointConnectivitySync();
 
+    void						triangulate();
+
 protected:
     void    reset(int type);
 

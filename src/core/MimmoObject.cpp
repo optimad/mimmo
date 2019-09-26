@@ -3722,4 +3722,115 @@ MimmoObject::isPointConnectivitySync(){
 	return m_pointConnectivitySync;
 }
 
+/*!
+ * Triangulate the linked geometry. It works only for surface geometries (type = 1).
+ * After the method call the geometry (internal or linked) is for ever modified.
+ */
+void
+MimmoObject::triangulate(){
+
+	if (m_type != 1){
+		(*m_log)<<"Error MimmoObject: data structure type different from Surface in triangulate method"<<std::endl;
+		throw std::runtime_error ("MimmoObject: data structure type different from Surface in triangulate method");
+	}
+
+	// In case of polygons (nVertices > 4) more nodes are added to the mesh.
+	// For Now this slot works only in SERIAL mode.
+#if MIMMO_ENABLE_MPI
+	if (m_nprocs > 1){
+		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+		(*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+	}
+#else
+
+	bitpit::PatchKernel * patch = getPatch();
+
+	long maxID, newID, newVertID;
+	const auto orderedCellID = getCells().getIds(true);
+	maxID = orderedCellID[(int)orderedCellID.size()-1];
+	newID = maxID+1;
+	{
+		const auto orderedVertID = getVertices().getIds(true);
+		newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
+	}
+
+	bitpit::ElementType eletype;
+	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
+	livector1D connTriangle(3);
+
+	for(const auto &idcell : orderedCellID){
+
+		livector1D conn = getCellConnectivity(idcell);
+		eletype = patch->getCell(idcell).getType();
+		long pid = patch->getCell(idcell).getPID();
+
+		switch (eletype){
+		case bitpit::ElementType::QUAD:
+		case bitpit::ElementType::PIXEL:
+		{
+			patch->deleteCell(idcell);
+			for(std::size_t i=0; i<2; ++i){
+				connTriangle[0] = conn[0];
+				connTriangle[1] = conn[i+1];
+				connTriangle[2] = conn[i+2];
+				addConnectedCell(connTriangle, eletri, pid, newID);
+				++newID;
+			}
+		}
+		break;
+		case bitpit::ElementType::POLYGON:
+		{
+			std::size_t startIndex = 1;
+			std::size_t nnewTri = conn.size() - startIndex;
+			//calculate barycenter and add it as new vertex
+			darray3E barycenter = patch->evalCellCentroid(idcell);
+			addVertex(barycenter, newVertID);
+			//delete current polygon
+			patch->deleteCell(idcell);
+			//insert new triangles from polygon subdivision
+			for(std::size_t i=0; i<nnewTri; ++i){
+				connTriangle[0] = newVertID;
+				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+				addConnectedCell(connTriangle, eletri, pid, newID);
+				++newID;
+			}
+			//increment label of vertices
+			++newVertID;
+
+		}
+		break;
+		case bitpit::ElementType::TRIANGLE:
+			//do nothing
+			break;
+		default:
+			throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+			break;
+		}
+	}
+#endif
+
+	//TODO clean info sync method
+	m_infoSync = false;
+	cleanPointConnectivity();
+	cleanSkdTree();
+	cleanKdTree();
+	resetInterfaces();
+	resetAdjacencies();
+
+#if MIMMO_ENABLE_MPI
+	m_pointGhostExchangeInfoSync = false;
+	//    //delete orphan ghosts
+	//    buildAdjacencies();
+	//    deleteOrphanGhostCells();
+	//    if(countOrphanVertices() > 0){
+	//       deleteOrphanVertices();
+	//    }
+	//    setPartitioned();
+	//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+	//(*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+#endif
+
+}
+
 }
