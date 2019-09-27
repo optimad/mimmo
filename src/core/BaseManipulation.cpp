@@ -954,4 +954,31 @@ MPI_Comm &  BaseManipulation::getCommunicator(){
 
 #endif
 
+
+/*!
+ * Apply a deformation displacements field to the linked geometry.
+ * After the method call the geometry is permanently modified.
+ * \param[in] displacements deformation vector field
+ */
+void
+BaseManipulation::_apply(MimmoPiercedVector<darray3E> & displacements)
+{
+    if (getGeometry() == nullptr) return;
+    darray3E vertexcoords;
+    long int ID;
+    for (const auto & vertex : getGeometry()->getVertices()){
+        vertexcoords = vertex.getCoords();
+        ID = vertex.getId();
+        if(displacements.exists(ID))     vertexcoords += displacements[ID];
+        getGeometry()->modifyVertex(vertexcoords, ID);
+    }
+
+    getGeometry()->getPatch()->updateBoundingBox(true);
+
+#if MIMMO_ENABLE_MPI
+    getGeometry()->updatePointGhostExchangeInfo();
+#endif
+
+}
+
 };

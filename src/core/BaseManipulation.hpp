@@ -276,6 +276,7 @@ protected:
     virtual void     execute() = 0;
     virtual void     plotOptionalResults();
     virtual void     apply();
+    void     _apply(MimmoPiercedVector<darray3E> & displacements);
 
 };
 

@@ -178,21 +178,7 @@ TranslationGeometry::execute(){
  */
 void
 TranslationGeometry::apply(){
-
-    if (getGeometry() == NULL) return;
-    darray3E vertexcoords;
-    long int ID;
-    for (const auto & vertex : m_geometry->getVertices()){
-        vertexcoords = vertex.getCoords();
-        ID = vertex.getId();
-        if(m_displ.exists(ID))  vertexcoords += m_displ[ID];
-        getGeometry()->modifyVertex(vertexcoords, ID);
-    }
-
-#if MIMMO_ENABLE_MPI
-	getGeometry()->updatePointGhostExchangeInfo();
-#endif
-
+    _apply(m_displ);
 }
 
 /*!

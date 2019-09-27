@@ -673,21 +673,7 @@ FFDLattice::apply(dvecarr3E * point){
  */
 void
 FFDLattice::apply(){
-
-    if (getGeometry() == NULL) return;
-    darray3E vertexcoords;
-    long int ID;
-    for (const auto & vertex : m_geometry->getVertices()){
-        vertexcoords = vertex.getCoords();
-        ID = vertex.getId();
-        if(m_gdispl.exists(ID)) vertexcoords += m_gdispl[ID];
-        getGeometry()->modifyVertex(vertexcoords, ID);
-    }
-
-#if MIMMO_ENABLE_MPI
-	getGeometry()->updatePointGhostExchangeInfo();
-#endif
-
+    _apply(m_gdispl);
 }
 
 /*!
