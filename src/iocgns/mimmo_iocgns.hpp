@@ -35,6 +35,5 @@
 #include "mimmo_iogeneric.hpp"
 
 #include "IOCGNS.hpp"
-#include "CGNSPidExtractor.hpp"
 
 #endif

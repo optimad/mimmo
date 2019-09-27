@@ -37,7 +37,7 @@ using namespace mimmo;
  *
  * \brief Reading of a CGNS volume mesh and boundary extraction.
  *
- * Using: IOCGNS, CGNSPidExtractor, SelectionByBox
+ * Using: IOCGNS, SelectionByPID, SelectionByBox
  *
  * Depends on mimmo optional module geohandlers
  *
@@ -80,18 +80,16 @@ void example00001() {
      * Extraction of PID = 1,2 (Wing wall and outer part boundaries
      * where imposing Dirichlet conditions).
      */
-    CGNSPidExtractor * cgnsDirichlet = new CGNSPidExtractor();
+    SelectionByPID * cgnsDirichlet = new SelectionByPID();
     cgnsDirichlet->setPID({1, 2});
-    cgnsDirichlet->setForcedToTriangulate(false);
     cgnsDirichlet->setPlotInExecution(true);
 
     /* Create CGNS PID extractor object to test input file.
      * Extraction of PID = 3 (Simmetry plane
      * where imposing Slip/impermeability conditions).
      */
-    CGNSPidExtractor * cgnsSlip = new CGNSPidExtractor();
+    SelectionByPID * cgnsSlip = new SelectionByPID();
     cgnsSlip->setPID({3});
-    cgnsSlip->setForcedToTriangulate(false);
     cgnsSlip->setPlotInExecution(true);
 
     /* Instantiation of a Selection By Box block.

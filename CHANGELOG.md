@@ -35,6 +35,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
                   User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam
                   Foundation versions, and ESI-OpenFoam v1606+, v1806+.
 - SkdTreeUtils : extractTarget method changed in algorithm and interface.
+- CGNSPidExtractor class: Removed. Use SelectionByPID and SurfaceTriangulator instead.
 
 
 
