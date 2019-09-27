@@ -1064,7 +1064,7 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 	m_solver->getKSPOptions().restart = 30;
 	m_solver->getKSPOptions().overlap = 1;
 	m_solver->getKSPOptions().sublevels = 1;
-	m_solver->initialize(matrix);
+	m_solver->assembly(matrix);
 }
 
 /*!
@@ -1153,7 +1153,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 	MimmoObject * geo = getGeometry();
 	rhs.resize(geo->getPatch()->getInternalCount(), 0.0);
 
-	if (!m_solver->isInitialized()) {
+	if (!m_solver->isAssembled()) {
 		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
 		return;
 	}
@@ -1253,7 +1253,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 	MimmoObject * geo = getGeometry();
 	rhs.resize(geo->getNInternalVertices(), 0.0);
 
-	if (!m_solver->isInitialized()) {
+	if (!m_solver->isAssembled()) {
 		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
 		return;
 	}
@@ -1326,7 +1326,7 @@ PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
 
 	// Check if the internal solver is initialized
-	if (!m_solver->isInitialized()) {
+	if (!m_solver->isAssembled()) {
 		(*m_log)<<"Warning in "<<m_name<<". Unable to solve the system. The solver is not yet initialized."<<std::endl;
 		return;
 	}

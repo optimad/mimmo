@@ -1252,7 +1252,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//resize rhs to the number of internal cells
 	rhs.resize(geo->getPatch()->getInternalCount(), 0.0);
 
-	if (!m_solver->isInitialized()) {
+	if (!m_solver->isAssembled()) {
 		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
 		return;
 	}
@@ -1367,7 +1367,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//resize rhs to the number of internal cells
 	rhs.resize(geo->getNInternalVertices(), 0.0);
 
-	if (!m_solver->isInitialized()) {
+	if (!m_solver->isAssembled()) {
 		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
 		return;
 	}
