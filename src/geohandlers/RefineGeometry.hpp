@@ -48,6 +48,9 @@ enum class RefineType{
  *
  *    RefineGeometry is the object to refine a surface MimmoObject.
  *    After the execution of the block the geometry will be refined in function of the refinement method chosen.
+ *
+ * 	At the end of the refinement a laplacian smoothing regularization (positive and negative smoothing procedure) can be
+ * 	performed by imposing a number of steps > 0 (default).
  * 
  * Ports available in RefineGeometry Class :
  *
@@ -83,7 +86,9 @@ enum class RefineType{
 class RefineGeometry: public BaseManipulation{
 
 protected:
-	RefineType					m_type;		/**< Refine mode. Default 2 - Line Path Refinement*/
+	RefineType	m_type;		/**< Refine mode. Default 0 - Ternary*/
+	int			m_refinements; /**< Number of refinements. Default 1*/
+	int			m_steps;	/**< Smoothing steps after the refinement. */
 
 public:
     RefineGeometry();
@@ -98,7 +103,9 @@ public:
     RefineType	getRefineType();
 
     void	setRefineType(RefineType type);
-    void	setRefineType(int tyep);
+    void	setRefineType(int type);
+    void	setRefineSteps(int steps);
+    void	setSmoothingSteps(int steps);
     void	clear();
     void	execute();
     
@@ -108,6 +115,9 @@ public:
     void     plotOptionalResults();
 protected:
     void swap(RefineGeometry & x) noexcept;
+
+    void ternaryRefine();
+    void smoothing();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __REFINEGEOMETRY_HPP__)

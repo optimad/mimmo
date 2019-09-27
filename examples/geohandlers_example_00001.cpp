@@ -95,6 +95,8 @@ void test00001() {
      */
     RefineGeometry   * refine = new RefineGeometry();
     refine->setRefineType(RefineType::TERNARY);
+    refine->setRefineSteps(1);
+    refine->setSmoothingSteps(2);
 
     /* Setup pin connections.
      */
