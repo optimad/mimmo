@@ -42,4 +42,5 @@
 #include "StitchGeometry.hpp"
 #include "FVMeshSelection.hpp"
 #include "RefineGeometry.hpp"
+#include "SurfaceTriangulator.hpp"
 #endif
