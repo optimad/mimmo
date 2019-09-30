@@ -10,10 +10,12 @@ mimmo depends on
 * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
 * bitpit library. It has been tested with bitpit 1.6.0. Visit www.optimad.it/products/bitpit/ for further information.
 * (optionally) PETSc library. It has been tested with PETSc >= 3.10.3.
-* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0.
 * (optionally) vtk. It has been tested with vtk >= 6.3.
 * (optionally) cgns. It has been tested with cgns = 3.3.1.
 * (optionally) hdf5. It has been tested with hdf5 = 1.10.4.
+
+<!--- * (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. -->
+
 
 ## Configuring mimmo
 mimmo uses ccmake as building tool.
