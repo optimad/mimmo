@@ -393,6 +393,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<int
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::string & element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::string & element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map<long, long>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<long, long>& element);
+
+
 /*!
  *\}
  */
