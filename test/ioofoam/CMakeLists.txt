@@ -42,8 +42,7 @@ set(TEST_EXTRA_LIBRARIES "")
 addModuleTests(${MODULE_NAME} "${TESTS}" "${TEST_EXTRA_LIBRARIES}")
 unset(TESTS)
 
-# add_custom_command(
-#     TARGET "name test in the list" PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
-#     )
-
+add_custom_command(
+    TARGET "test_ioofoam_00001" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/OFOAM" "${CMAKE_CURRENT_BINARY_DIR}/geodata/OFOAM"
+)

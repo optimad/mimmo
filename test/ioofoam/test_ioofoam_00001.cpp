@@ -23,13 +23,70 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "IOOFOAM.hpp"
+#include "Chain.hpp"
 #include <exception>
 
 // =================================================================================== //
 int test1() {
 
-    std::cout<<"Waiting for a proper test. I do nothing for now"<<std::endl;
-    return 0;
+    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
+    reader->setDir("geodata/OFOAM");
+
+    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField();
+    fieldreader->setDir("geodata/OFOAM");
+    fieldreader->setFieldName("p");
+
+    mimmo::pin::addPin(reader, fieldreader, M_GEOMOFOAM, M_GEOMOFOAM);
+    mimmo::pin::addPin(reader, fieldreader, M_GEOMOFOAM2, M_GEOMOFOAM2);
+    mimmo::pin::addPin(reader, fieldreader, M_UMAPIDS, M_UMAPIDS);
+
+    mimmo::Chain c0;
+    c0.addObject(reader);
+    c0.addObject(fieldreader);
+    c0.exec(true);
+
+
+    // std::cout<<reader->getGeometry()->getPatch()->getVertexCount()<<std::endl;
+    // std::cout<<reader->getGeometry()->getPatch()->getCellCount()<<std::endl;
+    // std::cout<<reader->getBoundaryGeometry()->getPatch()->getVertexCount()<<std::endl;
+    // std::cout<<reader->getBoundaryGeometry()->getPatch()->getCellCount()<<std::endl;
+    //
+    // reader->getGeometry()->getPatch()->write("bulk");
+    // reader->getBoundaryGeometry()->getPatch()->write("boundary");
+    //
+    // std::cout<<reader->getGeometry()<<std::endl;
+    // std::cout<<fieldreader->getGeometry()<<std::endl;
+    // std::cout<<reader->getBoundaryGeometry()<<std::endl;
+    // std::cout<<fieldreader->getBoundaryGeometry()<<std::endl;
+
+    bool check = true;
+    check = check && (reader->getGeometry()->getPatch()->getVertexCount() == 120450);
+    check = check && (fieldreader->getBoundaryGeometry()->getPatch()->getVertexCount() == 120450);
+    check = check && (reader->getGeometry()->getPatch()->getCellCount() == 59540);
+    check = check && (fieldreader->getBoundaryGeometry()->getPatch()->getCellCount() == 120448);
+
+    check = check && (reader->getGeometry() == fieldreader->getGeometry());
+    check = check && (reader->getBoundaryGeometry() == fieldreader->getBoundaryGeometry());
+
+    auto field = fieldreader->getBoundaryField();
+
+    check = check && (field.getGeometry() == fieldreader->getBoundaryGeometry());
+
+    double maxval = std::numeric_limits<double>::min();;
+    double minval = std::numeric_limits<double>::max();
+    for(auto it=field.begin(); it!=field.end(); ++it){
+        maxval = std::max(maxval, *it);
+        minval = std::min(minval, *it);
+    }
+
+    //std::cout<<maxval<<"  "<<minval<<std::endl;
+    check = check && std::abs(std::abs(maxval)-0.14221) <=1.0E-5;
+    check = check && std::abs(std::abs(minval)-0.08285) <=1.0E-5;
+
+    delete reader;
+    delete fieldreader;
+
+    return int(!check);
 }
 
 // =================================================================================== //
