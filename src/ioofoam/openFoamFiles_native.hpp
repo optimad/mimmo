@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -30,13 +30,16 @@
 #ifndef FOAM_FILES_NATIVE_H
 #define FOAM_FILES_NATIVE_H
 
-#include "fvCFD.H"
+#include <bitpit_patchkernel.hpp>
+#include "InOut.hpp"
 #include <array>
 #include <vector>
+#include "fvCFD.H"
+
 namespace mimmo{
 
 /*!
- * 
+ *
  * \brief Utilities employing native OpenFOAM libraries to read an OpenFOAM mesh
  * and relative fields defined onto it.
  * \ingroup ioofoam
@@ -49,14 +52,21 @@ namespace foamUtilsNative{
     void writeScalarField(const char *rootPath, const char *fileName, int patchIdx, std::vector<double> &fieldd);
     void readVectorField(const char *rootPath, const char *fileName, int patchIdx,  std::size_t &size, std::vector<std::array<double,3> >&field);
     void writeVectorField(const char *rootPath, const char *fileName, int patchIdx, std::vector<std::array<double,3> > &field);
-    
-    char * getPatchName(const char *rootPath, int patchIdx);
+
+    std::string getPatchName(const char *rootPath, int patchIdx);
     int countPatches(const char *rootPath);
-    int getPatchIndex(const char *rootPath, char *patchName);
+    int getPatchIndex(const char *rootPath, const std::string & patchName);
 
     void initializeCase(const char *rootPath, Foam::Time **runTime, Foam::fvMesh **mesh);
     const word getFieldClass(const char *rootPath, const char *fileName);
     bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > &points, bool overwriteStart = false);
+
+    livector1D mapEleVConnectivity(const livector1D &, const bitpit::ElementType &);
+
+    bool interpolateFaceToPoint(dmpvector1D & facefield, dmpvector1D & pointfield);
+    bool interpolateFaceToPoint(dmpvecarr3E & facefield, dmpvecarr3E & pointfield);
+
+
 };//end namespace foamUtilsNative
 
 }// end namespace mimmo.

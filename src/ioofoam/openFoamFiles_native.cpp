@@ -350,9 +350,8 @@ int countPatches(const char *rootPath)
  * \param[in] rootPath path to openfoam mesh directory
  * \param[in] patchIdx index of the boundary patch.
  */
-char * getPatchName(const char *rootPath, int patchIdx)
+std::string getPatchName(const char *rootPath, int patchIdx)
 {
-    char* patchName = new char;
 
     // Initialize case
     Foam::Time *foamRunTime = 0;
@@ -362,12 +361,10 @@ char * getPatchName(const char *rootPath, int patchIdx)
 
     // Patch name
     if (patchIdx > foamMesh->boundaryMesh().size() || patchIdx < 0) {
-         strcpy(patchName, "");
-         return patchName;
+         return std::string("");
     }
 
-    strcpy(patchName, foamMesh->boundaryMesh()[patchIdx].name().c_str());
-    return patchName;
+    return std::string(foamMesh->boundaryMesh()[patchIdx].name().c_str());
 
 }
 
@@ -378,7 +375,7 @@ char * getPatchName(const char *rootPath, int patchIdx)
  * \param[in] rootPath path to openfoam mesh directory.
  * \param[in] patchName name of the boundary patch.
  */
-int getPatchIndex(const char *rootPath, const char *patchName)
+int getPatchIndex(const char *rootPath, const std::string &patchName)
 {
 
     // Initialize case
@@ -389,7 +386,7 @@ int getPatchIndex(const char *rootPath, const char *patchName)
 
     // Patch index
     forAll(foamMesh->boundaryMesh(), n) {
-        if (strcmp(patchName,foamMesh->boundaryMesh()[n].name().c_str()) == 0) {
+        if (strcmp(patchName.c_str(),foamMesh->boundaryMesh()[n].name().c_str()) == 0) {
             return n;
         }
     }
@@ -546,6 +543,180 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
 
     }
     return true;
+}
+
+
+/*!
+ * Reorder OpenFoam vertex-cell connectivity of an elementary shape in
+ * a suitable one for corrispondent bitpit elementary shape. The reordering
+ * preserve the local enumeration of faces from OpenFOAM to bitpit.
+ * \param[in] FoamConn ordered vertex connectivity of a shape cell
+ * \param[in] eltype   reference Bitpit::element type for reordering
+ */
+livector1D
+mapEleVConnectivity(const livector1D & FoamConn, const bitpit::ElementType & eltype){
+	livector1D conn;
+
+	switch(eltype){
+	case bitpit::ElementType::TETRA:
+		conn.resize(4);
+		conn[0] = FoamConn[2];
+		conn[1] = FoamConn[1];
+		conn[2] = FoamConn[3];
+		conn[3] = FoamConn[0];
+		break;
+	case bitpit::ElementType::HEXAHEDRON:
+		conn.resize(8);
+		conn[0] = FoamConn[0];
+		conn[1] = FoamConn[3];
+		conn[2] = FoamConn[7];
+		conn[3] = FoamConn[4];
+		conn[4] = FoamConn[1];
+		conn[5] = FoamConn[2];
+		conn[6] = FoamConn[6];
+		conn[7] = FoamConn[5];
+		break;
+	case bitpit::ElementType::WEDGE:
+		conn.resize(6);
+		conn[0] = FoamConn[0];
+		conn[1] = FoamConn[2];
+		conn[2] = FoamConn[1];
+		conn[3] = FoamConn[3];
+		conn[4] = FoamConn[5];
+		conn[5] = FoamConn[4];
+		break;
+	case bitpit::ElementType::PYRAMID:
+		conn.resize(5);
+		conn[0] = FoamConn[3];
+		conn[1] = FoamConn[2];
+		conn[2] = FoamConn[1];
+		conn[3] = FoamConn[0];
+		conn[4] = FoamConn[4];
+		break;
+	default:
+		//do nothing
+		break;
+	}
+
+	return conn;
+}
+
+/*!
+ * It interpolates a surface scalar field defined on cell centers of a surface mesh on the vertices of the same mesh.
+ * It uses the angles related to each vertex to define weight for each face value.
+ * \return false if errors occurred during the interpolation.
+ */
+bool interpolateFaceToPoint(dmpvector1D & facefield, dmpvector1D & pointfield){
+
+	if (facefield.getGeometry()->getType() != 1){
+		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
+
+	}
+
+	dmpvector1D sumAngles;
+	pointfield.clear();
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		sumAngles.insert(idV, 0.);
+		pointfield.insert(idV, 0.);
+	}
+
+	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
+
+		//Cell id
+		long id = cell.getId();
+
+		// Cell data
+		double cellData = facefield[id];
+
+		// Get vertex id
+		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
+
+		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
+
+			// Cell angle at vertex
+			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
+
+			//Update data vertex and sum angles
+			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
+			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
+
+		}
+
+	}
+
+	//Normalize data with sum angles
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		pointfield[idV] /= sumAngles[idV];
+	}
+
+	//Assign geometry and data location to pointfield
+	pointfield.setGeometry(facefield.getGeometry());
+	pointfield.setDataLocation(1);
+
+	return true;
+
+}
+
+
+
+/*!
+ * It interpolates a vector surface field defined on cell centers of a surface mesh on the vertices of the same mesh.
+ * It uses the angles related to each vertex to define weight for each face value.
+ * \return false if errors occurred during the interpolation.
+ */
+bool interpolateFaceToPoint(dmpvecarr3E & facefield, dmpvecarr3E & pointfield){
+
+	if (facefield.getGeometry()->getType() != 1){
+		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
+
+	}
+
+	dmpvecarr3E sumAngles;
+	pointfield.clear();
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		sumAngles.insert(idV, {{0.,0.,0.}});
+		pointfield.insert(idV, {{0.,0.,0.}});
+	}
+
+	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
+
+		//Cell id
+		long id = cell.getId();
+
+		// Cell data
+		std::array<double,3> cellData = facefield[id];
+
+		// Get vertex id
+		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
+
+		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
+
+			// Cell angle at vertex
+			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
+
+			//Update data vertex and sum angles
+			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
+			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
+
+		}
+
+	}
+
+	//Normalize data with sum angles
+	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
+		long idV = vertex.getId();
+		pointfield [idV] /= sumAngles[idV];
+	}
+
+	//Assign geometry and data location to pointfield
+	pointfield.setGeometry(facefield.getGeometry());
+	pointfield.setDataLocation(1);
+
+	return true;
+
 }
 
 

@@ -27,11 +27,10 @@
 namespace mimmo{
 
 /*!
- * Default constructor of IOOFOAM.
- * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE, WRITEPOINTSONLY. Default is READ.
+ * Default constructor of IOOFOAM_Kernel.
+ * \param[in] type int from enum IOOFMode. Default is READ.
  */
-IOOFOAM::IOOFOAM(int type):MimmoFvMesh(){
-	m_name          = "mimmo.IOOFOAM";
+IOOFOAM_Kernel::IOOFOAM_Kernel(int type):MimmoFvMesh(){
 	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
 	if(maybeIOMode){
 		m_type = type;
@@ -55,10 +54,10 @@ IOOFOAM::IOOFOAM(int type):MimmoFvMesh(){
  *
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
- *\param[in] type int from enum IOOFMode, for class mode: WRITE, WRITEPOINTSONLY. Default is WRITE.
+ *\param[in] type int from enum IOOFMode. Default is WRITE.
  *
  */
-IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type): MimmoFvMesh(bulk,boundary){
+IOOFOAM_Kernel::IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type): MimmoFvMesh(bulk,boundary){
 	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
 	if(maybeIOMode){
 		if(maybeIOMode->_to_integral() == IOOFMode::READ){
@@ -70,6 +69,241 @@ IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObjec
 	}
 	setDefaults();
 }
+
+/*!Default destructor of IOOFOAM_Kernel.
+ */
+IOOFOAM_Kernel::~IOOFOAM_Kernel(){};
+
+
+/*!
+    Convenience copy constructor
+*/
+IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other){
+
+    m_OFE_supp.clear();
+    m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
+    m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
+    m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
+    m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
+
+    m_name = other.m_name;
+    m_path = other.m_path;
+    m_fieldname = other.m_fieldname;
+    m_OFbitpitmapfaces = other.m_OFbitpitmapfaces;
+}
+
+/*!
+ * Swap function
+ * \param[in] x object to be swapped
+ */
+void IOOFOAM_Kernel::swap(IOOFOAM_Kernel & x) noexcept
+{
+	std::swap(m_type, x.m_type);
+	std::swap(m_path, x.m_path);
+	std::swap(m_fieldname, x.m_fieldname);
+	std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
+
+	MimmoFvMesh::swap(x);
+};
+
+/*!
+ * Default values for IOOFOAM_Kernel.
+ */
+void
+IOOFOAM_Kernel::setDefaults(){
+
+	m_path   = ".";
+    m_fieldname = "";
+	m_OFE_supp.clear();
+	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
+	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
+	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
+	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
+}
+
+/*! It builds the input/output ports of the object
+ */
+void
+IOOFOAM_Kernel::buildPorts(){
+	bool built = true;
+	// creating input ports
+	built = (built && createPortIn<MimmoObject*, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM));
+	built = (built && createPortIn<MimmoObject*, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
+
+	// creating output ports
+	built = (built && createPortOut<MimmoObject*, IOOFOAM_Kernel>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+	built = (built && createPortOut<MimmoObject*, IOOFOAM_Kernel>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+	built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
+
+	m_arePortsBuilt = built;
+};
+
+/*!
+ * Get current map between OFOAM faces -> bitpit interfaces.
+ * \return reference to interfaces map.
+ */
+std::unordered_map<long,long>
+IOOFOAM_Kernel::getFacesMap(){
+	return m_OFbitpitmapfaces;
+}
+
+/*!
+ * Get type parameter - int casting of IOOFMode enum.
+ * \return type parameter content
+ */
+int
+IOOFOAM_Kernel::getType(){
+	return m_type;
+}
+
+/*!
+ * It sets the name of directory to read/write the OpenFOAM mesh.
+ * \param[in] dir mesh input directory.
+ */
+void
+IOOFOAM_Kernel::setDir(const std::string &dir){
+	m_path = dir;
+}
+
+/*!
+ * Set current bulk geometry MimmoObject mesh.
+ * The mesh must be of volume type. Internal check to know if interfaces are built is done,
+ * since without them can be not coherent link with OpenFoam mesh from file (setDir method).
+ * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setGeometry.
+ * \param[in] bulk pointer to external bulk mesh MimmoObject.
+ */
+void
+IOOFOAM_Kernel::setGeometry(MimmoObject * bulk){
+    if(!bulk) return;
+    if(!bulk->areInterfacesBuilt()) {
+        *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh cannot be coherent with an OpenFoam mesh"<<std::endl;
+    }
+	MimmoFvMesh::setGeometry(bulk);
+}
+
+/*!
+ * Set current boundary geometry -> mesh coherent with bulk set with setGeometry();
+ * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setBoundaryGeometry
+ * \param[in] bulk pointer to external boundary mesh MimmoObject.
+ */
+void
+IOOFOAM_Kernel::setBoundaryGeometry(MimmoObject * boundary){
+    if(!boundary) return;
+	MimmoFvMesh::setBoundaryGeometry(boundary);
+}
+
+/*!
+ * Set current map between OFOAM faces -> bitpit interfaces.
+ * \param[in] reference to interfaces map.
+ */
+void
+IOOFOAM_Kernel::setFacesMap(std::unordered_map<long,long> mapFaces){
+    m_OFbitpitmapfaces = mapFaces;
+}
+
+/*!
+ * It sets the name of the field to read/write.
+ * \param[in] fieldname name of input/output field.
+ */
+void
+IOOFOAM_Kernel::setFieldName(const std::string & fieldname){
+	m_fieldname = fieldname;
+}
+
+/*!
+ * Set mode of the class, IOOFMode enum.
+ * \param[in] type IOOFMode enum
+ */
+void
+IOOFOAM_Kernel::setType(IOOFMode type){
+	m_type = type;
+}
+
+/*!
+ * Set mode of the class, IOOFMode enum.
+ * \param[in] type int casting to IOOFMode enum
+ */
+void
+IOOFOAM_Kernel::setType(int type){
+    auto maybe = IOOFMode::_from_integral_nothrow(type);
+    if(maybe)   setType(*maybe);
+}
+
+/*!
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+IOOFOAM_Kernel::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
+
+	std::string input;
+
+	BaseManipulation::absorbSectionXML(slotXML, name);
+
+	if(slotXML.hasOption("Dir")){
+		input = slotXML.get("Dir");
+		input = bitpit::utils::string::trim(input);
+		if(input.empty())   input = ".";
+		setDir(input);
+	};
+};
+
+/*!
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+IOOFOAM_Kernel::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
+
+	BaseManipulation::flushSectionXML(slotXML, name);
+
+	slotXML.set("IOMode", IOOFMode::_from_integral(m_type)._to_string());
+	slotXML.set("Dir", m_path);
+};
+
+/*
+ * ========================================================================================================
+ */
+
+/*!
+    Default constructor
+*/
+IOOFOAM::IOOFOAM(int type):IOOFOAM_Kernel(type){
+    m_name = "mimmo.IOOFOAM";
+    m_overwrite=false;
+};
+
+/*!
+ * Custom constructor. Pass bulk and boundary of the mesh.
+ * The ownership of the argument will be transferred to the internal
+ * members of the class.
+ * Please note, The class admits only the following combinations as bulk/boundary pair:
+ *
+ *  - bulk MimmoObject of type 2-Volume and boundary MimmoObject of type 1-Surface
+ *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
+ *
+ * The class is meant for writing modes WRITE and WRITEPOINTSONLY. If a READ mode is passed
+ * in argument, it throws an error.
+ *
+ *\param[in] bulk unique pointer to the bulk MimmoObject
+ *\param[in] boundary unique pointer to the boundary MimmoObject
+ *\param[in] type int from enum IOOFMode. Default is WRITE.
+ *
+ */
+
+IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type):
+         IOOFOAM_Kernel(bulk,boundary, type)
+{
+    m_name = "mimmo.IOOFOAM";
+    m_overwrite= false;
+};
 
 /*!
  * Custom constructor reading xml data
@@ -97,21 +331,20 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
 	};
 }
 
-/*!Default destructor of IOOFOAM.
+/*!
+   Destructor of IOOFOAM
  */
 IOOFOAM::~IOOFOAM(){};
 
-/*!Copy constructor of IOOFOAM. Internal volume and boundary mesh are not copied.
+/*!
+Copy constructor of IOOFOAM. Internal volume and boundary mesh are not copied.
  */
-IOOFOAM::IOOFOAM(const IOOFOAM & other):MimmoFvMesh(other){
+IOOFOAM::IOOFOAM(const IOOFOAM & other):IOOFOAM_Kernel(other){
+    setDefaults();
 	m_type = other.m_type;
 	m_path = other.m_path;
 	m_overwrite = other.m_overwrite;
 	m_OFbitpitmapfaces = other.m_OFbitpitmapfaces;
-	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
 };
 
 /*!
@@ -128,52 +361,17 @@ IOOFOAM & IOOFOAM::operator=(IOOFOAM other){
  */
 void IOOFOAM::swap(IOOFOAM & x) noexcept
 {
-	std::swap(m_type, x.m_type);
-	std::swap(m_path, x.m_path);
 	std::swap(m_overwrite, x.m_overwrite);
-	std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
-
-	MimmoFvMesh::swap(x);
+	IOOFOAM_Kernel::swap(x);
 };
 
 /*!
- * Default values for IOOFOAM.
+ * Default values for IOOFOAM_Kernel.
  */
 void
 IOOFOAM::setDefaults(){
-
-	m_path   = ".";
 	m_overwrite = false;
-	m_OFE_supp.clear();
-	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
-}
-
-/*! It builds the input/output ports of the object
- */
-void
-IOOFOAM::buildPorts(){
-	MimmoFvMesh::buildPorts();
-	bool built = m_arePortsBuilt;
-	// creating input ports
-	built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM::setFacesMap, M_UMAPIDS));
-	// creating output ports
-	built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-	built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
-	built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM::getFacesMap, M_UMAPIDS));
-
-	m_arePortsBuilt = built;
-};
-
-/*!
- * It sets the name of directory to read/write the OpenFOAM mesh.
- * \param[in] dir mesh input directory.
- */
-void
-IOOFOAM::setDir(std::string dir){
-	m_path = dir;
+    IOOFOAM_Kernel::setDefaults();
 }
 
 /*!
@@ -196,46 +394,44 @@ IOOFOAM::getOverwrite(){
 	return m_overwrite;
 }
 
+
 /*!
- * Set current bulk geometry to be written. Method meant for writing class modes only.
- * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setGeometry
- * \param[in] bulk pointer to external bulk mesh MimmoObject.
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
  */
 void
-IOOFOAM::setGeometry(MimmoObject * bulk){
-	if(m_type == IOOFMode::READ) return;
-	MimmoFvMesh::setGeometry(bulk);
-}
+IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
+
+	std::string input;
+
+	IOOFOAM_Kernel::absorbSectionXML(slotXML, name);
+	if(slotXML.hasOption("Overwrite")){
+		input = slotXML.get("Overwrite");
+		bool value = false;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::string::trim(input));
+			ss >> value;
+		}
+		setOverwrite(value);
+	};
+};
 
 /*!
- * Set current boundary geometry to be written. Method meant for writing class modes only.
- * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setBoundaryGeometry
- * \param[in] bulk pointer to external boundary mesh MimmoObject.
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
  */
 void
-IOOFOAM::setBoundaryGeometry(MimmoObject * boundary){
-	if(m_type == IOOFMode::READ) return;
-	MimmoFvMesh::setBoundaryGeometry(boundary);
-}
+IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
+	BITPIT_UNUSED(name);
 
-/*!
- * Get current map between OFOAM faces -> bitpit interfaces.
- * \return reference to interfaces map.
- */
-std::unordered_map<long,long>
-IOOFOAM::getFacesMap(){
-	return m_OFbitpitmapfaces;
-}
-
-/*!
- * Set current map between OFOAM faces -> bitpit interfaces.
- * \param[in] reference to interfaces map.
- */
-void
-IOOFOAM::setFacesMap(std::unordered_map<long,long> mapFaces){
-	m_OFbitpitmapfaces = mapFaces;
-}
+	IOOFOAM_Kernel::flushSectionXML(slotXML, name);
+	slotXML.set("Overwrite", std::to_string(m_overwrite));
+};
 
 /*!Execution command.
  * It reads the geometry in reading mode, otherwise it writes, according to the write mode.
@@ -260,111 +456,6 @@ IOOFOAM::execute(){
 	if (!check){
 		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
 	}
-}
-
-
-/*!
- * It sets infos reading from a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void
-IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
-	BITPIT_UNUSED(name);
-
-	std::string input;
-
-	BaseManipulation::absorbSectionXML(slotXML, name);
-
-	if(slotXML.hasOption("Dir")){
-		input = slotXML.get("Dir");
-		input = bitpit::utils::string::trim(input);
-		if(input.empty())   input = ".";
-		setDir(input);
-	};
-
-	if(slotXML.hasOption("Overwrite")){
-		input = slotXML.get("Overwrite");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::string::trim(input));
-			ss >> value;
-		}
-		setOverwrite(value);
-	};
-};
-
-/*!
- * It sets infos from class members in a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void
-IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-
-	BITPIT_UNUSED(name);
-
-	BaseManipulation::flushSectionXML(slotXML, name);
-
-	slotXML.set("IOMode", IOOFMode::_from_integral(m_type)._to_string());
-	slotXML.set("Dir", m_path);
-	slotXML.set("Overwrite", std::to_string(m_overwrite));
-};
-
-/*!
- * Reorder OpenFoam vertex-cell connectivity of an elementary shape in
- * a suitable one for corrispondent bitpit elementary shape. The reordering
- * preserve the local enumeration of faces from OpenFOAM to bitpit.
- * \param[in] FoamConn ordered vertex connectivity of a shape cell
- * \param[in] eltype   reference Bitpit::element type for reordering
- */
-livector1D
-mapEleVConnectivity(const livector1D & FoamConn, const bitpit::ElementType & eltype){
-	livector1D conn;
-
-	switch(eltype){
-	case bitpit::ElementType::TETRA:
-		conn.resize(4);
-		conn[0] = FoamConn[2];
-		conn[1] = FoamConn[1];
-		conn[2] = FoamConn[3];
-		conn[3] = FoamConn[0];
-		break;
-	case bitpit::ElementType::HEXAHEDRON:
-		conn.resize(8);
-		conn[0] = FoamConn[0];
-		conn[1] = FoamConn[3];
-		conn[2] = FoamConn[7];
-		conn[3] = FoamConn[4];
-		conn[4] = FoamConn[1];
-		conn[5] = FoamConn[2];
-		conn[6] = FoamConn[6];
-		conn[7] = FoamConn[5];
-		break;
-	case bitpit::ElementType::WEDGE:
-		conn.resize(6);
-		conn[0] = FoamConn[0];
-		conn[1] = FoamConn[2];
-		conn[2] = FoamConn[1];
-		conn[3] = FoamConn[3];
-		conn[4] = FoamConn[5];
-		conn[5] = FoamConn[4];
-		break;
-	case bitpit::ElementType::PYRAMID:
-		conn.resize(5);
-		conn[0] = FoamConn[3];
-		conn[1] = FoamConn[2];
-		conn[2] = FoamConn[1];
-		conn[3] = FoamConn[0];
-		conn[4] = FoamConn[4];
-		break;
-	default:
-		//do nothing
-		break;
-	}
-
-	return conn;
 }
 
 /*!
@@ -409,7 +500,6 @@ IOOFOAM::read(){
 	long iDC;
 	long PID = 0;
 	livector1D conn, temp;
-	livector2D adjacency;
 
 	forAll(cells, iC){
 
@@ -417,8 +507,6 @@ IOOFOAM::read(){
 		eleshape = std::string(cellShapes[iC].model().name());
 		//first step verify the model in twin cellShapes list.
 		conn.clear();
-		adjacency.clear();
-		adjacency.resize(std::size_t(cells[iC].size()), livector1D(1, bitpit::Cell::NULL_ID));
 
 		if(m_OFE_supp.count(eleshape) > 0){
 
@@ -427,19 +515,7 @@ IOOFOAM::read(){
 			forAll(cellShapes[iC], loc){
 				temp[loc] = (long)cellShapes[iC][loc];
 			}
-			conn = mapEleVConnectivity(temp, eltype);
-
-			auto ordFaceList = cellShapes[iC].meshFaces(faces, cells[iC]);
-			Foam::label refFace;
-			forAll(ordFaceList, ofcount){
-				refFace = ordFaceList[ofcount];
-				if(refFace >= sizeNeighbours) continue;
-				if(iC == faceOwner[refFace]){
-					adjacency[int(ofcount)][0] = faceNeighbour[refFace];
-				}else{
-					adjacency[int(ofcount)][0] = faceOwner[refFace];
-				}
-			}
+			conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
 
 		}else{
 
@@ -465,10 +541,8 @@ IOOFOAM::read(){
 				//OpenFoam policy wants the face normal between cell pointing towards
 				// the cell with greater id.
 				if(iC == faceOwner[iFace]){
-					adjacency[int(locC)][0] = faceNeighbour[iFace];
 					normalIsOut = faceNeighbour[iFace] > iC;
 				}else{
-					adjacency[int(locC)][0] = faceOwner[iFace];
 					normalIsOut = faceOwner[iFace] > iC;
 				}
 
@@ -481,27 +555,41 @@ IOOFOAM::read(){
 		}
 		bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, iDC);
 		it->setPID(int(PID));
-		it->setAdjacencies(adjacency);
 	}
-	//build as bitpit the Interfaces -> adjacency is automatically recoverd from openFoam info.
-	mesh->buildInterfaces();
 
-	forAll(cells, iC){
-		iDC = long(iC);
-		eleshape = std::string(cellShapes[iC].model().name());
-		Foam::labelList ofFaceList;
-		if(m_OFE_supp.count(eleshape) > 0){
-			eltype = m_OFE_supp[eleshape];
-			ofFaceList = cellShapes[iC].meshFaces(faces, cells[iC]);
-		}else{
-			eltype = bitpit::ElementType::POLYHEDRON;
-			ofFaceList = cells[iC];
-		}
-		long * bitFaceList = mesh->getCell(iC).getInterfaces();
-		std::size_t sizeFList = mesh->getCell(iC).getInterfaceCount();
-		for(std::size_t i = 0; i<sizeFList; ++i){
-			m_OFbitpitmapfaces[ofFaceList[i]] = bitFaceList[i];
-		}
+    mesh->buildAdjacencies();
+    mesh->buildInterfaces();
+
+    bitpit::PiercedVector<bitpit::Cell> & bitCells = mesh->getCells();
+    bitpit::PiercedVector<bitpit::Interface> & bitInterfaces = mesh->getInterfaces();
+
+	forAll(faces, iOF){
+
+        std::vector<long> vListOF(faces[iOF].size());
+        forAll(faces[iOF], index){
+            vListOF[index] = long(faces[iOF][index]);
+        }
+        std::sort(vListOF.begin(), vListOF.end());
+
+        long iDC = long(faceOwner[iOF]);
+		long * bitFaceList = bitCells[iDC].getInterfaces();
+		std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
+
+        long iBIT = bitpit::Interface::NULL_ID;
+        int j=0;
+        while(iBIT < 0 && j<sizeFList){
+            long * vconn = bitInterfaces[bitFaceList[j]].getConnect();
+            std::size_t vconnsize = bitInterfaces[bitFaceList[j]].getConnectSize();
+            std::vector<long> vListBIT(vconn, vconn+vconnsize);
+            std::sort(vListBIT.begin(), vListBIT.end());
+
+            if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
+                iBIT = bitFaceList[j];
+            }else{
+                ++j;
+            }
+        }
+		m_OFbitpitmapfaces.insert(std::make_pair(long(iOF),iBIT) );
 	}
 
 	//finally store bulk mesh in the internal bulk member of the class (from MimmoFvMesh);
@@ -524,11 +612,12 @@ IOOFOAM::read(){
 
 	forAll(foamBMesh, iBoundary){
 		PID = long(iBoundary+1);
-		startIndex = foamBMesh[iBoundary].start();
-		endIndex = startIndex + long(foamBMesh[iBoundary].size());
-		for(long ind=startIndex; ind<endIndex; ++ind){
+		startIndex = foamBMesh[iBoundary].patch().start();
+		endIndex = startIndex + long(foamBMesh[iBoundary].patch().size());
+        for(long ind=startIndex; ind<endIndex; ++ind){
 			m_boundary->setPIDCell(m_OFbitpitmapfaces[ind], PID);
 		}
+        m_boundary->setPIDName(PID,foamBMesh[iBoundary].name().c_str());
 	}
 	m_boundary->resyncPID();
 	//minimo sindacale fatto.
@@ -562,244 +651,6 @@ IOOFOAM::writePointsOnly(){
 	return foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
 }
 
-
-
-/*
- * ========================================================================================================
- */
-
-
-/*!
- * Default constructor of IOOFOAMField.
- * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
- */
-IOOFOAMField::IOOFOAMField(int type):MimmoFvMesh(){
-	m_name           = "mimmo.IOOFOAMField";
-	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
-	if(maybeIOMode){
-		m_type = type;
-	}else{
-		m_type = IOOFMode::READ;
-	}
-	setDefaults();
-}
-
-
-/*!Default destructor of IOOFOAMField.
- */
-IOOFOAMField::~IOOFOAMField(){};
-
-///*!Copy constructor of IOOFOAMField. Internal volume and boundary mesh are not copied.
-// */
-//IOOFOAMField::IOOFOAMField(const IOOFOAMField & other):MimmoFvMesh(other){
-//    m_type = other.m_type;
-//    m_path = other.m_path;
-//    m_path = other.m_path;
-//    m_fieldname = other.m_fieldname;
-//    m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-//    m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-//    m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-//    m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
-//};
-//
-///*!
-// * Assignment operator. Internal volume and boundary mesh are not copied.
-// */
-//IOOFOAMField & IOOFOAMField::operator=(IOOFOAMField other){
-//    swap(other);
-//    return *this;
-//}
-//
-///*!
-// * Swap function
-// * \param[in] x object to be swapped
-// */
-//void IOOFOAMField::swap(IOOFOAMField & x) noexcept
-//{
-//   std::swap(m_type, x.m_type);
-//   std::swap(m_path, x.m_path);
-//   std::swap(m_overwrite, x.m_overwrite);
-//   std::swap(m_fieldname, x.m_fieldname);
-//
-//   MimmoFvMesh::swap(x);
-//};
-
-/*!
- * Default values for IOOFOAMField.
- */
-void
-IOOFOAMField::setDefaults(){
-
-	m_path   = ".";
-	m_fieldname = "";
-	m_overwrite = false;
-	m_OFE_supp.clear();
-	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
-}
-
-/*! It builds the input/output ports of the object
- */
-void
-IOOFOAMField::buildPorts(){
-	MimmoFvMesh::buildPorts();
-	bool built = m_arePortsBuilt;
-	// creating input ports
-	built = (built && createPortIn<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::setGeometry, M_GEOMOFOAM ));
-	built = (built && createPortIn<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOMOFOAM2));
-	built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMField>(this, &IOOFOAMField::setFacesMap, M_UMAPIDS));
-	// creating output ports
-	built = (built && createPortOut<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-	built = (built && createPortOut<MimmoObject*, IOOFOAMField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
-	m_arePortsBuilt = built;
-};
-
-/*!
- * It sets the name of directory to read/write the OpenFOAM mesh.
- * \param[in] dir mesh input directory.
- */
-void
-IOOFOAMField::setDir(std::string dir){
-	m_path = dir;
-}
-
-/*!
- * It sets the name of the field to read/write.
- * \param[in] fieldname name of input/output field.
- */
-void
-IOOFOAMField::setField(std::string fieldname){
-	m_fieldname = fieldname;
-}
-
-/*!
- * Set overwrite parameter.
- * If true overwrite field in the current OpenFoam case time of the mesh at WriteDir.
- * If false save them in a newly created case time at current time + 1;
- * \param[in] flag activation flag.
- */
-void
-IOOFOAMField::setOverwrite(bool flag){
-	m_overwrite = flag;
-}
-
-/*!
- * Get Overwrite parameter.  See setOverwrite method.
- * \return overwrite parameter content
- */
-bool
-IOOFOAMField::getOverwrite(){
-	return m_overwrite;
-}
-
-/*!
- * Set type parameter.
- * \param[in] type parameter content
- */
-void
-IOOFOAMField::setType(int type){
-	m_type = type;
-}
-
-/*!
- * Get type parameter.
- * \return type parameter content
- */
-int
-IOOFOAMField::getType(){
-	return m_type;
-}
-
-/*!
- * Set current map between OFOAM faces -> bitpit interfaces.
- * \param[in] reference to interfaces map.
- */
-void
-IOOFOAMField::setFacesMap(std::unordered_map<long,long> mapFaces){
-	m_OFbitpitmapfaces = mapFaces;
-}
-
-/*!Execution command.
- * It reads the geometry in reading mode, otherwise it writes, according to the write mode.
- */
-void
-IOOFOAMField::execute(){
-	bool check = true;
-	switch (m_type){
-	case IOOFMode::READ :
-		check = read();
-		break;
-	case IOOFMode::WRITE :
-		//             check = write(); //TODO coding complete mesh writing from scratch.
-		break;
-	default:
-		//never been reached
-		break;
-	}
-	if (!check){
-		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
-	}
-}
-
-
-/*!
- * It sets infos reading from a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void
-IOOFOAMField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-
-	BITPIT_UNUSED(name);
-	std::string input;
-	BaseManipulation::absorbSectionXML(slotXML, name);
-
-	if(slotXML.hasOption("Dir")){
-		input = slotXML.get("Dir");
-		input = bitpit::utils::string::trim(input);
-		if(input.empty())   input = ".";
-		setDir(input);
-	};
-
-	if(slotXML.hasOption("Field")){
-		input = slotXML.get("Field");
-		input = bitpit::utils::string::trim(input);
-		if(input.empty())   input = ".";
-		setField(input);
-	};
-
-	if(slotXML.hasOption("Overwrite")){
-		input = slotXML.get("Overwrite");
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::string::trim(input));
-			ss >> value;
-		}
-		setOverwrite(value);
-	};
-};
-
-/*!
- * It sets infos from class members in a XML bitpit::Config::section.
- * \param[in] slotXML bitpit::Config::Section of XML file
- * \param[in] name   name associated to the slot
- */
-void
-IOOFOAMField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-
-	BITPIT_UNUSED(name);
-	BaseManipulation::flushSectionXML(slotXML, name);
-
-	slotXML.set("IOMode", IOOFMode::_from_integral(m_type)._to_string());
-	slotXML.set("Dir", m_path);
-	slotXML.set("Field", m_fieldname);
-	slotXML.set("Overwrite", std::to_string(m_overwrite));
-};
-
-
-
 /*
  * ========================================================================================================
  */
@@ -808,11 +659,9 @@ IOOFOAMField::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
  * Default constructor of IOOFOAMScalarField.
  * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
  */
-IOOFOAMScalarField::IOOFOAMScalarField(int type):IOOFOAMField(){
+IOOFOAMScalarField::IOOFOAMScalarField(int type):IOOFOAM_Kernel(type){
 	m_name           = "mimmo.IOOFOAMScalarField";
-	IOOFOAMField::setDefaults();
 }
-
 
 /*!
  * Custom constructor reading xml data
@@ -833,8 +682,8 @@ IOOFOAMScalarField::IOOFOAMScalarField(const bitpit::Config::Section & rootXML){
 
 	if(input == "mimmo.IOOFOAMScalarField" && maybeIOOFMode){
 		m_type = maybeIOOFMode->_to_integral();
-		IOOFOAMField::setDefaults();
-		IOOFOAMField::absorbSectionXML(rootXML);
+		setDefaults();
+		absorbSectionXML(rootXML);
 	}else{
 		warningXML(m_log, m_name);
 	};
@@ -846,16 +695,9 @@ IOOFOAMScalarField::~IOOFOAMScalarField(){};
 
 /*!Copy constructor of IOOFOAMScalarField. Internal volume and boundary mesh are not copied.
  */
-IOOFOAMScalarField::IOOFOAMScalarField(const IOOFOAMScalarField & other):IOOFOAMField(other){
-	m_type = other.m_type;
-	m_path = other.m_path;
-	m_fieldname = other.m_fieldname;
-	m_field = other.m_field;
-	m_boundaryField = other.m_boundaryField;
-	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
+IOOFOAMScalarField::IOOFOAMScalarField(const IOOFOAMScalarField & other):IOOFOAM_Kernel(other){
+    m_field = other.m_field;
+    m_boundaryField = other.m_boundaryField;
 };
 
 /*!
@@ -872,20 +714,16 @@ IOOFOAMScalarField & IOOFOAMScalarField::operator=(IOOFOAMScalarField other){
  */
 void IOOFOAMScalarField::swap(IOOFOAMScalarField & x) noexcept
 {
-	MimmoFvMesh::swap(x);
-	std::swap(m_type, x.m_type);
-	std::swap(m_path, x.m_path);
-	std::swap(m_overwrite, x.m_overwrite);
-	std::swap(m_fieldname, x.m_fieldname);
-	std::swap(m_field, x.m_field);
-	std::swap(m_boundaryField, x.m_boundaryField);
+	m_field.swap(x.m_field);
+	m_boundaryField.swap(x.m_boundaryField);
+    IOOFOAM_Kernel::swap(x);
 };
 
 /*! It builds the input/output ports of the object
  */
 void
 IOOFOAMScalarField::buildPorts(){
-	IOOFOAMField::buildPorts();
+	IOOFOAM_Kernel::buildPorts();
 	bool built = m_arePortsBuilt;
 	// creating output ports
 	built = (built && createPortOut<dmpvector1D, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
@@ -911,8 +749,64 @@ IOOFOAMScalarField::getBoundaryField(){
 	return m_boundaryField;
 }
 
+/*!Execution command.
+ * It reads the geometry in reading mode, otherwise it writes, according to the write mode.
+ */
+void
+IOOFOAMScalarField::execute(){
+	bool check = true;
+	switch (m_type){
+	case IOOFMode::READ :
+		check = read();
+		break;
+	case IOOFMode::WRITE :
+		//             check = write(); //TODO coding complete mesh writing from scratch.
+	default:
+		//never been reached
+		break;
+	}
+	if (!check){
+		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
+	}
+}
+
+
 /*!
- * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryfield.
+ * It sets infos reading from a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+IOOFOAMScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
+	std::string input;
+	IOOFOAM_Kernel::absorbSectionXML(slotXML, name);
+
+	if(slotXML.hasOption("FieldName")){
+		input = slotXML.get("FieldName");
+		input = bitpit::utils::string::trim(input);
+		if(input.empty())   input = ".";
+		setFieldName(input);
+	};
+};
+
+/*!
+ * It sets infos from class members in a XML bitpit::Config::section.
+ * \param[in] slotXML bitpit::Config::Section of XML file
+ * \param[in] name   name associated to the slot
+ */
+void
+IOOFOAMScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+	BITPIT_UNUSED(name);
+	IOOFOAM_Kernel::flushSectionXML(slotXML, name);
+
+	slotXML.set("FieldName", m_fieldname);
+};
+
+/*!
+ * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryField.
  * \return false if errors occured during the reading.
  */
 bool
@@ -987,7 +881,7 @@ IOOFOAMScalarField::read(){
 		}
 		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
 		boundaryFieldOnFace.setDataLocation(1);
-		interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
+		foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 	}
 
 	//TODO exception for null or empty geometries and return false for error during reading
@@ -996,7 +890,7 @@ IOOFOAMScalarField::read(){
 }
 
 /*!
- * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryfield
+ * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryField
  * \return false if errors occured during the writing.
  */
 bool
@@ -1013,116 +907,158 @@ IOOFOAMScalarField::write(){
 /*
  * ========================================================================================================
  */
+ /*!
+  * Default constructor of IOOFOAMVectorField.
+  * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
+  */
+ IOOFOAMVectorField::IOOFOAMVectorField(int type):IOOFOAM_Kernel(type){
+ 	m_name           = "mimmo.IOOFOAMVectorField";
+ }
+
+ /*!
+  * Custom constructor reading xml data
+  * \param[in] rootXML reference to your xml tree section
+  */
+ IOOFOAMVectorField::IOOFOAMVectorField(const bitpit::Config::Section & rootXML){
+
+ 	m_name = "mimmo.IOOFOAMVectorField";
+ 	std::string fallback_name = "ClassNONE";
+ 	std::string input = rootXML.get("ClassName", fallback_name);
+ 	input = bitpit::utils::string::trim(input);
+
+ 	std::string fallback_type = "IOModeNONE";
+ 	std::string input_type = rootXML.get("IOMode", fallback_type);
+ 	input_type = bitpit::utils::string::trim(input_type);
+
+ 	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
+
+ 	if(input == "mimmo.IOOFOAMVectorField" && maybeIOOFMode){
+ 		m_type = maybeIOOFMode->_to_integral();
+ 		setDefaults();
+ 		absorbSectionXML(rootXML);
+ 	}else{
+ 		warningXML(m_log, m_name);
+ 	};
+ }
+
+ /*!Default destructor of IOOFOAMVectorField.
+  */
+ IOOFOAMVectorField::~IOOFOAMVectorField(){};
+
+ /*!Copy constructor of IOOFOAMVectorField. Internal volume and boundary mesh are not copied.
+  */
+ IOOFOAMVectorField::IOOFOAMVectorField(const IOOFOAMVectorField & other):IOOFOAM_Kernel(other){
+     m_field = other.m_field;
+     m_boundaryField = other.m_boundaryField;
+ };
+
+ /*!
+  * Assignment operator. Internal volume and boundary mesh are not copied.
+  */
+ IOOFOAMVectorField & IOOFOAMVectorField::operator=(IOOFOAMVectorField other){
+ 	swap(other);
+ 	return *this;
+ }
+
+ /*!
+  * Swap function
+  * \param[in] x object to be swapped
+  */
+ void IOOFOAMVectorField::swap(IOOFOAMVectorField & x) noexcept
+ {
+ 	m_field.swap(x.m_field);
+ 	m_boundaryField.swap(x.m_boundaryField);
+     IOOFOAM_Kernel::swap(x);
+ };
+
+ /*! It builds the input/output ports of the object
+  */
+ void
+ IOOFOAMVectorField::buildPorts(){
+ 	IOOFOAM_Kernel::buildPorts();
+ 	bool built = m_arePortsBuilt;
+ 	// creating output ports
+ 	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
+ 	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
+ 	m_arePortsBuilt = built;
+ };
+
+ /*!
+  * It gets the internal vector field.
+  * \return internal vector field.
+  */
+ dmpvecarr3E
+ IOOFOAMVectorField::getField(){
+ 	return m_field;
+ }
+
+ /*!
+  * It gets the boundary scalar field.
+  * \return boundary scalar field.
+  */
+ dmpvecarr3E
+ IOOFOAMVectorField::getBoundaryField(){
+ 	return m_boundaryField;
+ }
+
+ /*!Execution command.
+  * It reads the geometry in reading mode, otherwise it writes, according to the write mode.
+  */
+ void
+ IOOFOAMVectorField::execute(){
+ 	bool check = true;
+ 	switch (m_type){
+ 	case IOOFMode::READ :
+ 		check = read();
+ 		break;
+ 	case IOOFMode::WRITE :
+ 		//             check = write(); //TODO coding complete mesh writing from scratch.
+ 	default:
+ 		//never been reached
+ 		break;
+ 	}
+ 	if (!check){
+ 		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
+ 	}
+ }
+
+
+ /*!
+  * It sets infos reading from a XML bitpit::Config::section.
+  * \param[in] slotXML bitpit::Config::Section of XML file
+  * \param[in] name   name associated to the slot
+  */
+ void
+ IOOFOAMVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+
+ 	BITPIT_UNUSED(name);
+ 	std::string input;
+ 	IOOFOAM_Kernel::absorbSectionXML(slotXML, name);
+
+ 	if(slotXML.hasOption("FieldName")){
+ 		input = slotXML.get("FieldName");
+ 		input = bitpit::utils::string::trim(input);
+ 		if(input.empty())   input = ".";
+ 		setFieldName(input);
+ 	};
+ };
+
+ /*!
+  * It sets infos from class members in a XML bitpit::Config::section.
+  * \param[in] slotXML bitpit::Config::Section of XML file
+  * \param[in] name   name associated to the slot
+  */
+ void
+ IOOFOAMVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+
+ 	BITPIT_UNUSED(name);
+ 	IOOFOAM_Kernel::flushSectionXML(slotXML, name);
+
+ 	slotXML.set("FieldName", m_fieldname);
+ };
 
 /*!
- * Default constructor of IOOFOAMVectorField.
- * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
- */
-IOOFOAMVectorField::IOOFOAMVectorField(int type):IOOFOAMField(){
-	m_name           = "mimmo.IOOFOAMVectorField";
-	IOOFOAMField::setDefaults();
-}
-
-
-/*!
- * Custom constructor reading xml data
- * \param[in] rootXML reference to your xml tree section
- */
-IOOFOAMVectorField::IOOFOAMVectorField(const bitpit::Config::Section & rootXML){
-
-	m_name = "mimmo.IOOFOAMVectorField";
-	std::string fallback_name = "ClassNONE";
-	std::string input = rootXML.get("ClassName", fallback_name);
-	input = bitpit::utils::string::trim(input);
-
-	std::string fallback_type = "IOModeNONE";
-	std::string input_type = rootXML.get("IOMode", fallback_type);
-	input_type = bitpit::utils::string::trim(input_type);
-
-	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-
-	if(input == "mimmo.IOOFOAMVectorField" && maybeIOOFMode){
-		m_type = maybeIOOFMode->_to_integral();
-		IOOFOAMField::setDefaults();
-		IOOFOAMField::absorbSectionXML(rootXML);
-	}else{
-		warningXML(m_log, m_name);
-	};
-}
-
-/*!Default destructor of IOOFOAMVectorField.
- */
-IOOFOAMVectorField::~IOOFOAMVectorField(){};
-
-/*!Copy constructor of IOOFOAMVectorField. Internal volume and boundary mesh are not copied.
- */
-IOOFOAMVectorField::IOOFOAMVectorField(const IOOFOAMVectorField & other):IOOFOAMField(other){
-	m_type = other.m_type;
-	m_path = other.m_path;
-	m_fieldname = other.m_fieldname;
-	m_field = other.m_field;
-	m_boundaryField = other.m_boundaryField;
-	m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
-	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
-	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
-	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
-};
-
-/*!
- * Assignment operator. Internal volume and boundary mesh are not copied.
- */
-IOOFOAMVectorField & IOOFOAMVectorField::operator=(IOOFOAMVectorField other){
-	swap(other);
-	return *this;
-}
-
-/*!
- * Swap function
- * \param[in] x object to be swapped
- */
-void IOOFOAMVectorField::swap(IOOFOAMVectorField & x) noexcept
-{
-	MimmoFvMesh::swap(x);
-	std::swap(m_type, x.m_type);
-	std::swap(m_path, x.m_path);
-	std::swap(m_overwrite, x.m_overwrite);
-	std::swap(m_fieldname, x.m_fieldname);
-	std::swap(m_field, x.m_field);
-	std::swap(m_boundaryField, x.m_boundaryField);
-};
-
-/*! It builds the input/output ports of the object
- */
-void
-IOOFOAMVectorField::buildPorts(){
-	IOOFOAMField::buildPorts();
-	bool built = m_arePortsBuilt;
-	// creating output ports
-	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
-	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
-	m_arePortsBuilt = built;
-};
-
-/*!
- * It gets the internal vector field.
- * \return internal vector field.
- */
-dmpvecarr3E
-IOOFOAMVectorField::getField(){
-	return m_field;
-}
-
-/*!
- * It gets the boundary vector field.
- * \return boundary vector field.
- */
-dmpvecarr3E
-IOOFOAMVectorField::getBoundaryField(){
-	return m_boundaryField;
-}
-
-/*!
- * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryfield.
+ * It reads the OpenFOAM field from input file and store in related variables m_field and m_boundaryField.
  * \return false if errors occured during the reading.
  */
 bool
@@ -1185,7 +1121,7 @@ IOOFOAMVectorField::read(){
 		}
 		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
 		boundaryFieldOnFace.setDataLocation(1);
-		interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
+		foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 	}
 
 	//TODO exception for null or empty geometries and return false for error during reading
@@ -1194,7 +1130,7 @@ IOOFOAMVectorField::read(){
 }
 
 /*!
- * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryfield
+ * It writes the OpenFOAM field to an output file from internal structure m_field and m_boundaryField
  * \return false if errors occured during the writing.
  */
 bool
@@ -1209,123 +1145,6 @@ IOOFOAMVectorField::write(){
 
 
 
-/*!
- * It interpolates a surface scalar field defined on cell centers of a surface mesh on the vertices of the same mesh.
- * It uses the angles related to each vertex to define weight for each face value.
- * \return false if errors occurred during the interpolation.
- */
-bool interpolateFaceToPoint(dmpvector1D & facefield, dmpvector1D & pointfield){
-
-	if (facefield.getGeometry()->getType() != 1){
-		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
-
-	}
-
-	dmpvector1D sumAngles;
-	pointfield.clear();
-	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
-		long idV = vertex.getId();
-		sumAngles.insert(idV, 0.);
-		pointfield.insert(idV, 0.);
-	}
-
-	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
-
-		//Cell id
-		long id = cell.getId();
-
-		// Cell data
-		double cellData = facefield[id];
-
-		// Get vertex id
-		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
-
-		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
-
-			// Cell angle at vertex
-			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
-
-			//Update data vertex and sum angles
-			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
-			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
-
-		}
-
-	}
-
-	//Normalize data with sum angles
-	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
-		long idV = vertex.getId();
-		pointfield[idV] /= sumAngles[idV];
-	}
-
-	//Assign geometry and data location to pointfield
-	pointfield.setGeometry(facefield.getGeometry());
-	pointfield.setDataLocation(1);
-
-	return true;
-
-}
-
-
-
-/*!
- * It interpolates a vector surface field defined on cell centers of a surface mesh on the vertices of the same mesh.
- * It uses the angles related to each vertex to define weight for each face value.
- * \return false if errors occurred during the interpolation.
- */
-bool interpolateFaceToPoint(dmpvecarr3E & facefield, dmpvecarr3E & pointfield){
-
-	if (facefield.getGeometry()->getType() != 1){
-		throw std::runtime_error ("Error interpolating data on surface mesh field: geometry is not a surface mesh");
-
-	}
-
-	dmpvecarr3E sumAngles;
-	pointfield.clear();
-	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
-		long idV = vertex.getId();
-		sumAngles.insert(idV, {{0.,0.,0.}});
-		pointfield.insert(idV, {{0.,0.,0.}});
-	}
-
-	for (bitpit::Cell & cell : facefield.getGeometry()->getCells()){
-
-		//Cell id
-		long id = cell.getId();
-
-		// Cell data
-		std::array<double,3> cellData = facefield[id];
-
-		// Get vertex id
-		bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
-
-		for (int vertexLocalId=0; vertexLocalId<cell.getVertexCount(); vertexLocalId++){
-
-			// Cell angle at vertex
-			double cellVertexAngle = static_cast<bitpit::SurfaceKernel*>(facefield.getGeometry()->getPatch())->evalAngleAtVertex(id, vertexLocalId);
-
-			//Update data vertex and sum angles
-			pointfield[cellVertexIds[vertexLocalId]] += cellData * cellVertexAngle;
-			sumAngles[cellVertexIds[vertexLocalId]] += cellVertexAngle;
-
-		}
-
-	}
-
-	//Normalize data with sum angles
-	for (bitpit::Vertex & vertex : facefield.getGeometry()->getVertices()){
-		long idV = vertex.getId();
-		pointfield [idV] /= sumAngles[idV];
-	}
-
-	//Assign geometry and data location to pointfield
-	pointfield.setGeometry(facefield.getGeometry());
-	pointfield.setDataLocation(1);
-
-	return true;
-
-}
 
 
 
