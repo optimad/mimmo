@@ -1,0 +1,300 @@
+dist: xenial
+
+
+language:
+  - cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+      - gfortran-7
+      - cmake
+      - libblas-dev
+      - liblapack-dev
+      - liblapacke-dev
+      - openmpi-bin
+      - libopenmpi-dev
+      - libpetsc3.6
+      - libpetsc3.6.2-dev
+
+env:
+  global:
+    - C_COMPILER="gcc-7"
+    - CXX_COMPILER="g++-7"
+    - Fortran_COMPILER="gfortran-7"
+
+jobs:
+  include:
+    - if: branch != coverity
+      os: linux
+      env:
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      env:
+        - BUILD_TYPE="Release" ENABLE_MPI="False"
+
+    - if: branch != coverity
+      os: linux
+      env:
+        - BUILD_TYPE="Debug" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      env:
+        - BUILD_TYPE="Debug" ENABLE_MPI="False"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - g++-6
+            - gfortran-6
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="gcc-6"
+        - CXX_COMPILER="g++-6"
+        - Fortran_COMPILER="gfortran-6"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-8
+            - g++-8
+            - gfortran-8
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="gcc-8"
+        - CXX_COMPILER="g++-8"
+        - Fortran_COMPILER="gfortran-8"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.9
+          packages:
+            - clang-3.9
+            - g++-6
+            - gfortran-6
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="clang-3.9"
+        - CXX_COMPILER="clang++-3.9"
+        - Fortran_COMPILER="gfortran-6"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-5.0
+          packages:
+            - clang-5.0
+            - g++-7
+            - gfortran-7
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="clang-5.0"
+        - CXX_COMPILER="clang++-5.0"
+        - Fortran_COMPILER="gfortran-7"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-6.0
+          packages:
+            - clang-6.0
+            - g++-7
+            - gfortran-7
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="clang-6.0"
+        - CXX_COMPILER="clang++-6.0"
+        - Fortran_COMPILER="gfortran-7"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch != coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang
+            - g++-7
+            - gfortran-7
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+
+      env:
+        - C_COMPILER="clang"
+        - CXX_COMPILER="clang++"
+        - Fortran_COMPILER="gfortran-7"
+        - BUILD_TYPE="Release" ENABLE_MPI="True"
+
+    - if: branch = coverity
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran
+            - cmake
+            - libblas-dev
+            - liblapack-dev
+            - liblapacke-dev
+            - openmpi-bin
+            - libopenmpi-dev
+            - libpetsc3.6
+            - libpetsc3.6.2-dev
+        coverity_scan:
+          project:
+            name: optimad/mimmo
+            description: "mimmo :: Surface manipulation and mesh morphing library"
+          notification_email: coverity@optimad.it
+          build_command_prepend: >
+            mkdir build;
+            cd build;
+            cmake -DCMAKE_C_COMPILER=${C_COMPILER} \
+              -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
+              -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} \
+              -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real \
+              -DPETSC_ARCH= \
+              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+              -DENABLE_MPI=${ENABLE_MPI} \
+              -DVERBOSE_MAKE=True \
+              ..;
+          build_command: >
+            make -j2
+          branch_pattern: coverity
+
+      env:
+        - C_COMPILER="gcc"
+        - CXX_COMPILER="g++"
+        - Fortran_COMPILER="gfortran"
+        - BUILD_TYPE="Debug" ENABLE_MPI="True"
+
+        # Encrypted COVERITY_SCAN_TOKEN
+        - secure: "q4Pdqc6eiar7cxgr+iqmED+/vDRq+yE7kzY0GM/gFUpuYMVEh7Rox4TWcPDadLAWsFXIQhDkomoWVC6ButyCqtqa41WDG7aeo73bRG10MV4n5uMzPasLE9KS1KQBmKHN/nofuX6S0IR8EsTOymdtXV4Wsc8T0uEOn/FDsVa+i4o2UHQDmyzPJ4yXnYh/98Q3umVC5nqrTfn43oqHUIedYqPv8LQLZTQBYhY2I4q1J/kTntyele79Zt1KmCdsQYZlMLZ5kT2/aVZpQ4nlvpC61BMCmKBvdEEEP13W5FpBF7KmZqOZqRZLbIxkP1UMOrsjbPXOD1c9INYmII+ouSh5DLiBpHFNTFp854s21Oa7A93igtYM5BLIGsKCTCyXdWi59WGKGY4jtSMKM0XnRzQ/Wpd9fEFyaokebJx8YuWs/JUPSDovoifmbjo9hwNQNeomSKMEieqFXRAqX8qEQ1MPxxP+Pdku8/CwJ15yZmNSA/gh/rbrFykC5btu2FHeFxaXe1HYF8EOEi8nWlseOC3obdBdzIUM8zoOCQroyuom+QWEuOu1AGwSdwMS2K7xKDfrYQSbjb8KkfSb+s6xAcQZHKiBLgX4eeYWabUbFlCJl4hGyQXjGZpCiaY8q7GMdgslgPE4e6ALl6BnmLCupBsdMDvSP9YB5PUPaPeK6B33SrM="
+
+before_install:
+  - echo "Building branch ${TRAVIS_BRANCH}..."
+  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then
+      echo "Coverity build... No";
+    else
+      echo "Coverity build... Yes";
+    fi
+  - sudo apt-get update
+  - test -n $CC && unset CC
+  - test -n $CXX && unset CXX
+  - test -n $FC && unset FC
+  - if [ ${TRAVIS_BRANCH} == "coverity" ]; then
+      echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-;
+    fi
+
+before_script:
+  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then
+      mkdir build;
+      cd build;
+      cmake
+        -DCMAKE_C_COMPILER=${C_COMPILER}
+        -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
+        -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER}
+        -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real
+        -DPETSC_ARCH=
+        -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+        -DENABLE_MPI=${ENABLE_MPI}
+        -DVERBOSE_MAKE=True
+        ..;
+    fi
+
+script:
+  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then
+      make -j2 && ctest;
+    fi
+
+after_script:
+  # When using secret variables, the output gets filtered through a helper
+  # process by default. This may leed to truncated ouptut after failures.
+  # Waiting some seconds after the script should workaround the issue (see
+  # https://github.com/travis-ci/travis-ci/issues/6018).
+  - sleep 10
+
+notifications:
+  slack:
+    rooms:
+      # Channel cmake on romanticdevs
+      - secure: "fl5eXHRN4EnO5aizGBTfsK2ZwNMO+0ZocXvDvs5yoIVrE+uUlKPEayUtSLC5X0EO7JOxzCMfey51cr+Wk0O6ME1cj2WPZHMaziXkLshPltFbx6m+O0XGZJCOO5l6gFuAEZWXkfFzz2fQz80tUpQHQCaZjFq1OsRq4FiWPpAFjsxqYgz524EHwxFWxIFcZnl6gnFwlmtQbmPBVCEMDoqRmDPiWIEQ0Paom9DUPdEm7K6JTP0TSIWOcGLvYWtJqNsJ0kauvQtCZQc1XnrSu5vRrHY+uBWXew+JXq7aJ2kM2NlaeOqMBQsxDicjYa9vFGSo5Qmdck9ZXE79rc1BA05UVRb5G/9dyhxLlm2YbncmsaH4Lyua0qQ4TA1FepB7DOF4E2rs4ywqMwR+WKoZeTuk1yqkvurH2WfLmOsDw8ybwgqLiITYuL7pMpvakluYI2hT6bL2EiF3g0oA/10vyi2PmLx9ScRKrs7CosApHaPjo06ViqSHUFlcCqvUQDKdUp7n7AvuCE2gRBCXXgpI3d5oRVWX3KoHNChTir/vUhZfGRqpzfA1CCsGht2kciD7IEAAjMxZ9adgfFJWJe00IQaCx7KBOXlZF3SjvWOfAuLfta7sDXl1NOE9x55RVolSs2L9lZExLR0PajLdCbfVdgV6359wYsmAJV+jJHS6Ma0zB4U="
+    on_success: change
+    on_failure: change
