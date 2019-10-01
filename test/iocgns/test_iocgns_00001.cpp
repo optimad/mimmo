@@ -34,8 +34,28 @@ using namespace mimmo;
 
 int test1() {
 
-	std::cout<<"Waiting for a proper test. I do nothing for now"<<std::endl;
-    return 0;
+    IOCGNS * cgnsI = new IOCGNS();
+    cgnsI->setMode(IOCGNS::IOCGNS_Mode::READ);
+    cgnsI->setDir("geodata");
+    cgnsI->setFilename("grid");
+
+    cgnsI->execute();
+
+    // std::cout<<cgnsI->getGeometry()->getPatch()->getVertexCount()<<std::endl;
+    // std::cout<<cgnsI->getSurfaceBoundary()->getPatch()->getVertexCount()<<std::endl;
+    //
+    // std::cout<<cgnsI->getGeometry()->getPatch()->getCellCount()<<std::endl;
+    // std::cout<<cgnsI->getSurfaceBoundary()->getPatch()->getCellCount()<<std::endl;
+
+    bool check = true;
+    check = check && ( cgnsI->getGeometry()->getPatch()->getVertexCount()== 201306);
+    check = check && ( cgnsI->getSurfaceBoundary()->getPatch()->getVertexCount()== 11320);
+    check = check && ( cgnsI->getGeometry()->getPatch()->getCellCount()== 643873);
+    check = check && ( cgnsI->getSurfaceBoundary()->getPatch()->getCellCount()== 18856);
+
+    delete cgnsI;
+
+    return int(!check);
 }
 
 // =================================================================================== //
