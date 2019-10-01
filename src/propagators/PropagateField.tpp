@@ -854,6 +854,7 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 			*it = 1.0;
 		}
 	}
+	seedlist.shrink_to_fit();
 
 	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_originalDumpingSurface.get()), maxd, &seedlist);
 	seedlist.clear();
@@ -1411,14 +1412,15 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	if(marked){
 		marked->clear();
 		marked->reserve(mpvres->size());
-		int counter = 0;
+//		int counter = 0;
 		for(auto it=mpvres->begin(); it != mpvres->end(); ++it){
 			if(norm2(*it) > m_thres){
 				marked->push_back(it.getId());
-				counter++;
+//				counter++;
 			}
 		}
-		marked->resize(counter);
+//		marked->resize(counter);
+		marked->shrink_to_fit();
 	}
 
 	// interpolate result to POINT location.

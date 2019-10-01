@@ -1025,6 +1025,9 @@ IOCGNS::read(const std::string & file){
     //delete coincident vertices in the mother volume.
     m_volmesh->getPatch()->deleteCoincidentVertices();
 
+    //Squeeze the mother volume
+    m_volmesh->getPatch()->squeeze();
+
     //now create the surface mesh, using the mapCellFacePid information.
     long totSV, totSC(0);
     for(auto & pp : mapCellFacePid){
@@ -1097,6 +1100,9 @@ IOCGNS::read(const std::string & file){
     //make sure all procs know the m_storedBC info absorbed while reading.
     communicateAllProcsStoredBC();
 #endif
+
+    //Squeeze the surface mesh
+    m_surfmesh->getPatch()->squeeze();
 
     return true;
 }

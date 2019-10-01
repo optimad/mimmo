@@ -623,9 +623,10 @@ darray3E BasicShape::checkNearestPointToAABBox(const darray3E &point, const darr
  * Identifiers of extracted matches are collected in result structure
  *\param[in] tree           KdTree of cloud points
  *\param[in,out] result     list of KdNode labels, which are included in the shape.
+ *\param[in]	squeeze		if true the result container is squeezed once full
  *
  */
-void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, livector1D & result ){
+void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & tree, livector1D & result, bool squeeze ){
 
     //1st step get data
     std::vector<int> candidates;
@@ -660,6 +661,8 @@ void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & 
             result.push_back(target.label);
         }
     }
+    if (squeeze)
+    	result.shrink_to_fit();
 };
 
 /*!
@@ -668,15 +671,15 @@ void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & 
  *\param[in] tree           SkdTree of PatchKernel simplicies
  *\param[in] geo            pointer to tessellation the tree refers to.
  *\param[out] result        list of simplex-ids included in the shape.
+ *\param[in]	squeeze		if true the result container is squeezed once full
  *
  */
-void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, livector1D & result){
+void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::PatchKernel * geo, livector1D & result, bool squeeze){
 
     std::size_t rootId = 0;
 
     std::vector<std::size_t> toBeCandidates;
-    std::vector<long> sureCells;
-    sureCells.reserve((geo->getCellCount()));
+    toBeCandidates.reserve(geo->getCellCount());
 
     std::vector<size_t> nodeStack;
     nodeStack.push_back(rootId);
@@ -684,7 +687,6 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
         std::size_t nodeId = nodeStack.back();
         const SkdNode & node  = tree.getNode(nodeId);
         nodeStack.pop_back();
-
 
         //second step: if the current node AABB does not intersect or does not completely contains the Shape, then thrown it away and continue.
         if(!intersectShapeAABBox(node.getBoxMin(), node.getBoxMax()) ){
@@ -702,14 +704,13 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
                 nodeStack.push_back(childId);
             }
         }
-
         if (isLeaf) {
             toBeCandidates.push_back(nodeId);
         }
     }
 
     result.clear();
-    result.reserve(toBeCandidates.size() + sureCells.size());
+    result.reserve(toBeCandidates.size());
     for (const auto & idCand : toBeCandidates){
         const SkdNode &node = tree.getNode(idCand);
         std::vector<long> cellids = node.getCells();
@@ -719,7 +720,8 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
             }
         }
     }
-    result.insert(result.end(), sureCells.begin(), sureCells.end());
+    if (squeeze)
+    	result.shrink_to_fit();
 };
 
 

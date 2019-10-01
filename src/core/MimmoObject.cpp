@@ -2312,9 +2312,10 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
     if(isEmpty() || getType() == 3)   return livector1D(0);
 
     livector1D result;
-    set<long int> ordV;
+    std::unordered_set<long int> ordV;
     auto patch = getPatch();
     bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+    ordV.reserve(patch->getVertexCount());
     //get conn from each cell of the list
     for(const auto id : cellList){
         if(cells.exists(id)){
@@ -2341,8 +2342,9 @@ livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, boo
 
     if(!areInterfacesBuilt())   buildInterfaces();
     livector1D result;
-    set<long int> ordV;
+    std::unordered_set<long int> ordV;
     auto patch = getPatch();
+    ordV.reserve(patch->getInterfaceCount());
 
     if (all){
     	bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
@@ -2388,6 +2390,7 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
     livector1D result;
     std::unordered_set<long int> ordV, ordC;
     ordV.insert(vertexList.begin(), vertexList.end());
+    ordC.reserve(getPatch()->getCellCount());
     //get conn from each cell of the list
     for(auto it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
         bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
@@ -2426,6 +2429,7 @@ livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList
     livector1D result;
     std::unordered_set<long int> ordV, ordI;
     ordV.insert(vertexList.begin(), vertexList.end());
+    ordI.reserve(getPatch()->getInterfaceCount());
     //get conn from each cell of the list
     for(auto it = getPatch()->interfaceBegin(); it != getPatch()->interfaceEnd(); ++it){
         if(border && !it->isBorder()) continue;
@@ -2461,6 +2465,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
     if(cellmap.empty()) return livector1D(0);
 
 	std::unordered_set<long> container;
+	container.reserve(getPatch()->getVertexCount());
 
 	for (const auto & val : cellmap){
 		bitpit::Cell & cell = getPatch()->getCell(val.first);
@@ -2491,6 +2496,7 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 	if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
     std::unordered_set<long> container;
+	container.reserve(getPatch()->getCellCount());
     auto itBegin = getPatch()->internalBegin();
     auto itEnd = getPatch()->internalEnd();
 #if MIMMO_ENABLE_MPI
@@ -2555,6 +2561,7 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
 	if(cellmap.empty()) return livector1D(0);
 
 	std::unordered_set<long> container;
+	container.reserve(getPatch()->getVertexCount());
 
 	for (const auto & val : cellmap){
 		bitpit::Cell & cell = getPatch()->getCell(val.first);
@@ -2585,6 +2592,7 @@ livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
     if(!areInterfacesBuilt())   buildInterfaces();
 
     std::unordered_set<long> container;
+    container.reserve(getPatch()->getInterfaceCount());
     std::unordered_map<long, std::set<int> > facemap = extractBoundaryFaceCellID(ghost);
 
     for(auto & tuple : facemap){
@@ -2606,8 +2614,9 @@ livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
  * Extract all cells marked with a target PID flag.
  * \param[in]   flag    PID for extraction
  * \return  list of cells as unique-ids
+ *\param[in]	squeeze		if true the result container is squeezed once full
  */
-livector1D	MimmoObject::extractPIDCells(long flag){
+livector1D	MimmoObject::extractPIDCells(long flag, bool squeeze){
 
 	if(m_pidsType.count(flag) < 1)	return livector1D(0);
 
@@ -2620,6 +2629,8 @@ livector1D	MimmoObject::extractPIDCells(long flag){
 		}
 	}
 	result.resize(counter);
+	if (squeeze)
+		result.shrink_to_fit();
 	return  result;
 };
 
@@ -2627,14 +2638,17 @@ livector1D	MimmoObject::extractPIDCells(long flag){
  * Extract all cells marked with a series of target PIDs.
  * \param[in]   flag    list of PID for extraction
  * \return      list of cells as unique-ids
+ *\param[in]	squeeze		if true the result container is squeezed once full
  */
-livector1D	MimmoObject::extractPIDCells(livector1D flag){
+livector1D	MimmoObject::extractPIDCells(livector1D flag, bool squeeze){
 	livector1D result;
 	result.reserve(getNCells());
 	for(auto && id : flag){
 		livector1D partial = extractPIDCells(id);
 		result.insert(result.end(),partial.begin(), partial.end());
 	}
+	if (squeeze)
+		result.shrink_to_fit();
 	return(result);
 };
 
@@ -2740,6 +2754,7 @@ void MimmoObject::buildKdTree(){
 
 	if (!m_kdTreeSync){
 		cleanKdTree();
+		//TODO Why : + m_kdTree->MAXSTK ?
 		m_kdTree->nodes.resize(getNVertices() + m_kdTree->MAXSTK);
 
 		for(auto & val : getVertices()){
@@ -3649,7 +3664,7 @@ MimmoObject::buildPointConnectivity()
 {
 	m_pointConnectivity.clear();
 	m_pointConnectivity.reserve(getNVertices());
-	std::set<long> visited;
+//	std::set<long> visited;
 
 	//ONLY EDGE CONNECTIVITY
     std::set<std::pair<long,long> > edges;

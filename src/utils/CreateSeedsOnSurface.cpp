@@ -647,7 +647,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
         if(debug)    (*m_log)<<m_name<<" : candidates decimated "<<std::endl;
     }
     //store result in m_points.
-    m_points = initList;
+    m_points = dvecarr3E(initList.begin(), initList.end());
     m_nPoints = (int)m_points.size();
     if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ CartesianGrid engine "<<std::endl;
     delete grid; grid = NULL;
@@ -780,6 +780,7 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
 
     bitpit::KdTree<3,darray3E,long>    kdT;
     //build a kdtree of points
+    //TODO Why : + kdT.MAXSTK ?
     kdT.nodes.resize(listS + kdT.MAXSTK);
     long label=0;
     for(auto & val : listRefer ){

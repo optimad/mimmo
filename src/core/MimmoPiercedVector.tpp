@@ -168,19 +168,19 @@ MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
  * \param[in] ordered if true data will be returned in ids ascending order, otherwise they will be returned as
  * you get iterating the internal location reference geometry PiercedVector from the beginning.
  * \return list of data. Only data on structures of internal cells are retained.
- *
+ *\param[in]	squeeze		if true the result container is squeezed once full
  */
 template<typename mpv_t>
 std::vector<mpv_t>
-MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered){
+MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered, bool squeeze){
 	if(getGeometry() == NULL) return std::vector<mpv_t>(0);
 	std::vector<mpv_t> result;
-	result.reserve(this->size());
 	livector1D ids;
 	std::unordered_set<long> ids_;
 	switch (getDataLocation())
 	{
 	case MPVLocation::CELL:
+		result.reserve(getGeometry()->getPatch()->getInternalCount());
 		ids = getGeometryIds(ordered);
 		for(const auto val: ids){
 			if(this->exists(val) && getGeometry()->getPatch()->getCell(val).isInterior()){
@@ -189,6 +189,7 @@ MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered){
 		}
 		break;
 	case MPVLocation::POINT:
+		result.reserve(getGeometry()->getPatch()->getVertexCount());
 		for (auto & cell : getGeometry()->getCells()){
 			if (cell.isInterior()){
 				for (long id : cell.getVertexIds())
@@ -203,6 +204,7 @@ MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered){
 		}
 		break;
 	case MPVLocation::INTERFACE:
+		result.reserve(getGeometry()->getPatch()->getInterfaceCount());
 		//Interfaces ghost/ghost are not stored in bitpit::PathcKernel, so use all the interfaces in the geometry
 		ids = getGeometryIds(ordered);
 		for(const auto val: ids){
@@ -214,7 +216,8 @@ MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered){
 	default:
 		break;
 	}
-	result.shrink_to_fit();
+	if (squeeze)
+		result.shrink_to_fit();
 	return result;
 }
 

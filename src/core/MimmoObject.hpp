@@ -261,8 +261,8 @@ public:
     livector1D                               extractBoundaryVertexID(bool ghost = false);
     livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
 
-    livector1D  extractPIDCells(long);
-    livector1D  extractPIDCells(livector1D);
+    livector1D  extractPIDCells(long, bool squeeze = true);
+    livector1D  extractPIDCells(livector1D, bool squeeze = true);
 
     liimap      getMapData(bool withghosts=false);
     liimap      getMapDataInv(bool withghosts=true);

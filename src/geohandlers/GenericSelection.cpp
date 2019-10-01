@@ -195,7 +195,8 @@ GenericSelection::constrainedBoundary(){
     daughterBCells.clear();
 
     //get vertex of the cleaned daughter boundary.
-    std::set<long> containerVert;
+    std::unordered_set<long> containerVert;
+    containerVert.reserve(getPatch()->getPatch()->getVertexCount());
     for(const auto & sT  :survivors){
         const bitpit::Cell & cell = getPatch()->getPatch()->getCell(sT.first);
         for(const auto & val: sT.second){
