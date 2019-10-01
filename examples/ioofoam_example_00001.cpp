@@ -25,7 +25,6 @@
 #include "IOOFOAM.hpp"
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
-#include "openFoamFiles_native.hpp"
 #include <exception>
 
 // =================================================================================== //
@@ -74,10 +73,10 @@ void OFOAM_manip() {
     mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(IOOFMode::WRITEPOINTSONLY);
     writer->setOverwrite(false);
 
-    mimmo::pin::addPin(reader, ffd, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(reader, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(reader, ffd, M_GEOMOFOAM, M_GEOM);
+    mimmo::pin::addPin(reader, applier, M_GEOMOFOAM, M_GEOM);
     mimmo::pin::addPin(ffd, applier, M_GDISPLS, M_GDISPLS);
-    mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOMOFOAM);
 
     mimmo::Chain c0;
     c0.addObject(reader);
@@ -101,7 +100,7 @@ void OFOAM_sensi() {
 
     mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField();
     fieldreader->setDir("geodata/OFOAM");
-    fieldreader->setField("p");
+    fieldreader->setFieldName("p");
 
     mimmo::Apply * applier = new mimmo::Apply();
     applier->setScaling(0.1);
@@ -112,11 +111,13 @@ void OFOAM_sensi() {
     writer->setWriteFileType(FileType::SURFVTU);
     writer->setWriteFilename("ofoam_sensi_output");
 
-    mimmo::pin::addPin(reader, fieldreader, M_GEOM2, M_GEOM2);
+
+    mimmo::pin::addPin(reader, fieldreader, M_GEOMOFOAM2, M_GEOMOFOAM2);
     mimmo::pin::addPin(reader, fieldreader, M_UMAPIDS, M_UMAPIDS);
-    mimmo::pin::addPin(reader, applier, M_GEOM2, M_GEOM);
+    mimmo::pin::addPin(reader, applier, M_GEOMOFOAM2, M_GEOM);
     mimmo::pin::addPin(fieldreader, applier, M_SCALARFIELD2, M_SCALARFIELD);
     mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
+
 
     mimmo::Chain c0;
     c0.addObject(reader);
