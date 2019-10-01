@@ -82,7 +82,7 @@ function(enableModule MODULE_NAME ENABLED)
 
 	getModuleEnableName(${MODULE_NAME} MODULE_ENABLE_FLAG)
 	set(${MODULE_ENABLE_FLAG} ${ENABLED} CACHE BOOL "Request building ${MODULE_NAME} module" ${FORCE_FLAG})
-	mark_as_advanced(${MODULE_ENABLE_FLAG})
+#	mark_as_advanced(${MODULE_ENABLE_FLAG})
 endfunction()
 
 function(hideModule MODULE_NAME)
