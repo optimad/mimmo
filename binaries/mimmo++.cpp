@@ -114,8 +114,10 @@ InfoMimmoPP readArguments(int argc, char*argv[] ){
 
     std::unordered_set<std::string> input;
     for(int i=1; i<argc; ++i){
-        std::string temp = argv[i];
-        input.insert(bitpit::utils::string::trim(temp));
+        if(argv[i]){
+            std::string temp(argv[i]);
+            input.insert(bitpit::utils::string::trim(temp));
+        }
     }
 
     if(input.count("--help") || input.count("-h")){
@@ -421,8 +423,10 @@ int main( int argc, char *argv[] ) {
 
         try{
             //read the arguments
-            InfoMimmoPP info = readArguments(argc, argv);
-            mimmocore(info);
+            if(argv){
+                InfoMimmoPP info = readArguments(argc, argv);
+                mimmocore(info);
+            }
         }
         catch(std::exception & e){
         	(*mimmo_log)<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;

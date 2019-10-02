@@ -70,9 +70,7 @@ ReconstructScalar::ReconstructScalar(const bitpit::Config::Section & rootXML){
 /*!
  * Destructor
  */
-ReconstructScalar::~ReconstructScalar(){
-    clear();
-}
+ReconstructScalar::~ReconstructScalar(){}
 
 /*!
  * Copy Constructor.
@@ -391,7 +389,9 @@ ReconstructScalar::execute(){
     }
 
     //Update field on whole geometry
-    m_result.completeMissingData(0.0);
+    if(!m_result.completeMissingData(0.0) ){
+        (*m_log)<<"Warning in "<<m_name<<". It seems a reconstruct field with values uncoherent with target geometry is generated."<<std::endl;
+    }
 
     //Create subresults
     m_subresults.resize(getNData());

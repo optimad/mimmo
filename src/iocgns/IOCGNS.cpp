@@ -1146,11 +1146,12 @@ if(m_multizone){
     MimmoObject * vol = getGeometry();
     MimmoObject * bnd = getSurfaceBoundary();
 
+
+    if( vol == nullptr || bnd == nullptr ) return false;
+
     //just in case resynchronize the internal pids - to be sure
     vol->resyncPID();
     bnd->resyncPID();
-
-    if( vol == NULL || bnd == NULL ) return false;
 
     //Open index nad Write Unique Base Info
     int indexfile;
@@ -1760,7 +1761,6 @@ IOCGNS::unpackMixedConns( const ivector1D & connsArray,
         case CGNS_ENUMV(TRI_12):
         case CGNS_ENUMV(TRI_15):
 
-            btype = bitpit::ElementType::TRIANGLE;
             lConn.resize(3);
             for(long & val : lConn){
                 val = idVertexOffset + *it;
@@ -1777,7 +1777,6 @@ IOCGNS::unpackMixedConns( const ivector1D & connsArray,
         case CGNS_ENUMV(QUAD_16):
         case CGNS_ENUMV(QUAD_25):
 
-            btype = bitpit::ElementType::QUAD;
             lConn.resize(4);
             for(long & val : lConn){
                 val = idVertexOffset + *it;

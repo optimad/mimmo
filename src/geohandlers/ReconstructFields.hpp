@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -51,17 +51,17 @@ enum class OverlapMethod{
  * \class ReconstructScalar
  * \ingroup geohandlers
  * \brief Reconstruct a scalar field from daughter meshes to mother mesh
- * 
+ *
  * Class/BaseManipulation Object reconstructing a scalar field on a mimmo::MimmoObject mesh, from several
- * scalar fields defined on sub-patches of the target mesh, where for sub-patches is meant portion 
+ * scalar fields defined on sub-patches of the target mesh, where for sub-patches is meant portion
  * of target mesh, preserving their vertex/cell-ids, as in the case of mimmo::Selection Blocks.
  * Field values can be defined on nodes or cells. No interfaces are supported up to now.
  * Reconstructed field on the whole geometry is provided as result as well as
  * the reconstructed fields on the input sub-patches separately.
  *
- * 
+ *
  * Ports available in ReconstructScalar Class :
- * 
+ *
  *    =========================================================
  *
      |                   Port Input    ||                                               |
@@ -150,16 +150,16 @@ private:
  * \class ReconstructVector
  * \ingroup geohandlers
  * \brief Reconstruct a vector field from daughter mesh to mother mesh
- * 
+ *
  * Class/BaseManipulation Object reconstructing a vector field on a mimmo::MimmoObject mesh, from several
- * vector fields defined on sub-patches of the target mesh, where for sub-patches is meant portion 
+ * vector fields defined on sub-patches of the target mesh, where for sub-patches is meant portion
  * of target mesh, preserving their vertex/cell-ids, as in the case of mimmo::Selection Blocks.
  * Field values can be defined on nodes or cells. No interfaces are supported up to now.
  * Reconstructed field on the whole geometry is provided as result as well as
  * the reconstructed fields on the input sub-patches separately.
- * 
+ *
  * Ports available in ReconstructVector Class :
- * 
+ *
  *    =========================================================
  *
      |                   Port Input   ||                                                  |

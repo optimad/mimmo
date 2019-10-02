@@ -48,20 +48,20 @@ SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string fallback_loc  = "-1";
-    
+
     std::string input_name = rootXML.get("ClassName", fallback_name);
     input_name = bitpit::utils::string::trim(input_name);
-    
+
     std::string input_loc = rootXML.get("DataLocation", fallback_loc);
     input_loc = bitpit::utils::string::trim(input_loc);
-    
+
     int loc = std::stoi(input_loc);
     if(loc > 0 && loc < 4){
         m_loc  =static_cast<MPVLocation>(loc);
     }else{
         m_loc = MPVLocation::POINT;
     }
-    
+
     m_name = "mimmo.SwitchScalarField";
 
     if(input_name == "mimmo.SwitchScalarField"){
@@ -74,10 +74,7 @@ SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-SwitchScalarField::~SwitchScalarField(){
-    m_fields.clear();
-    m_result.clear();
-}
+SwitchScalarField::~SwitchScalarField(){}
 
 /*!
  * Copy constructor
@@ -130,7 +127,7 @@ SwitchScalarField::getSwitchedField(){
  */
 void
 SwitchScalarField::setFields(vector<dmpvector1D> fields){
-    
+
     for(auto &ff : fields){
         if(ff.getDataLocation() == m_loc && ff.getGeometry()!= NULL){
             m_fields.push_back(ff);
@@ -147,7 +144,7 @@ SwitchScalarField::addField(dmpvector1D field){
     if(field.getDataLocation() == m_loc && field.getGeometry() != NULL){
         m_fields.push_back(field);
     }
-    
+
 }
 
 /*!
@@ -163,12 +160,12 @@ SwitchScalarField::clear(){
 /*!
  * Plot switched field on its geometry
  */
-void 
+void
 SwitchScalarField::plotOptionalResults(){
 
     if (m_result.size() == 0 || getGeometry() == NULL) return;
     if (getGeometry()->isEmpty()) return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_loc){
         case MPVLocation::POINT :
@@ -180,9 +177,9 @@ SwitchScalarField::plotOptionalResults(){
         default:
             (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface locations are not supported in VTU writing." <<std::endl;
-            break;   
+            break;
     }
-    
+
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
 
     //check size of field and adjust missing values to zero for writing purposes only.
@@ -241,20 +238,20 @@ SwitchScalarField::mswitch(){
 
         m_result.setGeometry(getGeometry());
         m_result.setDataLocation(m_loc);
-        
+
         ExtractScalarField * ef = new ExtractScalarField();
         ef->setGeometry(getGeometry());
         ef->setMode(ExtractMode::MAPPING);
         ef->setTolerance(m_tol);
-        
+
         //create map for overlapping ids purpose;
-        std::unordered_map<long, int> idRepetition; 
-        
+        std::unordered_map<long, int> idRepetition;
+
         for (const auto & field : m_fields){
             ef->setField(field);
             bool check = ef->extract();
             if(!check) continue;
-            
+
             auto temp = ef->getExtractedField();
             dmpvector1D::iterator itB;
             auto itE = temp.end();
@@ -273,13 +270,13 @@ SwitchScalarField::mswitch(){
                 }
             }
         }
-        
+
         //resolve overlapping ids by averaging correspondent value;
-        
+
         for(auto &itval : idRepetition){
             m_result[itval.first] /= double(itval.second);
         }
-        
+
         delete ef;
     }
 
@@ -293,7 +290,7 @@ SwitchScalarField::mswitch(){
  * \param[in] name   name associated to the slot
  */
 void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
 
     if(slotXML.hasOption("DataLocation")){
@@ -321,16 +318,16 @@ void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] name   name associated to the slot
  */
 void SwitchScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     slotXML.set("DataLocation", std::to_string(int(m_loc)));
     SwitchField::flushSectionXML(slotXML, name);
-    
+
     if(m_mapping){
         slotXML.set("Mapping", std::to_string(1));
         slotXML.set("Tolerance", std::to_string(m_tol));
     }
-    
+
 };
 
 

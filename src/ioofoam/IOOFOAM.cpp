@@ -31,11 +31,10 @@ namespace mimmo{
  * \param[in] type int from enum IOOFMode. Default is READ.
  */
 IOOFOAM_Kernel::IOOFOAM_Kernel(int type):MimmoFvMesh(){
-	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
-	if(maybeIOMode){
+	m_type = IOOFMode::READ;
+    auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
+    if(maybeIOMode){
 		m_type = type;
-	}else{
-		m_type = IOOFMode::READ;
 	}
 	setDefaults();
 }
@@ -59,13 +58,12 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(int type):MimmoFvMesh(){
  */
 IOOFOAM_Kernel::IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type): MimmoFvMesh(bulk,boundary){
 	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
+    m_type = IOOFMode::WRITE;
 	if(maybeIOMode){
 		if(maybeIOMode->_to_integral() == IOOFMode::READ){
 			throw std::runtime_error("Error in IOOFOAM constructor. Forcing READ mode in a constructor meant for writing modes only");
 		}
 		m_type = type;
-	}else{
-		m_type = IOOFMode::WRITE;
 	}
 	setDefaults();
 }
@@ -86,6 +84,7 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other)
     m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
     m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
 
+    m_type = other.m_type;
     m_name = other.m_name;
     m_path = other.m_path;
     m_fieldname = other.m_fieldname;
@@ -312,7 +311,8 @@ IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObjec
 IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
 
 	m_name = "mimmo.IOOFOAM";
-	std::string fallback_name = "ClassNONE";
+    m_overwrite= false;
+    std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
 

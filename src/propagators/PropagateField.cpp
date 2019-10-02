@@ -242,7 +242,8 @@ PropagateScalarField::execute(){
 
 	MimmoObject * geo = getGeometry();
 	if(!geo){
-		(*m_log)<<"Warning in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+		(*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+        throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
 	}
 
 	if(!m_bsurface ){
@@ -480,8 +481,8 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
 	std::swap(m_slipreferencesurface,x.m_slipreferencesurface);
 	std::swap(m_originalslipsurface, x.m_originalslipsurface);
 	std::swap(m_nstep, x.m_nstep);
-	std::swap(m_slip_bc_dir, x.m_slip_bc_dir);
-	std::swap(m_surface_slip_bc_dir, x.m_surface_slip_bc_dir);
+	m_slip_bc_dir.swap( x.m_slip_bc_dir);
+	m_surface_slip_bc_dir.swap(x.m_surface_slip_bc_dir);
     std::swap(m_forcePlanarSlip, x.m_forcePlanarSlip);
     std::swap(m_AVGslipNormal, x.m_AVGslipNormal);
     std::swap(m_AVGslipCenter, x.m_AVGslipCenter);
@@ -899,6 +900,9 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
 #endif
 
 	bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(m_slipsurface->getPatch());
+    if(surfkernss == nullptr){
+        throw std::runtime_error("PropagateVectorField::initializeSlipSurface -> SurfaceKernel dynamic cast failed!");
+    }
 	//start evaluating barycenter of interior points.
 	for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
 #if MIMMO_ENABLE_MPI
@@ -1565,7 +1569,8 @@ PropagateVectorField::execute(){
 
 	MimmoObject * geo = getGeometry();
 	if(!geo){
-		(*m_log)<<"Warning in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
+        throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
 	}
 
 	if(!m_bsurface){

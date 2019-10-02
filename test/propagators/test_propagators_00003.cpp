@@ -272,9 +272,14 @@ int main( int argc, char *argv[] ) {
 	MPI_Init(&argc, &argv);
 #endif
 		/**<Calling mimmo Test routines*/
-
-        int val = test1() ;
-
+        int val = 1;
+        try{
+            val = test1() ;
+        }
+        catch(std::exception & e){
+            std::cout<<"test_propagators_00003 exited with an error of type : "<<e.what()<<std::endl;
+            return 1;
+        }
 #if MIMMO_ENABLE_MPI
 	MPI_Finalize();
 #endif

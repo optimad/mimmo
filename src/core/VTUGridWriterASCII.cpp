@@ -32,6 +32,7 @@ namespace mimmo{
  */
 VTUFlushStreamerASCII::VTUFlushStreamerASCII() : VTKBaseStreamer(){
     m_patch = nullptr;
+    m_vtkVertexMap = nullptr; 
 }
 
 /*!

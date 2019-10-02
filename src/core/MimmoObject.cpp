@@ -28,6 +28,7 @@
 #include "communications.hpp"
 #endif
 #include <set>
+#include <cassert>
 
 using namespace std;
 using namespace bitpit;
@@ -187,6 +188,9 @@ MimmoObject::MimmoObject(int type){
 	m_IntBuilt = false;
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -302,6 +306,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -416,6 +423,9 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
@@ -532,7 +542,10 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	}
 
 #if MIMMO_ENABLE_MPI
-	initializeParallel();
+    initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -602,6 +615,9 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	MPI_Comm_dup(other.m_communicator, &m_communicator);
 	m_nglobalvertices = other.m_nglobalvertices;
 	m_pointGhostExchangeInfoSync = false;
+#else
+    m_rank = 0;
+    m_nprocs=1;
 #endif
 
 	m_pointConnectivitySync = false;
@@ -2217,6 +2233,7 @@ bool
 MimmoObject::setPIDName(long pid, const std::string & name){
 	if(! bool(m_pidsTypeWNames.count(pid))) return false;
 	m_pidsTypeWNames[pid] = name;
+    return true;
 }
 
 /*!
@@ -2394,7 +2411,7 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
     //get conn from each cell of the list
     for(auto it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
         bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
-        bool check;
+        bool check = false;
         for(const auto & id : vIds){
             check = (ordV.count(id) > 0);
             if(!check && strict) {
@@ -2434,7 +2451,7 @@ livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList
     for(auto it = getPatch()->interfaceBegin(); it != getPatch()->interfaceEnd(); ++it){
         if(border && !it->isBorder()) continue;
         bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
-        bool check;
+        bool check = false;
         for(const auto & id : vIds){
             check = (ordV.count(id) > 0);
             if(!check && strict) {
@@ -3504,7 +3521,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
             }
         }
     }
-
+    return result;
     //TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
 
 };
@@ -3728,8 +3745,8 @@ MimmoObject::cleanPointConnectivity()
 std::unordered_set<long> &
 MimmoObject::getPointConnectivity(const long & id)
 {
-	if (m_pointConnectivity.count(id))
-		return m_pointConnectivity[id];
+	assert(m_pointConnectivity.count(id) > 0 && "MimmoObject::not valid id in getPointConnectivity call");
+	return m_pointConnectivity[id];
 }
 
 bool

@@ -48,13 +48,13 @@ SwitchVectorField::SwitchVectorField(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string fallback_loc  = "-1";
-    
+
     std::string input_name = rootXML.get("ClassName", fallback_name);
     input_name = bitpit::utils::string::trim(input_name);
-    
+
     std::string input_loc = rootXML.get("DataLocation", fallback_loc);
     input_loc = bitpit::utils::string::trim(input_loc);
-    
+
     int loc = std::stoi(input_loc);
     if(loc > 0 && loc < 4){
         m_loc  =static_cast<MPVLocation>(loc);
@@ -73,10 +73,7 @@ SwitchVectorField::SwitchVectorField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-SwitchVectorField::~SwitchVectorField(){
-    m_fields.clear();
-    m_result.clear();
-}
+SwitchVectorField::~SwitchVectorField(){}
 
 /*!
  * Copy constructor
@@ -160,12 +157,12 @@ SwitchVectorField::clear(){
 /*!
  * Plot switched field on its geometry.
  */
-void 
+void
 SwitchVectorField::plotOptionalResults(){
 
     if (m_result.size() == 0 || getGeometry() == NULL) return;
     if (getGeometry()->isEmpty()) return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_loc){
         case MPVLocation::POINT :
@@ -177,16 +174,16 @@ SwitchVectorField::plotOptionalResults(){
         default:
             (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface locations are not supported in VTU writing." <<std::endl;
-            break;   
+            break;
     }
-    
+
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
-    
+
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvecarr3E field_supp = m_result;
     if(!field_supp.completeMissingData({{0.0,0.0,0.0}})) return;
     dvecarr3E field = field_supp.getDataAsVector();
-    
+
     if(getGeometry()->getType() != 3){
         getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
         getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
@@ -209,7 +206,7 @@ SwitchVectorField::plotOptionalResults(){
         output.setCodex(bitpit::VTKFormat::APPENDED);
         output.write();
     }
-    
+
 }
 
 /*!
@@ -220,9 +217,9 @@ bool
 SwitchVectorField::mswitch(){
 
     if (getGeometry() == NULL) return true; //false;
-    
+
     m_result.clear();
-    
+
     //Extract by link to geometry
     for (const auto & field : m_fields){
         if (field.getGeometry() == getGeometry()){
@@ -231,26 +228,26 @@ SwitchVectorField::mswitch(){
             return true;
         }
     }
-    
+
     //Extract by geometric mapping if active and if no positive match is found.
     if (m_mapping && getGeometry()->getType() != 3){
-        
+
         m_result.setGeometry(getGeometry());
         m_result.setDataLocation(m_loc);
-        
+
         ExtractVectorField * ef = new ExtractVectorField();
         ef->setGeometry(getGeometry());
         ef->setMode(ExtractMode::MAPPING);
         ef->setTolerance(m_tol);
-        
+
         //create map for overlapping ids purpose;
-        std::unordered_map<long, int> idRepetition; 
-        
+        std::unordered_map<long, int> idRepetition;
+
         for (const auto & field : m_fields){
             ef->setField(field);
             bool check = ef->extract();
             if(!check) continue;
-            
+
             auto temp = ef->getExtractedField();
             dmpvecarr3E::iterator itB;
             auto itE = temp.end();
@@ -269,16 +266,16 @@ SwitchVectorField::mswitch(){
                 }
             }
         }
-        
+
         //resolve overlapping ids by averaging correspondent value;
-        
+
         for(auto &itval : idRepetition){
             m_result[itval.first] /= double(itval.second);
         }
-        
+
         delete ef;
     }
-    
+
     if (m_result.isEmpty()) return false;
     return true;
 }
@@ -289,9 +286,9 @@ SwitchVectorField::mswitch(){
  * \param[in] name   name associated to the slot
  */
 void SwitchVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
-    
+
     if(slotXML.hasOption("DataLocation")){
         std::string input = slotXML.get("DataLocation");
         input = bitpit::utils::string::trim(input);
@@ -305,10 +302,10 @@ void SwitchVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML
             throw std::runtime_error (m_name + " : xml absorbing failed");
         }
     }
-    
+
     SwitchField::absorbSectionXML(slotXML, name);
-    
-    
+
+
 };
 
 /*!
@@ -317,16 +314,16 @@ void SwitchVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] name   name associated to the slot
  */
 void SwitchVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     slotXML.set("DataLocation", std::to_string(int(m_loc)));
     SwitchField::flushSectionXML(slotXML, name);
-    
+
     if(m_mapping){
         slotXML.set("Mapping", std::to_string(1));
         slotXML.set("Tolerance", std::to_string(m_tol));
     }
-    
+
 };
 
 

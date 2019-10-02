@@ -34,6 +34,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <random>
 
 namespace mimmo{
 
@@ -47,7 +48,8 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(){
     m_seed = {{0.0,0.0,0.0}};
     m_engine = CSeedSurf::CARTESIANGRID;
     m_seedbaricenter = false;
-    m_randomFixed = -1;
+    m_randomFixed = false;
+    m_randomSignature = 1;
     std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
     bbox = std::move(box);
 
@@ -65,7 +67,8 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
     m_seed = {{0.0,0.0,0.0}};
     m_engine = CSeedSurf::CARTESIANGRID;
     m_seedbaricenter = false;
-    m_randomFixed = -1;
+    m_randomFixed = false;
+    m_randomSignature = 1;
     std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
     bbox = std::move(box);
 
@@ -83,7 +86,6 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
  * Destructor;
  */
 CreateSeedsOnSurface::~CreateSeedsOnSurface(){
-    clear();
 };
 
 /*!
@@ -97,6 +99,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):B
     m_engine = other.m_engine;
     m_seedbaricenter = other.m_seedbaricenter;
     m_randomFixed = other.m_randomFixed;
+    m_randomSignature = other.m_randomSignature;
     m_deads = other.m_deads;
     m_sensitivity = other.m_sensitivity;
     bbox = std::move(std::unique_ptr<mimmo::OBBox>(new mimmo::OBBox(*(other.bbox.get()))));
@@ -123,6 +126,7 @@ void CreateSeedsOnSurface::swap(CreateSeedsOnSurface & x) noexcept
     std::swap(m_engine, x.m_engine);
     std::swap(m_seedbaricenter, x.m_seedbaricenter);
     std::swap(m_randomFixed, x.m_randomFixed);
+    std::swap(m_randomSignature, x.m_randomSignature);
     std::swap(m_deads, x.m_deads);
 //     std::swap(m_sensitivity, x.m_sensitivity);
     m_sensitivity.swap(x.m_sensitivity);
@@ -140,13 +144,11 @@ CreateSeedsOnSurface::buildPorts(){
     //input
     built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry,M_GEOM, true));
     built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSeed, M_POINT));
-    built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setNPoints, M_VALUEI));
-    built = (built && createPortIn<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setRandomFixed, M_VALUEI2 ));
-    built = (built && createPortIn<bool, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setMassCenterAsSeed, M_VALUEB));
     built = (built && createPortIn<dmpvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
 
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, M_COORDS));
+    built = (built && createPortOut<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getRandomSignature, M_VALUEI ));
 
     m_arePortsBuilt = built;
 };
@@ -219,6 +221,17 @@ CreateSeedsOnSurface::getMinDistance(){
     return m_minDist;
 }
 
+
+/*!
+ * Return true, if the option to fix Random distribution through signature is active.
+ * False otherwise. This option will only make sense if a CSeedSurf::RANDOM engine is employed.
+ * \return boolean
+ */
+bool
+CreateSeedsOnSurface::isRandomFixed(){
+    return m_randomFixed;
+};
+
 /*!
  * Return the signature of the current random distribution of points on target surface,
  * whenever is fixed or not, for result replication. See setRandomFixed method.  This option will
@@ -227,7 +240,7 @@ CreateSeedsOnSurface::getMinDistance(){
  */
 int
 CreateSeedsOnSurface::getRandomSignature(){
-    return m_randomFixed;
+    return int(m_randomSignature);
 }
 
 /*!
@@ -287,8 +300,7 @@ CreateSeedsOnSurface::setMassCenterAsSeed(bool flag){
  */
 void
 CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
-    if(geo == NULL)    return;
-    if(geo->isEmpty())  return;
+    if(geo == nullptr)    return;
     if(geo->getType() != 1)    return;
 
     BaseManipulation::setGeometry(geo);
@@ -297,16 +309,25 @@ CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
     bbox->setGeometry(geo);
 }
 
+
 /*!
- * Set the signature (each integer >= 0) of your random distribution. Same signature will be able to reproduce
- * the exact random distribution in multiple runs. If signature is < 0 (default), point distribution will randomly
- * vary run by run.It is possible to get the current signature after each random execution using the getRandomSignature method.
+ * Activate a fixed random distribution through signature specification(see setRandomSignature). Same signature will be able to reproduce
+ * the exact random distribution in multiple runs. It is possible to get the current signature after each random execution using the getRandomSignature method.
  * This option will only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
- *\param[in] signature integer number
+ *\param[in] fix if true activate the options, false deactivate it.
  */
 void
-CreateSeedsOnSurface::setRandomFixed( int signature){
-    m_randomFixed = signature;
+CreateSeedsOnSurface::setRandomFixed(bool fix){
+    m_randomFixed = fix;
+}
+/*!
+ * Set the signature (each integer >= 0) of your fixed random distribution (activable with setRandomFixed). Same signature will be able to reproduce
+ * the exact random distribution in multiple runs. * This option will only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
+ *\param[in] signature unsigned integer number
+ */
+void
+CreateSeedsOnSurface::setRandomSignature( uint32_t signature){
+    m_randomSignature = signature;
 }
 
 /*!
@@ -330,7 +351,8 @@ CreateSeedsOnSurface::clear(){
     m_seed = {{0.0,0.0,0.0}};
     m_engine = CSeedSurf::CARTESIANGRID;
     m_seedbaricenter = false;
-    m_randomFixed = -1;
+    m_randomFixed = false;
+    m_randomSignature =1;
     m_deads.clear();
     m_sensitivity.clear();
 
@@ -363,13 +385,10 @@ CreateSeedsOnSurface::plotOptionalResults(){
 void
 CreateSeedsOnSurface::solve(bool debug){
 
-    if(getGeometry() == NULL){
+    if(getGeometry() == nullptr){
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
         throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
-
-    //build skd tree. if object is empty, the skd tree building is going to be safe anyway.
-    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
 
     if(getGeometry()->isEmpty()){
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
@@ -685,10 +704,13 @@ CreateSeedsOnSurface::solveRandom(bool debug){
         for(int i=0; i<3; ++i) {minP += - 0.5*span[i]*axes[i];}
 
 
-        if (m_randomFixed <0 ){
-            m_randomFixed = (unsigned int)time(NULL);
+        if (!m_randomFixed){
+            m_randomSignature = uint32_t(time(nullptr));
         }
-        srand(static_cast<unsigned int>(m_randomFixed));
+        std::mt19937 rgen; //based on marsenne-twister random number generator
+        rgen.seed(m_randomSignature);
+        double dist_rgen = double(rgen.max()-rgen.min());
+        double beg_rgen = double(rgen.min());
 
         int nTent = std::max(100,5*m_nPoints);
         tentative.resize(nTent+1);
@@ -697,8 +719,7 @@ CreateSeedsOnSurface::solveRandom(bool debug){
         for(int i = 0; i<nTent; ++i){
             tentative[i+1] = minP;
             for(int j=0; j<3; ++j){
-
-                double valrand = (std::rand()%100)/99.0;
+                double valrand = (double(rgen())-beg_rgen)/dist_rgen;
                 tentative[i+1] +=  valrand * span[j]*axes[j];
             }
         }
@@ -1527,6 +1548,7 @@ CreateSeedsOnSurface::checkTriangulation(){
 
 /*!
  * \return a homogeneous triangulated and indipendent clone of the current target geometry linked to the class.
+ * set also this new geometry to member sensitivity triangulated
  */
 std::unique_ptr<MimmoObject>
 CreateSeedsOnSurface::triangulate(){
@@ -1534,73 +1556,7 @@ CreateSeedsOnSurface::triangulate(){
     std::unique_ptr<MimmoObject> temp = getGeometry()->clone();
     m_sensitivity_triangulated = m_sensitivity;
     m_sensitivity_triangulated.setGeometry(temp.get());
-
-    long maxID, newID, newVertID;
-
-    const auto orderedCellID = temp->getCells().getIds(true);
-    maxID = orderedCellID[(int)orderedCellID.size()-1];
-    newID = maxID+1;
-    {
-        const auto orderedVertID = temp->getVertices().getIds(true);
-        newVertID = orderedVertID[(int)orderedCellID.size()-1] +1;
-    }
-
-    bitpit::ElementType eletype;
-    bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
-    livector1D connTriangle(3);
-    for(const auto &idcell : orderedCellID){
-
-        livector1D conn = temp->getCellConnectivity(idcell);
-        eletype = temp->getPatch()->getCell(idcell).getType();
-        long pid = temp->getPatch()->getCell(idcell).getPID();
-
-        switch (eletype){
-            case bitpit::ElementType::QUAD:
-            case bitpit::ElementType::PIXEL:
-            {
-                temp->getPatch()->deleteCell(idcell);
-                for(std::size_t i=0; i<2; ++i){
-                    connTriangle[0] = conn[0];
-                    connTriangle[1] = conn[i+1];
-                    connTriangle[2] = conn[i+2];
-                    temp->addConnectedCell(connTriangle, eletri, pid, newID);
-                    ++newID;
-                }
-            }
-                break;
-            case bitpit::ElementType::POLYGON:
-            {
-                std::size_t startIndex = 1;
-                std::size_t nnewTri = conn.size() - startIndex;
-                //calculate barycenter and add it as new vertex
-                darray3E barycenter = temp->getPatch()->evalCellCentroid(idcell);
-                temp->addVertex(barycenter, newVertID);
-                // adding new vertex, adding also a sensitivity exstimation on new point.
-                double sens_new = interpolateSensitivity(barycenter);
-                m_sensitivity_triangulated.insert(newVertID, sens_new);
-                //delete current polygon
-                temp->getPatch()->deleteCell(idcell);
-                //insert new triangles from polygon subdivision
-                for(std::size_t i=0; i<nnewTri; ++i){
-                    connTriangle[0] = newVertID;
-                    connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
-                    connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
-                    temp->addConnectedCell(connTriangle, eletri, pid, newID);
-                    ++newID;
-                }
-                //increment label of vertices
-                ++newVertID;
-
-            }
-                break;
-            case bitpit::ElementType::TRIANGLE:
-                //do nothing
-                break;
-            default:
-                throw std::runtime_error("unrecognized cell type in 3D surface mesh of CreateSeedsOnSurface");
-                break;
-        }
-    }
+    temp->triangulate();
     return std::move(temp);
 }
 

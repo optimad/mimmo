@@ -28,6 +28,7 @@
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
 #include <exception>
+#include <random>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -72,11 +73,12 @@ void test00006() {
      */
     int np = 10;
     dvecarr3E rbfNodes(10);
-    time_t Time = time(NULL);
-    srand(Time);
+    std::minstd_rand rgen;
+    rgen.seed(16);
+    double dist = (rgen.max()-rgen.min());
     for (int i=0; i<np; i++){
         for (int j=0; j<3; j++)
-            rbfNodes[i][j] = 1.0*( (double) (rand()) / RAND_MAX ) - 0.5;
+            rbfNodes[i][j] = 1.0*( double(rgen() - rgen.min() ) / dist ) - 0.5;
     }
 
     /* Set Generic input block with the

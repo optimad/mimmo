@@ -27,6 +27,7 @@
 #include "mimmo_iogeneric.hpp"
 #include "bitpit.hpp"
 #include <exception>
+#include <random>
 using namespace std;
 using namespace bitpit;
 using namespace mimmo;
@@ -109,14 +110,15 @@ void test00004() {
      */
     int ndeg = lattice->getNNodes();
     dvecarr3E displ(ndeg, darray3E{0,0,0});
-    time_t Time = time(NULL);
-    srand(Time);
+    std::minstd_rand rgen;
+    rgen.seed(16);
+    double distRand = (rgen.max()-rgen.min());
     for (int i=0; i<ndeg; i++){
         int l1,l2,l3;
         int index = lattice->accessGridFromDOF(i);
         lattice->accessPointIndex(index,l1,l2,l3);
         if(l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] < M_PI){
-            displ[i][0] = 1.0*( (double) (rand()) / RAND_MAX );
+            displ[i][0] = 1.0*( double( rgen() - rgen.min() ) / distRand );
         }
         if( (l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] >= M_PI)
                 || lattice->getLocalPoint(l1,l2,l3)[1] == 0){

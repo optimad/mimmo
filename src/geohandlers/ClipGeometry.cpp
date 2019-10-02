@@ -191,8 +191,8 @@ void
 ClipGeometry::execute(){
 
     if(getGeometry() == NULL){
-        throw std::runtime_error (m_name + " : nullptr geometry linked.");
         (*m_log)<<m_name + " : nullptr geometry linked."<<std::endl;
+        throw std::runtime_error (m_name + " : nullptr geometry linked.");
     };
 
     if(getGeometry()->isEmpty()){

@@ -69,9 +69,7 @@ ReconstructVector::ReconstructVector(const bitpit::Config::Section & rootXML){
 /*!
  * Destructor
  */
-ReconstructVector::~ReconstructVector(){
-    clear();
-}
+ReconstructVector::~ReconstructVector(){}
 
 /*!
  * Copy Constructor
@@ -393,7 +391,10 @@ ReconstructVector::execute(){
 
     //Update field on whole geometry
     darray3E zero = {{0.0,0.0,0.0}};
-    m_result.completeMissingData(zero);
+
+    if(!m_result.completeMissingData(zero)){
+        (*m_log)<<"Warning in "<<m_name<<". It seems a reconstruct field with values uncoherent with target geometry is generated."<<std::endl;
+    }
 
     //Create subresults
     m_subresults.resize(getNData());

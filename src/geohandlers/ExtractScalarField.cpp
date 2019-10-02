@@ -58,10 +58,8 @@ ExtractScalarField::ExtractScalarField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-ExtractScalarField::~ExtractScalarField(){
-    m_field.clear();
-    m_result.clear();
-}
+ExtractScalarField::~ExtractScalarField(){}
+
 
 /*!
  * Swap function of ExtractScalarField

@@ -41,9 +41,7 @@ MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc)
  * Default destructor of MimmoPiercedVector.
  */
 template<typename mpv_t>
-MimmoPiercedVector<mpv_t>::~MimmoPiercedVector(){
-	clear();
-}
+MimmoPiercedVector<mpv_t>::~MimmoPiercedVector(){}
 
 /*!
  * Copy Constructor
@@ -597,7 +595,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double 
 	for (bitpit::Cell & cell : geo->getCells()){
 		long idcell = cell.getId();
 		std::array<double,3> center = geo->getPatch()->evalCellCentroid(idcell);
-		mpv_t data;
+		mpv_t data{};
 		bool init = false;
 		for (long idvertex : cell.getVertexIds()){
 			std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);
@@ -739,7 +737,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfac
 			if (found == interface.getVertexCount()){
 				//Interpolate value
 				std::array<double,3> center = geo->getPatch()->evalInterfaceCentroid(idinterface);
-				mpv_t data;
+				mpv_t data{};
 				bool init = false;
 				for (long idvertex : interface.getVertexIds()){
 					std::array<double,3> point = geo->getPatch()->getVertexCoords(idvertex);

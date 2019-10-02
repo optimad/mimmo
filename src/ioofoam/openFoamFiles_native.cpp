@@ -448,7 +448,7 @@ void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam:
     }
 
     *foamMesh_retPtr = foamMesh;
-
+    delete[] arguments;
 }
 
 /*!

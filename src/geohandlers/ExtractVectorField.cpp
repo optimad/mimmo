@@ -58,10 +58,7 @@ ExtractVectorField::ExtractVectorField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-ExtractVectorField::~ExtractVectorField(){
-    m_field.clear();
-    m_result.clear();
-}
+ExtractVectorField::~ExtractVectorField(){}
 
 /*!
  * Swap function of ExtractVectorField

@@ -44,15 +44,16 @@ namespace mimmo{
 ProjPrimitivesOnSurfaces::ProjPrimitivesOnSurfaces(){
     m_name         = "";
     m_nC = 1000;
+    m_topo = 0;
+    m_buildSkdTree = false;
+    m_buildKdTree = false;
 
 }
 
 /*!
  * Default destructor of ProjPrimitivesOnSurfaces.
  */
-ProjPrimitivesOnSurfaces::~ProjPrimitivesOnSurfaces(){
-    clear();
-};
+ProjPrimitivesOnSurfaces::~ProjPrimitivesOnSurfaces(){};
 
 /*!
  * Copy constructor of ProjPrimitivesOnSurfaces. No resulting projected data structure is copied.
