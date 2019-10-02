@@ -102,7 +102,8 @@ public:
     ExtractField();
     virtual ~ExtractField();
 
-//    ExtractField(const ExtractField & other);
+    ExtractField(const ExtractField & other);
+    ExtractField& operator=(const ExtractField & other);
 
     void buildPorts();
 
@@ -127,7 +128,6 @@ public:
 
 protected:
     void swap(ExtractField & x) noexcept;
-
 
 };
 
@@ -188,6 +188,9 @@ public:
     ExtractScalarField();
     ExtractScalarField(const bitpit::Config::Section & rootXMl);
     virtual ~ExtractScalarField();
+
+    ExtractScalarField(const ExtractScalarField & other);
+    ExtractScalarField& operator=(const ExtractScalarField & other);
 
     void buildPorts();
     dmpvector1D     getExtractedField();
@@ -268,6 +271,8 @@ public:
     ExtractVectorField();
     ExtractVectorField(const bitpit::Config::Section & rootXMl);
     virtual ~ExtractVectorField();
+    ExtractVectorField(const ExtractVectorField & other);
+    ExtractVectorField& operator=(const ExtractVectorField & other);
 
     void buildPorts();
     dmpvecarr3E     getExtractedField();

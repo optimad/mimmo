@@ -61,6 +61,26 @@ ExtractVectorField::ExtractVectorField(const bitpit::Config::Section & rootXML){
 ExtractVectorField::~ExtractVectorField(){}
 
 /*!
+ * Copy Constructor.
+ * \param[in] other class of type ExtractField
+ */
+ExtractVectorField::ExtractVectorField(const ExtractVectorField & other):ExtractField(other){
+	m_field = other.m_field;
+	m_result = other.m_result;
+}
+
+/*!
+ * Assignement operator of ExtractField.
+ * \param[in] other class of type ExtractField
+ */
+ExtractVectorField & ExtractVectorField::operator=(const ExtractVectorField & other){
+	ExtractField::operator=(other);
+	m_field = other.m_field;
+	m_result = other.m_result;
+	return *this;
+};
+
+/*!
  * Swap function of ExtractVectorField
  * \param[in] x object to be swapped.
  */
@@ -70,7 +90,7 @@ void ExtractVectorField::swap(ExtractVectorField & x ) noexcept
 //     std::swap(m_result, x.m_result);
     m_field.swap(x.m_field);
     m_result.swap(x.m_result);
-    BaseManipulation::swap(x);
+    ExtractField::swap(x);
 };
 
 

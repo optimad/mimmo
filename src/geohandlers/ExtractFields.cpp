@@ -43,6 +43,15 @@ ExtractField::~ExtractField(){
 };
 
 /*!
+ * Copy Constructor.
+ * \param[in] other class of type ExtractField
+ */
+ExtractField::ExtractField(const ExtractField & other):BaseManipulation(other){
+    m_mode = other.m_mode;
+    m_tol = other.m_tol;
+}
+
+/*!
  * Swap function of ExtractField
  * \param[in] x object to be swapped.
  */
@@ -51,6 +60,17 @@ void ExtractField::swap(ExtractField & x ) noexcept
     std::swap(m_mode,x.m_mode);
     std::swap(m_tol, x.m_tol);
     BaseManipulation::swap(x);
+};
+
+/*!
+ * Assignement operator of ExtractField.
+ * \param[in] other class of type ExtractField
+ */
+ExtractField & ExtractField::operator=(const ExtractField & other){
+	BaseManipulation::operator=(other);
+	m_mode = other.m_mode;
+	m_tol = other.m_tol;
+	return *this;
 };
 
 /*!
