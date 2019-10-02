@@ -254,14 +254,14 @@ public:
     template<class Type>
     void writeValue (Type& value, std::ofstream& os){
 
-        int offset = 5;
+        std::size_t offset = 5;
         if (wformat == Long) offset = 13;
 
         std::stringstream manip;
         manip << value;
         std::string manips = manip.str();
         std::string mantissa, expon;
-        int pos = manips.find("E");
+        std::size_t pos = manips.find("E");
         if (pos < manips.size()){
             mantissa = manips.substr(0,std::min(offset,pos));
             expon = manips.substr(pos+1,manips.size());

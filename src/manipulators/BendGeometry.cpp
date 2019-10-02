@@ -328,7 +328,7 @@ BendGeometry::checkFilter(){
  */
 darray3E
 BendGeometry::toLocalCoord(darray3E  point){
-    darray3E work, work2;
+    darray3E work;
     //unapply origin translation
     work = point - m_origin;
     //apply change to local sdr transformation

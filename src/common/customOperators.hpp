@@ -214,7 +214,7 @@ bool inline checkVectorFind( std::array<T,d> &vect, T& target){
 template <class T, size_t d>
 std::vector<T> inline conVect(std::array<T, d> & origin ){
     std::vector<T> result(d);
-    for(int i=0; i<d; ++i)
+    for(size_t i=0; i<d; ++i)
         result[i] = origin[i];
     return  result;
 }
@@ -227,7 +227,7 @@ std::vector<T> inline conVect(std::array<T, d> & origin ){
 template <class T, size_t d>
 std::array<T,d> inline conArray(std::vector<T> & origin ){
     std::array<T,d> result;
-    for(int i=0; i<d; ++i)
+    for(size_t i=0; i<d; ++i)
         result[i] = origin[i];
     return  result;
 }
@@ -240,7 +240,7 @@ std::array<T,d> inline conArray(std::vector<T> & origin ){
 template <class T, size_t d>
 std::vector< std::vector < T > > inline conVect(std::vector< std::array<T, d> > & origin ){
     std::vector<std::vector<T> > result(origin.size());
-    for(int i=0; i<origin.size(); ++i)
+    for(size_t i=0; i<origin.size(); ++i)
         result[i] = conVect(origin[i]);
     return  result;
 }
@@ -253,7 +253,7 @@ std::vector< std::vector < T > > inline conVect(std::vector< std::array<T, d> > 
 template <class T, size_t d>
 std::vector< std::array< T, d > > inline conArray(std::vector<std::vector<T> > & origin ){
     std::vector< std::array<T,d> > result(origin.size());
-    for(int i=0; i<origin.size(); ++i)
+    for(size_t i=0; i<origin.size(); ++i)
         result[i] = conArray< T, d>(origin[i]);
     return  result;
 }

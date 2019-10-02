@@ -100,7 +100,7 @@ std::fstream&  ifstreamcsvend(std::fstream &in, std::vector< T > &x){
 template <typename T, size_t d>
 std::fstream&  ifstreamcsv(std::fstream &in, std::array< T, d> &x){
     T       dummy{};
-    int     i;
+    size_t     i;
 
     i = 0;
     while ((in.good()) && (i < d-1)) {

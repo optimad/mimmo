@@ -35,9 +35,9 @@ using namespace std;
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvector1D &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer << var[i];
     }
     return buffer;
@@ -52,10 +52,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvector1
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvector1D &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
     return buffer;
@@ -70,9 +70,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvector1D &var)
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const livector1D &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer << var[i];
     }
     return buffer;
@@ -87,10 +87,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const livector
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector1D &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
     return buffer;
@@ -104,13 +104,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector1D &var
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const livector2D &var)
 {
-    int nQ;
-    int nP = var.size();
+    std::size_t nQ;
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         nQ = var[i].size();
         buffer << nQ;
-        for (int j = 0; j < nQ; ++j) {
+        for (std::size_t j = 0; j < nQ; ++j) {
             buffer << var[i][j];
         }
     }
@@ -126,13 +126,13 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const livector
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector2D &var)
 {
-    int nP, nQ;
+    std::size_t nP, nQ;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> nQ;
         var[i].resize(nQ);
-        for (int j = 0; j < nQ; ++j) {
+        for (std::size_t j = 0; j < nQ; ++j) {
             buffer >> var[i][j];
         }
     }
@@ -147,9 +147,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, livector2D &var
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const shivector1D &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer << var[i];
     }
     return buffer;
@@ -164,10 +164,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const shivecto
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, shivector1D &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
     return buffer;
@@ -181,10 +181,10 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, shivector1D &va
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr3E &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 3; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
             buffer << var[i][j];
         }
     }
@@ -201,11 +201,11 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr3
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr3E &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 3; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
             buffer >> var[i][j];
         }
     }
@@ -249,7 +249,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::ShapeTyp
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::array<mimmo::CoordType,3> &var)
 {
     std::array<int,3> dum;
-    for(int i=0; i<3; ++i) dum[i] = static_cast<int> (var[i]);
+    for(std::size_t i=0; i<3; ++i) dum[i] = static_cast<int> (var[i]);
     buffer << dum;
     return buffer;
 }
@@ -265,7 +265,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<mimm
 {
     std::array<int,3> val;
     buffer >> val;
-    for(int i=0; i<3; ++i)	var[i] = static_cast<mimmo::CoordType>(val[i]);
+    for(std::size_t i=0; i<3; ++i)	var[i] = static_cast<mimmo::CoordType>(val[i]);
     return buffer;
 }
 
@@ -329,10 +329,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::TrackingPointer * > & var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
     return buffer;
@@ -346,9 +346,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mim
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<mimmo::TrackingPointer * > &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer << var[i];
     }
     return buffer;
@@ -388,10 +388,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr2E &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 2; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
             buffer << var[i][j];
         }
     }
@@ -408,11 +408,11 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const dvecarr2
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr2E &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 2; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
             buffer >> var[i][j];
         }
     }
@@ -428,10 +428,10 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, dvecarr2E &var)
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivecarr2E &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 2; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
             buffer << var[i][j];
         }
     }
@@ -448,11 +448,11 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivecarr2
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivecarr2E &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
-        for (int j = 0; j < 2; ++j) {
+    for (std::size_t i = 0; i < nP; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
             buffer >> var[i][j];
         }
     }
@@ -467,14 +467,14 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivecarr2E &var)
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<dvecarr2E> &var)
 {
-    int nP = var.size();
-    int nP2;
+    std::size_t nP = var.size();
+    std::size_t nP2;
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         nP2 = var[i].size();
         buffer << nP2;
-        for (int j = 0; j < nP2; ++j) {
-            for(int k=0; k<2; ++k){
+        for (std::size_t j = 0; j < nP2; ++j) {
+            for(std::size_t k=0; k<2; ++k){
                 buffer << var[i][j][k];
             }
         }
@@ -492,14 +492,14 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<dvecarr2E> &var)
 {
-    int nP, nP2;
+    std::size_t nP, nP2;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> nP2;
         var[i].resize(nP2);
-        for (int j=0; j<nP2; ++j){
-            for (int k = 0; k < 2; ++k) {
+        for (std::size_t j=0; j<nP2; ++j){
+            for (std::size_t k = 0; k < 2; ++k) {
                 buffer >> var[i][j][k];
             }
         }
@@ -519,9 +519,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
     std::string key;
     mimmo::MimmoObject * value;
     int ftype;
-    int nP;
+    std::size_t nP;
     buffer >> nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> key>>ftype>>value;
         var[key] = std::make_pair(ftype,value);
     }
@@ -536,7 +536,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<std::string, std::pair<int, mimmo::MimmoObject*> >& var){
 
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
         buffer << ee.first<<ee.second.first<<ee.second.second;
@@ -555,9 +555,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
     long key;
     int val1;
     long val2;
-    int nP;
+    std::size_t nP;
     buffer >> nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> key>>val1>>val2;
         var[key] = std::make_pair(val1,val2);
     }
@@ -572,7 +572,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<long,std::pair<int,long> >& var){
 
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
         buffer << ee.first<<ee.second.first<<ee.second.second;
@@ -590,7 +590,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<mimmo::MimmoObject *>&  var){
 
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
     for (auto & ee : var) {
@@ -607,7 +607,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::vector<mimm
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::MimmoObject *>& var){
 
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
         buffer << ee;
@@ -654,10 +654,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::Fi
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::FileDataInfo>&  var){
 
-    int nP;
+    std::size_t nP;
     buffer>>nP;
     var.resize(nP);
-    for(int i=0; i<nP; ++i){
+    for(std::size_t i=0; i<nP; ++i){
         buffer>>var[i];
     }
     return buffer;
@@ -670,9 +670,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mim
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::FileDataInfo>& var){
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer<<nP;
-    for(int i=0; i<nP; ++i){
+    for(std::size_t i=0; i<nP; ++i){
         buffer<<var[i];
     }
     return buffer;
@@ -688,9 +688,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 
     mimmo::MimmoObject * key;
     dvector1D * val;
-    int size;
+    std::size_t size;
     buffer>>size;
-    for (int i=0; i<size; ++i) {
+    for (std::size_t i=0; i<size; ++i) {
         buffer >> key >> val;
         var[key] = val;
     }
@@ -704,7 +704,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< mimmo::MimmoObject*, dvector1D* >& var){
-    int size = var.size();
+    std::size_t size = var.size();
     buffer<<size;
     for (auto & ee : var) {
         buffer << ee.first<<ee.second;
@@ -722,9 +722,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 
     mimmo::MimmoObject * key;
     dvecarr3E * val;
-    int size;
+    std::size_t size;
     buffer>>size;
-    for (int i=0; i<size; i++) {
+    for (std::size_t i=0; i<size; i++) {
         buffer >> key >> val;
         var[key] = val;
     }
@@ -738,7 +738,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 *	\result Returns the same output stream received in input.
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >& var){
-    int size = var.size();
+    std::size_t size = var.size();
     buffer<<size;
     for (auto & ee : var) {
         buffer << ee.first<<ee.second;
@@ -754,10 +754,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
 
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     element.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> element[i];
     }
     return buffer;
@@ -771,9 +771,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element){
 
-    int nP = element.size();
+    std::size_t nP = element.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) buffer << element[i];
+    for (std::size_t i = 0; i < nP; ++i) buffer << element[i];
     return buffer;
 };
 
@@ -785,10 +785,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vect
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
 
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     element.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> element[i];
     }
     return buffer;
@@ -802,9 +802,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector< st
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element){
 
-    int nP = element.size();
+    std::size_t nP = element.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) buffer << element[i];
+    for (std::size_t i = 0; i < nP; ++i) buffer << element[i];
     return buffer;
 };
 
@@ -826,11 +826,11 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     int loc_;
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     double val;
     long int Id;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> Id;
         buffer >> val;
         element.insert(Id, val);
@@ -849,7 +849,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
     buffer << element.getGeometry();
 //     buffer << element.getName();
     buffer << static_cast<int>(element.getConstDataLocation());
-    buffer << (int)element.size();
+    buffer << (std::size_t)element.size();
     auto itE = element.cend();
     for (auto it=element.cbegin(); it!=itE; it++){
         buffer << it.getId()<<*it;
@@ -868,11 +868,11 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::d
     buffer << element.getGeometry();
 //     buffer << element.getName();
     buffer << static_cast<int>(element.getConstDataLocation());
-    buffer << (int)element.size();
+    buffer << (std::size_t)element.size();
     auto itE = element.cend();
     for (auto it=element.cbegin(); it!=itE; it++){
         buffer<<it.getId();
-        for (int j = 0; j < 3; ++j) {
+        for (std::size_t j = 0; j < 3; ++j) {
             buffer << (*it)[j];
         }
     }
@@ -900,13 +900,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
 
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     darray3E val;
     long int Id;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> Id;
-        for (int j = 0; j < 3; ++j) {
+        for (std::size_t j = 0; j < 3; ++j) {
             buffer >> val[j];
         }
         element.insert(Id, val);
@@ -942,7 +942,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::unordered_
     element.clear();
     std::size_t nids;
     buffer >> nids;
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
     	long key, id;
         buffer >> key;
         buffer >> id;
@@ -978,7 +978,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::unordered_
     element.clear();
     std::size_t nids;
     buffer >> nids;
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
     	long key;
     	int val;
         buffer >> key;
@@ -1015,7 +1015,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int,in
     std::size_t nids;
     buffer >> nids;
     int key, id;
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
         buffer >> key;
         buffer >> id;
         element[key] = id;
@@ -1052,7 +1052,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, s
     int key;
     std::vector<int> vid;
 
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
         buffer >> key;
         buffer >> vid;
         element[key] = vid;
@@ -1068,9 +1068,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, s
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivector1D &var)
 {
-    int nP = var.size();
+    std::size_t nP = var.size();
     buffer << nP;
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer << var[i];
     }
     return buffer;
@@ -1085,10 +1085,10 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const ivector1
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, ivector1D &var)
 {
-    int nP;
+    std::size_t nP;
     buffer >> nP;
     var.resize(nP);
-    for (int i = 0; i < nP; ++i) {
+    for (std::size_t i = 0; i < nP; ++i) {
         buffer >> var[i];
     }
     return buffer;
@@ -1121,7 +1121,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, s
     buffer >> nids;
     int key;
     std::string id;
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
         buffer >> key;
         buffer >> id;
         element[key] = id;
@@ -1155,7 +1155,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& el
     std::size_t nids;
     buffer >> nids;
     std::vector<char> inputss(nids);
-    for (int i = 0; i < nids; ++i){
+    for (std::size_t i = 0; i < nids; ++i){
         buffer >> inputss[i];
     }
     element = std::string(inputss.begin(), inputss.end());

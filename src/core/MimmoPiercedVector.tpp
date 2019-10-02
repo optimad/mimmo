@@ -399,7 +399,7 @@ MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
         result.reserve(cells.size());
         long id;
         for(auto it=this->begin(); it!=this->end(); ++it){
-            long id = it.getId();
+            id = it.getId();
             if(cells.exists(id)){
                 result.insert(id, *it);
             }
@@ -416,7 +416,7 @@ MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
         result.reserve(interfaces.size());
         long id;
         for(auto it=this->begin(); it!=this->end(); ++it){
-            long id = it.getId();
+            id = it.getId();
             if(interfaces.exists(id)){
                 result.insert(id, *it);
             }
@@ -429,7 +429,7 @@ MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
         result.reserve(verts.size());
         long id;
         for(auto it=this->begin(); it!=this->end(); ++it){
-            long id = it.getId();
+            id = it.getId();
             if(verts.exists(id)){
                 result.insert(id, *it);
             }
@@ -734,7 +734,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfac
 				if (this->exists(idvertex))
 					found++;
 			}
-			if (found == interface.getVertexCount()){
+			if (found == std::size_t(interface.getVertexCount())){
 				//Interpolate value
 				std::array<double,3> center = geo->getPatch()->evalInterfaceCentroid(idinterface);
 				mpv_t data{};

@@ -1117,6 +1117,8 @@ MimmoObject::getMapDataInv(bool withghosts){
 		}
 		return mapDataInv;
 	}
+#else
+	BITPIT_UNUSED(withghosts);
 #endif
 	int i = 0;
 	for (auto const & vertex : getVertices()){
@@ -2520,6 +2522,8 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
     if(ghost){
         itEnd = getPatch()->ghostEnd();
     }
+#else
+    BITPIT_UNUSED(ghost);
 #endif
     for (auto it=itBegin; it!=itEnd; ++it){
         int size = it->getFaceCount();
@@ -2555,6 +2559,8 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
     if(ghost){
         itEnd = getPatch()->ghostEnd();
     }
+#else
+    BITPIT_UNUSED(ghost);
 #endif
     for (auto it=itBegin; it!=itEnd; ++it){
         int size = it->getFaceCount();
@@ -3353,7 +3359,6 @@ MimmoObject::evalCellAspectRatio(const long & id){
 		if(!areInterfacesBuilt())   buildInterfaces();
 		bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
 
-		double Svalue = 0.0;
 		double sumArea = 0.0;
 		int size = p->getCell(id).getInterfaceCount();
 		const long * conInt = p->getCell(id).getInterfaces();
@@ -3450,7 +3455,6 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
             long idseed;
             auto itsurf = loop.begin();
             auto itsurfend = loop.end();
-            darray3E point;
             while(itsurf != itsurfend ){
                 //continue to search for a seed cell candidate, visiting all point of the target surface.
                 idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));

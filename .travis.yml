@@ -128,20 +128,14 @@ before_script:
         -DMIMMO_MODULE_IOVTK=False
         -DMIMMO_MODULE_PROPAGATORS=False
         -DMIMMO_MODULE_UTILS=False
-        -DBUILD_EXAMPLES=False
+        -DBUILD_EXAMPLES=True
         -DBUILD_XMLTUI=True
         ..;
     fi
 
 script:
   - if [ ${TRAVIS_BRANCH} != "coverity" ]; then  
-      make -j2;
-      cd test/geohandlers;
-      ./test_geohandlers_00001;
-      ./test_geohandlers_00002;
-      ./test_geohandlers_00003;
-      cd ../../ ;
-      ctest;
+      make -j2 && ctest;
     fi
 
 after_script:
