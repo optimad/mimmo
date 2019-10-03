@@ -1,172 +1,117 @@
 dist: xenial
-
 language:
-  - cpp
-
+- cpp
+branches:
+  only:
+  - travis
+  - coverity_scan
 addons:
   apt:
     sources:
-      - ubuntu-toolchain-r-test
+    - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
-      - g++-7
-      - gfortran-7
-      - cmake
-      - libblas-dev
-      - liblapack-dev
-      - liblapacke-dev
-      - openmpi-bin
-      - libopenmpi-dev
-      - libpetsc3.6
-      - libpetsc3.6.2-dev
-      - git
-      - libxml2-dev
-      
+    - gcc-7
+    - g++-7
+    - gfortran-7
+    - cmake
+    - libblas-dev
+    - liblapack-dev
+    - liblapacke-dev
+    - openmpi-bin
+    - libopenmpi-dev
+    - libpetsc3.6
+    - libpetsc3.6.2-dev
+    - git
+    - libxml2-dev
 env:
   global:
-    - C_COMPILER="gcc-7"
-    - CXX_COMPILER="g++-7"
-    - Fortran_COMPILER="gfortran-7"
-
+  - C_COMPILER="gcc-7"
+  - CXX_COMPILER="g++-7"
+  - Fortran_COMPILER="gfortran-7"
 jobs:
   include:
-    - if: branch != coverity
-      os: linux
-      env:
-        - BUILD_TYPE="Release" ENABLE_MPI="False"
-
-    - if: branch = coverity
-      os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gfortran
-            - cmake
-            - libblas-dev
-            - liblapack-dev
-            - liblapacke-dev
-            - openmpi-bin
-            - libopenmpi-dev
-            - libpetsc3.6
-            - libpetsc3.6.2-dev
-            - git
-            - libxml2-dev
-        coverity_scan:
-          project:
-            name: optimad/mimmo
-            description: "mimmo :: Surface manipulation and mesh morphing library"
-          notification_email: edoardo.lombardi@optimad.it
-          build_command_prepend: >
-            mkdir build;
-            cd build;
-      mkdir git;
-      cd git;
-      git clone https://github.com/optimad/bitpit.git;
-      cd bitpit;
-      git checkout 1.6;
-      mkdir build;
-      cd build;
-      cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real -DPETSC_ARCH= -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_MPI=False -DVERBOSE_MAKE=False -DCMAKE_INSTALL_PREFIX=/opt/bitpit ..;
-      make -j2 install;
-      cd ../../../;
-      mkdir build;
-      cd build;
-      cmake -DCMAKE_C_COMPILER=${C_COMPILER} \
-        -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
-        -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} \
-        -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real \
-        -DPETSC_ARCH= \
-        -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-        -DENABLE_MPI=${ENABLE_MPI} \
-        -DVERBOSE_MAKE=True \
-        -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6 \
-        -DMIMMO_MODULE_GEOHANDLERS=True \
-        -DMIMMO_MODULE_IOCGNS=False \
-        -DMIMMO_MODULE_IOOFOAM=False \
-        -DMIMMO_MODULE_IOVTK=False \
-        -DMIMMO_MODULE_PROPAGATORS=False \
-        -DMIMMO_MODULE_UTILS=False \
-        -DBUILD_EXAMPLES=True \
-        -DBUILD_XMLTUI=True \
-        ..;            
-          build_command: >
-            make -j2
-          branch_pattern: coverity
-
-      env:
-        - C_COMPILER="gcc"
-        - CXX_COMPILER="g++"
-        - Fortran_COMPILER="gfortran"
-        - BUILD_TYPE="Release" ENABLE_MPI="False"
-
-        # Encrypted COVERITY_SCAN_TOKEN
-           - secure: "nPwrFOUzNJ8LLs/bkaY5zg9cth4aywHj4G3DdfLjLTlMu79xbEIiNnP+j7H8buvpLRcqkBYCziFaSQVl48ADSnqoWrvv4xFOTos9N3xthbI790q3VpmxyXMtE/5QJrZEvxh5fK74hm5AH2ALGySWJEJC0icb1nv3H8P76PM+wPmkWhmxsNMFSI1s5hqrc12IQ/TPhqw+N/UtiXqOofeGPKwgUDEIQFjV5Yc709yR3oZfCFSq6GtZH049FlrNhZB6mXiy5Q1lExJh5akScekLRsYBOqOo7TfeHUmXgxkLRVBI5V0Yk62Sps6VJCc1WEwIHEeEkvjF2mQft/4PwV3yJH0FEUk7amZKboaadx4M5d9zA+oe6ecacPmC69H6pj+pUkC1SI/2Q2rzD0upEzwvjpnSvVyYDASQPBEYXo69To4DMIlCFBvuG3PDsQeLlbAIgjBfyQAOvkEg1YfKECrr27nNZsuHOn60pKXX03MMaVbJtSf38ic7Gf81THZVOTc0ATvI3py8+apfQaehvcIc3fO871YkMLJXsDmGBEtSrlwl7mjDoyknUP/VcO1SY/TiWUu/N/B2fTgr9AFR5/UhBGroJDUH5+WKTX4r5rCcWvhtr2qZVN7bD8U+FvSPerHH5Sxz1Z3OyCCYRuvzDzk1Pf6XH7zpWOdO8VeL/D03nsc="
-
+  - if: branch != coverity_scan
+    os: linux
+    env:
+    - BUILD_TYPE="Release" ENABLE_MPI="False"
+  - if: branch = coverity_scan
+    os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - gfortran
+        - cmake
+        - libblas-dev
+        - liblapack-dev
+        - liblapacke-dev
+        - openmpi-bin
+        - libopenmpi-dev
+        - libpetsc3.6
+        - libpetsc3.6.2-dev
+        - git
+        - libxml2-dev
+      coverity_scan:
+        project:
+          name: optimad/mimmo
+          description: 'mimmo :: Surface manipulation and mesh morphing library'
+        notification_email: edoardo.lombardi@optimad.it
+        build_command_prepend: >
+          mkdir build; cd build; cmake -DCMAKE_C_COMPILER=${C_COMPILER} \
+            -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
+            -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} \
+            -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real \
+            -DPETSC_ARCH= \
+            -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+            -DENABLE_MPI=${ENABLE_MPI} \
+            -DVERBOSE_MAKE=True \
+            -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6 \
+            -DMIMMO_MODULE_GEOHANDLERS=True \
+            -DMIMMO_MODULE_IOCGNS=False \
+            -DMIMMO_MODULE_IOOFOAM=False \
+            -DMIMMO_MODULE_IOVTK=False \
+            -DMIMMO_MODULE_PROPAGATORS=False \
+            -DMIMMO_MODULE_UTILS=False \
+            -DBUILD_EXAMPLES=True \
+            -DBUILD_XMLTUI=True \
+            ..;
+        build_command: >
+          make -j2
+        branch_pattern: coverity_scan
+    env:
+    - C_COMPILER="gcc"
+    - CXX_COMPILER="g++"
+    - Fortran_COMPILER="gfortran"
+    - BUILD_TYPE="Debug" ENABLE_MPI="False"
+    - secure: "Y9r1i+xsa9l94tXicyXt/MKl9o9JNGS7xYa/Iqh7z4b9oUTnGQlQOAGgKReP8PakfyBNJ4q2uKwpYTIBCstuoRDD0/uQgVFazLQ5/K5euty3I66qZDtpdc52+jUElFKugaT/bpP8c995zq9/Gqv4XmAIJ4SmHq5t9aKEuBgUkOUOC8haEQ/bBDHw7hYt5nC3RxfU3Myxs+59z2zWRMtwZzbnOjaDHMMM5KNcEbkVs9QtJ+en2j4G/fZHqpptU0Msv4y5l1sFhaG9ofIT5qHN4XpYanNPuJC5bhx3iBbQ0wj2hLScC4UCU1wHI3sQpe8iY8sd/EpmztG5RbJ8Yimk/4S3K0iqo2jj29cHvgMzfMKuN2zrynf9KD1wigfHe9wjIkGbQZXCoc+/qTmnaamHBAzBCCzF7Jvh9DD+xDU/JP0MavODwMdeEhoT4ToDt8scpMY1+p3ud22pd2DEHFF5sntpQu08CpFVxGnIav9e4lQ9avJQvdOgLK6XILIG3TnWttBIb7nEb+erz/M7xIFXXei4lzLWMIpimtd5RtD3RxBTCS2HOCfVMjJ3XTDAh2FkRp7ZDkWVXPUXOb1ILhKBAf0bGATPqiHgInP9iP+UKVGkcFdkJ+jgIb/h+lX5c7rvYNdkZeu/2LPin02Qx+4LgcT33UmVOHFh51UJff4LW2I="
 before_install:
-  - echo "Building branch ${TRAVIS_BRANCH}..."
-  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then
-      echo "Coverity build... No";
-    else
-      echo "Coverity build... Yes";
-    fi
-  - sudo apt-get update
-  - test -n $CC && unset CC
-  - test -n $CXX && unset CXX
-  - test -n $FC && unset FC
-  - if [ ${TRAVIS_BRANCH} == "coverity" ]; then
-      echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-;
-    fi
-
+- echo "Building branch ${TRAVIS_BRANCH}..."
+- if [ ${TRAVIS_BRANCH} != "coverity_scan" ]; then echo "Coverity build... No"; else
+  echo "Coverity build... Yes"; fi
+- sudo apt-get update
+- test -n $CC && unset CC
+- test -n $CXX && unset CXX
+- test -n $FC && unset FC
+- if [ ${TRAVIS_BRANCH} == "coverity_scan" ]; then echo -n | openssl s_client -connect
+  scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo
+  tee -a /etc/ssl/certs/ca-; fi
+install:
+- echo "Installing bitpit..." && git clone https://github.com/optimad/bitpit.git &&
+  cd bitpit && git checkout 1.6 && mkdir build && cd build && cmake -DCMAKE_C_COMPILER=${C_COMPILER}
+  -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER}
+  -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real -DPETSC_ARCH= -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  -DENABLE_MPI=False -DVERBOSE_MAKE=False -DCMAKE_INSTALL_PREFIX=/opt/bitpit .. && make
+  -j2 install && cd .. && cd .. && echo "bitpit installed"
 before_script:
-  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then
-      echo "Installing bitpit...";      
-      mkdir git;
-      cd git;
-      git clone https://github.com/optimad/bitpit.git;
-      cd bitpit;
-      git checkout 1.6;
-      mkdir build;
-      cd build;
-      cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real -DPETSC_ARCH= -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_MPI=False -DVERBOSE_MAKE=False -DCMAKE_INSTALL_PREFIX=/opt/bitpit ..;
-      make -j2 install;
-      
-      cd ../../../;
-      mkdir build;
-      cd build;
-      cmake
-        -DCMAKE_C_COMPILER=${C_COMPILER}
-        -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
-        -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER}
-        -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real
-        -DPETSC_ARCH=
-        -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-        -DENABLE_MPI=${ENABLE_MPI}
-        -DVERBOSE_MAKE=True
-        -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6 
-        -DMIMMO_MODULE_GEOHANDLERS=True
-        -DMIMMO_MODULE_IOCGNS=False
-        -DMIMMO_MODULE_IOOFOAM=False
-        -DMIMMO_MODULE_IOVTK=False
-        -DMIMMO_MODULE_PROPAGATORS=False
-        -DMIMMO_MODULE_UTILS=False
-        -DBUILD_EXAMPLES=True
-        -DBUILD_XMLTUI=True
-        ..;
-    fi
-
+- if [ ${TRAVIS_BRANCH} != "coverity_scan" ]; then mkdir build; cd build; cmake -DCMAKE_C_COMPILER=${C_COMPILER}
+  -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER}
+  -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real -DPETSC_ARCH= -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  -DENABLE_MPI=${ENABLE_MPI} -DVERBOSE_MAKE=True -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6
+  -DMIMMO_MODULE_GEOHANDLERS=True -DMIMMO_MODULE_IOCGNS=False -DMIMMO_MODULE_IOOFOAM=False
+  -DMIMMO_MODULE_IOVTK=False -DMIMMO_MODULE_PROPAGATORS=False -DMIMMO_MODULE_UTILS=False
+  -DBUILD_EXAMPLES=True -DBUILD_XMLTUI=True ..; fi
 script:
-  - if [ ${TRAVIS_BRANCH} != "coverity" ]; then  
-      make -j2 && ctest;
-    fi
-
+- if [ ${TRAVIS_BRANCH} != "coverity_scan" ]; then make -j2 && ctest; fi
 after_script:
-  # When using secret variables, the output gets filtered through a helper
-  # process by default. This may leed to truncated ouptut after failures.
-  # Waiting some seconds after the script should workaround the issue (see
-  # https://github.com/travis-ci/travis-ci/issues/6018).
-  - sleep 10
-
-notifications:
-
+- sleep 10
