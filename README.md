@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/optimad/mimmo.svg?branch=master)](https://travis-ci.org/optimad/mimmo)
+
 ## About mimmo
 **mimmo** is a C++ library for Manipulation and Morphing of surface/volume meshes (Open source).
 
