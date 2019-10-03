@@ -19,7 +19,9 @@ addons:
       - libopenmpi-dev
       - libpetsc3.6
       - libpetsc3.6.2-dev
-
+      - git
+      - libxml2-dev
+      
 env:
   global:
     - C_COMPILER="gcc-7"
@@ -31,7 +33,7 @@ jobs:
     - if: branch != coverity
       os: linux
       env:
-        - BUILD_TYPE="RelWithDebInfo" ENABLE_MPI="False"
+        - BUILD_TYPE="Release" ENABLE_MPI="False"
 
     - if: branch = coverity
       os: linux
@@ -55,19 +57,40 @@ jobs:
           project:
             name: optimad/mimmo
             description: "mimmo :: Surface manipulation and mesh morphing library"
-          notification_email: coverity@optimad.it
+          notification_email: edoardo.lombardi@optimad.it
           build_command_prepend: >
             mkdir build;
             cd build;
-            cmake -DCMAKE_C_COMPILER=${C_COMPILER} \
-              -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
-              -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} \
-              -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real \
-              -DPETSC_ARCH= \
-              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              -DENABLE_MPI=${ENABLE_MPI} \
-              -DVERBOSE_MAKE=True \
-              ..;
+      mkdir git;
+      cd git;
+      git clone https://github.com/optimad/bitpit.git;
+      cd bitpit;
+      git checkout 1.6;
+      mkdir build;
+      cd build;
+      cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real -DPETSC_ARCH= -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_MPI=False -DVERBOSE_MAKE=False -DCMAKE_INSTALL_PREFIX=/opt/bitpit ..;
+      make -j2 install;
+      cd ../../../;
+      mkdir build;
+      cd build;
+      cmake -DCMAKE_C_COMPILER=${C_COMPILER} \
+        -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
+        -DCMAKE_Fortran_COMPILER=${Fortran_COMPILER} \
+        -DPETSC_DIR=/usr/lib/petscdir/3.6.2/x86_64-linux-gnu-real \
+        -DPETSC_ARCH= \
+        -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -DENABLE_MPI=${ENABLE_MPI} \
+        -DVERBOSE_MAKE=True \
+        -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6 \
+        -DMIMMO_MODULE_GEOHANDLERS=True \
+        -DMIMMO_MODULE_IOCGNS=False \
+        -DMIMMO_MODULE_IOOFOAM=False \
+        -DMIMMO_MODULE_IOVTK=False \
+        -DMIMMO_MODULE_PROPAGATORS=False \
+        -DMIMMO_MODULE_UTILS=False \
+        -DBUILD_EXAMPLES=True \
+        -DBUILD_XMLTUI=True \
+        ..;            
           build_command: >
             make -j2
           branch_pattern: coverity
@@ -76,10 +99,10 @@ jobs:
         - C_COMPILER="gcc"
         - CXX_COMPILER="g++"
         - Fortran_COMPILER="gfortran"
-        - BUILD_TYPE="Debug" ENABLE_MPI="False"
+        - BUILD_TYPE="Release" ENABLE_MPI="False"
 
         # Encrypted COVERITY_SCAN_TOKEN
-        - secure: "q4Pdqc6eiar7cxgr+iqmED+/vDRq+yE7kzY0GM/gFUpuYMVEh7Rox4TWcPDadLAWsFXIQhDkomoWVC6ButyCqtqa41WDG7aeo73bRG10MV4n5uMzPasLE9KS1KQBmKHN/nofuX6S0IR8EsTOymdtXV4Wsc8T0uEOn/FDsVa+i4o2UHQDmyzPJ4yXnYh/98Q3umVC5nqrTfn43oqHUIedYqPv8LQLZTQBYhY2I4q1J/kTntyele79Zt1KmCdsQYZlMLZ5kT2/aVZpQ4nlvpC61BMCmKBvdEEEP13W5FpBF7KmZqOZqRZLbIxkP1UMOrsjbPXOD1c9INYmII+ouSh5DLiBpHFNTFp854s21Oa7A93igtYM5BLIGsKCTCyXdWi59WGKGY4jtSMKM0XnRzQ/Wpd9fEFyaokebJx8YuWs/JUPSDovoifmbjo9hwNQNeomSKMEieqFXRAqX8qEQ1MPxxP+Pdku8/CwJ15yZmNSA/gh/rbrFykC5btu2FHeFxaXe1HYF8EOEi8nWlseOC3obdBdzIUM8zoOCQroyuom+QWEuOu1AGwSdwMS2K7xKDfrYQSbjb8KkfSb+s6xAcQZHKiBLgX4eeYWabUbFlCJl4hGyQXjGZpCiaY8q7GMdgslgPE4e6ALl6BnmLCupBsdMDvSP9YB5PUPaPeK6B33SrM="
+           - secure: "nPwrFOUzNJ8LLs/bkaY5zg9cth4aywHj4G3DdfLjLTlMu79xbEIiNnP+j7H8buvpLRcqkBYCziFaSQVl48ADSnqoWrvv4xFOTos9N3xthbI790q3VpmxyXMtE/5QJrZEvxh5fK74hm5AH2ALGySWJEJC0icb1nv3H8P76PM+wPmkWhmxsNMFSI1s5hqrc12IQ/TPhqw+N/UtiXqOofeGPKwgUDEIQFjV5Yc709yR3oZfCFSq6GtZH049FlrNhZB6mXiy5Q1lExJh5akScekLRsYBOqOo7TfeHUmXgxkLRVBI5V0Yk62Sps6VJCc1WEwIHEeEkvjF2mQft/4PwV3yJH0FEUk7amZKboaadx4M5d9zA+oe6ecacPmC69H6pj+pUkC1SI/2Q2rzD0upEzwvjpnSvVyYDASQPBEYXo69To4DMIlCFBvuG3PDsQeLlbAIgjBfyQAOvkEg1YfKECrr27nNZsuHOn60pKXX03MMaVbJtSf38ic7Gf81THZVOTc0ATvI3py8+apfQaehvcIc3fO871YkMLJXsDmGBEtSrlwl7mjDoyknUP/VcO1SY/TiWUu/N/B2fTgr9AFR5/UhBGroJDUH5+WKTX4r5rCcWvhtr2qZVN7bD8U+FvSPerHH5Sxz1Z3OyCCYRuvzDzk1Pf6XH7zpWOdO8VeL/D03nsc="
 
 before_install:
   - echo "Building branch ${TRAVIS_BRANCH}..."
@@ -121,7 +144,7 @@ before_script:
         -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
         -DENABLE_MPI=${ENABLE_MPI}
         -DVERBOSE_MAKE=True
-        -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.5 
+        -DBITPIT_DIR=/opt/bitpit/lib/cmake/bitpit-1.6 
         -DMIMMO_MODULE_GEOHANDLERS=True
         -DMIMMO_MODULE_IOCGNS=False
         -DMIMMO_MODULE_IOOFOAM=False
