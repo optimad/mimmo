@@ -104,20 +104,19 @@ struct InfoMimmoPP{
  * Read arguments argv of mimmo++ main
  * \return InfoMimmoPP structure filled;
  */
-InfoMimmoPP readArguments(int argc, char*argv[] ){
+InfoMimmoPP readArguments(std::vector<std::string> & sanitized_args ){
     //reading arguments
-    if(argc <2) {
+    std::size_t argsize = sanitized_args.size();
+    if(argsize < 2) {
         std::cout<<"Error. Not enough arguments found launching mimmo++"<<std::endl;
         std::cout<<"Please run mimmo++ --help or -h for a brief guide on how to use it"<<std::endl;
         exit(1);
     }
 
+    //basic trimming.
     std::unordered_set<std::string> input;
-    for(int i=1; i<argc; ++i){
-        if(argv[i]){
-            std::string temp(argv[i]);
-            input.insert(bitpit::utils::string::trim(temp));
-        }
+    for(int i=1; i<argsize; ++i){
+        input.insert(bitpit::utils::string::trim(sanitized_args[i]));
     }
 
     if(input.count("--help") || input.count("-h")){
@@ -421,12 +420,21 @@ int main( int argc, char *argv[] ) {
     	//Instantiate of global logger
     	mimmo_log = &bitpit::log::cout("mimmo");
 
-        try{
-            //read the arguments
-            if(argv){
-                InfoMimmoPP info = readArguments(argc, argv);
-                mimmocore(info);
+        //sanitize argv
+        std::vector<std::string> s_argv;
+        s_argv.reserve(argc);
+        for(int i=0; i<argc; ++i){
+            char * sstr = strdup(argv[i]);
+            if(sstr != 0){
+                s_argv.push_back(std::string(sstr));
             }
+            free(sstr);
+        }
+
+
+        try{
+            InfoMimmoPP info = readArguments(s_argv);
+            mimmocore(info);
         }
         catch(std::exception & e){
         	(*mimmo_log)<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
