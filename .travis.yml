@@ -72,8 +72,8 @@ jobs:
             -DMIMMO_MODULE_IOCGNS=False \
             -DMIMMO_MODULE_IOOFOAM=False \
             -DMIMMO_MODULE_IOVTK=False \
-            -DMIMMO_MODULE_PROPAGATORS=False \
-            -DMIMMO_MODULE_UTILS=False \
+            -DMIMMO_MODULE_PROPAGATORS=True \
+            -DMIMMO_MODULE_UTILS=True \
             -DBUILD_EXAMPLES=True \
             -DBUILD_XMLTUI=True \
             ..;
