@@ -85,8 +85,8 @@ void Apply::swap(Apply & x) noexcept
 void
 Apply::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dmpvecarr3E, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
-	built = (built && createPortIn<dmpvector1D, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
+	built = (built && createPortIn<dmpvecarr3E*, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
+	built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
 	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
 	built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
@@ -97,8 +97,9 @@ Apply::buildPorts(){
  * \param[in] input Input displacements of the geometry vertices.
  */
 void
-Apply::setInput(dmpvecarr3E input){
-	m_input = input;
+Apply::setInput(dmpvecarr3E *input){
+    if(!input)  return;
+	m_input = *input;
 };
 
 /*!It sets the displacements given as scalar input. It makes sense only for surface gemetries.
@@ -106,8 +107,9 @@ Apply::setInput(dmpvecarr3E input){
  * \param[in] input Input displacements of the geometry vertices given as module of normal directed vectors.
  */
 void
-Apply::setScalarInput(dmpvector1D input){
-	m_scalarinput = input;
+Apply::setScalarInput(dmpvector1D *input){
+    if(!input) return;
+	m_scalarinput = *input;
 };
 
 /*!It sets the displacements scalar factor.

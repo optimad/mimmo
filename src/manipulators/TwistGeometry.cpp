@@ -109,9 +109,9 @@ TwistGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, TwistGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, TwistGeometry>(&m_alpha, M_VALUED));
     built = (built && createPortIn<double, TwistGeometry>(&m_distance, M_VALUED2));
-    built = (built && createPortIn<dmpvector1D, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, TwistGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dmpvecarr3E, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, TwistGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
@@ -174,17 +174,18 @@ TwistGeometry::setMaxDistance(double distance){
  * \param[in] filter Filter field defined on geometry vertices.
  */
 void
-TwistGeometry::setFilter(dmpvector1D filter){
-    m_filter = filter;
+TwistGeometry::setFilter(dmpvector1D *filter){
+    if(!filter) return;
+    m_filter = *filter;
 }
 
 /*!
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dmpvecarr3E
+dmpvecarr3E*
 TwistGeometry::getDisplacements(){
-    return m_displ;
+    return &m_displ;
 };
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the

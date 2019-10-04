@@ -33,10 +33,10 @@ namespace mimmo{
  * \ingroup manipulators
  * \brief Free Form Deformation of a 3D surface and point clouds, with structured lattice.
  *
- * Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape 
- *  (box, sphere, cylinder or part of them) around the geometry and set a structured cartesian mesh of control 
- *  points on it (lattice). Displacements of each control point is linked to the geometry inside 
- *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to 
+ * Free Form deformation tool for 3D geometries (surface and point clouds). Basically, it builds an elemental 3D shape
+ *  (box, sphere, cylinder or part of them) around the geometry and set a structured cartesian mesh of control
+ *  points on it (lattice). Displacements of each control point is linked to the geometry inside
+ *  the shape by means of a NURBS volumetric parameterization. Deformation will be applied only to
  *  those portion of geometry encased into the 3D shape.
  *
  * \n
@@ -44,12 +44,12 @@ namespace mimmo{
  *
  *    =========================================================
 
- 
+
      |Port Input | | |
      |-|-|-|
-     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
-     | M_DISPLS         | m_displ                       | (MC_VECARR3, MD_FLOAT)    |
-     | M_FILTER         | m_filter                      | (MC_MPVECTOR, MD_FLOAT)     |
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_DISPLS         | setDisplacements              | (MC_VECARR3, MD_FLOAT)    |
+     | M_FILTER         | setFilter                     | (MC_SCALAR, MD_MPVECFLOAT_)     |
      | M_DEG            | setDegrees                    | (MC_ARRAY3, MD_INT)       |
      | M_NURBSWEIGHTS   | setNodalWeight                | (MC_VECTOR, MD_FLOAT)     |
      | M_NURBSCOORDTYPE | setCoordType                  | (MC_ARRAY3, MD_COORDT)    |
@@ -58,18 +58,18 @@ namespace mimmo{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS         | getDeformation    | (MC_MPVECARR3, MD_FLOAT)              |
+     | M_GDISPLS         | getDeformation    | (MC_SCALAR, MD_MPVECARR3FLOAT_)              |
      | M_DEG             | getDegrees        | (MC_ARRAY3, MD_INT)                 |
-     | M_FILTER          | getFilter         | (MC_MPVECTOR, MD_FLOAT)               |
+     | M_FILTER          | getFilter         | (MC_SCALAR, MD_MPVECFLOAT_)               |
      | M_NURBSWEIGHTS    | getWeights        | (MC_VECTOR, MD_FLOAT)               |
      | M_NURBSCOORDTYPE  | getCoordType      | (MC_ARRAY3, MD_COORDT)              |
 
-     
+
       Inherited from Lattice :
 
      |Port Input | | |
      |-|-|-|
-     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM      | m_geometry                            | (MC_SCALAR, MD_MIMMO_)      |
      | M_DIMENSION | setDimension                          | (MC_ARRAY3, MD_INT)         |
      | M_INFLIMITS | setInfLimits                          | (MC_ARRAY3, MD_FLOAT)       |
@@ -101,12 +101,12 @@ namespace mimmo{
  * Inherited from BaseManipulation:
  * - <B>ClassName</B>: name of the class as "mimmo.Lattice"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution; 
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing. 
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  *  Inherited from Lattice:
- * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+ * - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE
  * - <B>Origin</B>: 3D point marking the shape barycenter
  * - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
  * - <B>RefSystem</B>: axes of current shape reference system. written in XML as:
@@ -116,8 +116,8 @@ namespace mimmo{
  *                       \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
  *                   \</RefSystem\> </tt>
  * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
- * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
- * 
+ * - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh
+ *
  * Proper of the class:
  * - <B>CoordType</B>: Set Boundary conditions for each NURBS interpolant on their extrema. Available choice are <B>CLAMPED,SYMMETRIC,UNCLAMPED, PERIODIC</B>;
  * - <B>Degrees</B>: degrees for NURBS interpolant in each spatial direction;
@@ -152,7 +152,7 @@ public:
     //copy operators/constructors
     FFDLattice(const FFDLattice & other);
     FFDLattice & operator=(FFDLattice other);
-    
+
     void buildPorts();
 
     //clean structure
@@ -165,8 +165,8 @@ public:
     void         returnKnotsStructure(dvector2D &, ivector2D &);
     void         returnKnotsStructure( int, dvector1D &, ivector1D &);
     dvecarr3E*     getDisplacements();
-    dmpvector1D   getFilter();
-    dmpvecarr3E     getDeformation();
+    dmpvector1D*   getFilter();
+    dmpvecarr3E*  getDeformation();
     bool         isDisplGlobal();
     iarray3E    getDegrees();
 
@@ -182,7 +182,7 @@ public:
     void         setNodalWeight(double , int, int, int);
     void         setNodalWeight(dvector1D );
 
-    void        setFilter(dmpvector1D );
+    void        setFilter(dmpvector1D * );
 
     //plotting wrappers
     void        plotGrid(std::string directory, std::string filename, int counter, bool binary, bool deformed);
@@ -209,7 +209,7 @@ protected:
     virtual void    plotOptionalResults();
     void        swap(FFDLattice &) noexcept;
     void         checkFilter();
-    
+
 private:
     //Nurbs Evaluators
     darray3E    nurbsEvaluator(darray3E &);
@@ -246,11 +246,11 @@ inline int FFDLattice::accessMapNodes(int i, int j, int k){
 };
 
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__FFDLATTICE_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__FFDLATTICE_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_NURBSWEIGHTS, MC_VECTOR, MD_FLOAT,__FFDLATTICE_HPP__)
 REGISTER_PORT(M_NURBSCOORDTYPE, MC_ARRAY3, MD_COORDT,__FFDLATTICE_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__FFDLATTICE_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__FFDLATTICE_HPP__)
 
 REGISTER(BaseManipulation, FFDLattice, "mimmo.FFDLattice")
 }

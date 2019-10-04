@@ -128,15 +128,15 @@ FFDLattice::buildPorts(){
 
     //input
     built = (built && createPortIn<dvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::setDisplacements, M_DISPLS));
-    built = (built && createPortIn<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::setFilter,M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, FFDLattice>(this, &mimmo::FFDLattice::setFilter,M_FILTER));
     built = (built && createPortIn<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::setDegrees, M_DEG));
     built = (built && createPortIn<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::setNodalWeight, M_NURBSWEIGHTS));
     built = (built && createPortIn<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::setCoordType, M_NURBSCOORDTYPE));
 
     //output
-    built = (built && createPortOut<dmpvecarr3E, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, FFDLattice>(this, &mimmo::FFDLattice::getDeformation, M_GDISPLS));
     built = (built && createPortOut<iarray3E, FFDLattice>(this, &mimmo::FFDLattice::getDegrees, M_DEG));
-    built = (built && createPortOut<dmpvector1D, FFDLattice>(this, &mimmo::FFDLattice::getFilter, M_FILTER));
+    built = (built && createPortOut<dmpvector1D*, FFDLattice>(this, &mimmo::FFDLattice::getFilter, M_FILTER));
     built = (built && createPortOut<dvector1D, FFDLattice>(this, &mimmo::FFDLattice::getWeights,M_NURBSWEIGHTS));
     built = (built && createPortOut<std::array<mimmo::CoordType,3>, FFDLattice>(this, &mimmo::FFDLattice::getCoordType, M_NURBSCOORDTYPE));
     m_arePortsBuilt = built;
@@ -242,18 +242,18 @@ FFDLattice::getDisplacements(){
 /*! It gets current set filter field. See FFDLattice::setFilter
  * \return filter field.
  */
-dmpvector1D
+dmpvector1D*
 FFDLattice::getFilter(){
-    return(m_filter);
+    return &m_filter;
 };
 
 /*!
  * Return actual computed deformation field (if any) for the geometry linked.
  * \return deformation field
  */
-dmpvecarr3E
+dmpvecarr3E *
 FFDLattice::getDeformation(){
-    return m_gdispl;
+    return &m_gdispl;
 };
 
 
@@ -476,10 +476,11 @@ FFDLattice::setNodalWeight(dvector1D wg){
  * \param[in] filter fields.
  */
 void
-FFDLattice::setFilter(dmpvector1D filter){
+FFDLattice::setFilter(dmpvector1D *filter){
+    if(!filter) return;
     m_filter.clear();
-    m_bfilter = !(filter.empty());
-    m_filter = filter;
+    m_bfilter = !(filter->empty());
+    m_filter = *filter;
 };
 
 /*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.

@@ -76,7 +76,7 @@ enum class MRBFSol{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
      | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
-     | M_FILTER  | setFilter             | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER  | setFilter             | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
      | M_GEOM    | m_geometry            | (MC_SCALAR, MD_MIMMO_)      |
@@ -84,7 +84,7 @@ enum class MRBFSol{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS      | getDisplacements  | (MC_MPVECARR3, MD_FLOAT)             |
+     | M_GDISPLS      | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)             |
      | M_GEOM   | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
@@ -138,14 +138,14 @@ public:
     MRBFSol         getMode();
     void            setMode(MRBFSol);
     void            setMode(int);
-    dmpvector1D     getFilter();
+    dmpvector1D*    getFilter();
     double          getSupportRadius();
     double          getSupportRadiusValue();
     bool            getIsSupportRadiusValue();
 
     int             getFunctionType();
 
-    dmpvecarr3E     getDisplacements();
+    dmpvecarr3E*     getDisplacements();
 
     int             addNode(darray3E);
     ivector1D       addNode(dvecarr3E);
@@ -154,7 +154,7 @@ public:
     void            setNode(darray3E);
     void            setNode(dvecarr3E);
     void            setNode(MimmoObject* geometry);
-    void            setFilter(dmpvector1D );
+    void            setFilter(dmpvector1D * );
 
     ivector1D       checkDuplicatedNodes(double tol=1.0E-12);
     bool            removeDuplicatedNodes(ivector1D * list=NULL);
@@ -192,11 +192,11 @@ double	heaviside1000( double dist );
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT ,__MRBF_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT ,__MRBF_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
 

@@ -49,17 +49,17 @@ namespace mimmo{
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_FILTER  | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER  | setFilter         | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_POINT   | setOrigin         | (MC_ARRAY3, MD_FLOAT)       |
      | M_AXES    | setRefSystem      | (MC_ARR3ARR3, MD_FLOAT)     |
      | M_BMATRIX | setDegree         | (MC_ARR3ARR3, MD_INT)       |
-     | M_BCOEFFS | setCoeffs         | (MC_ARR3ARR3VEC, MD_FLOAT)  |
+     | M_BCOEFFS | setCoeffs         | (MC_SCALAR, MD_MATRIXCOEFF_)  |
      | M_GEOM    | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-     | M_GDISPLS| getDisplacements  | (MC_MPVECARR3, MD_FLOAT)    |
+     | M_GDISPLS| getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)    |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
 
  *    =========================================================
@@ -128,16 +128,16 @@ public:
 
     darray3E    getOrigin();
     dmatrix33E  getRefSystem();
-    umatrix33E    getDegree();
-    dmat33Evec    getCoeffs();
-    dmpvecarr3E    getDisplacements();
+    umatrix33E     getDegree();
+    dmat33Evec*    getCoeffs();
+    dmpvecarr3E*   getDisplacements();
 
-    void    setFilter(dmpvector1D filter);
+    void    setFilter(dmpvector1D *filter);
     void    setOrigin(darray3E origin);
     void    setRefSystem(dmatrix33E axes);
     void    setDegree(umatrix33E degree);
     void    setDegree(int i, int j, uint32_t degree);
-    void    setCoeffs(dmat33Evec coeffs);
+    void    setCoeffs(dmat33Evec *coeffs);
     void    setCoeffs(int i, int j, dvector1D coeffs);
 
     void     execute();
@@ -152,20 +152,20 @@ protected:
     void    checkFilter();
     static darray3E   matmul(const darray3E & vec, const dmatrix33E & mat);
     static darray3E   matmul(const dmatrix33E & mat,const darray3E & vec);
-    
+
 private:
     darray3E    toLocalCoord(darray3E point);
     darray3E    toGlobalCoord(darray3E point);
 
 };
 
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__BENDGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_BMATRIX, MC_ARR3ARR3, MD_INT,__BENDGEOMETRY_HPP__)
-REGISTER_PORT(M_BCOEFFS, MC_ARR3ARR3VEC, MD_FLOAT,__BENDGEOMETRY_HPP__)
+REGISTER_PORT(M_BCOEFFS, MC_SCALAR, MD_MATRIXCOEFF_,__BENDGEOMETRY_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__BENDGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__BENDGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__BENDGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, BendGeometry, "mimmo.BendGeometry")

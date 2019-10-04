@@ -43,7 +43,7 @@ namespace mimmo{
  * Ports available in TwistGeometry Class :
  *
  *    =========================================================
- 
+
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
@@ -51,15 +51,15 @@ namespace mimmo{
      | M_AXIS   | setDirection      | (MC_ARRAY3, MD_FLOAT)       |
      | M_VALUED | setTwist          | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2| setMaxDistance    | (MC_SCALAR, MD_FLOAT)       |
-     | M_FILTER | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER | setFilter         | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
- 
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS       | getDisplacements  | (MC_MPVECARR3, MD_FLOAT) |
+     | M_GDISPLS       | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
      | M_GEOM          | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
  *    =========================================================
  * \n
  *
@@ -75,7 +75,7 @@ namespace mimmo{
  * - <B>Direction</B>: axis direction coordinates;
  * - <B>Twist</B>: twist angle in radians. Positive on counterclockwise twists around reference axis;
  * - <B>Distance</B>: distance from the origin (on twist axis) where the twist angle is reached.
- * - <B>Symmetric</B>: boolean 0/1 activate symmetric twisting 
+ * - <B>Symmetric</B>: boolean 0/1 activate symmetric twisting
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -107,9 +107,9 @@ public:
     void        setTwist(double alpha);
     void        setSym(bool sym);
     void        setMaxDistance(double distance);
-    void        setFilter(dmpvector1D filter);
+    void        setFilter(dmpvector1D *filter);
 
-    dmpvecarr3E getDisplacements();
+    dmpvecarr3E* getDisplacements();
 
     void         execute();
     void         apply();
@@ -126,9 +126,9 @@ REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__TWISTGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__TWISTGEOMETRY_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__TWISTGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__TWISTGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__TWISTGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, TwistGeometry, "mimmo.TwistGeometry")

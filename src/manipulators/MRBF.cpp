@@ -115,12 +115,12 @@ MRBF::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
 	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS));
-	built = (built && createPortIn<dmpvector1D, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
+	built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadius, M_VALUED));
 	built = (built && createPortIn<double, MRBF>(this, &mimmo::MRBF::setSupportRadiusValue, M_VALUED2));
 	built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM, true));
 
-	built = (built && createPortOut<dmpvecarr3E, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
+	built = (built && createPortOut<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
 	built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 };
@@ -174,9 +174,9 @@ MRBF::setMode(int type){
 /*! It gets current set filter field. See MRBF::setFilter
  * \return filter field.
  */
-dmpvector1D
+dmpvector1D*
 MRBF::getFilter(){
-	return(m_filter);
+	return &m_filter;
 };
 
 /*!
@@ -219,9 +219,9 @@ MRBF::getIsSupportRadiusValue(){
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return     The computed deformation field on the vertices of the linked geometry
  */
-dmpvecarr3E
+dmpvecarr3E*
 MRBF::getDisplacements(){
-	return m_displ;
+	return &m_displ;
 };
 
 
@@ -297,10 +297,11 @@ MRBF::setNode(MimmoObject* geometry){
  * \param[in] filter fields.
  */
 void
-MRBF::setFilter(dmpvector1D filter){
-	m_filter.clear();
-	m_bfilter = !(filter.empty());
-	m_filter = filter;
+MRBF::setFilter(dmpvector1D * filter){
+    if(!filter) return;
+    m_filter.clear();
+	m_bfilter = !(filter->empty());
+	m_filter = *filter;
 };
 
 

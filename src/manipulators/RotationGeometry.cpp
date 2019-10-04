@@ -105,9 +105,9 @@ RotationGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_origin, M_POINT));
     built = (built && createPortIn<darray3E, RotationGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, RotationGeometry>(&m_alpha, M_VALUED));
-    built = (built && createPortIn<dmpvector1D, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, RotationGeometry>(this, &mimmo::RotationGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, RotationGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dmpvecarr3E, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, RotationGeometry>(this, &mimmo::RotationGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, RotationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
@@ -154,17 +154,18 @@ RotationGeometry::setRotation(double alpha){
  * \param[in] filter filter field defined on geometry vertices.
  */
 void
-RotationGeometry::setFilter(dmpvector1D filter){
-    m_filter = filter;
+RotationGeometry::setFilter(dmpvector1D *filter){
+    if(!filter) return;
+    m_filter = *filter;
 }
 
 /*!
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dmpvecarr3E
+dmpvecarr3E*
 RotationGeometry::getDisplacements(){
-    return m_displ;
+    return &m_displ;
 };
 
 /*!Execution command. It saves in "rot"-terms the modified axes and origin, by the

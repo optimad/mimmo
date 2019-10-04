@@ -102,9 +102,9 @@ ScaleGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, M_POINT));
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, M_SPAN));
-    built = (built && createPortIn<dmpvector1D, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dmpvecarr3E, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
@@ -138,17 +138,18 @@ ScaleGeometry::setScaling(darray3E scaling){
  * \param[in] filter filter field defined on geometry vertices.
  */
 void
-ScaleGeometry::setFilter(dmpvector1D filter){
-    m_filter = filter;
+ScaleGeometry::setFilter(dmpvector1D *filter){
+    if(!filter) return;
+    m_filter = *filter;
 }
 
 /*!
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dmpvecarr3E
+dmpvecarr3E*
 ScaleGeometry::getDisplacements(){
-    return m_displ;
+    return &m_displ;
 };
 
 /*!Execution command. It perform the scaling by computing the displacements

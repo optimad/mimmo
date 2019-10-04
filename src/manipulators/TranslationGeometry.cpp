@@ -96,9 +96,9 @@ TranslationGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<darray3E, TranslationGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, TranslationGeometry>(&m_alpha, M_VALUED));
-    built = (built && createPortIn<dmpvector1D, TranslationGeometry>(this, &mimmo::TranslationGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, TranslationGeometry>(this, &mimmo::TranslationGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<MimmoObject*, TranslationGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortOut<dmpvecarr3E, TranslationGeometry>(this, &mimmo::TranslationGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, TranslationGeometry>(this, &mimmo::TranslationGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, TranslationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
@@ -127,17 +127,18 @@ TranslationGeometry::setTranslation(double alpha){
  * \param[in] filter Filter field defined on geometry vertices.
  */
 void
-TranslationGeometry::setFilter(dmpvector1D filter){
-    m_filter = filter;
+TranslationGeometry::setFilter(dmpvector1D *filter){
+    if(!filter) return;
+    m_filter = *filter;
 }
 
 /*!
  * Return actual computed displacements field (if any) for the geometry linked.
  * \return  deformation field
  */
-dmpvecarr3E
+dmpvecarr3E*
 TranslationGeometry::getDisplacements(){
-    return m_displ;
+    return &m_displ;
 };
 
 /*!Execution command. It perform the translation by computing the displacements

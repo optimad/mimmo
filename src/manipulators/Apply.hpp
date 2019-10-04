@@ -44,19 +44,19 @@ namespace mimmo{
  * Ports available in Apply Class :
  *
  *    =========================================================
- * 
-     | Port Input | | | 
+ *
+     | Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_GDISPLS | setInput          | (MC_MPVECARR3,MD_FLOAT) |
-     | M_SCALARFIELD | setScalarInput    | (MC_MPVECTOR,MD_FLOAT) |
+     | M_GDISPLS | setInput          | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
+     | M_SCALARFIELD | setScalarInput    | (MC_SCALAR,MD_MPVECFLOAT_) |
      | M_GEOM    | setGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>  |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
  *    =========================================================
  * \n
  * The xml available parameters, sections and subsections are the following :
@@ -84,8 +84,8 @@ public:
 
     void buildPorts();
 
-    void setInput(dmpvecarr3E input);
-    void setScalarInput(dmpvector1D input);
+    void setInput(dmpvecarr3E *input);
+    void setScalarInput(dmpvector1D* input);
 
     void setScaling(double alpha);
 
@@ -96,11 +96,11 @@ public:
 protected:
     void swap(Apply & x) noexcept;
     void    checkInput();
-    
+
 };
 
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT, __APPLYDEFORMATION_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __APPLYDEFORMATION_HPP__)
 
 REGISTER(BaseManipulation, Apply, "mimmo.Apply")

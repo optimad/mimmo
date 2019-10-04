@@ -108,12 +108,12 @@ void
 BendGeometry::buildPorts(){
     bool built = true;
     built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, M_GEOM, true));
-    built = (built && createPortIn<dmpvector1D, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<umatrix33E, BendGeometry>(&m_degree, M_BMATRIX));
-    built = (built && createPortIn<dmat33Evec, BendGeometry>(&m_coeffs, M_BCOEFFS));
+    built = (built && createPortIn<dmat33Evec*, BendGeometry>(this, &BendGeometry::setCoeffs, M_BCOEFFS));
     built = (built && createPortIn<dmatrix33E, BendGeometry>(&m_system, M_AXES));
     built = (built && createPortIn<darray3E, BendGeometry>(&m_origin, M_POINT));
-    built = (built && createPortOut<dmpvecarr3E, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvecarr3E*, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, M_GDISPLS));
     built = (built && createPortOut<MimmoObject*, BendGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
@@ -145,17 +145,17 @@ BendGeometry::getDegree(){
 /*!It gets the coefficients of the polynomial laws.
  * \return Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
  */
-dmat33Evec
+dmat33Evec *
 BendGeometry::getCoeffs(){
-    return(m_coeffs);
+    return  &m_coeffs;
 };
 
 /*!It gets the displacements of the geometry computed during the execution.
  * \return Displacements of the points of the input MimmoObject.
  */
-dmpvecarr3E
+dmpvecarr3E*
 BendGeometry::getDisplacements(){
-    return(m_displ);
+    return &m_displ;
 };
 
 /*!It sets the degrees of polynomial law for each component of displacements of degrees of freedom.
@@ -185,8 +185,9 @@ BendGeometry::setDegree(int i, int j, uint32_t degree){
  * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
  */
 void
-BendGeometry::setCoeffs(dmat33Evec coeffs){
-    m_coeffs = coeffs;
+BendGeometry::setCoeffs(dmat33Evec * coeffs){
+    if(!coeffs) return;
+    m_coeffs = *coeffs;
 };
 
 /*!It sets the coefficients of the polynomial laws.
@@ -224,8 +225,8 @@ BendGeometry::setRefSystem(dmatrix33E axes){
  * \param[in] filter filter field defined on geometry vertices.
  */
 void
-BendGeometry::setFilter(dmpvector1D filter){
-    m_filter = filter;
+BendGeometry::setFilter(dmpvector1D * filter){
+    m_filter = *filter;
 }
 
 /*!Execution command. It computes the nodes displacements with the polynomial law by
@@ -434,9 +435,10 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         setDegree(temp);
     };
 
+    // set Degree already set correctly the matrix of coeffs..
     if(slotXML.hasSection("PolyCoefficients")){
         auto & subslot = slotXML.getSection("PolyCoefficients");
-        dmat33Evec temp = getCoeffs();
+        dmat33Evec &temp = m_coeffs;
         std::string rootPoly = "Poly";
         std::string locPoly;
         int ik,jk;
@@ -447,10 +449,9 @@ BendGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
                 std::stringstream ss(bitpit::utils::string::trim(input));
                 ik = (int)(k/3);
                 jk = k%3;
-                for(auto & val: temp[ik][jk])    ss>>val;
+                for(double & val: temp[ik][jk])    ss>>val;
             }
         }
-        setCoeffs(temp);
     };
 
     if(slotXML.hasOption("Origin")){

@@ -47,15 +47,15 @@ namespace mimmo{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_POINT  | setOrigin         | (MC_ARRAY3, MD_FLOAT)       |
      | M_SPAN   | setScaling        | (MC_ARRAY3, MD_FLOAT)       |
-     | M_FILTER | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER | setFilter         | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
- 
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS | getDisplacements  | (MC_MPVECARR3, MD_FLOAT)      |
+     | M_GDISPLS | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
  *    =========================================================
  *
  * \n
@@ -90,15 +90,15 @@ public:
 
     ScaleGeometry(const ScaleGeometry & other);
     ScaleGeometry& operator=(ScaleGeometry other);
-    
+
     void        buildPorts();
 
     void        setScaling(darray3E scaling);
-    void        setFilter(dmpvector1D filter);
+    void        setFilter(dmpvector1D *filter);
     void        setOrigin(darray3E origin);
     void        setMeanPoint(bool meanP);
 
-    dmpvecarr3E   getDisplacements();
+    dmpvecarr3E*   getDisplacements();
 
     void         execute();
     void         apply();
@@ -114,9 +114,9 @@ protected:
 
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__SCALEGEOMETRY_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__SCALEGEOMETRY_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__SCALEGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__SCALEGEOMETRY_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__SCALEGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__SCALEGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__SCALEGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, ScaleGeometry, "mimmo.ScaleGeometry")

@@ -39,21 +39,21 @@ namespace mimmo{
  * Ports available in TranslationGeometry Class :
  *
  *    =========================================================
- 
+
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_AXIS   | setDirection      | (MC_ARRAY3, MD_FLOAT)       |
      | M_VALUED | setTranslation    | (MC_SCALAR, MD_FLOAT)       |
-     | M_FILTER | setFilter         | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER | setFilter         | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)      |
- 
+
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS | getDisplacements  | (MC_MPVECARR3, MD_FLOAT)      |
+     | M_GDISPLS | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
      | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
- 
+
  *    =========================================================
  * \n
  *
@@ -87,21 +87,21 @@ public:
 
     TranslationGeometry(const TranslationGeometry & other);
     TranslationGeometry & operator=(TranslationGeometry other);
-    
+
     void        buildPorts();
 
     void        setDirection(darray3E direction);
     void        setTranslation(double alpha);
-    void        setFilter(dmpvector1D filter);
+    void        setFilter(dmpvector1D *filter);
 
-    dmpvecarr3E   getDisplacements();
+    dmpvecarr3E*   getDisplacements();
 
     void         execute();
     void         apply();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
-    
+
 protected:
     void swap(TranslationGeometry & x) noexcept;
     void         checkFilter();
@@ -110,8 +110,8 @@ protected:
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__TRANSLATIONGEOMETRY_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__TRANSLATIONGEOMETRY_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__TRANSLATIONGEOMETRY_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__TRANSLATIONGEOMETRY_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__TRANSLATIONGEOMETRY_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__TRANSLATIONGEOMETRY_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__TRANSLATIONGEOMETRY_HPP__)
 
 
 REGISTER(BaseManipulation, TranslationGeometry, "mimmo.TranslationGeometry")
