@@ -1205,7 +1205,6 @@ void PropagateVectorField::propagateMaskMovingCells(livector1D & cellList) {
 void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
 
 	std::unordered_set<long> core(vertexList.begin(), vertexList.end());
-	auto * patch = getGeometry()->getPatch();
 
     if (!getGeometry()->isPointConnectivitySync())
     	getGeometry()->buildPointConnectivity();
@@ -1277,9 +1276,8 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//renumber it and update the laplacian matrix and fill the rhs.
 	bitpit::StencilVector correction;
 	bitpit::PiercedVector<bitpit::Interface> & mesh_interfaces = geo->getInterfaces();
-	bitpit::PiercedVector<bitpit::Cell> & mesh_cells = geo->getCells();
 
-	long idOwner, idInterface;
+	long idOwner;
 	std::array<double,3> interfaceNormal, interfaceCentroid, ownerCentroid;
 	double volume, iarea;
 	for(long idInterface : interfaceList){
@@ -1389,7 +1387,6 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//Nuemann are implicitely imposed by graph-laplacian scheme.
 	//renumber it and update the laplacian matrix and fill the rhs.
 	bitpit::StencilScalar correction;
-	bitpit::PiercedVector<bitpit::Vertex> & mesh_vertices = geo->getVertices();
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
@@ -1470,7 +1467,7 @@ void
 PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint)
 {
 	if(!m_slipsurface) return;
-	bitpit::SurfaceKernel * slipsurf = dynamic_cast<bitpit::SurfaceKernel *> (m_slipsurface->getPatch());
+	//bitpit::SurfaceKernel * slipsurf = dynamic_cast<bitpit::SurfaceKernel *> (m_slipsurface->getPatch());
 
 	//first step: extract solutions on twin border nodes of m_surface_slip_bc_dir;
 	long id;

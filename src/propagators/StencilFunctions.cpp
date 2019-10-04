@@ -145,9 +145,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
     std::vector< long >                   neighs;
     std::array<double,3>                  dist;
     std::array<double,3>                  targetCentroid;
-    long cellID;
-    int ncellFaces;
-
+    
     for(const long &cellID : list){
 
         targetCentroid = patch->evalCellCentroid(cellID);
@@ -180,7 +178,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
 
         //add an StencilVector Item to MimmoPiercedVector and push gweight into it.
         auto it = result->insert(cellID, bitpit::StencilVector());
-        for(int i=0; i<ngsize; ++i){
+        for(std::size_t i=0; i<ngsize; ++i){
             it->appendItem(neighs[i], {{gweights[0][i], gweights[1][i], gweights[2][i]}});
         }
 

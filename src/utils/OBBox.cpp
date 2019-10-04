@@ -331,7 +331,6 @@ OBBox::execute(){
 
         dmatrix33E covariance;
         darray3E spectrum;
-        darray3E etaPoint;
 
         if(allCloud){
             covariance = evaluatePointsCovarianceMatrix(getGeometries());
@@ -530,7 +529,6 @@ OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoObject*> list){
 
     darray3E masscenter = {{0.0,0.0,0.0}};
     //assembly moments matrix cell by cell.
-    dmatrix33E loc;
     dmatrix33E moments;
     for(auto & val:moments)    val.fill(0.0);
 
@@ -611,7 +609,6 @@ OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
     //eigenvec are returned in a column wise, and with eigenvals s in ascending order.
 
     //rearrange the eigvec
-    int counter = 0;
     for (int i=0; i<9; i++){
         result[i/3][i%3] = a[i];
     }

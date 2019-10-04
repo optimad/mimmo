@@ -115,7 +115,7 @@ InfoMimmoPP readArguments(std::vector<std::string> & sanitized_args ){
 
     //basic trimming.
     std::unordered_set<std::string> input;
-    for(int i=1; i<argsize; ++i){
+    for(std::size_t i=1; i<argsize; ++i){
         input.insert(bitpit::utils::string::trim(sanitized_args[i]));
     }
 

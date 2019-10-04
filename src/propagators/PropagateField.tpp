@@ -740,8 +740,6 @@ PropagateField<NCOMP>::computeDumpingFunction(){
         return;
     }
 
-	double dist;
-	long ID;
 	const double maxd(m_radius);
 
     livector1D seedlist;
@@ -837,10 +835,6 @@ PropagateField<NCOMP>::updateDumpingFunction(){
         // leaving dumping as it is.
         return;
     }
-
-	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-	double dist;
-	long ID;
 
 	const double maxd(m_radius);
 	//get the list of elements in m_dumping with diffusivity > 1.0;
@@ -1175,9 +1169,8 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 	//renumber it and update the laplacian matrix and fill the rhs.
 	bitpit::StencilVector correction;
 	bitpit::PiercedVector<bitpit::Interface> & mesh_interfaces = geo->getInterfaces();
-	bitpit::PiercedVector<bitpit::Cell> & mesh_cells = geo->getCells();
 
-	long idOwner, idInterface;
+	long idOwner;
 	std::array<double,3> interfaceNormal, interfaceCentroid, ownerCentroid;
 	double volume, iarea;
 	for(long idInterface : interfaceList){
@@ -1271,7 +1264,6 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 	//Nuemann are implicitely imposed by graph-laplacian scheme.
 	//renumber it and update the laplacian matrix and fill the rhs.
 	bitpit::StencilScalar correction;
-	bitpit::PiercedVector<bitpit::Vertex> & mesh_vertices = geo->getVertices();
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
@@ -1385,14 +1377,14 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 #if MIMMO_ENABLE_MPI
 			counter -= getGlobalCountOffset(m_method);
 #endif
-			for(int i=0; i<NCOMP; ++i){
+			for(int i=0; i<int(NCOMP); ++i){
 				temp[i] = results[i][counter];
 			}
 			mpvres->insert(id, temp);
 		}
 #if MIMMO_ENABLE_MPI
 		else{
-			for(int i=0; i<NCOMP; ++i){
+			for(int i=0; i<int(NCOMP); ++i){
 				temp[i] = 0.0;
 			}
 			mpvres->insert(id, temp);

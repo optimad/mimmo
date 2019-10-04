@@ -851,7 +851,6 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
         }
 
         effective.reserve(list.size() - visited.size());
-        std::set<long>::iterator it1 = visited.begin();
         for(int i=0; i< listS; ++i){
             if( !visited.count(i) )
                 effective.push_back(i);
@@ -1282,7 +1281,6 @@ CreateSeedsOnSurface::findVertexVertexOneRing(bitpit::PatchKernel &geo, const lo
 
     livector1D list = geo.findCellVertexOneRing(cellId, loc_target);
 
-    long connSize;
     for(const auto & index : list){
         bitpit::Cell & cell = geo.getCell(index);
         auto vList = cell.getVertexIds();

@@ -38,7 +38,7 @@ MeshChecker::~MeshChecker(){};
 /*! Copy Constructor. Result displacements are never copied.
  *\param[in] other MeshChecker where copy from
  */
-MeshChecker::MeshChecker(const MeshChecker & other){
+MeshChecker::MeshChecker(const MeshChecker & other):BaseManipulation(other){
 	m_minVolume = other.m_minVolume;
 	m_maxVolume = other.m_maxVolume;
 	m_maxSkewness = other.m_maxSkewness;
@@ -464,7 +464,6 @@ MeshChecker::checkSkewness()
 
     livector1D listInterfaces;
     livector1D listBoundInterfaces;
-	double skewness = 0.0;
 	for (bitpit::Interface & interface : getGeometry()->getInterfaces()){
 		if (!interface.isBorder()){
 			std::array<double,3> centroidsVector = getGeometry()->evalCellCentroid(interface.getNeigh()) - getGeometry()->evalCellCentroid(interface.getOwner());
