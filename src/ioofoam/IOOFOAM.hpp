@@ -233,8 +233,8 @@ private:
 |               Port Output    ||                                         |
 |-------------------|--------------------|-----------------------|
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-| M_SCALARFIELD     | getField      		| (MC_MPVECTOR, MD_FLOAT)       |
-| M_SCALARFIELD2    | getBoundaryField    | (MC_MPVECTOR, MD_FLOAT)       |
+| M_SCALARFIELD     | getField      		| (MC_SCALAR, MD_MPVECFLOAT_)       |
+| M_SCALARFIELD2    | getBoundaryField    | (MC_SCALAR, MD_MPVECFLOAT_)       |
 
  =========================================================
  \n
@@ -267,8 +267,8 @@ public:
 
     void            buildPorts();
 
-    dmpvector1D     getField();
-    dmpvector1D     getBoundaryField();
+    dmpvector1D*     getField();
+    dmpvector1D*     getBoundaryField();
 
     void            execute();
 
@@ -324,8 +324,8 @@ protected:
 |               Port Output    ||                                         |
 |-------------------|--------------------|-----------------------|
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-| M_VECTORFIELD     | getField      		| (MC_MPVECTOR, MD_FLOAT)       |
-| M_VECTORFIELD2    | getBoundaryField    | (MC_MPVECTOR, MD_FLOAT)       |
+| M_VECTORFIELD     | getField      		| (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
+| M_VECTORFIELD2    | getBoundaryField    | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
 
  =========================================================
  \n
@@ -357,8 +357,8 @@ public:
 
     void            buildPorts();
 
-    dmpvecarr3E     getField();
-    dmpvecarr3E     getBoundaryField();
+    dmpvecarr3E*     getField();
+    dmpvecarr3E*     getBoundaryField();
 
     void            execute();
 
@@ -375,10 +375,10 @@ protected:
 REGISTER_PORT(M_GEOMOFOAM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_GEOMOFOAM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_UMAPIDS, MC_UMAP, MD_LONG, __IOOFOAM_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
-REGISTER_PORT(M_SCALARFIELD2, MC_MPVECTOR, MD_FLOAT, __IOOFOAM_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT, __IOOFOAM_HPP__)
-REGISTER_PORT(M_VECTORFIELD2, MC_MPVECARR3, MD_FLOAT, __IOOFOAM_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_SCALARFIELD2, MC_SCALAR, MD_MPVECFLOAT_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_VECTORFIELD2, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOOFOAM_HPP__)
 
 REGISTER(BaseManipulation, IOOFOAM, "mimmo.IOOFOAM")
 REGISTER(BaseManipulation, IOOFOAMScalarField, "mimmo.IOOFOAMScalarField")

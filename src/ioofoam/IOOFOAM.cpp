@@ -726,8 +726,8 @@ IOOFOAMScalarField::buildPorts(){
 	IOOFOAM_Kernel::buildPorts();
 	bool built = m_arePortsBuilt;
 	// creating output ports
-	built = (built && createPortOut<dmpvector1D, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
-	built = (built && createPortOut<dmpvector1D, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getBoundaryField, M_SCALARFIELD2));
+	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
+	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getBoundaryField, M_SCALARFIELD2));
 	m_arePortsBuilt = built;
 };
 
@@ -735,18 +735,18 @@ IOOFOAMScalarField::buildPorts(){
  * It gets the internal scalar field.
  * \return internal scalar field.
  */
-dmpvector1D
+dmpvector1D *
 IOOFOAMScalarField::getField(){
-	return m_field;
+	return &m_field;
 }
 
 /*!
  * It gets the boundary scalar field.
  * \return boundary scalar field.
  */
-dmpvector1D
+dmpvector1D *
 IOOFOAMScalarField::getBoundaryField(){
-	return m_boundaryField;
+	return &m_boundaryField;
 }
 
 /*!Execution command.
@@ -978,8 +978,8 @@ IOOFOAMScalarField::write(){
  	IOOFOAM_Kernel::buildPorts();
  	bool built = m_arePortsBuilt;
  	// creating output ports
- 	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
- 	built = (built && createPortOut<dmpvecarr3E, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
+ 	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
+ 	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
  	m_arePortsBuilt = built;
  };
 
@@ -987,18 +987,18 @@ IOOFOAMScalarField::write(){
   * It gets the internal vector field.
   * \return internal vector field.
   */
- dmpvecarr3E
+ dmpvecarr3E *
  IOOFOAMVectorField::getField(){
- 	return m_field;
+ 	return &m_field;
  }
 
  /*!
   * It gets the boundary scalar field.
   * \return boundary scalar field.
   */
- dmpvecarr3E
+ dmpvecarr3E *
  IOOFOAMVectorField::getBoundaryField(){
- 	return m_boundaryField;
+ 	return &m_boundaryField;
  }
 
  /*!Execution command.
