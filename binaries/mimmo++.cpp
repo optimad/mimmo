@@ -260,6 +260,8 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
 
             if(rootFactory.containsCreator(className)){
                 std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
+                //class is instantiated. I can push my custom name now.
+                temp->setName(sect.first);
                 mapInst[idstring] = std::move(temp);
 
                 (*mimmo_log)<< "...Instantiated mimmo block: "<<sect.first<<" of type "<<className<<std::endl;
