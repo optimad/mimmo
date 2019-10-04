@@ -106,7 +106,7 @@ IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_normalize = other.m_normalize;
     m_scaling = other.m_scaling;
     m_local = false;
-    
+
 };
 
 /*!Assignment operator. If to-be-copied class has an internal MimmoObject
@@ -149,11 +149,11 @@ IOVTKScalar::buildPorts(){
     built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));
     built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, M_VALUED));
     built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, M_POLYDATA_));
-    built = (built && createPortIn<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
 
     built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, M_GEOM));
     built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, M_POLYDATA_));
-    built = (built && createPortOut<dmpvector1D, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D*, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
@@ -179,9 +179,9 @@ IOVTKScalar::getScaling(){
  * Returning field associated to the class
  * \return scalar field
  */
-dmpvector1D
+dmpvector1D *
 IOVTKScalar::getField(){
-    return m_field;
+    return &m_field;
 }
 
 /*!
@@ -211,8 +211,9 @@ IOVTKScalar::setScaling(double scaling){
  * \param[in] field scalar field of doubles
  */
 void
-IOVTKScalar::setField(dmpvector1D field){
-    m_field = field;
+IOVTKScalar::setField(dmpvector1D * field){
+    if(!field)  return;
+    m_field = *field;
 }
 
 /*!
@@ -297,7 +298,7 @@ IOVTKScalar::read(){
         MimmoObject* mimmo0 = new MimmoObject(1);
         setGeometry(mimmo0);
     }
-    
+
     string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
     int    np = 0;
     int    nt = 0;
@@ -420,7 +421,7 @@ IOVTKScalar::write(){
         m_polydata = vtkPolyData::New();
         m_polydata->Allocate();
         m_polydataInternal = true;
-        
+
         /* Set polydata points. */
         vtkPoints* points = vtkPoints::New() ;
         double point_[3];
@@ -465,7 +466,7 @@ IOVTKScalar::write(){
         if(check){
             //get MPV as normal vector sequenced as geometry vertices actual ordering.
             dvector1D field = m_field.getDataAsVector();
-            
+
             vtkSmartPointer<vtkPointData> pdata = m_polydata->GetPointData();
             vtkDoubleArray* data = vtkDoubleArray::New();
             data->SetName( "mimmo.field" );
@@ -477,7 +478,7 @@ IOVTKScalar::write(){
             data->Delete();
             data = NULL;
         }
-        
+
         string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
         vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
         writer->SetFileName(outputFilename.c_str());
@@ -516,7 +517,7 @@ IOVTKScalar::execute(){
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void 
+void
 IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
@@ -524,7 +525,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
     std::string input;
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("ReadFlag")){
         input = slotXML.get("ReadFlag");
         bool value = false;
@@ -604,7 +605,7 @@ IOVTKScalar::absorbSectionXML(const bitpit::Config::Section & slotXML, std::stri
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void 
+void
 IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
@@ -634,5 +635,3 @@ IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
 };
 
 }
-
-

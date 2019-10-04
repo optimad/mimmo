@@ -54,7 +54,7 @@ namespace mimmo{
    |                     Port Input    ||                                    |
    |------------------|---------------------|----------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_SCALARFIELD    | setField            | (MC_MPVECTOR, MD_FLOAT)      |
+   | M_SCALARFIELD    | setField            | (MC_SCALAR, MD_MPVECFLOAT_)      |
    | M_VALUED         | setScaling          | (MC_SCALAR, MD_FLOAT)      |
    | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
    | M_POLYDATA_      | setPolyData         | (MC_SCALAR, MD_POLYDATA_)  |
@@ -63,7 +63,7 @@ namespace mimmo{
    |               Port Output    ||                                         |
    |------------------|-------------------|------------------------|
    | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_SCALARFIELD    | getField          | (MC_MPVECTOR, MD_FLOAT)        |
+   | M_SCALARFIELD    | getField          | (MC_SCALAR, MD_MPVECFLOAT_)        |
    | M_GEOM           | getGeometry       | (MC_SCALAR, MD_MIMMO_)       |
    | M_POLYDATA_      | getPolyData       | (MC_SCALAR, MD_POLYDATA_)    |
 
@@ -113,12 +113,12 @@ public:
 
     IOVTKScalar(const IOVTKScalar & other);
     IOVTKScalar & operator=(IOVTKScalar other);
-    
+
     void            buildPorts();
 
     vtkPolyData*    getPolyData();
     double          getScaling();
-    dmpvector1D       getField();
+    dmpvector1D*       getField();
 
     void            setReadDir(std::string dir);
     void            setRead(bool read);
@@ -129,7 +129,7 @@ public:
     void            setPolyData(vtkPolyData* polydata);
     void            setNormalize(bool normalize);
     void            setScaling(double scaling);
-    void            setField(dmpvector1D field);
+    void            setField(dmpvector1D* field);
 
     bool            write();
     bool            read();
@@ -143,7 +143,7 @@ protected:
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__IOVTKScalar_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__IOVTKScalar_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__IOVTKScalar_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__IOVTKScalar_HPP__)
 REGISTER_PORT(M_POLYDATA_, MC_SCALAR, MD_POLYDATA_,__IOVTKScalar_HPP__)
 
