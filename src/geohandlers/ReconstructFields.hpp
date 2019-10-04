@@ -67,15 +67,15 @@ enum class OverlapMethod{
      |                   Port Input    ||                                               |
      |----------------|--------------------|----------------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | addData             | (MC_MPVECTOR, MD_FLOAT)          |
+     | M_SCALARFIELD  | addData             | (MC_SCALAR, MD_MPVECFLOAT_)          |
      | M_GEOM         | m_geometry         | (MC_SCALAR, MD_MIMMO_)                 |
 
 
      |             Port Output   ||                                          |
      |----------------|--------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | getResultField      | (MC_MPVECTOR, MD_FLOAT)       |
-     | M_VECSFIELDS    | getResultFields   | (MC_VECTOR, MD_MPVECFLOAT)       |
+     | M_SCALARFIELD  | getResultField      | (MC_SCALAR, MD_MPVECFLOAT_)       |
+     | M_VECSFIELDS    | getResultFields   | (MC_VECTOR, MD_MPVECFLOAT_)       |
      | M_GEOM         | getGeometry        | (MC_SCALAR, MD_MIMMO_)      |
 
  *    =========================================================
@@ -114,12 +114,12 @@ public:
     OverlapMethod           getOverlapCriteriumENUM();
     int                     getOverlapCriterium();
     int                     getNData();
-    dmpvector1D             getResultField();
-    std::vector<dmpvector1D>     getResultFields();
+    dmpvector1D*             getResultField();
+    std::vector<dmpvector1D*>     getResultFields();
 
     void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium( int);
-    void        addData( dmpvector1D );
+    void        addData( dmpvector1D * );
     void        removeData(mimmo::MimmoObject* );
     void        removeAllData();
     void        buildPorts();
@@ -165,14 +165,14 @@ private:
      |                   Port Input   ||                                                  |
      |----------------|--------------------|------------------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECTORFIELD       | addData     | (MC_MPVECARR3, MD_FLOAT)           |
+     | M_VECTORFIELD       | addData     | (MC_SCALAR, MD_MPVECARR3FLOAT_)           |
      | M_GEOM         | m_geometry         | (MC_SCALAR, MD_MIMMO_)                   |
 
      |             Port Output  ||                                                |
      |----------------|--------------------|----------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECTORFIELD       | getResultField     | (MC_MPVECARR3, MD_FLOAT)           |
-     | M_VECVFIELDS   | getResultFields    | (MC_VECTOR, MD_MPVECARR3)       |
+     | M_VECTORFIELD       | getResultField     | (MC_SCALAR, MD_MPVECARR3FLOAT_)           |
+     | M_VECVFIELDS   | getResultFields    | (MC_VECTOR, MD_MPVECARR3FLOAT_)       |
      | M_GEOM         | getGeometry        | (MC_SCALAR, MD_MIMMO_)           |
 
  *    =========================================================
@@ -211,12 +211,12 @@ public:
     OverlapMethod               getOverlapCriteriumENUM();
     int                         getOverlapCriterium();
     int                         getNData();
-    dmpvecarr3E                 getResultField();
-    std::vector<dmpvecarr3E>    getResultFields();
+    dmpvecarr3E*                getResultField();
+    std::vector<dmpvecarr3E*>    getResultFields();
 
     void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium(int );
-    void        addData( dmpvecarr3E );
+    void        addData( dmpvecarr3E * );
     void        removeData(mimmo::MimmoObject* );
     void        removeAllData();
     void        buildPorts();
@@ -244,10 +244,10 @@ private:
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __RECONSTRUCTSCALAR_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __RECONSTRUCTSCALAR_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT, __RECONSTRUCTSCALAR_HPP__)
-REGISTER_PORT(M_VECSFIELDS, MC_VECTOR, MD_MPVECFLOAT, __RECONSTRUCTSCALAR_HPP__)
-REGISTER_PORT(M_VECVFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT, __RECONSTRUCTSCALAR_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __RECONSTRUCTSCALAR_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __RECONSTRUCTSCALAR_HPP__)
+REGISTER_PORT(M_VECSFIELDS, MC_VECTOR, MD_MPVECFLOAT_, __RECONSTRUCTSCALAR_HPP__)
+REGISTER_PORT(M_VECVFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT_, __RECONSTRUCTSCALAR_HPP__)
 
 
 REGISTER(BaseManipulation, ReconstructScalar,"mimmo.ReconstructScalar")
@@ -255,4 +255,4 @@ REGISTER(BaseManipulation, ReconstructVector,"mimmo.ReconstructVector")
 
 };
 
-#endif /* __RECONSTRUCTSCALAR_HPP__ */
+#endif /* __RECONSTRUCTFIELDS_HPP__ */

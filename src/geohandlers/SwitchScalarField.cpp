@@ -104,9 +104,9 @@ void SwitchScalarField::swap(SwitchScalarField & x) noexcept
 void
 SwitchScalarField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvector1D>, SwitchScalarField>(this, &mimmo::SwitchScalarField::setFields, M_VECSFIELDS, true, 1));
-    built = (built && createPortIn<dmpvector1D, SwitchScalarField>(this, &mimmo::SwitchScalarField::addField, M_SCALARFIELD, true, 1));
-    built = (built && createPortOut<dmpvector1D, SwitchScalarField>(this, &mimmo::SwitchScalarField::getSwitchedField, M_SCALARFIELD));
+    built = (built && createPortIn<std::vector<dmpvector1D*>, SwitchScalarField>(this, &mimmo::SwitchScalarField::setFields, M_VECSFIELDS, true, 1));
+    built = (built && createPortIn<dmpvector1D*, SwitchScalarField>(this, &mimmo::SwitchScalarField::addField, M_SCALARFIELD, true, 1));
+    built = (built && createPortOut<dmpvector1D*, SwitchScalarField>(this, &mimmo::SwitchScalarField::getSwitchedField, M_SCALARFIELD));
 
     SwitchField::buildPorts();
     m_arePortsBuilt = built;
@@ -116,9 +116,9 @@ SwitchScalarField::buildPorts(){
  * Get switched field.
  * \return switched field
  */
-dmpvector1D
+dmpvector1D *
 SwitchScalarField::getSwitchedField(){
-    return m_result;
+    return  &m_result;
 }
 
 /*!
@@ -126,13 +126,16 @@ SwitchScalarField::getSwitchedField(){
  * \param[in] fields scalar fields
  */
 void
-SwitchScalarField::setFields(vector<dmpvector1D> fields){
-
-    for(auto &ff : fields){
-        if(ff.getDataLocation() == m_loc && ff.getGeometry()!= NULL){
-            m_fields.push_back(ff);
+SwitchScalarField::setFields(std::vector<dmpvector1D*> fields){
+    m_fields.clear();
+    m_fields.reserve(fields.size());
+    for(dmpvector1D * ff : fields){
+        if(!ff) continue;
+        if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+            m_fields.push_back(*ff);
         }
     }
+    m_fields.shrink_to_fit();
 }
 
 /*!
@@ -140,9 +143,10 @@ SwitchScalarField::setFields(vector<dmpvector1D> fields){
  * \param[in] field scalar field
  */
 void
-SwitchScalarField::addField(dmpvector1D field){
-    if(field.getDataLocation() == m_loc && field.getGeometry() != NULL){
-        m_fields.push_back(field);
+SwitchScalarField::addField(dmpvector1D *field){
+    if(!field) return;
+    if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+        m_fields.push_back(*field);
     }
 
 }
@@ -247,16 +251,16 @@ SwitchScalarField::mswitch(){
         //create map for overlapping ids purpose;
         std::unordered_map<long, int> idRepetition;
 
-        for (const auto & field : m_fields){
-            ef->setField(field);
+        for (dmpvector1D & field : m_fields){
+            ef->setField(&field);
             bool check = ef->extract();
             if(!check) continue;
 
-            auto temp = ef->getExtractedField();
+            dmpvector1D * temp = ef->getExtractedField();
             dmpvector1D::iterator itB;
-            auto itE = temp.end();
+            auto itE = temp->end();
             long id;
-            for(itB = temp.begin(); itB != itE; ++itB){
+            for(itB = temp->begin(); itB != itE; ++itB){
                 id = itB.getId();
                 if(!m_result.exists(id)){
                     m_result.insert(id, *itB);

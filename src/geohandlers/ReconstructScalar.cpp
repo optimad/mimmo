@@ -129,18 +129,24 @@ ReconstructScalar::getNData(){
  * Return your result field
  * \return result field
  */
-dmpvector1D
+dmpvector1D *
 ReconstructScalar::getResultField(){
-    return(m_result);
+    return  &m_result;
 };
 
 /*!
  * Return your result fields
  * \return result fields
  */
-std::vector<dmpvector1D>
+std::vector<dmpvector1D *>
 ReconstructScalar::getResultFields(){
-    return(m_subresults);
+
+    std::vector<dmpvector1D *> res;
+    res.reserve(m_subresults.size());
+    for(dmpvector1D & ffref : m_subresults){
+        res.push_back(&ffref);
+    }
+    return(res);
 };
 
 /*!
@@ -170,13 +176,14 @@ ReconstructScalar::setOverlapCriterium( int funct){
  * \param[in] field    field to be inserted
  */
 void
-ReconstructScalar::addData( dmpvector1D  field){
-    if(field.getGeometry()== NULL && field.getDataLocation() != m_loc) return;
-    if(field.getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
+ReconstructScalar::addData( dmpvector1D  * field){
+    if(!field)  return;
+    if(field->getGeometry()== NULL && field->getDataLocation() != m_loc) return;
+    if(field->getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
         (*m_log)<<"warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
         return;
     }
-    m_subpatch.push_back(field);
+    m_subpatch.push_back(*field);
 
 };
 
@@ -472,12 +479,12 @@ ReconstructScalar::buildPorts(){
 
     //input
     built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM, true));
-    built = (built && createPortIn<dmpvector1D, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, M_SCALARFIELD));
 
     //output
-    built = (built && createPortOut<dmpvector1D, ReconstructScalar>(this, &ReconstructScalar::getResultField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D*, ReconstructScalar>(this, &ReconstructScalar::getResultField, M_SCALARFIELD));
     built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM));
-    built = (built && createPortOut<std::vector<dmpvector1D>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, M_VECSFIELDS));
+    built = (built && createPortOut<std::vector<dmpvector1D*>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, M_VECSFIELDS));
     m_arePortsBuilt = built;
 };
 

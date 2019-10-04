@@ -100,8 +100,8 @@ void ExtractVectorField::swap(ExtractVectorField & x ) noexcept
 void
 ExtractVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, M_VECTORFIELD, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvecarr3E*, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, M_VECTORFIELD, true, 1));
+    built = (built && createPortOut<dmpvecarr3E*, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, M_VECTORFIELD));
 
     ExtractField::buildPorts();
     m_arePortsBuilt = built;
@@ -111,9 +111,9 @@ ExtractVectorField::buildPorts(){
  * Get extracted field.
  * \return extracted field
  */
-dmpvecarr3E
+dmpvecarr3E*
 ExtractVectorField::getExtractedField(){
-    return m_result;
+    return &m_result;
 }
 
 /*!
@@ -130,8 +130,9 @@ ExtractVectorField::getOriginalField(){
  * \param[in] field input field related to whole geometry
  */
 void
-ExtractVectorField::setField(dmpvecarr3E field){
-    m_field = field;
+ExtractVectorField::setField(dmpvecarr3E *field){
+    if(!field)  return;
+    m_field = *field;
 }
 
 /*!

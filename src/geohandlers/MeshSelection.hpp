@@ -617,13 +617,13 @@ protected:
      |                   Port Input      ||                                   |
      |----------------|---------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | setField            | (MC_VECTOR, MD_FLOAT)       |
+     | M_SCALARFIELD  | setField            | (MC_SCALAR, MD_MPVECFLOAT_)       |
 
 
      |             Port Output    ||                                          |
      |----------------|---------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | getField            | (MC_VECTOR, MD_FLOAT)       |
+     | M_SCALARFIELD  | getField            | (MC_VECTOR, MD_MPVECFLOAT_)       |
 
    Inherited from SelectionByBox
 
@@ -697,8 +697,8 @@ public:
 
     void clear();
 
-    void        setField(dmpvector1D);
-    dmpvector1D   getField();
+    void        setField(dmpvector1D *);
+    dmpvector1D  * getField();
 
     void execute();
 
@@ -721,7 +721,7 @@ REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_INFLIMITS, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_VALUELI, MC_SCALAR, MD_LONG, __MESHSELECTION_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __MESHSELECTION_HPP__)
 
 
 REGISTER(BaseManipulation, SelectionByBox,"mimmo.SelectionByBox")

@@ -103,9 +103,9 @@ void SwitchVectorField::swap(SwitchVectorField & x) noexcept
 void
 SwitchVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvecarr3E>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, M_VECVFIELDS, true, 1));
-    built = (built && createPortIn<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, M_VECTORFIELD, true, 1));
-    built = (built && createPortOut<dmpvecarr3E, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, M_VECTORFIELD));
+    built = (built && createPortIn<std::vector<dmpvecarr3E*>, SwitchVectorField>(this, &mimmo::SwitchVectorField::setFields, M_VECVFIELDS, true, 1));
+    built = (built && createPortIn<dmpvecarr3E*, SwitchVectorField>(this, &mimmo::SwitchVectorField::addField, M_VECTORFIELD, true, 1));
+    built = (built && createPortOut<dmpvecarr3E*, SwitchVectorField>(this, &mimmo::SwitchVectorField::getSwitchedField, M_VECTORFIELD));
 
     SwitchField::buildPorts();
     m_arePortsBuilt = built;
@@ -115,9 +115,9 @@ SwitchVectorField::buildPorts(){
  * Get switched field.
  * \return switched field
  */
-dmpvecarr3E
+dmpvecarr3E*
 SwitchVectorField::getSwitchedField(){
-    return m_result;
+    return &m_result;
 }
 
 /*!
@@ -125,12 +125,16 @@ SwitchVectorField::getSwitchedField(){
  * \param[in] fields scalar fields
  */
 void
-SwitchVectorField::setFields(vector<dmpvecarr3E> fields){
-    for(auto &ff : fields){
-        if(ff.getDataLocation() == m_loc && ff.getGeometry()!= NULL){
-            m_fields.push_back(ff);
+SwitchVectorField::setFields(vector<dmpvecarr3E*> fields){
+    m_fields.clear();
+    m_fields.reserve(fields.size());
+    for(dmpvecarr3E * ff : fields){
+        if(!ff) continue;
+        if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+            m_fields.push_back(*ff);
         }
     }
+    m_fields.shrink_to_fit();
 }
 
 /*!
@@ -138,9 +142,10 @@ SwitchVectorField::setFields(vector<dmpvecarr3E> fields){
  * \param[in] field scalar field
  */
 void
-SwitchVectorField::addField(dmpvecarr3E field){
-    if(field.getDataLocation() == m_loc && field.getGeometry() != NULL){
-        m_fields.push_back(field);
+SwitchVectorField::addField(dmpvecarr3E *field){
+    if(!field) return;
+    if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+        m_fields.push_back(*field);
     }
 }
 
@@ -243,16 +248,16 @@ SwitchVectorField::mswitch(){
         //create map for overlapping ids purpose;
         std::unordered_map<long, int> idRepetition;
 
-        for (const auto & field : m_fields){
-            ef->setField(field);
+        for (dmpvecarr3E & field : m_fields){
+            ef->setField(&field);
             bool check = ef->extract();
             if(!check) continue;
 
-            auto temp = ef->getExtractedField();
+            dmpvecarr3E * temp = ef->getExtractedField();
             dmpvecarr3E::iterator itB;
-            auto itE = temp.end();
+            auto itE = temp->end();
             long id;
-            for(itB = temp.begin(); itB != itE; ++itB){
+            for(itB = temp->begin(); itB != itE; ++itB){
                 id = itB.getId();
                 if(!m_result.exists(id)){
                     m_result.insert(id, *itB);

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -40,15 +40,15 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(){
  * \param[in] rootXML reference to your xml tree section
  */
 SelectionByBoxWithScalar::SelectionByBoxWithScalar(const bitpit::Config::Section & rootXML){
-	
+
 	m_name = "mimmo.SelectionByBoxWithScalar";
-	
-	std::string fallback_name = "ClassNONE";	
+
+	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
 	if(input == "mimmo.SelectionByBoxWithScalar"){
 		absorbSectionXML(rootXML);
-	}else{	
+	}else{
         warningXML(m_log, m_name);
 	};
 }
@@ -97,7 +97,7 @@ void SelectionByBoxWithScalar::swap(SelectionByBoxWithScalar & x) noexcept
     //std::swap(m_field, x.m_field);
     m_field.swap(x.m_field);
     SelectionByBox::swap(x);
-    
+
 }
 
 /*!
@@ -110,9 +110,9 @@ SelectionByBoxWithScalar::buildPorts(){
 
     SelectionByBox::buildPorts();
 
-    built = (built && createPortIn<dmpvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, M_SCALARFIELD));
 
-    built = (built && createPortOut<dmpvector1D, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D*, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, M_SCALARFIELD));
 
     m_arePortsBuilt = built;
 };
@@ -130,16 +130,17 @@ SelectionByBoxWithScalar::clear(){
  * \param[in] field Scalar field.
  */
 void
-SelectionByBoxWithScalar::setField(dmpvector1D field){
-    m_field = field;
+SelectionByBoxWithScalar::setField(dmpvector1D * field){
+    if(!field) return;
+    m_field = *field;
 }
 
 /*! It gets the scalar field attached to the extracted patch.
  * \return Scalar field.
  */
-dmpvector1D
+dmpvector1D *
 SelectionByBoxWithScalar::getField(){
-    return (m_field);
+    return &m_field;
 }
 
 
@@ -167,13 +168,13 @@ SelectionByBoxWithScalar::execute(){
         (*m_log)<<"warning in "<<m_name<<" : Attempting to extract a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
         return;
     }
-    
+
     ExtractScalarField * extractorField = new ExtractScalarField();
     extractorField->setGeometry(getPatch());
     extractorField->setMode(ExtractMode::ID);
-    extractorField->setField(m_field);
+    extractorField->setField(&m_field);
     extractorField->execute();
-    m_field = extractorField->getExtractedField();
+    m_field = *(extractorField->getExtractedField());
     delete extractorField;
 }
 
@@ -187,7 +188,7 @@ SelectionByBoxWithScalar::plotOptionalResults(){
     if(getPatch() == NULL)      return;
     if(getPatch()->isEmpty()) return;
     if(m_field.getGeometry() != getPatch()) return;
-    
+
     bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
     switch(m_field.getDataLocation()){
         case MPVLocation::POINT :
@@ -199,22 +200,22 @@ SelectionByBoxWithScalar::plotOptionalResults(){
         default:
             (*m_log)<<"warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
             (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
-            break;   
+            break;
     }
     if(loc == bitpit::VTKLocation::UNDEFINED)  return;
-    
+
     if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation::POINT){
         (*m_log)<<"warning in "<<m_name<<" : Attempting to plot a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
         return;
     }
-    
+
     std::string dir  = m_outputPlot;
     std::string name = m_name + "_Patch."+ std::to_string(getId());
-        
+
     //check size of field and adjust missing values to zero for writing purposes only.
     dmpvector1D field_supp = m_field;
     bool checkField = field_supp.completeMissingData(0.0);
-    
+
     if(getPatch()->getType() != 3){
         if(checkField){
             dvector1D field = field_supp.getDataAsVector();
@@ -228,13 +229,13 @@ SelectionByBoxWithScalar::plotOptionalResults(){
         dvecarr3E points = getPatch()->getVerticesCoords(&mapDataInv);
         ivector2D connectivity;
         bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
-        
+
         int np = points.size();
         connectivity.resize(np);
         for (int i=0; i<np; i++){
             connectivity[i].resize(1);
             connectivity[i][0] = i;
-            
+
         }
         bitpit::VTKUnstructuredGrid output(dir,name,cellType);
         output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
@@ -268,10 +269,9 @@ SelectionByBoxWithScalar::absorbSectionXML(const bitpit::Config::Section & slotX
  */
 void
 SelectionByBoxWithScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
-    
+
     BITPIT_UNUSED(name);
     SelectionByBox::flushSectionXML(slotXML, name);
 };
 
 }
-

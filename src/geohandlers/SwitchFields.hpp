@@ -48,7 +48,7 @@ namespace mimmo{
  *    SwitchField is an abstract class. To use its features take a look to its specializations,
  *  here presented as derived class, SwitchScalarField and SwitchVectorField.
  *
- * 
+ *
  * Ports available in SwitchField Class :
  *
  *    =========================================================
@@ -76,7 +76,7 @@ namespace mimmo{
  * Proper of the class:
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping
  * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
- 
+
  * Geometries and fields have to be mandatorily passed through port.
  *
  */
@@ -118,7 +118,7 @@ private:
  * \ingroup geohandlers
  * \brief SwitchScalarField is specialized derived class of SwitchField to switch a
  *         scalar field.
- * 
+ *
  * Ports available in SwitchScalarField Class :
  *
  *    =========================================================
@@ -126,14 +126,14 @@ private:
      |                 Port Input   ||                              |
      |--------------|--------------------|----------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECSFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT)|
-     | M_SCALARFIELD| addField           | (MC_MPVECTOR, MD_FLOAT)|
+     | M_VECSFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT_)|
+     | M_SCALARFIELD| addField           | (MC_SCALAR, MD_MPVECFLOAT_)|
 
 
      |            Port Output   ||                                        |
      |-----------|-------------------|--------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | getSwitchedField     | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_SCALARFIELD  | getSwitchedField     | (MC_SCALAR, MD_MPVECFLOAT_)       |
 
 
   Inherited from SwitchField
@@ -177,9 +177,9 @@ public:
     virtual ~SwitchScalarField();
 
     void buildPorts();
-    dmpvector1D     getSwitchedField();
-    void     setFields(std::vector<dmpvector1D> fields);
-    void     addField(dmpvector1D field);
+    dmpvector1D*     getSwitchedField();
+    void     setFields(std::vector<dmpvector1D *> fields);
+    void     addField(dmpvector1D *field);
 
     void clear();
 
@@ -200,32 +200,32 @@ private:
  *  \class SwitchVectorField
  *    \brief SwitchVectorField is specialized derived class of SwitchField to switch a
  *         vector field.
- * 
+ *
  * Ports available in SwitchVectorField Class :
  *
  *    =========================================================
 
- 
+
  |                 Port Input   ||                              |
  |--------------|--------------------|----------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_VECVFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT)|
- | M_VECTORFIELD| addField           | (MC_MPVECARR3, MD_FLOAT)|
- 
- 
+ | M_VECVFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT_)|
+ | M_VECTORFIELD| addField           | (MC_SCALAR, MD_MPVECARR3FLOAT_)|
+
+
  |            Port Output   ||                                        |
  |-----------|-------------------|--------------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_VECTORFIELD  | getSwitchedField     | (MC_MPVECARR3, MD_FLOAT)       |
- 
- 
+ | M_VECTORFIELD  | getSwitchedField     | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
+
+
  Inherited from SwitchField
- 
+
  |                 Port Input   ||                                                         |
  |------------|------------------------------------|-----------------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
  | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
- 
+
  |            Port Output  ||                               |
  |-----------|------------------------------------|-----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
@@ -260,9 +260,9 @@ public:
     virtual ~SwitchVectorField();
 
     void buildPorts();
-    dmpvecarr3E     getSwitchedField();
-    void     setFields(std::vector<dmpvecarr3E> fields);
-    void     addField(dmpvecarr3E field);
+    dmpvecarr3E*     getSwitchedField();
+    void     setFields(std::vector<dmpvecarr3E *> fields);
+    void     addField(dmpvecarr3E *field);
 
     void clear();
 
@@ -273,17 +273,17 @@ public:
 
 protected:
     void swap(SwitchVectorField &) noexcept;
-    
+
 private:
     bool mswitch();
 
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __SWITCHFIELDS_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT, __SWITCHFIELDS_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT, __SWITCHFIELDS_HPP__)
-REGISTER_PORT(M_VECSFIELDS, MC_VECTOR, MD_MPVECFLOAT, __SWITCHFIELDS_HPP__)
-REGISTER_PORT(M_VECVFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT, __SWITCHFIELDS_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __SWITCHFIELDS_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __SWITCHFIELDS_HPP__)
+REGISTER_PORT(M_VECSFIELDS, MC_VECTOR, MD_MPVECFLOAT_, __SWITCHFIELDS_HPP__)
+REGISTER_PORT(M_VECVFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT_, __SWITCHFIELDS_HPP__)
 
 REGISTER(BaseManipulation, SwitchScalarField, "mimmo.SwitchScalarField")
 REGISTER(BaseManipulation, SwitchVectorField, "mimmo.SwitchVectorField")

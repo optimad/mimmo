@@ -155,13 +155,13 @@ protected:
      |                 Port Input   ||                              |
      |--------------|--------------------|----------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD| setField           | (MC_MPVECTOR, MD_FLOAT)|
+     | M_SCALARFIELD| setField           | (MC_SCALAR, MD_MPVECFLOAT_)|
 
 
      |            Port Output   ||                                        |
      |-----------|-------------------|--------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_SCALARFIELD  | getExtractedField     | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_SCALARFIELD  | getExtractedField     | (MC_SCALAR, MD_MPVECFLOAT_)       |
 
 
   Inherited from ExtractField
@@ -193,8 +193,8 @@ public:
     ExtractScalarField& operator=(const ExtractScalarField & other);
 
     void buildPorts();
-    dmpvector1D     getExtractedField();
-    void     setField(dmpvector1D field);
+    dmpvector1D* getExtractedField();
+    void     setField(dmpvector1D *field);
 
     dmpvector1D getOriginalField();
 
@@ -237,13 +237,13 @@ private:
  |                 Port Input   ||                              |
  |--------------|--------------------|----------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_VECTORFIELD| setField           | (MC_MPVECARR3, MD_FLOAT)|
+ | M_VECTORFIELD| setField           | (MC_SCALAR, MD_MPVECARR3FLOAT_)|
 
 
  |            Port Output   ||                                        |
  |-----------|-------------------|--------------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_VECTORFIELD  | getExtractedField     | (MC_MPVECARR3, MD_FLOAT)       |
+ | M_VECTORFIELD  | getExtractedField     | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
 
 
  Inherited from ExtractField
@@ -275,8 +275,8 @@ public:
     ExtractVectorField& operator=(const ExtractVectorField & other);
 
     void buildPorts();
-    dmpvecarr3E     getExtractedField();
-    void     setField(dmpvecarr3E field);
+    dmpvecarr3E  *   getExtractedField();
+    void     setField(dmpvecarr3E*field);
 
     dmpvecarr3E     getOriginalField();
     void clear();
@@ -295,8 +295,8 @@ private:
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __EXTRACTFIELDS_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__EXTRACTFIELDS_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__EXTRACTFIELDS_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__EXTRACTFIELDS_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_,__EXTRACTFIELDS_HPP__)
 
 
 REGISTER(BaseManipulation, ExtractScalarField, "mimmo.ExtractScalarField")

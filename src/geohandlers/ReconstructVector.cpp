@@ -128,18 +128,24 @@ ReconstructVector::getNData(){
  * Return your result field
  * \return result field
  */
-dmpvecarr3E
+dmpvecarr3E *
 ReconstructVector::getResultField(){
-    return(m_result);
+    return  &m_result;
 };
 
 /*!
  * Return your result fields
  * \return result fields
  */
-std::vector<dmpvecarr3E>
+std::vector<dmpvecarr3E*>
 ReconstructVector::getResultFields(){
-    return(m_subresults);
+
+    std::vector<dmpvecarr3E *> res;
+    res.reserve(m_subresults.size());
+    for(dmpvecarr3E & ffref : m_subresults){
+        res.push_back(&ffref);
+    }
+    return(res);
 };
 
 /*!
@@ -168,13 +174,14 @@ ReconstructVector::setOverlapCriterium( int funct){
  * \param[in] field    Sub-patch to be inserted
  */
 void
-ReconstructVector::addData(dmpvecarr3E field){
-    if(field.getGeometry()== NULL && field.getDataLocation() != m_loc) return;
-    if(field.getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
+ReconstructVector::addData(dmpvecarr3E *field){
+    if(!field) return;
+    if(field->getGeometry()== NULL && field->getDataLocation() != m_loc) return;
+    if(field->getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
         (*m_log)<<"warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
         return;
     }
-    m_subpatch.push_back(field);
+    m_subpatch.push_back(*field);
 };
 
 /*!
@@ -482,12 +489,12 @@ ReconstructVector::buildPorts(){
 
     //input
     built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM, true,1));
-    built = (built && createPortIn<dmpvecarr3E, ReconstructVector>(this, &mimmo::ReconstructVector::addData, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvecarr3E*, ReconstructVector>(this, &mimmo::ReconstructVector::addData, M_VECTORFIELD));
 
     //output
-    built = (built && createPortOut<dmpvecarr3E, ReconstructVector>(this, &ReconstructVector::getResultField, M_VECTORFIELD));
+    built = (built && createPortOut<dmpvecarr3E*, ReconstructVector>(this, &ReconstructVector::getResultField, M_VECTORFIELD));
     built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM));
-    built = (built && createPortOut<std::vector<dmpvecarr3E>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, M_VECVFIELDS));
+    built = (built && createPortOut<std::vector<dmpvecarr3E*>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, M_VECVFIELDS));
     m_arePortsBuilt = built;
 };
 

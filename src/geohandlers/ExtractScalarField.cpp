@@ -101,8 +101,8 @@ void ExtractScalarField::swap(ExtractScalarField & x ) noexcept
 void
 ExtractScalarField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true, 1));
-    built = (built && createPortOut<dmpvector1D, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true, 1));
+    built = (built && createPortOut<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, M_SCALARFIELD));
 
     ExtractField::buildPorts();
     m_arePortsBuilt = built;
@@ -112,9 +112,9 @@ ExtractScalarField::buildPorts(){
  * Get extracted field.
  * \return extracted field
  */
-dmpvector1D
+dmpvector1D *
 ExtractScalarField::getExtractedField(){
-    return m_result;
+    return &m_result;
 }
 
 /*!
@@ -131,8 +131,9 @@ ExtractScalarField::getOriginalField(){
  * \param[in] field input field related to whole geometry
  */
 void
-ExtractScalarField::setField(dmpvector1D field){
-    m_field = field;
+ExtractScalarField::setField(dmpvector1D *field){
+    if(!field) return;
+    m_field = *field;
 }
 
 /*!
