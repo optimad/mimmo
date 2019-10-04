@@ -64,7 +64,7 @@ void test00002() {
     for(auto it=bunny->getGeometry()->getPatch()->vertexBegin(); it!=bunny->getGeometry()->getPatch()->vertexEnd(); ++it){
         def.insert(it.getId(), {{0.0,0.0,0.0}});
     }
-    cdes->setDefField(def);
+    cdes->setDefField(&def);
     cdes->addFile("geodata/openBox.stl", 0.0, FileType::STL);
     cdes->setBackgroundDetails();
     cdes->setPlotInExecution(true);

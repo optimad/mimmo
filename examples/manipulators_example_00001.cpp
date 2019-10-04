@@ -144,7 +144,7 @@ void test00001() {
     coeffs[2][0][0] = 0;
     coeffs[2][0][1] = 0;
     coeffs[2][0][2] = 0.5;
-    bend->setCoeffs(coeffs);
+    bend->setCoeffs(&coeffs);
     /*
      * Bend directly applied during execution
      */

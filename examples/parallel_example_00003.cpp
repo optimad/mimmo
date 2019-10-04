@@ -216,7 +216,7 @@ int test00003() {
 	PropagateVectorField * prop = new PropagateVectorField();
 	prop->setGeometry(partition->getGeometry());
 	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-	prop->setDirichletConditions(bc_surf_field);
+	prop->setDirichletConditions(&bc_surf_field);
 	prop->setDumping(false);
 //	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
 	prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
@@ -227,7 +227,7 @@ int test00003() {
 //	PropagateScalarField * prop = new PropagateScalarField();
 //	prop->setGeometry(partition->getGeometry());
 //	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-//	prop->setDirichletConditions(bc_surf_field);
+//	prop->setDirichletConditions(&bc_surf_field);
 //	prop->setDumping(false);
 //	//prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
 //	prop->setMethod(PropagatorMethod::FINITEVOLUMES);

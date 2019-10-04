@@ -123,12 +123,12 @@ int test2_2() {
     auto rscalar = read_scalar->getResult<double>();
     auto rvector = read_vector->getResult<darray3E>();
 
-    bool check = (rscalar.getGeometry() == scalar.getGeometry());
-    check = check && (rvector.getGeometry() == vector.getGeometry());
-    check = check && (rscalar.getDataLocation() == scalar.getDataLocation());
-    check = check && (rvector.getDataLocation() == vector.getDataLocation());
-    check = check && (rscalar.size() == scalar.size());
-    check = check && (rvector.size() == vector.size());
+    bool check = (rscalar->getGeometry() == scalar.getGeometry());
+    check = check && (rvector->getGeometry() == vector.getGeometry());
+    check = check && (rscalar->getDataLocation() == scalar.getDataLocation());
+    check = check && (rvector->getDataLocation() == vector.getDataLocation());
+    check = check && (rscalar->size() == scalar.size());
+    check = check && (rvector->size() == vector.size());
 
     delete write_scalar;
     delete write_vector;
@@ -189,7 +189,7 @@ int test2_3() {
 
     //check re read structure are the same.
     auto rvector = read_vector->getResult<darray3E>();
-    bool check = int(rvector.size()) == geo->getPatch()->getVertexCount();
+    bool check = int(rvector->size()) == geo->getPatch()->getVertexCount();
 
     delete write_vector;
     delete read_vector;

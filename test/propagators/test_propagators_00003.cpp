@@ -219,7 +219,7 @@ int test1() {
     prop3D->setName("test00003_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
     prop3D->setDirichletBoundarySurface(bDIR.get());
-    prop3D->setDirichletConditions(bc_surf_3Dfield);
+    prop3D->setDirichletConditions(&bc_surf_3Dfield);
     prop3D->setSlipBoundarySurface(bSLIP.get());
     prop3D->setSlipReferenceSurface(bSLIP.get());
 
@@ -238,9 +238,9 @@ int test1() {
     prop3D->exec();
 
     //deform the mesh and write deformation
-    dmpvecarr3E values3D = prop3D->getPropagatedField();
+    dmpvecarr3E * values3D = prop3D->getPropagatedField();
     darray3E work;
-    for(auto it=values3D.begin(); it!=values3D.end(); ++it){
+    for(auto it=values3D->begin(); it!=values3D->end(); ++it){
         work = mesh->getVertexCoords(it.getId());
         mesh->modifyVertex(work + *it, it.getId());
     }
@@ -251,7 +251,7 @@ int test1() {
     bool check = false;
     long targetNode =  (10 +1)*(6+1)*3 + (6+1)*5 + 3;
 
-    std::cout<<values3D.at(targetNode)<<std::endl;
+    std::cout<<values3D->at(targetNode)<<std::endl;
 
 //    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
     check = false;

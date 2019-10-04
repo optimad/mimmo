@@ -70,11 +70,11 @@ int test1() {
 
     auto field = fieldreader->getBoundaryField();
 
-    check = check && (field.getGeometry() == fieldreader->getBoundaryGeometry());
+    check = check && (field->getGeometry() == fieldreader->getBoundaryGeometry());
 
     double maxval = std::numeric_limits<double>::min();;
     double minval = std::numeric_limits<double>::max();
-    for(auto it=field.begin(); it!=field.end(); ++it){
+    for(auto it=field->begin(); it!=field->end(); ++it){
         maxval = std::max(maxval, *it);
         minval = std::min(minval, *it);
     }

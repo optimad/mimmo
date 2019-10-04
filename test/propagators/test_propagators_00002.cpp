@@ -297,7 +297,7 @@ int test1() {
     prop->setName("test00002_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(boundary.get());
-    prop->setDirichletConditions(bc_surf_field);
+    prop->setDirichletConditions(&bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
     prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
@@ -305,7 +305,7 @@ int test1() {
     prop->exec();
 
     auto values = prop->getPropagatedField();
-    std::cout<< values.at(targetNode) <<std::endl;
+    std::cout<< values->at(targetNode) <<std::endl;
 //    check = check || (std::abs(values.at(targetNode)-6.26423) > 1.0E-3);
     check = false;
 

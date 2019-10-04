@@ -159,7 +159,7 @@ int test1() {
     prop->setName("test00001_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(bdirMesh.get());
-    prop->setDirichletConditions(bc_surf_field);
+    prop->setDirichletConditions(&bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
 
@@ -167,7 +167,7 @@ int test1() {
 
     auto values = prop->getPropagatedField();
 
-    check = check || (std::abs(values.at(targetNode)-5.0) > 1.0E-6);
+    check = check || (std::abs(values->at(targetNode)-5.0) > 1.0E-6);
 
 
 //TESTING THE VECTOR PROPAGATOR //////
@@ -188,7 +188,7 @@ int test1() {
     prop3D->setName("test00001_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
     prop3D->setDirichletBoundarySurface(bdirMesh.get());
-    prop3D->setDirichletConditions(bc_surf_3Dfield);
+    prop3D->setDirichletConditions(&bc_surf_3Dfield);
     prop3D->setDumping(true);
     prop3D->setDumpingType(1);
     prop3D->setDecayFactor(1.0);
@@ -200,7 +200,7 @@ int test1() {
     prop3D->exec();
 
     auto values3D = prop3D->getPropagatedField();
-    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{5.0,3.5,-2.0}})) > 1.0E-6);
+    check = check || (norm2(values3D->at(targetNode)-std::array<double,3>({{5.0,3.5,-2.0}})) > 1.0E-6);
 
 
     delete prop3D;
