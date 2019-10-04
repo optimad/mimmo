@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/optimad/mimmo.svg?branch=master)](https://travis-ci.org/optimad/mimmo)
+<a href="https://scan.coverity.com/projects/optimad-mimmo">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/13150/badge.svg"/>
+</a>
 
 ## About mimmo
 **mimmo** is a C++ library for Manipulation and Morphing of surface/volume meshes (Open source).
