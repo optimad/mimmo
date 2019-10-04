@@ -42,7 +42,7 @@ ifstreamcsv(std::fstream &in, T &x){
     T                   dummy{};
     char                delim;
     if ((in.good())) {
-        if (in >> dummy && in >> delim) { x = dummy;}
+        if (in >> dummy && in >> delim && !in.bad()) { x = dummy;}
     }
     return(in);
 }
@@ -58,7 +58,7 @@ std::fstream&  ifstreamcsvend(std::fstream &in, T &x){
 
     T                   dummy{};
     if ((in.good())) {
-        if (in >> dummy) { x = dummy;}
+        if (in >> dummy && !in.bad()) { x = dummy;}
     }
     return(in);
 }
@@ -75,7 +75,7 @@ std::fstream&  ifstreamcsv(std::fstream &in, std::vector< T > &x){
     T       dummy;
 
     while (in.good()) {
-        if (ifstreamcsv(in,dummy)) { x.push_back(dummy); }
+        if (ifstreamcsv(in,dummy) && !in.bad()) { x.push_back(dummy); }
     }
     return(in);
 }
@@ -104,12 +104,12 @@ std::fstream&  ifstreamcsv(std::fstream &in, std::array< T, d> &x){
 
     i = 0;
     while ((in.good()) && (i < d-1)) {
-        if (ifstreamcsv(in,dummy)) {
+        if (ifstreamcsv(in,dummy) && !in.bad()) {
             x[i] = dummy;
         }
         i++;
     } //next i
-    if (ifstreamcsvend(in,dummy)) {
+    if (ifstreamcsvend(in,dummy) && !in.bad()) {
         x[i] = dummy;
     }
     return(in);
@@ -140,11 +140,11 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x){
     int     location;
     long    sizeData = 0, readSizeData;
 
-    if(ifstreamcsvend(in, location)){
+    if(ifstreamcsvend(in, location) && !in.bad()){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
-    if(ifstreamcsvend(in, readSizeData)){
-        if(readSizeData >= 0)   sizeData = long(readSizeData);
+    if(ifstreamcsvend(in, readSizeData) && !in.bad()){
+        sizeData = long(readSizeData);
     }
     x.reserve(sizeData);
     for(long count = 0; count<sizeData; ++count){
@@ -169,11 +169,11 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< std::array< T,d
     int     location;
     long    sizeData = 0, readSizeData;
 
-    if(ifstreamcsvend(in, location)){
+    if(ifstreamcsvend(in, location) && !in.bad()){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
-    if(ifstreamcsvend(in, readSizeData)){
-        if(readSizeData >= 0)   sizeData = long(readSizeData);
+    if(ifstreamcsvend(in, readSizeData) && !in.bad()){
+        sizeData = long(readSizeData);
     }
     x.reserve(sizeData);
     for(long count = 0; count<sizeData; ++count){
@@ -461,7 +461,7 @@ GenericInputMPVData::_getResult(){
             }else{
                 bitpit::genericIO::absorbASCII(file, n_loc);
                 bitpit::genericIO::absorbASCII(file, readNSize);
-                if(readNSize >= 0)  nSize = long(readNSize);
+                if(file.good())  nSize = long(readNSize);
                 data.reserve(nSize);
                 for(long i=0; i<nSize; ++i){
                     bitpit::genericIO::absorbASCII(file, id);
